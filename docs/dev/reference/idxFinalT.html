@@ -78,7 +78,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.1.9002</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9000</span>
       </span>
     </div>
 
@@ -207,9 +207,9 @@ results for the final time step</p>
 <span class='no'>idx</span> <span class='kw'>&lt;-</span> <span class='fu'>idxFinalT</span>(<span class='no'>sim</span>)
 <span class='no'>idx</span>
 <span class='co'># This coincides with</span>
-<span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='fu'><a href='times.html'>times</a></span>(<span class='no'>sim</span>))
+<span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='fu'><a href='getTimes.html'>getTimes</a></span>(<span class='no'>sim</span>))
 <span class='co'># and corresponds to the final time</span>
-<span class='fu'><a href='times.html'>times</a></span>(<span class='no'>sim</span>)[<span class='no'>idx</span>]
+<span class='fu'><a href='getTimes.html'>getTimes</a></span>(<span class='no'>sim</span>)[<span class='no'>idx</span>]
 <span class='co'># We can use this index to extract the result at the final time</span>
 <span class='fu'><a href='https://rdrr.io/r/base/identical.html'>identical</a></span>(<span class='fu'><a href='N.html'>N</a></span>(<span class='no'>sim</span>)[<span class='no'>idx</span>, , ], <span class='fu'><a href='finalN.html'>finalN</a></span>(<span class='no'>sim</span>))
 <span class='fu'><a href='https://rdrr.io/r/base/identical.html'>identical</a></span>(<span class='fu'><a href='N.html'>NResource</a></span>(<span class='no'>sim</span>)[<span class='no'>idx</span>, ], <span class='fu'><a href='finalN.html'>finalNResource</a></span>(<span class='no'>sim</span>))

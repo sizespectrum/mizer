@@ -6,8 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Calculate the total biomass of each species within a size range at each time
-step. — getBiomass • mizer</title>
+<title>Dummy function used during testing only — semichemostat • mizer</title>
 
 
 <!-- jquery -->
@@ -46,13 +45,8 @@ step. — getBiomass • mizer</title>
 
 
 
-<meta property="og:title" content="Calculate the total biomass of each species within a size range at each time
-step. — getBiomass" />
-<meta property="og:description" content="Calculates the total biomass through time of the species in the
-MizerSim class within user defined size limits. The default option is
-to use the whole size range. You can specify minimum and maximum weight or
-length range for the species. Lengths take precedence over weights (i.e. if
-both min_l and min_w are supplied, only min_l will be used)." />
+<meta property="og:title" content="Dummy function used during testing only — semichemostat" />
+<meta property="og:description" content="Dummy function used during testing only" />
 
 
 <meta name="robots" content="noindex">
@@ -182,66 +176,47 @@ both min_l and min_w are supplied, only min_l will be used)." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Calculate the total biomass of each species within a size range at each time
-step.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/summary_methods.R'><code>R/summary_methods.R</code></a></small>
-    <div class="hidden name"><code>getBiomass.Rd</code></div>
+    <h1>Dummy function used during testing only</h1>
+    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/extension.R'><code>R/extension.R</code></a></small>
+    <div class="hidden name"><code>semichemostat.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Calculates the total biomass through time of the species in the
-<code>MizerSim</code> class within user defined size limits. The default option is
-to use the whole size range. You can specify minimum and maximum weight or
-length range for the species. Lengths take precedence over weights (i.e. if
-both min_l and min_w are supplied, only min_l will be used).</p>
+    <p>Dummy function used during testing only</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getBiomass</span>(<span class='no'>sim</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>semichemostat</span>(<span class='no'>params</span>, <span class='no'>n_other</span>, <span class='no'>rates</span>, <span class='no'>dt</span>, <span class='no'>component</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>sim</th>
-      <td><p>An object of class <code>MizerSim</code>.</p></td>
+      <th>params</th>
+      <td><p>A <a href='MizerParams.html'>MizerParams</a> object</p></td>
+    </tr>
+    <tr>
+      <th>n_other</th>
+      <td><p>A list with the abundances of other components</p></td>
+    </tr>
+    <tr>
+      <th>rates</th>
+      <td><p>A list of rates as returned by <code><a href='mizerRates.html'>mizerRates()</a></code></p></td>
+    </tr>
+    <tr>
+      <th>dt</th>
+      <td><p>Time step</p></td>
+    </tr>
+    <tr>
+      <th>component</th>
+      <td><p>Name of the component that is being updated</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Arguments passed on to <code><a href='get_size_range_array.html'>get_size_range_array</a></code></p><dl>
-    <dt><code>min_w</code></dt><dd><p>Smallest weight in size range. Defaults to smallest weight in
-the model.</p></dd>
-    <dt><code>max_w</code></dt><dd><p>Largest weight in size range. Defaults to largest weight in the
-model.</p></dd>
-    <dt><code>min_l</code></dt><dd><p>Smallest length in size range. If supplied, this takes
-precedence over <code>min_w</code>.</p></dd>
-    <dt><code>max_l</code></dt><dd><p>Largest length in size range. If supplied, this takes precedence
-over <code>max_w</code>.</p></dd>
-  
-</dl></td>
+      <td><p>Unused</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An array containing the biomass (time x species)</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>Other summary functions: 
-<code><a href='getDiet.html'>getDiet</a>()</code>,
-<code><a href='getGrowthCurves.html'>getGrowthCurves</a>()</code>,
-<code><a href='getN.html'>getN</a>()</code>,
-<code><a href='getSSB.html'>getSSB</a>()</code>,
-<code><a href='getYieldGear.html'>getYieldGear</a>()</code>,
-<code><a href='getYield.html'>getYield</a>()</code></p></div>
-
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
-<span class='co'># With constant fishing effort for all gears for 20 time steps</span>
-<span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
-<span class='fu'>getBiomass</span>(<span class='no'>sim</span>)
-<span class='fu'>getBiomass</span>(<span class='no'>sim</span>, <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='fl'>1000</span>)
-}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

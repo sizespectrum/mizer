@@ -79,7 +79,7 @@ consumes biomass of each prey species and resource." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.1.9002</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9000</span>
       </span>
     </div>
 
@@ -200,7 +200,20 @@ consumes biomass of each prey species and resource.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>params</th>
-      <td><p>A MizerParams object</p></td>
+      <td><p>A <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
+    </tr>
+    <tr>
+      <th>n</th>
+      <td><p>A matrix of species abundances (species x size).</p></td>
+    </tr>
+    <tr>
+      <th>n_pp</th>
+      <td><p>A vector of the resource abundance by size</p></td>
+    </tr>
+    <tr>
+      <th>n_other</th>
+      <td><p>A list of abundances for other dynamical components of the
+ecosystem</p></td>
     </tr>
     <tr>
       <th>proportion</th>
