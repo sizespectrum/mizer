@@ -60,8 +60,8 @@ Set fishing parameters
 \strong{Gears}
 
 In \code{mizer}, fishing mortality is imposed on species by fishing gears. The
-total fishing mortality is obtained by summing over the mortality from all
-gears,
+total per-capita fishing mortality \link{1/year} is obtained by summing over the
+mortality from all gears,
 \deqn{\mu_{f.i}(w) = \sum_g F_{g,i}(w),}
 where the fishing mortality \eqn{F_{g,i}(w)} imposed by gear \eqn{g} on
 species \eqn{i} at size \eqn{w} is calculated as:

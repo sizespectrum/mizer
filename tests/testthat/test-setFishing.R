@@ -75,3 +75,9 @@ test_that("Dimensions after number of gears has increased", {
     expect_identical(dimnames(params@selectivity)[[1]],
                      params@species_params$species)
 })
+
+test_that("Duplicate gear-species pairs give error", {
+    gp <- rbind(NS_params@gear_params, NS_params@gear_params[1, ])
+    expect_error(gear_params(params) <- gp,
+                 "Some species - gear pairs appear more than once")
+})

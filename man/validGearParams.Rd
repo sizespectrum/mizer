@@ -2,8 +2,7 @@
 % Please edit documentation in R/setFishing.R
 \name{validGearParams}
 \alias{validGearParams}
-\title{Check validity of gear parameters and set defaults for missing but
-required parameters or transfer them from species_params if available}
+\title{Check validity of gear parameters and set defaults}
 \usage{
 validGearParams(gear_params, species_params)
 }
@@ -16,7 +15,21 @@ validGearParams(gear_params, species_params)
 A valid gear parameter data frame
 }
 \description{
-Check validity of gear parameters and set defaults for missing but
-required parameters or transfer them from species_params if available
+The function returns a valid gear parameter data frame that can be used
+by \code{setFishing()} or it gives an error message.
+}
+\details{
+If gear_params is empty, then this function tries to find the necessary
+information in the species_params data frame. This restricts each species
+to be fished by only one gear. Defaults are used for information that can
+not be found in the species_params dataframe, as follows:
+\itemize{
+\item If there is no \code{gear} column, each species gets its own gear, named after
+the species.
+\item If there is no \code{sel_func} column then \code{knife_edge} is used.
+\item If there is no \code{catchability} column then this is set to 1.
+\item If the selectivity function is \code{knife_edge} and no \code{knife_edge_size} is
+provided, it is set to \code{w_mat}.
+}
 }
 \concept{helper}
