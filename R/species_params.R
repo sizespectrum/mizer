@@ -99,7 +99,7 @@ get_h_default <- function(params) {
     if (any(missing)) {
         assert_that(is.numeric(species_params$f0),
                     noNA(species_params$alpha),
-                    !is.null(species_params$alpha))
+                    "alpha" %in% names(species_params))
         message("Note: No h provided for some species, so using f0 and k_vb to calculate it.")
         if (!("k_vb" %in% colnames(species_params))) {
             stop("Except I can't because there is no k_vb column in the species data frame")

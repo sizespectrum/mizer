@@ -264,22 +264,22 @@ validGearParams <- function(gear_params, species_params) {
     no_sp <- nrow(species_params)
     
     if (nrow(gear_params) < 1) {
-        if (hasName(species_params, "gear") ||
-            hasName(species_params, "sel_func")) {
+        if ("gear" %in% names(species_params) ||
+            "sel_func" %in% names(species_params)) {
             # Try to take parameters from species_params
             gear_params <- 
                 data.frame(species = species_params$species)
-            if (hasName(species_params, "gear")) {
+            if ("gear" %in% names(species_params)) {
                 gear_params$gear <- species_params$gear
             } else {
                 gear_params$gear <- species_params$species
             }
-            if (hasName(species_params, "sel_func")) {
+            if ("sel_func" %in% names(species_params)) {
                 gear_params$sel_func <- species_params$sel_func
             } else {
                 gear_params$sel_func <- "knife_edge"
             }
-            if (hasName(species_params, "catchability")) {
+            if ("catchability" %in% names(species_params)) {
                 gear_params$catchability <- species_params$catchability
             } else {
                 gear_params$catchability <- 1
@@ -289,7 +289,7 @@ validGearParams <- function(gear_params, species_params) {
                 args <- names(formals(as.character(gear_params[g, 'sel_func'])))
                 args <- args[!(args %in% c("w", "species_params", "..."))]
                 for (arg in args) {
-                    if (hasName(species_params, arg)) {
+                    if (arg %in% names(species_params)) {
                         gear_params[[arg]] <- species_params[[arg]]
                     } else if (arg == "knife_edge_size") {
                         gear_params[[arg]] <- species_params$w_mat
@@ -314,7 +314,7 @@ validGearParams <- function(gear_params, species_params) {
     }
     
     # Default selectivity function is knife_edge
-    if (!hasName(gear_params, "sel_func")) {
+    if (!("sel_func" %in% names(gear_params))) {
         gear_params$sel_func <- "knife_edge"
     }
     gear_params$sel_func[is.na(gear_params$sel_func)] <- "knife_edge"
@@ -334,7 +334,7 @@ validGearParams <- function(gear_params, species_params) {
             stop("Some selectivity parameters are NA.")
         }
     }
-    if (!hasName(gear_params, "catchability")) {
+    if (!("catchability" %in% names(gear_params))) {
         gear_params$catchability <- 1
     }
     gear_params$catchability[is.na(gear_params$catchability)] <- 1

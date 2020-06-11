@@ -63,7 +63,7 @@ upgradeParams <- function(params) {
     
     if (.hasSlot(params, "srr")) {
         if (is.function(params@srr)) {
-            if (!is.null(params@species_params$constant_recruitment)) {
+            if ("constant_recruitment" %in% names(params@species_params)) {
                 RDD <- "constantRDD"
                 params@species_params$constant_reproduction <- 
                     params@species_params$constant_recruitment
@@ -127,7 +127,7 @@ upgradeParams <- function(params) {
     
     if (.hasSlot(params, "p")) {
         params@species_params[["p"]] <- params@p
-    } else if (is.null(params@species_params[["p"]])) {
+    } else if (!("p" %in% names(params@species_params))) {
         # No p in params object, so extract from metabolism
         p <- log(metab[, 2] / metab[, 1]) / 
             log(params@w[[2]] / params@w[[1]])
@@ -136,7 +136,7 @@ upgradeParams <- function(params) {
     }
     if (.hasSlot(params, "q")) {
         params@species_params[["q"]] <- params@q
-    } else if (is.null(params@species_params[["q"]])) {
+    } else if (!("q" %in% names(params@species_params))) {
         # No q in params object, so extract from search volume
         q <- log(params@search_vol[, 2] / params@search_vol[, 1]) / 
             log(params@w[[2]] / params@w[[1]])
@@ -144,7 +144,7 @@ upgradeParams <- function(params) {
     }
     if (.hasSlot(params, "n")) {
         params@species_params[["n"]] <- params@n
-    } else if (is.null(params@species_params[["n"]])) {
+    } else if (!("n" %in% names(params@species_params))) {
         # No n in params object, so extract from intake_max
         n <- log(params@intake_max[, 2] / params@intake_max[, 1]) / 
             log(params@w[[2]] / params@w[[1]])
