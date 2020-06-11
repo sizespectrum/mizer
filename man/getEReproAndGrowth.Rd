@@ -68,9 +68,9 @@ getEReproAndGrowth(params,sim@n[21,,],sim@n_pp[21,])
 }
 }
 \seealso{
-The parts of this energy rate that is invested into growth is
-calculated with \code{\link[=getERepro]{getERepro()}} and the part that is invested into
-reproduction is calculated with \code{\link[=getEGrowth]{getEGrowth()}}.
+The part of this energy rate that is invested into growth is
+calculated with \code{\link[=getEGrowth]{getEGrowth()}} and the part that is invested into
+reproduction is calculated with \code{\link[=getERepro]{getERepro()}}.
 
 Other rate functions: 
 \code{\link{getEGrowth}()},

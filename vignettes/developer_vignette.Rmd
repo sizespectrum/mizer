@@ -264,7 +264,7 @@ meaning that their slots are rigorously defined and are accessed with the '@'
 notation. You do not need to learn about S4 classes in order to understand the
 mizer code, because the code avoids using S4 methods. In the presentation
 below we assume that the `MizerParams` object is called `params` and the
-`MixerSim` object is called `sim`.
+`MizerSim` object is called `sim`.
 
 
 ## The MizerParams class

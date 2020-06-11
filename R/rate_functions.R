@@ -622,9 +622,9 @@ getZ <- getMort
 #' cover the cost of metabolism and movement.
 #' 
 #' @export
-#' @seealso The parts of this energy rate that is invested into growth is
-#'   calculated with [getERepro()] and the part that is invested into
-#'   reproduction is calculated with [getEGrowth()].
+#' @seealso The part of this energy rate that is invested into growth is
+#'   calculated with [getEGrowth()] and the part that is invested into
+#'   reproduction is calculated with [getERepro()].
 #' @family rate functions
 #' @examples
 #' \dontrun{
