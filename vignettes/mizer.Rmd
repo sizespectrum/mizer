@@ -133,7 +133,7 @@ fully in [the section on running a simulation.](running_a_simulation.html)
 
 ## Exploring the results
 After a simulation has been run, the results can be
-examined using a range of `?plotting_functions`, `?summary functions`
+examined using a range of `?plotting_functions`, `?summary_functions`
 and `?indicator_functions`.
 The `plot()` function combines several of these plots into one:
 ```{r}

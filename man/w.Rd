@@ -18,6 +18,24 @@ dw_full(params)
 \arguments{
 \item{params}{A MizerParams object}
 }
+\value{
+\code{w()} returns a vector with the sizes at the start of each size bin
+of the community spectrum.
+
+\code{w_full()} returns a vector with the sizes at the start of each size bin
+of the resource spectrun, which typically starts at smaller sizes than
+the community spectrum.
+
+\code{dw()} returns a vector with the widths of the size bins of the
+community spectrum.
+
+\code{dw_full()} returns a vector with the widths of the size bins of the
+resource spectrum.
+}
 \description{
-This is a good place to explain how mizer discretises the size
+Functions to fetch information about the size bins used in the model
+described by \code{params}.
+}
+\details{
+TODO: Give more details about how mizer discretises the size
 }

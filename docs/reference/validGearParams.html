@@ -6,8 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Check validity of gear parameters and set defaults for missing but
-required parameters or transfer them from species_params if available — validGearParams • mizer</title>
+<title>Check validity of gear parameters and set defaults — validGearParams • mizer</title>
 
 
 <!-- jquery -->
@@ -46,10 +45,9 @@ required parameters or transfer them from species_params if available — validG
 
 
 
-<meta property="og:title" content="Check validity of gear parameters and set defaults for missing but
-required parameters or transfer them from species_params if available — validGearParams" />
-<meta property="og:description" content="Check validity of gear parameters and set defaults for missing but
-required parameters or transfer them from species_params if available" />
+<meta property="og:title" content="Check validity of gear parameters and set defaults — validGearParams" />
+<meta property="og:description" content="The function returns a valid gear parameter data frame that can be used
+by setFishing() or it gives an error message." />
 
 
 
@@ -179,15 +177,14 @@ required parameters or transfer them from species_params if available" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Check validity of gear parameters and set defaults for missing but
-required parameters or transfer them from species_params if available</h1>
+    <h1>Check validity of gear parameters and set defaults</h1>
     <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/setFishing.R'><code>R/setFishing.R</code></a></small>
     <div class="hidden name"><code>validGearParams.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Check validity of gear parameters and set defaults for missing but
-required parameters or transfer them from species_params if available</p>
+    <p>The function returns a valid gear parameter data frame that can be used
+by <code><a href='setFishing.html'>setFishing()</a></code> or it gives an error message.</p>
     </div>
 
     <pre class="usage"><span class='fu'>validGearParams</span>(<span class='no'>gear_params</span>, <span class='no'>species_params</span>)</pre>
@@ -208,6 +205,20 @@ required parameters or transfer them from species_params if available</p>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A valid gear parameter data frame</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>If gear_params is empty, then this function tries to find the necessary
+information in the species_params data frame. This restricts each species
+to be fished by only one gear. Defaults are used for information that can
+not be found in the species_params dataframe, as follows:</p><ul>
+<li><p>If there is no <code>gear</code> column, each species gets its own gear, named after
+the species.</p></li>
+<li><p>If there is no <code>sel_func</code> column then <code>knife_edge</code> is used.</p></li>
+<li><p>If there is no <code>catchability</code> column then this is set to 1.</p></li>
+<li><p>If the selectivity function is <code>knife_edge</code> and no <code>knife_edge_size</code> is
+provided, it is set to <code>w_mat</code>.</p></li>
+</ul>
+
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

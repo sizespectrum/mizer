@@ -229,7 +229,7 @@ And clicking again will hide the details again.
 <p>The encountered food is consumed subjected to a standard Holling functional response type II to represent satiation. This determines the <em>feeding level</em> <span class="math inline">\(f_i(w)\)</span>, which is a dimensionless number between 0 (no food) and 1 (fully satiated) so that <span class="math inline">\(1-f_i(w)\)</span> is the proportion of the encountered food that is consumed. The feeding level is given by</p>
 <p><span class="math display">\[\begin{equation}
   \label{eq:f}
-  f_i(w) = \frac{E_{i}(w)}{E_{e.i}(w) + h_i(w)},
+  f_i(w) = \frac{E_i(w)}{E_i(w) + h_i(w)},
 \end{equation}\]</span></p>
 <p>where <span class="math inline">\(h_i(w)\)</span> is the maximum consumption rate. This is changed with <code><a href="../reference/setMaxIntakeRate.html">setMaxIntakeRate()</a></code>. By default mizer assumes an allometric form <span class="math inline">\(h_i(w) = h_i\, w^n.\)</span> The feeding level is calculated with the function <code><a href="../reference/getFeedingLevel.html">getFeedingLevel()</a></code>.</p>
 <p>The rate at which food is consumed is then <span class="math display">\[\begin{equation}

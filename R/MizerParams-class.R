@@ -746,28 +746,43 @@ getLinetypes <- function(params) {
 
 #' Size bins
 #' 
-#' This is a good place to explain how mizer discretises the size
+#' Functions to fetch information about the size bins used in the model
+#' described by `params`. 
+#' 
+#' TODO: Give more details about how mizer discretises the size
 #' 
 #' @param params A MizerParams object
-#' 
+#' @return `w()` returns a vector with the sizes at the start of each size bin
+#'   of the community spectrum.
+#' @md
 #' @export
 w <- function(params) {
     params@w
 }
 
 #' @rdname w
+#' @return `w_full()` returns a vector with the sizes at the start of each size bin
+#'   of the resource spectrun, which typically starts at smaller sizes than
+#'   the community spectrum.
+#' @md
 #' @export
 w_full <- function(params) {
     params@w_full
 }
 
 #' @rdname w
+#' @return `dw()` returns a vector with the widths of the size bins of the
+#'   community spectrum.
+#' @md
 #' @export
 dw <- function(params) {
     params@dw
 }
 
 #' @rdname w
+#' @return `dw_full()` returns a vector with the widths of the size bins of the
+#'   resource spectrum.
+#' @md
 #' @export
 dw_full <- function(params) {
     params@dw_full

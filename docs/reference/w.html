@@ -46,7 +46,8 @@
 
 
 <meta property="og:title" content="Size bins — w" />
-<meta property="og:description" content="This is a good place to explain how mizer discretises the size" />
+<meta property="og:description" content="Functions to fetch information about the size bins used in the model
+described by params." />
 
 
 
@@ -182,7 +183,8 @@
     </div>
 
     <div class="ref-description">
-    <p>This is a good place to explain how mizer discretises the size</p>
+    <p>Functions to fetch information about the size bins used in the model
+described by <code>params</code>.</p>
     </div>
 
     <pre class="usage"><span class='fu'>w</span>(<span class='no'>params</span>)
@@ -202,6 +204,20 @@
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p><code>w()</code> returns a vector with the sizes at the start of each size bin
+of the community spectrum.</p>
+<p><code>w_full()</code> returns a vector with the sizes at the start of each size bin
+of the resource spectrun, which typically starts at smaller sizes than
+the community spectrum.</p>
+<p><code>dw()</code> returns a vector with the widths of the size bins of the
+community spectrum.</p>
+<p><code>dw_full()</code> returns a vector with the widths of the size bins of the
+resource spectrum.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>TODO: Give more details about how mizer discretises the size</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

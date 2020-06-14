@@ -245,7 +245,7 @@ encountered food that is consumed. The feeding level is given by
 
 \begin{equation}
   \label{eq:f}
-  f_i(w) = \frac{E_{i}(w)}{E_{e.i}(w) + h_i(w)},
+  f_i(w) = \frac{E_i(w)}{E_i(w) + h_i(w)},
 \end{equation}
 
 where $h_i(w)$ is the maximum consumption rate. This is changed with
