@@ -264,7 +264,7 @@ project <- function(object, effort,
             t = t, dt = dt, steps = skip, effort = current_effort,
             resource_dynamics_fn = resource_dynamics_fn,
             other_dynamics_fns = other_dynamics_fns,
-            rates_fns = rates_fns)
+            rates_fns = rates_fns, ...)
         t <- t + t_save
         
         # Advance progress bar
