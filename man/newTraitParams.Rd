@@ -68,7 +68,7 @@ there are 50 bins for each factor of 10 in weight.}
 is set to the smallest value at which any of the consumers can feed.}
 
 \item{w_pp_cutoff}{The largest size of the resource spectrum. Default value
-is max_w_inf unless \code{perfect_scaling = TRUE} when it is Inf.}
+is min_w_inf unless \code{perfect_scaling = TRUE} when it is Inf.}
 
 \item{n}{Scaling exponent of the maximum intake rate.}
 

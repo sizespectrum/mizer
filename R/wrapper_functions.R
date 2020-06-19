@@ -211,7 +211,7 @@ newCommunityParams <- function(max_w = 1e6,
 #' @param min_w_pp The smallest size of the resource spectrum. By default this
 #'   is set to the smallest value at which any of the consumers can feed.
 #' @param w_pp_cutoff The largest size of the resource spectrum. Default value
-#'   is max_w_inf unless \code{perfect_scaling = TRUE} when it is Inf.
+#'   is min_w_inf unless \code{perfect_scaling = TRUE} when it is Inf.
 #' @param n Scaling exponent of the maximum intake rate.
 #' @param p Scaling exponent of the standard metabolic rate. By default this is
 #'   equal to the exponent `n`.
