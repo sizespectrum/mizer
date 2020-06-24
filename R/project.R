@@ -43,7 +43,7 @@ NULL
 #'   are appended to the previous ones. Only relevant if `object` is a
 #'   `MizerSim` object. Default = TRUE.
 #' @param progress_bar Either a boolean value to determine whether a progress
-#'   bar should be shown in the console, or a shiny progress object to implement 
+#'   bar should be shown in the console, or a shiny Progress object to implement 
 #'   a progress bar in a shiny app.
 #' @param ... Other arguments will be passed to rate functions.
 #' 
@@ -229,16 +229,15 @@ project <- function(object, effort,
     rates_fns <- lapply(params@rates_funcs, get)
     
     # Set up progress bar
-    if (progress_bar == TRUE) {
-        pb <- progress::progress_bar$new(
-            format = "[:bar] :percent ETA: :eta",
-            total = length(t_dimnames), width = 60)
-        pb$tick(0)
-    }
     if (is(progress_bar, "Progress")) {
         # We have been passed a shiny progress object
         progress_bar$set(message = "Running simulation", value = 0)
         proginc <- 1/length(t_dimnames)
+    } else if (progress_bar == TRUE) {
+        pb <- progress::progress_bar$new(
+            format = "[:bar] :percent ETA: :eta",
+            total = length(t_dimnames), width = 60)
+        pb$tick(0)
     }
     
     t <- t_start  # keep track of time
@@ -270,8 +269,7 @@ project <- function(object, effort,
         # Advance progress bar
         if (is(progress_bar, "Progress")) {
             progress_bar$inc(amount = proginc)
-        }
-        if (progress_bar == TRUE) {
+        } else if (progress_bar == TRUE) {
             pb$tick()
         }
         

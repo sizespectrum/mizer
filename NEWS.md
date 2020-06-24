@@ -1,3 +1,9 @@
+# mizer 2.0.2.9000
+
+## Bug fixes
+
+* Correct handling of shiny progress bar in `project()`.
+
 # mizer 2.0.2
 
 ## Bug fixes

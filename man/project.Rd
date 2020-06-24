@@ -50,7 +50,7 @@ are appended to the previous ones. Only relevant if \code{object} is a
 \code{MizerSim} object. Default = TRUE.}
 
 \item{progress_bar}{Either a boolean value to determine whether a progress
-bar should be shown in the console, or a shiny progress object to implement
+bar should be shown in the console, or a shiny Progress object to implement
 a progress bar in a shiny app.}
 
 \item{...}{Other arguments will be passed to rate functions.}
