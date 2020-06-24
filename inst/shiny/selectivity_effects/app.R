@@ -149,19 +149,17 @@ server <- function(input, output, session) {
         }
         
         # Set new gear for hake
-        a <- p@species_params["Hake", "a"]
-        b <- p@species_params["Hake", "b"]
         p@species_params["Hake", "l50"] <- input$l50_hake
         p@species_params["Hake", "l25"] <- input$l25_hake
         p@selectivity["sigmoid_gear", "Hake", ] <-
-            sigmoid_length(p@w, input$l25_hake, input$l50_hake, a, b)
+            sigmoid_length(p@w, input$l25_hake, input$l50_hake, 
+                           p@species_params["Hake", ])
         # Set new gear for mullet
-        a <- p@species_params["Mullet", "a"]
-        b <- p@species_params["Mullet", "b"]
         p@species_params["Mullet", "l50"] <- input$l50_mullet
         p@species_params["Mullet", "l50"] <- input$l25_mullet
         p@selectivity["sigmoid_gear", "Mullet", ] <-
-            sigmoid_length(p@w, input$l25_mullet, input$l50_mullet, a, b)
+            sigmoid_length(p@w, input$l25_mullet, input$l50_mullet, 
+                           p@species_params["Mullet", ])
         p
     })
     
