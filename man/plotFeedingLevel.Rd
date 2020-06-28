@@ -75,7 +75,7 @@ plotFeedingLevel(sim, time_range = 10:20, species = c("Cod", "Herring"),
 }
 }
 \seealso{
-\code{\link[=plotting_functions]{plotting_functions()}}, \code{\link[=getFeedingLevel]{getFeedingLevel()}}
+\link{plotting_functions}, \code{\link[=getFeedingLevel]{getFeedingLevel()}}
 
 Other plotting functions: 
 \code{\link{plot,MizerSim,missing-method}},

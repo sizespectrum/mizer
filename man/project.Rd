@@ -62,8 +62,8 @@ An object of class \linkS4class{MizerSim}.
 Runs the size spectrum model simulation.
 The function returns an object of type
 \linkS4class{MizerSim} that can then be explored with a range of
-\code{\link[=summary_functions]{summary_functions()}}, \code{\link[=indicator_functions]{indicator_functions()}} and
-\code{\link[=plotting_functions]{plotting_functions()}}.
+\link{summary_functions}, \link{indicator_functions} and
+\link{plotting_functions}.
 }
 \note{
 The \code{effort} argument specifies the level of fishing effort during

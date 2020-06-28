@@ -56,7 +56,7 @@
 #' The ordering of the species in the legend is the same as the ordering in
 #' the species parameter data frame.
 #' 
-#' @seealso [summary_functions()], [indicator_functions()]
+#' @seealso [summary_functions], [indicator_functions]
 #' @family plotting functions
 #' @name plotting_functions
 #' @examples
@@ -190,7 +190,7 @@ getBiomassFrame <- function(sim,
 #' @return A plot
 #' @export
 #' @family plotting functions
-#' @seealso [plotting_functions()], [getBiomass()]
+#' @seealso [plotting_functions], [getBiomass()]
 #' @examples
 #' \donttest{
 #' # Set up example MizerParams and MizerSim objects
@@ -278,7 +278,7 @@ plotlyBiomass <- function(sim,
 #' @return A plot
 #' @export
 #' @family plotting functions
-#' @seealso [plotting_functions()],  [getYield()]
+#' @seealso [plotting_functions],  [getYield()]
 #' @examples
 #' \donttest{
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
@@ -398,7 +398,7 @@ plotlyYield <- function(sim, sim2,
 #' @return A plot
 #' @export
 #' @family plotting functions
-#' @seealso [plotting_functions()],  [getYieldGear()]
+#' @seealso [plotting_functions],  [getYieldGear()]
 #' @examples
 #' \donttest{
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
@@ -490,7 +490,7 @@ plotlyYieldGear <- function(sim, species,
 #' @return A plot
 #' @export
 #' @family plotting functions
-#' @seealso [plotting_functions()]
+#' @seealso [plotting_functions]
 #' @examples
 #' \donttest{
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
@@ -694,7 +694,7 @@ plotlySpectra <- function(object, species = NULL,
 #' @return A plot
 #' @export
 #' @family plotting functions
-#' @seealso [plotting_functions()], [getFeedingLevel()]
+#' @seealso [plotting_functions], [getFeedingLevel()]
 #' @examples
 #' \donttest{
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
@@ -819,7 +819,7 @@ plotlyFeedingLevel <- function(object,
 #' @return A plot
 #' @export
 #' @family plotting functions
-#' @seealso [plotting_functions()],  [getPredMort()]
+#' @seealso [plotting_functions],  [getPredMort()]
 #' @examples
 #' \donttest{
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
@@ -903,7 +903,7 @@ plotlyPredMort <- function(object, species = NULL,
 #' @return A plot
 #' @export
 #' @family plotting functions
-#' @seealso [plotting_functions()], [getFMort()]
+#' @seealso [plotting_functions], [getFMort()]
 #' @examples
 #' \donttest{
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
@@ -984,7 +984,7 @@ plotlyFMort <- function(object, species = NULL,
 #' @return A plot
 #' @export
 #' @family plotting functions
-#' @seealso [plotting_functions()]
+#' @seealso [plotting_functions]
 #' @examples
 #' \donttest{
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
@@ -1113,7 +1113,7 @@ plotDiet <- function(object, species) {
 #' @return A viewport object
 #' @export
 #' @family plotting functions
-#' @seealso [plotting_functions()]
+#' @seealso [plotting_functions]
 #' @rdname plotMizerSim
 #' @examples
 #' \donttest{
@@ -1155,7 +1155,7 @@ setMethod("plot", signature(x = "MizerSim", y = "missing"),
 #' @return A viewport object
 #' @export
 #' @family plotting functions
-#' @seealso [plotting_functions()]
+#' @seealso [plotting_functions]
 #' @rdname plotMizerSim
 #' @examples
 #' \donttest{

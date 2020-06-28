@@ -23,5 +23,5 @@ Function \tab Returns \tab Description \cr
 }
 }
 \seealso{
-\code{\link[=indicator_functions]{indicator_functions()}}, \code{\link[=plotting_functions]{plotting_functions()}}
+\link{indicator_functions}, \link{plotting_functions}
 }

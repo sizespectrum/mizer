@@ -77,7 +77,7 @@ p
 }
 }
 \seealso{
-\code{\link[=summary_functions]{summary_functions()}}, \code{\link[=indicator_functions]{indicator_functions()}}
+\link{summary_functions}, \link{indicator_functions}
 
 Other plotting functions: 
 \code{\link{plot,MizerSim,missing-method}},

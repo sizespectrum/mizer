@@ -49,9 +49,9 @@ plot(params, min_w = 10, max_w = 1000) # change size range for biomass plot
 }
 }
 \seealso{
-\code{\link[=plotting_functions]{plotting_functions()}}
+\link{plotting_functions}
 
-\code{\link[=plotting_functions]{plotting_functions()}}
+\link{plotting_functions}
 
 Other plotting functions: 
 \code{\link{plotBiomass}()},

@@ -93,7 +93,7 @@ plotBiomass(sim, y_ticks = 3)
 }
 }
 \seealso{
-\code{\link[=plotting_functions]{plotting_functions()}}, \code{\link[=getBiomass]{getBiomass()}}
+\link{plotting_functions}, \code{\link[=getBiomass]{getBiomass()}}
 
 Other plotting functions: 
 \code{\link{plot,MizerSim,missing-method}},

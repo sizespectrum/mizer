@@ -18,8 +18,8 @@ NULL
 #' Runs the size spectrum model simulation.
 #' The function returns an object of type
 #' \linkS4class{MizerSim} that can then be explored with a range of
-#' [summary_functions()], [indicator_functions()] and 
-#' [plotting_functions()].
+#' [summary_functions], [indicator_functions] and 
+#' [plotting_functions].
 #' 
 #' @param object Either a \linkS4class{MizerParams} object or a 
 #'   \linkS4class{MizerSim} object (which contains a `MizerParams` object).
@@ -363,7 +363,6 @@ project <- function(object, effort,
 #' @param ... Other arguments that are passed on to the rate functions.
 #' @return List with the final values of `n`, `n_pp` and `n_other`, `rates`.
 #' 
-#' @md
 #' @export
 project_simple <- function(params, n, n_pp, n_other, t, dt, steps, 
                            effort, resource_dynamics_fn, other_dynamics_fns,

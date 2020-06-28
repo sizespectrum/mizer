@@ -41,7 +41,7 @@ plotPredMort(sim, time_range = 10:20)
 }
 }
 \seealso{
-\code{\link[=plotting_functions]{plotting_functions()}},  \code{\link[=getPredMort]{getPredMort()}}
+\link{plotting_functions},  \code{\link[=getPredMort]{getPredMort()}}
 
 Other plotting functions: 
 \code{\link{plot,MizerSim,missing-method}},

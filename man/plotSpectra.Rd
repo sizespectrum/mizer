@@ -101,7 +101,7 @@ plotSpectra(sim, species = c("Cod", "Herring"), power = 1)
 }
 }
 \seealso{
-\code{\link[=plotting_functions]{plotting_functions()}}
+\link{plotting_functions}
 
 Other plotting functions: 
 \code{\link{plot,MizerSim,missing-method}},

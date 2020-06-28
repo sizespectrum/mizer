@@ -23,7 +23,6 @@
 #' 
 #' @return A vector giving the value of the predation kernel at each of the
 #'   predator/prey mass ratios in the \code{ppmr} argument.
-#' @md
 #' @export
 lognormal_pred_kernel <- function(ppmr, beta, sigma) {
     Beta <- log(beta)

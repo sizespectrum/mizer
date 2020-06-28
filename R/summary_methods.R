@@ -31,7 +31,7 @@
 #'   [getYield()] \tab Two dimensional array (time x species) \tab Total yield of each species across all gears through time. \cr
 #' }
 #'
-#' @seealso [indicator_functions()], [plotting_functions()]
+#' @seealso [indicator_functions], [plotting_functions]
 #' @name summary_functions
 NULL
 
@@ -500,7 +500,7 @@ setMethod("summary", signature(object = "MizerSim"), function(object, ...){
 #'   [getCommunitySlope()] \tab A data.frame with four columns: time step, slope, intercept and the coefficient of determination. \tab Calculates the slope of the community abundance spectrum through time by performing a linear regression on the logged total numerical abundance and logged body size. \cr
 #' }
 #'
-#' @seealso [summary_functions()], [plotting_functions()]
+#' @seealso [summary_functions], [plotting_functions]
 #' @name indicator_functions
 NULL
 

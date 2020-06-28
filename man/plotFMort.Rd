@@ -42,7 +42,7 @@ plotFMort(sim, highlight = c("Cod", "Haddock"))
 }
 }
 \seealso{
-\code{\link[=plotting_functions]{plotting_functions()}}, \code{\link[=getFMort]{getFMort()}}
+\link{plotting_functions}, \code{\link[=getFMort]{getFMort()}}
 
 Other plotting functions: 
 \code{\link{plot,MizerSim,missing-method}},

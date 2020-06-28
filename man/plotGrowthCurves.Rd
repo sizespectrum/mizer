@@ -57,7 +57,7 @@ plotGrowthCurves(sim, species = "Cod", max_age = 24)
 }
 }
 \seealso{
-\code{\link[=plotting_functions]{plotting_functions()}}
+\link{plotting_functions}
 
 Other plotting functions: 
 \code{\link{plot,MizerSim,missing-method}},

@@ -57,7 +57,7 @@ plotYield(sim, sim2, species = c("Cod", "Herring"), log = FALSE)
 }
 }
 \seealso{
-\code{\link[=plotting_functions]{plotting_functions()}},  \code{\link[=getYield]{getYield()}}
+\link{plotting_functions},  \code{\link[=getYield]{getYield()}}
 
 Other plotting functions: 
 \code{\link{plot,MizerSim,missing-method}},

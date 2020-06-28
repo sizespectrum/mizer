@@ -64,7 +64,7 @@ Collate:
     'pred_kernel_funcs.R'
     'resource_dynamics.R'
     'project.R'
-    'help.R'
+    'mizer-package.R'
     'project_methods.R'
     'rate_functions.R'
     'summary_methods.R'
@@ -76,7 +76,7 @@ Collate:
     'data.R'
     'RcppExports.R'
     'deprecated.R'
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
 LazyData: true

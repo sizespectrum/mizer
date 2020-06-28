@@ -18,5 +18,5 @@ Function \tab Returns \tab Description \cr
 }
 }
 \seealso{
-\code{\link[=summary_functions]{summary_functions()}}, \code{\link[=plotting_functions]{plotting_functions()}}
+\link{summary_functions}, \link{plotting_functions}
 }
