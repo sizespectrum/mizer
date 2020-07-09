@@ -248,8 +248,8 @@ getInitialEffort <- function(params) {
 #' not be found in the species_params dataframe, as follows:
 #' * If there is no `gear` column, each species gets its own gear, named after 
 #'   the species.
-#' * If there is no `sel_func` column then `knife_edge` is used.
-#' * If there is no `catchability` column then this is set to 1.
+#' * If there is no `sel_func` column or it is NA then `knife_edge` is used.
+#' * If there is no `catchability` column or it is NA then this is set to 1.
 #' * If the selectivity function is `knife_edge` and no `knife_edge_size` is
 #'   provided, it is set to `w_mat`.
 #' 
@@ -268,19 +268,23 @@ validGearParams <- function(gear_params, species_params) {
             "sel_func" %in% names(species_params)) {
             # Try to take parameters from species_params
             gear_params <- 
-                data.frame(species = species_params$species)
+                data.frame(species = as.character(species_params$species),
+                           stringsAsFactors = FALSE)
             if ("gear" %in% names(species_params)) {
-                gear_params$gear <- species_params$gear
+                gear_params$gear <- as.character(species_params$gear)
+                gear_params$gear[is.na(gear_params$gear)] <- "knife_edge_gear"
             } else {
                 gear_params$gear <- species_params$species
             }
             if ("sel_func" %in% names(species_params)) {
-                gear_params$sel_func <- species_params$sel_func
+                gear_params$sel_func <- as.character(species_params$sel_func)
+                gear_params$sel_func[is.na(gear_params$sel_func)] <- "knife_edge"
             } else {
                 gear_params$sel_func <- "knife_edge"
             }
             if ("catchability" %in% names(species_params)) {
                 gear_params$catchability <- species_params$catchability
+                gear_params$catchability[is.na(gear_params$catchability)] <- 1
             } else {
                 gear_params$catchability <- 1
             }

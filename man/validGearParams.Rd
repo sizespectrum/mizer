@@ -26,8 +26,8 @@ not be found in the species_params dataframe, as follows:
 \itemize{
 \item If there is no \code{gear} column, each species gets its own gear, named after
 the species.
-\item If there is no \code{sel_func} column then \code{knife_edge} is used.
-\item If there is no \code{catchability} column then this is set to 1.
+\item If there is no \code{sel_func} column or it is NA then \code{knife_edge} is used.
+\item If there is no \code{catchability} column or it is NA then this is set to 1.
 \item If the selectivity function is \code{knife_edge} and no \code{knife_edge_size} is
 provided, it is set to \code{w_mat}.
 }
