@@ -217,16 +217,37 @@ get_ks_default <- function(params) {
     return(params@species_params$ks)
 }
 
-
+#' Validate species parameter data frame
+#' 
 #' Check validity of species parameters and set defaults for missing but
 #' required parameters
 #' 
 #' @param species_params The user-supplied species parameter data frame
 #' @return A valid species parameter data frame
+#' 
+#' This function throws an error if 
+#' * the `species` column does not exist or contains duplicates
+#' * the `w_inf` column does not exist or contains NAs or is not numeric
+#' 
+#' It sets default values if any of the following are missing or NA
+#' * `w_mat` is set to `w_inf/4`
+#' * `w_min` is set to `0.001`
+#' * `alpha` is set to `0.6`
+#' * `interaction_resource` is set to `1`
+#' 
+#' Any `w_mat25` that is given that is not smaller than `w_mat` is set to
+#' `w_mat * 3^(-0.1)`.
+#' 
+#' If `species_params` was provided as a tibble it is converted back to an
+#' ordinary data frame.
+#' 
 #' @concept("helper")
 validSpeciesParams <- function(species_params) {
     assert_that(is.data.frame(species_params))
+    # Convert a tibble back to an ordinary data frame
     species_params <- as.data.frame(species_params)
+    
+    # check species ----
     if (!("species" %in% colnames(species_params))) {
         stop("The species params dataframe needs a column 'species' with the species names")
     }
@@ -237,6 +258,7 @@ validSpeciesParams <- function(species_params) {
         stop("The species parameter data frame has multiple rows for the same species")
     }
     
+    # check w_inf ----
     if (!("w_inf" %in% colnames(species_params))) {
         species_params$w_inf <- rep(NA, no_sp)
     }
@@ -244,13 +266,18 @@ validSpeciesParams <- function(species_params) {
     if (any(missing)) {
         stop("You need to specify maximum sizes for all species.")
     }
+    if (!is.numeric(species_params$w_inf)) {
+        stop("`w_inf` contains non-numeric values.")
+    }
     
+    # Defaults ----
     species_params <- species_params %>% 
         set_species_param_default("w_mat", species_params$w_inf / 4) %>% 
         set_species_param_default("w_min", 0.001) %>% 
         set_species_param_default("alpha", 0.6) %>% 
         set_species_param_default("interaction_resource", 1)
     
+    # check w_mat25 ----
     # For w_mat25 it is o.k. if it is NA, but if given it must be 
     #  smaller than w_mat
     wrong <- !is.na(species_params$w_mat25) &
