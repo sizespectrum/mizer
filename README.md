@@ -12,7 +12,8 @@ Downloads](http://cranlogs.r-pkg.org/badges/mizer)](https://cran.r-project.org/p
 [![Coverage
 status](https://codecov.io/gh/sizespectrum/mizer/branch/master/graph/badge.svg)](https://codecov.io/github/sizespectrum/mizer?branch=master)
 
-Mizer is an R package to run multi-species size-spectrum models of fish
+Mizer is an R package to run [dynamic multi-species size-spectrum
+models](#dynamic-multi-species-size-spectrum-models) of fish
 communities. The package has been developed to model marine ecosystems
 that are subject to fishing. However, it may also be appropriate for
 other ecosystems.
@@ -57,43 +58,6 @@ the project MINOUW (<http://minouw-project.eu/>) and the Australian
 Research Council Discovery Project [Rewiring Marine Food
 Webs](http://marinesocioecology.org/rewiring-marine-food-webs/).
 
-## Smooth traffic on the biomass highway
-
-To understand what mizer has to contribute to fisheries management, it
-is best to think of the marine ecosystem as a transport system that
-moves biomass from the size of primary producers (mostly unicellular
-plankton) up to the sizes of fish that humans like to consume. Each fish
-that grows up from egg size to maturity by eating smaller individuals is
-like a car on this biomass highway. The yield of our fisheries depend on
-this traffic flowing smoothly and without traffic jams.
-
-In road traffic, if traffic density gets too high in a section of the
-highway, drivers slow down, which leads to a pile-up producing even
-higher traffic density, leading to further slow-down in a potentially
-vicious cycle known as a traffic jam. Traffic management that ignores
-how the traffic density affects traffic speed fails. Luckily our
-mathematical understanding of transport equations has made practical
-contributions to managing traffic in ways that produce smoother traffic
-flow and hence higher throughput.
-
-Mizer implements the transport equations for marine ecosystems. The
-potential for traffic jams is the same: if for example there is a high
-density of predators of a particular size, which all have preference for
-prey of a particular smaller size, then due to competition for that prey
-the growth of those predators slows down, leading to a pile-up which
-leads to further depletion of prey, leading to further slow-down, in a
-potentially vicious cycle.
-
-Luckily the natural ecosystem has evolved to facilitate extremely smooth
-traffic on the biomass highway with resultant high productivity. This
-state is characterised by an approximate power-law shape of the biomass
-size spectrum. The purpose of mizer is to allow us to understand how
-various stressors, like fishing or climate change, affect the size
-spectrum and hence flow of biomass and the productivity and resilience
-of the marine ecosystem. Mizer allows us to investigate how size-based
-fisheries management strategies can be used to keep the ecosystem close
-to its natural productive state.
-
 ## Installation
 
 The package is on [CRAN](https://cran.r-project.org/package=mizer) and
@@ -132,3 +96,85 @@ plot(sim)
 See the accompanying [Get
 started](https://sizespectrum.org/mizer/articles/mizer.html) page for
 more details on how the package works, including detailed examples.
+
+## Dynamic multi-species size-spectrum models
+
+A mizer model captures the interactions between multiple species. The
+growth rates of fish are determined by the availability of prey and the
+death rates are influenced by the abundance of predators, as well as
+fishing. The model starts with the individual-level physiological rates
+for each species, as well as the predation preferences, and deduces the
+population-level dynamics from these. Thus quantities like fish diets
+and fisheries yields emerge dynamically and can be projected into the
+future.
+
+Because a mizer model tracks the size of individuals as they grow up
+over several orders of magnitude from their egg size to their maximum
+size, it correctly tracks the ontogenetic diet shifts. An individual
+typically moves through several trophic levels during its life time.
+This is often not correctly captured in other multi-species models.
+
+A mizer model can be set up with only a small amount of information
+because it uses allometric scaling relations and size-based feeding
+rules to choose sensible defaults for unknown parameters.
+
+Setting up a new multi-species mizer model is a two-step process,
+similar to what may be familiar from Ecopath with Ecosym: First one
+calibrates the model to describe a steady state that is in agreement
+with current observations (as in Ecopath), then one chooses the
+additional parameters that determine the dynamics away from the steady
+state (as in Ecosym). This model can then be used to investigate future
+effects of changes in fishing policy or of environmental stressors.
+
+## Modelling environmental change
+
+A mizer model is a good tool for studying the effect of environmental
+changes, like climate change, because it is a mechanistic model that can
+deduce the complex population-level changes that one is interested in
+from the simpler changes in the physiological rates and feeding
+interactions of individual fish species.
+
+## Smooth traffic on the biomass highway
+
+It is interesting to think of the marine ecosystem as a transport system
+that moves biomass from the size of primary producers (mostly
+unicellular plankton) up to the sizes of fish that humans like to
+consume. Each fish that grows up from egg size to maturity by eating
+smaller individuals is like a car on this biomass highway. The yield of
+our fisheries depend on this traffic flowing smoothly and without
+traffic jams.
+
+In road traffic, if traffic density gets too high in a section of the
+highway, drivers slow down, which leads to a pile-up producing even
+higher traffic density, leading to further slow-down in a potentially
+vicious cycle known as a traffic jam. Traffic management that ignores
+how the traffic density affects traffic speed fails. Luckily our
+mathematical understanding of transport equations has made practical
+contributions to managing traffic in ways that produce smoother traffic
+flow and hence higher throughput.
+
+Mizer implements the transport equations for marine ecosystems. The
+potential for traffic jams is the same: if for example there is a high
+density of predators of a particular size, which all have preference for
+prey of a particular smaller size, then due to competition for that prey
+the growth of those predators slows down, leading to a pile-up which
+leads to further depletion of prey, leading to further slow-down, in a
+potentially vicious cycle.
+
+Luckily the natural ecosystem has evolved to facilitate very smooth
+traffic on the biomass highway with resultant high productivity. This
+state is characterised by an approximate power-law shape of the biomass
+size spectrum. The purpose of mizer is to allow us to understand how
+various stressors, like fishing or climate change, affect the size
+spectrum and hence flow of biomass and the productivity and resilience
+of the marine ecosystem. Mizer allows us to investigate how size-based
+fisheries management strategies can be used to keep the ecosystem close
+to its natural productive state.
+
+## A model one can understand
+
+One big advantage of a mizer model is that it is based on a strong
+mathematical foundation. This allows a degree of a priori understanding
+of the behaviour of the model that is absent in many other multi-species
+model. This theoretical foundation is well presented in the book “Fish
+Ecology, Evolution, and Exploitation” by Ken Andersen.
