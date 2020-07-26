@@ -844,9 +844,13 @@ getRDD <- function(params, n = initialN(params),
 #' Internal function to get the array element references of the time dimension
 #' for the time based slots of a MizerSim object.
 #' @param sim A MizerSim object
-#' @param time_range The time_range can be character or numeric.
-#' @param slot_name Necessary to include a slot_name argument because the effort
-#'   and abundance slots have different time dimensions
+#' @param time_range A vector of times. Only the range of times is relevant,
+#'   i.e., all times between the smallest and largest will be selected.
+#'   The time_range can be character or numeric.
+#' @param slot_name Obsolete. Was only needed in early versions of mizer where
+#'   the effort slot could have different time dimension from the other slots.
+#' @return Named boolean vector indicating for each time whether it is included
+#'   in the range or not.
 #' @export
 #' @concept helper
 #' @keywords internal
@@ -854,7 +858,7 @@ get_time_elements <- function(sim, time_range, slot_name = "n"){
     assert_that(is(sim, "MizerSim"))
     time_range <- range(as.numeric(time_range))
     # Check that time range is even in object
-    sim_times <- as.numeric(dimnames(sim@effort)$time)
+    sim_times <- as.numeric(dimnames(slot(sim, slot_name))$time)
     sim_time_range <- range(sim_times)
     if ( (time_range[1] < sim_time_range[1]) |
          (time_range[2] > sim_time_range[2]))
