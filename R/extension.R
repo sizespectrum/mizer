@@ -47,6 +47,9 @@
 #' ```
 #' other_params(params)$my_param <- 42
 #' ```
+#' Note that your own rate functions need to be defined in the global
+#' environment or in a package. If they are defined within a function then
+#' mizer will not find them.
 #' 
 #' @param params A MizerParams object
 #' @param rate Name of the rate for which a new function is to be set.
