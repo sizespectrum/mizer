@@ -373,7 +373,7 @@ project_simple <- function(params, n, n_pp, n_other, t, dt, steps,
     idx <- 2:no_w
     # Hacky shortcut to access the correct element of a 2D array using 1D notation
     # This references the egg size bracket for all species, so for example
-    # n[w_minidx_array_ref] = n[,w_min_idx]
+    # n[w_min_idx_array_ref] = n[,w_min_idx]
     w_min_idx_array_ref <- (params@w_min_idx - 1) * no_sp + (1:no_sp)
     # Matrices for solver
     a <- matrix(0, nrow = no_sp, ncol = no_w)
