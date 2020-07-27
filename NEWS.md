@@ -6,13 +6,19 @@
 
 ## Enhancements
 
-* Consistently passing the time argument to the rate functions, which will
+* Consistently passing the time argument to the rate functions. This will
   allow extensions to implement time-dependent rates.
+* Passing growth and mortality rate to RDI function.
 * Simplified the getRates functions by removing the arguments that passed in
   other rates. Instead the required rates are now always calculated within 
   these functions.
-* Improve documentation of rate functions and of how to register your own rate 
+* Improved documentation of rate functions and of how to register your own rate 
   functions.
+* In `validGearParams()` handle NAs more gracefully and check that there are
+  no duplicates.
+* Updated hake-mullet selectivity demonstration shiny app.
+* Improved user documentation in several places.
+
 
 # mizer 2.0.2
 
