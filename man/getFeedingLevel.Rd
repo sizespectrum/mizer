@@ -4,7 +4,7 @@
 \alias{getFeedingLevel}
 \title{Get feeding level}
 \usage{
-getFeedingLevel(object, n, n_pp, n_other, encounter, time_range, drop = FALSE)
+getFeedingLevel(object, n, n_pp, n_other, time_range, drop = FALSE, ...)
 }
 \arguments{
 \item{object}{A \code{MizerParams} object or a \code{MizerSim} object}
@@ -16,15 +16,14 @@ getFeedingLevel(object, n, n_pp, n_other, encounter, time_range, drop = FALSE)
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
-\item{encounter}{The encounter rate matrix (optional) of dimension no.
-species x no. size bins. If not passed in, it is calculated internally
-using \code{\link[=getEncounter]{getEncounter()}}. Only used if \code{object}
-argument is of type \code{MizerParams}.}
-
-\item{time_range}{The time_range can be character or numeric.}
+\item{time_range}{A vector of times. Only the range of times is relevant,
+i.e., all times between the smallest and largest will be selected.
+The time_range can be character or numeric.}
 
 \item{drop}{If \code{TRUE} then any dimension of length 1 will be removed
 from the returned array.}
+
+\item{...}{Unused}
 }
 \value{
 If a \code{MizerParams} object is passed in, the function returns a two
@@ -38,7 +37,7 @@ the returned array.
 }
 \description{
 Returns the feeding level.
-By default this function uses the function \code{\link[=mizerFeedingLevel]{mizerFeedingLevel()}} to calculate
+By default this function uses \code{\link[=mizerFeedingLevel]{mizerFeedingLevel()}} to calculate
 the feeding level, but this can be overruled via \code{\link[=setRateFunction]{setRateFunction()}}.
 }
 \section{Feeding level}{
@@ -55,24 +54,31 @@ taken from the \code{params} object, and is set with
 As a consequence of the above expression for the feeding level,
 \eqn{1-f_i(w)} is the proportion of the food available to it that the
 predator actually consumes.
+}
 
-The feeding level is used in \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGrowth()}} and in
-\code{\link[=mizerPredRate]{mizerPredRate()}}.
+\section{Your own feeding level function}{
+
+By default \code{\link[=getFeedingLevel]{getFeedingLevel()}} calls \code{\link[=mizerFeedingLevel]{mizerFeedingLevel()}}. However you can
+replace this with your own alternative feeding level function. If
+your function is called \code{"myFeedingLevel"} then you register it in a MizerParams
+object \code{params} with\preformatted{params <- setRateFunction(params, "FeedingLevel", "myFeedingLevel")
+}
+
+Your function will then be called instead of \code{\link[=mizerFeedingLevel]{mizerFeedingLevel()}}, with the
+same arguments.
 }
 
 \examples{
 \dontrun{
 params <- newMultispeciesParams(NS_species_params_gears, inter)
-# With constant fishing effort for all gears for 20 time steps
+# Get initial feeding level
+fl <- getFeedingLevel(params)
+# Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
-# Get the feeding level at one time step
-n <- sim@n[21,,]
-n_pp <- sim@n_pp[21,]
-fl <- getFeedingLevel(params,n,n_pp)
 # Get the feeding level at all saved time steps
 fl <- getFeedingLevel(sim)
-# Get the feeding level for time 15 - 20
-fl <- getFeedingLevel(sim, time_range = c(15,20))
+# Get the feeding level for years 15 - 20
+fl <- getFeedingLevel(sim, time_range = c(15, 20))
 }
 }
 \seealso{

@@ -5,7 +5,7 @@
 \title{Get density-independent rate of reproduction needed to project standard
 mizer model}
 \usage{
-mizerRDI(params, n, n_pp, n_other, e_repro, ...)
+mizerRDI(params, n, n_pp, n_other, t, e_growth, mort, e_repro, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -17,10 +17,20 @@ mizerRDI(params, n, n_pp, n_other, e_repro, ...)
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
-\item{e_repro}{An array (species x size) with the energy available for
-reproduction as calculated by \code{getERepro()}.}
+\item{t}{The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)}
 
-\item{...}{Optional arguments for rate functions.}
+\item{e_growth}{An array (species x size) with the energy available for
+growth as calculated by \code{\link[=getEGrowth]{getEGrowth()}}. Unused.}
+
+\item{mort}{An array (species x size) with the mortality rate as calculated
+by \code{\link[=getMort]{getMort()}}. Unused.}
+
+\item{e_repro}{An array (species x size) with the energy available for
+reproduction as calculated by \code{\link[=getERepro]{getERepro()}}.}
+
+\item{...}{Unused}
 }
 \value{
 A numeric vector with the rate of egg production for each species.
@@ -31,11 +41,26 @@ Calculates the density-independent rate of total egg production \eqn{R_{p.i}}
 taking the total rate at which energy is invested in reproduction,
 multiplying by the reproductive efficiency \code{erepro} and dividing by the egg
 size \code{w_min}, and by a factor of two to account for the two sexes.
+You would not usually call this
+function directly but instead use \code{\link[=getRDI]{getRDI()}}, which then calls this
+function unless an alternative function has been registered, see below.
 }
 \details{
 Used by \code{\link[=getRDD]{getRDD()}} to calculate the actual, density dependent rate.
 See \code{\link[=setReproduction]{setReproduction()}} for more details.
 }
+\section{Your own reproduction function}{
+
+By default \code{\link[=getRDI]{getRDI()}} calls \code{\link[=mizerRDI]{mizerRDI()}}. However you can
+replace this with your own alternative reproduction function. If
+your function is called \code{"myRDI"} then you register it in a MizerParams
+object \code{params} with\preformatted{params <- setRateFunction(params, "RDI", "myRDI")
+}
+
+Your function will then be called instead of \code{\link[=mizerRDI]{mizerRDI()}}, with the
+same arguments.
+}
+
 \seealso{
 Other mizer rate functions: 
 \code{\link{mizerEGrowth}()},

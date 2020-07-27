@@ -4,7 +4,7 @@
 \alias{mizerPredRate}
 \title{Get predation rate needed to project standard mizer model}
 \usage{
-mizerPredRate(params, n, n_pp, n_other, feeding_level, ...)
+mizerPredRate(params, n, n_pp, n_other, t, feeding_level, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -16,14 +16,17 @@ mizerPredRate(params, n, n_pp, n_other, feeding_level, ...)
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
-\item{feeding_level}{The current feeding level (optional). A matrix of size
-no. species x no. size bins. If not supplied, is calculated internally
-using the \code{\link[=getFeedingLevel]{getFeedingLevel()}} function.}
+\item{t}{The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)}
 
-\item{...}{Optional arguments for rate functions.}
+\item{feeding_level}{An array (species x size) with the feeding level as
+calculated by \code{\link[=getFeedingLevel]{getFeedingLevel()}}.}
+
+\item{...}{Unused}
 }
 \value{
-A two dimensional array (predator species x prey size) with the
+A named two dimensional array (predator species x prey size) with the
 predation rate, where the prey size runs over fish community plus resource
 spectrum.
 }
@@ -35,7 +38,22 @@ a given size \eqn{w} is killed by predators from species \eqn{j}. In formulas
   \gamma_i(w) N_i(w) dw.}
 This potential rate is used in the function \code{\link[=mizerPredMort]{mizerPredMort()}} to
 calculate the realised predation mortality rate on the prey individual.
+You would not usually call this
+function directly but instead use \code{\link[=getPredRate]{getPredRate()}}, which then calls this
+function unless an alternative function has been registered, see below.
 }
+\section{Your own predation rate function}{
+
+By default \code{\link[=getPredRate]{getPredRate()}} calls \code{\link[=mizerPredRate]{mizerPredRate()}}. However you can
+replace this with your own alternative predation rate function. If
+your function is called \code{"myPredRate"} then you register it in a MizerParams
+object \code{params} with\preformatted{params <- setRateFunction(params, "PredRate", "myPredRate")
+}
+
+Your function will then be called instead of \code{\link[=mizerPredRate]{mizerPredRate()}}, with
+the same arguments.
+}
+
 \seealso{
 Other mizer rate functions: 
 \code{\link{mizerEGrowth}()},

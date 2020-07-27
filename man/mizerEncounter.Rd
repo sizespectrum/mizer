@@ -4,7 +4,7 @@
 \alias{mizerEncounter}
 \title{Get encounter rate needed to project standard mizer model}
 \usage{
-mizerEncounter(params, n, n_pp, n_other, ...)
+mizerEncounter(params, n, n_pp, n_other, t, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -16,15 +16,19 @@ mizerEncounter(params, n, n_pp, n_other, ...)
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
-\item{...}{Optional arguments for rate functions.}
+\item{t}{The current time. Unused}
+
+\item{...}{Unused}
 }
 \value{
-A two dimensional array (predator species x predator size) with the
-encounter rates.
+A named two dimensional array (predator species x predator size) with
+the encounter rates.
 }
 \description{
 Calculates the rate \eqn{E_i(w)} at which a predator of species \eqn{i} and
-weight \eqn{w} encounters food (grams/year).
+weight \eqn{w} encounters food (grams/year). You would not usually call this
+function directly but instead use \code{\link[=getEncounter]{getEncounter()}}, which then calls this
+function unless an alternative function has been registered, see below.
 }
 \section{Predation encounter}{
 
@@ -59,6 +63,22 @@ This is used by the \code{\link[=project]{project()}} function for performing si
 
 The function returns values also for sizes outside the size-range of the
 species. These values should not be used, as they are meaningless.
+
+If your model contains additional components that you added with
+\code{\link[=setComponent]{setComponent()}} and for which you specified an \code{encounter_fun} function then
+the encounters of these components will be included in the returned value.
+}
+
+\section{Your own encounter function}{
+
+By default \code{\link[=getEncounter]{getEncounter()}} calls \code{\link[=mizerEncounter]{mizerEncounter()}}. However you can
+replace this with your own alternative encounter function. If
+your function is called \code{"myEncounter"} then you register it in a MizerParams
+object \code{params} with\preformatted{params <- setRateFunction(params, "Encounter", "myEncounter")
+}
+
+Your function will then be called instead of \code{\link[=mizerEncounter]{mizerEncounter()}}, with the
+same arguments.
 }
 
 \seealso{

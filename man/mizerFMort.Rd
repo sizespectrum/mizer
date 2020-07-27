@@ -12,7 +12,7 @@ mizerFMort(params, effort, ...)
 
 \item{effort}{A vector with the effort for each fishing gear.}
 
-\item{...}{Optional arguments for rate functions.}
+\item{...}{Unused}
 }
 \value{
 An array (species x size) with the fishing mortality.
@@ -22,10 +22,25 @@ Calculates the total fishing mortality  (in units 1/year) from all gears by
 species and size at each time step in the \code{effort} argument.
 The total fishing mortality is just the sum of the fishing mortalities
 imposed by each gear, \eqn{\mu_{f.i}(w)=\sum_g F_{g,i,w}}.
+You would not usually call this
+function directly but instead use \code{\link[=getFMort]{getFMort()}}, which then calls this
+function unless an alternative function has been registered, see below.
 }
 \note{
 Here: fishing mortality = catchability x selectivity x effort.
 }
+\section{Your own fishing mortality function}{
+
+By default \code{\link[=getFMort]{getFMort()}} calls \code{\link[=mizerFMort]{mizerFMort()}}. However you can
+replace this with your own alternative fishing mortality function. If
+your function is called \code{"myFMort"} then you register it in a MizerParams
+object \code{params} with\preformatted{params <- setRateFunction(params, "FMort", "myFMort")
+}
+
+Your function will then be called instead of \code{\link[=mizerFMort]{mizerFMort()}}, with the
+same arguments.
+}
+
 \seealso{
 Other mizer rate functions: 
 \code{\link{mizerEGrowth}()},

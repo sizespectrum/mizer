@@ -4,7 +4,7 @@
 \alias{getPredMort}
 \title{Get total predation mortality rate}
 \usage{
-getPredMort(object, n, n_pp, n_other, pred_rate, time_range, drop = TRUE)
+getPredMort(object, n, n_pp, n_other, time_range, drop = TRUE, ...)
 }
 \arguments{
 \item{object}{A \code{MizerParams} object or a \code{MizerSim} object}
@@ -16,15 +16,14 @@ getPredMort(object, n, n_pp, n_other, pred_rate, time_range, drop = TRUE)
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
-\item{pred_rate}{An array of predation rates of dimension no. sp x no.
-community size bins x no. of size bins in whole spectra (i.e. community +
-resource, the w_full slot). The array is optional. If it is not provided
-it is calculated by the \code{\link[=getPredRate]{getPredRate()}} function.}
-
-\item{time_range}{The time_range can be character or numeric.}
+\item{time_range}{A vector of times. Only the range of times is relevant,
+i.e., all times between the smallest and largest will be selected.
+The time_range can be character or numeric.}
 
 \item{drop}{If \code{TRUE} then any dimension of length 1 will be removed
 from the returned array.}
+
+\item{...}{Unused}
 }
 \value{
 If a \code{MizerParams} object is passed in, the function returns a two
@@ -40,19 +39,29 @@ of 1/year) on each prey species by prey size:
 \deqn{\mu_{p.i}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{ji}.}{
   \mu_{p.i}(w_p) = \sum_j pred_rate_j(w_p) \theta_{ji}.}
 }
+\section{Your own predation mortality function}{
+
+By default \code{\link[=getPredMort]{getPredMort()}} calls \code{\link[=mizerPredMort]{mizerPredMort()}}. However you can
+replace this with your own alternative predation mortality function. If
+your function is called \code{"myPredMort"} then you register it in a MizerParams
+object \code{params} with\preformatted{params <- setRateFunction(params, "PredMort", "myPredMort")
+}
+
+Your function will then be called instead of \code{\link[=mizerPredMort]{mizerPredMort()}}, with the
+same arguments.
+}
+
 \examples{
 \dontrun{
 params <- newMultispeciesParams(NS_species_params_gears, inter)
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get predation mortality at one time step
-n <- sim@n[21,,]
-n_pp <- sim@n_pp[21,]
-getPredMort(params,n,n_pp)
+getPredMort(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ])
 # Get predation mortality at all saved time steps
 getPredMort(sim)
-# Get predation mortality over the time 15 - 20
-getPredMort(sim, time_range = c(15,20))
+# Get predation mortality over the years 15 - 20
+getPredMort(sim, time_range = c(15, 20))
 }
 }
 \seealso{

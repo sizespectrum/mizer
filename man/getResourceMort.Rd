@@ -9,7 +9,8 @@ getResourceMort(
   n = initialN(params),
   n_pp = initialNResource(params),
   n_other = initialNOther(params),
-  pred_rate = getPredRate(params, n = n, n_pp = n_pp, n_other = n_other)
+  t = 0,
+  ...
 )
 }
 \arguments{
@@ -22,10 +23,11 @@ getResourceMort(
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
-\item{pred_rate}{An array of predation rates of dimension no. sp x no.
-community size bins x no. of size bins in whole spectra (i.e. community +
-resource, the w_full slot). The array is optional. If it is not provided
-it is calculated by the \code{\link[=getPredRate]{getPredRate()}} function.}
+\item{t}{The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)}
+
+\item{...}{Unused}
 }
 \value{
 A vector of mortality rate by resource size.
@@ -34,18 +36,25 @@ A vector of mortality rate by resource size.
 Calculates the predation mortality rate \eqn{\mu_p(w)} on the resource
 spectrum by resource size (in units 1/year).
 }
-\details{
-Used by the \code{project} function for running size based simulations.
+\section{Your own resource mortality function}{
+
+By default \code{\link[=getResourceMort]{getResourceMort()}} calls \code{\link[=mizerResourceMort]{mizerResourceMort()}}. However you can
+replace this with your own alternative resource mortality function. If
+your function is called \code{"myResourceMort"} then you register it in a MizerParams
+object \code{params} with\preformatted{params <- setRateFunction(params, "ResourceMort", "myResourceMort")
 }
+
+Your function will then be called instead of \code{\link[=mizerResourceMort]{mizerResourceMort()}}, with the
+same arguments.
+}
+
 \examples{
 \dontrun{
 params <- newMultispeciesParams(NS_species_params_gears, inter)
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get resource mortality at one time step
-n <- sim@n[21,,]
-n_pp <- sim@n_pp[21,]
-getResourceMort(params,n,n_pp)
+getResourceMort(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ])
 }
 }
 \seealso{

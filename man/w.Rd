@@ -23,7 +23,7 @@ dw_full(params)
 of the community spectrum.
 
 \code{w_full()} returns a vector with the sizes at the start of each size bin
-of the resource spectrun, which typically starts at smaller sizes than
+of the resource spectrum, which typically starts at smaller sizes than
 the community spectrum.
 
 \code{dw()} returns a vector with the widths of the size bins of the

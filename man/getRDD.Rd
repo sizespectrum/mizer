@@ -9,7 +9,8 @@ getRDD(
   n = initialN(params),
   n_pp = initialNResource(params),
   n_other = initialNOther(params),
-  rdi = getRDI(params, n = n, n_pp = n_pp, n_other = n_other)
+  t = 0,
+  rdi = getRDI(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
 )
 }
 \arguments{
@@ -21,6 +22,10 @@ getRDD(
 
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
+
+\item{t}{The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)}
 
 \item{rdi}{A vector of density-independent reproduction rates for each
 species. If not specified, rdi is calculated internally using
@@ -44,7 +49,7 @@ params <- newMultispeciesParams(NS_species_params_gears, inter)
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the rate at a particular time step
-getRDD(params,sim@n[21,,],sim@n_pp[21,])
+getRDD(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], t = 15)
 }
 }
 \seealso{

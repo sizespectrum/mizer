@@ -4,7 +4,7 @@
 \alias{mizerEGrowth}
 \title{Get energy rate available for growth needed to project standard mizer model}
 \usage{
-mizerEGrowth(params, n, n_pp, n_other, e_repro, e, ...)
+mizerEGrowth(params, n, n_pp, n_other, t, e_repro, e, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -16,17 +16,17 @@ mizerEGrowth(params, n, n_pp, n_other, e_repro, e, ...)
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
-\item{e_repro}{The energy available for reproduction (optional, although if
-specified, e must also be specified). A matrix of size no. species x no.
-size bins. If not supplied, is calculated internally using
+\item{t}{The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)}
+
+\item{e_repro}{The energy available for reproduction as calculated by
 \code{\link[=getERepro]{getERepro()}}.}
 
-\item{e}{The energy available for reproduction and growth (optional, although
-if specified, e_repro must also be specified). A matrix of size no.
-species x no. size bins. If not supplied, is calculated internally using
+\item{e}{The energy available for reproduction and growth as calculated by
 \code{\link[=getEReproAndGrowth]{getEReproAndGrowth()}}.}
 
-\item{...}{Optional arguments for rate functions.}
+\item{...}{Unused}
 }
 \value{
 A two dimensional array (species x size) with the growth rates.
@@ -35,7 +35,22 @@ A two dimensional array (species x size) with the growth rates.
 Calculates the energy rate \eqn{g_i(w)} (grams/year) available by species and
 size for growth after metabolism, movement and reproduction have been
 accounted for. Used by \code{\link[=project]{project()}} for performing simulations.
+You would not usually call this
+function directly but instead use \code{\link[=getEGrowth]{getEGrowth()}}, which then calls this
+function unless an alternative function has been registered, see below.
 }
+\section{Your own growth rate function}{
+
+By default \code{\link[=getEGrowth]{getEGrowth()}} calls \code{\link[=mizerEGrowth]{mizerEGrowth()}}. However you can
+replace this with your own alternative growth rate function. If
+your function is called \code{"myEGrowth"} then you register it in a MizerParams
+object \code{params} with\preformatted{params <- setRateFunction(params, "EGrowth", "myEGrowth")
+}
+
+Your function will then be called instead of \code{\link[=mizerEGrowth]{mizerEGrowth()}}, with the
+same arguments.
+}
+
 \seealso{
 Other mizer rate functions: 
 \code{\link{mizerEReproAndGrowth}()},

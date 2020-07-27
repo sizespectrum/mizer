@@ -34,7 +34,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9001</span>
       </span>
     </div>
 
@@ -129,7 +129,7 @@
 
       
 
-      </header><div class="row">
+      </header><script src="developer_vignette_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Developer Guide</h1>
@@ -265,7 +265,7 @@ This will automatically also install all the other packages that mizer depends o
 <p>There are several different functions for setting up a <code>MizerParams</code> object for specifying various concrete models. These setup functions make various simplifying assumptions about the model parameters to reduce the amount of information that needs to be specified. This usually takes the form of assuming allometric scaling laws.</p>
 <p>The core of mizer is the <code><a href="../reference/project.html">project()</a></code> function that runs a simulation of the size-spectrum model. It takes a specification of the model contained in an object of type <code>MizerParams</code> and returns the results of the simulation in an object of type <code>MizerSim</code>.</p>
 <p>There are many functions for analysing and plotting the results of a mizer simulation contained in a <code>MizerSim</code> object.</p>
-<p>The <code>MizerParams</code> and <code>MizerSim</code> objects are S4 objects, meaning that their slots are rigorously defined and are accessed with the ‘@’ notation. You do not need to learn about S4 classes in order to understand the mizer code, because the code avoids using S4 methods. In the presentation below we assume that the <code>MizerParams</code> object is called <code>params</code> and the <code>MixerSim</code> object is called <code>sim</code>.</p>
+<p>The <code>MizerParams</code> and <code>MizerSim</code> objects are S4 objects, meaning that their slots are rigorously defined and are accessed with the ‘@’ notation. You do not need to learn about S4 classes in order to understand the mizer code, because the code avoids using S4 methods. In the presentation below we assume that the <code>MizerParams</code> object is called <code>params</code> and the <code>MizerSim</code> object is called <code>sim</code>.</p>
 <div id="the-mizerparams-class" class="section level2">
 <h2 class="hasAnchor">
 <a href="#the-mizerparams-class" class="anchor"></a>The MizerParams class</h2>

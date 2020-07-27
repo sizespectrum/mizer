@@ -79,7 +79,7 @@ by setFishing() or it gives an error message." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9001</span>
       </span>
     </div>
 
@@ -213,8 +213,8 @@ to be fished by only one gear. Defaults are used for information that can
 not be found in the species_params dataframe, as follows:</p><ul>
 <li><p>If there is no <code>gear</code> column, each species gets its own gear, named after
 the species.</p></li>
-<li><p>If there is no <code>sel_func</code> column then <code>knife_edge</code> is used.</p></li>
-<li><p>If there is no <code>catchability</code> column then this is set to 1.</p></li>
+<li><p>If there is no <code>sel_func</code> column or it is NA then <code>knife_edge</code> is used.</p></li>
+<li><p>If there is no <code>catchability</code> column or it is NA then this is set to 1.</p></li>
 <li><p>If the selectivity function is <code>knife_edge</code> and no <code>knife_edge_size</code> is
 provided, it is set to <code>w_mat</code>.</p></li>
 </ul>

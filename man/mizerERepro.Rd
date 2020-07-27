@@ -5,7 +5,7 @@
 \title{Get energy rate available for reproduction needed to project standard mizer
 model}
 \usage{
-mizerERepro(params, n, n_pp, n_other, e, ...)
+mizerERepro(params, n, n_pp, n_other, t, e, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -17,10 +17,14 @@ mizerERepro(params, n, n_pp, n_other, e, ...)
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
-\item{e}{A two dimensional array (species x size) holding the energy available
-for reproduction and growth as calculated by \code{mizerEReproAndGrowth()}.}
+\item{t}{The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)}
 
-\item{...}{Optional arguments for rate functions.}
+\item{e}{A two dimensional array (species x size) holding the energy available
+for reproduction and growth as calculated by \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGrowth()}}.}
+
+\item{...}{Unused}
 }
 \value{
 A two dimensional array (species x size) holding
@@ -34,7 +38,22 @@ set with \code{\link[=setReproduction]{setReproduction()}}.
 \description{
 Calculates the energy rate (grams/year) available for reproduction after
 growth and metabolism have been accounted for.
+You would not usually call this
+function directly but instead use \code{\link[=getERepro]{getERepro()}}, which then calls this
+function unless an alternative function has been registered, see below.
 }
+\section{Your own reproduction rate function}{
+
+By default \code{\link[=getERepro]{getERepro()}} calls \code{\link[=mizerERepro]{mizerERepro()}}. However you can
+replace this with your own alternative reproduction rate function. If
+your function is called \code{"myERepro"} then you register it in a MizerParams
+object \code{params} with\preformatted{params <- setRateFunction(params, "ERepro", "myERepro")
+}
+
+Your function will then be called instead of \code{\link[=mizerERepro]{mizerERepro()}}, with the
+same arguments.
+}
+
 \seealso{
 Other mizer rate functions: 
 \code{\link{mizerEGrowth}()},

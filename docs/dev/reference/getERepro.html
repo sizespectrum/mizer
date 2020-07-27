@@ -79,7 +79,7 @@ growth and metabolism have been accounted for." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9001</span>
       </span>
     </div>
 
@@ -192,7 +192,8 @@ growth and metabolism have been accounted for.</p>
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'><a href='initialN-set.html'>initialN</a></span>(<span class='no'>params</span>),
   <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='fu'><a href='initialNResource-set.html'>initialNResource</a></span>(<span class='no'>params</span>),
   <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='fu'><a href='initialNOther-set.html'>initialNOther</a></span>(<span class='no'>params</span>),
-  <span class='kw'>e</span> <span class='kw'>=</span> <span class='fu'><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>n_other</span>)
+  <span class='kw'>t</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+  <span class='no'>...</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -216,10 +217,14 @@ growth and metabolism have been accounted for.</p>
 ecosystem</p></td>
     </tr>
     <tr>
-      <th>e</th>
-      <td><p>The energy available for reproduction and growth (optional). A
-matrix of size no. species x no. size bins. If not supplied, is calculated
-internally using <code><a href='getEReproAndGrowth.html'>getEReproAndGrowth()</a></code>.</p></td>
+      <th>t</th>
+      <td><p>The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Unused</p></td>
     </tr>
     </table>
 
@@ -232,6 +237,17 @@ growth and reproduction, calculated with <code><a href='getEReproAndGrowth.html'
 and \(\psi_i(w)\) is the proportion of this energy that is used for
 reproduction. This proportion is taken from the <code>params</code> object and is
 set with <code><a href='setReproduction.html'>setReproduction()</a></code>.</p>
+    <h2 class="hasAnchor" id="your-own-reproduction-rate-function"><a class="anchor" href="#your-own-reproduction-rate-function"></a>Your own reproduction rate function</h2>
+
+    
+
+<p>By default <code>getERepro()</code> calls <code><a href='mizerERepro.html'>mizerERepro()</a></code>. However you can
+replace this with your own alternative reproduction rate function. If
+your function is called <code>"myERepro"</code> then you register it in a MizerParams
+object <code>params</code> with</p><pre><span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='no'>params</span>, <span class='st'>"ERepro"</span>, <span class='st'>"myERepro"</span>)</pre>
+
+<p>Your function will then be called instead of <code><a href='mizerERepro.html'>mizerERepro()</a></code>, with the
+same arguments.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other rate functions: 
@@ -254,7 +270,7 @@ set with <code><a href='setReproduction.html'>setReproduction()</a></code>.</p>
 <span class='co'># Project with constant fishing effort for all gears for 20 time steps</span>
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
 <span class='co'># Get the energy at a particular time step</span>
-<span class='fu'>getERepro</span>(<span class='no'>params</span>,<span class='no'>sim</span>@<span class='kw'>n</span>[<span class='fl'>21</span>,,],<span class='no'>sim</span>@<span class='kw'>n_pp</span>[<span class='fl'>21</span>,])
+<span class='fu'>getERepro</span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'><a href='N.html'>N</a></span>(<span class='no'>sim</span>)[<span class='fl'>15</span>, , ], <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='fu'><a href='N.html'>NResource</a></span>(<span class='no'>sim</span>)[<span class='fl'>15</span>, ], <span class='kw'>t</span> <span class='kw'>=</span> <span class='fl'>15</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

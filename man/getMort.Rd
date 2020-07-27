@@ -10,8 +10,8 @@ getMort(
   n_pp = initialNResource(params),
   n_other = initialNOther(params),
   effort = getInitialEffort(params),
-  f_mort = getFMort(params, effort),
-  pred_mort = getPredMort(params, n = n, n_pp = n_pp, n_other = n_other)
+  t = 0,
+  ...
 )
 }
 \arguments{
@@ -27,13 +27,11 @@ ecosystem}
 \item{effort}{A numeric vector of the effort by gear or a single numeric
 effort value which is used for all gears.}
 
-\item{f_mort}{A two dimensional array (species x size) of fishing mortality
-(optional).If not supplied is calculated using the \code{\link[=getFMort]{getFMort()}}
-function.}
+\item{t}{The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)}
 
-\item{pred_mort}{A two dimensional array of predation mortality (optional). Has
-dimensions no. sp x no. size bins in the community. If not supplied is
-calculated using the \code{\link[=getPredMort]{getPredMort()}} function.}
+\item{...}{Unused}
 }
 \value{
 A two dimensional array (prey species x prey size).
@@ -43,13 +41,32 @@ Calculates the total mortality rate \eqn{\mu_i(w)}  (in units 1/year) on each
 species by size from predation mortality, background mortality and fishing
 mortality for a single time step.
 }
+\details{
+If your model contains additional components that you added with
+\code{\link[=setComponent]{setComponent()}} and for which you specified a \code{mort_fun} function then
+the mortality inflicted by these components will be included in the returned
+value.
+}
+\section{Your own mortality function}{
+
+By default \code{\link[=getMort]{getMort()}} calls \code{\link[=mizerMort]{mizerMort()}}. However you can
+replace this with your own alternative mortality function. If
+your function is called \code{"myMort"} then you register it in a MizerParams
+object \code{params} with\preformatted{params <- setRateFunction(params, "Mort", "myMort")
+}
+
+Your function will then be called instead of \code{\link[=mizerMort]{mizerMort()}}, with the
+same arguments.
+}
+
 \examples{
 \dontrun{
 params <- newMultispeciesParams(NS_species_params_gears, inter)
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the total mortality at a particular time step
-getMort(params,sim@n[21,,],sim@n_pp[21,],effort=0.5)
+getMort(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], 
+        t = 15, effort = 0.5)
 }
 }
 \seealso{

@@ -9,9 +9,8 @@ getEReproAndGrowth(
   n = initialN(params),
   n_pp = initialNResource(params),
   n_other = initialNOther(params),
-  encounter = getEncounter(params, n = n, n_pp = n_pp, n_other = n_other),
-  feeding_level = getFeedingLevel(params, n = n, n_pp = n_pp, n_other = n_other,
-    encounter = encounter)
+  t = 0,
+  ...
 )
 }
 \arguments{
@@ -24,13 +23,11 @@ getEReproAndGrowth(
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
-\item{encounter}{The encounter rate matrix (optional) of dimension no.
-species x no. size bins. If not passed in, it is calculated internally
-using the \code{\link[=getEncounter]{getEncounter()}} function.}
+\item{t}{The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)}
 
-\item{feeding_level}{The current feeding level (optional). A matrix of size
-no. species x no. size bins. If not supplied, is calculated internally
-using the \code{\link[=getFeedingLevel]{getFeedingLevel()}} function.}
+\item{...}{Unused}
 }
 \value{
 A two dimensional array (species x size) holding
@@ -58,13 +55,25 @@ Calculates the energy rate \eqn{E_{r.i}(w)} (grams/year) available for
 reproduction and growth after metabolism and movement have been accounted
 for.
 }
+\section{Your own energy rate function}{
+
+By default \code{\link[=getEReproAndGrowth]{getEReproAndGrowth()}} calls \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGrowth()}}. However you
+can replace this with your own alternative energy rate function. If
+your function is called \code{"myEReproAndGrowth"} then you register it in a
+MizerParams object \code{params} with\preformatted{params <- setRateFunction(params, "EReproAndGrowth", "myEReproAndGrowth")
+}
+
+Your function will then be called instead of \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGrowth()}}, with
+the same arguments.
+}
+
 \examples{
 \dontrun{
 params <- newMultispeciesParams(NS_species_params_gears, inter)
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the energy at a particular time step
-getEReproAndGrowth(params,sim@n[21,,],sim@n_pp[21,])
+getEReproAndGrowth(params, n = N(sim)[15, , ], n_pp = NResource[15, ], t = 15)
 }
 }
 \seealso{

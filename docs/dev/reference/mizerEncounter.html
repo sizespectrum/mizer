@@ -47,7 +47,9 @@
 
 <meta property="og:title" content="Get encounter rate needed to project standard mizer model — mizerEncounter" />
 <meta property="og:description" content="Calculates the rate \(E_i(w)\) at which a predator of species \(i\) and
-weight \(w\) encounters food (grams/year)." />
+weight \(w\) encounters food (grams/year). You would not usually call this
+function directly but instead use getEncounter(), which then calls this
+function unless an alternative function has been registered, see below." />
 
 
 <meta name="robots" content="noindex">
@@ -79,7 +81,7 @@ weight \(w\) encounters food (grams/year)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9001</span>
       </span>
     </div>
 
@@ -184,10 +186,12 @@ weight \(w\) encounters food (grams/year)." />
 
     <div class="ref-description">
     <p>Calculates the rate \(E_i(w)\) at which a predator of species \(i\) and
-weight \(w\) encounters food (grams/year).</p>
+weight \(w\) encounters food (grams/year). You would not usually call this
+function directly but instead use <code><a href='getEncounter.html'>getEncounter()</a></code>, which then calls this
+function unless an alternative function has been registered, see below.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>mizerEncounter</span>(<span class='no'>params</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>mizerEncounter</span>(<span class='no'>params</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='no'>t</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -210,15 +214,19 @@ weight \(w\) encounters food (grams/year).</p>
 ecosystem</p></td>
     </tr>
     <tr>
+      <th>t</th>
+      <td><p>The current time. Unused</p></td>
+    </tr>
+    <tr>
       <th>...</th>
-      <td><p>Optional arguments for rate functions.</p></td>
+      <td><p>Unused</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A two dimensional array (predator species x predator size) with the
-encounter rates.</p>
+    <p>A named two dimensional array (predator species x predator size) with
+the encounter rates.</p>
     <h2 class="hasAnchor" id="predation-encounter"><a class="anchor" href="#predation-encounter"></a>Predation encounter</h2>
 
     
@@ -251,6 +259,20 @@ where \(f_0\) is the feeding level calculated with <code><a href='getFeedingLeve
 This is used by the <code><a href='project.html'>project()</a></code> function for performing simulations.</p>
 <p>The function returns values also for sizes outside the size-range of the
 species. These values should not be used, as they are meaningless.</p>
+<p>If your model contains additional components that you added with
+<code><a href='setComponent.html'>setComponent()</a></code> and for which you specified an <code>encounter_fun</code> function then
+the encounters of these components will be included in the returned value.</p>
+    <h2 class="hasAnchor" id="your-own-encounter-function"><a class="anchor" href="#your-own-encounter-function"></a>Your own encounter function</h2>
+
+    
+
+<p>By default <code><a href='getEncounter.html'>getEncounter()</a></code> calls <code>mizerEncounter()</code>. However you can
+replace this with your own alternative encounter function. If
+your function is called <code>"myEncounter"</code> then you register it in a MizerParams
+object <code>params</code> with</p><pre><span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='no'>params</span>, <span class='st'>"Encounter"</span>, <span class='st'>"myEncounter"</span>)</pre>
+
+<p>Your function will then be called instead of <code>mizerEncounter()</code>, with the
+same arguments.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other mizer rate functions: 

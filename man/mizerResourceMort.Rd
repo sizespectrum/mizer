@@ -5,7 +5,7 @@
 \title{Get predation mortality rate for resource needed to project standard mizer
 model}
 \usage{
-mizerResourceMort(params, n, n_pp, n_other, pred_rate, ...)
+mizerResourceMort(params, n, n_pp, n_other, t, pred_rate, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -17,11 +17,15 @@ mizerResourceMort(params, n, n_pp, n_other, pred_rate, ...)
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
+\item{t}{The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)}
+
 \item{pred_rate}{A two dimensional array (predator species x prey size) with
 the predation rate, where the prey size runs over fish community plus
 resource spectrum.}
 
-\item{...}{Optional arguments for rate functions.}
+\item{...}{Unused}
 }
 \value{
 A vector of mortality rate by resource size.
@@ -29,10 +33,22 @@ A vector of mortality rate by resource size.
 \description{
 Calculates the predation mortality rate \eqn{\mu_p(w)} on the resource
 spectrum by resource size (in units 1/year).
+You would not usually call this
+function directly but instead use \code{\link[=getResourceMort]{getResourceMort()}}, which then calls this
+function unless an alternative function has been registered, see below.
 }
-\details{
-Used by the \code{project} function for running size based simulations.
+\section{Your own resource mortality function}{
+
+By default \code{\link[=getResourceMort]{getResourceMort()}} calls \code{\link[=mizerResourceMort]{mizerResourceMort()}}. However you can
+replace this with your own alternative resource mortality function. If
+your function is called \code{"myResourceMort"} then you register it in a MizerParams
+object \code{params} with\preformatted{params <- setRateFunction(params, "ResourceMort", "myResourceMort")
 }
+
+Your function will then be called instead of \code{\link[=mizerResourceMort]{mizerResourceMort()}}, with the
+same arguments.
+}
+
 \seealso{
 Other mizer rate functions: 
 \code{\link{mizerEGrowth}()},

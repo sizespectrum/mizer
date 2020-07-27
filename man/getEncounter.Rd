@@ -8,7 +8,8 @@ getEncounter(
   params,
   n = initialN(params),
   n_pp = initialNResource(params),
-  n_other = initialNOther(params)
+  n_other = initialNOther(params),
+  t = 0
 )
 }
 \arguments{
@@ -20,16 +21,16 @@ getEncounter(
 
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
+
+\item{t}{The current time. Unused}
 }
 \value{
-A two dimensional array (predator species x predator size) with the
-encounter rates.
+A named two dimensional array (predator species x predator size) with
+the encounter rates.
 }
 \description{
 Returns the rate at which a predator of species \eqn{i} and
 weight \eqn{w} encounters food (grams/year).
-By default this function uses the function \code{\link[=mizerEncounter]{mizerEncounter()}} to calculate
-the encounter rate, but this can be overruled via \code{\link[=setRateFunction]{setRateFunction()}}.
 }
 \section{Predation encounter}{
 
@@ -64,6 +65,22 @@ This is used by the \code{\link[=project]{project()}} function for performing si
 
 The function returns values also for sizes outside the size-range of the
 species. These values should not be used, as they are meaningless.
+
+If your model contains additional components that you added with
+\code{\link[=setComponent]{setComponent()}} and for which you specified an \code{encounter_fun} function then
+the encounters of these components will be included in the returned value.
+}
+
+\section{Your own encounter function}{
+
+By default \code{\link[=getEncounter]{getEncounter()}} calls \code{\link[=mizerEncounter]{mizerEncounter()}}. However you can
+replace this with your own alternative encounter function. If
+your function is called \code{"myEncounter"} then you register it in a MizerParams
+object \code{params} with\preformatted{params <- setRateFunction(params, "Encounter", "myEncounter")
+}
+
+Your function will then be called instead of \code{\link[=mizerEncounter]{mizerEncounter()}}, with the
+same arguments.
 }
 
 \examples{
@@ -71,9 +88,7 @@ species. These values should not be used, as they are meaningless.
 params <- newMultispeciesParams(NS_species_params_gears, inter)
 # Run simulation with constant fishing effort for all gears for 20 years
 sim <- project(params, t_max = 20, effort = 0.5)
-n <- sim@n[21, , ]
-n_pp <- sim@n_pp[21, ]
-getEncounter(params, n, n_pp)
+getEncounter(params, n = finalN(sim), n_pp = finalNResource(sim), t = 20)
 }
 }
 \seealso{

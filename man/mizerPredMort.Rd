@@ -4,7 +4,7 @@
 \alias{mizerPredMort}
 \title{Get total predation mortality rate needed to project standard mizer model}
 \usage{
-mizerPredMort(params, n, n_pp, n_other, pred_rate, ...)
+mizerPredMort(params, n, n_pp, n_other, t, pred_rate, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -16,10 +16,14 @@ mizerPredMort(params, n, n_pp, n_other, pred_rate, ...)
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
+\item{t}{The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)}
+
 \item{pred_rate}{A two dimensional array (predator species x predator size)
 with the feeding level.}
 
-\item{...}{Optional arguments for rate functions.}
+\item{...}{Unused}
 }
 \value{
 A two dimensional array (prey species x prey size) with the predation
@@ -30,7 +34,22 @@ Calculates the total predation mortality rate \eqn{\mu_{p,i}(w_p)} (in units
 of 1/year) on each prey species by prey size:
 \deqn{\mu_{p.i}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{ji}.}{
   \mu_{p.i}(w_p) = \sum_j pred_rate_j(w_p) \theta_{ji}.}
+You would not usually call this
+function directly but instead use \code{\link[=getPredMort]{getPredMort()}}, which then calls this
+function unless an alternative function has been registered, see below.
 }
+\section{Your own predation mortality function}{
+
+By default \code{\link[=getPredMort]{getPredMort()}} calls \code{\link[=mizerPredMort]{mizerPredMort()}}. However you can
+replace this with your own alternative predation mortality function. If
+your function is called \code{"myPredMort"} then you register it in a MizerParams
+object \code{params} with\preformatted{params <- setRateFunction(params, "PredMort", "myPredMort")
+}
+
+Your function will then be called instead of \code{\link[=mizerPredMort]{mizerPredMort()}}, with the
+same arguments.
+}
+
 \seealso{
 Other mizer rate functions: 
 \code{\link{mizerEGrowth}()},

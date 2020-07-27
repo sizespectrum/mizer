@@ -16,6 +16,10 @@ The time_range can be character or numeric.}
 \item{slot_name}{Obsolete. Was only needed in early versions of mizer where
 the effort slot could have different time dimension from the other slots.}
 }
+\value{
+Named boolean vector indicating for each time whether it is included
+in the range or not.
+}
 \description{
 Internal function to get the array element references of the time dimension
 for the time based slots of a MizerSim object.

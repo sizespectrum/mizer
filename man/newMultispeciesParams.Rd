@@ -481,7 +481,7 @@ these as models for writing your own functions.
 \strong{Gears}
 
 In \code{mizer}, fishing mortality is imposed on species by fishing gears. The
-total per-capita fishing mortality \link{1/year} is obtained by summing over the
+total per-capita fishing mortality (1/year) is obtained by summing over the
 mortality from all gears,
 \deqn{\mu_{f.i}(w) = \sum_g F_{g,i}(w),}
 where the fishing mortality \eqn{F_{g,i}(w)} imposed by gear \eqn{g} on

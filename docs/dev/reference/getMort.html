@@ -80,7 +80,7 @@ mortality for a single time step." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9001</span>
       </span>
     </div>
 
@@ -195,8 +195,8 @@ mortality for a single time step.</p>
   <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='fu'><a href='initialNResource-set.html'>initialNResource</a></span>(<span class='no'>params</span>),
   <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='fu'><a href='initialNOther-set.html'>initialNOther</a></span>(<span class='no'>params</span>),
   <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fu'><a href='setFishing.html'>getInitialEffort</a></span>(<span class='no'>params</span>),
-  <span class='kw'>f_mort</span> <span class='kw'>=</span> <span class='fu'><a href='getFMort.html'>getFMort</a></span>(<span class='no'>params</span>, <span class='no'>effort</span>),
-  <span class='kw'>pred_mort</span> <span class='kw'>=</span> <span class='fu'><a href='getPredMort.html'>getPredMort</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>n_other</span>)
+  <span class='kw'>t</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+  <span class='no'>...</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -225,22 +225,37 @@ ecosystem</p></td>
 effort value which is used for all gears.</p></td>
     </tr>
     <tr>
-      <th>f_mort</th>
-      <td><p>A two dimensional array (species x size) of fishing mortality
-(optional).If not supplied is calculated using the <code><a href='getFMort.html'>getFMort()</a></code>
-function.</p></td>
+      <th>t</th>
+      <td><p>The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)</p></td>
     </tr>
     <tr>
-      <th>pred_mort</th>
-      <td><p>A two dimensional array of predation mortality (optional). Has
-dimensions no. sp x no. size bins in the community. If not supplied is
-calculated using the <code><a href='getPredMort.html'>getPredMort()</a></code> function.</p></td>
+      <th>...</th>
+      <td><p>Unused</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A two dimensional array (prey species x prey size).</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>If your model contains additional components that you added with
+<code><a href='setComponent.html'>setComponent()</a></code> and for which you specified a <code>mort_fun</code> function then
+the mortality inflicted by these components will be included in the returned
+value.</p>
+    <h2 class="hasAnchor" id="your-own-mortality-function"><a class="anchor" href="#your-own-mortality-function"></a>Your own mortality function</h2>
+
+    
+
+<p>By default <code>getMort()</code> calls <code><a href='mizerMort.html'>mizerMort()</a></code>. However you can
+replace this with your own alternative mortality function. If
+your function is called <code>"myMort"</code> then you register it in a MizerParams
+object <code>params</code> with</p><pre><span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='no'>params</span>, <span class='st'>"Mort"</span>, <span class='st'>"myMort"</span>)</pre>
+
+<p>Your function will then be called instead of <code><a href='mizerMort.html'>mizerMort()</a></code>, with the
+same arguments.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='getPredMort.html'>getPredMort()</a></code>, <code><a href='getFMort.html'>getFMort()</a></code></p>
@@ -264,7 +279,8 @@ calculated using the <code><a href='getPredMort.html'>getPredMort()</a></code> f
 <span class='co'># Project with constant fishing effort for all gears for 20 time steps</span>
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
 <span class='co'># Get the total mortality at a particular time step</span>
-<span class='fu'>getMort</span>(<span class='no'>params</span>,<span class='no'>sim</span>@<span class='kw'>n</span>[<span class='fl'>21</span>,,],<span class='no'>sim</span>@<span class='kw'>n_pp</span>[<span class='fl'>21</span>,],<span class='kw'>effort</span><span class='kw'>=</span><span class='fl'>0.5</span>)
+<span class='fu'>getMort</span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'><a href='N.html'>N</a></span>(<span class='no'>sim</span>)[<span class='fl'>15</span>, , ], <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='fu'><a href='N.html'>NResource</a></span>(<span class='no'>sim</span>)[<span class='fl'>15</span>, ],
+        <span class='kw'>t</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

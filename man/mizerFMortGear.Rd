@@ -5,14 +5,12 @@
 \title{Get the fishing mortality by time, gear, species and size needed to project
 standard mizer model}
 \usage{
-mizerFMortGear(params, effort, ...)
+mizerFMortGear(params, effort)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
 
 \item{effort}{A vector with the effort for each fishing gear.}
-
-\item{...}{Optional arguments for rate functions.}
 }
 \value{
 An three dimensional array (gear x species x size) with the
@@ -21,7 +19,7 @@ fishing mortality
 \description{
 Calculates the fishing mortality rate \eqn{F_{g,i,w}} by gear, species and
 size at each time step in the \code{effort} argument (in units 1/year).
-Used by the \code{project} function to perform simulations.
+This is a helper function for \code{\link[=mizerFMort]{mizerFMort()}}.
 }
 \note{
 Here: fishing mortality = catchability x selectivity x effort.

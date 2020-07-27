@@ -83,7 +83,7 @@ imposed by each gear, \(\mu_{f.i}(w)=\sum_g F_{g,i,w}\)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9001</span>
       </span>
     </div>
 
@@ -237,7 +237,7 @@ passed in. The <code>effort</code> argument can be a two dimensional array (time
 gear), a vector of length equal to the number of gears (each gear has a
 different effort that is constant in time), or a single numeric value (each
 gear has the same effort that is constant in time). The order of gears in the
-<code>effort</code> argument must be the same the same as in the <code>MizerParams</code>
+<code>effort</code> argument must be the same as in the <code>MizerParams</code>
 object.</p>
 <p>If the object argument is of class <code>MizerSim</code> then the effort slot of
 the <code>MizerSim</code> object is used and the <code>effort</code> argument is not
@@ -270,16 +270,16 @@ used.</p>
 <span class='co'># Get the total fishing mortality when effort is different</span>
 <span class='co'># between the four gears and changes with time:</span>
 <span class='no'>effort</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/array.html'>array</a></span>(<span class='fl'>NA</span>, <span class='kw'>dim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>20</span>,<span class='fl'>4</span>))
-<span class='no'>effort</span>[,<span class='fl'>1</span>] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='kw'>from</span><span class='kw'>=</span><span class='fl'>0</span>, <span class='kw'>to</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>length</span><span class='kw'>=</span><span class='fl'>20</span>)
-<span class='no'>effort</span>[,<span class='fl'>2</span>] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='kw'>from</span><span class='kw'>=</span><span class='fl'>1</span>, <span class='kw'>to</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>length</span><span class='kw'>=</span><span class='fl'>20</span>)
-<span class='no'>effort</span>[,<span class='fl'>3</span>] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='kw'>from</span><span class='kw'>=</span><span class='fl'>1</span>, <span class='kw'>to</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>length</span><span class='kw'>=</span><span class='fl'>20</span>)
-<span class='no'>effort</span>[,<span class='fl'>4</span>] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='kw'>from</span><span class='kw'>=</span><span class='fl'>2</span>, <span class='kw'>to</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>length</span><span class='kw'>=</span><span class='fl'>20</span>)
-<span class='fu'>getFMort</span>(<span class='no'>params</span>, <span class='kw'>effort</span><span class='kw'>=</span><span class='no'>effort</span>)
+<span class='no'>effort</span>[, <span class='fl'>1</span>] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='kw'>from</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>to</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>length</span> <span class='kw'>=</span> <span class='fl'>20</span>)
+<span class='no'>effort</span>[, <span class='fl'>2</span>] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='kw'>from</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>to</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>length</span> <span class='kw'>=</span> <span class='fl'>20</span>)
+<span class='no'>effort</span>[, <span class='fl'>3</span>] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='kw'>from</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>to</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>length</span> <span class='kw'>=</span> <span class='fl'>20</span>)
+<span class='no'>effort</span>[, <span class='fl'>4</span>] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='kw'>from</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>to</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>length</span> <span class='kw'>=</span> <span class='fl'>20</span>)
+<span class='fu'>getFMort</span>(<span class='no'>params</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='no'>effort</span>)
 <span class='co'># Get the total fishing mortality using the effort already held in a </span>
 <span class='co'># MizerSim object.</span>
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
 <span class='fu'>getFMort</span>(<span class='no'>sim</span>)
-<span class='fu'>getFMort</span>(<span class='no'>sim</span>, <span class='kw'>time_range</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>10</span>,<span class='fl'>20</span>))
+<span class='fu'>getFMort</span>(<span class='no'>sim</span>, <span class='kw'>time_range</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>10</span>, <span class='fl'>20</span>))
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

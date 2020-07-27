@@ -9,8 +9,8 @@ getEGrowth(
   n = initialN(params),
   n_pp = initialNResource(params),
   n_other = initialNOther(params),
-  e_repro = getERepro(params, n = n, n_pp = n_pp, n_other = n_other),
-  e = getEReproAndGrowth(params, n = n, n_pp = n_pp, n_other = n_other)
+  t = 0,
+  ...
 )
 }
 \arguments{
@@ -23,15 +23,11 @@ getEGrowth(
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
-\item{e_repro}{The energy available for reproduction (optional, although if
-specified, e must also be specified). A matrix of size no. species x no.
-size bins. If not supplied, is calculated internally using
-\code{\link[=getERepro]{getERepro()}}.}
+\item{t}{The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)}
 
-\item{e}{The energy available for reproduction and growth (optional, although
-if specified, e_repro must also be specified). A matrix of size no.
-species x no. size bins. If not supplied, is calculated internally using
-\code{\link[=getEReproAndGrowth]{getEReproAndGrowth()}}.}
+\item{...}{Unused}
 }
 \value{
 A two dimensional array (prey species x prey size)
@@ -39,15 +35,27 @@ A two dimensional array (prey species x prey size)
 \description{
 Calculates the energy rate \eqn{g_i(w)} (grams/year) available by species and
 size for growth after metabolism, movement and reproduction have been
-accounted for. Used by \code{\link[=project]{project()}} for performing simulations.
+accounted for.
 }
+\section{Your own growth rate function}{
+
+By default \code{\link[=getEGrowth]{getEGrowth()}} calls \code{\link[=mizerEGrowth]{mizerEGrowth()}}. However you can
+replace this with your own alternative growth rate function. If
+your function is called \code{"myEGrowth"} then you register it in a MizerParams
+object \code{params} with\preformatted{params <- setRateFunction(params, "EGrowth", "myEGrowth")
+}
+
+Your function will then be called instead of \code{\link[=mizerEGrowth]{mizerEGrowth()}}, with the
+same arguments.
+}
+
 \examples{
 \dontrun{
 params <- newMultispeciesParams(NS_species_params_gears, inter)
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the energy at a particular time step
-getEGrowth(params,sim@n[21,,],sim@n_pp[21,])
+getEGrowth(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], t = 15)
 }
 }
 \seealso{

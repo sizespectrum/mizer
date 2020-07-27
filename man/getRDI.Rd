@@ -9,7 +9,8 @@ getRDI(
   n = initialN(params),
   n_pp = initialNResource(params),
   n_other = initialNOther(params),
-  e_repro = getERepro(params, n = n, n_pp = n_pp, n_other = n_other)
+  t = 0,
+  ...
 )
 }
 \arguments{
@@ -22,9 +23,11 @@ getRDI(
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
-\item{e_repro}{The energy available for reproduction (optional). A matrix of
-size no. species x no. size bins. If not supplied, is calculated internally
-using \code{\link[=getERepro]{getERepro()}}.}
+\item{t}{The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)}
+
+\item{...}{Unused}
 }
 \value{
 A numeric vector the length of the number of species
@@ -41,7 +44,7 @@ params <- newMultispeciesParams(NS_species_params_gears, inter)
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the density-independent reproduction rate at a particular time step
-getRDI(params,sim@n[21,,],sim@n_pp[21,])
+getRDI(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], t = 15)
 }
 }
 \seealso{

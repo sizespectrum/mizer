@@ -81,7 +81,7 @@ rate and use setRateFunction() to register it with mizer." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9001</span>
       </span>
     </div>
 
@@ -263,6 +263,9 @@ function for your own function called <code>myRates()</code>. That you can do wi
 <p>Your new rate functions may need their own model parameters. These you
 can store in <code>other_params(params)</code>. For example</p><pre><span class='fu'>other_params</span>(<span class='no'>params</span>)$<span class='no'>my_param</span> <span class='kw'>&lt;-</span> <span class='fl'>42</span></pre>
 
+<p>Note that your own rate functions need to be defined in the global
+environment or in a package. If they are defined within a function then
+mizer will not find them.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

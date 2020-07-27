@@ -78,7 +78,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9001</span>
       </span>
     </div>
 
@@ -185,7 +185,7 @@
     <p>An alias provided for backward compatibility with mizer version &lt;= 1.0</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getM2</span>(<span class='no'>object</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='no'>pred_rate</span>, <span class='no'>time_range</span>, <span class='kw'>drop</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>getM2</span>(<span class='no'>object</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='no'>time_range</span>, <span class='kw'>drop</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -208,20 +208,19 @@
 ecosystem</p></td>
     </tr>
     <tr>
-      <th>pred_rate</th>
-      <td><p>An array of predation rates of dimension no. sp x no.
-community size bins x no. of size bins in whole spectra (i.e. community +
-resource, the w_full slot). The array is optional. If it is not provided
-it is calculated by the <code><a href='getPredRate.html'>getPredRate()</a></code> function.</p></td>
-    </tr>
-    <tr>
       <th>time_range</th>
-      <td><p>The time_range can be character or numeric.</p></td>
+      <td><p>A vector of times. Only the range of times is relevant,
+i.e., all times between the smallest and largest will be selected.
+The time_range can be character or numeric.</p></td>
     </tr>
     <tr>
       <th>drop</th>
       <td><p>If <code>TRUE</code> then any dimension of length 1 will be removed
 from the returned array.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Unused</p></td>
     </tr>
     </table>
 
@@ -233,6 +232,17 @@ passed in. If a <code>MizerSim</code> object is passed in, the function returns 
 three dimensional array (time step x prey species x prey size) with the
 predation mortality calculated at every time step in the simulation.
 Dimensions may be dropped if they have length 1 unless <code>drop = FALSE</code>.</p>
+    <h2 class="hasAnchor" id="your-own-predation-mortality-function"><a class="anchor" href="#your-own-predation-mortality-function"></a>Your own predation mortality function</h2>
+
+    
+
+<p>By default <code><a href='getPredMort.html'>getPredMort()</a></code> calls <code><a href='mizerPredMort.html'>mizerPredMort()</a></code>. However you can
+replace this with your own alternative predation mortality function. If
+your function is called <code>"myPredMort"</code> then you register it in a MizerParams
+object <code>params</code> with</p><pre><span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='no'>params</span>, <span class='st'>"PredMort"</span>, <span class='st'>"myPredMort"</span>)</pre>
+
+<p>Your function will then be called instead of <code><a href='mizerPredMort.html'>mizerPredMort()</a></code>, with the
+same arguments.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other rate functions: 
@@ -255,13 +265,11 @@ Dimensions may be dropped if they have length 1 unless <code>drop = FALSE</code>
 <span class='co'># With constant fishing effort for all gears for 20 time steps</span>
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
 <span class='co'># Get predation mortality at one time step</span>
-<span class='no'>n</span> <span class='kw'>&lt;-</span> <span class='no'>sim</span>@<span class='kw'>n</span>[<span class='fl'>21</span>,,]
-<span class='no'>n_pp</span> <span class='kw'>&lt;-</span> <span class='no'>sim</span>@<span class='kw'>n_pp</span>[<span class='fl'>21</span>,]
-<span class='fu'><a href='getPredMort.html'>getPredMort</a></span>(<span class='no'>params</span>,<span class='no'>n</span>,<span class='no'>n_pp</span>)
+<span class='fu'><a href='getPredMort.html'>getPredMort</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'><a href='N.html'>N</a></span>(<span class='no'>sim</span>)[<span class='fl'>15</span>, , ], <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='fu'><a href='N.html'>NResource</a></span>(<span class='no'>sim</span>)[<span class='fl'>15</span>, ])
 <span class='co'># Get predation mortality at all saved time steps</span>
 <span class='fu'><a href='getPredMort.html'>getPredMort</a></span>(<span class='no'>sim</span>)
-<span class='co'># Get predation mortality over the time 15 - 20</span>
-<span class='fu'><a href='getPredMort.html'>getPredMort</a></span>(<span class='no'>sim</span>, <span class='kw'>time_range</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>15</span>,<span class='fl'>20</span>))
+<span class='co'># Get predation mortality over the years 15 - 20</span>
+<span class='fu'><a href='getPredMort.html'>getPredMort</a></span>(<span class='no'>sim</span>, <span class='kw'>time_range</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>15</span>, <span class='fl'>20</span>))
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

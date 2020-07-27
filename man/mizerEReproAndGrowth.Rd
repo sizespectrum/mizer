@@ -5,7 +5,16 @@
 \title{Get energy rate available for reproduction and growth  needed to project
 standard mizer model}
 \usage{
-mizerEReproAndGrowth(params, n, n_pp, n_other, encounter, feeding_level, ...)
+mizerEReproAndGrowth(
+  params,
+  n,
+  n_pp,
+  n_other,
+  t,
+  encounter,
+  feeding_level,
+  ...
+)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -17,13 +26,17 @@ mizerEReproAndGrowth(params, n, n_pp, n_other, encounter, feeding_level, ...)
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
+\item{t}{The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)}
+
 \item{encounter}{An array (species x size) with the encounter rate as
-calculated by \code{mizerEncounter()}.}
+calculated by \code{\link[=getEncounter]{getEncounter()}}.}
 
 \item{feeding_level}{An array (species x size) with the feeding level as
-calculated by \code{mizerFeedingLevel()}.}
+calculated by \code{\link[=getFeedingLevel]{getFeedingLevel()}}.}
 
-\item{...}{Optional arguments for rate functions.}
+\item{...}{Unused}
 }
 \value{
 A two dimensional array (species x size) holding
@@ -47,10 +60,26 @@ The return value can be negative, which means that the energy intake does not
 cover the cost of metabolism and movement.
 }
 \description{
-Calculates the energy rate \eqn{E_{r.i}(w)} (grams/year) available to an
+Calculates the energy rate
+\eqn{E_{r.i}(w)} (grams/year) available to an
 individual of species i and size w for reproduction and growth after
 metabolism and movement have been accounted for.
+You would not usually call this function directly but instead use
+\code{\link[=getEReproAndGrowth]{getEReproAndGrowth()}}, which then calls this function unless an alternative
+function has been registered, see below.
 }
+\section{Your own energy rate function}{
+
+By default \code{\link[=getEReproAndGrowth]{getEReproAndGrowth()}} calls \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGrowth()}}. However you
+can replace this with your own alternative energy rate function. If
+your function is called \code{"myEReproAndGrowth"} then you register it in a
+MizerParams object \code{params} with\preformatted{params <- setRateFunction(params, "EReproAndGrowth", "myEReproAndGrowth")
+}
+
+Your function will then be called instead of \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGrowth()}}, with
+the same arguments.
+}
+
 \seealso{
 Other mizer rate functions: 
 \code{\link{mizerEGrowth}()},

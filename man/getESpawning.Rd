@@ -9,7 +9,8 @@ getESpawning(
   n = initialN(params),
   n_pp = initialNResource(params),
   n_other = initialNOther(params),
-  e = getEReproAndGrowth(params, n = n, n_pp = n_pp, n_other = n_other)
+  t = 0,
+  ...
 )
 }
 \arguments{
@@ -22,9 +23,11 @@ getESpawning(
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
-\item{e}{The energy available for reproduction and growth (optional). A
-matrix of size no. species x no. size bins. If not supplied, is calculated
-internally using \code{\link[=getEReproAndGrowth]{getEReproAndGrowth()}}.}
+\item{t}{The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)}
+
+\item{...}{Unused}
 }
 \value{
 A two dimensional array (prey species x prey size) holding
@@ -38,13 +41,25 @@ set with \code{\link[=setReproduction]{setReproduction()}}.
 \description{
 An alias provided for backward compatibility with mizer version <= 1.0
 }
+\section{Your own reproduction rate function}{
+
+By default \code{\link[=getERepro]{getERepro()}} calls \code{\link[=mizerERepro]{mizerERepro()}}. However you can
+replace this with your own alternative reproduction rate function. If
+your function is called \code{"myERepro"} then you register it in a MizerParams
+object \code{params} with\preformatted{params <- setRateFunction(params, "ERepro", "myERepro")
+}
+
+Your function will then be called instead of \code{\link[=mizerERepro]{mizerERepro()}}, with the
+same arguments.
+}
+
 \examples{
 \dontrun{
 params <- newMultispeciesParams(NS_species_params_gears, inter)
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the energy at a particular time step
-getERepro(params,sim@n[21,,],sim@n_pp[21,])
+getERepro(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], t = 15)
 }
 }
 \seealso{

@@ -78,4 +78,8 @@ function for your own function called \code{myRates()}. That you can do with\pre
 Your new rate functions may need their own model parameters. These you
 can store in \code{other_params(params)}. For example\preformatted{other_params(params)$my_param <- 42
 }
+
+Note that your own rate functions need to be defined in the global
+environment or in a package. If they are defined within a function then
+mizer will not find them.
 }

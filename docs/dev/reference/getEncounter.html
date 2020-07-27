@@ -47,9 +47,7 @@
 
 <meta property="og:title" content="Get encounter rate — getEncounter" />
 <meta property="og:description" content="Returns the rate at which a predator of species \(i\) and
-weight \(w\) encounters food (grams/year).
-By default this function uses the function mizerEncounter() to calculate
-the encounter rate, but this can be overruled via setRateFunction()." />
+weight \(w\) encounters food (grams/year)." />
 
 
 <meta name="robots" content="noindex">
@@ -81,7 +79,7 @@ the encounter rate, but this can be overruled via setRateFunction()." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9001</span>
       </span>
     </div>
 
@@ -186,16 +184,15 @@ the encounter rate, but this can be overruled via setRateFunction()." />
 
     <div class="ref-description">
     <p>Returns the rate at which a predator of species \(i\) and
-weight \(w\) encounters food (grams/year).
-By default this function uses the function <code><a href='mizerEncounter.html'>mizerEncounter()</a></code> to calculate
-the encounter rate, but this can be overruled via <code><a href='setRateFunction.html'>setRateFunction()</a></code>.</p>
+weight \(w\) encounters food (grams/year).</p>
     </div>
 
     <pre class="usage"><span class='fu'>getEncounter</span>(
   <span class='no'>params</span>,
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'><a href='initialN-set.html'>initialN</a></span>(<span class='no'>params</span>),
   <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='fu'><a href='initialNResource-set.html'>initialNResource</a></span>(<span class='no'>params</span>),
-  <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='fu'><a href='initialNOther-set.html'>initialNOther</a></span>(<span class='no'>params</span>)
+  <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='fu'><a href='initialNOther-set.html'>initialNOther</a></span>(<span class='no'>params</span>),
+  <span class='kw'>t</span> <span class='kw'>=</span> <span class='fl'>0</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -218,12 +215,16 @@ the encounter rate, but this can be overruled via <code><a href='setRateFunction
       <td><p>A list of abundances for other dynamical components of the
 ecosystem</p></td>
     </tr>
+    <tr>
+      <th>t</th>
+      <td><p>The current time. Unused</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A two dimensional array (predator species x predator size) with the
-encounter rates.</p>
+    <p>A named two dimensional array (predator species x predator size) with
+the encounter rates.</p>
     <h2 class="hasAnchor" id="predation-encounter"><a class="anchor" href="#predation-encounter"></a>Predation encounter</h2>
 
     
@@ -256,6 +257,20 @@ where \(f_0\) is the feeding level calculated with <code><a href='getFeedingLeve
 This is used by the <code><a href='project.html'>project()</a></code> function for performing simulations.</p>
 <p>The function returns values also for sizes outside the size-range of the
 species. These values should not be used, as they are meaningless.</p>
+<p>If your model contains additional components that you added with
+<code><a href='setComponent.html'>setComponent()</a></code> and for which you specified an <code>encounter_fun</code> function then
+the encounters of these components will be included in the returned value.</p>
+    <h2 class="hasAnchor" id="your-own-encounter-function"><a class="anchor" href="#your-own-encounter-function"></a>Your own encounter function</h2>
+
+    
+
+<p>By default <code>getEncounter()</code> calls <code><a href='mizerEncounter.html'>mizerEncounter()</a></code>. However you can
+replace this with your own alternative encounter function. If
+your function is called <code>"myEncounter"</code> then you register it in a MizerParams
+object <code>params</code> with</p><pre><span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='no'>params</span>, <span class='st'>"Encounter"</span>, <span class='st'>"myEncounter"</span>)</pre>
+
+<p>Your function will then be called instead of <code><a href='mizerEncounter.html'>mizerEncounter()</a></code>, with the
+same arguments.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other rate functions: 
@@ -277,9 +292,7 @@ species. These values should not be used, as they are meaningless.</p>
 <span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
 <span class='co'># Run simulation with constant fishing effort for all gears for 20 years</span>
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
-<span class='no'>n</span> <span class='kw'>&lt;-</span> <span class='no'>sim</span>@<span class='kw'>n</span>[<span class='fl'>21</span>, , ]
-<span class='no'>n_pp</span> <span class='kw'>&lt;-</span> <span class='no'>sim</span>@<span class='kw'>n_pp</span>[<span class='fl'>21</span>, ]
-<span class='fu'>getEncounter</span>(<span class='no'>params</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>)
+<span class='fu'>getEncounter</span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'><a href='finalN.html'>finalN</a></span>(<span class='no'>sim</span>), <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='fu'><a href='finalN.html'>finalNResource</a></span>(<span class='no'>sim</span>), <span class='kw'>t</span> <span class='kw'>=</span> <span class='fl'>20</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

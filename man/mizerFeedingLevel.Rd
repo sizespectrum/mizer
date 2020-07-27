@@ -4,22 +4,33 @@
 \alias{mizerFeedingLevel}
 \title{Get feeding level needed to project standard mizer model}
 \usage{
-mizerFeedingLevel(params, encounter, ...)
+mizerFeedingLevel(params, n, n_pp, n_other, t, encounter, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
 
+\item{n}{A matrix of species abundances (species x size).}
+
+\item{n_pp}{A vector of the resource abundance by size}
+
+\item{n_other}{A list of abundances for other dynamical components of the
+ecosystem}
+
+\item{t}{The current time. Unused}
+
 \item{encounter}{A two dimensional array (predator species x predator size)
 with the encounter rate.}
 
-\item{...}{Optional arguments for rate functions.}
+\item{...}{Unused}
 }
 \value{
 A two dimensional array (predator species x predator size) with the
 feeding level.
 }
 \description{
-Get feeding level needed to project standard mizer model
+You would not usually call this function directly but instead use
+\code{\link[=getFeedingLevel]{getFeedingLevel()}}, which then calls this function unless an alternative
+function has been registered, see below.
 }
 \section{Feeding level}{
 
@@ -35,12 +46,24 @@ taken from the \code{params} object, and is set with
 As a consequence of the above expression for the feeding level,
 \eqn{1-f_i(w)} is the proportion of the food available to it that the
 predator actually consumes.
+}
 
-The feeding level is used in \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGrowth()}} and in
-\code{\link[=mizerPredRate]{mizerPredRate()}}.
+\section{Your own feeding level function}{
+
+By default \code{\link[=getFeedingLevel]{getFeedingLevel()}} calls \code{\link[=mizerFeedingLevel]{mizerFeedingLevel()}}. However you can
+replace this with your own alternative feeding level function. If
+your function is called \code{"myFeedingLevel"} then you register it in a MizerParams
+object \code{params} with\preformatted{params <- setRateFunction(params, "FeedingLevel", "myFeedingLevel")
+}
+
+Your function will then be called instead of \code{\link[=mizerFeedingLevel]{mizerFeedingLevel()}}, with the
+same arguments.
 }
 
 \seealso{
+The feeding level is used in \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGrowth()}} and in
+\code{\link[=mizerPredRate]{mizerPredRate()}}.
+
 Other mizer rate functions: 
 \code{\link{mizerEGrowth}()},
 \code{\link{mizerEReproAndGrowth}()},

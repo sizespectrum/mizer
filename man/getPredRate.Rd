@@ -9,7 +9,8 @@ getPredRate(
   n = initialN(params),
   n_pp = initialNResource(params),
   n_other = initialNOther(params),
-  feeding_level = getFeedingLevel(params, n = n, n_pp = n_pp, n_other = n_other)
+  t = 0,
+  ...
 )
 }
 \arguments{
@@ -22,9 +23,11 @@ getPredRate(
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
-\item{feeding_level}{The current feeding level (optional). A matrix of size
-no. species x no. size bins. If not supplied, is calculated internally
-using the \code{\link[=getFeedingLevel]{getFeedingLevel()}} function.}
+\item{t}{The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)}
+
+\item{...}{Unused}
 }
 \value{
 A two dimensional array (predator species x prey size),
@@ -36,18 +39,28 @@ a given size \eqn{w} is killed by predators from species \eqn{j}. In formulas
 \deqn{{\tt pred\_rate}_j(w_p) = \int \phi_j(w,w_p) (1-f_j(w)) 
   \gamma_j(w) N_j(w) \, dw.}{pred_rate_j(w_p) = \int\phi_i(w,w_p) (1-f_i(w)) 
   \gamma_i(w) N_i(w) dw.}
-This potential rate is used in the function \code{\link[=getPredMort]{getPredMort()}} to
+This potential rate is used in \code{\link[=getPredMort]{getPredMort()}} to
 calculate the realised predation mortality rate on the prey individual.
 }
+\section{Your own predation rate function}{
+
+By default \code{\link[=getPredRate]{getPredRate()}} calls \code{\link[=mizerPredRate]{mizerPredRate()}}. However you can
+replace this with your own alternative predation rate function. If
+your function is called \code{"myPredRate"} then you register it in a MizerParams
+object \code{params} with\preformatted{params <- setRateFunction(params, "PredRate", "myPredRate")
+}
+
+Your function will then be called instead of \code{\link[=mizerPredRate]{mizerPredRate()}}, with
+the same arguments.
+}
+
 \examples{
 \dontrun{
 params <- newMultispeciesParams(NS_species_params_gears, inter)
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the feeding level at one time step
-n <- sim@n[21,,]
-n_pp <- sim@n_pp[21,]
-getPredRate(params,n,n_pp)
+getPredRate(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ])
 }
 }
 \seealso{

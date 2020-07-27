@@ -16,14 +16,16 @@ mizerRates(params, n, n_pp, n_other, t = 0, effort, rates_fns, ...)
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
-\item{t}{The current time}
+\item{t}{The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)}
 
 \item{effort}{The effort for each fishing gear}
 
 \item{rates_fns}{Named list of the functions to call to calculate the rates.
 Note that this list holds the functions themselves, not their names.}
 
-\item{...}{Optional arguments for rate functions.}
+\item{...}{Unused}
 }
 \description{
 Calls other rate functions in sequence and collects the results in a list.
@@ -45,7 +47,7 @@ By default this function returns a list with the following components:
 \item rdd from \code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}
 }
 However you can replace any of these rate functions by your own rate
-function if you wish, see \code{setRateFunction()} for details.
+function if you wish, see \code{\link[=setRateFunction]{setRateFunction()}} for details.
 }
 \seealso{
 Other mizer rate functions: 

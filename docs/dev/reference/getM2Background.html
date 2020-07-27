@@ -78,7 +78,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9001</span>
       </span>
     </div>
 
@@ -190,7 +190,8 @@
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'><a href='initialN-set.html'>initialN</a></span>(<span class='no'>params</span>),
   <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='fu'><a href='initialNResource-set.html'>initialNResource</a></span>(<span class='no'>params</span>),
   <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='fu'><a href='initialNOther-set.html'>initialNOther</a></span>(<span class='no'>params</span>),
-  <span class='kw'>pred_rate</span> <span class='kw'>=</span> <span class='fu'><a href='getPredRate.html'>getPredRate</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>n_other</span>)
+  <span class='kw'>t</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+  <span class='no'>...</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -214,20 +215,31 @@
 ecosystem</p></td>
     </tr>
     <tr>
-      <th>pred_rate</th>
-      <td><p>An array of predation rates of dimension no. sp x no.
-community size bins x no. of size bins in whole spectra (i.e. community +
-resource, the w_full slot). The array is optional. If it is not provided
-it is calculated by the <code><a href='getPredRate.html'>getPredRate()</a></code> function.</p></td>
+      <th>t</th>
+      <td><p>The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Unused</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A vector of mortality rate by resource size.</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+    <h2 class="hasAnchor" id="your-own-resource-mortality-function"><a class="anchor" href="#your-own-resource-mortality-function"></a>Your own resource mortality function</h2>
 
-    <p>Used by the <code>project</code> function for running size based simulations.</p>
+    
+
+<p>By default <code><a href='getResourceMort.html'>getResourceMort()</a></code> calls <code><a href='mizerResourceMort.html'>mizerResourceMort()</a></code>. However you can
+replace this with your own alternative resource mortality function. If
+your function is called <code>"myResourceMort"</code> then you register it in a MizerParams
+object <code>params</code> with</p><pre><span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='no'>params</span>, <span class='st'>"ResourceMort"</span>, <span class='st'>"myResourceMort"</span>)</pre>
+
+<p>Your function will then be called instead of <code><a href='mizerResourceMort.html'>mizerResourceMort()</a></code>, with the
+same arguments.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other rate functions: 
@@ -250,9 +262,7 @@ it is calculated by the <code><a href='getPredRate.html'>getPredRate()</a></code
 <span class='co'># With constant fishing effort for all gears for 20 time steps</span>
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
 <span class='co'># Get resource mortality at one time step</span>
-<span class='no'>n</span> <span class='kw'>&lt;-</span> <span class='no'>sim</span>@<span class='kw'>n</span>[<span class='fl'>21</span>,,]
-<span class='no'>n_pp</span> <span class='kw'>&lt;-</span> <span class='no'>sim</span>@<span class='kw'>n_pp</span>[<span class='fl'>21</span>,]
-<span class='fu'><a href='getResourceMort.html'>getResourceMort</a></span>(<span class='no'>params</span>,<span class='no'>n</span>,<span class='no'>n_pp</span>)
+<span class='fu'><a href='getResourceMort.html'>getResourceMort</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'><a href='N.html'>N</a></span>(<span class='no'>sim</span>)[<span class='fl'>15</span>, , ], <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='fu'><a href='N.html'>NResource</a></span>(<span class='no'>sim</span>)[<span class='fl'>15</span>, ])
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

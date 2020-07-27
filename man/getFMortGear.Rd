@@ -26,7 +26,6 @@ three dimensions (gear x species x size).
 \description{
 Calculates the fishing mortality rate \eqn{F_{g,i,w}} by gear, species and
 size at each time step in the \code{effort} argument (in units 1/year).
-Used by the \code{project} function to perform simulations.
 }
 \note{
 Here: fishing mortality = catchability x selectivity x effort.
@@ -52,19 +51,19 @@ params <- newMultispeciesParams(NS_species_params_gears, inter)
 getFMortGear(params, effort = 1)
 # Get the fishing mortality when effort is different
 # between the four gears but constant in time:
-getFMortGear(params, effort = c(0.5,1,1.5,0.75))
+getFMortGear(params, effort = c(0.5, 1, 1.5, 0.75))
 # Get the fishing mortality when effort is different
 # between the four gears and changes with time:
-effort <- array(NA, dim = c(20,4))
-effort[,1] <- seq(from=0, to = 1, length=20)
-effort[,2] <- seq(from=1, to = 0.5, length=20)
-effort[,3] <- seq(from=1, to = 2, length=20)
-effort[,4] <- seq(from=2, to = 1, length=20)
-getFMortGear(params, effort=effort)
+effort <- array(NA, dim = c(20, 4))
+effort[, 1] <- seq(from=0, to = 1, length = 20)
+effort[, 2] <- seq(from=1, to = 0.5, length = 20)
+effort[, 3] <- seq(from=1, to = 2, length = 20)
+effort[, 4] <- seq(from=2, to = 1, length = 20)
+getFMortGear(params, effort = effort)
 # Get the fishing mortality using the effort already held in a MizerSim object.
 sim <- project(params, t_max = 20, effort = 0.5)
 getFMortGear(sim)
-getFMortGear(sim, time_range=c(10,20))
+getFMortGear(sim, time_range = c(10, 20))
 }
 
 }
