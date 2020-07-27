@@ -213,7 +213,8 @@ mizerEncounter <- function(params, n, n_pp, n_other, t, ...) {
         # mvfft() does a Fourier transform of each column of its argument, but
         # we need the Fourier transforms of each row, so we need to apply mvfft()
         # to the transposed matrices and then transpose again at the end.
-        avail_energy <- Re(t(mvfft(t(params@ft_pred_kernel_e) * mvfft(t(prey)),
+        avail_energy <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_e) * 
+                                             mvfft(base::t(prey)),
                                    inverse = TRUE))) / length(params@w_full)
         # Only keep the bit for fish sizes
         avail_energy <- avail_energy[, idx_sp, drop = FALSE]
@@ -452,7 +453,7 @@ mizerPredRate <- function(params, n, n_pp, n_other, t, feeding_level, ...) {
 mizerPredMort <- function(params, n, n_pp, n_other, t, pred_rate, ...) {
     idx_sp <- (length(params@w_full) - 
                    length(params@w) + 1):length(params@w_full)
-    return((t(params@interaction) %*% pred_rate)[, idx_sp, drop = FALSE])
+    return((base::t(params@interaction) %*% pred_rate)[, idx_sp, drop = FALSE])
 }
 
 #' Get predation mortality rate for resource needed to project standard mizer 
