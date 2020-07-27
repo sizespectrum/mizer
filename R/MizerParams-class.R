@@ -761,7 +761,7 @@ w <- function(params) {
 
 #' @rdname w
 #' @return `w_full()` returns a vector with the sizes at the start of each size bin
-#'   of the resource spectrun, which typically starts at smaller sizes than
+#'   of the resource spectrum, which typically starts at smaller sizes than
 #'   the community spectrum.
 #' @export
 w_full <- function(params) {
