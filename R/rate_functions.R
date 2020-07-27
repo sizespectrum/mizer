@@ -10,8 +10,6 @@
 #' 
 #' Returns the rate at which a predator of species \eqn{i} and
 #' weight \eqn{w} encounters food (grams/year).
-#' By default this function uses the function [mizerEncounter()] to calculate
-#' the encounter rate, but this can be overruled via [setRateFunction()].
 #' 
 #' @inherit mizerEncounter
 #' 
@@ -22,23 +20,22 @@
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' # Run simulation with constant fishing effort for all gears for 20 years
 #' sim <- project(params, t_max = 20, effort = 0.5)
-#' n <- sim@@n[21, , ]
-#' n_pp <- sim@@n_pp[21, ]
-#' getEncounter(params, n, n_pp)
+#' getEncounter(params, n = finalN(sim), n_pp = finalNResource(sim), t = 20)
 #' }
 getEncounter <- function(params, n = initialN(params), 
                          n_pp = initialNResource(params),
-                         n_other = initialNOther(params)) {
+                         n_other = initialNOther(params),
+                         t = 0) {
 
     f <- get(params@rates_funcs$Encounter)
-    f(params, n = n, n_pp = n_pp, n_other = n_other)
+    f(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
 }
 
 
 #' Get feeding level
 #'
 #' Returns the feeding level.
-#' By default this function uses the function [mizerFeedingLevel()] to calculate
+#' By default this function uses [mizerFeedingLevel()] to calculate
 #' the feeding level, but this can be overruled via [setRateFunction()].
 #' 
 #' @inherit mizerFeedingLevel
@@ -46,10 +43,6 @@ getEncounter <- function(params, n = initialN(params),
 #' @param object A `MizerParams` object or a `MizerSim` object
 #' @inheritParams mizerRates
 #' @inheritParams get_time_elements
-#' @param encounter The encounter rate matrix (optional) of dimension no.
-#'   species x no. size bins. If not passed in, it is calculated internally
-#'   using [getEncounter()]. Only used if `object`
-#'   argument is of type `MizerParams`.
 #' @param drop If `TRUE` then any dimension of length 1 will be removed
 #'   from the returned array.
 #'
@@ -67,37 +60,29 @@ getEncounter <- function(params, n = initialN(params),
 #' @examples
 #' \dontrun{
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' # With constant fishing effort for all gears for 20 time steps
+#' # Get initial feeding level
+#' fl <- getFeedingLevel(params)
+#' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
-#' # Get the feeding level at one time step
-#' n <- sim@@n[21,,]
-#' n_pp <- sim@@n_pp[21,]
-#' fl <- getFeedingLevel(params,n,n_pp)
 #' # Get the feeding level at all saved time steps
 #' fl <- getFeedingLevel(sim)
-#' # Get the feeding level for time 15 - 20
-#' fl <- getFeedingLevel(sim, time_range = c(15,20))
+#' # Get the feeding level for years 15 - 20
+#' fl <- getFeedingLevel(sim, time_range = c(15, 20))
 #' }
-getFeedingLevel <- function(object, n, n_pp, n_other, encounter,
-                            time_range, drop = FALSE) {
+getFeedingLevel <- function(object, n, n_pp, n_other,
+                            time_range, drop = FALSE, ...) {
     if (is(object, "MizerParams")) {
         params <- object
-        if (missing(encounter)) {
-            if (missing(n)) n <- params@initial_n
-            if (missing(n_pp)) n_pp <- params@initial_n_pp
-            if (missing(n_other)) n_other <- params@initial_n_other
-            encounter <- getEncounter(params, n, n_pp, n_other)
-        }
-        # Check dims of encounter
-        if (!all(dim(encounter) == c(nrow(params@species_params),
-                                  length(params@w)))) {
-            stop("encounter argument must have dimensions: no. species (",
-                 nrow(params@species_params), ") x no. size bins (",
-                 length(params@w), ")")
-        }
+        if (missing(time_range)) time_range <- 0
+        t <- min(time_range)
+        if (missing(n)) n <- params@initial_n
+        if (missing(n_pp)) n_pp <- params@initial_n_pp
+        if (missing(n_other)) n_other <- params@initial_n_other
+        encounter <- getEncounter(params, n, n_pp, n_other, t = t)
         # calculate feeding level
         f <- get(params@rates_funcs$FeedingLevel)
-        return(f(params, encounter = encounter))
+        return(f(params, n = n, n_pp = n_pp, n_other = n_other,
+                 encounter = encounter, t = t))
     } else {
         sim <- object
         if (missing(time_range)) {
@@ -111,11 +96,16 @@ getFeedingLevel <- function(object, n, n_pp, n_other, encounter,
             dimnames(n) <- dimnames(sim@n)[2:3]
             n_other <- sim@n_other[x, ]
             names(n_other) <- dimnames(sim@n_other)$component
+            t <- as.numeric(dimnames(sim@n)$time[[x]])
             feed <- getFeedingLevel(sim@params, n = n,
                                     n_pp = sim@n_pp[x, ],
-                                    n_other = n_other)
+                                    n_other = n_other,
+                                    time_range = t)
             return(feed)
-            }, .drop = drop)
+            }, .drop = FALSE)
+        # Before we drop dimensions we want to set the time dimname
+        names(dimnames(feed_time))[[1]] <- "time"
+        feed_time <- feed_time[, , , drop = drop]
         return(feed_time)
     }
 }
@@ -135,6 +125,41 @@ getCriticalFeedingLevel <- function(params) {
   params@metab/params@intake_max/params@species_params$alpha
 }
 
+
+#' Get energy rate available for reproduction and growth
+#'
+#' Calculates the energy rate \eqn{E_{r.i}(w)} (grams/year) available for
+#' reproduction and growth after metabolism and movement have been accounted
+#' for. 
+#' 
+#' @inheritParams mizerRates
+#'
+#' @inherit mizerEReproAndGrowth
+#' 
+#' @export
+#' @seealso The part of this energy rate that is invested into growth is
+#'   calculated with [getEGrowth()] and the part that is invested into
+#'   reproduction is calculated with [getERepro()].
+#' @family rate functions
+#' @examples
+#' \dontrun{
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
+#' # Project with constant fishing effort for all gears for 20 time steps
+#' sim <- project(params, t_max = 20, effort = 0.5)
+#' # Get the energy at a particular time step
+#' getEReproAndGrowth(params, n = N(sim)[15, , ], n_pp = NResource[15, ], t = 15)
+#' }
+getEReproAndGrowth <- function(params, n = initialN(params), 
+                               n_pp = initialNResource(params),
+                               n_other = initialNOther(params),
+                               t = 0, ...) {
+    encounter <- getEncounter(params, n, n_pp, n_other, t = t)
+    feeding_level <- getFeedingLevel(params, n, n_pp, n_other, time_range = t)
+    f <- get(params@rates_funcs$EReproAndGrowth)
+    f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+      encounter = encounter, feeding_level = feeding_level)
+}
+
 #' Get predation rate
 #' 
 #' Calculates the potential rate (in units 1/year) at which a prey individual of
@@ -142,13 +167,12 @@ getCriticalFeedingLevel <- function(params) {
 #' \deqn{{\tt pred\_rate}_j(w_p) = \int \phi_j(w,w_p) (1-f_j(w)) 
 #'   \gamma_j(w) N_j(w) \, dw.}{pred_rate_j(w_p) = \int\phi_i(w,w_p) (1-f_i(w)) 
 #'   \gamma_i(w) N_i(w) dw.}
-#' This potential rate is used in the function [getPredMort()] to
+#' This potential rate is used in [getPredMort()] to
 #' calculate the realised predation mortality rate on the prey individual.
+#' 
+#' @inherit mizerPredRate
 #'
 #' @inheritParams mizerRates
-#' @param feeding_level The current feeding level (optional). A matrix of size
-#'   no. species x no. size bins. If not supplied, is calculated internally
-#'   using the [getFeedingLevel()] function.
 #'   
 #' @return A two dimensional array (predator species x prey size), 
 #'   where the prey size runs over fish community plus resource spectrum.
@@ -160,27 +184,19 @@ getCriticalFeedingLevel <- function(params) {
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the feeding level at one time step
-#' n <- sim@@n[21,,]
-#' n_pp <- sim@@n_pp[21,]
-#' getPredRate(params,n,n_pp)
+#' getPredRate(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ])
 #' }
 getPredRate <- function(params, n = initialN(params), 
                         n_pp = initialNResource(params),
                         n_other = initialNOther(params),
-                        feeding_level = getFeedingLevel(params, n = n,
-                                                        n_pp = n_pp, 
-                                                        n_other = n_other)
-                        ) {
+                        t = 0, ...) {
     no_sp <- dim(params@interaction)[1]
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
-    if (!all(dim(feeding_level) == c(no_sp, no_w))) {
-        stop("feeding_level argument must have dimensions: no. species (",
-             no_sp, ") x no. size bins (", no_w, ")")
-    }
-    
+    feeding_level = getFeedingLevel(params, n = n, n_pp = n_pp,  
+                                    n_other = n_other, time_range = t)
     f <- get(params@rates_funcs$PredRate)
-    pred_rate <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
+    pred_rate <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
                    feeding_level = feeding_level)
     dimnames(pred_rate) <- list(sp = dimnames(params@initial_n)$sp,
                                 w_prey = as.character(signif(params@w_full, 3)))
@@ -194,11 +210,8 @@ getPredRate <- function(params, n = initialN(params),
 #' \deqn{\mu_{p.i}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{ji}.}{
 #'   \mu_{p.i}(w_p) = \sum_j pred_rate_j(w_p) \theta_{ji}.}
 #' 
+#' @inherit mizerPredMort
 #' @inheritParams getFeedingLevel
-#' @param pred_rate An array of predation rates of dimension no. sp x no.
-#'   community size bins x no. of size bins in whole spectra (i.e. community +
-#'   resource, the w_full slot). The array is optional. If it is not provided
-#'   it is calculated by the [getPredRate()] function.
 #'
 #' @return
 #'   If a `MizerParams` object is passed in, the function returns a two
@@ -215,32 +228,26 @@ getPredRate <- function(params, n = initialN(params),
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get predation mortality at one time step
-#' n <- sim@@n[21,,]
-#' n_pp <- sim@@n_pp[21,]
-#' getPredMort(params,n,n_pp)
+#' getPredMort(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ])
 #' # Get predation mortality at all saved time steps
 #' getPredMort(sim)
-#' # Get predation mortality over the time 15 - 20
-#' getPredMort(sim, time_range = c(15,20))
+#' # Get predation mortality over the years 15 - 20
+#' getPredMort(sim, time_range = c(15, 20))
 #' }
 getPredMort <- function(object, n, n_pp, n_other,
-                        pred_rate, time_range, drop = TRUE) {
+                        time_range, drop = TRUE, ...) {
     if (is(object, "MizerParams")) {
         params <- object
         if (missing(n)) n <- params@initial_n
         if (missing(n_pp)) n_pp <- params@initial_n_pp
         if (missing(n_other)) n_other <- params@initial_n_other
-        if (missing(pred_rate)) {
-            feeding_level <- getFeedingLevel(params, n = n, n_pp = n_pp, 
-                                             n_other = n_other)
-
-            pred_rate <- getPredRate(params, n = n, n_pp = n_pp, 
-                                     n_other = n_other,
-                                     feeding_level = feeding_level)
-        }
+        if (missing(time_range)) time_range <- 0
+        t <- min(time_range)
+        pred_rate <- getPredRate(params, n = n, n_pp = n_pp, 
+                                 n_other = n_other, t = t)
         
         f <- get(params@rates_funcs$PredMort)
-        pred_mort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
+        pred_mort <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
                        pred_rate = pred_rate)
         dimnames(pred_mort) <- list(prey = dimnames(params@initial_n)$sp,
                                     w_prey = dimnames(params@initial_n)$w)
@@ -256,10 +263,14 @@ getPredMort <- function(object, n, n_pp, n_other,
             dimnames(n) <- dimnames(sim@n)[2:3]
             n_other <- sim@n_other[x, ]
             names(n_other) <- dimnames(sim@n_other)$component
+            t <- as.numeric(dimnames(sim@n)$time[[x]])
             n_pp <- sim@n_pp[x, ]
-            return(getPredMort(sim@params, n = n, 
-                               n_pp = n_pp, n_other = n_other))
-        }, .drop = drop)
+            return(getPredMort(sim@params, n = n, n_pp = n_pp, 
+                               n_other = n_other, time_range = t))
+        }, .drop = FALSE)
+        # Before we drop dimensions we want to set the time dimname
+        names(dimnames(pred_mort_time))[[1]] <- "time"
+        pred_mort_time <- pred_mort_time[, , , drop = drop]
         return(pred_mort_time)
     }
 }
@@ -277,13 +288,8 @@ getM2 <- getPredMort
 #' Calculates the predation mortality rate \eqn{\mu_p(w)} on the resource
 #' spectrum by resource size (in units 1/year).
 #' 
-#' Used by the `project` function for running size based simulations.
-#' 
+#' @inherit mizerResourceMort
 #' @inheritParams mizerRates
-#' @param pred_rate An array of predation rates of dimension no. sp x no.
-#'   community size bins x no. of size bins in whole spectra (i.e. community +
-#'   resource, the w_full slot). The array is optional. If it is not provided
-#'   it is calculated by the [getPredRate()] function.
 #'
 #' @return A vector of mortality rate by resource size.
 #' @family rate functions
@@ -294,28 +300,20 @@ getM2 <- getPredMort
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get resource mortality at one time step
-#' n <- sim@@n[21,,]
-#' n_pp <- sim@@n_pp[21,]
-#' getResourceMort(params,n,n_pp)
+#' getResourceMort(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ])
 #' }
 getResourceMort <- 
     function(params, n = initialN(params), 
              n_pp = initialNResource(params),
              n_other = initialNOther(params),
-             pred_rate = getPredRate(params, n = n, n_pp = n_pp, 
-                                     n_other = n_other)) {
+             t = 0, ...) {
 
-    if ( (!all(dim(pred_rate) ==
-               c(nrow(params@species_params), length(params@w_full)))) |
-         (length(dim(pred_rate)) != 2)) {
-        stop("pred_rate argument must have 2 dimensions: no. species (",
-             nrow(params@species_params),
-             ") x no. size bins in community + resource (",
-             length(params@w_full), ")")
-    }
+    pred_rate <- getPredRate(params, n = n, n_pp = n_pp, 
+                              n_other = n_other, t = t)
     
     f <- get(params@rates_funcs$ResourceMort)
-    f(params, n = n, n_pp = n_pp, n_other = n_other, pred_rate = pred_rate)
+    f(params, n = n, n_pp = n_pp, n_other = n_other, 
+      t = t, pred_rate = pred_rate)
 }
 
 #' Alias for getResourceMort
@@ -330,7 +328,6 @@ getM2Background <- getResourceMort
 #'
 #' Calculates the fishing mortality rate \eqn{F_{g,i,w}} by gear, species and
 #' size at each time step in the `effort` argument (in units 1/year).
-#' Used by the `project` function to perform simulations.
 #' 
 #' @param object A `MizerParams` object or a `MizerSim` object.
 #' @param effort The effort for each fishing gear. See notes below.
@@ -368,19 +365,19 @@ getM2Background <- getResourceMort
 #' getFMortGear(params, effort = 1)
 #' # Get the fishing mortality when effort is different
 #' # between the four gears but constant in time:
-#' getFMortGear(params, effort = c(0.5,1,1.5,0.75))
+#' getFMortGear(params, effort = c(0.5, 1, 1.5, 0.75))
 #' # Get the fishing mortality when effort is different
 #' # between the four gears and changes with time:
-#' effort <- array(NA, dim = c(20,4))
-#' effort[,1] <- seq(from=0, to = 1, length=20)
-#' effort[,2] <- seq(from=1, to = 0.5, length=20)
-#' effort[,3] <- seq(from=1, to = 2, length=20)
-#' effort[,4] <- seq(from=2, to = 1, length=20)
-#' getFMortGear(params, effort=effort)
+#' effort <- array(NA, dim = c(20, 4))
+#' effort[, 1] <- seq(from=0, to = 1, length = 20)
+#' effort[, 2] <- seq(from=1, to = 0.5, length = 20)
+#' effort[, 3] <- seq(from=1, to = 2, length = 20)
+#' effort[, 4] <- seq(from=2, to = 1, length = 20)
+#' getFMortGear(params, effort = effort)
 #' # Get the fishing mortality using the effort already held in a MizerSim object.
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getFMortGear(sim)
-#' getFMortGear(sim, time_range=c(10,20))
+#' getFMortGear(sim, time_range = c(10, 20))
 #' }
 #' 
 getFMortGear <- function(object, effort, time_range) {
@@ -460,7 +457,7 @@ getFMortGear <- function(object, effort, time_range) {
 #' gear), a vector of length equal to the number of gears (each gear has a
 #' different effort that is constant in time), or a single numeric value (each
 #' gear has the same effort that is constant in time). The order of gears in the
-#' `effort` argument must be the same the same as in the `MizerParams`
+#' `effort` argument must be the same as in the `MizerParams`
 #' object.
 #'
 #' If the object argument is of class `MizerSim` then the effort slot of
@@ -480,16 +477,16 @@ getFMortGear <- function(object, effort, time_range) {
 #' # Get the total fishing mortality when effort is different
 #' # between the four gears and changes with time:
 #' effort <- array(NA, dim = c(20,4))
-#' effort[,1] <- seq(from=0, to = 1, length=20)
-#' effort[,2] <- seq(from=1, to = 0.5, length=20)
-#' effort[,3] <- seq(from=1, to = 2, length=20)
-#' effort[,4] <- seq(from=2, to = 1, length=20)
-#' getFMort(params, effort=effort)
+#' effort[, 1] <- seq(from = 0, to = 1, length = 20)
+#' effort[, 2] <- seq(from = 1, to = 0.5, length = 20)
+#' effort[, 3] <- seq(from = 1, to = 2, length = 20)
+#' effort[, 4] <- seq(from = 2, to = 1, length = 20)
+#' getFMort(params, effort = effort)
 #' # Get the total fishing mortality using the effort already held in a 
 #' # MizerSim object.
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getFMort(sim)
-#' getFMort(sim, time_range = c(10,20))
+#' getFMort(sim, time_range = c(10, 20))
 #' }
 getFMort <- function(object, effort, time_range, drop = TRUE){
     if (is(object, "MizerParams")) {
@@ -529,15 +526,11 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
 #' Calculates the total mortality rate \eqn{\mu_i(w)}  (in units 1/year) on each
 #' species by size from predation mortality, background mortality and fishing
 #' mortality for a single time step.
+#' 
+#' @inherit mizerMort
 #' @inheritParams mizerRates
 #' @param effort A numeric vector of the effort by gear or a single numeric
 #'   effort value which is used for all gears.
-#' @param f_mort A two dimensional array (species x size) of fishing mortality
-#'   (optional).If not supplied is calculated using the [getFMort()]
-#'   function.
-#' @param pred_mort A two dimensional array of predation mortality (optional). Has
-#'   dimensions no. sp x no. size bins in the community. If not supplied is
-#'   calculated using the [getPredMort()] function.
 #'
 #' @return A two dimensional array (prey species x prey size). 
 #'
@@ -550,29 +543,21 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the total mortality at a particular time step
-#' getMort(params,sim@@n[21,,],sim@@n_pp[21,],effort=0.5)
+#' getMort(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], 
+#'         t = 15, effort = 0.5)
 #' }
 getMort <- function(params, 
                     n = initialN(params), 
                     n_pp = initialNResource(params),
                     n_other = initialNOther(params),
                     effort = getInitialEffort(params),
-                    f_mort = getFMort(params, effort),
-                    pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
-                                     n_other = n_other)){
-    if (!all(dim(f_mort) == c(nrow(params@species_params), length(params@w)))) {
-        stop("f_mort argument must have dimensions: no. species (",
-             nrow(params@species_params), ") x no. size bins (",
-             length(params@w), ")")
-    }
-    if (!all(dim(pred_mort) == c(nrow(params@species_params), length(params@w)))) {
-        stop("pred_mort argument must have dimensions: no. species (",
-             nrow(params@species_params), ") x no. size bins (",
-             length(params@w), ")")
-    }
+                    t = 0, ...) {
+    f_mort <- getFMort(params, effort)
+    pred_mort <- getPredMort(params, n = n, n_pp = n_pp, 
+                             n_other = n_other, time_range = t)
   
     f <- get(params@rates_funcs$Mort)
-    z <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
+    z <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
            f_mort = f_mort, pred_mort = pred_mort)
     dimnames(z) <- list(prey = dimnames(params@initial_n)$sp,
                         w_prey = dimnames(params@initial_n)$w)
@@ -587,88 +572,13 @@ getMort <- function(params,
 getZ <- getMort
 
 
-#' Get energy rate available for reproduction and growth
-#'
-#' Calculates the energy rate \eqn{E_{r.i}(w)} (grams/year) available for
-#' reproduction and growth after metabolism and movement have been accounted
-#' for. 
-#' 
-#' @inheritParams mizerRates
-#' @param encounter The encounter rate matrix (optional) of dimension no.
-#'   species x no. size bins. If not passed in, it is calculated internally
-#'   using the [getEncounter()] function.
-#' @param feeding_level The current feeding level (optional). A matrix of size
-#'   no. species x no. size bins. If not supplied, is calculated internally
-#'   using the [getFeedingLevel()] function.
-#'
-#' @return A two dimensional array (species x size) holding
-#' \deqn{E_{r.i}(w) = \max(0, \alpha_i\, (1 - {\tt feeding\_level}_i(w))\, 
-#'                            {\tt encounter}_i(w) - {\tt metab}_i(w)).}{
-#'   E_{r.i}(w) = max(0, alpha_i * (1 - feeding_level_i(w)) * 
-#'                       encounter_i(w) - metab_i(w)).}
-#' Due to the form of the feeding level, calculated by
-#' [getFeedingLevel()], this can also be expressed as
-#' \deqn{E_{r.i}(w) = \max(0, \alpha_i\, {\tt feeding\_level}_i(w)\, 
-#'                            h_i(w) - {\tt metab}_i(w))}{
-#'   E_{r.i}(w) = max(0, alpha_i * feeding_level_i(w) * 
-#'                       h_i(w) - metab_i(w))}
-#' where \eqn{h_i} is the maximum intake rate, set with 
-#' [setMaxIntakeRate()].
-#' The assimilation rate \eqn{\alpha_i} is taken from the species parameter
-#' data frame in `params`. The metabolic rate `metab` is taken from 
-#' `params` and set with [setMetabolicRate()].
-#' 
-#' The return value can be negative, which means that the energy intake does not
-#' cover the cost of metabolism and movement.
-#' 
-#' @export
-#' @seealso The part of this energy rate that is invested into growth is
-#'   calculated with [getEGrowth()] and the part that is invested into
-#'   reproduction is calculated with [getERepro()].
-#' @family rate functions
-#' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' # Project with constant fishing effort for all gears for 20 time steps
-#' sim <- project(params, t_max = 20, effort = 0.5)
-#' # Get the energy at a particular time step
-#' getEReproAndGrowth(params,sim@@n[21,,],sim@@n_pp[21,])
-#' }
-getEReproAndGrowth <- function(params, n = initialN(params), 
-                               n_pp = initialNResource(params),
-                               n_other = initialNOther(params),
-                               encounter = getEncounter(params, n = n,
-                                                        n_pp = n_pp, 
-                                                        n_other = n_other),
-                               feeding_level = getFeedingLevel(params, n = n,
-                                                               n_pp = n_pp, 
-                                                               n_other = n_other,
-                                                               encounter = encounter)) {
-    if (!all(dim(encounter) == c(nrow(params@species_params), length(params@w)))) {
-        stop("encounter argument must have dimensions: no. species (",
-             nrow(params@species_params), ") x no. size bins (",
-             length(params@w), ")")
-    }
-    if (!all(dim(feeding_level) == c(nrow(params@species_params), length(params@w)))) {
-        stop("feeding_level argument must have dimensions: no. species (",
-             nrow(params@species_params), ") x no. size bins (",
-             length(params@w), ")")
-    }
-    f <- get(params@rates_funcs$EReproAndGrowth)
-    f(params, n = n, n_pp = n_pp, n_other = n_other, 
-      encounter = encounter, feeding_level = feeding_level)
-}
-
-
 #' Get energy rate available for reproduction
 #'
 #' Calculates the energy rate (grams/year) available for reproduction after
 #' growth and metabolism have been accounted for.
 #' 
+#' @inherit mizerERepro
 #' @inheritParams mizerRates
-#' @param e The energy available for reproduction and growth (optional). A
-#'   matrix of size no. species x no. size bins. If not supplied, is calculated
-#'   internally using [getEReproAndGrowth()].
 #'
 #' @return A two dimensional array (prey species x prey size) holding
 #' \deqn{\psi_i(w)E_{r.i}(w)}
@@ -685,20 +595,16 @@ getEReproAndGrowth <- function(params, n = initialN(params),
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the energy at a particular time step
-#' getERepro(params,sim@@n[21,,],sim@@n_pp[21,])
+#' getERepro(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], t = 15)
 #' }
 getERepro <- function(params, n = initialN(params), 
                       n_pp = initialNResource(params),
                       n_other = initialNOther(params),
-                      e = getEReproAndGrowth(params, n = n, n_pp = n_pp,
-                                             n_other = n_other)) {
-    if (!all(dim(e) == c(nrow(params@species_params), length(params@w)))) {
-        stop("e argument must have dimensions: no. species (",
-             nrow(params@species_params), ") x no. size bins (",
-             length(params@w), ")")
-    }
+                      t = 0, ...) {
+    e <- getEReproAndGrowth(params, n = n, n_pp = n_pp,
+                            n_other = n_other, t = t)
     f <- get(params@rates_funcs$ERepro)
-    f(params, n = n, n_pp = n_pp, n_other = n_other, e = e)
+    f(params, n = n, n_pp = n_pp, n_other = n_other, t = t, e = e)
 }
 
 #' Alias for getERepro
@@ -713,17 +619,10 @@ getESpawning <- getERepro
 #'
 #' Calculates the energy rate \eqn{g_i(w)} (grams/year) available by species and
 #' size for growth after metabolism, movement and reproduction have been
-#' accounted for. Used by [project()] for performing simulations.
+#' accounted for.
 #' 
+#' @inherit mizerEGrowth
 #' @inheritParams mizerRates
-#' @param e The energy available for reproduction and growth (optional, although
-#'   if specified, e_repro must also be specified). A matrix of size no.
-#'   species x no. size bins. If not supplied, is calculated internally using
-#'   [getEReproAndGrowth()].
-#' @param e_repro The energy available for reproduction (optional, although if
-#'   specified, e must also be specified). A matrix of size no. species x no.
-#'   size bins. If not supplied, is calculated internally using
-#'   [getERepro()].
 #'   
 #' @return A two dimensional array (prey species x prey size) 
 #' @export
@@ -735,27 +634,19 @@ getESpawning <- getERepro
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the energy at a particular time step
-#' getEGrowth(params,sim@@n[21,,],sim@@n_pp[21,])
+#' getEGrowth(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], t = 15)
 #' }
 getEGrowth <- function(params, n = initialN(params), 
                        n_pp = initialNResource(params),
                        n_other = initialNOther(params),
-                       e_repro = getERepro(params, n = n, n_pp = n_pp, 
-                                           n_other = n_other),
-                       e = getEReproAndGrowth(params, n = n, n_pp = n_pp, 
-                                              n_other = n_other)) {
-    if (!all(dim(e_repro) == c(nrow(params@species_params), length(params@w)))) {
-        stop("e_repro argument must have dimensions: no. species (",
-             nrow(params@species_params), ") x no. size bins (",
-             length(params@w), ")")
-    }
-    if (!all(dim(e) == c(nrow(params@species_params), length(params@w)))) {
-        stop("e argument must have dimensions: no. species (",
-             nrow(params@species_params), ") x no. size bins (",
-             length(params@w), ")")
-    }
+                       t = 0, ...) {
+    e_repro <- getERepro(params, n = n, n_pp = n_pp, 
+                        n_other = n_other, t = t)
+    e <- getEReproAndGrowth(params, n = n, n_pp = n_pp, 
+                            n_other = n_other, t = t)
     f <- get(params@rates_funcs$EGrowth)
-    f(params, n = n, n_pp = n_pp, n_other = n_other, e_repro = e_repro, e = e)
+    f(params, n = n, n_pp = n_pp, n_other = n_other, 
+      t = t, e_repro = e_repro, e = e)
 }
 
 
@@ -767,9 +658,6 @@ getEGrowth <- function(params, n = initialN(params),
 #' See [setReproduction()] for more details.
 #' 
 #' @inheritParams mizerRates
-#' @param e_repro The energy available for reproduction (optional). A matrix of
-#'   size no. species x no. size bins. If not supplied, is calculated internally
-#'   using [getERepro()].
 #'   
 #' @return A numeric vector the length of the number of species 
 #' @export
@@ -781,20 +669,21 @@ getEGrowth <- function(params, n = initialN(params),
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the density-independent reproduction rate at a particular time step
-#' getRDI(params,sim@@n[21,,],sim@@n_pp[21,])
+#' getRDI(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], t = 15)
 #' }
 getRDI <- function(params, n = initialN(params), 
                    n_pp = initialNResource(params),
                    n_other = initialNOther(params),
-                   e_repro = getERepro(params, n = n, n_pp = n_pp, 
-                                       n_other = n_other)) {
-    if (!all(dim(e_repro) == c(nrow(params@species_params), length(params@w)))) {
-        stop("e_repro argument must have dimensions: no. species (",
-             nrow(params@species_params), ") x no. size bins (",
-             length(params@w), ")")
-    }
+                   t = 0, ...) {
+    e_repro <- getERepro(params, n = n, n_pp = n_pp, 
+                         n_other = n_other, t = t)
+    e_growth <- getEGrowth(params, n = n, n_pp = n_pp, 
+                         n_other = n_other, t = t)
+    mort <- getMort(params, n = n, n_pp = n_pp, 
+                         n_other = n_other, t = t)
     f <- get(params@rates_funcs$RDI)
-    f(params, n = n, n_pp = n_pp, n_other = n_other, e_repro = e_repro)
+    f(params, n = n, n_pp = n_pp, n_other = n_other, t = t, 
+      e_repro = e_repro, e_growth = e_growth, mort = mort)
 }
 
 
@@ -823,13 +712,14 @@ getRDI <- function(params, n = initialN(params),
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the rate at a particular time step
-#' getRDD(params,sim@@n[21,,],sim@@n_pp[21,])
+#' getRDD(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], t = 15)
 #' }
 getRDD <- function(params, n = initialN(params), 
                    n_pp = initialNResource(params),
                    n_other = initialNOther(params),
+                   t = 0,
                    rdi = getRDI(params, n = n, n_pp = n_pp, 
-                                n_other = n_other)) {
+                                n_other = n_other, t = t)) {
     # Avoid getting into infinite loops
     if (params@rates_funcs$RDD == "getRDD") {
         stop('"getRDD" is not a valid name for the function giving the density',

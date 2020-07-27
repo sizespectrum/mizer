@@ -1,8 +1,18 @@
-# mizer 2.0.2.9000
+# mizer 2.0.2.9001
 
 ## Bug fixes
 
 * Correct handling of shiny progress bar in `project()`.
+
+## Enhancements
+
+* Consistently passing the time argument to the rate functions, which will
+  allow extensions to implement time-dependent rates.
+* Simplified the getRates functions by removing the arguments that passed in
+  other rates. Instead the required rates are now always calculated within 
+  these functions.
+* Improve documentation of rate functions and of how to register your own rate 
+  functions.
 
 # mizer 2.0.2
 

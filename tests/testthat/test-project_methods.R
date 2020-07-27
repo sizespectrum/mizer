@@ -61,11 +61,6 @@ test_that("getFeedingLevel for MizerParams", {
     expect_identical(fl, fl2)
     # test value
     expect_known_value(fl, "values/getFeedingLevel")
-    # calling with encounter of wrong dimension gives error
-    encounter <- matrix(rnorm(10 * (no_sp - 1)), ncol = 10, nrow = no_sp - 1)
-    expect_error(getFeedingLevel(params, n, n_full, encounter = encounter),
-                 'encounter argument must have dimensions: no\\. species \\(12\\) x no. size bins \\(100\\)'
-    )
 })
 
 test_that("getFeedingLevel for MizerSim", {
@@ -123,32 +118,18 @@ test_that("getPredMort for MizerParams", {
         runif(prod(dim(params@catchability)), min = 0, max = 1)
     params@selectivity[] <-
         runif(prod(dim(params@selectivity)), min = 0, max = 1)
-    # Two methods:
-    # Params + pred_rate
-    # Params + n + n_pp
-    
-    pred_rate <- getPredRate(params, n, n_full)
-    m21 <- getPredMort(params, pred_rate = pred_rate)
-    m22 <- getPredMort(params, n, n_full)
-    # Test dims
-    expect_identical(dim(m21), c(no_sp, no_w))
-    expect_identical(dimnames(m21)$prey, dimnames(params@initial_n)$sp)
-    expect_identical(dimnames(m21)$w_prey, dimnames(params@initial_n)$w)
-    expect_identical(dim(m22), c(no_sp, no_w))
-    expect_equal(m22[1, ], m21[1, ])
-    # test value
-    expect_known_value(m21, "values/getPredMort")
+    m <- getPredMort(params, n, n_full)
+    expect_known_value(m, "values/getPredMort")
     
     # Look at numbers in a single prey
     w_offset <- no_w_full - no_w
-    ##@@ With the new fft based definition of pred_rate, we can just set pred_total equal to pred_rate
-    pred_total <- pred_rate
     m2temp <- rep(NA, no_w)
+    pred_rate <- getPredRate(params, n, n_full)
     sp <- runif(1, min = 1, max = no_sp)
     for (i in 1:no_w) {
-        m2temp[i] <- sum(params@interaction[, sp] * pred_total[, w_offset + i])
+        m2temp[i] <- sum(params@interaction[, sp] * pred_rate[, w_offset + i])
     }
-    expect_equal(m2temp, m21[sp, ], check.names = FALSE)
+    expect_equal(m2temp, m[sp, ], check.names = FALSE)
 })
 
 test_that("getPredMort for MizerSim", {

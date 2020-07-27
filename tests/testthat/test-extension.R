@@ -19,6 +19,27 @@ test_that("setRateFunction works", {
     expect_identical(r$e_growth, 111)
 })
 
+test_that("Time is passed correctly to rate functions", {
+    assign("nt" ,
+           function(params, t, ...) {
+               params@initial_n * t
+           },
+           envir = globalenv())
+    params@rates_funcs$Encounter <- "nt"
+    expect_identical(getEncounter(params, t = 2), nt(params, 2))
+    params@rates_funcs$FeedingLevel <- "nt"
+    expect_identical(getFeedingLevel(params, time_range = 2), nt(params, 2))
+    
+    gears <- unique(as.character(gear_params(params)$gear))
+    effort <- array(0, dim = c(3 , 4), 
+                    dimnames = list(time = 2020:2022,
+                                    gear = gears))
+    sim <- project(params, effort = effort, dt = 1)
+    expect_identical(getFeedingLevel(sim, time_range = 2021:2022)[1, , ],
+                     nt(params, 2021))
+    #TODO: extend this
+})
+
 # getRateFunction works ----
 test_that("getRateFunction works", {
     expect_error(getRateFunction(params, "test"),

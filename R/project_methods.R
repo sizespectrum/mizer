@@ -27,18 +27,20 @@
 #'     \item rdd from [BevertonHoltRDD()]
 #'   }
 #' However you can replace any of these rate functions by your own rate
-#' function if you wish, see `setRateFunction()` for details.
+#' function if you wish, see [setRateFunction()] for details.
 #' 
 #' @param params A \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size).
 #' @param n_pp A vector of the resource abundance by size
 #' @param n_other A list of abundances for other dynamical components of the
 #'   ecosystem
-#' @param t The current time
+#' @param t The time for which to do the calculation (Not used by standard
+#'   mizer rate functions but useful for extensions with time-dependent
+#'   parameters.)
 #' @param effort The effort for each fishing gear
 #' @param rates_fns Named list of the functions to call to calculate the rates.
 #'   Note that this list holds the functions themselves, not their names.
-#' @param ... Optional arguments for rate functions.
+#' @param ... Unused
 #' @export
 #' @family mizer rate functions
 mizerRates <- function(params, n, n_pp, n_other,
@@ -61,12 +63,18 @@ mizerRates <- function(params, n, n_pp, n_other,
     #  in getERepro() and getEGrowth() functions
     # Calculate the predation rate
     r$pred_rate <- rates_fns$PredRate(
-        params, n = n, n_pp = n_pp, n_other = n_other, 
+        params, n = n, n_pp = n_pp, n_other = n_other,
         feeding_level = r$feeding_level, t = t, ...)
     # Calculate predation mortality on fish \mu_{p,i}(w)
     r$pred_mort <- rates_fns$PredMort(
-        params, n = n, n_pp = n_pp, n_other = n_other, 
+        params, n = n, n_pp = n_pp, n_other = n_other,
         pred_rate = r$pred_rate, t = t, ...)
+    
+    # Calculate mortality on the resource spectrum
+    r$resource_mort <- rates_fns$ResourceMort(
+        params, n = n, n_pp = n_pp, n_other = n_other,
+        pred_rate = r$pred_rate, t = t, ...)
+    
     # Calculate fishing mortality
     r$f_mort <- rates_fns$FMort(
         params, n = n, n_pp = n_pp, n_other = n_other, 
@@ -76,29 +84,25 @@ mizerRates <- function(params, n, n_pp, n_other,
         params, n = n, n_pp = n_pp, n_other = n_other,
         f_mort = r$f_mort, pred_mort = r$pred_mort, t = t, ...)
     
-    ##Now calculate energy for growth and reproduction
+    ## Now calculate energy for growth and reproduction
     # Calculate the energy for reproduction
     r$e_repro <- rates_fns$ERepro(
         params, n = n, n_pp = n_pp, n_other = n_other, 
-        e = r$e, t = t, ...elt())
+        e = r$e, t = t, ...)
     # Calculate the growth rate g_i(w)
     r$e_growth <- rates_fns$EGrowth(
         params, n = n, n_pp = n_pp, n_other = n_other,
         e_repro = r$e_repro, e = r$e, t = t, ...)
     
-
-    # Calculate mortality on the resource spectrum
-    r$resource_mort <- rates_fns$ResourceMort(
-        params, n = n, n_pp = n_pp, n_other = n_other,
-        pred_rate = r$pred_rate, t = t, ...)
-    
     # R_{p,i}
     r$rdi <- rates_fns$RDI(
         params, n = n, n_pp = n_pp, n_other = n_other,
+        e_growth = r$e_growth,
+        mort = r$mort,
         e_repro = r$e_repro, t = t, ...)
     # R_i
     r$rdd <- rates_fns$RDD(
-        rdi = r$rdi, species_params = params@species_params, t = t, ...)
+        rdi = r$rdi, species_params = params@species_params, ...)
     
     return(r)
 }
@@ -106,7 +110,9 @@ mizerRates <- function(params, n, n_pp, n_other,
 #' Get encounter rate needed to project standard mizer model
 #' 
 #' Calculates the rate \eqn{E_i(w)} at which a predator of species \eqn{i} and
-#' weight \eqn{w} encounters food (grams/year).
+#' weight \eqn{w} encounters food (grams/year). You would not usually call this
+#' function directly but instead use [getEncounter()], which then calls this
+#' function unless an alternative function has been registered, see below.
 #' 
 #' @section Predation encounter:
 #' The encounter rate \eqn{E_i(w)} at which a predator of species \eqn{i}
@@ -139,13 +145,30 @@ mizerRates <- function(params, n, n_pp, n_other,
 #' The function returns values also for sizes outside the size-range of the
 #' species. These values should not be used, as they are meaningless.
 #' 
+#' If your model contains additional components that you added with 
+#' [setComponent()] and for which you specified an `encounter_fun` function then
+#' the encounters of these components will be included in the returned value.
+#' 
+#' @section Your own encounter function:
+#' By default [getEncounter()] calls [mizerEncounter()]. However you can
+#' replace this with your own alternative encounter function. If 
+#' your function is called `"myEncounter"` then you register it in a MizerParams
+#' object `params` with
+#' ```
+#' params <- setRateFunction(params, "Encounter", "myEncounter")
+#' ```
+#' Your function will then be called instead of [mizerEncounter()], with the
+#' same arguments.
+#' 
 #' @inheritParams mizerRates
+#' @param t The current time. Unused
+#' @param ... Unused
 #'   
-#' @return A two dimensional array (predator species x predator size) with the 
-#'   encounter rates.
+#' @return A named two dimensional array (predator species x predator size) with
+#'   the encounter rates.
 #' @export
 #' @family mizer rate functions
-mizerEncounter <- function(params, n, n_pp, n_other, ...) {
+mizerEncounter <- function(params, n, n_pp, n_other, t, ...) {
 
     # idx_sp are the index values of params@w_full such that
     # params@w_full[idx_sp] = params@w
@@ -217,6 +240,10 @@ mizerEncounter <- function(params, n, n_pp, n_other, ...) {
 
 #' Get feeding level needed to project standard mizer model
 #' 
+#' You would not usually call this function directly but instead use
+#' [getFeedingLevel()], which then calls this function unless an alternative
+#' function has been registered, see below.
+#' 
 #' @section Feeding level:
 #' The feeding level \eqn{f_i(w)} is the
 #' proportion of its maximum intake rate at which the predator is actually
@@ -230,11 +257,22 @@ mizerEncounter <- function(params, n, n_pp, n_other, ...) {
 #' As a consequence of the above expression for the feeding level,
 #' \eqn{1-f_i(w)} is the proportion of the food available to it that the
 #' predator actually consumes.
+#' 
+#' @section Your own feeding level function:
+#' By default [getFeedingLevel()] calls [mizerFeedingLevel()]. However you can
+#' replace this with your own alternative feeding level function. If 
+#' your function is called `"myFeedingLevel"` then you register it in a MizerParams
+#' object `params` with
+#' ```
+#' params <- setRateFunction(params, "FeedingLevel", "myFeedingLevel")
+#' ```
+#' Your function will then be called instead of [mizerFeedingLevel()], with the
+#' same arguments.
 #'
-#' The feeding level is used in [mizerEReproAndGrowth()] and in
+#' @seealso The feeding level is used in [mizerEReproAndGrowth()] and in
 #' [mizerPredRate()].
 #' 
-#' @inheritParams mizerRates
+#' @inheritParams mizerEncounter
 #' @param encounter A two dimensional array (predator species x predator size) 
 #'   with the encounter rate.
 #'
@@ -243,8 +281,67 @@ mizerEncounter <- function(params, n, n_pp, n_other, ...) {
 #' 
 #' @export
 #' @family mizer rate functions
-mizerFeedingLevel <- function(params, encounter, ...) {
+mizerFeedingLevel <- function(params, n, n_pp, n_other, t, encounter, ...) {
     return(encounter / (encounter + params@intake_max))
+}
+
+
+#' Get energy rate available for reproduction and growth  needed to project 
+#' standard mizer model
+#'
+#' Calculates the energy rate
+#' \eqn{E_{r.i}(w)} (grams/year) available to an
+#' individual of species i and size w for reproduction and growth after
+#' metabolism and movement have been accounted for.
+#' You would not usually call this function directly but instead use
+#' [getEReproAndGrowth()], which then calls this function unless an alternative
+#' function has been registered, see below. 
+#' 
+#' @inheritParams mizerRates
+#' @param encounter An array (species x size) with the encounter rate as
+#'   calculated by [getEncounter()].
+#' @param feeding_level An array (species x size) with the feeding level as
+#'   calculated by [getFeedingLevel()].
+#'
+#' @return A two dimensional array (species x size) holding
+#' \deqn{E_{r.i}(w) = \max(0, \alpha_i\, (1 - {\tt feeding\_level}_i(w))\, 
+#'                            {\tt encounter}_i(w) - {\tt metab}_i(w)).}{
+#'   E_{r.i}(w) = max(0, alpha_i * (1 - feeding_level_i(w)) * 
+#'                       encounter_i(w) - metab_i(w)).}
+#' Due to the form of the feeding level, calculated by
+#' [getFeedingLevel()], this can also be expressed as
+#' \deqn{E_{r.i}(w) = \max(0, \alpha_i\, {\tt feeding\_level}_i(w)\, 
+#'                            h_i(w) - {\tt metab}_i(w))}{
+#'   E_{r.i}(w) = max(0, alpha_i * feeding_level_i(w) * 
+#'                       h_i(w) - metab_i(w))}
+#' where \eqn{h_i} is the maximum intake rate, set with 
+#' [setMaxIntakeRate()].
+#' The assimilation rate \eqn{\alpha_i} is taken from the species parameter
+#' data frame in `params`. The metabolic rate `metab` is taken from 
+#' `params` and set with [setMetabolicRate()].
+#' 
+#' The return value can be negative, which means that the energy intake does not
+#' cover the cost of metabolism and movement.
+#' 
+#' @section Your own energy rate function:
+#' By default [getEReproAndGrowth()] calls [mizerEReproAndGrowth()]. However you
+#' can replace this with your own alternative energy rate function. If 
+#' your function is called `"myEReproAndGrowth"` then you register it in a
+#' MizerParams object `params` with
+#' ```
+#' params <- setRateFunction(params, "EReproAndGrowth", "myEReproAndGrowth")
+#' ```
+#' Your function will then be called instead of [mizerEReproAndGrowth()], with
+#' the same arguments.
+#' 
+#' @export
+#' @family mizer rate functions
+mizerEReproAndGrowth <- function(params, n, n_pp, n_other, t, encounter,
+                                 feeding_level, ...) {
+    
+    sweep((1 - feeding_level) * encounter, 1,
+          params@species_params$alpha, "*", check.margin = FALSE) - 
+        params@metab
 }
 
 
@@ -257,18 +354,29 @@ mizerFeedingLevel <- function(params, encounter, ...) {
 #'   \gamma_i(w) N_i(w) dw.}
 #' This potential rate is used in the function [mizerPredMort()] to
 #' calculate the realised predation mortality rate on the prey individual.
+#' You would not usually call this
+#' function directly but instead use [getPredRate()], which then calls this
+#' function unless an alternative function has been registered, see below.
+#' 
+#' @section Your own predation rate function:
+#' By default [getPredRate()] calls [mizerPredRate()]. However you can
+#' replace this with your own alternative predation rate function. If 
+#' your function is called `"myPredRate"` then you register it in a MizerParams
+#' object `params` with
+#' ```
+#' params <- setRateFunction(params, "PredRate", "myPredRate")
+#' ```
+#' Your function will then be called instead of [mizerPredRate()], with
+#' the same arguments.
 #'
-#' @inheritParams mizerRates
-#' @param feeding_level The current feeding level (optional). A matrix of size
-#'   no. species x no. size bins. If not supplied, is calculated internally
-#'   using the [getFeedingLevel()] function.
+#' @inheritParams mizerEReproAndGrowth
 #'   
-#' @return A two dimensional array (predator species x prey size) with the
+#' @return A named two dimensional array (predator species x prey size) with the
 #'   predation rate, where the prey size runs over fish community plus resource
 #'   spectrum.
 #' @export
 #' @family mizer rate functions
-mizerPredRate <- function(params, n, n_pp, n_other, feeding_level, ...) {
+mizerPredRate <- function(params, n, n_pp, n_other, t, feeding_level, ...) {
     no_sp <- dim(params@interaction)[1]
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
@@ -318,6 +426,20 @@ mizerPredRate <- function(params, n, n_pp, n_other, feeding_level, ...) {
 #' of 1/year) on each prey species by prey size:
 #' \deqn{\mu_{p.i}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{ji}.}{
 #'   \mu_{p.i}(w_p) = \sum_j pred_rate_j(w_p) \theta_{ji}.}
+#' You would not usually call this
+#' function directly but instead use [getPredMort()], which then calls this
+#' function unless an alternative function has been registered, see below.
+#' 
+#' @section Your own predation mortality function:
+#' By default [getPredMort()] calls [mizerPredMort()]. However you can
+#' replace this with your own alternative predation mortality function. If 
+#' your function is called `"myPredMort"` then you register it in a MizerParams
+#' object `params` with
+#' ```
+#' params <- setRateFunction(params, "PredMort", "myPredMort")
+#' ```
+#' Your function will then be called instead of [mizerPredMort()], with the
+#' same arguments.
 #' 
 #' @inheritParams mizerRates
 #' @param pred_rate A two dimensional array (predator species x predator size)
@@ -327,7 +449,7 @@ mizerPredRate <- function(params, n, n_pp, n_other, feeding_level, ...) {
 #'   mortality
 #' @family mizer rate functions
 #' @export
-mizerPredMort <- function(params, n, n_pp, n_other, pred_rate, ...) {
+mizerPredMort <- function(params, n, n_pp, n_other, t, pred_rate, ...) {
     idx_sp <- (length(params@w_full) - 
                    length(params@w) + 1):length(params@w_full)
     return((t(params@interaction) %*% pred_rate)[, idx_sp, drop = FALSE])
@@ -338,8 +460,20 @@ mizerPredMort <- function(params, n, n_pp, n_other, pred_rate, ...) {
 #' 
 #' Calculates the predation mortality rate \eqn{\mu_p(w)} on the resource
 #' spectrum by resource size (in units 1/year).
+#' You would not usually call this
+#' function directly but instead use [getResourceMort()], which then calls this
+#' function unless an alternative function has been registered, see below.
 #' 
-#' Used by the `project` function for running size based simulations.
+#' @section Your own resource mortality function:
+#' By default [getResourceMort()] calls [mizerResourceMort()]. However you can
+#' replace this with your own alternative resource mortality function. If 
+#' your function is called `"myResourceMort"` then you register it in a MizerParams
+#' object `params` with
+#' ```
+#' params <- setRateFunction(params, "ResourceMort", "myResourceMort")
+#' ```
+#' Your function will then be called instead of [mizerResourceMort()], with the
+#' same arguments.
 #' 
 #' @inheritParams mizerRates
 #' @param pred_rate A two dimensional array (predator species x prey size) with
@@ -350,7 +484,7 @@ mizerPredMort <- function(params, n, n_pp, n_other, pred_rate, ...) {
 #' @family mizer rate functions
 #' @export
 mizerResourceMort <- 
-    function(params, n, n_pp, n_other, pred_rate, ...) {
+    function(params, n, n_pp, n_other, t, pred_rate, ...) {
 
     return(as.vector(params@species_params$interaction_resource %*% pred_rate))
 }
@@ -361,7 +495,7 @@ mizerResourceMort <-
 #'
 #' Calculates the fishing mortality rate \eqn{F_{g,i,w}} by gear, species and
 #' size at each time step in the `effort` argument (in units 1/year).
-#' Used by the `project` function to perform simulations.
+#' This is a helper function for [mizerFMort()].
 #' 
 #' @inheritParams mizerRates
 #' @param effort A vector with the effort for each fishing gear.
@@ -372,7 +506,7 @@ mizerResourceMort <-
 #' 
 #' @export
 #' @family mizer rate functions
-mizerFMortGear <- function(params, effort, ...) {
+mizerFMortGear <- function(params, effort) {
     # Streamlined for speed increase - note use of recycling
     out <- params@selectivity
     out[] <- effort * c(params@catchability) * c(params@selectivity)
@@ -387,6 +521,20 @@ mizerFMortGear <- function(params, effort, ...) {
 #' species and size at each time step in the `effort` argument.
 #' The total fishing mortality is just the sum of the fishing mortalities
 #' imposed by each gear, \eqn{\mu_{f.i}(w)=\sum_g F_{g,i,w}}.
+#' You would not usually call this
+#' function directly but instead use [getFMort()], which then calls this
+#' function unless an alternative function has been registered, see below.
+#' 
+#' @section Your own fishing mortality function:
+#' By default [getFMort()] calls [mizerFMort()]. However you can
+#' replace this with your own alternative fishing mortality function. If 
+#' your function is called `"myFMort"` then you register it in a MizerParams
+#' object `params` with
+#' ```
+#' params <- setRateFunction(params, "FMort", "myFMort")
+#' ```
+#' Your function will then be called instead of [mizerFMort()], with the
+#' same arguments.
 #' 
 #' @inheritParams mizerRates
 #' @param effort A vector with the effort for each fishing gear.
@@ -396,7 +544,7 @@ mizerFMortGear <- function(params, effort, ...) {
 #' @export
 #' @family mizer rate functions
 mizerFMort <- function(params, effort, ...) {
-    colSums(mizerFMortGear(params, effort, ...))
+    colSums(mizerFMortGear(params, effort))
 }
 
 #' Get total mortality rate needed to project standard mizer model
@@ -404,72 +552,48 @@ mizerFMort <- function(params, effort, ...) {
 #' Calculates the total mortality rate \eqn{\mu_i(w)}  (in units 1/year) on each
 #' species by size from predation mortality, background mortality and fishing
 #' mortality.
+#' You would not usually call this
+#' function directly but instead use [getMort()], which then calls this
+#' function unless an alternative function has been registered, see below.
+#' 
+#' If your model contains additional components that you added with 
+#' [setComponent()] and for which you specified a `mort_fun` function then
+#' the mortality inflicted by these components will be included in the returned
+#' value.
+#' 
+#' @section Your own mortality function:
+#' By default [getMort()] calls [mizerMort()]. However you can
+#' replace this with your own alternative mortality function. If 
+#' your function is called `"myMort"` then you register it in a MizerParams
+#' object `params` with
+#' ```
+#' params <- setRateFunction(params, "Mort", "myMort")
+#' ```
+#' Your function will then be called instead of [mizerMort()], with the
+#' same arguments.
 #'
 #' @inheritParams mizerRates
 #' @param f_mort A two dimensional array (species x size) with the fishing
 #'   mortality
 #' @param pred_mort A two dimensional array (species x size) with the predation
 #'   mortality
+#' @param ... Unused
 #'
-#' @return A two dimensional array (species x size) with the total mortality
-#'   rates.
+#' @return A named two dimensional array (species x size) with the total
+#'   mortality rates.
 #' @export
 #' @family mizer rate functions
-mizerMort <- function(params, n, n_pp, n_other, f_mort, pred_mort, ...){
+mizerMort <- function(params, n, n_pp, n_other, t, f_mort, pred_mort, ...){
     mort <- pred_mort + params@mu_b + f_mort
     # Add contributions from other components
     for (i in seq_along(params@other_mort)) {
         mort <- mort + 
             do.call(params@other_mort[[i]], 
                     list(params = params,
-                         n = n, n_pp = n_pp, n_other = n_other,
+                         n = n, n_pp = n_pp, n_other = n_other, t = t,
                          component = names(params@other_mort)[[i]], ...))
     }
     return(mort)
-}
-
-
-#' Get energy rate available for reproduction and growth  needed to project 
-#' standard mizer model
-#'
-#' Calculates the energy rate \eqn{E_{r.i}(w)} (grams/year) available to an
-#' individual of species i and size w for reproduction and growth after
-#' metabolism and movement have been accounted for.
-#' 
-#' @inheritParams mizerRates
-#' @param encounter An array (species x size) with the encounter rate as
-#'   calculated by `mizerEncounter()`.
-#' @param feeding_level An array (species x size) with the feeding level as
-#'   calculated by `mizerFeedingLevel()`.
-#'
-#' @return A two dimensional array (species x size) holding
-#' \deqn{E_{r.i}(w) = \max(0, \alpha_i\, (1 - {\tt feeding\_level}_i(w))\, 
-#'                            {\tt encounter}_i(w) - {\tt metab}_i(w)).}{
-#'   E_{r.i}(w) = max(0, alpha_i * (1 - feeding_level_i(w)) * 
-#'                       encounter_i(w) - metab_i(w)).}
-#' Due to the form of the feeding level, calculated by
-#' [getFeedingLevel()], this can also be expressed as
-#' \deqn{E_{r.i}(w) = \max(0, \alpha_i\, {\tt feeding\_level}_i(w)\, 
-#'                            h_i(w) - {\tt metab}_i(w))}{
-#'   E_{r.i}(w) = max(0, alpha_i * feeding_level_i(w) * 
-#'                       h_i(w) - metab_i(w))}
-#' where \eqn{h_i} is the maximum intake rate, set with 
-#' [setMaxIntakeRate()].
-#' The assimilation rate \eqn{\alpha_i} is taken from the species parameter
-#' data frame in `params`. The metabolic rate `metab` is taken from 
-#' `params` and set with [setMetabolicRate()].
-#' 
-#' The return value can be negative, which means that the energy intake does not
-#' cover the cost of metabolism and movement.
-#' 
-#' @export
-#' @family mizer rate functions
-mizerEReproAndGrowth <- function(params, n, n_pp, n_other, encounter,
-                                 feeding_level, ...) {
-
-    sweep((1 - feeding_level) * encounter, 1,
-               params@species_params$alpha, "*", check.margin = FALSE) - 
-        params@metab
 }
 
 
@@ -478,10 +602,24 @@ mizerEReproAndGrowth <- function(params, n, n_pp, n_other, encounter,
 #'
 #' Calculates the energy rate (grams/year) available for reproduction after
 #' growth and metabolism have been accounted for.
+#' You would not usually call this
+#' function directly but instead use [getERepro()], which then calls this
+#' function unless an alternative function has been registered, see below.
+#' 
+#' @section Your own reproduction rate function:
+#' By default [getERepro()] calls [mizerERepro()]. However you can
+#' replace this with your own alternative reproduction rate function. If 
+#' your function is called `"myERepro"` then you register it in a MizerParams
+#' object `params` with
+#' ```
+#' params <- setRateFunction(params, "ERepro", "myERepro")
+#' ```
+#' Your function will then be called instead of [mizerERepro()], with the
+#' same arguments.
 #' 
 #' @inheritParams mizerRates
 #' @param e A two dimensional array (species x size) holding the energy available
-#'   for reproduction and growth as calculated by `mizerEReproAndGrowth()`.
+#'   for reproduction and growth as calculated by [mizerEReproAndGrowth()].
 #'
 #' @return A two dimensional array (species x size) holding
 #' \deqn{\psi_i(w)E_{r.i}(w)}
@@ -492,7 +630,7 @@ mizerEReproAndGrowth <- function(params, n, n_pp, n_other, encounter,
 #' set with [setReproduction()].
 #' @export
 #' @family mizer rate functions
-mizerERepro <- function(params, n, n_pp, n_other, e, ...) {
+mizerERepro <- function(params, n, n_pp, n_other, t, e, ...) {
     # Because getEReproAndGrowth can return negative values, 
     # we add an extra line here 
     e[e < 0] <- 0 # Do not allow negative growth
@@ -505,21 +643,31 @@ mizerERepro <- function(params, n, n_pp, n_other, e, ...) {
 #' Calculates the energy rate \eqn{g_i(w)} (grams/year) available by species and
 #' size for growth after metabolism, movement and reproduction have been
 #' accounted for. Used by [project()] for performing simulations.
+#' You would not usually call this
+#' function directly but instead use [getEGrowth()], which then calls this
+#' function unless an alternative function has been registered, see below.
+#' 
+#' @section Your own growth rate function:
+#' By default [getEGrowth()] calls [mizerEGrowth()]. However you can
+#' replace this with your own alternative growth rate function. If 
+#' your function is called `"myEGrowth"` then you register it in a MizerParams
+#' object `params` with
+#' ```
+#' params <- setRateFunction(params, "EGrowth", "myEGrowth")
+#' ```
+#' Your function will then be called instead of [mizerEGrowth()], with the
+#' same arguments.
 #' 
 #' @inheritParams mizerRates
-#' @param e The energy available for reproduction and growth (optional, although
-#'   if specified, e_repro must also be specified). A matrix of size no.
-#'   species x no. size bins. If not supplied, is calculated internally using
+#' @param e The energy available for reproduction and growth as calculated by
 #'   [getEReproAndGrowth()].
-#' @param e_repro The energy available for reproduction (optional, although if
-#'   specified, e must also be specified). A matrix of size no. species x no.
-#'   size bins. If not supplied, is calculated internally using
+#' @param e_repro The energy available for reproduction as calculated by
 #'   [getERepro()].
 #'   
 #' @return A two dimensional array (species x size) with the growth rates.
 #' @export
 #' @family mizer rate functions
-mizerEGrowth <- function(params, n, n_pp, n_other, e_repro, e, ...) {
+mizerEGrowth <- function(params, n, n_pp, n_other, t, e_repro, e, ...) {
     # Because getEReproAndGrowth can return negative values, we add an 
     # extra line here 
     e[e < 0] <- 0 # Do not allow negative growth
@@ -537,18 +685,38 @@ mizerEGrowth <- function(params, n, n_pp, n_other, e_repro, e, ...) {
 #' taking the total rate at which energy is invested in reproduction,
 #' multiplying by the reproductive efficiency `erepro` and dividing by the egg
 #' size `w_min`, and by a factor of two to account for the two sexes.
+#' You would not usually call this
+#' function directly but instead use [getRDI()], which then calls this
+#' function unless an alternative function has been registered, see below.
 #' 
 #' Used by [getRDD()] to calculate the actual, density dependent rate.
 #' See [setReproduction()] for more details.
+#' 
+#' 
+#' @section Your own reproduction function:
+#' By default [getRDI()] calls [mizerRDI()]. However you can
+#' replace this with your own alternative reproduction function. If 
+#' your function is called `"myRDI"` then you register it in a MizerParams
+#' object `params` with
+#' ```
+#' params <- setRateFunction(params, "RDI", "myRDI")
+#' ```
+#' Your function will then be called instead of [mizerRDI()], with the
+#' same arguments.
 #'
 #' @inheritParams mizerRates
 #' @param e_repro An array (species x size) with the energy available for
-#'   reproduction as calculated by `getERepro()`.
+#'   reproduction as calculated by [getERepro()].
+#' @param e_growth An array (species x size) with the energy available for
+#'   growth as calculated by [getEGrowth()]. Unused.
+#' @param mort An array (species x size) with the mortality rate as calculated
+#'   by [getMort()]. Unused.
 #'
 #' @return A numeric vector with the rate of egg production for each species.
 #' @export
 #' @family mizer rate functions
-mizerRDI <- function(params, n, n_pp, n_other, e_repro, ...) {
+mizerRDI <- function(params, n, n_pp, n_other, t,
+                     e_growth, mort, e_repro, ...) {
     # Calculate total energy from per capita energy
     e_repro_pop <- drop((e_repro * n) %*% params@dw)
     # Assume sex_ratio = 0.5
