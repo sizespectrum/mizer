@@ -1,3 +1,8 @@
+# mizer 2.0.3.9000
+
+* Simplified a calculation in the numeric scheme.
+
+
 # mizer 2.0.3
 
 ## Bug fixes
