@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>mizer: Multi-species size-based modelling in R — mizer • mizer</title>
+<title>mizer: Multi-species size-based modelling in R — mizer-package • mizer</title>
 
 
 <!-- jquery -->
@@ -45,7 +45,7 @@
 
 
 
-<meta property="og:title" content="mizer: Multi-species size-based modelling in R — mizer" />
+<meta property="og:title" content="mizer: Multi-species size-based modelling in R — mizer-package" />
 <meta property="og:description" content="The mizer package implements multi-species size-based modelling in R. It has
 been designed for modelling marine ecosystems." />
 
@@ -79,7 +79,7 @@ been designed for modelling marine ecosystems." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
       </span>
     </div>
 
@@ -178,8 +178,8 @@ been designed for modelling marine ecosystems." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>mizer: Multi-species size-based modelling in R</h1>
-    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/help.R'><code>R/help.R</code></a></small>
-    <div class="hidden name"><code>mizer.Rd</code></div>
+    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/mizer-package.R'><code>R/mizer-package.R</code></a></small>
+    <div class="hidden name"><code>mizer-package.Rd</code></div>
     </div>
 
     <div class="ref-description">
@@ -192,7 +192,7 @@ been designed for modelling marine ecosystems.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>Using <span class="pkg">mizer</span> is relatively simple.  There are three main stages:</p><ol>
-<li><p>Setting the model parameters. This is done by creating an object of
+<li><p><em>Setting the model parameters</em>. This is done by creating an object of
 class <a href='MizerParams-class.html'>MizerParams</a>. This includes model parameters such as the
 life history parameters of each species, and the range of the size spectrum.
 There are several setup functions that help to create a MizerParams objects
@@ -201,17 +201,26 @@ for particular types of models:</p><ul>
 <li><p><code><a href='newTraitParams.html'>newTraitParams()</a></code></p></li>
 <li><p><code><a href='newMultispeciesParams.html'>newMultispeciesParams()</a></code></p></li>
 </ul></li>
-<li><p>Running a simulation. This is done by calling the
+<li><p><em>Running a simulation</em>. This is done by calling the
 <code><a href='project.html'>project()</a></code> function with the model parameters. This produces an
 object of <a href='MizerSim-class.html'>MizerSim</a> that contains the results of the simulation.</p></li>
-<li><p>Exploring results. After a simulation has been run, the results can be
-explored using a range of <code><a href='plotting_functions.html'>plotting_functions</a></code> and
-<code><a href='summary_functions.html'>summary_functions</a></code>.</p></li>
+<li><p><em>Exploring results</em>. After a simulation has been run, the results can be
+explored using a range of <a href='plotting_functions.html'>plotting_functions</a>, <a href='summary_functions.html'>summary_functions</a> and
+<a href='indicator_functions.html'>indicator_functions</a>.</p></li>
 </ol>
 
 <p>See the <a href='https://sizespectrum.org/mizer'>mizer website</a> for full details of
 the principles behind mizer and how the package can be used to perform
 size-based modelling.</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p>Useful links:</p><ul>
+<li><p><a href='https://sizespectrum.org/mizer'>https://sizespectrum.org/mizer</a></p></li>
+<li><p><a href='https://github.com/sizespectrum/mizer'>https://github.com/sizespectrum/mizer</a></p></li>
+<li><p>Report bugs at <a href='https://github.com/sizespectrum/mizer/issues'>https://github.com/sizespectrum/mizer/issues</a></p></li>
+</ul>
+
+</div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -228,7 +237,7 @@ size-based modelling.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

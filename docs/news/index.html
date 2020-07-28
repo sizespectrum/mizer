@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
       </span>
     </div>
 
@@ -179,13 +179,38 @@
       <small>Source: <a href='https://github.com/sizespectrum/mizer/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="mizer-202" class="section level1">
-<h1 class="page-header" data-toc-text="2.0.2">
-<a href="#mizer-202" class="anchor"></a>mizer 2.0.2<small> 2020-06-08 </small>
+    <div id="mizer-203" class="section level1">
+<h1 class="page-header" data-toc-text="2.0.3">
+<a href="#mizer-203" class="anchor"></a>mizer 2.0.3<small> Unreleased </small>
 </h1>
 <div id="bug-fixes" class="section level2">
 <h2 class="hasAnchor">
 <a href="#bug-fixes" class="anchor"></a>Bug fixes</h2>
+<ul>
+<li>Correct handling of shiny progress bar in <code><a href="../reference/project.html">project()</a></code>.</li>
+</ul>
+</div>
+<div id="enhancements" class="section level2">
+<h2 class="hasAnchor">
+<a href="#enhancements" class="anchor"></a>Enhancements</h2>
+<ul>
+<li>Consistently passing the time argument to the rate functions. This will allow extensions to implement time-dependent rates.</li>
+<li>Passing growth and mortality rate to RDI function.</li>
+<li>Simplified the getRates functions by removing the arguments that passed in other rates. Instead the required rates are now always calculated within these functions.</li>
+<li>Improved documentation of rate functions and of how to register your own rate functions.</li>
+<li>In <code><a href="../reference/validGearParams.html">validGearParams()</a></code> handle NAs more gracefully and check that there are no duplicates.</li>
+<li>Updated hake-mullet selectivity demonstration shiny app.</li>
+<li>Improved user documentation in several places.</li>
+</ul>
+</div>
+</div>
+    <div id="mizer-202" class="section level1">
+<h1 class="page-header" data-toc-text="2.0.2">
+<a href="#mizer-202" class="anchor"></a>mizer 2.0.2<small> 2020-06-08 </small>
+</h1>
+<div id="bug-fixes-1" class="section level2">
+<h2 class="hasAnchor">
+<a href="#bug-fixes-1" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>Time passed to rate functions is now the actual simulation time, not the time elapsed since start of simulation.</li>
 <li>
@@ -228,9 +253,9 @@
 <h1 class="page-header" data-toc-text="2.0.1">
 <a href="#mizer-201" class="anchor"></a>mizer 2.0.1<small> 2020-05-05 </small>
 </h1>
-<div id="bug-fixes-1" class="section level2">
+<div id="bug-fixes-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-1" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-2" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>
 <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> now also works with non-default feeding kernels. <a href='https://github.com/sizespectrum/mizer/issues/159'>#159</a></li>
@@ -346,7 +371,7 @@
 <li>New <code>highlight</code> argument to all plot functions that display curves for multiple species. Displays highlighted species with wider lines.</li>
 <li>In the legends of all plots the species are now consistently ordered in the same way as in the species parameter data frame.</li>
 <li>All plot functions that are not time-resolved now accept also a MizerParams object as an alternative to the MizerSim object to plot the initial state.</li>
-<li>New <code><a href="https://rdrr.io/r/graphics/plot.html">plot()</a></code> method for MizerParams object to plot the initial state.</li>
+<li>New <code><a href="https://rdrr.io/r/base/plot.html">plot()</a></code> method for MizerParams object to plot the initial state.</li>
 <li>Avoiding duplicate graphs in rmarkdown documents.</li>
 <li>New argument <code>include_critical</code> in <code><a href="../reference/plotFeedingLevel.html">plotFeedingLevel()</a></code> allows to show also the critical feeding level.</li>
 <li>New <code>wlim</code> argument to <code><a href="../reference/plotSpectra.html">plotSpectra()</a></code> in analogy to the existing <code>ylim</code> argument to limit the w range in the plot.</li>
@@ -456,9 +481,9 @@
 <li>Using Rmarkdown in all roxygen comments</li>
 </ul>
 </div>
-<div id="bug-fixes-2" class="section level2">
+<div id="bug-fixes-3" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-2" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-3" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>In <code><a href="../reference/getSSB.html">getSSB()</a></code>, the calculation of the spawning stock biomass is done correctly using the maturity ogive instead of the proportion of energy allocated to reproduction. (<a href='https://github.com/sizespectrum/mizer/issues/47'>#47</a>)</li>
 <li>The fast FFT method and the old method for calculating integrals now give the same numerical results. (<a href='https://github.com/sizespectrum/mizer/issues/39'>#39</a>)</li>
@@ -612,7 +637,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

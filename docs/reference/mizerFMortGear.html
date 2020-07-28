@@ -50,7 +50,7 @@ standard mizer model — mizerFMortGear • mizer</title>
 standard mizer model — mizerFMortGear" />
 <meta property="og:description" content="Calculates the fishing mortality rate \(F_{g,i,w}\) by gear, species and
 size at each time step in the effort argument (in units 1/year).
-Used by the project function to perform simulations." />
+This is a helper function for mizerFMort()." />
 
 
 
@@ -82,7 +82,7 @@ Used by the project function to perform simulations." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
       </span>
     </div>
 
@@ -189,10 +189,10 @@ standard mizer model</h1>
     <div class="ref-description">
     <p>Calculates the fishing mortality rate \(F_{g,i,w}\) by gear, species and
 size at each time step in the <code>effort</code> argument (in units 1/year).
-Used by the <code>project</code> function to perform simulations.</p>
+This is a helper function for <code><a href='mizerFMort.html'>mizerFMort()</a></code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>mizerFMortGear</span>(<span class='no'>params</span>, <span class='no'>effort</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>mizerFMortGear</span>(<span class='no'>params</span>, <span class='no'>effort</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -204,10 +204,6 @@ Used by the <code>project</code> function to perform simulations.</p>
     <tr>
       <th>effort</th>
       <td><p>A vector with the effort for each fishing gear.</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Optional arguments for rate functions.</p></td>
     </tr>
     </table>
 
@@ -249,7 +245,7 @@ fishing mortality</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

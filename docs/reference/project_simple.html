@@ -79,7 +79,7 @@ It is of potential interest only to mizer extension authors." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
       </span>
     </div>
 
@@ -273,9 +273,9 @@ as possible to allow it to be used in a loop. For example it is called in
 intermediate results but only returns the result at time <code>t + dt * steps</code>.
 During this time it uses the constant fishing effort <code>effort</code>.</p>
 <p>The functional arguments can be calculated from slots in the <code>params</code> object
-with</p><pre><span class='no'>resource_dynamics_fn</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/get.html'>get</a></span>(<span class='no'>params</span>@<span class='kw'>resource_dynamics</span>)
-<span class='no'>other_dynamics_fns</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='no'>params</span>@<span class='kw'>other_dynamics</span>, <span class='no'>get</span>)
-<span class='no'>rates_fns</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='no'>params</span>@<span class='kw'>rates_funcs</span>, <span class='no'>get</span>)</pre>
+with</p><pre><span class='no'>resource_dynamics_fn</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fu'><a href='https://rdrr.io/r/base/get.html'>get</a></span>(<span class='no'>params</span>@<span class='kw'>resource_dynamics</span>)
+<span class='no'>other_dynamics_fns</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='no'>params</span>@<span class='kw'>other_dynamics</span>, <span class='no'>get</span>)
+<span class='no'>rates_fns</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='no'>params</span>@<span class='kw'>rates_funcs</span>, <span class='no'>get</span>)</pre>
 
 <p>The reason the function does not do that itself is to shave 20 microseconds
 of its running time, which pays when the function is called hundreds of
@@ -303,7 +303,7 @@ final time step, these too are included in the returned list.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

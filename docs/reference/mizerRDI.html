@@ -52,7 +52,10 @@ mizer model — mizerRDI" />
 (units 1/year) before density dependence, by species. This is obtained by
 taking the total rate at which energy is invested in reproduction,
 multiplying by the reproductive efficiency erepro and dividing by the egg
-size w_min, and by a factor of two to account for the two sexes." />
+size w_min, and by a factor of two to account for the two sexes.
+You would not usually call this
+function directly but instead use getRDI(), which then calls this
+function unless an alternative function has been registered, see below." />
 
 
 
@@ -84,7 +87,7 @@ size w_min, and by a factor of two to account for the two sexes." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
       </span>
     </div>
 
@@ -193,10 +196,13 @@ mizer model</h1>
 (units 1/year) before density dependence, by species. This is obtained by
 taking the total rate at which energy is invested in reproduction,
 multiplying by the reproductive efficiency <code>erepro</code> and dividing by the egg
-size <code>w_min</code>, and by a factor of two to account for the two sexes.</p>
+size <code>w_min</code>, and by a factor of two to account for the two sexes.
+You would not usually call this
+function directly but instead use <code><a href='getRDI.html'>getRDI()</a></code>, which then calls this
+function unless an alternative function has been registered, see below.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>mizerRDI</span>(<span class='no'>params</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='no'>e_repro</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>mizerRDI</span>(<span class='no'>params</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='no'>t</span>, <span class='no'>e_growth</span>, <span class='no'>mort</span>, <span class='no'>e_repro</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -219,13 +225,29 @@ size <code>w_min</code>, and by a factor of two to account for the two sexes.</p
 ecosystem</p></td>
     </tr>
     <tr>
+      <th>t</th>
+      <td><p>The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)</p></td>
+    </tr>
+    <tr>
+      <th>e_growth</th>
+      <td><p>An array (species x size) with the energy available for
+growth as calculated by <code><a href='getEGrowth.html'>getEGrowth()</a></code>. Unused.</p></td>
+    </tr>
+    <tr>
+      <th>mort</th>
+      <td><p>An array (species x size) with the mortality rate as calculated
+by <code><a href='getMort.html'>getMort()</a></code>. Unused.</p></td>
+    </tr>
+    <tr>
       <th>e_repro</th>
       <td><p>An array (species x size) with the energy available for
 reproduction as calculated by <code><a href='getERepro.html'>getERepro()</a></code>.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Optional arguments for rate functions.</p></td>
+      <td><p>Unused</p></td>
     </tr>
     </table>
 
@@ -236,6 +258,17 @@ reproduction as calculated by <code><a href='getERepro.html'>getERepro()</a></co
 
     <p>Used by <code><a href='getRDD.html'>getRDD()</a></code> to calculate the actual, density dependent rate.
 See <code><a href='setReproduction.html'>setReproduction()</a></code> for more details.</p>
+    <h2 class="hasAnchor" id="your-own-reproduction-function"><a class="anchor" href="#your-own-reproduction-function"></a>Your own reproduction function</h2>
+
+    
+
+<p>By default <code><a href='getRDI.html'>getRDI()</a></code> calls <code>mizerRDI()</code>. However you can
+replace this with your own alternative reproduction function. If
+your function is called <code>"myRDI"</code> then you register it in a MizerParams
+object <code>params</code> with</p><pre><span class='no'>params</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='no'>params</span>, <span class='st'>"RDI"</span>, <span class='st'>"myRDI"</span>)</pre>
+
+<p>Your function will then be called instead of <code>mizerRDI()</code>, with the
+same arguments.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other mizer rate functions: 
@@ -267,7 +300,7 @@ See <code><a href='setReproduction.html'>setReproduction()</a></code> for more d
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
       </span>
     </div>
 
@@ -128,7 +128,7 @@
 
       
 
-      </header><div class="row">
+      </header><script src="developer_vignette_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Developer Guide</h1>
@@ -154,7 +154,7 @@
 <div id="installing-r-rstudio-and-git" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installing-r-rstudio-and-git" class="anchor"></a>Installing R, RStudio and Git</h2>
-<p>Mizer is compatible with <strong>R</strong> versions 3.1 and later. If you still need to <a href="https://cran.r-project.org/">install R</a>, simply install the latest version. This guide was prepared with R version 3.6.3 (2020-02-29).</p>
+<p>Mizer is compatible with <strong>R</strong> versions 3.1 and later. If you still need to <a href="https://cran.r-project.org/">install R</a>, simply install the latest version. This guide was prepared with R version 4.0.2 (2020-06-22).</p>
 <p>This guide assumes that you will be using <strong>RStudio</strong> to work with R. There is really no reason not to use RStudio and it makes a lot of things much easier. RStudio develops rapidly and adds useful features all the time and so it pays to upgrade to the <a href="https://www.rstudio.com/products/rstudio/download/preview/">latest version</a> frequently. This guide was written with version 1.2.1268.</p>
 <p>Mizer is developed using the version control system <strong>Git</strong> and the code is hosted on GitHub. To contribute to the mizer code, you need to have the Git software installed on your system. On most Linux machines it will be installed already, but on other platforms you need to <a href="http://happygitwithr.com/install-git.html">install it</a>. You do not need to install any GUI for git because RStudio has <a href="https://support.rstudio.com/hc/en-us/articles/200532077-Version-Control-with-Git-and-SVN">built-in support for git</a>. A good place to learn about using Git and GitHub is <a href="http://r-pkgs.had.co.nz/git.html">this chapter</a> in the guide by Hadley on R package development.</p>
 </div>
@@ -264,7 +264,7 @@ This will automatically also install all the other packages that mizer depends o
 <p>There are several different functions for setting up a <code>MizerParams</code> object for specifying various concrete models. These setup functions make various simplifying assumptions about the model parameters to reduce the amount of information that needs to be specified. This usually takes the form of assuming allometric scaling laws.</p>
 <p>The core of mizer is the <code><a href="../reference/project.html">project()</a></code> function that runs a simulation of the size-spectrum model. It takes a specification of the model contained in an object of type <code>MizerParams</code> and returns the results of the simulation in an object of type <code>MizerSim</code>.</p>
 <p>There are many functions for analysing and plotting the results of a mizer simulation contained in a <code>MizerSim</code> object.</p>
-<p>The <code>MizerParams</code> and <code>MizerSim</code> objects are S4 objects, meaning that their slots are rigorously defined and are accessed with the ‘@’ notation. You do not need to learn about S4 classes in order to understand the mizer code, because the code avoids using S4 methods. In the presentation below we assume that the <code>MizerParams</code> object is called <code>params</code> and the <code>MixerSim</code> object is called <code>sim</code>.</p>
+<p>The <code>MizerParams</code> and <code>MizerSim</code> objects are S4 objects, meaning that their slots are rigorously defined and are accessed with the ‘@’ notation. You do not need to learn about S4 classes in order to understand the mizer code, because the code avoids using S4 methods. In the presentation below we assume that the <code>MizerParams</code> object is called <code>params</code> and the <code>MizerSim</code> object is called <code>sim</code>.</p>
 <div id="the-mizerparams-class" class="section level2">
 <h2 class="hasAnchor">
 <a href="#the-mizerparams-class" class="anchor"></a>The MizerParams class</h2>
@@ -320,7 +320,7 @@ This will automatically also install all the other packages that mizer depends o
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

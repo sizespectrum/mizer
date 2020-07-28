@@ -48,7 +48,10 @@
 <meta property="og:title" content="Get total mortality rate needed to project standard mizer model — mizerMort" />
 <meta property="og:description" content="Calculates the total mortality rate \(\mu_i(w)\)  (in units 1/year) on each
 species by size from predation mortality, background mortality and fishing
-mortality." />
+mortality.
+You would not usually call this
+function directly but instead use getMort(), which then calls this
+function unless an alternative function has been registered, see below." />
 
 
 
@@ -80,7 +83,7 @@ mortality." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
       </span>
     </div>
 
@@ -186,10 +189,13 @@ mortality." />
     <div class="ref-description">
     <p>Calculates the total mortality rate \(\mu_i(w)\)  (in units 1/year) on each
 species by size from predation mortality, background mortality and fishing
-mortality.</p>
+mortality.
+You would not usually call this
+function directly but instead use <code><a href='getMort.html'>getMort()</a></code>, which then calls this
+function unless an alternative function has been registered, see below.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>mizerMort</span>(<span class='no'>params</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='no'>f_mort</span>, <span class='no'>pred_mort</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>mizerMort</span>(<span class='no'>params</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='no'>t</span>, <span class='no'>f_mort</span>, <span class='no'>pred_mort</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -212,6 +218,12 @@ mortality.</p>
 ecosystem</p></td>
     </tr>
     <tr>
+      <th>t</th>
+      <td><p>The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)</p></td>
+    </tr>
+    <tr>
       <th>f_mort</th>
       <td><p>A two dimensional array (species x size) with the fishing
 mortality</p></td>
@@ -223,14 +235,31 @@ mortality</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Optional arguments for rate functions.</p></td>
+      <td><p>Unused</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A two dimensional array (species x size) with the total mortality
-rates.</p>
+    <p>A named two dimensional array (species x size) with the total
+mortality rates.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>If your model contains additional components that you added with
+<code><a href='setComponent.html'>setComponent()</a></code> and for which you specified a <code>mort_fun</code> function then
+the mortality inflicted by these components will be included in the returned
+value.</p>
+    <h2 class="hasAnchor" id="your-own-mortality-function"><a class="anchor" href="#your-own-mortality-function"></a>Your own mortality function</h2>
+
+    
+
+<p>By default <code><a href='getMort.html'>getMort()</a></code> calls <code>mizerMort()</code>. However you can
+replace this with your own alternative mortality function. If
+your function is called <code>"myMort"</code> then you register it in a MizerParams
+object <code>params</code> with</p><pre><span class='no'>params</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='no'>params</span>, <span class='st'>"Mort"</span>, <span class='st'>"myMort"</span>)</pre>
+
+<p>Your function will then be called instead of <code>mizerMort()</code>, with the
+same arguments.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other mizer rate functions: 
@@ -262,7 +291,7 @@ rates.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

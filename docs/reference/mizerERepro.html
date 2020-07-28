@@ -49,7 +49,10 @@ model — mizerERepro • mizer</title>
 <meta property="og:title" content="Get energy rate available for reproduction needed to project standard mizer
 model — mizerERepro" />
 <meta property="og:description" content="Calculates the energy rate (grams/year) available for reproduction after
-growth and metabolism have been accounted for." />
+growth and metabolism have been accounted for.
+You would not usually call this
+function directly but instead use getERepro(), which then calls this
+function unless an alternative function has been registered, see below." />
 
 
 
@@ -81,7 +84,7 @@ growth and metabolism have been accounted for." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
       </span>
     </div>
 
@@ -187,10 +190,13 @@ model</h1>
 
     <div class="ref-description">
     <p>Calculates the energy rate (grams/year) available for reproduction after
-growth and metabolism have been accounted for.</p>
+growth and metabolism have been accounted for.
+You would not usually call this
+function directly but instead use <code><a href='getERepro.html'>getERepro()</a></code>, which then calls this
+function unless an alternative function has been registered, see below.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>mizerERepro</span>(<span class='no'>params</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='no'>e</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>mizerERepro</span>(<span class='no'>params</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='no'>t</span>, <span class='no'>e</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -213,13 +219,19 @@ growth and metabolism have been accounted for.</p>
 ecosystem</p></td>
     </tr>
     <tr>
+      <th>t</th>
+      <td><p>The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)</p></td>
+    </tr>
+    <tr>
       <th>e</th>
       <td><p>A two dimensional array (species x size) holding the energy available
 for reproduction and growth as calculated by <code><a href='mizerEReproAndGrowth.html'>mizerEReproAndGrowth()</a></code>.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Optional arguments for rate functions.</p></td>
+      <td><p>Unused</p></td>
     </tr>
     </table>
 
@@ -232,6 +244,17 @@ growth and reproduction, calculated with <code><a href='mizerEReproAndGrowth.htm
 and \(\psi_i(w)\) is the proportion of this energy that is used for
 reproduction. This proportion is taken from the <code>params</code> object and is
 set with <code><a href='setReproduction.html'>setReproduction()</a></code>.</p>
+    <h2 class="hasAnchor" id="your-own-reproduction-rate-function"><a class="anchor" href="#your-own-reproduction-rate-function"></a>Your own reproduction rate function</h2>
+
+    
+
+<p>By default <code><a href='getERepro.html'>getERepro()</a></code> calls <code>mizerERepro()</code>. However you can
+replace this with your own alternative reproduction rate function. If
+your function is called <code>"myERepro"</code> then you register it in a MizerParams
+object <code>params</code> with</p><pre><span class='no'>params</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='no'>params</span>, <span class='st'>"ERepro"</span>, <span class='st'>"myERepro"</span>)</pre>
+
+<p>Your function will then be called instead of <code>mizerERepro()</code>, with the
+same arguments.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other mizer rate functions: 
@@ -263,7 +286,7 @@ set with <code><a href='setReproduction.html'>setReproduction()</a></code>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

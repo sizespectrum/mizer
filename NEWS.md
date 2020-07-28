@@ -1,4 +1,4 @@
-# mizer 2.0.2.9001
+# mizer 2.0.3
 
 ## Bug fixes
 

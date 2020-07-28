@@ -79,7 +79,7 @@ for the time based slots of a MizerSim object." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
       </span>
     </div>
 
@@ -198,15 +198,21 @@ for the time based slots of a MizerSim object.</p>
     </tr>
     <tr>
       <th>time_range</th>
-      <td><p>The time_range can be character or numeric.</p></td>
+      <td><p>A vector of times. Only the range of times is relevant,
+i.e., all times between the smallest and largest will be selected.
+The time_range can be character or numeric.</p></td>
     </tr>
     <tr>
       <th>slot_name</th>
-      <td><p>Necessary to include a slot_name argument because the effort
-and abundance slots have different time dimensions</p></td>
+      <td><p>Obsolete. Was only needed in early versions of mizer where
+the effort slot could have different time dimension from the other slots.</p></td>
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>Named boolean vector indicating for each time whether it is included
+in the range or not.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -223,7 +229,7 @@ and abundance slots have different time dimensions</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>
