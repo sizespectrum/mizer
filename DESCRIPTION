@@ -76,6 +76,7 @@ Collate:
     'data.R'
     'RcppExports.R'
     'deprecated.R'
+    'get_initial_n.R'
 RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8

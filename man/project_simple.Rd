@@ -59,8 +59,8 @@ This is an internal function used by the user-facing \code{project()} function.
 It is of potential interest only to mizer extension authors.
 }
 \details{
-The function does not check its arguments because it is mean to be as fast
-as possible to allow it to be used in a loop. For example it is called in
+The function does not check its arguments because it is meant to be as fast
+as possible to allow it to be used in a loop. For example, it is called in
 \code{project()} once for every saved value. The function also does not save its
 intermediate results but only returns the result at time \code{t + dt * steps}.
 During this time it uses the constant fishing effort \code{effort}.
