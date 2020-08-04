@@ -14,7 +14,7 @@ species_params <- function(params) {
 `species_params<-` <- function(params, value) {
     value <- validSpeciesParams(value)
     params@species_params <- value
-    setParams(params)
+    suppressMessages(setParams(params))
 }
 
 

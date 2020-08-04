@@ -3,7 +3,7 @@
 * Simplified a calculation in the numeric scheme.
 * In `validGearParams()` ensure that all required arguments of the 
   selectivity function are supplied.
-
+* `species_params()<-` supresses warnings.
 
 # mizer 2.0.3
 
