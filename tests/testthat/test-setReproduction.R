@@ -25,6 +25,7 @@ test_that("setReproduction works", {
     expect_equal(getRDI(p2), getRDD(p2))
 })
 test_that("Comment works on maturity", {
+    params <- setReproduction(NS_params)
     comment(params@maturity) <- "test"
     params <- setReproduction(params, maturity = params@maturity)
     expect_identical(comment(params@maturity), "test")
