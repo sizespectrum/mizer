@@ -1,6 +1,8 @@
 # mizer 2.0.3.9000
 
 * Simplified a calculation in the numeric scheme.
+* In `validGearParams()` use the species name as gear name in case gear name 
+  is NA.
 * In `validGearParams()` ensure that all required arguments of the 
   selectivity function are supplied.
 * `species_params()<-` supresses warnings.

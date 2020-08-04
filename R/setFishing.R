@@ -246,8 +246,8 @@ getInitialEffort <- function(params) {
 #' information in the species_params data frame. This restricts each species
 #' to be fished by only one gear. Defaults are used for information that can
 #' not be found in the species_params dataframe, as follows:
-#' * If there is no `gear` column, each species gets its own gear, named after 
-#'   the species.
+#' * If there is no `gear` column or it is NA then a new gear named after the
+#'   species is introduced.
 #' * If there is no `sel_func` column or it is NA then `knife_edge` is used.
 #' * If there is no `catchability` column or it is NA then this is set to 1.
 #' * If the selectivity function is `knife_edge` and no `knife_edge_size` is
@@ -272,7 +272,8 @@ validGearParams <- function(gear_params, species_params) {
                            stringsAsFactors = FALSE)
             if ("gear" %in% names(species_params)) {
                 gear_params$gear <- as.character(species_params$gear)
-                gear_params$gear[is.na(gear_params$gear)] <- "knife_edge_gear"
+                gear_params$gear[is.na(gear_params$gear)] <- 
+                    species_params$species[is.na(gear_params$gear)]
             } else {
                 gear_params$gear <- species_params$species
             }
