@@ -10,6 +10,8 @@
 * Throw meaningful error when `steady()` fails because RDI is zero.
 * `newCommunityParams()` now protects its zero investment in reproduction with
   a comment.
+* Fixed bug that prevented `setReproduction()` to correctly set the the total
+  proportion psi when the maturity proportion was changed. 
 
 # mizer 2.0.3
 

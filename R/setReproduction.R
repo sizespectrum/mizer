@@ -173,7 +173,8 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
         assert_that(all(species_params$w_mat25 < species_params$w_mat))
         params@species_params$w_mat25 <- species_params$w_mat25
         
-        maturity <- 
+        maturity <- params@maturity  # To get the right dimensions
+        maturity[] <- 
             unlist(
                 tapply(params@w, seq_along(params@w),
                        function(wx, w_inf, w_mat, w_mat25) {
@@ -185,14 +186,20 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
                        w_mat25 = species_params$w_mat25
                 )
             )
-        if (!is.null(comment(params@maturity)) &&
-            any(params@maturity != maturity)) {
-            message("The maturity ogive has been commented and therefore will ",
-                    "not be recalculated from the species parameters.")
+        if (!is.null(comment(params@maturity))) {
+            if (any(params@maturity != maturity)) {
+                message("The maturity ogive has been commented and therefore will ",
+                        "not be recalculated from the species parameters.")
+            }
             maturity <- params@maturity
         }
     }
     assert_that(all(maturity >= 0 & maturity <= 1))
+    # Need to update psi because it contains maturity as a factor
+    if (any(params@maturity != maturity)) {
+        params@psi[] <- params@psi / params@maturity * maturity
+        params@psi[is.nan(params@psi)] <- 0
+    }
     params@maturity[] <- maturity
     comment(params@maturity) <- comment(maturity)
     
@@ -228,10 +235,11 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
     psi[outer(species_params$w_inf, params@w, "<")] <- 1
     assert_that(all(psi >= 0 & psi <= 1))
     
-    if (!is.null(comment(params@psi)) &&
-        any(params@psi != psi)) {
-        message("The reproductive proportion has been commented and therefore ",
-                "will not be recalculated from the species parameters.")
+    if (!is.null(comment(params@psi))) {
+        if (any(params@psi != psi)) {
+            message("The reproductive proportion has been commented and therefore ",
+                    "will not be recalculated from the species parameters.")
+        }
     } else {
         params@psi[] <- psi
         comment(params@psi) <- comment(repro_prop)

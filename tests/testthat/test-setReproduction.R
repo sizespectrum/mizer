@@ -34,10 +34,19 @@ test_that("Comment works on maturity", {
                    "maturity ogive has been commented")
 })
 test_that("Comment works on psi", {
+    params <- NS_params
     repro_prop <- params@psi
+    repro_prop[] <- 1
     comment(repro_prop) <- "test"
     params <- setReproduction(params, repro_prop = repro_prop)
     expect_identical(comment(params@psi), "test")
+    # We use entry 50 below to be above the low-value cutoff in psi
+    expect_equal(params@psi[1, 50], params@maturity[1, 50])
     expect_message(setReproduction(params),
                    "has been commented")
+    # Test that we can still update maturity
+    maturity <- getMaturityProportion(params)
+    maturity[] <- 1
+    params <- setReproduction(params, maturity = maturity)
+    expect_equal(params@psi[1, 50], 1)
 })
