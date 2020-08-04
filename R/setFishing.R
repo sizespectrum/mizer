@@ -293,10 +293,14 @@ validGearParams <- function(gear_params, species_params) {
                 args <- names(formals(as.character(gear_params[g, 'sel_func'])))
                 args <- args[!(args %in% c("w", "species_params", "..."))]
                 for (arg in args) {
-                    if (arg %in% names(species_params)) {
-                        gear_params[[arg]] <- species_params[[arg]]
+                    if (!arg %in% names(gear_params)) {
+                        gear_params[[arg]] <- NA
+                    }
+                    if (arg %in% names(species_params) && 
+                        !is.na(species_params[g, arg])) {
+                        gear_params[g, arg] <- species_params[g, arg]
                     } else if (arg == "knife_edge_size") {
-                        gear_params[[arg]] <- species_params$w_mat
+                        gear_params[g, arg] <- species_params$w_mat[[g]]
                     } else {
                         stop("You need to provide an `", arg, "` column in the species parameter data frame.")
                     }

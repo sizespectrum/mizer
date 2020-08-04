@@ -1,6 +1,8 @@
 # mizer 2.0.3.9000
 
 * Simplified a calculation in the numeric scheme.
+* In `validGearParams()` ensure that all required arguments of the 
+  selectivity function are supplied.
 
 
 # mizer 2.0.3
