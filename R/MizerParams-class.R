@@ -526,7 +526,7 @@ emptyParams <- function(species_params,
     no_sp <- nrow(species_params)
     species_names <- as.character(species_params$species)
     gear_names <- unique(gear_params$gear)
-    mat1 <- array(NA, dim = c(no_sp, no_w), 
+    mat1 <- array(0, dim = c(no_sp, no_w), 
                   dimnames = list(sp = species_names, w = signif(w,3)))
     ft_pred_kernel <- array(NA, dim = c(no_sp, no_w_full),
                             dimnames = list(sp = species_names, k = 1:no_w_full))
