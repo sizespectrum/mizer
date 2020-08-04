@@ -50,9 +50,10 @@ resource_params(params) <- value
 \item{w_pp_cutoff}{The upper cut off size of the resource spectrum.
 Default is 10 g.}
 
-\item{resource_dynamics}{Function that determines resource dynamics by
-calculating the resource spectrum at the next time step from the current
-state.}
+\item{resource_dynamics}{Optional. Name of the function that determines the
+resource dynamics by calculating the resource spectrum at the next time
+step from the current state. You only need to specify this if you do not
+want to use the default \code{\link[=resource_semichemostat]{resource_semichemostat()}}.}
 
 \item{...}{Unused}
 

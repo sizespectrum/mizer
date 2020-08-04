@@ -34,10 +34,8 @@
 #' The sigmoidal function given above would strictly reach 1 only asymptotically.
 #' Mizer instead sets the function equal to 1 already at the species' 
 #' maximum size, taken from the compulsory `w_inf` column in the
-#' `species_params` data frame. Also the sigmoidal function has small but
-#' non-vanishing values also for very small sizes. As this is unrealistic,
-#' Mizer instead sets the value to 0 for any size smaller than 10% of the
-#' maturity size.
+#' `species_params` data frame. Also, for computational simplicity, any value
+#' smaller than `1e-6` is set to `0`.
 #' }
 #' 
 #' \subsection{Investment into reproduction}{
@@ -208,8 +206,7 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
             )
         
         # For reasons of efficiency we next set all very small values to 0 
-        # Set w < 10% of w_mat to 0
-        maturity[outer(species_params$w_mat * 0.1, params@w, ">")] <- 0
+        maturity[maturity < 1e-6] <- 0
         
         # If maturity is protected by a comment, keep the old value
         if (!is.null(comment(params@maturity))) {

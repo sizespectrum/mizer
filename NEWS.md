@@ -11,7 +11,9 @@
 * `newCommunityParams()` now protects its zero investment in reproduction with
   a comment.
 * Fixed bug that prevented `setReproduction()` to correctly set the the total
-  proportion psi when the maturity proportion was changed. 
+  proportion psi when the maturity proportion was changed.
+* The default maturity ogive is truncated at proportions smaller than 1e-6.
+* Numerous small improvements to documentation.
 
 # mizer 2.0.3
 

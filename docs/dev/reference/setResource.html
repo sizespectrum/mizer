@@ -80,7 +80,7 @@ dynamics" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.3.9000</span>
       </span>
     </div>
 
@@ -190,27 +190,27 @@ dynamics</p>
     </div>
 
     <pre class="usage"><span class='fu'>setResource</span>(
-  <span class='no'>params</span>,
-  <span class='kw'>resource_rate</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>resource_capacity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fu'>resource_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"r_pp"</span>]],
-  <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='fu'>resource_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"kappa"</span>]],
-  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fu'>resource_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"lambda"</span>]],
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'>resource_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"n"</span>]],
-  <span class='kw'>w_pp_cutoff</span> <span class='kw'>=</span> <span class='fu'>resource_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"w_pp_cutoff"</span>]],
-  <span class='kw'>resource_dynamics</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='no'>...</span>
+  <span class='kw'>params</span>,
+  resource_rate = <span class='kw'>NULL</span>,
+  resource_capacity = <span class='kw'>NULL</span>,
+  r_pp = <span class='fu'>resource_params</span>(<span class='kw'>params</span>)[[<span class='st'>"r_pp"</span>]],
+  kappa = <span class='fu'>resource_params</span>(<span class='kw'>params</span>)[[<span class='st'>"kappa"</span>]],
+  lambda = <span class='fu'>resource_params</span>(<span class='kw'>params</span>)[[<span class='st'>"lambda"</span>]],
+  n = <span class='fu'>resource_params</span>(<span class='kw'>params</span>)[[<span class='st'>"n"</span>]],
+  w_pp_cutoff = <span class='fu'>resource_params</span>(<span class='kw'>params</span>)[[<span class='st'>"w_pp_cutoff"</span>]],
+  resource_dynamics = <span class='kw'>NULL</span>,
+  <span class='kw'>...</span>
 )
 
-<span class='fu'>getResourceRate</span>(<span class='no'>params</span>)
+<span class='fu'>getResourceRate</span>(<span class='kw'>params</span>)
 
-<span class='fu'>getResourceCapacity</span>(<span class='no'>params</span>)
+<span class='fu'>getResourceCapacity</span>(<span class='kw'>params</span>)
 
-<span class='fu'>getResourceDynamics</span>(<span class='no'>params</span>)
+<span class='fu'>getResourceDynamics</span>(<span class='kw'>params</span>)
 
-<span class='fu'>resource_params</span>(<span class='no'>params</span>)
+<span class='fu'>resource_params</span>(<span class='kw'>params</span>)
 
-<span class='fu'>resource_params</span>(<span class='no'>params</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span></pre>
+<span class='fu'>resource_params</span>(<span class='kw'>params</span>) <span class='op'>&lt;-</span> <span class='kw'>value</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -250,9 +250,10 @@ Default is 10 g.</p></td>
     </tr>
     <tr>
       <th>resource_dynamics</th>
-      <td><p>Function that determines resource dynamics by
-calculating the resource spectrum at the next time step from the current
-state.</p></td>
+      <td><p>Optional. Name of the function that determines the
+resource dynamics by calculating the resource spectrum at the next time
+step from the current state. You only need to specify this if you do not
+want to use the default <code><a href='resource_semichemostat.html'>resource_semichemostat()</a></code>.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -306,7 +307,7 @@ and <code>lambda</code> arguments.</p>
 <code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code>,
-<code><a href='setParams.html'>species_params</a>()</code></p></div>
+<code><a href='species_params.html'>species_params</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

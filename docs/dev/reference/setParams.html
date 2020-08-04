@@ -90,7 +90,7 @@ See the Details section below for a discussion of how to use this function." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.3.9000</span>
       </span>
     </div>
 
@@ -209,11 +209,11 @@ functions</p><ul>
 </ul><p>See the Details section below for a discussion of how to use this function.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>species_params</span>(<span class='no'>params</span>)
+    <pre class="usage"><span class='fu'>species_params</span>(<span class='kw'>params</span>)
 
-<span class='fu'>species_params</span>(<span class='no'>params</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
+<span class='fu'>species_params</span>(<span class='kw'>params</span>) <span class='op'>&lt;-</span> <span class='kw'>value</span>
 
-<span class='fu'>setParams</span>(<span class='no'>params</span>, <span class='kw'>interaction</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
+<span class='fu'>setParams</span>(<span class='kw'>params</span>, interaction = <span class='kw'>NULL</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -284,9 +284,10 @@ a vector, must be named by gear.</p></dd>
     <dt><code>lambda</code></dt><dd><p>Scaling exponent of the intrinsic resource carrying capacity</p></dd>
     <dt><code>w_pp_cutoff</code></dt><dd><p>The upper cut off size of the resource spectrum.
 Default is 10 g.</p></dd>
-    <dt><code>resource_dynamics</code></dt><dd><p>Function that determines resource dynamics by
-calculating the resource spectrum at the next time step from the current
-state.</p></dd>
+    <dt><code>resource_dynamics</code></dt><dd><p>Optional. Name of the function that determines the
+resource dynamics by calculating the resource spectrum at the next time
+step from the current state. You only need to specify this if you do not
+want to use the default <code><a href='resource_semichemostat.html'>resource_semichemostat()</a></code>.</p></dd>
   
 </dl></td>
     </tr>
@@ -305,8 +306,8 @@ function to effect the change. Note that just changing the species parameters
 by themselves is not changing the model until you call <code>setParams()</code> or the
 appropriate one of its sub-functions. Here is an example which assumes that
 you have have a MizerParams object <code>params</code> in which you just want to change
-one parameter of the third species:</p><pre><span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>gamma</span><span class='kw'>[[</span><span class='fl'>3</span>]] <span class='kw'>&lt;-</span> <span class='fl'>1000</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setParams</span>(<span class='no'>params</span>)</pre>
+one parameter of the third species:</p><pre><span class='kw'>params</span><span class='op'>@</span>species_params<span class='op'>$</span><span class='kw'>gamma</span>[[<span class='fl'>3</span>]] <span class='op'>&lt;-</span> <span class='fl'>1000</span>
+<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setParams</span>(<span class='kw'>params</span>)</pre>
 
 <p>Because of the way the R language works, <code>setParams</code> does not make the
 changes to the <code>params</code> object that you pass to it but instead returns a new
@@ -327,8 +328,8 @@ above example you would have used <code>params &lt;- setSearchVolume(params)</co
 instead of <code>params &lt;- setParams(params)</code>.</p>
 <p>If you have added a comment to a slot of the params object, then setParams()
 and its subfunctions will not recalculate the value for that slot from the
-species parameters. For example</p><pre><span class='fu'><a href='https://rdrr.io/r/base/comment.html'>comment</a></span>(<span class='no'>params</span>@<span class='kw'>search_vol</span>) <span class='kw'>&lt;-</span> <span class='st'>"This should not change"</span>
-<span class='fu'>species_params</span>(<span class='no'>params</span>)$<span class='no'>gamma</span> <span class='kw'>&lt;-</span> <span class='fl'>10</span></pre>
+species parameters. For example</p><pre><span class='fu'><a href='https://rdrr.io/r/base/comment.html'>comment</a></span>(<span class='kw'>params</span><span class='op'>@</span>search_vol) <span class='op'>&lt;-</span> <span class='st'>"This should not change"</span>
+<span class='fu'>species_params</span>(<span class='kw'>params</span>)<span class='op'>$</span><span class='kw'>gamma</span> <span class='op'>&lt;-</span> <span class='fl'>10</span></pre>
 
 <p>will just issue a warning "The search volume has been commented and therefore
 will not be recalculated from the species parameters". You can remove the
@@ -520,20 +521,23 @@ $$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$</p>
     
 
 
-<h3>Investment</h3>
-<p>For each species and at each size, the proportion \(\psi\) of the available energy
+<p>For each species and at each size, the proportion \(\psi\) of the
+available energy
 that is invested into reproduction is the product of two factors: the
 proportion <code>maturity</code> of individuals that are mature and the proportion
 <code>repro_prop</code> of the energy available to a mature individual that is
 invested into reproduction.</p>
-<p>If the <code>maturity</code> argument is not supplied, then it is set to a sigmoidal
+<h3>Maturity ogive</h3>
+<p>If the the proportion of individuals that are mature is not supplied via
+the <code>maturity</code> argument , then it is set to a sigmoidal
 maturity ogive that changes from 0 to 1 at around the maturity size:
 $${\tt maturity}(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}.$$
-(To avoid clutter, we are not showing the species index in the equations.)
+(To avoid clutter, we are not showing the species index in the equations,
+although each species has its own maturity ogive.)
 The maturity weights are taken from the <code>w_mat</code> column of the
 species_params data frame. Any missing maturity weights are set to 1/4 of the
-asymptotic weight in the <code>w_inf</code> column.
-The exponent \(U\) determines the steepness of the maturity ogive. By
+asymptotic weight in the <code>w_inf</code> column.</p>
+<p>The exponent \(U\) determines the steepness of the maturity ogive. By
 default it is chosen as \(U = 10\), however this can be overridden by
 including a column <code>w_mat25</code> in the species parameter dataframe that
 specifies the weight at which 25% of individuals are mature, which sets
@@ -541,9 +545,13 @@ specifies the weight at which 25% of individuals are mature, which sets
 <p>The sigmoidal function given above would strictly reach 1 only asymptotically.
 Mizer instead sets the function equal to 1 already at the species'
 maximum size, taken from the compulsory <code>w_inf</code> column in the
-<code>species_params</code> data frame.</p>
-<p>If the <code>repro_prop</code> argument is not supplied, it is set to the
-allometric form
+<code>species_params</code> data frame. Also, for computational simplicity, any value
+smaller than <code>1e-6</code> is set to <code>0</code>.</p>
+
+<h3>Investment into reproduction</h3>
+<p>If the the energy available to a mature individual that is
+invested into reproduction is not supplied via the <code>repro_prop</code> argument,
+it is set to the allometric form
 $${\tt repro\_prop}(w) = \left(\frac{w}{w_{inf}}\right)^{m-n}.$$
 Here \(n\) is the scaling exponent of the energy income rate. Hence
 the exponent \(m\) determines the scaling of the investment into
@@ -556,7 +564,7 @@ data frame.</p>
 <p>So finally we have
 $$\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)$$</p>
 
-<h3>Efficiency</h3>
+<h3>Reproductive efficiency</h3>
 <p>The reproductive efficiency, i.e., the proportion of energy allocated to
 reproduction that results in egg biomass, is set through the <code>erepro</code>
 column in the species_params data frame. If that is not provided, the default
@@ -697,10 +705,10 @@ and <code>lambda</code> arguments.</p>
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newTraitParams.html'>newTraitParams</a></span>()
-<span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>gamma</span>[<span class='fl'>3</span>] <span class='kw'>&lt;-</span> <span class='fl'>1000</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setParams</span>(<span class='no'>params</span>)
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newTraitParams.html'>newTraitParams</a></span>()
+<span class='kw'>params</span><span class='op'>@</span>species_params<span class='op'>$</span><span class='kw'>gamma</span>[<span class='fl'>3</span>] <span class='op'>&lt;-</span> <span class='fl'>1000</span>
+<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setParams</span>(<span class='kw'>params</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

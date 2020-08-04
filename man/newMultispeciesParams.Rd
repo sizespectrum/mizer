@@ -116,9 +116,10 @@ species by including a \code{n} column in the \code{species_params}.}
 \item{w_pp_cutoff}{The upper cut off size of the resource spectrum.
 Default is 10 g.}
 
-\item{resource_dynamics}{Function that determines resource dynamics by
-calculating the resource spectrum at the next time step from the current
-state.}
+\item{resource_dynamics}{Optional. Name of the function that determines the
+resource dynamics by calculating the resource spectrum at the next time
+step from the current state. You only need to specify this if you do not
+want to use the default \code{\link[=resource_semichemostat]{resource_semichemostat()}}.}
 
 \item{gear_params}{A data frame with gear-specific parameter values.}
 
@@ -399,21 +400,25 @@ as
 \section{Setting reproduction}{
 
 
-\subsection{Investment}{
-For each species and at each size, the proportion \eqn{\psi}{psi} of the available energy
+For each species and at each size, the proportion \eqn{\psi}{psi} of the
+available energy
 that is invested into reproduction is the product of two factors: the
 proportion \code{maturity} of individuals that are mature and the proportion
 \code{repro_prop} of the energy available to a mature individual that is
 invested into reproduction.
 
-If the \code{maturity} argument is not supplied, then it is set to a sigmoidal
+\subsection{Maturity ogive}{
+If the the proportion of individuals that are mature is not supplied via
+the \code{maturity} argument , then it is set to a sigmoidal
 maturity ogive that changes from 0 to 1 at around the maturity size:
 \deqn{{\tt maturity}(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}.}{
   maturity(w) = [1+(w/w_mat)^(-U)]^(-1)}
-(To avoid clutter, we are not showing the species index in the equations.)
+(To avoid clutter, we are not showing the species index in the equations,
+although each species has its own maturity ogive.)
 The maturity weights are taken from the \code{w_mat} column of the
 species_params data frame. Any missing maturity weights are set to 1/4 of the
 asymptotic weight in the \code{w_inf} column.
+
 The exponent \eqn{U} determines the steepness of the maturity ogive. By
 default it is chosen as \eqn{U = 10}, however this can be overridden by
 including a column \code{w_mat25} in the species parameter dataframe that
@@ -423,10 +428,14 @@ specifies the weight at which 25\% of individuals are mature, which sets
 The sigmoidal function given above would strictly reach 1 only asymptotically.
 Mizer instead sets the function equal to 1 already at the species'
 maximum size, taken from the compulsory \code{w_inf} column in the
-\code{species_params} data frame.
+\code{species_params} data frame. Also, for computational simplicity, any value
+smaller than \code{1e-6} is set to \code{0}.
+}
 
-If the \code{repro_prop} argument is not supplied, it is set to the
-allometric form
+\subsection{Investment into reproduction}{
+If the the energy available to a mature individual that is
+invested into reproduction is not supplied via the \code{repro_prop} argument,
+it is set to the allometric form
 \deqn{{\tt repro\_prop}(w) = \left(\frac{w}{w_{inf}}\right)^{m-n}.}{
   repro_prop(w) = (w/w_inf)^(m - n).}
 Here \eqn{n} is the scaling exponent of the energy income rate. Hence
@@ -442,7 +451,7 @@ So finally we have
 \deqn{\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)}{psi(w) = maturity(w) * repro_prop(w)}
 }
 
-\subsection{Efficiency}{
+\subsection{Reproductive efficiency}{
 The reproductive efficiency, i.e., the proportion of energy allocated to
 reproduction that results in egg biomass, is set through the \code{erepro}
 column in the species_params data frame. If that is not provided, the default
