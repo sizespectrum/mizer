@@ -4,6 +4,7 @@
 * In `validGearParams()` ensure that all required arguments of the 
   selectivity function are supplied.
 * `species_params()<-` supresses warnings.
+* Throw meaningful error when `steady()` fails because RDI is zero.
 
 # mizer 2.0.3
 

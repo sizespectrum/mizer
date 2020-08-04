@@ -55,6 +55,9 @@ steady <- function(params, t_max = 100, t_per = 1.5, tol = 10^(-2),
     old_rdd_fun <- params@rates_funcs$RDD
     params@rates_funcs$RDD <- "constantRDD"
     old_rdi <- getRDI(params)
+    if (any(is.na(old_rdi)) || any(old_rdi <= 0)) {
+        stop("The project function expects positive RDI for all species.")
+    }
     rdi_limit <- old_rdi / 1e7
     # Force other componens to stay at current level
     old_other_dynamics <- params@other_dynamics
