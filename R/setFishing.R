@@ -242,6 +242,16 @@ getInitialEffort <- function(params) {
 #' The function returns a valid gear parameter data frame that can be used
 #' by `setFishing()` or it gives an error message.
 #' 
+#' The gear_params data frame is allowed to have zero rows, but if it has
+#' rows, then the following requirements apply:
+#' * There must be columns `species` and `gear` and any species - gear pair is 
+#'   allowed to appear at most once.
+#' * There must be a `sel_func` column. If a selectivity function is not 
+#'   supplied, it will be set to "knife_edge".
+#' * There must be a `catchability` column. If a catchability is not supplied,
+#'   it will be set to 1.
+#' * All the parameters required by the selectivity functions must be provided.
+#' 
 #' If gear_params is empty, then this function tries to find the necessary
 #' information in the species_params data frame. This restricts each species
 #' to be fished by only one gear. Defaults are used for information that can
@@ -263,58 +273,62 @@ validGearParams <- function(gear_params, species_params) {
     
     no_sp <- nrow(species_params)
     
-    if (nrow(gear_params) < 1) {
-        if ("gear" %in% names(species_params) ||
-            "sel_func" %in% names(species_params)) {
-            # Try to take parameters from species_params
-            gear_params <- 
-                data.frame(species = as.character(species_params$species),
-                           stringsAsFactors = FALSE)
-            if ("gear" %in% names(species_params)) {
-                gear_params$gear <- as.character(species_params$gear)
-                gear_params$gear[is.na(gear_params$gear)] <- 
-                    species_params$species[is.na(gear_params$gear)]
-            } else {
-                gear_params$gear <- species_params$species
-            }
-            if ("sel_func" %in% names(species_params)) {
-                gear_params$sel_func <- as.character(species_params$sel_func)
-                gear_params$sel_func[is.na(gear_params$sel_func)] <- "knife_edge"
-            } else {
-                gear_params$sel_func <- "knife_edge"
-            }
-            if ("catchability" %in% names(species_params)) {
-                gear_params$catchability <- species_params$catchability
-                gear_params$catchability[is.na(gear_params$catchability)] <- 1
-            } else {
-                gear_params$catchability <- 1
-            }
-            # copy over any selectivity function parameters
-            for (g in seq_len(no_sp)) {
-                args <- names(formals(as.character(gear_params[g, 'sel_func'])))
-                args <- args[!(args %in% c("w", "species_params", "..."))]
-                for (arg in args) {
-                    if (!arg %in% names(gear_params)) {
-                        gear_params[[arg]] <- NA
-                    }
-                    if (arg %in% names(species_params) && 
-                        !is.na(species_params[g, arg])) {
-                        gear_params[g, arg] <- species_params[g, arg]
-                    } else if (arg == "knife_edge_size") {
-                        gear_params[g, arg] <- species_params$w_mat[[g]]
-                    } else {
-                        stop("You need to provide an `", arg, "` column in the species parameter data frame.")
-                    }
+    # If no gear_params are supplied, but there is either a gear or sel_func
+    # column in the species_params data frame, then try to extract information
+    # from there.
+    if (nrow(gear_params) == 0 &&
+        ("gear" %in% names(species_params) || 
+             "sel_func" %in% names(species_params))) {
+        # Try to take parameters from species_params
+        gear_params <- 
+            data.frame(species = as.character(species_params$species),
+                       stringsAsFactors = FALSE)
+        if ("gear" %in% names(species_params)) {
+            gear_params$gear <- as.character(species_params$gear)
+            gear_params$gear[is.na(gear_params$gear)] <- 
+                species_params$species[is.na(gear_params$gear)]
+        } else {
+            gear_params$gear <- species_params$species
+        }
+        if ("sel_func" %in% names(species_params)) {
+            gear_params$sel_func <- as.character(species_params$sel_func)
+            gear_params$sel_func[is.na(gear_params$sel_func)] <- "knife_edge"
+        } else {
+            gear_params$sel_func <- "knife_edge"
+        }
+        if ("catchability" %in% names(species_params)) {
+            gear_params$catchability <- species_params$catchability
+            gear_params$catchability[is.na(gear_params$catchability)] <- 1
+        } else {
+            gear_params$catchability <- 1
+        }
+        # copy over any selectivity function parameters
+        for (g in seq_len(no_sp)) {
+            args <- names(formals(as.character(gear_params[g, 'sel_func'])))
+            args <- args[!(args %in% c("w", "species_params", "..."))]
+            for (arg in args) {
+                if (!arg %in% names(gear_params)) {
+                    gear_params[[arg]] <- NA
+                }
+                if (arg %in% names(species_params) && 
+                    !is.na(species_params[g, arg])) {
+                    gear_params[g, arg] <- species_params[g, arg]
+                } else if (arg == "knife_edge_size") {
+                    gear_params[g, arg] <- species_params$w_mat[[g]]
+                } else {
+                    stop("You need to provide an `", arg, "` column in the species parameter data frame.")
                 }
             }
-        } else {
-            gear_params <- 
-                data.frame(species = species_params$species,
-                           gear = "knife_edge_gear",
-                           sel_func = "knife_edge",
-                           knife_edge_size = species_params$w_mat,
-                           catchability = 1)
         }
+    }
+    
+    # An empty gear_params data frame is valid
+    if (nrow(gear_params) == 0) {
+        return(gear_params)
+    }
+    
+    if (!all(c("species", "gear") %in% names(gear_params))) {
+        stop("`gear_params` must have columns 'species' and 'gear'.")
     }
     
     # Check that there are no duplicate gear-species pairs

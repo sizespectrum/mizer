@@ -19,13 +19,25 @@ The function returns a valid gear parameter data frame that can be used
 by \code{setFishing()} or it gives an error message.
 }
 \details{
+The gear_params data frame is allowed to have zero rows, but if it has
+rows, then the following requirements apply:
+\itemize{
+\item There must be columns \code{species} and \code{gear} and any species - gear pair is
+allowed to appear at most once.
+\item There must be a \code{sel_func} column. If a selectivity function is not
+supplied, it will be set to "knife_edge".
+\item There must be a \code{catchability} column. If a catchability is not supplied,
+it will be set to 1.
+\item All the parameters required by the selectivity functions must be provided.
+}
+
 If gear_params is empty, then this function tries to find the necessary
 information in the species_params data frame. This restricts each species
 to be fished by only one gear. Defaults are used for information that can
 not be found in the species_params dataframe, as follows:
 \itemize{
-\item If there is no \code{gear} column, each species gets its own gear, named after
-the species.
+\item If there is no \code{gear} column or it is NA then a new gear named after the
+species is introduced.
 \item If there is no \code{sel_func} column or it is NA then \code{knife_edge} is used.
 \item If there is no \code{catchability} column or it is NA then this is set to 1.
 \item If the selectivity function is \code{knife_edge} and no \code{knife_edge_size} is

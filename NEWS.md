@@ -1,6 +1,7 @@
 # mizer 2.0.3.9000
 
 * Simplified a calculation in the numeric scheme.
+* `gear_params` is allowed to have zero rows.
 * In `validGearParams()` use the species name as gear name in case gear name 
   is NA.
 * In `validGearParams()` ensure that all required arguments of the 
