@@ -128,6 +128,7 @@ newCommunityParams <- function(max_w = 1e6,
     params@species_params$constant_reproduction <- reproduction
     params@psi[] <- 0 # Need to force to be 0. Can try setting w_mat but 
                           # due to slope still not 0
+    comment(params@psi) <- "No investment into reproduction in community model."
     # Set w_mat to NA for clarity - it is not actually being used
     params@species_params$w_mat[] <- NA
     return(params)

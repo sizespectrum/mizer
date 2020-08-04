@@ -5,6 +5,8 @@
   selectivity function are supplied.
 * `species_params()<-` supresses warnings.
 * Throw meaningful error when `steady()` fails because RDI is zero.
+* `newCommunityParams()` now protects its zero investment in reproduction with
+  a comment.
 
 # mizer 2.0.3
 
