@@ -12,7 +12,9 @@
   a comment.
 * Fixed bug that prevented `setReproduction()` to correctly set the the total
   proportion psi when the maturity proportion was changed.
-* The default maturity ogive is truncated at proportions smaller than 1e-6.
+* The default maturity ogive is truncated at proportions smaller than 1e-8.
+* New helper function `valid_species_arg()` to check validity of species 
+  selection arguments.
 * Numerous small improvements to documentation.
 
 # mizer 2.0.3

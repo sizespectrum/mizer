@@ -147,31 +147,20 @@ steady <- function(params, t_max = 100, t_per = 1.5, tol = 10^(-2),
 #' [noRDD()]
 #'
 #' @inheritParams steady
-#' @param species A vector of the names of the species to be affected or a
-#'   boolean vector indicating for each species whether it is to be affected
-#'   (TRUE) or not. By default all species are affected
-#' @return A MizerParams object
+#' @inheritParams valid_species_arg
+#' @return A MizerParams object with updated values for the `erepro` column
+#'   in the `species_params` data frame.
 #' @export
 retune_erepro <- function(params, species = species_params(params)$species) {
     assert_that(is(params, "MizerParams"))
-    
-    no_sp <- nrow(params@species_params)
-    if (is.logical(species)) {
-        if (length(species) != no_sp) {
-            stop("The boolean species argument has the wrong length")
-        }
-    } else {
-        species <- dimnames(params@initial_n)$sp %in% species
-        if (length(species) == 0) {
-            warning("The species argument matches none of the species in the params object")
-            return(params)
-        }
-    }
+    species <- valid_species_arg(params, species)
+    if (length(species) == 0) return(params)
+
     mumu <- getMort(params)
     gg <- getEGrowth(params)
     rdi <- getRDI(params)
     eff <- params@species_params$erepro
-    for (i in (1:no_sp)[species]) {
+    for (i in seq_len(nrow(params@species_params))[species]) {
         gg0 <- gg[i, params@w_min_idx[i]]
         mumu0 <- mumu[i, params@w_min_idx[i]]
         DW <- params@dw[params@w_min_idx[i]]
@@ -189,7 +178,6 @@ retune_erepro <- function(params, species = species_params(params)$species) {
 }
 
 
-
 #' Helper function to keep other components constant
 #' 
 #' @param params MizerParams object
@@ -199,4 +187,31 @@ retune_erepro <- function(params, species = species_params(params)$species) {
 #' @export
 constant_other <- function(params, n_other, component, ...) {
     n_other[[component]]
+}
+
+#' Helper function to assure validity of species argument
+#' 
+#' @param params A MizerParams object
+#' @param species A vector of the names of the species to be affected or a
+#'   boolean vector indicating for each species whether it is to be affected
+#'   (TRUE) or not. By default all species are affected.
+#' @export
+valid_species_arg <- function(params, species) {
+    no_sp <- nrow(params@species_params)
+    if (is.logical(species)) {
+        if (length(species) != no_sp) {
+            stop("The boolean `species` argument has the wrong length")
+        }
+    } else {
+        invalid <- setdiff(species, dimnames(params@initial_n)$sp)
+        if (length(invalid) > 0) {
+            warning("The following species do not exist: ", 
+                    toString(invalid))
+        }
+        species <- dimnames(params@initial_n)$sp %in% species
+        if (length(species) == 0) {
+            warning("The species argument matches none of the species in the params object")
+        }
+    }
+    species
 }
