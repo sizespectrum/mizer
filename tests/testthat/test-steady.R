@@ -1,3 +1,4 @@
+# steady ----
 test_that("steady works", {
     expect_message(params <- newTraitParams(no_sp = 4, no_w = 30, R_factor = Inf,
                                             n = 2/3, lambda = 2 + 3/4 - 2/3,
@@ -12,4 +13,13 @@ test_that("steady works", {
     sim <- steady(params, t_per = 2, return_sim = TRUE)
     expect_is(sim, "MizerSim")
     expect_known_value(getRDI(sim@params), "values/steady")
+})
+
+# retune_erepro ----
+test_that("retune_erepro works", {
+    params <- NS_params
+    params1 <- retune_erepro(params, species = "Cod")
+    expect_equal(which(params1@species_params$erepro != 
+                               params@species_params$erepro), 11)
+    expect_identical(params1@rates_funcs$RDD, "noRDD")
 })
