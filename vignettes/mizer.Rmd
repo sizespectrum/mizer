@@ -59,8 +59,15 @@ to reveal further details:
 <details>
 
 Mizer is compatible with R versions 3.1 and later. You can install R on your
-computer by following the instructions at [https://cran.r-project.org/] for your
-particular platform.
+computer by following the instructions at <https://cran.r-project.org/> for your
+particular platform. 
+
+Alternatively, if you can not or do not want to install
+R on your computer, you can also work with R and Rstudio in your internet
+browser by creating yourself a free account at <https://rstudio.cloud>. There
+you can then install mizer as described above. Running mizer in the RStudio
+Cloud may be slightly slower than running it locally on your machine, but the
+speed is usually quite acceptable.
 
 This guide assumes that you will be using RStudio to work with R. There is
 really no reason not to use RStudio and it makes a lot of things much easier.
