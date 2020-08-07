@@ -224,7 +224,6 @@ mizerEncounter <- function(params, n, n_pp, n_other, t, ...) {
         
         encounter <- params@search_vol * avail_energy
     }
-    dimnames(encounter) <- dimnames(params@metab)
     
     # Add contributions from other components
     for (i in seq_along(params@other_encounter)) {
@@ -234,7 +233,6 @@ mizerEncounter <- function(params, n, n_pp, n_other, t, ...) {
                          n = n, n_pp = n_pp, n_other = n_other,
                          component = names(params@other_encounter)[[i]], ...))
     }
-    
     return(encounter)
 }
 
@@ -415,8 +413,6 @@ mizerPredRate <- function(params, n, n_pp, n_other, t, feeding_level, ...) {
     # should be 0
     pred_rate[pred_rate < 1e-18] <- 0
     
-    dimnames(pred_rate) <- list(sp = params@species_params$species,
-                                w_prey = names(n_pp))
     return(pred_rate * params@ft_mask)
 }
 
