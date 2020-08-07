@@ -379,8 +379,8 @@ specifies the weight at which 25\% of individuals are mature, which sets
 The sigmoidal function given above would strictly reach 1 only asymptotically.
 Mizer instead sets the function equal to 1 already at the species'
 maximum size, taken from the compulsory \code{w_inf} column in the
-\code{species_params} data frame. Also, for computational simplicity, any value
-smaller than \code{1e-6} is set to \code{0}.
+\code{species_params} data frame. Also, for computational simplicity, any
+proportion smaller than \code{1e-8} is set to \code{0}.
 }
 
 \subsection{Investment into reproduction}{

@@ -367,7 +367,7 @@ project <- function(object, effort,
 project_simple <- function(params, n, n_pp, n_other, t, dt, steps, 
                            effort, resource_dynamics_fn, other_dynamics_fns,
                            rates_fns, ...) {    
-    # Handy things
+    # Handy things ----
     no_sp <- nrow(params@species_params) # number of species
     no_w <- length(params@w) # number of fish size bins
     idx <- 2:no_w
@@ -379,7 +379,8 @@ project_simple <- function(params, n, n_pp, n_other, t, dt, steps,
     a <- matrix(0, nrow = no_sp, ncol = no_w)
     b <- matrix(0, nrow = no_sp, ncol = no_w)
     S <- matrix(0, nrow = no_sp, ncol = no_w)
-    
+
+    # Loop over time steps ----
     for (i_time in 1:steps) {
         r <- rates_fns$Rates(
             params, n = n, n_pp = n_pp, n_other = n_other,
@@ -388,7 +389,7 @@ project_simple <- function(params, n, n_pp, n_other, t, dt, steps,
         # Update time
         t <- t + dt
         
-        # Update other components
+        # * Update other components ----
         n_other_current <- n_other  # So that the resource dynamics can still 
         # use the current value
         for (component in names(params@other_dynamics)) {
@@ -406,12 +407,12 @@ project_simple <- function(params, n, n_pp, n_other, t, dt, steps,
                 )
         }
         
-        # Update resource
+        # * Update resource ----
         n_pp <- resource_dynamics_fn(params, n = n, n_pp = n_pp,
                                      n_other = n_other_current, rates = r,
                                      t = t, dt = dt, ...)
         
-        # Iterate species one time step forward:
+        # * Update species ----
         # a_{ij} = - g_i(w_{j-1}) / dw_j dt
         a[, idx] <- sweep(-r$e_growth[, idx - 1, drop = FALSE] * dt, 2,
                           params@dw[idx], "/")

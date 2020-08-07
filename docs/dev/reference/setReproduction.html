@@ -272,8 +272,8 @@ specifies the weight at which 25% of individuals are mature, which sets
 <p>The sigmoidal function given above would strictly reach 1 only asymptotically.
 Mizer instead sets the function equal to 1 already at the species'
 maximum size, taken from the compulsory <code>w_inf</code> column in the
-<code>species_params</code> data frame. Also, for computational simplicity, any value
-smaller than <code>1e-6</code> is set to <code>0</code>.</p>
+<code>species_params</code> data frame. Also, for computational simplicity, any
+proportion smaller than <code>1e-8</code> is set to <code>0</code>.</p>
 
 <h3>Investment into reproduction</h3>
 <p>If the the energy available to a mature individual that is
@@ -346,7 +346,7 @@ these as models for writing your own functions.</p>
 <span class='kw'>dff</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/reshape2/man/melt.html'>melt</a></span>(<span class='kw'>df</span>, id.vars = <span class='st'>"Size"</span>, 
             variable.name = <span class='st'>"Type"</span>, 
             value.name = <span class='st'>"Proportion"</span>)
-<span class='fu'>ggplot</span>(<span class='kw'>dff</span>) <span class='op'>+</span> <span class='fu'>geom_line</span>(<span class='fu'>aes</span>(x = <span class='kw'>Size</span>, y = <span class='kw'>Proportion</span>, colour = <span class='kw'>Type</span>))</div><div class='img'><img src='setReproduction-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span></div></pre>
+<span class='fu'>ggplot</span>(<span class='kw'>dff</span>) <span class='op'>+</span> <span class='fu'>geom_line</span>(<span class='fu'>aes</span>(x = <span class='kw'>Size</span>, y = <span class='kw'>Proportion</span>, colour = <span class='kw'>Type</span>))</div><div class='output co'>#&gt; <span class='error'>Error in ggplot(dff): could not find function "ggplot"</span></div><div class='input'><span class='co'># }</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

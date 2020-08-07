@@ -11,10 +11,11 @@ retune_erepro(params, species = species_params(params)$species)
 
 \item{species}{A vector of the names of the species to be affected or a
 boolean vector indicating for each species whether it is to be affected
-(TRUE) or not. By default all species are affected}
+(TRUE) or not. By default all species are affected.}
 }
 \value{
-A MizerParams object
+A MizerParams object with updated values for the \code{erepro} column
+in the \code{species_params} data frame.
 }
 \description{
 Sets the reproductive efficiency for all species so that the rate of egg

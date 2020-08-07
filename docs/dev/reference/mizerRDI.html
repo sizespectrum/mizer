@@ -87,7 +87,7 @@ function unless an alternative function has been registered, see below." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.2.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.3.9000</span>
       </span>
     </div>
 
@@ -202,7 +202,7 @@ function directly but instead use <code><a href='getRDI.html'>getRDI()</a></code
 function unless an alternative function has been registered, see below.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>mizerRDI</span>(<span class='no'>params</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='no'>t</span>, <span class='no'>e_growth</span>, <span class='no'>mort</span>, <span class='no'>e_repro</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>mizerRDI</span>(<span class='kw'>params</span>, <span class='kw'>n</span>, <span class='kw'>n_pp</span>, <span class='kw'>n_other</span>, <span class='kw'>t</span>, <span class='kw'>e_growth</span>, <span class='kw'>mort</span>, <span class='kw'>e_repro</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -265,7 +265,7 @@ See <code><a href='setReproduction.html'>setReproduction()</a></code> for more d
 <p>By default <code><a href='getRDI.html'>getRDI()</a></code> calls <code>mizerRDI()</code>. However you can
 replace this with your own alternative reproduction function. If
 your function is called <code>"myRDI"</code> then you register it in a MizerParams
-object <code>params</code> with</p><pre><span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='no'>params</span>, <span class='st'>"RDI"</span>, <span class='st'>"myRDI"</span>)</pre>
+object <code>params</code> with</p><pre><span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='kw'>params</span>, <span class='st'>"RDI"</span>, <span class='st'>"myRDI"</span>)</pre>
 
 <p>Your function will then be called instead of <code>mizerRDI()</code>, with the
 same arguments.</p>
