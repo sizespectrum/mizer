@@ -306,5 +306,6 @@ setParams <- function(params, interaction = NULL, ...) {
     params <- setSearchVolume(params, ...)
     params <- setReproduction(params, ...)
     params <- setFishing(params, ...)
-    return(params)
+    validObject(params)
+    params
 }

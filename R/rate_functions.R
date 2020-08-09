@@ -26,8 +26,8 @@ getEncounter <- function(params, n = initialN(params),
                          n_pp = initialNResource(params),
                          n_other = initialNOther(params),
                          t = 0) {
-    assert_that(is(params, "MizerParams"),
-                is.array(n),
+    params <- validParams(params)
+    assert_that(is.array(n),
                 is.vector(n_pp),
                 is.list(n_other),
                 is.number(t),
@@ -82,7 +82,7 @@ getEncounter <- function(params, n = initialN(params),
 getFeedingLevel <- function(object, n, n_pp, n_other,
                             time_range, drop = FALSE, ...) {
     if (is(object, "MizerParams")) {
-        params <- object
+        params <- validParams(object)
         if (missing(time_range)) time_range <- 0
         t <- min(time_range)
         if (missing(n)) n <- params@initial_n
@@ -133,8 +133,8 @@ getFeedingLevel <- function(object, n, n_pp, n_other,
 #' @return A matrix (species x size) with the critical feeding level
 #' @export
 getCriticalFeedingLevel <- function(params) {
-  validObject(params)
-  params@metab/params@intake_max/params@species_params$alpha
+    params <- validParams(params)
+    params@metab/params@intake_max/params@species_params$alpha
 }
 
 
@@ -251,7 +251,7 @@ getPredRate <- function(params, n = initialN(params),
 getPredMort <- function(object, n, n_pp, n_other,
                         time_range, drop = TRUE, ...) {
     if (is(object, "MizerParams")) {
-        params <- object
+        params <- validParams(object)
         if (missing(n)) n <- params@initial_n
         if (missing(n_pp)) n_pp <- params@initial_n_pp
         if (missing(n_other)) n_other <- params@initial_n_other
@@ -406,7 +406,7 @@ getFMortGear <- function(object, effort, time_range) {
         f_mort_gear <- getFMortGear(sim@params, sim@effort)
         return(f_mort_gear[time_elements, , , , drop = FALSE])
     } else {
-        params <- object
+        params <- validParams(object)
         if (missing(effort)) {
             effort <- params@initial_effort
         }
@@ -508,7 +508,7 @@ getFMortGear <- function(object, effort, time_range) {
 #' }
 getFMort <- function(object, effort, time_range, drop = TRUE){
     if (is(object, "MizerParams")) {
-        params <- object
+        params <- validParams(object)
         if (missing(effort)) {
           effort <- params@initial_effort
         }
@@ -749,6 +749,7 @@ getRDD <- function(params, n = initialN(params),
                    t = 0,
                    rdi = getRDI(params, n = n, n_pp = n_pp, 
                                 n_other = n_other, t = t)) {
+    params <- validParams(params)
     # Avoid getting into infinite loops
     if (params@rates_funcs$RDD == "getRDD") {
         stop('"getRDD" is not a valid name for the function giving the density',

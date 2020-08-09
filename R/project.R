@@ -107,10 +107,10 @@ project <- function(object, effort,
                     initial_n, initial_n_pp,
                     append = TRUE,
                     progress_bar = TRUE, ...) {
-    validObject(object)
     
     # Set and check initial values ----
     if (is(object, "MizerSim")) {
+        validObject(object)
         params <- object@params
         no_t <- dim(object@n)[[1]]
         initial_n <- params@initial_n # Needed to get the right dimensions
@@ -120,7 +120,7 @@ project <- function(object, effort,
         initial_n_other <- object@n_other[no_t, ]
         t_start <- as.numeric(dimnames(object@n)[[1]][[no_t]])
     } else if (is(object, "MizerParams")) {
-        params <- object
+        params <- validParams(object)
         if (missing(initial_n))       initial_n <- params@initial_n
         if (missing(initial_n_pp)) initial_n_pp <- params@initial_n_pp
         initial_n_other <- params@initial_n_other

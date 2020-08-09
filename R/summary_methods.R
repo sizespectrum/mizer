@@ -62,7 +62,7 @@ getDiet <- function(params,
                     n_other = initialNOther(params),
                     proportion = TRUE) {
     # The code is based on that for getEncounter()
-    assert_that(is(params, "MizerParams"))
+    params <- validParams(params)
     species <- params@species_params$species
     no_sp <- length(species)
     no_w <- length(params@w)
@@ -321,7 +321,7 @@ getGrowthCurves <- function(object,
         n <- object@n[t, , ]
         n_pp <- object@n_pp[t, ]
     } else if (is(object, "MizerParams")) {
-        params <- object
+        params <- validParams(object)
         n <- object@initial_n
         n_pp <- object@initial_n_pp
     }
@@ -426,33 +426,34 @@ get_size_range_array <- function(params, min_w = min(params@w),
 #' summary(params)
 #' }
 setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
-    cat("An object of class \"", as.character(class(object)), "\" \n", sep = "")
+    params <- validParams(object)
+    cat("An object of class \"", as.character(class(params)), "\" \n", sep = "")
     cat("Consumer size spectrum:\n")
-    cat("\tminimum size:\t", signif(min(object@w)), "\n", sep = "")
-    cat("\tmaximum size:\t", signif(max(object@w)), "\n", sep = "")
-    cat("\tno. size bins:\t", length(object@w), "\n", sep = "")
+    cat("\tminimum size:\t", signif(min(params@w)), "\n", sep = "")
+    cat("\tmaximum size:\t", signif(max(params@w)), "\n", sep = "")
+    cat("\tno. size bins:\t", length(params@w), "\n", sep = "")
     # Length of background? 
     cat("Resource size spectrum:\n")
-    cat("\tminimum size:\t", signif(min(object@w_full)), "\n", sep = "")
-    cat("\tmaximum size:\t", signif(max(object@w_full[object@initial_n_pp > 0])), 
+    cat("\tminimum size:\t", signif(min(params@w_full)), "\n", sep = "")
+    cat("\tmaximum size:\t", signif(max(params@w_full[params@initial_n_pp > 0])), 
         "\n", sep = "")
-    cat("\tno. size bins:\t", length(object@w_full[object@initial_n_pp > 0]), 
-        "\t(", length(object@w_full)," size bins in total)\n", sep = "")
+    cat("\tno. size bins:\t", length(params@w_full[params@initial_n_pp > 0]), 
+        "\t(", length(params@w_full)," size bins in total)\n", sep = "")
     cat("Species details:\n")
     sel_params <- intersect(c("species","w_inf","w_mat", "w_min", "f0", "fc", 
                               "k_vb", "beta", "sigma"),
-                            names(object@species_params))
-    sp <- object@species_params[, sel_params]
+                            names(params@species_params))
+    sp <- params@species_params[, sel_params]
     rownames(sp) <- NULL
     print(sp)
     cat("Fishing gear details:\n")
     cat("\tGear\t\t\tTarget species\n")
-    for (i in 1:dim(object@catchability)[1]){
-        cat("\t",dimnames(object@catchability)$gear[i], "\t\t",
-            dimnames(object@catchability)$sp[object@catchability[i,]>0], 
+    for (i in 1:dim(params@catchability)[1]){
+        cat("\t",dimnames(params@catchability)$gear[i], "\t\t",
+            dimnames(params@catchability)$sp[params@catchability[i,]>0], 
             "\n", sep=" ") 
     }
-    invisible(object)
+    invisible(params)
 })
 
 

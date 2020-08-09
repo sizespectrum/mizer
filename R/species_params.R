@@ -242,6 +242,7 @@ get_ks_default <- function(params) {
 #' ordinary data frame.
 #' 
 #' @concept("helper")
+#' @export
 validSpeciesParams <- function(species_params) {
     assert_that(is.data.frame(species_params))
     # Convert a tibble back to an ordinary data frame

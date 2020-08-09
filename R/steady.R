@@ -32,8 +32,8 @@
 #' }
 steady <- function(params, t_max = 100, t_per = 1.5, tol = 10^(-2),
                    dt = 0.1, return_sim = FALSE, progress_bar = TRUE) {
-    assert_that(is(params, "MizerParams"),
-                noNA(getRDD(params)))
+    params <- validParams(params)
+    assert_that(noNA(getRDD(params)))
     if ((t_per < dt) || !isTRUE(all.equal((t_per - round(t_per / dt) * dt), 0))) {
         stop("t_per must be a positive multiple of dt")
     }

@@ -267,6 +267,7 @@ getInitialEffort <- function(params) {
 #' @param species_params Species parameter data frame
 #' @return A valid gear parameter data frame
 #' @concept helper
+#' @export
 validGearParams <- function(gear_params, species_params) {
     assert_that(is.data.frame(gear_params),
                 is.data.frame(species_params))

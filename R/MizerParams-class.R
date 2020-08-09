@@ -795,3 +795,19 @@ dw <- function(params) {
 dw_full <- function(params) {
     params@dw_full
 }
+
+#' Validate MizerParams object and upgrade if necessary
+#' 
+#' @param params The MizerParams object to validate
+#' @return A valid MizerParams object
+#' @export
+validParams <- function(params) {
+    assert_that(is(params, "MizerParams"))
+    if (!identical(slotNames(params), slotNames(NS_params)) ||
+        "interaction_p" %in% names(params@species_params) ||
+        "r_max" %in% names(params@species_params)) {
+        params <- upgradeParams(params)
+    }
+    validObject(params)
+    params
+}

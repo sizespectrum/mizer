@@ -540,6 +540,7 @@ plotSpectra <- function(object, species = NULL,
 plot_spectra <- function(params, n, n_pp,
                          species, wlim, ylim, power,
                          total, resource, background, highlight) {
+    params <- validParams(params)
     if (is.na(wlim[1])) {
         wlim[1] <- min(params@w) / 100
     }
@@ -716,7 +717,7 @@ plotFeedingLevel <- function(object,
         params <- object@params
         feed <- getFeedingLevel(object, time_range = time_range, drop = FALSE)
     } else {
-        assert_that(is(object, "MizerParams"))
+        params <- validParams(params)
         params <- object
         feed <- getFeedingLevel(params, drop = FALSE)
     }
@@ -836,8 +837,7 @@ plotPredMort <- function(object, species = NULL,
         }
         params <- object@params
     } else {
-        assert_that(is(object, "MizerParams"))
-        params <- object
+        params <- validParams(object)
     }
     pred_mort <- getPredMort(object, time_range = time_range, drop = FALSE)
     # If a time range was returned, average over it
@@ -920,8 +920,7 @@ plotFMort <- function(object, species = NULL,
         }
         params <- object@params
     } else {
-        assert_that(is(object, "MizerParams"))
-        params <- object
+        params <- validParams(object)
     }
     f <- getFMort(object, time_range = time_range, drop = FALSE)
     # If a time range was returned, average over it
@@ -1003,7 +1002,7 @@ plotGrowthCurves <- function(object,
         params@initial_n[] <- object@n[t, , ] # Designed to work also with single species
         params@initial_n_pp <- object@n_pp[t, ]
     } else if (is(object, "MizerParams")) {
-        params <- object
+        params <- validParams(object)
     }
     if (missing(species)) {
         species <- params@species_params$species
@@ -1076,7 +1075,7 @@ plotlyGrowthCurves <- function(object, species,
 #' @export
 #' @family plotting functions
 plotDiet <- function(object, species) {
-    params <- object
+    params <- validParams(object)
     if (is.integer(species)) {
         species <- params@species_params$species[species]
     }
@@ -1165,9 +1164,10 @@ setMethod("plot", signature(x = "MizerSim", y = "missing"),
 #' }
 setMethod("plot", signature(x = "MizerParams", y = "missing"),
           function(x, ...) {
-              p11 <- plotFeedingLevel(x, ...)
-              p2 <- plotSpectra(x, ...)
-              p12 <- plotPredMort(x, ...)
+              params <- validParams(x)
+              p11 <- plotFeedingLevel(params, ...)
+              p2 <- plotSpectra(params, ...)
+              p12 <- plotPredMort(params, ...)
               grid::grid.newpage()
               glayout <- grid::grid.layout(2, 2) # widths and heights arguments
               vp <- grid::viewport(layout = glayout)
