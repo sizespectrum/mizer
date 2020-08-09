@@ -199,6 +199,7 @@ reference:
   - MizerParams-class
   - summary,MizerParams-method
   - "w"
+  - validParams
   - upgradeParams
   - MizerSim-class
   - summary,MizerSim-method

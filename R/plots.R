@@ -717,8 +717,7 @@ plotFeedingLevel <- function(object,
         params <- object@params
         feed <- getFeedingLevel(object, time_range = time_range, drop = FALSE)
     } else {
-        params <- validParams(params)
-        params <- object
+        params <- validParams(object)
         feed <- getFeedingLevel(params, drop = FALSE)
     }
     # If a time range was returned, average over it

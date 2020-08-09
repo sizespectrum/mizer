@@ -20,7 +20,7 @@
 * New function `validParams()` validates a MizerParams object and automatically
   upgrades it with `upgradeParams()` if necessary.
 * Upgrade old params objects automatically when used in plot functions, rate
-  functions or in `project()`, #163.
+  functions, summary functions or in `project()` or `steady()`, #163.
 * Numerous small improvements to documentation.
 
 # mizer 2.0.3

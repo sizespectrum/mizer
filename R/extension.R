@@ -247,6 +247,7 @@ getComponent <- function(params, component) {
 #' @rdname initialNOther-set
 #' @export
 initialNOther <- function(params) {
+    params <- validParams(params)
     params@initial_n_other
 }
 

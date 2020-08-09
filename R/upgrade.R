@@ -266,7 +266,6 @@ upgradeParams <- function(params) {
             comment(slot(pnew, slot)) <- comment(slot(params, slot))
         }
     }
-    message("Your MizerParams object has been upgraded to the current mizer version.")
     validObject(pnew)
     pnew
 }

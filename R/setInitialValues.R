@@ -80,7 +80,8 @@ setInitialValues <- function(params, sim) {
 #' @export
 initialN <- function(object) {
     if (is(object, "MizerParams")) {
-        return(object@initial_n)
+        params <- validParams(object)
+        return(params@initial_n)
     }
     if (is(object, "MizerSim")) {
         return(object@params@initial_n)
@@ -115,7 +116,8 @@ initialN <- function(object) {
 #' @export
 initialNResource <- function(object) {
     if (is(object, "MizerParams")) {
-        return(object@initial_n_pp)
+        params <- validParams(object)
+        return(params@initial_n_pp)
     }
     if (is(object, "MizerSim")) {
         return(object@params@initial_n_pp)

@@ -807,6 +807,7 @@ validParams <- function(params) {
         "interaction_p" %in% names(params@species_params) ||
         "r_max" %in% names(params@species_params)) {
         params <- upgradeParams(params)
+        warning("You need to upgrade your MizerParams object with `upgradeParams()`.")
     }
     validObject(params)
     params

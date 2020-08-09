@@ -165,6 +165,7 @@ getEReproAndGrowth <- function(params, n = initialN(params),
                                n_pp = initialNResource(params),
                                n_other = initialNOther(params),
                                t = 0, ...) {
+    params <- validParams(params)
     encounter <- getEncounter(params, n, n_pp, n_other, t = t)
     feeding_level <- getFeedingLevel(params, n, n_pp, n_other, time_range = t)
     f <- get(params@rates_funcs$EReproAndGrowth)
@@ -204,6 +205,7 @@ getPredRate <- function(params, n = initialN(params),
                         n_pp = initialNResource(params),
                         n_other = initialNOther(params),
                         t = 0, ...) {
+    params <- validParams(params)
     no_sp <- dim(params@interaction)[1]
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
@@ -321,7 +323,8 @@ getResourceMort <-
              n_pp = initialNResource(params),
              n_other = initialNOther(params),
              t = 0, ...) {
-
+      
+    params <- validParams(params)
     pred_rate <- getPredRate(params, n = n, n_pp = n_pp, 
                               n_other = n_other, t = t)
     
@@ -575,6 +578,7 @@ getMort <- function(params,
                     n_other = initialNOther(params),
                     effort = getInitialEffort(params),
                     t = 0, ...) {
+    params <- validParams(params)
     f_mort <- getFMort(params, effort)
     pred_mort <- getPredMort(params, n = n, n_pp = n_pp, 
                              n_other = n_other, time_range = t)
@@ -624,6 +628,7 @@ getERepro <- function(params, n = initialN(params),
                       n_pp = initialNResource(params),
                       n_other = initialNOther(params),
                       t = 0, ...) {
+    params <- validParams(params)
     e <- getEReproAndGrowth(params, n = n, n_pp = n_pp,
                             n_other = n_other, t = t)
     f <- get(params@rates_funcs$ERepro)
@@ -665,6 +670,7 @@ getEGrowth <- function(params, n = initialN(params),
                        n_pp = initialNResource(params),
                        n_other = initialNOther(params),
                        t = 0, ...) {
+    params <- validParams(params)
     e_repro <- getERepro(params, n = n, n_pp = n_pp, 
                         n_other = n_other, t = t)
     e <- getEReproAndGrowth(params, n = n, n_pp = n_pp, 
