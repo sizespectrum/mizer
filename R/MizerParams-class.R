@@ -50,15 +50,21 @@ validMizerParams <- function(object) {
     }
 
     # Check the array dimensions are good ----
+    # Bit tricky this one as I don't know of a way to compare lots of vectors 
+    # at the same time. Just use == and the recycling rule
+    
     # 2D arrays
-    if (!all(c(length(dim(object@psi)),
+    if (!all(c(length(dim(object@initial_n)),
+               length(dim(object@psi)),
                length(dim(object@intake_max)),
                length(dim(object@search_vol)),
                length(dim(object@metab)),
                length(dim(object@mu_b)),
                length(dim(object@interaction)),
+               length(dim(object@maturity)),
+               length(dim(object@ft_mask)),
                length(dim(object@catchability))) == 2)) {
-        msg <- "psi, intake_max, search_vol, metab, mu_b, interaction and catchability must all be two dimensions"
+        msg <- "initial_n, psi, intake_max, search_vol, metab, mu_b, interaction, maturity, ft_mask and catchability must all be two dimensions"
         errors <- c(errors, msg)
     }
     # 3D arrays
@@ -68,6 +74,8 @@ validMizerParams <- function(object) {
     }
     # Check number of species is equal across relevant slots
     if (!all(c(
+        dim(object@initial_n)[1],
+        dim(object@maturity)[1],
         dim(object@psi)[1],
         dim(object@intake_max)[1],
         dim(object@search_vol)[1],
@@ -76,23 +84,27 @@ validMizerParams <- function(object) {
         dim(object@selectivity)[2],
         dim(object@catchability)[2],
         dim(object@interaction)[1],
-        dim(object@interaction)[2]) == 
+        dim(object@interaction)[2],
+        dim(object@ft_mask)[1]) == 
         dim(object@species_params)[1])) {
         msg <- "The number of species in the model must be consistent across the species_params, psi, intake_max, search_vol, mu_b, interaction (dim 1), selectivity, catchability and interaction (dim 2) slots"
         errors <- c(errors, msg)
     }
     # Check number of size groups
     if (!all(c(
+        dim(object@initial_n)[2],
+        dim(object@maturity)[2],
         dim(object@psi)[2],
+        dim(object@mu_b)[2],
         dim(object@intake_max)[2],
         dim(object@search_vol)[2],
         dim(object@metab)[2],
         dim(object@selectivity)[3]) ==
         no_w)) {
-        msg <- "The number of size bins in the model must be consistent across the w, psi, intake_max, search_vol, and selectivity (dim 3) slots"
+        msg <- "The number of size bins in the model must be consistent across the w, initial_n, maturity, psi, mu_b, intake_max, search_vol, and selectivity (dim 3) slots"
         errors <- c(errors, msg)
     }
-    # Check numbe of gears
+    # Check number of gears
     if (!isTRUE(all.equal(dim(object@selectivity)[1], dim(object@catchability)[1]))) {
         msg <- "The number of fishing gears must be consistent across the catchability and selectivity (dim 1) slots"
         errors <- c(errors, msg)
@@ -100,6 +112,8 @@ validMizerParams <- function(object) {
     # Check names of dimnames of arrays ----
     # sp dimension
     if (!all(c(
+        names(dimnames(object@initial_n))[1],
+        names(dimnames(object@maturity))[1],
         names(dimnames(object@psi))[1],
         names(dimnames(object@intake_max))[1],
         names(dimnames(object@search_vol))[1],
@@ -107,7 +121,7 @@ validMizerParams <- function(object) {
         names(dimnames(object@mu_b))[1],
         names(dimnames(object@selectivity))[2],
         names(dimnames(object@catchability))[2]) == "sp")) {
-        msg <- "Name of first dimension of psi, intake_max, search_vol, metab, mu_b, and the second dimension of selectivity and catchability must be 'sp'"
+        msg <- "Name of first dimension of initial_n, maturity, psi, intake_max, search_vol, metab, mu_b, and the second dimension of selectivity and catchability must be 'sp'"
         errors <- c(errors, msg)
     }
     #interaction dimension names
@@ -137,8 +151,6 @@ validMizerParams <- function(object) {
     }
     
     # Check dimnames of species are identical
-    # Bit tricky this one as I don't know of a way to compare lots of vectors 
-    # at the same time. Just use == and the recycling rule
     if (!all(c(
         dimnames(object@psi)[[1]],
         dimnames(object@intake_max)[[1]],
@@ -467,7 +479,7 @@ emptyParams <- function(species_params,
     if (is.na(max_w)) {
         max_w <- max(species_params$w_inf)
     } else {
-        if (max(species_params$w_inf) > max_w * (1 + 1e-9)) { # The fudge factor
+        if (max(species_params$w_inf) > max_w * (1 + 1e-6)) { # The fudge factor
             # is there to avoid false alerts due to rounding errors.
             too_large <- species_params$species[max_w < species_params$w_inf]
             stop("Some of your species have an maximum size larger than max_w: ",
