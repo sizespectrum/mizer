@@ -15,6 +15,8 @@
 * The default maturity ogive is truncated at proportions smaller than 1e-8.
 * New helper function `valid_species_arg()` to check validity of species 
   selection arguments.
+* Can now also upgrade old MizerParams objects that do  not have a consistent
+  initial_effort.
 * Numerous small improvements to documentation.
 
 # mizer 2.0.3
