@@ -35,3 +35,13 @@ test_that("Object from version 1.0 can be upgraded", {
     sim <- upgradeSim(simc.1.0)
     expect_true(validObject(sim))
 })
+
+test_that("Some functions work with params from earlier versions", {
+    params.0.4 <- readRDS("assets/simc.0.4.rds")@params
+    expect_warning(getEGrowth(params.0.4),
+                   "You need to upgrade your MizerParams object")
+    expect_warning(plotFeedingLevel(params.0.4),
+                   "You need to upgrade your MizerParams object")
+    expect_warning(project(params.0.4, t_max = 0.1),
+                   "You need to upgrade your MizerParams object")
+})

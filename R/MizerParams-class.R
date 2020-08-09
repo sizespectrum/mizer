@@ -803,7 +803,12 @@ dw_full <- function(params) {
 #' @export
 validParams <- function(params) {
     assert_that(is(params, "MizerParams"))
-    if (!identical(slotNames(params), slotNames(NS_params)) ||
+    # Check that params has all the slots
+    # Can't use `slotnames(params)` to find out which slots params actually has
+    # because `slotnames()` just looks at the class definition. 
+    has_slot <- sapply(slotNames(NS_params),
+                      function(name) .hasSlot(params, name))
+    if (!all(has_slot) ||
         "interaction_p" %in% names(params@species_params) ||
         "r_max" %in% names(params@species_params)) {
         params <- upgradeParams(params)
