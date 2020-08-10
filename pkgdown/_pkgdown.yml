@@ -123,6 +123,7 @@ reference:
   - setLinetypes
 - title: Calculating rates
   contents:
+  - getRates
   - getEncounter
   - getEGrowth
   - getERepro

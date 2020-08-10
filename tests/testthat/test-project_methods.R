@@ -30,6 +30,11 @@ set.seed(0)
 n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w))) * 1e9
 n_full <- abs(rnorm(no_w_full)) * 1e9
 
+# getRates ----
+test_that("getRates works", {
+    r <- getRates(params)
+    expect_identical(r$rdd, getRDD(params))
+})
 
 # getEncounter --------------------------------------------------------------
 

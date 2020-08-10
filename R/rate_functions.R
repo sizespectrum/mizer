@@ -6,6 +6,26 @@
 # Distributed under the GPL 3 or later 
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
+#' Get all rates
+#' 
+#' @inherit mizerRates
+#' @inheritParams mizerRates
+#' @export
+#' @family rate functions
+getRates <- function(params, n = initialN(params), 
+                     n_pp = initialNResource(params),
+                     n_other = initialNOther(params),
+                     effort, t = 0) {
+    params <- validParams(params)
+    if (missing(effort)) {
+        effort <- params@initial_effort
+    }
+    
+    r <- get(params@rates_funcs$Rates)(
+        params, n = n, n_pp = n_pp, n_other = n_other,
+        t = t, effort = effort, rates_fns = lapply(params@rates_funcs, get))
+}
+
 #' Get encounter rate
 #' 
 #' Returns the rate at which a predator of species \eqn{i} and
