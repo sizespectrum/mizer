@@ -101,13 +101,6 @@
 #'   `params <- setFishing(params, ...)`.
 #' @export
 #' @family functions for setting parameters
-#' @examples
-#' \dontrun{
-#' params <- NS_params
-#' # Change knife edge size for species 1
-#' params@species_params$knife_edge_size[1] <- 15
-#' params <- setFishing(params)
-#' }
 setFishing <- function(params, selectivity = NULL, catchability = NULL, 
                        initial_effort = NULL, ...) {
     assert_that(is(params, "MizerParams"))

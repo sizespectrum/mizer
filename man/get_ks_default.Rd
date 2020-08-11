@@ -2,7 +2,7 @@
 % Please edit documentation in R/species_params.R
 \name{get_ks_default}
 \alias{get_ks_default}
-\title{Get default value for ks}
+\title{Get default value for \code{ks}}
 \usage{
 get_ks_default(params)
 }
@@ -13,10 +13,16 @@ get_ks_default(params)
 A vector with the values of ks for all species
 }
 \description{
-Fills in any missing values for ks so that the critical feeding level needed
+Fills in any missing values for \code{ks} so that the critical feeding level needed
 to sustain the species is as specified in the \code{fc} column in the species
 parameter data frame. If that column is not provided the default critical
 feeding level \eqn{f_c = 0.2} is used.
 }
+\seealso{
+Other functions calculating defaults: 
+\code{\link{get_gamma_default}()},
+\code{\link{get_h_default}()}
+}
+\concept{functions calculating defaults}
 \concept{helper}
 \keyword{internal}

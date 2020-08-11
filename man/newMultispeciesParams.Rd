@@ -167,6 +167,9 @@ automatically added when the \code{MizerParams} object is created. For these
 parameters you can also specify values for only some species and leave the
 other entries as NA and the missing values will be set to the defaults.
 
+If you are not happy with any of the species parameter values used you can
+always change them later with \code{\link[=species_params<-]{species_params<-()}}.
+
 All the parameters will be mentioned in the following sections.
 }
 

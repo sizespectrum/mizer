@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Species parameters — species_params • mizer</title>
+<title>Set or change any model parameters — setParams • mizer</title>
 
 
 <!-- jquery -->
@@ -45,9 +45,8 @@
 
 
 
-<meta property="og:title" content="Species parameters — species_params" />
-<meta property="og:description" content="This is the right place to document the use of species parameters in mizer.
-This is a convenient wrapper function calling each of the following
+<meta property="og:title" content="Set or change any model parameters — setParams" />
+<meta property="og:description" content="This is a convenient wrapper function calling each of the following
 functions
 setPredKernel()
 setSearchVolume()
@@ -188,14 +187,13 @@ See the Details section below for a discussion of how to use this function." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Species parameters</h1>
-    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/species_params.R'><code>R/species_params.R</code></a>, <a href='https://github.com/sizespectrum/mizer/blob/master/R/newMultispeciesParams.R'><code>R/newMultispeciesParams.R</code></a></small>
+    <h1>Set or change any model parameters</h1>
+    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/newMultispeciesParams.R'><code>R/newMultispeciesParams.R</code></a></small>
     <div class="hidden name"><code>setParams.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This is the right place to document the use of species parameters in mizer.</p>
-<p>This is a convenient wrapper function calling each of the following
+    <p>This is a convenient wrapper function calling each of the following
 functions</p><ul>
 <li><p><code><a href='setPredKernel.html'>setPredKernel()</a></code></p></li>
 <li><p><code><a href='setSearchVolume.html'>setSearchVolume()</a></code></p></li>
@@ -209,11 +207,7 @@ functions</p><ul>
 </ul><p>See the Details section below for a discussion of how to use this function.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>species_params</span>(<span class='kw'>params</span>)
-
-<span class='fu'>species_params</span>(<span class='kw'>params</span>) <span class='op'>&lt;-</span> <span class='kw'>value</span>
-
-<span class='fu'>setParams</span>(<span class='kw'>params</span>, interaction = <span class='kw'>NULL</span>, <span class='kw'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>setParams</span>(<span class='kw'>params</span>, interaction = <span class='kw'>NULL</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -221,10 +215,6 @@ functions</p><ul>
     <tr>
       <th>params</th>
       <td><p>A <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
-    </tr>
-    <tr>
-      <th>value</th>
-      <td><p>A data frame with the species parameters</p></td>
     </tr>
     <tr>
       <th>interaction</th>
@@ -298,27 +288,26 @@ want to use the default <code><a href='resource_semichemostat.html'>resource_sem
     <p>A <a href='MizerParams-class.html'>MizerParams</a> object</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Usually, if you are happy with the way mizer calculates its model functions
-from the species parameters and only want to change the values of some
-species parameters, you would make those changes in the <code>species_params</code> data
-frame contained in the <code>params</code> object and then call the <code>setParams()</code>
-function to effect the change. Note that just changing the species parameters
-by themselves is not changing the model until you call <code>setParams()</code> or the
-appropriate one of its sub-functions. Here is an example which assumes that
-you have have a MizerParams object <code>params</code> in which you just want to change
-one parameter of the third species:</p><pre><span class='kw'>params</span><span class='op'>@</span>species_params<span class='op'>$</span><span class='kw'>gamma</span>[[<span class='fl'>3</span>]] <span class='op'>&lt;-</span> <span class='fl'>1000</span>
-<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setParams</span>(<span class='kw'>params</span>)</pre>
-
-<p>Because of the way the R language works, <code>setParams</code> does not make the
-changes to the <code>params</code> object that you pass to it but instead returns a new
-params object. So to affect the change you call the function in the form
-<code>params &lt;- setParams(params, ...)</code>.</p>
-<p>If you are not happy with the assumptions that mizer makes by default about
+    <p>If you are not happy with the assumptions that mizer makes by default about
 the shape of the model functions, for example if you want to change one of
 the allometric scaling assumptions, you can do this by providing your
 choice as an array in the appropriate argument to <code>setParams()</code>. The
 sections below discuss all the model functions that you can change this way.</p>
-<p>This function will use the species parameters in the <code>params</code> object to reset
+<p>Because of the way the R language works, <code>setParams</code> does not make the
+changes to the <code>params</code> object that you pass to it but instead returns a new
+params object. So to affect the change you call the function in the form
+<code>params &lt;- setParams(params, ...)</code>.</p>
+<p>Usually, if you are happy with the way mizer calculates its model functions
+from the species parameters and only want to change the values of some
+species parameters, you would make those changes in the <code>species_params</code> data
+frame contained in the <code>params</code> object using <code><a href='species_params.html'>species_params&lt;-()</a></code>.
+Here is an example which assumes that
+you have have a MizerParams object <code>params</code> in which you just want to change
+the <code>gamma</code> parameter of the third species:</p><pre><span class='fu'><a href='species_params.html'>species_params</a></span>(<span class='kw'>params</span>)<span class='op'>$</span><span class='kw'>gamma</span>[[<span class='fl'>3</span>]] <span class='op'>&lt;-</span> <span class='fl'>1000</span></pre>
+
+<p>Internally that will actually call <code>setParams()</code> to recalculate any of the
+other parameters that are affected by the change in the species parameter.</p>
+<p><code>setParams()</code> will use the species parameters in the <code>params</code> object to recalculate
 the values of all the model functions that you do not specify explicitly when
 calling this function, unless you have protected the corresponding slots with
 a comment. If you have changed any of the model functions in the
@@ -329,7 +318,7 @@ instead of <code>params &lt;- setParams(params)</code>.</p>
 <p>If you have added a comment to a slot of the params object, then setParams()
 and its subfunctions will not recalculate the value for that slot from the
 species parameters. For example</p><pre><span class='fu'><a href='https://rdrr.io/r/base/comment.html'>comment</a></span>(<span class='kw'>params</span><span class='op'>@</span>search_vol) <span class='op'>&lt;-</span> <span class='st'>"This should not change"</span>
-<span class='fu'>species_params</span>(<span class='kw'>params</span>)<span class='op'>$</span><span class='kw'>gamma</span> <span class='op'>&lt;-</span> <span class='fl'>10</span></pre>
+<span class='fu'><a href='species_params.html'>species_params</a></span>(<span class='kw'>params</span>)<span class='op'>$</span><span class='kw'>gamma</span> <span class='op'>&lt;-</span> <span class='fl'>10</span></pre>
 
 <p>will just issue a warning "The search volume has been commented and therefore
 will not be recalculated from the species parameters". You can remove the
@@ -702,14 +691,9 @@ and <code>lambda</code> arguments.</p>
 <code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
 <code><a href='setResource.html'>setResource</a>()</code>,
-<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
+<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code>,
+<code><a href='species_params.html'>species_params</a>()</code></p></div>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newTraitParams.html'>newTraitParams</a></span>()
-<span class='kw'>params</span><span class='op'>@</span>species_params<span class='op'>$</span><span class='kw'>gamma</span>[<span class='fl'>3</span>] <span class='op'>&lt;-</span> <span class='fl'>1000</span>
-<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setParams</span>(<span class='kw'>params</span>)
-}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

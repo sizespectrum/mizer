@@ -47,8 +47,7 @@ steady state.
 \examples{
 \dontrun{
 params <- newTraitParams()
-params@species_params$gamma[5] <- 3000
-params <- setSearchVolume(params)
+species_params(params)$gamma[5] <- 3000
 params <- steady(params)
 plotSpectra(params)
 }

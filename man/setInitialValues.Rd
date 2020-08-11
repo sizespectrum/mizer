@@ -38,6 +38,7 @@ Other functions for setting parameters:
 \code{\link{setInteraction}()},
 \code{\link{setMaxIntakeRate}()},
 \code{\link{setMetabolicRate}()},
+\code{\link{setParams}()},
 \code{\link{setPredKernel}()},
 \code{\link{setReproduction}()},
 \code{\link{setResource}()},

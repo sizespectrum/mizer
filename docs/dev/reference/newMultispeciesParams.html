@@ -192,7 +192,7 @@ details in the sections below the list." />
 <a href='MizerParams-class.html'>MizerParams</a> object based on user-provided or default
 parameters. It does this by creating an empty MizerParams object with
 <code><a href='emptyParams.html'>emptyParams()</a></code> and then filling the slots by passing its arguments
-to <code><a href='species_params.html'>setParams()</a></code>. There is a long list of arguments, but almost
+to <code><a href='setParams.html'>setParams()</a></code>. There is a long list of arguments, but almost
 all of them have sensible default values. All arguments are described in more
 details in the sections below the list.</p>
     </div>
@@ -411,6 +411,8 @@ are not included in the species parameter data frame. They will be
 automatically added when the <code>MizerParams</code> object is created. For these
 parameters you can also specify values for only some species and leave the
 other entries as NA and the missing values will be set to the defaults.</p>
+<p>If you are not happy with any of the species parameter values used you can
+always change them later with <code><a href='species_params.html'>species_params&lt;-()</a></code>.</p>
 <p>All the parameters will be mentioned in the following sections.</p>
     <h2 class="hasAnchor" id="changes-to-species-params"><a class="anchor" href="#changes-to-species-params"></a>Changes to species params</h2>
 

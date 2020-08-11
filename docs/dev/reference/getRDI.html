@@ -46,10 +46,8 @@
 
 
 <meta property="og:title" content="Get density independent rate of egg production — getRDI" />
-<meta property="og:description" content="Calculates the density independent rate of egg production \(R_{p.i}\)
-(units 1/year) before density dependence, by species. Used by
-getRDD() to calculate the actual density dependent rate.
-See setReproduction() for more details." />
+<meta property="og:description" content="Calculates the density-independent rate of total egg production \(R_{p.i}\)
+(units 1/year) before density dependence, by species." />
 
 
 <meta name="robots" content="noindex">
@@ -185,10 +183,8 @@ See setReproduction() for more details." />
     </div>
 
     <div class="ref-description">
-    <p>Calculates the density independent rate of egg production \(R_{p.i}\)
-(units 1/year) before density dependence, by species. Used by
-<code><a href='getRDD.html'>getRDD()</a></code> to calculate the actual density dependent rate.
-See <code><a href='setReproduction.html'>setReproduction()</a></code> for more details.</p>
+    <p>Calculates the density-independent rate of total egg production \(R_{p.i}\)
+(units 1/year) before density dependence, by species.</p>
     </div>
 
     <pre class="usage"><span class='fu'>getRDI</span>(
@@ -234,7 +230,27 @@ parameters.)</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A numeric vector the length of the number of species</p>
+    <p>A numeric vector the length of the number of species.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This rate is obtained by
+taking the total rate at which energy is invested in reproduction, as
+calculated by <code><a href='getERepro.html'>getERepro()</a></code>,
+multiplying by the reproductive efficiency <code>erepro</code> and dividing by the egg
+size <code>w_min</code>, and by a factor of two to account for the two sexes.</p>
+<p>Used by <code><a href='getRDD.html'>getRDD()</a></code> to calculate the actual, density dependent rate.
+See <code><a href='setReproduction.html'>setReproduction()</a></code> for more details.</p>
+    <h2 class="hasAnchor" id="your-own-reproduction-function"><a class="anchor" href="#your-own-reproduction-function"></a>Your own reproduction function</h2>
+
+    
+
+<p>By default <code>getRDI()</code> calls <code><a href='mizerRDI.html'>mizerRDI()</a></code>. However you can
+replace this with your own alternative reproduction function. If
+your function is called <code>"myRDI"</code> then you register it in a MizerParams
+object <code>params</code> with</p><pre><span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='kw'>params</span>, <span class='st'>"RDI"</span>, <span class='st'>"myRDI"</span>)</pre>
+
+<p>Your function will then be called instead of <code><a href='mizerRDI.html'>mizerRDI()</a></code>, with the
+same arguments.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='getRDD.html'>getRDD()</a></code></p>
@@ -250,6 +266,7 @@ parameters.)</p></td>
 <code><a href='getPredMort.html'>getPredMort</a>()</code>,
 <code><a href='getPredRate.html'>getPredRate</a>()</code>,
 <code><a href='getRDD.html'>getRDD</a>()</code>,
+<code><a href='getRates.html'>getRates</a>()</code>,
 <code><a href='getResourceMort.html'>getResourceMort</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>

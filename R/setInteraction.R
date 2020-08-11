@@ -47,7 +47,7 @@
 #' @examples
 #' \dontrun{
 #' params <- newTraitParams()
-#' interaction <- params@interaction
+#' interaction <- getInteraction(params)
 #' interaction[1, 3] <- 0
 #' params <- setInteraction(params, interaction)
 #' }

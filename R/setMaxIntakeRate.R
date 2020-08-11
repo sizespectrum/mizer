@@ -29,12 +29,6 @@
 #'   `params <- setMaxIntakeRate(params, ...)`.
 #' @export
 #' @family functions for setting parameters
-#' @examples
-#' \dontrun{
-#' params <- NS_params
-#' params@species_params$h[3] <- 35
-#' params <- setMaxIntakeRate(params)
-#' }
 setMaxIntakeRate <- function(params, 
                              intake_max = NULL, ...) {
     assert_that(is(params, "MizerParams"))

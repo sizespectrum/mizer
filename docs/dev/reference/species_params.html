@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Alias for getMort — getZ • mizer</title>
+<title>Species parameters — species_params • mizer</title>
 
 
 <!-- jquery -->
@@ -45,8 +45,9 @@
 
 
 
-<meta property="og:title" content="Alias for getMort — getZ" />
-<meta property="og:description" content="An alias provided for backward compatibility with mizer version &amp;lt;= 1.0" />
+<meta property="og:title" content="Species parameters — species_params" />
+<meta property="og:description" content="These functions allow you to get or set the species parameters stored in
+a MizerParams object." />
 
 
 <meta name="robots" content="noindex">
@@ -176,109 +177,110 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Alias for getMort</h1>
-    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/rate_functions.R'><code>R/rate_functions.R</code></a></small>
-    <div class="hidden name"><code>getZ.Rd</code></div>
+    <h1>Species parameters</h1>
+    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/species_params.R'><code>R/species_params.R</code></a></small>
+    <div class="hidden name"><code>species_params.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>An alias provided for backward compatibility with mizer version &lt;= 1.0</p>
+    <p>These functions allow you to get or set the species parameters stored in
+a MizerParams object.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getZ</span>(
-  <span class='kw'>params</span>,
-  n = <span class='fu'><a href='initialN<-.html'>initialN</a></span>(<span class='kw'>params</span>),
-  n_pp = <span class='fu'><a href='initialNResource<-.html'>initialNResource</a></span>(<span class='kw'>params</span>),
-  n_other = <span class='fu'><a href='initialNOther<-.html'>initialNOther</a></span>(<span class='kw'>params</span>),
-  effort = <span class='fu'><a href='setFishing.html'>getInitialEffort</a></span>(<span class='kw'>params</span>),
-  t = <span class='fl'>0</span>,
-  <span class='kw'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>species_params</span>(<span class='kw'>params</span>)
+
+<span class='fu'>species_params</span>(<span class='kw'>params</span>) <span class='op'>&lt;-</span> <span class='kw'>value</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>params</th>
-      <td><p>A <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
+      <td><p>A MizerParams object</p></td>
     </tr>
     <tr>
-      <th>n</th>
-      <td><p>A matrix of species abundances (species x size).</p></td>
-    </tr>
-    <tr>
-      <th>n_pp</th>
-      <td><p>A vector of the resource abundance by size</p></td>
-    </tr>
-    <tr>
-      <th>n_other</th>
-      <td><p>A list of abundances for other dynamical components of the
-ecosystem</p></td>
-    </tr>
-    <tr>
-      <th>effort</th>
-      <td><p>A numeric vector of the effort by gear or a single numeric
-effort value which is used for all gears.</p></td>
-    </tr>
-    <tr>
-      <th>t</th>
-      <td><p>The time for which to do the calculation (Not used by standard
-mizer rate functions but useful for extensions with time-dependent
-parameters.)</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Unused</p></td>
+      <th>value</th>
+      <td><p>A data frame with the species parameters</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>A two dimensional array (prey species x prey size).</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>If your model contains additional components that you added with
-<code><a href='setComponent.html'>setComponent()</a></code> and for which you specified a <code>mort_fun</code> function then
-the mortality inflicted by these components will be included in the returned
-value.</p>
-    <h2 class="hasAnchor" id="your-own-mortality-function"><a class="anchor" href="#your-own-mortality-function"></a>Your own mortality function</h2>
+    <p>The <code>species_params</code> data frame holds species-specific parameters that Mizer
+can use, together with allometric assumptions, to set its various
+size-dependent parameters. The data frame has one row for each species and
+one column for each species parameter. There are a lot of species parameters
+as we will now discuss, but most of them have sensible default values.</p><ul>
+<li><p><code>gamma</code> and <code>q</code> are used to set the search volume, see <code><a href='setSearchVolume.html'>setSearchVolume()</a></code>.</p></li>
+<li><p><code>h</code> and <code>n</code> are used to set the maximum intake rate, see <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate()</a></code>.</p></li>
+<li><p><code>k</code>, <code>ks</code> and <code>p</code> are used to set activity and basic metabolic rate,
+see <code><a href='setMetabolicRate.html'>setMetabolicRate()</a></code>.</p></li>
+<li><p><code>z0</code> is used to set the external mortality rate, see <code><a href='setExtMort.html'>setExtMort()</a></code>.</p></li>
+<li><p><code>w_mat</code>, <code>w_mat25</code>, <code>w_inf</code> and <code>m</code> are used to set the allocation to
+reproduction, see <code><a href='setReproduction.html'>setReproduction()</a></code>.</p></li>
+<li><p><code>w_min</code> is the egg size.</p></li>
+<li><p><code>beta</code> and <code>sigma</code> are parameters of the lognormal predation kernel, see
+<code><a href='lognormal_pred_kernel.html'>lognormal_pred_kernel()</a></code>. There will be other parameters if you are
+using other predation kernel functions, see the "Setting predation kernel"
+sectin in the help for <code><a href='setPredKernel.html'>setPredKernel()</a></code>.</p></li>
+</ul>
 
-    
+<p>Not all of these parameters have to be specified by the user. If they are
+missing, mizer will give them default values, sometimes by using other
+species parameters.</p><ul>
+<li><p><code>k_vb</code> and <code>t0</code> are the von Bertalannfy growth parameters and are used
+together with the length-weight relationship parameters <code>a</code> and <code>b</code> to
+get a default value for the coefficient of the maximum intake rate <code>h</code>,
+see <code><a href='get_h_default.html'>get_h_default()</a></code>.</p></li>
+<li><p><code>f0</code> is the feeding level and is used to get a default value for the
+coefficient of the search volume <code>gamma</code>, see <code><a href='get_gamma_default.html'>get_gamma_default()</a></code>.</p></li>
+<li><p><code>fc</code> is the critical feeding level below which the species can not
+maintain itself. This is used to get a default value for the coefficient
+of the metabolic rate <code>ks</code>, see <code><a href='get_ks_default.html'>get_ks_default()</a></code>.</p></li>
+</ul>
 
-<p>By default <code><a href='getMort.html'>getMort()</a></code> calls <code><a href='mizerMort.html'>mizerMort()</a></code>. However you can
-replace this with your own alternative mortality function. If
-your function is called <code>"myMort"</code> then you register it in a MizerParams
-object <code>params</code> with</p><pre><span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='kw'>params</span>, <span class='st'>"Mort"</span>, <span class='st'>"myMort"</span>)</pre>
+<p>Note that these parameters are ignored if the parameters for which they allow
+defaults to be calculated have instead been set explicitly.</p>
+<p>There are also some species parameters that are used directly in the model
+rather than being used for setting up size-dependent parameters:</p><ul>
+<li><p><code>alpha</code> is the assimilation efficiency, the proportion of the consumed
+biomass that can be used for growth, metabolism and reproduction, see
+the help for <code><a href='getEReproAndGrowth.html'>getEReproAndGrowth()</a></code>.</p></li>
+<li><p><code>interaction_resource</code> sets the interaction strength with the resource,
+see "Predation encounter" section in the help for <code><a href='getEncounter.html'>getEncounter()</a></code>.</p></li>
+<li><p><code>erepro</code> is the reproductive efficiency, the proportion of the energy
+invested into reproduction that is converted to egg biomass, see
+<code><a href='getRDI.html'>getRDI()</a></code>.</p></li>
+<li><p><code>Rmax</code> is the parameter in the Beverton-Holt density dependence added to
+the reproduction, see <code><a href='BevertonHoltRDD.html'>BevertonHoltRDD()</a></code>. There will be other such
+parameters if you use other density dependence functions, see the
+"Density dependence" section in the help for <code><a href='setReproduction.html'>setReproduction()</a></code>.</p></li>
+</ul>
 
-<p>Your function will then be called instead of <code><a href='mizerMort.html'>mizerMort()</a></code>, with the
-same arguments.</p>
+<p>When you set up a MizerParams object with <code><a href='newMultispeciesParams.html'>newMultispeciesParams()</a></code> you
+need to specify a species parameter data frame, but you do not need to
+give values for all of the species parameters described above. The only
+required columns are <code>species</code> for the species name and <code>w_inf</code> for its
+asymptotic size. Mizer will choose default values for all others, see
+<code><a href='newMultispeciesParams.html'>newMultispeciesParams()</a></code>.</p>
+<p>When you change a species parameter in an already existing MizerParams
+object, then this will be used to update the corresponding size-dependent
+rates by automatically calling <code><a href='setParams.html'>setParams()</a></code></p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='getPredMort.html'>getPredMort()</a></code>, <code><a href='getFMort.html'>getFMort()</a></code></p>
-<p>Other rate functions: 
-<code><a href='getEGrowth.html'>getEGrowth</a>()</code>,
-<code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a>()</code>,
-<code><a href='getERepro.html'>getERepro</a>()</code>,
-<code><a href='getEncounter.html'>getEncounter</a>()</code>,
-<code><a href='getFMortGear.html'>getFMortGear</a>()</code>,
-<code><a href='getFMort.html'>getFMort</a>()</code>,
-<code><a href='getFeedingLevel.html'>getFeedingLevel</a>()</code>,
-<code><a href='getPredMort.html'>getPredMort</a>()</code>,
-<code><a href='getPredRate.html'>getPredRate</a>()</code>,
-<code><a href='getRDD.html'>getRDD</a>()</code>,
-<code><a href='getRDI.html'>getRDI</a>()</code>,
-<code><a href='getRates.html'>getRates</a>()</code>,
-<code><a href='getResourceMort.html'>getResourceMort</a>()</code></p></div>
+    <div class='dont-index'><p>Other functions for setting parameters: 
+<code><a href='setExtMort.html'>setExtMort</a>()</code>,
+<code><a href='setFishing.html'>setFishing</a>()</code>,
+<code><a href='setInitialValues.html'>setInitialValues</a>()</code>,
+<code><a href='setInteraction.html'>setInteraction</a>()</code>,
+<code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
+<code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
+<code><a href='setParams.html'>setParams</a>()</code>,
+<code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
+<code><a href='setReproduction.html'>setReproduction</a>()</code>,
+<code><a href='setResource.html'>setResource</a>()</code>,
+<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='kw'>NS_species_params_gears</span>, <span class='kw'>inter</span>)
-<span class='co'># Project with constant fishing effort for all gears for 20 time steps</span>
-<span class='kw'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='kw'>params</span>, t_max = <span class='fl'>20</span>, effort = <span class='fl'>0.5</span>)
-<span class='co'># Get the total mortality at a particular time step</span>
-<span class='fu'><a href='getMort.html'>getMort</a></span>(<span class='kw'>params</span>, n = <span class='fu'><a href='N.html'>N</a></span>(<span class='kw'>sim</span>)[<span class='fl'>15</span>, , ], n_pp = <span class='fu'><a href='N.html'>NResource</a></span>(<span class='kw'>sim</span>)[<span class='fl'>15</span>, ], 
-        t = <span class='fl'>15</span>, effort = <span class='fl'>0.5</span>)
-}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

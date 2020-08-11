@@ -52,14 +52,6 @@ in the species parameter data frame. If the critical feeding level is not
 specified, a default of \eqn{f_c = 0.2} is used.
 }
 
-\examples{
-\dontrun{
-params <- NS_params
-# Change activity coefficient for species 3
-params@species_params$k[3] <- 8
-params <- setMetabolicRate(params)
-}
-}
 \seealso{
 Other functions for setting parameters: 
 \code{\link{setExtMort}()},
@@ -67,6 +59,7 @@ Other functions for setting parameters:
 \code{\link{setInitialValues}()},
 \code{\link{setInteraction}()},
 \code{\link{setMaxIntakeRate}()},
+\code{\link{setParams}()},
 \code{\link{setPredKernel}()},
 \code{\link{setReproduction}()},
 \code{\link{setResource}()},

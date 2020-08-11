@@ -20,5 +20,11 @@ data frame. Also needs the exponent \code{b} from the length-weight
 relationship \eqn{w = a l^b}. If this is not present in the species
 parameter data frame it is set to \code{b = 3}.
 }
+\seealso{
+Other functions calculating defaults: 
+\code{\link{get_gamma_default}()},
+\code{\link{get_ks_default}()}
+}
+\concept{functions calculating defaults}
 \concept{helper}
 \keyword{internal}

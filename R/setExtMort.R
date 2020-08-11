@@ -44,11 +44,11 @@
 #' #### Setting allometric death rate #######################
 #' 
 #' # Set coefficient for each species. Here we choose 0.1 for each species
-#' z0pre <- rep(0.1, nrow(params@species_params))
+#' z0pre <- rep(0.1, nrow(species_params(params)))
 #' 
 #' # Multiply by power of size with exponent, here chosen to be -1/4
 #' # The outer() function makes it an array species x size
-#' z0 <- outer(z0pre, params@w^(-1/4))
+#' z0 <- outer(z0pre, w(params)^(-1/4))
 #' 
 #' # Change the external mortality rate in the params object
 #' params <- setExtMort(params, z0 = z0)

@@ -678,13 +678,16 @@ mizerEGrowth <- function(params, n, n_pp, n_other, t, e_repro, e, ...) {
 #' mizer model
 #'
 #' Calculates the density-independent rate of total egg production \eqn{R_{p.i}}
-#' (units 1/year) before density dependence, by species. This is obtained by
-#' taking the total rate at which energy is invested in reproduction,
-#' multiplying by the reproductive efficiency `erepro` and dividing by the egg
-#' size `w_min`, and by a factor of two to account for the two sexes.
+#' (units 1/year) before density dependence, by species. 
 #' You would not usually call this
 #' function directly but instead use [getRDI()], which then calls this
 #' function unless an alternative function has been registered, see below.
+#' 
+#' This rate is obtained by
+#' taking the total rate at which energy is invested in reproduction, as
+#' calculated by [getERepro()],
+#' multiplying by the reproductive efficiency `erepro` and dividing by the egg
+#' size `w_min`, and by a factor of two to account for the two sexes.
 #' 
 #' Used by [getRDD()] to calculate the actual, density dependent rate.
 #' See [setReproduction()] for more details.

@@ -1,14 +1,79 @@
 #' Species parameters
 #' 
-#' This is the right place to document the use of species parameters in mizer.
+#' These functions allow you to get or set the species parameters stored in
+#' a MizerParams object.
 #' 
-#' @rdname setParams
+#' The `species_params` data frame holds species-specific parameters that Mizer
+#' can use, together with allometric assumptions, to set its various 
+#' size-dependent parameters. The data frame has one row for each species and
+#' one column for each species parameter. There are a lot of species parameters
+#' as we will now discuss, but most of them have sensible default values.
+#' 
+#' * `gamma` and `q` are used to set the search volume, see [setSearchVolume()].
+#' * `h` and `n` are used to set the maximum intake rate, see [setMaxIntakeRate()].
+#' * `k`, `ks` and `p` are used to set activity and basic metabolic rate, 
+#'   see [setMetabolicRate()].
+#' * `z0` is used to set the external mortality rate, see [setExtMort()].
+#' * `w_mat`, `w_mat25`, `w_inf` and `m` are used to set the allocation to
+#'   reproduction, see [setReproduction()].
+#' * `w_min` is the egg size.
+#' * `beta` and `sigma` are parameters of the lognormal predation kernel, see
+#'   [lognormal_pred_kernel()]. There will be other parameters if you are 
+#'   using other predation kernel functions, see the "Setting predation kernel"
+#'   sectin in the help for [setPredKernel()].
+#' 
+#' Not all of these parameters have to be specified by the user. If they are
+#' missing, mizer will give them default values, sometimes by using other
+#' species parameters.
+#' 
+#' * `k_vb` and `t0` are the von Bertalannfy growth parameters and are used
+#'   together with the length-weight relationship parameters `a` and `b` to
+#'   get a default value for the coefficient of the maximum intake rate `h`, 
+#'   see [get_h_default()].
+#' * `f0` is the feeding level and is used to get a default value for the
+#'   coefficient of the search volume `gamma`, see [get_gamma_default()].
+#' * `fc` is the critical feeding level below which the species can not 
+#'   maintain itself. This is used to get a default value for the coefficient
+#'   of the metabolic rate `ks`, see [get_ks_default()].
+#'   
+#' Note that these parameters are ignored if the parameters for which they allow
+#' defaults to be calculated have instead been set explicitly.
+#' 
+#' There are also some species parameters that are used directly in the model
+#' rather than being used for setting up size-dependent parameters:
+#' 
+#' * `alpha` is the assimilation efficiency, the proportion of the consumed
+#'   biomass that can be used for growth, metabolism and reproduction, see
+#'   the help for [getEReproAndGrowth()].
+#' * `interaction_resource` sets the interaction strength with the resource,
+#'   see "Predation encounter" section in the help for [getEncounter()].
+#' * `erepro` is the reproductive efficiency, the proportion of the energy
+#'   invested into reproduction that is converted to egg biomass, see
+#'   [getRDI()].
+#' * `Rmax` is the parameter in the Beverton-Holt density dependence added to
+#'   the reproduction, see [BevertonHoltRDD()]. There will be other such
+#'   parameters if you use other density dependence functions, see the
+#'   "Density dependence" section in the help for [setReproduction()].
+#' 
+#' When you set up a MizerParams object with [newMultispeciesParams()] you 
+#' need to specify a species parameter data frame, but you do not need to 
+#' give values for all of the species parameters described above. The only
+#' required columns are `species` for the species name and `w_inf` for its
+#' asymptotic size. Mizer will choose default values for all others, see
+#' [newMultispeciesParams()].
+#' 
+#' When you change a species parameter in an already existing MizerParams
+#' object, then this will be used to update the corresponding size-dependent
+#' rates by automatically calling [setParams()]
+#' 
+#' @param params A MizerParams object
 #' @export
+#' @family functions for setting parameters
 species_params <- function(params) {
     params@species_params
 }
 
-#' @rdname setParams
+#' @rdname species_params
 #' @param value A data frame with the species parameters
 #' @export
 `species_params<-` <- function(params, value) {
@@ -88,6 +153,7 @@ set_species_param_default <- function(object, parname, default,
 #' @export
 #' @keywords internal
 #' @concept helper
+#' @family functions calculating defaults
 get_h_default <- function(params) {
     assert_that(is(params, "MizerParams"))
     species_params <- params@species_params %>%
@@ -144,6 +210,7 @@ get_h_default <- function(params) {
 #' @export
 #' @keywords internal
 #' @concept helper
+#' @family functions calculating defaults
 get_gamma_default <- function(params) {
     assert_that(is(params, "MizerParams"))
     species_params <- params@species_params %>%
@@ -185,9 +252,9 @@ get_gamma_default <- function(params) {
     return(species_params$gamma)
 }
 
-#' Get default value for ks
+#' Get default value for `ks`
 #' 
-#' Fills in any missing values for ks so that the critical feeding level needed
+#' Fills in any missing values for `ks` so that the critical feeding level needed
 #' to sustain the species is as specified in the `fc` column in the species
 #' parameter data frame. If that column is not provided the default critical
 #' feeding level \eqn{f_c = 0.2} is used.
@@ -197,6 +264,7 @@ get_gamma_default <- function(params) {
 #' @export
 #' @keywords internal
 #' @concept helper
+#' @family functions calculating defaults
 get_ks_default <- function(params) {
     assert_that(is(params, "MizerParams"))
     if (!"h" %in% names(params@species_params) ||

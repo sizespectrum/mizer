@@ -38,12 +38,6 @@
 #'   `params <- setSearchVolume(params, ...)`.
 #' @export
 #' @family functions for setting parameters
-#' @examples
-#' \dontrun{
-#' params <- newTraitParams()
-#' params@species_params$gamma[3] <- 1000
-#' params <- setSearchVolume(params)
-#' }
 setSearchVolume <- function(params, 
                             search_vol = NULL, ...) {
     assert_that(is(params, "MizerParams"))

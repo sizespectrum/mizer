@@ -140,14 +140,6 @@ the simulation is run with \code{project()}, where it is also possible to specif
 an effort that varies through time.
 }
 
-\examples{
-\dontrun{
-params <- NS_params
-# Change knife edge size for species 1
-params@species_params$knife_edge_size[1] <- 15
-params <- setFishing(params)
-}
-}
 \seealso{
 Other functions for setting parameters: 
 \code{\link{setExtMort}()},
@@ -155,6 +147,7 @@ Other functions for setting parameters:
 \code{\link{setInteraction}()},
 \code{\link{setMaxIntakeRate}()},
 \code{\link{setMetabolicRate}()},
+\code{\link{setParams}()},
 \code{\link{setPredKernel}()},
 \code{\link{setReproduction}()},
 \code{\link{setResource}()},

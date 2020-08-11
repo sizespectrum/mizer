@@ -30,14 +30,34 @@ parameters.)}
 \item{...}{Unused}
 }
 \value{
-A numeric vector the length of the number of species
+A numeric vector the length of the number of species.
 }
 \description{
-Calculates the density independent rate of egg production \eqn{R_{p.i}}
-(units 1/year) before density dependence, by species. Used by
-\code{\link[=getRDD]{getRDD()}} to calculate the actual density dependent rate.
+Calculates the density-independent rate of total egg production \eqn{R_{p.i}}
+(units 1/year) before density dependence, by species.
+}
+\details{
+This rate is obtained by
+taking the total rate at which energy is invested in reproduction, as
+calculated by \code{\link[=getERepro]{getERepro()}},
+multiplying by the reproductive efficiency \code{erepro} and dividing by the egg
+size \code{w_min}, and by a factor of two to account for the two sexes.
+
+Used by \code{\link[=getRDD]{getRDD()}} to calculate the actual, density dependent rate.
 See \code{\link[=setReproduction]{setReproduction()}} for more details.
 }
+\section{Your own reproduction function}{
+
+By default \code{\link[=getRDI]{getRDI()}} calls \code{\link[=mizerRDI]{mizerRDI()}}. However you can
+replace this with your own alternative reproduction function. If
+your function is called \code{"myRDI"} then you register it in a MizerParams
+object \code{params} with\preformatted{params <- setRateFunction(params, "RDI", "myRDI")
+}
+
+Your function will then be called instead of \code{\link[=mizerRDI]{mizerRDI()}}, with the
+same arguments.
+}
+
 \examples{
 \dontrun{
 params <- newMultispeciesParams(NS_species_params_gears, inter)
@@ -62,6 +82,7 @@ Other rate functions:
 \code{\link{getPredMort}()},
 \code{\link{getPredRate}()},
 \code{\link{getRDD}()},
+\code{\link{getRates}()},
 \code{\link{getResourceMort}()}
 }
 \concept{rate functions}

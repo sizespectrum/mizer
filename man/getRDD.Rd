@@ -67,6 +67,7 @@ Other rate functions:
 \code{\link{getPredMort}()},
 \code{\link{getPredRate}()},
 \code{\link{getRDI}()},
+\code{\link{getRates}()},
 \code{\link{getResourceMort}()}
 }
 \concept{rate functions}

@@ -36,13 +36,6 @@
 #'   `params <- setMetabolicRate(params, ...)`.
 #' @export
 #' @family functions for setting parameters
-#' @examples
-#' \dontrun{
-#' params <- NS_params
-#' # Change activity coefficient for species 3
-#' params@species_params$k[3] <- 8
-#' params <- setMetabolicRate(params)
-#' }
 setMetabolicRate <- function(params, 
                              metab = NULL, p = NULL, ...) {
     assert_that(is(params, "MizerParams"))

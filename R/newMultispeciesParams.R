@@ -46,6 +46,9 @@
 #' parameters you can also specify values for only some species and leave the
 #' other entries as NA and the missing values will be set to the defaults.
 #' 
+#' If you are not happy with any of the species parameter values used you can
+#' always change them later with [species_params<-()].
+#' 
 #' All the parameters will be mentioned in the following sections.
 #' @inheritSection emptyParams Changes to species params
 #' @inheritSection emptyParams Size grid
@@ -202,31 +205,31 @@ newMultispeciesParams <- function(
 #' @return A \linkS4class{MizerParams} object
 #' 
 #' @details 
-#' Usually, if you are happy with the way mizer calculates its model functions
-#' from the species parameters and only want to change the values of some
-#' species parameters, you would make those changes in the `species_params` data
-#' frame contained in the `params` object and then call the `setParams()`
-#' function to effect the change. Note that just changing the species parameters
-#' by themselves is not changing the model until you call `setParams()` or the
-#' appropriate one of its sub-functions. Here is an example which assumes that
-#' you have have a MizerParams object `params` in which you just want to change
-#' one parameter of the third species:
-#' ```
-#' params@species_params$gamma[[3]] <- 1000
-#' params <- setParams(params)
-#' ```
-#' Because of the way the R language works, `setParams` does not make the
-#' changes to the `params` object that you pass to it but instead returns a new
-#' params object. So to affect the change you call the function in the form
-#' `params <- setParams(params, ...)`.
-#' 
 #' If you are not happy with the assumptions that mizer makes by default about
 #' the shape of the model functions, for example if you want to change one of
 #' the allometric scaling assumptions, you can do this by providing your
 #' choice as an array in the appropriate argument to `setParams()`. The
 #' sections below discuss all the model functions that you can change this way.
 #' 
-#' This function will use the species parameters in the `params` object to reset
+#' Because of the way the R language works, `setParams` does not make the
+#' changes to the `params` object that you pass to it but instead returns a new
+#' params object. So to affect the change you call the function in the form
+#' `params <- setParams(params, ...)`.
+#' 
+#' Usually, if you are happy with the way mizer calculates its model functions
+#' from the species parameters and only want to change the values of some
+#' species parameters, you would make those changes in the `species_params` data
+#' frame contained in the `params` object using [species_params<-()]. 
+#' Here is an example which assumes that
+#' you have have a MizerParams object `params` in which you just want to change
+#' the `gamma` parameter of the third species:
+#' ```
+#' species_params(params)$gamma[[3]] <- 1000
+#' ```
+#' Internally that will actually call `setParams()` to recalculate any of the
+#' other parameters that are affected by the change in the species parameter.
+#' 
+#' `setParams()` will use the species parameters in the `params` object to recalculate
 #' the values of all the model functions that you do not specify explicitly when
 #' calling this function, unless you have protected the corresponding slots with
 #' a comment. If you have changed any of the model functions in the
@@ -287,12 +290,6 @@ newMultispeciesParams <- function(
 #' @inheritSection setResource Setting resource dynamics
 #' @export
 #' @family functions for setting parameters
-#' @examples
-#' \dontrun{
-#' params <- newTraitParams()
-#' params@species_params$gamma[3] <- 1000
-#' params <- setParams(params)
-#' }
 setParams <- function(params, interaction = NULL, ...) {
     validObject(params)
     params <- setResource(params, ...)

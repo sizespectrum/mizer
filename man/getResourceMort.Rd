@@ -70,6 +70,7 @@ Other rate functions:
 \code{\link{getPredMort}()},
 \code{\link{getPredRate}()},
 \code{\link{getRDD}()},
-\code{\link{getRDI}()}
+\code{\link{getRDI}()},
+\code{\link{getRates}()}
 }
 \concept{rate functions}

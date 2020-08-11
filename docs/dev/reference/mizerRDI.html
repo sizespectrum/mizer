@@ -49,10 +49,7 @@ mizer model — mizerRDI • mizer</title>
 <meta property="og:title" content="Get density-independent rate of reproduction needed to project standard
 mizer model — mizerRDI" />
 <meta property="og:description" content="Calculates the density-independent rate of total egg production \(R_{p.i}\)
-(units 1/year) before density dependence, by species. This is obtained by
-taking the total rate at which energy is invested in reproduction,
-multiplying by the reproductive efficiency erepro and dividing by the egg
-size w_min, and by a factor of two to account for the two sexes.
+(units 1/year) before density dependence, by species.
 You would not usually call this
 function directly but instead use getRDI(), which then calls this
 function unless an alternative function has been registered, see below." />
@@ -193,10 +190,7 @@ mizer model</h1>
 
     <div class="ref-description">
     <p>Calculates the density-independent rate of total egg production \(R_{p.i}\)
-(units 1/year) before density dependence, by species. This is obtained by
-taking the total rate at which energy is invested in reproduction,
-multiplying by the reproductive efficiency <code>erepro</code> and dividing by the egg
-size <code>w_min</code>, and by a factor of two to account for the two sexes.
+(units 1/year) before density dependence, by species.
 You would not usually call this
 function directly but instead use <code><a href='getRDI.html'>getRDI()</a></code>, which then calls this
 function unless an alternative function has been registered, see below.</p>
@@ -256,7 +250,12 @@ reproduction as calculated by <code><a href='getERepro.html'>getERepro()</a></co
     <p>A numeric vector with the rate of egg production for each species.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Used by <code><a href='getRDD.html'>getRDD()</a></code> to calculate the actual, density dependent rate.
+    <p>This rate is obtained by
+taking the total rate at which energy is invested in reproduction, as
+calculated by <code><a href='getERepro.html'>getERepro()</a></code>,
+multiplying by the reproductive efficiency <code>erepro</code> and dividing by the egg
+size <code>w_min</code>, and by a factor of two to account for the two sexes.</p>
+<p>Used by <code><a href='getRDD.html'>getRDD()</a></code> to calculate the actual, density dependent rate.
 See <code><a href='setReproduction.html'>setReproduction()</a></code> for more details.</p>
     <h2 class="hasAnchor" id="your-own-reproduction-function"><a class="anchor" href="#your-own-reproduction-function"></a>Your own reproduction function</h2>
 

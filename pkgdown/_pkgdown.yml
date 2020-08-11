@@ -69,6 +69,7 @@ reference:
     with the following functions. This is useful while tuning the model and for
     investigating the impact of changes in parameters.
   contents:
+  - species_params
   - setParams
   - setPredKernel
   - getPredKernel

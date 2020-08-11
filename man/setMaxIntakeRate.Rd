@@ -46,13 +46,6 @@ the \code{k_vb} column, if they are supplied.
 If \eqn{h_i} is set to \code{Inf}, fish will consume all encountered food.
 }
 
-\examples{
-\dontrun{
-params <- NS_params
-params@species_params$h[3] <- 35
-params <- setMaxIntakeRate(params)
-}
-}
 \seealso{
 Other functions for setting parameters: 
 \code{\link{setExtMort}()},
@@ -60,6 +53,7 @@ Other functions for setting parameters:
 \code{\link{setInitialValues}()},
 \code{\link{setInteraction}()},
 \code{\link{setMetabolicRate}()},
+\code{\link{setParams}()},
 \code{\link{setPredKernel}()},
 \code{\link{setReproduction}()},
 \code{\link{setResource}()},

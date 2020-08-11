@@ -88,16 +88,15 @@ different.
 ## Set up a MizerParams object
 params <- newMultispeciesParams(NS_species_params_gears, inter)
 
-## If you change predation kernel parameters after setting up a model, you
-# need to call setPredKernel
-params@species_params["Cod", "beta"] <- 200
-params <- setPredKernel(params)
+## If you change predation kernel parameters after setting up a model, 
+#  this will be used to recalculate the kernel
+species_params(params)["Cod", "beta"] <- 200
 
 ## You can change to a different predation kernel type
-params@species_params$pred_kernel_type <- "box"
-params@species_params$ppmr_min <- 2
-params@species_params$ppmr_max <- 4
-params <- setPredKernel(params)
+species_params(params)$ppmr_max <- 4000
+species_params(params)$ppmr_min <- 200
+species_params(params)$pred_kernel_type <- "box"
+plot(w_full(params), getPredKernel(params)["Cod", 100, ], type="l", log="x")
 
 ## If you need a kernel that depends also on prey size you need to define
 # it yourself.
@@ -115,6 +114,7 @@ Other functions for setting parameters:
 \code{\link{setInteraction}()},
 \code{\link{setMaxIntakeRate}()},
 \code{\link{setMetabolicRate}()},
+\code{\link{setParams}()},
 \code{\link{setReproduction}()},
 \code{\link{setResource}()},
 \code{\link{setSearchVolume}()},
