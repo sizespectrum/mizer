@@ -70,6 +70,7 @@ reference:
     investigating the impact of changes in parameters.
   contents:
   - species_params
+  - gear_params
   - setParams
   - setPredKernel
   - getPredKernel
@@ -81,6 +82,7 @@ reference:
   - setReproduction
   - setFishing
   - setResource
+  - resource_params
   - setInitialValues
   - setRmax
 - title: Running simulations

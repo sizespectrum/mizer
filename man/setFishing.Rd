@@ -2,8 +2,6 @@
 % Please edit documentation in R/setFishing.R
 \name{setFishing}
 \alias{setFishing}
-\alias{gear_params}
-\alias{gear_params<-}
 \alias{getCatchability}
 \alias{getSelectivity}
 \alias{getInitialEffort}
@@ -16,10 +14,6 @@ setFishing(
   initial_effort = NULL,
   ...
 )
-
-gear_params(params)
-
-gear_params(params) <- value
 
 getCatchability(params)
 
@@ -41,8 +35,6 @@ the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.}
 
 \item{...}{Unused}
-
-\item{value}{A data frame with the gear parameters}
 }
 \value{
 MizerParams object with updated catchability and selectivity. Because
@@ -141,7 +133,11 @@ an effort that varies through time.
 }
 
 \seealso{
+\code{\link[=gear_params]{gear_params()}}
+
 Other functions for setting parameters: 
+\code{\link{gear_params}()},
+\code{\link{resource_params}()},
 \code{\link{setExtMort}()},
 \code{\link{setInitialValues}()},
 \code{\link{setInteraction}()},

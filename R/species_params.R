@@ -64,10 +64,11 @@
 #' 
 #' When you change a species parameter in an already existing MizerParams
 #' object, then this will be used to update the corresponding size-dependent
-#' rates by automatically calling [setParams()]
+#' rates by automatically calling [setParams()].
 #' 
 #' @param params A MizerParams object
 #' @export
+#' @seealso [validSpeciesParams()]
 #' @family functions for setting parameters
 species_params <- function(params) {
     params@species_params

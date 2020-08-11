@@ -22,6 +22,8 @@
 * Upgrade old params objects automatically when used in plot functions, rate
   functions, summary functions or in `project()` or `steady()`, #163.
 * New function `getRates()` to calculate all rates and collect them in a list.
+* Added documentation for `species_params()`, `gear_params()` and
+  `resource_params()`.
 * Numerous small improvements to documentation.
 
 # mizer 2.0.3

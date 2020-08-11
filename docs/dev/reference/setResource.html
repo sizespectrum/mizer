@@ -193,11 +193,11 @@ dynamics</p>
   <span class='kw'>params</span>,
   resource_rate = <span class='kw'>NULL</span>,
   resource_capacity = <span class='kw'>NULL</span>,
-  r_pp = <span class='fu'>resource_params</span>(<span class='kw'>params</span>)[[<span class='st'>"r_pp"</span>]],
-  kappa = <span class='fu'>resource_params</span>(<span class='kw'>params</span>)[[<span class='st'>"kappa"</span>]],
-  lambda = <span class='fu'>resource_params</span>(<span class='kw'>params</span>)[[<span class='st'>"lambda"</span>]],
-  n = <span class='fu'>resource_params</span>(<span class='kw'>params</span>)[[<span class='st'>"n"</span>]],
-  w_pp_cutoff = <span class='fu'>resource_params</span>(<span class='kw'>params</span>)[[<span class='st'>"w_pp_cutoff"</span>]],
+  r_pp = <span class='fu'><a href='resource_params.html'>resource_params</a></span>(<span class='kw'>params</span>)[[<span class='st'>"r_pp"</span>]],
+  kappa = <span class='fu'><a href='resource_params.html'>resource_params</a></span>(<span class='kw'>params</span>)[[<span class='st'>"kappa"</span>]],
+  lambda = <span class='fu'><a href='resource_params.html'>resource_params</a></span>(<span class='kw'>params</span>)[[<span class='st'>"lambda"</span>]],
+  n = <span class='fu'><a href='resource_params.html'>resource_params</a></span>(<span class='kw'>params</span>)[[<span class='st'>"n"</span>]],
+  w_pp_cutoff = <span class='fu'><a href='resource_params.html'>resource_params</a></span>(<span class='kw'>params</span>)[[<span class='st'>"w_pp_cutoff"</span>]],
   resource_dynamics = <span class='kw'>NULL</span>,
   <span class='kw'>...</span>
 )
@@ -206,11 +206,7 @@ dynamics</p>
 
 <span class='fu'>getResourceCapacity</span>(<span class='kw'>params</span>)
 
-<span class='fu'>getResourceDynamics</span>(<span class='kw'>params</span>)
-
-<span class='fu'>resource_params</span>(<span class='kw'>params</span>)
-
-<span class='fu'>resource_params</span>(<span class='kw'>params</span>) <span class='op'>&lt;-</span> <span class='kw'>value</span></pre>
+<span class='fu'>getResourceDynamics</span>(<span class='kw'>params</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -259,10 +255,6 @@ want to use the default <code><a href='resource_semichemostat.html'>resource_sem
       <th>...</th>
       <td><p>Unused</p></td>
     </tr>
-    <tr>
-      <th>value</th>
-      <td><p>List of resource parameters</p></td>
-    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -297,7 +289,10 @@ The values of \(\kappa\) and \(\lambda\) are taken from the <code>kappa</code>
 and <code>lambda</code> arguments.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other functions for setting parameters: 
+    <div class='dont-index'><p><code><a href='resource_params.html'>resource_params()</a></code></p>
+<p>Other functions for setting parameters: 
+<code><a href='gear_params.html'>gear_params</a>()</code>,
+<code><a href='resource_params.html'>resource_params</a>()</code>,
 <code><a href='setExtMort.html'>setExtMort</a>()</code>,
 <code><a href='setFishing.html'>setFishing</a>()</code>,
 <code><a href='setInitialValues.html'>setInitialValues</a>()</code>,

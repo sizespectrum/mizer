@@ -100,6 +100,7 @@
 #'   object. So to affect the change you call the function in the form
 #'   `params <- setFishing(params, ...)`.
 #' @export
+#' @seealso [gear_params()]
 #' @family functions for setting parameters
 setFishing <- function(params, selectivity = NULL, catchability = NULL, 
                        initial_effort = NULL, ...) {
@@ -197,14 +198,30 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
     return(params)
 }
 
-#' @rdname setFishing
+#' Gear parameters
+#' 
+#' These functions allow you to get or set the gear parameters stored in
+#' a MizerParams object. These are used by [setFishing()] to set up the 
+#' selectivity and catchability and thus together with the fishing effort
+#' determine the fishing mortality.
+#' 
+#' The `gear_params` data has one row for each gear-species pair and one
+#' column for each parameter that determines how that gear interacts with that
+#' species. For the details see [setFishing()].
+#' 
+#' If you change a gear parameter, this will be used to recalculate the
+#' `selectivity` and `catchability` arrays by calling [setFishing()],
+#' unless you have protected these with comments.
+#' @param params A MizerParams object
 #' @export
+#' @family functions for setting parameters
 gear_params <- function(params) {
     params@gear_params
 }
 
-#' @rdname setFishing
-#' @param value A data frame with the gear parameters
+#' @rdname gear_params
+#' @param value A data frame with the gear parameters.
+#' @seealso [validGearParams()]
 #' @export
 `gear_params<-` <- function(params, value) {
     value <- validGearParams(value, params@species_params)

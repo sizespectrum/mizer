@@ -49,3 +49,6 @@ to the current version and then call \code{\link[=upgradeParams]{upgradeParams()
 the new version again with \code{\link[=saveRDS]{saveRDS()}}.
 }
 
+\seealso{
+\code{\link[=validParams]{validParams()}}
+}

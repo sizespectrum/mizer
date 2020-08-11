@@ -48,6 +48,7 @@
 #'   So to affect the change you call the function in the form
 #'   `params <- setResource(params, ...)`.
 #' @export
+#' @seealso [resource_params()]
 #' @family functions for setting parameters
 setResource <- function(params,
                         resource_rate = NULL,
@@ -132,14 +133,25 @@ getResourceDynamics <- function(params) {
     params@resource_dynamics
 }
 
-#' @rdname setResource
+#' Resource parameters
+#' 
+#' These functions allow you to get or set the resource parameters stored in
+#' a MizerParams object.
+#' The resource parameters are stored as a named list with the slot names
+#' `r_pp`, `kappa`, `lambda`, `n`, `w_pp_cutoff`. For their meaning see
+#' [setResource()]. If you change these parameters then this will
+#' recalculate the resource rate and the resource capacity, unless you have
+#' protected these with comments.
+#' 
+#' @param params A MizerParams object
 #' @export
+#' @family functions for setting parameters
 resource_params <- function(params) {
     params@resource_params
 }
 
-#' @rdname setResource
-#' @param value List of resource parameters
+#' @rdname resource_params
+#' @param value A named list of resource parameters.
 #' @export
 `resource_params<-` <- function(params, value) {
     assert_that(

@@ -157,6 +157,8 @@ ggplot(dff) + geom_line(aes(x = Size, y = Proportion, colour = Type))
 }
 \seealso{
 Other functions for setting parameters: 
+\code{\link{gear_params}()},
+\code{\link{resource_params}()},
 \code{\link{setExtMort}()},
 \code{\link{setFishing}()},
 \code{\link{setInitialValues}()},

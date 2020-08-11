@@ -54,6 +54,8 @@ specified, a default of \eqn{f_c = 0.2} is used.
 
 \seealso{
 Other functions for setting parameters: 
+\code{\link{gear_params}()},
+\code{\link{resource_params}()},
 \code{\link{setExtMort}()},
 \code{\link{setFishing}()},
 \code{\link{setInitialValues}()},

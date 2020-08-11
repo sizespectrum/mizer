@@ -48,6 +48,8 @@ If \eqn{h_i} is set to \code{Inf}, fish will consume all encountered food.
 
 \seealso{
 Other functions for setting parameters: 
+\code{\link{gear_params}()},
+\code{\link{resource_params}()},
 \code{\link{setExtMort}()},
 \code{\link{setFishing}()},
 \code{\link{setInitialValues}()},

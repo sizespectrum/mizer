@@ -40,6 +40,7 @@
 #' 
 #' @return The upgraded MizerParams object
 #' @export
+#' @seealso [validParams()]
 upgradeParams <- function(params) {
     
     if ("interaction_p" %in% names(params@species_params)) {

@@ -83,10 +83,14 @@ asymptotic size. Mizer will choose default values for all others, see
 
 When you change a species parameter in an already existing MizerParams
 object, then this will be used to update the corresponding size-dependent
-rates by automatically calling \code{\link[=setParams]{setParams()}}
+rates by automatically calling \code{\link[=setParams]{setParams()}}.
 }
 \seealso{
+\code{\link[=validSpeciesParams]{validSpeciesParams()}}
+
 Other functions for setting parameters: 
+\code{\link{gear_params}()},
+\code{\link{resource_params}()},
 \code{\link{setExtMort}()},
 \code{\link{setFishing}()},
 \code{\link{setInitialValues}()},
