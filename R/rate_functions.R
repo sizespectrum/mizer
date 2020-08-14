@@ -48,7 +48,7 @@ getEncounter <- function(params, n = initialN(params),
                          t = 0) {
     params <- validParams(params)
     assert_that(is.array(n),
-                is.vector(n_pp),
+                is.numeric(n_pp),
                 is.list(n_other),
                 is.number(t),
                 identical(dim(n), dim(params@initial_n)),
