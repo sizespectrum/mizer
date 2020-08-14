@@ -22,6 +22,8 @@
 * Upgrade old params objects automatically when used in plot functions, rate
   functions, summary functions or in `project()` or `steady()`, #163.
 * New function `getRates()` to calculate all rates and collect them in a list.
+* `steady()` with `return_sim = TRUE` now creates the sim object the same way 
+  as `project()`, namely with the original values in the first time slot.
 * Added documentation for `species_params()`, `gear_params()` and
   `resource_params()`.
 * Numerous small improvements to documentation.

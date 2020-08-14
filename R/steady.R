@@ -47,6 +47,10 @@ steady <- function(params, t_max = 100, t_per = 1.5, tol = 10^(-2),
     if (return_sim) {
         # create MizerSim object
         sim <- MizerSim(params, t_dimnames =  t_dimnames)
+        sim@n[1, , ] <- params@initial_n
+        sim@n_pp[1, ] <- params@initial_n_pp
+        sim@n_other[1, ] <- params@initial_n_other
+        sim@effort[1, ] <- params@initial_effort
     }
     
     # Force the reproduction to stay at the current level
@@ -73,7 +77,7 @@ steady <- function(params, t_max = 100, t_per = 1.5, tol = 10^(-2),
                    n_pp = params@initial_n_pp,
                    n_other = params@initial_n_other)
     
-    for (i in seq_along(t_dimnames)) {
+    for (i in 2:length(t_dimnames)) {
         # advance shiny progress bar
         if (is(progress_bar, "Progress")) {
             progress_bar$inc(amount = proginc)
@@ -111,10 +115,10 @@ steady <- function(params, t_max = 100, t_per = 1.5, tol = 10^(-2),
     }
     if (deviation >= tol) {
         warning("Simulation run in steady() did not converge after ", 
-                i * t_per,
+                (i - 1) * t_per,
                 " years. Residual relative rate of change = ", deviation)
     } else {
-        message("Steady state was reached before ", i * t_per, " years.")
+        message("Steady state was reached before ", (i - 1) * t_per, " years.")
     }
     
     # Restore original RDD and other dynamics
