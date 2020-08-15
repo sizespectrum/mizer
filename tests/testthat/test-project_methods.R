@@ -61,9 +61,6 @@ test_that("getFeedingLevel for MizerParams", {
     encounter <- getEncounter(params, n = n, n_pp = n_full)
     f <- encounter / (encounter + params@intake_max)
     expect_identical(fl, f)
-    # passing in encounter gives the same as not
-    fl2 <- getFeedingLevel(params, n, n_full, encounter = encounter)
-    expect_identical(fl, fl2)
     # test value
     expect_known_value(fl, "values/getFeedingLevel")
 })
@@ -99,10 +96,6 @@ test_that("getPredRate for MizerParams", {
     expect_identical(dim(pr), c(no_sp, no_w_full))
     expect_identical(dimnames(pr)$sp, dimnames(params@initial_n)$sp)
     expect_identical(dimnames(pr)$w_prey, as.character(signif(params@w_full, 3)))
-    # passing in feeding level gives the same as not
-    fl <- getFeedingLevel(params, n, n_full)
-    pr2 <- getPredRate(params, n, n_full, feeding_level = fl)
-    expect_identical(pr, pr2)
     # test value
     expect_known_value(pr, "values/getPredRate")
 })
@@ -178,11 +171,7 @@ test_that("getResourceMort", {
     # Check number in final prey size group
     m22 <- colSums(getPredRate(params, n, n_full))
     expect_equal(m22, m2, check.attributes = FALSE)
-    # Passing in pred_rate gives the same
-    pr <- getPredRate(params, n, n_full)
     m2b1 <- getResourceMort(params, n, n_full)
-    m2b2 <- getResourceMort(params, n, n_full, pred_rate = pr)
-    expect_identical(m2b1, m2b2)
     # test value
     expect_known_value(m2b1, "values/getResourceMort")
 })
@@ -297,10 +286,6 @@ test_that("getMort", {
     m2 <- getPredMort(params, n, n_full)
     z1 <- f[1, ] + m2[1, ] + params@species_params$z0[1]
     expect_equal(z1, z[1, ], check.names = FALSE)
-    # Passing in M2 gives the same
-    pred_mort <- getPredMort(params, n, n_full)
-    z2 <- getMort(params, n, n_full, effort = effort2, pred_mort = pred_mort)
-    expect_identical(z, z2)
     expect_known_value(z, "values/getMort")
 })
 
@@ -323,14 +308,6 @@ test_that("getEReproAndGrowth", {
     e <-  (f[1, ] * params@intake_max[1, ]) * params@species_params$alpha[1]
     e <- e - params@metab[1, ]
     expect_equal(e, erg[1, ])
-    # Adding feeding level gives the same result
-    f <- getFeedingLevel(params, n = n, n_pp = n_full)
-    erg2 <- getEReproAndGrowth(params, n, n_full, feeding_level = f)
-    expect_identical(erg, erg2)
-    # Adding encounter gives the same result
-    e <- getEncounter(params, n = n, n_pp = n_full)
-    erg3 <- getEReproAndGrowth(params, n, n_full, encounter = e)
-    expect_identical(erg, erg3)
     # Can be used with infinite intake_max
     params@intake_max[] <- Inf
     expect_true(!any(is.na(getEReproAndGrowth(params, n = n, n_pp = n_full))))
@@ -362,10 +339,6 @@ test_that("getERepro", {
     e_growth_man <- e - es
     e_growth_man[e_growth_man <= 0] <- 0
     expect_identical(e_growth, e_growth_man)
-    # Including ESpawningAndGrowth gives the same
-    e <- getEReproAndGrowth(params, n = n, n_pp = n_full)
-    es2 <- getERepro(params, n, n_full, e = e)
-    expect_identical(es, es2)
     expect_known_value(es, "values/getERepro")
 })
 
@@ -384,10 +357,6 @@ test_that("getRDI", {
     rdix <- sex_ratio * (e_repro_pop * params@species_params$erepro) / 
         params@w[params@w_min_idx]
     expect_equal(rdix, rdi, tolerance = 1e-15, check.names = FALSE)
-    # Including ESpawning is the same
-    e_repro <- getERepro(params, n = n, n_pp = n_full)
-    rdi2 <- getRDI(params, n, n_full, e_repro = e_repro)
-    expect_identical(rdi, rdi2)
     expect_known_value(rdi, "values/getRDI")
 })
 
@@ -423,12 +392,7 @@ test_that("getRDD is proportional to volume", {
 # getEGrowth --------------------------------------------------------------
 
 test_that("getEGrowth is working", {
-    e_repro <- getERepro(params, n = n, n_pp = n_full)
-    e <- getEReproAndGrowth(params, n = n, n_pp = n_full)
     eg1 <- getEGrowth(params, n = n, n_pp = n_full)
-    eg2 <- getEGrowth(params, n = n, n_pp = n_full, e = e, 
-                      e_repro = e_repro)
-    expect_identical(eg1, eg2)
     # test dim
     expect_identical(dim(eg1), c(no_sp, no_w))
     expect_identical(dimnames(eg1), dimnames(params@initial_n))
