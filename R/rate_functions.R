@@ -108,11 +108,12 @@ getFeedingLevel <- function(object, n, n_pp, n_other,
         if (missing(n)) n <- params@initial_n
         if (missing(n_pp)) n_pp <- params@initial_n_pp
         if (missing(n_other)) n_other <- params@initial_n_other
-        encounter <- getEncounter(params, n, n_pp, n_other, t = t)
         # calculate feeding level
         f <- get(params@rates_funcs$FeedingLevel)
         feeding_level <- f(params, n = n, n_pp = n_pp, n_other = n_other,
-                           encounter = encounter, t = t)
+                           encounter = getEncounter(params, n, n_pp, n_other, 
+                                                    t = t), 
+                           t = t)
         dimnames(feeding_level) <- dimnames(params@metab)
         return(feeding_level)
     } else {
@@ -186,11 +187,11 @@ getEReproAndGrowth <- function(params, n = initialN(params),
                                n_other = initialNOther(params),
                                t = 0, ...) {
     params <- validParams(params)
-    encounter <- getEncounter(params, n, n_pp, n_other, t = t)
-    feeding_level <- getFeedingLevel(params, n, n_pp, n_other, time_range = t)
     f <- get(params@rates_funcs$EReproAndGrowth)
     e <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-           encounter = encounter, feeding_level = feeding_level)
+           encounter = getEncounter(params, n, n_pp, n_other, t = t), 
+           feeding_level = getFeedingLevel(params, n, n_pp, n_other, 
+                                           time_range = t))
     dimnames(e) <- dimnames(params@metab)
     e
 }
@@ -229,11 +230,11 @@ getPredRate <- function(params, n = initialN(params),
     no_sp <- dim(params@interaction)[1]
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
-    feeding_level = getFeedingLevel(params, n = n, n_pp = n_pp,  
-                                    n_other = n_other, time_range = t)
     f <- get(params@rates_funcs$PredRate)
     pred_rate <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-                   feeding_level = feeding_level)
+                   feeding_level = getFeedingLevel(params, n = n, n_pp = n_pp,  
+                                                   n_other = n_other, 
+                                                   time_range = t))
     dimnames(pred_rate) <- list(sp = dimnames(params@initial_n)$sp,
                                 w_prey = as.character(signif(params@w_full, 3)))
     pred_rate
@@ -279,12 +280,11 @@ getPredMort <- function(object, n, n_pp, n_other,
         if (missing(n_other)) n_other <- params@initial_n_other
         if (missing(time_range)) time_range <- 0
         t <- min(time_range)
-        pred_rate <- getPredRate(params, n = n, n_pp = n_pp, 
-                                 n_other = n_other, t = t)
         
         f <- get(params@rates_funcs$PredMort)
         pred_mort <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-                       pred_rate = pred_rate)
+                       pred_rate = getPredRate(params, n = n, n_pp = n_pp, 
+                                               n_other = n_other, t = t))
         dimnames(pred_mort) <- list(prey = dimnames(params@initial_n)$sp,
                                     w_prey = dimnames(params@initial_n)$w)
         pred_mort
@@ -345,12 +345,11 @@ getResourceMort <-
              t = 0, ...) {
       
     params <- validParams(params)
-    pred_rate <- getPredRate(params, n = n, n_pp = n_pp, 
-                              n_other = n_other, t = t)
     
     f <- get(params@rates_funcs$ResourceMort)
     mort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
-              t = t, pred_rate = pred_rate)
+              t = t, pred_rate = getPredRate(params, n = n, n_pp = n_pp, 
+                                             n_other = n_other, t = t))
     names(mort) <- names(params@initial_n_pp)
     mort
 }
@@ -599,13 +598,12 @@ getMort <- function(params,
                     effort = getInitialEffort(params),
                     t = 0, ...) {
     params <- validParams(params)
-    f_mort <- getFMort(params, effort)
-    pred_mort <- getPredMort(params, n = n, n_pp = n_pp, 
-                             n_other = n_other, time_range = t)
   
     f <- get(params@rates_funcs$Mort)
     z <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-           f_mort = f_mort, pred_mort = pred_mort)
+           f_mort = getFMort(params, effort), 
+           pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
+                                   n_other = n_other, time_range = t))
     dimnames(z) <- list(prey = dimnames(params@initial_n)$sp,
                         w_prey = dimnames(params@initial_n)$w)
     return(z)
@@ -649,10 +647,10 @@ getERepro <- function(params, n = initialN(params),
                       n_other = initialNOther(params),
                       t = 0, ...) {
     params <- validParams(params)
-    e <- getEReproAndGrowth(params, n = n, n_pp = n_pp,
-                            n_other = n_other, t = t)
     f <- get(params@rates_funcs$ERepro)
-    erepro <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t, e = e)
+    erepro <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t, 
+                e = getEReproAndGrowth(params, n = n, n_pp = n_pp,
+                                       n_other = n_other, t = t))
     dimnames(erepro) <- dimnames(params@metab)
     erepro
 }
@@ -691,13 +689,12 @@ getEGrowth <- function(params, n = initialN(params),
                        n_other = initialNOther(params),
                        t = 0, ...) {
     params <- validParams(params)
-    e_repro <- getERepro(params, n = n, n_pp = n_pp, 
-                        n_other = n_other, t = t)
-    e <- getEReproAndGrowth(params, n = n, n_pp = n_pp, 
-                            n_other = n_other, t = t)
     f <- get(params@rates_funcs$EGrowth)
-    g <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
-           t = t, e_repro = e_repro, e = e)
+    g <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t, 
+           e_repro = getERepro(params, n = n, n_pp = n_pp, 
+                               n_other = n_other, t = t), 
+           e = getEReproAndGrowth(params, n = n, n_pp = n_pp, 
+                                  n_other = n_other, t = t))
     dimnames(g) <- dimnames(params@metab)
     g
 }
@@ -727,15 +724,14 @@ getRDI <- function(params, n = initialN(params),
                    n_pp = initialNResource(params),
                    n_other = initialNOther(params),
                    t = 0, ...) {
-    e_repro <- getERepro(params, n = n, n_pp = n_pp, 
-                         n_other = n_other, t = t)
-    e_growth <- getEGrowth(params, n = n, n_pp = n_pp, 
-                         n_other = n_other, t = t)
-    mort <- getMort(params, n = n, n_pp = n_pp, 
-                         n_other = n_other, t = t)
     f <- get(params@rates_funcs$RDI)
     rdi <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t, 
-             e_repro = e_repro, e_growth = e_growth, mort = mort)
+             e_repro = getERepro(params, n = n, n_pp = n_pp, 
+                                 n_other = n_other, t = t), 
+             e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
+                                   n_other = n_other, t = t), 
+             mort = getMort(params, n = n, n_pp = n_pp, 
+                            n_other = n_other, t = t))
     names(rdi) <- as.character(params@species_params$species)
     rdi
 }
