@@ -342,6 +342,11 @@ validGearParams <- function(gear_params, species_params) {
         stop("`gear_params` must have columns 'species' and 'gear'.")
     }
     
+    # Check that every species mentioned in gear_params exists
+    if (!all(gear_params$species %in% species_params$species)) {
+        stop("The gear_params dataframe contains species that do not exist in the model.")
+    }
+    
     # Check that there are no duplicate gear-species pairs
     if (anyDuplicated(gear_params[, c("species", "gear")])) {
         stop("Some species - gear pairs appear more than once.")

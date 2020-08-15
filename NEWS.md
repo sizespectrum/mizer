@@ -6,6 +6,7 @@
   is NA.
 * In `validGearParams()` ensure that all required arguments of the 
   selectivity function are supplied.
+* In `validGearParams()` check that there are no non-existent species.
 * `species_params()<-` supresses warnings.
 * Throw meaningful error when `steady()` fails because RDI is zero.
 * `newCommunityParams()` now protects its zero investment in reproduction with
