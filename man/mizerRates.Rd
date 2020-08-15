@@ -35,16 +35,16 @@ By default this function returns a list with the following components:
 \itemize{
 \item encounter from \code{\link[=mizerEncounter]{mizerEncounter()}}
 \item feeding_level from \code{\link[=mizerFeedingLevel]{mizerFeedingLevel()}}
+\item e from \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGrowth()}}
+\item e_repro from \code{\link[=mizerERepro]{mizerERepro()}}
+\item e_growth from \code{\link[=mizerEGrowth]{mizerEGrowth()}}
 \item pred_rate from \code{\link[=mizerPredRate]{mizerPredRate()}}
 \item pred_mort from \code{\link[=mizerPredMort]{mizerPredMort()}}
 \item f_mort from \code{\link[=mizerFMort]{mizerFMort()}}
 \item mort from \code{\link[=mizerMort]{mizerMort()}}
-\item resource_mort from \code{\link[=mizerResourceMort]{mizerResourceMort()}}
-\item e from \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGrowth()}}
-\item e_repro from \code{\link[=mizerERepro]{mizerERepro()}}
-\item e_growth from \code{\link[=mizerEGrowth]{mizerEGrowth()}}
 \item rdi from \code{\link[=mizerRDI]{mizerRDI()}}
 \item rdd from \code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}
+\item resource_mort from \code{\link[=mizerResourceMort]{mizerResourceMort()}}
 }
 However you can replace any of these rate functions by your own rate
 function if you wish, see \code{\link[=setRateFunction]{setRateFunction()}} for details.

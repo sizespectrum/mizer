@@ -20,7 +20,7 @@
 #' * `beta` and `sigma` are parameters of the lognormal predation kernel, see
 #'   [lognormal_pred_kernel()]. There will be other parameters if you are 
 #'   using other predation kernel functions, see the "Setting predation kernel"
-#'   sectin in the help for [setPredKernel()].
+#'   section in the help for [setPredKernel()].
 #' 
 #' Not all of these parameters have to be specified by the user. If they are
 #' missing, mizer will give them default values, sometimes by using other

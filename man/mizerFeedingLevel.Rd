@@ -16,7 +16,9 @@ mizerFeedingLevel(params, n, n_pp, n_other, t, encounter, ...)
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
-\item{t}{The current time. Unused}
+\item{t}{The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)}
 
 \item{encounter}{A two dimensional array (predator species x predator size)
 with the encounter rate.}

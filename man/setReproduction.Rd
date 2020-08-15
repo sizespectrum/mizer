@@ -152,6 +152,7 @@ df <- data.frame(Size = w(NS_params),
 dff <- melt(df, id.vars = "Size", 
             variable.name = "Type", 
             value.name = "Proportion")
+library(ggplot2)
 ggplot(dff) + geom_line(aes(x = Size, y = Proportion, colour = Type))
 }
 }

@@ -121,6 +121,7 @@
 #' dff <- melt(df, id.vars = "Size", 
 #'             variable.name = "Type", 
 #'             value.name = "Proportion")
+#' library(ggplot2)
 #' ggplot(dff) + geom_line(aes(x = Size, y = Proportion, colour = Type))
 #' }
 setReproduction <- function(params, maturity = NULL, repro_prop = NULL,

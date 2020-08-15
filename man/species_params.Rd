@@ -36,7 +36,7 @@ reproduction, see \code{\link[=setReproduction]{setReproduction()}}.
 \item \code{beta} and \code{sigma} are parameters of the lognormal predation kernel, see
 \code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}}. There will be other parameters if you are
 using other predation kernel functions, see the "Setting predation kernel"
-sectin in the help for \code{\link[=setPredKernel]{setPredKernel()}}.
+section in the help for \code{\link[=setPredKernel]{setPredKernel()}}.
 }
 
 Not all of these parameters have to be specified by the user. If they are

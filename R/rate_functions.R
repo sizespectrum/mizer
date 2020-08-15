@@ -474,6 +474,8 @@ getFMortGear <- function(object, effort, time_range) {
 #' species and size at each time step in the `effort` argument.
 #' The total fishing mortality is just the sum of the fishing mortalities
 #' imposed by each gear, \eqn{\mu_{f.i}(w)=\sum_g F_{g,i,w}}.
+#' The fishing mortality for each gear is obtained as catchability x 
+#' selectivity x effort.
 #' 
 #' @param object A `MizerParams` object or a `MizerSim` object
 #' @param effort The effort of each fishing gear. Only used if the object
@@ -484,13 +486,12 @@ getFMortGear <- function(object, effort, time_range) {
 #'   `object` argument is of type `MizerSim`.
 #' @param drop Only used when object is of type `MizerSim`. Should
 #'   dimensions of length 1 be dropped, e.g. if your community only has one
-#'   species it might make presentation of results easier. Default is TRUE
+#'   species it might make presentation of results easier. Default is TRUE.
 #'
 #' @return An array. If the effort argument has a time dimension, or object is
 #'   of class `MizerSim`, the output array has three dimensions (time x
 #'   species x size). If the effort argument does not have a time dimension, the
 #'   output array has two dimensions (species x size).
-#' @note Here: fishing mortality = catchability x selectivity x effort.
 #'
 #' The `effort` argument is only used if a `MizerParams` object is
 #' passed in. The `effort` argument can be a two dimensional array (time x
@@ -503,6 +504,9 @@ getFMortGear <- function(object, effort, time_range) {
 #' If the object argument is of class `MizerSim` then the effort slot of
 #' the `MizerSim` object is used and the `effort` argument is not
 #' used.
+#' 
+#' @inheritSection mizerFMort Your own fishing mortality function
+#' 
 #' @export
 #' @family rate functions
 #' @examples

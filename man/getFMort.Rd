@@ -20,22 +20,13 @@ single value. Default is the whole time range. Only used if the
 
 \item{drop}{Only used when object is of type \code{MizerSim}. Should
 dimensions of length 1 be dropped, e.g. if your community only has one
-species it might make presentation of results easier. Default is TRUE}
+species it might make presentation of results easier. Default is TRUE.}
 }
 \value{
 An array. If the effort argument has a time dimension, or object is
 of class \code{MizerSim}, the output array has three dimensions (time x
 species x size). If the effort argument does not have a time dimension, the
 output array has two dimensions (species x size).
-}
-\description{
-Calculates the total fishing mortality  (in units 1/year) from all gears by
-species and size at each time step in the \code{effort} argument.
-The total fishing mortality is just the sum of the fishing mortalities
-imposed by each gear, \eqn{\mu_{f.i}(w)=\sum_g F_{g,i,w}}.
-}
-\note{
-Here: fishing mortality = catchability x selectivity x effort.
 
 The \code{effort} argument is only used if a \code{MizerParams} object is
 passed in. The \code{effort} argument can be a two dimensional array (time x
@@ -49,6 +40,26 @@ If the object argument is of class \code{MizerSim} then the effort slot of
 the \code{MizerSim} object is used and the \code{effort} argument is not
 used.
 }
+\description{
+Calculates the total fishing mortality  (in units 1/year) from all gears by
+species and size at each time step in the \code{effort} argument.
+The total fishing mortality is just the sum of the fishing mortalities
+imposed by each gear, \eqn{\mu_{f.i}(w)=\sum_g F_{g,i,w}}.
+The fishing mortality for each gear is obtained as catchability x
+selectivity x effort.
+}
+\section{Your own fishing mortality function}{
+
+By default \code{\link[=getFMort]{getFMort()}} calls \code{\link[=mizerFMort]{mizerFMort()}}. However you can
+replace this with your own alternative fishing mortality function. If
+your function is called \code{"myFMort"} then you register it in a MizerParams
+object \code{params} with\preformatted{params <- setRateFunction(params, "FMort", "myFMort")
+}
+
+Your function will then be called instead of \code{\link[=mizerFMort]{mizerFMort()}}, with the
+same arguments.
+}
+
 \examples{
 \dontrun{
 params <- newMultispeciesParams(NS_species_params_gears, inter)
