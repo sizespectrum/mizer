@@ -1,5 +1,7 @@
 # mizer 2.0.3.9000
 
+* `mizerFMort()` now can also use the abundances and the rates `e_growth` and 
+  `pred_mort`.
 * Simplified a calculation in the numeric scheme.
 * `gear_params` is allowed to have zero rows.
 * In `validGearParams()` use the species name as gear name in case gear name 

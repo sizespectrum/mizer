@@ -80,7 +80,8 @@ mizerRates <- function(params, n, n_pp, n_other,
     # Calculate fishing mortality
     r$f_mort <- rates_fns$FMort(
         params, n = n, n_pp = n_pp, n_other = n_other, 
-        effort = effort, t = t, ...)
+        effort = effort, t = t, 
+        e_growth = r$e_growth, pred_mort = r$pred_mort, ...)
     # Calculate total mortality \mu_i(w)
     r$mort <- rates_fns$Mort(
         params, n = n, n_pp = n_pp, n_other = n_other,
@@ -575,12 +576,17 @@ mizerFMortGear <- function(params, effort) {
 #' 
 #' @inheritParams mizerRates
 #' @param effort A vector with the effort for each fishing gear.
+#' @param e_growth An array (species x size) with the energy available for
+#'   growth as calculated by [getEGrowth()]. Unused.
+#' @param pred_mort A two dimensional array (species x size) with the predation
+#'   mortality as calculated by [getPredMort()]. Unused.
 #'
 #' @return An array (species x size) with the fishing mortality.
 #' @note Here: fishing mortality = catchability x selectivity x effort.
 #' @export
 #' @family mizer rate functions
-mizerFMort <- function(params, effort, ...) {
+mizerFMort <- function(params, n, n_pp, n_other, t, effort,
+                       e_growth, pred_mort, ...) {
     colSums(mizerFMortGear(params, effort))
 }
 

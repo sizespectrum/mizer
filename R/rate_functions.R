@@ -534,20 +534,43 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
         if (missing(effort)) {
           effort <- params@initial_effort
         }
+        n <- params@initial_n
+        n_pp <- params@initial_n_pp
+        n_other <- params@initial_n_other
         no_gears <- dim(params@catchability)[[1]]
         f <- get(params@rates_funcs$FMort)
         if (length(dim(effort)) == 2) {
-            f_mort <- t(apply(effort, 1, function(x) f(params, x)))
+            f_mort <- t(apply(effort, 1, 
+                              function(x) f(
+                                params, n = n, n_pp = n_pp, n_other = n_other, 
+                                effort = x, t = t, 
+                                e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
+                                                      n_other = n_other, t = t), 
+                                pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
+                                                        n_other = n_other, 
+                                                        time_range = t))))
             dim(f_mort) <- c(dim(effort)[[1]], dim(params@initial_n))
             dimnames(f_mort) <- c(list(time = dimnames(effort)[[1]]),
                               dimnames(params@initial_n))
             return(f_mort)
         } else if (length(effort) == 1) {
-            fmort <- f(params, rep(effort, no_gears))
+            fmort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
+                       effort = rep(effort, no_gears), t = t, 
+                       e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
+                                             n_other = n_other, t = t), 
+                       pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
+                                               n_other = n_other, 
+                                               time_range = t))
             dimnames(fmort) <- dimnames(params@metab)
             return(fmort)
         } else if (length(effort) == no_gears) {
-            fmort <- f(params, effort)
+            fmort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
+                       effort = effort, t = t, 
+                       e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
+                                             n_other = n_other, t = t), 
+                       pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
+                                               n_other = n_other, 
+                                               time_range = t))
             dimnames(fmort) <- dimnames(params@metab)
             return(fmort)
         } else {
