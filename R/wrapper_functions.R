@@ -306,6 +306,9 @@ newTraitParams <- function(no_sp = 11,
         message("R_factor needs to be larger than 1. Setting R_factor = 1.01")
         R_factor <- 1.01
     }
+    if (min_w <= 0) {
+        stop("The smallest egg size min_w must be greater than zero.")
+    }
     no_w <- round(no_w)
     if (no_w < log10(max_w_inf/min_w)*5) {
         no_w <- round(log10(max_w_inf / min_w) * 5 + 1)
@@ -315,9 +318,6 @@ newTraitParams <- function(no_sp = 11,
     if (no_w > 10000) {
         message("Running a simulation with ", no_w, 
                 " size bins is going to be very slow.")
-    }
-    if (min_w <= 0) {
-        stop("The smallest egg size min_w must be greater than zero.")
     }
     if (min_w_inf >= max_w_inf) {
         stop("The asymptotic size of the smallest species min_w_inf must be ",
