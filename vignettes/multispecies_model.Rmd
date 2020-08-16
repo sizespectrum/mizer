@@ -172,8 +172,8 @@ Let's have a look at the data frame:
 species_params
 ```
 
-You can see that there are $`r nrow(species_params)`$ species and $`r
-ncol(species_params)`$ columns of parameters: `species`,
+You can see that there are $`r nrow(species_params)`$ species and 
+$`r ncol(species_params)`$ columns of parameters: `species`,
 `w_inf`,`w_mat`,`beta`,`sigma`,`R_max` and `k_vb`.
 
 Of these parameters, `species` and `w_inf` are essential and have no default
@@ -191,7 +191,7 @@ It would also have been possible to include `h` and `gamma` columns in the
 data.frame and not include the `k_vb` column.
 
 The values of the non-essential species specific parameters, like for example
-`alpha`, `k`, `ks`, `z0`, `w_min` and `erepro`, are not included in the
+`alpha`, `k`, `ks`, `z0`, `w_min` and `erepro`, were not included in the
 data.frame. This means that the default values will be automatically used when
 we create the `MizerParams` object.
 
