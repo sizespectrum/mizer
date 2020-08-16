@@ -139,6 +139,8 @@ setPredKernel <- function(params,
     # The smallest predator/prey mass ratio is 1
     ppmr <- params@w_full / params@w_full[1]
     phis <- get_phi(species_params, ppmr)
+    # Do not allow feeding at own size
+    phis[, 1] <- 0
     for (i in 1:no_sp) {
         phi <- phis[i, ]
         # Fourier transform of feeding kernel for evaluating available energy
@@ -179,6 +181,8 @@ getPredKernel <- function(params) {
     # The smallest predator/prey mass ratio is 1
     ppmr <- params@w_full / params@w_full[1]
     phis <- get_phi(species_params, ppmr)
+    # Do not allow feeding at own size
+    phis[, 1] <- 0
     pred_kernel <- 
         array(0,
               dim = c(no_sp, no_w, no_w_full),

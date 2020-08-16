@@ -27,8 +27,6 @@
 lognormal_pred_kernel <- function(ppmr, beta, sigma) {
     Beta <- log(beta)
     phi <- exp(-(log(ppmr) - Beta)^2 / (2 * sigma^2))
-    # Do not allow feeding at own size
-    phi[1] <- 0
     return(phi)
 }
 
@@ -65,8 +63,6 @@ truncated_lognormal_pred_kernel <- function(ppmr, beta, sigma) {
     # rr is the maximal log predator/prey mass ratio
     rr <- exp(Beta + 3 * sigma)
     phi[ppmr > rr] <- 0
-    # Do not allow feeding at own size
-    phi[1] <- 0
     return(phi)
 }
 
@@ -93,8 +89,6 @@ box_pred_kernel <- function(ppmr, ppmr_min, ppmr_max) {
     phi <- rep(1, length(ppmr))
     phi[ppmr > ppmr_max] <- 0
     phi[ppmr < ppmr_min] <- 0
-    # Do not allow feeding at own size
-    phi[1] <- 0
     return(phi)
 }
 
