@@ -1,5 +1,23 @@
 #' Project resource using semichemostat model
 #' 
+#' This function calculates the resource abundance at time `t + dt` from all
+#' abundances and rates at time `t`. 
+#' 
+#' The time evolution of the resource spectrum is described by a 
+#' semi-chemostat equation
+#' \deqn{\frac{\partial N_R(w,t)}{\partial t} = r_R(w) \Big[ c_R (w) - N_R(w,t) \Big] - \mu_R(w, t) N_R(w,t)}{dN_R(w,t)/d t  = r_R(w) ( c_R (w) - N_R(w,t) ) - \mu_R(w,t ) N_R(w,t)}
+#' 
+#' Here \eqn{r_R(w)} is the resource regeneration rate and \eqn{c_R(w)} is the
+#' carrying capacity in the absence of predation. These parameters are changed
+#' with [setResource()]. The mortality \eqn{\mu_R(w, t)} is
+#' due to predation by consumers and is calculate with [getResourceMort()].
+#' 
+#' This function uses the analytic solution of the above equation, keeping the
+#' mortality fixed during the timestep.
+#' 
+#' It is also possible to implement other resource dynamics, as
+#' described in the help page for [setResource()].
+#' 
 #' @param params A [MizerParams] object
 #' @param n A matrix of species abundances (species x size)
 #' @param n_pp A vector of the resource abundance by size
@@ -27,7 +45,7 @@ resource_semichemostat <- function(params, n, n_pp, n_other, rates, t, dt, ...) 
 #' Keep resource abundance constant
 #' 
 #' This function can be used instead of the standard 
-#' [resource_semichemostat()] in order to keep the Resource
+#' [resource_semichemostat()] in order to keep the resource
 #' spectrum constant over time.
 #' 
 #' @inheritParams resource_semichemostat

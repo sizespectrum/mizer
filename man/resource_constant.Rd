@@ -28,7 +28,7 @@ Vector containing resource spectrum at next timestep
 }
 \description{
 This function can be used instead of the standard
-\code{\link[=resource_semichemostat]{resource_semichemostat()}} in order to keep the Resource
+\code{\link[=resource_semichemostat]{resource_semichemostat()}} in order to keep the resource
 spectrum constant over time.
 }
 \examples{

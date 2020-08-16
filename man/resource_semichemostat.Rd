@@ -27,7 +27,24 @@ resource_semichemostat(params, n, n_pp, n_other, rates, t, dt, ...)
 Vector containing resource spectrum at next timestep
 }
 \description{
-Project resource using semichemostat model
+This function calculates the resource abundance at time \code{t + dt} from all
+abundances and rates at time \code{t}.
+}
+\details{
+The time evolution of the resource spectrum is described by a
+semi-chemostat equation
+\deqn{\frac{\partial N_R(w,t)}{\partial t} = r_R(w) \Big[ c_R (w) - N_R(w,t) \Big] - \mu_R(w, t) N_R(w,t)}{dN_R(w,t)/d t  = r_R(w) ( c_R (w) - N_R(w,t) ) - \mu_R(w,t ) N_R(w,t)}
+
+Here \eqn{r_R(w)} is the resource regeneration rate and \eqn{c_R(w)} is the
+carrying capacity in the absence of predation. These parameters are changed
+with \code{\link[=setResource]{setResource()}}. The mortality \eqn{\mu_R(w, t)} is
+due to predation by consumers and is calculate with \code{\link[=getResourceMort]{getResourceMort()}}.
+
+This function uses the analytic solution of the above equation, keeping the
+mortality fixed during the timestep.
+
+It is also possible to implement other resource dynamics, as
+described in the help page for \code{\link[=setResource]{setResource()}}.
 }
 \examples{
 \dontrun{
