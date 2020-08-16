@@ -178,15 +178,9 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
         assert_that(all(species_params$w_mat > species_params$w_min))
         
         # Set defaults for w_mat25
-        if (!("w_mat25" %in% colnames(species_params))) {
-            species_params$w_mat25 <- 
-                species_params$w_mat / (3 ^ (1 / 10))
-        }
-        missing <- is.na(species_params$w_mat25)
-        if (any(missing)) {
-            species_params$w_mat25[missing] <- 
-                species_params$w_mat[missing] / (3 ^ (1 / 10))
-        }
+        species_params <- set_species_param_default(
+            species_params, "w_mat25",       
+            species_params$w_mat / (3 ^ (1 / 10)))
         # Check w_mat25
         assert_that(all(species_params$w_mat25 > species_params$w_min))
         assert_that(all(species_params$w_mat25 < species_params$w_mat))
