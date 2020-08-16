@@ -30,7 +30,7 @@ newMultispeciesParams(
   lambda = 2.05,
   w_pp_cutoff = 10,
   resource_dynamics = "resource_semichemostat",
-  gear_params = data.frame(),
+  gear_params = NULL,
   selectivity = NULL,
   catchability = NULL,
   initial_effort = NULL

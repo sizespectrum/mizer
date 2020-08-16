@@ -255,7 +255,8 @@ getInitialEffort <- function(params) {
 #' The gear_params data frame is allowed to have zero rows, but if it has
 #' rows, then the following requirements apply:
 #' * There must be columns `species` and `gear` and any species - gear pair is 
-#'   allowed to appear at most once.
+#'   allowed to appear at most once. Any species that appears must also appear
+#'   in the `species_params` data frame.
 #' * There must be a `sel_func` column. If a selectivity function is not 
 #'   supplied, it will be set to "knife_edge".
 #' * There must be a `catchability` column. If a catchability is not supplied,
@@ -272,24 +273,41 @@ getInitialEffort <- function(params) {
 #' * If there is no `catchability` column or it is NA then this is set to 1.
 #' * If the selectivity function is `knife_edge` and no `knife_edge_size` is
 #'   provided, it is set to `w_mat`.
+#'   
+#' For backwards compatibility, when `gear_params` is `NULL` and there is no
+#' gear information in the `species_params`, then a gear called `knife_edge_gear`
+#' is set up with a `knife_edge` selectivity for each species and a
+#' `knive_edge_size` equal to `w_mat`. Catchability is set to 1 for all species.
 #' 
 #' @param gear_params Gear parameter data frame
 #' @param species_params Species parameter data frame
 #' @return A valid gear parameter data frame
 #' @concept helper
+#' @seealso [gear_params()]
 #' @export
 validGearParams <- function(gear_params, species_params) {
-    assert_that(is.data.frame(gear_params),
-                is.data.frame(species_params))
     
+    # This is to agree with old defaults
+    if (is.null(gear_params) && 
+        !("gear" %in% names(species_params) || 
+            "sel_func" %in% names(species_params))) {
+        gear_params <- 
+            data.frame(species = species_params$species,
+                       gear = "knife_edge_gear",
+                       sel_func = "knife_edge",
+                       knife_edge_size = species_params$w_mat,
+                       catchability = 1)
+    }
+    
+    species_params <- validSpeciesParams(species_params)
     no_sp <- nrow(species_params)
     
     # If no gear_params are supplied, but there is either a gear or sel_func
     # column in the species_params data frame, then try to extract information
     # from there.
-    if (nrow(gear_params) == 0 &&
+    if ((is.null(gear_params) || nrow(gear_params) == 0) &&
         ("gear" %in% names(species_params) || 
-             "sel_func" %in% names(species_params))) {
+         "sel_func" %in% names(species_params))) {
         # Try to take parameters from species_params
         gear_params <- 
             data.frame(species = as.character(species_params$species),
@@ -358,8 +376,23 @@ validGearParams <- function(gear_params, species_params) {
     }
     gear_params$sel_func[is.na(gear_params$sel_func)] <- "knife_edge"
     
+    # Default gear name is species name
+    sel <- is.na(gear_params$gear)
+    gear_params$gear[sel] <- gear_params$species[sel]
+    
+    # Ensure there is knife_edge_size columng if any knife_edge selectivity function
+    if (any(gear_params$sel_func == "knife_edge") &&
+        !("knife_edge_size" %in% names(gear_params))) {
+        gear_params$knife_edge_size <- NA
+    }
+    
     # Check that every row is complete
     for (g in seq_len(nrow(gear_params))) {
+        if ((gear_params$sel_func[[g]] == "knife_edge") &&
+            is.na(gear_params$knife_edge_size[[g]])) {
+            sel <- species_params$species == gear_params$species[[g]]
+            gear_params$knife_edge_size[[g]] <- species_params$w_mat[sel]
+        }
         # get args
         # These as.characters are annoying - but factors everywhere
         arg <- names(formals(as.character(gear_params[g, 'sel_func'])))

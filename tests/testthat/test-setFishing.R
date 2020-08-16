@@ -1,5 +1,5 @@
 params <- NS_params
-
+# setFishing and gear_params ----
 test_that("Set Fishing works", {
     expect_identical(gear_params(params), params@gear_params)
     expect_identical(params, setFishing(params))
@@ -56,14 +56,6 @@ test_that("Arguments of wrong dimension throw errors", {
                  #"dim(selectivity)[[1]] not equal to no_gears")
 })
 
-test_that("We get errors when gear parameters are missing", {
-    gear_params <- params@gear_params
-    expect_error(gear_params(params)$knife_edge_size[[2]] <- NA,
-                 "Some selectivity parameters are NA")
-    expect_error(gear_params(params)$knife_edge_size <- NULL,
-                 "Some arguments needed for the selectivity function are missing")
-})
-
 test_that("Dimensions after number of gears has increased", {
     params <- NS_params
     gear_params(params)$gear <- params@species_params$species
@@ -89,3 +81,43 @@ test_that("Non-existing species give error", {
     expect_error(gear_params(params) <- gp,
                  "The gear_params dataframe contains species that do not exist in the model.")
 })
+
+# validGearParams ----
+test_that("validGearParams works", {
+    sp <- validSpeciesParams(
+        data.frame(species = c("species1", "species2"),
+                   w_inf = c(100, 1000)))
+    # gear_params is allowed to have zero rows
+    gp <- validGearParams(data.frame(), sp)
+    expect_identical(gp, data.frame(species = list(), gear = list()))
+    # There must be columns `species` and `gear`
+    gp <- data.frame(species = 1)
+    expect_error(validGearParams(gp, sp), 
+                 "`gear_params` must have columns 'species' and 'gear'.")
+    # Any species-gear pair is allowed to appear at most once
+    gp <- data.frame(species = c("species1", "species1"), gear = c("g", "g"))
+    expect_error(validGearParams(gp, sp), 
+                 "Some species - gear pairs appear more than once.")
+    # Any species that appears must also appear in the `species_params` data frame.
+    gp <- data.frame(species = c("species1", "species3"), gear = c("g", "g"))
+    expect_error(validGearParams(gp, sp), 
+                 "The gear_params dataframe contains species that do not exist in the model.")
+    # There must be a `sel_fun` column
+    gp <- validGearParams(
+        data.frame(species = c("species1", "species2"), gear = c("g", "g")),
+        sp)
+    expect_identical(gp$sel_func, c("knife_edge", "knife_edge"))
+    expect_identical(gp$knife_edge_size, c(25, 250))
+    # There must be a catchability column
+    expect_identical(gp$catchability, c(1, 1))
+    # Defaults for NAs
+    gp$gear[[1]] <- NA
+    expect_identical(validGearParams(gp, sp)$gear[[1]], "species1")
+    gp$sel_func[[1]] <- NA
+    expect_identical(validGearParams(gp, sp)$sel_func[[1]], "knife_edge")
+    gp$catchability[[2]] <- NA
+    expect_identical(validGearParams(gp, sp)$catchability[[2]], 1)
+    gp$knife_edge_size[[2]] <- NA
+    expect_identical(validGearParams(gp, sp)$knife_edge_size[[2]], 250)
+})
+    

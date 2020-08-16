@@ -103,7 +103,7 @@ newMultispeciesParams <- function(
     w_pp_cutoff = 10,
     resource_dynamics = "resource_semichemostat",
     # setFishing
-    gear_params = data.frame(),
+    gear_params = NULL,
     selectivity = NULL,
     catchability = NULL,
     initial_effort = NULL) {
@@ -114,6 +114,9 @@ newMultispeciesParams <- function(
         "r_max" %in% names(species_params)) {
         names(species_params)[names(species_params) == "r_max"] <- "R_max"
     }
+    
+    species_params <- validSpeciesParams(species_params)
+    gear_params <- validGearParams(gear_params, species_params)
     
     ## Create MizerParams object ----
     params <- emptyParams(species_params,

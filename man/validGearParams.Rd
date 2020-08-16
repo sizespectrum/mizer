@@ -23,7 +23,8 @@ The gear_params data frame is allowed to have zero rows, but if it has
 rows, then the following requirements apply:
 \itemize{
 \item There must be columns \code{species} and \code{gear} and any species - gear pair is
-allowed to appear at most once.
+allowed to appear at most once. Any species that appears must also appear
+in the \code{species_params} data frame.
 \item There must be a \code{sel_func} column. If a selectivity function is not
 supplied, it will be set to "knife_edge".
 \item There must be a \code{catchability} column. If a catchability is not supplied,
@@ -43,5 +44,13 @@ species is introduced.
 \item If the selectivity function is \code{knife_edge} and no \code{knife_edge_size} is
 provided, it is set to \code{w_mat}.
 }
+
+For backwards compatibility, when \code{gear_params} is \code{NULL} and there is no
+gear information in the \code{species_params}, then a gear called \code{knife_edge_gear}
+is set up with a \code{knife_edge} selectivity for each species and a
+\code{knive_edge_size} equal to \code{w_mat}. Catchability is set to 1 for all species.
+}
+\seealso{
+\code{\link[=gear_params]{gear_params()}}
 }
 \concept{helper}

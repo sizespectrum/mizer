@@ -61,4 +61,12 @@ test_that("validSpeciesParams() works", {
     species_params$w_mat25[2:5] <- 21
     expect_message(validSpeciesParams(species_params),
                  "For the species Sandeel, Dab the value")
+    # minimal species_params
+    sp <- data.frame(species = c("species1", "species2"),
+                     w_inf = c(100, 1000))
+    expect_s3_class(sp <- validSpeciesParams(sp), "data.frame")
+    expect_equal(sp$w_mat, sp$w_inf / 4)
+    expect_equal(sp$alpha, c(0.6, 0.6))
+    expect_equal(sp$interaction_resource, c(1, 1))
+    expect_identical(rownames(sp), c("species1", "species2"))
 })
