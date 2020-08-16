@@ -35,6 +35,12 @@ test_that("Object from version 1.0 can be upgraded", {
     sim <- upgradeSim(simc.1.0)
     expect_true(validObject(sim))
 })
+test_that("r_max is renamed", {
+    params <- NS_params
+    params@species_params$r_max <- params@species_params$R_max
+    expect_message(upgradeParams(params),
+                   "The 'r_max' column has been renamed to 'R_max'.")
+})
 
 test_that("Some functions work with params from earlier versions", {
     params.0.4 <- readRDS("assets/simc.0.4.rds")@params
@@ -44,4 +50,8 @@ test_that("Some functions work with params from earlier versions", {
                    "You need to upgrade your MizerParams object")
     expect_warning(project(params.0.4, t_max = 0.1),
                    "You need to upgrade your MizerParams object")
+    # renaming of resource dynamics functions
+    slot(params.0.4, "srr", check = FALSE) <- "srrNone"
+    p4 <- upgradeParams(params.0.4)
+    expect_identical(p4@rates_funcs$RDD, "noRDD")
 })

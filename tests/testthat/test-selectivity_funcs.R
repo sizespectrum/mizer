@@ -67,5 +67,6 @@ test_that("double_sigmoid_length works", {
 
 # sigmoid_weight ----
 test_that("sigmoid_weight works", {
-    expect_length(knife_edge(w, 20, 2), length(w))
+    expect_length(sigmoid_weight(w, sigmoidal_weight = 20, 
+                                 sigmoidal_sigma = 2), length(w))
 })

@@ -62,3 +62,8 @@ test_that("We can set and get resource parameters", {
   resource_params(NS_params) <- resource_params(params)
   expect_identical(NS_params, params)
 })
+
+test_that("setResource gives error", {
+  expect_error(setResource(NS_params, resource_dynamics = "fake"),
+               'The resource dynamics function "fake" is not defined.')
+})

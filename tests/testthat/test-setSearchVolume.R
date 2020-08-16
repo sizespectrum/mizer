@@ -16,3 +16,9 @@ test_that("Comment works on search volume", {
     params@species_params$gamma <- 1
     expect_message(setSearchVolume(params), "has been commented")
 })
+
+# getSearchVolume ----
+test_that("getSearchVolume works", {
+    p <- setSearchVolume(params, search_vol = getSearchVolume(params))
+    expect_identical(params, p)
+})

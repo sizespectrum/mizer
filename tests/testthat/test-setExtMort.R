@@ -17,3 +17,9 @@ test_that("Comment works on mu_b", {
     expect_message(setExtMort(params),
                    "has been commented")
 })
+
+# getExtMort ----
+test_that("getExtMort works", {
+    p <- setExtMort(params, z0 = getExtMort(params))
+    expect_identical(params, p)
+})

@@ -17,3 +17,9 @@ test_that("Comment works on intake_max", {
     expect_message(setMaxIntakeRate(params),
                    "has been commented")
 })
+
+# getMaxIntakeRate ----
+test_that("getMaxIntakeRate works", {
+    p <- setMaxIntakeRate(params, intake_max = getMaxIntakeRate(params))
+    expect_identical(params, p)
+})

@@ -26,3 +26,9 @@ test_that("setInteraction works", {
     expect_error(setInteraction(params),
                  "Values in the resource interaction vector should be between 0 and 1")
 })
+
+# getInteraction ----
+test_that("getInteraction works", {
+    p <- setInteraction(params, interaction = getInteraction(params))
+    expect_identical(params, p)
+})

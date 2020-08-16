@@ -276,6 +276,19 @@ test_that("getDiet works with proportion = TRUE", {
     ones[] <- as.numeric(params@initial_n > 0)
     expect_equal(total, ones)
 })
+test_that("getDiet works with additional components", {
+    params <- NS_params
+    # switch off satiation for easier test of result
+    species_params(params)$h <- Inf
+    p <- setComponent(params, "test", 1, 
+                      dynamics_fun = "test_dyn",
+                      encounter_fun = "test_dyn")
+    
+    diet1 <- getDiet(params, proportion = FALSE)
+    diet2 <- getDiet(p, proportion = FALSE)
+    expect_identical(diet1[, , 1:13], diet2[, , 1:13])
+    expect_identical(diet2[1, 1, 14], 111)
+})
 
 
 # getSSB ----

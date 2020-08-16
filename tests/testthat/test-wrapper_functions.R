@@ -1,6 +1,18 @@
 context("Wrapper functions for trait and community models")
 
-# Multiple gears work correctly in trait-based model ----
+# Trait based ----
+# * check a few messages ----
+test_that("newTraitParams produces errors and messages", {
+    expect_error(newTraitParams(ext_mort_prop = 2),
+                 "ext_mort_prop must be a number between 0 and 1")
+    expect_message(newTraitParams(R_factor = 0.5),
+                   "R_factor needs to be larger than 1. Setting R_factor = 1.01")
+    expect_error(newTraitParams(min_w = -1),
+                 "The smallest egg size min_w must be greater than zero.")
+    expect_error(newTraitParams(min_w_inf = 10^4),
+                 "The asymptotic size of the smallest species min_w_inf must be smaller than")
+})
+# * Multiple gears work correctly in trait-based model ----
 test_that("Multiple gears work correctly in trait-based model", {
     # Check multiple gears are working properly
     min_w_inf <- 10
@@ -39,7 +51,7 @@ test_that("Multiple gears work correctly in trait-based model", {
     
 })
 
-# Scaling model is set up correctly ----
+# * Scaling model is set up correctly ----
 test_that("Scaling model is set up correctly", {
     p <- newTraitParams(perfect_scaling = TRUE, sigma = 1,
                         n = 2/3, lambda = 2 + 3/4 - 2/3)
