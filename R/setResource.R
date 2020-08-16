@@ -107,7 +107,7 @@ setResource <- function(params,
     if (!is.null(resource_dynamics)) {
         assert_that(is.character(resource_dynamics))
         if (!is.function(get0(resource_dynamics))) {
-            stop("The function ", resource_dynamics, "is not defined.")
+            stop('The resource dynamics function "', resource_dynamics, '" is not defined.')
         }
         params@resource_dynamics <- resource_dynamics
     }
