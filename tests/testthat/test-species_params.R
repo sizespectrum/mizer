@@ -3,6 +3,25 @@
 params <- NS_params
 no_sp <- nrow(params@species_params)
 
+## validSpeciesParams ----
+test_that("validSpeciesParams() works", {
+    species_params <- NS_species_params
+    # test w_mat25
+    species_params$w_mat25 <- c(NA, 1:11)
+    expect_message(validSpeciesParams(species_params), NA)
+    species_params$w_mat25[2:5] <- 21
+    expect_message(validSpeciesParams(species_params),
+                   "For the species Sandeel, Dab the value")
+    # minimal species_params
+    sp <- data.frame(species = c("species1", "species2"),
+                     w_inf = c(100, 1000))
+    expect_s3_class(sp <- validSpeciesParams(sp), "data.frame")
+    expect_equal(sp$w_mat, sp$w_inf / 4)
+    expect_equal(sp$alpha, c(0.6, 0.6))
+    expect_equal(sp$interaction_resource, c(1, 1))
+    expect_identical(rownames(sp), c("species1", "species2"))
+})
+
 ## set_species_param_default ----
 test_that("set_species_param_default sets default correctly", {
     # creates new column correctly
@@ -50,23 +69,4 @@ test_that("default for gamma is correct", {
     expect_equal(gamma_default/ gamma_analytic, 
                  rep(1, length(gamma_default)),
                  tolerance = 0.1)
-})
-
-# validSpeciesParams
-test_that("validSpeciesParams() works", {
-    species_params <- NS_species_params
-    # test w_mat25
-    species_params$w_mat25 <- c(NA, 1:11)
-    expect_message(validSpeciesParams(species_params), NA)
-    species_params$w_mat25[2:5] <- 21
-    expect_message(validSpeciesParams(species_params),
-                 "For the species Sandeel, Dab the value")
-    # minimal species_params
-    sp <- data.frame(species = c("species1", "species2"),
-                     w_inf = c(100, 1000))
-    expect_s3_class(sp <- validSpeciesParams(sp), "data.frame")
-    expect_equal(sp$w_mat, sp$w_inf / 4)
-    expect_equal(sp$alpha, c(0.6, 0.6))
-    expect_equal(sp$interaction_resource, c(1, 1))
-    expect_identical(rownames(sp), c("species1", "species2"))
 })
