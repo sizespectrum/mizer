@@ -117,14 +117,3 @@ test_that("Scaling model is set up correctly", {
     bm <- getBiomass(sim)
     expect_lt(max(abs(bm[1, ] - bm[6, ])), 1.3e-4)
 })
-
-
-# setBevertonHolt works ----
-test_that("setBevertonHolt works", {
-    params <- NS_params
-    rdd <- getRDD(params)
-    R_factor <- 5
-    params <- setBevertonHolt(params, R_factor)
-    expect_equivalent(params@species_params$R_max, rdd * R_factor)
-    expect_equal(getRDD(params), rdd)
-})

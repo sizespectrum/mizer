@@ -59,6 +59,7 @@ Collate:
     'setResource.R'
     'setFishing.R'
     'setInitialValues.R'
+    'setBevertonHolt.R'
     'upgrade.R'
     'selectivity_funcs.R'
     'pred_kernel_funcs.R'
