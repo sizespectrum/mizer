@@ -88,13 +88,13 @@ mizerRates <- function(params, n, n_pp, n_other,
         f_mort = r$f_mort, pred_mort = r$pred_mort, t = t, ...)
     
     ## Reproduction ----
-    # R_{p,i}
+    # R_di
     r$rdi <- rates_fns$RDI(
         params, n = n, n_pp = n_pp, n_other = n_other,
         e_growth = r$e_growth,
         mort = r$mort,
         e_repro = r$e_repro, t = t, ...)
-    # R_i
+    # R_dd
     r$rdd <- rates_fns$RDD(
         rdi = r$rdi, species_params = params@species_params, ...)
     
@@ -643,17 +643,19 @@ mizerMort <- function(params, n, n_pp, n_other, t, f_mort, pred_mort, ...){
 #' Get density-independent rate of reproduction needed to project standard
 #' mizer model
 #'
-#' Calculates the density-independent rate of total egg production \eqn{R_{p.i}}
-#' (units 1/year) before density dependence, by species. 
+#' Calculates the density-independent rate of total egg production 
+#' \eqn{R_{di}}{R_di} (units 1/year) before density dependence, by species. 
 #' You would not usually call this
 #' function directly but instead use [getRDI()], which then calls this
 #' function unless an alternative function has been registered, see below.
 #' 
-#' This rate is obtained by
-#' taking the total rate at which energy is invested in reproduction, as
-#' calculated by [getERepro()],
-#' multiplying by the reproductive efficiency `erepro` and dividing by the egg
-#' size `w_min`, and by a factor of two to account for the two sexes.
+#' This rate is obtained by taking the per capita rate \eqn{E_r(w)\psi(w)} at
+#' which energy is invested in reproduction, as calculated by [getERepro()],
+#' multiplying it by the number of individuals\eqn{N(w)} and integrating over all sizes
+#' \eqn{w} and then multiplying by the reproductive efficiency \eqn{\epsilon}
+#' and dividing by the egg size `w_min`, and by a factor of two to account for
+#' the two sexes:
+#' \deqn{R_{di} = \frac{\epsilon}{2 w_{min}} \int N(w)  E_r(w) \psi(w) \, dw}{R_di = (\epsilon/(2 w_min)) \int N(w)  E_r(w) \psi(w) dw}
 #' 
 #' Used by [getRDD()] to calculate the actual, density dependent rate.
 #' See [setReproduction()] for more details.
@@ -693,11 +695,15 @@ mizerRDI <- function(params, n, n_pp, n_other, t,
 
 #' Beverton Holt function to calculate density-dependent reproduction rate
 #'
-#' Takes the density-independent rates \eqn{R_p} of egg production and returns
-#' reduced, density-dependent reproduction rates \eqn{R} given as \deqn{R = R_p
-#' \frac{R_{max}}{R_p + R_{max}}}{R = R_p R_{max}/(R_p + R_{max})} where
-#' \eqn{R_{max}} are the maximum possible reproduction rates that must be
+#' Takes the density-independent rates \eqn{R_{di}}{R_di} of egg production (as
+#' calculated by [getRDI()]) and returns
+#' reduced, density-dependent reproduction rates \eqn{R_{dd}}{R_dd} given as 
+#' \deqn{R_{dd} = R_{di}
+#' \frac{R_{max}}{R_{di} + R_{max}}}{R_dd = R_di R_max/(R_di + R_max)} where
+#' \eqn{R_{max}}{R_max} are the maximum possible reproduction rates that must be
 #' specified in a column in the species parameter dataframe.
+#' (All quantities in the above equation are species-specific but we dropped
+#' the species index for simplicity.)
 #'
 #' This is only one example of a density-dependence. You can write your own
 #' function based on this example, returning different density-dependent
@@ -705,10 +711,10 @@ mizerRDI <- function(params, n, n_pp, n_other, t,
 #' and [SheperdRDD()]. For more explanation see
 #' [setReproduction()].
 #'
-#' @param rdi Vector of density-independent reproduction rates \eqn{R_p} for all
-#'   species.
+#' @param rdi Vector of density-independent reproduction rates 
+#'   \eqn{R_{di}}{R_di} for all species.
 #' @param species_params A species parameter dataframe. Must contain a column
-#'   R_max holding the maximum reproduction rate \eqn{R_{max}} for each species.
+#'   R_max holding the maximum reproduction rate \eqn{R_{max}}{R_max} for each species.
 #' @param ... Unused
 #'
 #' @return Vector of density-dependent reproduction rates.
@@ -723,12 +729,12 @@ BevertonHoltRDD <- function(rdi, species_params, ...) {
 
 #' Ricker function to calculate density-dependent reproduction rate
 #' 
-#' Takes the density-independent rates \eqn{R_p} of egg production and returns
-#' reduced, density-dependent rates \eqn{R} given as
-#' \deqn{R = R_p \exp{- b R_p}}
+#' Takes the density-independent rates \eqn{R_{di}}{R_di} of egg production and returns
+#' reduced, density-dependent rates \eqn{R_{dd}}{R_dd} given as
+#' \deqn{R_{dd} = R_{di} \exp{- b R_{di}}}{R_dd = R_di \exp{- b R_di}}
 #' 
-#' @param rdi Vector of density-independent reproduction rates \eqn{R_p} for
-#'   all species.
+#' @param rdi Vector of density-independent reproduction rates 
+#'   \eqn{R_{di}}{R_di} for all species.
 #' @param species_params A species parameter dataframe. Must contain a column
 #'   `ricker_b` holding the coefficient b.
 #' @param ... Unused
@@ -745,12 +751,12 @@ RickerRDD <- function(rdi, species_params, ...) {
 
 #' Sheperd function to calculate density-dependent reproduction rate
 #' 
-#' Takes the density-independent rates \eqn{R_p} of egg production and returns
-#' reduced, density-dependent rates \eqn{R} as
-#' \deqn{R = \frac{R_p}{1+(b\ R_p)^c}}{R = R_p / (1 + (b R_p)^c)}
+#' Takes the density-independent rates \eqn{R_{di}}{R_di} of egg production and returns
+#' reduced, density-dependent rates \eqn{R_{dd}}{R_dd} given as
+#' \deqn{R_{dd} = \frac{R_{di}}{1+(b\ R_{di})^c}}{R_dd = R_di / (1 + (b R_di)^c)}
 #' 
-#' @param rdi Vector of density-independent reproduction rates \eqn{R_p} for
-#'   all species.
+#' @param rdi Vector of density-independent reproduction rates 
+#'   \eqn{R_{di}}{R_di} for all species.
 #' @param species_params A species parameter dataframe. Must contain columns
 #'   `sheperd_b` and `sheperd_c` with the parameters b and c.
 #' @param ... Unused
@@ -769,8 +775,8 @@ SheperdRDD <- function(rdi, species_params, ...) {
 #' 
 #' Simply returns its `rdi` argument.
 #' 
-#' @param rdi Vector of density-independent reproduction rates \eqn{R_p} for
-#'   all species.
+#' @param rdi Vector of density-independent reproduction rates 
+#'   \eqn{R_{di}}{R_di} for all species.
 #' @param ... Not used.
 #' 
 #' @return Vector of density-dependent reproduction rates.
@@ -784,8 +790,8 @@ noRDD <- function(rdi, ...) {
 #'
 #' Simply returns the value from `species_params$constant_reproduction`.
 #'
-#' @param rdi Vector of density-independent reproduction rates \eqn{R_p} for all
-#'   species.
+#' @param rdi Vector of density-independent reproduction rates 
+#'   \eqn{R_{di}}{R_di} for all species.
 #' @param species_params A species parameter dataframe. Must contain a column
 #'   `constant_reproduction`.
 #' @param ... Unused

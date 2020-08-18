@@ -7,8 +7,8 @@
 noRDD(rdi, ...)
 }
 \arguments{
-\item{rdi}{Vector of density-independent reproduction rates \eqn{R_p} for
-all species.}
+\item{rdi}{Vector of density-independent reproduction rates
+\eqn{R_{di}}{R_di} for all species.}
 
 \item{...}{Not used.}
 }

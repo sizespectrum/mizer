@@ -729,7 +729,7 @@ getEGrowth <- function(params, n = initialN(params),
 
 #' Get density independent rate of egg production
 #' 
-#' Calculates the density-independent rate of total egg production \eqn{R_{p.i}}
+#' Calculates the density-independent rate of total egg production \eqn{R_{di}}{R_di}
 #' (units 1/year) before density dependence, by species. 
 #'
 #' @inherit mizerRDI

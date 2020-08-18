@@ -7,8 +7,8 @@
 RickerRDD(rdi, species_params, ...)
 }
 \arguments{
-\item{rdi}{Vector of density-independent reproduction rates \eqn{R_p} for
-all species.}
+\item{rdi}{Vector of density-independent reproduction rates
+\eqn{R_{di}}{R_di} for all species.}
 
 \item{species_params}{A species parameter dataframe. Must contain a column
 \code{ricker_b} holding the coefficient b.}
@@ -19,9 +19,9 @@ all species.}
 Vector of density-dependent reproduction rates.
 }
 \description{
-Takes the density-independent rates \eqn{R_p} of egg production and returns
-reduced, density-dependent rates \eqn{R} given as
-\deqn{R = R_p \exp{- b R_p}}
+Takes the density-independent rates \eqn{R_{di}}{R_di} of egg production and returns
+reduced, density-dependent rates \eqn{R_{dd}}{R_dd} given as
+\deqn{R_{dd} = R_{di} \exp{- b R_{di}}}{R_dd = R_di \exp{- b R_di}}
 }
 \seealso{
 Other functions calculating density-dependent reproduction rate: 

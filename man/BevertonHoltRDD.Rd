@@ -7,11 +7,11 @@
 BevertonHoltRDD(rdi, species_params, ...)
 }
 \arguments{
-\item{rdi}{Vector of density-independent reproduction rates \eqn{R_p} for all
-species.}
+\item{rdi}{Vector of density-independent reproduction rates
+\eqn{R_{di}}{R_di} for all species.}
 
 \item{species_params}{A species parameter dataframe. Must contain a column
-R_max holding the maximum reproduction rate \eqn{R_{max}} for each species.}
+R_max holding the maximum reproduction rate \eqn{R_{max}}{R_max} for each species.}
 
 \item{...}{Unused}
 }
@@ -19,11 +19,15 @@ R_max holding the maximum reproduction rate \eqn{R_{max}} for each species.}
 Vector of density-dependent reproduction rates.
 }
 \description{
-Takes the density-independent rates \eqn{R_p} of egg production and returns
-reduced, density-dependent reproduction rates \eqn{R} given as \deqn{R = R_p
-\frac{R_{max}}{R_p + R_{max}}}{R = R_p R_{max}/(R_p + R_{max})} where
-\eqn{R_{max}} are the maximum possible reproduction rates that must be
+Takes the density-independent rates \eqn{R_{di}}{R_di} of egg production (as
+calculated by \code{\link[=getRDI]{getRDI()}}) and returns
+reduced, density-dependent reproduction rates \eqn{R_{dd}}{R_dd} given as
+\deqn{R_{dd} = R_{di}
+\frac{R_{max}}{R_{di} + R_{max}}}{R_dd = R_di R_max/(R_di + R_max)} where
+\eqn{R_{max}}{R_max} are the maximum possible reproduction rates that must be
 specified in a column in the species parameter dataframe.
+(All quantities in the above equation are species-specific but we dropped
+the species index for simplicity.)
 }
 \details{
 This is only one example of a density-dependence. You can write your own

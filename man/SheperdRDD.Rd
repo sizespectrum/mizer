@@ -7,8 +7,8 @@
 SheperdRDD(rdi, species_params, ...)
 }
 \arguments{
-\item{rdi}{Vector of density-independent reproduction rates \eqn{R_p} for
-all species.}
+\item{rdi}{Vector of density-independent reproduction rates
+\eqn{R_{di}}{R_di} for all species.}
 
 \item{species_params}{A species parameter dataframe. Must contain columns
 \code{sheperd_b} and \code{sheperd_c} with the parameters b and c.}
@@ -19,9 +19,9 @@ all species.}
 Vector of density-dependent reproduction rates.
 }
 \description{
-Takes the density-independent rates \eqn{R_p} of egg production and returns
-reduced, density-dependent rates \eqn{R} as
-\deqn{R = \frac{R_p}{1+(b\ R_p)^c}}{R = R_p / (1 + (b R_p)^c)}
+Takes the density-independent rates \eqn{R_{di}}{R_di} of egg production and returns
+reduced, density-dependent rates \eqn{R_{dd}}{R_dd} given as
+\deqn{R_{dd} = \frac{R_{di}}{1+(b\ R_{di})^c}}{R_dd = R_di / (1 + (b R_di)^c)}
 }
 \seealso{
 Other functions calculating density-dependent reproduction rate: 

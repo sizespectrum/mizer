@@ -36,18 +36,20 @@ reproduction as calculated by \code{\link[=getERepro]{getERepro()}}.}
 A numeric vector with the rate of egg production for each species.
 }
 \description{
-Calculates the density-independent rate of total egg production \eqn{R_{p.i}}
-(units 1/year) before density dependence, by species.
+Calculates the density-independent rate of total egg production
+\eqn{R_{di}}{R_di} (units 1/year) before density dependence, by species.
 You would not usually call this
 function directly but instead use \code{\link[=getRDI]{getRDI()}}, which then calls this
 function unless an alternative function has been registered, see below.
 }
 \details{
-This rate is obtained by
-taking the total rate at which energy is invested in reproduction, as
-calculated by \code{\link[=getERepro]{getERepro()}},
-multiplying by the reproductive efficiency \code{erepro} and dividing by the egg
-size \code{w_min}, and by a factor of two to account for the two sexes.
+This rate is obtained by taking the per capita rate \eqn{E_r(w)\psi(w)} at
+which energy is invested in reproduction, as calculated by \code{\link[=getERepro]{getERepro()}},
+multiplying it by the number of individuals\eqn{N(w)} and integrating over all sizes
+\eqn{w} and then multiplying by the reproductive efficiency \eqn{\epsilon}
+and dividing by the egg size \code{w_min}, and by a factor of two to account for
+the two sexes:
+\deqn{R_{di} = \frac{\epsilon}{2 w_{min}} \int N(w)  E_r(w) \psi(w) \, dw}{R_di = (\epsilon/(2 w_min)) \int N(w)  E_r(w) \psi(w) dw}
 
 Used by \code{\link[=getRDD]{getRDD()}} to calculate the actual, density dependent rate.
 See \code{\link[=setReproduction]{setReproduction()}} for more details.

@@ -7,8 +7,8 @@
 constantRDD(rdi, species_params, ...)
 }
 \arguments{
-\item{rdi}{Vector of density-independent reproduction rates \eqn{R_p} for all
-species.}
+\item{rdi}{Vector of density-independent reproduction rates
+\eqn{R_{di}}{R_di} for all species.}
 
 \item{species_params}{A species parameter dataframe. Must contain a column
 \code{constant_reproduction}.}

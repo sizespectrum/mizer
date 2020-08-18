@@ -108,12 +108,13 @@ So finally we have
 }
 
 \subsection{Reproductive efficiency}{
-The reproductive efficiency, i.e., the proportion of energy allocated to
+The reproductive efficiency \eqn{\epsilon}, i.e., the proportion of energy allocated to
 reproduction that results in egg biomass, is set through the \code{erepro}
 column in the species_params data frame. If that is not provided, the default
 is set to 1 (which you will want to override). The offspring biomass divided
 by the egg biomass gives the rate of egg production, returned by
-\code{\link[=getRDI]{getRDI()}}.
+\code{\link[=getRDI]{getRDI()}}:
+\deqn{R_{di} = \frac{\epsilon}{2 w_{min}} \int N(w)  E_r(w) \psi(w) \, dw}{R_di = (\epsilon/(2 w_min)) \int N(w)  E_r(w) \psi(w) dw}
 }
 
 \subsection{Density dependence}{
