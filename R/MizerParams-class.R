@@ -426,14 +426,9 @@ remove(validMizerParams)
 #' 
 #' @section Changes to species params:
 #' The `species_params` slot of the returned MizerParams object may differ
-#' slightly from the data frame supplied as argument to this function in the
-#' following ways:
-#' \itemize{
-#'   \item Default values are set for \code{w_min, w_inf, alpha, gear, interaction_resource}.
-#'   \item The egg sizes in `w_min` are rounded down to lie on a grid point.
-#' }
-#' Note that the other characteristic sizes of the species, like `w_mat` and
-#' `w_inf`, are not modified to lie on grid points.
+#' slightly from the data frame supplied as argument to this function because
+#' default values are set for 
+#' `w_min, w_inf, alpha, gear, interaction_resource`.
 #' 
 #' @param species_params A data frame of species-specific parameter values.
 #' @param gear_params A data frame with gear-specific parameter values.
@@ -568,7 +563,6 @@ emptyParams <- function(species_params,
     # Due to rounding errors this might happen:
     w_min_idx[w_min_idx == -Inf] <- 1
     names(w_min_idx) <- species_names
-    species_params$w_min <- w[w_min_idx]
     
     # Colour and linetype scales ----
     # for use in plots
