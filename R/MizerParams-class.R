@@ -48,6 +48,12 @@ validMizerParams <- function(object) {
         msg <- "The later entries of dw_full should be equal to those of dw."
         errors <- c(errors, msg)
     }
+    # Check w_min_idx
+    if (any(object@species_params$w_min < object@w[object@w_min_idx]) ||
+        any(object@species_params$w_min > object@w[object@w_min_idx + 1])) {
+        msg <- "The `w_min_idx` should point to the start of the size bin containing the egg size `w_min`."
+        errors <- c(errors, msg)
+    }
 
     # Check the array dimensions are good ----
     # Bit tricky this one as I don't know of a way to compare lots of vectors 
@@ -555,14 +561,7 @@ emptyParams <- function(species_params,
     vec1 <- as.numeric(rep(NA, no_w_full))
     names(vec1) <- signif(w_full, 3)
     
-    # Round down w_min to lie on grid points and store the indices of these
-    # grid points in w_min_idx
-    w_min_idx <- as.vector(suppressWarnings(
-        tapply(species_params$w_min, 1:no_sp,
-               function(w_min, wx) max(which(wx <= w_min)), wx = w)))
-    # Due to rounding errors this might happen:
-    w_min_idx[w_min_idx == -Inf] <- 1
-    names(w_min_idx) <- species_names
+    w_min_idx <- get_w_min_idx(species_params, w)
     
     # Colour and linetype scales ----
     # for use in plots
@@ -808,6 +807,20 @@ validParams <- function(params) {
         params <- upgradeParams(params)
         warning("You need to upgrade your MizerParams object with `upgradeParams()`.")
     }
+    params@w_min_idx <- get_w_min_idx(params@species_params, params@w)
     validObject(params)
     params
+}
+
+# helper function to calculate w_min_idx slot
+get_w_min_idx <- function(species_params, w) {
+    # Round down w_min to lie on grid points and store the indices of these
+    # grid points in w_min_idx
+    w_min_idx <- as.vector(suppressWarnings(
+        tapply(species_params$w_min, seq_len(nrow(species_params)),
+               function(w_min, wx) max(which(wx <= w_min)), wx = w)))
+    # Due to rounding errors this might happen:
+    w_min_idx[w_min_idx == -Inf] <- 1
+    names(w_min_idx) <- as.character(species_params$species)
+    w_min_idx
 }
