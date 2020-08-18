@@ -1,5 +1,7 @@
 # mizer 2.0.3.9000
 
+* Renamed `setRmax()` to `setBevertonHolt()` and allow it to work on an
+  arbitrary MizerParams object.
 * `mizerFMort()` now can also use the abundances and the rates `e_growth` and 
   `pred_mort`.
 * Simplified a calculation in the numeric scheme.

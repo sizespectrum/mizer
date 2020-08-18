@@ -2,24 +2,19 @@
 % Please edit documentation in R/wrapper_functions.R
 \name{setRmax}
 \alias{setRmax}
-\title{Set maximum reproduction rate}
+\title{Alias for setBevertonHolt}
 \usage{
 setRmax(params, R_factor)
 }
 \arguments{
 \item{params}{A MizerParams object}
 
-\item{R_factor}{The factor by which the maximum reproduction rate should be higher than
-the initial-state reproduction rate}
+\item{R_factor}{The factor by which the maximum reproduction rate should be
+higher than the initial-state reproduction rate}
 }
 \value{
 A MizerParams object
 }
 \description{
-Takes a MizerParams object with density-independent reproduction rate and
-sets a Beverton-Holt density-dependence with a maximum reproduction rate that
-is a chosen factor \code{R_factor} higher than the initial-state reproduction
-rate. At the same time it adjust the reproductive efficiency \code{erepro}
-(see \code{\link[=setReproduction]{setReproduction()}}) to keep the same density-dependent reproduction at
-the initial state.
+An alias provided for backward compatibility with mizer version <= 2.0.4
 }

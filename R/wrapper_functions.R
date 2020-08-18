@@ -570,40 +570,46 @@ newTraitParams <- function(no_sp = 11,
 }
 
 
-#' Set maximum reproduction rate
+#' Set Beverton-Holt density dependence
 #' 
-#' Takes a MizerParams object with density-independent reproduction rate and
-#' sets a Beverton-Holt density-dependence with a maximum reproduction rate that
-#' is a chosen factor `R_factor` higher than the initial-state reproduction
-#' rate. At the same time it adjust the reproductive efficiency `erepro`
-#' (see [setReproduction()]) to keep the same density-dependent reproduction at
-#' the initial state.
+#' Takes a MizerParams object (with arbitrary density dependence) and sets a
+#' Beverton-Holt density-dependence with a maximum reproduction rate that is a
+#' chosen factor `R_factor` higher than the initial-state reproduction rate. At
+#' the same time it adjusts the reproductive efficiency `erepro` to keep the same
+#' density-dependent reproduction at the initial state.
 #' 
 #' @param params A MizerParams object
-#' @param R_factor The factor by which the maximum reproduction rate should be higher than
-#'   the initial-state reproduction rate
+#' @param R_factor The factor by which the maximum reproduction rate should be
+#'   higher than the initial-state reproduction rate
 #' 
 #' @return A MizerParams object
 #' @export
-setRmax <- function(params, R_factor) {
+setBevertonHolt <- function(params, R_factor) {
     assert_that(is(params, "MizerParams"),
                 is.numeric(R_factor),
                 length(R_factor) %in% c(1, nrow(params@species_params)),
                 all(R_factor > 1))
-    if (params@rates_funcs$RDD != "noRDD") {
-        stop("setRmax can only be applied to params objects using 'noRDD'.")
-    }
     
-    params@species_params$R_max <- R_factor * getRDI(params)
+    rdi <- getRDI(params)
+    rdd <- getRDD(params)
+    params@species_params$R_max <- R_factor * getRDD(params)
     
-    # erepro needs to be divided by a factor of 1-1/R_factor to
+    # erepro needs to be changed to
     # compensate for using a Beverton Holt relationship
     # because RDD = (1-1/R_factor) RDI
     params@species_params$erepro <- 
-        params@species_params$erepro / (1 - 1 / R_factor)
+        params@species_params$erepro / (1 - 1 / R_factor) *
+        rdd / rdi
     
     return(setReproduction(params, RDD = "BevertonHoltRDD"))
 }
+
+#' Alias for setBevertonHolt
+#' 
+#' An alias provided for backward compatibility with mizer version <= 2.0.4
+#' @inherit setBevertonHolt
+#' @export
+setRmax <- setBevertonHolt
 
 
 # Helper function to calculate the coefficient of the death rate created by

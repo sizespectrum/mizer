@@ -119,13 +119,12 @@ test_that("Scaling model is set up correctly", {
 })
 
 
-# setRmax works ----
-test_that("setRmax works", {
+# setBevertonHolt works ----
+test_that("setBevertonHolt works", {
     params <- NS_params
-    params@rates_funcs$RDD <- "noRDD"
     rdd <- getRDD(params)
     R_factor <- 5
-    params <- setRmax(params, R_factor)
+    params <- setBevertonHolt(params, R_factor)
     expect_equivalent(params@species_params$R_max, rdd * R_factor)
     expect_equal(getRDD(params), rdd)
 })

@@ -84,7 +84,7 @@ reference:
   - setResource
   - resource_params
   - setInitialValues
-  - setRmax
+  - setBevertonHolt
 - title: Running simulations
   contents:
   - project
