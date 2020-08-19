@@ -489,6 +489,7 @@ newTraitParams <- function(no_sp = 11,
         i_inf <- i_inf + bins_per_sp
         i_min <- i_min + bins_per_sp
     }
+    params@initial_n <- initial_n
     
     # Calculate the community spectrum
     sc <- colSums(initial_n)
@@ -514,15 +515,16 @@ newTraitParams <- function(no_sp = 11,
     if (!perfect_scaling) {
         params@cc_pp[w_full >= w_pp_cutoff] <- 0
     }
+    params@initial_n_pp <- params@cc_pp
     
-    initial_n_pp <- params@cc_pp
     # The cc_pp factor needs to be higher than the desired steady state in
     # order to compensate for predation mortality
-    m2_background <- getResourceMort(params, initial_n, initial_n_pp)
-    params@cc_pp <- (params@rr_pp + m2_background ) * initial_n_pp / params@rr_pp
+    m2_background <- getResourceMort(params)
+    params@cc_pp <- (params@rr_pp + m2_background ) * 
+        params@initial_n_pp / params@rr_pp
     
     ## Setup external death ----
-    m2 <- getPredMort(params, initial_n, initial_n_pp)
+    m2 <- getPredMort(params)
     flag <- FALSE
     for (i in 1:no_sp) {
         # The steplike psi was only needed when we wanted to use the analytic
@@ -538,9 +540,9 @@ newTraitParams <- function(no_sp = 11,
     
     
     ## Set erepro to meet boundary condition ----
-    rdi <- getRDI(params, initial_n, initial_n_pp)
-    gg <- getEGrowth(params, initial_n, initial_n_pp)
-    mumu <- getMort(params, initial_n, initial_n_pp)
+    rdi <- getRDI(params)
+    gg <- getEGrowth(params)
+    mumu <- getMort(params)
     erepro_final <- 1:no_sp  # set up vector of right dimension
     for (i in (1:no_sp)) {
         gg0 <- gg[i, params@w_min_idx[i]]
@@ -550,21 +552,9 @@ newTraitParams <- function(no_sp = 11,
             (initial_n[i, params@w_min_idx[i]] *
                  (gg0 + DW * mumu0)) / rdi[i]
     }
-    if (is.finite(R_factor)) {
-        # erepro has been multiplied by a factor of (R_factor/(R_factor-1)) to
-        # compensate for using Beverton Holt function.
-        erepro_final <- (R_factor / (R_factor - 1)) * erepro_final
-    }
     params@species_params$erepro <- erepro_final
     
-    # Record abundance of fish and resource at steady state, as slots.
-    params@initial_n <- initial_n
-    params@initial_n_pp <- initial_n_pp
-    # set rmax=fac*RDD
-    # note that erepro has been multiplied by a factor of (R_factor/(R_factor-1)) to
-    # compensate for using a Beverton Holt function
-    params@species_params$R_max <-
-        (R_factor - 1) * getRDI(params, initial_n, initial_n_pp)
+    params <- setBevertonHolt(params, R_factor = R_factor)
 
     return(params)
 }
