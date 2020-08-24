@@ -39,6 +39,33 @@ test_that("validGearParams works", {
     expect_identical(validGearParams(gp, sp)$knife_edge_size[[2]], 250)
 })
 
+# validEffortVector ----
+test_that("validEffort works", {
+    params <- NS_params
+    ie <- params@initial_effort
+    # an already valid vector is not changed
+    expect_identical(validEffortVector(ie, params), ie)
+    # A scrambled vector is put in the right order
+    ies <- ie[c(2,3,1,4)]
+    expect_identical(validEffortVector(ies, params), ie)
+    # A single number is converted into a constant vector
+    ie[] <- 2
+    expect_identical(validEffortVector(2, params), ie)
+    # The length of the vector is checked
+    expect_error(validEffortVector(ie[1:3], params),
+                 "Effort vector must be the same length as the number of fishing gears.")
+    # The names are checked
+    names(ie)[[1]] <- "test"
+    expect_error(validEffortVector(ie, params), 
+                 "Gear names in the MizerParams object")
+})
+test_that("validEffortParams works when no gears are set up", {
+    params <- newMultispeciesParams(NS_species_params,
+                                    gear_params = data.frame())
+    expect_length(validEffortVector(1, params), 0)
+    expect_length(validEffortVector(NULL, params), 0)
+})
+
 # setFishing and gear_params ----
 test_that("Set Fishing works", {
     expect_identical(gear_params(params), params@gear_params)

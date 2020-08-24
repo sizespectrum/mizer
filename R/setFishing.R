@@ -189,8 +189,7 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
     }
     
     if (!is.null(initial_effort)) {
-        validate_effort_vector(params, initial_effort)
-        params@initial_effort[] <- initial_effort
+        params@initial_effort[] <- validEffortVector(initial_effort, params)
         comment(params@initial_effort) <- comment(initial_effort)
     }
     
@@ -414,35 +413,54 @@ validGearParams <- function(gear_params, species_params) {
     gear_params
 }
 
-#' Check that an effort vector is specified correctly
+#' Return valid effort vector
 #' 
-#' Throws an error with an explanatory message when the supplied `effort`
-#' vector is not valid for the model described by `params`.
+#' A valid effort vector is a named vector with one entry for each gear,
+#' with the gear names in the same order as in the params object. 
+#' 
+#' The function also accepts an `effort` that is not yet valid:
+#' 
+#' * a scalar, which is then replicated for each gear
+#' * an unnamed vector, which is then assumed to be in the same order as the
+#'   gears in the params object
+#' * a named vector in which the gear names have a different order than in the
+#'   params object. This is then sorted correctly.
+#'   
+#' An `effort` argument of the wrong length or with names not corresponding to 
+#' gears will produce an error.
 #' 
 #' @param params A MizerParams object
-#' @param effort An effort vector
+#' @param effort An vector or scalar.
 #' 
-#' @return TRUE if `effort` is valid. Throws an error otherwise.
+#' @return A valid effort vector with one entry for each gear, named by gear,
+#'   in the same order as in the params object.
 #' @export
 #' @keywords internal
 #' @concept helper
-validate_effort_vector <- function(params, effort) {
+validEffortVector <- function(effort, params) {
     assert_that(is(params, "MizerParams"),
-                is.numeric(effort))
+                (is.null(effort) || is.numeric(effort)))
     no_gears <- dim(params@catchability)[1]
-    if ((length(effort) > 1) & (length(effort) != no_gears)) {
-        stop("Effort vector must be the same length as the number of fishing gears\n")
+    # If only one effort is given, it is replicated for all gears
+    if (length(effort) == 1) {
+        effort <- rep(effort, no_gears)
     }
-    # If more than 1 gear need to check that gear names match
+    if (length(effort) != no_gears) {
+        stop("Effort vector must be the same length as the number of fishing gears.")
+    }
+    # Set gear names if not provided
     gear_names <- dimnames(params@catchability)[[1]]
-    effort_gear_names <- names(effort)
-    if (length(effort) == 1 & is.null(effort_gear_names)) {
-        effort_gear_names <- gear_names
+    if (is.null(names(effort))) {
+        names(effort) <- gear_names
     }
-    if (!all(gear_names %in% effort_gear_names)) {
+    # Check validity of gear names
+    if (!all(gear_names %in% names(effort))) {
         stop("Gear names in the MizerParams object (", 
              paste(gear_names, collapse = ", "), 
              ") do not match those in the effort vector.")
     }
-    return(TRUE)
+    # Sort vector
+    effort <- effort[gear_names]
+    
+    return(effort)
 }

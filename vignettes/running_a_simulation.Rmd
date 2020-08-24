@@ -293,7 +293,7 @@ set the final time for the simulation.
 Now we can use this effort array in the projection:
 
 ```{r label=project_effort_array}
-sim <- project(NS_params, effort = effort_array, dt = 0.1, t_save = 1)
+sim <- project(NS_params, effort = effort_array, dt = 0.1)
 head(sim@effort)
 ```
 

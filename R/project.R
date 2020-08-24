@@ -25,11 +25,12 @@ NULL
 #'   \linkS4class{MizerSim} object (which contains a `MizerParams` object).
 #' @param effort The effort of each fishing gear through time. See notes below.
 #' @param t_max The number of years the projection runs for. The default value is
-#'   100. However, this argument is ignored if an array is used for the
+#'   100. This argument is ignored if an array is used for the
 #'   `effort` argument. See notes below.
 #' @param dt Time step of the solver. The default value is 0.1.
 #' @param t_save The frequency with which the output is stored. The default
-#'   value is 1. Must be an integer multiple of dt.
+#'   value is 1. This argument is ignored if an array is used for the `effort`
+#'   argument. See notes below.
 #' @param t_start The the year of the start of the simulation. The simulation
 #'   will cover the period from `t_start` to \code{t_start + t_max}.
 #'   Defaults to 0. Ignored if an array is used for the `effort`
@@ -71,8 +72,8 @@ NULL
 #' used as the initial time for the simulation. Otherwise the initial time is
 #' set to the final time of the previous simulation if `object` is a 
 #' `MizerSim` object or to `t_start` otherwise. Also, if the effort is
-#' an array then the `t_max` argument is ignored and the maximum simulation
-#' time is the largest time of the effort array.
+#' an array then the `t_max` and `t_save` arguments are ignored and the
+#' simulation times will be taken from the effort array.
 #' 
 #' If the `object` argument is of class `MizerSim` then the initial
 #' values for the simulation are taken from the final values in the 
@@ -152,75 +153,32 @@ project <- function(object, effort,
     
     # Set effort array ----
     if (missing(effort)) effort <- params@initial_effort
-    # Do we need to create an effort array?
-    if (is.null(dim(effort))) { # effort is a vector
-        no_gears <- dim(params@catchability)[1]
-        if ((length(effort) > 1) & (length(effort) != no_gears)) {
-            stop("Effort vector must be the same length as the number of fishing gears\n")
-        }
-        # If more than 1 gear need to check that gear names match
-        gear_names <- dimnames(params@catchability)[[1]]
-        effort_gear_names <- names(effort)
-        if (length(effort) == 1 && is.null(effort_gear_names)) {
-            effort_gear_names <- gear_names
-        }
-        if (!all(gear_names %in% effort_gear_names)) {
-            stop("Gear names in the MizerParams object (", 
-                 paste(gear_names, collapse = ", "), 
-                 ") do not match those in the effort vector.")
-        }
+    if (is.null(dim(effort))) { # effort is a vector or scalar
         # Set up the effort array transposed so we can use the recycling rules
-        time_dimnames <- c(t_start, t_start + t_max)
-        effort <- t(array(effort, dim = c(no_gears, 2), 
-                          dimnames = list(gear = effort_gear_names, 
-                                          time = time_dimnames)))
+        # no point running a simulation with no saved results
+        if (t_max < t_save) {
+            t_save <- t_max
+        }
+        times <- seq(t_start, t_start + t_max, by = t_save)
+        effort <- validEffortVector(effort, params)
+        effort <- t(array(effort, 
+                          dim = c(length(effort), length(times)), 
+                          dimnames = list(gear = names(effort), 
+                                          time = times)))
+    } else {
+        effort <- validEffortArray(effort, params)
     }
     
-    # Check that number and names of gears in effort array is same as in 
-    # MizerParams object
-    no_gears <- dim(params@catchability)[1]
-    if (dim(effort)[2] != no_gears) {
-        stop("The number of gears in the effort array (length of the second dimension = ", 
-             dim(effort)[2], 
-             ") does not equal the number of gears in the MizerParams object (", 
-             no_gears, ").")
-    }
-    gear_names <- dimnames(params@catchability)[[1]]
-    if (!all(gear_names %in% dimnames(effort)[[2]])) {
-        stop("Gear names in the MizerParams object (", 
-             paste(gear_names, collapse = ", "), 
-             ") do not match those in the effort array.")
-    }
-    # Sort effort array to match order in MizerParams
-    effort <- effort[, gear_names, drop = FALSE]
-    
-    if (is.null(dimnames(effort)[[1]])) {
-        stop("The time dimname of the effort argument must be numeric.")
-    }
-    time_effort <- as.numeric(dimnames(effort)[[1]])
-    if (any(is.na(time_effort))) {
-        stop("The time dimname of the effort argument must be numeric.")
-    }
-    if (is.unsorted(time_effort)) {
-        stop("The time dimname of the effort argument should be increasing.")
-    }
-    t_start <- time_effort[[1]]
-    t_end <- time_effort[[length(time_effort)]]
-    t_max <- t_end - t_start
+    times <- as.numeric(dimnames(effort)[[1]])
     
     # Make the MizerSim object with the right size ----
     # We only save every t_save years
-    # no point running a simulation with no saved results
-    if (t_max < t_save) {
-        t_save <- t_max
-    }
-    # Divisibility test needs to be careful about machine rounding errors,
-    # see https://github.com/sizespectrum/mizer/pull/2
-    if ((t_save < dt) || !isTRUE(all.equal((t_save - round(t_save / dt) * dt), 0)))
-        stop("t_save must be a positive multiple of dt")
-    skip <- round(t_save/dt)
-    t_dimnames <- seq(t_start, t_end, by = t_save)
-    sim <- MizerSim(params, t_dimnames = t_dimnames)
+    sim <- MizerSim(params, t_dimnames = times)
+    # Set initial population and effort
+    sim@n[1, , ] <- initial_n 
+    sim@n_pp[1, ] <- initial_n_pp
+    sim@n_other[1, ] <- initial_n_other
+    sim@effort <- effort
     
     ## Initialise ----
     # get functions
@@ -232,40 +190,33 @@ project <- function(object, effort,
     if (is(progress_bar, "Progress")) {
         # We have been passed a shiny progress object
         progress_bar$set(message = "Running simulation", value = 0)
-        proginc <- 1/length(t_dimnames)
+        proginc <- 1/length(times)
     } else if (progress_bar == TRUE) {
         pb <- progress::progress_bar$new(
             format = "[:bar] :percent ETA: :eta",
-            total = length(t_dimnames), width = 60)
+            total = length(times), width = 60)
         pb$tick(0)
     }
     
-    t <- t_start  # keep track of time
-    i_save_time <- 2 # index into which to save the results
-    
-    # set up variables for keeping track of effort changes
-    i_effort <- 1
-    current_effort <- effort[1, ]
-    t_next_effort <- time_effort[[2]] - 1e-8  # to avoid rounding problems
-    
-    # Set initial population and effort
     n_list <- list(n = initial_n, n_pp = initial_n_pp, n_other = initial_n_other)
-    sim@n[1, , ] <- initial_n 
-    sim@n_pp[1, ] <- initial_n_pp
-    sim@n_other[1, ] <- initial_n_other
-    sim@effort[1, ] <- current_effort
+    t <- times[[1]]
     
     ## Loop over time ----
-    for (i in 2:length(t_dimnames)) {
-        
+    for (i in 2:length(times)) {
+        # number of time steps between saved times
+        steps <- round((times[[i]] - t) / dt)
+        # advance to next saved time
         n_list <- project_simple(
             params, n = n_list$n, n_pp = n_list$n_pp, n_other = n_list$n_other,
-            t = t, dt = dt, steps = skip, effort = current_effort,
+            t = t, dt = dt, steps = steps, 
+            effort = effort[i - 1, ],
             resource_dynamics_fn = resource_dynamics_fn,
             other_dynamics_fns = other_dynamics_fns,
             rates_fns = rates_fns, ...)
-        t <- t + t_save
-        
+        # Calculate start time for next iteration
+        # The reason we don't simply use the next entry in `times` is that
+        # those entries may not be separated by exact multiples of dt.
+        t <- t + steps * dt
         # Advance progress bar
         if (is(progress_bar, "Progress")) {
             progress_bar$inc(amount = proginc)
@@ -273,29 +224,18 @@ project <- function(object, effort,
             pb$tick()
         }
         
-        # Do we need new effort?
-        if (t >= t_next_effort) {
-            i_effort <- i_effort + 1
-            current_effort <- effort[i_effort, ]
-            # We have to be careful when we reach the final time
-            t_next_effort <- ifelse(i_effort < length(time_effort),
-                                    time_effort[[i_effort + 1]] - 1e-8,
-                                    t_max + 100)
-        }
-        
         # Store result
         sim@n[i, , ] <- n_list$n
         sim@n_pp[i, ] <- n_list$n_pp
         sim@n_other[i, ] <- n_list$n_other
-        sim@effort[i, ] <- current_effort
     }
     
     # append to previous simulation ----
     if (is(object, "MizerSim") && append) {
         no_t_old <- dim(object@n)[1]
-        no_t <- length(t_dimnames)
+        no_t <- length(times)
         new_t_dimnames <- c(as.numeric(dimnames(object@n)[[1]]),
-                            t_dimnames[2:no_t])
+                            times[2:no_t])
         new_sim <- MizerSim(params, t_dimnames = new_t_dimnames)
         old_indices <- 1:no_t_old
         new_indices <- seq(from = no_t_old + 1, length.out = no_t - 1)
@@ -436,4 +376,36 @@ project_simple <- function(params, n, n_pp, n_other, t, dt, steps,
                                 w_min_idx = params@w_min_idx)
     }
     return(list(n = n, n_pp = n_pp, n_other = n_other, rates = r))
+}
+
+validEffortArray <- function(effort, params) {
+    # Check that number and names of gears in effort array is same as in 
+    # MizerParams object
+    no_gears <- dim(params@catchability)[1]
+    if (dim(effort)[2] != no_gears) {
+        stop("The number of gears in the effort array (length of the second dimension = ", 
+             dim(effort)[2], 
+             ") does not equal the number of gears in the MizerParams object (", 
+             no_gears, ").")
+    }
+    gear_names <- dimnames(params@catchability)[[1]]
+    if (!all(gear_names %in% dimnames(effort)[[2]])) {
+        stop("Gear names in the MizerParams object (", 
+             paste(gear_names, collapse = ", "), 
+             ") do not match those in the effort array.")
+    }
+    # Sort effort array to match order in MizerParams
+    effort <- effort[, gear_names, drop = FALSE]
+    
+    if (is.null(dimnames(effort)[[1]])) {
+        stop("The time dimname of the effort argument must be numeric.")
+    }
+    time_effort <- as.numeric(dimnames(effort)[[1]])
+    if (any(is.na(time_effort))) {
+        stop("The time dimname of the effort argument must be numeric.")
+    }
+    if (is.unsorted(time_effort)) {
+        stop("The time dimname of the effort argument should be increasing.")
+    }
+    effort
 }

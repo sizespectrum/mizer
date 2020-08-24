@@ -53,7 +53,7 @@ test_that("time dimension is dealt with properly", {
     effort <- c(Industrial = 1, Pelagic = 0.5, Beam = 0.3, Otter = 0)
     # If dt and t_save don't match
     expect_error(project(params, effort = effort, t_save = 3, dt = 2))
-    # If t_max and t_save don't match
+    # If t_max and dt don't match
     expect_error( project(params, effort = effort, t_max = 7, dt = 2))
     t_max <- 5
     t_save <- 2
@@ -81,115 +81,6 @@ test_that("time dimension is dealt with properly", {
     expect_identical(dimnames(sim@n)[[1]],
                      as.character(seq(from = 0, to = t_max, by = t_save)))
 
-    # Effort is an array
-    t_max <- 5
-    # time step = 1
-    effort <- array(NA, dim = c(t_max+1, 4), 
-                    dimnames=list(time = seq(from = 0, to = t_max, by = 1), 
-                                  gear = c("Industrial","Pelagic","Otter","Beam")))
-    effort[,1] <- seq(from = 0, to = 1, length = nrow(effort))
-    effort[,2] <- 0.5
-    effort[,3] <- seq(from = 1, to = 0.5, length = nrow(effort))
-    effort[,4] <- 0
-
-    dt <- 0.1
-    t_save <- 1
-    sim <- project(params, t_save = t_save, dt = dt, effort = effort)
-    expect_equal(dim(sim@effort)[1], t_max / t_save + 1)
-    expect_identical(dimnames(sim@effort)[[1]],
-                     as.character(seq(from = 0, to = t_max, by = t_save)))
-
-    dt <- 0.2
-    t_save <- 2
-    sim <- project(params, t_save = t_save, dt = dt, effort = effort)
-    expect_equal(dim(sim@effort)[1],
-                 length(seq(from = 0, to = t_max, by = t_save)))
-    expect_identical(dimnames(sim@effort)[[1]],
-                     as.character(seq(from = 0, to = t_max, by = t_save)))
-
-    # Dimnames of time not start at 1
-    t_max <- 5
-    start_year <- 1980
-    time_step <- 1
-    end_year <- start_year + t_max - 1
-    effort <- array(NA, dim = c(t_max, 4), 
-                    dimnames=list(time = seq(from = start_year, to = end_year, by = time_step), 
-                                  gear = c("Industrial","Pelagic","Otter","Beam")))
-    effort[,1] <- seq(from = 0, to = 1, length = nrow(effort))
-    effort[,2] <- 0.5
-    effort[,3] <- seq(from = 1, to = 0.5, length = nrow(effort))
-    effort[,4] <- 0
-
-    dt <- 0.1
-    t_save <- 1
-    sim <- project(params, t_save = t_save, dt = dt, effort = effort)
-    expect_equal(dim(sim@effort)[1],
-                 length(seq(from = start_year, to = end_year, by = t_save)))
-    expect_identical(dimnames(sim@effort)[[1]],
-                     as.character(seq(from = start_year, to = end_year, by = t_save)))
-
-    dt <- 0.1
-    t_save <- 2
-    sim <- project(params, t_save = t_save, dt = dt, effort = effort)
-    expect_equal(dim(sim@effort)[1],
-                 length(seq(from = start_year, to = end_year, by = t_save)))
-    expect_identical(dimnames(sim@effort)[[1]],
-                     as.character(seq(from = start_year, to = end_year, by = t_save)))
-    
-    dt <- 0.1
-    t_save <- 0.5
-    sim <- project(params, t_save = t_save, dt = dt, effort = effort)
-    expect_equal(dim(sim@effort)[1],
-                 length(seq(from = start_year, to = end_year, by = t_save)))
-    expect_identical(dimnames(sim@effort)[[1]],
-                     as.character(seq(from = start_year, to = end_year, by = t_save)))
-    
-    # Starting from 1980, effort every half year
-    t_max <- 5
-    start_year <- 1980
-    time_step <- 0.5
-    end_year <- start_year + t_max - 1
-    time <- seq(from = start_year, to = end_year, by = time_step)
-    effort <- array(NA, dim = c(length(time), 4), 
-                    dimnames=list(time = time, 
-                                  gear = c("Industrial","Pelagic","Otter","Beam")))
-    effort[,1] <- seq(from = 0, to = 1, length = nrow(effort))
-    effort[,2] <- 0.5
-    effort[,3] <- seq(from = 1, to = 0.5, length = nrow(effort))
-    effort[,4] <- 0
-
-    dt <- 0.1
-    t_save <- 1
-    sim <- project(params, t_save = t_save, dt = dt, effort = effort)
-    expect_equal(dim(sim@effort)[1],
-                 length(seq(from = start_year, to = end_year, by = t_save)))
-    expect_identical(dimnames(sim@effort)[[1]],
-                     as.character(seq(from = start_year, to = end_year, by = t_save)))
-    
-    dt <- 0.1
-    t_save <- 2
-    sim <- project(params, t_save = t_save, dt = dt, effort = effort)
-    expect_equal(dim(sim@effort)[1],
-                 length(seq(from = start_year, to = end_year, by = t_save)))
-    expect_identical(dimnames(sim@effort)[[1]],
-                     as.character(seq(from = start_year, to = end_year, by = t_save)))
-    
-    dt <- 0.1
-    t_save <- 0.5
-    sim <- project(params, t_save = t_save, dt = dt, effort = effort)
-    expect_equal(dim(sim@effort)[1],
-                 length(seq(from = start_year, to = end_year, by = t_save)))
-    expect_identical(dimnames(sim@effort)[[1]],
-                     as.character(seq(from = start_year, to = end_year, by = t_save)))
-    
-    dt <- 0.5
-    t_save <- 0.5
-    sim <- project(params, t_save = t_save, dt = dt, effort = effort)
-    expect_equal(dim(sim@effort)[1],
-                 length(seq(from = start_year, to = end_year, by = t_save)))
-    expect_identical(dimnames(sim@effort)[[1]],
-                     as.character(seq(from = start_year, to = end_year, by = t_save)))
-    
     ## No effort argument but t_start
     sim <- project(params, t_start = 2019, t_max = 2, dt = 1)
     expect_equal(dimnames(sim@n)$time, c("2019", "2020", "2021"))

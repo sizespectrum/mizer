@@ -224,7 +224,7 @@ matrix as the `effort` argument to the `project()` function. We use `dt` = 0.25
 show that the results are still stable) and save the results every year.
 
 ```{r label=project_ns_model}
-sim <- project(params, effort = relative_effort, dt = 0.25, t_save = 1)
+sim <- project(params, effort = relative_effort, dt = 0.25)
 ```
 
 Plotting the results, we can see how the biomasses of the stocks change over
@@ -240,7 +240,7 @@ the unexploited community. Therefore we also project forward for 100 years with
 0 fishing effort.
 
 ```{r label=unexploited_na}
-sim0 <- project(params, effort = 0, dt = 0.5, t_save = 1, t_max = 100)
+sim0 <- project(params, effort = 0, dt = 0.5, t_max = 100)
 ```
 
 ## Exploring the model outputs
@@ -366,8 +366,8 @@ for (sp in dimnames(scenario2)[[2]]){
 Both of our new effort scenarios still include 100 years at the 1967 level to reduce the impact of the transient behaviour.
 We are now ready to project the two scenarios.
 ```{r label = project_ns_future_scenarios}
-sim1 <- project(params, effort = scenario1, dt = 0.25, t_save = 1)
-sim2 <- project(params, effort = scenario2, dt = 0.25, t_save = 1)
+sim1 <- project(params, effort = scenario1, dt = 0.25)
+sim2 <- project(params, effort = scenario2, dt = 0.25)
 ```
 
 We can now compare the projected SSB values in both scenarios to the biodiversity reference points.
