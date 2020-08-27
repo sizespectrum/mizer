@@ -25,13 +25,14 @@ project(
 \item{effort}{The effort of each fishing gear through time. See notes below.}
 
 \item{t_max}{The number of years the projection runs for. The default value is
-100. However, this argument is ignored if an array is used for the
+100. This argument is ignored if an array is used for the
 \code{effort} argument. See notes below.}
 
 \item{dt}{Time step of the solver. The default value is 0.1.}
 
 \item{t_save}{The frequency with which the output is stored. The default
-value is 1. Must be an integer multiple of dt.}
+value is 1. This argument is ignored if an array is used for the \code{effort}
+argument. See notes below.}
 
 \item{t_start}{The the year of the start of the simulation. The simulation
 will cover the period from \code{t_start} to \code{t_start + t_max}.
@@ -90,8 +91,8 @@ If effort is specified as an array then the smallest time in the array is
 used as the initial time for the simulation. Otherwise the initial time is
 set to the final time of the previous simulation if \code{object} is a
 \code{MizerSim} object or to \code{t_start} otherwise. Also, if the effort is
-an array then the \code{t_max} argument is ignored and the maximum simulation
-time is the largest time of the effort array.
+an array then the \code{t_max} and \code{t_save} arguments are ignored and the
+simulation times will be taken from the effort array.
 
 If the \code{object} argument is of class \code{MizerSim} then the initial
 values for the simulation are taken from the final values in the

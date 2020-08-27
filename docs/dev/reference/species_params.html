@@ -222,14 +222,15 @@ reproduction, see <code><a href='setReproduction.html'>setReproduction()</a></co
 <li><p><code>beta</code> and <code>sigma</code> are parameters of the lognormal predation kernel, see
 <code><a href='lognormal_pred_kernel.html'>lognormal_pred_kernel()</a></code>. There will be other parameters if you are
 using other predation kernel functions, see the "Setting predation kernel"
-sectin in the help for <code><a href='setPredKernel.html'>setPredKernel()</a></code>.</p></li>
+section in the help for <code><a href='setPredKernel.html'>setPredKernel()</a></code>.</p></li>
 </ul>
 
 <p>Not all of these parameters have to be specified by the user. If they are
 missing, mizer will give them default values, sometimes by using other
 species parameters.</p><ul>
-<li><p><code>k_vb</code> and <code>t0</code> are the von Bertalannfy growth parameters and are used
-together with the length-weight relationship parameters <code>a</code> and <code>b</code> to
+<li><p><code>k_vb</code> and <code>t0</code> are the von Bertalanffy growth parameters and are used
+together with the length-weight relationship exponent <code>b</code> and the egg
+size <code>w_min</code> to
 get a default value for the coefficient of the maximum intake rate <code>h</code>,
 see <code><a href='get_h_default.html'>get_h_default()</a></code>.</p></li>
 <li><p><code>f0</code> is the feeding level and is used to get a default value for the

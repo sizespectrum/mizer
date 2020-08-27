@@ -43,8 +43,9 @@ Not all of these parameters have to be specified by the user. If they are
 missing, mizer will give them default values, sometimes by using other
 species parameters.
 \itemize{
-\item \code{k_vb} and \code{t0} are the von Bertalannfy growth parameters and are used
-together with the length-weight relationship parameters \code{a} and \code{b} to
+\item \code{k_vb} and \code{t0} are the von Bertalanffy growth parameters and are used
+together with the length-weight relationship exponent \code{b} and the egg
+size \code{w_min} to
 get a default value for the coefficient of the maximum intake rate \code{h},
 see \code{\link[=get_h_default]{get_h_default()}}.
 \item \code{f0} is the feeding level and is used to get a default value for the

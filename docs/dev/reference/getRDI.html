@@ -46,7 +46,7 @@
 
 
 <meta property="og:title" content="Get density independent rate of egg production — getRDI" />
-<meta property="og:description" content="Calculates the density-independent rate of total egg production \(R_{p.i}\)
+<meta property="og:description" content="Calculates the density-independent rate of total egg production \(R_{di}\)
 (units 1/year) before density dependence, by species." />
 
 
@@ -183,7 +183,7 @@
     </div>
 
     <div class="ref-description">
-    <p>Calculates the density-independent rate of total egg production \(R_{p.i}\)
+    <p>Calculates the density-independent rate of total egg production \(R_{di}\)
 (units 1/year) before density dependence, by species.</p>
     </div>
 
@@ -233,11 +233,13 @@ parameters.)</p></td>
     <p>A numeric vector the length of the number of species.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>This rate is obtained by
-taking the total rate at which energy is invested in reproduction, as
-calculated by <code><a href='getERepro.html'>getERepro()</a></code>,
-multiplying by the reproductive efficiency <code>erepro</code> and dividing by the egg
-size <code>w_min</code>, and by a factor of two to account for the two sexes.</p>
+    <p>This rate is obtained by taking the per capita rate \(E_r(w)\psi(w)\) at
+which energy is invested in reproduction, as calculated by <code><a href='getERepro.html'>getERepro()</a></code>,
+multiplying it by the number of individuals\(N(w)\) and integrating over all sizes
+\(w\) and then multiplying by the reproductive efficiency \(\epsilon\)
+and dividing by the egg size <code>w_min</code>, and by a factor of two to account for
+the two sexes:
+$$R_{di} = \frac{\epsilon}{2 w_{min}} \int N(w)  E_r(w) \psi(w) \, dw$$</p>
 <p>Used by <code><a href='getRDD.html'>getRDD()</a></code> to calculate the actual, density dependent rate.
 See <code><a href='setReproduction.html'>setReproduction()</a></code> for more details.</p>
     <h2 class="hasAnchor" id="your-own-reproduction-function"><a class="anchor" href="#your-own-reproduction-function"></a>Your own reproduction function</h2>

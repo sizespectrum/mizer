@@ -46,9 +46,9 @@
 
 
 <meta property="og:title" content="Ricker function to calculate density-dependent reproduction rate — RickerRDD" />
-<meta property="og:description" content="Takes the density-independent rates \(R_p\) of egg production and returns
-reduced, density-dependent rates \(R\) given as
-$$R = R_p \exp{- b R_p}$$" />
+<meta property="og:description" content="Takes the density-independent rates \(R_{di}\) of egg production and returns
+reduced, density-dependent rates \(R_{dd}\) given as
+$$R_{dd} = R_{di} \exp{- b R_{di}}$$" />
 
 
 <meta name="robots" content="noindex">
@@ -184,9 +184,9 @@ $$R = R_p \exp{- b R_p}$$" />
     </div>
 
     <div class="ref-description">
-    <p>Takes the density-independent rates \(R_p\) of egg production and returns
-reduced, density-dependent rates \(R\) given as
-$$R = R_p \exp{- b R_p}$$</p>
+    <p>Takes the density-independent rates \(R_{di}\) of egg production and returns
+reduced, density-dependent rates \(R_{dd}\) given as
+$$R_{dd} = R_{di} \exp{- b R_{di}}$$</p>
     </div>
 
     <pre class="usage"><span class='fu'>RickerRDD</span>(<span class='kw'>rdi</span>, <span class='kw'>species_params</span>, <span class='kw'>...</span>)</pre>
@@ -196,8 +196,8 @@ $$R = R_p \exp{- b R_p}$$</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>rdi</th>
-      <td><p>Vector of density-independent reproduction rates \(R_p\) for
-all species.</p></td>
+      <td><p>Vector of density-independent reproduction rates
+\(R_{di}\) for all species.</p></td>
     </tr>
     <tr>
       <th>species_params</th>

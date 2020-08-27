@@ -1,41 +1,48 @@
 # mizer 2.0.3.9000
 
-* Simplified of how times are set in `project()`. They are now either set by
-  the arguments `t_start`, `t_max` and `t_save` or by the dimension names of
-  the `effort` array.
-* Corrected the value of `t` passed to dynamics functions.
+## Bug fixes
+
+* The value of `t` passed to dynamics functions has been corrected.
+* `setReproduction()` now correctly sets the the total proportion psi when the 
+  maturity proportion is changed.
+  
+## Enhancements
+
+* The way times are set in `project()` has been simplified. They are now either
+  set by the arguments `t_start`, `t_max` and `t_save` or by the dimension names
+  of the `effort` array.
 * Renamed `setRmax()` to `setBevertonHolt()` and allow it to work on an
-  arbitrary MizerParams object.
+  arbitrary MizerParams object. The old name `setRmax()` is still available as
+  alias.
 * `mizerFMort()` now can also use the abundances and the rates `e_growth` and 
-  `pred_mort`.
-* Simplified a calculation in the numeric scheme.
+  `pred_mort`. This is useful for example for implementing balanced harvesting.
+* A calculation in the numeric scheme has been simplified.
 * `gear_params` is allowed to have zero rows.
-* In `validGearParams()` use the species name as gear name in case gear name 
-  is NA.
-* In `validGearParams()` ensure that all required arguments of the 
-  selectivity function are supplied.
-* In `validGearParams()` check that there are no non-existent species.
-* `species_params()<-` supresses warnings.
-* Throw meaningful error when `steady()` fails because RDI is zero.
+* In `validGearParams()` the species name is used as gear name in case 
+  `gear_name` is NA.
+* `validGearParams()` ensures that all required arguments of the 
+  selectivity function are supplied and checks validity of species names.
+* `species_params()<-` suppresses warnings.
+* When `steady()` fails because RDI is zero it gives a meaningful error  message.
 * `newCommunityParams()` now protects its zero investment in reproduction with
   a comment.
-* Fixed bug that prevented `setReproduction()` to correctly set the the total
-  proportion psi when the maturity proportion was changed.
 * The default maturity ogive is truncated at proportions smaller than 1e-8.
-* New helper function `valid_species_arg()` to check validity of species 
+* A new helper function `valid_species_arg()` checks validity of species 
   selection arguments.
-* Can now also upgrade old MizerParams objects that do  not have a consistent
-  initial_effort.
-* New function `validParams()` validates a MizerParams object and automatically
-  upgrades it with `upgradeParams()` if necessary.
-* Upgrade old params objects automatically when used in plot functions, rate
-  functions, summary functions or in `project()` or `steady()`, #163.
-* New function `getRates()` to calculate all rates and collect them in a list.
+* `upgradeParams()` can now also upgrade old MizerParams objects that do not 
+  have a consistent `initial_effort`.
+* A new helper function `validParams()` validates a MizerParams object and 
+  automatically upgrades it with `upgradeParams()` if necessary.
+* Old MizerParams objects are updated automatically when used in plot functions,
+  rate functions, summary functions or in `project()` or `steady()`, #163.
+* New function `getRates()` to calculates all rates and collects them in a list.
 * `steady()` with `return_sim = TRUE` now creates the sim object the same way 
   as `project()`, namely with the original values in the first time slot.
 * Added documentation for `species_params()`, `gear_params()` and
   `resource_params()`.
 * Numerous small improvements to documentation.
+
+
 
 # mizer 2.0.3
 

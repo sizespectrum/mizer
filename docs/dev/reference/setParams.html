@@ -554,12 +554,13 @@ data frame.</p>
 $$\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)$$</p>
 
 <h3>Reproductive efficiency</h3>
-<p>The reproductive efficiency, i.e., the proportion of energy allocated to
+<p>The reproductive efficiency \(\epsilon\), i.e., the proportion of energy allocated to
 reproduction that results in egg biomass, is set through the <code>erepro</code>
 column in the species_params data frame. If that is not provided, the default
 is set to 1 (which you will want to override). The offspring biomass divided
 by the egg biomass gives the rate of egg production, returned by
-<code><a href='getRDI.html'>getRDI()</a></code>.</p>
+<code><a href='getRDI.html'>getRDI()</a></code>:
+$$R_{di} = \frac{\epsilon}{2 w_{min}} \int N(w)  E_r(w) \psi(w) \, dw$$</p>
 
 <h3>Density dependence</h3>
 <p>The stock-recruitment relationship is an emergent phenomenon in mizer, with

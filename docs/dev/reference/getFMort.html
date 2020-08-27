@@ -51,7 +51,9 @@ and size. — getFMort" />
 <meta property="og:description" content="Calculates the total fishing mortality  (in units 1/year) from all gears by
 species and size at each time step in the effort argument.
 The total fishing mortality is just the sum of the fishing mortalities
-imposed by each gear, \(\mu_{f.i}(w)=\sum_g F_{g,i,w}\)." />
+imposed by each gear, \(\mu_{f.i}(w)=\sum_g F_{g,i,w}\).
+The fishing mortality for each gear is obtained as catchability x
+selectivity x effort." />
 
 
 <meta name="robots" content="noindex">
@@ -191,7 +193,9 @@ and size.</h1>
     <p>Calculates the total fishing mortality  (in units 1/year) from all gears by
 species and size at each time step in the <code>effort</code> argument.
 The total fishing mortality is just the sum of the fishing mortalities
-imposed by each gear, \(\mu_{f.i}(w)=\sum_g F_{g,i,w}\).</p>
+imposed by each gear, \(\mu_{f.i}(w)=\sum_g F_{g,i,w}\).
+The fishing mortality for each gear is obtained as catchability x
+selectivity x effort.</p>
     </div>
 
     <pre class="usage"><span class='fu'>getFMort</span>(<span class='kw'>object</span>, <span class='kw'>effort</span>, <span class='kw'>time_range</span>, drop = <span class='fl'>TRUE</span>)</pre>
@@ -219,7 +223,7 @@ single value. Default is the whole time range. Only used if the
       <th>drop</th>
       <td><p>Only used when object is of type <code>MizerSim</code>. Should
 dimensions of length 1 be dropped, e.g. if your community only has one
-species it might make presentation of results easier. Default is TRUE</p></td>
+species it might make presentation of results easier. Default is TRUE.</p></td>
     </tr>
     </table>
 
@@ -229,9 +233,6 @@ species it might make presentation of results easier. Default is TRUE</p></td>
 of class <code>MizerSim</code>, the output array has three dimensions (time x
 species x size). If the effort argument does not have a time dimension, the
 output array has two dimensions (species x size).</p>
-    <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
-
-    <p>Here: fishing mortality = catchability x selectivity x effort.</p>
 <p>The <code>effort</code> argument is only used if a <code>MizerParams</code> object is
 passed in. The <code>effort</code> argument can be a two dimensional array (time x
 gear), a vector of length equal to the number of gears (each gear has a
@@ -242,6 +243,17 @@ object.</p>
 <p>If the object argument is of class <code>MizerSim</code> then the effort slot of
 the <code>MizerSim</code> object is used and the <code>effort</code> argument is not
 used.</p>
+    <h2 class="hasAnchor" id="your-own-fishing-mortality-function"><a class="anchor" href="#your-own-fishing-mortality-function"></a>Your own fishing mortality function</h2>
+
+    
+
+<p>By default <code>getFMort()</code> calls <code><a href='mizerFMort.html'>mizerFMort()</a></code>. However you can
+replace this with your own alternative fishing mortality function. If
+your function is called <code>"myFMort"</code> then you register it in a MizerParams
+object <code>params</code> with</p><pre><span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='kw'>params</span>, <span class='st'>"FMort"</span>, <span class='st'>"myFMort"</span>)</pre>
+
+<p>Your function will then be called instead of <code><a href='mizerFMort.html'>mizerFMort()</a></code>, with the
+same arguments.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other rate functions: 

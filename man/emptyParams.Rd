@@ -51,14 +51,9 @@ starting at \code{max_w}. For \code{w_full} additional size bins are added below
 \section{Changes to species params}{
 
 The \code{species_params} slot of the returned MizerParams object may differ
-slightly from the data frame supplied as argument to this function in the
-following ways:
-\itemize{
-\item Default values are set for \code{w_min, w_inf, alpha, gear, interaction_resource}.
-\item The egg sizes in \code{w_min} are rounded down to lie on a grid point.
-}
-Note that the other characteristic sizes of the species, like \code{w_mat} and
-\code{w_inf}, are not modified to lie on grid points.
+slightly from the data frame supplied as argument to this function because
+default values are set for
+\verb{w_min, w_inf, alpha, gear, interaction_resource}.
 }
 
 \seealso{

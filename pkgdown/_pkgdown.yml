@@ -211,6 +211,8 @@ reference:
   - MizerSim
   - getParams
 - title: Example parameter sets
+  desc: More example parameter sets are available via 
+    <https://sizespectrum.org/mizerExamples>
   contents:
   - NS_params
   - NS_species_params

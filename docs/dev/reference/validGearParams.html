@@ -210,7 +210,8 @@ by <code><a href='setFishing.html'>setFishing()</a></code> or it gives an error 
     <p>The gear_params data frame is allowed to have zero rows, but if it has
 rows, then the following requirements apply:</p><ul>
 <li><p>There must be columns <code>species</code> and <code>gear</code> and any species - gear pair is
-allowed to appear at most once.</p></li>
+allowed to appear at most once. Any species that appears must also appear
+in the <code>species_params</code> data frame.</p></li>
 <li><p>There must be a <code>sel_func</code> column. If a selectivity function is not
 supplied, it will be set to "knife_edge".</p></li>
 <li><p>There must be a <code>catchability</code> column. If a catchability is not supplied,
@@ -230,6 +231,13 @@ species is introduced.</p></li>
 provided, it is set to <code>w_mat</code>.</p></li>
 </ul>
 
+<p>For backwards compatibility, when <code>gear_params</code> is <code>NULL</code> and there is no
+gear information in the <code>species_params</code>, then a gear called <code>knife_edge_gear</code>
+is set up with a <code>knife_edge</code> selectivity for each species and a
+<code>knive_edge_size</code> equal to <code>w_mat</code>. Catchability is set to 1 for all species.</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='gear_params.html'>gear_params()</a></code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

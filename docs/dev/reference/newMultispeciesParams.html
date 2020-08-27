@@ -223,7 +223,7 @@ details in the sections below the list.</p>
   lambda = <span class='fl'>2.05</span>,
   w_pp_cutoff = <span class='fl'>10</span>,
   resource_dynamics = <span class='st'>"resource_semichemostat"</span>,
-  gear_params = <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(),
+  gear_params = <span class='kw'>NULL</span>,
   selectivity = <span class='kw'>NULL</span>,
   catchability = <span class='kw'>NULL</span>,
   initial_effort = <span class='kw'>NULL</span>
@@ -419,12 +419,9 @@ always change them later with <code><a href='species_params.html'>species_params
     
 
 <p>The <code>species_params</code> slot of the returned MizerParams object may differ
-slightly from the data frame supplied as argument to this function in the
-following ways:</p><ul>
-<li><p>Default values are set for <code>w_min, w_inf, alpha, gear, interaction_resource</code>.</p></li>
-<li><p>The egg sizes in <code>w_min</code> are rounded down to lie on a grid point.</p></li>
-</ul><p>Note that the other characteristic sizes of the species, like <code>w_mat</code> and
-<code>w_inf</code>, are not modified to lie on grid points.</p>
+slightly from the data frame supplied as argument to this function because
+default values are set for
+<code>w_min, w_inf, alpha, gear, interaction_resource</code>.</p>
     <h2 class="hasAnchor" id="size-grid"><a class="anchor" href="#size-grid"></a>Size grid</h2>
 
     
@@ -665,12 +662,13 @@ data frame.</p>
 $$\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)$$</p>
 
 <h3>Reproductive efficiency</h3>
-<p>The reproductive efficiency, i.e., the proportion of energy allocated to
+<p>The reproductive efficiency \(\epsilon\), i.e., the proportion of energy allocated to
 reproduction that results in egg biomass, is set through the <code>erepro</code>
 column in the species_params data frame. If that is not provided, the default
 is set to 1 (which you will want to override). The offspring biomass divided
 by the egg biomass gives the rate of egg production, returned by
-<code><a href='getRDI.html'>getRDI()</a></code>.</p>
+<code><a href='getRDI.html'>getRDI()</a></code>:
+$$R_{di} = \frac{\epsilon}{2 w_{min}} \int N(w)  E_r(w) \psi(w) \, dw$$</p>
 
 <h3>Density dependence</h3>
 <p>The stock-recruitment relationship is an emergent phenomenon in mizer, with

@@ -292,12 +292,13 @@ data frame.</p>
 $$\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)$$</p>
 
 <h3>Reproductive efficiency</h3>
-<p>The reproductive efficiency, i.e., the proportion of energy allocated to
+<p>The reproductive efficiency \(\epsilon\), i.e., the proportion of energy allocated to
 reproduction that results in egg biomass, is set through the <code>erepro</code>
 column in the species_params data frame. If that is not provided, the default
 is set to 1 (which you will want to override). The offspring biomass divided
 by the egg biomass gives the rate of egg production, returned by
-<code><a href='getRDI.html'>getRDI()</a></code>.</p>
+<code><a href='getRDI.html'>getRDI()</a></code>:
+$$R_{di} = \frac{\epsilon}{2 w_{min}} \int N(w)  E_r(w) \psi(w) \, dw$$</p>
 
 <h3>Density dependence</h3>
 <p>The stock-recruitment relationship is an emergent phenomenon in mizer, with
@@ -349,7 +350,8 @@ these as models for writing your own functions.</p>
 <span class='kw'>dff</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/reshape2/man/melt.html'>melt</a></span>(<span class='kw'>df</span>, id.vars = <span class='st'>"Size"</span>, 
             variable.name = <span class='st'>"Type"</span>, 
             value.name = <span class='st'>"Proportion"</span>)
-<span class='fu'>ggplot</span>(<span class='kw'>dff</span>) <span class='op'>+</span> <span class='fu'>geom_line</span>(<span class='fu'>aes</span>(x = <span class='kw'>Size</span>, y = <span class='kw'>Proportion</span>, colour = <span class='kw'>Type</span>))</div><div class='output co'>#&gt; <span class='error'>Error in ggplot(dff): could not find function "ggplot"</span></div><div class='input'><span class='co'># }</span></div></pre>
+<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='http://ggplot2.tidyverse.org'>ggplot2</a></span>)
+<span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span>(<span class='kw'>dff</span>) <span class='op'>+</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line</a></span>(<span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(x = <span class='kw'>Size</span>, y = <span class='kw'>Proportion</span>, colour = <span class='kw'>Type</span>))</div><div class='img'><img src='setReproduction-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

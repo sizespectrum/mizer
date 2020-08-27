@@ -26,8 +26,9 @@
 #' missing, mizer will give them default values, sometimes by using other
 #' species parameters.
 #' 
-#' * `k_vb` and `t0` are the von Bertalannfy growth parameters and are used
-#'   together with the length-weight relationship parameters `a` and `b` to
+#' * `k_vb` and `t0` are the von Bertalanffy growth parameters and are used
+#'   together with the length-weight relationship exponent `b` and the egg
+#'   size `w_min` to
 #'   get a default value for the coefficient of the maximum intake rate `h`, 
 #'   see [get_h_default()].
 #' * `f0` is the feeding level and is used to get a default value for the
