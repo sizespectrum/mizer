@@ -294,7 +294,7 @@ newMultispeciesParams <- function(
 #' @export
 #' @family functions for setting parameters
 setParams <- function(params, interaction = NULL, ...) {
-    validObject(params)
+    params <- suppressWarnings(validParams(params))
     params <- setResource(params, ...)
     params <- setInteraction(params, interaction)
     params <- setPredKernel(params, ...)
