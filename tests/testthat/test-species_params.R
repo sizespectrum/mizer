@@ -70,3 +70,42 @@ test_that("default for gamma is correct", {
                  rep(1, length(gamma_default)),
                  tolerance = 0.1)
 })
+
+# species_params<-() ----
+test_that("Setting species params works", {
+    params <- newMultispeciesParams(NS_species_params)
+    # changing h changes intake_max
+    h_old <- params@species_params$h[[1]]
+    intake_max_old <- params@intake_max[1, 1]
+    species_params(params)$h[[1]] <- 1
+    expect_identical(params@species_params$h[[1]], 1)
+    expect_equal(params@intake_max[1, 1], 0.01)
+    # setting to NA leads to recalculation of defaults
+    species_params(params)$h[[1]] <- NA
+    expect_identical(params@species_params$h[[1]], h_old)
+    expect_identical(params@intake_max[1, 1], intake_max_old)
+    
+    # changing k_vb does not immediately change anything
+    species_params(params)$k_vb[[1]] <- 2 * species_params(params)$k_vb[[1]]
+    expect_identical(params@intake_max[1, 1], intake_max_old)
+    # but clearing the default on h will lead to change
+    species_params(params)$h[[1]] <- NA
+    expect_equal(params@species_params$h[[1]], 2 * h_old)
+    
+    # increasing f0 increases gamma
+    gamma_old <- species_params(params)$gamma[[1]]
+    species_params(params)$f0 <- max(getFeedingLevel(params)) + 0.1
+    species_params(params)$gamma <- NA
+    expect_gt(species_params(params)$gamma[[1]], gamma_old)
+    
+    # increasing fc increases ks
+    ks_old <- species_params(params)$ks[[1]]
+    species_params(params)$fc <- max(getCriticalFeedingLevel(params)) + 0.1
+    species_params(params)$ks <- NA
+    expect_gt(species_params(params)$ks[[1]], ks_old)
+    
+    # changing w_min changes w_min_idx
+    species_params(params)$w_min[[1]] <- 1
+    expect_identical(params@w_min_idx[[1]], 40)
+    
+})

@@ -6,9 +6,6 @@ params <- newMultispeciesParams(NS_species_params_gears, inter)
 test_that("time dimension is dealt with properly", {
 
     # Effort is a single numeric
-    # If dt and t_save don't match
-    expect_error(project(params, effort = 1, t_save = 3, dt = 2, t_max = 10),
-                 "t_save must be a positive multiple of dt")
     t_max <- 5
     t_save <- 1
     dt <- 0.1
@@ -51,10 +48,6 @@ test_that("time dimension is dealt with properly", {
 
     # Effort is an effort vector
     effort <- c(Industrial = 1, Pelagic = 0.5, Beam = 0.3, Otter = 0)
-    # If dt and t_save don't match
-    expect_error(project(params, effort = effort, t_save = 3, dt = 2))
-    # If t_max and dt don't match
-    expect_error( project(params, effort = effort, t_max = 7, dt = 2))
     t_max <- 5
     t_save <- 2
     sim <- project(params, t_max = t_max, t_save = t_save, effort = effort)
