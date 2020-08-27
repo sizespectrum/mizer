@@ -326,9 +326,6 @@ project_simple <- function(params, n, n_pp, n_other, t, dt, steps,
             params, n = n, n_pp = n_pp, n_other = n_other,
             t = t, effort = effort, rates_fns = rates_fns, ...)
         
-        # Update time
-        t <- t + dt
-        
         # * Update other components ----
         n_other_current <- n_other  # So that the resource dynamics can still 
         # use the current value
@@ -374,7 +371,11 @@ project_simple <- function(params, n, n_pp, n_other, t, dt, steps,
         n <- inner_project_loop(no_sp = no_sp, no_w = no_w, n = n,
                                 A = a, B = b, S = S,
                                 w_min_idx = params@w_min_idx)
+        
+        # * Update time ----
+        t <- t + dt
     }
+    
     return(list(n = n, n_pp = n_pp, n_other = n_other, rates = r))
 }
 

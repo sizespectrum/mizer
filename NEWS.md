@@ -3,6 +3,7 @@
 * Simplified of how times are set in `project()`. They are now either set by
   the arguments `t_start`, `t_max` and `t_save` or by the dimension names of
   the `effort` array.
+* Corrected the value of `t` passed to dynamics functions.
 * Renamed `setRmax()` to `setBevertonHolt()` and allow it to work on an
   arbitrary MizerParams object.
 * `mizerFMort()` now can also use the abundances and the rates `e_growth` and 
