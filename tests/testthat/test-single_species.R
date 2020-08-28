@@ -33,7 +33,8 @@ test_that("summary methods return arrays of correct dimension", {
 })
 
 test_that("Can set up model with minimal information",{
-    sp <- data.frame(species = "test")
+    sp <- data.frame(species = "test",
+                     stringsAsFactors = FALSE)
     sp$w_inf <- 1000
     sp$k_vb <- 10
     params <- newMultispeciesParams(sp)

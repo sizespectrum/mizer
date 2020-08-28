@@ -316,7 +316,8 @@ get_ks_default <- function(params) {
 validSpeciesParams <- function(species_params) {
     assert_that(is.data.frame(species_params))
     # Convert a tibble back to an ordinary data frame
-    species_params <- as.data.frame(species_params)
+    species_params <- as.data.frame(species_params,
+                                    stringsAsFactors = FALSE) # for old versions of R
     
     # check species ----
     if (!("species" %in% colnames(species_params))) {

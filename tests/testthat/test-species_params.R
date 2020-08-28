@@ -14,7 +14,8 @@ test_that("validSpeciesParams() works", {
                    "For the species Sandeel, Dab the value")
     # minimal species_params
     sp <- data.frame(species = c("species1", "species2"),
-                     w_inf = c(100, 1000))
+                     w_inf = c(100, 1000),
+                     stringsAsFactors = FALSE)
     expect_s3_class(sp <- validSpeciesParams(sp), "data.frame")
     expect_equal(sp$w_mat, sp$w_inf / 4)
     expect_equal(sp$alpha, c(0.6, 0.6))

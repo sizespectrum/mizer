@@ -175,7 +175,8 @@ test_that("Analytic steady-state solution is well approximated", {
         alpha = alpha,
         erepro = erepro,
         sel_func = "knife_edge", # not used but required
-        knife_edge_size = 1000
+        knife_edge_size = 1000,
+        stringsAsFactors = FALSE
     )
     
     params <- newMultispeciesParams(species_params, p = p, n = n, lambda = lambda,

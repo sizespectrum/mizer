@@ -4,7 +4,8 @@ params <- NS_params
 test_that("validGearParams works", {
     sp <- validSpeciesParams(
         data.frame(species = c("species1", "species2"),
-                   w_inf = c(100, 1000)))
+                   w_inf = c(100, 1000),
+                   stringsAsFactors = FALSE))
     # gear_params is allowed to have zero rows
     gp <- validGearParams(data.frame(), sp)
     expect_identical(gp, data.frame(species = list(), gear = list()))
@@ -13,16 +14,19 @@ test_that("validGearParams works", {
     expect_error(validGearParams(gp, sp), 
                  "`gear_params` must have columns 'species' and 'gear'.")
     # Any species-gear pair is allowed to appear at most once
-    gp <- data.frame(species = c("species1", "species1"), gear = c("g", "g"))
+    gp <- data.frame(species = c("species1", "species1"), gear = c("g", "g"),
+                     stringsAsFactors = FALSE)
     expect_error(validGearParams(gp, sp), 
                  "Some species - gear pairs appear more than once.")
     # Any species that appears must also appear in the `species_params` data frame.
-    gp <- data.frame(species = c("species1", "species3"), gear = c("g", "g"))
+    gp <- data.frame(species = c("species1", "species3"), gear = c("g", "g"),
+                     stringsAsFactors = FALSE)
     expect_error(validGearParams(gp, sp), 
                  "The gear_params dataframe contains species that do not exist in the model.")
     # There must be a `sel_fun` column
     gp <- validGearParams(
-        data.frame(species = c("species1", "species2"), gear = c("g", "g")),
+        data.frame(species = c("species1", "species2"), gear = c("g", "g"),
+                   stringsAsFactors = FALSE),
         sp)
     expect_identical(gp$sel_func, c("knife_edge", "knife_edge"))
     expect_identical(gp$knife_edge_size, c(25, 250))

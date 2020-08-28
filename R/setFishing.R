@@ -295,7 +295,8 @@ validGearParams <- function(gear_params, species_params) {
                        gear = "knife_edge_gear",
                        sel_func = "knife_edge",
                        knife_edge_size = species_params$w_mat,
-                       catchability = 1)
+                       catchability = 1,
+                       stringsAsFactors = FALSE) # for old versions of R
     }
     
     species_params <- validSpeciesParams(species_params)
