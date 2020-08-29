@@ -30,14 +30,14 @@ explored using a range of \link{plotting_functions}, \link{summary_functions} an
 \link{indicator_functions}.
 }
 
-See the \href{https://sizespectrum.org/mizer}{mizer website} for full details of
+See the \href{https://sizespectrum.org/mizer/}{mizer website} for full details of
 the principles behind mizer and how the package can be used to perform
 size-based modelling.
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://sizespectrum.org/mizer}
+  \item \url{https://sizespectrum.org/mizer/}
   \item \url{https://github.com/sizespectrum/mizer}
   \item Report bugs at \url{https://github.com/sizespectrum/mizer/issues}
 }

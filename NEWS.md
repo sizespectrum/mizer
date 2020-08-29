@@ -160,7 +160,7 @@ version 1.0 with the exception of bug fixes and the following breaking changes:
   and `egg_size_scaling = TRUE`.
 * The functions `display_frames()`, `addSpecies()`, `setBackground()` and 
   `retuneAbundance()` have been removed to the "mizerExperimental" package
-  (https://sizespectrum.org/mizerExperimental)
+  (https://sizespectrum.org/mizerExperimental/)
 * During runs of `project()` a progress bar is displayed by default. You can 
   turn this off with the option `progress_bar = FALSE.
 * Throughout mizer the term "plankton" has been replaced by "resource", which
@@ -349,7 +349,7 @@ species. The information is set up via a new `gear_params()` data frame. See
 ## Documentation
 
 * Mizer now has a documentation website at <https://sizespectrum.org/mizer/>
-  for the latest released version and at <https://sizespectrum.org/mizer/dev>
+  for the latest released version and at <https://sizespectrum.org/mizer/dev/>
   for the development version. (#48)
 * The help pages of mizer functions has been extended massively, see for
   example the help for `newMultispeciesParams()`.

@@ -22,7 +22,7 @@
 #' explored using a range of [plotting_functions], [summary_functions] and
 #' [indicator_functions].
 #'
-#' See the [mizer website](https://sizespectrum.org/mizer) for full details of
+#' See the [mizer website](https://sizespectrum.org/mizer/) for full details of
 #' the principles behind mizer and how the package can be used to perform
 #' size-based modelling.
 #'

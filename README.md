@@ -43,10 +43,10 @@ It is still under active development. The new version 2.0 has increased
 the user-friendliness and the flexibility of the framework.
 Contributions from the user community are very welcome. There is a
 sister package called
-[mizerExperimental](https://sizespectrum.org/mizerExperimental) where
+[mizerExperimental](https://sizespectrum.org/mizerExperimental/) where
 user contributions can be checked out and receive feedback from the
 community. Example mizer models can be contributed to
-[mizerExamples](https://sizespectrum.org/mizerExamples).
+[mizerExamples](https://sizespectrum.org/mizerExamples/).
 
 Does your project or publication use mizer? If so, we would love to
 know. You can also join our Google Discussion group here:
