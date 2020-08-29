@@ -80,7 +80,8 @@ setResource <- function(params,
     } else {
         rr_pp <- r_pp * params@w_full^(n - 1)
         if (!is.null(comment(params@rr_pp)) &&
-            any(params@rr_pp != rr_pp)) {
+            !isTRUE(all.equal(params@rr_pp, rr_pp,
+                          check.attributes = FALSE))) {
             message("The resource intrinsic growth rate has been commented and therefore will ",
                     "not be recalculated from the resource parameters.")
         } else {
@@ -97,7 +98,8 @@ setResource <- function(params,
         cc_pp <- kappa*params@w_full^(-lambda)
         cc_pp[params@w_full > w_pp_cutoff] <- 0
         if (!is.null(comment(params@cc_pp)) &&
-            any(params@cc_pp != cc_pp)) {
+            !isTRUE(all.equal(params@cc_pp, cc_pp,
+                              check.attributes = FALSE))) {
             message("The resource carrying capacity has been commented and therefore will ",
                     "not be recalculated from the resource parameters.")
         } else {

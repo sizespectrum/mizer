@@ -72,12 +72,14 @@ setExtMort <- function(params, z0 = NULL, z0pre = 0.6, z0exp = -1/4, ...) {
     params <- set_species_param_default(params, "z0",
                                         z0pre * species_params$w_inf^z0exp,
                                         message)
-    mu_b <- params@species_params$z0
+    mu_b <- params@mu_b
+    mu_b[] <- params@species_params$z0
     
     # Prevent overwriting slot if it has been commented
     if (!is.null(comment(params@mu_b))) {
         # Issue warning but only if a change was actually requested
-        if (any(mu_b != params@mu_b)) {
+        if (!isTRUE(all.equal(mu_b, params@mu_b,
+                              check.attributes = FALSE))) {
             message("The external mortality rate has been commented and therefore ",
                     "will not be recalculated from the species parameters.")
         }

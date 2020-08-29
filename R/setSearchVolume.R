@@ -69,7 +69,8 @@ setSearchVolume <- function(params,
     # Prevent overwriting slot if it has been commented
     if (!is.null(comment(params@search_vol))) {
         # Issue warning but only if a change was actually requested
-        if (any(search_vol != params@search_vol)) {
+        if (!isTRUE(all.equal(search_vol, params@search_vol,
+                              check.attributes = FALSE))) {
             message("The search volume has been commented and therefore will ",
                     "not be recalculated from the species parameters.")
         }

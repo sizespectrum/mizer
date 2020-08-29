@@ -40,11 +40,13 @@ validMizerParams <- function(object) {
     }
     
     # Check that the last entries of w_full and dw_full agree with w and dw
-    if (any(object@w[] != object@w_full[w_idx])) {
+    if (!isTRUE(all.equal(object@w[], object@w_full[w_idx],
+                          check.attributes = FALSE))) {
         msg <- "The later entries of w_full should be equal to those of w."
         errors <- c(errors, msg)
     }
-    if (any(object@dw[] != object@dw_full[w_idx])) {
+    if (!isTRUE(all.equal(object@dw[], object@dw_full[w_idx],
+                          check.attributes = FALSE))) {
         msg <- "The later entries of dw_full should be equal to those of dw."
         errors <- c(errors, msg)
     }

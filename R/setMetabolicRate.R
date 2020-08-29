@@ -69,7 +69,8 @@ setMetabolicRate <- function(params,
     # Prevent overwriting slot if it has been commented
     if (!is.null(comment(params@metab))) {
         # Issue warning but only if a change was actually requested
-        if (any(metab != params@metab)) {
+        if (!isTRUE(all.equal(metab, params@metab,
+                              check.attributes = FALSE))) {
             message("The metabolic rate has been commented and therefore will ",
                     "not be recalculated from the species parameters.")
         }
