@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Species parameters — species_params • mizer</title>
+<title>Set or change any model parameters — setParams • mizer</title>
 
 
 <!-- jquery -->
@@ -45,9 +45,8 @@
 
 
 
-<meta property="og:title" content="Species parameters — species_params" />
-<meta property="og:description" content="This is the right place to document the use of species parameters in mizer.
-This is a convenient wrapper function calling each of the following
+<meta property="og:title" content="Set or change any model parameters — setParams" />
+<meta property="og:description" content="This is a convenient wrapper function calling each of the following
 functions
 setPredKernel()
 setSearchVolume()
@@ -90,7 +89,7 @@ See the Details section below for a discussion of how to use this function." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -188,14 +187,13 @@ See the Details section below for a discussion of how to use this function." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Species parameters</h1>
-    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/species_params.R'><code>R/species_params.R</code></a>, <a href='https://github.com/sizespectrum/mizer/blob/master/R/newMultispeciesParams.R'><code>R/newMultispeciesParams.R</code></a></small>
+    <h1>Set or change any model parameters</h1>
+    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/newMultispeciesParams.R'><code>R/newMultispeciesParams.R</code></a></small>
     <div class="hidden name"><code>setParams.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This is the right place to document the use of species parameters in mizer.</p>
-<p>This is a convenient wrapper function calling each of the following
+    <p>This is a convenient wrapper function calling each of the following
 functions</p><ul>
 <li><p><code><a href='setPredKernel.html'>setPredKernel()</a></code></p></li>
 <li><p><code><a href='setSearchVolume.html'>setSearchVolume()</a></code></p></li>
@@ -209,11 +207,7 @@ functions</p><ul>
 </ul><p>See the Details section below for a discussion of how to use this function.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>species_params</span>(<span class='no'>params</span>)
-
-<span class='fu'>species_params</span>(<span class='no'>params</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
-
-<span class='fu'>setParams</span>(<span class='no'>params</span>, <span class='kw'>interaction</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>setParams</span>(<span class='kw'>params</span>, interaction = <span class='kw'>NULL</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -223,10 +217,6 @@ functions</p><ul>
       <td><p>A <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
     </tr>
     <tr>
-      <th>value</th>
-      <td><p>A data frame with the species parameters</p></td>
-    </tr>
-    <tr>
       <th>interaction</th>
       <td><p>Optional interaction matrix of the species (predator
 species x prey species). Entries should be numbers between 0 and 1. By
@@ -234,7 +224,7 @@ default all entries are 1. See "Setting interactions" section below.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Arguments passed on to <code><a href='setPredKernel.html'>setPredKernel</a></code>, <code><a href='setSearchVolume.html'>setSearchVolume</a></code>, <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a></code>, <code><a href='setMetabolicRate.html'>setMetabolicRate</a></code>, <code><a href='setExtMort.html'>setExtMort</a></code>, <code><a href='setReproduction.html'>setReproduction</a></code>, <code><a href='setFishing.html'>setFishing</a></code>, <code><a href='setResource.html'>setResource</a></code></p><dl'>
+      <td><p>Arguments passed on to <code><a href='setPredKernel.html'>setPredKernel</a></code>, <code><a href='setSearchVolume.html'>setSearchVolume</a></code>, <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a></code>, <code><a href='setMetabolicRate.html'>setMetabolicRate</a></code>, <code><a href='setExtMort.html'>setExtMort</a></code>, <code><a href='setReproduction.html'>setReproduction</a></code>, <code><a href='setFishing.html'>setFishing</a></code>, <code><a href='setResource.html'>setResource</a></code></p><dl>
     <dt><code>pred_kernel</code></dt><dd><p>Optional. An array (species x predator size x prey size)
 that holds the predation coefficient of each predator at size on each prey
 size. If not supplied, a default is set as described in section "Setting
@@ -284,9 +274,10 @@ a vector, must be named by gear.</p></dd>
     <dt><code>lambda</code></dt><dd><p>Scaling exponent of the intrinsic resource carrying capacity</p></dd>
     <dt><code>w_pp_cutoff</code></dt><dd><p>The upper cut off size of the resource spectrum.
 Default is 10 g.</p></dd>
-    <dt><code>resource_dynamics</code></dt><dd><p>Function that determines resource dynamics by
-calculating the resource spectrum at the next time step from the current
-state.</p></dd>
+    <dt><code>resource_dynamics</code></dt><dd><p>Optional. Name of the function that determines the
+resource dynamics by calculating the resource spectrum at the next time
+step from the current state. You only need to specify this if you do not
+want to use the default <code><a href='resource_semichemostat.html'>resource_semichemostat()</a></code>.</p></dd>
   
 </dl></td>
     </tr>
@@ -297,27 +288,26 @@ state.</p></dd>
     <p>A <a href='MizerParams-class.html'>MizerParams</a> object</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Usually, if you are happy with the way mizer calculates its model functions
-from the species parameters and only want to change the values of some
-species parameters, you would make those changes in the <code>species_params</code> data
-frame contained in the <code>params</code> object and then call the <code>setParams()</code>
-function to effect the change. Note that just changing the species parameters
-by themselves is not changing the model until you call <code>setParams()</code> or the
-appropriate one of its sub-functions. Here is an example which assumes that
-you have have a MizerParams object <code>params</code> in which you just want to change
-one parameter of the third species:</p><pre><span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>gamma</span><span class='kw'>[[</span><span class='fl'>3</span>]] <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fl'>1000</span>
-<span class='no'>params</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fu'>setParams</span>(<span class='no'>params</span>)</pre>
-
-<p>Because of the way the R language works, <code>setParams</code> does not make the
-changes to the <code>params</code> object that you pass to it but instead returns a new
-params object. So to affect the change you call the function in the form
-<code>params &lt;- setParams(params, ...)</code>.</p>
-<p>If you are not happy with the assumptions that mizer makes by default about
+    <p>If you are not happy with the assumptions that mizer makes by default about
 the shape of the model functions, for example if you want to change one of
 the allometric scaling assumptions, you can do this by providing your
 choice as an array in the appropriate argument to <code>setParams()</code>. The
 sections below discuss all the model functions that you can change this way.</p>
-<p>This function will use the species parameters in the <code>params</code> object to reset
+<p>Because of the way the R language works, <code>setParams</code> does not make the
+changes to the <code>params</code> object that you pass to it but instead returns a new
+params object. So to affect the change you call the function in the form
+<code>params &lt;- setParams(params, ...)</code>.</p>
+<p>Usually, if you are happy with the way mizer calculates its model functions
+from the species parameters and only want to change the values of some
+species parameters, you would make those changes in the <code>species_params</code> data
+frame contained in the <code>params</code> object using <code><a href='species_params.html'>species_params&lt;-()</a></code>.
+Here is an example which assumes that
+you have have a MizerParams object <code>params</code> in which you just want to change
+the <code>gamma</code> parameter of the third species:</p><pre><span class='fu'><a href='species_params.html'>species_params</a></span>(<span class='kw'>params</span>)<span class='op'>$</span><span class='kw'>gamma</span>[[<span class='fl'>3</span>]] <span class='op'>&lt;-</span> <span class='fl'>1000</span></pre>
+
+<p>Internally that will actually call <code>setParams()</code> to recalculate any of the
+other parameters that are affected by the change in the species parameter.</p>
+<p><code>setParams()</code> will use the species parameters in the <code>params</code> object to recalculate
 the values of all the model functions that you do not specify explicitly when
 calling this function, unless you have protected the corresponding slots with
 a comment. If you have changed any of the model functions in the
@@ -327,8 +317,8 @@ above example you would have used <code>params &lt;- setSearchVolume(params)</co
 instead of <code>params &lt;- setParams(params)</code>.</p>
 <p>If you have added a comment to a slot of the params object, then setParams()
 and its subfunctions will not recalculate the value for that slot from the
-species parameters. For example</p><pre><span class='fu'><a href='https://rdrr.io/r/base/comment.html'>comment</a></span>(<span class='no'>params</span>@<span class='kw'>search_vol</span>) <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='st'>"This should not change"</span>
-<span class='fu'>species_params</span>(<span class='no'>params</span>)$<span class='no'>gamma</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fl'>10</span></pre>
+species parameters. For example</p><pre><span class='fu'><a href='https://rdrr.io/r/base/comment.html'>comment</a></span>(<span class='kw'>params</span><span class='op'>@</span>search_vol) <span class='op'>&lt;-</span> <span class='st'>"This should not change"</span>
+<span class='fu'><a href='species_params.html'>species_params</a></span>(<span class='kw'>params</span>)<span class='op'>$</span><span class='kw'>gamma</span> <span class='op'>&lt;-</span> <span class='fl'>10</span></pre>
 
 <p>will just issue a warning "The search volume has been commented and therefore
 will not be recalculated from the species parameters". You can remove the
@@ -520,20 +510,23 @@ $$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$</p>
     
 
 
-<h3>Investment</h3>
-<p>For each species and at each size, the proportion \(\psi\) of the available energy
+<p>For each species and at each size, the proportion \(\psi\) of the
+available energy
 that is invested into reproduction is the product of two factors: the
 proportion <code>maturity</code> of individuals that are mature and the proportion
 <code>repro_prop</code> of the energy available to a mature individual that is
 invested into reproduction.</p>
-<p>If the <code>maturity</code> argument is not supplied, then it is set to a sigmoidal
+<h3>Maturity ogive</h3>
+<p>If the the proportion of individuals that are mature is not supplied via
+the <code>maturity</code> argument , then it is set to a sigmoidal
 maturity ogive that changes from 0 to 1 at around the maturity size:
 $${\tt maturity}(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}.$$
-(To avoid clutter, we are not showing the species index in the equations.)
+(To avoid clutter, we are not showing the species index in the equations,
+although each species has its own maturity ogive.)
 The maturity weights are taken from the <code>w_mat</code> column of the
 species_params data frame. Any missing maturity weights are set to 1/4 of the
-asymptotic weight in the <code>w_inf</code> column.
-The exponent \(U\) determines the steepness of the maturity ogive. By
+asymptotic weight in the <code>w_inf</code> column.</p>
+<p>The exponent \(U\) determines the steepness of the maturity ogive. By
 default it is chosen as \(U = 10\), however this can be overridden by
 including a column <code>w_mat25</code> in the species parameter dataframe that
 specifies the weight at which 25% of individuals are mature, which sets
@@ -541,9 +534,13 @@ specifies the weight at which 25% of individuals are mature, which sets
 <p>The sigmoidal function given above would strictly reach 1 only asymptotically.
 Mizer instead sets the function equal to 1 already at the species'
 maximum size, taken from the compulsory <code>w_inf</code> column in the
-<code>species_params</code> data frame.</p>
-<p>If the <code>repro_prop</code> argument is not supplied, it is set to the
-allometric form
+<code>species_params</code> data frame. Also, for computational simplicity, any
+proportion smaller than <code>1e-8</code> is set to <code>0</code>.</p>
+
+<h3>Investment into reproduction</h3>
+<p>If the the energy available to a mature individual that is
+invested into reproduction is not supplied via the <code>repro_prop</code> argument,
+it is set to the allometric form
 $${\tt repro\_prop}(w) = \left(\frac{w}{w_{inf}}\right)^{m-n}.$$
 Here \(n\) is the scaling exponent of the energy income rate. Hence
 the exponent \(m\) determines the scaling of the investment into
@@ -556,13 +553,14 @@ data frame.</p>
 <p>So finally we have
 $$\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)$$</p>
 
-<h3>Efficiency</h3>
-<p>The reproductive efficiency, i.e., the proportion of energy allocated to
+<h3>Reproductive efficiency</h3>
+<p>The reproductive efficiency \(\epsilon\), i.e., the proportion of energy allocated to
 reproduction that results in egg biomass, is set through the <code>erepro</code>
 column in the species_params data frame. If that is not provided, the default
 is set to 1 (which you will want to override). The offspring biomass divided
 by the egg biomass gives the rate of egg production, returned by
-<code><a href='getRDI.html'>getRDI()</a></code>.</p>
+<code><a href='getRDI.html'>getRDI()</a></code>:
+$$R_{di} = \frac{\epsilon}{2 w_{min}} \int N(w)  E_r(w) \psi(w) \, dw$$</p>
 
 <h3>Density dependence</h3>
 <p>The stock-recruitment relationship is an emergent phenomenon in mizer, with
@@ -685,6 +683,8 @@ and <code>lambda</code> arguments.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for setting parameters: 
+<code><a href='gear_params.html'>gear_params</a>()</code>,
+<code><a href='resource_params.html'>resource_params</a>()</code>,
 <code><a href='setExtMort.html'>setExtMort</a>()</code>,
 <code><a href='setFishing.html'>setFishing</a>()</code>,
 <code><a href='setInitialValues.html'>setInitialValues</a>()</code>,
@@ -694,14 +694,9 @@ and <code>lambda</code> arguments.</p>
 <code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
 <code><a href='setResource.html'>setResource</a>()</code>,
-<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
+<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code>,
+<code><a href='species_params.html'>species_params</a>()</code></p></div>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newTraitParams.html'>newTraitParams</a></span>()
-<span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>gamma</span>[<span class='fl'>3</span>] <span class='kw'>&lt;-</span> <span class='fl'>1000</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setParams</span>(<span class='no'>params</span>)
-}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -717,7 +712,7 @@ and <code>lambda</code> arguments.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

@@ -64,6 +64,9 @@
     <loc>https://sizespectrum.org/mizer/reference/finalNOther.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/gear_params.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/getBiomass.html</loc>
   </url>
   <url>
@@ -152,6 +155,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getRDI.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/getRates.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getResourceMort.html</loc>
@@ -331,6 +337,9 @@
     <loc>https://sizespectrum.org/mizer/reference/resource_encounter.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/resource_params.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/resource_semichemostat.html</loc>
   </url>
   <url>
@@ -338,6 +347,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/semichemostat.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/setBevertonHolt.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/setColours.html</loc>
@@ -406,6 +418,9 @@
     <loc>https://sizespectrum.org/mizer/reference/sigmoid_weight.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/species_params.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/steady.html</loc>
   </url>
   <url>
@@ -430,13 +445,19 @@
     <loc>https://sizespectrum.org/mizer/reference/upgradeSim.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/validEffortVector.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/validGearParams.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/validParams.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/validSpeciesParams.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/validate_effort_vector.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/valid_species_arg.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/w.html</loc>
@@ -479,6 +500,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/running_a_simulation.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/test.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/trait_model.html</loc>

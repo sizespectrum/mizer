@@ -79,7 +79,7 @@ newCommunityParams() that sets better default values." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -188,26 +188,26 @@ newCommunityParams() that sets better default values." />
     </div>
 
     <pre class="usage"><span class='fu'>set_community_model</span>(
-  <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='fl'>1e+06</span>,
-  <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fl'>0.001</span>,
-  <span class='kw'>min_w_pp</span> <span class='kw'>=</span> <span class='fl'>1e-10</span>,
-  <span class='kw'>z0</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
-  <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.2</span>,
-  <span class='kw'>h</span> <span class='kw'>=</span> <span class='fl'>10</span>,
-  <span class='kw'>beta</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-  <span class='kw'>sigma</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-  <span class='kw'>q</span> <span class='kw'>=</span> <span class='fl'>0.8</span>,
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>2</span>/<span class='fl'>3</span>,
-  <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
-  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>2</span> + <span class='no'>q</span> - <span class='no'>n</span>,
-  <span class='kw'>f0</span> <span class='kw'>=</span> <span class='fl'>0.7</span>,
-  <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fl'>10</span>,
-  <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
-  <span class='kw'>knife_edge_size</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
-  <span class='kw'>knife_is_min</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>recruitment</span> <span class='kw'>=</span> <span class='no'>kappa</span> * <span class='no'>min_w</span>^-<span class='no'>lambda</span>,
-  <span class='kw'>rec_mult</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='no'>...</span>
+  max_w = <span class='fl'>1e+06</span>,
+  min_w = <span class='fl'>0.001</span>,
+  min_w_pp = <span class='fl'>1e-10</span>,
+  z0 = <span class='fl'>0.1</span>,
+  alpha = <span class='fl'>0.2</span>,
+  h = <span class='fl'>10</span>,
+  beta = <span class='fl'>100</span>,
+  sigma = <span class='fl'>2</span>,
+  q = <span class='fl'>0.8</span>,
+  n = <span class='fl'>2</span><span class='op'>/</span><span class='fl'>3</span>,
+  kappa = <span class='fl'>1000</span>,
+  lambda = <span class='fl'>2</span> <span class='op'>+</span> <span class='kw'>q</span> <span class='op'>-</span> <span class='kw'>n</span>,
+  f0 = <span class='fl'>0.7</span>,
+  r_pp = <span class='fl'>10</span>,
+  gamma = <span class='fl'>NA</span>,
+  knife_edge_size = <span class='fl'>1000</span>,
+  knife_is_min = <span class='fl'>TRUE</span>,
+  recruitment = <span class='kw'>kappa</span> <span class='op'>*</span> <span class='kw'>min_w</span><span class='op'>^</span><span class='op'>-</span><span class='kw'>lambda</span>,
+  rec_mult = <span class='fl'>1</span>,
+  <span class='kw'>...</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -351,11 +351,11 @@ Royal Society, 276, 109-114</p>
 <code><a href='set_trait_model.html'>set_trait_model</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>set_community_model</span>(<span class='kw'>f0</span><span class='kw'>=</span><span class='fl'>0.7</span>, <span class='kw'>z0</span><span class='kw'>=</span><span class='fl'>0.2</span>, <span class='kw'>recruitment</span><span class='kw'>=</span><span class='fl'>3e7</span>)
-<span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>dt</span><span class='kw'>=</span><span class='fl'>0.1</span>)
-<span class='fu'><a href='plotBiomass.html'>plotBiomass</a></span>(<span class='no'>sim</span>)
-<span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span>(<span class='no'>sim</span>)
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'>set_community_model</span>(f0=<span class='fl'>0.7</span>, z0=<span class='fl'>0.2</span>, recruitment=<span class='fl'>3e7</span>)
+<span class='kw'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='kw'>params</span>, effort = <span class='fl'>0</span>, t_max = <span class='fl'>100</span>, dt=<span class='fl'>0.1</span>)
+<span class='fu'><a href='plotBiomass.html'>plotBiomass</a></span>(<span class='kw'>sim</span>)
+<span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span>(<span class='kw'>sim</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -372,7 +372,7 @@ Royal Society, 276, 109-114</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -194,7 +194,9 @@ To find the correct repository URL you go back to GitHub to the front page of th
 <a href="#setting-up-rstudio-developer-tools" class="anchor"></a>Setting up RStudio developer tools</h2>
 <p>To work with R packages as a developer, you will need to <a href="https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites">install additional tools</a>.</p>
 <p>Once you have these tools in place, you should install the devtools and roxygen2 packages with</p>
-<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"devtools"</span>, <span class="st">"roxygen2"</span>))</pre></body></html></div>
+<div class="sourceCode" id="cb1"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"devtools"</span>, <span class="st">"roxygen2"</span>))
+</pre></div>
 <p>You are now all set to develop R packages, and <a href="https://support.rstudio.com/hc/en-us/articles/200486488-Developing-Packages-with-RStudio">RStudio makes this extra easy</a>. There is even a cheat sheet “Package Development with devtools” accessible from the Help menu in RStudio.</p>
 <p>To set things up, click on Build -&gt; More -&gt; Configure Build Tools.</p>
 <center>
@@ -217,13 +219,17 @@ To find the correct repository URL you go back to GitHub to the front page of th
 <h2 class="hasAnchor">
 <a href="#installing-mizer" class="anchor"></a>Installing mizer</h2>
 <p>You are now ready to install the mizer package using the development code from GitHub. First you should do this with the command</p>
-<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="kw pkg">devtools</span><span class="kw ns">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">"sizespectrum/mizer"</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb2"><pre class="downlit">
+<span class="kw">devtools</span>::<span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">"sizespectrum/mizer"</span>)
+</pre></div>
 This will automatically also install all the other packages that mizer depends on. However this uses the version of the code in the official mizer repository on GitHub, not your local copy of the code. Once you have made changes to your local code, you will want to install mizer using that code. To do this go to the “Build” tab in RStudio and click on “Install and Restart” or alternatively use the keyboard shortcut Ctrl+Shift+B.
 <center>
 <img src="images/build.png">
 </center>
 <p>You can watch the progress in the “Build” tab. Once the build has completed, you will see that in the console RStudio automatically runs</p>
-<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">mizer</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb3"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="https://sizespectrum.org/mizer">mizer</a></span>)
+</pre></div>
 <p>to load you freshly built mizer package. You will want to click “Install and Restart” whenever you have changed your local code.</p>
 </div>
 </div>
@@ -320,7 +326,7 @@ This will automatically also install all the other packages that mizer depends o
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

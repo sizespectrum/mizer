@@ -86,7 +86,7 @@ function has been registered, see below." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -201,14 +201,14 @@ function has been registered, see below.</p>
     </div>
 
     <pre class="usage"><span class='fu'>mizerEReproAndGrowth</span>(
-  <span class='no'>params</span>,
-  <span class='no'>n</span>,
-  <span class='no'>n_pp</span>,
-  <span class='no'>n_other</span>,
-  <span class='no'>t</span>,
-  <span class='no'>encounter</span>,
-  <span class='no'>feeding_level</span>,
-  <span class='no'>...</span>
+  <span class='kw'>params</span>,
+  <span class='kw'>n</span>,
+  <span class='kw'>n_pp</span>,
+  <span class='kw'>n_other</span>,
+  <span class='kw'>t</span>,
+  <span class='kw'>encounter</span>,
+  <span class='kw'>feeding_level</span>,
+  <span class='kw'>...</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -276,7 +276,7 @@ cover the cost of metabolism and movement.</p>
 <p>By default <code><a href='getEReproAndGrowth.html'>getEReproAndGrowth()</a></code> calls <code>mizerEReproAndGrowth()</code>. However you
 can replace this with your own alternative energy rate function. If
 your function is called <code>"myEReproAndGrowth"</code> then you register it in a
-MizerParams object <code>params</code> with</p><pre><span class='no'>params</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='no'>params</span>, <span class='st'>"EReproAndGrowth"</span>, <span class='st'>"myEReproAndGrowth"</span>)</pre>
+MizerParams object <code>params</code> with</p><pre><span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='kw'>params</span>, <span class='st'>"EReproAndGrowth"</span>, <span class='st'>"myEReproAndGrowth"</span>)</pre>
 
 <p>Your function will then be called instead of <code>mizerEReproAndGrowth()</code>, with
 the same arguments.</p>
@@ -311,7 +311,7 @@ the same arguments.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

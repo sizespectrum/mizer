@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -145,8 +145,10 @@
 <h2 class="hasAnchor">
 <a href="#website-built-from-package-documentation" class="anchor"></a>Website built from package documentation</h2>
 <p>The mizer website at [<a href="https://sizespectrum.org/mizer/" class="uri">https://sizespectrum.org/mizer/</a>] is created programmatically from the documentation included in the mizer GitHub repository. Thus to edit the website just means editing this documentation. The website creation is performed by a slight modification of the <a href="https://pkgdown.r-lib.org/index.html"><code>pkgdown</code></a> package. You can trigger a build in your local repository by issuing the commands</p>
-<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="kw pkg">devtools</span><span class="kw ns">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">"gustavdelius/pkgdown"</span>, <span class="kw">ref</span> <span class="kw">=</span> <span class="st">"mizer"</span>)
-<span class="kw pkg">pkgdown</span><span class="kw ns">::</span><span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_site.html">build_site</a></span>()</pre></body></html></div>
+<div class="sourceCode" id="cb1"><pre class="downlit">
+<span class="kw">devtools</span>::<span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">"gustavdelius/pkgdown"</span>, ref = <span class="st">"mizer"</span>)
+<span class="kw">pkgdown</span>::<span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_site.html">build_site</a></span>()
+</pre></div>
 <p>This will convert all existing documentation into html files and put these into the <code>docs</code> subdirectory of your mizer directory. In detail:</p>
 <ol style="list-style-type: decimal">
 <li><p>All .Rmd files in the <code>vignettes</code> subdirectory (and its subdirectories, if any) will produce html files of the same name in <code>docs/articles</code>.</p></li>
@@ -190,11 +192,17 @@
 <h2 class="hasAnchor">
 <a href="#changing-page-content" class="anchor"></a>Changing page content</h2>
 <p>At the top of every page on the website, except the homepage, there is a link to the page source. So it is easy to know which file to edit to make changes to a page. If you want to rebuild the website after making a change to a single page you may not want to re-build everything. You can rebuild just a single vignette. For example to rebuild this page after editing the vignette <code>vignette/editing_website.Rmd</code> you can call</p>
-<div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="kw pkg">pkgdown</span><span class="kw ns">::</span><span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_articles.html">build_article</a></span>(<span class="st">"editing_website"</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb4"><pre class="downlit">
+<span class="kw">pkgdown</span>::<span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_articles.html">build_article</a></span>(<span class="st">"editing_website"</span>)
+</pre></div>
 <p>To rebuild the reference pages after changing the roxygen code doc you can run</p>
-<div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="kw pkg">pkgdown</span><span class="kw ns">::</span><span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_reference.html">build_reference</a></span>()</pre></body></html></div>
+<div class="sourceCode" id="cb5"><pre class="downlit">
+<span class="kw">pkgdown</span>::<span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_reference.html">build_reference</a></span>()
+</pre></div>
 <p>To change the homepage you edit index.md. This file is very similar to README.md that is used on the mizer homepage on GitHub, but can contain extra content like embedded videos that the GitHub homepage does not support. After changes to index.md you can update your local copy of the website with</p>
-<div class="sourceCode" id="cb6"><html><body><pre class="r"><span class="kw pkg">pkgdown</span><span class="kw ns">::</span><span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_home.html">build_home</a></span>()</pre></body></html></div>
+<div class="sourceCode" id="cb6"><pre class="downlit">
+<span class="kw">pkgdown</span>::<span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_home.html">build_home</a></span>()
+</pre></div>
 <p>Of course these changes will affect only your local copy of the website. To get those changes reflected on the online site you will need to make a pull request for your changed files against the master branch of the upstream repository.</p>
 </div>
 <div id="github-pages" class="section level2">
@@ -234,7 +242,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

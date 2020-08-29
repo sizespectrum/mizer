@@ -78,7 +78,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -185,9 +185,9 @@
     <p>Sets the rate at which energy is used for metabolism and activity</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setMetabolicRate</span>(<span class='no'>params</span>, <span class='kw'>metab</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>p</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
+    <pre class="usage"><span class='fu'>setMetabolicRate</span>(<span class='kw'>params</span>, metab = <span class='kw'>NULL</span>, p = <span class='kw'>NULL</span>, <span class='kw'>...</span>)
 
-<span class='fu'>getMetabolicRate</span>(<span class='no'>params</span>)</pre>
+<span class='fu'>getMetabolicRate</span>(<span class='kw'>params</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -243,24 +243,20 @@ specified, a default of \(f_c = 0.2\) is used.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for setting parameters: 
+<code><a href='gear_params.html'>gear_params</a>()</code>,
+<code><a href='resource_params.html'>resource_params</a>()</code>,
 <code><a href='setExtMort.html'>setExtMort</a>()</code>,
 <code><a href='setFishing.html'>setFishing</a>()</code>,
 <code><a href='setInitialValues.html'>setInitialValues</a>()</code>,
 <code><a href='setInteraction.html'>setInteraction</a>()</code>,
 <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
+<code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
 <code><a href='setResource.html'>setResource</a>()</code>,
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code>,
-<code><a href='setParams.html'>species_params</a>()</code></p></div>
+<code><a href='species_params.html'>species_params</a>()</code></p></div>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='no'>NS_params</span>
-<span class='co'># Change activity coefficient for species 3</span>
-<span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>k</span>[<span class='fl'>3</span>] <span class='kw'>&lt;-</span> <span class='fl'>8</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setMetabolicRate</span>(<span class='no'>params</span>)
-}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -276,7 +272,7 @@ specified, a default of \(f_c = 0.2\) is used.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

@@ -46,11 +46,15 @@
 
 
 <meta property="og:title" content="Beverton Holt function to calculate density-dependent reproduction rate — BevertonHoltRDD" />
-<meta property="og:description" content="Takes the density-independent rates \(R_p\) of egg production and returns
-reduced, density-dependent reproduction rates \(R\) given as $$R = R_p
-\frac{R_{max}}{R_p + R_{max}}$$ where
+<meta property="og:description" content="Takes the density-independent rates \(R_{di}\) of egg production (as
+calculated by getRDI()) and returns
+reduced, density-dependent reproduction rates \(R_{dd}\) given as
+$$R_{dd} = R_{di}
+\frac{R_{max}}{R_{di} + R_{max}}$$ where
 \(R_{max}\) are the maximum possible reproduction rates that must be
-specified in a column in the species parameter dataframe." />
+specified in a column in the species parameter dataframe.
+(All quantities in the above equation are species-specific but we dropped
+the species index for simplicity.)" />
 
 
 
@@ -82,7 +86,7 @@ specified in a column in the species parameter dataframe." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -186,22 +190,26 @@ specified in a column in the species parameter dataframe." />
     </div>
 
     <div class="ref-description">
-    <p>Takes the density-independent rates \(R_p\) of egg production and returns
-reduced, density-dependent reproduction rates \(R\) given as $$R = R_p
-\frac{R_{max}}{R_p + R_{max}}$$ where
+    <p>Takes the density-independent rates \(R_{di}\) of egg production (as
+calculated by <code><a href='getRDI.html'>getRDI()</a></code>) and returns
+reduced, density-dependent reproduction rates \(R_{dd}\) given as
+$$R_{dd} = R_{di}
+\frac{R_{max}}{R_{di} + R_{max}}$$ where
 \(R_{max}\) are the maximum possible reproduction rates that must be
-specified in a column in the species parameter dataframe.</p>
+specified in a column in the species parameter dataframe.
+(All quantities in the above equation are species-specific but we dropped
+the species index for simplicity.)</p>
     </div>
 
-    <pre class="usage"><span class='fu'>BevertonHoltRDD</span>(<span class='no'>rdi</span>, <span class='no'>species_params</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>BevertonHoltRDD</span>(<span class='kw'>rdi</span>, <span class='kw'>species_params</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>rdi</th>
-      <td><p>Vector of density-independent reproduction rates \(R_p\) for all
-species.</p></td>
+      <td><p>Vector of density-independent reproduction rates
+\(R_{di}\) for all species.</p></td>
     </tr>
     <tr>
       <th>species_params</th>
@@ -247,7 +255,7 @@ and <code><a href='SheperdRDD.html'>SheperdRDD()</a></code>. For more explanatio
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

@@ -80,7 +80,7 @@ against time. The biomass is calculated within user defined size limits
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -190,13 +190,13 @@ against time. The biomass is calculated within user defined size limits
     </div>
 
     <pre class="usage"><span class='fu'>getBiomassFrame</span>(
-  <span class='no'>sim</span>,
-  <span class='kw'>species</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/dimnames.html'>dimnames</a></span>(<span class='no'>sim</span>@<span class='kw'>n</span>)$<span class='no'>sp</span>[!<span class='fu'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span>(<span class='no'>sim</span>@<span class='kw'>params</span>@<span class='kw'>A</span>)],
-  <span class='kw'>start_time</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/dimnames.html'>dimnames</a></span>(<span class='no'>sim</span>@<span class='kw'>n</span>)<span class='kw'>[[</span><span class='fl'>1</span>]][<span class='fl'>1</span>]),
-  <span class='kw'>end_time</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/dimnames.html'>dimnames</a></span>(<span class='no'>sim</span>@<span class='kw'>n</span>)<span class='kw'>[[</span><span class='fl'>1</span>]][<span class='fu'><a href='https://rdrr.io/r/base/dim.html'>dim</a></span>(<span class='no'>sim</span>@<span class='kw'>n</span>)[<span class='fl'>1</span>]]),
-  <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>NA</span>, <span class='fl'>NA</span>),
-  <span class='kw'>total</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='no'>...</span>
+  <span class='kw'>sim</span>,
+  species = <span class='fu'><a href='https://rdrr.io/r/base/dimnames.html'>dimnames</a></span>(<span class='kw'>sim</span><span class='op'>@</span>n)<span class='op'>$</span><span class='kw'>sp</span>[<span class='op'>!</span><span class='fu'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span>(<span class='kw'>sim</span><span class='op'>@</span>params<span class='op'>@</span>A)],
+  start_time = <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/dimnames.html'>dimnames</a></span>(<span class='kw'>sim</span><span class='op'>@</span>n)[[<span class='fl'>1</span>]][<span class='fl'>1</span>]),
+  end_time = <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/dimnames.html'>dimnames</a></span>(<span class='kw'>sim</span><span class='op'>@</span>n)[[<span class='fl'>1</span>]][<span class='fu'><a href='https://rdrr.io/r/base/dim.html'>dim</a></span>(<span class='kw'>sim</span><span class='op'>@</span>n)[<span class='fl'>1</span>]]),
+  ylim = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>NA</span>, <span class='fl'>NA</span>),
+  total = <span class='fl'>FALSE</span>,
+  <span class='kw'>...</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -234,7 +234,7 @@ all species is plotted as well. Default is FALSE.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Arguments passed on to <code><a href='get_size_range_array.html'>get_size_range_array</a></code></p><dl'>
+      <td><p>Arguments passed on to <code><a href='get_size_range_array.html'>get_size_range_array</a></code></p><dl>
     <dt><code>min_w</code></dt><dd><p>Smallest weight in size range. Defaults to smallest weight in
 the model.</p></dd>
     <dt><code>max_w</code></dt><dd><p>Largest weight in size range. Defaults to largest weight in the
@@ -267,7 +267,7 @@ over <code>max_w</code>.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

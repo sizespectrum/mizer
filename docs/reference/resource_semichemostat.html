@@ -46,7 +46,8 @@
 
 
 <meta property="og:title" content="Project resource using semichemostat model — resource_semichemostat" />
-<meta property="og:description" content="Project resource using semichemostat model" />
+<meta property="og:description" content="This function calculates the resource abundance at time t + dt from all
+abundances and rates at time t." />
 
 
 
@@ -78,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -182,10 +183,11 @@
     </div>
 
     <div class="ref-description">
-    <p>Project resource using semichemostat model</p>
+    <p>This function calculates the resource abundance at time <code>t + dt</code> from all
+abundances and rates at time <code>t</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>resource_semichemostat</span>(<span class='no'>params</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='no'>rates</span>, <span class='no'>t</span>, <span class='no'>dt</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>resource_semichemostat</span>(<span class='kw'>params</span>, <span class='kw'>n</span>, <span class='kw'>n_pp</span>, <span class='kw'>n_other</span>, <span class='kw'>rates</span>, <span class='kw'>t</span>, <span class='kw'>dt</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -227,11 +229,24 @@
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>Vector containing resource spectrum at next timestep</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The time evolution of the resource spectrum is described by a
+semi-chemostat equation
+$$\frac{\partial N_R(w,t)}{\partial t} = r_R(w) \Big[ c_R (w) - N_R(w,t) \Big] - \mu_R(w, t) N_R(w,t)$$</p>
+<p>Here \(r_R(w)\) is the resource regeneration rate and \(c_R(w)\) is the
+carrying capacity in the absence of predation. These parameters are changed
+with <code><a href='setResource.html'>setResource()</a></code>. The mortality \(\mu_R(w, t)\) is
+due to predation by consumers and is calculate with <code><a href='getResourceMort.html'>getResourceMort()</a></code>.</p>
+<p>This function uses the analytic solution of the above equation, keeping the
+mortality fixed during the timestep.</p>
+<p>It is also possible to implement other resource dynamics, as
+described in the help page for <code><a href='setResource.html'>setResource()</a></code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>,
-                                <span class='kw'>resource_dynamics</span> <span class='kw'>=</span> <span class='st'>"resource_semichemostat"</span>)
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='kw'>NS_species_params_gears</span>, <span class='kw'>inter</span>,
+                                resource_dynamics = <span class='st'>"resource_semichemostat"</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -248,7 +263,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

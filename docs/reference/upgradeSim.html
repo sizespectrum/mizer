@@ -50,7 +50,7 @@
 MizerSim class or the MizerParams class gains
 extra slots. MizerSim objects created in older versions of mizer are then no
 longer valid in the new version because of the missing slots. You need to
-upgrade them withsim &amp;amp;lt;- upgradeSim(sim)
+upgrade them withsim &amp;lt;- upgradeSim(sim)
 
 where sim should be replaced by the name of your MizerSim object." />
 
@@ -84,7 +84,7 @@ where sim should be replaced by the name of your MizerSim object." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -192,12 +192,12 @@ where sim should be replaced by the name of your MizerSim object." />
 <a href='MizerSim-class.html'>MizerSim</a> class or the <a href='MizerParams-class.html'>MizerParams</a> class gains
 extra slots. MizerSim objects created in older versions of mizer are then no
 longer valid in the new version because of the missing slots. You need to
-upgrade them with</p><pre><span class='no'>sim</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fu'>upgradeSim</span>(<span class='no'>sim</span>)</pre>
+upgrade them with</p><pre><span class='kw'>sim</span> <span class='op'>&lt;-</span> <span class='fu'>upgradeSim</span>(<span class='kw'>sim</span>)</pre>
 
 <p>where <code>sim</code> should be replaced by the name of your MizerSim object.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>upgradeSim</span>(<span class='no'>sim</span>)</pre>
+    <pre class="usage"><span class='fu'>upgradeSim</span>(<span class='kw'>sim</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -225,7 +225,7 @@ discrepancies between the results obtained with the upgraded object
 in the new version and the original object in the old version. If it
 is important for you to reproduce the exact results then you should install
 the version of mizer with which you obtained the results. You can do this
-with</p><pre><span class='kw pkg'>remotes</span><span class='kw ns'>::</span><span class='fu'><a href='https://remotes.r-lib.org/reference/install_github.html'>install_github</a></span>(<span class='st'>"sizespectrum/mizer"</span>, <span class='kw'>ref</span> <span class='kw'>=</span> <span class='st'>"v0.2"</span>)</pre>
+with</p><pre><span class='kw'>remotes</span>::<span class='fu'><a href='https://remotes.r-lib.org/reference/install_github.html'>install_github</a></span>(<span class='st'>"sizespectrum/mizer"</span>, ref = <span class='st'>"v0.2"</span>)</pre>
 
 <p>where you should replace "v0.2" with the version number you require. You can
 see the list of available releases at
@@ -252,7 +252,7 @@ the new version again with <code><a href='https://rdrr.io/r/base/readRDS.html'>s
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

@@ -80,7 +80,7 @@ dynamics" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -190,27 +190,23 @@ dynamics</p>
     </div>
 
     <pre class="usage"><span class='fu'>setResource</span>(
-  <span class='no'>params</span>,
-  <span class='kw'>resource_rate</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>resource_capacity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fu'>resource_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"r_pp"</span>]],
-  <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='fu'>resource_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"kappa"</span>]],
-  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fu'>resource_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"lambda"</span>]],
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'>resource_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"n"</span>]],
-  <span class='kw'>w_pp_cutoff</span> <span class='kw'>=</span> <span class='fu'>resource_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"w_pp_cutoff"</span>]],
-  <span class='kw'>resource_dynamics</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='no'>...</span>
+  <span class='kw'>params</span>,
+  resource_rate = <span class='kw'>NULL</span>,
+  resource_capacity = <span class='kw'>NULL</span>,
+  r_pp = <span class='fu'><a href='resource_params.html'>resource_params</a></span>(<span class='kw'>params</span>)[[<span class='st'>"r_pp"</span>]],
+  kappa = <span class='fu'><a href='resource_params.html'>resource_params</a></span>(<span class='kw'>params</span>)[[<span class='st'>"kappa"</span>]],
+  lambda = <span class='fu'><a href='resource_params.html'>resource_params</a></span>(<span class='kw'>params</span>)[[<span class='st'>"lambda"</span>]],
+  n = <span class='fu'><a href='resource_params.html'>resource_params</a></span>(<span class='kw'>params</span>)[[<span class='st'>"n"</span>]],
+  w_pp_cutoff = <span class='fu'><a href='resource_params.html'>resource_params</a></span>(<span class='kw'>params</span>)[[<span class='st'>"w_pp_cutoff"</span>]],
+  resource_dynamics = <span class='kw'>NULL</span>,
+  <span class='kw'>...</span>
 )
 
-<span class='fu'>getResourceRate</span>(<span class='no'>params</span>)
+<span class='fu'>getResourceRate</span>(<span class='kw'>params</span>)
 
-<span class='fu'>getResourceCapacity</span>(<span class='no'>params</span>)
+<span class='fu'>getResourceCapacity</span>(<span class='kw'>params</span>)
 
-<span class='fu'>getResourceDynamics</span>(<span class='no'>params</span>)
-
-<span class='fu'>resource_params</span>(<span class='no'>params</span>)
-
-<span class='fu'>resource_params</span>(<span class='no'>params</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span></pre>
+<span class='fu'>getResourceDynamics</span>(<span class='kw'>params</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -250,17 +246,14 @@ Default is 10 g.</p></td>
     </tr>
     <tr>
       <th>resource_dynamics</th>
-      <td><p>Function that determines resource dynamics by
-calculating the resource spectrum at the next time step from the current
-state.</p></td>
+      <td><p>Optional. Name of the function that determines the
+resource dynamics by calculating the resource spectrum at the next time
+step from the current state. You only need to specify this if you do not
+want to use the default <code><a href='resource_semichemostat.html'>resource_semichemostat()</a></code>.</p></td>
     </tr>
     <tr>
       <th>...</th>
       <td><p>Unused</p></td>
-    </tr>
-    <tr>
-      <th>value</th>
-      <td><p>List of resource parameters</p></td>
     </tr>
     </table>
 
@@ -296,17 +289,21 @@ The values of \(\kappa\) and \(\lambda\) are taken from the <code>kappa</code>
 and <code>lambda</code> arguments.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other functions for setting parameters: 
+    <div class='dont-index'><p><code><a href='resource_params.html'>resource_params()</a></code></p>
+<p>Other functions for setting parameters: 
+<code><a href='gear_params.html'>gear_params</a>()</code>,
+<code><a href='resource_params.html'>resource_params</a>()</code>,
 <code><a href='setExtMort.html'>setExtMort</a>()</code>,
 <code><a href='setFishing.html'>setFishing</a>()</code>,
 <code><a href='setInitialValues.html'>setInitialValues</a>()</code>,
 <code><a href='setInteraction.html'>setInteraction</a>()</code>,
 <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
 <code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
+<code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code>,
-<code><a href='setParams.html'>species_params</a>()</code></p></div>
+<code><a href='species_params.html'>species_params</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -323,7 +320,7 @@ and <code>lambda</code> arguments.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

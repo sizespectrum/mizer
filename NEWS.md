@@ -1,4 +1,4 @@
-# mizer 2.0.3.9000
+# mizer 2.0.4
 
 ## Bug fixes
 
@@ -23,7 +23,7 @@
 * `validGearParams()` ensures that all required arguments of the 
   selectivity function are supplied and checks validity of species names.
 * `species_params()<-` suppresses warnings.
-* When `steady()` fails because RDI is zero it gives a meaningful error  message.
+* When `steady()` fails because RDI is zero it gives a meaningful error message.
 * `newCommunityParams()` now protects its zero investment in reproduction with
   a comment.
 * The default maturity ogive is truncated at proportions smaller than 1e-8.
@@ -41,7 +41,6 @@
 * Added documentation for `species_params()`, `gear_params()` and
   `resource_params()`.
 * Numerous small improvements to documentation.
-
 
 
 # mizer 2.0.3
@@ -149,7 +148,7 @@ version 1.0 with the exception of bug fixes and the following breaking changes:
   version never truncates. That leads to very small differences in simulation
   results.
 * Removed the `print_it` argument from plot functions.
-* plotFeedingLevel() now only plots the values within the size range of each
+* `plotFeedingLevel()` now only plots the values within the size range of each
   species. If for some reason you want the old plots that show a feeding level
   also for sizes that the fish can never have, you need to supply an argument
   `all.sizes = TRUE`.
@@ -252,7 +251,7 @@ gain experience in writing extensions for mizer.
 * New argument `include_critical` in `plotFeedingLevel()` allows to show also
   the critical feeding level.
 * New `wlim` argument to `plotSpectra()` in analogy to the existing `ylim`
-  argument to limit the w range in the plot.
+  argument to limit the `w` range in the plot.
 * The colours used in plot functions can be set with `setColours()`.
 * The default line type is `solid` but this can be changed via the 
   `setLinetypes()` function.
@@ -389,12 +388,12 @@ species. The information is set up via a new `gear_params()` data frame. See
 * Consistently cutting off predation kernel at 0 and beta + 3 sigma.
 * The `ylim` argument is not handled correctly in plots.
 * `display_frame()` is now exported.
-* plotGrowthCurves() and getGrowthCurves() also works when there is only a 
+* `plotGrowthCurves()` and `getGrowthCurves()` also works when there is only a 
   single species
-* t_start argument in project() is used correctly
+* `t_start` argument in `project()` is used correctly
 * times are not truncated at 3 significant figures, because that would not allow
   something like 2019.
-* get_initial_n() gets values for n and q from params object
+* `get_initial_n()` gets values for `n` and `q` from params object
 * `summary()` of MizerParams object reflects the number of non-empty resource 
   bins. (@patricksykes)
   

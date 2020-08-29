@@ -49,7 +49,7 @@
 <meta property="og:description" content="Occasionally during the development of new features for mizer, the
 MizerParams object gains extra slots. MizerParams objects
 created in older versions of mizer are then no longer valid in the new
-version because of the missing slots. You need to upgrade them withparams &amp;amp;lt;- upgradeParams(params)
+version because of the missing slots. You need to upgrade them withparams &amp;lt;- upgradeParams(params)
 
 where params should be replaced by the name of your MizerParams object.
 This function adds the missing slots and fills them with default values. Any
@@ -89,7 +89,7 @@ object." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -196,7 +196,7 @@ object." />
     <p>Occasionally during the development of new features for mizer, the
 <a href='MizerParams-class.html'>MizerParams</a> object gains extra slots. MizerParams objects
 created in older versions of mizer are then no longer valid in the new
-version because of the missing slots. You need to upgrade them with</p><pre><span class='no'>params</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fu'>upgradeParams</span>(<span class='no'>params</span>)</pre>
+version because of the missing slots. You need to upgrade them with</p><pre><span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'>upgradeParams</span>(<span class='kw'>params</span>)</pre>
 
 <p>where <code>params</code> should be replaced by the name of your MizerParams object.
 This function adds the missing slots and fills them with default values. Any
@@ -207,7 +207,7 @@ MizerParams object using the parameters extracted from the old MizerParams
 object.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>upgradeParams</span>(<span class='no'>params</span>)</pre>
+    <pre class="usage"><span class='fu'>upgradeParams</span>(<span class='kw'>params</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -230,7 +230,7 @@ discrepancies between the results obtained with the upgraded object
 in the new version and the original object in the old version. If it
 is important for you to reproduce the exact results then you should install
 the version of mizer with which you obtained the results. You can do this
-with</p><pre><span class='kw pkg'>remotes</span><span class='kw ns'>::</span><span class='fu'><a href='https://remotes.r-lib.org/reference/install_github.html'>install_github</a></span>(<span class='st'>"sizespectrum/mizer"</span>, <span class='kw'>ref</span> <span class='kw'>=</span> <span class='st'>"v0.2"</span>)</pre>
+with</p><pre><span class='kw'>remotes</span>::<span class='fu'><a href='https://remotes.r-lib.org/reference/install_github.html'>install_github</a></span>(<span class='st'>"sizespectrum/mizer"</span>, ref = <span class='st'>"v0.2"</span>)</pre>
 
 <p>where you should replace "v0.2" with the version number you require. You can
 see the list of available releases at
@@ -241,6 +241,9 @@ with <code><a href='https://rdrr.io/r/base/readRDS.html'>readRDS()</a></code> th
 of mizer first to read the params object into your workspace, then switch
 to the current version and then call <code>upgradeParams()</code>. You can then save
 the new version again with <code><a href='https://rdrr.io/r/base/readRDS.html'>saveRDS()</a></code>.</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='validParams.html'>validParams()</a></code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -257,7 +260,7 @@ the new version again with <code><a href='https://rdrr.io/r/base/readRDS.html'>s
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

@@ -79,7 +79,7 @@ by setFishing() or it gives an error message." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -187,7 +187,7 @@ by setFishing() or it gives an error message." />
 by <code><a href='setFishing.html'>setFishing()</a></code> or it gives an error message.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>validGearParams</span>(<span class='no'>gear_params</span>, <span class='no'>species_params</span>)</pre>
+    <pre class="usage"><span class='fu'>validGearParams</span>(<span class='kw'>gear_params</span>, <span class='kw'>species_params</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -207,18 +207,37 @@ by <code><a href='setFishing.html'>setFishing()</a></code> or it gives an error 
     <p>A valid gear parameter data frame</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>If gear_params is empty, then this function tries to find the necessary
+    <p>The gear_params data frame is allowed to have zero rows, but if it has
+rows, then the following requirements apply:</p><ul>
+<li><p>There must be columns <code>species</code> and <code>gear</code> and any species - gear pair is
+allowed to appear at most once. Any species that appears must also appear
+in the <code>species_params</code> data frame.</p></li>
+<li><p>There must be a <code>sel_func</code> column. If a selectivity function is not
+supplied, it will be set to "knife_edge".</p></li>
+<li><p>There must be a <code>catchability</code> column. If a catchability is not supplied,
+it will be set to 1.</p></li>
+<li><p>All the parameters required by the selectivity functions must be provided.</p></li>
+</ul>
+
+<p>If gear_params is empty, then this function tries to find the necessary
 information in the species_params data frame. This restricts each species
 to be fished by only one gear. Defaults are used for information that can
 not be found in the species_params dataframe, as follows:</p><ul>
-<li><p>If there is no <code>gear</code> column, each species gets its own gear, named after
-the species.</p></li>
+<li><p>If there is no <code>gear</code> column or it is NA then a new gear named after the
+species is introduced.</p></li>
 <li><p>If there is no <code>sel_func</code> column or it is NA then <code>knife_edge</code> is used.</p></li>
 <li><p>If there is no <code>catchability</code> column or it is NA then this is set to 1.</p></li>
 <li><p>If the selectivity function is <code>knife_edge</code> and no <code>knife_edge_size</code> is
 provided, it is set to <code>w_mat</code>.</p></li>
 </ul>
 
+<p>For backwards compatibility, when <code>gear_params</code> is <code>NULL</code> and there is no
+gear information in the <code>species_params</code>, then a gear called <code>knife_edge_gear</code>
+is set up with a <code>knife_edge</code> selectivity for each species and a
+<code>knive_edge_size</code> equal to <code>w_mat</code>. Catchability is set to 1 for all species.</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='gear_params.html'>gear_params()</a></code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -235,7 +254,7 @@ provided, it is set to <code>w_mat</code>.</p></li>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

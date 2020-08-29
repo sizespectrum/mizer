@@ -79,7 +79,7 @@ weight \(w\) encounters food (grams/year)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -188,11 +188,11 @@ weight \(w\) encounters food (grams/year).</p>
     </div>
 
     <pre class="usage"><span class='fu'>getEncounter</span>(
-  <span class='no'>params</span>,
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'><a href='initialN-set.html'>initialN</a></span>(<span class='no'>params</span>),
-  <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='fu'><a href='initialNResource-set.html'>initialNResource</a></span>(<span class='no'>params</span>),
-  <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='fu'><a href='initialNOther-set.html'>initialNOther</a></span>(<span class='no'>params</span>),
-  <span class='kw'>t</span> <span class='kw'>=</span> <span class='fl'>0</span>
+  <span class='kw'>params</span>,
+  n = <span class='fu'><a href='initialN<-.html'>initialN</a></span>(<span class='kw'>params</span>),
+  n_pp = <span class='fu'><a href='initialNResource<-.html'>initialNResource</a></span>(<span class='kw'>params</span>),
+  n_other = <span class='fu'><a href='initialNOther<-.html'>initialNOther</a></span>(<span class='kw'>params</span>),
+  t = <span class='fl'>0</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -217,7 +217,9 @@ ecosystem</p></td>
     </tr>
     <tr>
       <th>t</th>
-      <td><p>The current time. Unused</p></td>
+      <td><p>The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)</p></td>
     </tr>
     </table>
 
@@ -267,7 +269,7 @@ the encounters of these components will be included in the returned value.</p>
 <p>By default <code>getEncounter()</code> calls <code><a href='mizerEncounter.html'>mizerEncounter()</a></code>. However you can
 replace this with your own alternative encounter function. If
 your function is called <code>"myEncounter"</code> then you register it in a MizerParams
-object <code>params</code> with</p><pre><span class='no'>params</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='no'>params</span>, <span class='st'>"Encounter"</span>, <span class='st'>"myEncounter"</span>)</pre>
+object <code>params</code> with</p><pre><span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='kw'>params</span>, <span class='st'>"Encounter"</span>, <span class='st'>"myEncounter"</span>)</pre>
 
 <p>Your function will then be called instead of <code><a href='mizerEncounter.html'>mizerEncounter()</a></code>, with the
 same arguments.</p>
@@ -285,14 +287,15 @@ same arguments.</p>
 <code><a href='getPredRate.html'>getPredRate</a>()</code>,
 <code><a href='getRDD.html'>getRDD</a>()</code>,
 <code><a href='getRDI.html'>getRDI</a>()</code>,
+<code><a href='getRates.html'>getRates</a>()</code>,
 <code><a href='getResourceMort.html'>getResourceMort</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='kw'>NS_species_params_gears</span>, <span class='kw'>inter</span>)
 <span class='co'># Run simulation with constant fishing effort for all gears for 20 years</span>
-<span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
-<span class='fu'>getEncounter</span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'><a href='finalN.html'>finalN</a></span>(<span class='no'>sim</span>), <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='fu'><a href='finalN.html'>finalNResource</a></span>(<span class='no'>sim</span>), <span class='kw'>t</span> <span class='kw'>=</span> <span class='fl'>20</span>)
+<span class='kw'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='kw'>params</span>, t_max = <span class='fl'>20</span>, effort = <span class='fl'>0.5</span>)
+<span class='fu'>getEncounter</span>(<span class='kw'>params</span>, n = <span class='fu'><a href='finalN.html'>finalN</a></span>(<span class='kw'>sim</span>), n_pp = <span class='fu'><a href='finalN.html'>finalNResource</a></span>(<span class='kw'>sim</span>), t = <span class='fl'>20</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -309,7 +312,7 @@ same arguments.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -191,14 +191,22 @@
 <a href="#sec:params_example" class="anchor"></a>Example of making <code>MizerParams</code> objects</h2>
 <p>As mentioned in the preceding sections, an object of <code>MizerParams</code> is created by using the <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code> constructor method.</p>
 <p>The first step is to prepare the species specific parameter data.frame. As mentioned above, one way of doing this is to use a spreadsheet and save it as a .csv file. We will use this approach here. An example .csv file has been included in the package. This contains the species parameters for a multispecies North Sea model. This file is placed in the <code>doc</code> folder of the package installation. The location of the file can be found by running</p>
-<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"doc/NS_species_params.csv"</span>,<span class="kw">package</span><span class="kw">=</span><span class="st">"mizer"</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb1"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"doc/NS_species_params.csv"</span>,package=<span class="st">"mizer"</span>)
+</pre></div>
 <p>This file can be opened with most spreadsheets or a text editor for you to inspect. This can be loaded into R using the following code (after you have told R to look in the right directory):</p>
-<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="no">species_params</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span>(<span class="st">"NS_species_params.csv"</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb2"><pre class="downlit">
+<span class="kw">species_params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span>(<span class="st">"NS_species_params.csv"</span>)
+</pre></div>
 <p>This reads the .csv file into R in the form of a data.frame. You can check this with the <code>class</code>:</p>
-<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/class.html">class</a></span>(<span class="no">species_params</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb3"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/class.html">class</a></span>(<span class="kw">species_params</span>)
+</pre></div>
 <pre><code>## [1] "data.frame"</code></pre>
 <p>Let’s have a look at the data frame:</p>
-<div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="no">species_params</span></pre></body></html></div>
+<div class="sourceCode" id="cb5"><pre class="downlit">
+<span class="kw">species_params</span>
+</pre></div>
 <pre><code>##    species w_inf w_mat   beta sigma    R_max  k_vb
 ## 1    Sprat    33    13  51076   0.8 7.38e+11 0.681
 ## 2  Sandeel    36     4 398849   1.9 4.10e+11 1.000
@@ -212,24 +220,30 @@
 ## 10 Haddock  3485   165    558   2.1 1.84e+12 0.271
 ## 11     Cod 40044  1606     66   1.3 8.26e+09 0.216
 ## 12  Saithe 16856  1076     40   1.1 1.12e+11 0.175</code></pre>
-<p>You can see that there are <span class="math inline">\(12\)</span> species and <span class="math inline">\(`r ncol(species_params)`\)</span> columns of parameters: <code>species</code>, <code>w_inf</code>,<code>w_mat</code>,<code>beta</code>,<code>sigma</code>,<code>R_max</code> and <code>k_vb</code>.</p>
+<p>You can see that there are <span class="math inline">\(12\)</span> species and <span class="math inline">\(7\)</span> columns of parameters: <code>species</code>, <code>w_inf</code>,<code>w_mat</code>,<code>beta</code>,<code>sigma</code>,<code>R_max</code> and <code>k_vb</code>.</p>
 <p>Of these parameters, <code>species</code> and <code>w_inf</code> are essential and have no default values (as described in <a href="multispecies_model.html#sec:species_parameters_dataframe">the section on species parameters</a>). <code>w_inf</code> is the asymptotic size of the species, <code>w_mat</code> is its maturity size, and <code>beta</code> and <code>sigma</code> are parameters of the predation kernel (by default mizer uses a log-normal predation kernel). <code>R_max</code> is a parameter introducing additional density dependence into reproduction parameter using a Beverton-Holt type function (see <code><a href="../reference/setReproduction.html">setReproduction()</a></code> for details). The final column, <code>k_vb</code>, will be used to calculate values for <code>h</code> and then <code>gamma</code>. This column is only essential here because the <code>h</code> and <code>gamma</code> are not included in the data.frame. It would also have been possible to include <code>h</code> and <code>gamma</code> columns in the data.frame and not include the <code>k_vb</code> column.</p>
-<p>The values of the non-essential species specific parameters, like for example <code>alpha</code>, <code>k</code>, <code>ks</code>, <code>z0</code>, <code>w_min</code> and <code>erepro</code>, are not included in the data.frame. This means that the default values will be automatically used when we create the <code>MizerParams</code> object.</p>
+<p>The values of the non-essential species specific parameters, like for example <code>alpha</code>, <code>k</code>, <code>ks</code>, <code>z0</code>, <code>w_min</code> and <code>erepro</code>, were not included in the data.frame. This means that the default values will be automatically used when we create the <code>MizerParams</code> object.</p>
 <p>For this example we will not set up gear parameters. There are no columns describing the fishing selectivity. There is no <code>sel_func</code> column to determine the selectivity function. This means that the default selectivity function, <code>knife_edge</code>, will be used. As mentioned in <a href="multispecies_model.html#sec:fishing_gear">the section on fishing gears</a>, this function also needs another argument, <code>knife_edge_size</code>. This is not present in the data.frame and so it will be set to the default value of <code>w_mat</code>. Also, there is no <code>catchability</code> column so a default value for <code>catchability</code> of 1 will be used for all gears and species.</p>
 <p>To create the <code>MizerParams</code> object we pass the species parameter data.frame into the <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code> constructor method:</p>
-<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="no">params</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span>(<span class="no">species_params</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb7"><pre class="downlit">
+<span class="kw">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span>(<span class="kw">species_params</span>)
+</pre></div>
 <pre><code>## Note: No h provided for some species, so using f0 and k_vb to calculate it.</code></pre>
 <pre><code>## Note: Because you have n != p, the default value is not very good.</code></pre>
 <pre><code>## Note: No ks column so calculating from critical feeding level.</code></pre>
 <pre><code>## Note: Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</code></pre>
 <pre><code>## Note: Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</code></pre>
 <p>We have just created a <code>MizerParams</code> object:</p>
-<div class="sourceCode" id="cb13"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/class.html">class</a></span>(<span class="no">params</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb13"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/class.html">class</a></span>(<span class="kw">params</span>)
+</pre></div>
 <pre><code>## [1] "MizerParams"
 ## attr(,"package")
 ## [1] "mizer"</code></pre>
-<p>The MizerParams object also stores a copy of the species parameter data frame that we provided. We can look at it with <code><a href="../reference/setParams.html">species_params()</a></code>:</p>
-<div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="fu"><a href="../reference/setParams.html">species_params</a></span>(<span class="no">params</span>)</pre></body></html></div>
+<p>The MizerParams object also stores a copy of the species parameter data frame that we provided. We can look at it with <code><a href="../reference/species_params.html">species_params()</a></code>:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit">
+<span class="fu"><a href="../reference/species_params.html">species_params</a></span>(<span class="kw">params</span>)
+</pre></div>
 <pre><code>##         species w_inf w_mat   beta sigma    R_max  k_vb w_min alpha
 ## Sprat     Sprat    33    13  51076   0.8 7.38e+11 0.681 0.001   0.6
 ## Sandeel Sandeel    36     4 398849   1.9 4.10e+11 1.000 0.001   0.6
@@ -271,7 +285,9 @@
 ## Saithe  0 4.136466 0.02340093 1.797143e-10  964.051303 1      1</code></pre>
 <p>We can see that this returns the original species data.frame (with <code>w_inf</code> and so on), plus any default values that may not have been included in the original data.frame. For example, we can see that there are now columns for <code>alpha</code> and <code>h</code> and <code>gamma</code> etc.</p>
 <p>Also note how the default fishing gears have been set up. Even though we did not provide a gear parameter data frame, the MizerParams object has one that we can access with</p>
-<div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="fu"><a href="../reference/setFishing.html">gear_params</a></span>(<span class="no">params</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb17"><pre class="downlit">
+<span class="fu"><a href="../reference/gear_params.html">gear_params</a></span>(<span class="kw">params</span>)
+</pre></div>
 <pre><code>##    species            gear   sel_func knife_edge_size catchability
 ## 1    Sprat knife_edge_gear knife_edge              13            1
 ## 2  Sandeel knife_edge_gear knife_edge               4            1
@@ -287,7 +303,9 @@
 ## 12  Saithe knife_edge_gear knife_edge            1076            1</code></pre>
 <p>All species are caught by a gear called “knife_edge_gear”. The selectivity function for each fishing gear has been set in the <code>sel_func</code> column to the default function, <code><a href="../reference/knife_edge.html">knife_edge()</a></code>. A <code>catchability</code> column has been added with a default value of 1 for each of the species that the gear catches. An example of setting the catchability by hand can be seen in <a href="a_multispecies_model_of_the_north_sea.html">the section on the North Sea.</a></p>
 <p>There is a <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> method for <code>MizerParams</code> objects which prints a useful summary of the model parameters:</p>
-<div class="sourceCode" id="cb19"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="no">params</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb19"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="kw">params</span>)
+</pre></div>
 <pre><code>## An object of class "MizerParams" 
 ## Consumer size spectrum:
 ##  minimum size:   0.001
@@ -315,15 +333,19 @@
 ##  Gear            Target species
 ##   knife_edge_gear         Sprat Sandeel N.pout Herring Dab Whiting Sole Gurnard Plaice Haddock Cod Saithe</code></pre>
 <p>As well as giving a summary of the species in the model and what gear is fishing what species, it gives a summary of the size structure of the community. For example there are <span class="math inline">\(100\)</span> size classes in the community, ranging from <span class="math inline">\(0.001\)</span> to <span class="math inline">\(4\times 10^{4}\)</span> . These values are controlled by the arguments <code>no_w</code>, <code>min_w</code> and <code>max_w</code> respectively. For example, if we wanted 200 size classes in the model we would use:</p>
-<div class="sourceCode" id="cb21"><html><body><pre class="r"><span class="no">params200</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span>(<span class="no">species_params</span>, <span class="kw">no_w</span> <span class="kw">=</span> <span class="fl">200</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="no">params200</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb21"><pre class="downlit">
+<span class="kw">params200</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span>(<span class="kw">species_params</span>, no_w = <span class="fl">200</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="kw">params200</span>)
+</pre></div>
 </div>
 <div id="setting-the-interaction-matrix" class="section level2">
 <h2 class="hasAnchor">
 <a href="#setting-the-interaction-matrix" class="anchor"></a>Setting the interaction matrix</h2>
 <p>So far we have created a <code>MizerParams</code> object by passing in only the species parameter data.frame argument. We did not specify an interaction matrix. The interaction matrix  describes the interaction of each pair of species in the model. This can be viewed as a proxy for spatial interaction e.g. to model predator-prey interaction that is not size based. The values in the interaction matrix are used to scale the encountered food in [getEncounter()] and the predation mortality rate in [getPredMort()] (see <a href="model_description.html#sec:pref">the section on predator-prey encounter rate</a> and on <a href="model_description.html#mortality">predation mortality</a>).</p>
 <p>The entries of the interaction matrix are dimensionless numbers taking values are between 0 (species do not overlap and therefore do not interact with each other) to 1 (species overlap perfectly). By default mizer sets all values to 1, implying that all species fully interact with each other, i.e. the species are spread homogeneously across the model area.</p>
-<div class="sourceCode" id="cb22"><html><body><pre class="r"><span class="fu"><a href="../reference/setInteraction.html">getInteraction</a></span>(<span class="no">params</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb22"><pre class="downlit">
+<span class="fu"><a href="../reference/setInteraction.html">getInteraction</a></span>(<span class="kw">params</span>)
+</pre></div>
 <pre><code>##          prey
 ## predator  Sprat Sandeel N.pout Herring Dab Whiting Sole Gurnard Plaice Haddock
 ##   Sprat       1       1      1       1   1       1    1       1      1       1
@@ -354,12 +376,18 @@
 ##   Saithe    1      1</code></pre>
 <p>For the North Sea this is not the case and so the model would be improved by also including an interaction matrix which describes the spatial overlap between species.</p>
 <p>An example interaction matrix for the North Sea has been included in <code>mizer</code> as a .csv file. The location of the file can be found by running:</p>
-<div class="sourceCode" id="cb24"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"doc/inter.csv"</span>,<span class="kw">package</span><span class="kw">=</span><span class="st">"mizer"</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb24"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"doc/inter.csv"</span>,package=<span class="st">"mizer"</span>)
+</pre></div>
 <p>Take a look at it in a spreadsheet if you want. As mentioned above, to read this file into R we can make use of the <code><a href="https://rdrr.io/r/utils/read.table.html">read.csv()</a></code> function. However, this time we want the first column of the .csv file to be the row names. We therefore use an additional argument to the <code><a href="https://rdrr.io/r/utils/read.table.html">read.csv()</a></code> function: <code>row.names</code>.</p>
 <p>We can set the interaction matrix in our existing MizerParams object <code>params</code> with the <code><a href="../reference/setInteraction.html">setInteraction()</a></code> function:</p>
-<div class="sourceCode" id="cb25"><html><body><pre class="r"><span class="no">params</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/setInteraction.html">setInteraction</a></span>(<span class="no">params</span>, <span class="kw">interaction</span> <span class="kw">=</span> <span class="no">inter</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb25"><pre class="downlit">
+<span class="kw">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setInteraction.html">setInteraction</a></span>(<span class="kw">params</span>, interaction = <span class="kw">inter</span>)
+</pre></div>
 <p>Alternatively, instead of changing the interaction matrix in the existing MizerParams object, we could have created a new object from scratch with our interaction matrix by passing it to <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>:</p>
-<div class="sourceCode" id="cb26"><html><body><pre class="r"><span class="no">params_new</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span>(<span class="no">species_params</span>, <span class="kw">interaction</span> <span class="kw">=</span> <span class="no">inter</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb26"><pre class="downlit">
+<span class="kw">params_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span>(<span class="kw">species_params</span>, interaction = <span class="kw">inter</span>)
+</pre></div>
 <pre><code>## Note: No h provided for some species, so using f0 and k_vb to calculate it.</code></pre>
 <pre><code>## Note: Because you have n != p, the default value is not very good.</code></pre>
 <pre><code>## Note: No ks column so calculating from critical feeding level.</code></pre>
@@ -367,7 +395,9 @@
 <pre><code>## Note: Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</code></pre>
 <p>Note that the first argument must be the species parameters data.frame. The remaining arguments can be in any order but should be named. We are using the default values for all other parameters.</p>
 <p>Both methods lead to identical MizerParams objects</p>
-<div class="sourceCode" id="cb32"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/identical.html">identical</a></span>(<span class="no">params</span>, <span class="no">params_new</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb32"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/identical.html">identical</a></span>(<span class="kw">params</span>, <span class="kw">params_new</span>)
+</pre></div>
 <pre><code>## [1] TRUE</code></pre>
 <p>We now have all we need to start running projections. Before we get to that though, we’ll take a quick look at how different fishing gears can be set up.</p>
 </div>
@@ -375,7 +405,9 @@
 <h2 class="hasAnchor">
 <a href="#sec:setting_different_gears" class="anchor"></a>Setting different gears</h2>
 <p>In the above example, each species is caught by the same gear (named “knife_edge_gear”). This is the default when no gear information is provided.</p>
-<div class="sourceCode" id="cb34"><html><body><pre class="r"><span class="fu"><a href="../reference/setFishing.html">gear_params</a></span>(<span class="no">params</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb34"><pre class="downlit">
+<span class="fu"><a href="../reference/gear_params.html">gear_params</a></span>(<span class="kw">params</span>)
+</pre></div>
 <pre><code>##    species            gear   sel_func knife_edge_size catchability
 ## 1    Sprat knife_edge_gear knife_edge              13            1
 ## 2  Sandeel knife_edge_gear knife_edge               4            1
@@ -390,12 +422,16 @@
 ## 11     Cod knife_edge_gear knife_edge            1606            1
 ## 12  Saithe knife_edge_gear knife_edge            1076            1</code></pre>
 <p>Here, we look at an example where we set up four different gears: Industrial, Pelagic, Beam and Otter trawl, that catch different combinations of species. We can achieve that by only changing the <code>gear</code> column in the <code>gear_params</code> data frame.</p>
-<div class="sourceCode" id="cb36"><html><body><pre class="r"><span class="fu"><a href="../reference/setFishing.html">gear_params</a></span>(<span class="no">params</span>)$<span class="no">gear</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Industrial"</span>,<span class="st">"Industrial"</span>,<span class="st">"Industrial"</span>,
+<div class="sourceCode" id="cb36"><pre class="downlit">
+<span class="fu"><a href="../reference/gear_params.html">gear_params</a></span>(<span class="kw">params</span>)<span class="op">$</span><span class="kw">gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Industrial"</span>,<span class="st">"Industrial"</span>,<span class="st">"Industrial"</span>,
                               <span class="st">"Pelagic"</span>,<span class="st">"Beam"</span>,<span class="st">"Otter"</span>,
                               <span class="st">"Beam"</span>,<span class="st">"Otter"</span>,<span class="st">"Beam"</span>,
-                              <span class="st">"Otter"</span>,<span class="st">"Otter"</span>,<span class="st">"Otter"</span>)</pre></body></html></div>
+                              <span class="st">"Otter"</span>,<span class="st">"Otter"</span>,<span class="st">"Otter"</span>)
+</pre></div>
 <p>You can see the result by calling <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> on the <code>params</code> object.</p>
-<div class="sourceCode" id="cb37"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="no">params</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb37"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="kw">params</span>)
+</pre></div>
 <pre><code>## An object of class "MizerParams" 
 ## Consumer size spectrum:
 ##  minimum size:   0.001
@@ -451,7 +487,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

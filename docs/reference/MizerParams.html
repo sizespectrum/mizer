@@ -78,7 +78,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -186,19 +186,19 @@
     </div>
 
     <pre class="usage"><span class='fu'>MizerParams</span>(
-  <span class='no'>species_params</span>,
-  <span class='kw'>interaction</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fl'>1</span>, <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='no'>species_params</span>), <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='no'>species_params</span>)),
-  <span class='kw'>min_w_pp</span> <span class='kw'>=</span> <span class='fl'>1e-10</span>,
-  <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fl'>0.001</span>,
-  <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='no'>species_params</span>$<span class='no'>w_inf</span>) * <span class='fl'>1.1</span>,
-  <span class='kw'>no_w</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>2</span>/<span class='fl'>3</span>,
-  <span class='kw'>q</span> <span class='kw'>=</span> <span class='fl'>0.8</span>,
-  <span class='kw'>f0</span> <span class='kw'>=</span> <span class='fl'>0.6</span>,
-  <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='fl'>1e+11</span>,
-  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>2</span> + <span class='no'>q</span> - <span class='no'>n</span>,
-  <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fl'>10</span>,
-  <span class='no'>...</span>
+  <span class='kw'>species_params</span>,
+  interaction = <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fl'>1</span>, nrow = <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='kw'>species_params</span>), ncol = <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='kw'>species_params</span>)),
+  min_w_pp = <span class='fl'>1e-10</span>,
+  min_w = <span class='fl'>0.001</span>,
+  max_w = <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='kw'>species_params</span><span class='op'>$</span><span class='kw'>w_inf</span>) <span class='op'>*</span> <span class='fl'>1.1</span>,
+  no_w = <span class='fl'>100</span>,
+  n = <span class='fl'>2</span><span class='op'>/</span><span class='fl'>3</span>,
+  q = <span class='fl'>0.8</span>,
+  f0 = <span class='fl'>0.6</span>,
+  kappa = <span class='fl'>1e+11</span>,
+  lambda = <span class='fl'>2</span> <span class='op'>+</span> <span class='kw'>q</span> <span class='op'>-</span> <span class='kw'>n</span>,
+  r_pp = <span class='fl'>10</span>,
+  <span class='kw'>...</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -288,7 +288,7 @@ explicitly.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

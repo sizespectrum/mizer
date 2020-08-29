@@ -78,7 +78,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -186,22 +186,18 @@
     </div>
 
     <pre class="usage"><span class='fu'>setFishing</span>(
-  <span class='no'>params</span>,
-  <span class='kw'>selectivity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>catchability</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>initial_effort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='no'>...</span>
+  <span class='kw'>params</span>,
+  selectivity = <span class='kw'>NULL</span>,
+  catchability = <span class='kw'>NULL</span>,
+  initial_effort = <span class='kw'>NULL</span>,
+  <span class='kw'>...</span>
 )
 
-<span class='fu'>gear_params</span>(<span class='no'>params</span>)
+<span class='fu'>getCatchability</span>(<span class='kw'>params</span>)
 
-<span class='fu'>gear_params</span>(<span class='no'>params</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
+<span class='fu'>getSelectivity</span>(<span class='kw'>params</span>)
 
-<span class='fu'>getCatchability</span>(<span class='no'>params</span>)
-
-<span class='fu'>getSelectivity</span>(<span class='no'>params</span>)
-
-<span class='fu'>getInitialEffort</span>(<span class='no'>params</span>)</pre>
+<span class='fu'>getInitialEffort</span>(<span class='kw'>params</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -229,10 +225,6 @@ a vector, must be named by gear.</p></td>
     <tr>
       <th>...</th>
       <td><p>Unused</p></td>
-    </tr>
-    <tr>
-      <th>value</th>
-      <td><p>A data frame with the gear parameters</p></td>
     </tr>
     </table>
 
@@ -319,25 +311,22 @@ the simulation is run with <code><a href='project.html'>project()</a></code>, wh
 an effort that varies through time.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other functions for setting parameters: 
+    <div class='dont-index'><p><code><a href='gear_params.html'>gear_params()</a></code></p>
+<p>Other functions for setting parameters: 
+<code><a href='gear_params.html'>gear_params</a>()</code>,
+<code><a href='resource_params.html'>resource_params</a>()</code>,
 <code><a href='setExtMort.html'>setExtMort</a>()</code>,
 <code><a href='setInitialValues.html'>setInitialValues</a>()</code>,
 <code><a href='setInteraction.html'>setInteraction</a>()</code>,
 <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
 <code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
+<code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
 <code><a href='setResource.html'>setResource</a>()</code>,
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code>,
-<code><a href='setParams.html'>species_params</a>()</code></p></div>
+<code><a href='species_params.html'>species_params</a>()</code></p></div>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='no'>NS_params</span>
-<span class='co'># Change knife edge size for species 1</span>
-<span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>knife_edge_size</span>[<span class='fl'>1</span>] <span class='kw'>&lt;-</span> <span class='fl'>15</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setFishing</span>(<span class='no'>params</span>)
-}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -353,7 +342,7 @@ an effort that varies through time.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -159,16 +159,25 @@
 <h2 class="hasAnchor">
 <a href="#installing-mizer" class="anchor"></a>Installing mizer</h2>
 <p>If you already have R installed on your computer, then installation of the mizer package is very simple (assuming you have an active internet connection). Just start an R session and then type:</p>
-<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"mizer"</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb1"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"mizer"</span>)
+</pre></div>
 <p>After installing mizer, to actually use it, you need to load the package using the <code>library()</code> function. Note that whilst you only need to install the package once, it will need to be loaded every time you start a new R session.</p>
-<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">mizer</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb2"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="https://sizespectrum.org/mizer">mizer</a></span>)
+</pre></div>
 If you still need to install R or Rstudio as well, or if you are interested in installing a development version of mizer, click on the triangle below to reveal further details:
-<details><p>Mizer is compatible with R versions 3.1 and later. You can install R on your computer by following the instructions at [<a href="https://cran.r-project.org/" class="uri">https://cran.r-project.org/</a>] for your particular platform.</p>
+<details><p>Mizer is compatible with R versions 3.1 and later. You can install R on your computer by following the instructions at <a href="https://cran.r-project.org/" class="uri">https://cran.r-project.org/</a> for your particular platform.</p>
+<p>Alternatively, if you can not or do not want to install R on your computer, you can also work with R and Rstudio in your internet browser by creating yourself a free account at <a href="https://rstudio.cloud" class="uri">https://rstudio.cloud</a>. There you can then install mizer as described above. Running mizer in the RStudio Cloud may be slightly slower than running it locally on your machine, but the speed is usually quite acceptable.</p>
 <p>This guide assumes that you will be using RStudio to work with R. There is really no reason not to use RStudio and it makes a lot of things much easier. RStudio develops rapidly and adds useful features all the time and so it pays to upgrade to the <a href="https://www.rstudio.com/products/rstudio/download/preview/">latest version</a> frequently. This guide was written with version 1.3.820.</p>
 <p>The source code for mizer is hosted on <a href="https://github.com/sizespectrum/mizer">Github.</a> If you are feeling brave and wish to try out a development version of mizer you can install the package from here using the R package devtools (which was used extensively in putting together mizer). If you have not yet installed devtools, do</p>
-<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"devtools"</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb3"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"devtools"</span>)
+</pre></div>
 <p>Then you can install the latest version from GitHub using</p>
-<div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="kw pkg">devtools</span><span class="kw ns">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">"sizespectrum/mizer"</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb4"><pre class="downlit">
+<span class="kw">devtools</span>::<span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">"sizespectrum/mizer"</span>)
+</pre></div>
 Using the same <code><a href="https://devtools.r-lib.org//reference/remote-reexports.html">devtools::install_github()</a></code> function you can also install code from forked mizer repositories or from other branches on the official repository.
 </details>
 </div>
@@ -178,10 +187,14 @@ Using the same <code><a href="https://devtools.r-lib.org//reference/remote-reexp
 <p>With mizer it is possible to implement many different types of size-spectrum models using the same basic tools and methods.</p>
 <p>Setting the model parameters is done by creating an object of <code><a href="../reference/MizerParams-class.html">class ? MizerParams</a></code>. This includes model parameters such as the life history parameters of each species, and the fishing gears. It is possible to create a MizerParams object directly using the class constructor, but most likely you will want to use one of the convenient wrapper functions provided in the package: <code><a href="../reference/newCommunityParams.html">newCommunityParams()</a></code>, <code><a href="../reference/newTraitParams.html">newTraitParams()</a></code> and <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>.</p>
 <p>These wrapper functions make reasonable default choices for many of the model parameters that you do not want to specify explicitly. For example to set up a simple model (described more in the <a href="community_model.html">Community Model</a> section) you can even let mizer choose all the parameters for you.</p>
-<div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="no">params</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/newCommunityParams.html">newCommunityParams</a></span>()</pre></body></html></div>
+<div class="sourceCode" id="cb5"><pre class="downlit">
+<span class="kw">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newCommunityParams.html">newCommunityParams</a></span>()
+</pre></div>
 <pre><code>## Note: Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</code></pre>
 <p>For a more complicated multi-species model you need to provide a data frame with some species parameters and an interaction matrix specifying which species predate on each other. An example of a North Sea model is included with the package.</p>
-<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="no">params</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span>(<span class="no">NS_species_params</span>, <span class="no">inter</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb7"><pre class="downlit">
+<span class="kw">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span>(<span class="kw">NS_species_params</span>, <span class="kw">inter</span>)
+</pre></div>
 <pre><code>## Note: No h provided for some species, so using f0 and k_vb to calculate it.</code></pre>
 <pre><code>## Note: Because you have n != p, the default value is not very good.</code></pre>
 <pre><code>## Note: No ks column so calculating from critical feeding level.</code></pre>
@@ -193,22 +206,28 @@ Using the same <code><a href="https://devtools.r-lib.org//reference/remote-reexp
 <h2 class="hasAnchor">
 <a href="#running-a-simulation" class="anchor"></a>Running a simulation</h2>
 <p>This is done by calling the <code><a href="../reference/project.html">project()</a></code> function (as in “project forward in time”) with the model parameters.</p>
-<div class="sourceCode" id="cb13"><html><body><pre class="r"><span class="no">sim</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span>(<span class="no">params</span>, <span class="kw">t_max</span> <span class="kw">=</span> <span class="fl">10</span>, <span class="kw">effort</span> <span class="kw">=</span> <span class="fl">0</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb13"><pre class="downlit">
+<span class="kw">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span>(<span class="kw">params</span>, t_max = <span class="fl">10</span>, effort = <span class="fl">0</span>)
+</pre></div>
 <p>This produces an object of class <code>MizerSim</code> which contains the results of the simulation. In this example we chose to set some parameters of the <code><a href="../reference/project.html">project()</a></code> function to specify that we want to project 10 years into the future, under the assumption of zero fishing effort. You can see the help page for <code><a href="../reference/project.html">project()</a></code> for more details and it is described fully in <a href="running_a_simulation.html">the section on running a simulation.</a></p>
 </div>
 <div id="exploring-the-results" class="section level2">
 <h2 class="hasAnchor">
 <a href="#exploring-the-results" class="anchor"></a>Exploring the results</h2>
-<p>After a simulation has been run, the results can be examined using a range of <code><a href="../reference/plotting_functions.html">?plotting_functions</a></code>, <code><a href="../reference/summary_functions.html">?summary_functions</a></code> and <code><a href="../reference/indicator_functions.html">?indicator_functions</a></code>. The <code><a href="https://rdrr.io/r/base/plot.html">plot()</a></code> function combines several of these plots into one:</p>
-<div class="sourceCode" id="cb14"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="no">sim</span>)</pre></body></html></div>
+<p>After a simulation has been run, the results can be examined using a range of <code><a href="../reference/plotting_functions.html">?plotting_functions</a></code>, <code><a href="../reference/summary_functions.html">?summary_functions</a></code> and <code><a href="../reference/indicator_functions.html">?indicator_functions</a></code>. The <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot()</a></code> function combines several of these plots into one:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">sim</span>)
+</pre></div>
 <p><img src="mizer_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
 <p>Just as an example: we might be interested in how the proportion of large fish varies over time. We can get the proportion of Herrings in terms of biomass that have a weight above 50g in each of the 10 years:</p>
-<div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="fu"><a href="../reference/getProportionOfLargeFish.html">getProportionOfLargeFish</a></span>(<span class="no">sim</span>,
-                         <span class="kw">species</span> <span class="kw">=</span> <span class="st">"Herring"</span>,
-                         <span class="kw">threshold_w</span> <span class="kw">=</span> <span class="fl">50</span>,
-                         <span class="kw">biomass_proportion</span> <span class="kw">=</span> <span class="fl">TRUE</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb15"><pre class="downlit">
+<span class="fu"><a href="../reference/getProportionOfLargeFish.html">getProportionOfLargeFish</a></span>(<span class="kw">sim</span>, 
+                         species = <span class="st">"Herring"</span>, 
+                         threshold_w = <span class="fl">50</span>, 
+                         biomass_proportion = <span class="fl">TRUE</span>)
+</pre></div>
 <pre><code>##         0         1         2         3         4         5         6         7 
-## 0.8241807 0.1925192 0.8375384 0.8584900 0.2749220 0.1290072 0.2977719 0.3272015 
+## 0.8241807 0.1925192 0.8375384 0.8584900 0.2749221 0.1290072 0.2977719 0.3272015 
 ##         8         9        10 
 ## 0.3774455 0.4222030 0.4543841</code></pre>
 <p>We can then use the full power of R to work with these results.</p>
@@ -322,7 +341,7 @@ Using the same <code><a href="https://devtools.r-lib.org//reference/remote-reexp
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

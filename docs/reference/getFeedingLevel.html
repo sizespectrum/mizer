@@ -80,7 +80,7 @@ the feeding level, but this can be overruled via setRateFunction()." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -189,7 +189,7 @@ By default this function uses <code><a href='mizerFeedingLevel.html'>mizerFeedin
 the feeding level, but this can be overruled via <code><a href='setRateFunction.html'>setRateFunction()</a></code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getFeedingLevel</span>(<span class='no'>object</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='no'>time_range</span>, <span class='kw'>drop</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>getFeedingLevel</span>(<span class='kw'>object</span>, <span class='kw'>n</span>, <span class='kw'>n_pp</span>, <span class='kw'>n_other</span>, <span class='kw'>time_range</span>, drop = <span class='fl'>FALSE</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -261,7 +261,7 @@ predator actually consumes.</p>
 <p>By default <code>getFeedingLevel()</code> calls <code><a href='mizerFeedingLevel.html'>mizerFeedingLevel()</a></code>. However you can
 replace this with your own alternative feeding level function. If
 your function is called <code>"myFeedingLevel"</code> then you register it in a MizerParams
-object <code>params</code> with</p><pre><span class='no'>params</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='no'>params</span>, <span class='st'>"FeedingLevel"</span>, <span class='st'>"myFeedingLevel"</span>)</pre>
+object <code>params</code> with</p><pre><span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='kw'>params</span>, <span class='st'>"FeedingLevel"</span>, <span class='st'>"myFeedingLevel"</span>)</pre>
 
 <p>Your function will then be called instead of <code><a href='mizerFeedingLevel.html'>mizerFeedingLevel()</a></code>, with the
 same arguments.</p>
@@ -279,19 +279,20 @@ same arguments.</p>
 <code><a href='getPredRate.html'>getPredRate</a>()</code>,
 <code><a href='getRDD.html'>getRDD</a>()</code>,
 <code><a href='getRDI.html'>getRDI</a>()</code>,
+<code><a href='getRates.html'>getRates</a>()</code>,
 <code><a href='getResourceMort.html'>getResourceMort</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='kw'>NS_species_params_gears</span>, <span class='kw'>inter</span>)
 <span class='co'># Get initial feeding level</span>
-<span class='no'>fl</span> <span class='kw'>&lt;-</span> <span class='fu'>getFeedingLevel</span>(<span class='no'>params</span>)
+<span class='kw'>fl</span> <span class='op'>&lt;-</span> <span class='fu'>getFeedingLevel</span>(<span class='kw'>params</span>)
 <span class='co'># Project with constant fishing effort for all gears for 20 time steps</span>
-<span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
+<span class='kw'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='kw'>params</span>, t_max = <span class='fl'>20</span>, effort = <span class='fl'>0.5</span>)
 <span class='co'># Get the feeding level at all saved time steps</span>
-<span class='no'>fl</span> <span class='kw'>&lt;-</span> <span class='fu'>getFeedingLevel</span>(<span class='no'>sim</span>)
+<span class='kw'>fl</span> <span class='op'>&lt;-</span> <span class='fu'>getFeedingLevel</span>(<span class='kw'>sim</span>)
 <span class='co'># Get the feeding level for years 15 - 20</span>
-<span class='no'>fl</span> <span class='kw'>&lt;-</span> <span class='fu'>getFeedingLevel</span>(<span class='no'>sim</span>, <span class='kw'>time_range</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>15</span>, <span class='fl'>20</span>))
+<span class='kw'>fl</span> <span class='op'>&lt;-</span> <span class='fu'>getFeedingLevel</span>(<span class='kw'>sim</span>, time_range = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>15</span>, <span class='fl'>20</span>))
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -308,7 +309,7 @@ same arguments.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

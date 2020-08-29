@@ -81,7 +81,7 @@ returned population can be passed to the project function." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -180,7 +180,7 @@ returned population can be passed to the project function." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Calculate initial population abundances for the community populations</h1>
-    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/project.R'><code>R/project.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/get_initial_n.R'><code>R/get_initial_n.R</code></a></small>
     <div class="hidden name"><code>get_initial_n.Rd</code></div>
     </div>
 
@@ -191,7 +191,7 @@ abundances should be reasonable guesses at the equilibrium values. The
 returned population can be passed to the <code>project</code> function.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>get_initial_n</span>(<span class='no'>params</span>, <span class='kw'>n0_mult</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>a</span> <span class='kw'>=</span> <span class='fl'>0.35</span>)</pre>
+    <pre class="usage"><span class='fu'>get_initial_n</span>(<span class='kw'>params</span>, n0_mult = <span class='kw'>NULL</span>, a = <span class='fl'>0.35</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -216,9 +216,9 @@ kappa/1000.</p></td>
     <p>A matrix (species x size) of population abundances.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>)
-<span class='no'>init_n</span> <span class='kw'>&lt;-</span> <span class='fu'>get_initial_n</span>(<span class='no'>params</span>)
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='kw'>NS_species_params_gears</span>)
+<span class='kw'>init_n</span> <span class='op'>&lt;-</span> <span class='fu'>get_initial_n</span>(<span class='kw'>params</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -235,7 +235,7 @@ kappa/1000.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

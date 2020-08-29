@@ -84,7 +84,7 @@ this function." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -197,7 +197,7 @@ the predator size and the prey size separately. Both types can be set up with
 this function.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setPredKernel</span>(<span class='no'>params</span>, <span class='kw'>pred_kernel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>setPredKernel</span>(<span class='kw'>params</span>, pred_kernel = <span class='kw'>NULL</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -272,39 +272,41 @@ different.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for setting parameters: 
+<code><a href='gear_params.html'>gear_params</a>()</code>,
+<code><a href='resource_params.html'>resource_params</a>()</code>,
 <code><a href='setExtMort.html'>setExtMort</a>()</code>,
 <code><a href='setFishing.html'>setFishing</a>()</code>,
 <code><a href='setInitialValues.html'>setInitialValues</a>()</code>,
 <code><a href='setInteraction.html'>setInteraction</a>()</code>,
 <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
 <code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
+<code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
 <code><a href='setResource.html'>setResource</a>()</code>,
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code>,
-<code><a href='setParams.html'>species_params</a>()</code></p></div>
+<code><a href='species_params.html'>species_params</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
 <span class='co'>## Set up a MizerParams object</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
+<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='kw'>NS_species_params_gears</span>, <span class='kw'>inter</span>)
 
-<span class='co'>## If you change predation kernel parameters after setting up a model, you</span>
-<span class='co'># need to call setPredKernel</span>
-<span class='no'>params</span>@<span class='kw'>species_params</span>[<span class='st'>"Cod"</span>, <span class='st'>"beta"</span>] <span class='kw'>&lt;-</span> <span class='fl'>200</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setPredKernel</span>(<span class='no'>params</span>)
+<span class='co'>## If you change predation kernel parameters after setting up a model, </span>
+<span class='co'>#  this will be used to recalculate the kernel</span>
+<span class='fu'><a href='species_params.html'>species_params</a></span>(<span class='kw'>params</span>)[<span class='st'>"Cod"</span>, <span class='st'>"beta"</span>] <span class='op'>&lt;-</span> <span class='fl'>200</span>
 
 <span class='co'>## You can change to a different predation kernel type</span>
-<span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>pred_kernel_type</span> <span class='kw'>&lt;-</span> <span class='st'>"box"</span>
-<span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>ppmr_min</span> <span class='kw'>&lt;-</span> <span class='fl'>2</span>
-<span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>ppmr_max</span> <span class='kw'>&lt;-</span> <span class='fl'>4</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setPredKernel</span>(<span class='no'>params</span>)
+<span class='fu'><a href='species_params.html'>species_params</a></span>(<span class='kw'>params</span>)<span class='op'>$</span><span class='kw'>ppmr_max</span> <span class='op'>&lt;-</span> <span class='fl'>4000</span>
+<span class='fu'><a href='species_params.html'>species_params</a></span>(<span class='kw'>params</span>)<span class='op'>$</span><span class='kw'>ppmr_min</span> <span class='op'>&lt;-</span> <span class='fl'>200</span>
+<span class='fu'><a href='species_params.html'>species_params</a></span>(<span class='kw'>params</span>)<span class='op'>$</span><span class='kw'>pred_kernel_type</span> <span class='op'>&lt;-</span> <span class='st'>"box"</span>
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='fu'><a href='w.html'>w_full</a></span>(<span class='kw'>params</span>), <span class='fu'><a href='getPredKernel.html'>getPredKernel</a></span>(<span class='kw'>params</span>)[<span class='st'>"Cod"</span>, <span class='fl'>100</span>, ], type=<span class='st'>"l"</span>, log=<span class='st'>"x"</span>)
 
 <span class='co'>## If you need a kernel that depends also on prey size you need to define</span>
 <span class='co'># it yourself.</span>
-<span class='no'>pred_kernel</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='getPredKernel.html'>getPredKernel</a></span>(<span class='no'>params</span>)
-<span class='no'>pred_kernel</span>[<span class='st'>"Herring"</span>, , ] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/sweep.html'>sweep</a></span>(<span class='no'>pred_kernel</span>[<span class='st'>"Herring"</span>, , ], <span class='fl'>2</span>,
-                                    <span class='no'>params</span>@<span class='kw'>w_full</span>, <span class='st'>"*"</span>)
-<span class='no'>params</span><span class='kw'>&lt;-</span> <span class='fu'>setPredKernel</span>(<span class='no'>params</span>, <span class='kw'>pred_kernel</span> <span class='kw'>=</span> <span class='no'>pred_kernel</span>)
+<span class='kw'>pred_kernel</span> <span class='op'>&lt;-</span> <span class='fu'><a href='getPredKernel.html'>getPredKernel</a></span>(<span class='kw'>params</span>)
+<span class='kw'>pred_kernel</span>[<span class='st'>"Herring"</span>, , ] <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/sweep.html'>sweep</a></span>(<span class='kw'>pred_kernel</span>[<span class='st'>"Herring"</span>, , ], <span class='fl'>2</span>, 
+                                    <span class='kw'>params</span><span class='op'>@</span>w_full, <span class='st'>"*"</span>)
+<span class='kw'>params</span><span class='op'>&lt;-</span> <span class='fu'>setPredKernel</span>(<span class='kw'>params</span>, pred_kernel = <span class='kw'>pred_kernel</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -321,7 +323,7 @@ different.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

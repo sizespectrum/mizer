@@ -79,7 +79,7 @@ size at each time step in the effort argument (in units 1/year)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -187,7 +187,7 @@ size at each time step in the effort argument (in units 1/year)." />
 size at each time step in the <code>effort</code> argument (in units 1/year).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getFMortGear</span>(<span class='no'>object</span>, <span class='no'>effort</span>, <span class='no'>time_range</span>)</pre>
+    <pre class="usage"><span class='fu'>getFMortGear</span>(<span class='kw'>object</span>, <span class='kw'>effort</span>, <span class='kw'>time_range</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -244,30 +244,32 @@ used.</p>
 <code><a href='getPredRate.html'>getPredRate</a>()</code>,
 <code><a href='getRDD.html'>getRDD</a>()</code>,
 <code><a href='getRDI.html'>getRDI</a>()</code>,
+<code><a href='getRates.html'>getRates</a>()</code>,
 <code><a href='getResourceMort.html'>getResourceMort</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='kw'>NS_species_params_gears</span>, <span class='kw'>inter</span>)
 <span class='co'># Get the fishing mortality when effort is constant</span>
 <span class='co'># for all gears and time:</span>
-<span class='fu'>getFMortGear</span>(<span class='no'>params</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>1</span>)
+<span class='fu'>getFMortGear</span>(<span class='kw'>params</span>, effort = <span class='fl'>1</span>)
 <span class='co'># Get the fishing mortality when effort is different</span>
 <span class='co'># between the four gears but constant in time:</span>
-<span class='fu'>getFMortGear</span>(<span class='no'>params</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.5</span>, <span class='fl'>1</span>, <span class='fl'>1.5</span>, <span class='fl'>0.75</span>))
+<span class='fu'>getFMortGear</span>(<span class='kw'>params</span>, effort = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.5</span>, <span class='fl'>1</span>, <span class='fl'>1.5</span>, <span class='fl'>0.75</span>))
 <span class='co'># Get the fishing mortality when effort is different</span>
 <span class='co'># between the four gears and changes with time:</span>
-<span class='no'>effort</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/array.html'>array</a></span>(<span class='fl'>NA</span>, <span class='kw'>dim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>20</span>, <span class='fl'>4</span>))
-<span class='no'>effort</span>[, <span class='fl'>1</span>] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='kw'>from</span><span class='kw'>=</span><span class='fl'>0</span>, <span class='kw'>to</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>length</span> <span class='kw'>=</span> <span class='fl'>20</span>)
-<span class='no'>effort</span>[, <span class='fl'>2</span>] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='kw'>from</span><span class='kw'>=</span><span class='fl'>1</span>, <span class='kw'>to</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>length</span> <span class='kw'>=</span> <span class='fl'>20</span>)
-<span class='no'>effort</span>[, <span class='fl'>3</span>] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='kw'>from</span><span class='kw'>=</span><span class='fl'>1</span>, <span class='kw'>to</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>length</span> <span class='kw'>=</span> <span class='fl'>20</span>)
-<span class='no'>effort</span>[, <span class='fl'>4</span>] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='kw'>from</span><span class='kw'>=</span><span class='fl'>2</span>, <span class='kw'>to</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>length</span> <span class='kw'>=</span> <span class='fl'>20</span>)
-<span class='fu'>getFMortGear</span>(<span class='no'>params</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='no'>effort</span>)
+<span class='kw'>effort</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/array.html'>array</a></span>(<span class='fl'>NA</span>, dim = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>20</span>, <span class='fl'>4</span>))
+<span class='kw'>effort</span>[, <span class='fl'>1</span>] <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(from=<span class='fl'>0</span>, to = <span class='fl'>1</span>, length = <span class='fl'>20</span>)
+<span class='kw'>effort</span>[, <span class='fl'>2</span>] <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(from=<span class='fl'>1</span>, to = <span class='fl'>0.5</span>, length = <span class='fl'>20</span>)
+<span class='kw'>effort</span>[, <span class='fl'>3</span>] <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(from=<span class='fl'>1</span>, to = <span class='fl'>2</span>, length = <span class='fl'>20</span>)
+<span class='kw'>effort</span>[, <span class='fl'>4</span>] <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(from=<span class='fl'>2</span>, to = <span class='fl'>1</span>, length = <span class='fl'>20</span>)
+<span class='fu'>getFMortGear</span>(<span class='kw'>params</span>, effort = <span class='kw'>effort</span>)
 <span class='co'># Get the fishing mortality using the effort already held in a MizerSim object.</span>
-<span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
-<span class='fu'>getFMortGear</span>(<span class='no'>sim</span>)
-<span class='fu'>getFMortGear</span>(<span class='no'>sim</span>, <span class='kw'>time_range</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>10</span>, <span class='fl'>20</span>))
-}</div></pre>
+<span class='kw'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='kw'>params</span>, t_max = <span class='fl'>20</span>, effort = <span class='fl'>0.5</span>)
+<span class='fu'>getFMortGear</span>(<span class='kw'>sim</span>)
+<span class='fu'>getFMortGear</span>(<span class='kw'>sim</span>, time_range = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>10</span>, <span class='fl'>20</span>))
+}
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -283,7 +285,7 @@ used.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

@@ -84,7 +84,7 @@ details in the sections below the list." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -198,35 +198,35 @@ details in the sections below the list.</p>
     </div>
 
     <pre class="usage"><span class='fu'>newMultispeciesParams</span>(
-  <span class='no'>species_params</span>,
-  <span class='kw'>interaction</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>no_w</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-  <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fl'>0.001</span>,
-  <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
-  <span class='kw'>min_w_pp</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
-  <span class='kw'>pred_kernel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>search_vol</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>intake_max</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>metab</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>p</span> <span class='kw'>=</span> <span class='fl'>0.7</span>,
-  <span class='kw'>z0</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>z0pre</span> <span class='kw'>=</span> <span class='fl'>0.6</span>,
-  <span class='kw'>z0exp</span> <span class='kw'>=</span> <span class='no'>n</span> - <span class='fl'>1</span>,
-  <span class='kw'>maturity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>repro_prop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>RDD</span> <span class='kw'>=</span> <span class='st'>"BevertonHoltRDD"</span>,
-  <span class='kw'>resource_rate</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>resource_capacity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>2</span>/<span class='fl'>3</span>,
-  <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fl'>10</span>,
-  <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='fl'>1e+11</span>,
-  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>2.05</span>,
-  <span class='kw'>w_pp_cutoff</span> <span class='kw'>=</span> <span class='fl'>10</span>,
-  <span class='kw'>resource_dynamics</span> <span class='kw'>=</span> <span class='st'>"resource_semichemostat"</span>,
-  <span class='kw'>gear_params</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(),
-  <span class='kw'>selectivity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>catchability</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>initial_effort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+  <span class='kw'>species_params</span>,
+  interaction = <span class='kw'>NULL</span>,
+  no_w = <span class='fl'>100</span>,
+  min_w = <span class='fl'>0.001</span>,
+  max_w = <span class='fl'>NA</span>,
+  min_w_pp = <span class='fl'>NA</span>,
+  pred_kernel = <span class='kw'>NULL</span>,
+  search_vol = <span class='kw'>NULL</span>,
+  intake_max = <span class='kw'>NULL</span>,
+  metab = <span class='kw'>NULL</span>,
+  p = <span class='fl'>0.7</span>,
+  z0 = <span class='kw'>NULL</span>,
+  z0pre = <span class='fl'>0.6</span>,
+  z0exp = <span class='kw'>n</span> <span class='op'>-</span> <span class='fl'>1</span>,
+  maturity = <span class='kw'>NULL</span>,
+  repro_prop = <span class='kw'>NULL</span>,
+  RDD = <span class='st'>"BevertonHoltRDD"</span>,
+  resource_rate = <span class='kw'>NULL</span>,
+  resource_capacity = <span class='kw'>NULL</span>,
+  n = <span class='fl'>2</span><span class='op'>/</span><span class='fl'>3</span>,
+  r_pp = <span class='fl'>10</span>,
+  kappa = <span class='fl'>1e+11</span>,
+  lambda = <span class='fl'>2.05</span>,
+  w_pp_cutoff = <span class='fl'>10</span>,
+  resource_dynamics = <span class='st'>"resource_semichemostat"</span>,
+  gear_params = <span class='kw'>NULL</span>,
+  selectivity = <span class='kw'>NULL</span>,
+  catchability = <span class='kw'>NULL</span>,
+  initial_effort = <span class='kw'>NULL</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -361,9 +361,10 @@ Default is 10 g.</p></td>
     </tr>
     <tr>
       <th>resource_dynamics</th>
-      <td><p>Function that determines resource dynamics by
-calculating the resource spectrum at the next time step from the current
-state.</p></td>
+      <td><p>Optional. Name of the function that determines the
+resource dynamics by calculating the resource spectrum at the next time
+step from the current state. You only need to specify this if you do not
+want to use the default <code><a href='resource_semichemostat.html'>resource_semichemostat()</a></code>.</p></td>
     </tr>
     <tr>
       <th>gear_params</th>
@@ -410,18 +411,17 @@ are not included in the species parameter data frame. They will be
 automatically added when the <code>MizerParams</code> object is created. For these
 parameters you can also specify values for only some species and leave the
 other entries as NA and the missing values will be set to the defaults.</p>
+<p>If you are not happy with any of the species parameter values used you can
+always change them later with <code><a href='species_params.html'>species_params&lt;-()</a></code>.</p>
 <p>All the parameters will be mentioned in the following sections.</p>
     <h2 class="hasAnchor" id="changes-to-species-params"><a class="anchor" href="#changes-to-species-params"></a>Changes to species params</h2>
 
     
 
 <p>The <code>species_params</code> slot of the returned MizerParams object may differ
-slightly from the data frame supplied as argument to this function in the
-following ways:</p><ul>
-<li><p>Default values are set for <code>w_min, w_inf, alpha, gear, interaction_resource</code>.</p></li>
-<li><p>The egg sizes in <code>w_min</code> are rounded down to lie on a grid point.</p></li>
-</ul><p>Note that the other characteristic sizes of the species, like <code>w_mat</code> and
-<code>w_inf</code>, are not modified to lie on grid points.</p>
+slightly from the data frame supplied as argument to this function because
+default values are set for
+<code>w_min, w_inf, alpha, gear, interaction_resource</code>.</p>
     <h2 class="hasAnchor" id="size-grid"><a class="anchor" href="#size-grid"></a>Size grid</h2>
 
     
@@ -618,20 +618,23 @@ $$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$</p>
     
 
 
-<h3>Investment</h3>
-<p>For each species and at each size, the proportion \(\psi\) of the available energy
+<p>For each species and at each size, the proportion \(\psi\) of the
+available energy
 that is invested into reproduction is the product of two factors: the
 proportion <code>maturity</code> of individuals that are mature and the proportion
 <code>repro_prop</code> of the energy available to a mature individual that is
 invested into reproduction.</p>
-<p>If the <code>maturity</code> argument is not supplied, then it is set to a sigmoidal
+<h3>Maturity ogive</h3>
+<p>If the the proportion of individuals that are mature is not supplied via
+the <code>maturity</code> argument , then it is set to a sigmoidal
 maturity ogive that changes from 0 to 1 at around the maturity size:
 $${\tt maturity}(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}.$$
-(To avoid clutter, we are not showing the species index in the equations.)
+(To avoid clutter, we are not showing the species index in the equations,
+although each species has its own maturity ogive.)
 The maturity weights are taken from the <code>w_mat</code> column of the
 species_params data frame. Any missing maturity weights are set to 1/4 of the
-asymptotic weight in the <code>w_inf</code> column.
-The exponent \(U\) determines the steepness of the maturity ogive. By
+asymptotic weight in the <code>w_inf</code> column.</p>
+<p>The exponent \(U\) determines the steepness of the maturity ogive. By
 default it is chosen as \(U = 10\), however this can be overridden by
 including a column <code>w_mat25</code> in the species parameter dataframe that
 specifies the weight at which 25% of individuals are mature, which sets
@@ -639,9 +642,13 @@ specifies the weight at which 25% of individuals are mature, which sets
 <p>The sigmoidal function given above would strictly reach 1 only asymptotically.
 Mizer instead sets the function equal to 1 already at the species'
 maximum size, taken from the compulsory <code>w_inf</code> column in the
-<code>species_params</code> data frame.</p>
-<p>If the <code>repro_prop</code> argument is not supplied, it is set to the
-allometric form
+<code>species_params</code> data frame. Also, for computational simplicity, any
+proportion smaller than <code>1e-8</code> is set to <code>0</code>.</p>
+
+<h3>Investment into reproduction</h3>
+<p>If the the energy available to a mature individual that is
+invested into reproduction is not supplied via the <code>repro_prop</code> argument,
+it is set to the allometric form
 $${\tt repro\_prop}(w) = \left(\frac{w}{w_{inf}}\right)^{m-n}.$$
 Here \(n\) is the scaling exponent of the energy income rate. Hence
 the exponent \(m\) determines the scaling of the investment into
@@ -654,13 +661,14 @@ data frame.</p>
 <p>So finally we have
 $$\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)$$</p>
 
-<h3>Efficiency</h3>
-<p>The reproductive efficiency, i.e., the proportion of energy allocated to
+<h3>Reproductive efficiency</h3>
+<p>The reproductive efficiency \(\epsilon\), i.e., the proportion of energy allocated to
 reproduction that results in egg biomass, is set through the <code>erepro</code>
 column in the species_params data frame. If that is not provided, the default
 is set to 1 (which you will want to override). The offspring biomass divided
 by the egg biomass gives the rate of egg production, returned by
-<code><a href='getRDI.html'>getRDI()</a></code>.</p>
+<code><a href='getRDI.html'>getRDI()</a></code>:
+$$R_{di} = \frac{\epsilon}{2 w_{min}} \int N(w)  E_r(w) \psi(w) \, dw$$</p>
 
 <h3>Density dependence</h3>
 <p>The stock-recruitment relationship is an emergent phenomenon in mizer, with
@@ -787,8 +795,8 @@ and <code>lambda</code> arguments.</p>
 <code><a href='newTraitParams.html'>newTraitParams</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>newMultispeciesParams</span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'>newMultispeciesParams</span>(<span class='kw'>NS_species_params_gears</span>, <span class='kw'>inter</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -805,7 +813,7 @@ and <code>lambda</code> arguments.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

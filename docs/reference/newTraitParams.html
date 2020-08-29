@@ -87,7 +87,7 @@ details and examples of the trait-based model." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -204,36 +204,36 @@ details and examples of the trait-based model.</p>
     </div>
 
     <pre class="usage"><span class='fu'>newTraitParams</span>(
-  <span class='kw'>no_sp</span> <span class='kw'>=</span> <span class='fl'>11</span>,
-  <span class='kw'>min_w_inf</span> <span class='kw'>=</span> <span class='fl'>10</span>,
-  <span class='kw'>max_w_inf</span> <span class='kw'>=</span> <span class='fl'>10</span>^<span class='fl'>4</span>,
-  <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fl'>10</span>^(-<span class='fl'>3</span>),
-  <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='no'>max_w_inf</span>,
-  <span class='kw'>eta</span> <span class='kw'>=</span> <span class='fl'>10</span>^(-<span class='fl'>0.6</span>),
-  <span class='kw'>min_w_mat</span> <span class='kw'>=</span> <span class='no'>min_w_inf</span> * <span class='no'>eta</span>,
-  <span class='kw'>no_w</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log10</a></span>(<span class='no'>max_w_inf</span>/<span class='no'>min_w</span>) * <span class='fl'>20</span> + <span class='fl'>1</span>,
-  <span class='kw'>min_w_pp</span> <span class='kw'>=</span> <span class='fl'>1e-10</span>,
-  <span class='kw'>w_pp_cutoff</span> <span class='kw'>=</span> <span class='no'>min_w_mat</span>,
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>2</span>/<span class='fl'>3</span>,
-  <span class='kw'>p</span> <span class='kw'>=</span> <span class='no'>n</span>,
-  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>2.05</span>,
-  <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
-  <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='fl'>0.005</span>,
-  <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.4</span>,
-  <span class='kw'>h</span> <span class='kw'>=</span> <span class='fl'>40</span>,
-  <span class='kw'>beta</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-  <span class='kw'>sigma</span> <span class='kw'>=</span> <span class='fl'>1.3</span>,
-  <span class='kw'>f0</span> <span class='kw'>=</span> <span class='fl'>0.6</span>,
-  <span class='kw'>fc</span> <span class='kw'>=</span> <span class='fl'>0.25</span>,
-  <span class='kw'>ks</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
-  <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
-  <span class='kw'>ext_mort_prop</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>R_factor</span> <span class='kw'>=</span> <span class='fl'>4</span>,
-  <span class='kw'>gear_names</span> <span class='kw'>=</span> <span class='st'>"knife_edge_gear"</span>,
-  <span class='kw'>knife_edge_size</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
-  <span class='kw'>egg_size_scaling</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>resource_scaling</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>perfect_scaling</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  no_sp = <span class='fl'>11</span>,
+  min_w_inf = <span class='fl'>10</span>,
+  max_w_inf = <span class='fl'>10</span><span class='op'>^</span><span class='fl'>4</span>,
+  min_w = <span class='fl'>10</span><span class='op'>^</span>(<span class='op'>-</span><span class='fl'>3</span>),
+  max_w = <span class='kw'>max_w_inf</span>,
+  eta = <span class='fl'>10</span><span class='op'>^</span>(<span class='op'>-</span><span class='fl'>0.6</span>),
+  min_w_mat = <span class='kw'>min_w_inf</span> <span class='op'>*</span> <span class='kw'>eta</span>,
+  no_w = <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log10</a></span>(<span class='kw'>max_w_inf</span><span class='op'>/</span><span class='kw'>min_w</span>) <span class='op'>*</span> <span class='fl'>20</span> <span class='op'>+</span> <span class='fl'>1</span>,
+  min_w_pp = <span class='fl'>1e-10</span>,
+  w_pp_cutoff = <span class='kw'>min_w_mat</span>,
+  n = <span class='fl'>2</span><span class='op'>/</span><span class='fl'>3</span>,
+  p = <span class='kw'>n</span>,
+  lambda = <span class='fl'>2.05</span>,
+  r_pp = <span class='fl'>0.1</span>,
+  kappa = <span class='fl'>0.005</span>,
+  alpha = <span class='fl'>0.4</span>,
+  h = <span class='fl'>40</span>,
+  beta = <span class='fl'>100</span>,
+  sigma = <span class='fl'>1.3</span>,
+  f0 = <span class='fl'>0.6</span>,
+  fc = <span class='fl'>0.25</span>,
+  ks = <span class='fl'>NA</span>,
+  gamma = <span class='fl'>NA</span>,
+  ext_mort_prop = <span class='fl'>0</span>,
+  R_factor = <span class='fl'>4</span>,
+  gear_names = <span class='st'>"knife_edge_gear"</span>,
+  knife_edge_size = <span class='fl'>1000</span>,
+  egg_size_scaling = <span class='fl'>FALSE</span>,
+  resource_scaling = <span class='fl'>FALSE</span>,
+  perfect_scaling = <span class='fl'>FALSE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -442,10 +442,10 @@ abundance through time after the projection.</p>
 <code><a href='newMultispeciesParams.html'>newMultispeciesParams</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>newTraitParams</span>()
-<span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0</span>)
-<span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span>(<span class='no'>sim</span>)
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'>newTraitParams</span>()
+<span class='kw'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='kw'>params</span>, t_max = <span class='fl'>5</span>, effort = <span class='fl'>0</span>)
+<span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span>(<span class='kw'>sim</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -462,7 +462,7 @@ abundance through time after the projection.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

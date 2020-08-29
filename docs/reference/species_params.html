@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Check that an effort vector is specified correctly — validate_effort_vector • mizer</title>
+<title>Species parameters — species_params • mizer</title>
 
 
 <!-- jquery -->
@@ -45,9 +45,9 @@
 
 
 
-<meta property="og:title" content="Check that an effort vector is specified correctly — validate_effort_vector" />
-<meta property="og:description" content="Throws an error with an explanatory message when the supplied effort
-vector is not valid for the model described by params." />
+<meta property="og:title" content="Species parameters — species_params" />
+<meta property="og:description" content="These functions allow you to get or set the species parameters stored in
+a MizerParams object." />
 
 
 
@@ -79,7 +79,7 @@ vector is not valid for the model described by params." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -177,17 +177,19 @@ vector is not valid for the model described by params." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Check that an effort vector is specified correctly</h1>
-    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/setFishing.R'><code>R/setFishing.R</code></a></small>
-    <div class="hidden name"><code>validate_effort_vector.Rd</code></div>
+    <h1>Species parameters</h1>
+    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/species_params.R'><code>R/species_params.R</code></a></small>
+    <div class="hidden name"><code>species_params.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Throws an error with an explanatory message when the supplied <code>effort</code>
-vector is not valid for the model described by <code>params</code>.</p>
+    <p>These functions allow you to get or set the species parameters stored in
+a MizerParams object.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>validate_effort_vector</span>(<span class='no'>params</span>, <span class='no'>effort</span>)</pre>
+    <pre class="usage"><span class='fu'>species_params</span>(<span class='kw'>params</span>)
+
+<span class='fu'>species_params</span>(<span class='kw'>params</span>) <span class='op'>&lt;-</span> <span class='kw'>value</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -197,14 +199,91 @@ vector is not valid for the model described by <code>params</code>.</p>
       <td><p>A MizerParams object</p></td>
     </tr>
     <tr>
-      <th>effort</th>
-      <td><p>An effort vector</p></td>
+      <th>value</th>
+      <td><p>A data frame with the species parameters</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>TRUE if <code>effort</code> is valid. Throws an error otherwise.</p>
+    <p>The <code>species_params</code> data frame holds species-specific parameters that Mizer
+can use, together with allometric assumptions, to set its various
+size-dependent parameters. The data frame has one row for each species and
+one column for each species parameter. There are a lot of species parameters
+as we will now discuss, but most of them have sensible default values.</p><ul>
+<li><p><code>gamma</code> and <code>q</code> are used to set the search volume, see <code><a href='setSearchVolume.html'>setSearchVolume()</a></code>.</p></li>
+<li><p><code>h</code> and <code>n</code> are used to set the maximum intake rate, see <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate()</a></code>.</p></li>
+<li><p><code>k</code>, <code>ks</code> and <code>p</code> are used to set activity and basic metabolic rate,
+see <code><a href='setMetabolicRate.html'>setMetabolicRate()</a></code>.</p></li>
+<li><p><code>z0</code> is used to set the external mortality rate, see <code><a href='setExtMort.html'>setExtMort()</a></code>.</p></li>
+<li><p><code>w_mat</code>, <code>w_mat25</code>, <code>w_inf</code> and <code>m</code> are used to set the allocation to
+reproduction, see <code><a href='setReproduction.html'>setReproduction()</a></code>.</p></li>
+<li><p><code>w_min</code> is the egg size.</p></li>
+<li><p><code>beta</code> and <code>sigma</code> are parameters of the lognormal predation kernel, see
+<code><a href='lognormal_pred_kernel.html'>lognormal_pred_kernel()</a></code>. There will be other parameters if you are
+using other predation kernel functions, see the "Setting predation kernel"
+section in the help for <code><a href='setPredKernel.html'>setPredKernel()</a></code>.</p></li>
+</ul>
+
+<p>Not all of these parameters have to be specified by the user. If they are
+missing, mizer will give them default values, sometimes by using other
+species parameters.</p><ul>
+<li><p><code>k_vb</code> and <code>t0</code> are the von Bertalanffy growth parameters and are used
+together with the length-weight relationship exponent <code>b</code> and the egg
+size <code>w_min</code> to
+get a default value for the coefficient of the maximum intake rate <code>h</code>,
+see <code><a href='get_h_default.html'>get_h_default()</a></code>.</p></li>
+<li><p><code>f0</code> is the feeding level and is used to get a default value for the
+coefficient of the search volume <code>gamma</code>, see <code><a href='get_gamma_default.html'>get_gamma_default()</a></code>.</p></li>
+<li><p><code>fc</code> is the critical feeding level below which the species can not
+maintain itself. This is used to get a default value for the coefficient
+of the metabolic rate <code>ks</code>, see <code><a href='get_ks_default.html'>get_ks_default()</a></code>.</p></li>
+</ul>
+
+<p>Note that these parameters are ignored if the parameters for which they allow
+defaults to be calculated have instead been set explicitly.</p>
+<p>There are also some species parameters that are used directly in the model
+rather than being used for setting up size-dependent parameters:</p><ul>
+<li><p><code>alpha</code> is the assimilation efficiency, the proportion of the consumed
+biomass that can be used for growth, metabolism and reproduction, see
+the help for <code><a href='getEReproAndGrowth.html'>getEReproAndGrowth()</a></code>.</p></li>
+<li><p><code>interaction_resource</code> sets the interaction strength with the resource,
+see "Predation encounter" section in the help for <code><a href='getEncounter.html'>getEncounter()</a></code>.</p></li>
+<li><p><code>erepro</code> is the reproductive efficiency, the proportion of the energy
+invested into reproduction that is converted to egg biomass, see
+<code><a href='getRDI.html'>getRDI()</a></code>.</p></li>
+<li><p><code>Rmax</code> is the parameter in the Beverton-Holt density dependence added to
+the reproduction, see <code><a href='BevertonHoltRDD.html'>BevertonHoltRDD()</a></code>. There will be other such
+parameters if you use other density dependence functions, see the
+"Density dependence" section in the help for <code><a href='setReproduction.html'>setReproduction()</a></code>.</p></li>
+</ul>
+
+<p>When you set up a MizerParams object with <code><a href='newMultispeciesParams.html'>newMultispeciesParams()</a></code> you
+need to specify a species parameter data frame, but you do not need to
+give values for all of the species parameters described above. The only
+required columns are <code>species</code> for the species name and <code>w_inf</code> for its
+asymptotic size. Mizer will choose default values for all others, see
+<code><a href='newMultispeciesParams.html'>newMultispeciesParams()</a></code>.</p>
+<p>When you change a species parameter in an already existing MizerParams
+object, then this will be used to update the corresponding size-dependent
+rates by automatically calling <code><a href='setParams.html'>setParams()</a></code>.</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='validSpeciesParams.html'>validSpeciesParams()</a></code></p>
+<p>Other functions for setting parameters: 
+<code><a href='gear_params.html'>gear_params</a>()</code>,
+<code><a href='resource_params.html'>resource_params</a>()</code>,
+<code><a href='setExtMort.html'>setExtMort</a>()</code>,
+<code><a href='setFishing.html'>setFishing</a>()</code>,
+<code><a href='setInitialValues.html'>setInitialValues</a>()</code>,
+<code><a href='setInteraction.html'>setInteraction</a>()</code>,
+<code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
+<code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
+<code><a href='setParams.html'>setParams</a>()</code>,
+<code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
+<code><a href='setReproduction.html'>setReproduction</a>()</code>,
+<code><a href='setResource.html'>setResource</a>()</code>,
+<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -221,7 +300,7 @@ vector is not valid for the model described by <code>params</code>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

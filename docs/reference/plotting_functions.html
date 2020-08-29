@@ -83,7 +83,7 @@ suitable for inclusion in documents." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -210,7 +210,7 @@ suitable for inclusion in documents.</p>
 <tr><td><code><a href='plotYieldGear.html'>plotYieldGear()</a></code></td><td>Plots the total yield of each species by gear against time.</td></tr>
 <tr><td><code><a href='plotDiet.html'>plotDiet()</a></code></td><td>Plots the diet composition at size for a given predator species.</td></tr>
 <tr><td><code><a href='plotGrowthCurves.html'>plotGrowthCurves()</a></code></td><td>Plots the size as a function of age.</td></tr>
-<tr><td><code><a href='https://rdrr.io/r/base/plot.html'>plot()</a></code></td><td>Produces 5 plots (<code><a href='plotFeedingLevel.html'>plotFeedingLevel()</a></code>, <code><a href='plotBiomass.html'>plotBiomass()</a></code>, <code><a href='plotPredMort.html'>plotPredMort()</a></code>, <code><a href='plotFMort.html'>plotFMort()</a></code> and <code><a href='plotSpectra.html'>plotSpectra()</a></code>) in the same window.</td></tr>
+<tr><td><code><a href='https://rdrr.io/r/graphics/plot.default.html'>plot()</a></code></td><td>Produces 5 plots (<code><a href='plotFeedingLevel.html'>plotFeedingLevel()</a></code>, <code><a href='plotBiomass.html'>plotBiomass()</a></code>, <code><a href='plotPredMort.html'>plotPredMort()</a></code>, <code><a href='plotFMort.html'>plotFMort()</a></code> and <code><a href='plotSpectra.html'>plotSpectra()</a></code>) in the same window.</td></tr>
 </table>
 
 
@@ -237,7 +237,7 @@ the species parameter data frame.</p>
 
     <div class='dont-index'><p><a href='summary_functions.html'>summary_functions</a>, <a href='indicator_functions.html'>indicator_functions</a></p>
 <p>Other plotting functions: 
-<code><a href='plotMizerSim.html'>plot,MizerSim,missing-method</a></code>,
+<code><a href='plot,MizerSim,missing-method.html'>plot,MizerSim,missing-method</a></code>,
 <code><a href='plotBiomass.html'>plotBiomass</a>()</code>,
 <code><a href='plotDiet.html'>plotDiet</a>()</code>,
 <code><a href='plotFMort.html'>plotFMort</a>()</code>,
@@ -251,24 +251,23 @@ the species parameter data frame.</p>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
 <span class='co'># Set up example MizerParams and MizerSim objects</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span>(<span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>))
-<span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>effort</span><span class='kw'>=</span><span class='fl'>1</span>, <span class='kw'>t_max</span><span class='kw'>=</span><span class='fl'>20</span>, <span class='kw'>t_save</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>progress_bar</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span>(<span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='kw'>NS_species_params_gears</span>, <span class='kw'>inter</span>))
+<span class='kw'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='kw'>params</span>, effort=<span class='fl'>1</span>, t_max=<span class='fl'>20</span>, t_save = <span class='fl'>2</span>, progress_bar = <span class='fl'>FALSE</span>)
 
 <span class='co'># Some example plots</span>
-<span class='fu'><a href='plotFeedingLevel.html'>plotFeedingLevel</a></span>(<span class='no'>sim</span>)</div><div class='img'><img src='plotting_functions-1.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='fu'><a href='plotFeedingLevel.html'>plotFeedingLevel</a></span>(<span class='kw'>sim</span>)</div><div class='img'><img src='plotting_functions-1.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># Plotting only a subset of species</span>
-<span class='fu'><a href='plotFeedingLevel.html'>plotFeedingLevel</a></span>(<span class='no'>sim</span>, <span class='kw'>species</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Cod"</span>, <span class='st'>"Herring"</span>))</div><div class='img'><img src='plotting_functions-2.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='fu'><a href='plotFeedingLevel.html'>plotFeedingLevel</a></span>(<span class='kw'>sim</span>, species = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Cod"</span>, <span class='st'>"Herring"</span>))</div><div class='img'><img src='plotting_functions-2.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># Specifying new colours and linetypes for some species</span>
-<span class='no'>sim</span>@<span class='kw'>params</span>@<span class='kw'>linetype</span>[<span class='st'>"Cod"</span>] <span class='kw'>&lt;-</span> <span class='st'>"solid"</span>
-<span class='no'>sim</span>@<span class='kw'>params</span>@<span class='kw'>linecolour</span>[<span class='st'>"Cod"</span>] <span class='kw'>&lt;-</span> <span class='st'>"red"</span>
-<span class='fu'><a href='plotFeedingLevel.html'>plotFeedingLevel</a></span>(<span class='no'>sim</span>, <span class='kw'>species</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Cod"</span>, <span class='st'>"Herring"</span>))</div><div class='img'><img src='plotting_functions-3.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='kw'>sim</span><span class='op'>@</span>params<span class='op'>@</span>linetype[<span class='st'>"Cod"</span>] <span class='op'>&lt;-</span> <span class='st'>"solid"</span>
+<span class='kw'>sim</span><span class='op'>@</span>params<span class='op'>@</span>linecolour[<span class='st'>"Cod"</span>] <span class='op'>&lt;-</span> <span class='st'>"red"</span>
+<span class='fu'><a href='plotFeedingLevel.html'>plotFeedingLevel</a></span>(<span class='kw'>sim</span>, species = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Cod"</span>, <span class='st'>"Herring"</span>))</div><div class='img'><img src='plotting_functions-3.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># Manipulating the plot</span>
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>ggplot2</span>)
-<span class='no'>p</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='plotFeedingLevel.html'>plotFeedingLevel</a></span>(<span class='no'>sim</span>)
-<span class='no'>p</span> <span class='kw'>&lt;-</span> <span class='no'>p</span> + <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_abline.html'>geom_hline</a></span>(<span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(<span class='kw'>yintercept</span> <span class='kw'>=</span> <span class='fl'>0.7</span>))
-<span class='no'>p</span> <span class='kw'>&lt;-</span> <span class='no'>p</span> + <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_bw</a></span>()
-<span class='no'>p</span></div><div class='img'><img src='plotting_functions-4.png' alt='' width='700' height='433' /></div><div class='input'># }
-</div></pre>
+<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='http://ggplot2.tidyverse.org'>ggplot2</a></span>)
+<span class='kw'>p</span> <span class='op'>&lt;-</span> <span class='fu'><a href='plotFeedingLevel.html'>plotFeedingLevel</a></span>(<span class='kw'>sim</span>)
+<span class='kw'>p</span> <span class='op'>&lt;-</span> <span class='kw'>p</span> <span class='op'>+</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_abline.html'>geom_hline</a></span>(<span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(yintercept = <span class='fl'>0.7</span>))
+<span class='kw'>p</span> <span class='op'>&lt;-</span> <span class='kw'>p</span> <span class='op'>+</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_bw</a></span>()
+<span class='kw'>p</span></div><div class='img'><img src='plotting_functions-4.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -284,7 +283,7 @@ the species parameter data frame.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

@@ -78,7 +78,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -185,7 +185,7 @@
     <p>An alias provided for backward compatibility with mizer version &lt;= 1.0</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotM2</span>(<span class='no'>object</span>, <span class='kw'>species</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>time_range</span>, <span class='kw'>highlight</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>plotM2</span>(<span class='kw'>object</span>, species = <span class='kw'>NULL</span>, <span class='kw'>time_range</span>, highlight = <span class='kw'>NULL</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -223,7 +223,7 @@ object.</p></td>
 
     <div class='dont-index'><p><a href='plotting_functions.html'>plotting_functions</a>,  <code><a href='getPredMort.html'>getPredMort()</a></code></p>
 <p>Other plotting functions: 
-<code><a href='plotMizerSim.html'>plot,MizerSim,missing-method</a></code>,
+<code><a href='plot,MizerSim,missing-method.html'>plot,MizerSim,missing-method</a></code>,
 <code><a href='plotBiomass.html'>plotBiomass</a>()</code>,
 <code><a href='plotDiet.html'>plotDiet</a>()</code>,
 <code><a href='plotFMort.html'>plotFMort</a>()</code>,
@@ -236,10 +236,9 @@ object.</p></td>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span>(<span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>))
-<span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>effort</span><span class='kw'>=</span><span class='fl'>1</span>, <span class='kw'>t_max</span><span class='kw'>=</span><span class='fl'>20</span>, <span class='kw'>t_save</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>progress_bar</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-<span class='fu'><a href='plotPredMort.html'>plotPredMort</a></span>(<span class='no'>sim</span>)</div><div class='img'><img src='plotM2-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='plotPredMort.html'>plotPredMort</a></span>(<span class='no'>sim</span>, <span class='kw'>time_range</span> <span class='kw'>=</span> <span class='fl'>10</span>:<span class='fl'>20</span>)</div><div class='img'><img src='plotM2-2.png' alt='' width='700' height='433' /></div><div class='input'># }
-</div></pre>
+<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span>(<span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='kw'>NS_species_params_gears</span>, <span class='kw'>inter</span>))
+<span class='kw'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='kw'>params</span>, effort=<span class='fl'>1</span>, t_max=<span class='fl'>20</span>, t_save = <span class='fl'>2</span>, progress_bar = <span class='fl'>FALSE</span>)
+<span class='fu'><a href='plotPredMort.html'>plotPredMort</a></span>(<span class='kw'>sim</span>)</div><div class='img'><img src='plotM2-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='plotPredMort.html'>plotPredMort</a></span>(<span class='kw'>sim</span>, time_range = <span class='fl'>10</span><span class='op'>:</span><span class='fl'>20</span>)</div><div class='img'><img src='plotM2-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -255,7 +254,7 @@ object.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

@@ -80,7 +80,7 @@ individual and sets additional density dependence." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -189,11 +189,11 @@ that is invested into reproduction as a function of the size of the
 individual and sets additional density dependence.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setReproduction</span>(<span class='no'>params</span>, <span class='kw'>maturity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>repro_prop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>RDD</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
+    <pre class="usage"><span class='fu'>setReproduction</span>(<span class='kw'>params</span>, maturity = <span class='kw'>NULL</span>, repro_prop = <span class='kw'>NULL</span>, RDD = <span class='kw'>NULL</span>, <span class='kw'>...</span>)
 
-<span class='fu'>getMaturityProportion</span>(<span class='no'>params</span>)
+<span class='fu'>getMaturityProportion</span>(<span class='kw'>params</span>)
 
-<span class='fu'>getReproductionProportion</span>(<span class='no'>params</span>)</pre>
+<span class='fu'>getReproductionProportion</span>(<span class='kw'>params</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -229,30 +229,42 @@ reproduction rate from the density-independent rate. Defaults to
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The updated MizerParams object. Because of the way the R language
+    <p>For <code>setReproduction()</code>:
+The updated MizerParams object. Because of the way the R language
 works, <code>setReproduction()</code> does not make the changes to the params object
 that you pass to it but instead returns a new params object. So to affect
 the change you call the function in the form
 <code>params &lt;- setReproduction(params, ...)</code>.</p>
+<p>For <code>getMaturityProportion()</code>:
+An array (species x size) that holds the proportion
+of individuals of each species at size that are mature.</p>
+<p>For <code>getReproductionProportion</code>:
+An array (species x size) that holds the
+proportion of consumed energy that a mature individual allocates to
+reproduction for each species at size. For sizes where the maturity
+proportion is zero, also the reproduction proportion is returned as zero.</p>
     <h2 class="hasAnchor" id="setting-reproduction"><a class="anchor" href="#setting-reproduction"></a>Setting reproduction</h2>
 
     
 
 
-<h3>Investment</h3>
-<p>For each species and at each size, the proportion \(\psi\) of the available energy
+<p>For each species and at each size, the proportion \(\psi\) of the
+available energy
 that is invested into reproduction is the product of two factors: the
 proportion <code>maturity</code> of individuals that are mature and the proportion
 <code>repro_prop</code> of the energy available to a mature individual that is
 invested into reproduction.</p>
-<p>If the <code>maturity</code> argument is not supplied, then it is set to a sigmoidal
+<h3>Maturity ogive</h3>
+<p>If the the proportion of individuals that are mature is not supplied via
+the <code>maturity</code> argument , then it is set to a sigmoidal
 maturity ogive that changes from 0 to 1 at around the maturity size:
 $${\tt maturity}(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}.$$
-(To avoid clutter, we are not showing the species index in the equations.)
+(To avoid clutter, we are not showing the species index in the equations,
+although each species has its own maturity ogive.)
 The maturity weights are taken from the <code>w_mat</code> column of the
 species_params data frame. Any missing maturity weights are set to 1/4 of the
-asymptotic weight in the <code>w_inf</code> column.
-The exponent \(U\) determines the steepness of the maturity ogive. By
+asymptotic weight in the <code>w_inf</code> column.</p>
+<p>The exponent \(U\) determines the steepness of the maturity ogive. By
 default it is chosen as \(U = 10\), however this can be overridden by
 including a column <code>w_mat25</code> in the species parameter dataframe that
 specifies the weight at which 25% of individuals are mature, which sets
@@ -260,9 +272,13 @@ specifies the weight at which 25% of individuals are mature, which sets
 <p>The sigmoidal function given above would strictly reach 1 only asymptotically.
 Mizer instead sets the function equal to 1 already at the species'
 maximum size, taken from the compulsory <code>w_inf</code> column in the
-<code>species_params</code> data frame.</p>
-<p>If the <code>repro_prop</code> argument is not supplied, it is set to the
-allometric form
+<code>species_params</code> data frame. Also, for computational simplicity, any
+proportion smaller than <code>1e-8</code> is set to <code>0</code>.</p>
+
+<h3>Investment into reproduction</h3>
+<p>If the the energy available to a mature individual that is
+invested into reproduction is not supplied via the <code>repro_prop</code> argument,
+it is set to the allometric form
 $${\tt repro\_prop}(w) = \left(\frac{w}{w_{inf}}\right)^{m-n}.$$
 Here \(n\) is the scaling exponent of the energy income rate. Hence
 the exponent \(m\) determines the scaling of the investment into
@@ -275,13 +291,14 @@ data frame.</p>
 <p>So finally we have
 $$\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)$$</p>
 
-<h3>Efficiency</h3>
-<p>The reproductive efficiency, i.e., the proportion of energy allocated to
+<h3>Reproductive efficiency</h3>
+<p>The reproductive efficiency \(\epsilon\), i.e., the proportion of energy allocated to
 reproduction that results in egg biomass, is set through the <code>erepro</code>
 column in the species_params data frame. If that is not provided, the default
 is set to 1 (which you will want to override). The offspring biomass divided
 by the egg biomass gives the rate of egg production, returned by
-<code><a href='getRDI.html'>getRDI()</a></code>.</p>
+<code><a href='getRDI.html'>getRDI()</a></code>:
+$$R_{di} = \frac{\epsilon}{2 w_{min}} \int N(w)  E_r(w) \psi(w) \, dw$$</p>
 
 <h3>Density dependence</h3>
 <p>The stock-recruitment relationship is an emergent phenomenon in mizer, with
@@ -307,24 +324,34 @@ these as models for writing your own functions.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for setting parameters: 
+<code><a href='gear_params.html'>gear_params</a>()</code>,
+<code><a href='resource_params.html'>resource_params</a>()</code>,
 <code><a href='setExtMort.html'>setExtMort</a>()</code>,
 <code><a href='setFishing.html'>setFishing</a>()</code>,
 <code><a href='setInitialValues.html'>setInitialValues</a>()</code>,
 <code><a href='setInteraction.html'>setInteraction</a>()</code>,
 <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
 <code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
+<code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
 <code><a href='setResource.html'>setResource</a>()</code>,
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code>,
-<code><a href='setParams.html'>species_params</a>()</code></p></div>
+<code><a href='species_params.html'>species_params</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='no'>NS_params</span>
-<span class='co'># Change maturity size for species 3</span>
-<span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>w_mat</span>[<span class='fl'>3</span>] <span class='kw'>&lt;-</span> <span class='fl'>24</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setReproduction</span>(<span class='no'>params</span>)
-}</div></pre>
+    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
+<span class='co'># Plot maturity and reproduction ogives for Cod in North Sea model</span>
+<span class='kw'>maturity</span> <span class='op'>&lt;-</span> <span class='fu'>getMaturityProportion</span>(<span class='kw'>NS_params</span>)[<span class='st'>"Cod"</span>, ]
+<span class='kw'>repro_prop</span> <span class='op'>&lt;-</span> <span class='fu'>getReproductionProportion</span>(<span class='kw'>NS_params</span>)[<span class='st'>"Cod"</span>, ]
+<span class='kw'>df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(Size = <span class='fu'><a href='w.html'>w</a></span>(<span class='kw'>NS_params</span>), 
+                 Reproduction = <span class='kw'>repro_prop</span>, 
+                 Maturity = <span class='kw'>maturity</span>, 
+                 Total = <span class='kw'>maturity</span> <span class='op'>*</span> <span class='kw'>repro_prop</span>)
+<span class='kw'>dff</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/reshape2/man/melt.html'>melt</a></span>(<span class='kw'>df</span>, id.vars = <span class='st'>"Size"</span>, 
+            variable.name = <span class='st'>"Type"</span>, 
+            value.name = <span class='st'>"Proportion"</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='http://ggplot2.tidyverse.org'>ggplot2</a></span>)
+<span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span>(<span class='kw'>dff</span>) <span class='op'>+</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line</a></span>(<span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(x = <span class='kw'>Size</span>, y = <span class='kw'>Proportion</span>, colour = <span class='kw'>Type</span>))</div><div class='img'><img src='setReproduction-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -340,7 +367,7 @@ these as models for writing your own functions.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

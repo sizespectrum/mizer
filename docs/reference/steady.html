@@ -82,7 +82,7 @@ steady state." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -194,13 +194,13 @@ steady state.</p>
     </div>
 
     <pre class="usage"><span class='fu'>steady</span>(
-  <span class='no'>params</span>,
-  <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-  <span class='kw'>t_per</span> <span class='kw'>=</span> <span class='fl'>1.5</span>,
-  <span class='kw'>tol</span> <span class='kw'>=</span> <span class='fl'>10</span>^(-<span class='fl'>2</span>),
-  <span class='kw'>dt</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
-  <span class='kw'>return_sim</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>progress_bar</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+  <span class='kw'>params</span>,
+  t_max = <span class='fl'>100</span>,
+  t_per = <span class='fl'>1.5</span>,
+  tol = <span class='fl'>10</span><span class='op'>^</span>(<span class='op'>-</span><span class='fl'>2</span>),
+  dt = <span class='fl'>0.1</span>,
+  return_sim = <span class='fl'>FALSE</span>,
+  progress_bar = <span class='fl'>TRUE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -246,12 +246,11 @@ shiny app. Default FALSE.</p></td>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newTraitParams.html'>newTraitParams</a></span>()
-<span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>gamma</span>[<span class='fl'>5</span>] <span class='kw'>&lt;-</span> <span class='fl'>3000</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='setSearchVolume.html'>setSearchVolume</a></span>(<span class='no'>params</span>)
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>steady</span>(<span class='no'>params</span>)
-<span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span>(<span class='no'>params</span>)
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newTraitParams.html'>newTraitParams</a></span>()
+<span class='fu'><a href='species_params.html'>species_params</a></span>(<span class='kw'>params</span>)<span class='op'>$</span><span class='kw'>gamma</span>[<span class='fl'>5</span>] <span class='op'>&lt;-</span> <span class='fl'>3000</span>
+<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'>steady</span>(<span class='kw'>params</span>)
+<span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span>(<span class='kw'>params</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -268,7 +267,7 @@ shiny app. Default FALSE.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

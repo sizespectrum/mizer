@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -232,9 +232,21 @@
       <tr>
         
         <td>
-          <p><code><a href="setParams.html">species_params()</a></code> <code><a href="setParams.html">`species_params&lt;-`()</a></code> <code><a href="setParams.html">setParams()</a></code> </p>
+          <p><code><a href="species_params.html">species_params()</a></code> <code><a href="species_params.html">`species_params&lt;-`()</a></code> </p>
         </td>
         <td><p>Species parameters</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="gear_params.html">gear_params()</a></code> <code><a href="gear_params.html">`gear_params&lt;-`()</a></code> </p>
+        </td>
+        <td><p>Gear parameters</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setParams.html">setParams()</a></code> </p>
+        </td>
+        <td><p>Set or change any model parameters</p></td>
       </tr><tr>
         
         <td>
@@ -286,15 +298,21 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="setFishing.html">setFishing()</a></code> <code><a href="setFishing.html">gear_params()</a></code> <code><a href="setFishing.html">`gear_params&lt;-`()</a></code> <code><a href="setFishing.html">getCatchability()</a></code> <code><a href="setFishing.html">getSelectivity()</a></code> <code><a href="setFishing.html">getInitialEffort()</a></code> </p>
+          <p><code><a href="setFishing.html">setFishing()</a></code> <code><a href="setFishing.html">getCatchability()</a></code> <code><a href="setFishing.html">getSelectivity()</a></code> <code><a href="setFishing.html">getInitialEffort()</a></code> </p>
         </td>
         <td><p>Set fishing parameters</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="setResource.html">setResource()</a></code> <code><a href="setResource.html">getResourceRate()</a></code> <code><a href="setResource.html">getResourceCapacity()</a></code> <code><a href="setResource.html">getResourceDynamics()</a></code> <code><a href="setResource.html">resource_params()</a></code> <code><a href="setResource.html">`resource_params&lt;-`()</a></code> </p>
+          <p><code><a href="setResource.html">setResource()</a></code> <code><a href="setResource.html">getResourceRate()</a></code> <code><a href="setResource.html">getResourceCapacity()</a></code> <code><a href="setResource.html">getResourceDynamics()</a></code> </p>
         </td>
         <td><p>Set up resource</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="resource_params.html">resource_params()</a></code> <code><a href="resource_params.html">`resource_params&lt;-`()</a></code> </p>
+        </td>
+        <td><p>Resource parameters</p></td>
       </tr><tr>
         
         <td>
@@ -304,9 +322,9 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="setRmax.html">setRmax()</a></code> </p>
+          <p><code><a href="setBevertonHolt.html">setBevertonHolt()</a></code> </p>
         </td>
-        <td><p>Set maximum reproduction rate</p></td>
+        <td><p>Set Beverton-Holt density dependence</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -603,6 +621,12 @@ step.</p></td>
       
       
       <tr>
+        
+        <td>
+          <p><code><a href="getRates.html">getRates()</a></code> </p>
+        </td>
+        <td><p>Get all rates</p></td>
+      </tr><tr>
         
         <td>
           <p><code><a href="getEncounter.html">getEncounter()</a></code> </p>
@@ -1023,7 +1047,7 @@ model</p></td>
         <td>
           <p><code><a href="get_ks_default.html">get_ks_default()</a></code> </p>
         </td>
-        <td><p>Get default value for ks</p></td>
+        <td><p>Get default value for <code>ks</code></p></td>
       </tr><tr>
         
         <td>
@@ -1100,6 +1124,12 @@ model</p></td>
       </tr><tr>
         
         <td>
+          <p><code><a href="validParams.html">validParams()</a></code> </p>
+        </td>
+        <td><p>Validate MizerParams object and upgrade if necessary</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="upgradeParams.html">upgradeParams()</a></code> </p>
         </td>
         <td><p>Upgrade MizerParams object from earlier mizer versions</p></td>
@@ -1138,7 +1168,7 @@ model</p></td>
       <tr>
         <th colspan="2">
           <h2 id="section-example-parameter-sets" class="hasAnchor"><a href="#section-example-parameter-sets" class="anchor"></a>Example parameter sets</h2>
-          <p class="section-desc"></p>
+          <p class="section-desc"><p>More example parameter sets are available via <a href="https://sizespectrum.org/mizerExamples" class="uri">https://sizespectrum.org/mizerExamples</a></p></p>
         </th>
       </tr>
       
@@ -1262,7 +1292,7 @@ model</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

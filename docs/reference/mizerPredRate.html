@@ -86,7 +86,7 @@ function unless an alternative function has been registered, see below." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -201,7 +201,7 @@ function directly but instead use <code><a href='getPredRate.html'>getPredRate()
 function unless an alternative function has been registered, see below.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>mizerPredRate</span>(<span class='no'>params</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='no'>t</span>, <span class='no'>feeding_level</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>mizerPredRate</span>(<span class='kw'>params</span>, <span class='kw'>n</span>, <span class='kw'>n_pp</span>, <span class='kw'>n_other</span>, <span class='kw'>t</span>, <span class='kw'>feeding_level</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -252,7 +252,7 @@ spectrum.</p>
 <p>By default <code><a href='getPredRate.html'>getPredRate()</a></code> calls <code>mizerPredRate()</code>. However you can
 replace this with your own alternative predation rate function. If
 your function is called <code>"myPredRate"</code> then you register it in a MizerParams
-object <code>params</code> with</p><pre><span class='no'>params</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='no'>params</span>, <span class='st'>"PredRate"</span>, <span class='st'>"myPredRate"</span>)</pre>
+object <code>params</code> with</p><pre><span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='kw'>params</span>, <span class='st'>"PredRate"</span>, <span class='st'>"myPredRate"</span>)</pre>
 
 <p>Your function will then be called instead of <code>mizerPredRate()</code>, with
 the same arguments.</p>
@@ -287,7 +287,7 @@ the same arguments.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

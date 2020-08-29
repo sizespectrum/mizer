@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -153,9 +153,11 @@ And clicking again will hide the details again.
 <a href="#consumer-densities" class="anchor"></a>Consumer densities</h2>
 <p>The model assumes that, to a first approximation, an individual can be characterized by its weight <span class="math inline">\(w\)</span> and its species number <span class="math inline">\(i\)</span> only. The aim of the model is to calculate the size spectrum <span class="math inline">\(N_i(w)\)</span>, which is the <em>density</em> of individuals of species <span class="math inline">\(i\)</span> such that <span class="math inline">\(\int_w^{w+dw}N_i(w)dw\)</span> is the <em>number</em> of individuals of species <span class="math inline">\(i\)</span> in the size interval <span class="math inline">\([w,w+dw]\)</span>. In other words: the number of individuals in a size range is the area under the number density <span class="math inline">\(N_i(w)\)</span>.</p>
 <details><p>Here is a plot of an example size spectrum for two species with <span class="math inline">\(N_i(w)\)</span> on the vertical axis for <span class="math inline">\(i=1,2\)</span> and <span class="math inline">\(w\)</span> on the horizontal axis.</p>
-<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">mizer</span>)
-<span class="no">params</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/newTraitParams.html">newTraitParams</a></span>(<span class="kw">no_sp</span> <span class="kw">=</span> <span class="fl">2</span>, <span class="kw">min_w</span> <span class="kw">=</span> <span class="fl">1e-3</span>)
-<span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span>(<span class="no">params</span>, <span class="kw">resource</span> <span class="kw">=</span> <span class="fl">FALSE</span>, <span class="kw">power</span> <span class="kw">=</span> <span class="fl">0</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb1"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="https://sizespectrum.org/mizer">mizer</a></span>)
+<span class="kw">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newTraitParams.html">newTraitParams</a></span>(no_sp = <span class="fl">2</span>, min_w = <span class="fl">1e-3</span>)
+<span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span>(<span class="kw">params</span>, resource = <span class="fl">FALSE</span>, power = <span class="fl">0</span>)
+</pre></div>
 <p><img src="model_description_files/figure-html/unnamed-chunk-1-1.png" width="700"></p>
 <p>To represent this continuous size spectrum in the computer, the size variable <span class="math inline">\(w\)</span> is discretized into a vector <code>w</code> of discrete weights, providing a grid of sizes spanning the range from the smallest egg size to the largest asymptotic size. These grid values divide the full size range into a finite number of size bins. The size bins should be chosen small enough to avoid the discretisation errors from becoming too big. You can fetch this vector with <code><a href="../reference/w.html">w()</a></code> and the vector of bin sizes with <code><a href="../reference/w.html">dw()</a></code>.</p>
 <p>The weight grid is set up to be logarithmically spaced, so that <code>w[j]=w[1]*exp(j*dx)</code> for some fixed <code>dx</code>. This grid is set up automatically when creating a MizerParams object.</p>
@@ -343,7 +345,7 @@ And clicking again will hide the details again.
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

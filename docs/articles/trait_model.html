@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -153,11 +153,15 @@
 <p>To help set up a trait-based model, there is a wrapper function, <code><a href="../reference/newTraitParams.html">newTraitParams()</a></code>. Like the <code><a href="../reference/newCommunityParams.html">newCommunityParams()</a></code> function described in the section on the <a href="community_model.html">community model</a>, this function can take many arguments. Most of them have default values so you don’t need to worry about them for the moment. See the help page for <code><a href="../reference/newCommunityParams.html">newCommunityParams()</a></code> for more details.</p>
 <p>One of the key differences between the community type model and the trait-based model is that reproduction and egg production are considered. In the community model, reproduction is constant and there is no relationship between the abundance in the community and egg production. In the trait-based model, the egg production is dependent on mature individuals investing part of their energy income into reproduction. The relationship between the energy invested into reproduction and the actual rate of egg production is modelled using a <em>Beverton-Holt</em> type function (the default in <code>mizer</code>, see <a href="model_description.html#recruitment">the section on density-dependence in reproduction</a>) where the reproduction rate <span class="math inline">\(R_i\)</span> (numbers per time) approaches a maximum as the energy invested increases.</p>
 <p>Here we set up the model to have 10 species, with asymptotic sizes ranging from 10 g to 100 kg. All the other parameters have default values.</p>
-<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="no">params</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/newTraitParams.html">newTraitParams</a></span>(<span class="kw">no_sp</span> <span class="kw">=</span> <span class="fl">10</span>, <span class="kw">min_w_inf</span> <span class="kw">=</span> <span class="fl">10</span>, <span class="kw">max_w_inf</span> <span class="kw">=</span> <span class="fl">1e5</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb1"><pre class="downlit">
+<span class="kw">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newTraitParams.html">newTraitParams</a></span>(no_sp = <span class="fl">10</span>, min_w_inf = <span class="fl">10</span>, max_w_inf = <span class="fl">1e5</span>)
+</pre></div>
 <pre><code>## Note: Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</code></pre>
 <p>The output reminds the user that <span class="math inline">\(\gamma\)</span> was not specified, and so will be calculated using other parameters.</p>
 <p>This function returns an object of type <code>MizerParams</code> that holds all the model information, including species parameters. This object can therefore be interrogated in the same way as described in <a href="community_model.html">the section on the community model</a>.</p>
-<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="no">params</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb3"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="kw">params</span>)
+</pre></div>
 <pre><code>## An object of class "MizerParams" 
 ## Consumer size spectrum:
 ##  minimum size:   0.001
@@ -189,9 +193,13 @@
 <h2 class="hasAnchor">
 <a href="#sec:running_trait_model" class="anchor"></a>Running the trait-based model</h2>
 <p>As with the <a href="community_model.html">community model</a>, we can project the trait-based model through time using the <code><a href="../reference/project.html">project()</a></code> function. Here we project the model for 75 years without any fishing (the <code>effort</code> argument is set to 0). We use the default initial population abundances so there is no need to pass in any initial population values (see <a href="running_a_simulation.html#sec:setting_initial_abundances">the section on setting the initial abundances</a>).</p>
-<div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="no">sim</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span>(<span class="no">params</span>, <span class="kw">t_max</span> <span class="kw">=</span> <span class="fl">75</span>, <span class="kw">effort</span> <span class="kw">=</span> <span class="fl">0</span>)</pre></body></html></div>
-<p>This results in a <code>MizerSim</code> object that contains the abundances of the community and resource spectra through time, as well as the original <code>MizerParams</code> object. As with the community model, we can get a quick overview of the results of the simulation by calling the <code><a href="https://rdrr.io/r/base/plot.html">plot()</a></code> method:</p>
-<div class="sourceCode" id="cb6"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="no">sim</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb5"><pre class="downlit">
+<span class="kw">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span>(<span class="kw">params</span>, t_max = <span class="fl">75</span>, effort = <span class="fl">0</span>)
+</pre></div>
+<p>This results in a <code>MizerSim</code> object that contains the abundances of the community and resource spectra through time, as well as the original <code>MizerParams</code> object. As with the community model, we can get a quick overview of the results of the simulation by calling the <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot()</a></code> method:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">sim</span>)
+</pre></div>
 <p><img src="trait_model_files/figure-html/plot_comm_sim_2-1.png" width="700"></p>
 <p>The summary plot has the same panels as the one generated by the community model, but here you can see that all the species in the community are plotted. The panels show the situation in the final time step of the simulation, apart from the biomass through time plot. As this is a trait-based model where all species fully interact with each other, the predation mortality and feeding level by size is the same for each species. In this simulation we turned fishing off so the fishing mortality is 0. The size-spectra show the abundances at size to be evenly spaced by log of asymptotic size.</p>
 </div>
@@ -202,39 +210,59 @@
 <p>The default fishing selectivity function is a knife-edge function, which only selects individuals larger than 1000 g. There is also only one fishing gear in operation, and this selects all of the species. You can see this if you call the <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> method on the <code>params</code> argument we set up above. At the bottom of the summary there is a section on <em>Fishing gear details</em>. You can see that there is only one gear, called <code>knife_edge_gear</code> and that it selects species 1 to 10. To control the size at which individuals are selected there is a <code>knife_edge_size</code> argument to the <code><a href="../reference/newTraitParams.html">newTraitParams()</a></code> function. This has a default value of 1000 g.</p>
 <p>In <code>mizer</code> it is possible to include more than one fishing gear in the model and for different species to be caught by different gears. We will ignore this for now, but will explore it further below when we introduce an industrial fishery to the trait-based model.</p>
 <p>To set up the trait-based model to have fishing we set up the <code>MizerParams</code> object in exactly the same way as we did before but here the <code>knife_edge_size</code> argument is explicitly passed in for clarity:</p>
-<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="no">params_knife</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/newTraitParams.html">newTraitParams</a></span>(<span class="kw">no_sp</span> <span class="kw">=</span> <span class="fl">10</span>, <span class="kw">min_w_inf</span> <span class="kw">=</span> <span class="fl">10</span>, <span class="kw">max_w_inf</span> <span class="kw">=</span> <span class="fl">1e5</span>,
-    <span class="kw">knife_edge_size</span> <span class="kw">=</span> <span class="fl">1000</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb7"><pre class="downlit">
+<span class="kw">params_knife</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newTraitParams.html">newTraitParams</a></span>(no_sp = <span class="fl">10</span>, min_w_inf = <span class="fl">10</span>, max_w_inf = <span class="fl">1e5</span>,
+    knife_edge_size = <span class="fl">1000</span>)
+</pre></div>
 <pre><code>## Note: Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</code></pre>
 <p>First we perform a simulation without fishing in the same way we did above by setting the <code>effort</code> argument to 0:</p>
-<div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="no">sim0</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span>(<span class="no">params_knife</span>, <span class="kw">effort</span> <span class="kw">=</span> <span class="fl">0</span>, <span class="kw">t_max</span> <span class="kw">=</span> <span class="fl">75</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb9"><pre class="downlit">
+<span class="kw">sim0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span>(<span class="kw">params_knife</span>, effort = <span class="fl">0</span>, t_max = <span class="fl">75</span>)
+</pre></div>
 <p>Now we simulate with fishing. Here, we use an effort of 0.75. As mentioned in <a href="community_model.html#sec:trophic_cascade_comm_model">the section on trophic cascades in the community model</a>, the fishing mortality on a species is calculated as the product of effort, catchability and selectivity (see <a href="multispecies_model.html#sec:fishing_gear">the section on fishing gears</a> for more details). Selectivity ranges between 0 (not selected) and 1 (fully selected). The default value of catchability is 1. Therefore, in this simulation the fishing mortality of a fully selected individual is simply equal to the effort. This effort is constant throughout the duration of the simulation (however, mizer does allow variable effort).</p>
-<div class="sourceCode" id="cb10"><html><body><pre class="r"><span class="no">sim1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span>(<span class="no">params_knife</span>, <span class="kw">effort</span> <span class="kw">=</span> <span class="fl">0.75</span>, <span class="kw">t_max</span> <span class="kw">=</span> <span class="fl">75</span>)</pre></body></html></div>
-<p>Again, we can plot the summary of the fished community using the default <code><a href="https://rdrr.io/r/base/plot.html">plot()</a></code> function. The knife-edge selectivity at 1000 g can be clearly seen in the fishing mortality panel:</p>
-<div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="no">sim1</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb10"><pre class="downlit">
+<span class="kw">sim1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span>(<span class="kw">params_knife</span>, effort = <span class="fl">0.75</span>, t_max = <span class="fl">75</span>)
+</pre></div>
+<p>Again, we can plot the summary of the fished community using the default <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot()</a></code> function. The knife-edge selectivity at 1000 g can be clearly seen in the fishing mortality panel:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">sim1</span>)
+</pre></div>
 <p><img src="trait_model_files/figure-html/plot_trait_fmort-1.png" width="700"></p>
 <p>The trophic cascade can be explored by comparing the total abundances of all species at size when the community is fished and unfished. As mentioned above, we obtain the abundances with <code><a href="../reference/N.html">N(sim)</a></code>, which returns a three dimensional array with dimensions time x species x size. Here we have 76 time steps (75 from the simulation plus one which stores the initial population), 10 species and 100 sizes:</p>
-<div class="sourceCode" id="cb12"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span>(<span class="fu"><a href="../reference/N.html">N</a></span>(<span class="no">sim0</span>))</pre></body></html></div>
+<div class="sourceCode" id="cb12"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span>(<span class="fu"><a href="../reference/N.html">N</a></span>(<span class="kw">sim0</span>))
+</pre></div>
 <pre><code>## [1]  76  10 161</code></pre>
 <p>As with the community model, we are interested in the relative total abundances by size in the final time step so we use the <code><a href="../reference/finalN.html">finalN()</a></code> function. This gives us a matrix with one row per species and one column per size bin. We sum in each column to get a vector with the total abundance per size bin:</p>
-<div class="sourceCode" id="cb14"><html><body><pre class="r"><span class="no">total_abund0</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html">colSums</a></span>(<span class="fu"><a href="../reference/finalN.html">finalN</a></span>(<span class="no">sim0</span>))
-<span class="no">total_abund1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html">colSums</a></span>(<span class="fu"><a href="../reference/finalN.html">finalN</a></span>(<span class="no">sim1</span>))</pre></body></html></div>
+<div class="sourceCode" id="cb14"><pre class="downlit">
+<span class="kw">total_abund0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html">colSums</a></span>(<span class="fu"><a href="../reference/finalN.html">finalN</a></span>(<span class="kw">sim0</span>))
+<span class="kw">total_abund1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html">colSums</a></span>(<span class="fu"><a href="../reference/finalN.html">finalN</a></span>(<span class="kw">sim1</span>))
+</pre></div>
 <p>We can then use these vectors to calculate the relative abundances:</p>
-<div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="no">relative_abundance</span> <span class="kw">&lt;-</span> <span class="no">total_abund1</span> / <span class="no">total_abund0</span></pre></body></html></div>
+<div class="sourceCode" id="cb15"><pre class="downlit">
+<span class="kw">relative_abundance</span> <span class="op">&lt;-</span> <span class="kw">total_abund1</span> <span class="op">/</span> <span class="kw">total_abund0</span>
+</pre></div>
 <p>This can be plotted using the commands below:</p>
-<div class="sourceCode" id="cb16"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="fu"><a href="../reference/w.html">w</a></span>(<span class="no">params</span>), <span class="kw">y</span> <span class="kw">=</span> <span class="no">relative_abundance</span>, <span class="kw">log</span> <span class="kw">=</span> <span class="st">"xy"</span>, <span class="kw">type</span> <span class="kw">=</span> <span class="st">"n"</span>,
-     <span class="kw">xlab</span> <span class="kw">=</span> <span class="st">"Size (g)"</span>, <span class="kw">ylab</span> <span class="kw">=</span> <span class="st">"Relative abundance"</span>, <span class="kw">ylim</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.1</span>, <span class="fl">10</span>))
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="fu"><a href="../reference/w.html">w</a></span>(<span class="no">params</span>), <span class="kw">y</span> <span class="kw">=</span> <span class="no">relative_abundance</span>)
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span>(<span class="fu"><a href="../reference/w.html">w</a></span>(<span class="no">params</span>)), <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="fu"><a href="../reference/w.html">w</a></span>(<span class="no">params</span>))), <span class="kw">y</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>, <span class="fl">1</span>), <span class="kw">lty</span> <span class="kw">=</span> <span class="fl">2</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb16"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(x = <span class="fu"><a href="../reference/w.html">w</a></span>(<span class="kw">params</span>), y = <span class="kw">relative_abundance</span>, log = <span class="st">"xy"</span>, type = <span class="st">"n"</span>, 
+     xlab = <span class="st">"Size (g)"</span>, ylab = <span class="st">"Relative abundance"</span>, ylim = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.1</span>, <span class="fl">10</span>))
+<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span>(x = <span class="fu"><a href="../reference/w.html">w</a></span>(<span class="kw">params</span>), y = <span class="kw">relative_abundance</span>)
+<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span>(x = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span>(<span class="fu"><a href="../reference/w.html">w</a></span>(<span class="kw">params</span>)), <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="fu"><a href="../reference/w.html">w</a></span>(<span class="kw">params</span>))), y = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>, <span class="fl">1</span>), lty = <span class="fl">2</span>)
+</pre></div>
 <p><img src="trait_model_files/figure-html/plot_relative_comm_abund2-1.png" width="700"></p>
 <p>The impact of fishing on species larger than 1000 g can be clearly seen. The fishing pressure lowers the abundance of large fish (<span class="math inline">\(&gt; 1000\)</span> g). This then relieves the predation pressure on their smaller prey (the preferred predator-prey size ratio is given by the <span class="math inline">\(\beta\)</span> parameter, which is set to 100 by default), leading to an increase in their abundance. This in turn increases the predation mortality on their smaller prey, which reduces their abundance and so on.</p>
 <p>This impact can also be seen by looking at the predation mortality by size. The predation mortalities are retrieved using the <code><a href="../reference/getPredMort.html">getPredMort()</a></code> function. As mentioned above, for the trait based model the predation mortality by size is the same for each species. Therefore we only look at the predation mortality of the first species.</p>
-<div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="no">m2_no_fishing</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/getPredMort.html">getPredMort</a></span>(<span class="no">params</span>, <span class="fu"><a href="../reference/finalN.html">finalN</a></span>(<span class="no">sim0</span>))[<span class="fl">1</span>, ]
-<span class="no">m2_with_fishing</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/getPredMort.html">getPredMort</a></span>(<span class="no">params</span>, <span class="fu"><a href="../reference/finalN.html">finalN</a></span>(<span class="no">sim1</span>))[<span class="fl">1</span>, ]</pre></body></html></div>
+<div class="sourceCode" id="cb17"><pre class="downlit">
+<span class="kw">m2_no_fishing</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getPredMort.html">getPredMort</a></span>(<span class="kw">params</span>, <span class="fu"><a href="../reference/finalN.html">finalN</a></span>(<span class="kw">sim0</span>))[<span class="fl">1</span>, ]
+<span class="kw">m2_with_fishing</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getPredMort.html">getPredMort</a></span>(<span class="kw">params</span>, <span class="fu"><a href="../reference/finalN.html">finalN</a></span>(<span class="kw">sim1</span>))[<span class="fl">1</span>, ]
+</pre></div>
 <p>The predation mortalities can then be plotted.</p>
-<div class="sourceCode" id="cb18"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="fu"><a href="../reference/w.html">w</a></span>(<span class="no">params</span>), <span class="kw">y</span> <span class="kw">=</span> <span class="no">m2_with_fishing</span>, <span class="kw">log</span> <span class="kw">=</span> <span class="st">"x"</span>, <span class="kw">type</span> <span class="kw">=</span> <span class="st">"n"</span>,
-     <span class="kw">xlab</span> <span class="kw">=</span> <span class="st">"Size [g]"</span>, <span class="kw">ylab</span> <span class="kw">=</span> <span class="st">"Predation Mortality [1/year]"</span>)
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="fu"><a href="../reference/w.html">w</a></span>(<span class="no">params</span>), <span class="kw">y</span> <span class="kw">=</span> <span class="no">m2_no_fishing</span>, <span class="kw">lty</span> <span class="kw">=</span> <span class="fl">2</span>)
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="fu"><a href="../reference/w.html">w</a></span>(<span class="no">params</span>), <span class="kw">y</span> <span class="kw">=</span> <span class="no">m2_with_fishing</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb18"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(x = <span class="fu"><a href="../reference/w.html">w</a></span>(<span class="kw">params</span>), y = <span class="kw">m2_with_fishing</span>, log = <span class="st">"x"</span>, type = <span class="st">"n"</span>, 
+     xlab = <span class="st">"Size [g]"</span>, ylab = <span class="st">"Predation Mortality [1/year]"</span>)
+<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span>(x = <span class="fu"><a href="../reference/w.html">w</a></span>(<span class="kw">params</span>), y = <span class="kw">m2_no_fishing</span>, lty = <span class="fl">2</span>)
+<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span>(x = <span class="fu"><a href="../reference/w.html">w</a></span>(<span class="kw">params</span>), y = <span class="kw">m2_with_fishing</span>)
+</pre></div>
 <div class="figure">
 <img src="trait_model_files/figure-html/plot_relative_trait_m2-1.png" alt="Predation mortalities from the unfished (dashed line) and fished (solid line) trait-based model." width="700"><p class="caption">
 Predation mortalities from the unfished (dashed line) and fished (solid line) trait-based model.
@@ -246,7 +274,9 @@ Predation mortalities from the unfished (dashed line) and fished (solid line) tr
 <a href="#sec:trait_additional_gear" class="anchor"></a>Setting up an industrial fishing gear</h2>
 <p>In this section we want to operate an <em>industrial</em> fishery. Industrial fishing targets the small zooplanktivorous species that are typically used for fishmeal production.</p>
 <p>In the previous simulations we had only one fishing gear and it targeted all the species in the community. This gear had a knife-edge selectivity that only selected species larger than 1 kg. We can see that when we look at the gear parameters</p>
-<div class="sourceCode" id="cb19"><html><body><pre class="r"><span class="fu"><a href="../reference/setFishing.html">gear_params</a></span>(<span class="no">params</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb19"><pre class="downlit">
+<span class="fu"><a href="../reference/gear_params.html">gear_params</a></span>(<span class="kw">params</span>)
+</pre></div>
 <pre><code>##               gear species   sel_func knife_edge_size catchability
 ## 1  knife_edge_gear       1 knife_edge            1000            1
 ## 2  knife_edge_gear       2 knife_edge            1000            1
@@ -261,17 +291,25 @@ Predation mortalities from the unfished (dashed line) and fished (solid line) tr
 <p>We will expand the model to include multiple fishing gears. This requires us to look more closely at how fishing gears are handled in <code>mizer</code>. In <code>mizer</code> it is possible for a fishing gear to catch only a subset of the species in the model. This is useful because when running a simulation with <code><a href="../reference/project.html">project()</a></code> you can specify the effort per gear and so you can turn gears on or off as you want. Each gear has a selectivity curve for each species.</p>
 <p>We will set up the model to include two fishing gears: an <code>industrial</code> gear that only catches species with an asymptotic size less than or equal to 500g, and a second gear, <code>other</code>, that catches everything else. The position of the knife-edge for both gears will occur at 0.05 x the asymptotic size i.e. the selectivity parameters will be different for each species and will depend on the asymptotic size.</p>
 <p>For this we will need to change the <code>gear_params</code> data frame. If we want to keep the original model, we should first make a copy before making modifications.</p>
-<div class="sourceCode" id="cb21"><html><body><pre class="r"><span class="no">params_multi_gear</span> <span class="kw">&lt;-</span> <span class="no">params</span></pre></body></html></div>
+<div class="sourceCode" id="cb21"><pre class="downlit">
+<span class="kw">params_multi_gear</span> <span class="op">&lt;-</span> <span class="kw">params</span>
+</pre></div>
 <p>To start with we need to know what the asymptotic sizes of the species in the model are so we can determine the knife-edge positions for each species. These are stored in the <code>w_inf</code> column of the <code>species_params</code> data frame inside the <code>params</code> object. We can then use these asymptotic sizes to set a vector of knife edge sizes that are 0.05 times the asymptotic size:</p>
-<div class="sourceCode" id="cb22"><html><body><pre class="r"><span class="fu"><a href="../reference/setFishing.html">gear_params</a></span>(<span class="no">params_multi_gear</span>)$<span class="no">knife_edge_size</span> <span class="kw">&lt;-</span>
-  <span class="fu"><a href="../reference/setParams.html">species_params</a></span>(<span class="no">params</span>)$<span class="no">w_inf</span> * <span class="fl">0.05</span></pre></body></html></div>
+<div class="sourceCode" id="cb22"><pre class="downlit">
+<span class="fu"><a href="../reference/gear_params.html">gear_params</a></span>(<span class="kw">params_multi_gear</span>)<span class="op">$</span><span class="kw">knife_edge_size</span> <span class="op">&lt;-</span> 
+  <span class="fu"><a href="../reference/species_params.html">species_params</a></span>(<span class="kw">params</span>)<span class="op">$</span><span class="kw">w_inf</span> <span class="op">*</span> <span class="fl">0.05</span>
+</pre></div>
 <p>Now we want to assign each species to either the <em>industrial</em> or <em>other</em> gear.</p>
-<div class="sourceCode" id="cb23"><html><body><pre class="r"><span class="no">no_sp</span> <span class="kw">&lt;-</span> <span class="fl">10</span>
-<span class="no">gear</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="st">"Industrial"</span>, <span class="no">no_sp</span>)
-<span class="no">gear</span>[<span class="fu"><a href="../reference/setParams.html">species_params</a></span>(<span class="no">params</span>)$<span class="no">w_inf</span> <span class="kw">&gt;</span> <span class="fl">500</span>] <span class="kw">&lt;-</span> <span class="st">"Other"</span>
-<span class="fu"><a href="../reference/setFishing.html">gear_params</a></span>(<span class="no">params_multi_gear</span>)$<span class="no">gear</span> <span class="kw">&lt;-</span> <span class="no">gear</span></pre></body></html></div>
+<div class="sourceCode" id="cb23"><pre class="downlit">
+<span class="kw">no_sp</span> <span class="op">&lt;-</span> <span class="fl">10</span>
+<span class="kw">gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="st">"Industrial"</span>, <span class="kw">no_sp</span>)
+<span class="kw">gear</span>[<span class="fu"><a href="../reference/species_params.html">species_params</a></span>(<span class="kw">params</span>)<span class="op">$</span><span class="kw">w_inf</span> <span class="op">&gt;</span> <span class="fl">500</span>] <span class="op">&lt;-</span> <span class="st">"Other"</span>
+<span class="fu"><a href="../reference/gear_params.html">gear_params</a></span>(<span class="kw">params_multi_gear</span>)<span class="op">$</span><span class="kw">gear</span> <span class="op">&lt;-</span> <span class="kw">gear</span>
+</pre></div>
 <p>To check what has just happened let us look at the new gear parameter data frame:</p>
-<div class="sourceCode" id="cb24"><html><body><pre class="r"><span class="fu"><a href="../reference/setFishing.html">gear_params</a></span>(<span class="no">params_multi_gear</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb24"><pre class="downlit">
+<span class="fu"><a href="../reference/gear_params.html">gear_params</a></span>(<span class="kw">params_multi_gear</span>)
+</pre></div>
 <pre><code>##          gear species   sel_func knife_edge_size catchability
 ## 1  Industrial       1 knife_edge       0.4456255            1
 ## 2  Industrial       2 knife_edge       1.2559432            1
@@ -284,32 +322,44 @@ Predation mortalities from the unfished (dashed line) and fished (solid line) tr
 ## 9       Other       9 knife_edge    1774.0669462            1
 ## 10      Other      10 knife_edge    5000.0000000            1</code></pre>
 <p>Having created our <code>MizerParams</code> object with multiple gears, we can now turn our attention to running a projection with multiple gears. In our previous examples of calling <code><a href="../reference/project.html">project()</a></code> we have specified the fishing effort with the <code>effort</code> argument using a single value. This fixes the fishing effort for all gears in the model, for all time steps. We can do this with our multi-gear parameter object:</p>
-<div class="sourceCode" id="cb26"><html><body><pre class="r"><span class="no">sim_multi_gear</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span>(<span class="no">params_multi_gear</span>, <span class="kw">t_max</span> <span class="kw">=</span> <span class="fl">75</span>, <span class="kw">effort</span> <span class="kw">=</span> <span class="fl">0.5</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb26"><pre class="downlit">
+<span class="kw">sim_multi_gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span>(<span class="kw">params_multi_gear</span>, t_max = <span class="fl">75</span>, effort = <span class="fl">0.5</span>)
+</pre></div>
 <p>By plotting this you can see that the fishing mortality for each species now has a different selectivity pattern, and that the position of the selectivity knife-edge is given by the asymptotic size of the species.</p>
-<div class="sourceCode" id="cb27"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="no">sim_multi_gear</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb27"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">sim_multi_gear</span>)
+</pre></div>
 <p><img src="trait_model_files/figure-html/plot_multi_gear_trait_single_effort-1.png" width="700"></p>
 <p>For the industrial fishery we said that we only wanted species with an asymptotic size of 500 g or less to be fished. There are several ways of specifying the <code>effort</code> argument for <code><a href="../reference/project.html">project()</a></code> . Above we specified a single value that was used for all gears, for all time steps. It is also possible to specify a separate effort for each gear that will be used for all time steps. To do this we pass in effort as a named vector. Here we set the effort for the <em>Industrial</em> gear to 0.75, and the effort of the <em>Other</em> gear to 0 (effectively turning it off).</p>
-<div class="sourceCode" id="cb28"><html><body><pre class="r"><span class="no">sim_multi_gear</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span>(<span class="no">params_multi_gear</span>, <span class="kw">t_max</span> <span class="kw">=</span> <span class="fl">75</span>,
-    <span class="kw">effort</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="kw">Industrial</span> <span class="kw">=</span> <span class="fl">0.75</span>, <span class="kw">Other</span> <span class="kw">=</span> <span class="fl">0</span>))</pre></body></html></div>
+<div class="sourceCode" id="cb28"><pre class="downlit">
+<span class="kw">sim_multi_gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span>(<span class="kw">params_multi_gear</span>, t_max = <span class="fl">75</span>,
+    effort = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(Industrial = <span class="fl">0.75</span>, Other = <span class="fl">0</span>))
+</pre></div>
 <p>Now you can see that the <em>Industrial</em> gear has been operating and that fishing mortality for species larger than 500 g is 0.</p>
-<div class="sourceCode" id="cb29"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="no">sim_multi_gear</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb29"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">sim_multi_gear</span>)
+</pre></div>
 <p><img src="trait_model_files/figure-html/plot_multi_gear_trait-1.png" width="700"></p>
 </div>
 <div id="the-impact-of-industrial-fishing" class="section level2">
 <h2 class="hasAnchor">
 <a href="#the-impact-of-industrial-fishing" class="anchor"></a>The impact of industrial fishing</h2>
 <p>In the previous section we set up and ran a model in which an industrial fishery was operating that only selected smaller species. We can now answer the question: what is the impact of such a fishery? We can again compare abundances of the fished (<code>sim_industrial1</code>) and unfished (<code>sim_industrial0</code>) cases:</p>
-<div class="sourceCode" id="cb30"><html><body><pre class="r"><span class="no">sim_industrial0</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span>(<span class="no">params_multi_gear</span>, <span class="kw">t_max</span> <span class="kw">=</span> <span class="fl">75</span>, <span class="kw">effort</span> <span class="kw">=</span> <span class="fl">0</span>)
-<span class="no">sim_industrial1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span>(<span class="no">params_multi_gear</span>, <span class="kw">t_max</span> <span class="kw">=</span> <span class="fl">75</span>,
-    <span class="kw">effort</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="kw">Industrial</span> <span class="kw">=</span> <span class="fl">0.75</span>, <span class="kw">Other</span> <span class="kw">=</span> <span class="fl">0</span>))
-<span class="no">total_abund0</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span>(<span class="fu"><a href="../reference/finalN.html">finalN</a></span>(<span class="no">sim_industrial0</span>), <span class="fl">2</span>, <span class="no">sum</span>)
-<span class="no">total_abund1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span>(<span class="fu"><a href="../reference/finalN.html">finalN</a></span>(<span class="no">sim_industrial1</span>), <span class="fl">2</span>, <span class="no">sum</span>)
-<span class="no">relative_abundance</span> <span class="kw">&lt;-</span> <span class="no">total_abund1</span> / <span class="no">total_abund0</span></pre></body></html></div>
+<div class="sourceCode" id="cb30"><pre class="downlit">
+<span class="kw">sim_industrial0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span>(<span class="kw">params_multi_gear</span>, t_max = <span class="fl">75</span>, effort = <span class="fl">0</span>)
+<span class="kw">sim_industrial1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span>(<span class="kw">params_multi_gear</span>, t_max = <span class="fl">75</span>,
+    effort = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(Industrial = <span class="fl">0.75</span>, Other = <span class="fl">0</span>))
+<span class="kw">total_abund0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span>(<span class="fu"><a href="../reference/finalN.html">finalN</a></span>(<span class="kw">sim_industrial0</span>), <span class="fl">2</span>, <span class="kw">sum</span>)
+<span class="kw">total_abund1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span>(<span class="fu"><a href="../reference/finalN.html">finalN</a></span>(<span class="kw">sim_industrial1</span>), <span class="fl">2</span>, <span class="kw">sum</span>)
+<span class="kw">relative_abundance</span> <span class="op">&lt;-</span> <span class="kw">total_abund1</span> <span class="op">/</span> <span class="kw">total_abund0</span>
+</pre></div>
 <p>And plot the relative abundances:</p>
-<div class="sourceCode" id="cb31"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="fu"><a href="../reference/w.html">w</a></span>(<span class="no">params</span>), <span class="kw">y</span> <span class="kw">=</span> <span class="no">relative_abundance</span>, <span class="kw">log</span> <span class="kw">=</span> <span class="st">"xy"</span>, <span class="kw">type</span> <span class="kw">=</span> <span class="st">"n"</span>,
-     <span class="kw">xlab</span> <span class="kw">=</span> <span class="st">"Size [g]"</span>, <span class="kw">ylab</span><span class="kw">=</span><span class="st">"Relative abundance"</span>, <span class="kw">ylim</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.1</span>, <span class="fl">10</span>))
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="fu"><a href="../reference/w.html">w</a></span>(<span class="no">params</span>), <span class="kw">y</span> <span class="kw">=</span> <span class="no">relative_abundance</span>)
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span>(<span class="fu"><a href="../reference/w.html">w</a></span>(<span class="no">params</span>)),<span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="fu"><a href="../reference/w.html">w</a></span>(<span class="no">params</span>))), <span class="kw">y</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>, <span class="fl">1</span>), <span class="kw">lty</span> <span class="kw">=</span> <span class="fl">2</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb31"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(x = <span class="fu"><a href="../reference/w.html">w</a></span>(<span class="kw">params</span>), y = <span class="kw">relative_abundance</span>, log = <span class="st">"xy"</span>, type = <span class="st">"n"</span>, 
+     xlab = <span class="st">"Size [g]"</span>, ylab=<span class="st">"Relative abundance"</span>, ylim = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.1</span>, <span class="fl">10</span>))
+<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span>(x = <span class="fu"><a href="../reference/w.html">w</a></span>(<span class="kw">params</span>), y = <span class="kw">relative_abundance</span>)
+<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span>(x = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span>(<span class="fu"><a href="../reference/w.html">w</a></span>(<span class="kw">params</span>)),<span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="fu"><a href="../reference/w.html">w</a></span>(<span class="kw">params</span>))), y = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>, <span class="fl">1</span>), lty = <span class="fl">2</span>)
+</pre></div>
 <p><img src="trait_model_files/figure-html/plot_relative_comm_abund_industrial-1.png" width="700"></p>
 <p>This shows another trophic cascade, although this time one driven by fishing the species at the midrange part of the spectrum, not the largest individuals as before. This trophic cascade acts in both directions. The cascade upwards is driven by the lack of food for predators leading to smaller realised maximum sizes. The cascade downwards has the same mechanism as fishing on large fish, a combination of predation mortality and food limitation.</p>
 <p>The next section explains how to setup the more general <a href="multispecies_model.html">multispecies model.</a></p>
@@ -331,7 +381,7 @@ Predation mortalities from the unfished (dashed line) and fished (solid line) tr
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

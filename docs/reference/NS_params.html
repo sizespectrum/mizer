@@ -82,7 +82,7 @@ effort = c(Industrial = 0, Pelagic = 1, Beam = 0.5, Otter = 0.5)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -203,10 +203,10 @@ effort
     <p>Blanchard et al.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>sim</span> <span class='kw'>=</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>NS_params</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>Industrial</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>Pelagic</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-                                    <span class='kw'>Beam</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>Otter</span> <span class='kw'>=</span> <span class='fl'>0.5</span>))
-<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='no'>sim</span>)
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='kw'>sim</span> <span class='op'>=</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='kw'>NS_params</span>, effort = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(Industrial = <span class='fl'>0</span>, Pelagic = <span class='fl'>1</span>, 
+                                    Beam = <span class='fl'>0.5</span>, Otter = <span class='fl'>0.5</span>))
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>sim</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -223,7 +223,7 @@ effort
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

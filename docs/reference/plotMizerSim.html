@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Summary plot for <code>MizerSim</code> objects — plot,MizerSim,missing-method • mizer</title>
+<title>Summary plot for MizerSim objects — plot,MizerSim,missing-method • mizer</title>
 
 
 <!-- jquery -->
@@ -45,7 +45,7 @@
 
 
 
-<meta property="og:title" content="Summary plot for <code>MizerSim</code> objects — plot,MizerSim,missing-method" />
+<meta property="og:title" content="Summary plot for MizerSim objects — plot,MizerSim,missing-method" />
 <meta property="og:description" content="After running a projection, produces 5 plots in the same window: feeding
 level, abundance spectra, predation mortality and fishing mortality of each
 species by size; and biomass of each species through time. This method just
@@ -84,7 +84,7 @@ uses the other plotting functions and puts them all in one window." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -198,10 +198,10 @@ uses the other plotting functions and puts them all in one window.</p>
     </div>
 
     <pre class="usage"><span class='co'># S4 method for MizerSim,missing</span>
-<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='no'>...</span>)
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>x</span>, <span class='kw'>y</span>, <span class='kw'>...</span>)
 
 <span class='co'># S4 method for MizerParams,missing</span>
-<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='no'>...</span>)</pre>
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>x</span>, <span class='kw'>y</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -256,13 +256,12 @@ and <code><a href='plotFMort.html'>plotFMort()</a></code>.</p></td>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span>(<span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>))
-<span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>effort</span><span class='kw'>=</span><span class='fl'>1</span>, <span class='kw'>t_max</span><span class='kw'>=</span><span class='fl'>20</span>, <span class='kw'>t_save</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>progress_bar</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='no'>sim</span>)</div><div class='img'><img src='plotMizerSim-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='no'>sim</span>, <span class='kw'>time_range</span> <span class='kw'>=</span> <span class='fl'>10</span>:<span class='fl'>20</span>) <span class='co'># change time period for size-based plots</span></div><div class='img'><img src='plotMizerSim-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='no'>sim</span>, <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='fl'>1000</span>) <span class='co'># change size range for biomass plot</span></div><div class='img'><img src='plotMizerSim-3.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span>
+<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span>(<span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='kw'>NS_species_params_gears</span>, <span class='kw'>inter</span>))
+<span class='kw'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='kw'>params</span>, effort=<span class='fl'>1</span>, t_max=<span class='fl'>20</span>, t_save = <span class='fl'>2</span>, progress_bar = <span class='fl'>FALSE</span>)
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>sim</span>)</div><div class='img'><img src='plotMizerSim-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>sim</span>, time_range = <span class='fl'>10</span><span class='op'>:</span><span class='fl'>20</span>) <span class='co'># change time period for size-based plots</span></div><div class='img'><img src='plotMizerSim-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>sim</span>, min_w = <span class='fl'>10</span>, max_w = <span class='fl'>1000</span>) <span class='co'># change size range for biomass plot</span></div><div class='img'><img src='plotMizerSim-3.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span>
 <span class='co'># \donttest{</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span>(<span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>))
-<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='no'>params</span>)</div><div class='img'><img src='plotMizerSim-4.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='no'>params</span>, <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='fl'>1000</span>) <span class='co'># change size range for biomass plot</span></div><div class='img'><img src='plotMizerSim-5.png' alt='' width='700' height='433' /></div><div class='input'># }
-</div></pre>
+<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span>(<span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='kw'>NS_species_params_gears</span>, <span class='kw'>inter</span>))
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>params</span>)</div><div class='img'><img src='plotMizerSim-4.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>params</span>, min_w = <span class='fl'>10</span>, max_w = <span class='fl'>1000</span>) <span class='co'># change size range for biomass plot</span></div><div class='img'><img src='plotMizerSim-5.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -278,7 +277,7 @@ and <code><a href='plotFMort.html'>plotFMort()</a></code>.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

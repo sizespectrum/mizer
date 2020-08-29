@@ -83,7 +83,7 @@ calculation." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -196,9 +196,9 @@ calculation.</p>
     </div>
 
     <pre class="usage"><span class='fu'>getMeanWeight</span>(
-  <span class='no'>sim</span>,
-  <span class='kw'>species</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='fu'><a href='setParams.html'>species_params</a></span>(<span class='fu'><a href='getParams.html'>getParams</a></span>(<span class='no'>sim</span>)))),
-  <span class='no'>...</span>
+  <span class='kw'>sim</span>,
+  species = <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='fu'><a href='species_params.html'>species_params</a></span>(<span class='fu'><a href='getParams.html'>getParams</a></span>(<span class='kw'>sim</span>)))),
+  <span class='kw'>...</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -215,7 +215,7 @@ calculation.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Arguments passed on to <code><a href='get_size_range_array.html'>get_size_range_array</a></code></p><dl'>
+      <td><p>Arguments passed on to <code><a href='get_size_range_array.html'>get_size_range_array</a></code></p><dl>
     <dt><code>min_w</code></dt><dd><p>Smallest weight in size range. Defaults to smallest weight in
 the model.</p></dd>
     <dt><code>max_w</code></dt><dd><p>Largest weight in size range. Defaults to largest weight in the
@@ -240,12 +240,12 @@ over <code>max_w</code>.</p></dd>
 <code><a href='getProportionOfLargeFish.html'>getProportionOfLargeFish</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
-<span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>effort</span><span class='kw'>=</span><span class='fl'>1</span>, <span class='kw'>t_max</span><span class='kw'>=</span><span class='fl'>10</span>)
-<span class='fu'>getMeanWeight</span>(<span class='no'>sim</span>)
-<span class='fu'>getMeanWeight</span>(<span class='no'>sim</span>, <span class='kw'>species</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Herring"</span>,<span class='st'>"Sprat"</span>,<span class='st'>"N.pout"</span>))
-<span class='fu'>getMeanWeight</span>(<span class='no'>sim</span>, <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='fl'>5000</span>)
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='kw'>NS_species_params_gears</span>, <span class='kw'>inter</span>)
+<span class='kw'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='kw'>params</span>, effort=<span class='fl'>1</span>, t_max=<span class='fl'>10</span>)
+<span class='fu'>getMeanWeight</span>(<span class='kw'>sim</span>)
+<span class='fu'>getMeanWeight</span>(<span class='kw'>sim</span>, species=<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Herring"</span>,<span class='st'>"Sprat"</span>,<span class='st'>"N.pout"</span>))
+<span class='fu'>getMeanWeight</span>(<span class='kw'>sim</span>, min_w = <span class='fl'>10</span>, max_w = <span class='fl'>5000</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -262,7 +262,7 @@ over <code>max_w</code>.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

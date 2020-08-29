@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -179,20 +179,66 @@
       <small>Source: <a href='https://github.com/sizespectrum/mizer/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="mizer-203" class="section level1">
-<h1 class="page-header" data-toc-text="2.0.3">
-<a href="#mizer-203" class="anchor"></a>mizer 2.0.3<small> Unreleased </small>
+    <div id="mizer-204" class="section level1">
+<h1 class="page-header" data-toc-text="2.0.4">
+<a href="#mizer-204" class="anchor"></a>mizer 2.0.4<small> Unreleased </small>
 </h1>
 <div id="bug-fixes" class="section level2">
 <h2 class="hasAnchor">
 <a href="#bug-fixes" class="anchor"></a>Bug fixes</h2>
 <ul>
-<li>Correct handling of shiny progress bar in <code><a href="../reference/project.html">project()</a></code>.</li>
+<li>The value of <code>t</code> passed to dynamics functions has been corrected.</li>
+<li>
+<code><a href="../reference/setReproduction.html">setReproduction()</a></code> now correctly sets the the total proportion psi when the maturity proportion is changed.</li>
 </ul>
 </div>
 <div id="enhancements" class="section level2">
 <h2 class="hasAnchor">
 <a href="#enhancements" class="anchor"></a>Enhancements</h2>
+<ul>
+<li>The way times are set in <code><a href="../reference/project.html">project()</a></code> has been simplified. They are now either set by the arguments <code>t_start</code>, <code>t_max</code> and <code>t_save</code> or by the dimension names of the <code>effort</code> array.</li>
+<li>Renamed <code><a href="../reference/setRmax.html">setRmax()</a></code> to <code><a href="../reference/setBevertonHolt.html">setBevertonHolt()</a></code> and allow it to work on an arbitrary MizerParams object. The old name <code><a href="../reference/setRmax.html">setRmax()</a></code> is still available as alias.</li>
+<li>
+<code><a href="../reference/mizerFMort.html">mizerFMort()</a></code> now can also use the abundances and the rates <code>e_growth</code> and <code>pred_mort</code>. This is useful for example for implementing balanced harvesting.</li>
+<li>A calculation in the numeric scheme has been simplified.</li>
+<li>
+<code>gear_params</code> is allowed to have zero rows.</li>
+<li>In <code><a href="../reference/validGearParams.html">validGearParams()</a></code> the species name is used as gear name in case <code>gear_name</code> is NA.</li>
+<li>
+<code><a href="../reference/validGearParams.html">validGearParams()</a></code> ensures that all required arguments of the selectivity function are supplied and checks validity of species names.</li>
+<li>
+<code>species_params()&lt;-</code> suppresses warnings.</li>
+<li>When <code><a href="../reference/steady.html">steady()</a></code> fails because RDI is zero it gives a meaningful error message.</li>
+<li>
+<code><a href="../reference/newCommunityParams.html">newCommunityParams()</a></code> now protects its zero investment in reproduction with a comment.</li>
+<li>The default maturity ogive is truncated at proportions smaller than 1e-8.</li>
+<li>A new helper function <code><a href="../reference/valid_species_arg.html">valid_species_arg()</a></code> checks validity of species selection arguments.</li>
+<li>
+<code><a href="../reference/upgradeParams.html">upgradeParams()</a></code> can now also upgrade old MizerParams objects that do not have a consistent <code>initial_effort</code>.</li>
+<li>A new helper function <code><a href="../reference/validParams.html">validParams()</a></code> validates a MizerParams object and automatically upgrades it with <code><a href="../reference/upgradeParams.html">upgradeParams()</a></code> if necessary.</li>
+<li>Old MizerParams objects are updated automatically when used in plot functions, rate functions, summary functions or in <code><a href="../reference/project.html">project()</a></code> or <code><a href="../reference/steady.html">steady()</a></code>, <a href='https://github.com/sizespectrum/mizer/issues/163'>#163</a>.</li>
+<li>New function <code><a href="../reference/getRates.html">getRates()</a></code> to calculates all rates and collects them in a list.</li>
+<li>
+<code><a href="../reference/steady.html">steady()</a></code> with <code>return_sim = TRUE</code> now creates the sim object the same way as <code><a href="../reference/project.html">project()</a></code>, namely with the original values in the first time slot.</li>
+<li>Added documentation for <code><a href="../reference/species_params.html">species_params()</a></code>, <code><a href="../reference/gear_params.html">gear_params()</a></code> and <code><a href="../reference/resource_params.html">resource_params()</a></code>.</li>
+<li>Numerous small improvements to documentation.</li>
+</ul>
+</div>
+</div>
+    <div id="mizer-203" class="section level1">
+<h1 class="page-header" data-toc-text="2.0.3">
+<a href="#mizer-203" class="anchor"></a>mizer 2.0.3<small> 2020-07-28 </small>
+</h1>
+<div id="bug-fixes-1" class="section level2">
+<h2 class="hasAnchor">
+<a href="#bug-fixes-1" class="anchor"></a>Bug fixes</h2>
+<ul>
+<li>Correct handling of shiny progress bar in <code><a href="../reference/project.html">project()</a></code>.</li>
+</ul>
+</div>
+<div id="enhancements-1" class="section level2">
+<h2 class="hasAnchor">
+<a href="#enhancements-1" class="anchor"></a>Enhancements</h2>
 <ul>
 <li>Consistently passing the time argument to the rate functions. This will allow extensions to implement time-dependent rates.</li>
 <li>Passing growth and mortality rate to RDI function.</li>
@@ -208,9 +254,9 @@
 <h1 class="page-header" data-toc-text="2.0.2">
 <a href="#mizer-202" class="anchor"></a>mizer 2.0.2<small> 2020-06-08 </small>
 </h1>
-<div id="bug-fixes-1" class="section level2">
+<div id="bug-fixes-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-1" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-2" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>Time passed to rate functions is now the actual simulation time, not the time elapsed since start of simulation.</li>
 <li>
@@ -253,9 +299,9 @@
 <h1 class="page-header" data-toc-text="2.0.1">
 <a href="#mizer-201" class="anchor"></a>mizer 2.0.1<small> 2020-05-05 </small>
 </h1>
-<div id="bug-fixes-2" class="section level2">
+<div id="bug-fixes-3" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-2" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-3" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>
 <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> now also works with non-default feeding kernels. <a href='https://github.com/sizespectrum/mizer/issues/159'>#159</a></li>
@@ -305,7 +351,8 @@
 <ul>
 <li>The previous version of mizer inconsistently truncated the lognormal predation kernel when calculating predation but not when calculating encounter. The new version never truncates. That leads to very small differences in simulation results.</li>
 <li>Removed the <code>print_it</code> argument from plot functions.</li>
-<li>plotFeedingLevel() now only plots the values within the size range of each species. If for some reason you want the old plots that show a feeding level also for sizes that the fish can never have, you need to supply an argument <code>all.sizes = TRUE</code>.</li>
+<li>
+<code><a href="../reference/plotFeedingLevel.html">plotFeedingLevel()</a></code> now only plots the values within the size range of each species. If for some reason you want the old plots that show a feeding level also for sizes that the fish can never have, you need to supply an argument <code>all.sizes = TRUE</code>.</li>
 <li>The way the density-dependence in the reproduction rate is set has changed, see <code>RDD</code> argument in <code><a href="../reference/setReproduction.html">setReproduction()</a></code>.</li>
 <li>The <code>sex_ratio</code> argument has been removed from <code><a href="../reference/getRDI.html">getRDI()</a></code> and <code><a href="../reference/getRDD.html">getRDD()</a></code>.</li>
 <li>The <code>set_scaling_model()</code> function has been removed because such models can now be set up with <code><a href="../reference/newTraitParams.html">newTraitParams()</a></code> with the options <code>perfect_scaling = TRUE</code> and <code>egg_size_scaling = TRUE</code>.</li>
@@ -353,7 +400,7 @@
 <div id="initial-values-and-steady-state" class="section level2">
 <h2 class="hasAnchor">
 <a href="#initial-values-and-steady-state" class="anchor"></a>Initial Values and steady state</h2>
-<p>The MizerParams object now also contains the initial values for the size spectra. This is particularly useful if the model has been tuned to produce the observed steady state. The new function <code><a href="../reference/steady.html">steady()</a></code> finds a steady state for a model and sets it as the initial value. The initial values can be accessed and changed via functions <code><a href="../reference/initialN-set.html">initialN()</a></code> and <code><a href="../reference/initialNResource-set.html">initialNResource()</a></code>. The initial values can be set to the final values of a previous simulation with <code><a href="../reference/setInitialValues.html">setInitialValues()</a></code>.</p>
+<p>The MizerParams object now also contains the initial values for the size spectra. This is particularly useful if the model has been tuned to produce the observed steady state. The new function <code><a href="../reference/steady.html">steady()</a></code> finds a steady state for a model and sets it as the initial value. The initial values can be accessed and changed via functions <code><a href="../reference/initialN&lt;-.html">initialN()</a></code> and <code><a href="../reference/initialNResource&lt;-.html">initialNResource()</a></code>. The initial values can be set to the final values of a previous simulation with <code><a href="../reference/setInitialValues.html">setInitialValues()</a></code>.</p>
 <p>The MizerParams object now has a slot <code>initial_effort</code> that specifies the initial fishing effort to which the steady state has been calibrated.</p>
 </div>
 <div id="extension-mechanisms" class="section level2">
@@ -371,10 +418,10 @@
 <li>New <code>highlight</code> argument to all plot functions that display curves for multiple species. Displays highlighted species with wider lines.</li>
 <li>In the legends of all plots the species are now consistently ordered in the same way as in the species parameter data frame.</li>
 <li>All plot functions that are not time-resolved now accept also a MizerParams object as an alternative to the MizerSim object to plot the initial state.</li>
-<li>New <code><a href="https://rdrr.io/r/base/plot.html">plot()</a></code> method for MizerParams object to plot the initial state.</li>
+<li>New <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot()</a></code> method for MizerParams object to plot the initial state.</li>
 <li>Avoiding duplicate graphs in rmarkdown documents.</li>
 <li>New argument <code>include_critical</code> in <code><a href="../reference/plotFeedingLevel.html">plotFeedingLevel()</a></code> allows to show also the critical feeding level.</li>
-<li>New <code>wlim</code> argument to <code><a href="../reference/plotSpectra.html">plotSpectra()</a></code> in analogy to the existing <code>ylim</code> argument to limit the w range in the plot.</li>
+<li>New <code>wlim</code> argument to <code><a href="../reference/plotSpectra.html">plotSpectra()</a></code> in analogy to the existing <code>ylim</code> argument to limit the <code>w</code> range in the plot.</li>
 <li>The colours used in plot functions can be set with <code><a href="../reference/setColours.html">setColours()</a></code>.</li>
 <li>The default line type is <code>solid</code> but this can be changed via the <code><a href="../reference/setLinetypes.html">setLinetypes()</a></code> function.</li>
 <li>Use colour and linetype for plots irrespective of the number of species.</li>
@@ -394,7 +441,7 @@
 <div id="new-gear-setup" class="section level2">
 <h2 class="hasAnchor">
 <a href="#new-gear-setup" class="anchor"></a>New gear setup</h2>
-<p>Now it is finally possible to have several gears (or fleets) targeting the same species. The information is set up via a new <code><a href="../reference/setFishing.html">gear_params()</a></code> data frame. See <code><a href="../reference/setFishing.html">setFishing()</a></code> for details.</p>
+<p>Now it is finally possible to have several gears (or fleets) targeting the same species. The information is set up via a new <code><a href="../reference/gear_params.html">gear_params()</a></code> data frame. See <code><a href="../reference/setFishing.html">setFishing()</a></code> for details.</p>
 </div>
 <div id="other-new-functions" class="section level2">
 <h2 class="hasAnchor">
@@ -481,9 +528,9 @@
 <li>Using Rmarkdown in all roxygen comments</li>
 </ul>
 </div>
-<div id="bug-fixes-3" class="section level2">
+<div id="bug-fixes-4" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-3" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-4" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>In <code><a href="../reference/getSSB.html">getSSB()</a></code>, the calculation of the spawning stock biomass is done correctly using the maturity ogive instead of the proportion of energy allocated to reproduction. (<a href='https://github.com/sizespectrum/mizer/issues/47'>#47</a>)</li>
 <li>The fast FFT method and the old method for calculating integrals now give the same numerical results. (<a href='https://github.com/sizespectrum/mizer/issues/39'>#39</a>)</li>
@@ -495,10 +542,13 @@
 <li>The <code>ylim</code> argument is not handled correctly in plots.</li>
 <li>
 <code>display_frame()</code> is now exported.</li>
-<li>plotGrowthCurves() and getGrowthCurves() also works when there is only a single species</li>
-<li>t_start argument in project() is used correctly</li>
+<li>
+<code><a href="../reference/plotGrowthCurves.html">plotGrowthCurves()</a></code> and <code><a href="../reference/getGrowthCurves.html">getGrowthCurves()</a></code> also works when there is only a single species</li>
+<li>
+<code>t_start</code> argument in <code><a href="../reference/project.html">project()</a></code> is used correctly</li>
 <li>times are not truncated at 3 significant figures, because that would not allow something like 2019.</li>
-<li>get_initial_n() gets values for n and q from params object</li>
+<li>
+<code><a href="../reference/get_initial_n.html">get_initial_n()</a></code> gets values for <code>n</code> and <code>q</code> from params object</li>
 <li>
 <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> of MizerParams object reflects the number of non-empty resource bins. (<a href='https://github.com/patricksykes'>@patricksykes</a>)</li>
 </ul>
@@ -637,7 +687,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

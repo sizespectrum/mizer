@@ -1,12 +1,11 @@
 ## Test environments
-
-* ubuntu 18.04 bionic, R 3.6.3
-
-  0 errors ✓ | 0 warnings ✓ | 0 notes ✓
   
 * ubuntu 18.04 bionic, R 4.0.2
 
-  0 errors ✓ | 0 warnings ✓ | 0 notes ✓
+0 errors ✓ | 0 warnings ✓ | 1 note x
+
+The note is not due to a problem in the package but due to a problem with
+the time server, see https://stackoverflow.com/questions/63613301/r-cmd-check-note-unable-to-verify-current-time
   
-* win-builder (release and oldrelease)
+* win-builder (devel, release and oldrelease)
   No Notes, Warnings or Errors

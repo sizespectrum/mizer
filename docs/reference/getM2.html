@@ -78,7 +78,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -185,7 +185,7 @@
     <p>An alias provided for backward compatibility with mizer version &lt;= 1.0</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getM2</span>(<span class='no'>object</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='no'>time_range</span>, <span class='kw'>drop</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>getM2</span>(<span class='kw'>object</span>, <span class='kw'>n</span>, <span class='kw'>n_pp</span>, <span class='kw'>n_other</span>, <span class='kw'>time_range</span>, drop = <span class='fl'>TRUE</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -239,7 +239,7 @@ Dimensions may be dropped if they have length 1 unless <code>drop = FALSE</code>
 <p>By default <code><a href='getPredMort.html'>getPredMort()</a></code> calls <code><a href='mizerPredMort.html'>mizerPredMort()</a></code>. However you can
 replace this with your own alternative predation mortality function. If
 your function is called <code>"myPredMort"</code> then you register it in a MizerParams
-object <code>params</code> with</p><pre><span class='no'>params</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='no'>params</span>, <span class='st'>"PredMort"</span>, <span class='st'>"myPredMort"</span>)</pre>
+object <code>params</code> with</p><pre><span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='kw'>params</span>, <span class='st'>"PredMort"</span>, <span class='st'>"myPredMort"</span>)</pre>
 
 <p>Your function will then be called instead of <code><a href='mizerPredMort.html'>mizerPredMort()</a></code>, with the
 same arguments.</p>
@@ -257,19 +257,20 @@ same arguments.</p>
 <code><a href='getPredRate.html'>getPredRate</a>()</code>,
 <code><a href='getRDD.html'>getRDD</a>()</code>,
 <code><a href='getRDI.html'>getRDI</a>()</code>,
+<code><a href='getRates.html'>getRates</a>()</code>,
 <code><a href='getResourceMort.html'>getResourceMort</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='kw'>NS_species_params_gears</span>, <span class='kw'>inter</span>)
 <span class='co'># With constant fishing effort for all gears for 20 time steps</span>
-<span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
+<span class='kw'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='kw'>params</span>, t_max = <span class='fl'>20</span>, effort = <span class='fl'>0.5</span>)
 <span class='co'># Get predation mortality at one time step</span>
-<span class='fu'><a href='getPredMort.html'>getPredMort</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'><a href='N.html'>N</a></span>(<span class='no'>sim</span>)[<span class='fl'>15</span>, , ], <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='fu'><a href='N.html'>NResource</a></span>(<span class='no'>sim</span>)[<span class='fl'>15</span>, ])
+<span class='fu'><a href='getPredMort.html'>getPredMort</a></span>(<span class='kw'>params</span>, n = <span class='fu'><a href='N.html'>N</a></span>(<span class='kw'>sim</span>)[<span class='fl'>15</span>, , ], n_pp = <span class='fu'><a href='N.html'>NResource</a></span>(<span class='kw'>sim</span>)[<span class='fl'>15</span>, ])
 <span class='co'># Get predation mortality at all saved time steps</span>
-<span class='fu'><a href='getPredMort.html'>getPredMort</a></span>(<span class='no'>sim</span>)
+<span class='fu'><a href='getPredMort.html'>getPredMort</a></span>(<span class='kw'>sim</span>)
 <span class='co'># Get predation mortality over the years 15 - 20</span>
-<span class='fu'><a href='getPredMort.html'>getPredMort</a></span>(<span class='no'>sim</span>, <span class='kw'>time_range</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>15</span>, <span class='fl'>20</span>))
+<span class='fu'><a href='getPredMort.html'>getPredMort</a></span>(<span class='kw'>sim</span>, time_range = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>15</span>, <span class='fl'>20</span>))
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -286,7 +287,7 @@ same arguments.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

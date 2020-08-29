@@ -81,7 +81,7 @@ function is to be used by other functions to set up full parameter objects." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
       </span>
     </div>
 
@@ -192,12 +192,12 @@ function is to be used by other functions to set up full parameter objects.</p>
     </div>
 
     <pre class="usage"><span class='fu'>emptyParams</span>(
-  <span class='no'>species_params</span>,
-  <span class='kw'>gear_params</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(),
-  <span class='kw'>no_w</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-  <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fl'>0.001</span>,
-  <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
-  <span class='kw'>min_w_pp</span> <span class='kw'>=</span> <span class='fl'>1e-12</span>
+  <span class='kw'>species_params</span>,
+  gear_params = <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(),
+  no_w = <span class='fl'>100</span>,
+  min_w = <span class='fl'>0.001</span>,
+  max_w = <span class='fl'>NA</span>,
+  min_w_pp = <span class='fl'>1e-12</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -250,12 +250,9 @@ starting at <code>max_w</code>. For <code>w_full</code> additional size bins are
     
 
 <p>The <code>species_params</code> slot of the returned MizerParams object may differ
-slightly from the data frame supplied as argument to this function in the
-following ways:</p><ul>
-<li><p>Default values are set for <code>w_min, w_inf, alpha, gear, interaction_resource</code>.</p></li>
-<li><p>The egg sizes in <code>w_min</code> are rounded down to lie on a grid point.</p></li>
-</ul><p>Note that the other characteristic sizes of the species, like <code>w_mat</code> and
-<code>w_inf</code>, are not modified to lie on grid points.</p>
+slightly from the data frame supplied as argument to this function because
+default values are set for
+<code>w_min, w_inf, alpha, gear, interaction_resource</code>.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>See <code><a href='newMultispeciesParams.html'>newMultispeciesParams()</a></code> for a function that fills
@@ -276,7 +273,7 @@ the slots left empty by this function.</p></div>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>
