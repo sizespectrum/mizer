@@ -1,3 +1,8 @@
+## Resubmission
+
+This is a resubmission. In this version I have added trailing slashes to two
+URLs in the README file.
+
 ## Test environments
   
 * ubuntu 18.04 bionic, R 4.0.2
