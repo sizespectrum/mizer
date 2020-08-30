@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.3.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.4.9000</span>
       </span>
     </div>
 
@@ -179,9 +179,9 @@
       <small>Source: <a href='https://github.com/sizespectrum/mizer/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="mizer-2039000" class="section level1">
-<h1 class="page-header" data-toc-text="2.0.3.9000">
-<a href="#mizer-2039000" class="anchor"></a>mizer 2.0.3.9000<small> Unreleased </small>
+    <div id="mizer-204" class="section level1">
+<h1 class="page-header" data-toc-text="2.0.4">
+<a href="#mizer-204" class="anchor"></a>mizer 2.0.4<small> Unreleased </small>
 </h1>
 <div id="bug-fixes" class="section level2">
 <h2 class="hasAnchor">
@@ -351,11 +351,12 @@
 <ul>
 <li>The previous version of mizer inconsistently truncated the lognormal predation kernel when calculating predation but not when calculating encounter. The new version never truncates. That leads to very small differences in simulation results.</li>
 <li>Removed the <code>print_it</code> argument from plot functions.</li>
-<li>plotFeedingLevel() now only plots the values within the size range of each species. If for some reason you want the old plots that show a feeding level also for sizes that the fish can never have, you need to supply an argument <code>all.sizes = TRUE</code>.</li>
+<li>
+<code><a href="../reference/plotFeedingLevel.html">plotFeedingLevel()</a></code> now only plots the values within the size range of each species. If for some reason you want the old plots that show a feeding level also for sizes that the fish can never have, you need to supply an argument <code>all.sizes = TRUE</code>.</li>
 <li>The way the density-dependence in the reproduction rate is set has changed, see <code>RDD</code> argument in <code><a href="../reference/setReproduction.html">setReproduction()</a></code>.</li>
 <li>The <code>sex_ratio</code> argument has been removed from <code><a href="../reference/getRDI.html">getRDI()</a></code> and <code><a href="../reference/getRDD.html">getRDD()</a></code>.</li>
 <li>The <code>set_scaling_model()</code> function has been removed because such models can now be set up with <code><a href="../reference/newTraitParams.html">newTraitParams()</a></code> with the options <code>perfect_scaling = TRUE</code> and <code>egg_size_scaling = TRUE</code>.</li>
-<li>The functions <code>display_frames()</code>, <code>addSpecies()</code>, <code>setBackground()</code> and <code>retuneAbundance()</code> have been removed to the “mizerExperimental” package (<a href="https://sizespectrum.org/mizerExperimental" class="uri">https://sizespectrum.org/mizerExperimental</a>)</li>
+<li>The functions <code>display_frames()</code>, <code>addSpecies()</code>, <code>setBackground()</code> and <code>retuneAbundance()</code> have been removed to the “mizerExperimental” package (<a href="https://sizespectrum.org/mizerExperimental/" class="uri">https://sizespectrum.org/mizerExperimental/</a>)</li>
 <li>During runs of <code><a href="../reference/project.html">project()</a></code> a progress bar is displayed by default. You can turn this off with the option `progress_bar = FALSE.</li>
 <li>Throughout mizer the term “plankton” has been replaced by “resource”, which affects the labelling of the resource spectrum in plots.</li>
 </ul>
@@ -420,7 +421,7 @@
 <li>New <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot()</a></code> method for MizerParams object to plot the initial state.</li>
 <li>Avoiding duplicate graphs in rmarkdown documents.</li>
 <li>New argument <code>include_critical</code> in <code><a href="../reference/plotFeedingLevel.html">plotFeedingLevel()</a></code> allows to show also the critical feeding level.</li>
-<li>New <code>wlim</code> argument to <code><a href="../reference/plotSpectra.html">plotSpectra()</a></code> in analogy to the existing <code>ylim</code> argument to limit the w range in the plot.</li>
+<li>New <code>wlim</code> argument to <code><a href="../reference/plotSpectra.html">plotSpectra()</a></code> in analogy to the existing <code>ylim</code> argument to limit the <code>w</code> range in the plot.</li>
 <li>The colours used in plot functions can be set with <code><a href="../reference/setColours.html">setColours()</a></code>.</li>
 <li>The default line type is <code>solid</code> but this can be changed via the <code><a href="../reference/setLinetypes.html">setLinetypes()</a></code> function.</li>
 <li>Use colour and linetype for plots irrespective of the number of species.</li>
@@ -491,7 +492,7 @@
 <h2 class="hasAnchor">
 <a href="#documentation" class="anchor"></a>Documentation</h2>
 <ul>
-<li>Mizer now has a documentation website at <a href="https://sizespectrum.org/mizer/" class="uri">https://sizespectrum.org/mizer/</a> for the latest released version and at <a href="https://sizespectrum.org/mizer/dev" class="uri">https://sizespectrum.org/mizer/dev</a> for the development version. (<a href='https://github.com/sizespectrum/mizer/issues/48'>#48</a>)</li>
+<li>Mizer now has a documentation website at <a href="https://sizespectrum.org/mizer/" class="uri">https://sizespectrum.org/mizer/</a> for the latest released version and at <a href="https://sizespectrum.org/mizer/dev/" class="uri">https://sizespectrum.org/mizer/dev/</a> for the development version. (<a href='https://github.com/sizespectrum/mizer/issues/48'>#48</a>)</li>
 <li>The help pages of mizer functions has been extended massively, see for example the help for <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>.</li>
 <li>The vignette chapters are shown as pages on the website.</li>
 <li>The html help pages for plotting functions now show example plots.</li>
@@ -541,10 +542,13 @@
 <li>The <code>ylim</code> argument is not handled correctly in plots.</li>
 <li>
 <code>display_frame()</code> is now exported.</li>
-<li>plotGrowthCurves() and getGrowthCurves() also works when there is only a single species</li>
-<li>t_start argument in project() is used correctly</li>
+<li>
+<code><a href="../reference/plotGrowthCurves.html">plotGrowthCurves()</a></code> and <code><a href="../reference/getGrowthCurves.html">getGrowthCurves()</a></code> also works when there is only a single species</li>
+<li>
+<code>t_start</code> argument in <code><a href="../reference/project.html">project()</a></code> is used correctly</li>
 <li>times are not truncated at 3 significant figures, because that would not allow something like 2019.</li>
-<li>get_initial_n() gets values for n and q from params object</li>
+<li>
+<code><a href="../reference/get_initial_n.html">get_initial_n()</a></code> gets values for <code>n</code> and <code>q</code> from params object</li>
 <li>
 <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> of MizerParams object reflects the number of non-empty resource bins. (<a href='https://github.com/patricksykes'>@patricksykes</a>)</li>
 </ul>
