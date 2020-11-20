@@ -113,18 +113,56 @@ test_that("Comments protect slots", {
                    "The selectivity has been commented")
 })
 
+test_that("We can change gears via catchability and selectivity arrays", {
+    catchability <- getCatchability(params)
+    expect_error(setFishing(params, catchability = catchability[1:3, ]),
+                 "you also need to supply a selectivity array")
+    selectivity <- getSelectivity(params)
+    p2 <- setFishing(params, catchability = catchability[1:3, ],
+                     selectivity = selectivity[1:3, , ])
+    expect_identical(p2@selectivity, selectivity[1:3, , ])
+    expect_identical(p2@catchability, catchability[1:3, ])
+    expect_error(setFishing(params, catchability = catchability[1:3, ],
+                            selectivity = selectivity),
+                 "not equal to no_gears")
+})
+
 test_that("Arguments of wrong dimension throw errors", {
     catchability <- getCatchability(params)
-    expect_error(setFishing(params, catchability = catchability[1:3, ]))
-                # "dim(catchability)[[1]] not equal to dim(selectivity)[[1]]"
-    expect_error(setFishing(params, catchability = catchability[, 1:3]))
-                 #"dim(catchability)[[2]] not equal to no_sp")
+    expect_error(setFishing(params, catchability = catchability[, 1:3]),
+                 "not equal to no_sp")
     
     selectivity <- getSelectivity(params)
     expect_error(setFishing(params, selectivity = selectivity[1:3, ]),
                  "incorrect number of dimensions")
-    expect_error(setFishing(params, selectivity = selectivity[1:3, , ]))
-                 #"dim(selectivity)[[1]] not equal to no_gears")
+    expect_error(setFishing(params, selectivity = selectivity[1:3, , ]),
+                 "not equal to no_gears")
+})
+
+test_that("Wrong dimnames throw errors or get fixed", {
+    catchability <- getCatchability(params)
+    cw <- catchability
+    dimnames(cw)[[1]][1] <- "wrong"
+    expect_error(setFishing(params, catchability = cw),
+                 "The gear dimnames in the catchability array do not match the gear names.")
+    cw <- catchability
+    dimnames(cw)[[2]][1] <- "wrong"
+    expect_error(setFishing(params, catchability = cw),
+                 "The species dimnames in the catchability array do not match the species names.")
+
+    selectivity <- getSelectivity(params)
+    sw <- selectivity
+    dimnames(sw)[[1]][1] <- "wrong"
+    expect_error(setFishing(params, selectivity = sw),
+                 "The gear dimnames in the selectivity array do not match the gear names.")
+    sw <- selectivity
+    dimnames(sw)[[2]][1] <- "wrong"
+    expect_error(setFishing(params, selectivity = sw),
+                 "The species dimnames in the selectivity array do not match the species names.")
+    sw <- selectivity
+    dimnames(sw)[[3]][1] <- "wrong"
+    expect_warning(setFishing(params, selectivity = sw),
+                 "I have changed the size dimnames in the selectivity array to agree with mizer conventions.")
 })
 
 test_that("Dimensions after number of gears has increased", {

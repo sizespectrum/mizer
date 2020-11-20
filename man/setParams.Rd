@@ -50,9 +50,9 @@ described in the section "Setting reproduction".}
     \item{\code{RDD}}{The name of the function calculating the density-dependent
 reproduction rate from the density-independent rate. Defaults to
 "\code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}".}
-    \item{\code{selectivity}}{An array (gear x species x size) that holds the
+    \item{\code{selectivity}}{Optional. An array (gear x species x size) that holds the
 selectivity of each gear for species and size, \eqn{S_{g,i,w}}.}
-    \item{\code{catchability}}{An array (gear x species) that holds the catchability of
+    \item{\code{catchability}}{Optional. An array (gear x species) that holds the catchability of
 each species by each gear, \eqn{Q_{g,i}}.}
     \item{\code{initial_effort}}{Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If

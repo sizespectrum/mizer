@@ -123,10 +123,10 @@ want to use the default \code{\link[=resource_semichemostat]{resource_semichemos
 
 \item{gear_params}{A data frame with gear-specific parameter values.}
 
-\item{selectivity}{An array (gear x species x size) that holds the
+\item{selectivity}{Optional. An array (gear x species x size) that holds the
 selectivity of each gear for species and size, \eqn{S_{g,i,w}}.}
 
-\item{catchability}{An array (gear x species) that holds the catchability of
+\item{catchability}{Optional. An array (gear x species) that holds the catchability of
 each species by each gear, \eqn{Q_{g,i}}.}
 
 \item{initial_effort}{Optional. A number or a named numeric vector specifying
