@@ -408,5 +408,6 @@ validEffortArray <- function(effort, params) {
     if (is.unsorted(time_effort)) {
         stop("The time dimname of the effort argument should be increasing.")
     }
+    names(dimnames(effort)) <- c("time", "gear")
     effort
 }
