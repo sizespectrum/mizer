@@ -55,13 +55,13 @@ test_that("validEffort works", {
     # A single number is converted into a constant vector
     ie[] <- 2
     expect_identical(validEffortVector(2, params), ie)
-    # The length of the vector is checked
-    expect_error(validEffortVector(ie[1:3], params),
-                 "Effort vector must be the same length as the number of fishing gears.")
+    # A shortened vector is expanded with zeros
+    expect_identical(validEffortVector(ie[c(1,2,4)], params)[[3]], 0)
+                
     # The names are checked
     names(ie)[[1]] <- "test"
     expect_error(validEffortVector(ie, params), 
-                 "Gear names in the MizerParams object")
+                 "it has names that are not among the gear names")
 })
 test_that("validEffortParams works when no gears are set up", {
     params <- newMultispeciesParams(NS_species_params,
@@ -115,14 +115,16 @@ test_that("Comments protect slots", {
 
 test_that("We can change gears via catchability and selectivity arrays", {
     catchability <- getCatchability(params)
-    expect_error(setFishing(params, catchability = catchability[1:3, ]),
+    sel <- c(1, 2, 4)
+    expect_error(setFishing(params, catchability = catchability[sel, ]),
                  "you also need to supply a selectivity array")
     selectivity <- getSelectivity(params)
-    p2 <- setFishing(params, catchability = catchability[1:3, ],
-                     selectivity = selectivity[1:3, , ])
-    expect_identical(p2@selectivity, selectivity[1:3, , ])
-    expect_identical(p2@catchability, catchability[1:3, ])
-    expect_error(setFishing(params, catchability = catchability[1:3, ],
+    p2 <- setFishing(params, catchability = catchability[sel, ],
+                     selectivity = selectivity[sel, , ])
+    expect_identical(p2@selectivity, selectivity[sel, , ])
+    expect_identical(p2@catchability, catchability[sel, ])
+    expect_identical(p2@initial_effort, params@initial_effort[sel])
+    expect_error(setFishing(params, catchability = catchability[sel, ],
                             selectivity = selectivity),
                  "not equal to no_gears")
 })
@@ -175,6 +177,10 @@ test_that("Dimensions after number of gears has increased", {
                      params@species_params$species)
     expect_identical(dimnames(params@selectivity)[[1]],
                      params@species_params$species)
+    # The initial effort has also changed
+    effort <- rep(0, no_gears)
+    names(effort) <- params@species_params$species
+    expect_identical(params@initial_effort, effort)
 })
 
 test_that("Duplicate gear-species pairs give error", {

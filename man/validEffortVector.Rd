@@ -27,10 +27,16 @@ The function also accepts an \code{effort} that is not yet valid:
 gears in the params object
 \item a named vector in which the gear names have a different order than in the
 params object. This is then sorted correctly.
+\item a named vector which only supplies values for some of the gears.
+The effort for the other gears is then set to zero.
 }
 
-An \code{effort} argument of the wrong length or with names not corresponding to
-gears will produce an error.
+An \code{effort} argument will lead to an error if it is either
+\itemize{
+\item unnamed and of the wrong length
+\item named but where some names do not match any of the gears
+\item not numeric
+}
 }
 \concept{helper}
 \keyword{internal}

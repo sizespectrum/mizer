@@ -1,3 +1,10 @@
+# mizer 2.0.4.9000
+
+* Improved error handling in `setFishing()` #172
+* Now if the effort is specified as a named vector giving values only for some 
+  gears, the effort for the remaining gears is assumed to be zero.
+
+
 # mizer 2.0.4
 
 ## Bug fixes
