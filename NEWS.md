@@ -3,7 +3,8 @@
 * Improved error handling in `setFishing()` #172
 * Now if the effort is specified as a named vector giving values only for some 
   gears, the effort for the remaining gears is assumed to be zero.
-
+* Made use of vdiffr conditional, as required by §1.1.3.1 of
+  'Writing R Extensions'
 
 # mizer 2.0.4
 
