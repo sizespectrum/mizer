@@ -208,7 +208,7 @@ newCommunityParams <- function(max_w = 1e6,
 #'   \code{eta * min_w_inf}. This will be rounded to lie on a grid point.
 #' @param no_w The number of size bins in the community spectrum. These bins
 #'   will be equally spaced on a logarithmic scale. Default value is such that
-#'   there are 50 bins for each factor of 10 in weight.
+#'   there are 20 bins for each factor of 10 in weight.
 #' @param min_w_pp The smallest size of the resource spectrum. By default this
 #'   is set to the smallest value at which any of the consumers can feed.
 #' @param w_pp_cutoff The largest size of the resource spectrum. Default value
