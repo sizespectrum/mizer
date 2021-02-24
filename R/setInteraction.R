@@ -9,6 +9,8 @@
 #' and predation mortality (see on the website
 #' [the section on predator-prey encounter rate](https://sizespectrum.org/mizer/articles/model_description.html#sec:pref)
 #' and on [predation mortality](https://sizespectrum.org/mizer/articles/model_description.html#mortality)).
+#' The first index refers to the predator species and the second to the prey
+#' species.
 #'
 #' It is used when calculating the food encounter rate in [getEncounter()] and
 #' the predation mortality rate in [getPredMort()]. Its entries are

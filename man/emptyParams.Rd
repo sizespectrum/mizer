@@ -51,9 +51,8 @@ starting at \code{max_w}. For \code{w_full} additional size bins are added below
 \section{Changes to species params}{
 
 The \code{species_params} slot of the returned MizerParams object may differ
-slightly from the data frame supplied as argument to this function because
-default values are set for
-\verb{w_min, w_inf, alpha, gear, interaction_resource}.
+from the data frame supplied as argument to this function because
+default values are set for missing parameters.
 }
 
 \seealso{

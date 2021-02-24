@@ -6,7 +6,7 @@
 #' [getFeedingLevel()]. It is measured in grams/year.
 #'
 #' If the `intake_max` argument is not supplied, then the maximum intake
-#' rate is set to \deqn{h_i(w) = h_i w^n_i.} 
+#' rate is set to \deqn{h_i(w) = h_i w^{n_i}.} 
 #' The values of \eqn{h_i} (the maximum intake rate of an individual of size 1
 #' gram) and \eqn{n_i} (the allometric exponent for the intake rate) are taken
 #' from the `h` and `n` columns in the species parameter dataframe. If

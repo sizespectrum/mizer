@@ -246,6 +246,7 @@ getPredRate <- function(params, n = initialN(params),
 #' of 1/year) on each prey species by prey size:
 #' \deqn{\mu_{p.i}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{ji}.}{
 #'   \mu_{p.i}(w_p) = \sum_j pred_rate_j(w_p) \theta_{ji}.}
+#' The predation rate `pred_rate` is returned by [getPredRate()].
 #' 
 #' @inherit mizerPredMort
 #' @inheritParams getFeedingLevel

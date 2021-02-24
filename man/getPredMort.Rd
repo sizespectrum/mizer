@@ -38,6 +38,7 @@ Calculates the total predation mortality rate \eqn{\mu_{p,i}(w_p)} (in units
 of 1/year) on each prey species by prey size:
 \deqn{\mu_{p.i}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{ji}.}{
   \mu_{p.i}(w_p) = \sum_j pred_rate_j(w_p) \theta_{ji}.}
+The predation rate \code{pred_rate} is returned by \code{\link[=getPredRate]{getPredRate()}}.
 }
 \section{Your own predation mortality function}{
 
