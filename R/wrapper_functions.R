@@ -244,13 +244,16 @@ newCommunityParams <- function(max_w = 1e6,
 #' @param knife_edge_size The minimum size at which the gear or gears select
 #'   fish. A single value for each gear or a vector with one value for each
 #'   gear.
-#' @param egg_size_scaling If TRUE, the egg size is a constant fraction of the
+#' @param egg_size_scaling `r lifecycle::badge("experimental")`
+#'   If TRUE, the egg size is a constant fraction of the
 #'   maximum size of each species. This fraction is \code{min_w / min_w_inf}. If
 #'   FALSE, all species have the egg size `w_min`.
-#' @param resource_scaling If TRUE, the carrying capacity for larger resource
+#' @param resource_scaling `r lifecycle::badge("experimental")`
+#'   If TRUE, the carrying capacity for larger resource
 #'   is reduced to compensate for the fact that fish eggs and larvae are
 #'   present in the same size range.
-#' @param perfect_scaling If TRUE then parameters are set so that the community
+#' @param perfect_scaling `r lifecycle::badge("experimental")`
+#'   If TRUE then parameters are set so that the community
 #'   abundance, growth before reproduction and death are perfect power laws. In
 #'   particular all other scaling corrections are turned on. 
 #' @export
@@ -522,6 +525,9 @@ newTraitParams <- function(no_sp = 11,
     m2_background <- getResourceMort(params)
     params@cc_pp <- (params@rr_pp + m2_background ) * 
         params@initial_n_pp / params@rr_pp
+    comment(params@cc_pp) <- paste("Carrying capacity set higher than the",
+                                   "desired steady state in order to",
+                                   "compensate for predation mortality.")
     
     ## Setup external death ----
     m2 <- getPredMort(params)
@@ -536,6 +542,9 @@ newTraitParams <- function(no_sp = 11,
         if (!perfect_scaling && any(params@mu_b[i,] < 0)) {
             params@mu_b[i, params@mu_b[i,] < 0] <- 0
         }
+        comment(params@mu_b) <- paste("Background mortality is set so that in",
+                                      "combination with predation mortality",
+                                      "it gives a power-law mortality.")
     }
     
     

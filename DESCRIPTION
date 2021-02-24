@@ -47,6 +47,7 @@ Suggests:
     covr,
     spelling
 Collate:
+    'helpers.R'
     'MizerParams-class.R'
     'MizerSim-class.R'
     'species_params.R'

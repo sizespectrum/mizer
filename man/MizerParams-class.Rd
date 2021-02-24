@@ -11,6 +11,16 @@ are performed using \code{\link[=project]{project()}} function on objects of thi
 user you should never need to access the slots inside a \code{MizerParams} object
 directly.
 }
+\details{
+The \linkS4class{MizerParams} class is fairly complex with a large number of
+slots, many of which are multidimensional arrays. The dimensions of these
+arrays is strictly enforced so that \code{MizerParams} objects are consistent
+in terms of number of species and number of size classes.
+
+The \code{MizerParams} class does not hold any dynamic information, e.g.
+abundances or harvest effort through time. These are held in
+\linkS4class{MizerSim} objects.
+}
 \section{Slots}{
 
 \describe{
@@ -100,7 +110,8 @@ the ecosystem.}
 used to calculate the rates needed by \code{project()}. By default this will be
 set to the names of the built-in rate functions.}
 
-\item{\code{sc}}{The community abundance of the scaling community}
+\item{\code{sc}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+The community abundance of the scaling community}
 
 \item{\code{species_params}}{A data.frame to hold the species specific parameters.
 See \code{\link[=newMultispeciesParams]{newMultispeciesParams()}} for details.}
@@ -133,7 +144,8 @@ ecosystem components. Has length zero if there are no other components.}
 
 \item{\code{resource_params}}{List with parameters for resource. See \code{\link[=setResource]{setResource()}}.}
 
-\item{\code{A}}{Abundance multipliers.}
+\item{\code{A}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+Abundance multipliers.}
 
 \item{\code{linecolour}}{A named vector of colour values, named by species.
 Used to give consistent colours in plots.}
@@ -143,16 +155,7 @@ Used to give consistent line types in plots.}
 
 \item{\code{ft_mask}}{An array (species x w_full) with zeros for weights larger than
 the asymptotic weight of each species. Used to efficiently minimize
-wrap-around errors in Fourier transform calculations.
-
-The \linkS4class{MizerParams} class is fairly complex with a large number of
-slots, many of which are multidimensional arrays. The dimensions of these
-arrays is strictly enforced so that \code{MizerParams} objects are consistent
-in terms of number of species and number of size classes.
-
-The \code{MizerParams} class does not hold any dynamic information, e.g.
-abundances or harvest effort through time. These are held in
-\linkS4class{MizerSim} objects.}
+wrap-around errors in Fourier transform calculations.}
 }}
 
 \seealso{

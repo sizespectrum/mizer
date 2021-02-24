@@ -118,15 +118,18 @@ character vector, the same length as the number of species.}
 fish. A single value for each gear or a vector with one value for each
 gear.}
 
-\item{egg_size_scaling}{If TRUE, the egg size is a constant fraction of the
+\item{egg_size_scaling}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If TRUE, the egg size is a constant fraction of the
 maximum size of each species. This fraction is \code{min_w / min_w_inf}. If
 FALSE, all species have the egg size \code{w_min}.}
 
-\item{resource_scaling}{If TRUE, the carrying capacity for larger resource
+\item{resource_scaling}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If TRUE, the carrying capacity for larger resource
 is reduced to compensate for the fact that fish eggs and larvae are
 present in the same size range.}
 
-\item{perfect_scaling}{If TRUE then parameters are set so that the community
+\item{perfect_scaling}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If TRUE then parameters are set so that the community
 abundance, growth before reproduction and death are perfect power laws. In
 particular all other scaling corrections are turned on.}
 }

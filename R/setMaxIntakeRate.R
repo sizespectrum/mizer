@@ -59,8 +59,7 @@ setMaxIntakeRate <- function(params,
     # Prevent overwriting slot if it has been commented
     if (!is.null(comment(params@intake_max))) {
         # Issue warning but only if a change was actually requested
-        if (!isTRUE(all.equal(intake_max, params@intake_max,
-                              check.attributes = FALSE))) {
+        if (different(intake_max, params@intake_max)) {
             message("The max intake rate has been commented and therefore will ",
                     "not be recalculated from the species parameters.")
         }

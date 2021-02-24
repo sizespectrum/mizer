@@ -175,7 +175,7 @@ get_h_default <- function(params) {
         if (any(is.na(species_params$k_vb[missing]))) {
             stop("Can not calculate defaults for h because some k_vb values are NA.")
         }
-        if (!isTRUE(all.equal(species_params$n[missing], species_params$p[missing],,
+        if (!isTRUE(all.equal(species_params$n[missing], species_params$p[missing],
                               check.attributes = FALSE))) {
             message("Note: Because you have n != p, the default value is not very good.")
         }

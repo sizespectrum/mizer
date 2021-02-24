@@ -206,8 +206,7 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
         
         # If maturity is protected by a comment, keep the old value
         if (!is.null(comment(params@maturity))) {
-            if (!isTRUE(all.equal(params@maturity, maturity,
-                                  check.attributes = FALSE))) {
+            if (different(params@maturity, maturity)) {
                 message("The maturity ogive has been commented and therefore will ",
                         "not be recalculated from the species parameters.")
             }
@@ -217,8 +216,7 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
     assert_that(all(maturity >= 0 & maturity <= 1))
     
     # Need to update psi because it contains maturity as a factor
-    if (!isTRUE(all.equal(params@maturity, maturity,
-                          check.attributes = FALSE))) {
+    if (different(params@maturity, maturity)) {
         params@psi[] <- params@psi / params@maturity * maturity
         params@psi[is.nan(params@psi)] <- 0
     }
@@ -257,8 +255,7 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
     assert_that(all(psi >= 0 & psi <= 1))
     
     if (!is.null(comment(params@psi))) {
-        if (!isTRUE(all.equal(params@psi, psi,
-                              check.attributes = FALSE))) {
+        if (different(params@psi, psi)) {
             message("The reproductive proportion has been commented and therefore ",
                     "will not be recalculated from the species parameters.")
         }
