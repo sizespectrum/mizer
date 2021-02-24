@@ -98,19 +98,39 @@ test_that("Setting catchability works", {
     expect_identical(comment(getCatchability(params)), "catchability")
 })
 
-test_that("Comments protect slots", {
+test_that("Comments protect catchability slot", {
     catchability <- getCatchability(params)
     comment(catchability) <- "catchability"
     params <- setFishing(params, catchability = catchability)
     expect_message(gear_params(params) <- params@gear_params,
                    "The catchability has been commented")
     
+    # comment argument is ignored when there is a comment on catchability
+    params <- setFishing(params, catchability = catchability,
+                         comment_catchability = "overwrite")
+    expect_identical(comment(params@catchability), "catchability")
+    # but it is used otherwise
+    comment(catchability) <- NULL
+    params <- setFishing(params, catchability = catchability,
+                         comment_catchability = "overwrite")
+    expect_identical(comment(params@catchability), "overwrite")
+
     selectivity <- getSelectivity(params)
     comment(selectivity) <- "selectivity"
     expect_message(params <- setFishing(params, selectivity = selectivity),
                    "The catchability has been commented")
     expect_message(gear_params(params) <- params@gear_params,
                    "The selectivity has been commented")
+    
+    # comment argument is ignored when there is a comment on catchability
+    params <- setFishing(params, selectivity = selectivity,
+                         comment_selectivity = "overwrite")
+    expect_identical(comment(params@selectivity), "selectivity")
+    # but it is used otherwise
+    comment(selectivity) <- NULL
+    params <- setFishing(params, selectivity = selectivity,
+                         comment_selectivity = "overwrite")
+    expect_identical(comment(params@catchability), "overwrite")
 })
 
 test_that("We can change gears via catchability and selectivity arrays", {
@@ -120,7 +140,8 @@ test_that("We can change gears via catchability and selectivity arrays", {
                  "you also need to supply a selectivity array")
     selectivity <- getSelectivity(params)
     p2 <- setFishing(params, catchability = catchability[sel, ],
-                     selectivity = selectivity[sel, , ])
+                     selectivity = selectivity[sel, , ], 
+                     comment_catchability = NULL, comment_selectivity = NULL)
     expect_identical(p2@selectivity, selectivity[sel, , ])
     expect_identical(p2@catchability, catchability[sel, ])
     expect_identical(p2@initial_effort, params@initial_effort[sel])

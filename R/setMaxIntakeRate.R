@@ -20,6 +20,10 @@
 #' @param intake_max Optional. An array (species x size) holding the maximum
 #'   intake rate for each species at size. If not supplied, a default is set as
 #'   described in the section "Setting maximum intake rate".
+#' @param comment `r lifecycle::badge("experimental")`
+#'   A string describing how the value for 'intake_max' was obtained. This is
+#'   ignored if 'intake_max' is not supplied or already has a comment
+#'   attribute.
 #' @param ... Unused
 #' 
 #' @return A `MizerParams` object with updated maximum intake rate. Because
@@ -30,12 +34,16 @@
 #' @export
 #' @family functions for setting parameters
 setMaxIntakeRate <- function(params, 
-                             intake_max = NULL, ...) {
+                             intake_max = NULL, 
+                             comment = "set manually", ...) {
     assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
     
     # If intake_max array is supplied, check it, store it and return
     if (!is.null(intake_max)) {
+        if (is.null(comment(intake_max))) {
+            comment(intake_max) <- comment
+        }
         assert_that(is.array(intake_max),
                     identical(dim(intake_max), dim(params@intake_max)))
         if (!is.null(dimnames(intake_max)) && 

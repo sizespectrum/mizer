@@ -92,6 +92,14 @@
 #' @param initial_effort Optional. A number or a named numeric vector specifying
 #'   the fishing effort. If a number, the same effort is used for all gears. If
 #'   a vector, must be named by gear.
+#' @param comment_selectivity `r lifecycle::badge("experimental")`
+#'   A string describing how the value for 'selectivity' was obtained. This is
+#'   ignored if 'selectivity' is not supplied or already has a comment
+#'   attribute.
+#' @param comment_catchability `r lifecycle::badge("experimental")`
+#'   A string describing how the value for 'catchability' was obtained. This is
+#'   ignored if 'catchability' is not supplied or already has a comment
+#'   attribute.
 #' @param ... Unused
 #'   
 #' @return MizerParams object with updated catchability and selectivity. Because
@@ -103,6 +111,8 @@
 #' @seealso [gear_params()]
 #' @family functions for setting parameters
 setFishing <- function(params, selectivity = NULL, catchability = NULL, 
+                       comment_selectivity = "set manually", 
+                       comment_catchability = "set manually", 
                        initial_effort = NULL, ...) {
     assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
@@ -133,6 +143,9 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
     }
     
     if (!is.null(selectivity)) {
+        if (is.null(comment(selectivity))) {
+            comment(selectivity) <- comment_selectivity
+        }
         assert_that(length(dim(selectivity)) == 3,
                     dim(selectivity)[[1]] == no_gears,
                     dim(selectivity)[[2]] == no_sp,
@@ -198,6 +211,9 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
     }
     
     if (!is.null(catchability)) {
+        if (is.null(comment(catchability))) {
+            comment(catchability) <- comment_catchability
+        }
         assert_that(length(dim(catchability)) == 2,
                     dim(catchability)[[2]] == no_sp)
         # Check dimnames if they were provided, otherwise set them
