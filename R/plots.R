@@ -1067,6 +1067,8 @@ plotlyGrowthCurves <- function(object, species,
 
 #' Plot diet
 #' 
+#' `r lifecycle::badge("experimental")`
+#' 
 #' @inheritParams plotSpectra
 #' @param species The name of the species whose diet should be plotted
 #'

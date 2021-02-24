@@ -57,6 +57,8 @@ explicitly.}
 \item{...}{Unused}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
 This function has been deprecated in favour of the function
 \code{\link[=newMultispeciesParams]{newMultispeciesParams()}} that sets better default values.
 }

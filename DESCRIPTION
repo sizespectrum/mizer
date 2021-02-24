@@ -32,6 +32,7 @@ Imports:
     progress,
     Rcpp,
     reshape2,
+    lifecycle
 LinkingTo: Rcpp
 Depends:
     R (>= 3.1)
@@ -85,3 +86,4 @@ LazyData: true
 URL: https://sizespectrum.org/mizer/, https://github.com/sizespectrum/mizer
 BugReports: https://github.com/sizespectrum/mizer/issues
 Language: en-GB
+RdMacros: lifecycle

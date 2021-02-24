@@ -1,5 +1,8 @@
 #' Deprecated obsolete function for setting up multispecies parameters
 #' 
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#' 
 #' This function has been deprecated in favour of the function
 #' [newMultispeciesParams()] that sets better default values.
 #' 
@@ -26,6 +29,7 @@ set_multispecies_model <-
         lambda = 2 + q - n,
         r_pp = 10,
         ...) {
+    lifecycle::deprecate_soft("2.0.0", "set_multispecies_model()", "newMultispeciesParams()")
     if (exists("no_w_pp")) {
         warning("New mizer code does not support the parameter no_w_pp")
     }
@@ -118,9 +122,13 @@ MizerParams <- set_multispecies_model
 # Copied from version 1.0.1
 #' Deprecated function for setting up parameters for a trait-based model
 #' 
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#' 
 #' This function has been deprecated in favour of the function
 #' [newTraitParams()] that sets better default values.
 #' 
+#' @details
 #' This functions creates a `MizerParams` object so that trait-based-type 
 #' models can be easily set up and run. The trait-based size spectrum model can
 #' be derived as a simplification of the general size-based model used in
@@ -234,6 +242,7 @@ set_trait_model <- function(no_sp = 10,
                             knife_edge_size = 1000,
                             gear_names = "knife_edge_gear",
                             ...){
+    lifecycle::deprecate_soft("2.0.0", "set_trait_model()", "newTraitParams()")
     if (exists("no_w_pp")) {
         warning("New mizer code does not support the parameter no_w_pp")
     }
@@ -322,9 +331,13 @@ set_trait_model <- function(no_sp = 10,
 # Copied from version 1.0.1
 #' Deprecated function for setting up parameters for a community-type model
 #' 
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#' 
 #' This function has been deprecated in favour of the function
 #' [newCommunityParams()] that sets better default values.
 #' 
+#' @details
 #' This functions creates a \code{\linkS4class{MizerParams}} object so that
 #' community-type models can be easily set up and run. A community model has
 #' several features that distinguish it from the food-web type models. Only one
@@ -366,8 +379,7 @@ set_trait_model <- function(no_sp = 10,
 #' @param n The scaling of the intake. Default value is 2/3.
 #' @param kappa The carrying capacity of the resource spectrum. Default value
 #'   is 1000.
-#' @param lambda The exponent of the resource spectrum. Default value is 2 + q
-#'   - n.
+#' @param lambda The exponent of the resource spectrum. Default value is 2 + q - n.
 #' @param r_pp Growth rate parameter for the resource spectrum. Default value is 10.
 #' @param gamma Volumetric search rate. Estimated using `h`, `f0` and 
 #'   `kappa` if not supplied.
@@ -396,6 +408,8 @@ set_trait_model <- function(no_sp = 10,
 #' @examples
 #' \dontrun{
 #' params <- set_community_model(f0=0.7, z0=0.2, recruitment=3e7)
+#' # This is now achieved with
+#' params <- newCommunityParams(f0 = 0.7, z0 = 0.2)
 #' sim <- project(params, effort = 0, t_max = 100, dt=0.1)
 #' plotBiomass(sim)
 #' plotSpectra(sim)
@@ -421,6 +435,7 @@ set_community_model <- function(max_w = 1e6,
                                 rec_mult = 1,
                                 ...
 ){
+    lifecycle::deprecate_soft("2.0.0", "set_community_model()", "newCommunityParams()")
     w_inf <- max_w * 0.9
     w_pp_cutoff <- min_w
     ks <- 0 # Turn off standard metabolism
@@ -463,6 +478,9 @@ set_community_model <- function(max_w = 1e6,
 #### getPhiPrey ####
 #' Get available energy
 #' 
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#' 
 #' This is deprecated and is no longer used by the mizer project() method.
 #' Calculates the amount \eqn{E_{a,i}(w)} of food exposed to each predator as
 #' a function of predator size. 
@@ -477,15 +495,15 @@ set_community_model <- function(max_w = 1e6,
 #' @export
 #' @examples
 #' \dontrun{
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
-#' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
-#' n <- sim@@n[21,,]
-#' n_pp <- sim@@n_pp[21,]
+#' n <- sim@n[21,,]
+#' n_pp <- sim@n_pp[21,]
 #' getPhiPrey(params,n,n_pp)
+#' # ->
+#' getEncounter(params) / getSearchVolume(params)
 #' }
 getPhiPrey <- function(object, n, n_pp, ...) {
-    phi_prey <- getEncounter(object, n, n_pp) / object@search_vol
+    lifecycle::deprecate_soft("2.0.0", "getPhiPrey()", "newMultispeciesParams()")
+    getEncounter(object, n, n_pp) / object@search_vol
 }

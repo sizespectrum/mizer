@@ -53,10 +53,7 @@ default value is 1e6.}
 \item{kappa}{The carrying capacity of the resource spectrum. Default value
 is 1000.}
 
-\item{lambda}{The exponent of the resource spectrum. Default value is 2 + q
-\itemize{
-\item n.
-}}
+\item{lambda}{The exponent of the resource spectrum. Default value is 2 + q - n.}
 
 \item{f0}{The average feeding level of individuals who feed on a power-law
 spectrum. This value is used to calculate the search rate parameter
@@ -87,6 +84,8 @@ value is 1.}
 An object of type \code{\linkS4class{MizerParams}}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
 This function has been deprecated in favour of the function
 \code{\link[=newCommunityParams]{newCommunityParams()}} that sets better default values.
 }
@@ -123,6 +122,8 @@ through time after the projection.
 \examples{
 \dontrun{
 params <- set_community_model(f0=0.7, z0=0.2, recruitment=3e7)
+# This is now achieved with
+params <- newCommunityParams(f0 = 0.7, z0 = 0.2)
 sim <- project(params, effort = 0, t_max = 100, dt=0.1)
 plotBiomass(sim)
 plotSpectra(sim)

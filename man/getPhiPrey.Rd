@@ -19,20 +19,21 @@ getPhiPrey(object, n, n_pp, ...)
 A two dimensional array (predator species x predator size)
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
 This is deprecated and is no longer used by the mizer project() method.
 Calculates the amount \eqn{E_{a,i}(w)} of food exposed to each predator as
 a function of predator size.
 }
 \examples{
 \dontrun{
-data(NS_species_params_gears)
-data(inter)
 params <- MizerParams(NS_species_params_gears, inter)
-# With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 n <- sim@n[21,,]
 n_pp <- sim@n_pp[21,]
 getPhiPrey(params,n,n_pp)
+# ->
+getEncounter(params) / getSearchVolume(params)
 }
 }
 \seealso{
