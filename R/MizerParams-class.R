@@ -434,9 +434,8 @@ remove(validMizerParams)
 #' 
 #' @section Changes to species params:
 #' The `species_params` slot of the returned MizerParams object may differ
-#' slightly from the data frame supplied as argument to this function because
-#' default values are set for 
-#' `w_min, w_inf, alpha, gear, interaction_resource`.
+#' from the data frame supplied as argument to this function because
+#' default values are set for missing parameters.
 #' 
 #' @param species_params A data frame of species-specific parameter values.
 #' @param gear_params A data frame with gear-specific parameter values.

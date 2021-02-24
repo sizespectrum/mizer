@@ -176,9 +176,8 @@ All the parameters will be mentioned in the following sections.
 \section{Changes to species params}{
 
 The \code{species_params} slot of the returned MizerParams object may differ
-slightly from the data frame supplied as argument to this function because
-default values are set for
-\verb{w_min, w_inf, alpha, gear, interaction_resource}.
+from the data frame supplied as argument to this function because
+default values are set for missing parameters.
 }
 
 \section{Size grid}{
@@ -234,6 +233,8 @@ The values in the interaction matrix are used to scale the encountered food
 and predation mortality (see on the website
 \href{https://sizespectrum.org/mizer/articles/model_description.html#sec:pref}{the section on predator-prey encounter rate}
 and on \href{https://sizespectrum.org/mizer/articles/model_description.html#mortality}{predation mortality}).
+The first index refers to the predator species and the second to the prey
+species.
 
 It is used when calculating the food encounter rate in \code{\link[=getEncounter]{getEncounter()}} and
 the predation mortality rate in \code{\link[=getPredMort]{getPredMort()}}. Its entries are
