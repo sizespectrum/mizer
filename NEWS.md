@@ -5,6 +5,8 @@
   gears, the effort for the remaining gears is assumed to be zero.
 * Made use of vdiffr conditional, as required by §1.1.3.1 of
   'Writing R Extensions'
+* Added the possibility to see the output of `plotGrowthCurves` as a panel of 
+  species with their respective Von Bertalanffy curves
 
 ## Breaking changes
 
