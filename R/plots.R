@@ -1004,7 +1004,8 @@ plotlyFMort <- function(object, species = NULL,
 #' 
 #' @inheritParams getGrowthCurves
 #' @inheritParams plotSpectra
-#' 
+#' @params species_panel. If TRUE, display all species with their Von bertalanffy curves as facets 
+#' (need species and percentage to be set to default)
 #' @return A plot
 #' @export
 #' @family plotting functions
@@ -1016,11 +1017,13 @@ plotlyFMort <- function(object, species = NULL,
 #' plotGrowthCurves(sim, percentage = TRUE)
 #' plotGrowthCurves(sim, species = "Cod", max_age = 24)
 #' }
-plotGrowthCurves <- function(object, 
-                             species,
-                             max_age = 20,
-                             percentage = FALSE,
-                             highlight = NULL) {
+plotGrowthCurves <- function (object, 
+                              species, 
+                              max_age = 20, 
+                              percentage = FALSE, 
+                              species_panel = FALSE,
+                              highlight = NULL) 
+{
     if (is(object, "MizerSim")) {
         params <- object@params
         t <- dim(object@n)[1]
@@ -1034,47 +1037,69 @@ plotGrowthCurves <- function(object,
     }
     ws <- getGrowthCurves(params, species, max_age, percentage)
     plot_dat <- reshape2::melt(ws)
-    # Need to keep species in order for legend
     plot_dat$Species <- factor(plot_dat$Species, params@species_params$species)
-    p <- ggplot(plot_dat) +
-            geom_line(aes(x = Age, y = value,
-                          colour = Species, linetype = Species,
-                          size = Species))
-
-    y_label <- if (percentage) "Percent of maximum size" else "Size [g]"
+    plot_dat$legend <- "model"
+    
+    # creating some VB
+    if (all(c("a", "b", "k_vb") %in% names(params@species_params))) 
+    {
+        VBdf <- data.frame("species" = params@species_params$species, "w_inf" = params@species_params$w_inf, "a" = params@species_params$a, "b" = params@species_params$b, "k_vb" = params@species_params$k_vb, "t0" = 0) 
+        VBdf$L_inf <- (VBdf$w_inf / VBdf$a)^(1/VBdf$b)
+        plot_dat2 <- plot_dat
+        plot_dat2$value <- apply(plot_dat,1,function(x, VBdf){VBdf[which(VBdf$species == x[1]),]$a * 
+                (VBdf[which(VBdf$species == x[1]),]$L_inf * (1 - exp(-VBdf[which(VBdf$species == x[1]),]$k_vb * 
+                                                                         (as.numeric(x[2]) - VBdf[which(VBdf$species == x[1]),]$t0))))^VBdf[which(VBdf$species == x[1]),]$b}, VBdf)
+        plot_dat2$legend <- "von Bertalanffy"
+        plot_dat <- rbind(plot_dat,plot_dat2)
+    }
+    
+    p <- ggplot(filter(plot_dat, legend == "model")) + geom_line(aes(x = Age, y = value, 
+                                                                     colour = Species, linetype = Species, size = Species))
+    y_label <- if (percentage) 
+        "Percent of maximum size"
+    else "Size [g]"
     linesize <- rep(0.8, length(params@linetype))
     names(linesize) <- names(params@linetype)
     linesize[highlight] <- 1.6
-    p <- p +
-        scale_x_continuous(name = "Age [Years]") +
-        scale_y_continuous(name = y_label) +
-        scale_colour_manual(values = params@linecolour) +
-        scale_linetype_manual(values = params@linetype) +
+    p <- p + scale_x_continuous(name = "Age [Years]") + 
+        scale_y_continuous(name = y_label) + 
+        scale_colour_manual(values = params@linecolour) + 
+        scale_linetype_manual(values = params@linetype) + 
         scale_size_manual(values = linesize)
     
-    # Extra stuff for single-species case
-    if (length(species) == 1 && !percentage) {
-        idx <- which(params@species_params$species == species)
-        w_inf <- params@species_params$w_inf[idx]
-        # set w_inf to w at next grid point, because that is when growth rate
-        # becomes zero
-        #   w_inf <- params@w[min(sum(w_inf > params@w) + 1, length(params@w))]
-        p <- p + geom_hline(yintercept = w_inf) +
-            annotate("text", 0, w_inf, vjust = -1, label = "Maximum")
-        w_mat <- params@species_params$w_mat[idx]
-        p <- p + geom_hline(yintercept = w_mat) +
-            annotate("text", 0, w_mat, vjust = -1, label = "Maturity")
-        if (all(c("a", "b", "k_vb") %in% names(params@species_params))) {
-            age <- as.numeric(dimnames(ws)$Age)
-            a <- params@species_params[["a"]][idx]
-            b <- params@species_params[["b"]][idx]
-            k_vb <- params@species_params$k_vb[idx]
-            t0 <- params@species_params$t0[idx]
-            if (is.null(t0)) t0 <- 0
-            L_inf <- (w_inf / a) ^ (1 / b)
-            vb <- a * (L_inf * (1 - exp(-k_vb * (age - t0))))^b
-            dat <- data.frame(x = age, y = vb)
-            p <- p + geom_line(data = dat, aes(x = x, y = y))
+    # starting cases now
+    if(!percentage)
+    {
+        
+        if (length(species) == 1) {
+            idx <- which(params@species_params$species == species)
+            w_inf <- params@species_params$w_inf[idx]
+            p <- p + geom_hline(yintercept = w_inf, colour = "grey") + 
+                annotate("text", 0, w_inf, vjust = -1, label = "Maximum")
+            w_mat <- params@species_params$w_mat[idx]
+            p <- p + geom_hline(yintercept = w_mat, linetype = "dashed", colour = "grey") + 
+                annotate("text", 0, w_mat, vjust = -1, label = "Maturity")
+            if ("von Bertalanffy" %in% plot_dat$legend) 
+                p <- p + geom_line(data = filter(plot_dat, legend == "von Bertalanffy"), aes(x = Age, y = value))
+            
+        } else if(species_panel) # need to add either no panel if no param for VB or create a panel without VB
+        {
+            p <- ggplot(plot_dat) +
+                geom_line(aes(x = Age, y = value , colour = legend)) +
+                scale_x_continuous(name = "Age [years]") +
+                scale_y_continuous(name = "Size [g]") +
+                geom_hline(aes(yintercept = w_mat),
+                           data = tibble(Species = object@params@species_params$species[],
+                                         w_mat = object@params@species_params$w_mat[]),
+                           linetype = "dashed",
+                           colour = "grey") +
+                geom_hline(aes(yintercept = w_inf),
+                           data = tibble(Species = object@params@species_params$species[],
+                                         w_inf = object@params@species_params$w_inf[]),
+                           linetype = "solid",
+                           colour = "grey") +
+                facet_wrap(~Species, scales = "free_y")
+            
         }
     }
     return(p)
@@ -1083,9 +1108,10 @@ plotGrowthCurves <- function(object,
 #' @rdname plotGrowthCurves
 #' @export
 plotlyGrowthCurves <- function(object, species,
-                             max_age = 20,
-                             percentage = FALSE,
-                             highlight = NULL) {
+                               max_age = 20,
+                               percentage = FALSE,
+                               species_panel = FALSE,
+                               highlight = NULL) {
     argg <- as.list(environment())
     ggplotly(do.call("plotGrowthCurves", argg))
 }
