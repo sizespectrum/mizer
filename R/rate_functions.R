@@ -366,7 +366,7 @@ getM2Background <- getResourceMort
 #' Get the fishing mortality by time, gear, species and size
 #'
 #' Calculates the fishing mortality rate \eqn{F_{g,i,w}} by gear, species and
-#' size at each time step in the `effort` argument (in units 1/year).
+#' size and possibly time (in units 1/year).
 #' 
 #' @param object A `MizerParams` object or a `MizerSim` object.
 #' @param effort The effort for each fishing gear. See notes below.
@@ -472,7 +472,8 @@ getFMortGear <- function(object, effort, time_range) {
 #' and size.
 #' 
 #' Calculates the total fishing mortality  (in units 1/year) from all gears by
-#' species and size at each time step in the `effort` argument.
+#' species and size and possibly time.
+#' 
 #' The total fishing mortality is just the sum of the fishing mortalities
 #' imposed by each gear, \eqn{\mu_{f.i}(w)=\sum_g F_{g,i,w}}.
 #' The fishing mortality for each gear is obtained as catchability x 

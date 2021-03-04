@@ -528,11 +528,11 @@ mizerPredMort <- function(params, n, n_pp, n_other, t, pred_rate, ...) {
     return((base::t(params@interaction) %*% pred_rate)[, idx_sp, drop = FALSE])
 }
 
-#' Get the fishing mortality by time, gear, species and size needed to project 
+#' Get the fishing mortality needed to project 
 #' standard mizer model
 #'
 #' Calculates the fishing mortality rate \eqn{F_{g,i,w}} by gear, species and
-#' size at each time step in the `effort` argument (in units 1/year).
+#' size.
 #' This is a helper function for [mizerFMort()].
 #' 
 #' @inheritParams mizerRates
@@ -541,7 +541,7 @@ mizerPredMort <- function(params, n, n_pp, n_other, t, pred_rate, ...) {
 #' @return An three dimensional array (gear x species x size) with the
 #'    fishing mortality 
 #' @note Here: fishing mortality = catchability x selectivity x effort.
-#' 
+#' @seealso setFishing
 #' @export
 #' @family mizer rate functions
 mizerFMortGear <- function(params, effort) {
@@ -552,11 +552,10 @@ mizerFMortGear <- function(params, effort) {
 }
 
 
-#' Get the total fishing mortality rate from all fishing gears by time, species
-#' and size needed to project standard mizer model
+#' Get the total fishing mortality rate from all fishing gears
 #' 
 #' Calculates the total fishing mortality  (in units 1/year) from all gears by
-#' species and size at each time step in the `effort` argument.
+#' species and size.
 #' The total fishing mortality is just the sum of the fishing mortalities
 #' imposed by each gear, \eqn{\mu_{f.i}(w)=\sum_g F_{g,i,w}}.
 #' You would not usually call this

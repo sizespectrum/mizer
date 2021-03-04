@@ -2,8 +2,7 @@
 % Please edit documentation in R/project_methods.R
 \name{mizerFMort}
 \alias{mizerFMort}
-\title{Get the total fishing mortality rate from all fishing gears by time, species
-and size needed to project standard mizer model}
+\title{Get the total fishing mortality rate from all fishing gears}
 \usage{
 mizerFMort(params, n, n_pp, n_other, t, effort, e_growth, pred_mort, ...)
 }
@@ -36,7 +35,7 @@ An array (species x size) with the fishing mortality.
 }
 \description{
 Calculates the total fishing mortality  (in units 1/year) from all gears by
-species and size at each time step in the \code{effort} argument.
+species and size.
 The total fishing mortality is just the sum of the fishing mortalities
 imposed by each gear, \eqn{\mu_{f.i}(w)=\sum_g F_{g,i,w}}.
 You would not usually call this
