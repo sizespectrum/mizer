@@ -815,6 +815,8 @@ plotlyFeedingLevel <- function(object,
 #' single value for the time range can be used to plot a single time step).
 #' 
 #' @inheritParams plotSpectra
+#' @param all.sizes If TRUE, then predation mortality is plotted also for sizes
+#'   outside a species' size range. Default FALSE.
 #'
 #' @return A plot
 #' @export
@@ -829,6 +831,7 @@ plotlyFeedingLevel <- function(object,
 #' }
 plotPredMort <- function(object, species = NULL,
                          time_range,
+                         all.sizes = FALSE,
                          highlight = NULL, ...) {
     if (is(object, "MizerSim")) {
         if (missing(time_range)) {
@@ -857,6 +860,17 @@ plotPredMort <- function(object, species = NULL,
                            Species = factor(dimnames(pred_mort)[[1]],
                                             levels = species_levels),
                            w = rep(params@w, each = length(species)))
+    
+    if (!all.sizes) {
+        # Remove feeding level for sizes outside a species' size range
+        for (sp in species) {
+            plot_dat$value[plot_dat$Species == sp &
+                               (plot_dat$w < params@species_params[sp, "w_min"] |
+                                    plot_dat$w > params@species_params[sp, "w_inf"])] <- NA
+        }
+        plot_dat <- plot_dat[complete.cases(plot_dat), ]
+    }
+    
     p <- ggplot(plot_dat) +
             geom_line(aes(x = w, y = value, colour = Species, 
                           linetype = Species, size = Species))
@@ -898,7 +912,8 @@ plotlyPredMort <- function(object, species = NULL,
 #' step).
 #' 
 #' @inheritParams plotSpectra
-#'
+#' @param all.sizes If TRUE, then fishing mortality is plotted also for sizes
+#'   outside a species' size range. Default FALSE.
 #' @return A plot
 #' @export
 #' @family plotting functions
@@ -912,6 +927,7 @@ plotlyPredMort <- function(object, species = NULL,
 #' }
 plotFMort <- function(object, species = NULL,
                       time_range,
+                      all.sizes = FALSE,
                       highlight = NULL, ...) {
     if (is(object, "MizerSim")) {
         if (missing(time_range)) {
@@ -939,6 +955,16 @@ plotFMort <- function(object, species = NULL,
                            Species = factor(dimnames(f)[[1]],
                                             levels = species_levels),
                            w = rep(params@w, each = length(species)))
+    
+    if (!all.sizes) {
+        # Remove feeding level for sizes outside a species' size range
+        for (sp in species) {
+            plot_dat$value[plot_dat$Species == sp &
+                               (plot_dat$w < params@species_params[sp, "w_min"] |
+                                    plot_dat$w > params@species_params[sp, "w_inf"])] <- NA
+        }
+        plot_dat <- plot_dat[complete.cases(plot_dat), ]
+    }
     
     linesize <- rep(0.8, length(params@linetype))
     names(linesize) <- names(params@linetype)

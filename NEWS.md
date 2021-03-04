@@ -6,6 +6,12 @@
 * Made use of vdiffr conditional, as required by §1.1.3.1 of
   'Writing R Extensions'
 
+## Breaking changes
+
+* By default, the functions `plotPredMort()` and `plotFMort` will stop displaying 
+  mortality values past the species' asymptotic size. The argument `all.sizes` allows
+  to display these values back.
+
 # mizer 2.0.4
 
 ## Bug fixes
