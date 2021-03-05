@@ -23,3 +23,42 @@ test_that("retune_erepro works", {
                                params@species_params$erepro), 11)
     expect_identical(params1@rates_funcs$RDD, "noRDD")
 })
+
+# valid_species_arg ----
+test_that("valid_species_arg works", {
+    expect_warning(valid_species_arg(NS_params, c("Cod", "non", "sense")),
+                   "The following species do not exist: non, sense")
+    suppressWarnings(
+        expect_error(valid_species_arg(NS_params, c("non", "sense")),
+                   "The species argument matches none of the species in the params object")
+    )
+    expect_identical(valid_species_arg(NS_params, c("Cod", "Sandeel")),
+                     c("Cod", "Sandeel"))
+    expect_identical(valid_species_arg(NS_params, c("Sprat", "Sandeel"),
+                                       return.logical = TRUE),
+                     c(TRUE, TRUE, rep(FALSE, 10)))
+    # numeric species argument
+    expect_warning(valid_species_arg(NS_params, c(2.5, 3)),
+                 "A numeric 'species' argument should only contain the integers 1 to 12")
+    suppressWarnings(
+        expect_error(valid_species_arg(NS_params, c(2.5, 13)),
+                     "None of the numbers in the species argument are valid species indices.")
+    )
+    expect_identical(valid_species_arg(NS_params, c(3, 1)),
+                     c("N.pout", "Sprat"))
+    expect_identical(valid_species_arg(NS_params, c(1, 3)),
+                     c("Sprat", "N.pout"))
+    expect_identical(valid_species_arg(NS_params, c(3, 1),
+                                       return.logical = TRUE),
+                     c(TRUE, FALSE, TRUE, rep(FALSE, 9)))
+    # logical species argument
+    expect_error(valid_species_arg(NS_params, c(TRUE, FALSE)),
+                 "The boolean `species` argument has the wrong length")
+    expect_identical(valid_species_arg(NS_params, 
+                                       c(TRUE, FALSE, TRUE, rep(FALSE, 9))),
+                     c("Sprat", "N.pout"))
+    expect_identical(valid_species_arg(NS_params, 
+                                       c(TRUE, FALSE, TRUE, rep(FALSE, 9)),
+                                       return.logical = TRUE),
+                     c(TRUE, FALSE, TRUE, rep(FALSE, 9)))
+})

@@ -4,15 +4,23 @@
 \alias{valid_species_arg}
 \title{Helper function to assure validity of species argument}
 \usage{
-valid_species_arg(params, species)
+valid_species_arg(params, species, return.logical = FALSE)
 }
 \arguments{
 \item{params}{A MizerParams object}
 
-\item{species}{A vector of the names of the species to be affected or a
-boolean vector indicating for each species whether it is to be affected
-(TRUE) or not. By default all species are affected.}
+\item{species}{The species to be selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.}
+}
+\value{
+A vector of species names, in the same order as specified in the
+'species' argument. If 'return.logial = TRUE' then a logical vector is
+returned instead, with length equal to the number of species, with
+TRUE entry for each selected species.
 }
 \description{
-Helper function to assure validity of species argument
+If the species argument contains invalid species, then these are
+ignored but a warning is issued. If non of the species is valid, then
+an error is produced.
 }

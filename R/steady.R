@@ -156,8 +156,8 @@ steady <- function(params, t_max = 100, t_per = 1.5, tol = 10^(-2),
 #' @export
 retune_erepro <- function(params, species = species_params(params)$species) {
     assert_that(is(params, "MizerParams"))
-    species <- valid_species_arg(params, species)
-    if (length(species) == 0) return(params)
+    species <- valid_species_arg(params, species, return.logical = TRUE)
+    if (sum(species) == 0) return(params)
 
     mumu <- getMort(params)
     gg <- getEGrowth(params)
@@ -194,27 +194,59 @@ constant_other <- function(params, n_other, component, ...) {
 
 #' Helper function to assure validity of species argument
 #' 
+#' If the species argument contains invalid species, then these are
+#' ignored but a warning is issued. If non of the species is valid, then
+#' an error is produced.
+#' 
 #' @param params A MizerParams object
-#' @param species A vector of the names of the species to be affected or a
-#'   boolean vector indicating for each species whether it is to be affected
-#'   (TRUE) or not. By default all species are affected.
+#' @param species The species to be selected. A vector of species names, or a
+#'   numeric vector with the species indices, or a logical vector indicating for
+#'   each species whether it is to be selected (TRUE) or not.
+#'   
+#' @return A vector of species names, in the same order as specified in the
+#'   'species' argument. If 'return.logial = TRUE' then a logical vector is
+#'   returned instead, with length equal to the number of species, with
+#'   TRUE entry for each selected species.
 #' @export
-valid_species_arg <- function(params, species) {
+valid_species_arg <- function(params, species, return.logical = FALSE) {
+    assert_that(is(params, "MizerParams"),
+                is.logical(return.logical))
+    all_species <- dimnames(params@initial_n)$sp
     no_sp <- nrow(params@species_params)
     if (is.logical(species)) {
         if (length(species) != no_sp) {
             stop("The boolean `species` argument has the wrong length")
         }
-    } else {
-        invalid <- setdiff(species, dimnames(params@initial_n)$sp)
-        if (length(invalid) > 0) {
-            warning("The following species do not exist: ", 
-                    toString(invalid))
+        if (return.logical) {
+            return(species)
         }
-        species <- dimnames(params@initial_n)$sp %in% species
-        if (length(species) == 0) {
-            warning("The species argument matches none of the species in the params object")
+        return(all_species[species])
+    }
+    if (is.numeric(species)) {
+        if (!all(species %in% (1:no_sp))) {
+            warning("A numeric 'species' argument should only contain the ",
+                    "integers 1 to ", no_sp)
         }
+        species.logical <- 1:no_sp %in% species
+        if (sum(species.logical) == 0) {
+            stop("None of the numbers in the species argument are valid species indices.")
+        }
+        if (return.logical) {
+            return(species.logical)
+        }
+        return(all_species[species])
+    }
+    invalid <- setdiff(species, all_species)
+    if (length(invalid) > 0) {
+        warning("The following species do not exist: ", 
+                toString(invalid))
+    }
+    species <- intersect(species, all_species)
+    if (length(species) == 0) {
+        stop("The species argument matches none of the species in the params object")
+    }
+    if (return.logical) {
+        return(all_species %in% species)
     }
     species
 }
