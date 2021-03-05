@@ -555,40 +555,48 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
         if (missing(effort)) {
           effort <- params@initial_effort
         }
+        if (missing(time_range)) time_range <- 0
+        t <- min(time_range)
         n <- params@initial_n
         n_pp <- params@initial_n_pp
         n_other <- params@initial_n_other
         no_gears <- dim(params@catchability)[[1]]
         f <- get(params@rates_funcs$FMort)
         if (length(dim(effort)) == 2) {
-            f_mort <- t(apply(effort, 1, 
-                              function(x) f(
-                                params, n = n, n_pp = n_pp, n_other = n_other, 
-                                effort = x,
-                                e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
-                                                      n_other = n_other), 
-                                pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
-                                                        n_other = n_other))))
-            dim(f_mort) <- c(dim(effort)[[1]], dim(params@initial_n))
-            dimnames(f_mort) <- c(list(time = dimnames(effort)[[1]]),
-                              dimnames(params@initial_n))
+            times <- dimnames(effort)$time
+            f_mort <- array(0,
+                            dim = c(dim(effort)[[1]], dim(params@initial_n)),
+                            dimnames = c(list(time = times),
+                                         dimnames(params@initial_n)))
+            for (i in 1:dim(effort)[1]) {
+                f_mort[i, , ] <- 
+                    f(params, n = n, n_pp = n_pp, n_other = n_other,
+                      effort = effort[i, ],
+                      e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
+                                            n_other = n_other, t = times[i]), 
+                      pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
+                                              n_other = n_other,
+                                              time_range = times[i]))
+            }
             return(f_mort)
         } else if (length(effort) == 1) {
             fmort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
                        effort = rep(effort, no_gears),
                        e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
-                                             n_other = n_other), 
+                                             n_other = n_other, t = t), 
                        pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
-                                               n_other = n_other))
+                                               n_other = n_other, 
+                                               time_range = t))
             dimnames(fmort) <- dimnames(params@metab)
             return(fmort)
         } else if (length(effort) == no_gears) {
             fmort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
                        effort = effort,
                        e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
-                                             n_other = n_other), 
+                                             n_other = n_other, t = t), 
                        pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
-                                               n_other = n_other))
+                                               n_other = n_other, 
+                                               time_range = t))
             dimnames(fmort) <- dimnames(params@metab)
             return(fmort)
         } else {
@@ -601,8 +609,8 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
             time_range <- dimnames(sim@effort)$time
         }
         time_elements <- get_time_elements(sim, time_range, slot_name = "effort")
-        f_mort <- getFMort(sim@params, sim@effort)
-        return(f_mort[time_elements, , , drop = drop])
+        f_mort <- getFMort(sim@params, sim@effort[time_elements, , drop = FALSE])
+        return(f_mort[, , , drop = drop])
     }
 }
 
