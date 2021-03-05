@@ -6,6 +6,20 @@
 # Distributed under the GPL 3 or later 
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
+# Note on calling signatures of rate functions
+#
+# Most rate functions have the arguments as getRates():
+#    params, n, n_pp, n_other, t, ...
+# This is the case for getEncounter, getResourceMort, getPredRate,
+# getEGrowth, getERepro, getEReproAndGrowth, getRDI
+# Some have these arguments and in addition the effort argument:
+#   getRates, getMort
+# Four functions are the odd ones out because they also accept a MizerSim:
+# getFeedingLevel(object, n, n_pp,n_other, time_range, drop, ...)
+# getPredMort(object, n, n_pp,n_other, time_range, drop, ...)
+# getFMort(object, effort, time_range, drop)
+# getFMortGear(object, effort, time_range)
+
 #' Get all rates
 #' 
 #' @inherit mizerRates
@@ -15,7 +29,7 @@
 getRates <- function(params, n = initialN(params), 
                      n_pp = initialNResource(params),
                      n_other = initialNOther(params),
-                     effort, t = 0) {
+                     effort, t = 0, ...) {
     params <- validParams(params)
     if (missing(effort)) {
         effort <- params@initial_effort
@@ -23,7 +37,8 @@ getRates <- function(params, n = initialN(params),
     
     r <- get(params@rates_funcs$Rates)(
         params, n = n, n_pp = n_pp, n_other = n_other,
-        t = t, effort = effort, rates_fns = lapply(params@rates_funcs, get))
+        t = t, effort = effort, 
+        rates_fns = lapply(params@rates_funcs, get), ...)
 }
 
 #' Get encounter rate
@@ -45,7 +60,7 @@ getRates <- function(params, n = initialN(params),
 getEncounter <- function(params, n = initialN(params), 
                          n_pp = initialNResource(params),
                          n_other = initialNOther(params),
-                         t = 0) {
+                         t = 0, ...) {
     params <- validParams(params)
     assert_that(is.array(n),
                 is.numeric(n_pp),
@@ -795,7 +810,7 @@ getRDD <- function(params, n = initialN(params),
                    n_other = initialNOther(params),
                    t = 0,
                    rdi = getRDI(params, n = n, n_pp = n_pp, 
-                                n_other = n_other, t = t)) {
+                                n_other = n_other, t = t), ...) {
     params <- validParams(params)
     # Avoid getting into infinite loops
     if (params@rates_funcs$RDD == "getRDD") {
