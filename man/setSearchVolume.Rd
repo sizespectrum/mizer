@@ -5,7 +5,7 @@
 \alias{getSearchVolume}
 \title{Set search volume}
 \usage{
-setSearchVolume(params, search_vol = NULL, ...)
+setSearchVolume(params, search_vol = NULL, comment = "set manually", ...)
 
 getSearchVolume(params)
 }
@@ -15,6 +15,11 @@ getSearchVolume(params)
 \item{search_vol}{Optional. An array (species x size) holding the search volume
 for each species at size. If not supplied, a default is set as described in
 the section "Setting search volume".}
+
+\item{comment}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+A string describing how the value for 'search_vol' was obtained. This is
+ignored if 'search_vol' is not supplied or already has a comment
+attribute.}
 
 \item{...}{Unused}
 }

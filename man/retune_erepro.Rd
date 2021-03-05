@@ -9,9 +9,9 @@ retune_erepro(params, species = species_params(params)$species)
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
 
-\item{species}{A vector of the names of the species to be affected or a
-boolean vector indicating for each species whether it is to be affected
-(TRUE) or not. By default all species are affected.}
+\item{species}{The species to be selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.}
 }
 \value{
 A MizerParams object with updated values for the \code{erepro} column

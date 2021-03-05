@@ -12,6 +12,9 @@ valid_species_arg(params, species, return.logical = FALSE)
 \item{species}{The species to be selected. A vector of species names, or a
 numeric vector with the species indices, or a logical vector indicating for
 each species whether it is to be selected (TRUE) or not.}
+
+\item{return.logical}{Whether the return value should be a logical vector.
+Default FALSE.}
 }
 \value{
 A vector of species names, in the same order as specified in the

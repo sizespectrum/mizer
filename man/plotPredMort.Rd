@@ -5,7 +5,14 @@
 \alias{plotlyPredMort}
 \title{Plot predation mortality rate of each species against size}
 \usage{
-plotPredMort(object, species = NULL, time_range, highlight = NULL, ...)
+plotPredMort(
+  object,
+  species = NULL,
+  time_range,
+  all.sizes = FALSE,
+  highlight = NULL,
+  ...
+)
 
 plotlyPredMort(object, species = NULL, time_range, highlight = NULL, ...)
 }
@@ -19,6 +26,9 @@ default all species are plotted.}
 and max time, or a single value) to average the abundances over. Default is
 the final time step. Ignored when called with a \linkS4class{MizerParams}
 object.}
+
+\item{all.sizes}{If TRUE, then predation mortality is plotted also for sizes
+outside a species' size range. Default FALSE.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 

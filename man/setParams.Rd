@@ -23,6 +23,10 @@ predation kernel".}
     \item{\code{search_vol}}{Optional. An array (species x size) holding the search volume
 for each species at size. If not supplied, a default is set as described in
 the section "Setting search volume".}
+    \item{\code{comment}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+A string describing how the value for 'search_vol' was obtained. This is
+ignored if 'search_vol' is not supplied or already has a comment
+attribute.}
     \item{\code{intake_max}}{Optional. An array (species x size) holding the maximum
 intake rate for each species at size. If not supplied, a default is set as
 described in the section "Setting maximum intake rate".}
@@ -57,6 +61,14 @@ each species by each gear, \eqn{Q_{g,i}}.}
     \item{\code{initial_effort}}{Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.}
+    \item{\code{comment_selectivity}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+A string describing how the value for 'selectivity' was obtained. This is
+ignored if 'selectivity' is not supplied or already has a comment
+attribute.}
+    \item{\code{comment_catchability}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+A string describing how the value for 'catchability' was obtained. This is
+ignored if 'catchability' is not supplied or already has a comment
+attribute.}
     \item{\code{resource_rate}}{Optional. Vector of resource intrinsic birth rates}
     \item{\code{resource_capacity}}{Optional. Vector of resource intrinsic carrying capacity}
     \item{\code{r_pp}}{Coefficient of the intrinsic resource birth rate}

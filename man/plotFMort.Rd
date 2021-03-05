@@ -5,7 +5,14 @@
 \alias{plotlyFMort}
 \title{Plot total fishing mortality of each species by size}
 \usage{
-plotFMort(object, species = NULL, time_range, highlight = NULL, ...)
+plotFMort(
+  object,
+  species = NULL,
+  time_range,
+  all.sizes = FALSE,
+  highlight = NULL,
+  ...
+)
 
 plotlyFMort(object, species = NULL, time_range, highlight = NULL, ...)
 }
@@ -19,6 +26,9 @@ default all species are plotted.}
 and max time, or a single value) to average the abundances over. Default is
 the final time step. Ignored when called with a \linkS4class{MizerParams}
 object.}
+
+\item{all.sizes}{If TRUE, then fishing mortality is plotted also for sizes
+outside a species' size range. Default FALSE.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 
