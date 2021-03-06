@@ -37,7 +37,7 @@ Defaults to true.}
 \item{...}{Other arguments (currently unused)}
 }
 \value{
-A plot
+A ggplot2 object
 }
 \description{
 After running a projection, the total yield of each species across all
