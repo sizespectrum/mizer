@@ -52,5 +52,5 @@ customFunction <- function(name, fun) {
         stop("There is no mizer function called ", name)
     }
     environment(fun) <- asNamespace('mizer')
-    assignInNamespace(name, fun, ns = "mizer")
+    utils::assignInNamespace(name, fun, ns = "mizer")
 }
