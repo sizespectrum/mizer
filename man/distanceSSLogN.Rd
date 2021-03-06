@@ -32,3 +32,4 @@ Other distance functions:
 \code{\link{distanceMaxRelRDI}()}
 }
 \concept{distance functions}
+\concept{helper}

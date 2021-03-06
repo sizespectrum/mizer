@@ -459,6 +459,7 @@ remove(validMizerParams)
 #' @seealso See [newMultispeciesParams()] for a function that fills
 #'   the slots left empty by this function.
 #' @export
+#' @concept helper
 emptyParams <- function(species_params,
                         gear_params = data.frame(),
                         no_w = 100,

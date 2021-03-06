@@ -42,7 +42,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -109,7 +109,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -129,7 +129,7 @@
 
       
 
-      </header><script src="test_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="test_files/header-attrs-2.7/header-attrs.js"></script><script src="test_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>therMizer extension</h1>
@@ -148,32 +148,30 @@
 <p>Mizer 2.0.3 or later version is needed to use the background extension.</p>
 <p>A. First and best option: download the most updated version of the package directly from GitHub using devtools::install_github(“sizespectrum/mizer”)</p>
 <p>B. Second option: merge upstream master with your branch and upload code from local repository</p>
-<div class="sourceCode" id="cb1"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/base/rm.html">rm</a></span>(list=<span class="fu"><a href="https://rdrr.io/r/base/ls.html">ls</a></span>())
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/rm.html">rm</a></span><span class="op">(</span>list<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/ls.html">ls</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
 <span class="co"># option A</span>
 <span class="co"># devtools::install_github("sizespectrum/mizer") # run only once</span>
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="https://sizespectrum.org/mizer">mizer</a></span>)
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://sizespectrum.org/mizer/">mizer</a></span><span class="op">)</span>
 <span class="co"># option 2 </span>
 <span class="co"># library(Jmisc)</span>
 <span class="co"># path&lt;-"/Users/nov017/R-projects/Mizer-trait/R"</span>
-<span class="co"># sourceAll(path)</span>
-</pre></div>
+<span class="co"># sourceAll(path)</span></code></pre></div>
 </div>
 <div id="set-up-multispecies-model" class="section level2">
 <h2 class="hasAnchor">
 <a href="#set-up-multispecies-model" class="anchor"></a>Set up multispecies model</h2>
 <p>All parameters are made up</p>
-<div class="sourceCode" id="cb2"><pre class="downlit">
-<span class="kw">species_params</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(species = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"speciesA"</span>, <span class="st">"speciesB"</span>), w_inf = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">500</span>, <span class="fl">5000</span>), k_vb =<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.8</span>, <span class="fl">0.3</span>), w_min = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.001</span>, <span class="fl">0.001</span>),beta=<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1000</span>,<span class="fl">100</span>),sigma=<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">3</span>,<span class="fl">3</span>))
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">species_params</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"speciesA"</span>, <span class="st">"speciesB"</span><span class="op">)</span>, w_inf <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">5000</span><span class="op">)</span>, k_vb <span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.8</span>, <span class="fl">0.3</span><span class="op">)</span>, w_min <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.001</span>, <span class="fl">0.001</span><span class="op">)</span>,beta<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1000</span>,<span class="fl">100</span><span class="op">)</span>,sigma<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">3</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span>
 <span class="co"># available PP to species </span>
-<span class="kw">species_params</span><span class="op">$</span><span class="kw">interaction_resource</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>,<span class="fl">0.5</span>)
+<span class="va">species_params</span><span class="op">$</span><span class="va">interaction_resource</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">0.5</span><span class="op">)</span>
 <span class="co"># create the param object</span>
 <span class="co"># note: some def values are different from old mizer (e.g. kappa)</span>
-<span class="kw">params</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span>(<span class="kw">species_params</span>, no_w = <span class="fl">200</span>,kappa=<span class="fl">0.0001</span>)
+<span class="va">params</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">species_params</span>, no_w <span class="op">=</span> <span class="fl">200</span>,kappa<span class="op">=</span><span class="fl">0.0001</span><span class="op">)</span>
 <span class="co"># run projections:</span>
-<span class="kw">sim</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/project.html">project</a></span>(<span class="kw">params</span>, t_max = <span class="fl">500</span>, effort = <span class="fl">0</span>)
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">sim</span>)
-</pre></div>
+<span class="va">sim</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">500</span>, effort <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
 <p><img src="test_files/figure-html/unnamed-chunk-2-1.png" width="700"></p>
 </div>
 <div id="create-parameters-that-are-derived-from-user-input-parameters" class="section level2">
@@ -184,186 +182,177 @@
 <a href="#plankton-forcing-through-time" class="anchor"></a>Plankton forcing through time</h3>
 <p>We want to enable the background resource to change through time via external forcing files obtained form analysis of CMIP6 climate models. We have external code to create these estimates. So here the user will only need to alter how: kappa, lambda, r_pp change through time. For now, the background resource is only plankton but later this could type of forcing could also be used for the benthic resource or detritus.</p>
 <p>Let’s start by having a look at how the resource is structured in params. Then we make up a time series of changing plankton parameters through time. For this to work in mizer it will need to have the same timesteps as rest of the model. Or should we use the resource_dynamics function?</p>
-<div class="sourceCode" id="cb3"><pre class="downlit">
-<span class="co"># try with Phoebe's pre-prepared n_pp</span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># try with Phoebe's pre-prepared n_pp</span>
 <span class="co">##### set up new resource forcing "function" - just changes to different timeslot in the n_pp_array array</span>
-<span class="kw">plankton_state</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html">new.env</a></span>(parent = <span class="fu"><a href="https://rdrr.io/r/base/environment.html">emptyenv</a></span>())
-<span class="kw">plankton_state</span><span class="op">$</span><span class="kw">time</span> <span class="op">&lt;-</span> <span class="fl">1</span>
-<span class="kw">plankton_forcing</span> <span class="op">&lt;-</span> <span class="fu">function</span>(<span class="kw">params</span>,<span class="kw">dt</span>=<span class="fl">0.1</span>,<span class="kw">...</span>) {
-    <span class="fu"><a href="https://rdrr.io/r/base/function.html">return</a></span>(<span class="kw">params</span><span class="op">@</span>other_params<span class="op">$</span><span class="kw">n_pp_array</span>[<span class="kw">plankton_state</span><span class="op">$</span><span class="kw">time</span>,])  
-    <span class="kw">plankton_state</span><span class="op">$</span><span class="kw">time</span> <span class="op">&lt;-</span> <span class="kw">plankton_state</span><span class="op">$</span><span class="kw">time</span> <span class="op">+</span> <span class="fl">1</span>
+<span class="va">plankton_state</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html">new.env</a></span><span class="op">(</span>parent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html">emptyenv</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
+<span class="va">plankton_state</span><span class="op">$</span><span class="va">time</span> <span class="op">&lt;-</span> <span class="fl">1</span>
+<span class="va">plankton_forcing</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">params</span>,<span class="va">dt</span><span class="op">=</span><span class="fl">0.1</span>,<span class="va">...</span><span class="op">)</span> <span class="op">{</span>
+    <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">params</span><span class="op">@</span><span class="va">other_params</span><span class="op">$</span><span class="va">n_pp_array</span><span class="op">[</span><span class="va">plankton_state</span><span class="op">$</span><span class="va">time</span>,<span class="op">]</span><span class="op">)</span>  
+    <span class="va">plankton_state</span><span class="op">$</span><span class="va">time</span> <span class="op">&lt;-</span> <span class="va">plankton_state</span><span class="op">$</span><span class="va">time</span> <span class="op">+</span> <span class="fl">1</span>
    
-  }
+  <span class="op">}</span>
 <span class="co">### set up array of n_pp - currently just intial values</span>
-<span class="kw">times</span><span class="op">=</span><span class="fl">0</span><span class="op">:</span><span class="fl">500</span>
-<span class="kw">sizes</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="kw">params</span><span class="op">@</span>initial_n_pp) 
-<span class="kw">n_pp_array</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html">array</a></span>(<span class="fl">NA</span>, dim = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="kw">times</span>), <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="kw">sizes</span>)), dimnames = <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(time = <span class="kw">times</span>, w = <span class="kw">sizes</span>))
+<span class="va">times</span><span class="op">=</span><span class="fl">0</span><span class="op">:</span><span class="fl">500</span>
+<span class="va">sizes</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">params</span><span class="op">@</span><span class="va">initial_n_pp</span><span class="op">)</span> 
+<span class="va">n_pp_array</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html">array</a></span><span class="op">(</span><span class="cn">NA</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">times</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">sizes</span><span class="op">)</span><span class="op">)</span>, dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>time <span class="op">=</span> <span class="va">times</span>, w <span class="op">=</span> <span class="va">sizes</span><span class="op">)</span><span class="op">)</span>
 <span class="co"># keep constant</span>
 <span class="co">#for (i in 1:501) n_pp_array[i,] &lt;- params@initial_n_pp</span>
 <span class="co"># add a slight amount of variation in intercept each timestep</span>
-<span class="co">for</span> (<span class="kw">i</span> <span class="co">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">501</span>) <span class="kw">n_pp_array</span>[<span class="kw">i</span>,] <span class="op">&lt;-</span> <span class="kw">params</span><span class="op">@</span>initial_n_pp<span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html">runif</a></span>(<span class="fl">1</span>,<span class="fl">0.1</span>,<span class="fl">1.9</span>)
-<span class="kw">params</span><span class="op">@</span>other_params<span class="op">$</span><span class="kw">n_pp_array</span> <span class="op">&lt;-</span> <span class="kw">n_pp_array</span> 
-<span class="kw">params</span><span class="op">@</span>resource_dynamics <span class="op">&lt;-</span> <span class="st">"plankton_forcing"</span>
-<span class="kw">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setParams.html">setParams</a></span>(<span class="kw">params</span>)
+<span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">501</span><span class="op">)</span> <span class="va">n_pp_array</span><span class="op">[</span><span class="va">i</span>,<span class="op">]</span> <span class="op">&lt;-</span> <span class="va">params</span><span class="op">@</span><span class="va">initial_n_pp</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html">runif</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">0.1</span>,<span class="fl">1.9</span><span class="op">)</span>
+<span class="va">params</span><span class="op">@</span><span class="va">other_params</span><span class="op">$</span><span class="va">n_pp_array</span> <span class="op">&lt;-</span> <span class="va">n_pp_array</span> 
+<span class="va">params</span><span class="op">@</span><span class="va">resource_dynamics</span> <span class="op">&lt;-</span> <span class="st">"plankton_forcing"</span>
+<span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setParams.html">setParams</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>
 <span class="co">#check</span>
 <span class="co"># plot(params@w_full,params@other_params$n_pp_array[1,],log="xy",typ="l")</span>
-<span class="co"># for (i in 2:501) points(params@w_full,params@other_params$n_pp_array[i,],typ="l",col="grey")</span>
-</pre></div>
+<span class="co"># for (i in 2:501) points(params@w_full,params@other_params$n_pp_array[i,],typ="l",col="grey")</span></code></pre></div>
 </div>
 </div>
 <div id="run-project-using-the-newly-set-up-parameters" class="section level2">
 <h2 class="hasAnchor">
 <a href="#run-project-using-the-newly-set-up-parameters" class="anchor"></a>Run project() using the newly set up parameters</h2>
-<div class="sourceCode" id="cb4"><pre class="downlit">
-<span class="co">### need to check all OK</span>
-<span class="kw">sim2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span>(<span class="kw">params</span>, dt = <span class="fl">0.1</span>, t_max = <span class="fl">500</span>, effort = <span class="fl">0</span>) 
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">sim2</span>)
-</pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">### need to check all OK</span>
+<span class="va">sim2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, dt <span class="op">=</span> <span class="fl">0.1</span>, t_max <span class="op">=</span> <span class="fl">500</span>, effort <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> 
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">sim2</span><span class="op">)</span></code></pre></div>
 <p><img src="test_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
 </div>
 <div id="create-parameters-that-must-be-input-by-the-user" class="section level2">
 <h2 class="hasAnchor">
 <a href="#create-parameters-that-must-be-input-by-the-user" class="anchor"></a>Create parameters that must be input by the user</h2>
 <p>For each species in the model, users must input the minimum and maximum values of its thermal tolerance range. These values are used to scale temperature effects to values ranging from 0 - 1.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit">
-<span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">temp_min</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">15</span>, <span class="fl">10</span>)
-<span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">temp_max</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">25</span>, <span class="fl">20</span>)
-</pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">temp_min</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">15</span>, <span class="fl">10</span><span class="op">)</span>
+<span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">temp_max</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">25</span>, <span class="fl">20</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="create-parameters-that-are-derived-from-user-input-parameters-1" class="section level2">
 <h2 class="hasAnchor">
 <a href="#create-parameters-that-are-derived-from-user-input-parameters-1" class="anchor"></a>Create parameters that are derived from user-input parameters</h2>
 <p>To scale the effect of temperature on encounter rate to a value ranging from 0 - 1, it is necessary to divide by the maximum possible value for each species. To scale the effect of temperature on metabolism to a value ranging form 0 - 1, it is necessary to subtract the minimum vaule for each species and then divide by the range. This requires a bit of straightforward arithmetic, and users could do this on their end if they’re so inclined. hese parameters handle that math so the user doesn’t have to.</p>
 <p>We’re also going to create a parameter called <code>t_idx</code> that will help with the simulations. This parameter will provide the correct time index for temperature during the simulations.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit">
-<span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">encounter_scale</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="fl">NA</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">temp_min</span>))
-<span class="co">for</span> (<span class="kw">indv</span> <span class="co">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">temp_min</span>))){
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">encounter_scale</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">temp_min</span><span class="op">)</span><span class="op">)</span>
+<span class="kw">for</span> <span class="op">(</span><span class="va">indv</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">temp_min</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">{</span>
   
   <span class="co"># Create a vector of all temperatures each species might encounter</span>
-  <span class="kw">temperature</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">temp_min</span>[<span class="kw">indv</span>], <span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">temp_max</span>[<span class="kw">indv</span>], by=<span class="fl">0.1</span>)
+  <span class="va">temperature</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">temp_min</span><span class="op">[</span><span class="va">indv</span><span class="op">]</span>, <span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">temp_max</span><span class="op">[</span><span class="va">indv</span><span class="op">]</span>, by<span class="op">=</span><span class="fl">0.1</span><span class="op">)</span>
   
   <span class="co"># Find the maximum value of the unscaled effect of temperature on encounter rate for each species </span>
-  <span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">encounter_scale</span>[<span class="kw">indv</span>] <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>((<span class="kw">temperature</span>) <span class="op">*</span> (<span class="kw">temperature</span> <span class="op">-</span> <span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">temp_min</span>[<span class="kw">indv</span>]) <span class="op">*</span> (<span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">temp_max</span>[<span class="kw">indv</span>] <span class="op">-</span> <span class="kw">temperature</span>))
+  <span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">encounter_scale</span><span class="op">[</span><span class="va">indv</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="op">(</span><span class="va">temperature</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="va">temperature</span> <span class="op">-</span> <span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">temp_min</span><span class="op">[</span><span class="va">indv</span><span class="op">]</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">temp_max</span><span class="op">[</span><span class="va">indv</span><span class="op">]</span> <span class="op">-</span> <span class="va">temperature</span><span class="op">)</span><span class="op">)</span>
   
-}
+<span class="op">}</span>
 <span class="co"># Determine the minimum, maximum, and range of value for the effect of temperature on metabolism</span>
-<span class="kw">min_metab_value</span> <span class="op">&lt;-</span> (<span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span>(<span class="fl">25.22</span> <span class="op">-</span> (<span class="fl">0.63</span><span class="op">/</span>((<span class="fl">8.62e-5</span>)<span class="op">*</span>(<span class="fl">273</span><span class="op">+</span><span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">temp_min</span>)))))
-<span class="kw">max_metab_value</span> <span class="op">&lt;-</span> (<span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span>(<span class="fl">25.22</span> <span class="op">-</span> (<span class="fl">0.63</span><span class="op">/</span>((<span class="fl">8.62e-5</span>)<span class="op">*</span>(<span class="fl">273</span><span class="op">+</span><span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">temp_max</span>)))))
-<span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">metab_min</span> <span class="op">&lt;-</span> <span class="kw">min_metab_value</span>
-<span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">metab_range</span> <span class="op">&lt;-</span> <span class="kw">max_metab_value</span> <span class="op">-</span> <span class="kw">min_metab_value</span>
+<span class="va">min_metab_value</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="fl">25.22</span> <span class="op">-</span> <span class="op">(</span><span class="fl">0.63</span><span class="op">/</span><span class="op">(</span><span class="op">(</span><span class="fl">8.62e-5</span><span class="op">)</span><span class="op">*</span><span class="op">(</span><span class="fl">273</span><span class="op">+</span><span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">temp_min</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="va">max_metab_value</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="fl">25.22</span> <span class="op">-</span> <span class="op">(</span><span class="fl">0.63</span><span class="op">/</span><span class="op">(</span><span class="op">(</span><span class="fl">8.62e-5</span><span class="op">)</span><span class="op">*</span><span class="op">(</span><span class="fl">273</span><span class="op">+</span><span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">temp_max</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">metab_min</span> <span class="op">&lt;-</span> <span class="va">min_metab_value</span>
+<span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">metab_range</span> <span class="op">&lt;-</span> <span class="va">max_metab_value</span> <span class="op">-</span> <span class="va">min_metab_value</span>
 <span class="co"># Time indexing parameter</span>
 <span class="co"># This will be added to t to convert the year into an index for the ocean_temp array</span>
-<span class="co">if</span> (<span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span>(<span class="kw">times</span>) <span class="op">==</span> <span class="fl">0</span>) {
-  <span class="fu"><a href="../reference/setRateFunction.html">other_params</a></span>(<span class="kw">params</span>)<span class="op">$</span><span class="kw">t_idx</span> <span class="op">=</span> <span class="fl">1</span>
-} <span class="co">else</span> <span class="co">if</span> (<span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span>(<span class="kw">times</span>) <span class="op">==</span> <span class="fl">1</span>) {
-  <span class="fu"><a href="../reference/setRateFunction.html">other_params</a></span>(<span class="kw">params</span>)<span class="op">$</span><span class="kw">t_idx</span> <span class="op">=</span> <span class="fl">0</span>
-} <span class="co">else</span> {
-  <span class="fu"><a href="../reference/setRateFunction.html">other_params</a></span>(<span class="kw">params</span>)<span class="op">$</span><span class="kw">t_idx</span> <span class="op">=</span> <span class="op">-</span>(<span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span>(<span class="kw">times</span>) <span class="op">-</span> <span class="fl">1</span>)
-}
-</pre></div>
+<span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span><span class="op">(</span><span class="va">times</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span>
+  <span class="fu"><a href="../reference/setRateFunction.html">other_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">t_idx</span> <span class="op">=</span> <span class="fl">1</span>
+<span class="op">}</span> <span class="kw">else</span> <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span><span class="op">(</span><span class="va">times</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="op">{</span>
+  <span class="fu"><a href="../reference/setRateFunction.html">other_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">t_idx</span> <span class="op">=</span> <span class="fl">0</span>
+<span class="op">}</span> <span class="kw">else</span> <span class="op">{</span>
+  <span class="fu"><a href="../reference/setRateFunction.html">other_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">t_idx</span> <span class="op">=</span> <span class="op">-</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span><span class="op">(</span><span class="va">times</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span>
+<span class="op">}</span></code></pre></div>
 </div>
 <div id="create-an-ocean_temp-parameter" class="section level2">
 <h2 class="hasAnchor">
 <a href="#create-an-ocean_temp-parameter" class="anchor"></a>Create an ocean_temp parameter</h2>
 <p>Here, we’ll create arbitrary time series of increasing ocean temperature for each species. Alternatively, and more probably, time series of temperature could be informed by past data or climate model output.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit">
-<span class="co"># Create temperature array and fill it</span>
-<span class="kw">times</span> <span class="op">&lt;-</span> <span class="fl">0</span><span class="op">:</span><span class="fl">500</span>
-<span class="kw">species</span> <span class="op">&lt;-</span> <span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">species</span>
-<span class="kw">ocean_temp_array</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html">array</a></span>(<span class="fl">NA</span>, dim = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="kw">times</span>), <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="kw">species</span>)), dimnames = <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(time = <span class="kw">times</span>, sp = <span class="kw">species</span>))
-<span class="kw">temp_inc</span> <span class="op">&lt;-</span> <span class="fl">0</span>
-<span class="co">for</span> (<span class="kw">i</span> <span class="co">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">501</span>){
-  <span class="kw">ocean_temp_array</span>[<span class="kw">i</span>,] <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">17</span> <span class="op">+</span> <span class="kw">temp_inc</span>)
-  <span class="kw">temp_inc</span> <span class="op">&lt;-</span> <span class="kw">temp_inc</span> <span class="op">+</span> <span class="fl">0.01</span>
-}
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Create temperature array and fill it</span>
+<span class="va">times</span> <span class="op">&lt;-</span> <span class="fl">0</span><span class="op">:</span><span class="fl">500</span>
+<span class="va">species</span> <span class="op">&lt;-</span> <span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">species</span>
+<span class="va">ocean_temp_array</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html">array</a></span><span class="op">(</span><span class="cn">NA</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">times</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">species</span><span class="op">)</span><span class="op">)</span>, dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>time <span class="op">=</span> <span class="va">times</span>, sp <span class="op">=</span> <span class="va">species</span><span class="op">)</span><span class="op">)</span>
+<span class="va">temp_inc</span> <span class="op">&lt;-</span> <span class="fl">0</span>
+<span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">501</span><span class="op">)</span><span class="op">{</span>
+  <span class="va">ocean_temp_array</span><span class="op">[</span><span class="va">i</span>,<span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">17</span> <span class="op">+</span> <span class="va">temp_inc</span><span class="op">)</span>
+  <span class="va">temp_inc</span> <span class="op">&lt;-</span> <span class="va">temp_inc</span> <span class="op">+</span> <span class="fl">0.01</span>
+<span class="op">}</span>
 <span class="co"># Add temperature as a parameter</span>
-<span class="fu"><a href="../reference/setRateFunction.html">other_params</a></span>(<span class="kw">params</span>)<span class="op">$</span><span class="kw">ocean_temp</span> <span class="op">&lt;-</span> <span class="kw">ocean_temp_array</span>
-</pre></div>
+<span class="fu"><a href="../reference/setRateFunction.html">other_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">ocean_temp</span> <span class="op">&lt;-</span> <span class="va">ocean_temp_array</span></code></pre></div>
 </div>
 <div id="create-the-new-rate-functions" class="section level2">
 <h2 class="hasAnchor">
 <a href="#create-the-new-rate-functions" class="anchor"></a>Create the new rate functions</h2>
 <p>Temperature will be added to the fuctions to determine encounter rate and energy available for growth and reproduction.</p>
 <p>To scale encounter rate with temperature, we’re essentially taking a temperature-dependent proportion of the value calculated by the mizerEncounter function. If species are at their thermal optimum, we take the full value. Elsewhere in their thermal range, we take a proportion that goes to zero at the limits of species thermal tolerence.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit">
-<span class="kw">therMizerEncounter</span> <span class="op">&lt;-</span> <span class="fu">function</span>(<span class="kw">params</span>, <span class="kw">n</span>, <span class="kw">n_pp</span>, <span class="kw">n_other</span>, <span class="kw">t</span>, <span class="kw">...</span>) {
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">therMizerEncounter</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">params</span>, <span class="va">n</span>, <span class="va">n_pp</span>, <span class="va">n_other</span>, <span class="va">t</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span>
   
   <span class="co"># Using t+1 to avoid calling ocean_temp[0,] at the first time step</span>
-  <span class="kw">temp_at_t</span> <span class="op">&lt;-</span> <span class="kw">params</span><span class="op">@</span>other_params<span class="op">$</span><span class="kw">other</span><span class="op">$</span><span class="kw">ocean_temp</span>[<span class="kw">t</span> <span class="op">+</span> <span class="kw">params</span><span class="op">@</span>other_params<span class="op">$</span><span class="kw">other</span><span class="op">$</span><span class="kw">t_idx</span>,]
+  <span class="va">temp_at_t</span> <span class="op">&lt;-</span> <span class="va">params</span><span class="op">@</span><span class="va">other_params</span><span class="op">$</span><span class="va">other</span><span class="op">$</span><span class="va">ocean_temp</span><span class="op">[</span><span class="va">t</span> <span class="op">+</span> <span class="va">params</span><span class="op">@</span><span class="va">other_params</span><span class="op">$</span><span class="va">other</span><span class="op">$</span><span class="va">t_idx</span>,<span class="op">]</span>
   
   <span class="co"># Calculate unscaled temperature effect using a generic polynomial rate equation</span>
-  <span class="kw">unscaled_temp_effect</span> <span class="op">&lt;-</span> <span class="kw">temp_at_t</span> <span class="op">*</span> (<span class="kw">temp_at_t</span> <span class="op">-</span> <span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">temp_min</span>) <span class="op">*</span> (<span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">temp_max</span> <span class="op">-</span> <span class="kw">temp_at_t</span>)
+  <span class="va">unscaled_temp_effect</span> <span class="op">&lt;-</span> <span class="va">temp_at_t</span> <span class="op">*</span> <span class="op">(</span><span class="va">temp_at_t</span> <span class="op">-</span> <span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">temp_min</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">temp_max</span> <span class="op">-</span> <span class="va">temp_at_t</span><span class="op">)</span>
   
   <span class="co"># Scale using new parameter</span>
-  <span class="kw">scaled_temp_effect</span> <span class="op">&lt;-</span> <span class="kw">unscaled_temp_effect</span> <span class="op">/</span> <span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">encounter_scale</span>
+  <span class="va">scaled_temp_effect</span> <span class="op">&lt;-</span> <span class="va">unscaled_temp_effect</span> <span class="op">/</span> <span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">encounter_scale</span>
   
   <span class="co"># Set the encounter rate to zero if temperature is outside species' thermal tolerance</span>
-  <span class="kw">above_max</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span>(<span class="kw">temp_at_t</span> <span class="op">&gt;</span> <span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">temp_max</span>)
-  <span class="kw">below_min</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span>(<span class="kw">temp_at_t</span> <span class="op">&lt;</span> <span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">temp_min</span>)
+  <span class="va">above_max</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">temp_at_t</span> <span class="op">&gt;</span> <span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">temp_max</span><span class="op">)</span>
+  <span class="va">below_min</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">temp_at_t</span> <span class="op">&lt;</span> <span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">temp_min</span><span class="op">)</span>
   
-  <span class="co">if</span>(<span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="kw">above_max</span>) <span class="op">&gt;</span> <span class="fl">0</span>)
-    <span class="kw">scaled_temp_effect</span>[<span class="kw">above_max</span>] <span class="op">=</span> <span class="fl">0</span>
+  <span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">above_max</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span>
+    <span class="va">scaled_temp_effect</span><span class="op">[</span><span class="va">above_max</span><span class="op">]</span> <span class="op">=</span> <span class="fl">0</span>
   
-  <span class="co">if</span>(<span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="kw">below_min</span>) <span class="op">&gt;</span> <span class="fl">0</span>)
-    <span class="kw">scaled_temp_effect</span>[<span class="kw">below_min</span>] <span class="op">=</span> <span class="fl">0</span>
+  <span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">below_min</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span>
+    <span class="va">scaled_temp_effect</span><span class="op">[</span><span class="va">below_min</span><span class="op">]</span> <span class="op">=</span> <span class="fl">0</span>
   
   <span class="co"># Calculate maximum possible encounter rate</span>
-  <span class="kw">max_encounter</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mizerEncounter.html">mizerEncounter</a></span>(<span class="kw">params</span>, n = <span class="kw">n</span>, n_pp = <span class="kw">n_pp</span>, n_other = <span class="kw">n_other</span>, <span class="kw">...</span>)
+  <span class="va">max_encounter</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mizerEncounter.html">mizerEncounter</a></span><span class="op">(</span><span class="va">params</span>, n <span class="op">=</span> <span class="va">n</span>, n_pp <span class="op">=</span> <span class="va">n_pp</span>, n_other <span class="op">=</span> <span class="va">n_other</span>, <span class="va">...</span><span class="op">)</span>
   
   <span class="co"># Apply temperature effect</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/function.html">return</a></span>(<span class="kw">max_encounter</span><span class="op">*</span><span class="kw">scaled_temp_effect</span>)
+  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">max_encounter</span><span class="op">*</span><span class="va">scaled_temp_effect</span><span class="op">)</span>
   
-}
-</pre></div>
+<span class="op">}</span></code></pre></div>
 <p>To calculate the effect of temperature on metabolim, we use an Arrhenius function to scale the cost of metabolism. When species are at their thermal maximum, the cost of metabolism is at its maximum. When species are at their thermal minimum, the cost of metabolism is at its minimum.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit">
-<span class="kw">therMizerEReproAndGrowth</span> <span class="op">&lt;-</span> <span class="fu">function</span>(<span class="kw">params</span>, <span class="kw">n</span>, <span class="kw">n_pp</span>, <span class="kw">n_other</span>, <span class="kw">t</span>, <span class="kw">encounter</span>,
-                                 <span class="kw">feeding_level</span>, <span class="kw">...</span>) {
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">therMizerEReproAndGrowth</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">params</span>, <span class="va">n</span>, <span class="va">n_pp</span>, <span class="va">n_other</span>, <span class="va">t</span>, <span class="va">encounter</span>,
+                                 <span class="va">feeding_level</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span>
   
   <span class="co"># Using t+1 to avoid calling ocean_temp[0,] at the first time step</span>
-  <span class="kw">temp_at_t</span> <span class="op">&lt;-</span> <span class="kw">params</span><span class="op">@</span>other_params<span class="op">$</span><span class="kw">other</span><span class="op">$</span><span class="kw">ocean_temp</span>[<span class="kw">t</span> <span class="op">+</span> <span class="kw">params</span><span class="op">@</span>other_params<span class="op">$</span><span class="kw">other</span><span class="op">$</span><span class="kw">t_idx</span>,]
+  <span class="va">temp_at_t</span> <span class="op">&lt;-</span> <span class="va">params</span><span class="op">@</span><span class="va">other_params</span><span class="op">$</span><span class="va">other</span><span class="op">$</span><span class="va">ocean_temp</span><span class="op">[</span><span class="va">t</span> <span class="op">+</span> <span class="va">params</span><span class="op">@</span><span class="va">other_params</span><span class="op">$</span><span class="va">other</span><span class="op">$</span><span class="va">t_idx</span>,<span class="op">]</span>
   
   <span class="co"># Arrhenius equation</span>
-  <span class="kw">unscaled_temp_effect</span> <span class="op">&lt;-</span> (<span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span>(<span class="fl">25.22</span> <span class="op">-</span> (<span class="fl">0.63</span><span class="op">/</span>((<span class="fl">8.62e-5</span>)<span class="op">*</span>(<span class="fl">273</span><span class="op">+</span><span class="kw">temp_at_t</span>)))))
+  <span class="va">unscaled_temp_effect</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="fl">25.22</span> <span class="op">-</span> <span class="op">(</span><span class="fl">0.63</span><span class="op">/</span><span class="op">(</span><span class="op">(</span><span class="fl">8.62e-5</span><span class="op">)</span><span class="op">*</span><span class="op">(</span><span class="fl">273</span><span class="op">+</span><span class="va">temp_at_t</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
   
   <span class="co"># Arrhenius equation scaled to a value between 0 and 1</span>
-  <span class="kw">temp_effect_metabolism</span> <span class="op">&lt;-</span> (<span class="kw">unscaled_temp_effect</span> <span class="op">-</span> <span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">metab_min</span>) <span class="op">/</span> <span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">metab_range</span>
+  <span class="va">temp_effect_metabolism</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">unscaled_temp_effect</span> <span class="op">-</span> <span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">metab_min</span><span class="op">)</span> <span class="op">/</span> <span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">metab_range</span>
   
   <span class="co"># Set the EReproAndGrowth to zero if temperature is outside species' thermal tolerance</span>
-  <span class="kw">Emultiplier</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">species</span>))
+  <span class="va">Emultiplier</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">species</span><span class="op">)</span><span class="op">)</span>
   
-  <span class="kw">above_max</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span>(<span class="kw">temp_at_t</span> <span class="op">&gt;</span> <span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">temp_max</span>)
-  <span class="kw">below_min</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span>(<span class="kw">temp_at_t</span> <span class="op">&lt;</span> <span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">temp_min</span>)
+  <span class="va">above_max</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">temp_at_t</span> <span class="op">&gt;</span> <span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">temp_max</span><span class="op">)</span>
+  <span class="va">below_min</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">temp_at_t</span> <span class="op">&lt;</span> <span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">temp_min</span><span class="op">)</span>
   
-  <span class="co">if</span>(<span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="kw">above_max</span>) <span class="op">&gt;</span> <span class="fl">0</span>)
-    <span class="kw">Emultiplier</span>[<span class="kw">above_max</span>] <span class="op">=</span> <span class="fl">0</span>
+  <span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">above_max</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span>
+    <span class="va">Emultiplier</span><span class="op">[</span><span class="va">above_max</span><span class="op">]</span> <span class="op">=</span> <span class="fl">0</span>
   
-  <span class="co">if</span>(<span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="kw">below_min</span>) <span class="op">&gt;</span> <span class="fl">0</span>)
-    <span class="kw">Emultiplier</span>[<span class="kw">below_min</span>] <span class="op">=</span> <span class="fl">0</span>
+  <span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">below_min</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span>
+    <span class="va">Emultiplier</span><span class="op">[</span><span class="va">below_min</span><span class="op">]</span> <span class="op">=</span> <span class="fl">0</span>
   
   <span class="co"># Apply scaled Arrhenius value to metabolism</span>
-  (<span class="fu"><a href="https://rdrr.io/r/base/sweep.html">sweep</a></span>((<span class="fl">1</span> <span class="op">-</span> <span class="kw">feeding_level</span>) <span class="op">*</span> <span class="kw">encounter</span>, <span class="fl">1</span>,
-               <span class="kw">params</span><span class="op">@</span>species_params<span class="op">$</span><span class="kw">alpha</span>, <span class="st">"*"</span>, check.margin = <span class="fl">FALSE</span>) <span class="op">-</span> 
-      <span class="kw">params</span><span class="op">@</span>metab<span class="op">*</span><span class="kw">temp_effect_metabolism</span>)<span class="op">*</span><span class="kw">Emultiplier</span>  
+  <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sweep.html">sweep</a></span><span class="op">(</span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">feeding_level</span><span class="op">)</span> <span class="op">*</span> <span class="va">encounter</span>, <span class="fl">1</span>,
+               <span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">alpha</span>, <span class="st">"*"</span>, check.margin <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">-</span> 
+      <span class="va">params</span><span class="op">@</span><span class="va">metab</span><span class="op">*</span><span class="va">temp_effect_metabolism</span><span class="op">)</span><span class="op">*</span><span class="va">Emultiplier</span>  
       
-}
-</pre></div>
+<span class="op">}</span></code></pre></div>
 </div>
 <div id="update-the-functions" class="section level2">
 <h2 class="hasAnchor">
 <a href="#update-the-functions" class="anchor"></a>Update the functions</h2>
-<div class="sourceCode" id="cb10"><pre class="downlit">
-<span class="kw">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span>(<span class="kw">params</span>, <span class="st">"Encounter"</span>, <span class="st">"therMizerEncounter"</span>)
-<span class="kw">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span>(<span class="kw">params</span>, <span class="st">"EReproAndGrowth"</span>, <span class="st">"therMizerEReproAndGrowth"</span>)
-</pre></div>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"Encounter"</span>, <span class="st">"therMizerEncounter"</span><span class="op">)</span>
+<span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"EReproAndGrowth"</span>, <span class="st">"therMizerEReproAndGrowth"</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="run-project-using-the-newly-set-up-parameters-1" class="section level2">
 <h2 class="hasAnchor">
 <a href="#run-project-using-the-newly-set-up-parameters-1" class="anchor"></a>Run project() using the newly set up parameters</h2>
-<div class="sourceCode" id="cb11"><pre class="downlit">
-<span class="kw">sim3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span>(<span class="kw">params</span>, t_max = <span class="fl">500</span>, effort = <span class="fl">0</span>)
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">sim3</span>)
-</pre></div>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">sim3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">500</span>, effort <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">sim3</span><span class="op">)</span></code></pre></div>
 <p><img src="test_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
 </div>
   </div>
@@ -383,7 +372,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

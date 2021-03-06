@@ -55,3 +55,4 @@ against time. The biomass is calculated within user defined size limits
 (min_w, max_w, min_l, max_l, see \code{\link[=getBiomass]{getBiomass()}}).
 }
 \concept{frame functions}
+\keyword{internal}

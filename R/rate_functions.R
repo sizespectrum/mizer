@@ -329,9 +329,11 @@ getPredMort <- function(object, n, n_pp, n_other,
 
 #' Alias for getPredMort
 #' 
+#' `r lifecycle::badge("deprecated")`
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit getPredMort
 #' @export
+#' @concept deprecated
 getM2 <- getPredMort
 
 
@@ -372,9 +374,11 @@ getResourceMort <-
 
 #' Alias for getResourceMort
 #' 
+#' `r lifecycle::badge("deprecated")`
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit getResourceMort
 #' @export
+#' @concept deprecated
 getM2Background <- getResourceMort
 
 
@@ -660,9 +664,11 @@ getMort <- function(params,
 
 #' Alias for getMort
 #' 
+#' `r lifecycle::badge("deprecated")`
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit getMort
 #' @export
+#' @concept deprecated
 getZ <- getMort
 
 
@@ -706,9 +712,11 @@ getERepro <- function(params, n = initialN(params),
 
 #' Alias for getERepro
 #' 
+#' `r lifecycle::badge("deprecated")` 
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit getERepro
 #' @export
+#' @concept deprecated
 getESpawning <- getERepro
 
 
@@ -845,7 +853,6 @@ getRDD <- function(params, n = initialN(params),
 #'   in the range or not.
 #' @export
 #' @concept helper
-#' @keywords internal
 get_time_elements <- function(sim, time_range, slot_name = "n"){
     assert_that(is(sim, "MizerSim"))
     time_range <- range(as.numeric(time_range))

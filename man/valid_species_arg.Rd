@@ -18,7 +18,7 @@ Default FALSE.}
 }
 \value{
 A vector of species names, in the same order as specified in the
-'species' argument. If 'return.logial = TRUE' then a logical vector is
+'species' argument. If 'return.logical = TRUE' then a logical vector is
 returned instead, with length equal to the number of species, with
 TRUE entry for each selected species.
 }
@@ -27,3 +27,4 @@ If the species argument contains invalid species, then these are
 ignored but a warning is issued. If non of the species is valid, then
 an error is produced.
 }
+\concept{helper}

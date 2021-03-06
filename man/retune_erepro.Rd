@@ -24,3 +24,4 @@ to growth and mortality. Turns off the external density dependence in the
 reproduction rate by setting the \code{RDD} function to
 \code{\link[=noRDD]{noRDD()}}
 }
+\concept{helper}

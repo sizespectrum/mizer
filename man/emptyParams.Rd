@@ -59,3 +59,4 @@ default values are set for missing parameters.
 See \code{\link[=newMultispeciesParams]{newMultispeciesParams()}} for a function that fills
 the slots left empty by this function.
 }
+\concept{helper}

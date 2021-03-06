@@ -83,3 +83,4 @@ a simulation repeatedly for short periods to run some other code in
 between. Because this code may want to use the values of the rates at the
 final time step, these too are included in the returned list.
 }
+\concept{helper}

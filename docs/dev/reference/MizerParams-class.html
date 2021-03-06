@@ -90,7 +90,7 @@ directly." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -157,7 +157,7 @@ directly." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -195,6 +195,15 @@ directly.</p>
 
 
 
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The MizerParams class is fairly complex with a large number of
+slots, many of which are multidimensional arrays. The dimensions of these
+arrays is strictly enforced so that <code>MizerParams</code> objects are consistent
+in terms of number of species and number of size classes.</p>
+<p>The <code>MizerParams</code> class does not hold any dynamic information, e.g.
+abundances or harvest effort through time. These are held in
+<a href='MizerSim-class.html'>MizerSim</a> objects.</p>
     <h2 class="hasAnchor" id="slots"><a class="anchor" href="#slots"></a>Slots</h2>
 
     
@@ -286,7 +295,8 @@ the ecosystem.</p></dd>
 used to calculate the rates needed by <code><a href='project.html'>project()</a></code>. By default this will be
 set to the names of the built-in rate functions.</p></dd>
 
-<dt><code>sc</code></dt><dd><p>The community abundance of the scaling community</p></dd>
+<dt><code>sc</code></dt><dd><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+The community abundance of the scaling community</p></dd>
 
 <dt><code>species_params</code></dt><dd><p>A data.frame to hold the species specific parameters.
 See <code><a href='newMultispeciesParams.html'>newMultispeciesParams()</a></code> for details.</p></dd>
@@ -319,7 +329,8 @@ ecosystem components. Has length zero if there are no other components.</p></dd>
 
 <dt><code>resource_params</code></dt><dd><p>List with parameters for resource. See <code><a href='setResource.html'>setResource()</a></code>.</p></dd>
 
-<dt><code>A</code></dt><dd><p>Abundance multipliers.</p></dd>
+<dt><code>A</code></dt><dd><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+Abundance multipliers.</p></dd>
 
 <dt><code>linecolour</code></dt><dd><p>A named vector of colour values, named by species.
 Used to give consistent colours in plots.</p></dd>
@@ -329,12 +340,7 @@ Used to give consistent line types in plots.</p></dd>
 
 <dt><code>ft_mask</code></dt><dd><p>An array (species x w_full) with zeros for weights larger than
 the asymptotic weight of each species. Used to efficiently minimize
-wrap-around errors in Fourier transform calculations.The MizerParams class is fairly complex with a large number of
-slots, many of which are multidimensional arrays. The dimensions of these
-arrays is strictly enforced so that <code>MizerParams</code> objects are consistent
-in terms of number of species and number of size classes.The <code>MizerParams</code> class does not hold any dynamic information, e.g.
-abundances or harvest effort through time. These are held in
-<a href='MizerSim-class.html'>MizerSim</a> objects.</p></dd>
+wrap-around errors in Fourier transform calculations.</p></dd>
 
 </dl>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
@@ -359,7 +365,7 @@ abundances or harvest effort through time. These are held in
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

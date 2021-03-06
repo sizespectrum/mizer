@@ -18,4 +18,3 @@ is set to "lognormal" and the default values are set for the parameters
 \code{beta} and \code{sigma}.
 }
 \concept{helper}
-\keyword{internal}

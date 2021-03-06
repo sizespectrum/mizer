@@ -88,7 +88,7 @@ single value for the time range can be used to plot a single time step)." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -155,7 +155,7 @@ single value for the time range can be used to plot a single time step)." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -189,9 +189,16 @@ by size. The mortality rate is averaged over the specified time range (a
 single value for the time range can be used to plot a single time step).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotPredMort</span>(<span class='kw'>object</span>, species = <span class='kw'>NULL</span>, <span class='kw'>time_range</span>, highlight = <span class='kw'>NULL</span>, <span class='kw'>...</span>)
+    <pre class="usage"><span class='fu'>plotPredMort</span><span class='op'>(</span>
+  <span class='va'>object</span>,
+  species <span class='op'>=</span> <span class='cn'>NULL</span>,
+  <span class='va'>time_range</span>,
+  all.sizes <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  highlight <span class='op'>=</span> <span class='cn'>NULL</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span>
 
-<span class='fu'>plotlyPredMort</span>(<span class='kw'>object</span>, species = <span class='kw'>NULL</span>, <span class='kw'>time_range</span>, highlight = <span class='kw'>NULL</span>, <span class='kw'>...</span>)</pre>
+<span class='fu'>plotlyPredMort</span><span class='op'>(</span><span class='va'>object</span>, species <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>time_range</span>, highlight <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -211,6 +218,11 @@ default all species are plotted.</p></td>
 and max time, or a single value) to average the abundances over. Default is
 the final time step. Ignored when called with a <a href='MizerParams-class.html'>MizerParams</a>
 object.</p></td>
+    </tr>
+    <tr>
+      <th>all.sizes</th>
+      <td><p>If TRUE, then predation mortality is plotted also for sizes
+outside a species' size range. Default FALSE.</p></td>
     </tr>
     <tr>
       <th>highlight</th>
@@ -242,9 +254,12 @@ object.</p></td>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span>(<span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='kw'>NS_species_params_gears</span>, <span class='kw'>inter</span>))
-<span class='kw'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='kw'>params</span>, effort=<span class='fl'>1</span>, t_max=<span class='fl'>20</span>, t_save = <span class='fl'>2</span>, progress_bar = <span class='fl'>FALSE</span>)
-<span class='fu'>plotPredMort</span>(<span class='kw'>sim</span>)</div><div class='img'><img src='plotPredMort-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>plotPredMort</span>(<span class='kw'>sim</span>, time_range = <span class='fl'>10</span><span class='op'>:</span><span class='fl'>20</span>)</div><div class='img'><img src='plotPredMort-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span></div></pre>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span><span class='op'>(</span><span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort<span class='op'>=</span><span class='fl'>1</span>, t_max<span class='op'>=</span><span class='fl'>20</span>, t_save <span class='op'>=</span> <span class='fl'>2</span>, progress_bar <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+<span class='fu'>plotPredMort</span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span>
+</div><div class='img'><img src='plotPredMort-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>plotPredMort</span><span class='op'>(</span><span class='va'>sim</span>, time_range <span class='op'>=</span> <span class='fl'>10</span><span class='op'>:</span><span class='fl'>20</span><span class='op'>)</span>
+</div><div class='img'><img src='plotPredMort-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -260,7 +275,7 @@ object.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

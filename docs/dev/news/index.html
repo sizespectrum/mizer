@@ -85,7 +85,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -152,7 +152,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -179,9 +179,29 @@
       <small>Source: <a href='https://github.com/sizespectrum/mizer/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="mizer-2049000" class="section level1">
+<h1 class="page-header" data-toc-text="2.0.4.9000">
+<a href="#mizer-2049000" class="anchor"></a>mizer 2.0.4.9000<small> Unreleased </small>
+</h1>
+<ul>
+<li>New function <code><a href="../reference/projectToSteady.html">projectToSteady()</a></code> to run the full dynamics to steady state.</li>
+<li>New functions <code><a href="../reference/distanceSSLogN.html">distanceSSLogN()</a></code> and <code><a href="../reference/distanceMaxRelRDI.html">distanceMaxRelRDI()</a></code> to measure distance between two states.</li>
+<li>New function <code><a href="../reference/compareParams.html">compareParams()</a></code> to compare two MizerParams objects.</li>
+<li>Improved error handling in <code><a href="../reference/setFishing.html">setFishing()</a></code> <a href='https://github.com/sizespectrum/mizer/issues/172'>#172</a></li>
+<li>Now if the effort is specified as a named vector giving values only for some gears, the effort for the remaining gears is assumed to be zero.</li>
+<li>Made use of vdiffr conditional, as required by §1.1.3.1 of ‘Writing R Extensions’</li>
+</ul>
+<div id="breaking-changes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#breaking-changes" class="anchor"></a>Breaking changes</h2>
+<ul>
+<li>By default, the functions <code><a href="../reference/plotPredMort.html">plotPredMort()</a></code> and <code>plotFMort</code> will stop displaying mortality values past the species’ asymptotic size. The argument <code>all.sizes</code> allows to display these values back.</li>
+</ul>
+</div>
+</div>
     <div id="mizer-204" class="section level1">
 <h1 class="page-header" data-toc-text="2.0.4">
-<a href="#mizer-204" class="anchor"></a>mizer 2.0.4<small> Unreleased </small>
+<a href="#mizer-204" class="anchor"></a>mizer 2.0.4<small> 2020-08-30 </small>
 </h1>
 <div id="bug-fixes" class="section level2">
 <h2 class="hasAnchor">
@@ -687,7 +707,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

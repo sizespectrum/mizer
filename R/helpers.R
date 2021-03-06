@@ -6,6 +6,7 @@
 #' @param b Second object
 #' 
 #' @return TRUE or FALSE
+#' @concept helper
 different <- function(a, b) {
     !isTRUE(all.equal(a, b, check.attributes = FALSE, scale = 1, tolerance = 0))
 }

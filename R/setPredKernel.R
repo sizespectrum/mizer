@@ -207,7 +207,6 @@ getPredKernel <- function(params) {
 #' @param object Either a MizerParams object or a species parameter data frame
 #' @return The `object` with updated columns in the species params data frame.
 #' @export
-#' @keywords internal
 #' @concept helper
 default_pred_kernel_params <- function(object) {
     if (is(object, "MizerParams")) {
@@ -252,7 +251,6 @@ default_pred_kernel_params <- function(object) {
 #' @return An array (species x ppmr) with the values of the predation kernel
 #'   function
 #' @export
-#' @keywords internal
 #' @concept helper
 get_phi <- function(species_params, ppmr) {
     assert_that(is.data.frame(species_params))

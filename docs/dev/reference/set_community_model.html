@@ -46,7 +46,8 @@
 
 
 <meta property="og:title" content="Deprecated function for setting up parameters for a community-type model — set_community_model" />
-<meta property="og:description" content="This function has been deprecated in favour of the function
+<meta property="og:description" content="
+This function has been deprecated in favour of the function
 newCommunityParams() that sets better default values." />
 
 
@@ -87,7 +88,7 @@ newCommunityParams() that sets better default values." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -154,7 +155,7 @@ newCommunityParams() that sets better default values." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -183,32 +184,33 @@ newCommunityParams() that sets better default values." />
     </div>
 
     <div class="ref-description">
-    <p>This function has been deprecated in favour of the function
+    <p><a href='https://lifecycle.r-lib.org/articles/stages.html#deprecated'><img src='figures/lifecycle-deprecated.svg' alt='[Deprecated]' /></a></p>
+<p>This function has been deprecated in favour of the function
 <code><a href='newCommunityParams.html'>newCommunityParams()</a></code> that sets better default values.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>set_community_model</span>(
-  max_w = <span class='fl'>1e+06</span>,
-  min_w = <span class='fl'>0.001</span>,
-  min_w_pp = <span class='fl'>1e-10</span>,
-  z0 = <span class='fl'>0.1</span>,
-  alpha = <span class='fl'>0.2</span>,
-  h = <span class='fl'>10</span>,
-  beta = <span class='fl'>100</span>,
-  sigma = <span class='fl'>2</span>,
-  q = <span class='fl'>0.8</span>,
-  n = <span class='fl'>2</span><span class='op'>/</span><span class='fl'>3</span>,
-  kappa = <span class='fl'>1000</span>,
-  lambda = <span class='fl'>2</span> <span class='op'>+</span> <span class='kw'>q</span> <span class='op'>-</span> <span class='kw'>n</span>,
-  f0 = <span class='fl'>0.7</span>,
-  r_pp = <span class='fl'>10</span>,
-  gamma = <span class='fl'>NA</span>,
-  knife_edge_size = <span class='fl'>1000</span>,
-  knife_is_min = <span class='fl'>TRUE</span>,
-  recruitment = <span class='kw'>kappa</span> <span class='op'>*</span> <span class='kw'>min_w</span><span class='op'>^</span><span class='op'>-</span><span class='kw'>lambda</span>,
-  rec_mult = <span class='fl'>1</span>,
-  <span class='kw'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>set_community_model</span><span class='op'>(</span>
+  max_w <span class='op'>=</span> <span class='fl'>1e+06</span>,
+  min_w <span class='op'>=</span> <span class='fl'>0.001</span>,
+  min_w_pp <span class='op'>=</span> <span class='fl'>1e-10</span>,
+  z0 <span class='op'>=</span> <span class='fl'>0.1</span>,
+  alpha <span class='op'>=</span> <span class='fl'>0.2</span>,
+  h <span class='op'>=</span> <span class='fl'>10</span>,
+  beta <span class='op'>=</span> <span class='fl'>100</span>,
+  sigma <span class='op'>=</span> <span class='fl'>2</span>,
+  q <span class='op'>=</span> <span class='fl'>0.8</span>,
+  n <span class='op'>=</span> <span class='fl'>2</span><span class='op'>/</span><span class='fl'>3</span>,
+  kappa <span class='op'>=</span> <span class='fl'>1000</span>,
+  lambda <span class='op'>=</span> <span class='fl'>2</span> <span class='op'>+</span> <span class='va'>q</span> <span class='op'>-</span> <span class='va'>n</span>,
+  f0 <span class='op'>=</span> <span class='fl'>0.7</span>,
+  r_pp <span class='op'>=</span> <span class='fl'>10</span>,
+  gamma <span class='op'>=</span> <span class='cn'>NA</span>,
+  knife_edge_size <span class='op'>=</span> <span class='fl'>1000</span>,
+  knife_is_min <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  recruitment <span class='op'>=</span> <span class='va'>kappa</span> <span class='op'>*</span> <span class='va'>min_w</span><span class='op'>^</span><span class='op'>-</span><span class='va'>lambda</span>,
+  rec_mult <span class='op'>=</span> <span class='fl'>1</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -262,9 +264,7 @@ is 1000.</p></td>
     </tr>
     <tr>
       <th>lambda</th>
-      <td><p>The exponent of the resource spectrum. Default value is 2 + q</p><ul>
-<li><p>n.</p></li>
-</ul></td>
+      <td><p>The exponent of the resource spectrum. Default value is 2 + q - n.</p></td>
     </tr>
     <tr>
       <th>f0</th>
@@ -344,19 +344,17 @@ through time after the projection.</p>
     <p>K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and
 individual efficiencies of size-structured communities, Proceedings of the
 Royal Society, 276, 109-114</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>Other deprecated functions: 
-<code><a href='set_multispecies_model.html'>set_multispecies_model</a>()</code>,
-<code><a href='set_trait_model.html'>set_trait_model</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'>set_community_model</span>(f0=<span class='fl'>0.7</span>, z0=<span class='fl'>0.2</span>, recruitment=<span class='fl'>3e7</span>)
-<span class='kw'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='kw'>params</span>, effort = <span class='fl'>0</span>, t_max = <span class='fl'>100</span>, dt=<span class='fl'>0.1</span>)
-<span class='fu'><a href='plotBiomass.html'>plotBiomass</a></span>(<span class='kw'>sim</span>)
-<span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span>(<span class='kw'>sim</span>)
-}</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>set_community_model</span><span class='op'>(</span>f0<span class='op'>=</span><span class='fl'>0.7</span>, z0<span class='op'>=</span><span class='fl'>0.2</span>, recruitment<span class='op'>=</span><span class='fl'>3e7</span><span class='op'>)</span>
+<span class='co'># This is now achieved with</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newCommunityParams.html'>newCommunityParams</a></span><span class='op'>(</span>f0 <span class='op'>=</span> <span class='fl'>0.7</span>, z0 <span class='op'>=</span> <span class='fl'>0.2</span><span class='op'>)</span>
+<span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort <span class='op'>=</span> <span class='fl'>0</span>, t_max <span class='op'>=</span> <span class='fl'>100</span>, dt<span class='op'>=</span><span class='fl'>0.1</span><span class='op'>)</span>
+<span class='fu'><a href='plotBiomass.html'>plotBiomass</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span>
+<span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -372,7 +370,7 @@ Royal Society, 276, 109-114</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

@@ -35,6 +35,7 @@ outside a species' size range. Default FALSE.}
 A plot
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 An alias provided for backward compatibility with mizer version <= 1.0
 }
 \examples{
@@ -60,3 +61,4 @@ Other plotting functions:
 \code{\link{plotYield}()},
 \code{\link{plotting_functions}}
 }
+\concept{deprecated}

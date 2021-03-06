@@ -14,6 +14,7 @@
 #' @return The largest absolute relative change in rdi:
 #'   `max(abs((current_rdi - previous_rdi) / previous_rdi))`
 #' @family distance functions
+#' @concept helper
 #' @export
 distanceMaxRelRDI <- function(params, current, previous) {
     current_rdi <- getRDI(params, n = current$n, n_pp = current$n_pp,
@@ -41,6 +42,7 @@ distanceMaxRelRDI <- function(params, current, previous) {
 #'   fish abundances n:
 #'   `sum((log(current$n) - log(previous$n))^2)`
 #' @family distance functions
+#' @concept helper
 #' @export
 distanceSSLogN <- function(params, current, previous) {
     sel <- current$n > 0 & previous$n > 0
@@ -266,6 +268,7 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
 #' @return A MizerParams object with updated values for the `erepro` column
 #'   in the `species_params` data frame.
 #' @export
+#' @concept helper
 retune_erepro <- function(params, species = species_params(params)$species) {
     assert_that(is(params, "MizerParams"))
     species <- valid_species_arg(params, species, return.logical = TRUE)
@@ -300,6 +303,7 @@ retune_erepro <- function(params, species = species_params(params)$species) {
 #' @param component Name of the component that is being updated
 #' @param ... Unused
 #' @export
+#' @concept helper
 constant_other <- function(params, n_other, component, ...) {
     n_other[[component]]
 }
@@ -318,10 +322,11 @@ constant_other <- function(params, n_other, component, ...) {
 #'   Default FALSE.
 #'   
 #' @return A vector of species names, in the same order as specified in the
-#'   'species' argument. If 'return.logial = TRUE' then a logical vector is
+#'   'species' argument. If 'return.logical = TRUE' then a logical vector is
 #'   returned instead, with length equal to the number of species, with
 #'   TRUE entry for each selected species.
 #' @export
+#' @concept helper
 valid_species_arg <- function(params, species, return.logical = FALSE) {
     assert_that(is(params, "MizerParams"),
                 is.logical(return.logical))

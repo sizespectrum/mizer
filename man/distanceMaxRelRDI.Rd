@@ -30,3 +30,4 @@ Other distance functions:
 \code{\link{distanceSSLogN}()}
 }
 \concept{distance functions}
+\concept{helper}

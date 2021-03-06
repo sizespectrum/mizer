@@ -39,10 +39,10 @@ will cover the period from \code{t_start} to \code{t_start + t_max}.
 Defaults to 0. Ignored if an array is used for the \code{effort}
 argument or a \code{MizerSim} for the \code{object} argument.}
 
-\item{initial_n}{Deprecated. The initial abundances of species. Instead of
+\item{initial_n}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The initial abundances of species. Instead of
 using this argument you should set \code{initialN(params)} to the desired value.}
 
-\item{initial_n_pp}{Deprecated. The initial abundances of resource. Instead
+\item{initial_n_pp}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The initial abundances of resource. Instead
 of using this argument you should set \code{initialNResource(params)} to the
 desired value.}
 
