@@ -151,6 +151,7 @@ reference:
   - initialNOther
   - NOther
   - finalNOther
+  - customFunction
 - title: Predation kernels
   contents:
   - lognormal_pred_kernel

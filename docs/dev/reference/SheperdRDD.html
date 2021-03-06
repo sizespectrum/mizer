@@ -46,7 +46,8 @@
 
 
 <meta property="og:title" content="Sheperd function to calculate density-dependent reproduction rate — SheperdRDD" />
-<meta property="og:description" content="Takes the density-independent rates \(R_{di}\) of egg production and returns
+<meta property="og:description" content="
+Takes the density-independent rates \(R_{di}\) of egg production and returns
 reduced, density-dependent rates \(R_{dd}\) given as
 $$R_{dd} = \frac{R_{di}}{1+(b\ R_{di})^c}$$" />
 
@@ -179,12 +180,13 @@ $$R_{dd} = \frac{R_{di}}{1+(b\ R_{di})^c}$$" />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Sheperd function to calculate density-dependent reproduction rate</h1>
-    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/project_methods.R'><code>R/project_methods.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/reproduction.R'><code>R/reproduction.R</code></a></small>
     <div class="hidden name"><code>SheperdRDD.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Takes the density-independent rates \(R_{di}\) of egg production and returns
+    <p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+Takes the density-independent rates \(R_{di}\) of egg production and returns
 reduced, density-dependent rates \(R_{dd}\) given as
 $$R_{dd} = \frac{R_{di}}{1+(b\ R_{di})^c}$$</p>
     </div>
@@ -218,6 +220,7 @@ $$R_{dd} = \frac{R_{di}}{1+(b\ R_{di})^c}$$</p>
     <div class='dont-index'><p>Other functions calculating density-dependent reproduction rate: 
 <code><a href='BevertonHoltRDD.html'>BevertonHoltRDD</a>()</code>,
 <code><a href='RickerRDD.html'>RickerRDD</a>()</code>,
+<code><a href='constantEggRDI.html'>constantEggRDI</a>()</code>,
 <code><a href='constantRDD.html'>constantRDD</a>()</code>,
 <code><a href='noRDD.html'>noRDD</a>()</code></p></div>
 

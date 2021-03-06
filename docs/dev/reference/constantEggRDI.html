@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Give constant reproduction rate — constantRDD • mizer</title>
+<title>Choose egg production to keep egg density constant — constantEggRDI • mizer</title>
 
 
 <!-- jquery -->
@@ -45,9 +45,12 @@
 
 
 
-<meta property="og:title" content="Give constant reproduction rate — constantRDD" />
+<meta property="og:title" content="Choose egg production to keep egg density constant — constantEggRDI" />
 <meta property="og:description" content="
-Simply returns the value from species_params$constant_reproduction." />
+The new egg production is set to compensate for the loss of individuals from
+the smallest size class through growth and mortality. The result should not
+be modified by density dependence, so this should be used together with
+the noRDD() function, see example." />
 
 
 <meta name="robots" content="noindex">
@@ -177,30 +180,41 @@ Simply returns the value from species_params$constant_reproduction." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Give constant reproduction rate</h1>
+    <h1>Choose egg production to keep egg density constant</h1>
     <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/reproduction.R'><code>R/reproduction.R</code></a></small>
-    <div class="hidden name"><code>constantRDD.Rd</code></div>
+    <div class="hidden name"><code>constantEggRDI.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
-Simply returns the value from <code>species_params$constant_reproduction</code>.</p>
+The new egg production is set to compensate for the loss of individuals from
+the smallest size class through growth and mortality. The result should not
+be modified by density dependence, so this should be used together with
+the <code><a href='noRDD.html'>noRDD()</a></code> function, see example.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>constantRDD</span><span class='op'>(</span><span class='va'>rdi</span>, <span class='va'>species_params</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>constantEggRDI</span><span class='op'>(</span><span class='va'>params</span>, <span class='va'>n</span>, <span class='va'>e_growth</span>, <span class='va'>mort</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>rdi</th>
-      <td><p>Vector of density-independent reproduction rates
-\(R_{di}\) for all species.</p></td>
+      <th>params</th>
+      <td><p>A MizerParams object</p></td>
     </tr>
     <tr>
-      <th>species_params</th>
-      <td><p>A species parameter dataframe. Must contain a column
-<code>constant_reproduction</code>.</p></td>
+      <th>n</th>
+      <td><p>A matrix of species abundances (species x size).</p></td>
+    </tr>
+    <tr>
+      <th>e_growth</th>
+      <td><p>A two dimensional array (species x size) holding the energy
+available for growth as calculated by <code><a href='mizerEGrowth.html'>mizerEGrowth()</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>mort</th>
+      <td><p>A two dimensional array (species x size) holding the mortality
+rate as calculated by <code><a href='mizerMort.html'>mizerMort()</a></code>.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -208,18 +222,32 @@ Simply returns the value from <code>species_params$constant_reproduction</code>.
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>Vector <code>species_params$constant_reproduction</code></p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions calculating density-dependent reproduction rate: 
 <code><a href='BevertonHoltRDD.html'>BevertonHoltRDD</a>()</code>,
 <code><a href='RickerRDD.html'>RickerRDD</a>()</code>,
 <code><a href='SheperdRDD.html'>SheperdRDD</a>()</code>,
-<code><a href='constantEggRDI.html'>constantEggRDI</a>()</code>,
+<code><a href='constantRDD.html'>constantRDD</a>()</code>,
 <code><a href='noRDD.html'>noRDD</a>()</code></p></div>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='co'># choose an example params object</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='va'>NS_params</span>
+<span class='co'># We set the reproduction rate functions</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span><span class='op'>(</span><span class='va'>params</span>, <span class='st'>"RDI"</span>, <span class='st'>"constantEggRDI"</span><span class='op'>)</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span><span class='op'>(</span><span class='va'>params</span>, <span class='st'>"RDD"</span>, <span class='st'>"noRDD"</span><span class='op'>)</span>
+<span class='co'># Now the egg density should stay fixed no matter how we fish</span>
+<span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort <span class='op'>=</span> <span class='fl'>10</span>, progress_bar <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+<span class='co'># To check that indeed the egg densities have not changed, we first construct</span>
+<span class='co'># the indices for addressing the egg densities</span>
+<span class='va'>no_sp</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>@</span><span class='va'>species_params</span><span class='op'>)</span>
+<span class='va'>idx</span> <span class='op'>&lt;-</span> <span class='op'>(</span><span class='va'>params</span><span class='op'>@</span><span class='va'>w_min_idx</span> <span class='op'>-</span> <span class='fl'>1</span><span class='op'>)</span> <span class='op'>*</span> <span class='va'>no_sp</span> <span class='op'>+</span> <span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='va'>no_sp</span><span class='op'>)</span>
+<span class='co'># Now we can check equality between egg densities at the start and the end</span>
+<span class='fu'><a href='https://rdrr.io/r/base/all.equal.html'>all.equal</a></span><span class='op'>(</span><span class='fu'><a href='finalN.html'>finalN</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>[</span><span class='va'>idx</span><span class='op'>]</span>, <span class='fu'><a href='initialN<-.html'>initialN</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span><span class='va'>idx</span><span class='op'>]</span><span class='op'>)</span>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
