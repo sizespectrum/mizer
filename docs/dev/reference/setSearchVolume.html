@@ -185,7 +185,12 @@
     <p>Set search volume</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setSearchVolume</span><span class='op'>(</span><span class='va'>params</span>, search_vol <span class='op'>=</span> <span class='cn'>NULL</span>, comment <span class='op'>=</span> <span class='st'>"set manually"</span>, <span class='va'>...</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>setSearchVolume</span><span class='op'>(</span>
+  <span class='va'>params</span>,
+  search_vol <span class='op'>=</span> <span class='cn'>NULL</span>,
+  comment_search_vol <span class='op'>=</span> <span class='st'>"set manually"</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span>
 
 <span class='fu'>getSearchVolume</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
 
@@ -203,7 +208,7 @@ for each species at size. If not supplied, a default is set as described in
 the section "Setting search volume".</p></td>
     </tr>
     <tr>
-      <th>comment</th>
+      <th>comment_search_vol</th>
       <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
 A string describing how the value for 'search_vol' was obtained. This is
 ignored if 'search_vol' is not supplied or already has a comment

@@ -93,10 +93,18 @@
 #' @param maturity Optional. An array (species x size) that holds the proportion
 #'   of individuals of each species at size that are mature. If not supplied, a
 #'   default is set as described in the section "Setting reproduction".
+#' @param comment_maturity `r lifecycle::badge("experimental")`
+#'   A string describing how the value for 'maturity' was obtained. This is
+#'   ignored if 'maturity' is not supplied or already has a comment
+#'   attribute.
 #' @param repro_prop Optional. An array (species x size) that holds the
 #'   proportion of consumed energy that a mature individual allocates to
 #'   reproduction for each species at size. If not supplied, a default is set as
 #'   described in the section "Setting reproduction".
+#' @param comment_repro_prop `r lifecycle::badge("experimental")`
+#'   A string describing how the value for 'repro_prop' was obtained. This is
+#'   ignored if 'repro_prop' is not supplied or already has a comment
+#'   attribute.
 #' @param RDD The name of the function calculating the density-dependent 
 #'   reproduction rate from the density-independent rate. Defaults to 
 #'   "[BevertonHoltRDD()]".
@@ -125,7 +133,10 @@
 #' library(ggplot2)
 #' ggplot(dff) + geom_line(aes(x = Size, y = Proportion, colour = Type))
 #' }
-setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
+setReproduction <- function(params, maturity = NULL, 
+                            comment_maturity = "set manually",
+                            repro_prop = NULL, 
+                            comment_repro_prop = "set manually",
                             RDD = NULL, ...) {
     # check arguments ----
     assert_that(is(params, "MizerParams"))
@@ -162,6 +173,9 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
             !all(dimnames(maturity)[[1]] == species_params$species)) {
             stop("You need to use the same ordering of species as in the ",
                  "params object: ", toString(species_params$species))
+        }
+        if (is.null(comment(maturity))) {
+            comment(maturity) <- comment_maturity
         }
     } else {
         # Check maturity sizes
@@ -233,6 +247,9 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
             stop("You need to use the same ordering of species as in the ",
                  "params object: ", toString(species_params$species))
         }
+        if (is.null(comment(repro_prop))) {
+            comment(repro_prop) <- comment_repro_prop
+        }
     } else {
         # Set defaults for m
         params <- set_species_param_default(params, "m", 1)
@@ -254,7 +271,11 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
     psi[outer(species_params$w_inf, params@w, "<")] <- 1
     assert_that(all(psi >= 0 & psi <= 1))
     
-    if (!is.null(comment(params@psi))) {
+    # if the slot is protected and the user did not supply a new repro_prop
+    # then don't overwrite the slot with auto-generated values. We can
+    # detect whether repro_prop is user-supplied by checking whether it has 
+    # a comment.
+    if (!is.null(comment(params@psi)) && is.null(comment(repro_prop))) {
         if (different(params@psi, psi)) {
             message("The reproductive proportion has been commented and therefore ",
                     "will not be recalculated from the species parameters.")

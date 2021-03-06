@@ -197,7 +197,12 @@ the predator size and the prey size separately. Both types can be set up with
 this function.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setPredKernel</span><span class='op'>(</span><span class='va'>params</span>, pred_kernel <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>setPredKernel</span><span class='op'>(</span>
+  <span class='va'>params</span>,
+  pred_kernel <span class='op'>=</span> <span class='cn'>NULL</span>,
+  comment_pred_kernel <span class='op'>=</span> <span class='st'>"set manually"</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -212,6 +217,13 @@ this function.</p>
 that holds the predation coefficient of each predator at size on each prey
 size. If not supplied, a default is set as described in section "Setting
 predation kernel".</p></td>
+    </tr>
+    <tr>
+      <th>comment_pred_kernel</th>
+      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+A string describing how the value for 'pred_kernel' was obtained. This is
+ignored if 'pred_kernel' is not supplied or already has a comment
+attribute.</p></td>
     </tr>
     <tr>
       <th>...</th>

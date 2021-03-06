@@ -185,7 +185,12 @@
     <p>Set maximum intake rate</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setMaxIntakeRate</span><span class='op'>(</span><span class='va'>params</span>, intake_max <span class='op'>=</span> <span class='cn'>NULL</span>, comment <span class='op'>=</span> <span class='st'>"set manually"</span>, <span class='va'>...</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>setMaxIntakeRate</span><span class='op'>(</span>
+  <span class='va'>params</span>,
+  intake_max <span class='op'>=</span> <span class='cn'>NULL</span>,
+  comment_intake_max <span class='op'>=</span> <span class='st'>"set manually"</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span>
 
 <span class='fu'>getMaxIntakeRate</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
 
@@ -203,7 +208,7 @@ intake rate for each species at size. If not supplied, a default is set as
 described in the section "Setting maximum intake rate".</p></td>
     </tr>
     <tr>
-      <th>comment</th>
+      <th>comment_intake_max</th>
       <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
 A string describing how the value for 'intake_max' was obtained. This is
 ignored if 'intake_max' is not supplied or already has a comment

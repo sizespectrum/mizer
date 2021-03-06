@@ -185,7 +185,13 @@
     <p>Sets the rate at which energy is used for metabolism and activity</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setMetabolicRate</span><span class='op'>(</span><span class='va'>params</span>, metab <span class='op'>=</span> <span class='cn'>NULL</span>, p <span class='op'>=</span> <span class='cn'>NULL</span>, comment <span class='op'>=</span> <span class='st'>"set manually"</span>, <span class='va'>...</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>setMetabolicRate</span><span class='op'>(</span>
+  <span class='va'>params</span>,
+  metab <span class='op'>=</span> <span class='cn'>NULL</span>,
+  p <span class='op'>=</span> <span class='cn'>NULL</span>,
+  comment_metab <span class='op'>=</span> <span class='st'>"set manually"</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span>
 
 <span class='fu'>getMetabolicRate</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
 
@@ -209,7 +215,7 @@ is not given explicitly and if the exponent is not specified in a <code>p</code>
 column in the <code>species_params</code>.</p></td>
     </tr>
     <tr>
-      <th>comment</th>
+      <th>comment_metab</th>
       <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
 A string describing how the value for 'metab' was obtained. This is
 ignored if 'metab' is not supplied or already has a comment

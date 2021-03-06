@@ -168,13 +168,14 @@ reference:
   contents:
   - resource_semichemostat
   - resource_constant
-- title: Density-dependent reproduction
+- title: Reproduction functions
   contents:
   - BevertonHoltRDD
   - RickerRDD
   - SheperdRDD
   - noRDD
   - constantRDD
+  - constantEggRDI
 - title: Internal rate functions
   description: These functions are used by project() to calculate 
     instantaneous rates at each time step. You should use the get...() 

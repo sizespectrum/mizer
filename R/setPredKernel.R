@@ -62,6 +62,10 @@
 #'   that holds the predation coefficient of each predator at size on each prey
 #'   size. If not supplied, a default is set as described in section "Setting
 #'   predation kernel".
+#' @param comment_pred_kernel `r lifecycle::badge("experimental")`
+#'   A string describing how the value for 'pred_kernel' was obtained. This is
+#'   ignored if 'pred_kernel' is not supplied or already has a comment
+#'   attribute.
 #' @param ... Unused
 #' 
 #' @return A MizerParams object with updated predation kernel. Because of the
@@ -94,9 +98,13 @@
 #' params<- setPredKernel(params, pred_kernel = pred_kernel)
 #' }
 setPredKernel <- function(params,
-                          pred_kernel = NULL, ...) {
+                          pred_kernel = NULL,
+                          comment_pred_kernel = "set manually",...) {
     assert_that(is(params, "MizerParams"))
     if (!is.null(pred_kernel)) {
+        if (is.null(comment(pred_kernel))) {
+            comment(pred_kernel) <- comment_pred_kernel
+        }
         # A pred kernel was supplied, so check it and store it
         assert_that(is.array(pred_kernel))
         # psi is used in the next line just because it has the right dimension

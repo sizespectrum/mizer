@@ -5,7 +5,13 @@
 \alias{getMetabolicRate}
 \title{Set metabolic rate}
 \usage{
-setMetabolicRate(params, metab = NULL, p = NULL, comment = "set manually", ...)
+setMetabolicRate(
+  params,
+  metab = NULL,
+  p = NULL,
+  comment_metab = "set manually",
+  ...
+)
 
 getMetabolicRate(params)
 }
@@ -20,7 +26,7 @@ the section "Setting metabolic rate".}
 is not given explicitly and if the exponent is not specified in a \code{p}
 column in the \code{species_params}.}
 
-\item{comment}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+\item{comment_metab}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 A string describing how the value for 'metab' was obtained. This is
 ignored if 'metab' is not supplied or already has a comment
 attribute.}
