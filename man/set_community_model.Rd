@@ -134,9 +134,4 @@ K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and
 individual efficiencies of size-structured communities, Proceedings of the
 Royal Society, 276, 109-114
 }
-\seealso{
-Other deprecated functions: 
-\code{\link{set_multispecies_model}()},
-\code{\link{set_trait_model}()}
-}
-\concept{deprecated functions}
+\concept{deprecated}

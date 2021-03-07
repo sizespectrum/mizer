@@ -27,4 +27,3 @@ only to fill in any NAs. Optionally gives a message if the parameter
 did not already exist.
 }
 \concept{helper}
-\keyword{internal}

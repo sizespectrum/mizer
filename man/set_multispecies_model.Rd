@@ -62,9 +62,4 @@ explicitly.}
 This function has been deprecated in favour of the function
 \code{\link[=newMultispeciesParams]{newMultispeciesParams()}} that sets better default values.
 }
-\seealso{
-Other deprecated functions: 
-\code{\link{set_community_model}()},
-\code{\link{set_trait_model}()}
-}
-\concept{deprecated functions}
+\concept{deprecated}

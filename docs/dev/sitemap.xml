@@ -43,6 +43,9 @@
     <loc>https://sizespectrum.org/mizer/reference/box_pred_kernel.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/compareParams.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/constantRDD.html</loc>
   </url>
   <url>
@@ -50,6 +53,15 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/default_pred_kernel_params.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/different.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/distanceMaxRelRDI.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/distanceSSLogN.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/double_sigmoid_length.html</loc>
@@ -323,6 +335,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/project.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/projectToSteady.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/project_simple.html</loc>

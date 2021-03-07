@@ -94,7 +94,7 @@ function has been registered, see below." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -161,7 +161,7 @@ function has been registered, see below." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -200,16 +200,16 @@ You would not usually call this function directly but instead use
 function has been registered, see below.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>mizerEReproAndGrowth</span>(
-  <span class='kw'>params</span>,
-  <span class='kw'>n</span>,
-  <span class='kw'>n_pp</span>,
-  <span class='kw'>n_other</span>,
-  <span class='kw'>t</span>,
-  <span class='kw'>encounter</span>,
-  <span class='kw'>feeding_level</span>,
-  <span class='kw'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>mizerEReproAndGrowth</span><span class='op'>(</span>
+  <span class='va'>params</span>,
+  <span class='va'>n</span>,
+  <span class='va'>n_pp</span>,
+  <span class='va'>n_other</span>,
+  <span class='va'>t</span>,
+  <span class='va'>encounter</span>,
+  <span class='va'>feeding_level</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -276,7 +276,8 @@ cover the cost of metabolism and movement.</p>
 <p>By default <code><a href='getEReproAndGrowth.html'>getEReproAndGrowth()</a></code> calls <code>mizerEReproAndGrowth()</code>. However you
 can replace this with your own alternative energy rate function. If
 your function is called <code>"myEReproAndGrowth"</code> then you register it in a
-MizerParams object <code>params</code> with</p><pre><span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='kw'>params</span>, <span class='st'>"EReproAndGrowth"</span>, <span class='st'>"myEReproAndGrowth"</span>)</pre>
+MizerParams object <code>params</code> with</p><pre><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span><span class='op'>(</span><span class='va'>params</span>, <span class='st'>"EReproAndGrowth"</span>, <span class='st'>"myEReproAndGrowth"</span><span class='op'>)</span>
+</pre>
 
 <p>Your function will then be called instead of <code>mizerEReproAndGrowth()</code>, with
 the same arguments.</p>
@@ -311,7 +312,7 @@ the same arguments.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

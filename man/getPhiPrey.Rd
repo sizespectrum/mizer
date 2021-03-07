@@ -39,3 +39,4 @@ getEncounter(params) / getSearchVolume(params)
 \seealso{
 \code{\link[=project]{project()}}
 }
+\concept{deprecated}

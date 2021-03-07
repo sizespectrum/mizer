@@ -34,6 +34,7 @@ predation mortality calculated at every time step in the simulation.
 Dimensions may be dropped if they have length 1 unless \code{drop = FALSE}.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 An alias provided for backward compatibility with mizer version <= 1.0
 }
 \section{Your own predation mortality function}{
@@ -77,3 +78,4 @@ Other rate functions:
 \code{\link{getRates}()},
 \code{\link{getResourceMort}()}
 }
+\concept{deprecated}

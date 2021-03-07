@@ -33,6 +33,7 @@ parameters.)}
 A vector of mortality rate by resource size.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 An alias provided for backward compatibility with mizer version <= 1.0
 }
 \section{Your own resource mortality function}{
@@ -72,3 +73,4 @@ Other rate functions:
 \code{\link{getRDI}()},
 \code{\link{getRates}()}
 }
+\concept{deprecated}

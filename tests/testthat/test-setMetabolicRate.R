@@ -4,7 +4,7 @@ no_sp <- nrow(params@species_params)
 ## setMetabolicRate ----
 test_that("setMetabolicRate works", {
     expect_identical(setMetabolicRate(params, params@metab, 
-                                      comment = NULL), params)
+                                      comment_metab = NULL), params)
     params@species_params$ks <- 2 * params@species_params$ks
     p2 <- setMetabolicRate(params)
     expect_identical(2 * params@metab, p2@metab)
@@ -33,18 +33,18 @@ test_that("Comment works on metab", {
     
     # comment argument is ignored when there is a comment on intake_max
     params <- setMetabolicRate(params, metab = metab,
-                               comment = "overwrite")
+                               comment_metab = "overwrite")
     expect_identical(comment(params@metab), "test")
     # but it is used otherwise
     comment(metab) <- NULL
     params <- setMetabolicRate(params, metab = metab,
-                               comment = "overwrite")
+                               comment_metab = "overwrite")
     expect_identical(comment(params@metab), "overwrite")
 })
 
 # getMetabolicRate ----
 test_that("getMetabolicRate works", {
     p <- setMetabolicRate(params, metab = getMetabolicRate(params), 
-                          comment = NULL)
+                          comment_metab = NULL)
     expect_identical(params, p)
 })

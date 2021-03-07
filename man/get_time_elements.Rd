@@ -25,4 +25,3 @@ Internal function to get the array element references of the time dimension
 for the time based slots of a MizerSim object.
 }
 \concept{helper}
-\keyword{internal}

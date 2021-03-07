@@ -92,7 +92,7 @@ details in the sections below the list." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -159,7 +159,7 @@ details in the sections below the list." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -197,37 +197,37 @@ all of them have sensible default values. All arguments are described in more
 details in the sections below the list.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>newMultispeciesParams</span>(
-  <span class='kw'>species_params</span>,
-  interaction = <span class='kw'>NULL</span>,
-  no_w = <span class='fl'>100</span>,
-  min_w = <span class='fl'>0.001</span>,
-  max_w = <span class='fl'>NA</span>,
-  min_w_pp = <span class='fl'>NA</span>,
-  pred_kernel = <span class='kw'>NULL</span>,
-  search_vol = <span class='kw'>NULL</span>,
-  intake_max = <span class='kw'>NULL</span>,
-  metab = <span class='kw'>NULL</span>,
-  p = <span class='fl'>0.7</span>,
-  z0 = <span class='kw'>NULL</span>,
-  z0pre = <span class='fl'>0.6</span>,
-  z0exp = <span class='kw'>n</span> <span class='op'>-</span> <span class='fl'>1</span>,
-  maturity = <span class='kw'>NULL</span>,
-  repro_prop = <span class='kw'>NULL</span>,
-  RDD = <span class='st'>"BevertonHoltRDD"</span>,
-  resource_rate = <span class='kw'>NULL</span>,
-  resource_capacity = <span class='kw'>NULL</span>,
-  n = <span class='fl'>2</span><span class='op'>/</span><span class='fl'>3</span>,
-  r_pp = <span class='fl'>10</span>,
-  kappa = <span class='fl'>1e+11</span>,
-  lambda = <span class='fl'>2.05</span>,
-  w_pp_cutoff = <span class='fl'>10</span>,
-  resource_dynamics = <span class='st'>"resource_semichemostat"</span>,
-  gear_params = <span class='kw'>NULL</span>,
-  selectivity = <span class='kw'>NULL</span>,
-  catchability = <span class='kw'>NULL</span>,
-  initial_effort = <span class='kw'>NULL</span>
-)</pre>
+    <pre class="usage"><span class='fu'>newMultispeciesParams</span><span class='op'>(</span>
+  <span class='va'>species_params</span>,
+  interaction <span class='op'>=</span> <span class='cn'>NULL</span>,
+  no_w <span class='op'>=</span> <span class='fl'>100</span>,
+  min_w <span class='op'>=</span> <span class='fl'>0.001</span>,
+  max_w <span class='op'>=</span> <span class='cn'>NA</span>,
+  min_w_pp <span class='op'>=</span> <span class='cn'>NA</span>,
+  pred_kernel <span class='op'>=</span> <span class='cn'>NULL</span>,
+  search_vol <span class='op'>=</span> <span class='cn'>NULL</span>,
+  intake_max <span class='op'>=</span> <span class='cn'>NULL</span>,
+  metab <span class='op'>=</span> <span class='cn'>NULL</span>,
+  p <span class='op'>=</span> <span class='fl'>0.7</span>,
+  z0 <span class='op'>=</span> <span class='cn'>NULL</span>,
+  z0pre <span class='op'>=</span> <span class='fl'>0.6</span>,
+  z0exp <span class='op'>=</span> <span class='va'>n</span> <span class='op'>-</span> <span class='fl'>1</span>,
+  maturity <span class='op'>=</span> <span class='cn'>NULL</span>,
+  repro_prop <span class='op'>=</span> <span class='cn'>NULL</span>,
+  RDD <span class='op'>=</span> <span class='st'>"BevertonHoltRDD"</span>,
+  resource_rate <span class='op'>=</span> <span class='cn'>NULL</span>,
+  resource_capacity <span class='op'>=</span> <span class='cn'>NULL</span>,
+  n <span class='op'>=</span> <span class='fl'>2</span><span class='op'>/</span><span class='fl'>3</span>,
+  r_pp <span class='op'>=</span> <span class='fl'>10</span>,
+  kappa <span class='op'>=</span> <span class='fl'>1e+11</span>,
+  lambda <span class='op'>=</span> <span class='fl'>2.05</span>,
+  w_pp_cutoff <span class='op'>=</span> <span class='fl'>10</span>,
+  resource_dynamics <span class='op'>=</span> <span class='st'>"resource_semichemostat"</span>,
+  gear_params <span class='op'>=</span> <span class='cn'>NULL</span>,
+  selectivity <span class='op'>=</span> <span class='cn'>NULL</span>,
+  catchability <span class='op'>=</span> <span class='cn'>NULL</span>,
+  initial_effort <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -335,7 +335,8 @@ reproduction rate from the density-independent rate. Defaults to
     </tr>
     <tr>
       <th>resource_capacity</th>
-      <td><p>Optional. Vector of resource intrinsic carrying capacity</p></td>
+      <td><p>Optional. Vector of resource intrinsic carrying
+capacity</p></td>
     </tr>
     <tr>
       <th>n</th>
@@ -372,12 +373,12 @@ want to use the default <code><a href='resource_semichemostat.html'>resource_sem
     </tr>
     <tr>
       <th>selectivity</th>
-      <td><p>An array (gear x species x size) that holds the
+      <td><p>Optional. An array (gear x species x size) that holds the
 selectivity of each gear for species and size, \(S_{g,i,w}\).</p></td>
     </tr>
     <tr>
       <th>catchability</th>
-      <td><p>An array (gear x species) that holds the catchability of
+      <td><p>Optional. An array (gear x species) that holds the catchability of
 each species by each gear, \(Q_{g,i}\).</p></td>
     </tr>
     <tr>
@@ -419,9 +420,8 @@ always change them later with <code><a href='species_params.html'>species_params
     
 
 <p>The <code>species_params</code> slot of the returned MizerParams object may differ
-slightly from the data frame supplied as argument to this function because
-default values are set for
-<code>w_min, w_inf, alpha, gear, interaction_resource</code>.</p>
+from the data frame supplied as argument to this function because
+default values are set for missing parameters.</p>
     <h2 class="hasAnchor" id="size-grid"><a class="anchor" href="#size-grid"></a>Size grid</h2>
 
     
@@ -472,7 +472,9 @@ interaction e.g. to model predator-prey interaction that is not size based.
 The values in the interaction matrix are used to scale the encountered food
 and predation mortality (see on the website
 <a href='https://sizespectrum.org/mizer/articles/model_description.html#sec:pref'>the section on predator-prey encounter rate</a>
-and on <a href='https://sizespectrum.org/mizer/articles/model_description.html#mortality'>predation mortality</a>).</p>
+and on <a href='https://sizespectrum.org/mizer/articles/model_description.html#mortality'>predation mortality</a>).
+The first index refers to the predator species and the second to the prey
+species.</p>
 <p>It is used when calculating the food encounter rate in <code><a href='getEncounter.html'>getEncounter()</a></code> and
 the predation mortality rate in <code><a href='getPredMort.html'>getPredMort()</a></code>. Its entries are
 dimensionless numbers.The values are between 0 (species do not overlap and
@@ -567,7 +569,7 @@ for predators of size \(w = 1\) gram is the value of the species parameter
 weight \(w\) determines the feeding level, calculated with
 <code><a href='getFeedingLevel.html'>getFeedingLevel()</a></code>. It is measured in grams/year.</p>
 <p>If the <code>intake_max</code> argument is not supplied, then the maximum intake
-rate is set to $$h_i(w) = h_i w^n_i.$$
+rate is set to $$h_i(w) = h_i w^{n_i}.$$
 The values of \(h_i\) (the maximum intake rate of an individual of size 1
 gram) and \(n_i\) (the allometric exponent for the intake rate) are taken
 from the <code>h</code> and <code>n</code> columns in the species parameter dataframe. If
@@ -624,7 +626,7 @@ that is invested into reproduction is the product of two factors: the
 proportion <code>maturity</code> of individuals that are mature and the proportion
 <code>repro_prop</code> of the energy available to a mature individual that is
 invested into reproduction.</p>
-<h3>Maturity ogive</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Maturity ogive</h3>
 <p>If the the proportion of individuals that are mature is not supplied via
 the <code>maturity</code> argument , then it is set to a sigmoidal
 maturity ogive that changes from 0 to 1 at around the maturity size:
@@ -645,7 +647,7 @@ maximum size, taken from the compulsory <code>w_inf</code> column in the
 <code>species_params</code> data frame. Also, for computational simplicity, any
 proportion smaller than <code>1e-8</code> is set to <code>0</code>.</p>
 
-<h3>Investment into reproduction</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Investment into reproduction</h3>
 <p>If the the energy available to a mature individual that is
 invested into reproduction is not supplied via the <code>repro_prop</code> argument,
 it is set to the allometric form
@@ -661,7 +663,7 @@ data frame.</p>
 <p>So finally we have
 $$\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)$$</p>
 
-<h3>Reproductive efficiency</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Reproductive efficiency</h3>
 <p>The reproductive efficiency \(\epsilon\), i.e., the proportion of energy allocated to
 reproduction that results in egg biomass, is set through the <code>erepro</code>
 column in the species_params data frame. If that is not provided, the default
@@ -670,7 +672,7 @@ by the egg biomass gives the rate of egg production, returned by
 <code><a href='getRDI.html'>getRDI()</a></code>:
 $$R_{di} = \frac{\epsilon}{2 w_{min}} \int N(w)  E_r(w) \psi(w) \, dw$$</p>
 
-<h3>Density dependence</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Density dependence</h3>
 <p>The stock-recruitment relationship is an emergent phenomenon in mizer, with
 several sources of density dependence. Firstly, the amount of energy invested
 into reproduction depends on the energy income of the spawners, which is
@@ -795,9 +797,10 @@ and <code>lambda</code> arguments.</p>
 <code><a href='newTraitParams.html'>newTraitParams</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'>newMultispeciesParams</span>(<span class='kw'>NS_species_params_gears</span>, <span class='kw'>inter</span>)
-}</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>newMultispeciesParams</span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -813,7 +816,7 @@ and <code>lambda</code> arguments.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

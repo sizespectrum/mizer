@@ -18,3 +18,4 @@ constant_other(params, n_other, component, ...)
 \description{
 Helper function to keep other components constant
 }
+\concept{helper}

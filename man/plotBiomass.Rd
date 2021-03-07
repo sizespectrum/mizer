@@ -72,7 +72,7 @@ over \code{max_w}.}
   }}
 }
 \value{
-A plot
+A ggplot2 object
 }
 \description{
 After running a projection, the biomass of each species can be plotted

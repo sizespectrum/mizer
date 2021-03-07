@@ -36,11 +36,17 @@ expect_doppelganger("Plot Spectra", p)
 p <- plotFeedingLevel(sim, species = species, time_range = 1:3)
 expect_doppelganger("Plot Feeding Level", p)
 
-p <- plotPredMort(sim, species = species, time_range = 1:3)
+p <- plotPredMort(sim, species = species, time_range = 1:3,
+                  all.sizes = TRUE)
 expect_doppelganger("PlotPredation Mortality", p)
+p <- plotPredMort(sim, species = "Sandeel", time_range = 1:3)
+expect_doppelganger("PlotPredMort truncated", p)
 
-p <- plotFMort(sim, species = species, time_range = 1:3)
+p <- plotFMort(sim, species = species, time_range = 1:3,
+               all.sizes = TRUE)
 expect_doppelganger("PlotFishing Mortality", p)
+p <- plotFMort(sim, species = "Sandeel", time_range = 1:3)
+expect_doppelganger("PlotFMort truncated", p)
 
 p <- plotGrowthCurves(sim, species = species, percentage = TRUE,
                       max_age = 50)

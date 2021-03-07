@@ -4,7 +4,14 @@
 \alias{plotM2}
 \title{Alias for plotPredMort}
 \usage{
-plotM2(object, species = NULL, time_range, highlight = NULL, ...)
+plotM2(
+  object,
+  species = NULL,
+  time_range,
+  all.sizes = FALSE,
+  highlight = NULL,
+  ...
+)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or \linkS4class{MizerParams}.}
@@ -17,14 +24,18 @@ and max time, or a single value) to average the abundances over. Default is
 the final time step. Ignored when called with a \linkS4class{MizerParams}
 object.}
 
+\item{all.sizes}{If TRUE, then predation mortality is plotted also for sizes
+outside a species' size range. Default FALSE.}
+
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 
 \item{...}{Other arguments (currently unused)}
 }
 \value{
-A plot
+A ggplot2 object
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 An alias provided for backward compatibility with mizer version <= 1.0
 }
 \examples{
@@ -50,3 +61,4 @@ Other plotting functions:
 \code{\link{plotYield}()},
 \code{\link{plotting_functions}}
 }
+\concept{deprecated}

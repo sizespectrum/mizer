@@ -39,4 +39,3 @@ An \code{effort} argument will lead to an error if it is either
 }
 }
 \concept{helper}
-\keyword{internal}

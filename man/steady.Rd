@@ -8,8 +8,8 @@ steady(
   params,
   t_max = 100,
   t_per = 1.5,
-  tol = 10^(-2),
   dt = 0.1,
+  tol = 0.1 * dt,
   return_sim = FALSE,
   progress_bar = TRUE
 )
@@ -24,11 +24,10 @@ after each of which we check for convergence. Default value is 1.5. This
 should be chosen as an odd multiple of the timestep \code{dt} in order to be
 able to detect period 2 cycles.}
 
-\item{tol}{The simulation stops when the relative change in the egg
-production RDI over \code{t_per} years is less than \code{tol} for every species.
-Default value is 1/100.}
-
 \item{dt}{The time step to use in \code{project()}.}
+
+\item{tol}{The simulation stops when the relative change in the egg
+production RDI over \code{t_per} years is less than \code{tol} for every species.}
 
 \item{return_sim}{If TRUE, the function returns the MizerSim object holding
 the result of the simulation run. If FALSE (default) the function returns
@@ -40,7 +39,7 @@ shiny app. Default FALSE.}
 \description{
 The steady state is found by running the dynamics while keeping reproduction
 and other components constant until the size spectra no longer change (or
-until time \code{t_max} is reached if earlier) Then the reproductive efficiencies
+until time \code{t_max} is reached, if earlier). Then the reproductive efficiencies
 are set to the values that give the level of reproduction observed in that
 steady state.
 }

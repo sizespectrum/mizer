@@ -23,7 +23,7 @@ species in the system is plotted as well. Default is FALSE}
 \item{...}{Other arguments (currently unused)}
 }
 \value{
-A plot
+A ggplot2 object
 }
 \description{
 After running a projection, the total yield of each species by fishing gear

@@ -24,4 +24,3 @@ Other functions calculating defaults:
 }
 \concept{functions calculating defaults}
 \concept{helper}
-\keyword{internal}

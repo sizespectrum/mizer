@@ -38,7 +38,7 @@ of the maximal size.}
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 }
 \value{
-A plot
+A ggplot2 object
 }
 \description{
 When the growth curve for only a single species is plotted, horizontal

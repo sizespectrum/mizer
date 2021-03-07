@@ -12,7 +12,7 @@ plotDiet(object, species)
 \item{species}{The name of the species whose diet should be plotted}
 }
 \value{
-A plot
+A ggplot2 object
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

@@ -27,7 +27,7 @@
 #' @param p The allometric metabolic exponent. This is only used if `metab`
 #'   is not given explicitly and if the exponent is not specified in a `p`
 #'   column in the `species_params`.
-#' @param comment `r lifecycle::badge("experimental")`
+#' @param comment_metab `r lifecycle::badge("experimental")`
 #'   A string describing how the value for 'metab' was obtained. This is
 #'   ignored if 'metab' is not supplied or already has a comment
 #'   attribute.
@@ -42,7 +42,7 @@
 #' @family functions for setting parameters
 setMetabolicRate <- function(params, 
                              metab = NULL, p = NULL, 
-                             comment = "set manually", ...) {
+                             comment_metab = "set manually", ...) {
     assert_that(is(params, "MizerParams"))
     if (!is.null(p)) {
         assert_that(is.numeric(p))
@@ -51,7 +51,7 @@ setMetabolicRate <- function(params,
     species_params <- params@species_params
     if (!is.null(metab)) {
         if (is.null(comment(metab))) {
-            comment(metab) <- comment
+            comment(metab) <- comment_metab
         }
         assert_that(is.array(metab),
                     identical(dim(metab), dim(params@metab)))
