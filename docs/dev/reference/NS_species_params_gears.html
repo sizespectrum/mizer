@@ -89,7 +89,7 @@ operates on each species." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -156,7 +156,7 @@ operates on each species." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -212,12 +212,13 @@ operates on each species.</p>
     <p>Blanchard et al.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='MizerParams.html'>MizerParams</a></span>(<span class='kw'>NS_species_params_gears</span>)
-<span class='kw'>sim</span> <span class='op'>=</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='kw'>params</span>, effort = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(Industrial = <span class='fl'>0</span>, Pelagic = <span class='fl'>1</span>, 
-                                 Beam = <span class='fl'>0.5</span>, Otter = <span class='fl'>0.5</span>))
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>sim</span>)
-}</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='MizerParams.html'>MizerParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span><span class='op'>)</span>
+<span class='va'>sim</span> <span class='op'>=</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>Industrial <span class='op'>=</span> <span class='fl'>0</span>, Pelagic <span class='op'>=</span> <span class='fl'>1</span>, 
+                                 Beam <span class='op'>=</span> <span class='fl'>0.5</span>, Otter <span class='op'>=</span> <span class='fl'>0.5</span><span class='op'>)</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -233,7 +234,7 @@ operates on each species.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

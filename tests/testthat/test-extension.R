@@ -1,4 +1,21 @@
 params <- NS_params
+e <- globalenv()
+e$test_dyn <- function(params, ...) {
+    111
+}
+e$nt <- function(params, t, ...) {
+    params@initial_n * t
+}
+e$resource_encounter <- function(params, n, n_pp, n_other, ...) {
+    mizerEncounter(params, n = n, n_pp = n_other$resource, ...)
+}
+e$semichemostat <- function(params, n_other, rates, dt, component, ...) {
+    c <- params@other_params[[component]]
+    interaction <- params@species_params$interaction_resource
+    mort <- as.vector(interaction  %*% rates$pred_rate)
+    tmp <- c$rate * c$capacity / (c$rate + mort)
+    return(tmp - (tmp - n_other[[component]]) * exp(-(c$rate + mort) * dt))
+}
 
 # setRateFunction works ----
 test_that("setRateFunction works", {
@@ -20,11 +37,6 @@ test_that("setRateFunction works", {
 })
 
 test_that("Time is passed correctly to rate functions", {
-    assign("nt" ,
-           function(params, t, ...) {
-               params@initial_n * t
-           },
-           envir = globalenv())
     params@rates_funcs$Encounter <- "nt"
     expect_identical(getEncounter(params, t = 2), nt(params, 2))
     params@rates_funcs$FeedingLevel <- "nt"

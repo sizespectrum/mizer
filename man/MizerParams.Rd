@@ -57,10 +57,7 @@ explicitly.}
 \item{...}{Unused}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 An alias provided for backward compatibility with mizer version <= 1.0
 }
-\seealso{
-Other deprecated functions: 
-\code{\link{set_community_model}()},
-\code{\link{set_trait_model}()}
-}
+\concept{deprecated}

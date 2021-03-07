@@ -88,7 +88,7 @@ individual and sets additional density dependence." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -155,7 +155,7 @@ individual and sets additional density dependence." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -189,11 +189,19 @@ that is invested into reproduction as a function of the size of the
 individual and sets additional density dependence.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setReproduction</span>(<span class='kw'>params</span>, maturity = <span class='kw'>NULL</span>, repro_prop = <span class='kw'>NULL</span>, RDD = <span class='kw'>NULL</span>, <span class='kw'>...</span>)
+    <pre class="usage"><span class='fu'>setReproduction</span><span class='op'>(</span>
+  <span class='va'>params</span>,
+  maturity <span class='op'>=</span> <span class='cn'>NULL</span>,
+  comment_maturity <span class='op'>=</span> <span class='st'>"set manually"</span>,
+  repro_prop <span class='op'>=</span> <span class='cn'>NULL</span>,
+  comment_repro_prop <span class='op'>=</span> <span class='st'>"set manually"</span>,
+  RDD <span class='op'>=</span> <span class='cn'>NULL</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span>
 
-<span class='fu'>getMaturityProportion</span>(<span class='kw'>params</span>)
+<span class='fu'>getMaturityProportion</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
 
-<span class='fu'>getReproductionProportion</span>(<span class='kw'>params</span>)</pre>
+<span class='fu'>getReproductionProportion</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -209,11 +217,25 @@ of individuals of each species at size that are mature. If not supplied, a
 default is set as described in the section "Setting reproduction".</p></td>
     </tr>
     <tr>
+      <th>comment_maturity</th>
+      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+A string describing how the value for 'maturity' was obtained. This is
+ignored if 'maturity' is not supplied or already has a comment
+attribute.</p></td>
+    </tr>
+    <tr>
       <th>repro_prop</th>
       <td><p>Optional. An array (species x size) that holds the
 proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".</p></td>
+    </tr>
+    <tr>
+      <th>comment_repro_prop</th>
+      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+A string describing how the value for 'repro_prop' was obtained. This is
+ignored if 'repro_prop' is not supplied or already has a comment
+attribute.</p></td>
     </tr>
     <tr>
       <th>RDD</th>
@@ -254,7 +276,7 @@ that is invested into reproduction is the product of two factors: the
 proportion <code>maturity</code> of individuals that are mature and the proportion
 <code>repro_prop</code> of the energy available to a mature individual that is
 invested into reproduction.</p>
-<h3>Maturity ogive</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Maturity ogive</h3>
 <p>If the the proportion of individuals that are mature is not supplied via
 the <code>maturity</code> argument , then it is set to a sigmoidal
 maturity ogive that changes from 0 to 1 at around the maturity size:
@@ -275,7 +297,7 @@ maximum size, taken from the compulsory <code>w_inf</code> column in the
 <code>species_params</code> data frame. Also, for computational simplicity, any
 proportion smaller than <code>1e-8</code> is set to <code>0</code>.</p>
 
-<h3>Investment into reproduction</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Investment into reproduction</h3>
 <p>If the the energy available to a mature individual that is
 invested into reproduction is not supplied via the <code>repro_prop</code> argument,
 it is set to the allometric form
@@ -291,7 +313,7 @@ data frame.</p>
 <p>So finally we have
 $$\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)$$</p>
 
-<h3>Reproductive efficiency</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Reproductive efficiency</h3>
 <p>The reproductive efficiency \(\epsilon\), i.e., the proportion of energy allocated to
 reproduction that results in egg biomass, is set through the <code>erepro</code>
 column in the species_params data frame. If that is not provided, the default
@@ -300,7 +322,7 @@ by the egg biomass gives the rate of egg production, returned by
 <code><a href='getRDI.html'>getRDI()</a></code>:
 $$R_{di} = \frac{\epsilon}{2 w_{min}} \int N(w)  E_r(w) \psi(w) \, dw$$</p>
 
-<h3>Density dependence</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Density dependence</h3>
 <p>The stock-recruitment relationship is an emergent phenomenon in mizer, with
 several sources of density dependence. Firstly, the amount of energy invested
 into reproduction depends on the energy income of the spawners, which is
@@ -341,17 +363,20 @@ these as models for writing your own functions.</p>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
 <span class='co'># Plot maturity and reproduction ogives for Cod in North Sea model</span>
-<span class='kw'>maturity</span> <span class='op'>&lt;-</span> <span class='fu'>getMaturityProportion</span>(<span class='kw'>NS_params</span>)[<span class='st'>"Cod"</span>, ]
-<span class='kw'>repro_prop</span> <span class='op'>&lt;-</span> <span class='fu'>getReproductionProportion</span>(<span class='kw'>NS_params</span>)[<span class='st'>"Cod"</span>, ]
-<span class='kw'>df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(Size = <span class='fu'><a href='w.html'>w</a></span>(<span class='kw'>NS_params</span>), 
-                 Reproduction = <span class='kw'>repro_prop</span>, 
-                 Maturity = <span class='kw'>maturity</span>, 
-                 Total = <span class='kw'>maturity</span> <span class='op'>*</span> <span class='kw'>repro_prop</span>)
-<span class='kw'>dff</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/reshape2/man/melt.html'>melt</a></span>(<span class='kw'>df</span>, id.vars = <span class='st'>"Size"</span>, 
-            variable.name = <span class='st'>"Type"</span>, 
-            value.name = <span class='st'>"Proportion"</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='http://ggplot2.tidyverse.org'>ggplot2</a></span>)
-<span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span>(<span class='kw'>dff</span>) <span class='op'>+</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line</a></span>(<span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(x = <span class='kw'>Size</span>, y = <span class='kw'>Proportion</span>, colour = <span class='kw'>Type</span>))</div><div class='img'><img src='setReproduction-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span></div></pre>
+<span class='va'>maturity</span> <span class='op'>&lt;-</span> <span class='fu'>getMaturityProportion</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span><span class='op'>[</span><span class='st'>"Cod"</span>, <span class='op'>]</span>
+<span class='va'>repro_prop</span> <span class='op'>&lt;-</span> <span class='fu'>getReproductionProportion</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span><span class='op'>[</span><span class='st'>"Cod"</span>, <span class='op'>]</span>
+<span class='va'>df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>Size <span class='op'>=</span> <span class='fu'><a href='w.html'>w</a></span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span>, 
+                 Reproduction <span class='op'>=</span> <span class='va'>repro_prop</span>, 
+                 Maturity <span class='op'>=</span> <span class='va'>maturity</span>, 
+                 Total <span class='op'>=</span> <span class='va'>maturity</span> <span class='op'>*</span> <span class='va'>repro_prop</span><span class='op'>)</span>
+<span class='va'>dff</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/reshape2/man/melt.html'>melt</a></span><span class='op'>(</span><span class='va'>df</span>, id.vars <span class='op'>=</span> <span class='st'>"Size"</span>, 
+            variable.name <span class='op'>=</span> <span class='st'>"Type"</span>, 
+            value.name <span class='op'>=</span> <span class='st'>"Proportion"</span><span class='op'>)</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://ggplot2.tidyverse.org'>ggplot2</a></span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>Want to understand how all the pieces fit together? Read R for Data</span>
+#&gt; <span class='message'>Science: https://r4ds.had.co.nz/</span></div><div class='input'><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='va'>dff</span><span class='op'>)</span> <span class='op'>+</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>Size</span>, y <span class='op'>=</span> <span class='va'>Proportion</span>, colour <span class='op'>=</span> <span class='va'>Type</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='img'><img src='setReproduction-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -367,7 +392,7 @@ these as models for writing your own functions.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

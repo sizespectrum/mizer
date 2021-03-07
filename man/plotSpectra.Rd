@@ -77,7 +77,7 @@ Default is TRUE.}
 \item{...}{Other arguments (currently unused)}
 }
 \value{
-A plot
+A ggplot2 object
 }
 \description{
 Plots the number density multiplied by a power of the weight, with the power

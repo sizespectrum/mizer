@@ -10,7 +10,8 @@ getRDD(
   n_pp = initialNResource(params),
   n_other = initialNOther(params),
   t = 0,
-  rdi = getRDI(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
+  rdi = getRDI(params, n = n, n_pp = n_pp, n_other = n_other, t = t),
+  ...
 )
 }
 \arguments{
@@ -30,6 +31,8 @@ parameters.)}
 \item{rdi}{A vector of density-independent reproduction rates for each
 species. If not specified, rdi is calculated internally using
 \code{\link[=getRDI]{getRDI()}}.}
+
+\item{...}{Unused}
 }
 \value{
 A numeric vector the length of the number of species.

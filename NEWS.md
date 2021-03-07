@@ -1,5 +1,13 @@
 # mizer 2.0.4.9000
 
+* New function `projectToSteady()` to run the full dynamics to steady state.
+* New functions `distanceSSLogN()` and `distanceMaxRelRDI()` to measure 
+  distance between two states.
+* New function `compareParams()` to compare two MizerParams objects.
+* Added `constantEggRDI()` to allow keeping egg densities fixed.
+* When setting custom parameter arrays with the setter functions, it is now
+  easy for the user to document that via "comment" arguments.
+* New function `customFunction()` to allow users to overwrite mizer functions.
 * Improved error handling in `setFishing()` #172
 * Now if the effort is specified as a named vector giving values only for some 
   gears, the effort for the remaining gears is assumed to be zero.

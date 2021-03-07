@@ -11,7 +11,7 @@
 #' @param q Allometric exponent of search volume
 #' @param ... Unused
 #' @export
-#' @family deprecated functions
+#' @concept deprecated
 set_multispecies_model <- 
     function(
         species_params,
@@ -113,9 +113,11 @@ set_multispecies_model <-
 
 #' Alias for set_multispecies_model
 #' 
+#' `r lifecycle::badge("deprecated")`
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit set_multispecies_model
 #' @export
+#' @concept deprecated
 MizerParams <- set_multispecies_model
 
 
@@ -214,7 +216,7 @@ MizerParams <- set_multispecies_model
 #'   driven by fishing in model marine ecosystems. Proceedings of the Royal
 #'   Society V, Biological Sciences, 1682, 795-802.
 #' @export
-#' @family deprecated functions
+#' @concept deprecated
 set_trait_model <- function(no_sp = 10,
                             min_w_inf = 10,
                             max_w_inf = 1e5,
@@ -404,7 +406,7 @@ set_trait_model <- function(no_sp = 10,
 #' @references K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and 
 #'   individual efficiencies of size-structured communities, Proceedings of the 
 #'   Royal Society, 276, 109-114
-#' @family deprecated functions
+#' @concept deprecated
 #' @examples
 #' \dontrun{
 #' params <- set_community_model(f0=0.7, z0=0.2, recruitment=3e7)
@@ -493,6 +495,7 @@ set_community_model <- function(max_w = 1e6,
 #' @return A two dimensional array (predator species x predator size)
 #' @seealso [project()]
 #' @export
+#' @concept deprecated
 #' @examples
 #' \dontrun{
 #' params <- MizerParams(NS_species_params_gears, inter)

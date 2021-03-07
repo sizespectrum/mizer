@@ -136,6 +136,7 @@ log_breaks <- function(n = 6) {
 #'   
 #' @return A data frame
 #' @family frame functions
+#' @keywords internal
 getBiomassFrame <- function(sim,
             species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
             start_time = as.numeric(dimnames(sim@n)[[1]][1]),
@@ -187,7 +188,7 @@ getBiomassFrame <- function(sim,
 #' @param y_ticks The approximate number of ticks desired on the y axis
 #' @inheritDotParams get_size_range_array -params
 #'   
-#' @return A plot
+#' @return A ggplot2 object
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions], [getBiomass()]
@@ -275,7 +276,7 @@ plotlyBiomass <- function(sim,
 #' @param log Boolean whether yield should be plotted on a logarithmic axis. 
 #'   Defaults to true.
 #'
-#' @return A plot
+#' @return A ggplot2 object
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions],  [getYield()]
@@ -395,7 +396,7 @@ plotlyYield <- function(sim, sim2,
 #' @param sim An object of class \linkS4class{MizerSim}
 #' @inheritParams plotSpectra
 #'
-#' @return A plot
+#' @return A ggplot2 object
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions],  [getYieldGear()]
@@ -487,7 +488,7 @@ plotlyYieldGear <- function(sim, species,
 #' @param highlight Name or vector of names of the species to be highlighted.
 #' @param ... Other arguments (currently unused)
 #'   
-#' @return A plot
+#' @return A ggplot2 object
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions]
@@ -692,7 +693,7 @@ plotlySpectra <- function(object, species = NULL,
 #' @param include_critical If TRUE, then the critical feeding level is also
 #'   plotted. Default FALSE.
 #'
-#' @return A plot
+#' @return A ggplot2 object
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions], [getFeedingLevel()]
@@ -818,7 +819,7 @@ plotlyFeedingLevel <- function(object,
 #' @param all.sizes If TRUE, then predation mortality is plotted also for sizes
 #'   outside a species' size range. Default FALSE.
 #'
-#' @return A plot
+#' @return A ggplot2 object
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions],  [getPredMort()]
@@ -890,9 +891,11 @@ plotPredMort <- function(object, species = NULL,
 
 #' Alias for plotPredMort
 #' 
+#' `r lifecycle::badge("deprecated")`
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit plotPredMort
 #' @export
+#' @concept deprecated
 plotM2 <- plotPredMort
 
 #' @rdname plotPredMort
@@ -914,7 +917,7 @@ plotlyPredMort <- function(object, species = NULL,
 #' @inheritParams plotSpectra
 #' @param all.sizes If TRUE, then fishing mortality is plotted also for sizes
 #'   outside a species' size range. Default FALSE.
-#' @return A plot
+#' @return A ggplot2 object
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions], [getFMort()]
@@ -1006,7 +1009,7 @@ plotlyFMort <- function(object, species = NULL,
 #' @inheritParams plotSpectra
 #' @param species_panel. If TRUE, display all species with their Von bertalanffy curves as facets 
 #' (need species and percentage to be set to default)
-#' @return A plot
+#' @return A ggplot2 object
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions]
@@ -1124,7 +1127,7 @@ plotlyGrowthCurves <- function(object, species,
 #' @inheritParams plotSpectra
 #' @param species The name of the species whose diet should be plotted
 #'
-#' @return A plot
+#' @return A ggplot2 object
 #' @export
 #' @family plotting functions
 plotDiet <- function(object, species) {

@@ -6,8 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get the total fishing mortality rate from all fishing gears by time, species
-and size needed to project standard mizer model — mizerFMort • mizer</title>
+<title>Get the total fishing mortality rate from all fishing gears — mizerFMort • mizer</title>
 
 
 <!-- jquery -->
@@ -46,10 +45,9 @@ and size needed to project standard mizer model — mizerFMort • mizer</title>
 
 
 
-<meta property="og:title" content="Get the total fishing mortality rate from all fishing gears by time, species
-and size needed to project standard mizer model — mizerFMort" />
+<meta property="og:title" content="Get the total fishing mortality rate from all fishing gears — mizerFMort" />
 <meta property="og:description" content="Calculates the total fishing mortality  (in units 1/year) from all gears by
-species and size at each time step in the effort argument.
+species and size.
 The total fishing mortality is just the sum of the fishing mortalities
 imposed by each gear, \(\mu_{f.i}(w)=\sum_g F_{g,i,w}\).
 You would not usually call this
@@ -94,7 +92,7 @@ function unless an alternative function has been registered, see below." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -161,7 +159,7 @@ function unless an alternative function has been registered, see below." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -184,15 +182,14 @@ function unless an alternative function has been registered, see below." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get the total fishing mortality rate from all fishing gears by time, species
-and size needed to project standard mizer model</h1>
+    <h1>Get the total fishing mortality rate from all fishing gears</h1>
     <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/project_methods.R'><code>R/project_methods.R</code></a></small>
     <div class="hidden name"><code>mizerFMort.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>Calculates the total fishing mortality  (in units 1/year) from all gears by
-species and size at each time step in the <code>effort</code> argument.
+species and size.
 The total fishing mortality is just the sum of the fishing mortalities
 imposed by each gear, \(\mu_{f.i}(w)=\sum_g F_{g,i,w}\).
 You would not usually call this
@@ -200,7 +197,7 @@ function directly but instead use <code><a href='getFMort.html'>getFMort()</a></
 function unless an alternative function has been registered, see below.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>mizerFMort</span>(<span class='kw'>params</span>, <span class='kw'>n</span>, <span class='kw'>n_pp</span>, <span class='kw'>n_other</span>, <span class='kw'>t</span>, <span class='kw'>effort</span>, <span class='kw'>e_growth</span>, <span class='kw'>pred_mort</span>, <span class='kw'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>mizerFMort</span><span class='op'>(</span><span class='va'>params</span>, <span class='va'>n</span>, <span class='va'>n_pp</span>, <span class='va'>n_other</span>, <span class='va'>t</span>, <span class='va'>effort</span>, <span class='va'>e_growth</span>, <span class='va'>pred_mort</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -261,7 +258,8 @@ mortality as calculated by <code><a href='getPredMort.html'>getPredMort()</a></c
 <p>By default <code><a href='getFMort.html'>getFMort()</a></code> calls <code>mizerFMort()</code>. However you can
 replace this with your own alternative fishing mortality function. If
 your function is called <code>"myFMort"</code> then you register it in a MizerParams
-object <code>params</code> with</p><pre><span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span>(<span class='kw'>params</span>, <span class='st'>"FMort"</span>, <span class='st'>"myFMort"</span>)</pre>
+object <code>params</code> with</p><pre><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span><span class='op'>(</span><span class='va'>params</span>, <span class='st'>"FMort"</span>, <span class='st'>"myFMort"</span><span class='op'>)</span>
+</pre>
 
 <p>Your function will then be called instead of <code>mizerFMort()</code>, with the
 same arguments.</p>
@@ -296,7 +294,7 @@ same arguments.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

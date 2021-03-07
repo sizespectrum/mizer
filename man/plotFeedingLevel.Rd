@@ -46,7 +46,7 @@ plotted. Default FALSE.}
 \item{...}{Other arguments (currently unused)}
 }
 \value{
-A plot
+A ggplot2 object
 }
 \description{
 After running a projection, plot the feeding level of each species by size.

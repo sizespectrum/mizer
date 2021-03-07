@@ -86,7 +86,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -153,7 +153,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -185,19 +185,21 @@
     <p>Set fishing parameters</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setFishing</span>(
-  <span class='kw'>params</span>,
-  selectivity = <span class='kw'>NULL</span>,
-  catchability = <span class='kw'>NULL</span>,
-  initial_effort = <span class='kw'>NULL</span>,
-  <span class='kw'>...</span>
-)
+    <pre class="usage"><span class='fu'>setFishing</span><span class='op'>(</span>
+  <span class='va'>params</span>,
+  selectivity <span class='op'>=</span> <span class='cn'>NULL</span>,
+  catchability <span class='op'>=</span> <span class='cn'>NULL</span>,
+  comment_selectivity <span class='op'>=</span> <span class='st'>"set manually"</span>,
+  comment_catchability <span class='op'>=</span> <span class='st'>"set manually"</span>,
+  initial_effort <span class='op'>=</span> <span class='cn'>NULL</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span>
 
-<span class='fu'>getCatchability</span>(<span class='kw'>params</span>)
+<span class='fu'>getCatchability</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
 
-<span class='fu'>getSelectivity</span>(<span class='kw'>params</span>)
+<span class='fu'>getSelectivity</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
 
-<span class='fu'>getInitialEffort</span>(<span class='kw'>params</span>)</pre>
+<span class='fu'>getInitialEffort</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -208,13 +210,27 @@
     </tr>
     <tr>
       <th>selectivity</th>
-      <td><p>An array (gear x species x size) that holds the
+      <td><p>Optional. An array (gear x species x size) that holds the
 selectivity of each gear for species and size, \(S_{g,i,w}\).</p></td>
     </tr>
     <tr>
       <th>catchability</th>
-      <td><p>An array (gear x species) that holds the catchability of
+      <td><p>Optional. An array (gear x species) that holds the catchability of
 each species by each gear, \(Q_{g,i}\).</p></td>
+    </tr>
+    <tr>
+      <th>comment_selectivity</th>
+      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+A string describing how the value for 'selectivity' was obtained. This is
+ignored if 'selectivity' is not supplied or already has a comment
+attribute.</p></td>
+    </tr>
+    <tr>
+      <th>comment_catchability</th>
+      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+A string describing how the value for 'catchability' was obtained. This is
+ignored if 'catchability' is not supplied or already has a comment
+attribute.</p></td>
     </tr>
     <tr>
       <th>initial_effort</th>
@@ -342,7 +358,7 @@ an effort that varies through time.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

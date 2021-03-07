@@ -23,4 +23,3 @@ is valid and all its arguments are contained in the species_params data
 frame, and then calling this function with the ppmr vector.
 }
 \concept{helper}
-\keyword{internal}

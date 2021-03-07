@@ -381,7 +381,6 @@ getGrowthCurves <- function(object,
 #' maximum weights of the spectrum, i.e. the full range of the size spectrum is
 #' used.
 #' @export
-#' @keywords internal
 #' @concept helper
 get_size_range_array <- function(params, min_w = min(params@w), 
                                  max_w = max(params@w), 

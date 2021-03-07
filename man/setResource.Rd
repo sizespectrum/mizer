@@ -10,7 +10,9 @@
 setResource(
   params,
   resource_rate = NULL,
+  comment_rate = "set manually",
   resource_capacity = NULL,
+  comment_capacity = "set manually",
   r_pp = resource_params(params)[["r_pp"]],
   kappa = resource_params(params)[["kappa"]],
   lambda = resource_params(params)[["lambda"]],
@@ -31,7 +33,18 @@ getResourceDynamics(params)
 
 \item{resource_rate}{Optional. Vector of resource intrinsic birth rates}
 
-\item{resource_capacity}{Optional. Vector of resource intrinsic carrying capacity}
+\item{comment_rate}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+A string describing how the value for 'resource_rate' was obtained. This is
+ignored if 'resource_rate' is not supplied or already has a comment
+attribute.}
+
+\item{resource_capacity}{Optional. Vector of resource intrinsic carrying
+capacity}
+
+\item{comment_capacity}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+A string describing how the value for 'resource_capacity' was obtained. This is
+ignored if 'resource_capacity' is not supplied or already has a comment
+attribute.}
 
 \item{r_pp}{Coefficient of the intrinsic resource birth rate}
 

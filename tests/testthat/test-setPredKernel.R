@@ -30,6 +30,20 @@ test_that("Comment works on pred kernel", {
     expect_identical(comment(params_c@pred_kernel), "test")
 })
 
+test_that("setPredKernel sets comments correctly", {
+    pred_kernel <- getPredKernel(params)
+    # The comment argument is ignored when the values is already commented
+    comment(pred_kernel) <- "test"
+    params <- setPredKernel(params, pred_kernel = pred_kernel,
+                            comment_pred_kernel = "overwrite")
+    expect_identical(comment(params@pred_kernel), "test")
+    # But otherwise the comment arguments are stored correctly.
+    comment(pred_kernel) <- NULL
+    params <- setPredKernel(params, pred_kernel = pred_kernel,
+                            comment_pred_kernel = "overwrite")
+    expect_identical(comment(params@pred_kernel), "overwrite")
+})
+
 # getPredKernel ----
 test_that("getPredKernel has correct dimnames",{
     pred_kernel <- getPredKernel(params)

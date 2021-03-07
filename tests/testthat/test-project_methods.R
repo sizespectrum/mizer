@@ -269,6 +269,42 @@ test_that("getFMort", {
     expect_known_value(f1, "values/getFMort")
 })
 
+test_that("getFMort passes correct time", {
+    # Here we will check that when getFMort() calls getEGrowth().
+    # it passes the correct time. To implement the test we write simple
+    # replacements for mizerFMort() and mizerEGrowth that put the time
+    # argument into the returned array.
+    times <- as.numeric(dimnames(sim@effort)$time)
+    e <- globalenv() # We need to define the following functions in the
+    # global environment so that mizer can find them
+    e$testEGrowth <- function(params, n, t, ...) {
+        e_growth <- n
+        e_growth[, ] <- as.numeric(t)
+        e_growth
+    }
+    e$testFMort <- function(params, e_growth, pred_mort, t, ...) {
+        e_growth
+    }
+    sim@params <- setRateFunction(sim@params, "EGrowth", "testEGrowth")
+    sim@params <- setRateFunction(sim@params, "FMort", "testFMort")
+    f_mort <- getFMort(sim)
+    expect_identical(unname(f_mort[, 1, 1]), times)
+    
+    # Now we do the same for when getFMort() calls getPredMort()
+    e$testPredMort <- function(params, n, t, ...) {
+        pred_mort <- n
+        pred_mort[, ] <- as.numeric(t)
+        pred_mort
+    }
+    e$testFMort <- function(params, e_growth, pred_mort, t, ...) {
+        pred_mort
+    }
+    sim@params <- setRateFunction(sim@params, "PredMort", "testPredMort")
+    sim@params <- setRateFunction(sim@params, "FMort", "testFMort")
+    f_mort <- getFMort(sim)
+    expect_identical(unname(f_mort[, 1, 1]), times)
+})
+
 
 # getMort --------------------------------------------------------------------
 

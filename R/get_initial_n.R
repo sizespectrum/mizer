@@ -10,6 +10,7 @@
 #' @param n0_mult Multiplier for the abundance at size 0. Default value is
 #'   kappa/1000.
 #' @export
+#' @concept helper
 #' @return A matrix (species x size) of population abundances.
 #' @examples
 #' \dontrun{

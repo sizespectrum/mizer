@@ -85,7 +85,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -152,7 +152,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -325,6 +325,12 @@
           <p><code><a href="setBevertonHolt.html">setBevertonHolt()</a></code> </p>
         </td>
         <td><p>Set Beverton-Holt density dependence</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="compareParams.html">compareParams()</a></code> </p>
+        </td>
+        <td><p>Compare two MizerParams objects and print out differences</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -344,6 +350,12 @@
           <p><code><a href="project.html">project()</a></code> </p>
         </td>
         <td><p>Project size spectrum forward in time</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="projectToSteady.html">projectToSteady()</a></code> </p>
+        </td>
+        <td><p>Project to steady state</p></td>
       </tr><tr>
         
         <td>
@@ -760,6 +772,12 @@ and size.</p></td>
           <p><code><a href="finalNOther.html">finalNOther()</a></code> </p>
         </td>
         <td><p>Values of other ecosystem components at end of simulation</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="customFunction.html">customFunction()</a></code> </p>
+        </td>
+        <td><p>Replace a mizer function with a custom version</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -863,7 +881,7 @@ and size.</p></td>
     </tbody><tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-density-dependent-reproduction" class="hasAnchor"><a href="#section-density-dependent-reproduction" class="anchor"></a>Density-dependent reproduction</h2>
+          <h2 id="section-reproduction-functions" class="hasAnchor"><a href="#section-reproduction-functions" class="anchor"></a>Reproduction functions</h2>
           <p class="section-desc"></p>
         </th>
       </tr>
@@ -902,6 +920,12 @@ and size.</p></td>
           <p><code><a href="constantRDD.html">constantRDD()</a></code> </p>
         </td>
         <td><p>Give constant reproduction rate</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="constantEggRDI.html">constantEggRDI()</a></code> </p>
+        </td>
+        <td><p>Choose egg production to keep egg density constant</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -952,14 +976,13 @@ standard mizer model</p></td>
         <td>
           <p><code><a href="mizerFMort.html">mizerFMort()</a></code> </p>
         </td>
-        <td><p>Get the total fishing mortality rate from all fishing gears by time, species
-and size needed to project standard mizer model</p></td>
+        <td><p>Get the total fishing mortality rate from all fishing gears</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="mizerFMortGear.html">mizerFMortGear()</a></code> </p>
         </td>
-        <td><p>Get the fishing mortality by time, gear, species and size needed to project
+        <td><p>Get the fishing mortality needed to project
 standard mizer model</p></td>
       </tr><tr>
         
@@ -1015,33 +1038,51 @@ model</p></td>
       <tr>
         
         <td>
-          <p><code><a href="validSpeciesParams.html">validSpeciesParams()</a></code> </p>
+          <p><code><a href="constant_other.html">constant_other()</a></code> </p>
         </td>
-        <td><p>Validate species parameter data frame</p></td>
+        <td><p>Helper function to keep other components constant</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="validGearParams.html">validGearParams()</a></code> </p>
+          <p><code><a href="default_pred_kernel_params.html">default_pred_kernel_params()</a></code> </p>
         </td>
-        <td><p>Check validity of gear parameters and set defaults</p></td>
+        <td><p>Set defaults for predation kernel parameters</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="set_species_param_default.html">set_species_param_default()</a></code> </p>
+          <p><code><a href="different.html">different()</a></code> </p>
         </td>
-        <td><p>Set a species parameter to a default value</p></td>
+        <td><p>Check whether two objects are different</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="get_h_default.html">get_h_default()</a></code> </p>
+          <p><code><a href="distanceMaxRelRDI.html">distanceMaxRelRDI()</a></code> </p>
         </td>
-        <td><p>Get default value for h</p></td>
+        <td><p>Measure distance between current and previous state in terms of RDI</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="distanceSSLogN.html">distanceSSLogN()</a></code> </p>
+        </td>
+        <td><p>Measure distance between current and previous state in terms of fish abundances</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="emptyParams.html">emptyParams()</a></code> </p>
+        </td>
+        <td><p>Create empty MizerParams object of the right size</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="get_gamma_default.html">get_gamma_default()</a></code> </p>
         </td>
         <td><p>Get default value for gamma</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="get_initial_n.html">get_initial_n()</a></code> </p>
+        </td>
+        <td><p>Calculate initial population abundances for the community populations</p></td>
       </tr><tr>
         
         <td>
@@ -1057,15 +1098,27 @@ model</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="log_breaks.html">log_breaks()</a></code> </p>
+          <p><code><a href="get_required_reproduction.html">get_required_reproduction()</a></code> </p>
         </td>
-        <td><p>Helper function to produce nice breaks on logarithmic axes</p></td>
+        <td><p>Determine reproduction rate needed for initial egg abundance</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="get_initial_n.html">get_initial_n()</a></code> </p>
+          <p><code><a href="get_size_range_array.html">get_size_range_array()</a></code> </p>
         </td>
-        <td><p>Calculate initial population abundances for the community populations</p></td>
+        <td><p>Get size range array</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="get_time_elements.html">get_time_elements()</a></code> </p>
+        </td>
+        <td><p>Get_time_elements</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="project_simple.html">project_simple()</a></code> </p>
+        </td>
+        <td><p>Project abundances by a given number of time steps into the future</p></td>
       </tr><tr>
         
         <td>
@@ -1075,21 +1128,33 @@ model</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="get_required_reproduction.html">get_required_reproduction()</a></code> </p>
+          <p><code><a href="set_species_param_default.html">set_species_param_default()</a></code> </p>
         </td>
-        <td><p>Determine reproduction rate needed for initial egg abundance</p></td>
+        <td><p>Set a species parameter to a default value</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="emptyParams.html">emptyParams()</a></code> </p>
+          <p><code><a href="validEffortVector.html">validEffortVector()</a></code> </p>
         </td>
-        <td><p>Create empty MizerParams object of the right size</p></td>
+        <td><p>Return valid effort vector</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="project_simple.html">project_simple()</a></code> </p>
+          <p><code><a href="validGearParams.html">validGearParams()</a></code> </p>
         </td>
-        <td><p>Project abundances by a given number of time steps into the future</p></td>
+        <td><p>Check validity of gear parameters and set defaults</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="validSpeciesParams.html">validSpeciesParams()</a></code> </p>
+        </td>
+        <td><p>Validate species parameter data frame</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="valid_species_arg.html">valid_species_arg()</a></code> </p>
+        </td>
+        <td><p>Helper function to assure validity of species argument</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -1216,24 +1281,6 @@ model</p></td>
       <tr>
         
         <td>
-          <p><code><a href="set_multispecies_model.html">set_multispecies_model()</a></code> </p>
-        </td>
-        <td><p>Deprecated obsolete function for setting up multispecies parameters</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="set_community_model.html">set_community_model()</a></code> </p>
-        </td>
-        <td><p>Deprecated function for setting up parameters for a community-type model</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="set_trait_model.html">set_trait_model()</a></code> </p>
-        </td>
-        <td><p>Deprecated function for setting up parameters for a trait-based model</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="MizerParams.html">MizerParams()</a></code> </p>
         </td>
         <td><p>Alias for set_multispecies_model</p></td>
@@ -1243,12 +1290,6 @@ model</p></td>
           <p><code><a href="getESpawning.html">getESpawning()</a></code> </p>
         </td>
         <td><p>Alias for getERepro</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="getPhiPrey.html">getPhiPrey()</a></code> </p>
-        </td>
-        <td><p>Get available energy</p></td>
       </tr><tr>
         
         <td>
@@ -1264,6 +1305,12 @@ model</p></td>
       </tr><tr>
         
         <td>
+          <p><code><a href="getPhiPrey.html">getPhiPrey()</a></code> </p>
+        </td>
+        <td><p>Get available energy</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="getZ.html">getZ()</a></code> </p>
         </td>
         <td><p>Alias for getMort</p></td>
@@ -1273,6 +1320,30 @@ model</p></td>
           <p><code><a href="plotM2.html">plotM2()</a></code> </p>
         </td>
         <td><p>Alias for plotPredMort</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setRmax.html">setRmax()</a></code> </p>
+        </td>
+        <td><p>Alias for setBevertonHolt</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="set_community_model.html">set_community_model()</a></code> </p>
+        </td>
+        <td><p>Deprecated function for setting up parameters for a community-type model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="set_multispecies_model.html">set_multispecies_model()</a></code> </p>
+        </td>
+        <td><p>Deprecated obsolete function for setting up multispecies parameters</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="set_trait_model.html">set_trait_model()</a></code> </p>
+        </td>
+        <td><p>Deprecated function for setting up parameters for a trait-based model</p></td>
       </tr>
     </tbody>
     </table>
@@ -1292,7 +1363,7 @@ model</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

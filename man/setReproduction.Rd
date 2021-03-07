@@ -6,7 +6,15 @@
 \alias{getReproductionProportion}
 \title{Set reproduction parameters}
 \usage{
-setReproduction(params, maturity = NULL, repro_prop = NULL, RDD = NULL, ...)
+setReproduction(
+  params,
+  maturity = NULL,
+  comment_maturity = "set manually",
+  repro_prop = NULL,
+  comment_repro_prop = "set manually",
+  RDD = NULL,
+  ...
+)
 
 getMaturityProportion(params)
 
@@ -19,10 +27,20 @@ getReproductionProportion(params)
 of individuals of each species at size that are mature. If not supplied, a
 default is set as described in the section "Setting reproduction".}
 
+\item{comment_maturity}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+A string describing how the value for 'maturity' was obtained. This is
+ignored if 'maturity' is not supplied or already has a comment
+attribute.}
+
 \item{repro_prop}{Optional. An array (species x size) that holds the
 proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".}
+
+\item{comment_repro_prop}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+A string describing how the value for 'repro_prop' was obtained. This is
+ignored if 'repro_prop' is not supplied or already has a comment
+attribute.}
 
 \item{RDD}{The name of the function calculating the density-dependent
 reproduction rate from the density-independent rate. Defaults to
