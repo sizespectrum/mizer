@@ -50,6 +50,9 @@ expect_doppelganger("PlotFMort truncated", p)
 
 p <- plotGrowthCurves(sim, species = species, percentage = TRUE,
                       max_age = 50)
+expect_doppelganger("Plot Growth Curves Panel", p)
+p <- plotGrowthCurves(sim, percentage = FALSE,
+                      species_panel = TRUE, max_age = 50)
 expect_doppelganger("Plot Growth Curves", p)
 
 sim@params@species_params[["a"]] <- 0.0058
