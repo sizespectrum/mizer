@@ -1,4 +1,5 @@
 test_that("compareParams", {
+  local_reproducible_output()
   params <- NS_params
   expect_equal(compareParams(params, params), character())
   # Change a species param
