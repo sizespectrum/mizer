@@ -507,6 +507,9 @@ emptyParams <- function(species_params,
         # For fft methods we need a constant log bin size throughout. 
         # Therefore we use as many steps as are necessary so that the first size
         # class includes min_w_pp.
+        if (min_w_pp >= min_w) {
+            stop("min_w_pp must be larger than min_w")
+        }
         x_pp <- rev(seq(from = log10(min_w),
                         to = log10(min_w_pp),
                         by = -dx)) - dx
