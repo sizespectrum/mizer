@@ -1007,8 +1007,8 @@ plotlyFMort <- function(object, species = NULL,
 #' 
 #' @inheritParams getGrowthCurves
 #' @inheritParams plotSpectra
-#' @param species_panel. If TRUE, display all species with their Von bertalanffy curves as facets 
-#' (need species and percentage to be set to default)
+#' @param species_panel If TRUE, display all species with their Von Bertalanffy curves as facets 
+#' (need species and percentage to be set to default). Default FALSE.
 #' @return A ggplot2 object
 #' @export
 #' @family plotting functions

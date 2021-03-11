@@ -10,6 +10,7 @@ plotGrowthCurves(
   species,
   max_age = 20,
   percentage = FALSE,
+  species_panel = FALSE,
   highlight = NULL
 )
 
@@ -18,6 +19,7 @@ plotlyGrowthCurves(
   species,
   max_age = 20,
   percentage = FALSE,
+  species_panel = FALSE,
   highlight = NULL
 )
 }
@@ -34,6 +36,9 @@ default all species are included.}
 
 \item{percentage}{Boolean value. If TRUE, the size is given as a percentage
 of the maximal size.}
+
+\item{species_panel}{If TRUE, display all species with their Von Bertalanffy curves as facets
+(need species and percentage to be set to default). Default FALSE.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 }
@@ -54,6 +59,7 @@ params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter)
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotGrowthCurves(sim, percentage = TRUE)
 plotGrowthCurves(sim, species = "Cod", max_age = 24)
+plotGrowthCurves(sim, species_panel = T)
 }
 }
 \seealso{
