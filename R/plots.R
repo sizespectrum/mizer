@@ -1021,13 +1021,12 @@ plotlyFMort <- function(object, species = NULL,
 #' plotGrowthCurves(sim, species = "Cod", max_age = 24)
 #' plotGrowthCurves(sim, species_panel = T)
 #' }
-plotGrowthCurves <- function (object, 
-                              species, 
-                              max_age = 20, 
-                              percentage = FALSE, 
-                              species_panel = FALSE,
-                              highlight = NULL) 
-{
+plotGrowthCurves <- function(object, 
+                             species, 
+                             max_age = 20, 
+                             percentage = FALSE, 
+                             species_panel = FALSE,
+                             highlight = NULL) {
     if (is(object, "MizerSim")) {
         params <- object@params
         t <- dim(object@n)[1]
@@ -1045,20 +1044,36 @@ plotGrowthCurves <- function (object,
     plot_dat$legend <- "model"
     
     # creating some VB
-    if (all(c("a", "b", "k_vb") %in% names(params@species_params))) 
-    {
-        VBdf <- data.frame("species" = params@species_params$species, "w_inf" = params@species_params$w_inf, "a" = params@species_params$a, "b" = params@species_params$b, "k_vb" = params@species_params$k_vb, "t0" = 0) 
-        VBdf$L_inf <- (VBdf$w_inf / VBdf$a)^(1/VBdf$b)
+    if (all(c("a", "b", "k_vb") %in% names(params@species_params))) {
+        if ("t0" %in% names(params@species_params)) {
+            t0 <- params@species_params$t0
+        } else {
+            t0 <- 0
+        }
+        VBdf <- data.frame("species" = params@species_params$species, 
+                           "w_inf" = params@species_params$w_inf, 
+                           "a" = params@species_params$a, 
+                           "b" = params@species_params$b, 
+                           "k_vb" = params@species_params$k_vb, 
+                           "t0" = t0) 
+        VBdf$L_inf <- (VBdf$w_inf / VBdf$a) ^ (1 / VBdf$b)
         plot_dat2 <- plot_dat
-        plot_dat2$value <- apply(plot_dat,1,function(x, VBdf){VBdf[which(VBdf$species == x[1]),]$a * 
-                (VBdf[which(VBdf$species == x[1]),]$L_inf * (1 - exp(-VBdf[which(VBdf$species == x[1]),]$k_vb * 
-                                                                         (as.numeric(x[2]) - VBdf[which(VBdf$species == x[1]),]$t0))))^VBdf[which(VBdf$species == x[1]),]$b}, VBdf)
+        plot_dat2$value <- 
+            apply(plot_dat, 1,
+                  function(x) {
+                      sel <- VBdf$species == x[1]
+                      length <- VBdf$L_inf[sel] * 
+                          (1 - exp(-VBdf$k_vb[sel] * 
+                                       (as.numeric(x[2]) - VBdf$t0[sel])))
+                      VBdf$a[sel] * length ^ VBdf$b[sel]
+                  })
         plot_dat2$legend <- "von Bertalanffy"
         plot_dat <- rbind(plot_dat,plot_dat2)
     }
     
-    p <- ggplot(filter(plot_dat, legend == "model")) + geom_line(aes(x = Age, y = value, 
-                                                                     colour = Species, linetype = Species, size = Species))
+    p <- ggplot(filter(plot_dat, legend == "model")) + 
+        geom_line(aes(x = Age, y = value, 
+                      colour = Species, linetype = Species, size = Species))
     y_label <- if (percentage) 
         "Percent of maximum size"
     else "Size [g]"
@@ -1072,22 +1087,22 @@ plotGrowthCurves <- function (object,
         scale_size_manual(values = linesize)
     
     # starting cases now
-    if(!percentage)
-    {
-        
+    if (!percentage)  {
         if (length(species) == 1) {
             idx <- which(params@species_params$species == species)
             w_inf <- params@species_params$w_inf[idx]
             p <- p + geom_hline(yintercept = w_inf, colour = "grey") + 
                 annotate("text", 0, w_inf, vjust = -1, label = "Maximum")
             w_mat <- params@species_params$w_mat[idx]
-            p <- p + geom_hline(yintercept = w_mat, linetype = "dashed", colour = "grey") + 
+            p <- p + geom_hline(yintercept = w_mat, linetype = "dashed", 
+                                colour = "grey") + 
                 annotate("text", 0, w_mat, vjust = -1, label = "Maturity")
             if ("von Bertalanffy" %in% plot_dat$legend) 
-                p <- p + geom_line(data = filter(plot_dat, legend == "von Bertalanffy"), aes(x = Age, y = value))
+                p <- p + geom_line(data = filter(plot_dat, legend == "von Bertalanffy"), 
+                                   aes(x = Age, y = value))
             
-        } else if(species_panel) # need to add either no panel if no param for VB or create a panel without VB
-        {
+        } else if (species_panel) { # need to add either no panel if no param 
+                                    # for VB or create a panel without VB
             p <- ggplot(plot_dat) +
                 geom_line(aes(x = Age, y = value , colour = legend)) +
                 scale_x_continuous(name = "Age [years]") +
