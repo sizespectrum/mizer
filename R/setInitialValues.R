@@ -29,11 +29,11 @@ setInitialValues <- function(params, sim) {
         stop("The consumer size spectrum of the simulation in `sim` has a ",
              "different size from that in `params`.")
     }
-    if (!identical(dim(sim@n_pp[no_t, ]), dim(params@initial_n_pp))) {
+    if (!identical(length(sim@n_pp[no_t, ]), length(params@initial_n_pp))) {
         stop("The resource size spectrum of the simulation in `sim` has a ",
              "different size from that in `params`.")
     }
-    if (!identical(length(sim@n_pp[no_t, ]), length(params@initial_n_pp))) {
+    if (!identical(length(sim@n_other[no_t, ]), length(params@initial_n_other))) {
         stop("The number of other components in the simulation in `sim` is ",
              "different from that in `params`.")
     }
