@@ -88,7 +88,7 @@ NULL
 # Hackiness to get past the 'no visible binding ... ' warning when running check
 utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
                          "x", "y", "Year", "Yield", "Biomass", "Size",
-                         "Proportion", "Prey"))
+                         "Proportion", "Prey", "legend"))
 
 #' Helper function to produce nice breaks on logarithmic axes
 #'
@@ -987,8 +987,9 @@ plotlyFMort <- function(object, species = NULL,
 #' 
 #' @inheritParams getGrowthCurves
 #' @inheritParams plotSpectra
-#' @param species_panel If TRUE, display all species with their Von Bertalanffy curves as facets 
-#' (need species and percentage to be set to default). Default FALSE.
+#' @param species_panel `r lifecycle::badge("experimental")`
+#'   If TRUE, display all species with their Von Bertalanffy curves as facets 
+#'   (need species and percentage to be set to default). Default FALSE.
 #' @return A ggplot2 object
 #' @export
 #' @family plotting functions
@@ -999,7 +1000,7 @@ plotlyFMort <- function(object, species = NULL,
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotGrowthCurves(sim, percentage = TRUE)
 #' plotGrowthCurves(sim, species = "Cod", max_age = 24)
-#' plotGrowthCurves(sim, species_panel = T)
+#' plotGrowthCurves(sim, species_panel = TRUE)
 #' }
 plotGrowthCurves <- function(object, 
                              species = NULL, 
