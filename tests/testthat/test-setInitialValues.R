@@ -54,6 +54,10 @@ test_that("Can set initial values in a model with a single species", {
 })
 
 test_that("Can set initial values in a model with a single other component", {
+    e <- globalenv()
+    e$test_dyn <- function(params, ...) {
+        111
+    }
     params <- setComponent(params, 
                            component = "test",
                            initial_value = 1,
