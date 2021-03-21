@@ -294,8 +294,7 @@ getYield <- function(sim) {
 #'   \linkS4class{MizerSim} object, uses the growth rates at the final time of a
 #'   simulation to calculate the size at age. If given a
 #'   \linkS4class{MizerParams} object, uses the initial growth rates instead.
-#' @param species Name or vector of names of the species to be included. By
-#'   default all species are included.
+#' @inheritParams valid_species_arg
 #' @param max_age The age up to which to run the growth curve. Default is 20.
 #' @param percentage Boolean value. If TRUE, the size is given as a percentage
 #'   of the maximal size.
@@ -312,7 +311,7 @@ getYield <- function(sim) {
 #' }
 
 getGrowthCurves <- function(object, 
-                            species,
+                            species = NULL,
                             max_age = 20,
                             percentage = FALSE) {
     if (is(object, "MizerSim")) {
@@ -325,9 +324,7 @@ getGrowthCurves <- function(object,
         n <- object@initial_n
         n_pp <- object@initial_n_pp
     }
-    if (missing(species)) {
-        species <- dimnames(n)$sp
-    }
+    species <- valid_species_arg(params, species)
     # reorder list of species to coincide with order in params
     idx <- which(dimnames(n)$sp %in% species)
     species <- dimnames(n)$sp[idx]
@@ -541,10 +538,10 @@ NULL
 #'     threshold_w = 500, biomass_proportion=FALSE)
 #' }
 getProportionOfLargeFish <- function(sim, 
-                                     species = seq_len(nrow(species_params(getParams(sim)))), 
+                                     species = NULL, 
                                      threshold_w = 100, threshold_l = NULL, 
                                      biomass_proportion=TRUE, ...) {
-    check_species(sim, species)
+    species <- valid_species_arg(sim, species)
     # This args stuff is pretty ugly - couldn't work out another way of using ...
     args <- list(...)
     args[["params"]] <- sim@params
@@ -573,8 +570,7 @@ getProportionOfLargeFish <- function(sim,
 #' calculation.
 #'
 #' @param sim A \linkS4class{MizerSim} object
-#' @param species Numeric or character vector of species to include in the
-#'   calculation.
+#' @inheritParams valid_species_arg
 #' @inheritDotParams get_size_range_array -params
 #'
 #' @return A vector containing the mean weight of the community through time
@@ -589,8 +585,8 @@ getProportionOfLargeFish <- function(sim,
 #' getMeanWeight(sim, species=c("Herring","Sprat","N.pout"))
 #' getMeanWeight(sim, min_w = 10, max_w = 5000)
 #' }
-getMeanWeight <- function(sim, species = seq_len(nrow(species_params(getParams(sim)))), ...){
-    check_species(sim, species)
+getMeanWeight <- function(sim, species = NULL, ...){
+    species <- valid_species_arg(sim, species)
     n_species <- getN(sim, ...)
     biomass_species <- getBiomass(sim, ...)
     n_total <- apply(n_species[, species, drop = FALSE], 1, sum)
@@ -629,12 +625,12 @@ getMeanWeight <- function(sim, species = seq_len(nrow(species_params(getParams(s
 #' getMeanMaxWeight(sim, species=c("Herring","Sprat","N.pout"))
 #' getMeanMaxWeight(sim, min_w = 10, max_w = 5000)
 #' }
-getMeanMaxWeight <- function(sim, species = seq_len(nrow(species_params(getParams(sim)))), 
+getMeanMaxWeight <- function(sim, species = NULL, 
                              measure = "both", ...) {
     if (!(measure %in% c("both","numbers","biomass"))) {
         stop("measure must be one of 'both', 'numbers' or 'biomass'")
     }
-    check_species(sim, species)
+    species <- valid_species_arg(sim, species)
     n_species <- getN(sim, ...)
     biomass_species <- getBiomass(sim, ...)
     n_winf <- apply(sweep(n_species, 2, sim@params@species_params$w_inf,"*")[,species,drop=FALSE], 1, sum)
@@ -684,9 +680,9 @@ getMeanMaxWeight <- function(sim, species = seq_len(nrow(species_params(getParam
 #' dem_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock", "Cod","Saithe")
 #' slope_biomass <- getCommunitySlope(sim, species = dem_species, min_w = 10, max_w = 1000)
 #' }
-getCommunitySlope <- function(sim, species = seq_len(nrow(species_params(getParams(sim)))),
+getCommunitySlope <- function(sim, species = NULL,
                               biomass = TRUE, ...) {
-    check_species(sim, species)
+    species <- valid_species_arg(sim, species)
     size_range <- get_size_range_array(sim@params, ...)
     # set entries for unwanted sizes to zero and sum over wanted species, giving
     # array (time x size)
@@ -712,18 +708,3 @@ getCommunitySlope <- function(sim, species = seq_len(nrow(species_params(getPara
     slope <- slope[, -1]
     return(slope)
 }
-
-
-# internal
-check_species <- function(object, species){
-    if (!(is(species,"character") | is(species,"numeric")))
-        stop("species argument must be either a numeric or character vector")
-    if (is(species,"character"))
-        check <- all(species %in% dimnames(object@n)$sp)  
-    if (is(species,"numeric"))
-        check <- all(species %in% 1:dim(object@n)[2])
-    if (!check)
-        stop("species argument not in the model species. species must be a character vector of names in the model, or a numeric vector referencing the species")
-    return(check)
-}
-

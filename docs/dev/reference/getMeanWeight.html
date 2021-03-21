@@ -195,11 +195,7 @@ min_l will be used). You can also specify the species to be used in the
 calculation.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getMeanWeight</span><span class='op'>(</span>
-  <span class='va'>sim</span>,
-  species <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='fu'><a href='getParams.html'>getParams</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>,
-  <span class='va'>...</span>
-<span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>getMeanWeight</span><span class='op'>(</span><span class='va'>sim</span>, species <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -210,8 +206,10 @@ calculation.</p>
     </tr>
     <tr>
       <th>species</th>
-      <td><p>Numeric or character vector of species to include in the
-calculation.</p></td>
+      <td><p>The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.</p></td>
     </tr>
     <tr>
       <th>...</th>
