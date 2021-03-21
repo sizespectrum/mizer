@@ -9,7 +9,8 @@ retune_erepro(params, species = species_params(params)$species)
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
 
-\item{species}{The species to be selected. A vector of species names, or a
+\item{species}{The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
 numeric vector with the species indices, or a logical vector indicating for
 each species whether it is to be selected (TRUE) or not.}
 }

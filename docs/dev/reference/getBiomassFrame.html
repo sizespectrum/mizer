@@ -191,7 +191,7 @@ against time. The biomass is calculated within user defined size limits
 
     <pre class="usage"><span class='fu'>getBiomassFrame</span><span class='op'>(</span>
   <span class='va'>sim</span>,
-  species <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/dimnames.html'>dimnames</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>@</span><span class='va'>n</span><span class='op'>)</span><span class='op'>$</span><span class='va'>sp</span><span class='op'>[</span><span class='op'>!</span><span class='fu'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>@</span><span class='va'>params</span><span class='op'>@</span><span class='va'>A</span><span class='op'>)</span><span class='op'>]</span>,
+  species <span class='op'>=</span> <span class='cn'>NULL</span>,
   start_time <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/dimnames.html'>dimnames</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>@</span><span class='va'>n</span><span class='op'>)</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>)</span>,
   end_time <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/dimnames.html'>dimnames</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>@</span><span class='va'>n</span><span class='op'>)</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/dim.html'>dim</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>@</span><span class='va'>n</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span>,
   ylim <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='cn'>NA</span>, <span class='cn'>NA</span><span class='op'>)</span>,
@@ -208,8 +208,10 @@ against time. The biomass is calculated within user defined size limits
     </tr>
     <tr>
       <th>species</th>
-      <td><p>Name or vector of names of the species to be plotted. By
-default all species are plotted.</p></td>
+      <td><p>The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.</p></td>
     </tr>
     <tr>
       <th>start_time</th>

@@ -314,10 +314,12 @@ constant_other <- function(params, n_other, component, ...) {
 #' ignored but a warning is issued. If non of the species is valid, then
 #' an error is produced.
 #' 
-#' @param params A MizerParams object
-#' @param species The species to be selected. A vector of species names, or a
+#' @param object A MizerSim or MizerParams object from which the species
+#'   should be selected.
+#' @param species The species to be selected. Optional. By default all target
+#'   species are selected. A vector of species names, or a
 #'   numeric vector with the species indices, or a logical vector indicating for
-#'   each species whether it is to be selected (TRUE) or not.
+#'   each species whether it is to be selected (TRUE) or not. 
 #' @param return.logical Whether the return value should be a logical vector.
 #'   Default FALSE.
 #'   
@@ -327,9 +329,19 @@ constant_other <- function(params, n_other, component, ...) {
 #'   TRUE entry for each selected species.
 #' @export
 #' @concept helper
-valid_species_arg <- function(params, species, return.logical = FALSE) {
-    assert_that(is(params, "MizerParams"),
-                is.logical(return.logical))
+valid_species_arg <- function(object, species = NULL, return.logical = FALSE) {
+    if (is(object, "MizerSim")) {
+        params <- object@params
+    } else if (is(object, "MizerParams")) {
+        params <- object
+    } else {
+        stop("The first argument must be a MizerSim or MizerParams object.")
+    }
+    # Set species if missing to list of all non-background species
+    if (is.null(species)) {
+        species <- dimnames(params@initial_n)$sp[!is.na(params@A)]
+    }
+    assert_that(is.logical(return.logical))
     all_species <- dimnames(params@initial_n)$sp
     no_sp <- nrow(params@species_params)
     if (is.logical(species)) {

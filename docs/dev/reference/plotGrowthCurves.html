@@ -197,7 +197,7 @@ superimposed in black.</p>
 
     <pre class="usage"><span class='fu'>plotGrowthCurves</span><span class='op'>(</span>
   <span class='va'>object</span>,
-  <span class='va'>species</span>,
+  species <span class='op'>=</span> <span class='cn'>NULL</span>,
   max_age <span class='op'>=</span> <span class='fl'>20</span>,
   percentage <span class='op'>=</span> <span class='cn'>FALSE</span>,
   species_panel <span class='op'>=</span> <span class='cn'>FALSE</span>,
@@ -206,7 +206,7 @@ superimposed in black.</p>
 
 <span class='fu'>plotlyGrowthCurves</span><span class='op'>(</span>
   <span class='va'>object</span>,
-  <span class='va'>species</span>,
+  species <span class='op'>=</span> <span class='cn'>NULL</span>,
   max_age <span class='op'>=</span> <span class='fl'>20</span>,
   percentage <span class='op'>=</span> <span class='cn'>FALSE</span>,
   species_panel <span class='op'>=</span> <span class='cn'>FALSE</span>,
@@ -225,8 +225,10 @@ simulation to calculate the size at age. If given a
     </tr>
     <tr>
       <th>species</th>
-      <td><p>Name or vector of names of the species to be included. By
-default all species are included.</p></td>
+      <td><p>The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.</p></td>
     </tr>
     <tr>
       <th>max_age</th>

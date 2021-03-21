@@ -36,10 +36,13 @@ plotlySpectra(
 )
 }
 \arguments{
-\item{object}{An object of class \linkS4class{MizerSim} or \linkS4class{MizerParams}.}
+\item{object}{An object of class \linkS4class{MizerSim} or
+\linkS4class{MizerParams}.}
 
-\item{species}{Name or vector of names of the species to be plotted. By
-default all species are plotted.}
+\item{species}{The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.}
 
 \item{time_range}{The time range (either a vector of values, a vector of min
 and max time, or a single value) to average the abundances over. Default is

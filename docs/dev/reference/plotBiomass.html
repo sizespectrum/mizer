@@ -191,7 +191,7 @@ against time. The biomass is calculated within user defined size limits
 
     <pre class="usage"><span class='fu'>plotBiomass</span><span class='op'>(</span>
   <span class='va'>sim</span>,
-  <span class='va'>species</span>,
+  species <span class='op'>=</span> <span class='cn'>NULL</span>,
   <span class='va'>start_time</span>,
   <span class='va'>end_time</span>,
   y_ticks <span class='op'>=</span> <span class='fl'>6</span>,
@@ -204,7 +204,7 @@ against time. The biomass is calculated within user defined size limits
 
 <span class='fu'>plotlyBiomass</span><span class='op'>(</span>
   <span class='va'>sim</span>,
-  <span class='va'>species</span>,
+  species <span class='op'>=</span> <span class='cn'>NULL</span>,
   <span class='va'>start_time</span>,
   <span class='va'>end_time</span>,
   y_ticks <span class='op'>=</span> <span class='fl'>6</span>,
@@ -224,8 +224,10 @@ against time. The biomass is calculated within user defined size limits
     </tr>
     <tr>
       <th>species</th>
-      <td><p>Name or vector of names of the species to be plotted. By
-default all species are plotted.</p></td>
+      <td><p>The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.</p></td>
     </tr>
     <tr>
       <th>start_time</th>

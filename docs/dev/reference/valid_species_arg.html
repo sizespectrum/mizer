@@ -189,18 +189,20 @@ ignored but a warning is issued. If non of the species is valid, then
 an error is produced.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>valid_species_arg</span><span class='op'>(</span><span class='va'>params</span>, <span class='va'>species</span>, return.logical <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>valid_species_arg</span><span class='op'>(</span><span class='va'>object</span>, species <span class='op'>=</span> <span class='cn'>NULL</span>, return.logical <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>params</th>
-      <td><p>A MizerParams object</p></td>
+      <th>object</th>
+      <td><p>A MizerSim or MizerParams object from which the species
+should be selected.</p></td>
     </tr>
     <tr>
       <th>species</th>
-      <td><p>The species to be selected. A vector of species names, or a
+      <td><p>The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
 numeric vector with the species indices, or a logical vector indicating for
 each species whether it is to be selected (TRUE) or not.</p></td>
     </tr>

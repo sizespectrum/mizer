@@ -99,4 +99,12 @@ test_that("valid_species_arg works", {
                                        c(TRUE, FALSE, TRUE, rep(FALSE, 9)),
                                        return.logical = TRUE),
                      c(TRUE, FALSE, TRUE, rep(FALSE, 9)))
+    # called with MizerSim object
+    sim <- project(NS_params, t_max = 1, dt = 1)
+    expect_identical(valid_species_arg(sim, "Cod"),
+                     valid_species_arg(NS_params, "Cod"))
+    # called without species
+    expect_identical(valid_species_arg(NS_params),
+                     valid_species_arg(NS_params, 
+                                       NS_params@species_params$species))
 })

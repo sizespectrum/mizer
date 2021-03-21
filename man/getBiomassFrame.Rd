@@ -6,7 +6,7 @@
 \usage{
 getBiomassFrame(
   sim,
-  species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
+  species = NULL,
   start_time = as.numeric(dimnames(sim@n)[[1]][1]),
   end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
   ylim = c(NA, NA),
@@ -17,8 +17,10 @@ getBiomassFrame(
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}}
 
-\item{species}{Name or vector of names of the species to be plotted. By
-default all species are plotted.}
+\item{species}{The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.}
 
 \item{start_time}{The first time to be plotted. Default is the beginning
 of the time series.}

@@ -7,7 +7,7 @@
 \usage{
 plotGrowthCurves(
   object,
-  species,
+  species = NULL,
   max_age = 20,
   percentage = FALSE,
   species_panel = FALSE,
@@ -16,7 +16,7 @@ plotGrowthCurves(
 
 plotlyGrowthCurves(
   object,
-  species,
+  species = NULL,
   max_age = 20,
   percentage = FALSE,
   species_panel = FALSE,
@@ -29,8 +29,10 @@ plotlyGrowthCurves(
 simulation to calculate the size at age. If given a
 \linkS4class{MizerParams} object, uses the initial growth rates instead.}
 
-\item{species}{Name or vector of names of the species to be included. By
-default all species are included.}
+\item{species}{The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.}
 
 \item{max_age}{The age up to which to run the growth curve. Default is 20.}
 

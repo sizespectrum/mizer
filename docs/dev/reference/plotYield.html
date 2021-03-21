@@ -189,12 +189,20 @@ fishing gears can be plotted against time. The yield is obtained with
 <code><a href='getYield.html'>getYield()</a></code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotYield</span><span class='op'>(</span><span class='va'>sim</span>, <span class='va'>sim2</span>, <span class='va'>species</span>, total <span class='op'>=</span> <span class='cn'>FALSE</span>, log <span class='op'>=</span> <span class='cn'>TRUE</span>, highlight <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>plotYield</span><span class='op'>(</span>
+  <span class='va'>sim</span>,
+  <span class='va'>sim2</span>,
+  species <span class='op'>=</span> <span class='cn'>NULL</span>,
+  total <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  log <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  highlight <span class='op'>=</span> <span class='cn'>NULL</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span>
 
 <span class='fu'>plotlyYield</span><span class='op'>(</span>
   <span class='va'>sim</span>,
   <span class='va'>sim2</span>,
-  <span class='va'>species</span>,
+  species <span class='op'>=</span> <span class='cn'>NULL</span>,
   total <span class='op'>=</span> <span class='cn'>FALSE</span>,
   log <span class='op'>=</span> <span class='cn'>TRUE</span>,
   highlight <span class='op'>=</span> <span class='cn'>NULL</span>,
@@ -215,8 +223,10 @@ this is provided its yields will be shown on the same plot in bolder lines.</p><
     </tr>
     <tr>
       <th>species</th>
-      <td><p>Name or vector of names of the species to be plotted. By
-default all species are plotted.</p></td>
+      <td><p>The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.</p></td>
     </tr>
     <tr>
       <th>total</th>

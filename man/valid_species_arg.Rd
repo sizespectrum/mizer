@@ -4,12 +4,14 @@
 \alias{valid_species_arg}
 \title{Helper function to assure validity of species argument}
 \usage{
-valid_species_arg(params, species, return.logical = FALSE)
+valid_species_arg(object, species = NULL, return.logical = FALSE)
 }
 \arguments{
-\item{params}{A MizerParams object}
+\item{object}{A MizerSim or MizerParams object from which the species
+should be selected.}
 
-\item{species}{The species to be selected. A vector of species names, or a
+\item{species}{The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
 numeric vector with the species indices, or a logical vector indicating for
 each species whether it is to be selected (TRUE) or not.}
 
