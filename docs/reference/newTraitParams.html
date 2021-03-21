@@ -87,7 +87,7 @@ details and examples of the trait-based model." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.1.0</span>
       </span>
     </div>
 
@@ -95,7 +95,7 @@ details and examples of the trait-based model." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -162,7 +162,7 @@ details and examples of the trait-based model." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -203,38 +203,38 @@ model see Andersen &amp; Pedersen (2010). See the <code>mizer</code> website for
 details and examples of the trait-based model.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>newTraitParams</span>(
-  no_sp = <span class='fl'>11</span>,
-  min_w_inf = <span class='fl'>10</span>,
-  max_w_inf = <span class='fl'>10</span><span class='op'>^</span><span class='fl'>4</span>,
-  min_w = <span class='fl'>10</span><span class='op'>^</span>(<span class='op'>-</span><span class='fl'>3</span>),
-  max_w = <span class='kw'>max_w_inf</span>,
-  eta = <span class='fl'>10</span><span class='op'>^</span>(<span class='op'>-</span><span class='fl'>0.6</span>),
-  min_w_mat = <span class='kw'>min_w_inf</span> <span class='op'>*</span> <span class='kw'>eta</span>,
-  no_w = <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log10</a></span>(<span class='kw'>max_w_inf</span><span class='op'>/</span><span class='kw'>min_w</span>) <span class='op'>*</span> <span class='fl'>20</span> <span class='op'>+</span> <span class='fl'>1</span>,
-  min_w_pp = <span class='fl'>1e-10</span>,
-  w_pp_cutoff = <span class='kw'>min_w_mat</span>,
-  n = <span class='fl'>2</span><span class='op'>/</span><span class='fl'>3</span>,
-  p = <span class='kw'>n</span>,
-  lambda = <span class='fl'>2.05</span>,
-  r_pp = <span class='fl'>0.1</span>,
-  kappa = <span class='fl'>0.005</span>,
-  alpha = <span class='fl'>0.4</span>,
-  h = <span class='fl'>40</span>,
-  beta = <span class='fl'>100</span>,
-  sigma = <span class='fl'>1.3</span>,
-  f0 = <span class='fl'>0.6</span>,
-  fc = <span class='fl'>0.25</span>,
-  ks = <span class='fl'>NA</span>,
-  gamma = <span class='fl'>NA</span>,
-  ext_mort_prop = <span class='fl'>0</span>,
-  R_factor = <span class='fl'>4</span>,
-  gear_names = <span class='st'>"knife_edge_gear"</span>,
-  knife_edge_size = <span class='fl'>1000</span>,
-  egg_size_scaling = <span class='fl'>FALSE</span>,
-  resource_scaling = <span class='fl'>FALSE</span>,
-  perfect_scaling = <span class='fl'>FALSE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>newTraitParams</span><span class='op'>(</span>
+  no_sp <span class='op'>=</span> <span class='fl'>11</span>,
+  min_w_inf <span class='op'>=</span> <span class='fl'>10</span>,
+  max_w_inf <span class='op'>=</span> <span class='fl'>10</span><span class='op'>^</span><span class='fl'>4</span>,
+  min_w <span class='op'>=</span> <span class='fl'>10</span><span class='op'>^</span><span class='op'>(</span><span class='op'>-</span><span class='fl'>3</span><span class='op'>)</span>,
+  max_w <span class='op'>=</span> <span class='va'>max_w_inf</span>,
+  eta <span class='op'>=</span> <span class='fl'>10</span><span class='op'>^</span><span class='op'>(</span><span class='op'>-</span><span class='fl'>0.6</span><span class='op'>)</span>,
+  min_w_mat <span class='op'>=</span> <span class='va'>min_w_inf</span> <span class='op'>*</span> <span class='va'>eta</span>,
+  no_w <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log10</a></span><span class='op'>(</span><span class='va'>max_w_inf</span><span class='op'>/</span><span class='va'>min_w</span><span class='op'>)</span> <span class='op'>*</span> <span class='fl'>20</span> <span class='op'>+</span> <span class='fl'>1</span>,
+  min_w_pp <span class='op'>=</span> <span class='fl'>1e-10</span>,
+  w_pp_cutoff <span class='op'>=</span> <span class='va'>min_w_mat</span>,
+  n <span class='op'>=</span> <span class='fl'>2</span><span class='op'>/</span><span class='fl'>3</span>,
+  p <span class='op'>=</span> <span class='va'>n</span>,
+  lambda <span class='op'>=</span> <span class='fl'>2.05</span>,
+  r_pp <span class='op'>=</span> <span class='fl'>0.1</span>,
+  kappa <span class='op'>=</span> <span class='fl'>0.005</span>,
+  alpha <span class='op'>=</span> <span class='fl'>0.4</span>,
+  h <span class='op'>=</span> <span class='fl'>40</span>,
+  beta <span class='op'>=</span> <span class='fl'>100</span>,
+  sigma <span class='op'>=</span> <span class='fl'>1.3</span>,
+  f0 <span class='op'>=</span> <span class='fl'>0.6</span>,
+  fc <span class='op'>=</span> <span class='fl'>0.25</span>,
+  ks <span class='op'>=</span> <span class='cn'>NA</span>,
+  gamma <span class='op'>=</span> <span class='cn'>NA</span>,
+  ext_mort_prop <span class='op'>=</span> <span class='fl'>0</span>,
+  R_factor <span class='op'>=</span> <span class='fl'>4</span>,
+  gear_names <span class='op'>=</span> <span class='st'>"knife_edge_gear"</span>,
+  knife_edge_size <span class='op'>=</span> <span class='fl'>1000</span>,
+  egg_size_scaling <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  resource_scaling <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  perfect_scaling <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -279,7 +279,7 @@ approximately 1/4.</p></td>
       <th>no_w</th>
       <td><p>The number of size bins in the community spectrum. These bins
 will be equally spaced on a logarithmic scale. Default value is such that
-there are 50 bins for each factor of 10 in weight.</p></td>
+there are 20 bins for each factor of 10 in weight.</p></td>
     </tr>
     <tr>
       <th>min_w_pp</th>
@@ -375,19 +375,22 @@ gear.</p></td>
     </tr>
     <tr>
       <th>egg_size_scaling</th>
-      <td><p>If TRUE, the egg size is a constant fraction of the
+      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+If TRUE, the egg size is a constant fraction of the
 maximum size of each species. This fraction is <code>min_w / min_w_inf</code>. If
 FALSE, all species have the egg size <code>w_min</code>.</p></td>
     </tr>
     <tr>
       <th>resource_scaling</th>
-      <td><p>If TRUE, the carrying capacity for larger resource
+      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+If TRUE, the carrying capacity for larger resource
 is reduced to compensate for the fact that fish eggs and larvae are
 present in the same size range.</p></td>
     </tr>
     <tr>
       <th>perfect_scaling</th>
-      <td><p>If TRUE then parameters are set so that the community
+      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+If TRUE then parameters are set so that the community
 abundance, growth before reproduction and death are perfect power laws. In
 particular all other scaling corrections are turned on.</p></td>
     </tr>
@@ -442,11 +445,12 @@ abundance through time after the projection.</p>
 <code><a href='newMultispeciesParams.html'>newMultispeciesParams</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'>newTraitParams</span>()
-<span class='kw'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='kw'>params</span>, t_max = <span class='fl'>5</span>, effort = <span class='fl'>0</span>)
-<span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span>(<span class='kw'>sim</span>)
-}</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>newTraitParams</span><span class='op'>(</span><span class='op'>)</span>
+<span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, t_max <span class='op'>=</span> <span class='fl'>5</span>, effort <span class='op'>=</span> <span class='fl'>0</span><span class='op'>)</span>
+<span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -462,7 +466,7 @@ abundance through time after the projection.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
