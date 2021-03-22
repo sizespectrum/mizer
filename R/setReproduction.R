@@ -287,7 +287,9 @@ setReproduction <- function(params, maturity = NULL,
     
     # If no erepro (reproductive efficiency), then set to 1
     params <- set_species_param_default(params, "erepro", 1)
-    assert_that(all(params@species_params$erepro > 0))
+    if (!all(params@species_params$erepro > 0)) {
+        stop("Some species have negative reproductive efficiency.")
+    }
     
     # RDD function is currently called only with three arguments
     if (!all(names(formals(RDD)) %in%  c("rdi", "species_params", "t", "..."))) {

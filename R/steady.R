@@ -259,9 +259,10 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
 #'
 #' Sets the reproductive efficiency for all species so that the rate of egg
 #' production exactly compensates for the loss from the first size class due
-#' to growth and mortality. Turns off the external density dependence in the
-#' reproduction rate by setting the `RDD` function to
-#' [noRDD()]
+#' to growth and mortality. 
+#' 
+#' Currently works only if the model uses either Beverton-Holt density
+#' dependent reproduction or density-independent reproduction.
 #'
 #' @inheritParams steady
 #' @inheritParams valid_species_arg
@@ -277,22 +278,29 @@ retune_erepro <- function(params, species = species_params(params)$species) {
     mumu <- getMort(params)
     gg <- getEGrowth(params)
     rdi <- getRDI(params)
-    eff <- params@species_params$erepro
+    if (any(rdi == 0)) {
+        stop("Some species have no reproduction.")
+    }
+    rdd_new <- getRDD(params)
     for (i in seq_len(nrow(params@species_params))[species]) {
         gg0 <- gg[i, params@w_min_idx[i]]
         mumu0 <- mumu[i, params@w_min_idx[i]]
         DW <- params@dw[params@w_min_idx[i]]
-        if (!rdi[i] == 0) {
-            eff[i] <- params@species_params$erepro[i] *
-                (params@initial_n[i, params@w_min_idx[i]] *
-                     (gg0 + DW * mumu0)) / rdi[i]
-        }
-        else {
-            eff[i] <- 0.1
-        }
+        n0 <- params@initial_n[i, params@w_min_idx[i]]
+        rdd_new[i] <- n0 * (gg0 + DW * mumu0)
     }
-    params@species_params$erepro <- eff
-    return(setReproduction(params, RDD = "noRDD"))
+    if (params@rates_funcs$RDD == "BevertonHoltRDD") {
+        params@species_params$R_max[species] <- 4 * rdd_new[species]
+        rdi_new <- rdd_new / (1 - rdd_new / params@species_params$R_max)
+        params@species_params$erepro <- params@species_params$erepro *
+            rdi_new / rdi
+    } else if (params@rates_funcs$RDD == "noRDD") {
+        params@species_params$erepro <- rdd_new / rdi
+    } else {
+        stop("Currently mizer can no retune the reproduction when the model is",
+             " using ", params@rates_funcs$RDD)
+    }
+    params
 }
 
 

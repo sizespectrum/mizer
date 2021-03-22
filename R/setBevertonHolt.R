@@ -4,8 +4,8 @@
 #' Beverton-Holt density-dependence with a maximum reproduction rate that is a
 #' chosen factor `R_factor` higher than the initial-state reproduction rate. At
 #' the same time it adjusts the reproductive efficiency `erepro` so that the
-#' steady-state abundances do not change. Setting `R_factor = Inf` switches off
-#' all density dependence.
+#' actual reproduction rate in the initial state does not change. Setting
+#' `R_factor = Inf` switches off all density dependence.
 #' 
 #' @param params A MizerParams object
 #' @param R_factor The factor by which the maximum reproduction rate should be

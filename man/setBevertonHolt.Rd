@@ -20,6 +20,6 @@ Takes a MizerParams object (with arbitrary density dependence) and sets a
 Beverton-Holt density-dependence with a maximum reproduction rate that is a
 chosen factor \code{R_factor} higher than the initial-state reproduction rate. At
 the same time it adjusts the reproductive efficiency \code{erepro} so that the
-steady-state abundances do not change. Setting \code{R_factor = Inf} switches off
-all density dependence.
+actual reproduction rate in the initial state does not change. Setting
+\code{R_factor = Inf} switches off all density dependence.
 }

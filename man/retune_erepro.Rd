@@ -21,8 +21,10 @@ in the \code{species_params} data frame.
 \description{
 Sets the reproductive efficiency for all species so that the rate of egg
 production exactly compensates for the loss from the first size class due
-to growth and mortality. Turns off the external density dependence in the
-reproduction rate by setting the \code{RDD} function to
-\code{\link[=noRDD]{noRDD()}}
+to growth and mortality.
+}
+\details{
+Currently works only if the model uses either Beverton-Holt density
+dependent reproduction or density-independent reproduction.
 }
 \concept{helper}

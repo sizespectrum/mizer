@@ -46,20 +46,36 @@ test_that("steady works", {
     params@species_params$gamma[2] <- 2000
     params <- setSearchVolume(params)
     p <- steady(params, t_per = 2)
-    expect_known_value(getRDI(p), "values/steady")
+    expect_known_value(getRDD(p), "values/steady")
     # and works the same when returning sim
     sim <- steady(params, t_per = 2, return_sim = TRUE)
     expect_is(sim, "MizerSim")
-    expect_known_value(getRDI(sim@params), "values/steady")
+    expect_known_value(getRDD(sim@params), "values/steady")
 })
 
 # retune_erepro ----
 test_that("retune_erepro works", {
     params <- NS_params
     params1 <- retune_erepro(params, species = "Cod")
-    expect_equal(which(params1@species_params$erepro != 
-                               params@species_params$erepro), 11)
-    expect_identical(params1@rates_funcs$RDD, "noRDD")
+    expect_equal(params1@species_params$erepro[-11],
+                 params@species_params$erepro[-11])
+    expect_identical(params1@rates_funcs$RDD, "BevertonHoltRDD")
+})
+# retuneReproductiveEfficiency ----
+test_that("retuneReproductiveEfficiency works", {
+    p <- newTraitParams(R_factor = 4)
+    no_sp <- nrow(p@species_params)
+    erepro <- p@species_params$erepro
+    p@species_params$erepro[5] <- 15
+    ps <- retune_erepro(p)
+    expect_equal(ps@species_params$erepro, erepro)
+    # can also select species in various ways
+    ps <- retune_erepro(p, species = p@species_params$species[5])
+    expect_equal(ps@species_params$erepro, erepro)
+    p@species_params$erepro[3] <- 15
+    species <- (1:no_sp) %in% c(3,5)
+    ps <- retune_erepro(p, species = species)
+    expect_equal(ps@species_params$erepro, erepro)
 })
 
 # valid_species_arg ----
