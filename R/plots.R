@@ -901,7 +901,15 @@ plotlyPredMort <- function(object, species = NULL,
 #' @inheritParams plotSpectra
 #' @param all.sizes If TRUE, then fishing mortality is plotted also for sizes
 #'   outside a species' size range. Default FALSE.
+<<<<<<< HEAD
 #' @return A ggplot2 object
+=======
+<<<<<<< HEAD
+#' @return A plot
+=======
+#' @return A ggplot2 object
+>>>>>>> 2858bfdde2f1c641a40cbee071bc9a9d4d21dcef
+>>>>>>> 6cc2eeebd1601ef457a901f9cb604792fd8acc53
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions], [getFMort()]
