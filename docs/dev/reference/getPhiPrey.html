@@ -46,7 +46,8 @@
 
 
 <meta property="og:title" content="Get available energy — getPhiPrey" />
-<meta property="og:description" content="This is deprecated and is no longer used by the mizer project() method.
+<meta property="og:description" content="
+This is deprecated and is no longer used by the mizer project() method.
 Calculates the amount \(E_{a,i}(w)\) of food exposed to each predator as
 a function of predator size." />
 
@@ -80,7 +81,7 @@ a function of predator size." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.4.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.1.0.9000</span>
       </span>
     </div>
 
@@ -88,7 +89,7 @@ a function of predator size." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -155,7 +156,7 @@ a function of predator size." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -184,12 +185,13 @@ a function of predator size." />
     </div>
 
     <div class="ref-description">
-    <p>This is deprecated and is no longer used by the mizer project() method.
+    <p><a href='https://lifecycle.r-lib.org/articles/stages.html#deprecated'><img src='figures/lifecycle-deprecated.svg' alt='[Deprecated]' /></a></p>
+<p>This is deprecated and is no longer used by the mizer project() method.
 Calculates the amount \(E_{a,i}(w)\) of food exposed to each predator as
 a function of predator size.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getPhiPrey</span>(<span class='kw'>object</span>, <span class='kw'>n</span>, <span class='kw'>n_pp</span>, <span class='kw'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>getPhiPrey</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>n</span>, <span class='va'>n_pp</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -220,16 +222,16 @@ a function of predator size.</p>
     <div class='dont-index'><p><code><a href='project.html'>project()</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='kw'>NS_species_params_gears</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='kw'>inter</span>)
-<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='MizerParams.html'>MizerParams</a></span>(<span class='kw'>NS_species_params_gears</span>, <span class='kw'>inter</span>)
-<span class='co'># With constant fishing effort for all gears for 20 time steps</span>
-<span class='kw'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='kw'>params</span>, t_max = <span class='fl'>20</span>, effort = <span class='fl'>0.5</span>)
-<span class='kw'>n</span> <span class='op'>&lt;-</span> <span class='kw'>sim</span><span class='op'>@</span>n[<span class='fl'>21</span>,,]
-<span class='kw'>n_pp</span> <span class='op'>&lt;-</span> <span class='kw'>sim</span><span class='op'>@</span>n_pp[<span class='fl'>21</span>,]
-<span class='fu'>getPhiPrey</span>(<span class='kw'>params</span>,<span class='kw'>n</span>,<span class='kw'>n_pp</span>)
-}</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='MizerParams.html'>MizerParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span>
+<span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, t_max <span class='op'>=</span> <span class='fl'>20</span>, effort <span class='op'>=</span> <span class='fl'>0.5</span><span class='op'>)</span>
+<span class='va'>n</span> <span class='op'>&lt;-</span> <span class='va'>sim</span><span class='op'>@</span><span class='va'>n</span><span class='op'>[</span><span class='fl'>21</span>,,<span class='op'>]</span>
+<span class='va'>n_pp</span> <span class='op'>&lt;-</span> <span class='va'>sim</span><span class='op'>@</span><span class='va'>n_pp</span><span class='op'>[</span><span class='fl'>21</span>,<span class='op'>]</span>
+<span class='fu'>getPhiPrey</span><span class='op'>(</span><span class='va'>params</span>,<span class='va'>n</span>,<span class='va'>n_pp</span><span class='op'>)</span>
+<span class='co'># -&gt;</span>
+<span class='fu'><a href='getEncounter.html'>getEncounter</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>/</span> <span class='fu'><a href='setSearchVolume.html'>getSearchVolume</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -245,7 +247,7 @@ a function of predator size.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

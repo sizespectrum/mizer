@@ -88,7 +88,7 @@ NULL
 # Hackiness to get past the 'no visible binding ... ' warning when running check
 utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
                          "x", "y", "Year", "Yield", "Biomass", "Size",
-                         "Proportion", "Prey"))
+                         "Proportion", "Prey", "legend"))
 
 #' Helper function to produce nice breaks on logarithmic axes
 #'
@@ -121,8 +121,7 @@ log_breaks <- function(n = 6) {
 #' (min_w, max_w, min_l, max_l, see [getBiomass()]). 
 #' 
 #' @param sim An object of class \linkS4class{MizerSim}
-#' @param species Name or vector of names of the species to be plotted. By
-#'   default all species are plotted.
+#' @inheritParams valid_species_arg
 #' @param start_time The first time to be plotted. Default is the beginning
 #'   of the time series.
 #' @param end_time The last time to be plotted. Default is the end of the
@@ -136,11 +135,13 @@ log_breaks <- function(n = 6) {
 #'   
 #' @return A data frame
 #' @family frame functions
+#' @keywords internal
 getBiomassFrame <- function(sim,
-            species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
+            species = NULL,
             start_time = as.numeric(dimnames(sim@n)[[1]][1]),
             end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
             ylim = c(NA, NA), total = FALSE, ...) {
+    species <- valid_species_arg(sim@params, species)
     b <- getBiomass(sim, ...)
     if (start_time >= end_time) {
         stop("start_time must be less than end_time")
@@ -187,7 +188,7 @@ getBiomassFrame <- function(sim,
 #' @param y_ticks The approximate number of ticks desired on the y axis
 #' @inheritDotParams get_size_range_array -params
 #'   
-#' @return A plot
+#' @return A ggplot2 object
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions], [getBiomass()]
@@ -203,10 +204,10 @@ getBiomassFrame <- function(sim,
 #' plotBiomass(sim, start_time = 10, end_time = 15)
 #' plotBiomass(sim, y_ticks = 3)
 #' }
-plotBiomass <- function(sim, species, start_time, end_time, y_ticks = 6,
+plotBiomass <- function(sim, species = NULL, start_time, end_time, y_ticks = 6,
             ylim = c(NA, NA), total = FALSE, background = TRUE, 
             highlight = NULL, ...) {
-    if (missing(species)) species <- dimnames(sim@n)$sp[!is.na(sim@params@A)]
+    species <- valid_species_arg(sim, species)
     if (missing(start_time)) start_time <- as.numeric(dimnames(sim@n)[[1]][1])
     if (missing(end_time)) end_time <- as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]])
     # First we get the data frame for all species, including the background
@@ -248,7 +249,7 @@ plotBiomass <- function(sim, species, start_time, end_time, y_ticks = 6,
 #' @rdname plotBiomass
 #' @export
 plotlyBiomass <- function(sim,
-             species,
+             species = NULL,
              start_time,
              end_time,
              y_ticks = 6,
@@ -275,7 +276,7 @@ plotlyBiomass <- function(sim,
 #' @param log Boolean whether yield should be plotted on a logarithmic axis. 
 #'   Defaults to true.
 #'
-#' @return A plot
+#' @return A ggplot2 object
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions],  [getYield()]
@@ -291,10 +292,10 @@ plotlyBiomass <- function(sim,
 #' plotYield(sim, sim2, species = c("Cod", "Herring"), log = FALSE)
 #' }
 plotYield <- function(sim, sim2,
-                      species,
+                      species = NULL,
                       total = FALSE, log = TRUE,
                       highlight = NULL, ...) {
-    if (missing(species)) species <- dimnames(sim@n)$sp[!is.na(sim@params@A)]
+    species <- valid_species_arg(sim, species)
     # Need to keep species in order for legend
     species_levels <- c(dimnames(sim@n)$sp, "Background", "Resource", "Total")
     if (missing(sim2)) {
@@ -374,7 +375,7 @@ plotYield <- function(sim, sim2,
 #' @rdname plotYield
 #' @export
 plotlyYield <- function(sim, sim2,
-                        species,
+                        species = NULL,
                         total = FALSE, log = TRUE,
                         highlight = NULL, ...) {
     argg <- as.list(environment())
@@ -395,7 +396,7 @@ plotlyYield <- function(sim, sim2,
 #' @param sim An object of class \linkS4class{MizerSim}
 #' @inheritParams plotSpectra
 #'
-#' @return A plot
+#' @return A ggplot2 object
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions],  [getYieldGear()]
@@ -407,10 +408,10 @@ plotlyYield <- function(sim, sim2,
 #' plotYieldGear(sim, species = c("Cod", "Herring"), total = TRUE)
 #' }
 plotYieldGear <- function(sim,
-                          species,
+                          species = NULL,
                           total = FALSE,
                           highlight = NULL, ...) {
-    if (missing(species)) species <- dimnames(sim@n)$sp[!is.na(sim@params@A)]
+    species <- valid_species_arg(sim, species)
     # Need to keep species in order for legend
     species_levels <- c(dimnames(sim@n)$sp, "Background", "Resource", "Total")
     
@@ -442,7 +443,7 @@ plotYieldGear <- function(sim,
 
 #' @rdname plotYieldGear
 #' @export
-plotlyYieldGear <- function(sim, species,
+plotlyYieldGear <- function(sim, species = NULL,
                             total = FALSE, highlight = NULL, ...) {
     argg <- as.list(environment())
     ggplotly(do.call("plotYieldGear", argg))
@@ -458,9 +459,9 @@ plotlyYieldGear <- function(sim, species,
 #' to plot a single time step). When called with a \linkS4class{MizerParams}
 #' object the initial abundance is plotted.
 #' 
-#' @param object An object of class \linkS4class{MizerSim} or \linkS4class{MizerParams}.
-#' @param species Name or vector of names of the species to be plotted. By
-#'   default all species are plotted.
+#' @param object An object of class \linkS4class{MizerSim} or 
+#'   \linkS4class{MizerParams}.
+#' @inheritParams valid_species_arg
 #' @param time_range The time range (either a vector of values, a vector of min
 #'   and max time, or a single value) to average the abundances over. Default is
 #'   the final time step. Ignored when called with a \linkS4class{MizerParams}
@@ -487,7 +488,7 @@ plotlyYieldGear <- function(sim, species,
 #' @param highlight Name or vector of names of the species to be highlighted.
 #' @param ... Other arguments (currently unused)
 #'   
-#' @return A plot
+#' @return A ggplot2 object
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions]
@@ -512,6 +513,7 @@ plotSpectra <- function(object, species = NULL,
     if (missing(power)) {
         power <- as.numeric(biomass)
     }
+    species <- valid_species_arg(object, species)
     if (is(object, "MizerSim")) {
         if (missing(time_range)) {
             time_range  <- max(as.numeric(dimnames(object@n)$time))
@@ -557,17 +559,7 @@ plot_spectra <- function(params, n, n_pp,
         total_n[fish_idx] <- total_n[fish_idx] + colSums(n)
         total_n <- total_n * params@w_full^power
     }
-    # Set species if missing to list of all non-background species
-    if (is.null(species)) {
-        species <- dimnames(params@initial_n)$sp[!is.na(params@A)]
-    }
-    species <- as.character(species)
-    invalid_species <- 
-        !(species %in% as.character(dimnames(params@initial_n)[[1]]))
-    if (any(invalid_species)) {
-        warning(paste("The following species do not exist in the model and are ignored:",
-                      species[invalid_species]))
-    }
+    species <- valid_species_arg(params, species)
     # Deal with power argument
     if (power %in% c(0, 1, 2)) {
         y_label <- c("Number density [1/g]", "Biomass density",
@@ -692,7 +684,7 @@ plotlySpectra <- function(object, species = NULL,
 #' @param include_critical If TRUE, then the critical feeding level is also
 #'   plotted. Default FALSE.
 #'
-#' @return A plot
+#' @return A ggplot2 object
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions], [getFeedingLevel()]
@@ -714,7 +706,7 @@ plotFeedingLevel <- function(object,
         if (missing(time_range)) {
             time_range  <- max(as.numeric(dimnames(object@n)$time))
         }
-        params <- object@params
+        params <- validParams(object@params)
         feed <- getFeedingLevel(object, time_range = time_range, drop = FALSE)
     } else {
         params <- validParams(object)
@@ -726,11 +718,8 @@ plotFeedingLevel <- function(object,
     }
         
     # selector for desired species
-    # Set species if missing to list of all non-background species
-    if (is.null(species)) {
-        species <- dimnames(params@initial_n)$sp[!is.na(params@A)]
-    }
-    sel_sp <- as.character(dimnames(feed)$sp) %in% species
+    sel_sp <- valid_species_arg(params, species, return.logical = TRUE)
+    species <- dimnames(params@initial_n)$sp[sel_sp]
     feed <- feed[sel_sp, , drop = FALSE]
     plot_dat <- data.frame(value = c(feed),
                            # ggplot orders the legend according to the ordering
@@ -818,7 +807,7 @@ plotlyFeedingLevel <- function(object,
 #' @param all.sizes If TRUE, then predation mortality is plotted also for sizes
 #'   outside a species' size range. Default FALSE.
 #'
-#' @return A plot
+#' @return A ggplot2 object
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions],  [getPredMort()]
@@ -847,11 +836,7 @@ plotPredMort <- function(object, species = NULL,
         pred_mort <- apply(pred_mort, c(2, 3), mean)
     }
     
-    # selector for desired species
-    # Set species if missing to list of all non-background species
-    if (is.null(species)) {
-        species <- dimnames(params@initial_n)$sp[!is.na(params@A)]
-    }
+    species <- valid_species_arg(params, species)
     # Need to keep species in order for legend
     species_levels <- c(as.character(params@species_params$species), 
                         "Background", "Resource", "Total")
@@ -890,9 +875,11 @@ plotPredMort <- function(object, species = NULL,
 
 #' Alias for plotPredMort
 #' 
+#' `r lifecycle::badge("deprecated")`
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit plotPredMort
 #' @export
+#' @concept deprecated
 plotM2 <- plotPredMort
 
 #' @rdname plotPredMort
@@ -914,7 +901,7 @@ plotlyPredMort <- function(object, species = NULL,
 #' @inheritParams plotSpectra
 #' @param all.sizes If TRUE, then fishing mortality is plotted also for sizes
 #'   outside a species' size range. Default FALSE.
-#' @return A plot
+#' @return A ggplot2 object
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions], [getFMort()]
@@ -942,11 +929,7 @@ plotFMort <- function(object, species = NULL,
     if (length(dim(f)) == 3) {
         f <- apply(f, c(2, 3), mean)
     }
-    # selector for desired species
-    # Set species if missing to list of all non-background species
-    if (is.null(species)) {
-        species <- dimnames(params@initial_n)$sp[!is.na(params@A)]
-    }
+    species <- valid_species_arg(params, species)
     # Need to keep species in order for legend
     species_levels <- c(as.character(params@species_params$species), 
                         "Background", "Resource", "Total")
@@ -1004,8 +987,10 @@ plotlyFMort <- function(object, species = NULL,
 #' 
 #' @inheritParams getGrowthCurves
 #' @inheritParams plotSpectra
-#' 
-#' @return A plot
+#' @param species_panel `r lifecycle::badge("experimental")`
+#'   If TRUE, display all species with their Von Bertalanffy curves as facets 
+#'   (need species and percentage to be set to default). Default FALSE.
+#' @return A ggplot2 object
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions]
@@ -1015,11 +1000,13 @@ plotlyFMort <- function(object, species = NULL,
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotGrowthCurves(sim, percentage = TRUE)
 #' plotGrowthCurves(sim, species = "Cod", max_age = 24)
+#' plotGrowthCurves(sim, species_panel = TRUE)
 #' }
 plotGrowthCurves <- function(object, 
-                             species,
-                             max_age = 20,
-                             percentage = FALSE,
+                             species = NULL, 
+                             max_age = 20, 
+                             percentage = FALSE, 
+                             species_panel = FALSE,
                              highlight = NULL) {
     if (is(object, "MizerSim")) {
         params <- object@params
@@ -1029,52 +1016,88 @@ plotGrowthCurves <- function(object,
     } else if (is(object, "MizerParams")) {
         params <- validParams(object)
     }
-    if (missing(species)) {
-        species <- params@species_params$species
-    }
+    species <- valid_species_arg(params, species)
     ws <- getGrowthCurves(params, species, max_age, percentage)
     plot_dat <- reshape2::melt(ws)
-    # Need to keep species in order for legend
     plot_dat$Species <- factor(plot_dat$Species, params@species_params$species)
-    p <- ggplot(plot_dat) +
-            geom_line(aes(x = Age, y = value,
-                          colour = Species, linetype = Species,
-                          size = Species))
-
-    y_label <- if (percentage) "Percent of maximum size" else "Size [g]"
+    plot_dat$legend <- "model"
+    
+    # creating some VB
+    if (all(c("a", "b", "k_vb") %in% names(params@species_params))) {
+        if ("t0" %in% names(params@species_params)) {
+            t0 <- params@species_params$t0
+        } else {
+            t0 <- 0
+        }
+        VBdf <- data.frame("species" = params@species_params$species, 
+                           "w_inf" = params@species_params$w_inf, 
+                           "a" = params@species_params$a, 
+                           "b" = params@species_params$b, 
+                           "k_vb" = params@species_params$k_vb, 
+                           "t0" = t0) 
+        VBdf$L_inf <- (VBdf$w_inf / VBdf$a) ^ (1 / VBdf$b)
+        plot_dat2 <- plot_dat
+        plot_dat2$value <- 
+            apply(plot_dat, 1,
+                  function(x) {
+                      sel <- VBdf$species == x[1]
+                      length <- VBdf$L_inf[sel] * 
+                          (1 - exp(-VBdf$k_vb[sel] * 
+                                       (as.numeric(x[2]) - VBdf$t0[sel])))
+                      VBdf$a[sel] * length ^ VBdf$b[sel]
+                  })
+        plot_dat2$legend <- "von Bertalanffy"
+        plot_dat <- rbind(plot_dat,plot_dat2)
+    }
+    
+    p <- ggplot(filter(plot_dat, legend == "model")) + 
+        geom_line(aes(x = Age, y = value, 
+                      colour = Species, linetype = Species, size = Species))
+    y_label <- if (percentage) 
+        "Percent of maximum size"
+    else "Size [g]"
     linesize <- rep(0.8, length(params@linetype))
     names(linesize) <- names(params@linetype)
     linesize[highlight] <- 1.6
-    p <- p +
-        scale_x_continuous(name = "Age [Years]") +
-        scale_y_continuous(name = y_label) +
-        scale_colour_manual(values = params@linecolour) +
-        scale_linetype_manual(values = params@linetype) +
+    p <- p + scale_x_continuous(name = "Age [Years]") + 
+        scale_y_continuous(name = y_label) + 
+        scale_colour_manual(values = params@linecolour) + 
+        scale_linetype_manual(values = params@linetype) + 
         scale_size_manual(values = linesize)
     
-    # Extra stuff for single-species case
-    if (length(species) == 1 && !percentage) {
-        idx <- which(params@species_params$species == species)
-        w_inf <- params@species_params$w_inf[idx]
-        # set w_inf to w at next grid point, because that is when growth rate
-        # becomes zero
-        #   w_inf <- params@w[min(sum(w_inf > params@w) + 1, length(params@w))]
-        p <- p + geom_hline(yintercept = w_inf) +
-            annotate("text", 0, w_inf, vjust = -1, label = "Maximum")
-        w_mat <- params@species_params$w_mat[idx]
-        p <- p + geom_hline(yintercept = w_mat) +
-            annotate("text", 0, w_mat, vjust = -1, label = "Maturity")
-        if (all(c("a", "b", "k_vb") %in% names(params@species_params))) {
-            age <- as.numeric(dimnames(ws)$Age)
-            a <- params@species_params[["a"]][idx]
-            b <- params@species_params[["b"]][idx]
-            k_vb <- params@species_params$k_vb[idx]
-            t0 <- params@species_params$t0[idx]
-            if (is.null(t0)) t0 <- 0
-            L_inf <- (w_inf / a) ^ (1 / b)
-            vb <- a * (L_inf * (1 - exp(-k_vb * (age - t0))))^b
-            dat <- data.frame(x = age, y = vb)
-            p <- p + geom_line(data = dat, aes(x = x, y = y))
+    # starting cases now
+    if (!percentage)  {
+        if (length(species) == 1) {
+            idx <- which(params@species_params$species == species)
+            w_inf <- params@species_params$w_inf[idx]
+            p <- p + geom_hline(yintercept = w_inf, colour = "grey") + 
+                annotate("text", 0, w_inf, vjust = -1, label = "Maximum")
+            w_mat <- params@species_params$w_mat[idx]
+            p <- p + geom_hline(yintercept = w_mat, linetype = "dashed", 
+                                colour = "grey") + 
+                annotate("text", 0, w_mat, vjust = -1, label = "Maturity")
+            if ("von Bertalanffy" %in% plot_dat$legend) 
+                p <- p + geom_line(data = filter(plot_dat, legend == "von Bertalanffy"), 
+                                   aes(x = Age, y = value))
+            
+        } else if (species_panel) { # need to add either no panel if no param 
+                                    # for VB or create a panel without VB
+            p <- ggplot(plot_dat) +
+                geom_line(aes(x = Age, y = value , colour = legend)) +
+                scale_x_continuous(name = "Age [years]") +
+                scale_y_continuous(name = "Size [g]") +
+                geom_hline(aes(yintercept = w_mat),
+                           data = tibble(Species = object@params@species_params$species[],
+                                         w_mat = object@params@species_params$w_mat[]),
+                           linetype = "dashed",
+                           colour = "grey") +
+                geom_hline(aes(yintercept = w_inf),
+                           data = tibble(Species = object@params@species_params$species[],
+                                         w_inf = object@params@species_params$w_inf[]),
+                           linetype = "solid",
+                           colour = "grey") +
+                facet_wrap(~Species, scales = "free_y")
+            
         }
     }
     return(p)
@@ -1082,10 +1105,11 @@ plotGrowthCurves <- function(object,
 
 #' @rdname plotGrowthCurves
 #' @export
-plotlyGrowthCurves <- function(object, species,
-                             max_age = 20,
-                             percentage = FALSE,
-                             highlight = NULL) {
+plotlyGrowthCurves <- function(object, species = NULL,
+                               max_age = 20,
+                               percentage = FALSE,
+                               species_panel = FALSE,
+                               highlight = NULL) {
     argg <- as.list(environment())
     ggplotly(do.call("plotGrowthCurves", argg))
 }
@@ -1096,17 +1120,14 @@ plotlyGrowthCurves <- function(object, species,
 #' `r lifecycle::badge("experimental")`
 #' 
 #' @inheritParams plotSpectra
-#' @param species The name of the species whose diet should be plotted
 #'
-#' @return A plot
+#' @return A ggplot2 object
 #' @export
 #' @family plotting functions
-plotDiet <- function(object, species) {
+plotDiet <- function(object, species = NULL) {
     params <- validParams(object)
-    if (is.integer(species)) {
-        species <- params@species_params$species[species]
-    }
-    diet <- getDiet(params)[params@species_params$species == species, , ]
+    species <- valid_species_arg(object, species, return.logical = TRUE)
+    diet <- getDiet(params)[species, , ]
     prey <- dimnames(diet)$prey
     prey <- factor(prey, levels = rev(prey))
     plot_dat <- data.frame(

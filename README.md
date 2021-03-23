@@ -56,7 +56,7 @@ Recent work on mizer was funded by the European Commission Horizon 2020
 Research and Innovation Programme under Grant Agreement No 634495 for
 the project MINOUW (<http://minouw-project.eu/>) and the Australian
 Research Council Discovery Project [Rewiring Marine Food
-Webs](http://marinesocioecology.org/rewiring-marine-food-webs/).
+Webs](https://marinesocioecology.org/projects/rewiring-marine-food-webs-predicting-consequences-of-species-distribution-shifts-on-marine-communities/).
 
 ## Installation
 

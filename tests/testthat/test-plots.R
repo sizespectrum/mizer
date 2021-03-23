@@ -35,25 +35,41 @@ expect_doppelganger("Plot Spectra", p)
 
 p <- plotFeedingLevel(sim, species = species, time_range = 1:3)
 expect_doppelganger("Plot Feeding Level", p)
+p <- plotFeedingLevel(sim, species = species, time_range = 1:3,
+                      include_critical = TRUE)
+expect_doppelganger("Plot Feeding Level critical", p)
 
-p <- plotPredMort(sim, species = species, time_range = 1:3)
+p <- plotPredMort(sim, species = species, time_range = 1:3,
+                  all.sizes = TRUE)
 expect_doppelganger("PlotPredation Mortality", p)
+p <- plotPredMort(sim, species = "Sandeel", time_range = 1:3)
+expect_doppelganger("PlotPredMort truncated", p)
 
-p <- plotFMort(sim, species = species, time_range = 1:3)
+p <- plotFMort(sim, species = species, time_range = 1:3,
+               all.sizes = TRUE)
 expect_doppelganger("PlotFishing Mortality", p)
+p <- plotFMort(sim, species = "Sandeel", time_range = 1:3)
+expect_doppelganger("PlotFMort truncated", p)
 
 p <- plotGrowthCurves(sim, species = species, percentage = TRUE,
                       max_age = 50)
 expect_doppelganger("Plot Growth Curves", p)
+p <- plotGrowthCurves(sim, percentage = FALSE,
+                      species_panel = TRUE, max_age = 50)
+expect_doppelganger("Plot Growth Curves panel", p)
 
 sim@params@species_params[["a"]] <- 0.0058
 sim@params@species_params[["b"]] <- 3.13
 p <- plotGrowthCurves(sim, species = "Haddock", max_age = 50)
 expect_doppelganger("Plot Single Growth Curve", p)
+
+p <- plotDiet(NS_params, species = "Haddock")
+expect_doppelganger("Plot Diet", p)
 })
 
 test_that("plot function do not throw error", {
     expect_error(plot(sim, species = species, wlim = c(10, 100), w_min = 10), NA)
+    expect_error(plot(params, species = species, wlim = c(10, 100), w_min = 10), NA)
 })
 
 # plotly functions do not throw error

@@ -79,7 +79,7 @@ It is of potential interest only to mizer extension authors." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.1.0</span>
       </span>
     </div>
 
@@ -87,7 +87,7 @@ It is of potential interest only to mizer extension authors." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -154,7 +154,7 @@ It is of potential interest only to mizer extension authors." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -187,20 +187,20 @@ It is of potential interest only to mizer extension authors." />
 It is of potential interest only to mizer extension authors.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>project_simple</span>(
-  <span class='kw'>params</span>,
-  <span class='kw'>n</span>,
-  <span class='kw'>n_pp</span>,
-  <span class='kw'>n_other</span>,
-  <span class='kw'>t</span>,
-  <span class='kw'>dt</span>,
-  <span class='kw'>steps</span>,
-  <span class='kw'>effort</span>,
-  <span class='kw'>resource_dynamics_fn</span>,
-  <span class='kw'>other_dynamics_fns</span>,
-  <span class='kw'>rates_fns</span>,
-  <span class='kw'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>project_simple</span><span class='op'>(</span>
+  <span class='va'>params</span>,
+  <span class='va'>n</span>,
+  <span class='va'>n_pp</span>,
+  <span class='va'>n_other</span>,
+  <span class='va'>t</span>,
+  <span class='va'>dt</span>,
+  <span class='va'>steps</span>,
+  <span class='va'>effort</span>,
+  <span class='va'>resource_dynamics_fn</span>,
+  <span class='va'>other_dynamics_fns</span>,
+  <span class='va'>rates_fns</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -273,9 +273,10 @@ as possible to allow it to be used in a loop. For example, it is called in
 intermediate results but only returns the result at time <code>t + dt * steps</code>.
 During this time it uses the constant fishing effort <code>effort</code>.</p>
 <p>The functional arguments can be calculated from slots in the <code>params</code> object
-with</p><pre><span class='kw'>resource_dynamics_fn</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/get.html'>get</a></span>(<span class='kw'>params</span><span class='op'>@</span>resource_dynamics)
-<span class='kw'>other_dynamics_fns</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='kw'>params</span><span class='op'>@</span>other_dynamics, <span class='kw'>get</span>)
-<span class='kw'>rates_fns</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='kw'>params</span><span class='op'>@</span>rates_funcs, <span class='kw'>get</span>)</pre>
+with</p><pre><span class='va'>resource_dynamics_fn</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/get.html'>get</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>@</span><span class='va'>resource_dynamics</span><span class='op'>)</span>
+<span class='va'>other_dynamics_fns</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>@</span><span class='va'>other_dynamics</span>, <span class='va'>get</span><span class='op'>)</span>
+<span class='va'>rates_fns</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>@</span><span class='va'>rates_funcs</span>, <span class='va'>get</span><span class='op'>)</span>
+</pre>
 
 <p>The reason the function does not do that itself is to shave 20 microseconds
 of its running time, which pays when the function is called hundreds of
@@ -303,7 +304,7 @@ final time step, these too are included in the returned list.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

@@ -5,27 +5,40 @@
 \alias{plotlyPredMort}
 \title{Plot predation mortality rate of each species against size}
 \usage{
-plotPredMort(object, species = NULL, time_range, highlight = NULL, ...)
+plotPredMort(
+  object,
+  species = NULL,
+  time_range,
+  all.sizes = FALSE,
+  highlight = NULL,
+  ...
+)
 
 plotlyPredMort(object, species = NULL, time_range, highlight = NULL, ...)
 }
 \arguments{
-\item{object}{An object of class \linkS4class{MizerSim} or \linkS4class{MizerParams}.}
+\item{object}{An object of class \linkS4class{MizerSim} or
+\linkS4class{MizerParams}.}
 
-\item{species}{Name or vector of names of the species to be plotted. By
-default all species are plotted.}
+\item{species}{The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.}
 
 \item{time_range}{The time range (either a vector of values, a vector of min
 and max time, or a single value) to average the abundances over. Default is
 the final time step. Ignored when called with a \linkS4class{MizerParams}
 object.}
 
+\item{all.sizes}{If TRUE, then predation mortality is plotted also for sizes
+outside a species' size range. Default FALSE.}
+
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 
 \item{...}{Other arguments (currently unused)}
 }
 \value{
-A plot
+A ggplot2 object
 }
 \description{
 After running a projection, plot the predation mortality rate of each species

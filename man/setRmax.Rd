@@ -16,5 +16,8 @@ higher than the initial-state reproduction rate}
 A MizerParams object
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
 An alias provided for backward compatibility with mizer version <= 2.0.4
 }
+\concept{deprecated}

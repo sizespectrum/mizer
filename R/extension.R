@@ -277,32 +277,3 @@ finalNOther <- function(sim) {
     names(n_other) <- dimnames(sim@n_other)$component
     n_other
 }
-
-#' Dummy function used during testing only
-#' 
-#' @param params A MizerParams object
-#' @param ... Other parameters
-#' @export
-test_dyn <- function(params, ...) {
-    111
-}
-#' Dummy function used during testing only
-#' 
-#' @inheritParams resource_constant
-#' @inheritParams constant_other
-#' @param ... Unused
-#' @export
-semichemostat <- function(params, n_other, rates, dt, component, ...) {
-    c <- params@other_params[[component]]
-    interaction <- params@species_params$interaction_resource
-    mort <- as.vector(interaction  %*% rates$pred_rate)
-    tmp <- c$rate * c$capacity / (c$rate + mort)
-    return(tmp - (tmp - n_other[[component]]) * exp(-(c$rate + mort) * dt))
-}
-#' Dummy function used during testing only
-#' 
-#' @inheritParams resource_constant
-#' @export
-resource_encounter <- function(params, n, n_pp, n_other, ...) {
-    mizerEncounter(params, n = n, n_pp = n_other$resource, ...)
-}

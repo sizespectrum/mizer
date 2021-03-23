@@ -35,7 +35,11 @@ setBevertonHolt <- function(params, R_factor) {
 
 #' Alias for setBevertonHolt
 #' 
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#' 
 #' An alias provided for backward compatibility with mizer version <= 2.0.4
 #' @inherit setBevertonHolt
 #' @export
+#' @concept deprecated
 setRmax <- setBevertonHolt

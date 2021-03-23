@@ -46,9 +46,10 @@
 
 
 <meta property="og:title" content="Ricker function to calculate density-dependent reproduction rate — RickerRDD" />
-<meta property="og:description" content="Takes the density-independent rates \(R_{di}\) of egg production and returns
-reduced, density-dependent rates \(R_{dd}\) given as
-$$R_{dd} = R_{di} \exp{- b R_{di}}$$" />
+<meta property="og:description" content="
+Takes the density-independent rates \(R_{di}\) of egg production and
+returns reduced, density-dependent rates \(R_{dd}\) given as
+$$R_{dd} = R_{di} \exp(- b R_{di})$$" />
 
 
 <meta name="robots" content="noindex">
@@ -80,7 +81,7 @@ $$R_{dd} = R_{di} \exp{- b R_{di}}$$" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.4.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.1.0.9000</span>
       </span>
     </div>
 
@@ -88,7 +89,7 @@ $$R_{dd} = R_{di} \exp{- b R_{di}}$$" />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -155,7 +156,7 @@ $$R_{dd} = R_{di} \exp{- b R_{di}}$$" />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -179,17 +180,18 @@ $$R_{dd} = R_{di} \exp{- b R_{di}}$$" />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Ricker function to calculate density-dependent reproduction rate</h1>
-    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/project_methods.R'><code>R/project_methods.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/reproduction.R'><code>R/reproduction.R</code></a></small>
     <div class="hidden name"><code>RickerRDD.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Takes the density-independent rates \(R_{di}\) of egg production and returns
-reduced, density-dependent rates \(R_{dd}\) given as
-$$R_{dd} = R_{di} \exp{- b R_{di}}$$</p>
+    <p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+Takes the density-independent rates \(R_{di}\) of egg production and
+returns reduced, density-dependent rates \(R_{dd}\) given as
+$$R_{dd} = R_{di} \exp(- b R_{di})$$</p>
     </div>
 
-    <pre class="usage"><span class='fu'>RickerRDD</span>(<span class='kw'>rdi</span>, <span class='kw'>species_params</span>, <span class='kw'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>RickerRDD</span><span class='op'>(</span><span class='va'>rdi</span>, <span class='va'>species_params</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -218,6 +220,7 @@ $$R_{dd} = R_{di} \exp{- b R_{di}}$$</p>
     <div class='dont-index'><p>Other functions calculating density-dependent reproduction rate: 
 <code><a href='BevertonHoltRDD.html'>BevertonHoltRDD</a>()</code>,
 <code><a href='SheperdRDD.html'>SheperdRDD</a>()</code>,
+<code><a href='constantEggRDI.html'>constantEggRDI</a>()</code>,
 <code><a href='constantRDD.html'>constantRDD</a>()</code>,
 <code><a href='noRDD.html'>noRDD</a>()</code></p></div>
 
@@ -236,7 +239,7 @@ $$R_{dd} = R_{di} \exp{- b R_{di}}$$</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

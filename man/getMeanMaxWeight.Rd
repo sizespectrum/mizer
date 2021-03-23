@@ -4,18 +4,15 @@
 \alias{getMeanMaxWeight}
 \title{Calculate the mean maximum weight of the community}
 \usage{
-getMeanMaxWeight(
-  sim,
-  species = seq_len(nrow(species_params(getParams(sim)))),
-  measure = "both",
-  ...
-)
+getMeanMaxWeight(sim, species = NULL, measure = "both", ...)
 }
 \arguments{
 \item{sim}{A \linkS4class{MizerSim} object}
 
-\item{species}{Numeric or character vector of species to include in the
-calculation.}
+\item{species}{The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.}
 
 \item{measure}{The measure to return. Can be 'numbers', 'biomass' or 'both'}
 

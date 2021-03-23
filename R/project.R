@@ -35,9 +35,9 @@ NULL
 #'   will cover the period from `t_start` to \code{t_start + t_max}.
 #'   Defaults to 0. Ignored if an array is used for the `effort`
 #'   argument or a `MizerSim` for the `object` argument.
-#' @param initial_n Deprecated. The initial abundances of species. Instead of
+#' @param initial_n `r lifecycle::badge("deprecated")` The initial abundances of species. Instead of
 #'   using this argument you should set `initialN(params)` to the desired value.
-#' @param initial_n_pp Deprecated. The initial abundances of resource. Instead
+#' @param initial_n_pp `r lifecycle::badge("deprecated")` The initial abundances of resource. Instead
 #'   of using this argument you should set `initialNResource(params)` to the
 #'   desired value.
 #' @param append A boolean that determines whether the new simulation results
@@ -304,6 +304,7 @@ project <- function(object, effort,
 #' @return List with the final values of `n`, `n_pp` and `n_other`, `rates`.
 #' 
 #' @export
+#' @concept helper
 project_simple <- function(params, n, n_pp, n_other, t, dt, steps, 
                            effort, resource_dynamics_fn, other_dynamics_fns,
                            rates_fns, ...) {    

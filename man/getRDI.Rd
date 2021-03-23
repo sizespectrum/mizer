@@ -57,7 +57,8 @@ object \code{params} with\preformatted{params <- setRateFunction(params, "RDI", 
 }
 
 Your function will then be called instead of \code{\link[=mizerRDI]{mizerRDI()}}, with the
-same arguments.
+same arguments. For an example of an alternative reproduction function
+see \code{constantEggRDI()}.
 }
 
 \examples{

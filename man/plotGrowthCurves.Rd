@@ -7,17 +7,19 @@
 \usage{
 plotGrowthCurves(
   object,
-  species,
+  species = NULL,
   max_age = 20,
   percentage = FALSE,
+  species_panel = FALSE,
   highlight = NULL
 )
 
 plotlyGrowthCurves(
   object,
-  species,
+  species = NULL,
   max_age = 20,
   percentage = FALSE,
+  species_panel = FALSE,
   highlight = NULL
 )
 }
@@ -27,18 +29,24 @@ plotlyGrowthCurves(
 simulation to calculate the size at age. If given a
 \linkS4class{MizerParams} object, uses the initial growth rates instead.}
 
-\item{species}{Name or vector of names of the species to be included. By
-default all species are included.}
+\item{species}{The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.}
 
 \item{max_age}{The age up to which to run the growth curve. Default is 20.}
 
 \item{percentage}{Boolean value. If TRUE, the size is given as a percentage
 of the maximal size.}
 
+\item{species_panel}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If TRUE, display all species with their Von Bertalanffy curves as facets
+(need species and percentage to be set to default). Default FALSE.}
+
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 }
 \value{
-A plot
+A ggplot2 object
 }
 \description{
 When the growth curve for only a single species is plotted, horizontal
@@ -54,6 +62,7 @@ params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter)
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotGrowthCurves(sim, percentage = TRUE)
 plotGrowthCurves(sim, species = "Cod", max_age = 24)
+plotGrowthCurves(sim, species_panel = TRUE)
 }
 }
 \seealso{

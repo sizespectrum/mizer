@@ -86,7 +86,7 @@ the species index for simplicity.)" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.1.0</span>
       </span>
     </div>
 
@@ -94,7 +94,7 @@ the species index for simplicity.)" />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -161,7 +161,7 @@ the species index for simplicity.)" />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -185,7 +185,7 @@ the species index for simplicity.)" />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Beverton Holt function to calculate density-dependent reproduction rate</h1>
-    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/project_methods.R'><code>R/project_methods.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/reproduction.R'><code>R/reproduction.R</code></a></small>
     <div class="hidden name"><code>BevertonHoltRDD.Rd</code></div>
     </div>
 
@@ -201,7 +201,7 @@ specified in a column in the species parameter dataframe.
 the species index for simplicity.)</p>
     </div>
 
-    <pre class="usage"><span class='fu'>BevertonHoltRDD</span>(<span class='kw'>rdi</span>, <span class='kw'>species_params</span>, <span class='kw'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>BevertonHoltRDD</span><span class='op'>(</span><span class='va'>rdi</span>, <span class='va'>species_params</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -229,14 +229,15 @@ R_max holding the maximum reproduction rate \(R_{max}\) for each species.</p></t
 
     <p>This is only one example of a density-dependence. You can write your own
 function based on this example, returning different density-dependent
-reproduction rates. Two other examples provided are <code><a href='RickerRDD.html'>RickerRDD()</a></code>
-and <code><a href='SheperdRDD.html'>SheperdRDD()</a></code>. For more explanation see
+reproduction rates. Three other examples provided are <code><a href='RickerRDD.html'>RickerRDD()</a></code>,
+<code><a href='SheperdRDD.html'>SheperdRDD()</a></code>, <code><a href='noRDD.html'>noRDD()</a></code> and <code><a href='constantRDD.html'>constantRDD()</a></code>. For more explanation see
 <code><a href='setReproduction.html'>setReproduction()</a></code>.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions calculating density-dependent reproduction rate: 
 <code><a href='RickerRDD.html'>RickerRDD</a>()</code>,
 <code><a href='SheperdRDD.html'>SheperdRDD</a>()</code>,
+<code><a href='constantEggRDI.html'>constantEggRDI</a>()</code>,
 <code><a href='constantRDD.html'>constantRDD</a>()</code>,
 <code><a href='noRDD.html'>noRDD</a>()</code></p></div>
 
@@ -255,7 +256,7 @@ and <code><a href='SheperdRDD.html'>SheperdRDD()</a></code>. For more explanatio
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

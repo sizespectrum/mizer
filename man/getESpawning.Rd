@@ -39,6 +39,7 @@ reproduction. This proportion is taken from the \code{params} object and is
 set with \code{\link[=setReproduction]{setReproduction()}}.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 An alias provided for backward compatibility with mizer version <= 1.0
 }
 \section{Your own reproduction rate function}{
@@ -78,3 +79,4 @@ Other rate functions:
 \code{\link{getRates}()},
 \code{\link{getResourceMort}()}
 }
+\concept{deprecated}

@@ -4,7 +4,7 @@ no_sp <- nrow(params@species_params)
 ## setSearchVolume ----
 test_that("setSearchVolume works", {
     expect_equal(setSearchVolume(params, params@search_vol, 
-                                 comment = NULL), params)
+                                 comment_search_vol = NULL), params)
     params@species_params$gamma <- 2 * params@species_params$gamma
     p2 <- setSearchVolume(params)
     expect_equal(2 * params@search_vol, p2@search_vol)
@@ -23,18 +23,18 @@ test_that("Comment works on search volume", {
     
     # comment argument is ignored when there is a comment on search_vol
     params <- setSearchVolume(params, search_vol = search_vol,
-                               comment = "overwrite")
+                              comment_search_vol = "overwrite")
     expect_identical(comment(params@search_vol), "test")
     # but it is used otherwise
     comment(search_vol) <- NULL
     params <- setSearchVolume(params, search_vol = search_vol,
-                              comment = "overwrite")
+                              comment_search_vol = "overwrite")
     expect_identical(comment(params@search_vol), "overwrite")
 })
 
 # getSearchVolume ----
 test_that("getSearchVolume works", {
     p <- setSearchVolume(params, search_vol = getSearchVolume(params), 
-                         comment = NULL)
+                         comment_search_vol = NULL)
     expect_identical(params, p)
 })

@@ -10,7 +10,8 @@ getRates(
   n_pp = initialNResource(params),
   n_other = initialNOther(params),
   effort,
-  t = 0
+  t = 0,
+  ...
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ ecosystem}
 \item{t}{The time for which to do the calculation (Not used by standard
 mizer rate functions but useful for extensions with time-dependent
 parameters.)}
+
+\item{...}{Unused}
 }
 \description{
 Calls other rate functions in sequence and collects the results in a list.

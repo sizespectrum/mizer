@@ -25,7 +25,7 @@ three dimensions (gear x species x size).
 }
 \description{
 Calculates the fishing mortality rate \eqn{F_{g,i,w}} by gear, species and
-size at each time step in the \code{effort} argument (in units 1/year).
+size and possibly time (in units 1/year).
 }
 \note{
 Here: fishing mortality = catchability x selectivity x effort.

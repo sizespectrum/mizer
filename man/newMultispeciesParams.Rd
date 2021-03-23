@@ -102,7 +102,8 @@ reproduction rate from the density-independent rate. Defaults to
 
 \item{resource_rate}{Optional. Vector of resource intrinsic birth rates}
 
-\item{resource_capacity}{Optional. Vector of resource intrinsic carrying capacity}
+\item{resource_capacity}{Optional. Vector of resource intrinsic carrying
+capacity}
 
 \item{n}{The allometric growth exponent. This can be overruled for individual
 species by including a \code{n} column in the \code{species_params}.}

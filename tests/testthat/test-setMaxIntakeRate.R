@@ -4,7 +4,7 @@ no_sp <- nrow(params@species_params)
 ## setMaxIntakeRate ----
 test_that("ssetMaxIntakeRate works", {
     expect_identical(setMaxIntakeRate(params, params@intake_max, 
-                                      comment = NULL), params)
+                                      comment_intake_max = NULL), params)
     params@species_params$h <- 2 * params@species_params$h
     p2 <- setMaxIntakeRate(params)
     expect_identical(2 * params@intake_max, p2@intake_max)
@@ -24,18 +24,18 @@ test_that("Comment works on intake_max", {
     
     # comment argument is ignored when there is a comment on intake_max
     params <- setMaxIntakeRate(params, intake_max = intake_max,
-                               comment = "overwrite")
+                               comment_intake_max = "overwrite")
     expect_identical(comment(params@intake_max), "test")
     # but it is used otherwise
     comment(intake_max) <- NULL
     params <- setMaxIntakeRate(params, intake_max = intake_max,
-                               comment = "overwrite")
+                               comment_intake_max = "overwrite")
     expect_identical(comment(params@intake_max), "overwrite")
 })
 
 # getMaxIntakeRate ----
 test_that("getMaxIntakeRate works", {
     p <- setMaxIntakeRate(params, intake_max = getMaxIntakeRate(params), 
-                          comment = NULL)
+                          comment_intake_max = NULL)
     expect_identical(params, p)
 })

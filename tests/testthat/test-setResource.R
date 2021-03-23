@@ -1,5 +1,6 @@
+params <- NS_params
+
 test_that("We can set and get resource parameters", {
-  params <- NS_params
   rp <- resource_params(params)
   expect_identical(rp, params@resource_params)
   # Check that when called without parameters it leaves the params untouched
@@ -61,6 +62,29 @@ test_that("We can set and get resource parameters", {
   # resource_params<- sets rates correctly
   resource_params(NS_params) <- resource_params(params)
   expect_identical(NS_params, params)
+})
+
+test_that("setResource sets comments correctly", {
+  rate <- getResourceRate(params)
+  capacity <- getResourceCapacity(params)
+  # The comment arguments are ignored when the values are already commented
+  comment(rate) <- "testr"
+  comment(capacity) <- "testc"
+  params <- setResource(params, resource_rate = rate,
+                        comment_rate = "overwriter",
+                        resource_capacity = capacity,
+                        comment_capacity = "overwritec")
+  expect_identical(comment(params@rr_pp), "testr")
+  expect_identical(comment(params@cc_pp), "testc")
+  # But otherwise the comment arguments are stored correctly.
+  comment(rate) <- NULL
+  comment(capacity) <- NULL
+  params <- setResource(params, resource_rate = rate,
+                        comment_rate = "overwriter",
+                        resource_capacity = capacity,
+                        comment_capacity = "overwritec")
+  expect_identical(comment(params@rr_pp), "overwriter")
+  expect_identical(comment(params@cc_pp), "overwritec")
 })
 
 test_that("setResource gives error", {

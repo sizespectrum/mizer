@@ -42,7 +42,9 @@ used.
 }
 \description{
 Calculates the total fishing mortality  (in units 1/year) from all gears by
-species and size at each time step in the \code{effort} argument.
+species and size and possibly time.
+}
+\details{
 The total fishing mortality is just the sum of the fishing mortalities
 imposed by each gear, \eqn{\mu_{f.i}(w)=\sum_g F_{g,i,w}}.
 The fishing mortality for each gear is obtained as catchability x

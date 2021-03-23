@@ -586,6 +586,7 @@ get_power_law_mort <- function(params) {
 #'
 #' @param params A MizerParams object
 #' @return A vector of reproduction rates for all species
+#' @concept helper
 get_required_reproduction <- function(params) {
     assert_that(is(params, "MizerParams"))
     

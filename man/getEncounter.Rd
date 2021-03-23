@@ -9,7 +9,8 @@ getEncounter(
   n = initialN(params),
   n_pp = initialNResource(params),
   n_other = initialNOther(params),
-  t = 0
+  t = 0,
+  ...
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ ecosystem}
 \item{t}{The time for which to do the calculation (Not used by standard
 mizer rate functions but useful for extensions with time-dependent
 parameters.)}
+
+\item{...}{Unused}
 }
 \value{
 A named two dimensional array (predator species x predator size) with

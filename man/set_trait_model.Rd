@@ -156,9 +156,4 @@ K. H. Andersen and M. Pedersen, 2010, Damped trophic cascades
 driven by fishing in model marine ecosystems. Proceedings of the Royal
 Society V, Biological Sciences, 1682, 795-802.
 }
-\seealso{
-Other deprecated functions: 
-\code{\link{set_community_model}()},
-\code{\link{set_multispecies_model}()}
-}
-\concept{deprecated functions}
+\concept{deprecated}

@@ -22,16 +22,16 @@
 #' @param params MizerParams
 #' @param z0 Optional. An array (species x size) holding the external
 #'   mortality rate.
+#' @param comment_z0 `r lifecycle::badge("experimental")`
+#'   A string describing how the value for 'z0' was obtained. This is
+#'   ignored if 'z0' is not supplied or already has a comment
+#'   attribute.
 #' @param z0pre If `z0`, the mortality from other sources, is not a column
 #'   in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 #'   Default value is 0.6.
 #' @param z0exp If `z0`, the mortality from other sources, is not a column
 #'   in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
 #'   Default value is \code{n-1}.
-#' @param comment `r lifecycle::badge("experimental")`
-#'   A string describing how the value for 'z0' was obtained. This is
-#'   ignored if 'z0' is not supplied or already has a comment
-#'   attribute.
 #' @param ... Unused
 #' 
 #' @return MizerParams object with updated external mortality rate. Because of
@@ -58,11 +58,11 @@
 #' params <- setExtMort(params, z0 = z0)
 #' }
 setExtMort <- function(params, z0 = NULL, z0pre = 0.6, z0exp = -1/4,
-                       comment = "set manually",  ...) {
+                       comment_z0 = "set manually",  ...) {
     assert_that(is(params, "MizerParams"))
     if (!is.null(z0)) {
         if (is.null(comment(z0))) {
-            comment(z0) <- comment
+            comment(z0) <- comment_z0
         }
         assert_that(is.array(z0),
                     identical(dim(z0), dim(params@mu_b)))

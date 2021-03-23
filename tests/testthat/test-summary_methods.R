@@ -122,18 +122,6 @@ test_that("getProportionOfLargeFish works",{
     expect_known_value(prop, "values/getProportionOfLargeFish")
 })
 
-
-# check_species ----
-test_that("check_species works",{
-    sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
-    expect_true(check_species(sim,c("Cod","Haddock")))
-    expect_true(check_species(sim,c(10,11)))
-    expect_that(check_species(sim,c("Arse","Balls")), throws_error())
-    expect_that(check_species(sim,c(10,666)), throws_error())
-
-})
-
-
 # getMeanWeight ----
 test_that("getMeanWeight works",{
     sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
@@ -165,8 +153,6 @@ test_that("getMeanWeight works",{
     mw4 <- total_biomass / total_n
     mw <- getMeanWeight(sim, species=species, min_w = min_w, max_w=max_w)
     expect_that(mw, equals(mw4))
-    # errors
-    expect_that(getMeanWeight(sim,species=c("Dougal","Ted")), throws_error())
     # numeric test
     expect_known_value(mw, "values/getMeanWeight")
 })
@@ -278,6 +264,10 @@ test_that("getDiet works with proportion = TRUE", {
 })
 test_that("getDiet works with additional components", {
     params <- NS_params
+    e <- globalenv()
+    e$test_dyn <- function(params, ...) {
+        111
+    }
     # switch off satiation for easier test of result
     species_params(params)$h <- Inf
     p <- setComponent(params, "test", 1, 

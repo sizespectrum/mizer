@@ -83,7 +83,7 @@ superimposed in black." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.4.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.1.0.9000</span>
       </span>
     </div>
 
@@ -91,7 +91,7 @@ superimposed in black." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -158,7 +158,7 @@ superimposed in black." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -195,21 +195,23 @@ k_vb (and optionally t0), then the von Bertalanffy growth curve is
 superimposed in black.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotGrowthCurves</span>(
-  <span class='kw'>object</span>,
-  <span class='kw'>species</span>,
-  max_age = <span class='fl'>20</span>,
-  percentage = <span class='fl'>FALSE</span>,
-  highlight = <span class='kw'>NULL</span>
-)
+    <pre class="usage"><span class='fu'>plotGrowthCurves</span><span class='op'>(</span>
+  <span class='va'>object</span>,
+  species <span class='op'>=</span> <span class='cn'>NULL</span>,
+  max_age <span class='op'>=</span> <span class='fl'>20</span>,
+  percentage <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  species_panel <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  highlight <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span>
 
-<span class='fu'>plotlyGrowthCurves</span>(
-  <span class='kw'>object</span>,
-  <span class='kw'>species</span>,
-  max_age = <span class='fl'>20</span>,
-  percentage = <span class='fl'>FALSE</span>,
-  highlight = <span class='kw'>NULL</span>
-)</pre>
+<span class='fu'>plotlyGrowthCurves</span><span class='op'>(</span>
+  <span class='va'>object</span>,
+  species <span class='op'>=</span> <span class='cn'>NULL</span>,
+  max_age <span class='op'>=</span> <span class='fl'>20</span>,
+  percentage <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  species_panel <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  highlight <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -223,8 +225,10 @@ simulation to calculate the size at age. If given a
     </tr>
     <tr>
       <th>species</th>
-      <td><p>Name or vector of names of the species to be included. By
-default all species are included.</p></td>
+      <td><p>The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.</p></td>
     </tr>
     <tr>
       <th>max_age</th>
@@ -236,6 +240,12 @@ default all species are included.</p></td>
 of the maximal size.</p></td>
     </tr>
     <tr>
+      <th>species_panel</th>
+      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+If TRUE, display all species with their Von Bertalanffy curves as facets
+(need species and percentage to be set to default). Default FALSE.</p></td>
+    </tr>
+    <tr>
       <th>highlight</th>
       <td><p>Name or vector of names of the species to be highlighted.</p></td>
     </tr>
@@ -243,7 +253,7 @@ of the maximal size.</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A plot</p>
+    <p>A ggplot2 object</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><a href='plotting_functions.html'>plotting_functions</a></p>
@@ -261,9 +271,13 @@ of the maximal size.</p></td>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span>(<span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='kw'>NS_species_params_gears</span>, <span class='kw'>inter</span>))
-<span class='kw'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='kw'>params</span>, effort=<span class='fl'>1</span>, t_max=<span class='fl'>20</span>, t_save = <span class='fl'>2</span>, progress_bar = <span class='fl'>FALSE</span>)
-<span class='fu'>plotGrowthCurves</span>(<span class='kw'>sim</span>, percentage = <span class='fl'>TRUE</span>)</div><div class='img'><img src='plotGrowthCurves-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>plotGrowthCurves</span>(<span class='kw'>sim</span>, species = <span class='st'>"Cod"</span>, max_age = <span class='fl'>24</span>)</div><div class='img'><img src='plotGrowthCurves-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span></div></pre>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span><span class='op'>(</span><span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort<span class='op'>=</span><span class='fl'>1</span>, t_max<span class='op'>=</span><span class='fl'>20</span>, t_save <span class='op'>=</span> <span class='fl'>2</span>, progress_bar <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+<span class='fu'>plotGrowthCurves</span><span class='op'>(</span><span class='va'>sim</span>, percentage <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+</div><div class='img'><img src='plotGrowthCurves-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>plotGrowthCurves</span><span class='op'>(</span><span class='va'>sim</span>, species <span class='op'>=</span> <span class='st'>"Cod"</span>, max_age <span class='op'>=</span> <span class='fl'>24</span><span class='op'>)</span>
+</div><div class='img'><img src='plotGrowthCurves-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>plotGrowthCurves</span><span class='op'>(</span><span class='va'>sim</span>, species_panel <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+</div><div class='img'><img src='plotGrowthCurves-3.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -279,7 +293,7 @@ of the maximal size.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

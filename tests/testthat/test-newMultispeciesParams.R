@@ -41,6 +41,11 @@ test_that("w_min_idx is being set correctly", {
                  check.names = FALSE)
 })
 
+test_that("Errors are reported", {
+    expect_error(newMultispeciesParams(NS_species_params, min_w_pp = 1),
+                 "min_w_pp must be larger than min_w")
+})
+
 ## setParams ----
 test_that("setParams can leave params unchanged", {
     expect_equal(setParams(NS_params), NS_params)
