@@ -46,7 +46,8 @@
 
 
 <meta property="og:title" content="Deprecated function for setting up parameters for a trait-based model — set_trait_model" />
-<meta property="og:description" content="This function has been deprecated in favour of the function
+<meta property="og:description" content="
+This function has been deprecated in favour of the function
 newTraitParams() that sets better default values." />
 
 
@@ -79,7 +80,7 @@ newTraitParams() that sets better default values." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.4.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.1.0.9000</span>
       </span>
     </div>
 
@@ -87,7 +88,7 @@ newTraitParams() that sets better default values." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -154,7 +155,7 @@ newTraitParams() that sets better default values." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -183,39 +184,40 @@ newTraitParams() that sets better default values." />
     </div>
 
     <div class="ref-description">
-    <p>This function has been deprecated in favour of the function
+    <p><a href='https://lifecycle.r-lib.org/articles/stages.html#deprecated'><img src='figures/lifecycle-deprecated.svg' alt='[Deprecated]' /></a></p>
+<p>This function has been deprecated in favour of the function
 <code><a href='newTraitParams.html'>newTraitParams()</a></code> that sets better default values.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>set_trait_model</span>(
-  no_sp = <span class='fl'>10</span>,
-  min_w_inf = <span class='fl'>10</span>,
-  max_w_inf = <span class='fl'>1e+05</span>,
-  no_w = <span class='fl'>100</span>,
-  min_w = <span class='fl'>0.001</span>,
-  max_w = <span class='kw'>max_w_inf</span> <span class='op'>*</span> <span class='fl'>1.1</span>,
-  min_w_pp = <span class='fl'>1e-10</span>,
-  w_pp_cutoff = <span class='fl'>1</span>,
-  k0 = <span class='fl'>50</span>,
-  n = <span class='fl'>2</span><span class='op'>/</span><span class='fl'>3</span>,
-  p = <span class='fl'>0.75</span>,
-  q = <span class='fl'>0.9</span>,
-  eta = <span class='fl'>0.25</span>,
-  r_pp = <span class='fl'>4</span>,
-  kappa = <span class='fl'>0.005</span>,
-  lambda = <span class='fl'>2</span> <span class='op'>+</span> <span class='kw'>q</span> <span class='op'>-</span> <span class='kw'>n</span>,
-  alpha = <span class='fl'>0.6</span>,
-  ks = <span class='fl'>4</span>,
-  z0pre = <span class='fl'>0.6</span>,
-  h = <span class='fl'>30</span>,
-  beta = <span class='fl'>100</span>,
-  sigma = <span class='fl'>1.3</span>,
-  f0 = <span class='fl'>0.5</span>,
-  gamma = <span class='fl'>NA</span>,
-  knife_edge_size = <span class='fl'>1000</span>,
-  gear_names = <span class='st'>"knife_edge_gear"</span>,
-  <span class='kw'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>set_trait_model</span><span class='op'>(</span>
+  no_sp <span class='op'>=</span> <span class='fl'>10</span>,
+  min_w_inf <span class='op'>=</span> <span class='fl'>10</span>,
+  max_w_inf <span class='op'>=</span> <span class='fl'>1e+05</span>,
+  no_w <span class='op'>=</span> <span class='fl'>100</span>,
+  min_w <span class='op'>=</span> <span class='fl'>0.001</span>,
+  max_w <span class='op'>=</span> <span class='va'>max_w_inf</span> <span class='op'>*</span> <span class='fl'>1.1</span>,
+  min_w_pp <span class='op'>=</span> <span class='fl'>1e-10</span>,
+  w_pp_cutoff <span class='op'>=</span> <span class='fl'>1</span>,
+  k0 <span class='op'>=</span> <span class='fl'>50</span>,
+  n <span class='op'>=</span> <span class='fl'>2</span><span class='op'>/</span><span class='fl'>3</span>,
+  p <span class='op'>=</span> <span class='fl'>0.75</span>,
+  q <span class='op'>=</span> <span class='fl'>0.9</span>,
+  eta <span class='op'>=</span> <span class='fl'>0.25</span>,
+  r_pp <span class='op'>=</span> <span class='fl'>4</span>,
+  kappa <span class='op'>=</span> <span class='fl'>0.005</span>,
+  lambda <span class='op'>=</span> <span class='fl'>2</span> <span class='op'>+</span> <span class='va'>q</span> <span class='op'>-</span> <span class='va'>n</span>,
+  alpha <span class='op'>=</span> <span class='fl'>0.6</span>,
+  ks <span class='op'>=</span> <span class='fl'>4</span>,
+  z0pre <span class='op'>=</span> <span class='fl'>0.6</span>,
+  h <span class='op'>=</span> <span class='fl'>30</span>,
+  beta <span class='op'>=</span> <span class='fl'>100</span>,
+  sigma <span class='op'>=</span> <span class='fl'>1.3</span>,
+  f0 <span class='op'>=</span> <span class='fl'>0.5</span>,
+  gamma <span class='op'>=</span> <span class='cn'>NA</span>,
+  knife_edge_size <span class='op'>=</span> <span class='fl'>1000</span>,
+  gear_names <span class='op'>=</span> <span class='st'>"knife_edge_gear"</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -386,11 +388,6 @@ or abundance through time after the projection.</p>
     <p>K. H. Andersen and M. Pedersen, 2010, Damped trophic cascades
 driven by fishing in model marine ecosystems. Proceedings of the Royal
 Society V, Biological Sciences, 1682, 795-802.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>Other deprecated functions: 
-<code><a href='set_community_model.html'>set_community_model</a>()</code>,
-<code><a href='set_multispecies_model.html'>set_multispecies_model</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -407,7 +404,7 @@ Society V, Biological Sciences, 1682, 795-802.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

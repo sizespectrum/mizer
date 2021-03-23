@@ -37,6 +37,7 @@ parameters.)}
 A two dimensional array (prey species x prey size).
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 An alias provided for backward compatibility with mizer version <= 1.0
 }
 \details{
@@ -85,3 +86,4 @@ Other rate functions:
 \code{\link{getRates}()},
 \code{\link{getResourceMort}()}
 }
+\concept{deprecated}

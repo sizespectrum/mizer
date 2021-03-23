@@ -46,7 +46,7 @@
 
 
 <meta property="og:title" content="Plot diet — plotDiet" />
-<meta property="og:description" content="Plot diet" />
+<meta property="og:description" content="" />
 
 
 <meta name="robots" content="noindex">
@@ -78,7 +78,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.4.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.1.0.9000</span>
       </span>
     </div>
 
@@ -86,7 +86,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -153,7 +153,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -182,27 +182,31 @@
     </div>
 
     <div class="ref-description">
-    <p>Plot diet</p>
+    <p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a></p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotDiet</span>(<span class='kw'>object</span>, <span class='kw'>species</span>)</pre>
+    <pre class="usage"><span class='fu'>plotDiet</span><span class='op'>(</span><span class='va'>object</span>, species <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>object</th>
-      <td><p>An object of class <a href='MizerSim-class.html'>MizerSim</a> or <a href='MizerParams-class.html'>MizerParams</a>.</p></td>
+      <td><p>An object of class <a href='MizerSim-class.html'>MizerSim</a> or
+<a href='MizerParams-class.html'>MizerParams</a>.</p></td>
     </tr>
     <tr>
       <th>species</th>
-      <td><p>The name of the species whose diet should be plotted</p></td>
+      <td><p>The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A plot</p>
+    <p>A ggplot2 object</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other plotting functions: 
@@ -232,7 +236,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

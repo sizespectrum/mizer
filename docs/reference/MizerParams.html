@@ -46,7 +46,8 @@
 
 
 <meta property="og:title" content="Alias for set_multispecies_model — MizerParams" />
-<meta property="og:description" content="An alias provided for backward compatibility with mizer version &amp;lt;= 1.0" />
+<meta property="og:description" content="
+An alias provided for backward compatibility with mizer version &amp;lt;= 1.0" />
 
 
 
@@ -78,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.1.0</span>
       </span>
     </div>
 
@@ -86,7 +87,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -153,7 +154,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -182,24 +183,25 @@
     </div>
 
     <div class="ref-description">
-    <p>An alias provided for backward compatibility with mizer version &lt;= 1.0</p>
+    <p><a href='https://lifecycle.r-lib.org/articles/stages.html#deprecated'><img src='figures/lifecycle-deprecated.svg' alt='[Deprecated]' /></a>
+An alias provided for backward compatibility with mizer version &lt;= 1.0</p>
     </div>
 
-    <pre class="usage"><span class='fu'>MizerParams</span>(
-  <span class='kw'>species_params</span>,
-  interaction = <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fl'>1</span>, nrow = <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='kw'>species_params</span>), ncol = <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='kw'>species_params</span>)),
-  min_w_pp = <span class='fl'>1e-10</span>,
-  min_w = <span class='fl'>0.001</span>,
-  max_w = <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='kw'>species_params</span><span class='op'>$</span><span class='kw'>w_inf</span>) <span class='op'>*</span> <span class='fl'>1.1</span>,
-  no_w = <span class='fl'>100</span>,
-  n = <span class='fl'>2</span><span class='op'>/</span><span class='fl'>3</span>,
-  q = <span class='fl'>0.8</span>,
-  f0 = <span class='fl'>0.6</span>,
-  kappa = <span class='fl'>1e+11</span>,
-  lambda = <span class='fl'>2</span> <span class='op'>+</span> <span class='kw'>q</span> <span class='op'>-</span> <span class='kw'>n</span>,
-  r_pp = <span class='fl'>10</span>,
-  <span class='kw'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>MizerParams</span><span class='op'>(</span>
+  <span class='va'>species_params</span>,
+  interaction <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span><span class='op'>(</span><span class='fl'>1</span>, nrow <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>species_params</span><span class='op'>)</span>, ncol <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>species_params</span><span class='op'>)</span><span class='op'>)</span>,
+  min_w_pp <span class='op'>=</span> <span class='fl'>1e-10</span>,
+  min_w <span class='op'>=</span> <span class='fl'>0.001</span>,
+  max_w <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span><span class='op'>(</span><span class='va'>species_params</span><span class='op'>$</span><span class='va'>w_inf</span><span class='op'>)</span> <span class='op'>*</span> <span class='fl'>1.1</span>,
+  no_w <span class='op'>=</span> <span class='fl'>100</span>,
+  n <span class='op'>=</span> <span class='fl'>2</span><span class='op'>/</span><span class='fl'>3</span>,
+  q <span class='op'>=</span> <span class='fl'>0.8</span>,
+  f0 <span class='op'>=</span> <span class='fl'>0.6</span>,
+  kappa <span class='op'>=</span> <span class='fl'>1e+11</span>,
+  lambda <span class='op'>=</span> <span class='fl'>2</span> <span class='op'>+</span> <span class='va'>q</span> <span class='op'>-</span> <span class='va'>n</span>,
+  r_pp <span class='op'>=</span> <span class='fl'>10</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -267,11 +269,6 @@ explicitly.</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>Other deprecated functions: 
-<code><a href='set_community_model.html'>set_community_model</a>()</code>,
-<code><a href='set_trait_model.html'>set_trait_model</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -288,7 +285,7 @@ explicitly.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

@@ -1,10 +1,45 @@
-# mizer 2.0.4.9000
+# mizer 2.1
 
-* Improved error handling in `setFishing()` #172
+## New functionality
+
+* New function `projectToSteady()` to run the full dynamics to steady state.
+* New functions `distanceSSLogN()` and `distanceMaxRelRDI()` to measure 
+  distance between two states.
+* New function `compareParams()` to compare two MizerParams objects.
+* Added `constantEggRDI()` to allow keeping egg densities fixed.
+* When setting custom parameter arrays with the setter functions, it is now
+  easy for the user to document that via "comment" arguments. #177
+* New function `customFunction()` to allow users to overwrite mizer functions.
 * Now if the effort is specified as a named vector giving values only for some 
   gears, the effort for the remaining gears is assumed to be zero.
+* Added the possibility to see the output of `plotGrowthCurves` as a panel of 
+  species with their respective Von Bertalanffy curves
+
+## Breaking changes
+
+* By default, the functions `plotPredMort()` and `plotFMort` will stop 
+  displaying mortality values past the species' asymptotic size. The argument     
+  `all.sizes` allows you to continue to show these values.
+
+## Bug fixes
+
+* `getFMort()` now passes time argument correctly. #181
+* `validEffortArray()` now sets the dimnames correctly. #173
+
+## Code improvements
+
+* Using lifecycle package to indicate status of some functions and arguments as
+  'experimental' or 'deprecated'.
+* Improved error handling in `setFishing()`. #172
 * Made use of vdiffr conditional, as required by §1.1.3.1 of
-  'Writing R Extensions'
+  'Writing R Extensions'.
+* Consistent handling of `species` argument in mizer functions, via the new
+  `valid_species_arg()` function. #170
+* More tests. Test coverage now at 94.71%
+* Improved argument checking in `setInitialValues()`
+* Throwing error if `min_w_pp` is larger than `min_w`
+* Improved documentation of functions for getting fishing mortality.
+
 
 ## Breaking changes
 

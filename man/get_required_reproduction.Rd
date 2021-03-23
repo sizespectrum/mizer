@@ -15,3 +15,4 @@ A vector of reproduction rates for all species
 \description{
 Determine reproduction rate needed for initial egg abundance
 }
+\concept{helper}

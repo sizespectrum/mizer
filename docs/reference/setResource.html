@@ -80,7 +80,7 @@ dynamics" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.1.0</span>
       </span>
     </div>
 
@@ -88,7 +88,7 @@ dynamics" />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -155,7 +155,7 @@ dynamics" />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -189,24 +189,26 @@ capacity as well as the name of the function used to simulate the resource
 dynamics</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setResource</span>(
-  <span class='kw'>params</span>,
-  resource_rate = <span class='kw'>NULL</span>,
-  resource_capacity = <span class='kw'>NULL</span>,
-  r_pp = <span class='fu'><a href='resource_params.html'>resource_params</a></span>(<span class='kw'>params</span>)[[<span class='st'>"r_pp"</span>]],
-  kappa = <span class='fu'><a href='resource_params.html'>resource_params</a></span>(<span class='kw'>params</span>)[[<span class='st'>"kappa"</span>]],
-  lambda = <span class='fu'><a href='resource_params.html'>resource_params</a></span>(<span class='kw'>params</span>)[[<span class='st'>"lambda"</span>]],
-  n = <span class='fu'><a href='resource_params.html'>resource_params</a></span>(<span class='kw'>params</span>)[[<span class='st'>"n"</span>]],
-  w_pp_cutoff = <span class='fu'><a href='resource_params.html'>resource_params</a></span>(<span class='kw'>params</span>)[[<span class='st'>"w_pp_cutoff"</span>]],
-  resource_dynamics = <span class='kw'>NULL</span>,
-  <span class='kw'>...</span>
-)
+    <pre class="usage"><span class='fu'>setResource</span><span class='op'>(</span>
+  <span class='va'>params</span>,
+  resource_rate <span class='op'>=</span> <span class='cn'>NULL</span>,
+  comment_rate <span class='op'>=</span> <span class='st'>"set manually"</span>,
+  resource_capacity <span class='op'>=</span> <span class='cn'>NULL</span>,
+  comment_capacity <span class='op'>=</span> <span class='st'>"set manually"</span>,
+  r_pp <span class='op'>=</span> <span class='fu'><a href='resource_params.html'>resource_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[[</span><span class='st'>"r_pp"</span><span class='op'>]</span><span class='op'>]</span>,
+  kappa <span class='op'>=</span> <span class='fu'><a href='resource_params.html'>resource_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[[</span><span class='st'>"kappa"</span><span class='op'>]</span><span class='op'>]</span>,
+  lambda <span class='op'>=</span> <span class='fu'><a href='resource_params.html'>resource_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[[</span><span class='st'>"lambda"</span><span class='op'>]</span><span class='op'>]</span>,
+  n <span class='op'>=</span> <span class='fu'><a href='resource_params.html'>resource_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[[</span><span class='st'>"n"</span><span class='op'>]</span><span class='op'>]</span>,
+  w_pp_cutoff <span class='op'>=</span> <span class='fu'><a href='resource_params.html'>resource_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[[</span><span class='st'>"w_pp_cutoff"</span><span class='op'>]</span><span class='op'>]</span>,
+  resource_dynamics <span class='op'>=</span> <span class='cn'>NULL</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span>
 
-<span class='fu'>getResourceRate</span>(<span class='kw'>params</span>)
+<span class='fu'>getResourceRate</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
 
-<span class='fu'>getResourceCapacity</span>(<span class='kw'>params</span>)
+<span class='fu'>getResourceCapacity</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
 
-<span class='fu'>getResourceDynamics</span>(<span class='kw'>params</span>)</pre>
+<span class='fu'>getResourceDynamics</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -220,8 +222,23 @@ dynamics</p>
       <td><p>Optional. Vector of resource intrinsic birth rates</p></td>
     </tr>
     <tr>
+      <th>comment_rate</th>
+      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+A string describing how the value for 'resource_rate' was obtained. This is
+ignored if 'resource_rate' is not supplied or already has a comment
+attribute.</p></td>
+    </tr>
+    <tr>
       <th>resource_capacity</th>
-      <td><p>Optional. Vector of resource intrinsic carrying capacity</p></td>
+      <td><p>Optional. Vector of resource intrinsic carrying
+capacity</p></td>
+    </tr>
+    <tr>
+      <th>comment_capacity</th>
+      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+A string describing how the value for 'resource_capacity' was obtained. This is
+ignored if 'resource_capacity' is not supplied or already has a comment
+attribute.</p></td>
     </tr>
     <tr>
       <th>r_pp</th>
@@ -320,7 +337,7 @@ and <code>lambda</code> arguments.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

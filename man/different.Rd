@@ -17,3 +17,4 @@ TRUE or FALSE
 \description{
 Check whether two objects are numerically different, ignoring all attributes
 }
+\concept{helper}

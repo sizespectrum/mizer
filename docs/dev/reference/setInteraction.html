@@ -78,7 +78,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.4.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.1.0.9000</span>
       </span>
     </div>
 
@@ -86,7 +86,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -153,7 +153,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -185,9 +185,9 @@
     <p>Set species interaction matrix</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setInteraction</span>(<span class='kw'>params</span>, interaction = <span class='kw'>NULL</span>)
+    <pre class="usage"><span class='fu'>setInteraction</span><span class='op'>(</span><span class='va'>params</span>, interaction <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>
 
-<span class='fu'>getInteraction</span>(<span class='kw'>params</span>)</pre>
+<span class='fu'>getInteraction</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -222,7 +222,9 @@ interaction e.g. to model predator-prey interaction that is not size based.
 The values in the interaction matrix are used to scale the encountered food
 and predation mortality (see on the website
 <a href='https://sizespectrum.org/mizer/articles/model_description.html#sec:pref'>the section on predator-prey encounter rate</a>
-and on <a href='https://sizespectrum.org/mizer/articles/model_description.html#mortality'>predation mortality</a>).</p>
+and on <a href='https://sizespectrum.org/mizer/articles/model_description.html#mortality'>predation mortality</a>).
+The first index refers to the predator species and the second to the prey
+species.</p>
 <p>It is used when calculating the food encounter rate in <code><a href='getEncounter.html'>getEncounter()</a></code> and
 the predation mortality rate in <code><a href='getPredMort.html'>getPredMort()</a></code>. Its entries are
 dimensionless numbers.The values are between 0 (species do not overlap and
@@ -259,12 +261,13 @@ be numbers between 0 and 1. By default this column is set to all 1s.</p>
 <code><a href='species_params.html'>species_params</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newTraitParams.html'>newTraitParams</a></span>()
-<span class='kw'>interaction</span> <span class='op'>&lt;-</span> <span class='fu'>getInteraction</span>(<span class='kw'>params</span>)
-<span class='kw'>interaction</span>[<span class='fl'>1</span>, <span class='fl'>3</span>] <span class='op'>&lt;-</span> <span class='fl'>0</span>
-<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setInteraction</span>(<span class='kw'>params</span>, <span class='kw'>interaction</span>)
-}</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newTraitParams.html'>newTraitParams</a></span><span class='op'>(</span><span class='op'>)</span>
+<span class='va'>interaction</span> <span class='op'>&lt;-</span> <span class='fu'>getInteraction</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+<span class='va'>interaction</span><span class='op'>[</span><span class='fl'>1</span>, <span class='fl'>3</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fl'>0</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setInteraction</span><span class='op'>(</span><span class='va'>params</span>, <span class='va'>interaction</span><span class='op'>)</span>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -280,7 +283,7 @@ be numbers between 0 and 1. By default this column is set to all 1s.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

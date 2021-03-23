@@ -53,4 +53,3 @@ used.
 }
 
 \concept{helper}
-\keyword{internal}

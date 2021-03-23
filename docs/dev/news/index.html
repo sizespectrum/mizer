@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.4.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.1.0.9000</span>
       </span>
     </div>
 
@@ -85,7 +85,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -152,7 +152,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -179,13 +179,65 @@
       <small>Source: <a href='https://github.com/sizespectrum/mizer/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="mizer-204" class="section level1">
-<h1 class="page-header" data-toc-text="2.0.4">
-<a href="#mizer-204" class="anchor"></a>mizer 2.0.4<small> Unreleased </small>
+    <div id="mizer-21" class="section level1">
+<h1 class="page-header" data-toc-text="2.1">
+<a href="#mizer-21" class="anchor"></a>mizer 2.1<small> Unreleased </small>
 </h1>
+<div id="new-functionality" class="section level2">
+<h2 class="hasAnchor">
+<a href="#new-functionality" class="anchor"></a>New functionality</h2>
+<ul>
+<li>New function <code><a href="../reference/projectToSteady.html">projectToSteady()</a></code> to run the full dynamics to steady state.</li>
+<li>New functions <code><a href="../reference/distanceSSLogN.html">distanceSSLogN()</a></code> and <code><a href="../reference/distanceMaxRelRDI.html">distanceMaxRelRDI()</a></code> to measure distance between two states.</li>
+<li>New function <code><a href="../reference/compareParams.html">compareParams()</a></code> to compare two MizerParams objects.</li>
+<li>Added <code><a href="../reference/constantEggRDI.html">constantEggRDI()</a></code> to allow keeping egg densities fixed.</li>
+<li>When setting custom parameter arrays with the setter functions, it is now easy for the user to document that via “comment” arguments. <a href='https://github.com/sizespectrum/mizer/issues/177'>#177</a></li>
+<li>New function <code><a href="../reference/customFunction.html">customFunction()</a></code> to allow users to overwrite mizer functions.</li>
+<li>Now if the effort is specified as a named vector giving values only for some gears, the effort for the remaining gears is assumed to be zero.</li>
+<li>Added the possibility to see the output of <code>plotGrowthCurves</code> as a panel of species with their respective Von Bertalanffy curves</li>
+</ul>
+</div>
+<div id="breaking-changes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#breaking-changes" class="anchor"></a>Breaking changes</h2>
+<ul>
+<li>By default, the functions <code><a href="../reference/plotPredMort.html">plotPredMort()</a></code> and <code>plotFMort</code> will stop displaying mortality values past the species’ asymptotic size. The argument<br><code>all.sizes</code> allows you to continue to show these values.</li>
+</ul>
+</div>
 <div id="bug-fixes" class="section level2">
 <h2 class="hasAnchor">
 <a href="#bug-fixes" class="anchor"></a>Bug fixes</h2>
+<ul>
+<li>
+<code><a href="../reference/getFMort.html">getFMort()</a></code> now passes time argument correctly. <a href='https://github.com/sizespectrum/mizer/issues/181'>#181</a></li>
+<li>
+<code>validEffortArray()</code> now sets the dimnames correctly. <a href='https://github.com/sizespectrum/mizer/issues/173'>#173</a></li>
+</ul>
+</div>
+<div id="code-improvements" class="section level2">
+<h2 class="hasAnchor">
+<a href="#code-improvements" class="anchor"></a>Code improvements</h2>
+<ul>
+<li>Using lifecycle package to indicate status of some functions and arguments as ‘experimental’ or ‘deprecated’.</li>
+<li>Improved error handling in <code><a href="../reference/setFishing.html">setFishing()</a></code>. <a href='https://github.com/sizespectrum/mizer/issues/172'>#172</a></li>
+<li>Made use of vdiffr conditional, as required by §1.1.3.1 of ‘Writing R Extensions’.</li>
+<li>Consistent handling of <code>species</code> argument in mizer functions, via the new <code><a href="../reference/valid_species_arg.html">valid_species_arg()</a></code> function. <a href='https://github.com/sizespectrum/mizer/issues/170'>#170</a></li>
+<li>More tests. Test coverage now at 94.71%</li>
+<li>Improved argument checking in <code><a href="../reference/setInitialValues.html">setInitialValues()</a></code>
+</li>
+<li>Throwing error if <code>min_w_pp</code> is larger than <code>min_w</code>
+</li>
+<li>Improved documentation of functions for getting fishing mortality.</li>
+</ul>
+</div>
+</div>
+    <div id="mizer-204" class="section level1">
+<h1 class="page-header" data-toc-text="2.0.4">
+<a href="#mizer-204" class="anchor"></a>mizer 2.0.4<small> 2020-08-30 </small>
+</h1>
+<div id="bug-fixes-1" class="section level2">
+<h2 class="hasAnchor">
+<a href="#bug-fixes-1" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>The value of <code>t</code> passed to dynamics functions has been corrected.</li>
 <li>
@@ -229,9 +281,9 @@
 <h1 class="page-header" data-toc-text="2.0.3">
 <a href="#mizer-203" class="anchor"></a>mizer 2.0.3<small> 2020-07-28 </small>
 </h1>
-<div id="bug-fixes-1" class="section level2">
+<div id="bug-fixes-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-1" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-2" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>Correct handling of shiny progress bar in <code><a href="../reference/project.html">project()</a></code>.</li>
 </ul>
@@ -254,9 +306,9 @@
 <h1 class="page-header" data-toc-text="2.0.2">
 <a href="#mizer-202" class="anchor"></a>mizer 2.0.2<small> 2020-06-08 </small>
 </h1>
-<div id="bug-fixes-2" class="section level2">
+<div id="bug-fixes-3" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-2" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-3" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>Time passed to rate functions is now the actual simulation time, not the time elapsed since start of simulation.</li>
 <li>
@@ -299,9 +351,9 @@
 <h1 class="page-header" data-toc-text="2.0.1">
 <a href="#mizer-201" class="anchor"></a>mizer 2.0.1<small> 2020-05-05 </small>
 </h1>
-<div id="bug-fixes-3" class="section level2">
+<div id="bug-fixes-4" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-3" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-4" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>
 <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> now also works with non-default feeding kernels. <a href='https://github.com/sizespectrum/mizer/issues/159'>#159</a></li>
@@ -528,9 +580,9 @@
 <li>Using Rmarkdown in all roxygen comments</li>
 </ul>
 </div>
-<div id="bug-fixes-4" class="section level2">
+<div id="bug-fixes-5" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-4" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-5" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>In <code><a href="../reference/getSSB.html">getSSB()</a></code>, the calculation of the spawning stock biomass is done correctly using the maturity ogive instead of the proportion of energy allocated to reproduction. (<a href='https://github.com/sizespectrum/mizer/issues/47'>#47</a>)</li>
 <li>The fast FFT method and the old method for calculating integrals now give the same numerical results. (<a href='https://github.com/sizespectrum/mizer/issues/39'>#39</a>)</li>
@@ -687,7 +739,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

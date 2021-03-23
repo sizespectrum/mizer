@@ -7,7 +7,7 @@
 \usage{
 plotBiomass(
   sim,
-  species,
+  species = NULL,
   start_time,
   end_time,
   y_ticks = 6,
@@ -20,7 +20,7 @@ plotBiomass(
 
 plotlyBiomass(
   sim,
-  species,
+  species = NULL,
   start_time,
   end_time,
   y_ticks = 6,
@@ -34,8 +34,10 @@ plotlyBiomass(
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}}
 
-\item{species}{Name or vector of names of the species to be plotted. By
-default all species are plotted.}
+\item{species}{The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.}
 
 \item{start_time}{The first time to be plotted. Default is the beginning
 of the time series.}
@@ -72,7 +74,7 @@ over \code{max_w}.}
   }}
 }
 \value{
-A plot
+A ggplot2 object
 }
 \description{
 After running a projection, the biomass of each species can be plotted

@@ -510,7 +510,6 @@ validGearParams <- function(gear_params, species_params) {
 #' @return A valid effort vector with one entry for each gear, named by gear,
 #'   in the same order as in the params object.
 #' @export
-#' @keywords internal
 #' @concept helper
 validEffortVector <- function(effort, params) {
     assert_that(is(params, "MizerParams"),

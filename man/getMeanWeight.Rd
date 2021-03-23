@@ -4,17 +4,15 @@
 \alias{getMeanWeight}
 \title{Calculate the mean weight of the community}
 \usage{
-getMeanWeight(
-  sim,
-  species = seq_len(nrow(species_params(getParams(sim)))),
-  ...
-)
+getMeanWeight(sim, species = NULL, ...)
 }
 \arguments{
 \item{sim}{A \linkS4class{MizerSim} object}
 
-\item{species}{Numeric or character vector of species to include in the
-calculation.}
+\item{species}{The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.}
 
 \item{...}{
   Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}

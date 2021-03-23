@@ -43,13 +43,31 @@
     <loc>https://sizespectrum.org/mizer/reference/box_pred_kernel.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/compareParams.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/constantEggRDI.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/constantRDD.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/constant_other.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/customFunction.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/default_pred_kernel_params.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/different.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/distanceMaxRelRDI.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/distanceSSLogN.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/double_sigmoid_length.html</loc>
@@ -325,6 +343,9 @@
     <loc>https://sizespectrum.org/mizer/reference/project.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/projectToSteady.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/project_simple.html</loc>
   </url>
   <url>
@@ -334,9 +355,6 @@
     <loc>https://sizespectrum.org/mizer/reference/resource_constant.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/resource_encounter.html</loc>
-  </url>
-  <url>
     <loc>https://sizespectrum.org/mizer/reference/resource_params.html</loc>
   </url>
   <url>
@@ -344,9 +362,6 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/retune_erepro.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/semichemostat.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/setBevertonHolt.html</loc>
@@ -433,9 +448,6 @@
     <loc>https://sizespectrum.org/mizer/reference/summary_functions.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/test_dyn.html</loc>
-  </url>
-  <url>
     <loc>https://sizespectrum.org/mizer/reference/truncated_lognormal_pred_kernel.html</loc>
   </url>
   <url>
@@ -481,9 +493,6 @@
     <loc>https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/articles/making_modifications.html</loc>
-  </url>
-  <url>
     <loc>https://sizespectrum.org/mizer/articles/mizer.html</loc>
   </url>
   <url>
@@ -500,9 +509,6 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/running_a_simulation.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/articles/test.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/trait_model.html</loc>

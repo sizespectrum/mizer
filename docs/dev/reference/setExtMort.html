@@ -78,7 +78,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.4.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.1.0.9000</span>
       </span>
     </div>
 
@@ -86,7 +86,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -153,7 +153,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -185,9 +185,16 @@
     <p>Set external mortality rate</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setExtMort</span>(<span class='kw'>params</span>, z0 = <span class='kw'>NULL</span>, z0pre = <span class='fl'>0.6</span>, z0exp = <span class='op'>-</span><span class='fl'>1</span><span class='op'>/</span><span class='fl'>4</span>, <span class='kw'>...</span>)
+    <pre class="usage"><span class='fu'>setExtMort</span><span class='op'>(</span>
+  <span class='va'>params</span>,
+  z0 <span class='op'>=</span> <span class='cn'>NULL</span>,
+  z0pre <span class='op'>=</span> <span class='fl'>0.6</span>,
+  z0exp <span class='op'>=</span> <span class='op'>-</span><span class='fl'>1</span><span class='op'>/</span><span class='fl'>4</span>,
+  comment_z0 <span class='op'>=</span> <span class='st'>"set manually"</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span>
 
-<span class='fu'>getExtMort</span>(<span class='kw'>params</span>)</pre>
+<span class='fu'>getExtMort</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -212,6 +219,13 @@ Default value is 0.6.</p></td>
       <td><p>If <code>z0</code>, the mortality from other sources, is not a column
 in the species data frame, it is calculated as <code>z0pre * w_inf ^ z0exp</code>.
 Default value is <code>n-1</code>.</p></td>
+    </tr>
+    <tr>
+      <th>comment_z0</th>
+      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+A string describing how the value for 'z0' was obtained. This is
+ignored if 'z0' is not supplied or already has a comment
+attribute.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -263,21 +277,22 @@ $$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$</p>
 <code><a href='species_params.html'>species_params</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='kw'>NS_species_params</span>)
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params</span><span class='op'>)</span>
 
 <span class='co'>#### Setting allometric death rate #######################</span>
 
 <span class='co'># Set coefficient for each species. Here we choose 0.1 for each species</span>
-<span class='kw'>z0pre</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>0.1</span>, <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='fu'><a href='species_params.html'>species_params</a></span>(<span class='kw'>params</span>)))
+<span class='va'>z0pre</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fl'>0.1</span>, <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
 
 <span class='co'># Multiply by power of size with exponent, here chosen to be -1/4</span>
 <span class='co'># The outer() function makes it an array species x size</span>
-<span class='kw'>z0</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/outer.html'>outer</a></span>(<span class='kw'>z0pre</span>, <span class='fu'><a href='w.html'>w</a></span>(<span class='kw'>params</span>)<span class='op'>^</span>(<span class='op'>-</span><span class='fl'>1</span><span class='op'>/</span><span class='fl'>4</span>))
+<span class='va'>z0</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/outer.html'>outer</a></span><span class='op'>(</span><span class='va'>z0pre</span>, <span class='fu'><a href='w.html'>w</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>^</span><span class='op'>(</span><span class='op'>-</span><span class='fl'>1</span><span class='op'>/</span><span class='fl'>4</span><span class='op'>)</span><span class='op'>)</span>
 
 <span class='co'># Change the external mortality rate in the params object</span>
-<span class='kw'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setExtMort</span>(<span class='kw'>params</span>, z0 = <span class='kw'>z0</span>)
-}</div></pre>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setExtMort</span><span class='op'>(</span><span class='va'>params</span>, z0 <span class='op'>=</span> <span class='va'>z0</span><span class='op'>)</span>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -293,7 +308,7 @@ $$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

@@ -5,12 +5,20 @@
 \alias{plotlyYield}
 \title{Plot the total yield of species through time}
 \usage{
-plotYield(sim, sim2, species, total = FALSE, log = TRUE, highlight = NULL, ...)
+plotYield(
+  sim,
+  sim2,
+  species = NULL,
+  total = FALSE,
+  log = TRUE,
+  highlight = NULL,
+  ...
+)
 
 plotlyYield(
   sim,
   sim2,
-  species,
+  species = NULL,
   total = FALSE,
   log = TRUE,
   highlight = NULL,
@@ -23,8 +31,10 @@ plotlyYield(
 \item{sim2}{An optional second object of class \linkS4class{MizerSim}. If
 this is provided its yields will be shown on the same plot in bolder lines.}
 
-\item{species}{Name or vector of names of the species to be plotted. By
-default all species are plotted.}
+\item{species}{The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.}
 
 \item{total}{A boolean value that determines whether the total over all
 species in the system is plotted as well. Default is FALSE}
@@ -37,7 +47,7 @@ Defaults to true.}
 \item{...}{Other arguments (currently unused)}
 }
 \value{
-A plot
+A ggplot2 object
 }
 \description{
 After running a projection, the total yield of each species across all

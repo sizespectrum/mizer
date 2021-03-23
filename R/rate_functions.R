@@ -6,6 +6,20 @@
 # Distributed under the GPL 3 or later 
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
+# Note on calling signatures of rate functions
+#
+# Most rate functions have the arguments as getRates():
+#    params, n, n_pp, n_other, t, ...
+# This is the case for getEncounter, getResourceMort, getPredRate,
+# getEGrowth, getERepro, getEReproAndGrowth, getRDI
+# Some have these arguments and in addition the effort argument:
+#   getRates, getMort
+# Four functions are the odd ones out because they also accept a MizerSim:
+# getFeedingLevel(object, n, n_pp,n_other, time_range, drop, ...)
+# getPredMort(object, n, n_pp,n_other, time_range, drop, ...)
+# getFMort(object, effort, time_range, drop)
+# getFMortGear(object, effort, time_range)
+
 #' Get all rates
 #' 
 #' @inherit mizerRates
@@ -15,7 +29,7 @@
 getRates <- function(params, n = initialN(params), 
                      n_pp = initialNResource(params),
                      n_other = initialNOther(params),
-                     effort, t = 0) {
+                     effort, t = 0, ...) {
     params <- validParams(params)
     if (missing(effort)) {
         effort <- params@initial_effort
@@ -23,7 +37,8 @@ getRates <- function(params, n = initialN(params),
     
     r <- get(params@rates_funcs$Rates)(
         params, n = n, n_pp = n_pp, n_other = n_other,
-        t = t, effort = effort, rates_fns = lapply(params@rates_funcs, get))
+        t = t, effort = effort, 
+        rates_fns = lapply(params@rates_funcs, get), ...)
 }
 
 #' Get encounter rate
@@ -45,7 +60,7 @@ getRates <- function(params, n = initialN(params),
 getEncounter <- function(params, n = initialN(params), 
                          n_pp = initialNResource(params),
                          n_other = initialNOther(params),
-                         t = 0) {
+                         t = 0, ...) {
     params <- validParams(params)
     assert_that(is.array(n),
                 is.numeric(n_pp),
@@ -314,9 +329,11 @@ getPredMort <- function(object, n, n_pp, n_other,
 
 #' Alias for getPredMort
 #' 
+#' `r lifecycle::badge("deprecated")`
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit getPredMort
 #' @export
+#' @concept deprecated
 getM2 <- getPredMort
 
 
@@ -357,16 +374,18 @@ getResourceMort <-
 
 #' Alias for getResourceMort
 #' 
+#' `r lifecycle::badge("deprecated")`
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit getResourceMort
 #' @export
+#' @concept deprecated
 getM2Background <- getResourceMort
 
 
 #' Get the fishing mortality by time, gear, species and size
 #'
 #' Calculates the fishing mortality rate \eqn{F_{g,i,w}} by gear, species and
-#' size at each time step in the `effort` argument (in units 1/year).
+#' size and possibly time (in units 1/year).
 #' 
 #' @param object A `MizerParams` object or a `MizerSim` object.
 #' @param effort The effort for each fishing gear. See notes below.
@@ -472,7 +491,8 @@ getFMortGear <- function(object, effort, time_range) {
 #' and size.
 #' 
 #' Calculates the total fishing mortality  (in units 1/year) from all gears by
-#' species and size at each time step in the `effort` argument.
+#' species and size and possibly time.
+#' 
 #' The total fishing mortality is just the sum of the fishing mortalities
 #' imposed by each gear, \eqn{\mu_{f.i}(w)=\sum_g F_{g,i,w}}.
 #' The fishing mortality for each gear is obtained as catchability x 
@@ -539,28 +559,33 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
         if (missing(effort)) {
           effort <- params@initial_effort
         }
+        if (missing(time_range)) time_range <- 0
+        t <- min(time_range)
         n <- params@initial_n
         n_pp <- params@initial_n_pp
         n_other <- params@initial_n_other
         no_gears <- dim(params@catchability)[[1]]
         f <- get(params@rates_funcs$FMort)
         if (length(dim(effort)) == 2) {
-            f_mort <- t(apply(effort, 1, 
-                              function(x) f(
-                                params, n = n, n_pp = n_pp, n_other = n_other, 
-                                effort = x, t = t, 
-                                e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
-                                                      n_other = n_other, t = t), 
-                                pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
-                                                        n_other = n_other, 
-                                                        time_range = t))))
-            dim(f_mort) <- c(dim(effort)[[1]], dim(params@initial_n))
-            dimnames(f_mort) <- c(list(time = dimnames(effort)[[1]]),
-                              dimnames(params@initial_n))
+            times <- dimnames(effort)$time
+            f_mort <- array(0,
+                            dim = c(dim(effort)[[1]], dim(params@initial_n)),
+                            dimnames = c(list(time = times),
+                                         dimnames(params@initial_n)))
+            for (i in 1:dim(effort)[1]) {
+                f_mort[i, , ] <- 
+                    f(params, n = n, n_pp = n_pp, n_other = n_other,
+                      effort = effort[i, ],
+                      e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
+                                            n_other = n_other, t = times[i]), 
+                      pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
+                                              n_other = n_other,
+                                              time_range = times[i]))
+            }
             return(f_mort)
         } else if (length(effort) == 1) {
             fmort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
-                       effort = rep(effort, no_gears), t = t, 
+                       effort = rep(effort, no_gears),
                        e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
                                              n_other = n_other, t = t), 
                        pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
@@ -570,7 +595,7 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
             return(fmort)
         } else if (length(effort) == no_gears) {
             fmort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
-                       effort = effort, t = t, 
+                       effort = effort,
                        e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
                                              n_other = n_other, t = t), 
                        pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
@@ -588,8 +613,8 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
             time_range <- dimnames(sim@effort)$time
         }
         time_elements <- get_time_elements(sim, time_range, slot_name = "effort")
-        f_mort <- getFMort(sim@params, sim@effort)
-        return(f_mort[time_elements, , , drop = drop])
+        f_mort <- getFMort(sim@params, sim@effort[time_elements, , drop = FALSE])
+        return(f_mort[, , , drop = drop])
     }
 }
 
@@ -639,9 +664,11 @@ getMort <- function(params,
 
 #' Alias for getMort
 #' 
+#' `r lifecycle::badge("deprecated")`
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit getMort
 #' @export
+#' @concept deprecated
 getZ <- getMort
 
 
@@ -685,9 +712,11 @@ getERepro <- function(params, n = initialN(params),
 
 #' Alias for getERepro
 #' 
+#' `r lifecycle::badge("deprecated")` 
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit getERepro
 #' @export
+#' @concept deprecated
 getESpawning <- getERepro
 
 
@@ -797,7 +826,7 @@ getRDD <- function(params, n = initialN(params),
                    n_other = initialNOther(params),
                    t = 0,
                    rdi = getRDI(params, n = n, n_pp = n_pp, 
-                                n_other = n_other, t = t)) {
+                                n_other = n_other, t = t), ...) {
     params <- validParams(params)
     # Avoid getting into infinite loops
     if (params@rates_funcs$RDD == "getRDD") {
@@ -824,7 +853,6 @@ getRDD <- function(params, n = initialN(params),
 #'   in the range or not.
 #' @export
 #' @concept helper
-#' @keywords internal
 get_time_elements <- function(sim, time_range, slot_name = "n"){
     assert_that(is(sim, "MizerSim"))
     time_range <- range(as.numeric(time_range))

@@ -18,7 +18,7 @@ Authors@R: c(person("Gustav", "Delius", email="gustav.delius@york.ac.uk",
                     comment = c(ORCID = "0000-0002-8478-3430")),
              person("Richard", "Southwell", email="richard.southwell@york.ac.uk",
                     role=c("ctb", "cph")))
-Version: 2.0.4.9000
+Version: 2.1.0.9000
 License: GPL-3
 Imports:
     assertthat,
@@ -50,6 +50,7 @@ Collate:
     'helpers.R'
     'MizerParams-class.R'
     'MizerSim-class.R'
+    'reproduction.R'
     'species_params.R'
     'setInteraction.R'
     'setPredKernel.R'
@@ -80,6 +81,8 @@ Collate:
     'RcppExports.R'
     'deprecated.R'
     'get_initial_n.R'
+    'compareParams.R'
+    'customFunction.R'
 RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8

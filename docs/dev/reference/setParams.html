@@ -89,7 +89,7 @@ See the Details section below for a discussion of how to use this function." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.4.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.1.0.9000</span>
       </span>
     </div>
 
@@ -97,7 +97,7 @@ See the Details section below for a discussion of how to use this function." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -164,7 +164,7 @@ See the Details section below for a discussion of how to use this function." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -207,7 +207,7 @@ functions</p><ul>
 </ul><p>See the Details section below for a discussion of how to use this function.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setParams</span>(<span class='kw'>params</span>, interaction = <span class='kw'>NULL</span>, <span class='kw'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>setParams</span><span class='op'>(</span><span class='va'>params</span>, interaction <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -229,20 +229,40 @@ default all entries are 1. See "Setting interactions" section below.</p></td>
 that holds the predation coefficient of each predator at size on each prey
 size. If not supplied, a default is set as described in section "Setting
 predation kernel".</p></dd>
+    <dt><code>comment_pred_kernel</code></dt><dd><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+A string describing how the value for 'pred_kernel' was obtained. This is
+ignored if 'pred_kernel' is not supplied or already has a comment
+attribute.</p></dd>
     <dt><code>search_vol</code></dt><dd><p>Optional. An array (species x size) holding the search volume
 for each species at size. If not supplied, a default is set as described in
 the section "Setting search volume".</p></dd>
+    <dt><code>comment_search_vol</code></dt><dd><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+A string describing how the value for 'search_vol' was obtained. This is
+ignored if 'search_vol' is not supplied or already has a comment
+attribute.</p></dd>
     <dt><code>intake_max</code></dt><dd><p>Optional. An array (species x size) holding the maximum
 intake rate for each species at size. If not supplied, a default is set as
 described in the section "Setting maximum intake rate".</p></dd>
+    <dt><code>comment_intake_max</code></dt><dd><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+A string describing how the value for 'intake_max' was obtained. This is
+ignored if 'intake_max' is not supplied or already has a comment
+attribute.</p></dd>
     <dt><code>metab</code></dt><dd><p>Optional. An array (species x size) holding the metabolic rate
 for each species at size. If not supplied, a default is set as described in
 the section "Setting metabolic rate".</p></dd>
     <dt><code>p</code></dt><dd><p>The allometric metabolic exponent. This is only used if <code>metab</code>
 is not given explicitly and if the exponent is not specified in a <code>p</code>
 column in the <code>species_params</code>.</p></dd>
+    <dt><code>comment_metab</code></dt><dd><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+A string describing how the value for 'metab' was obtained. This is
+ignored if 'metab' is not supplied or already has a comment
+attribute.</p></dd>
     <dt><code>z0</code></dt><dd><p>Optional. An array (species x size) holding the external
 mortality rate.</p></dd>
+    <dt><code>comment_z0</code></dt><dd><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+A string describing how the value for 'z0' was obtained. This is
+ignored if 'z0' is not supplied or already has a comment
+attribute.</p></dd>
     <dt><code>z0pre</code></dt><dd><p>If <code>z0</code>, the mortality from other sources, is not a column
 in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 Default value is 0.6.</p></dd>
@@ -252,22 +272,47 @@ Default value is <code>n-1</code>.</p></dd>
     <dt><code>maturity</code></dt><dd><p>Optional. An array (species x size) that holds the proportion
 of individuals of each species at size that are mature. If not supplied, a
 default is set as described in the section "Setting reproduction".</p></dd>
+    <dt><code>comment_maturity</code></dt><dd><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+A string describing how the value for 'maturity' was obtained. This is
+ignored if 'maturity' is not supplied or already has a comment
+attribute.</p></dd>
     <dt><code>repro_prop</code></dt><dd><p>Optional. An array (species x size) that holds the
 proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".</p></dd>
+    <dt><code>comment_repro_prop</code></dt><dd><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+A string describing how the value for 'repro_prop' was obtained. This is
+ignored if 'repro_prop' is not supplied or already has a comment
+attribute.</p></dd>
     <dt><code>RDD</code></dt><dd><p>The name of the function calculating the density-dependent
 reproduction rate from the density-independent rate. Defaults to
 "<code><a href='BevertonHoltRDD.html'>BevertonHoltRDD()</a></code>".</p></dd>
-    <dt><code>selectivity</code></dt><dd><p>An array (gear x species x size) that holds the
+    <dt><code>selectivity</code></dt><dd><p>Optional. An array (gear x species x size) that holds the
 selectivity of each gear for species and size, \(S_{g,i,w}\).</p></dd>
-    <dt><code>catchability</code></dt><dd><p>An array (gear x species) that holds the catchability of
+    <dt><code>catchability</code></dt><dd><p>Optional. An array (gear x species) that holds the catchability of
 each species by each gear, \(Q_{g,i}\).</p></dd>
     <dt><code>initial_effort</code></dt><dd><p>Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.</p></dd>
+    <dt><code>comment_selectivity</code></dt><dd><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+A string describing how the value for 'selectivity' was obtained. This is
+ignored if 'selectivity' is not supplied or already has a comment
+attribute.</p></dd>
+    <dt><code>comment_catchability</code></dt><dd><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+A string describing how the value for 'catchability' was obtained. This is
+ignored if 'catchability' is not supplied or already has a comment
+attribute.</p></dd>
     <dt><code>resource_rate</code></dt><dd><p>Optional. Vector of resource intrinsic birth rates</p></dd>
-    <dt><code>resource_capacity</code></dt><dd><p>Optional. Vector of resource intrinsic carrying capacity</p></dd>
+    <dt><code>comment_rate</code></dt><dd><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+A string describing how the value for 'resource_rate' was obtained. This is
+ignored if 'resource_rate' is not supplied or already has a comment
+attribute.</p></dd>
+    <dt><code>resource_capacity</code></dt><dd><p>Optional. Vector of resource intrinsic carrying
+capacity</p></dd>
+    <dt><code>comment_capacity</code></dt><dd><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+A string describing how the value for 'resource_capacity' was obtained. This is
+ignored if 'resource_capacity' is not supplied or already has a comment
+attribute.</p></dd>
     <dt><code>r_pp</code></dt><dd><p>Coefficient of the intrinsic resource birth rate</p></dd>
     <dt><code>n</code></dt><dd><p>Allometric growth exponent for resource</p></dd>
     <dt><code>kappa</code></dt><dd><p>Coefficient of the intrinsic resource carrying capacity</p></dd>
@@ -303,7 +348,8 @@ species parameters, you would make those changes in the <code>species_params</co
 frame contained in the <code>params</code> object using <code><a href='species_params.html'>species_params&lt;-()</a></code>.
 Here is an example which assumes that
 you have have a MizerParams object <code>params</code> in which you just want to change
-the <code>gamma</code> parameter of the third species:</p><pre><span class='fu'><a href='species_params.html'>species_params</a></span>(<span class='kw'>params</span>)<span class='op'>$</span><span class='kw'>gamma</span>[[<span class='fl'>3</span>]] <span class='op'>&lt;-</span> <span class='fl'>1000</span></pre>
+the <code>gamma</code> parameter of the third species:</p><pre><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>gamma</span><span class='op'>[[</span><span class='fl'>3</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fl'>1000</span>
+</pre>
 
 <p>Internally that will actually call <code>setParams()</code> to recalculate any of the
 other parameters that are affected by the change in the species parameter.</p>
@@ -317,8 +363,9 @@ above example you would have used <code>params &lt;- setSearchVolume(params)</co
 instead of <code>params &lt;- setParams(params)</code>.</p>
 <p>If you have added a comment to a slot of the params object, then setParams()
 and its subfunctions will not recalculate the value for that slot from the
-species parameters. For example</p><pre><span class='fu'><a href='https://rdrr.io/r/base/comment.html'>comment</a></span>(<span class='kw'>params</span><span class='op'>@</span>search_vol) <span class='op'>&lt;-</span> <span class='st'>"This should not change"</span>
-<span class='fu'><a href='species_params.html'>species_params</a></span>(<span class='kw'>params</span>)<span class='op'>$</span><span class='kw'>gamma</span> <span class='op'>&lt;-</span> <span class='fl'>10</span></pre>
+species parameters. For example</p><pre><span class='fu'><a href='https://rdrr.io/r/base/comment.html'>comment</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>@</span><span class='va'>search_vol</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='st'>"This should not change"</span>
+<span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>gamma</span> <span class='op'>&lt;-</span> <span class='fl'>10</span>
+</pre>
 
 <p>will just issue a warning "The search volume has been commented and therefore
 will not be recalculated from the species parameters". You can remove the
@@ -364,7 +411,9 @@ interaction e.g. to model predator-prey interaction that is not size based.
 The values in the interaction matrix are used to scale the encountered food
 and predation mortality (see on the website
 <a href='https://sizespectrum.org/mizer/articles/model_description.html#sec:pref'>the section on predator-prey encounter rate</a>
-and on <a href='https://sizespectrum.org/mizer/articles/model_description.html#mortality'>predation mortality</a>).</p>
+and on <a href='https://sizespectrum.org/mizer/articles/model_description.html#mortality'>predation mortality</a>).
+The first index refers to the predator species and the second to the prey
+species.</p>
 <p>It is used when calculating the food encounter rate in <code><a href='getEncounter.html'>getEncounter()</a></code> and
 the predation mortality rate in <code><a href='getPredMort.html'>getPredMort()</a></code>. Its entries are
 dimensionless numbers.The values are between 0 (species do not overlap and
@@ -459,7 +508,7 @@ for predators of size \(w = 1\) gram is the value of the species parameter
 weight \(w\) determines the feeding level, calculated with
 <code><a href='getFeedingLevel.html'>getFeedingLevel()</a></code>. It is measured in grams/year.</p>
 <p>If the <code>intake_max</code> argument is not supplied, then the maximum intake
-rate is set to $$h_i(w) = h_i w^n_i.$$
+rate is set to $$h_i(w) = h_i w^{n_i}.$$
 The values of \(h_i\) (the maximum intake rate of an individual of size 1
 gram) and \(n_i\) (the allometric exponent for the intake rate) are taken
 from the <code>h</code> and <code>n</code> columns in the species parameter dataframe. If
@@ -516,7 +565,7 @@ that is invested into reproduction is the product of two factors: the
 proportion <code>maturity</code> of individuals that are mature and the proportion
 <code>repro_prop</code> of the energy available to a mature individual that is
 invested into reproduction.</p>
-<h3>Maturity ogive</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Maturity ogive</h3>
 <p>If the the proportion of individuals that are mature is not supplied via
 the <code>maturity</code> argument , then it is set to a sigmoidal
 maturity ogive that changes from 0 to 1 at around the maturity size:
@@ -537,7 +586,7 @@ maximum size, taken from the compulsory <code>w_inf</code> column in the
 <code>species_params</code> data frame. Also, for computational simplicity, any
 proportion smaller than <code>1e-8</code> is set to <code>0</code>.</p>
 
-<h3>Investment into reproduction</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Investment into reproduction</h3>
 <p>If the the energy available to a mature individual that is
 invested into reproduction is not supplied via the <code>repro_prop</code> argument,
 it is set to the allometric form
@@ -553,7 +602,7 @@ data frame.</p>
 <p>So finally we have
 $$\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)$$</p>
 
-<h3>Reproductive efficiency</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Reproductive efficiency</h3>
 <p>The reproductive efficiency \(\epsilon\), i.e., the proportion of energy allocated to
 reproduction that results in egg biomass, is set through the <code>erepro</code>
 column in the species_params data frame. If that is not provided, the default
@@ -562,7 +611,7 @@ by the egg biomass gives the rate of egg production, returned by
 <code><a href='getRDI.html'>getRDI()</a></code>:
 $$R_{di} = \frac{\epsilon}{2 w_{min}} \int N(w)  E_r(w) \psi(w) \, dw$$</p>
 
-<h3>Density dependence</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Density dependence</h3>
 <p>The stock-recruitment relationship is an emergent phenomenon in mizer, with
 several sources of density dependence. Firstly, the amount of energy invested
 into reproduction depends on the energy income of the spawners, which is
@@ -712,7 +761,7 @@ and <code>lambda</code> arguments.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

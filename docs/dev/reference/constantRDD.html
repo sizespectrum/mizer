@@ -46,7 +46,8 @@
 
 
 <meta property="og:title" content="Give constant reproduction rate — constantRDD" />
-<meta property="og:description" content="Simply returns the value from species_params$constant_reproduction." />
+<meta property="og:description" content="
+Simply returns the value from species_params$constant_reproduction." />
 
 
 <meta name="robots" content="noindex">
@@ -78,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.4.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.1.0.9000</span>
       </span>
     </div>
 
@@ -86,7 +87,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -153,7 +154,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -177,15 +178,16 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Give constant reproduction rate</h1>
-    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/project_methods.R'><code>R/project_methods.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/reproduction.R'><code>R/reproduction.R</code></a></small>
     <div class="hidden name"><code>constantRDD.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Simply returns the value from <code>species_params$constant_reproduction</code>.</p>
+    <p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+Simply returns the value from <code>species_params$constant_reproduction</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>constantRDD</span>(<span class='kw'>rdi</span>, <span class='kw'>species_params</span>, <span class='kw'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>constantRDD</span><span class='op'>(</span><span class='va'>rdi</span>, <span class='va'>species_params</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -215,6 +217,7 @@
 <code><a href='BevertonHoltRDD.html'>BevertonHoltRDD</a>()</code>,
 <code><a href='RickerRDD.html'>RickerRDD</a>()</code>,
 <code><a href='SheperdRDD.html'>SheperdRDD</a>()</code>,
+<code><a href='constantEggRDI.html'>constantEggRDI</a>()</code>,
 <code><a href='noRDD.html'>noRDD</a>()</code></p></div>
 
   </div>
@@ -232,7 +235,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

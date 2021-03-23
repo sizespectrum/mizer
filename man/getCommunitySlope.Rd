@@ -4,18 +4,15 @@
 \alias{getCommunitySlope}
 \title{Calculate the slope of the community abundance}
 \usage{
-getCommunitySlope(
-  sim,
-  species = seq_len(nrow(species_params(getParams(sim)))),
-  biomass = TRUE,
-  ...
-)
+getCommunitySlope(sim, species = NULL, biomass = TRUE, ...)
 }
 \arguments{
 \item{sim}{A \linkS4class{MizerSim} object}
 
-\item{species}{Numeric or character vector of species to include in the
-calculation.}
+\item{species}{The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.}
 
 \item{biomass}{Boolean. If TRUE (default), the abundance is based on biomass,
 if FALSE the abundance is based on numbers.}
