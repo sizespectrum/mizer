@@ -107,13 +107,17 @@ projectToSteady <- function(params,
     resource_dynamics_fn <- get(params@resource_dynamics)
     other_dynamics_fns <- lapply(params@other_dynamics, get)
     rates_fns <- lapply(params@rates_funcs, get)
+    r <- rates_fns$Rates(
+        params, n = params@initial_n,
+        n_pp = params@initial_n_pp,
+        n_other = params@initial_n_other,
+        t = 0, 
+        effort = effort, rates_fns = rates_fns, ...)
     
     previous <- list(n = params@initial_n,
                      n_pp = params@initial_n_pp,
                      n_other = params@initial_n_other,
-                     rates = getRates(params, n = params@initial_n,
-                                      n_pp = params@initial_n_pp,
-                                      n_other = params@initial_n_other))
+                     rates = r)
     
     for (i in 2:length(t_dimnames)) {
         # advance shiny progress bar
