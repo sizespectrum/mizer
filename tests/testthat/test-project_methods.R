@@ -1,6 +1,3 @@
-context("Functions used in project")
-
-
 # Initialise --------------------------------------------------------------
 
 # North sea
@@ -30,10 +27,33 @@ set.seed(0)
 n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w))) * 1e9
 n_full <- abs(rnorm(no_w_full)) * 1e9
 
+params2 <- params
+params2@initial_n <- params2@initial_n / 2
+params2@initial_n_pp <- params2@initial_n_pp / 2
+params2@initial_n_other <- list(test = 1)
+params2@initial_effort <- params2@initial_effort / 2
+
 # getRates ----
 test_that("getRates works", {
     r <- getRates(params)
-    expect_identical(r$rdd, getRDD(params))
+    expect_identical(names(r), 
+                     c("encounter", "feeding_level", "e", "e_repro", 
+                       "e_growth", "pred_rate", "pred_mort", "f_mort",
+                       "mort", "rdi", "rdd", "resource_mort"))
+    # test that the optional parameters take the correct defaults
+    expect_identical(r, 
+                     getRates(params, n = params@initial_n,
+                              n_pp = params@initial_n_pp,
+                              n_other  = params@initial_n_other, 
+                              effort = params@initial_effort,
+                              t = 0))
+    # test that getRates actually uses its optional arguments
+    expect_identical(getRates(params2), 
+                     getRates(params, n = params2@initial_n,
+                              n_pp = params2@initial_n_pp,
+                              n_other  = params2@initial_n_other, 
+                              effort = params2@initial_effort,
+                              t = 0))
 })
 
 # getEncounter --------------------------------------------------------------
@@ -43,7 +63,7 @@ test_that("getEncounter returns with correct dimnames", {
     expect_identical(dimnames(enc), 
                      dimnames(params@initial_n))
 })
-test_that("getEncounter is independent of volume", {
+test_that("mizerEncounter is independent of volume", {
     enc <- getEncounter(params)
     enc_r <- getEncounter(params_r)
     expect_equal(enc, enc_r)
@@ -80,6 +100,25 @@ test_that("getFeedingLevel for MizerSim", {
         getFeedingLevel(sim@params, sim@n[as.character(time_range), , ], 
                         sim@n_pp[as.character(time_range), ])
     )
+})
+
+test_that("getFeedingLevel passes correct time", {
+    # Here we will check that when getFeedingLevel() is called with
+    # a sim object, it passes the correct values of t and n at each time step.
+    # To do this we replace mizerFeedingLevel() with a simpler function that
+    # just returns t * n
+    time_range <- 15:20
+    time_elements <- get_time_elements(sim, time_range)
+    times <- as.numeric(dimnames(sim@effort)$time[time_elements])
+    e <- globalenv() # We need to define the following functions in the
+    # global environment so that mizer can find them
+    e$testFeedingLevel <- function(params, n, t, ...) {
+        n * t
+    }
+    sim@params <- setRateFunction(sim@params, "FeedingLevel", 
+                                  "testFeedingLevel")
+    expect_identical(getFeedingLevel(sim, time_range = time_range),
+                     sweep(sim@n[time_elements, , ], 1, times, "*"))
 })
 
 test_that("getFeedingLevel is independent of volume", {
@@ -146,6 +185,23 @@ test_that("getPredMort for MizerSim", {
     }
     
     expect_equal(ttot, 0)
+})
+
+test_that("getPredMort passes correct time", {
+    # Here we will check that when getPredMort() is called with
+    # a sim object, it passes the correct values of t and n at each time step.
+    # To do this we replace mizerFeedingLevel() with a simpler function that
+    # just returns t * n
+    times <- as.numeric(dimnames(sim@effort)$time)
+    e <- globalenv() # We need to define the following functions in the
+    # global environment so that mizer can find them
+    e$testPredMort <- function(params, n, n_pp, t, ...) {
+        n * t
+    }
+    sim@params <- setRateFunction(sim@params, "PredMort", 
+                                  "testPredMort")
+    expect_identical(unname(getPredMort(sim)),
+                     unname(sweep(sim@n, 1, times, "*")))
 })
 
 test_that("interaction is right way round in getPredMort function", {
@@ -278,31 +334,27 @@ test_that("getFMort passes correct time", {
     e <- globalenv() # We need to define the following functions in the
     # global environment so that mizer can find them
     e$testEGrowth <- function(params, n, t, ...) {
-        e_growth <- n
-        e_growth[, ] <- as.numeric(t)
-        e_growth
+        n * t
     }
     e$testFMort <- function(params, e_growth, pred_mort, t, ...) {
         e_growth
     }
     sim@params <- setRateFunction(sim@params, "EGrowth", "testEGrowth")
     sim@params <- setRateFunction(sim@params, "FMort", "testFMort")
-    f_mort <- getFMort(sim)
-    expect_identical(unname(f_mort[, 1, 1]), times)
+    expect_identical(getFMort(sim),
+                     sweep(sim@n, 1, times, "*"))
     
     # Now we do the same for when getFMort() calls getPredMort()
     e$testPredMort <- function(params, n, t, ...) {
-        pred_mort <- n
-        pred_mort[, ] <- as.numeric(t)
-        pred_mort
+        n * t
     }
     e$testFMort <- function(params, e_growth, pred_mort, t, ...) {
         pred_mort
     }
     sim@params <- setRateFunction(sim@params, "PredMort", "testPredMort")
     sim@params <- setRateFunction(sim@params, "FMort", "testFMort")
-    f_mort <- getFMort(sim)
-    expect_identical(unname(f_mort[, 1, 1]), times)
+    expect_identical(getFMort(sim),
+                     sweep(sim@n, 1, times, "*"))
 })
 
 

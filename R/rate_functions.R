@@ -572,6 +572,7 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
                             dim = c(dim(effort)[[1]], dim(params@initial_n)),
                             dimnames = c(list(time = times),
                                          dimnames(params@initial_n)))
+            times <- as.numeric(times)
             for (i in 1:dim(effort)[1]) {
                 f_mort[i, , ] <- 
                     f(params, n = n, n_pp = n_pp, n_other = n_other,
@@ -583,7 +584,7 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
                                               time_range = times[i]))
             }
             return(f_mort)
-        } else if (length(effort) == 1) {
+        } else if (length(effort) <= 1) {
             fmort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
                        effort = rep(effort, no_gears),
                        e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
@@ -606,15 +607,39 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
         } else {
             stop("Invalid effort argument")
         }
-    } else {
+    } else if (is(object, "MizerSim")) {
         #case where object is MizerSim, and we use effort from there
         sim <- object
+        params <- sim@params
+        f <- get(params@rates_funcs$FMort)
         if (missing(time_range)) {
             time_range <- dimnames(sim@effort)$time
         }
-        time_elements <- get_time_elements(sim, time_range, slot_name = "effort")
-        f_mort <- getFMort(sim@params, sim@effort[time_elements, , drop = FALSE])
+        time_elements <- get_time_elements(sim, time_range)
+        effort <- sim@effort[time_elements, , drop = FALSE]
+        n <- sim@n[time_elements, , , drop = FALSE]
+        n_pp <- sim@n_pp[time_elements, , drop = FALSE]
+        n_other <- sim@n_other[time_elements, , drop = FALSE]
+        times <- dimnames(effort)$time
+        f_mort <- array(0,
+                        dim = c(dim(effort)[[1]], dim(params@initial_n)),
+                        dimnames = c(list(time = times),
+                                     dimnames(params@initial_n)))
+        times <- as.numeric(times)
+        for (i in 1:dim(effort)[1]) {
+            f_mort[i, , ] <- 
+                f(params, n = n[i, , ], n_pp = n_pp[i, ], 
+                  n_other = n_other[i, ], effort = effort[i, ],
+                  e_growth = getEGrowth(params, n = n[i, , ], n_pp = n_pp[i, ],
+                                        n_other = n_other[i, ], t = times[i]), 
+                  pred_mort = getPredMort(params, n = n[i, , ], 
+                                          n_pp = n_pp[i, ], 
+                                          n_other = n_other[i, ],
+                                          time_range = times[i]))
+        }
         return(f_mort[, , , drop = drop])
+    } else {
+      stop("The first argument needs to be a MizerParams or MizerSim object.")
     }
 }
 
