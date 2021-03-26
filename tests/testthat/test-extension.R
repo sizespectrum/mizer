@@ -81,12 +81,6 @@ test_that("We can set and get other params", {
 test_that("We can set, get and remove components", {
     expect_error(setComponent(params, "test", 1),
                  '"dynamics_fun" is missing')
-    expect_error(setComponent(params, "test", 1, 
-                      dynamics_fun = "test_dyn",
-                      encounter_fun = "test_dyn",
-                      mort_fun = "test_dyn",
-                      component_params = list(2, 3)),
-                 "`component_params` needs to be NULL or a named list.")
     p <- setComponent(params, "test", 1, 
                       dynamics_fun = "test_dyn",
                       encounter_fun = "test_dyn",

@@ -32,8 +32,8 @@ rate. Optional.}
 \item{mort_fun}{Name of function to calculate contribution to the
 mortality rate. Optional.}
 
-\item{component_params}{Named list of parameters needed by the component
-functions. Optional.}
+\item{component_params}{Object holding the parameters needed by the component
+functions. This could for example be a named list of parameters. Optional.}
 }
 \value{
 The updated MizerParams object

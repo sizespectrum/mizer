@@ -139,8 +139,8 @@ other_params <- function(params) {
 #'   rate. Optional.
 #' @param mort_fun Name of function to calculate contribution to the
 #'   mortality rate. Optional.
-#' @param component_params Named list of parameters needed by the component
-#'   functions. Optional.
+#' @param component_params Object holding the parameters needed by the component
+#'   functions. This could for example be a named list of parameters. Optional.
 #' @return The updated MizerParams object
 #' @export
 setComponent <- function(params, component, initial_value,
@@ -168,10 +168,6 @@ setComponent <- function(params, component, initial_value,
         params@other_encounter[[component]] <- encounter_fun
     }
     if (!missing(component_params)) {
-        if (!is.null(component_params) && 
-            (!is.list(component_params) || is.null(names(component_params)))) {
-            stop("`component_params` needs to be NULL or a named list.")
-        }
         params@other_params[[component]] <- component_params
     }
     params
