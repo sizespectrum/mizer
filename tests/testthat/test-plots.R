@@ -22,6 +22,11 @@ p <- plotBiomass(sim, species = species, total = TRUE,
                  y_ticks = 4)
 expect_doppelganger("Plot Biomass", p)
 
+p <- plotBiomass(sim, species = species, total = TRUE,
+                 start_time = 0, end_time = 2.8, returnData = TRUE,
+                 y_ticks = 4)
+expect_doppelganger("Plot Biomass return", p)
+
 p <- plotYield(sim, species = species, total = TRUE)
 expect_doppelganger("Plot Yield", p)
 
