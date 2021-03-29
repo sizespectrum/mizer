@@ -14,6 +14,8 @@
   gears, the effort for the remaining gears is assumed to be zero.
 * Added the possibility to see the output of `plotGrowthCurves` as a panel of 
   species with their respective Von Bertalanffy curves
+* Added the possibility for plot's functions to return the data used for the plot
+  using the `returnData` argument
 
 ## Breaking changes
 
@@ -39,13 +41,6 @@
 * Improved argument checking in `setInitialValues()`
 * Throwing error if `min_w_pp` is larger than `min_w`
 * Improved documentation of functions for getting fishing mortality.
-
-
-## Breaking changes
-
-* By default, the functions `plotPredMort()` and `plotFMort` will stop displaying 
-  mortality values past the species' asymptotic size. The argument `all.sizes` allows
-  to display these values back.
 
 # mizer 2.0.4
 
