@@ -284,7 +284,8 @@ reproduction is calculated with <code><a href='getERepro.html'>getERepro()</a></
 <span class='co'># Project with constant fishing effort for all gears for 20 time steps</span>
 <span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, t_max <span class='op'>=</span> <span class='fl'>20</span>, effort <span class='op'>=</span> <span class='fl'>0.5</span><span class='op'>)</span>
 <span class='co'># Get the energy at a particular time step</span>
-<span class='fu'>getEReproAndGrowth</span><span class='op'>(</span><span class='va'>params</span>, n <span class='op'>=</span> <span class='fu'><a href='N.html'>N</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>15</span>, , <span class='op'>]</span>, n_pp <span class='op'>=</span> <span class='va'>NResource</span><span class='op'>[</span><span class='fl'>15</span>, <span class='op'>]</span>, t <span class='op'>=</span> <span class='fl'>15</span><span class='op'>)</span>
+<span class='fu'>getEReproAndGrowth</span><span class='op'>(</span><span class='va'>params</span>, n <span class='op'>=</span> <span class='fu'><a href='N.html'>N</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>15</span>, , <span class='op'>]</span>, 
+                   n_pp <span class='op'>=</span> <span class='fu'><a href='N.html'>NResource</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>15</span>, <span class='op'>]</span>, t <span class='op'>=</span> <span class='fl'>15</span><span class='op'>)</span>
 <span class='op'>}</span>
 </div></pre>
   </div>
