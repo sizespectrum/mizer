@@ -48,9 +48,7 @@
 <meta property="og:title" content="Retune reproduction efficiency to maintain initial egg abundances — retune_erepro" />
 <meta property="og:description" content="Sets the reproductive efficiency for all species so that the rate of egg
 production exactly compensates for the loss from the first size class due
-to growth and mortality. Turns off the external density dependence in the
-reproduction rate by setting the RDD function to
-noRDD()" />
+to growth and mortality." />
 
 
 <meta name="robots" content="noindex">
@@ -188,9 +186,7 @@ noRDD()" />
     <div class="ref-description">
     <p>Sets the reproductive efficiency for all species so that the rate of egg
 production exactly compensates for the loss from the first size class due
-to growth and mortality. Turns off the external density dependence in the
-reproduction rate by setting the <code>RDD</code> function to
-<code><a href='noRDD.html'>noRDD()</a></code></p>
+to growth and mortality.</p>
     </div>
 
     <pre class="usage"><span class='fu'>retune_erepro</span><span class='op'>(</span><span class='va'>params</span>, species <span class='op'>=</span> <span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>species</span><span class='op'>)</span></pre>
@@ -215,6 +211,10 @@ each species whether it is to be selected (TRUE) or not.</p></td>
 
     <p>A MizerParams object with updated values for the <code>erepro</code> column
 in the <code>species_params</code> data frame.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Currently works only if the model uses either Beverton-Holt density
+dependent reproduction or density-independent reproduction.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
