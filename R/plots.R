@@ -475,7 +475,8 @@ plotlyYieldGear <- function(sim, species = NULL,
 #' raised to `power`. The default \code{power = 1} gives the biomass 
 #' density, whereas \code{power = 2} gives the biomass density with respect
 #' to logarithmic size bins.
-#' @param biomass Obsolete. Only used if `power` argument is missing. Then
+#' @param biomass `r lifecycle::badge("deprecated")`
+#'  Only used if `power` argument is missing. Then
 #'   \code{biomass = TRUE} is equivalent to \code{power=1} and 
 #'   \code{biomass = FALSE} is equivalent to \code{power=0}
 #' @param total A boolean value that determines whether the total over all
