@@ -253,6 +253,58 @@ get_gamma_default <- function(params) {
     return(species_params$gamma)
 }
 
+#' Get default value for f0
+#' 
+#' Fills in any missing values for f0 so that if the prey abundance was
+#' described by the power law \eqn{\kappa w^{-\lambda}} then the encounter rate
+#' coming from the given `gamma` parameter would lead to the feeding level
+#' \eqn{f_0}. This is thus doing the inverse of [get_gamma_default()].
+#' Only for internal use.
+#' 
+#' For species for which no value for `gamma` is specified in the species
+#' parameter data frame, the `f0` values is kept as provided in the species
+#' parameter data frame or it is set to 0.6 if it is not provided.
+#' 
+#' @param params A MizerParams object
+#' @return A vector with the values of f0 for all species
+#' @export
+#' @concept helper
+#' @family functions calculating defaults
+get_f0_default <- function(params) {
+    assert_that(is(params, "MizerParams"))
+    species_params <- params@species_params %>%
+        set_species_param_default("f0", 0.6)
+    if (!("gamma" %in% colnames(species_params))) {
+        species_params$gamma <- rep(NA, nrow(species_params))
+    }
+    given <- !is.na(species_params$gamma)
+    if (any(given)) {
+        assert_that(is.number(params@resource_params$lambda),
+                    is.number(params@resource_params$kappa),
+                    is.numeric(species_params$gamma))
+        if (!"h" %in% names(params@species_params) || 
+            any(is.na(species_params$h))) {
+            species_params$h <- get_h_default(params)
+        }
+        # Calculate available energy by setting a power-law prey spectrum
+        params@initial_n[] <- 0
+        params@species_params$interaction_resource <- 1
+        params@initial_n_pp[] <- params@resource_params$kappa * 
+            params@w_full^(-params@resource_params$lambda)
+        avail_energy <- getEncounter(params)[, length(params@w)] /
+            params@w[length(params@w)] ^ 
+            (2 + params@species_params$q - params@resource_params$lambda)
+        # Now set f0 so that this available energy leads to f0
+        f0_default <- 1 / (species_params$h / avail_energy + 1)
+        if (any(is.na(f0_default[given]))) {
+            stop("Could not calculate f0.")
+        }
+        # Only overwrite f0 for species where gamma was given
+        species_params$f0[given] <- f0_default[given]
+    }
+    return(species_params$f0)
+}
+
 #' Get default value for `ks`
 #' 
 #' Fills in any missing values for `ks` so that the critical feeding level needed

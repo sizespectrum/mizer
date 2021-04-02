@@ -1,6 +1,10 @@
-context("Wrapper functions for trait and community models")
-
 # Trait based ----
+test_that("Providing gamma overrules f0 in newTraitParams()", {
+    gamma <- 2000
+    params <- newTraitParams(f0 = 0.4, gamma = gamma)
+    expect_identical(params@species_params$gamma,
+                     rep(gamma, nrow(params@species_params)))
+})
 # * check a few messages ----
 test_that("newTraitParams produces errors and messages", {
     expect_error(newTraitParams(ext_mort_prop = 2),

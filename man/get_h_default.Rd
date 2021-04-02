@@ -22,6 +22,7 @@ parameter data frame it is set to \code{b = 3}.
 }
 \seealso{
 Other functions calculating defaults: 
+\code{\link{get_f0_default}()},
 \code{\link{get_gamma_default}()},
 \code{\link{get_ks_default}()}
 }

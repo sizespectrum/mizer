@@ -19,6 +19,7 @@ would lead to the feeding level \eqn{f_0}. Only for internal use.
 }
 \seealso{
 Other functions calculating defaults: 
+\code{\link{get_f0_default}()},
 \code{\link{get_h_default}()},
 \code{\link{get_ks_default}()}
 }

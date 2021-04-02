@@ -20,6 +20,7 @@ feeding level \eqn{f_c = 0.2} is used.
 }
 \seealso{
 Other functions calculating defaults: 
+\code{\link{get_f0_default}()},
 \code{\link{get_gamma_default}()},
 \code{\link{get_h_default}()}
 }

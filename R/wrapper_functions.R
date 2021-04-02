@@ -345,6 +345,9 @@ newTraitParams <- function(no_sp = 11,
     if (!is.na(fc) && (fc < 0 || fc > f0)) {
         stop("The critical feeding level must lie between 0 and f0")
     }
+    if (!is.na(gamma)) {  # If gamma is supplied, f0 is ignored
+        f0 <- NA
+    }
     # Check gears
     if (length(knife_edge_size) > no_sp) {
         stop("knife_edge_size needs to be no longer than the number of species in the model")
@@ -409,6 +412,7 @@ newTraitParams <- function(no_sp = 11,
         w_mat = w_mat,
         w_min_idx = w_min_idx,
         h = h,
+        gamma = gamma,
         ks = ks,
         f0 = f0,
         fc = fc,
@@ -447,6 +451,7 @@ newTraitParams <- function(no_sp = 11,
     dw <- params@dw
     w_full <- params@w_full
     ks <- params@species_params$ks[[1]]
+    f0 <- get_f0_default(params)[[1]]
     
     ## Construct steady state solution ----
     
