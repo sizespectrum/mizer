@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get default value for h — get_h_default • mizer</title>
+<title>Get default value for f0 — get_f0_default • mizer</title>
 
 
 <!-- jquery -->
@@ -45,13 +45,12 @@
 
 
 
-<meta property="og:title" content="Get default value for h — get_h_default" />
-<meta property="og:description" content="Sets h so that the species reaches maturity
-size at the age predicted by the von Bertalanffy growth curve parameters
-k_vb and (optionally t0) taken from the species parameter
-data frame. Also needs the exponent b from the length-weight
-relationship \(w = a l^b\). If this is not present in the species
-parameter data frame it is set to b = 3." />
+<meta property="og:title" content="Get default value for f0 — get_f0_default" />
+<meta property="og:description" content="Fills in any missing values for f0 so that if the prey abundance was
+described by the power law \(\kappa w^{-\lambda}\) then the encounter rate
+coming from the given gamma parameter would lead to the feeding level
+\(f_0\). This is thus doing the inverse of get_gamma_default().
+Only for internal use." />
 
 
 <meta name="robots" content="noindex">
@@ -181,21 +180,20 @@ parameter data frame it is set to b = 3." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get default value for h</h1>
+    <h1>Get default value for f0</h1>
     <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/species_params.R'><code>R/species_params.R</code></a></small>
-    <div class="hidden name"><code>get_h_default.Rd</code></div>
+    <div class="hidden name"><code>get_f0_default.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Sets <code>h</code> so that the species reaches maturity
-size at the age predicted by the von Bertalanffy growth curve parameters
-<code>k_vb</code> and (optionally <code>t0</code>) taken from the species parameter
-data frame. Also needs the exponent <code>b</code> from the length-weight
-relationship \(w = a l^b\). If this is not present in the species
-parameter data frame it is set to <code>b = 3</code>.</p>
+    <p>Fills in any missing values for f0 so that if the prey abundance was
+described by the power law \(\kappa w^{-\lambda}\) then the encounter rate
+coming from the given <code>gamma</code> parameter would lead to the feeding level
+\(f_0\). This is thus doing the inverse of <code><a href='get_gamma_default.html'>get_gamma_default()</a></code>.
+Only for internal use.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>get_h_default</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>get_f0_default</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -208,12 +206,17 @@ parameter data frame it is set to <code>b = 3</code>.</p>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A vector with the values of h for all species</p>
+    <p>A vector with the values of f0 for all species</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>For species for which no value for <code>gamma</code> is specified in the species
+parameter data frame, the <code>f0</code> values is kept as provided in the species
+parameter data frame or it is set to 0.6 if it is not provided.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions calculating defaults: 
-<code><a href='get_f0_default.html'>get_f0_default</a>()</code>,
 <code><a href='get_gamma_default.html'>get_gamma_default</a>()</code>,
+<code><a href='get_h_default.html'>get_h_default</a>()</code>,
 <code><a href='get_ks_default.html'>get_ks_default</a>()</code></p></div>
 
   </div>
