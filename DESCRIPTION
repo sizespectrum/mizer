@@ -76,6 +76,7 @@ Collate:
     'animateSpectra.R'
     'newMultispeciesParams.R'
     'wrapper_functions.R'
+    'newSingleSpeciesParams.R'
     'steady.R'
     'extension.R'
     'data.R'

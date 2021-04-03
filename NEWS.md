@@ -1,6 +1,8 @@
 # mizer 2.1.0.9000
 
 ## New functionality
+* New function `newSingleSpeciesParams()` for creating a single species in a 
+  power-law background.
 * New function `animateSpectra()' creating an animated plot of a simulation.
 * New functions `addSpecies()`, `removeSpecies()` and `renameSpecies()`.
 * The parameters for an ecosystem component added with `setComponent()` can
