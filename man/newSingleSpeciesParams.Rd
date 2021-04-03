@@ -5,21 +5,23 @@
 \title{Set up parameters for a single species in a power-law background}
 \usage{
 newSingleSpeciesParams(
+  species_name = "Target species",
   w_inf = 100,
   w_min = 0.001,
   eta = 10^(-0.6),
   w_mat = w_inf * eta,
-  no_w = log10(w_inf/w_min) * 50 + 1,
+  no_w = log10(w_inf/w_min) * 20 + 1,
   n = 3/4,
   p = n,
   lambda = 2.05,
   kappa = 0.005,
   alpha = 0.4,
-  ks = 4,
   k_vb = 1,
   beta = 100,
   sigma = 1.3,
   f0 = 0.6,
+  fc = 0.25,
+  ks = NA,
   gamma = NA,
   ext_mort_prop = 0,
   R_factor = 4,
@@ -27,12 +29,15 @@ newSingleSpeciesParams(
 )
 }
 \arguments{
+\item{species_name}{A string with a name for the species. Will be used in
+plot legends.}
+
 \item{w_inf}{Asymptotic size of species}
 
 \item{w_min}{Egg size of species}
 
 \item{eta}{Ratio between maturity size \code{w_mat} and asymptotic size
-\code{w_inf}. Default is 10^(-0.6), approximately 1/4.. Ignored if
+\code{w_inf}. Default is 10^(-0.6), approximately 1/4. Ignored if
 \code{w_mat} is supplied explicitly.}
 
 \item{w_mat}{Maturity size of species. Default value is
@@ -40,7 +45,7 @@ newSingleSpeciesParams(
 
 \item{no_w}{The number of size bins in the community spectrum. These bins
 will be equally spaced on a logarithmic scale. Default value is such that
-there are 50 bins for each factor of 10 in weight.}
+there are 20 bins for each factor of 10 in weight.}
 
 \item{n}{Scaling exponent of the maximum intake rate.}
 
@@ -51,9 +56,7 @@ equal to the exponent \code{n}.}
 
 \item{kappa}{Coefficient in abundance power law.}
 
-\item{alpha}{The assimilation efficiency of the community.}
-
-\item{ks}{Standard metabolism coefficient.}
+\item{alpha}{The assimilation efficiency.}
 
 \item{k_vb}{The vonBertalanffy growth parameter.}
 
@@ -65,17 +68,23 @@ equal to the exponent \code{n}.}
 coefficient in the search rate. Ignored if \code{gamma} is given
 explicitly.}
 
+\item{fc}{Critical feeding level. Used to determine \code{ks} if it is not given
+explicitly.}
+
+\item{ks}{Standard metabolism coefficient. If not provided, default will be
+calculated from critical feeding level argument \code{fc}.}
+
 \item{gamma}{Volumetric search rate. If not provided, default is determined
-by \code{\link{get_gamma_default}} using the value of \code{f0}.}
+by \code{\link[=get_gamma_default]{get_gamma_default()}} using the value of \code{f0}.}
 
 \item{ext_mort_prop}{The proportion of the total mortality that comes from
 external mortality, i.e., from sources not explicitly modelled. A number in
 the interval [0, 1).}
 
 \item{R_factor}{The factor such that \code{R_max = R_factor * R}, where \code{R_max}
-is the maximum recruitment allowed and \code{R} is the steady-state
-recruitment. Thus the larger \code{R_factor} the less the impact of the
-non-linear stock-recruitment curve.}
+is the maximum reproduction rate allowed and \code{R} is the steady-state
+reproduction rate. Thus the larger \code{R_factor} the less the impact of the
+density-dependence.}
 
 \item{version}{A string specifying the version of mizer. If you want to make
 sure that your code will still set up the model with the exact same default
