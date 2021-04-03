@@ -1,4 +1,16 @@
-# mizer 2.1
+# mizer 2.1.0.9000
+
+## New functionality
+* New functions `addSpecies()`, `removeSpecies()` and `renameSpecies()`.
+* The parameters for an ecosystem component added with `setComponent()` can
+  now take any form, they no longer have to be a named list.
+
+## Bug fixes
+* The `gamma` argument now is no longer ignored in `newTraitParams()` but
+  correctly overrides the `f0` argument. #188
+* `getFMort()` again works correctly when called with a MizerSim object.
+
+# mizer 2.1.0
 
 ## New functionality
 

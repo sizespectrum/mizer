@@ -83,6 +83,7 @@ Collate:
     'get_initial_n.R'
     'compareParams.R'
     'customFunction.R'
+    'manipulate_species.R'
 RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8

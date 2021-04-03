@@ -86,6 +86,11 @@ reference:
   - setInitialValues
   - setBevertonHolt
   - compareParams
+- title: Manipulating species
+  contents:
+  - addSpecies
+  - removeSpecies
+  - renameSpecies
 - title: Running simulations
   contents:
   - project
