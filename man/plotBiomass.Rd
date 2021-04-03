@@ -98,6 +98,7 @@ plotBiomass(sim, y_ticks = 3)
 \link{plotting_functions}, \code{\link[=getBiomass]{getBiomass()}}
 
 Other plotting functions: 
+\code{\link{animateSpectra}()},
 \code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotDiet}()},
 \code{\link{plotFMort}()},

@@ -58,6 +58,7 @@ plotFMort(sim, highlight = c("Cod", "Haddock"))
 \link{plotting_functions}, \code{\link[=getFMort]{getFMort()}}
 
 Other plotting functions: 
+\code{\link{animateSpectra}()},
 \code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},
 \code{\link{plotDiet}()},

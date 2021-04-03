@@ -73,6 +73,7 @@ Collate:
     'rate_functions.R'
     'summary_methods.R'
     'plots.R'
+    'animateSpectra.R'
     'newMultispeciesParams.R'
     'wrapper_functions.R'
     'steady.R'

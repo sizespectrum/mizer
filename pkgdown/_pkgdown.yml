@@ -127,6 +127,7 @@ reference:
 - title: Plotting results
   contents:
   - plotting_functions
+  - starts_with("animate")
   - starts_with("plot")
   - -plotM2
   - setColours

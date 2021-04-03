@@ -80,6 +80,7 @@ p
 \link{summary_functions}, \link{indicator_functions}
 
 Other plotting functions: 
+\code{\link{animateSpectra}()},
 \code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},
 \code{\link{plotDiet}()},

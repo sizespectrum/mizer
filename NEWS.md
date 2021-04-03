@@ -1,6 +1,7 @@
 # mizer 2.1.0.9000
 
 ## New functionality
+* New function `animateSpectra()' creating an animated plot of a simulation.
 * New functions `addSpecies()`, `removeSpecies()` and `renameSpecies()`.
 * The parameters for an ecosystem component added with `setComponent()` can
   now take any form, they no longer have to be a named list.
