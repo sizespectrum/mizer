@@ -1,6 +1,5 @@
 ---
 title: "Single-species size-spectrum dynamics"
-author: "Gustav Delius"
 output:
   html_document:
     toc: yes
@@ -116,8 +115,16 @@ with very simple models first.
 
 # A first example
 
-Let us start by looking at an example. Start RStudio and load the
-following packages:
+The most effective way of working with this tutorial is to open up an R script
+file in RStudio and copying all the commands from this tutorial into that
+R script file. You should then execute them by sending them to the R console, 
+thereby reproducing all the results. Later in this tutorial there will be
+exercises that you can do by adapting the code in your R script file to the
+tasks in the exercises. That way you will pick up a facility in working with
+mizer in R at the same time as gaining a deeper understanding of size spectrum
+modelling.
+
+First, load some required packages with the following commands:
 
 ```{r message=FALSE}
 library(mizer)
@@ -145,7 +152,7 @@ call the function without specifying those arguments. We will only
 specify the power-law exponent of the background community
 
 ```{r}
-params <- newSingleSpeciesParams(lambda = 2.05)
+params <- newSingleSpeciesParams(lambda = 2.05, R_factor = Inf)
 ```
 
 The function returns a `MizerParams` object and we have assigned that to
@@ -275,6 +282,8 @@ area, numbers per volume or numbers for the entire system see
 > ## Exercise 2
 > 
 > Determine the total number of fish with sizes between 10 grams and 20 grams.
+> You can use the `sum()` function to add together contributions from the 
+> various size classes.
 
 <details>
 
@@ -482,9 +491,7 @@ m0 <- round(mm$coefficients[[1]], digits = 3)
 > get the mortality rate with the `getMort()` function. While adjusting
 > the code to this new task, you need to take into account that the name
 > of the size-dimension of the array returned by `getMort()` is `"w_prey"`
-> instead of `"w"`. Then fit a linear model and thus determine that the
-> mortality rate is $$\mu(w) = \mu_0\ w^{p-1} = `r m0` \ w^{-1/4}.$$
-
+> instead of `"w"`. 
 <details>
 
 <summary> Solution </summary>
@@ -500,6 +507,17 @@ p <- ggplot(mort_rate_frame) +
 p
 ```
 
+</details>
+
+> Then fit a linear model to determine the slope and and 
+> intercept and thus the allometric exponent and the coefficient for the
+> mortality rate, to establish that the mortality rate is 
+> $$\mu(w) = \mu_0\ w^{p-1} = `r m0` \ w^{-1/4}.$$
+
+<details>
+
+<summary> Solution </summary>
+
 ```{r}
 lm(log(mort_rate_frame$value) ~ log(mort_rate_frame$w_prey))
 ```
@@ -511,7 +529,8 @@ lm(log(mort_rate_frame$value) ~ log(mort_rate_frame$w_prey))
 We have seen that for juvenile fish the growth rate and the death rate
 are both power laws with exponents $p=3/4$ and $p-1=-1/4$ respectively.
 By solving a differential equation we can derive that the juvenile
-spectrum also follows a power law: $$N(w) = N_0\ w^{-\mu_0/g_0 - p}$$
+spectrum also follows a power law: 
+$$N(w) = N_0\ w^{-\mu_0/g_0 - p}$$
 
 I won't do the maths here with you (and you probably don't want me to
 anyway), but we can check this claim numerically. Let's look at the
@@ -559,7 +578,7 @@ That is not quite the result of the linear model fit, but that is the
 nature of numerical calculations: one gets discretisation errors and
 rounding errors.
 
-# Reproduction
+# Shape of adult spectrum
 
 Now that we understand the shape of the size spectrum for the juvenile
 fish, let us try to understand the bulge that follows. The increase of
@@ -568,6 +587,7 @@ to a drop in growth rate at that size. This in turn is due to the fact
 that the mature fish invests some of its energy income into
 reproduction.
 
+## Investment into reproduction
 Let us look at a plot of the proportion of the available energy that is
 invested into reproduction as a function of the size
 
@@ -669,11 +689,22 @@ growth rates.
 > ## Exercise 4
 >
 > Make a plot showing the growth rates of the original model and of the
-> model with the changed maturity curve. The function to 
+> model with the changed maturity curve. 
 
 <details>
 
 <summary> Solution </summary>
+```{r}
+growth_rate_frame_changed <- melt(getEGrowth(params_changed_maturity))
+growth_rate_frame$type <- "original"
+growth_rate_frame_changed$type <- "changed"
+growth_rate_frame_combined <- rbind(growth_rate_frame,
+                                    growth_rate_frame_changed)
+ggplot(growth_rate_frame_combined) +
+  geom_line(aes(x = w, y = value, colour = type)) +
+  labs(x = "Weight [g]",
+       y = "Growth rate [g/year]")
+```
 
 </details>
 
@@ -738,7 +769,7 @@ deviates from the steady state, for example due to a change in fishing,
 the reproductive efficiency can be set to change according to a
 Beverton-Holt stock-recruitment curve. We will discuss this again later.
 
-# Effect of decreased prey availability
+# Effect of prey availability
 
 The energy income for a fish comes from predation on its prey. If there
 is less prey, the fish consumes less and thus its growth rate will
@@ -775,16 +806,23 @@ which food is reduced. Why this is we will discuss in the next section.
 But first investigate what happens when the prey abundance is increased
 instead of decreased.
 
-## Exercise 5
-
-Plot the steady state biomass density in our model when the community
-abundance is increased by a factor of 10 in the size range from 1mg to
-10mg.
+> ## Exercise 5
+> 
+> Plot the steady state biomass density in our model when the community
+> abundance is increased by a factor of 10 in the size range from 1mg to
+> 10mg.
 
 <details>
 
 <summary> Solution </summary>
-
+```{r}
+params_overfed <- params
+size_range <- w_full(params) > 10^-3 & w_full(params) < 10^-2
+initialNResource(params_overfed)[size_range] <- 
+  initialNResource(params)[size_range] * 10
+params_overfed <- steady(params_overfed)
+plotSpectra(params_overfed, power = 2)
+```
 </details>
 
 # Predation
@@ -912,14 +950,42 @@ realised predator/prey mass ratio in the diet will be smaller than the
 preferred predator/prey mass ratio. This is particularly important when
 estimating the predation kernel from stomach data.
 
-## Exercise 6
-
-This exercise gives you a different set of predation kernel parameters
-to investigate.
+> ## Exercise 6
+> 
+> Change the parameters of the predation kernel to `beta = 50` and
+> `sigma = 2` and plot the predation kernel of a predator of size 1g.
+> You should see that the predation kernel is truncated so that the predator
+> never feeds on prey larger than themselves.
 
 <details>
 
 <summary> Solution </summary>
+```{r}
+params3 <- params
+species_params(params3)$beta <- 50
+species_params(params3)$sigma <- 2
+getPredKernel(params3)[, 61, , drop = FALSE] %>% 
+  melt() %>% 
+  ggplot() +
+  geom_line(aes(x = w_prey, y = value)) +
+  scale_x_log10()
+```
+
+</details>
+
+> Next, plot the steady state arising with this feeding kernel when the prey
+> abundance is artificially reduced by a factor of 10 in the size range between
+> 1mg and 10mg as in previous examples. What do you observe? Are you surprised?
+
+
+<details>
+
+<summary> Solution </summary>
+```{r}
+initialNResource(params3) <- initialNResource(params_starved)
+params3 <- steady(params3)
+plotSpectra(params3, power = 2)
+```
 
 </details>
 
@@ -974,15 +1040,31 @@ In the modified model it looks like
 plotGrowthCurves(params_new_gamma)
 ```
 
-## Exercise 7
-
-What effect will this change in growth rate have on the slope of the
-juvenile spectrum? Will it be steeper or shallower? Make the plot of the
-spectrum to see.
+> ## Exercise 7
+> 
+> What effect will this change in growth rate have on the slope of the
+> juvenile spectrum? Will it be steeper or shallower? Make the plot of the
+> spectrum to see.
 
 <details>
 
 <summary> Solution </summary>
+The juvenile spectrum will be steeper because the slope is $-\mu_0/g_0 - p$
+and for smaller growth rate coefficient $g_0$ this will be more negative.
+```{r}
+nf <- melt(initialN(params))
+nf_new_gamma <- melt(initialN(params_new_gamma))
+nf$type <- "original"
+nf_new_gamma$type <- "changed"
+nf_combined <- rbind(nf, nf_new_gamma)
+ggplot(nf_combined) +
+  geom_line(aes(x = w, y = value, colour = type)) +
+  scale_x_log10() +
+  scale_y_log10() +
+  labs(x = "Weight [g]",
+       y = "Number density [1/g]")
+```
+
 
 </details>
 
@@ -1063,13 +1145,7 @@ params_fishing <- setFishing(params_fishing, initial_effort = 1)
 plotFMort(params_fishing)
 ```
 
-After having turned on fishing, we need to find the new steady state
-with `steady()` and can then plot it.
 
-```{r message=FALSE}
-params_fishing <- steady(params_fishing)
-plotSpectra(params_fishing, power = 2)
-```
 
 # Outlook
 
@@ -1077,5 +1153,4 @@ The fish species we have studied had unlimited food and constant
 mortality. That of course is very unrealistic. In reality, food will
 become scarce when the fish population increases too much. Also the
 number of predators will grow. This will lead to interesting and
-important non-linear effects that we will study in the next tutorial
-notebook.
+important non-linear effects that we will study in the next tutorial.
