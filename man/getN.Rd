@@ -23,7 +23,7 @@ over \code{max_w}.}
   }}
 }
 \value{
-An array containing the total numbers (time x species)
+An array (time x species) containing the total numbers.
 }
 \description{
 Calculates the number of individuals within user-defined size limits, for

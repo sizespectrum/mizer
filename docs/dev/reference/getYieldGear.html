@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Calculate the total yield per gear and species — getYieldGear • mizer</title>
+<title>Calculate the yearly yield per gear and species — getYieldGear • mizer</title>
 
 
 <!-- jquery -->
@@ -45,9 +45,9 @@
 
 
 
-<meta property="og:title" content="Calculate the total yield per gear and species — getYieldGear" />
-<meta property="og:description" content="Calculates the total yield per gear and species at each simulation
-time step." />
+<meta property="og:title" content="Calculate the yearly yield per gear and species — getYieldGear" />
+<meta property="og:description" content="Calculates the yearly yield (biomass fished per year) per gear and species at
+each simulation time step." />
 
 
 <meta name="robots" content="noindex">
@@ -104,6 +104,9 @@ time step." />
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    </li>
     <li>
       <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
@@ -177,14 +180,14 @@ time step." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Calculate the total yield per gear and species</h1>
+    <h1>Calculate the yearly yield per gear and species</h1>
     <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/summary_methods.R'><code>R/summary_methods.R</code></a></small>
     <div class="hidden name"><code>getYieldGear.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Calculates the total yield per gear and species at each simulation
-time step.</p>
+    <p>Calculates the yearly yield (biomass fished per year) per gear and species at
+each simulation time step.</p>
     </div>
 
     <pre class="usage"><span class='fu'>getYieldGear</span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span></pre>
@@ -200,7 +203,8 @@ time step.</p>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An array containing the total yield (time x gear x species)</p>
+    <p>An array (time x gear x species) containing the yearly yield in
+grams.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='getYield.html'>getYield()</a></code></p>

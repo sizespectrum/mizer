@@ -49,7 +49,7 @@ NULL
 #' @inheritParams getEncounter
 #' @param proportion If TRUE (default) the function returns the diet as a
 #'   proportion of the total consumption rate. If FALSE it returns the 
-#'   consumption rate in grams.
+#'   consumption rate in grams per year.
 #' 
 #' @return An array (predator species  x predator size x 
 #'   (prey species + resource + other components) )
@@ -151,7 +151,7 @@ getDiet <- function(params,
 #' 
 #' @param sim An object of class `MizerSim`.
 #'   
-#' @return An array containing the SSB (time x species)
+#' @return An array (time x species) containing the SSB in grams.
 #' @export
 #' @family summary functions
 #' @concept summary_function
@@ -173,16 +173,16 @@ getSSB <- function(sim) {
 #' Calculate the total biomass of each species within a size range at each time 
 #' step.
 #' 
-#' Calculates the total biomass through time of the species in the
-#' `MizerSim` class within user defined size limits. The default option is
-#' to use the whole size range. You can specify minimum and maximum weight or
-#' length range for the species. Lengths take precedence over weights (i.e. if
-#' both min_l and min_w are supplied, only min_l will be used).
+#' Calculates the total biomass through time within user defined size limits.
+#' The default option is to use the whole size range. You can specify minimum
+#' and maximum weight or length range for the species. Lengths take precedence
+#' over weights (i.e. if both min_l and min_w are supplied, only min_l will be
+#' used).
 #' 
 #' @param sim An object of class `MizerSim`.
 #' @inheritDotParams get_size_range_array -params
 #'
-#' @return An array containing the biomass (time x species)
+#' @return An array (time x species) containing the biomass in grams.
 #' @export
 #' @family summary functions
 #' @concept summary_function
@@ -214,7 +214,7 @@ getBiomass <- function(sim, ...) {
 #' @param sim An object of class `MizerSim`.
 #' @inheritDotParams get_size_range_array -params
 #'
-#' @return An array containing the total numbers (time x species)
+#' @return An array (time x species) containing the total numbers.
 #' @export
 #' @family summary functions
 #' @concept summary_function
@@ -235,14 +235,15 @@ getN <- function(sim, ...) {
 }
 
 
-#' Calculate the total yield per gear and species
+#' Calculate the yearly yield per gear and species
 #'
-#' Calculates the total yield per gear and species at each simulation
-#' time step.
+#' Calculates the yearly yield (biomass fished per year) per gear and species at
+#' each simulation time step.
 #'
 #' @param sim An object of class `MizerSim`.
 #'
-#' @return An array containing the total yield (time x gear x species)
+#' @return An array (time x gear x species) containing the yearly yield in
+#'   grams.
 #' @export
 #' @family summary functions
 #' @concept summary_function
@@ -263,14 +264,15 @@ getYieldGear <- function(sim) {
 }
 
 
-#' Calculate the total yield of each species
+#' Calculate the yearly yield for each species
 #'
-#' Calculates the total yield of each species across all gears at each
-#' simulation time step.
+#' Calculates the yearly yield (biomass fished per year) for each species
+#' across all gears at each simulation time step.
 #'
 #' @param sim An object of class `MizerSim`.
 #'
-#' @return An array containing the total yield (time x species)
+#' @return An array (time x species) containing the total yearly yield in 
+#' grams.
 #' @export
 #' @family summary functions
 #' @concept summary_function

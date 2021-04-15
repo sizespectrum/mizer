@@ -24,7 +24,7 @@ ecosystem}
 
 \item{proportion}{If TRUE (default) the function returns the diet as a
 proportion of the total consumption rate. If FALSE it returns the
-consumption rate in grams.}
+consumption rate in grams per year.}
 }
 \value{
 An array (predator species  x predator size x

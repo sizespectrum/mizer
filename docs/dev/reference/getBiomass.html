@@ -48,11 +48,11 @@ step. — getBiomass • mizer</title>
 
 <meta property="og:title" content="Calculate the total biomass of each species within a size range at each time
 step. — getBiomass" />
-<meta property="og:description" content="Calculates the total biomass through time of the species in the
-MizerSim class within user defined size limits. The default option is
-to use the whole size range. You can specify minimum and maximum weight or
-length range for the species. Lengths take precedence over weights (i.e. if
-both min_l and min_w are supplied, only min_l will be used)." />
+<meta property="og:description" content="Calculates the total biomass through time within user defined size limits.
+The default option is to use the whole size range. You can specify minimum
+and maximum weight or length range for the species. Lengths take precedence
+over weights (i.e. if both min_l and min_w are supplied, only min_l will be
+used)." />
 
 
 <meta name="robots" content="noindex">
@@ -109,6 +109,9 @@ both min_l and min_w are supplied, only min_l will be used)." />
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    </li>
     <li>
       <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
@@ -189,11 +192,11 @@ step.</h1>
     </div>
 
     <div class="ref-description">
-    <p>Calculates the total biomass through time of the species in the
-<code>MizerSim</code> class within user defined size limits. The default option is
-to use the whole size range. You can specify minimum and maximum weight or
-length range for the species. Lengths take precedence over weights (i.e. if
-both min_l and min_w are supplied, only min_l will be used).</p>
+    <p>Calculates the total biomass through time within user defined size limits.
+The default option is to use the whole size range. You can specify minimum
+and maximum weight or length range for the species. Lengths take precedence
+over weights (i.e. if both min_l and min_w are supplied, only min_l will be
+used).</p>
     </div>
 
     <pre class="usage"><span class='fu'>getBiomass</span><span class='op'>(</span><span class='va'>sim</span>, <span class='va'>...</span><span class='op'>)</span></pre>
@@ -223,7 +226,7 @@ over <code>max_w</code>.</p></dd>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An array containing the biomass (time x species)</p>
+    <p>An array (time x species) containing the biomass in grams.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other summary functions: 
