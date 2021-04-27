@@ -284,9 +284,11 @@ getYieldGear <- function(sim) {
 #' y <- getYield(sim)
 #' }
 getYield <- function(sim) {
-    # biomass less the first time step
-    yield_gear_species <- getYieldGear(sim)
-    return(apply(yield_gear_species, c(1, 3), sum))
+    biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
+    f <- getFMort(sim, drop = FALSE)
+    yield <- apply(f * biomass,
+                   c(1, 2), sum)
+    return(yield)
 }
 
 
