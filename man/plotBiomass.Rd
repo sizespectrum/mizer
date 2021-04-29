@@ -15,6 +15,7 @@ plotBiomass(
   total = FALSE,
   background = TRUE,
   highlight = NULL,
+  return_data = FALSE,
   ...
 )
 
@@ -60,6 +61,9 @@ Default is TRUE.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 
+\item{return_data}{A boolean value that determines whether the formated data
+used for the plot is returned instead of the plot itself. Default value is FALSE}
+
 \item{...}{
   Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
   \describe{
@@ -92,6 +96,9 @@ plotBiomass(sim, species = c("Cod", "Haddock"), total = TRUE)
 plotBiomass(sim, min_w = 10, max_w = 1000)
 plotBiomass(sim, start_time = 10, end_time = 15)
 plotBiomass(sim, y_ticks = 3)
+
+# Returning the data frame
+plotBiomass(sim, return_data = TRUE)
 }
 }
 \seealso{

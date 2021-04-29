@@ -5,7 +5,14 @@
 \alias{plotlyYieldGear}
 \title{Plot the total yield of each species by gear through time}
 \usage{
-plotYieldGear(sim, species = NULL, total = FALSE, highlight = NULL, ...)
+plotYieldGear(
+  sim,
+  species = NULL,
+  total = FALSE,
+  highlight = NULL,
+  return_data = FALSE,
+  ...
+)
 
 plotlyYieldGear(sim, species = NULL, total = FALSE, highlight = NULL, ...)
 }
@@ -21,6 +28,9 @@ each species whether it is to be selected (TRUE) or not.}
 species in the system is plotted as well. Default is FALSE}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
+
+\item{return_data}{A boolean value that determines whether the formated data
+used for the plot is returned instead of the plot itself. Default value is FALSE}
 
 \item{...}{Other arguments (currently unused)}
 }
@@ -43,6 +53,9 @@ params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter)
 sim <- project(params, effort=1, t_max=20, t_save = 0.2, progress_bar = FALSE)
 plotYieldGear(sim)
 plotYieldGear(sim, species = c("Cod", "Herring"), total = TRUE)
+
+# Returning the data frame
+plotYieldGear(sim, return_data = TRUE)
 }
 }
 \seealso{

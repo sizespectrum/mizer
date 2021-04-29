@@ -86,3 +86,26 @@ test_that("plotly functions do not throw error", {
     expect_error(plotlyGrowthCurves(params, species = species), NA)
 })
 
+
+# testing the plot outputs
+test_that("return_data is identical",{
+    expect_equal(dim(plotBiomass(sim, species = species, total = TRUE,
+                                 start_time = 0, end_time = 2.8, y_ticks = 4, return_data = TRUE)[[1]]), c(9,3))
+    
+    expect_equal(dim(plotYield(sim, sim0, species = species, return_data = TRUE)), c(8,4))
+    
+    expect_equal(dim(plotYieldGear(sim, species = species, return_data = TRUE)), c(8,4))
+    
+    expect_equal(dim(plotSpectra(sim, species = species, wlim = c(1,NA), return_data = TRUE)[[1]]), c(37,3))
+    
+    expect_equal(dim(plotFeedingLevel(sim, species = species, return_data = TRUE)), c(56,3))
+    
+    expect_equal(dim(plotPredMort(sim, species = species, return_data = TRUE)), c(56,3))
+    
+    expect_equal(dim(plotFMort(sim, species = species, return_data = TRUE)), c(56,3))
+    
+    expect_equal(dim(plotGrowthCurves(sim, species = species, return_data = TRUE)), c(100,4))
+    
+    expect_equal(dim(plotDiet(sim@params, species = species, return_data = TRUE)), c(717,3))
+}
+)

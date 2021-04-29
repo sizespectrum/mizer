@@ -11,6 +11,7 @@ plotPredMort(
   time_range,
   all.sizes = FALSE,
   highlight = NULL,
+  return_data = FALSE,
   ...
 )
 
@@ -35,6 +36,9 @@ outside a species' size range. Default FALSE.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 
+\item{return_data}{A boolean value that determines whether the formated data
+used for the plot is returned instead of the plot itself. Default value is FALSE}
+
 \item{...}{Other arguments (currently unused)}
 }
 \value{
@@ -51,6 +55,9 @@ params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter)
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotPredMort(sim)
 plotPredMort(sim, time_range = 10:20)
+
+# Returning the data frame
+plotPredMort(sim, return_data = TRUE)
 }
 }
 \seealso{

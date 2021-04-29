@@ -12,6 +12,7 @@ plotYield(
   total = FALSE,
   log = TRUE,
   highlight = NULL,
+  return_data = FALSE,
   ...
 )
 
@@ -44,6 +45,9 @@ Defaults to true.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 
+\item{return_data}{A boolean value that determines whether the formated data
+used for the plot is returned instead of the plot itself. Default value is FALSE}
+
 \item{...}{Other arguments (currently unused)}
 }
 \value{
@@ -64,6 +68,9 @@ plotYield(sim, species = c("Cod", "Herring"), total = TRUE)
 # Comparing with yield from twice the effort
 sim2 <- project(params, effort=2, t_max=20, t_save = 0.2, progress_bar = FALSE)
 plotYield(sim, sim2, species = c("Cod", "Herring"), log = FALSE)
+
+# Returning the data frame
+plotYield(sim, return_data = TRUE)
 }
 }
 \seealso{
