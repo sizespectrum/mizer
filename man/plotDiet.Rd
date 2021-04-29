@@ -4,7 +4,7 @@
 \alias{plotDiet}
 \title{Plot diet}
 \usage{
-plotDiet(object, species = NULL)
+plotDiet(object, species = NULL, return_data = FALSE)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or
@@ -14,6 +14,9 @@ plotDiet(object, species = NULL)
 species are selected. A vector of species names, or a
 numeric vector with the species indices, or a logical vector indicating for
 each species whether it is to be selected (TRUE) or not.}
+
+\item{return_data}{A boolean value that determines whether the formated data
+used for the plot is returned instead of the plot itself. Default value is FALSE}
 }
 \value{
 A ggplot2 object

@@ -12,6 +12,7 @@ plotFeedingLevel(
   highlight = NULL,
   all.sizes = FALSE,
   include_critical = FALSE,
+  return_data = FALSE,
   ...
 )
 
@@ -46,6 +47,9 @@ outside a species' size range. Default FALSE.}
 \item{include_critical}{If TRUE, then the critical feeding level is also
 plotted. Default FALSE.}
 
+\item{return_data}{A boolean value that determines whether the formated data
+used for the plot is returned instead of the plot itself. Default value is FALSE}
+
 \item{...}{Other arguments (currently unused)}
 }
 \value{
@@ -75,6 +79,9 @@ sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotFeedingLevel(sim)
 plotFeedingLevel(sim, time_range = 10:20, species = c("Cod", "Herring"),
                  include_critical = TRUE)
+
+# Returning the data frame
+plotFeedingLevel(sim, return_data = TRUE)
 }
 }
 \seealso{

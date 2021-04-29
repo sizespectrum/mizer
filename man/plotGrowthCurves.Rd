@@ -11,7 +11,9 @@ plotGrowthCurves(
   max_age = 20,
   percentage = FALSE,
   species_panel = FALSE,
-  highlight = NULL
+  highlight = NULL,
+  return_data = FALSE,
+  ...
 )
 
 plotlyGrowthCurves(
@@ -44,6 +46,11 @@ If TRUE, display all species with their Von Bertalanffy curves as facets
 (need species and percentage to be set to default). Default FALSE.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
+
+\item{return_data}{A boolean value that determines whether the formated data
+used for the plot is returned instead of the plot itself. Default value is FALSE}
+
+\item{...}{Other arguments (currently unused)}
 }
 \value{
 A ggplot2 object
@@ -63,6 +70,9 @@ sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotGrowthCurves(sim, percentage = TRUE)
 plotGrowthCurves(sim, species = "Cod", max_age = 24)
 plotGrowthCurves(sim, species_panel = TRUE)
+ 
+# Returning the data frame
+plotGrowthCurves(sim, return_data = TRUE)
 }
 }
 \seealso{

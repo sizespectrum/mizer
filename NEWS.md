@@ -1,10 +1,12 @@
 # mizer 2.1.0.9000
 
 ## New functionality
-* New function `animateSpectra()' creating an animated plot of a simulation.
+* New function `animateSpectra()` creating an animated plot of a simulation.
 * New functions `addSpecies()`, `removeSpecies()` and `renameSpecies()`.
 * The parameters for an ecosystem component added with `setComponent()` can
   now take any form, they no longer have to be a named list.
+* New argument `return_data` in the plot's functions allows to return the 
+  data frame used for the ggplot instead of the plot.
 
 ## Bug fixes
 * The `gamma` argument now is no longer ignored in `newTraitParams()` but
