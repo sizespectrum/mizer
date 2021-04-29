@@ -2,7 +2,7 @@
 % Please edit documentation in R/summary_methods.R
 \name{getYieldGear}
 \alias{getYieldGear}
-\title{Calculate the total yield per gear and species}
+\title{Calculate the yearly yield per gear and species}
 \usage{
 getYieldGear(sim)
 }
@@ -10,11 +10,12 @@ getYieldGear(sim)
 \item{sim}{An object of class \code{MizerSim}.}
 }
 \value{
-An array containing the total yield (time x gear x species)
+An array (time x gear x species) containing the yearly yield in
+grams.
 }
 \description{
-Calculates the total yield per gear and species at each simulation
-time step.
+Calculates the yearly yield (biomass fished per year) per gear and species at
+each simulation time step.
 }
 \examples{
 \dontrun{

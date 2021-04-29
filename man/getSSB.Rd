@@ -10,7 +10,7 @@ getSSB(sim)
 \item{sim}{An object of class \code{MizerSim}.}
 }
 \value{
-An array containing the SSB (time x species)
+An array (time x species) containing the SSB in grams.
 }
 \description{
 Calculates the spawning stock biomass (SSB) through time of the species in

@@ -134,7 +134,7 @@ newCommunityParams <- function(max_w = 1e6,
     return(params)
 }
 
-#' Set up parameters for a trait-based model
+#' Set up parameters for a trait-based multispecies model
 #' 
 #' This functions creates a `MizerParams` object describing a trait-based
 #' model. This is a simplification of the general size-based model used in
@@ -219,7 +219,7 @@ newCommunityParams <- function(max_w = 1e6,
 #' @param lambda Exponent of the abundance power law.
 #' @param r_pp Growth rate parameter for the resource spectrum.
 #' @param kappa Coefficient in abundance power law.
-#' @param alpha The assimilation efficiency of the community.
+#' @param alpha The assimilation efficiency.
 #' @param ks Standard metabolism coefficient. If not provided, default will be
 #'   calculated from critical feeding level argument `fc`.
 #' @param fc Critical feeding level. Used to determine `ks` if it is not given
@@ -553,21 +553,9 @@ newTraitParams <- function(no_sp = 11,
     }
     
     
-    ## Set erepro to meet boundary condition ----
-    rdi <- getRDI(params)
-    gg <- getEGrowth(params)
-    mumu <- getMort(params)
-    erepro_final <- 1:no_sp  # set up vector of right dimension
-    for (i in (1:no_sp)) {
-        gg0 <- gg[i, params@w_min_idx[i]]
-        mumu0 <- mumu[i, params@w_min_idx[i]]
-        DW <- params@dw[params@w_min_idx[i]]
-        erepro_final[i] <- erepro * 
-            (initial_n[i, params@w_min_idx[i]] *
-                 (gg0 + DW * mumu0)) / rdi[i]
-    }
-    params@species_params$erepro <- erepro_final
-    
+    ## Set reproduction to meet boundary condition ----
+    params@species_params$erepro <- params@species_params$erepro *
+        get_required_reproduction(params) / getRDI(params) 
     params <- setBevertonHolt(params, R_factor = R_factor)
 
     return(params)
@@ -575,7 +563,7 @@ newTraitParams <- function(no_sp = 11,
 
 
 # Helper function to calculate the coefficient of the death rate created by
-# a Sheldon spectrum of predators, assuming they have the same predation 
+# a power-law spectrum of predators, assuming they have the same predation 
 # parameters as the first species.
 get_power_law_mort <- function(params) {
     params@interaction[] <- 0
