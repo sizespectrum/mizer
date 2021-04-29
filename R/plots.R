@@ -249,7 +249,7 @@ plotBiomass <- function(sim, species = NULL,
     p <- p + scale_size_manual(values = linesize) +
         geom_line(aes(colour = Species, linetype = Species, size = Species))
     
-   if(return_data) return(list(spec_bm, back_bm)) else return(p)
+   if (return_data) return(list(spec_bm, back_bm)) else return(p)
 }
 
 #' @rdname plotBiomass
@@ -340,7 +340,7 @@ plotYield <- function(sim, sim2,
             scale_colour_manual(values = sim@params@linecolour) +
             scale_linetype_manual(values = sim@params@linetype) +
             scale_size_manual(values = linesize)
-     if(return_data) return(ym) else return(p)
+     if (return_data) return(ym) else return(p)
     } else {
         if (!all(dimnames(sim@n)$time == dimnames(sim2@n)$time)) {
             stop("The two simulations do not have the same times")
@@ -378,7 +378,7 @@ plotYield <- function(sim, sim2,
             p <- p + scale_y_continuous(name = "Yield [g/year]")
         }
         p <- p + facet_wrap(~ Simulation)
-        if(return_data) return(ym) else return(p)
+        if (return_data) return(ym) else return(p)
     }
 }
 
@@ -452,7 +452,7 @@ plotYieldGear <- function(sim,
         scale_x_continuous(name = "Year") +
         scale_colour_manual(values = sim@params@linecolour) +
         scale_size_manual(values = linesize)
-    if(return_data) return(ym) else return(p)
+    if (return_data) return(ym) else return(p)
 }
 
 #' @rdname plotYieldGear
@@ -666,7 +666,7 @@ plot_spectra <- function(params, n, n_pp,
     linesize[highlight] <- 1.6
     p <- p + scale_size_manual(values = linesize) + 
         geom_line(aes(colour = Species, linetype = Species, size = Species))
-    if(return_data) return(list(plot_dat, plot_back)) else return(p)
+    if (return_data) return(list(plot_dat, plot_back)) else return(p)
 }
 
 #' @rdname plotSpectra
@@ -804,7 +804,7 @@ plotFeedingLevel <- function(object, species = NULL,
         scale_linetype_manual(values = params@linetype) +
         scale_size_manual(values = linesize)
     
-    if(return_data) return(plot_dat) else return(p)
+    if (return_data) return(plot_dat) else return(p)
 }
 
 #' @rdname plotFeedingLevel
@@ -895,7 +895,7 @@ plotPredMort <- function(object, species = NULL,
         scale_colour_manual(values = params@linecolour) +
         scale_linetype_manual(values = params@linetype) +
         scale_size_manual(values = linesize)
-    if(return_data) return(plot_dat) else return(p)
+    if (return_data) return(plot_dat) else return(p)
 }
 
 #' Alias for plotPredMort
@@ -992,7 +992,7 @@ plotFMort <- function(object, species = NULL,
         scale_linetype_manual(values = params@linetype) + 
         scale_size_manual(values = linesize)
     
-    if(return_data) return(plot_dat) else return(p)
+    if (return_data) return(plot_dat) else return(p)
     
 }
 
@@ -1131,7 +1131,7 @@ plotGrowthCurves <- function(object, species = NULL,
             
         }
     }
-    if(return_data) return(plot_dat) else return(p)
+    if (return_data) return(plot_dat) else return(p)
     
 }
 
@@ -1173,7 +1173,7 @@ plotDiet <- function(object, species = NULL, return_data = FALSE) {
         labs(x = "Size [g]") +
         scale_fill_manual(values = params@linecolour)
     
-    if(return_data) return(plot_dat) else return(p)
+    if (return_data) return(plot_dat) else return(p)
     
 }
 
