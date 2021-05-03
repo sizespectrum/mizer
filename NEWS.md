@@ -15,6 +15,8 @@
 * The `gamma` argument now is no longer ignored in `newTraitParams()` but
   correctly overrides the `f0` argument. #188
 * `getFMort()` again works correctly when called with a MizerSim object.
+* `resource_semichemostat()` no longer fail when at some sizes both the 
+  resource growth rate and the resource mortality rate are both zero.
 
 # mizer 2.1.0
 

@@ -37,8 +37,22 @@
 resource_semichemostat <- function(params, n, n_pp, n_other, rates, t, dt, ...) {
     # We use the exact solution under the assumption of constant mortality 
     # during timestep
-    tmp <- params@rr_pp * params@cc_pp / (params@rr_pp + rates$resource_mort)
-    return(tmp - (tmp - n_pp) * exp(-(params@rr_pp + rates$resource_mort) * dt))
+    mur <- params@rr_pp + rates$resource_mort
+    n_steady <- params@rr_pp * params@cc_pp / mur
+    n_pp_new <- n_steady + (n_pp - n_steady) * exp(-mur * dt)
+    
+    # Here is an alternative expression that looks as if it might be more
+    # precise when the sum of the rates is small due to the use of expm1.
+    # However the above has the advantage of preserving the steady state
+    # n_steady exactly.
+    # n_pp_new <- n_pp * exp(-mur * dt) + n_steady * expm1(-mur * dt)
+    
+    # if growth rate and death rate are zero then the above would give NaN
+    # whereas the value should simply not change
+    sel <- mur == 0
+    n_pp_new[sel] <- n_pp[sel]
+    
+    n_pp_new
 }
 
 
