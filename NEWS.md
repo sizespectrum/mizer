@@ -10,8 +10,14 @@
   now take any form, they no longer have to be a named list.
 * New argument `return_data` in the plot's functions allows to return the 
   data frame used for the ggplot instead of the plot.
+  
+## Breaking changes
+
+* `steady()` no longer switches off the Beverton-Holt density dependence.
+  You can do this manually with `setBevertonHolt()` with `R_factor = Inf`.
 
 ## Bug fixes
+
 * The `gamma` argument now is no longer ignored in `newTraitParams()` but
   correctly overrides the `f0` argument. #188
 * `getFMort()` again works correctly when called with a MizerSim object.
