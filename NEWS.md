@@ -4,7 +4,7 @@
 
 * New function `newSingleSpeciesParams()` for creating a single species in a 
   power-law background.
-* New function `animateSpectra()' creating an animated plot of a simulation.
+* New function `animateSpectra()` creating an animated plot of a simulation.
 * New functions `addSpecies()`, `removeSpecies()` and `renameSpecies()`.
 * The parameters for an ecosystem component added with `setComponent()` can
   now take any form, they no longer have to be a named list.
@@ -17,6 +17,7 @@
 * `getFMort()` again works correctly when called with a MizerSim object.
 * `resource_semichemostat()` no longer fail when at some sizes both the 
   resource growth rate and the resource mortality rate are both zero.
+* The default for `no_w` in `newTraitParams()` is now always an integer.
 
 # mizer 2.1.0
 
