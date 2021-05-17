@@ -349,13 +349,20 @@ valid_species_arg <- function(object, species = NULL, return.logical = FALSE) {
     } else {
         stop("The first argument must be a MizerSim or MizerParams object.")
     }
-    # Set species if missing to list of all non-background species
-    if (is.null(species)) {
-        species <- dimnames(params@initial_n)$sp[!is.na(params@A)]
-    }
     assert_that(is.logical(return.logical))
     all_species <- dimnames(params@initial_n)$sp
     no_sp <- nrow(params@species_params)
+    # Set species if missing to list of all non-background species
+    if (is.null(species)) {
+        species <- dimnames(params@initial_n)$sp[!is.na(params@A)]
+        if (length(species) == 0) {  # There are no non-background species.
+            if (return.logical) {
+                return(rep(FALSE, no_sp))
+            } else {
+                return(NULL)
+            }
+        }
+    }
     if (is.logical(species)) {
         if (length(species) != no_sp) {
             stop("The boolean `species` argument has the wrong length")
