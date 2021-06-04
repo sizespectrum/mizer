@@ -24,6 +24,9 @@
 * `resource_semichemostat()` no longer fail when at some sizes both the 
   resource growth rate and the resource mortality rate are both zero.
 * The default for `no_w` in `newTraitParams()` is now always an integer.
+* Problems with different machine precision no longer prompts the error
+  "The `w_min_idx` should point to the start of the size bin containing 
+  the egg size `w_min`".
 
 # mizer 2.1.0
 

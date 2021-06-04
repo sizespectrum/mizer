@@ -49,14 +49,13 @@ validMizerParams <- function(object) {
         errors <- c(errors, msg)
     }
     # Check w_min_idx
-    # The following does not work on all machines, e.g. Macs.
-    # if (any(object@species_params$w_min + .Machine$double.eps <
-    #         object@w[object@w_min_idx]) ||
-    #     any(object@species_params$w_min - .Machine$double.eps >
-    #         object@w[object@w_min_idx + 1])) {
-    #     msg <- "The `w_min_idx` should point to the start of the size bin containing the egg size `w_min`."
-    #     errors <- c(errors, msg)
-    # }
+    if (any(object@species_params$w_min + .Machine$double.eps <
+            object@w[object@w_min_idx]) ||
+        any(object@species_params$w_min - .Machine$double.eps >
+            object@w[object@w_min_idx + 1])) {
+        msg <- "The `w_min_idx` should point to the start of the size bin containing the egg size `w_min`."
+        errors <- c(errors, msg)
+    }
 
     # Check the array dimensions are good ----
     # Bit tricky this one as I don't know of a way to compare lots of vectors 
