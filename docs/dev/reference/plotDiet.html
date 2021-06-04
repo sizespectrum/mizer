@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Plot diet — plotDiet • mizer</title>
+<title>Plot diet, resolved by prey species, as function of predator at size. — plotDiet • mizer</title>
 
 
 <!-- jquery -->
@@ -45,11 +45,16 @@
 
 
 
-<meta property="og:title" content="Plot diet — plotDiet" />
-<meta property="og:description" content="" />
+<meta property="og:title" content="Plot diet, resolved by prey species, as function of predator at size. — plotDiet" />
+<meta property="og:description" content="
+Plots the proportions with which each prey species contributes to the total
+biomass consumed by the specified predator species, as a function of the
+predator's size. These proportions are obtained with getDiet()." />
 
 
 <meta name="robots" content="noindex">
+
+
 
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
@@ -62,9 +67,18 @@
 
 
 
+<!-- dependencies from examples -->
+
+
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -85,12 +99,6 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/mizer.html">Get started</a>
 </li>
 <li>
@@ -103,6 +111,9 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    </li>
     <li>
       <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
@@ -176,16 +187,19 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Plot diet</h1>
+    <h1>Plot diet, resolved by prey species, as function of predator at size.</h1>
     <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/plots.R'><code>R/plots.R</code></a></small>
     <div class="hidden name"><code>plotDiet.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a></p>
+    <p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+Plots the proportions with which each prey species contributes to the total
+biomass consumed by the specified predator species, as a function of the
+predator's size. These proportions are obtained with <code><a href='getDiet.html'>getDiet()</a></code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotDiet</span><span class='op'>(</span><span class='va'>object</span>, species <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>plotDiet</span><span class='op'>(</span><span class='va'>object</span>, species <span class='op'>=</span> <span class='cn'>NULL</span>, return_data <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -197,10 +211,12 @@
     </tr>
     <tr>
       <th>species</th>
-      <td><p>The species to be selected. Optional. By default all target
-species are selected. A vector of species names, or a
-numeric vector with the species indices, or a logical vector indicating for
-each species whether it is to be selected (TRUE) or not.</p></td>
+      <td><p>The name of the predator species for which to plot the diet.</p></td>
+    </tr>
+    <tr>
+      <th>return_data</th>
+      <td><p>A boolean value that determines whether the formated data
+used for the plot is returned instead of the plot itself. Default value is FALSE</p></td>
     </tr>
     </table>
 
@@ -209,9 +225,10 @@ each species whether it is to be selected (TRUE) or not.</p></td>
     <p>A ggplot2 object</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other plotting functions: 
+    <div class='dont-index'><p><code><a href='getDiet.html'>getDiet()</a></code></p>
+<p>Other plotting functions: 
 <code><a href='animateSpectra.html'>animateSpectra</a>()</code>,
-<code><a href='plot,MizerSim,missing-method.html'>plot,MizerSim,missing-method</a></code>,
+<code><a href='plotMizerSim.html'>plot,MizerSim,missing-method</a></code>,
 <code><a href='plotBiomass.html'>plotBiomass</a>()</code>,
 <code><a href='plotFMort.html'>plotFMort</a>()</code>,
 <code><a href='plotFeedingLevel.html'>plotFeedingLevel</a>()</code>,
@@ -222,6 +239,18 @@ each species whether it is to be selected (TRUE) or not.</p></td>
 <code><a href='plotYield.html'>plotYield</a>()</code>,
 <code><a href='plotting_functions.html'>plotting_functions</a></code></p></div>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
+<span class='fu'>plotDiet</span><span class='op'>(</span><span class='va'>NS_params</span>, species <span class='op'>=</span> <span class='st'>"Cod"</span><span class='op'>)</span>
+</div><div class='img'><img src='plotDiet-1.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='co'># Returning the data frame</span>
+<span class='va'>fr</span> <span class='op'>&lt;-</span> <span class='fu'>plotDiet</span><span class='op'>(</span><span class='va'>NS_params</span>, species <span class='op'>=</span> <span class='st'>"Cod"</span>, return_data <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='op'>(</span><span class='va'>fr</span><span class='op'>)</span>
+</div><div class='co'>#&gt; 'data.frame':	1300 obs. of  3 variables:
+#&gt;  $ Proportion: num  7.21e-18 6.95e-09 1.97e-08 4.17e-08 7.79e-08 ...
+#&gt;  $ w         : num  0.001 0.00119 0.00142 0.0017 0.00203 ...
+#&gt;  $ Prey      : Factor w/ 13 levels "Resource","Saithe",..: 13 13 13 13 13 13 13 13 13 13 ...</div><div class='input'><span class='co'># }</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -233,11 +262,11 @@ each species whether it is to be selected (TRUE) or not.</p></td>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
+  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
 </div>
 
       </footer>
@@ -262,6 +291,8 @@ each species whether it is to be selected (TRUE) or not.</p></td>
 </script>
 
 
+
+  
 
   </body>
 </html>

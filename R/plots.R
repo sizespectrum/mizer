@@ -1147,15 +1147,28 @@ plotlyGrowthCurves <- function(object, species = NULL,
 }
 
 
-#' Plot diet
+#' Plot diet, resolved by prey species, as function of predator at size.
 #' 
 #' `r lifecycle::badge("experimental")`
+#' Plots the proportions with which each prey species contributes to the total
+#' biomass consumed by the specified predator species, as a function of the
+#' predator's size. These proportions are obtained with `getDiet()`.
 #' 
 #' @inheritParams plotSpectra
+#' @param species The name of the predator species for which to plot the diet.
 #'
 #' @return A ggplot2 object
 #' @export
+#' @seealso [getDiet()]
 #' @family plotting functions
+#' @examples 
+#' \donttest{
+#' plotDiet(NS_params, species = "Cod")
+#' 
+#' # Returning the data frame
+#' fr <- plotDiet(NS_params, species = "Cod", return_data = TRUE)
+#' str(fr)
+#' }
 plotDiet <- function(object, species = NULL, return_data = FALSE) {
     params <- validParams(object)
     species <- valid_species_arg(object, species, return.logical = TRUE)
