@@ -2,7 +2,7 @@
 % Please edit documentation in R/rate_functions.R
 \name{getM2Background}
 \alias{getM2Background}
-\title{Alias for getResourceMort}
+\title{Alias for \code{getResourceMort()}}
 \usage{
 getM2Background(
   params,

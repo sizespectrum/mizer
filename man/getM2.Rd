@@ -2,7 +2,7 @@
 % Please edit documentation in R/rate_functions.R
 \name{getM2}
 \alias{getM2}
-\title{Alias for getPredMort}
+\title{Alias for \code{getPredMort()}}
 \usage{
 getM2(object, n, n_pp, n_other, time_range, drop = TRUE, ...)
 }

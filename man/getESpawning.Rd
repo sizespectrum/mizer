@@ -2,7 +2,7 @@
 % Please edit documentation in R/rate_functions.R
 \name{getESpawning}
 \alias{getESpawning}
-\title{Alias for getERepro}
+\title{Alias for \code{getERepro()}}
 \usage{
 getESpawning(
   params,

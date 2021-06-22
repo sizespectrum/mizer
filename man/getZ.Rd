@@ -2,7 +2,7 @@
 % Please edit documentation in R/rate_functions.R
 \name{getZ}
 \alias{getZ}
-\title{Alias for getMort}
+\title{Alias for \code{getMort()}}
 \usage{
 getZ(
   params,

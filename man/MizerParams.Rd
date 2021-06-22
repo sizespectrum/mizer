@@ -2,7 +2,7 @@
 % Please edit documentation in R/deprecated.R
 \name{MizerParams}
 \alias{MizerParams}
-\title{Alias for set_multispecies_model}
+\title{Alias for \code{set_multispecies_model()}}
 \usage{
 MizerParams(
   species_params,
