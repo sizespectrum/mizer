@@ -111,7 +111,7 @@ set_multispecies_model <-
                                  ...))
 }
 
-#' Alias for set_multispecies_model
+#' Alias for `set_multispecies_model()`
 #' 
 #' `r lifecycle::badge("deprecated")`
 #' An alias provided for backward compatibility with mizer version <= 1.0
