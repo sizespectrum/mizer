@@ -2,7 +2,7 @@
 % Please edit documentation in R/wrapper_functions.R
 \name{newTraitParams}
 \alias{newTraitParams}
-\title{Set up parameters for a trait-based model}
+\title{Set up parameters for a trait-based multispecies model}
 \usage{
 newTraitParams(
   no_sp = 11,
@@ -12,7 +12,7 @@ newTraitParams(
   max_w = max_w_inf,
   eta = 10^(-0.6),
   min_w_mat = min_w_inf * eta,
-  no_w = log10(max_w_inf/min_w) * 20 + 1,
+  no_w = round(log10(max_w_inf/min_w) * 20 + 1),
   min_w_pp = 1e-10,
   w_pp_cutoff = min_w_mat,
   n = 2/3,
@@ -81,7 +81,7 @@ equal to the exponent \code{n}.}
 
 \item{kappa}{Coefficient in abundance power law.}
 
-\item{alpha}{The assimilation efficiency of the community.}
+\item{alpha}{The assimilation efficiency.}
 
 \item{h}{Maximum food intake rate.}
 
@@ -203,6 +203,7 @@ plotSpectra(sim)
 \seealso{
 Other functions for setting up models: 
 \code{\link{newCommunityParams}()},
-\code{\link{newMultispeciesParams}()}
+\code{\link{newMultispeciesParams}()},
+\code{\link{newSingleSpeciesParams}()}
 }
 \concept{functions for setting up models}

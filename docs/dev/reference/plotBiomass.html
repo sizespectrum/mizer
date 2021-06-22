@@ -53,6 +53,8 @@ against time. The biomass is calculated within user defined size limits
 
 <meta name="robots" content="noindex">
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -64,9 +66,15 @@ against time. The biomass is calculated within user defined size limits
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -87,24 +95,18 @@ against time. The biomass is calculated within user defined size limits
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/mizer.html">Get started</a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Tutorials
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    </li>
     <li>
       <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
@@ -144,6 +146,9 @@ against time. The biomass is calculated within user defined size limits
       <a href="../articles/editing_website.html">Editing the Mizer Website</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../reference/index.html">Reference</a>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
@@ -189,7 +194,7 @@ against time. The biomass is calculated within user defined size limits
 (min_w, max_w, min_l, max_l, see <code><a href='getBiomass.html'>getBiomass()</a></code>).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotBiomass</span><span class='op'>(</span>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>plotBiomass</span><span class='op'>(</span>
   <span class='va'>sim</span>,
   species <span class='op'>=</span> <span class='cn'>NULL</span>,
   <span class='va'>start_time</span>,
@@ -199,6 +204,7 @@ against time. The biomass is calculated within user defined size limits
   total <span class='op'>=</span> <span class='cn'>FALSE</span>,
   background <span class='op'>=</span> <span class='cn'>TRUE</span>,
   highlight <span class='op'>=</span> <span class='cn'>NULL</span>,
+  return_data <span class='op'>=</span> <span class='cn'>FALSE</span>,
   <span class='va'>...</span>
 <span class='op'>)</span>
 
@@ -213,7 +219,7 @@ against time. The biomass is calculated within user defined size limits
   background <span class='op'>=</span> <span class='cn'>TRUE</span>,
   highlight <span class='op'>=</span> <span class='cn'>NULL</span>,
   <span class='va'>...</span>
-<span class='op'>)</span></pre>
+<span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -265,6 +271,11 @@ Default is TRUE.</p></td>
       <td><p>Name or vector of names of the species to be highlighted.</p></td>
     </tr>
     <tr>
+      <th>return_data</th>
+      <td><p>A boolean value that determines whether the formated data
+used for the plot is returned instead of the plot itself. Default value is FALSE</p></td>
+    </tr>
+    <tr>
       <th>...</th>
       <td><p>Arguments passed on to <code><a href='get_size_range_array.html'>get_size_range_array</a></code></p><dl>
     <dt><code>min_w</code></dt><dd><p>Smallest weight in size range. Defaults to smallest weight in
@@ -288,7 +299,7 @@ over <code>max_w</code>.</p></dd>
     <div class='dont-index'><p><a href='plotting_functions.html'>plotting_functions</a>, <code><a href='getBiomass.html'>getBiomass()</a></code></p>
 <p>Other plotting functions: 
 <code><a href='animateSpectra.html'>animateSpectra</a>()</code>,
-<code><a href='plot,MizerSim,missing-method.html'>plot,MizerSim,missing-method</a></code>,
+<code><a href='plotMizerSim.html'>plot,MizerSim,missing-method</a></code>,
 <code><a href='plotDiet.html'>plotDiet</a>()</code>,
 <code><a href='plotFMort.html'>plotFMort</a>()</code>,
 <code><a href='plotFeedingLevel.html'>plotFeedingLevel</a>()</code>,
@@ -300,18 +311,367 @@ over <code>max_w</code>.</p></dd>
 <code><a href='plotting_functions.html'>plotting_functions</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='co'># Set up example MizerParams and MizerSim objects</span>
-<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span><span class='op'>(</span><span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span><span class='op'>)</span>
-<span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort <span class='op'>=</span> <span class='fl'>1</span>, t_max <span class='op'>=</span> <span class='fl'>20</span>, t_save <span class='op'>=</span> <span class='fl'>0.2</span>, progress_bar <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
-
-<span class='fu'>plotBiomass</span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span>
-</div><div class='img'><img src='plotBiomass-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>plotBiomass</span><span class='op'>(</span><span class='va'>sim</span>, species <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Cod"</span>, <span class='st'>"Haddock"</span><span class='op'>)</span>, total <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
-</div><div class='img'><img src='plotBiomass-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>plotBiomass</span><span class='op'>(</span><span class='va'>sim</span>, min_w <span class='op'>=</span> <span class='fl'>10</span>, max_w <span class='op'>=</span> <span class='fl'>1000</span><span class='op'>)</span>
-</div><div class='img'><img src='plotBiomass-3.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>plotBiomass</span><span class='op'>(</span><span class='va'>sim</span>, start_time <span class='op'>=</span> <span class='fl'>10</span>, end_time <span class='op'>=</span> <span class='fl'>15</span><span class='op'>)</span>
-</div><div class='img'><img src='plotBiomass-4.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>plotBiomass</span><span class='op'>(</span><span class='va'>sim</span>, y_ticks <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span>
-</div><div class='img'><img src='plotBiomass-5.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span>
-</div></pre>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='co'># \donttest{</span></span>
+<span class='r-in'><span class='co'># Set up example MizerParams and MizerSim objects</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span><span class='op'>(</span><span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort <span class='op'>=</span> <span class='fl'>1</span>, t_max <span class='op'>=</span> <span class='fl'>20</span>, t_save <span class='op'>=</span> <span class='fl'>0.2</span>, progress_bar <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='fu'>plotBiomass</span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span></span>
+<span class='r-plt'><img src='plotBiomass-1.png' alt='' width='700' height='433' /></span>
+<span class='r-in'><span class='fu'>plotBiomass</span><span class='op'>(</span><span class='va'>sim</span>, species <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Cod"</span>, <span class='st'>"Haddock"</span><span class='op'>)</span>, total <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-plt'><img src='plotBiomass-2.png' alt='' width='700' height='433' /></span>
+<span class='r-in'><span class='fu'>plotBiomass</span><span class='op'>(</span><span class='va'>sim</span>, min_w <span class='op'>=</span> <span class='fl'>10</span>, max_w <span class='op'>=</span> <span class='fl'>1000</span><span class='op'>)</span></span>
+<span class='r-plt'><img src='plotBiomass-3.png' alt='' width='700' height='433' /></span>
+<span class='r-in'><span class='fu'>plotBiomass</span><span class='op'>(</span><span class='va'>sim</span>, start_time <span class='op'>=</span> <span class='fl'>10</span>, end_time <span class='op'>=</span> <span class='fl'>15</span><span class='op'>)</span></span>
+<span class='r-plt'><img src='plotBiomass-4.png' alt='' width='700' height='433' /></span>
+<span class='r-in'><span class='fu'>plotBiomass</span><span class='op'>(</span><span class='va'>sim</span>, y_ticks <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span></span>
+<span class='r-plt'><img src='plotBiomass-5.png' alt='' width='700' height='433' /></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Returning the data frame</span></span>
+<span class='r-in'><span class='fu'>plotBiomass</span><span class='op'>(</span><span class='va'>sim</span>, return_data <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [[1]]</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     Year Species      Biomass</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 1    0.0   Sprat 8.767492e+07</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 2    0.2   Sprat 3.502008e+08</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 3    0.4   Sprat 1.501717e+09</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 4    0.6   Sprat 4.346333e+09</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 5    0.8   Sprat 9.446213e+09</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 6    1.0   Sprat 1.645853e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 7    1.2   Sprat 2.455517e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 8    1.4   Sprat 3.345340e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 9    1.6   Sprat 4.314322e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 10   1.8   Sprat 5.353666e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 11   2.0   Sprat 6.478296e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 12   2.2   Sprat 7.751637e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 13   2.4   Sprat 9.272893e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 14   2.6   Sprat 1.114899e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 15   2.8   Sprat 1.346865e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 16   3.0   Sprat 1.628056e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 17   3.2   Sprat 1.957565e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 18   3.4   Sprat 2.327708e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 19   3.6   Sprat 2.724173e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 20   3.8   Sprat 3.127349e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 21   4.0   Sprat 3.514934e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 22   4.2   Sprat 3.865881e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 23   4.4   Sprat 4.164373e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 24   4.6   Sprat 4.401411e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 25   4.8   Sprat 4.573114e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 26   5.0   Sprat 4.677534e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 27   5.2   Sprat 4.712673e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 28   5.4   Sprat 4.676975e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 29   5.6   Sprat 4.571630e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 30   5.8   Sprat 4.402931e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 31   6.0   Sprat 4.183177e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 32   6.2   Sprat 3.929590e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 33   6.4   Sprat 3.661710e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 34   6.6   Sprat 3.398267e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 35   6.8   Sprat 3.154436e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 36   7.0   Sprat 2.940055e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 37   7.2   Sprat 2.758982e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 38   7.4   Sprat 2.609490e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 39   7.6   Sprat 2.485526e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 40   7.8   Sprat 2.378549e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 41   8.0   Sprat 2.279572e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 42   8.2   Sprat 2.180980e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 43   8.4   Sprat 2.077724e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 44   8.6   Sprat 1.967759e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 45   8.8   Sprat 1.851765e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 46   9.0   Sprat 1.732416e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 47   9.2   Sprat 1.613434e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 48   9.4   Sprat 1.498691e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 49   9.6   Sprat 1.391490e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 50   9.8   Sprat 1.294119e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 51  10.0   Sprat 1.207691e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 52  10.2   Sprat 1.132205e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 53  10.4   Sprat 1.066782e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 54  10.6   Sprat 1.009967e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 55  10.8   Sprat 9.600570e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 56  11.0   Sprat 9.153726e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 57  11.2   Sprat 8.744689e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 58  11.4   Sprat 8.362541e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 59  11.6   Sprat 8.000293e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 60  11.8   Sprat 7.654617e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 61  12.0   Sprat 7.325153e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 62  12.2   Sprat 7.013602e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 63  12.4   Sprat 6.722770e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 64  12.6   Sprat 6.455703e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 65  12.8   Sprat 6.214960e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 66  13.0   Sprat 6.002103e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 67  13.2   Sprat 5.817420e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 68  13.4   Sprat 5.659877e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 69  13.6   Sprat 5.527257e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 70  13.8   Sprat 5.416453e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 71  14.0   Sprat 5.323816e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 72  14.2   Sprat 5.245533e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 73  14.4   Sprat 5.177960e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 74  14.6   Sprat 5.117892e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 75  14.8   Sprat 5.062753e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 76  15.0   Sprat 5.010695e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 77  15.2   Sprat 4.960603e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 78  15.4   Sprat 4.912028e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 79  15.6   Sprat 4.865062e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 80  15.8   Sprat 4.820170e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 81  16.0   Sprat 4.778010e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 82  16.2   Sprat 4.739262e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 83  16.4   Sprat 4.704491e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 84  16.6   Sprat 4.674048e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 85  16.8   Sprat 4.648021e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 86  17.0   Sprat 4.626233e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 87  17.2   Sprat 4.608275e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 88  17.4   Sprat 4.593567e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 89  17.6   Sprat 4.581437e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 90  17.8   Sprat 4.571195e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 91  18.0   Sprat 4.562205e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 92  18.2   Sprat 4.553938e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 93  18.4   Sprat 4.546007e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 94  18.6   Sprat 4.538177e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 95  18.8   Sprat 4.530361e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 96  19.0   Sprat 4.522593e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 97  19.2   Sprat 4.514998e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 98  19.4   Sprat 4.507750e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 99  19.6   Sprat 4.501032e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 100 19.8   Sprat 4.495004e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 101 20.0   Sprat 4.489781e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 102  0.0 Sandeel 9.535034e+07</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 103  0.2 Sandeel 3.735250e+09</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 104  0.4 Sandeel 2.886999e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 105  0.6 Sandeel 1.083115e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 106  0.8 Sandeel 2.581831e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 107  1.0 Sandeel 4.470707e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 108  1.2 Sandeel 6.141441e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 109  1.4 Sandeel 7.221404e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 110  1.6 Sandeel 7.710497e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 111  1.8 Sandeel 7.776939e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 112  2.0 Sandeel 7.607414e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 113  2.2 Sandeel 7.358146e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 114  2.4 Sandeel 7.143197e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 115  2.6 Sandeel 7.035490e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 116  2.8 Sandeel 7.072774e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 117  3.0 Sandeel 7.264338e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 118  3.2 Sandeel 7.597567e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 119  3.4 Sandeel 8.045098e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 120  3.6 Sandeel 8.572352e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 121  3.8 Sandeel 9.143792e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 122  4.0 Sandeel 9.727039e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 123  4.2 Sandeel 1.029605e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 124  4.4 Sandeel 1.083382e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 125  4.6 Sandeel 1.133246e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 126  4.8 Sandeel 1.178907e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 127  5.0 Sandeel 1.219960e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 128  5.2 Sandeel 1.255498e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 129  5.4 Sandeel 1.284168e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 130  5.6 Sandeel 1.304605e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 131  5.8 Sandeel 1.315938e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 132  6.0 Sandeel 1.318130e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 133  6.2 Sandeel 1.312067e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 134  6.4 Sandeel 1.299416e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 135  6.6 Sandeel 1.282342e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 136  6.8 Sandeel 1.263171e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 137  7.0 Sandeel 1.244047e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 138  7.2 Sandeel 1.226646e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 139  7.4 Sandeel 1.211989e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 140  7.6 Sandeel 1.200402e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 141  7.8 Sandeel 1.191616e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 142  8.0 Sandeel 1.184975e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 143  8.2 Sandeel 1.179674e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 144  8.4 Sandeel 1.174967e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 145  8.6 Sandeel 1.170285e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 146  8.8 Sandeel 1.165261e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 147  9.0 Sandeel 1.159700e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 148  9.2 Sandeel 1.153525e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 149  9.4 Sandeel 1.146724e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 150  9.6 Sandeel 1.139326e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 151  9.8 Sandeel 1.131386e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 152 10.0 Sandeel 1.122986e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 153 10.2 Sandeel 1.114241e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 154 10.4 Sandeel 1.105300e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 155 10.6 Sandeel 1.096338e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 156 10.8 Sandeel 1.087543e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 157 11.0 Sandeel 1.079102e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 158 11.2 Sandeel 1.071178e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 159 11.4 Sandeel 1.063897e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 160 11.6 Sandeel 1.057333e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 161 11.8 Sandeel 1.051501e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 162 12.0 Sandeel 1.046359e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 163 12.2 Sandeel 1.041817e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 164 12.4 Sandeel 1.037753e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 165 12.6 Sandeel 1.034039e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 166 12.8 Sandeel 1.030558e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 167 13.0 Sandeel 1.027223e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 168 13.2 Sandeel 1.023989e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 169 13.4 Sandeel 1.020846e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 170 13.6 Sandeel 1.017818e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 171 13.8 Sandeel 1.014951e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 172 14.0 Sandeel 1.012298e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 173 14.2 Sandeel 1.009907e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 174 14.4 Sandeel 1.007816e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 175 14.6 Sandeel 1.006040e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 176 14.8 Sandeel 1.004572e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 177 15.0 Sandeel 1.003385e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 178 15.2 Sandeel 1.002437e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 179 15.4 Sandeel 1.001676e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 180 15.6 Sandeel 1.001046e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 181 15.8 Sandeel 1.000496e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 182 16.0 Sandeel 9.999835e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 183 16.2 Sandeel 9.994772e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 184 16.4 Sandeel 9.989599e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 185 16.6 Sandeel 9.984267e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 186 16.8 Sandeel 9.978836e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 187 17.0 Sandeel 9.973441e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 188 17.2 Sandeel 9.968257e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 189 17.4 Sandeel 9.963465e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 190 17.6 Sandeel 9.959221e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 191 17.8 Sandeel 9.955636e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 192 18.0 Sandeel 9.952761e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 193 18.2 Sandeel 9.950587e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 194 18.4 Sandeel 9.949049e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 195 18.6 Sandeel 9.948038e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 196 18.8 Sandeel 9.947421e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 197 19.0 Sandeel 9.947051e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 198 19.2 Sandeel 9.946794e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 199 19.4 Sandeel 9.946533e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 200 19.6 Sandeel 9.946185e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 201 19.8 Sandeel 9.945700e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 202 20.0 Sandeel 9.945065e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 203  0.0  N.pout 9.414533e+07</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 204  0.2  N.pout 3.454814e+09</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 205  0.4  N.pout 2.477575e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 206  0.6  N.pout 1.413079e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 207  0.8  N.pout 4.780190e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 208  1.0  N.pout 7.462550e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 209  1.2  N.pout 7.583940e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 210  1.4  N.pout 6.429441e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 211  1.6  N.pout 5.043267e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 212  1.8  N.pout 3.833502e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 213  2.0  N.pout 2.921967e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 214  2.2  N.pout 2.313235e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 215  2.4  N.pout 1.964333e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 216  2.6  N.pout 1.819376e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 217  2.8  N.pout 1.821797e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 218  3.0  N.pout 1.915885e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 219  3.2  N.pout 2.050801e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 220  3.4  N.pout 2.192340e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 221  3.6  N.pout 2.330474e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 222  3.8  N.pout 2.467345e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 223  4.0  N.pout 2.599396e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 224  4.2  N.pout 2.718000e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 225  4.4  N.pout 2.821448e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 226  4.6  N.pout 2.917018e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 227  4.8  N.pout 3.011525e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 228  5.0  N.pout 3.102718e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 229  5.2  N.pout 3.179026e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 230  5.4  N.pout 3.226034e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 231  5.6  N.pout 3.233981e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 232  5.8  N.pout 3.201859e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 233  6.0  N.pout 3.137199e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 234  6.2  N.pout 3.053205e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 235  6.4  N.pout 2.965186e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 236  6.6  N.pout 2.887353e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 237  6.8  N.pout 2.830291e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 238  7.0  N.pout 2.799266e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 239  7.2  N.pout 2.793637e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 240  7.4  N.pout 2.807670e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 241  7.6  N.pout 2.832689e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 242  7.8  N.pout 2.859928e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 243  8.0  N.pout 2.882952e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 244  8.2  N.pout 2.898712e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 245  8.4  N.pout 2.907087e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 246  8.6  N.pout 2.909523e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 247  8.8  N.pout 2.907678e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 248  9.0  N.pout 2.902646e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 249  9.2  N.pout 2.894855e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 250  9.4  N.pout 2.884385e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 251  9.6  N.pout 2.871365e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 252  9.8  N.pout 2.856263e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 253 10.0  N.pout 2.839978e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 254 10.2  N.pout 2.823760e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 255 10.4  N.pout 2.809023e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 256 10.6  N.pout 2.797101e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 257 10.8  N.pout 2.789035e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 258 11.0  N.pout 2.785416e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 259 11.2  N.pout 2.786296e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 260 11.4  N.pout 2.791172e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 261 11.6  N.pout 2.799037e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 262 11.8  N.pout 2.808520e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 263 12.0  N.pout 2.818110e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 264 12.2  N.pout 2.826413e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 265 12.4  N.pout 2.832390e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 266 12.6  N.pout 2.835493e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 267 12.8  N.pout 2.835698e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 268 13.0  N.pout 2.833427e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 269 13.2  N.pout 2.829410e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 270 13.4  N.pout 2.824528e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 271 13.6  N.pout 2.819657e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 272 13.8  N.pout 2.815538e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 273 14.0  N.pout 2.812697e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 274 14.2  N.pout 2.811402e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 275 14.4  N.pout 2.811662e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 276 14.6  N.pout 2.813271e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 277 14.8  N.pout 2.815865e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 278 15.0  N.pout 2.818999e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 279 15.2  N.pout 2.822224e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 280 15.4  N.pout 2.825143e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 281 15.6  N.pout 2.827458e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 282 15.8  N.pout 2.828994e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 283 16.0  N.pout 2.829702e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 284 16.2  N.pout 2.829640e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 285 16.4  N.pout 2.828956e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 286 16.6  N.pout 2.827849e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 287 16.8  N.pout 2.826539e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 288 17.0  N.pout 2.825238e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 289 17.2  N.pout 2.824125e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 290 17.4  N.pout 2.823326e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 291 17.6  N.pout 2.822910e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 292 17.8  N.pout 2.822886e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 293 18.0  N.pout 2.823213e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 294 18.2  N.pout 2.823810e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 295 18.4  N.pout 2.824571e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 296 18.6  N.pout 2.825386e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 297 18.8  N.pout 2.826151e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 298 19.0  N.pout 2.826782e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 299 19.2  N.pout 2.827224e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 300 19.4  N.pout 2.827451e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 301 19.6  N.pout 2.827468e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 302 19.8  N.pout 2.827306e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 303 20.0  N.pout 2.827012e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 304  0.0 Herring 7.683387e+07</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 305  0.2 Herring 2.027814e+09</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 306  0.4 Herring 1.202983e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 307  0.6 Herring 4.054037e+10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 308  0.8 Herring 1.065599e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 309  1.0 Herring 2.179628e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 310  1.2 Herring 3.487090e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 311  1.4 Herring 4.747539e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 312  1.6 Herring 5.817668e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 313  1.8 Herring 6.569817e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 314  2.0 Herring 6.923794e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 315  2.2 Herring 6.890192e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 316  2.4 Herring 6.564345e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 317  2.6 Herring 6.087659e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 318  2.8 Herring 5.604286e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 319  3.0 Herring 5.228797e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 320  3.2 Herring 5.029115e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 321  3.4 Herring 5.023967e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 322  3.6 Herring 5.191424e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 323  3.8 Herring 5.483006e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 324  4.0 Herring 5.840044e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 325  4.2 Herring 6.212227e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 326  4.4 Herring 6.574428e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 327  4.6 Herring 6.932445e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 328  4.8 Herring 7.313164e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 329  5.0 Herring 7.745999e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 330  5.2 Herring 8.246853e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 331  5.4 Herring 8.810632e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 332  5.6 Herring 9.411510e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 333  5.8 Herring 1.000760e+12</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [ reached 'max' / getOption("max.print") -- omitted 879 rows ]</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [[2]]</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] Year    Species Biomass</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> &lt;0 rows&gt; (or 0-length row.names)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-in'><span class='co'># }</span></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -323,11 +683,11 @@ over <code>max_w</code>.</p></dd>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
+  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
 </div>
 
       </footer>
@@ -352,6 +712,8 @@ over <code>max_w</code>.</p></dd>
 </script>
 
 
+
+  
 
   </body>
 </html>

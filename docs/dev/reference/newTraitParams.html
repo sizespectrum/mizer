@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Set up parameters for a trait-based model — newTraitParams • mizer</title>
+<title>Set up parameters for a trait-based multispecies model — newTraitParams • mizer</title>
 
 
 <!-- jquery -->
@@ -45,7 +45,7 @@
 
 
 
-<meta property="og:title" content="Set up parameters for a trait-based model — newTraitParams" />
+<meta property="og:title" content="Set up parameters for a trait-based multispecies model — newTraitParams" />
 <meta property="og:description" content="This functions creates a MizerParams object describing a trait-based
 model. This is a simplification of the general size-based model used in
 mizer in which the species-specific parameters are the same for all
@@ -60,6 +60,8 @@ details and examples of the trait-based model." />
 
 <meta name="robots" content="noindex">
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -71,9 +73,15 @@ details and examples of the trait-based model." />
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -94,24 +102,18 @@ details and examples of the trait-based model." />
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/mizer.html">Get started</a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Tutorials
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    </li>
     <li>
       <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
@@ -153,6 +155,9 @@ details and examples of the trait-based model." />
   </ul>
 </li>
 <li>
+  <a href="../reference/index.html">Reference</a>
+</li>
+<li>
   <a href="../articles/publications.html">Publications</a>
 </li>
 <li>
@@ -185,7 +190,7 @@ details and examples of the trait-based model." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Set up parameters for a trait-based model</h1>
+    <h1>Set up parameters for a trait-based multispecies model</h1>
     <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/wrapper_functions.R'><code>R/wrapper_functions.R</code></a></small>
     <div class="hidden name"><code>newTraitParams.Rd</code></div>
     </div>
@@ -203,7 +208,7 @@ model see Andersen &amp; Pedersen (2010). See the <code>mizer</code> website for
 details and examples of the trait-based model.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>newTraitParams</span><span class='op'>(</span>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>newTraitParams</span><span class='op'>(</span>
   no_sp <span class='op'>=</span> <span class='fl'>11</span>,
   min_w_inf <span class='op'>=</span> <span class='fl'>10</span>,
   max_w_inf <span class='op'>=</span> <span class='fl'>10</span><span class='op'>^</span><span class='fl'>4</span>,
@@ -211,7 +216,7 @@ details and examples of the trait-based model.</p>
   max_w <span class='op'>=</span> <span class='va'>max_w_inf</span>,
   eta <span class='op'>=</span> <span class='fl'>10</span><span class='op'>^</span><span class='op'>(</span><span class='op'>-</span><span class='fl'>0.6</span><span class='op'>)</span>,
   min_w_mat <span class='op'>=</span> <span class='va'>min_w_inf</span> <span class='op'>*</span> <span class='va'>eta</span>,
-  no_w <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log10</a></span><span class='op'>(</span><span class='va'>max_w_inf</span><span class='op'>/</span><span class='va'>min_w</span><span class='op'>)</span> <span class='op'>*</span> <span class='fl'>20</span> <span class='op'>+</span> <span class='fl'>1</span>,
+  no_w <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>round</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log10</a></span><span class='op'>(</span><span class='va'>max_w_inf</span><span class='op'>/</span><span class='va'>min_w</span><span class='op'>)</span> <span class='op'>*</span> <span class='fl'>20</span> <span class='op'>+</span> <span class='fl'>1</span><span class='op'>)</span>,
   min_w_pp <span class='op'>=</span> <span class='fl'>1e-10</span>,
   w_pp_cutoff <span class='op'>=</span> <span class='va'>min_w_mat</span>,
   n <span class='op'>=</span> <span class='fl'>2</span><span class='op'>/</span><span class='fl'>3</span>,
@@ -234,7 +239,7 @@ details and examples of the trait-based model.</p>
   egg_size_scaling <span class='op'>=</span> <span class='cn'>FALSE</span>,
   resource_scaling <span class='op'>=</span> <span class='cn'>FALSE</span>,
   perfect_scaling <span class='op'>=</span> <span class='cn'>FALSE</span>
-<span class='op'>)</span></pre>
+<span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -314,7 +319,7 @@ equal to the exponent <code>n</code>.</p></td>
     </tr>
     <tr>
       <th>alpha</th>
-      <td><p>The assimilation efficiency of the community.</p></td>
+      <td><p>The assimilation efficiency.</p></td>
     </tr>
     <tr>
       <th>h</th>
@@ -442,15 +447,16 @@ abundance through time after the projection.</p>
 
     <div class='dont-index'><p>Other functions for setting up models: 
 <code><a href='newCommunityParams.html'>newCommunityParams</a>()</code>,
-<code><a href='newMultispeciesParams.html'>newMultispeciesParams</a>()</code></p></div>
+<code><a href='newMultispeciesParams.html'>newMultispeciesParams</a>()</code>,
+<code><a href='newSingleSpeciesParams.html'>newSingleSpeciesParams</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
-<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>newTraitParams</span><span class='op'>(</span><span class='op'>)</span>
-<span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, t_max <span class='op'>=</span> <span class='fl'>5</span>, effort <span class='op'>=</span> <span class='fl'>0</span><span class='op'>)</span>
-<span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span>
-<span class='op'>}</span>
-</div></pre>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>newTraitParams</span><span class='op'>(</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, t_max <span class='op'>=</span> <span class='fl'>5</span>, effort <span class='op'>=</span> <span class='fl'>0</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -462,11 +468,11 @@ abundance through time after the projection.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
+  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
 </div>
 
       </footer>
@@ -491,6 +497,8 @@ abundance through time after the projection.</p>
 </script>
 
 
+
+  
 
   </body>
 </html>

@@ -119,6 +119,7 @@ Royal Society, 276, 109-114
 \seealso{
 Other functions for setting up models: 
 \code{\link{newMultispeciesParams}()},
+\code{\link{newSingleSpeciesParams}()},
 \code{\link{newTraitParams}()}
 }
 \concept{functions for setting up models}

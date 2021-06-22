@@ -54,6 +54,8 @@ rate and use setRateFunction() to register it with mizer." />
 
 <meta name="robots" content="noindex">
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -65,9 +67,15 @@ rate and use setRateFunction() to register it with mizer." />
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -88,24 +96,18 @@ rate and use setRateFunction() to register it with mizer." />
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/mizer.html">Get started</a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Tutorials
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    </li>
     <li>
       <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
@@ -145,6 +147,9 @@ rate and use setRateFunction() to register it with mizer." />
       <a href="../articles/editing_website.html">Editing the Mizer Website</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../reference/index.html">Reference</a>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
@@ -191,13 +196,13 @@ dependence) then you can write your own functions for calculating that
 rate and use <code>setRateFunction()</code> to register it with mizer.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setRateFunction</span><span class='op'>(</span><span class='va'>params</span>, <span class='va'>rate</span>, <span class='va'>fun</span><span class='op'>)</span>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>setRateFunction</span><span class='op'>(</span><span class='va'>params</span>, <span class='va'>rate</span>, <span class='va'>fun</span><span class='op'>)</span>
 
 <span class='fu'>getRateFunction</span><span class='op'>(</span><span class='va'>params</span>, <span class='va'>rate</span><span class='op'>)</span>
 
 <span class='fu'>other_params</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
 
-<span class='fu'>other_params</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span></pre>
+<span class='fu'>other_params</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -252,20 +257,20 @@ following components:</p><ul>
 you have written your own function for calculating the total mortality
 rate and have called it <code>myMort</code> and have a mizer model stored in a
 MizerParams object called <code>params</code> that you want to run with your new
-mortality rate, then you would call</p><pre><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setRateFunction</span><span class='op'>(</span><span class='va'>params</span>, <span class='st'>"Mort"</span>, <span class='st'>"myMort"</span><span class='op'>)</span>
-</pre>
+mortality rate, then you would call</p><pre class='sourceCode r'><code><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setRateFunction</span><span class='op'>(</span><span class='va'>params</span>, <span class='st'>"Mort"</span>, <span class='st'>"myMort"</span><span class='op'>)</span>
+</code></pre>
 
 <p>In general if you want to replace a function <code>mizerSomeRateFunc()</code> with
-a function <code>myVersionOfThis()</code> you would call</p><pre><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setRateFunction</span><span class='op'>(</span><span class='va'>params</span>, <span class='st'>"SomeRateFunc"</span>, <span class='st'>"myVersionOfThis"</span><span class='op'>)</span>
-</pre>
+a function <code>myVersionOfThis()</code> you would call</p><pre class='sourceCode r'><code><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setRateFunction</span><span class='op'>(</span><span class='va'>params</span>, <span class='st'>"SomeRateFunc"</span>, <span class='st'>"myVersionOfThis"</span><span class='op'>)</span>
+</code></pre>
 
 <p>In some extreme cases you may need to swap out the entire <code><a href='mizerRates.html'>mizerRates()</a></code>
-function for your own function called <code>myRates()</code>. That you can do with</p><pre><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setRateFunction</span><span class='op'>(</span><span class='va'>params</span>, <span class='st'>"Rates"</span>, <span class='st'>"myRates"</span><span class='op'>)</span>
-</pre>
+function for your own function called <code>myRates()</code>. That you can do with</p><pre class='sourceCode r'><code><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setRateFunction</span><span class='op'>(</span><span class='va'>params</span>, <span class='st'>"Rates"</span>, <span class='st'>"myRates"</span><span class='op'>)</span>
+</code></pre>
 
 <p>Your new rate functions may need their own model parameters. These you
-can store in <code>other_params(params)</code>. For example</p><pre><span class='fu'>other_params</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>my_param</span> <span class='op'>&lt;-</span> <span class='fl'>42</span>
-</pre>
+can store in <code>other_params(params)</code>. For example</p><pre class='sourceCode r'><code><span class='fu'>other_params</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>my_param</span> <span class='op'>&lt;-</span> <span class='fl'>42</span>
+</code></pre>
 
 <p>Note that your own rate functions need to be defined in the global
 environment or in a package. If they are defined within a function then
@@ -282,11 +287,11 @@ mizer will not find them.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
+  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
 </div>
 
       </footer>
@@ -311,6 +316,8 @@ mizer will not find them.</p>
 </script>
 
 
+
+  
 
   </body>
 </html>

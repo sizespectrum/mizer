@@ -50,6 +50,8 @@
 
 <meta name="robots" content="noindex">
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -61,9 +63,15 @@
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-title-body">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -84,24 +92,18 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="articles/mizer.html">Get started</a>
-</li>
-<li>
-  <a href="reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Tutorials
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    </li>
     <li>
       <a href="articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
@@ -143,6 +145,9 @@
   </ul>
 </li>
 <li>
+  <a href="reference/index.html">Reference</a>
+</li>
+<li>
   <a href="articles/publications.html">Publications</a>
 </li>
 <li>
@@ -182,7 +187,7 @@
 
 <div id="use-the-issue-tracker" class="section level2">
 <h2 class="hasAnchor">
-<a href="#use-the-issue-tracker" class="anchor"></a>Use the issue tracker</h2>
+<a href="#use-the-issue-tracker" class="anchor" aria-hidden="true"></a>Use the issue tracker</h2>
 <p>If you have any</p>
 <ul>
 <li>question about mizer,</li>
@@ -190,30 +195,30 @@
 <li>report of a bug in mizer,</li>
 <li>idea for something that could be added or made better in mizer,</li>
 </ul>
-<p>please do not hesitate letting us know by creating a new issue at <a href="https://github.com/sizespectrum/mizer/issues/" class="uri">https://github.com/sizespectrum/mizer/issues/</a>. Or you can drop us a line at <a href="mailto::mizer@sizespectrum.org">mizer@sizespectrum.org</a> or make a post on the <a href="https://groups.google.com/forum/#!forum/size-spectrum-models">size-spectrum discussion group</a>.</p>
+<p>please do not hesitate letting us know by creating a new issue at <a href="https://github.com/sizespectrum/mizer/issues/" class="external-link uri">https://github.com/sizespectrum/mizer/issues/</a>. Or you can drop us a line at <a href="mailto::mizer@sizespectrum.org">mizer@sizespectrum.org</a> or make a post on the <a href="https://groups.google.com/forum/#!forum/size-spectrum-models" class="external-link">size-spectrum discussion group</a>.</p>
 </div>
 <div id="improve-the-documentation" class="section level2">
 <h2 class="hasAnchor">
-<a href="#improve-the-documentation" class="anchor"></a>Improve the documentation</h2>
-<p>Errors, shortcomings or any comment on the documentation can also be submited as an issue in the <a href="https://github.com/sizespectrum/mizer/issues/">issue tracker</a>.</p>
+<a href="#improve-the-documentation" class="anchor" aria-hidden="true"></a>Improve the documentation</h2>
+<p>Errors, shortcomings or any comment on the documentation can also be submited as an issue in the <a href="https://github.com/sizespectrum/mizer/issues/" class="external-link">issue tracker</a>.</p>
 <p>In case you know how to correct the error or make the improvement yourself, you can also help us by editing the page. At the top of most documentation pages there is a link to the page source on GitHub. There the page will have an “Edit this file” button that looks like a pencil. Click this an edit the page. When you save your edits GitHub guides you through the process of creating a pull request for your edits, which will make it super-easy for us to merge your suggestions.</p>
 <p>So even small contributions like the removal of a simple typo are very welcome.</p>
 </div>
 <div id="contribute-an-example" class="section level2">
 <h2 class="hasAnchor">
-<a href="#contribute-an-example" class="anchor"></a>Contribute an example</h2>
-<p>If you have set up a <strong>mizer</strong> model for your area of interest or your research question, please share it with us. The best place to do that is in the <strong><a href="https://github.com/sizespectrum/mizerExamples">MizerExamples</a></strong> package. Start by creating an issue at that package’s issue tracker or just send an email to <a href="mailto::mizer@sizespectrum.org">mizer@sizespectrum.org</a>. We will then discuss how to best integrate your example into that package to make it useful to others.</p>
+<a href="#contribute-an-example" class="anchor" aria-hidden="true"></a>Contribute an example</h2>
+<p>If you have set up a <strong>mizer</strong> model for your area of interest or your research question, please share it with us. The best place to do that is in the <strong><a href="https://github.com/sizespectrum/mizerExamples" class="external-link">MizerExamples</a></strong> package. Start by creating an issue at that package’s issue tracker or just send an email to <a href="mailto::mizer@sizespectrum.org">mizer@sizespectrum.org</a>. We will then discuss how to best integrate your example into that package to make it useful to others.</p>
 </div>
 <div id="contribute-code" class="section level2">
 <h2 class="hasAnchor">
-<a href="#contribute-code" class="anchor"></a>Contribute code</h2>
-<p>We are more than happy to receive <a href="https://help.github.com/articles/about-pull-requests/">pull requests</a> if you have new code or a bug fix. Your contribution will be appreciated by the community. If it is a new feature, the best place to submit it is as a pull request to the <strong><a href="https://github.com/sizespectrum/mizerExperimental">MizerExperimental</a></strong> package. There the feature can mature until it is ready to be incorporated either into the core mizer package or into one of its extension packages.</p>
+<a href="#contribute-code" class="anchor" aria-hidden="true"></a>Contribute code</h2>
+<p>We are more than happy to receive <a href="https://help.github.com/articles/about-pull-requests/" class="external-link">pull requests</a> if you have new code or a bug fix. Your contribution will be appreciated by the community. If it is a new feature, the best place to submit it is as a pull request to the <strong><a href="https://github.com/sizespectrum/mizerExperimental" class="external-link">MizerExperimental</a></strong> package. There the feature can mature until it is ready to be incorporated either into the core mizer package or into one of its extension packages.</p>
 </div>
 <div id="increase-mizer-usage-and-awareness" class="section level2">
 <h2 class="hasAnchor">
-<a href="#increase-mizer-usage-and-awareness" class="anchor"></a>Increase mizer usage and awareness</h2>
+<a href="#increase-mizer-usage-and-awareness" class="anchor" aria-hidden="true"></a>Increase mizer usage and awareness</h2>
 <p>Do not forget to mention the use of <strong>mizer</strong> in any of your documents and publications. Use</p>
-<pre><code><a href="https://rdrr.io/r/utils/citation.html">citation('mizer')</a></code></pre>
+<pre><code><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation('mizer')</a></code></pre>
 <p>to get citation info for the main reference for mizer. You can also link to our website <a href="https://sizespectrum.org/mizer/" class="uri">https://sizespectrum.org/mizer/</a> so readers can find out more about the project.</p>
 </div>
 </div>
@@ -232,11 +237,11 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
+  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
 </div>
 
       </footer>
@@ -261,6 +266,8 @@
 </script>
 
 
+
+  
 
   </body>
 </html>

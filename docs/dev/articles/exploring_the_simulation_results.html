@@ -60,6 +60,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    </li>
+    <li>
       <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
@@ -129,7 +132,7 @@
 
       
 
-      </header><script src="exploring_the_simulation_results_files/header-attrs-2.7/header-attrs.js"></script><script src="exploring_the_simulation_results_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="exploring_the_simulation_results_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Exploring the Simulation Results</h1>
@@ -284,22 +287,16 @@
 <h2 class="hasAnchor">
 <a href="#plotting-the-results" class="anchor"></a>Plotting the results</h2>
 <p>R is very powerful when it comes to exploring data through plots. Two useful packages for plotting are <code>ggplot2</code> and <code>plotly</code>. These use data.frames for input data whereas many of the mizer functions return arrays or matrices. Fortunately it is straightforward to turn arrays and matrices into data.frames using the <code><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt()</a></code> function from the <code>reshape2</code> package that mizer makes available to you. Although <code>mizer</code> does include some dedicated plots, it is definitely worth your time getting to grips with these other plotting packages. This will make it possible for you to make your own plots. We provide some details in the section on <a href="plotting.html">using ggplot2 and plotly with mizer</a>.</p>
-<p>Included in <code>mizer</code> are several dedicated plots that use <code>MizerSim</code> objects as inputs (see <a href="../reference/plotting_functions.html">the plots help page.</a>). As well as displaying the plots, these functions all return objects of type <code>ggplot</code> from the <code>ggplot2</code> package, meaning that they can be further modified by the user (e.g. by changing the plotting theme). See the help page of the individual plot functions for more details. The generic <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot()</a></code> method has also been overloaded for <code>MizerSim</code> objects. This produces several plots in the same window to provide a snapshot of the results of the simulation.</p>
+<p>Included in <code>mizer</code> are several dedicated plots that use <code>MizerSim</code> objects as inputs (see <a href="../reference/plotting_functions.html">the plots help page.</a>). As well as displaying the plots, these functions all return objects of type <code>ggplot</code> from the <code>ggplot2</code> package, meaning that they can be further modified by the user (e.g. by changing the plotting theme). See the help page of the individual plot functions for more details. The generic <code><a href="https://rdrr.io/r/graphics/plot.html">plot()</a></code> method has also been overloaded for <code>MizerSim</code> objects. This produces several plots in the same window to provide a snapshot of the results of the simulation.</p>
 <p>Some of the plots plot values by size (for example <code><a href="../reference/plotFeedingLevel.html">plotFeedingLevel()</a></code> and <code><a href="../reference/plotSpectra.html">plotSpectra()</a></code>). For these plots, the default is to use the data at the final time step of the projection. With these plotting functions, it is also possible to specify a different time, or a time range to average the values over before plotting.</p>
 <div id="sec:plot_examples" class="section level3">
 <h3 class="hasAnchor">
 <a href="#sec:plot_examples" class="anchor"></a>Plotting examples</h3>
 <p>Using the plotting functions is straightforward. For example, to plot the total biomass of each species against time you use the <code><a href="../reference/plotBiomass.html">plotBiomass()</a></code> function:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotBiomass.html">plotBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
-<p><img src="exploring_the_simulation_results_files/figure-html/plotBiomass-1.png" width="700"></p>
 <p>As mentioned above, some of the plot functions plot values against size at a point in time (or averaged over a time period). For these plots it is possible to specify the time step to plot, or the time period to average the values over. The default is to use the final time step. Here we plot the abundance spectra (biomass), averaged over time = 5 to 10:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">sim</span>, time_range <span class="op">=</span> <span class="fl">5</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
-<p><img src="exploring_the_simulation_results_files/figure-html/plotSpectra_example-1.png" width="700"></p>
-<p>As mentioned above, and as we have seen several times in this guide, the generic <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot()</a></code> method has also been overloaded. This produces 5 plots in the same window (<code><a href="../reference/plotFeedingLevel.html">plotFeedingLevel()</a></code>, <code><a href="../reference/plotBiomass.html">plotBiomass()</a></code>, <code><a href="../reference/plotPredMort.html">plotPredMort()</a></code>, <code><a href="../reference/plotFMort.html">plotFMort()</a></code> and <code><a href="../reference/plotSpectra.html">plotSpectra()</a></code>). It is possible to pass in the same arguments that these individual plots use, e.g. arguments to change the time period over which the data is averaged.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
+<p>As mentioned above, and as we have seen several times in this guide, the generic <code><a href="https://rdrr.io/r/graphics/plot.html">plot()</a></code> method has also been overloaded. This produces 5 plots in the same window (<code><a href="../reference/plotFeedingLevel.html">plotFeedingLevel()</a></code>, <code><a href="../reference/plotBiomass.html">plotBiomass()</a></code>, <code><a href="../reference/plotPredMort.html">plotPredMort()</a></code>, <code><a href="../reference/plotFMort.html">plotFMort()</a></code> and <code><a href="../reference/plotSpectra.html">plotSpectra()</a></code>). It is possible to pass in the same arguments that these individual plots use, e.g. arguments to change the time period over which the data is averaged.</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
 <p><img src="exploring_the_simulation_results_files/figure-html/demo_summary_plot-1.png" width="700"></p>
 <p>The next section describes how to use what we have learned to <a href="a_multispecies_model_of_the_north_sea.html">model the North Sea.</a></p>
 </div>

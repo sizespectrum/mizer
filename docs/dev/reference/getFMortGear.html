@@ -52,6 +52,8 @@ size and possibly time (in units 1/year)." />
 
 <meta name="robots" content="noindex">
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -63,9 +65,15 @@ size and possibly time (in units 1/year)." />
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -86,24 +94,18 @@ size and possibly time (in units 1/year)." />
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/mizer.html">Get started</a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Tutorials
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    </li>
     <li>
       <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
@@ -143,6 +145,9 @@ size and possibly time (in units 1/year)." />
       <a href="../articles/editing_website.html">Editing the Mizer Website</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../reference/index.html">Reference</a>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
@@ -187,7 +192,7 @@ size and possibly time (in units 1/year)." />
 size and possibly time (in units 1/year).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getFMortGear</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>effort</span>, <span class='va'>time_range</span><span class='op'>)</span></pre>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>getFMortGear</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>effort</span>, <span class='va'>time_range</span><span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -248,29 +253,29 @@ used.</p>
 <code><a href='getResourceMort.html'>getResourceMort</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
-<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span>
-<span class='co'># Get the fishing mortality when effort is constant</span>
-<span class='co'># for all gears and time:</span>
-<span class='fu'>getFMortGear</span><span class='op'>(</span><span class='va'>params</span>, effort <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span>
-<span class='co'># Get the fishing mortality when effort is different</span>
-<span class='co'># between the four gears but constant in time:</span>
-<span class='fu'>getFMortGear</span><span class='op'>(</span><span class='va'>params</span>, effort <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.5</span>, <span class='fl'>1</span>, <span class='fl'>1.5</span>, <span class='fl'>0.75</span><span class='op'>)</span><span class='op'>)</span>
-<span class='co'># Get the fishing mortality when effort is different</span>
-<span class='co'># between the four gears and changes with time:</span>
-<span class='va'>effort</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/array.html'>array</a></span><span class='op'>(</span><span class='cn'>NA</span>, dim <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>20</span>, <span class='fl'>4</span><span class='op'>)</span><span class='op'>)</span>
-<span class='va'>effort</span><span class='op'>[</span>, <span class='fl'>1</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span>from<span class='op'>=</span><span class='fl'>0</span>, to <span class='op'>=</span> <span class='fl'>1</span>, length <span class='op'>=</span> <span class='fl'>20</span><span class='op'>)</span>
-<span class='va'>effort</span><span class='op'>[</span>, <span class='fl'>2</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span>from<span class='op'>=</span><span class='fl'>1</span>, to <span class='op'>=</span> <span class='fl'>0.5</span>, length <span class='op'>=</span> <span class='fl'>20</span><span class='op'>)</span>
-<span class='va'>effort</span><span class='op'>[</span>, <span class='fl'>3</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span>from<span class='op'>=</span><span class='fl'>1</span>, to <span class='op'>=</span> <span class='fl'>2</span>, length <span class='op'>=</span> <span class='fl'>20</span><span class='op'>)</span>
-<span class='va'>effort</span><span class='op'>[</span>, <span class='fl'>4</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span>from<span class='op'>=</span><span class='fl'>2</span>, to <span class='op'>=</span> <span class='fl'>1</span>, length <span class='op'>=</span> <span class='fl'>20</span><span class='op'>)</span>
-<span class='fu'>getFMortGear</span><span class='op'>(</span><span class='va'>params</span>, effort <span class='op'>=</span> <span class='va'>effort</span><span class='op'>)</span>
-<span class='co'># Get the fishing mortality using the effort already held in a MizerSim object.</span>
-<span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, t_max <span class='op'>=</span> <span class='fl'>20</span>, effort <span class='op'>=</span> <span class='fl'>0.5</span><span class='op'>)</span>
-<span class='fu'>getFMortGear</span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span>
-<span class='fu'>getFMortGear</span><span class='op'>(</span><span class='va'>sim</span>, time_range <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>10</span>, <span class='fl'>20</span><span class='op'>)</span><span class='op'>)</span>
-<span class='op'>}</span>
-
-</div></pre>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># Get the fishing mortality when effort is constant</span></span>
+<span class='r-in'><span class='co'># for all gears and time:</span></span>
+<span class='r-in'><span class='fu'>getFMortGear</span><span class='op'>(</span><span class='va'>params</span>, effort <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># Get the fishing mortality when effort is different</span></span>
+<span class='r-in'><span class='co'># between the four gears but constant in time:</span></span>
+<span class='r-in'><span class='fu'>getFMortGear</span><span class='op'>(</span><span class='va'>params</span>, effort <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.5</span>, <span class='fl'>1</span>, <span class='fl'>1.5</span>, <span class='fl'>0.75</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># Get the fishing mortality when effort is different</span></span>
+<span class='r-in'><span class='co'># between the four gears and changes with time:</span></span>
+<span class='r-in'><span class='va'>effort</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/array.html'>array</a></span><span class='op'>(</span><span class='cn'>NA</span>, dim <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>20</span>, <span class='fl'>4</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>effort</span><span class='op'>[</span>, <span class='fl'>1</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span>from<span class='op'>=</span><span class='fl'>0</span>, to <span class='op'>=</span> <span class='fl'>1</span>, length <span class='op'>=</span> <span class='fl'>20</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>effort</span><span class='op'>[</span>, <span class='fl'>2</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span>from<span class='op'>=</span><span class='fl'>1</span>, to <span class='op'>=</span> <span class='fl'>0.5</span>, length <span class='op'>=</span> <span class='fl'>20</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>effort</span><span class='op'>[</span>, <span class='fl'>3</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span>from<span class='op'>=</span><span class='fl'>1</span>, to <span class='op'>=</span> <span class='fl'>2</span>, length <span class='op'>=</span> <span class='fl'>20</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>effort</span><span class='op'>[</span>, <span class='fl'>4</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span>from<span class='op'>=</span><span class='fl'>2</span>, to <span class='op'>=</span> <span class='fl'>1</span>, length <span class='op'>=</span> <span class='fl'>20</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'>getFMortGear</span><span class='op'>(</span><span class='va'>params</span>, effort <span class='op'>=</span> <span class='va'>effort</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># Get the fishing mortality using the effort already held in a MizerSim object.</span></span>
+<span class='r-in'><span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, t_max <span class='op'>=</span> <span class='fl'>20</span>, effort <span class='op'>=</span> <span class='fl'>0.5</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'>getFMortGear</span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'>getFMortGear</span><span class='op'>(</span><span class='va'>sim</span>, time_range <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>10</span>, <span class='fl'>20</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+<span class='r-in'></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -282,11 +287,11 @@ used.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
+  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
 </div>
 
       </footer>
@@ -311,6 +316,8 @@ used.</p>
 </script>
 
 
+
+  
 
   </body>
 </html>

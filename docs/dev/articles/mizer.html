@@ -60,6 +60,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    </li>
+    <li>
       <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
@@ -129,7 +132,7 @@
 
       
 
-      </header><script src="mizer_files/header-attrs-2.7/header-attrs.js"></script><script src="mizer_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="mizer_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Getting started with mizer</h1>
@@ -208,9 +211,9 @@ Using the same <code><a href="https://devtools.r-lib.org//reference/remote-reexp
 <div id="exploring-the-results" class="section level2">
 <h2 class="hasAnchor">
 <a href="#exploring-the-results" class="anchor"></a>Exploring the results</h2>
-<p>After a simulation has been run, the results can be examined using a range of <code><a href="../reference/plotting_functions.html">?plotting_functions</a></code>, <code><a href="../reference/summary_functions.html">?summary_functions</a></code> and <code><a href="../reference/indicator_functions.html">?indicator_functions</a></code>. The <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot()</a></code> function combines several of these plots into one:</p>
+<p>After a simulation has been run, the results can be examined using a range of <code><a href="../reference/plotting_functions.html">?plotting_functions</a></code>, <code><a href="../reference/summary_functions.html">?summary_functions</a></code> and <code><a href="../reference/indicator_functions.html">?indicator_functions</a></code>. The <code><a href="https://rdrr.io/r/graphics/plot.html">plot()</a></code> function combines several of these plots into one:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
 <p><img src="mizer_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
 <p>Just as an example: we might be interested in how the proportion of large fish varies over time. We can get the proportion of Herrings in terms of biomass that have a weight above 50g in each of the 10 years:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
@@ -228,9 +231,9 @@ Using the same <code><a href="https://devtools.r-lib.org//reference/remote-reexp
 <div id="size-spectrum-models" class="section level2">
 <h2 class="hasAnchor">
 <a href="#size-spectrum-models" class="anchor"></a>Size-spectrum models</h2>
-<p>Size spectrum models have emerged as a conceptually simple way to model a large community of individuals which grow and change trophic level during life. There is now a growing literature describing different types of size spectrum models <span class="citation">(e.g. Benoît and Rochet <a href="#ref-benoit_continuous_2004" role="doc-biblioref">2004</a>; Andersen and Beyer <a href="#ref-andersen_asymptotic_2006" role="doc-biblioref">2006</a>; Andersen et al. <a href="#ref-andersen_life-history_2008" role="doc-biblioref">2008</a>; Law et al. <a href="#ref-law_size-spectra_2009" role="doc-biblioref">2009</a>; Hartvig <a href="#ref-hartvig_food_2011" role="doc-biblioref">2011</a>; Hartvig, Andersen, and Beyer <a href="#ref-hartvig_food_2011-1" role="doc-biblioref">2011</a>)</span>. The models can be used to understand how marine communities are organised <span class="citation">(Andersen and Beyer <a href="#ref-andersen_asymptotic_2006" role="doc-biblioref">2006</a>; Andersen, Beyer, and Lundberg <a href="#ref-andersen_trophic_2009" role="doc-biblioref">2009</a>; Blanchard et al. <a href="#ref-blanchard_how_2009" role="doc-biblioref">2009</a>)</span> and how they respond to fishing <span class="citation">(K. H. Andersen and Rice <a href="#ref-andersen_direct_2010" role="doc-biblioref">2010</a>; K. H. Andersen and Pedersen <a href="#ref-andersen_damped_2010" role="doc-biblioref">2010</a>)</span>. This section introduces the central assumptions, concepts, processes, equations and parameters of size spectrum models.</p>
-<p>Roughly speaking there are three versions of the size spectrum modelling framework of increasing complexity: The <a href="#community-model">community model</a> <span class="citation">(Benoît and Rochet <a href="#ref-benoit_continuous_2004" role="doc-biblioref">2004</a>; Maury et al. <a href="#ref-maury_modeling_2007" role="doc-biblioref">2007</a>; Blanchard et al. <a href="#ref-blanchard_how_2009" role="doc-biblioref">2009</a>; Law et al. <a href="#ref-law_size-spectra_2009" role="doc-biblioref">2009</a>)</span>, the <a href="#trait-based-model">trait-based model</a> <span class="citation">(Andersen and Beyer <a href="#ref-andersen_asymptotic_2006" role="doc-biblioref">2006</a>; K. H. Andersen and Pedersen <a href="#ref-andersen_damped_2010" role="doc-biblioref">2010</a>)</span>, and the <a href="#multispecies-model">multispecies model</a> <span class="citation">(Hartvig, Andersen, and Beyer <a href="#ref-hartvig_food_2011-1" role="doc-biblioref">2011</a>)</span>. The community and trait-based models can be considered as simplifications of the multispecies model. This section focuses on the multispecies model but is also applicable to the community and trait-based models. Mizer is able to implement all three types of model using similar commands.</p>
-<p>Size spectrum models are a subset of physiologically structured models <span class="citation">(Metz and Diekmann <a href="#ref-metz_dynamics_1986" role="doc-biblioref">1986</a>; De Roos and Persson <a href="#ref-de_roos_physiologically_2001" role="doc-biblioref">2001</a>)</span> as growth (and thus maturation) is food dependent, and processes are formulated in terms of individual level processes. All parameters in the size spectrum models are related to individual weight which makes it possible to formulate the model with a small set of general parameters, which has prompted the label ``charmingly simple’’ to the model framework [<span class="citation">Pope et al. (<a href="#ref-pope_modelling_2006" role="doc-biblioref">2006</a>)</span>}.</p>
+<p>Size spectrum models have emerged as a conceptually simple way to model a large community of individuals which grow and change trophic level during life. There is now a growing literature describing different types of size spectrum models <span class="citation">(e.g. <a href="#ref-benoit_continuous_2004" role="doc-biblioref">Benoît and Rochet 2004</a>; <a href="#ref-andersen_asymptotic_2006" role="doc-biblioref">K. H. Andersen and Beyer 2006</a>; <a href="#ref-andersen_life-history_2008" role="doc-biblioref">K. H. Andersen et al. 2008</a>; <a href="#ref-law_size-spectra_2009" role="doc-biblioref">Law et al. 2009</a>; <a href="#ref-hartvig_food_2011" role="doc-biblioref">Hartvig 2011</a>; <a href="#ref-hartvig_food_2011-1" role="doc-biblioref">Hartvig, Andersen, and Beyer 2011</a>)</span>. The models can be used to understand how marine communities are organised <span class="citation">(<a href="#ref-andersen_asymptotic_2006" role="doc-biblioref">K. H. Andersen and Beyer 2006</a>; <a href="#ref-andersen_trophic_2009" role="doc-biblioref">K. H. Andersen, Beyer, and Lundberg 2009</a>; <a href="#ref-blanchard_how_2009" role="doc-biblioref">Blanchard et al. 2009</a>)</span> and how they respond to fishing <span class="citation">(<a href="#ref-andersen_direct_2010" role="doc-biblioref">K. H. Andersen and Rice 2010</a>; <a href="#ref-andersen_damped_2010" role="doc-biblioref">K. H. Andersen and Pedersen 2010</a>)</span>. This section introduces the central assumptions, concepts, processes, equations and parameters of size spectrum models.</p>
+<p>Roughly speaking there are three versions of the size spectrum modelling framework of increasing complexity: The <a href="#community-model">community model</a> <span class="citation">(<a href="#ref-benoit_continuous_2004" role="doc-biblioref">Benoît and Rochet 2004</a>; <a href="#ref-maury_modeling_2007" role="doc-biblioref">Maury et al. 2007</a>; <a href="#ref-blanchard_how_2009" role="doc-biblioref">Blanchard et al. 2009</a>; <a href="#ref-law_size-spectra_2009" role="doc-biblioref">Law et al. 2009</a>)</span>, the <a href="#trait-based-model">trait-based model</a> <span class="citation">(<a href="#ref-andersen_asymptotic_2006" role="doc-biblioref">K. H. Andersen and Beyer 2006</a>; <a href="#ref-andersen_damped_2010" role="doc-biblioref">K. H. Andersen and Pedersen 2010</a>)</span>, and the <a href="#multispecies-model">multispecies model</a> <span class="citation">(<a href="#ref-hartvig_food_2011-1" role="doc-biblioref">Hartvig, Andersen, and Beyer 2011</a>)</span>. The community and trait-based models can be considered as simplifications of the multispecies model. This section focuses on the multispecies model but is also applicable to the community and trait-based models. Mizer is able to implement all three types of model using similar commands.</p>
+<p>Size spectrum models are a subset of physiologically structured models <span class="citation">(<a href="#ref-metz_dynamics_1986" role="doc-biblioref">Metz and Diekmann 1986</a>; <a href="#ref-de_roos_physiologically_2001" role="doc-biblioref">De Roos and Persson 2001</a>)</span> as growth (and thus maturation) is food dependent, and processes are formulated in terms of individual level processes. All parameters in the size spectrum models are related to individual weight which makes it possible to formulate the model with a small set of general parameters, which has prompted the label ``charmingly simple’’ to the model framework [<span class="citation"><a href="#ref-pope_modelling_2006" role="doc-biblioref">Pope et al.</a> (<a href="#ref-pope_modelling_2006" role="doc-biblioref">2006</a>)</span>}.</p>
 <p>The model framework builds on the central assumption that an individual can be characterized by its weight <span class="math inline">\(w\)</span> and its species number <span class="math inline">\(i\)</span> only. The aim of the model is to calculate the size- and trait-spectrum <span class="math inline">\({\cal N}_i(w)\)</span> which is the density of individuals such that <span class="math inline">\({\cal N}_i(w)dw\)</span> is the number of individuals in the interval <span class="math inline">\([w:w+dw]\)</span>. Scaling from individual-level processes of growth and mortality to the size spectrum of each trait group is achieved by means of the McKendrik-von Foerster equation, which is simply a continuity equation that describes the flow of biomass up the size spectrum, <span class="math display">\[\begin{equation}
   \frac{\partial N_i(w)}{\partial t} + \frac{\partial g_i(w) N_i(w)}{\partial w} = -\mu_i(w) N_i(w)
 \end{equation}\]</span> where individual growth <span class="math inline">\(g_i(w)\)</span> and mortality <span class="math inline">\(\mu_i(w)\)</span> are coupled, because growth of one individual is due to predation on another, who consequently dies.</p>
@@ -271,48 +274,48 @@ Using the same <code><a href="https://devtools.r-lib.org//reference/remote-reexp
 <div id="references" class="section level2 unnumbered">
 <h2 class="hasAnchor">
 <a href="#references" class="anchor"></a>References</h2>
-<div id="refs" class="references hanging-indent">
-<div id="ref-andersen_asymptotic_2006">
-<p>Andersen, K. H., and J. E. Beyer. 2006. “Asymptotic Size Determines Species Abundance in the Marine Size Spectrum.” <em>The American Naturalist</em> 168 (1): 54–61. <a href="https://doi.org/10.1086/504849">https://doi.org/10.1086/504849</a>.</p>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-andersen_asymptotic_2006" class="csl-entry">
+Andersen, K. H., and J. E. Beyer. 2006. <span>“Asymptotic Size Determines Species Abundance in the Marine Size Spectrum.”</span> <em>The American Naturalist</em> 168 (1): 54–61. <a href="https://doi.org/10.1086/504849">https://doi.org/10.1086/504849</a>.
 </div>
-<div id="ref-andersen_trophic_2009">
-<p>Andersen, K. H., J. E. Beyer, and P. Lundberg. 2009. “Trophic and Individual Efficiencies of Size-Structured Communities.” <em>Proceedings of the Royal Society B: Biological Sciences</em> 276 (1654): 109–14. <a href="https://doi.org/10.1098/rspb.2008.0951">https://doi.org/10.1098/rspb.2008.0951</a>.</p>
+<div id="ref-andersen_trophic_2009" class="csl-entry">
+Andersen, K. H., J. E. Beyer, and P. Lundberg. 2009. <span>“Trophic and Individual Efficiencies of Size-Structured Communities.”</span> <em>Proceedings of the Royal Society B: Biological Sciences</em> 276 (1654): 109–14. <a href="https://doi.org/10.1098/rspb.2008.0951">https://doi.org/10.1098/rspb.2008.0951</a>.
 </div>
-<div id="ref-andersen_life-history_2008">
-<p>Andersen, K.H., J.E. Beyer, M. Pedersen, N.G. Andersen, and H. Gislason. 2008. “Life-History Constraints on the Success of the Many Small Eggs Reproductive Strategy.” <em>Theoretical Population Biology</em> 73 (4): 490–97. <a href="https://doi.org/10.1016/j.tpb.2008.02.001">https://doi.org/10.1016/j.tpb.2008.02.001</a>.</p>
+<div id="ref-andersen_life-history_2008" class="csl-entry">
+Andersen, K.H., J.E. Beyer, M. Pedersen, N.G. Andersen, and H. Gislason. 2008. <span>“Life-History Constraints on the Success of the Many Small Eggs Reproductive Strategy.”</span> <em>Theoretical Population Biology</em> 73 (4): 490–97. <a href="https://doi.org/10.1016/j.tpb.2008.02.001">https://doi.org/10.1016/j.tpb.2008.02.001</a>.
 </div>
-<div id="ref-andersen_damped_2010">
-<p>Andersen, K. H., and M. Pedersen. 2010. “Damped Trophic Cascades Driven by Fishing in Model Marine Ecosystems.” <em>Proceedings of the Royal Society B-Biological Sciences</em> 277 (1682): 795–802. <a href="https://doi.org/10.1098/rspb.2009.1512">https://doi.org/10.1098/rspb.2009.1512</a>.</p>
+<div id="ref-andersen_damped_2010" class="csl-entry">
+Andersen, K. H., and M. Pedersen. 2010. <span>“Damped Trophic Cascades Driven by Fishing in Model Marine Ecosystems.”</span> <em>Proceedings of the Royal Society B-Biological Sciences</em> 277 (1682): 795–802. <a href="https://doi.org/10.1098/rspb.2009.1512">https://doi.org/10.1098/rspb.2009.1512</a>.
 </div>
-<div id="ref-andersen_direct_2010">
-<p>Andersen, K. H., and Jake C. Rice. 2010. “Direct and Indirect Community Effects of Rebuilding Plans.” <em>ICES Journal of Marine Science: Journal Du Conseil</em> 67 (9): 1980–8. <a href="https://doi.org/10.1093/icesjms/fsq035">https://doi.org/10.1093/icesjms/fsq035</a>.</p>
+<div id="ref-andersen_direct_2010" class="csl-entry">
+Andersen, K. H., and Jake C. Rice. 2010. <span>“Direct and Indirect Community Effects of Rebuilding Plans.”</span> <em><span>ICES</span> Journal of Marine Science: Journal Du Conseil</em> 67 (9): 1980–88. <a href="https://doi.org/10.1093/icesjms/fsq035">https://doi.org/10.1093/icesjms/fsq035</a>.
 </div>
-<div id="ref-benoit_continuous_2004">
-<p>Benoît, Eric, and Marie-Joëlle Rochet. 2004. “A Continuous Model of Biomass Size Spectra Governed by Predation and the Effects of Fishing on Them.” <em>Journal of Theoretical Biology</em> 226 (1): 9–21. <a href="https://doi.org/10.1016/S0022-5193(03)00290-X">https://doi.org/10.1016/S0022-5193(03)00290-X</a>.</p>
+<div id="ref-benoit_continuous_2004" class="csl-entry">
+Benoît, Eric, and Marie-Joëlle Rochet. 2004. <span>“A Continuous Model of Biomass Size Spectra Governed by Predation and the Effects of Fishing on Them.”</span> <em>Journal of Theoretical Biology</em> 226 (1): 9–21. <a href="https://doi.org/10.1016/S0022-5193(03)00290-X">https://doi.org/10.1016/S0022-5193(03)00290-X</a>.
 </div>
-<div id="ref-blanchard_how_2009">
-<p>Blanchard, Julia L., Simon Jennings, Richard Law, Matthew D. Castle, Paul McCloghrie, Marie-Joëlle Rochet, and Eric Benoît. 2009. “How Does Abundance Scale with Body Size in Coupled Size-Structured Food Webs?” <em>Journal of Animal Ecology</em> 78 (1): 270–80. <a href="https://doi.org/10.1111/j.1365-2656.2008.01466.x">https://doi.org/10.1111/j.1365-2656.2008.01466.x</a>.</p>
+<div id="ref-blanchard_how_2009" class="csl-entry">
+Blanchard, Julia L., Simon Jennings, Richard Law, Matthew D. Castle, Paul McCloghrie, Marie-Joëlle Rochet, and Eric Benoît. 2009. <span>“How Does Abundance Scale with Body Size in Coupled Size-Structured Food Webs?”</span> <em>Journal of Animal Ecology</em> 78 (1): 270–80. <a href="https://doi.org/10.1111/j.1365-2656.2008.01466.x">https://doi.org/10.1111/j.1365-2656.2008.01466.x</a>.
 </div>
-<div id="ref-de_roos_physiologically_2001">
-<p>De Roos, André M., and Lennart Persson. 2001. “Physiologically Structured Models – from Versatile Technique to Ecological Theory.” <em>Oikos</em> 94 (1): 51–71. <a href="https://doi.org/10.1034/j.1600-0706.2001.11313.x">https://doi.org/10.1034/j.1600-0706.2001.11313.x</a>.</p>
+<div id="ref-de_roos_physiologically_2001" class="csl-entry">
+De Roos, André M., and Lennart Persson. 2001. <span>“Physiologically Structured Models – from Versatile Technique to Ecological Theory.”</span> <em>Oikos</em> 94 (1): 51–71. <a href="https://doi.org/10.1034/j.1600-0706.2001.11313.x">https://doi.org/10.1034/j.1600-0706.2001.11313.x</a>.
 </div>
-<div id="ref-hartvig_food_2011">
-<p>Hartvig, Martin. 2011. “Food Web Ecology.” Ph.D., Lund University.</p>
+<div id="ref-hartvig_food_2011" class="csl-entry">
+Hartvig, Martin. 2011. <span>“Food Web Ecology.”</span> {Ph.D.}, Lund University.
 </div>
-<div id="ref-hartvig_food_2011-1">
-<p>Hartvig, Martin, K. H. Andersen, and Jan E. Beyer. 2011. “Food Web Framework for Size-Structured Populations RID c-4303-2011.” <em>Journal of Theoretical Biology</em> 272 (1): 113–22. <a href="https://doi.org/10.1016/j.jtbi.2010.12.006">https://doi.org/10.1016/j.jtbi.2010.12.006</a>.</p>
+<div id="ref-hartvig_food_2011-1" class="csl-entry">
+Hartvig, Martin, K. H. Andersen, and Jan E. Beyer. 2011. <span>“Food Web Framework for Size-Structured Populations <span>RID</span> c-4303-2011.”</span> <em>Journal of Theoretical Biology</em> 272 (1): 113–22. <a href="https://doi.org/10.1016/j.jtbi.2010.12.006">https://doi.org/10.1016/j.jtbi.2010.12.006</a>.
 </div>
-<div id="ref-law_size-spectra_2009">
-<p>Law, Richard, Michael J. Plank, Alex James, and Julia L. Blanchard. 2009. “Size-Spectra Dynamics from Stochastic Predation and Growth of Individuals.” <em>Ecology</em> 90 (3): 802–11. <a href="https://doi.org/10.1890/07-1900.1">https://doi.org/10.1890/07-1900.1</a>.</p>
+<div id="ref-law_size-spectra_2009" class="csl-entry">
+Law, Richard, Michael J. Plank, Alex James, and Julia L. Blanchard. 2009. <span>“Size-Spectra Dynamics from Stochastic Predation and Growth of Individuals.”</span> <em>Ecology</em> 90 (3): 802–11. <a href="https://doi.org/10.1890/07-1900.1">https://doi.org/10.1890/07-1900.1</a>.
 </div>
-<div id="ref-maury_modeling_2007">
-<p>Maury, Olivier, Blaise Faugeras, Yunne-Jai Shin, Jean-Christophe Poggiale, Tamara Ben Ari, and Francis Marsac. 2007. “Modeling Environmental Effects on the Size-Structured Energy Flow Through Marine Ecosystems. Part 1: The Model.” <em>Progress in Oceanography</em> 74 (4): 479–99. <a href="https://doi.org/10.1016/j.pocean.2007.05.002">https://doi.org/10.1016/j.pocean.2007.05.002</a>.</p>
+<div id="ref-maury_modeling_2007" class="csl-entry">
+Maury, Olivier, Blaise Faugeras, Yunne-Jai Shin, Jean-Christophe Poggiale, Tamara Ben Ari, and Francis Marsac. 2007. <span>“Modeling Environmental Effects on the Size-Structured Energy Flow Through Marine Ecosystems. Part 1: The Model.”</span> <em>Progress in Oceanography</em> 74 (4): 479–99. <a href="https://doi.org/10.1016/j.pocean.2007.05.002">https://doi.org/10.1016/j.pocean.2007.05.002</a>.
 </div>
-<div id="ref-metz_dynamics_1986">
-<p>Metz, Johan A. J., and O. Diekmann. 1986. <em>The Dynamics of Physiologically Structured Populations</em>. Springer-Verlag.</p>
+<div id="ref-metz_dynamics_1986" class="csl-entry">
+Metz, Johan A. J., and O. Diekmann. 1986. <em>The Dynamics of Physiologically Structured Populations</em>. Springer-Verlag.
 </div>
-<div id="ref-pope_modelling_2006">
-<p>Pope, John G., Jake C. Rice, Niels Daan, Simon Jennings, and Henrik Gislason. 2006. “Modelling an Exploited Marine Fish Community with 15 Parameters - Results from a Simple Size-Based Model.” <em>Ices Journal of Marine Science</em> 63 (6): 1029–44. <a href="https://doi.org/10.1016/j.icesjms.2006.04.015">https://doi.org/10.1016/j.icesjms.2006.04.015</a>.</p>
+<div id="ref-pope_modelling_2006" class="csl-entry">
+Pope, John G., Jake C. Rice, Niels Daan, Simon Jennings, and Henrik Gislason. 2006. <span>“Modelling an Exploited Marine Fish Community with 15 Parameters - Results from a Simple Size-Based Model.”</span> <em>Ices Journal of Marine Science</em> 63 (6): 1029–44. <a href="https://doi.org/10.1016/j.icesjms.2006.04.015">https://doi.org/10.1016/j.icesjms.2006.04.015</a>.
 </div>
 </div>
 </div>

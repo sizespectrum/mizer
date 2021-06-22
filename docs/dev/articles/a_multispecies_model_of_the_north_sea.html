@@ -60,6 +60,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    </li>
+    <li>
       <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
@@ -129,7 +132,7 @@
 
       
 
-      </header><script src="a_multispecies_model_of_the_north_sea_files/header-attrs-2.7/header-attrs.js"></script><script src="a_multispecies_model_of_the_north_sea_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="a_multispecies_model_of_the_north_sea_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>A Multi-Species Model Of The North Sea</h1>
@@ -147,32 +150,41 @@
 <h2 class="hasAnchor">
 <a href="#setting-up-the-north-sea-model" class="anchor"></a>Setting up the North Sea model</h2>
 <p>The first job is to set up the <code>MizerParams</code> object for the North Sea model. In the previous multispecies examples we have already been using the life-history parameters and the interaction matrix for the North Sea model. We will use them again here but will make some changes. In particular we set up the fishing gears differently.</p>
-<p>The parameters and the interaction matrix are stored as *.csv files that need to be read in. We can use the <code><a href="https://rdrr.io/r/base/system.file.html">system.file()</a></code> function to tell us the location of the files.</p>
+<p>The species in the model are: Sprat, Sandeel, N.pout, Herring, Dab, Whiting, Sole, Gurnard, Plaice, Haddock, Cod, Saithe, which account for about 90% of the total biomass of all species sampled by research trawl surveys in the North Sea. The <code>NS_species_params</code> object that comes as an example with the mizer packate is a data.frame with columns for <code>species</code>, <code>w_inf</code>, <code>w_mat</code>, <code>beta</code>, <code>sigma</code>, <code>R_max</code> and <code>k_vb</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">params_location</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">"doc/NS_species_params.csv"</span>, package <span class="op">=</span> <span class="st">"mizer"</span><span class="op">)</span>
-<span class="va">species_params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span><span class="op">(</span><span class="va">params_location</span><span class="op">)</span>
-<span class="va">inter_location</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">"doc/inter.csv"</span>, package <span class="op">=</span> <span class="st">"mizer"</span><span class="op">)</span>
-<span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span><span class="op">(</span><span class="va">inter_location</span>, row.names <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></code></pre></div>
-<p>The species in the model are: Sprat, Sandeel, N.pout, Herring, Dab, Whiting, Sole, Gurnard, Plaice, Haddock, Cod, Saithe, which account for about 90% of the total biomass of all species sampled by research trawl surveys in the North Sea. The <code>species_params</code> object is a data.frame with columns for <code>species</code>, <code>w_inf</code>, <code>w_mat</code>, <code>beta</code>, <code>sigma</code>, <code>R_max</code> and <code>k_vb</code>.</p>
+<code class="sourceCode R"><span class="va">NS_species_params</span></code></pre></div>
+<pre><code>##    species   w_inf w_mat   beta sigma  k_vb    R_max
+## 1    Sprat    33.0    13  51076   0.8 0.681 7.38e+11
+## 2  Sandeel    36.0     4 398849   1.9 1.000 4.10e+11
+## 3   N.pout   100.0    23     22   1.5 0.849 1.05e+13
+## 4  Herring   334.0    99 280540   3.2 0.606 1.11e+12
+## 5      Dab   324.0    21    191   1.9 0.536 1.12e+10
+## 6  Whiting  1192.0    75     22   1.5 0.323 5.48e+11
+## 7     Sole   866.0    78    381   1.9 0.284 3.87e+10
+## 8  Gurnard   668.0    39    283   1.8 0.266 1.65e+12
+## 9   Plaice  2976.0   105    113   1.6 0.122 4.08e+14
+## 10 Haddock  4316.5   165    558   2.1 0.271 1.84e+12
+## 11     Cod 39851.3  1606     66   1.3 0.216 8.26e+09
+## 12  Saithe 39658.6  1076     40   1.1 0.175 1.12e+11</code></pre>
 <p>We have seen before that only having these columns in the species data.frame is sufficient to make a <code>MizerParams</code> object. Any missing columns will be added and filled with default values by the <code>MizerParams</code> constructor. For example, the data.frame does not include columns for <code>h</code> or <code>gamma</code>. This means that they will be estimated using the <code>k_vb</code> column.</p>
-<p>We will use the default density dependence in the reproduction rate, which is the Beverton-Holt shape. This requires a column <code>R_max</code> in the species data.frame which contains the maximum reproduction rate for each species. This column is already in the <code>species_params</code> data.frame. The values were found through a calibration process which is not covered here but will be added to a later version of this manual.</p>
+<p>We will use the default density dependence in the reproduction rate, which is the Beverton-Holt shape. This requires a column <code>R_max</code> in the species data.frame which contains the maximum reproduction rate for each species. This column is already in the <code>NS_species_params</code> data.frame. The values were found through a calibration process which is not covered here but will be added to a later version of this manual.</p>
 <p>At the moment we are not providing any information on the selectivity of the gears for the species. By default, the selectivity function is a knife-edge which only takes a single argument, <code>knife_edge_size</code>. In this model we want the selectivity pattern to be a sigmoid shape which more accurately reflects the selectivity pattern of trawlers in the North Sea. The sigmoid selectivity function is expressed in terms of length rather than weight and uses the parameters <code>l25</code> and <code>l50</code>, which are the lengths at which 25% and 50% of the stock is selected. The length based sigmoid selectivity looks like:</p>
 <p><span class="math display">\[\begin{equation}
 %     {#eq:trawl_sel}
     S_l = \frac{1}{1 + \exp(S1 - S2\ l)}
 \end{equation}\]</span></p>
 <p>where <span class="math inline">\(l\)</span> is the length of an individual, <span class="math inline">\(S_l\)</span> is the selectivity at length, <span class="math inline">\(S2 = \log(3) / (l50 - l25)\)</span> and <span class="math inline">\(S1 = l50 \cdot S2\)</span>.</p>
-<p>This selectivity function is included in mizer as <code><a href="../reference/sigmoid_length.html">sigmoid_length()</a></code>. You can see the help page for more details. As the mizer model is weight based, and this selectivity function is length based, it uses the length-weight parameters <code>a</code> and <code>b</code> to convert between length and weight using the standard relation <span class="math inline">\(w = a l^b\)</span>. These species parameters need to be added as columns to the <code>species_params</code> data frame.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">species_params</span><span class="op">$</span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.007</span>, <span class="fl">0.001</span>, <span class="fl">0.009</span>, <span class="fl">0.002</span>, <span class="fl">0.010</span>, <span class="fl">0.006</span>, <span class="fl">0.008</span>, <span class="fl">0.004</span>,
+<p>This selectivity function is included in mizer as <code><a href="../reference/sigmoid_length.html">sigmoid_length()</a></code>. You can see the help page for more details. As the mizer model is weight based, and this selectivity function is length based, it uses the length-weight parameters <code>a</code> and <code>b</code> to convert between length and weight using the standard relation <span class="math inline">\(w = a l^b\)</span>. These species parameters need to be added as columns to the <code>NS_species_params</code> data frame.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">NS_species_params</span><span class="op">$</span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.007</span>, <span class="fl">0.001</span>, <span class="fl">0.009</span>, <span class="fl">0.002</span>, <span class="fl">0.010</span>, <span class="fl">0.006</span>, <span class="fl">0.008</span>, <span class="fl">0.004</span>,
                       <span class="fl">0.007</span>, <span class="fl">0.005</span>, <span class="fl">0.005</span>, <span class="fl">0.007</span><span class="op">)</span>
-<span class="va">species_params</span><span class="op">$</span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">3.014</span>, <span class="fl">3.320</span>, <span class="fl">2.941</span>, <span class="fl">3.429</span>, <span class="fl">2.986</span>, <span class="fl">3.080</span>, <span class="fl">3.019</span>, <span class="fl">3.198</span>,
+<span class="va">NS_species_params</span><span class="op">$</span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">3.014</span>, <span class="fl">3.320</span>, <span class="fl">2.941</span>, <span class="fl">3.429</span>, <span class="fl">2.986</span>, <span class="fl">3.080</span>, <span class="fl">3.019</span>, <span class="fl">3.198</span>,
                       <span class="fl">3.101</span>, <span class="fl">3.160</span>, <span class="fl">3.173</span>, <span class="fl">3.075</span><span class="op">)</span></code></pre></div>
 <p><code><a href="../reference/sigmoid_length.html">sigmoid_length()</a></code> has the arguments <code>l25</code> and <code>l50</code>. As explained in <a href="multispecies_model.html#sec:fishing_gear">the section on fishing gears and selectivity</a>, the arguments of the selectivity function need to be in the gear parameter data frame. We also need a column specifying the name of the selectivity function we wish to use. Note it would probably be easier to put this data into a *.csv file and then read it in rather than type it in by hand like we do here:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">gear_params</span> <span class="op">&lt;-</span> 
-    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="va">species_params</span><span class="op">$</span><span class="va">species</span>,
-               gear <span class="op">=</span> <span class="va">species_params</span><span class="op">$</span><span class="va">species</span>,
+    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="va">NS_species_params</span><span class="op">$</span><span class="va">species</span>,
+               gear <span class="op">=</span> <span class="va">NS_species_params</span><span class="op">$</span><span class="va">species</span>,
                sel_func <span class="op">=</span> <span class="st">"sigmoid_length"</span>,
                l25 <span class="op">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">7.6</span>, <span class="fl">9.8</span>, <span class="fl">8.7</span>, <span class="fl">10.1</span>, <span class="fl">11.5</span>, <span class="fl">19.8</span>, <span class="fl">16.4</span>, <span class="fl">19.8</span>, <span class="fl">11.5</span>,
                         <span class="fl">19.1</span>, <span class="fl">13.2</span>, <span class="fl">35.3</span><span class="op">)</span>,
@@ -180,11 +192,11 @@
                        <span class="fl">24.3</span>, <span class="fl">22.9</span>, <span class="fl">43.6</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>Note that we have set up a <code>gear</code> column so that each species will be caught by a separate gear named after the species.</p>
 <p>In this model we are interested in projecting forward using historical fishing mortalities. The historical fishing mortality from 1967 to 2010 for each species is stored in the csv file <code>NS_f_history.csv</code> included in the package. As before, we can use <code><a href="https://rdrr.io/r/utils/read.table.html">read.csv()</a></code> to read in the data. This reads the data in as a <code>data.frame</code>. We want this to be a <code>matrix</code> so we use the <code>as()</code> function:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">f_location</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">"doc/NS_f_history.csv"</span>, package <span class="op">=</span> <span class="st">"mizer"</span><span class="op">)</span>
 <span class="va">f_history</span> <span class="op">&lt;-</span> <span class="fu">as</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span><span class="op">(</span><span class="va">f_location</span>, row.names <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="st">"matrix"</span><span class="op">)</span></code></pre></div>
 <p>We can take a look at the first years of the data:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">f_history</span><span class="op">)</span></code></pre></div>
 <pre><code>##      Sprat Sandeel N.pout   Herring        Dab   Whiting      Sole Gurnard
 ## 1967     0       0      0 1.0360279 0.09417655 0.8294528 0.6502019       0
@@ -202,15 +214,20 @@
 ## 1972 0.4522231 1.3279087 0.8393267 0.5796321</code></pre>
 <p>Fishing mortality is calculated as the product of selectivity, catchability and fishing effort. The values in <code>f_history</code> are absolute levels of fishing mortality. We have seen that the fishing mortality in the <code>mizer</code> simulations is driven by the fishing effort argument passed to the <code><a href="../reference/project.html">project()</a></code> function. Therefore if we want to project forward with historical fishing levels, we need to provide <code><a href="../reference/project.html">project()</a></code> with effort values that will result in these historical fishing mortality levels.</p>
 <p>One of the model parameters that we have not really considered so far is <code>catchability</code>. Catchability is a scalar parameter used to modify the fishing mortality at size given the selectivity at size and effort of the fishing gear. By default catchability has a value of 1, meaning that an effort of 1 results in a fishing mortality of 1 for a fully selected species. When considering the historical fishing mortality, one option is therefore to leave catchability at 1 for each species and then use the <code>f_history</code> matrix as the fishing effort. However, an alternative method is to use the effort relative to a chosen reference year. This can make the effort levels used in the model more meaningful. Here we use the year 1990 as the reference year. If we set the catchability of each species to be the same as the fishing mortality in 1990 then an effort of 1 in 1990 will result in the fishing mortality being what it was in 1990. The effort in the other years will be relative to the effort in 1990.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">gear_params</span><span class="op">$</span><span class="va">catchability</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span><span class="va">f_history</span><span class="op">[</span><span class="st">"1990"</span>,<span class="op">]</span><span class="op">)</span></code></pre></div>
 <p>Considering the other model parameters, we will use default values for all of the other parameters apart from <code>kappa</code>, the carrying capacity of the resource spectrum (see <a href="model_description.html#resource-density">see the section on resource density</a>). This was estimated along with the values <code>R_max</code> as part of the calibration process.</p>
 <p>We now have all the information we need to create the <code>MizerParams</code> object using the species parameters data.frame.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">species_params</span>, 
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">NS_species_params</span>, 
                                 interaction <span class="op">=</span> <span class="va">inter</span>, 
                                 kappa <span class="op">=</span> <span class="fl">9.27e10</span>,
                                 gear_params <span class="op">=</span> <span class="va">gear_params</span><span class="op">)</span></code></pre></div>
+<pre><code>## Warning in `[&lt;-.factor`(`*tmp*`, is.na(gear_params$sel_func), value =
+## "knife_edge"): invalid factor level, NA generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, is.na(gear_params$sel_func), value =
+## "knife_edge"): invalid factor level, NA generated</code></pre>
 <pre><code>## Note: No h provided for some species, so using f0 and k_vb to calculate it.</code></pre>
 <pre><code>## Note: Because you have n != p, the default value is not very good.</code></pre>
 <pre><code>## Note: No ks column so calculating from critical feeding level.</code></pre>
@@ -221,7 +238,7 @@
 <h2 class="hasAnchor">
 <a href="#setting-up-and-running-the-simulation" class="anchor"></a>Setting up and running the simulation</h2>
 <p>As we set our catchability to be the level of fishing mortality in 1990, before we can run the projection we need to rescale the effort matrix to get a matrix of efforts relative to 1990. To do this we want to rescale the <code>f_history</code> object to 1990 so that the relative fishing effort in 1990 = 1. This is done using R function <code><a href="https://rdrr.io/r/base/sweep.html">sweep()</a></code>. We then check a few rows of the effort matrix to check this has happened:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">relative_effort</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sweep.html">sweep</a></span><span class="op">(</span><span class="va">f_history</span>,<span class="fl">2</span>,<span class="va">f_history</span><span class="op">[</span><span class="st">"1990"</span>,<span class="op">]</span>,<span class="st">"/"</span><span class="op">)</span>
 <span class="va">relative_effort</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="fl">1988</span><span class="op">:</span><span class="fl">1992</span><span class="op">)</span>,<span class="op">]</span></code></pre></div>
 <pre><code>##          Sprat   Sandeel    N.pout  Herring      Dab   Whiting      Sole
@@ -238,23 +255,16 @@
 ## 1992 0.7718676 1.113074 0.8797127 0.970852 1.0528926</code></pre>
 <p>We could just project forward with these relative efforts. However, the population dynamics in the early years will be strongly determined by the initial population abundances (known as the transient behaviour - essentially the initial behaviour before the long term dynamics are reached). As this is ecology, we don’t know what the initial abundance are. One way around this is to project forward at a constant fishing mortality equal to the mortality in the first historical year until equilibrium is reached. We then can carry on projecting forward using the remaining years of effort. This approach reduces the impact of transient dynamics.</p>
 <p>Here we make an initial effort matrix of 100 years at the first effort level. We need to include dimension names for the time dimension. We then stick it on top of the original matrix of historical relative effort using <code><a href="https://rdrr.io/r/base/cbind.html">rbind()</a></code>.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">initial_effort</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="va">relative_effort</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span>, nrow <span class="op">=</span> <span class="fl">100</span>,
                          ncol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span><span class="op">(</span><span class="va">relative_effort</span><span class="op">)</span>, dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fl">1867</span><span class="op">:</span><span class="fl">1966</span><span class="op">)</span><span class="op">)</span>
 <span class="va">relative_effort</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span><span class="va">initial_effort</span>, <span class="va">relative_effort</span><span class="op">)</span></code></pre></div>
 <p>We now have our parameter object and out matrix of efforts relative to 1990. This includes an initial 100 years of constant relative effort at the 1957 level, followed by the relative effort from 1957 to 2010. We use this effort matrix as the <code>effort</code> argument to the <code><a href="../reference/project.html">project()</a></code> function. We use <code>dt</code> = 0.25 (the simulation will run faster than with the default value of 0.1, but tests show that the results are still stable) and save the results every year.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, effort <span class="op">=</span> <span class="va">relative_effort</span>, dt <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span></code></pre></div>
 <p>Plotting the results, we can see how the biomasses of the stocks change over time. You can see the 100 year period of transients with constant fishing fishing mortality before the historical relative mortality is used from 1967.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotBiomass.html">plotBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
-<div class="figure">
-<img src="a_multispecies_model_of_the_north_sea_files/figure-html/plot_ns_biomass-1.png" alt="Simulated biomasses of stocks in the North Sea with 100 years of transients." width="700"><p class="caption">
-Simulated biomasses of stocks in the North Sea with 100 years of transients.
-</p>
-</div>
 <p>To explore the state of the community it is useful to calculate indicators of the unexploited community. Therefore we also project forward for 100 years with 0 fishing effort.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sim0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, effort <span class="op">=</span> <span class="fl">0</span>, dt <span class="op">=</span> <span class="fl">0.5</span>, t_max <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="exploring-the-model-outputs" class="section level2">
@@ -262,7 +272,7 @@ Simulated biomasses of stocks in the North Sea with 100 years of transients.
 <a href="#exploring-the-model-outputs" class="anchor"></a>Exploring the model outputs</h2>
 <p>Here we look at some of the ways the results of the simulation can be explored. We calculate the community indicators <code>mean maximum weight</code>, <code>mean individual weight</code>, <code>community slope</code> and the <code>large fish indicator</code> (LFI) over the simulation period, and compare them to the unexploited values. We also compare the simulated values of the LFI to a community target based on achieving a high proportion of the unexploited value of the LFI of <span class="math inline">\(0.8 LFI_{F=0}\)</span>.</p>
 <p>The indicators are calculated using the functions described in <a href="exploring_the_simulation_results.html#functions-for-calculating-indicators">the section about indicator functions for MizerSim objects.</a> Here we calculate the LFI and the other community indicators for the unexploited community. When calculating these indicators we only include demersal species and individuals in the size range 10 g to 100 kg, and the LFI is based on species larger than 40 cm. Each of these functions returns a time series. We are interested only in the equilibrium unexploited values so we just select the final time step (year = <code>100</code>).</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">demersal_species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Dab"</span>, <span class="st">"Whiting"</span>, <span class="st">"Sole"</span>, <span class="st">"Gurnard"</span>, <span class="st">"Plaice"</span>,
                       <span class="st">"Haddock"</span>, <span class="st">"Cod"</span>, <span class="st">"Saithe"</span><span class="op">)</span>
 <span class="va">lfi0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getProportionOfLargeFish.html">getProportionOfLargeFish</a></span><span class="op">(</span><span class="va">sim0</span>, species <span class="op">=</span> <span class="va">demersal_species</span>,
@@ -275,7 +285,7 @@ Simulated biomasses of stocks in the North Sea with 100 years of transients.
 <span class="va">slope0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getCommunitySlope.html">getCommunitySlope</a></span><span class="op">(</span><span class="va">sim0</span>, species <span class="op">=</span> <span class="va">demersal_species</span>,
                             min_w <span class="op">=</span> <span class="fl">10</span>, max_w <span class="op">=</span> <span class="fl">100e3</span><span class="op">)</span><span class="op">[</span><span class="st">"100"</span>, <span class="st">"slope"</span><span class="op">]</span></code></pre></div>
 <p>We also calculate the time series of these indicators for the exploited community (we are only interested in the fishing history years, 1967 to 2010, ignoring the transients):</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">years</span> <span class="op">&lt;-</span> <span class="fl">1967</span><span class="op">:</span><span class="fl">2010</span>
 <span class="va">lfi</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getProportionOfLargeFish.html">getProportionOfLargeFish</a></span><span class="op">(</span><span class="va">sim</span>, species <span class="op">=</span> <span class="va">demersal_species</span>,
                                 min_w <span class="op">=</span> <span class="fl">10</span>, max_w <span class="op">=</span> <span class="fl">100e3</span>, 
@@ -287,7 +297,7 @@ Simulated biomasses of stocks in the North Sea with 100 years of transients.
 <span class="va">slope</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getCommunitySlope.html">getCommunitySlope</a></span><span class="op">(</span><span class="va">sim</span>, species <span class="op">=</span> <span class="va">demersal_species</span>, min_w <span class="op">=</span> <span class="fl">10</span>,
                            max_w <span class="op">=</span> <span class="fl">100e3</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">years</span><span class="op">)</span>, <span class="st">"slope"</span><span class="op">]</span></code></pre></div>
 <p>We can plot the exploited and unexploited indicators, along LFI reference level. Here we do it using <code>ggplot2</code> which uses data.frames. We make three data.frames (one for the time series, one for the unexploited levels and one for the reference level): Each data.frame is a data.frame of each of the measures, stacked on top of each other.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span>
 <span class="co"># Simulated data</span>
 <span class="va">community_plot_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>
@@ -328,12 +338,12 @@ Historical (solid) and unexploited (dashed) and reference (dotted) community ind
 </ul>
 <p>Rather than looking at community indicators here, we will calculate the SSB of each species in the model and compare the projected levels to a biodiversity target based on the reference point <span class="math inline">\(0.1 SSB_{F=0}.\)</span></p>
 <p>Before we can run the simulations, we need to set up arrays of future effort. We will continue to use effort relative to the level in 1990. Here we build on our existing array of relative effort to make an array for the first scenario. Note the use of the <code><a href="https://rdrr.io/r/base/t.html">t()</a></code> command to transpose the array. This is needed because R recycles by rows, so we need to build the array with the dimensions rotated to start with. We make an array of the future effort, and then bind it underneath the <code>relative_effort</code> array used in the previous section.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">scenario1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/array.html">array</a></span><span class="op">(</span><span class="va">relative_effort</span><span class="op">[</span><span class="st">"2010"</span>,<span class="op">]</span>, dim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">12</span>,<span class="fl">40</span><span class="op">)</span>,
     dimnames<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="cn">NULL</span>,year <span class="op">=</span> <span class="fl">2011</span><span class="op">:</span><span class="fl">2050</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
 <span class="va">scenario1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span><span class="va">relative_effort</span>, <span class="va">scenario1</span><span class="op">)</span></code></pre></div>
 <p>The relative effort array for the second scenario is more complicated to make and requires a little bit of R gymnastics (it might be easier for you to prepare this in a spreadsheet and read it in). For this one we need values of <span class="math inline">\(F_{MSY}\)</span>.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fmsy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>Sprat <span class="op">=</span> <span class="fl">0.2</span>, Sandeel <span class="op">=</span> <span class="fl">0.2</span>, N.pout <span class="op">=</span> <span class="fl">0.2</span>, Herring <span class="op">=</span> <span class="fl">0.25</span>, Dab <span class="op">=</span> <span class="fl">0.2</span>,
     Whiting <span class="op">=</span> <span class="fl">0.2</span>, Sole <span class="op">=</span> <span class="fl">0.22</span>, Gurnard <span class="op">=</span> <span class="fl">0.2</span>, Plaice <span class="op">=</span> <span class="fl">0.25</span>, Haddock <span class="op">=</span> <span class="fl">0.3</span>,
     Cod <span class="op">=</span> <span class="fl">0.19</span>, Saithe <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span>
@@ -344,14 +354,14 @@ Historical (solid) and unexploited (dashed) and reference (dotted) community ind
         <span class="op">(</span><span class="op">(</span><span class="op">(</span><span class="va">scenario2</span><span class="op">[</span><span class="st">"2015"</span>,<span class="va">sp</span><span class="op">]</span> <span class="op">-</span> <span class="va">scenario2</span><span class="op">[</span><span class="st">"2010"</span>,<span class="va">sp</span><span class="op">]</span><span class="op">)</span> <span class="op">/</span> <span class="fl">5</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span>
 <span class="op">}</span></code></pre></div>
 <p>Both of our new effort scenarios still include 100 years at the 1967 level to reduce the impact of the transient behaviour. We are now ready to project the two scenarios.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sim1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, effort <span class="op">=</span> <span class="va">scenario1</span>, dt <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span>
 <span class="va">sim2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, effort <span class="op">=</span> <span class="va">scenario2</span>, dt <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span></code></pre></div>
 <p>We can now compare the projected SSB values in both scenarios to the biodiversity reference points. First we calculate the biodiversity reference points (from the final time step in the unexploited <code>sim0</code> simulation):</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">ssb0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getSSB.html">getSSB</a></span><span class="op">(</span><span class="va">sim0</span><span class="op">)</span><span class="op">[</span><span class="st">"100"</span>,<span class="op">]</span></code></pre></div>
 <p>Now we build a data.frame of the projected SSB for each species, ignoring the transients. We make use of the <code><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt()</a></code> function in the very useful <code>reshape2</code> package (REF).</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/hadley/reshape">reshape2</a></span><span class="op">)</span>
 <span class="va">years</span> <span class="op">&lt;-</span> <span class="fl">1967</span><span class="op">:</span><span class="fl">2050</span>
 <span class="va">ssb1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getSSB.html">getSSB</a></span><span class="op">(</span><span class="va">sim1</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">years</span><span class="op">)</span>,<span class="op">]</span>

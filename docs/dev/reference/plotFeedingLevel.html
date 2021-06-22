@@ -53,6 +53,8 @@ for the time range can be used)." />
 
 <meta name="robots" content="noindex">
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -64,9 +66,15 @@ for the time range can be used)." />
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -87,24 +95,18 @@ for the time range can be used)." />
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/mizer.html">Get started</a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Tutorials
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    </li>
     <li>
       <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
@@ -144,6 +146,9 @@ for the time range can be used)." />
       <a href="../articles/editing_website.html">Editing the Mizer Website</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../reference/index.html">Reference</a>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
@@ -189,13 +194,14 @@ The feeding level is averaged over the specified time range (a single value
 for the time range can be used).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotFeedingLevel</span><span class='op'>(</span>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>plotFeedingLevel</span><span class='op'>(</span>
   <span class='va'>object</span>,
   species <span class='op'>=</span> <span class='cn'>NULL</span>,
   <span class='va'>time_range</span>,
   highlight <span class='op'>=</span> <span class='cn'>NULL</span>,
   all.sizes <span class='op'>=</span> <span class='cn'>FALSE</span>,
   include_critical <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  return_data <span class='op'>=</span> <span class='cn'>FALSE</span>,
   <span class='va'>...</span>
 <span class='op'>)</span>
 
@@ -206,7 +212,7 @@ for the time range can be used).</p>
   highlight <span class='op'>=</span> <span class='cn'>NULL</span>,
   <span class='va'>include_critical</span>,
   <span class='va'>...</span>
-<span class='op'>)</span></pre>
+<span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -245,6 +251,11 @@ outside a species' size range. Default FALSE.</p></td>
 plotted. Default FALSE.</p></td>
     </tr>
     <tr>
+      <th>return_data</th>
+      <td><p>A boolean value that determines whether the formated data
+used for the plot is returned instead of the plot itself. Default value is FALSE</p></td>
+    </tr>
+    <tr>
       <th>...</th>
       <td><p>Other arguments (currently unused)</p></td>
     </tr>
@@ -269,7 +280,7 @@ where the feeding level drops to the critical feeding level.</p>
     <div class='dont-index'><p><a href='plotting_functions.html'>plotting_functions</a>, <code><a href='getFeedingLevel.html'>getFeedingLevel()</a></code></p>
 <p>Other plotting functions: 
 <code><a href='animateSpectra.html'>animateSpectra</a>()</code>,
-<code><a href='plot,MizerSim,missing-method.html'>plot,MizerSim,missing-method</a></code>,
+<code><a href='plotMizerSim.html'>plot,MizerSim,missing-method</a></code>,
 <code><a href='plotBiomass.html'>plotBiomass</a>()</code>,
 <code><a href='plotDiet.html'>plotDiet</a>()</code>,
 <code><a href='plotFMort.html'>plotFMort</a>()</code>,
@@ -281,14 +292,354 @@ where the feeding level drops to the critical feeding level.</p>
 <code><a href='plotting_functions.html'>plotting_functions</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span><span class='op'>(</span><span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span><span class='op'>)</span>
-<span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort<span class='op'>=</span><span class='fl'>1</span>, t_max<span class='op'>=</span><span class='fl'>20</span>, t_save <span class='op'>=</span> <span class='fl'>2</span>, progress_bar <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
-<span class='fu'>plotFeedingLevel</span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span>
-</div><div class='img'><img src='plotFeedingLevel-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>plotFeedingLevel</span><span class='op'>(</span><span class='va'>sim</span>, time_range <span class='op'>=</span> <span class='fl'>10</span><span class='op'>:</span><span class='fl'>20</span>, species <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Cod"</span>, <span class='st'>"Herring"</span><span class='op'>)</span>,
-                 include_critical <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
-</div><div class='img'><img src='plotFeedingLevel-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span>
-</div></pre>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='co'># \donttest{</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span><span class='op'>(</span><span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort<span class='op'>=</span><span class='fl'>1</span>, t_max<span class='op'>=</span><span class='fl'>20</span>, t_save <span class='op'>=</span> <span class='fl'>2</span>, progress_bar <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'>plotFeedingLevel</span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span></span>
+<span class='r-plt'><img src='plotFeedingLevel-1.png' alt='' width='700' height='433' /></span>
+<span class='r-in'><span class='fu'>plotFeedingLevel</span><span class='op'>(</span><span class='va'>sim</span>, time_range <span class='op'>=</span> <span class='fl'>10</span><span class='op'>:</span><span class='fl'>20</span>, species <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Cod"</span>, <span class='st'>"Herring"</span><span class='op'>)</span>,</span>
+<span class='r-in'>                 include_critical <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-plt'><img src='plotFeedingLevel-2.png' alt='' width='700' height='433' /></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Returning the data frame</span></span>
+<span class='r-in'><span class='fu'>plotFeedingLevel</span><span class='op'>(</span><span class='va'>sim</span>, return_data <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         value Species           w</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 1   0.5999660   Sprat 0.001000000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 2   0.5999799 Sandeel 0.001000000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 3   0.5856913  N.pout 0.001000000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 4   0.5983932 Herring 0.001000000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 5   0.5942605     Dab 0.001000000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 6   0.5856913 Whiting 0.001000000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 7   0.5960075    Sole 0.001000000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 8   0.5954362 Gurnard 0.001000000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 9   0.5929484  Plaice 0.001000000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 10  0.5965447 Haddock 0.001000000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 11  0.5912018     Cod 0.001000000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 12  0.5890709  Saithe 0.001000000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 13  0.5999596   Sprat 0.001193362</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 14  0.5999783 Sandeel 0.001193362</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 15  0.5845517  N.pout 0.001193362</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 16  0.5985825 Herring 0.001193362</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 17  0.5937106     Dab 0.001193362</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 18  0.5845551 Whiting 0.001193362</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 19  0.5955925    Sole 0.001193362</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 20  0.5949698 Gurnard 0.001193362</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 21  0.5922876  Plaice 0.001193362</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 22  0.5961837 Haddock 0.001193362</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 23  0.5904078     Cod 0.001193362</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 24  0.5881366  Saithe 0.001193362</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 25  0.5999520   Sprat 0.001424112</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 26  0.5999758 Sandeel 0.001424112</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 27  0.5833399  N.pout 0.001424112</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 28  0.5987423 Herring 0.001424112</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 29  0.5931210     Dab 0.001424112</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 30  0.5833484 Whiting 0.001424112</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 31  0.5951443    Sole 0.001424112</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 32  0.5944674 Gurnard 0.001424112</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 33  0.5915816  Plaice 0.001424112</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 34  0.5957931 Haddock 0.001424112</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 35  0.5895629     Cod 0.001424112</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 36  0.5871453  Saithe 0.001424112</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 37  0.5999429   Sprat 0.001699481</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 38  0.5999723 Sandeel 0.001699481</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 39  0.5820515  N.pout 0.001699481</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 40  0.5988754 Herring 0.001699481</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 41  0.5924897     Dab 0.001699481</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 42  0.5820674 Whiting 0.001699481</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 43  0.5946614    Sole 0.001699481</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 44  0.5939270 Gurnard 0.001699481</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 45  0.5908287  Plaice 0.001699481</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 46  0.5953712 Haddock 0.001699481</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 47  0.5886647     Cod 0.001699481</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 48  0.5860934  Saithe 0.001699481</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 49  0.5999321   Sprat 0.002028096</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 50  0.5999679 Sandeel 0.002028096</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 51  0.5806818  N.pout 0.002028096</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 52  0.5989843 Herring 0.002028096</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 53  0.5918150     Dab 0.002028096</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 54  0.5807079 Whiting 0.002028096</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 55  0.5941419    Sole 0.002028096</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 56  0.5933470 Gurnard 0.002028096</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 57  0.5900266  Plaice 0.002028096</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 58  0.5949163 Haddock 0.002028096</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 59  0.5877107     Cod 0.002028096</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 60  0.5849770  Saithe 0.002028096</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 61  0.5999193   Sprat 0.002420253</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 62  0.5999624 Sandeel 0.002420253</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 63  0.5792259  N.pout 0.002420253</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 64  0.5990712 Herring 0.002420253</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 65  0.5910948     Dab 0.002420253</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 66  0.5792660 Whiting 0.002420253</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 67  0.5935841    Sole 0.002420253</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 68  0.5927252 Gurnard 0.002420253</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 69  0.5891735  Plaice 0.002420253</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 70  0.5944267 Haddock 0.002420253</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 71  0.5866976     Cod 0.002420253</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 72  0.5837916  Saithe 0.002420253</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 73  0.5999041   Sprat 0.002888237</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 74  0.5999559 Sandeel 0.002888237</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 75  0.5776791  N.pout 0.002888237</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 76  0.5991381 Herring 0.002888237</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 77  0.5903272     Dab 0.002888237</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 78  0.5777379 Whiting 0.002888237</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 79  0.5929861    Sole 0.002888237</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 80  0.5920598 Gurnard 0.002888237</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 81  0.5882670  Plaice 0.002888237</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 82  0.5939004 Haddock 0.002888237</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 83  0.5856224     Cod 0.002888237</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 84  0.5825320  Saithe 0.002888237</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 85  0.5998860   Sprat 0.003446712</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 86  0.5999482 Sandeel 0.003446712</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 87  0.5760366  N.pout 0.003446712</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 88  0.5991866 Herring 0.003446712</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 89  0.5895103     Dab 0.003446712</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 90  0.5761199 Whiting 0.003446712</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 91  0.5923460    Sole 0.003446712</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 92  0.5913485 Gurnard 0.003446712</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 93  0.5873052  Plaice 0.003446712</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 94  0.5933357 Haddock 0.003446712</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 95  0.5844816     Cod 0.003446712</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 96  0.5811929  Saithe 0.003446712</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 97  0.5998646   Sprat 0.004113175</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 98  0.5999391 Sandeel 0.004113175</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 99  0.5742935  N.pout 0.004113175</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 100 0.5992183 Herring 0.004113175</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 101 0.5886419     Dab 0.004113175</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 102 0.5744086 Whiting 0.004113175</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 103 0.5916619    Sole 0.004113175</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 104 0.5905891 Gurnard 0.004113175</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 105 0.5862857  Plaice 0.004113175</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 106 0.5927306 Haddock 0.004113175</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 107 0.5832714     Cod 0.004113175</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 108 0.5797682  Saithe 0.004113175</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 109 0.5998393   Sprat 0.004908506</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 110 0.5999285 Sandeel 0.004908506</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 111 0.5724453  N.pout 0.004908506</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 112 0.5992343 Herring 0.004908506</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 113 0.5877202     Dab 0.004908506</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 114 0.5726010 Whiting 0.004908506</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 115 0.5909317    Sole 0.004908506</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 116 0.5897794 Gurnard 0.004908506</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 117 0.5852064  Plaice 0.004908506</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 118 0.5920829 Haddock 0.004908506</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 119 0.5819880     Cod 0.004908506</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 120 0.5782515  Saithe 0.004908506</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 121 0.5998094   Sprat 0.005857624</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 122 0.5999160 Sandeel 0.005857624</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 123 0.5704880  N.pout 0.005857624</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 124 0.5992358 Herring 0.005857624</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 125 0.5867432     Dab 0.005857624</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 126 0.5706948 Whiting 0.005857624</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 127 0.5901533    Sole 0.005857624</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 128 0.5889168 Gurnard 0.005857624</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 129 0.5840653  Plaice 0.005857624</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 130 0.5913907 Haddock 0.005857624</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 131 0.5806274     Cod 0.005857624</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 132 0.5766360  Saithe 0.005857624</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 133 0.5997741   Sprat 0.006990265</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 134 0.5999015 Sandeel 0.006990265</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 135 0.5684178  N.pout 0.006990265</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 136 0.5992236 Herring 0.006990265</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 137 0.5857091     Dab 0.006990265</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 138 0.5686885 Whiting 0.006990265</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 139 0.5893245    Sole 0.006990265</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 140 0.5879988 Gurnard 0.006990265</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 141 0.5828605  Plaice 0.006990265</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 142 0.5906518 Haddock 0.006990265</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 143 0.5791855     Cod 0.006990265</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 144 0.5749149  Saithe 0.006990265</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 145 0.5997325   Sprat 0.008341915</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 146 0.5998847 Sandeel 0.008341915</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 147 0.5662317  N.pout 0.008341915</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 148 0.5991983 Herring 0.008341915</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 149 0.5846160     Dab 0.008341915</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 150 0.5665814 Whiting 0.008341915</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 151 0.5884433    Sole 0.008341915</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 152 0.5870226 Gurnard 0.008341915</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 153 0.5815903  Plaice 0.008341915</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 154 0.5898639 Haddock 0.008341915</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 155 0.5776586     Cod 0.008341915</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 156 0.5730810  Saithe 0.008341915</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 157 0.5996837   Sprat 0.009954923</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 158 0.5998651 Sandeel 0.009954923</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 159 0.5639273  N.pout 0.009954923</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 160 0.5991604 Herring 0.009954923</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 161 0.5834624     Dab 0.009954923</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 162 0.5643740 Whiting 0.009954923</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 163 0.5875074    Sole 0.009954923</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 164 0.5859855 Gurnard 0.009954923</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 165 0.5802534  Plaice 0.009954923</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 166 0.5890247 Haddock 0.009954923</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 167 0.5760427     Cod 0.009954923</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 168 0.5711271  Saithe 0.009954923</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 169 0.5996266   Sprat 0.011879825</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 170 0.5998425 Sandeel 0.011879825</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 171 0.5615034  N.pout 0.011879825</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 172 0.5991104 Herring 0.011879825</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 173 0.5822469     Dab 0.011879825</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 174 0.5620679 Whiting 0.011879825</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 175 0.5865144    Sole 0.011879825</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 176 0.5848845 Gurnard 0.011879825</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 177 0.5788488  Plaice 0.011879825</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 178 0.5881319 Haddock 0.011879825</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 179 0.5743346     Cod 0.011879825</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 180 0.5690463  Saithe 0.011879825</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 181 0.5995599   Sprat 0.014176930</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 182 0.5998163 Sandeel 0.014176930</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 183 0.5589597  N.pout 0.014176930</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 184 0.5990483 Herring 0.014176930</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 185 0.5809684     Dab 0.014176930</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 186 0.5596665 Whiting 0.014176930</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 187 0.5854622    Sole 0.014176930</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 188 0.5837166 Gurnard 0.014176930</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 189 0.5773763  Plaice 0.014176930</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 190 0.5871829 Haddock 0.014176930</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 191 0.5725312     Cod 0.014176930</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 192 0.5668318  Saithe 0.014176930</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 193 0.5994822   Sprat 0.016918207</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 194 0.5997862 Sandeel 0.016918207</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 195 0.5562976  N.pout 0.016918207</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 196 0.5989742 Herring 0.016918207</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 197 0.5796263     Dab 0.016918207</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 198 0.5571749 Whiting 0.016918207</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 199 0.5843485    Sole 0.016918207</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 200 0.5824788 Gurnard 0.016918207</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 201 0.5758361  Plaice 0.016918207</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 202 0.5861754 Haddock 0.016918207</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 203 0.5706303     Cod 0.016918207</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 204 0.5644774  Saithe 0.016918207</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 205 0.5993920   Sprat 0.020189543</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 206 0.5997516 Sandeel 0.020189543</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 207 0.5535197  N.pout 0.020189543</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 208 0.5988882 Herring 0.020189543</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 209 0.5782202     Dab 0.020189543</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 210 0.5546000 Whiting 0.020189543</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 211 0.5831712    Sole 0.020189543</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 212 0.5811680 Gurnard 0.020189543</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 213 0.5742295  Plaice 0.020189543</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 214 0.5851068 Haddock 0.020189543</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 215 0.5686302     Cod 0.020189543</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 216 0.5619772  Saithe 0.020189543</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 217 0.5992878   Sprat 0.024093430</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 218 0.5997120 Sandeel 0.024093430</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 219 0.5506305  N.pout 0.024093430</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 220 0.5987900 Herring 0.024093430</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 221 0.5767505     Dab 0.024093430</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 222 0.5519512 Whiting 0.024093430</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 223 0.5819281    Sole 0.024093430</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 224 0.5797811 Gurnard 0.024093430</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 225 0.5725588  Plaice 0.024093430</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 226 0.5839746 Haddock 0.024093430</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 227 0.5665306     Cod 0.024093430</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 228 0.5593264  Saithe 0.024093430</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 229 0.5991678   Sprat 0.028752180</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 230 0.5996666 Sandeel 0.028752180</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 231 0.5476366  N.pout 0.028752180</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 232 0.5986793 Herring 0.028752180</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 233 0.5752181     Dab 0.028752180</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 234 0.5492402 Whiting 0.028752180</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 235 0.5806173    Sole 0.028752180</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 236 0.5783150 Gurnard 0.028752180</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 237 0.5708273  Plaice 0.028752180</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 238 0.5827763 Haddock 0.028752180</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 239 0.5643320     Cod 0.028752180</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 240 0.5565209  Saithe 0.028752180</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 241 0.5990302   Sprat 0.034311755</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 242 0.5996150 Sandeel 0.034311755</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 243 0.5445469  N.pout 0.034311755</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 244 0.5985558 Herring 0.034311755</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 245 0.5736249     Dab 0.034311755</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 246 0.5464814 Whiting 0.034311755</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 247 0.5792372    Sole 0.034311755</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 248 0.5767670 Gurnard 0.034311755</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 249 0.5690402  Plaice 0.034311755</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 250 0.5815094 Haddock 0.034311755</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 251 0.5620365     Cod 0.034311755</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 252 0.5535578  Saithe 0.034311755</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 253 0.5988730   Sprat 0.040946339</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 254 0.5995562 Sandeel 0.040946339</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 255 0.5413724  N.pout 0.040946339</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 256 0.5984191 Herring 0.040946339</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 257 0.5719733     Dab 0.040946339</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 258 0.5436920 Whiting 0.040946339</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 259 0.5777862    Sole 0.040946339</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 260 0.5751343 Gurnard 0.040946339</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 261 0.5672037  Plaice 0.040946339</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 262 0.5801715 Haddock 0.040946339</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 263 0.5596480     Cod 0.040946339</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 264 0.5504355  Saithe 0.040946339</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 265 0.5986943   Sprat 0.048863798</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 266 0.5994895 Sandeel 0.048863798</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 267 0.5381273  N.pout 0.048863798</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 268 0.5982686 Herring 0.048863798</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 269 0.5702673     Dab 0.048863798</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 270 0.5408922 Whiting 0.048863798</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 271 0.5762633    Sole 0.048863798</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 272 0.5734145 Gurnard 0.048863798</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 273 0.5653264  Plaice 0.048863798</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 274 0.5787605 Haddock 0.048863798</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 275 0.5571721     Cod 0.048863798</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 276 0.5471537  Saithe 0.048863798</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 277 0.5984919   Sprat 0.058312192</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 278 0.5994141 Sandeel 0.058312192</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 279 0.5348282  N.pout 0.058312192</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 280 0.5981037 Herring 0.058312192</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 281 0.5685116     Dab 0.058312192</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 282 0.5381055 Whiting 0.058312192</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 283 0.5746677    Sole 0.058312192</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 284 0.5716056 Gurnard 0.058312192</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 285 0.5634187  Plaice 0.058312192</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 286 0.5772742 Haddock 0.058312192</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 287 0.5546167     Cod 0.058312192</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 288 0.5437139  Saithe 0.058312192</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 289 0.5982638   Sprat 0.069587545</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 290 0.5993290 Sandeel 0.069587545</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 291 0.5314949  N.pout 0.069587545</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 292 0.5979237 Herring 0.069587545</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 293 0.5667124     Dab 0.069587545</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 294 0.5353582 Whiting 0.069587545</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 295 0.5729994    Sole 0.069587545</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 296 0.5697059 Gurnard 0.069587545</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 297 0.5614931  Plaice 0.069587545</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 298 0.5757109 Haddock 0.069587545</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 299 0.5519922     Cod 0.069587545</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 300 0.5401191  Saithe 0.069587545</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 301 0.5980081   Sprat 0.083043120</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 302 0.5992333 Sandeel 0.083043120</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 303 0.5281503  N.pout 0.083043120</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 304 0.5977279 Herring 0.083043120</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 305 0.5648775     Dab 0.083043120</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 306 0.5326796 Whiting 0.083043120</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 307 0.5712588    Sole 0.083043120</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 308 0.5677145 Gurnard 0.083043120</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 309 0.5595649  Plaice 0.083043120</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 310 0.5740689 Haddock 0.083043120</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 311 0.5493116     Cod 0.083043120</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 312 0.5363744  Saithe 0.083043120</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 313 0.5977226   Sprat 0.099100491</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 314 0.5991259 Sandeel 0.099100491</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 315 0.5248205  N.pout 0.099100491</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 316 0.5975155 Herring 0.099100491</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 317 0.5630159     Dab 0.099100491</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 318 0.5301019 Whiting 0.099100491</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 319 0.5694471    Sole 0.099100491</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 320 0.5656310 Gurnard 0.099100491</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 321 0.5576519  Plaice 0.099100491</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 322 0.5723471 Haddock 0.099100491</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 323 0.5465910     Cod 0.099100491</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 324 0.5324868  Saithe 0.099100491</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 325 0.5974054   Sprat 0.118262744</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 326 0.5990057 Sandeel 0.118262744</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 327 0.5215345  N.pout 0.118262744</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 328 0.5972856 Herring 0.118262744</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 329 0.5611386     Dab 0.118262744</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 330 0.5276595 Whiting 0.118262744</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 331 0.5675663    Sole 0.118262744</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 332 0.5634559 Gurnard 0.118262744</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 333 0.5557746  Plaice 0.118262744</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [ reached 'max' / getOption("max.print") -- omitted 601 rows ]</span>
+<span class='r-in'><span class='co'># }</span></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -300,11 +651,11 @@ where the feeding level drops to the critical feeding level.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
+  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
 </div>
 
       </footer>
@@ -329,6 +680,8 @@ where the feeding level drops to the critical feeding level.</p>
 </script>
 
 
+
+  
 
   </body>
 </html>

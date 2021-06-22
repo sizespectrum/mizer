@@ -24,6 +24,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -43,25 +45,19 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="articles/mizer.html">Get started</a>
-</li>
-<li>
-  <a href="reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Tutorials
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    </li>
+    <li>
       <a href="articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
@@ -102,6 +98,9 @@
   </ul>
 </li>
 <li>
+  <a href="reference/index.html">Reference</a>
+</li>
+<li>
   <a href="articles/publications.html">Publications</a>
 </li>
 <li>
@@ -135,7 +134,7 @@
   <div class="contents col-md-9">
 <div id="mizer" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
-<a href="#mizer" class="anchor"></a>mizer</h1></div>
+<a href="#mizer" class="anchor" aria-hidden="true"></a>mizer</h1></div>
 
 <p>Mizer is an R package to run <a href="#dynamic-multi-species-size-spectrum-models">dynamic multi-species size-spectrum models</a> of fish communities. The package has been developed to model marine ecosystems that are subject to fishing. However, it may also be appropriate for other ecosystems.</p>
 <p>The package contains routines and functions to allow users to set up an ecosystem model, and then project it through time under different fishing strategies. Methods are included to explore the results, including plots and calculation of community indicators such as the slope of the size spectrum. Size-based models can be complicated so mizer contains many default options that can be easily changed by the user.</p>
@@ -144,37 +143,37 @@
 <!-- app](https://mizer.shinyapps.io/selectivity/) investigates the effect of -->
 <!-- switching to a gear with a T90 extension net to reduce the catches of undersize -->
 <!-- hake and red mullet -->
-<p>Mizer has been supporting research in marine ecology and fisheries science since 2014 (<a href="https://sizespectrum.org/mizer/articles/publications.html">see publications</a>). It is still under active development. The new version 2.0 has increased the user-friendliness and the flexibility of the framework. Contributions from the user community are very welcome. There is a sister package called <a href="https://sizespectrum.org/mizerExperimental/">mizerExperimental</a> where user contributions can be checked out and receive feedback from the community. Example mizer models can be contributed to <a href="https://sizespectrum.org/mizerExamples/">mizerExamples</a>.</p>
-<p>Does your project or publication use mizer? If so, we would love to know. You can also join our Google Discussion group here: <a href="https://groups.google.com/forum/#!forum/size-spectrum-models" class="uri">https://groups.google.com/forum/#!forum/size-spectrum-models</a></p>
-<p>Recent work on mizer was funded by the European Commission Horizon 2020 Research and Innovation Programme under Grant Agreement No 634495 for the project MINOUW (<a href="http://minouw-project.eu/" class="uri">http://minouw-project.eu/</a>) and the Australian Research Council Discovery Project <a href="https://marinesocioecology.org/projects/rewiring-marine-food-webs-predicting-consequences-of-species-distribution-shifts-on-marine-communities/">Rewiring Marine Food Webs</a>.</p>
+<p>Mizer has been supporting research in marine ecology and fisheries science since 2014 (<a href="https://sizespectrum.org/mizer/articles/publications.html">see publications</a>). Mizer is still under active development. Version 2.0 has increased the user-friendliness and the flexibility of the framework. Contributions from the user community are very welcome. There is a sister package called <a href="https://sizespectrum.org/mizerExperimental/">mizerExperimental</a> where user contributions can be checked out and receive feedback from the community. Example mizer models can be contributed to <a href="https://sizespectrum.org/mizerExamples/">mizerExamples</a>.</p>
+<p>Does your project or publication use mizer? If so, we would love to know. You can also join our Google Discussion group here: <a href="https://groups.google.com/forum/#!forum/size-spectrum-models" class="external-link uri">https://groups.google.com/forum/#!forum/size-spectrum-models</a></p>
+<p>Recent work on mizer was funded by the European Commission Horizon 2020 Research and Innovation Programme under Grant Agreement No 634495 for the project MINOUW (<a href="http://minouw-project.eu/" class="external-link uri">http://minouw-project.eu/</a>) and the Australian Research Council Discovery Project <a href="https://marinesocioecology.org/projects/rewiring-marine-food-webs-predicting-consequences-of-species-distribution-shifts-on-marine-communities/" class="external-link">Rewiring Marine Food Webs</a>.</p>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h2>
-<p>The package is on <a href="https://cran.r-project.org/package=mizer">CRAN</a> and therefore available from R’s built-in package manager.</p>
+<a href="#installation" class="anchor" aria-hidden="true"></a>Installation</h2>
+<p>The package is on <a href="https://cran.r-project.org/package=mizer" class="external-link">CRAN</a> and therefore available from R’s built-in package manager.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Install release version from CRAN</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"mizer"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"mizer"</span><span class="op">)</span>
 
 <span class="co"># Alternatively, install development version from GitHub</span>
-<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"sizespectrum/mizer"</span><span class="op">)</span></code></pre></div>
+<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"sizespectrum/mizer"</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="example" class="section level2">
 <h2 class="hasAnchor">
-<a href="#example" class="anchor"></a>Example</h2>
+<a href="#example" class="anchor" aria-hidden="true"></a>Example</h2>
 <p>The following code loads the mizer package, loads some information about species in the North Sea that comes as an example with the package, sets up the parameters for the mizer model, and runs a simulation for 10 years.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://sizespectrum.org/mizer/">mizer</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sizespectrum.org/mizer/">mizer</a></span><span class="op">)</span>
 <span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">NS_species_params</span>, <span class="va">inter</span><span class="op">)</span>
 <span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">10</span>, effort <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></code></pre></div>
 <p>The results of the simulation can then be analysed, for example via plots:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
 <p><img src="reference/figures/unnamed-chunk-4-1.png"><!-- --></p>
 <p>See the accompanying <a href="https://sizespectrum.org/mizer/articles/mizer.html">Get started</a> page for more details on how the package works, including detailed examples.</p>
 </div>
 <div id="dynamic-multi-species-size-spectrum-models" class="section level2">
 <h2 class="hasAnchor">
-<a href="#dynamic-multi-species-size-spectrum-models" class="anchor"></a>Dynamic multi-species size-spectrum models</h2>
+<a href="#dynamic-multi-species-size-spectrum-models" class="anchor" aria-hidden="true"></a>Dynamic multi-species size-spectrum models</h2>
 <p>A mizer model captures the interactions between multiple species. The growth rates of fish are determined by the availability of prey and the death rates are influenced by the abundance of predators, as well as fishing. The model starts with the individual-level physiological rates for each species, as well as the predation preferences, and deduces the population-level dynamics from these. Thus quantities like fish diets and fisheries yields emerge dynamically and can be projected into the future.</p>
 <p>Because a mizer model tracks the size of individuals as they grow up over several orders of magnitude from their egg size to their maximum size, it correctly tracks the ontogenetic diet shifts. An individual typically moves through several trophic levels during its life time. This is often not correctly captured in other multi-species models.</p>
 <p>A mizer model can be set up with only a small amount of information because it uses allometric scaling relations and size-based feeding rules to choose sensible defaults for unknown parameters.</p>
@@ -182,20 +181,21 @@
 </div>
 <div id="modelling-environmental-change" class="section level2">
 <h2 class="hasAnchor">
-<a href="#modelling-environmental-change" class="anchor"></a>Modelling environmental change</h2>
+<a href="#modelling-environmental-change" class="anchor" aria-hidden="true"></a>Modelling environmental change</h2>
 <p>A mizer model is a good tool for studying the effect of environmental changes, like climate change, because it is a mechanistic model that can deduce the complex population-level changes that one is interested in from the simpler changes in the physiological rates and feeding interactions of individual fish species.</p>
 </div>
 <div id="smooth-traffic-on-the-biomass-highway" class="section level2">
 <h2 class="hasAnchor">
-<a href="#smooth-traffic-on-the-biomass-highway" class="anchor"></a>Smooth traffic on the biomass highway</h2>
+<a href="#smooth-traffic-on-the-biomass-highway" class="anchor" aria-hidden="true"></a>Smooth traffic on the biomass highway</h2>
 <p>It is interesting to think of the marine ecosystem as a transport system that moves biomass from the size of primary producers (mostly unicellular plankton) up to the sizes of fish that humans like to consume. Each fish that grows up from egg size to maturity by eating smaller individuals is like a car on this biomass highway. The yield of our fisheries depend on this traffic flowing smoothly and without traffic jams.</p>
+<p>An analogy with road traffic may be helpful:</p>
 <p>In road traffic, if traffic density gets too high in a section of the highway, drivers slow down, which leads to a pile-up producing even higher traffic density, leading to further slow-down in a potentially vicious cycle known as a traffic jam. Traffic management that ignores how the traffic density affects traffic speed fails. Luckily our mathematical understanding of transport equations has made practical contributions to managing traffic in ways that produce smoother traffic flow and hence higher throughput.</p>
 <p>Mizer implements the transport equations for marine ecosystems. The potential for traffic jams is the same: if for example there is a high density of predators of a particular size, which all have preference for prey of a particular smaller size, then due to competition for that prey the growth of those predators slows down, leading to a pile-up which leads to further depletion of prey, leading to further slow-down, in a potentially vicious cycle.</p>
 <p>Luckily the natural ecosystem has evolved to facilitate very smooth traffic on the biomass highway with resultant high productivity. This state is characterised by an approximate power-law shape of the biomass size spectrum. The purpose of mizer is to allow us to understand how various stressors, like fishing or climate change, affect the size spectrum and hence flow of biomass and the productivity and resilience of the marine ecosystem. Mizer allows us to investigate how size-based fisheries management strategies can be used to keep the ecosystem close to its natural productive state.</p>
 </div>
 <div id="a-model-one-can-understand" class="section level2">
 <h2 class="hasAnchor">
-<a href="#a-model-one-can-understand" class="anchor"></a>A model one can understand</h2>
+<a href="#a-model-one-can-understand" class="anchor" aria-hidden="true"></a>A model one can understand</h2>
 <p>One big advantage of a mizer model is that it is based on a strong mathematical foundation. This allows a degree of a priori understanding of the behaviour of the model that is absent in many other multi-species model. This theoretical foundation is well presented in the book “Fish Ecology, Evolution, and Exploitation” by Ken Andersen.</p>
 </div>
 </div>
@@ -203,7 +203,7 @@
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
 <li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=mizer">https://​cloud.r-project.org/​package=mizer</a>
 </li>
@@ -213,26 +213,30 @@
 </li>
 </ul>
 </div>
+
 <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="https://www.r-project.org/Licenses/GPL-3">GPL-3</a></li>
 </ul>
 </div>
+
 <div class="community">
-<h2>Community</h2>
+<h2 data-toc-skip>Community</h2>
 <ul class="list-unstyled">
 <li><a href="CONTRIBUTING.html">Contributing guide</a></li>
 </ul>
 </div>
+
 <div class="citation">
-<h2>Citation</h2>
+<h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
 <li><a href="authors.html">Citing mizer</a></li>
 </ul>
 </div>
+
 <div class="developers">
-<h2>Developers</h2>
+<h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>
 <a href="https://www.york.ac.uk/maths/staff/gustav-delius/">Gustav Delius</a> <br><small class="roles"> Maintainer, author, copyright holder </small> <a href="https://orcid.org/0000-0003-4092-8228" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
@@ -241,29 +245,32 @@
 <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard">Julia Blanchard</a> <br><small class="roles"> Author, copyright holder </small> <a href="https://orcid.org/0000-0003-0532-4824" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
 <li>
 <a href="https://ken.haste.dk/">Ken Andersen</a> <br><small class="roles"> Author, copyright holder </small> <a href="https://orcid.org/0000-0002-8478-3430" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
-<li><a href="authors.html">All authors...</a></li>
+<li><a href="authors.html">More on authors...</a></li>
 </ul>
 </div>
 
-  <div class="dev-status">
-<h2>Dev status</h2>
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://cran.r-project.org/package=mizer"><img src="https://www.r-pkg.org/badges/version-ago/mizer" alt="CRAN Status"></a></li>
-<li><a href="https://cran.r-project.org/package=mizer"><img src="http://cranlogs.r-pkg.org/badges/grand-total/mizer" alt="CRAN Downloads"></a></li>
-<li><a href="https://cran.r-project.org/package=mizer"><img src="http://cranlogs.r-pkg.org/badges/mizer" alt="CRAN Downloads"></a></li>
-<li><a href="https://codecov.io/github/sizespectrum/mizer?branch=master"><img src="https://codecov.io/gh/sizespectrum/mizer/branch/master/graph/badge.svg" alt="Coverage status"></a></li>
+<li><a href="https://cran.r-project.org/package=mizer" class="external-link"><img src="https://www.r-pkg.org/badges/version-ago/mizer" alt="CRAN Status"></a></li>
+<li><a href="https://cran.r-project.org/package=mizer" class="external-link"><img src="http://cranlogs.r-pkg.org/badges/grand-total/mizer" alt="CRAN Downloads"></a></li>
+<li><a href="https://cran.r-project.org/package=mizer" class="external-link"><img src="http://cranlogs.r-pkg.org/badges/mizer" alt="CRAN Downloads"></a></li>
+<li><a href="https://codecov.io/github/sizespectrum/mizer?branch=master" class="external-link"><img src="https://codecov.io/gh/sizespectrum/mizer/branch/master/graph/badge.svg" alt="Coverage status"></a></li>
 </ul>
 </div>
-</div>
+
+  </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard">Julia Blanchard</a>, <a href="https://ken.haste.dk/">Ken Andersen</a>.</p>
+  <p></p>
+<p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

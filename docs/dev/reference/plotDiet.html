@@ -67,9 +67,6 @@ predator's size. These proportions are obtained with getDiet()." />
 
 
 
-<!-- dependencies from examples -->
-
-
   
 
   
@@ -101,12 +98,9 @@ predator's size. These proportions are obtained with getDiet()." />
         <li>
   <a href="../articles/mizer.html">Get started</a>
 </li>
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Tutorials
      
     <span class="caret"></span>
   </a>
@@ -155,6 +149,9 @@ predator's size. These proportions are obtained with getDiet()." />
   </ul>
 </li>
 <li>
+  <a href="../reference/index.html">Reference</a>
+</li>
+<li>
   <a href="../articles/publications.html">Publications</a>
 </li>
 <li>
@@ -199,7 +196,7 @@ biomass consumed by the specified predator species, as a function of the
 predator's size. These proportions are obtained with <code><a href='getDiet.html'>getDiet()</a></code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotDiet</span><span class='op'>(</span><span class='va'>object</span>, species <span class='op'>=</span> <span class='cn'>NULL</span>, return_data <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>plotDiet</span><span class='op'>(</span><span class='va'>object</span>, species <span class='op'>=</span> <span class='cn'>NULL</span>, return_data <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -240,17 +237,19 @@ used for the plot is returned instead of the plot itself. Default value is FALSE
 <code><a href='plotting_functions.html'>plotting_functions</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='fu'>plotDiet</span><span class='op'>(</span><span class='va'>NS_params</span>, species <span class='op'>=</span> <span class='st'>"Cod"</span><span class='op'>)</span>
-</div><div class='img'><img src='plotDiet-1.png' alt='' width='700' height='433' /></div><div class='input'>
-<span class='co'># Returning the data frame</span>
-<span class='va'>fr</span> <span class='op'>&lt;-</span> <span class='fu'>plotDiet</span><span class='op'>(</span><span class='va'>NS_params</span>, species <span class='op'>=</span> <span class='st'>"Cod"</span>, return_data <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
-<span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='op'>(</span><span class='va'>fr</span><span class='op'>)</span>
-</div><div class='co'>#&gt; 'data.frame':	1300 obs. of  3 variables:
-#&gt;  $ Proportion: num  7.21e-18 6.95e-09 1.97e-08 4.17e-08 7.79e-08 ...
-#&gt;  $ w         : num  0.001 0.00119 0.00142 0.0017 0.00203 ...
-#&gt;  $ Prey      : Factor w/ 13 levels "Resource","Saithe",..: 13 13 13 13 13 13 13 13 13 13 ...</div><div class='input'><span class='co'># }</span>
-</div></pre>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='co'># \donttest{</span></span>
+<span class='r-in'><span class='fu'>plotDiet</span><span class='op'>(</span><span class='va'>NS_params</span>, species <span class='op'>=</span> <span class='st'>"Cod"</span><span class='op'>)</span></span>
+<span class='r-plt'><img src='plotDiet-1.png' alt='' width='700' height='433' /></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Returning the data frame</span></span>
+<span class='r-in'><span class='va'>fr</span> <span class='op'>&lt;-</span> <span class='fu'>plotDiet</span><span class='op'>(</span><span class='va'>NS_params</span>, species <span class='op'>=</span> <span class='st'>"Cod"</span>, return_data <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='op'>(</span><span class='va'>fr</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 'data.frame':	1300 obs. of  3 variables:</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  $ Proportion: num  7.21e-18 6.95e-09 1.97e-08 4.17e-08 7.79e-08 ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  $ w         : num  0.001 0.00119 0.00142 0.0017 0.00203 ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  $ Prey      : Factor w/ 13 levels "Resource","Saithe",..: 13 13 13 13 13 13 13 13 13 13 ...</span>
+<span class='r-in'><span class='co'># }</span></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -266,7 +265,7 @@ used for the plot is returned instead of the plot itself. Default value is FALSE
 </div>
 
 <div class="pkgdown">
-  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
 </div>
 
       </footer>

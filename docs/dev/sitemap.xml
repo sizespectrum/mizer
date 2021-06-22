@@ -40,6 +40,12 @@
     <loc>https://sizespectrum.org/mizer/reference/SheperdRDD.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/addSpecies.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/animateSpectra.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/box_pred_kernel.html</loc>
   </url>
   <url>
@@ -196,6 +202,9 @@
     <loc>https://sizespectrum.org/mizer/reference/getZ.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/get_f0_default.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/get_gamma_default.html</loc>
   </url>
   <url>
@@ -295,6 +304,9 @@
     <loc>https://sizespectrum.org/mizer/reference/newMultispeciesParams.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/newSingleSpeciesParams.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/newTraitParams.html</loc>
   </url>
   <url>
@@ -350,6 +362,12 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/reexports.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/removeSpecies.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/renameSpecies.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/resource_constant.html</loc>
@@ -505,10 +523,16 @@
     <loc>https://sizespectrum.org/mizer/articles/plotting.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/articles/ppmr.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/articles/publications.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/running_a_simulation.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/single_species_size-spectrum_dynamics.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/trait_model.html</loc>

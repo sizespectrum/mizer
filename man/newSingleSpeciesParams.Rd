@@ -118,11 +118,9 @@ multiple of the recruitment rate at steady state. That multiple is set by the
 argument \code{R_factor}.
 }
 \examples{
-\dontrun{
-params <- newSinglespeciesParams()
+params <- newSingleSpeciesParams()
 sim <- project(params, t_max = 5, effort = 0)
 plotSpectra(sim)
-}
 }
 \seealso{
 Other functions for setting up models: 

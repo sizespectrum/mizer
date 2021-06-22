@@ -57,6 +57,8 @@ calculation." />
 
 <meta name="robots" content="noindex">
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -68,9 +70,15 @@ calculation." />
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -91,24 +99,18 @@ calculation." />
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/mizer.html">Get started</a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Tutorials
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    </li>
     <li>
       <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
@@ -148,6 +150,9 @@ calculation." />
       <a href="../articles/editing_website.html">Editing the Mizer Website</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../reference/index.html">Reference</a>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
@@ -197,7 +202,7 @@ min_l will be used). You can also specify the species to be used in the
 calculation.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getCommunitySlope</span><span class='op'>(</span><span class='va'>sim</span>, species <span class='op'>=</span> <span class='cn'>NULL</span>, biomass <span class='op'>=</span> <span class='cn'>TRUE</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>getCommunitySlope</span><span class='op'>(</span><span class='va'>sim</span>, species <span class='op'>=</span> <span class='cn'>NULL</span>, biomass <span class='op'>=</span> <span class='cn'>TRUE</span>, <span class='va'>...</span><span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -246,20 +251,20 @@ coefficient of determination R^2.</p>
 <code><a href='getProportionOfLargeFish.html'>getProportionOfLargeFish</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
-<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span>
-<span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort<span class='op'>=</span><span class='fl'>1</span>, t_max<span class='op'>=</span><span class='fl'>40</span>, dt <span class='op'>=</span> <span class='fl'>1</span>, t_save <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span>
-<span class='co'># Slope based on biomass, using all species and sizes</span>
-<span class='va'>slope_biomass</span> <span class='op'>&lt;-</span> <span class='fu'>getCommunitySlope</span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span>
-<span class='co'># Slope based on numbers, using all species and sizes</span>
-<span class='va'>slope_numbers</span> <span class='op'>&lt;-</span> <span class='fu'>getCommunitySlope</span><span class='op'>(</span><span class='va'>sim</span>, biomass<span class='op'>=</span><span class='cn'>FALSE</span><span class='op'>)</span>
-<span class='co'># Slope based on biomass, using all species and sizes between 10g and 1000g</span>
-<span class='va'>slope_biomass</span> <span class='op'>&lt;-</span> <span class='fu'>getCommunitySlope</span><span class='op'>(</span><span class='va'>sim</span>, min_w <span class='op'>=</span> <span class='fl'>10</span>, max_w <span class='op'>=</span> <span class='fl'>1000</span><span class='op'>)</span>
-<span class='co'># Slope based on biomass, using only demersal species and sizes between 10g and 1000g</span>
-<span class='va'>dem_species</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Dab"</span>,<span class='st'>"Whiting"</span>,<span class='st'>"Sole"</span>,<span class='st'>"Gurnard"</span>,<span class='st'>"Plaice"</span>,<span class='st'>"Haddock"</span>, <span class='st'>"Cod"</span>,<span class='st'>"Saithe"</span><span class='op'>)</span>
-<span class='va'>slope_biomass</span> <span class='op'>&lt;-</span> <span class='fu'>getCommunitySlope</span><span class='op'>(</span><span class='va'>sim</span>, species <span class='op'>=</span> <span class='va'>dem_species</span>, min_w <span class='op'>=</span> <span class='fl'>10</span>, max_w <span class='op'>=</span> <span class='fl'>1000</span><span class='op'>)</span>
-<span class='op'>}</span>
-</div></pre>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort<span class='op'>=</span><span class='fl'>1</span>, t_max<span class='op'>=</span><span class='fl'>40</span>, dt <span class='op'>=</span> <span class='fl'>1</span>, t_save <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># Slope based on biomass, using all species and sizes</span></span>
+<span class='r-in'><span class='va'>slope_biomass</span> <span class='op'>&lt;-</span> <span class='fu'>getCommunitySlope</span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># Slope based on numbers, using all species and sizes</span></span>
+<span class='r-in'><span class='va'>slope_numbers</span> <span class='op'>&lt;-</span> <span class='fu'>getCommunitySlope</span><span class='op'>(</span><span class='va'>sim</span>, biomass<span class='op'>=</span><span class='cn'>FALSE</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># Slope based on biomass, using all species and sizes between 10g and 1000g</span></span>
+<span class='r-in'><span class='va'>slope_biomass</span> <span class='op'>&lt;-</span> <span class='fu'>getCommunitySlope</span><span class='op'>(</span><span class='va'>sim</span>, min_w <span class='op'>=</span> <span class='fl'>10</span>, max_w <span class='op'>=</span> <span class='fl'>1000</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># Slope based on biomass, using only demersal species and sizes between 10g and 1000g</span></span>
+<span class='r-in'><span class='va'>dem_species</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Dab"</span>,<span class='st'>"Whiting"</span>,<span class='st'>"Sole"</span>,<span class='st'>"Gurnard"</span>,<span class='st'>"Plaice"</span>,<span class='st'>"Haddock"</span>, <span class='st'>"Cod"</span>,<span class='st'>"Saithe"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>slope_biomass</span> <span class='op'>&lt;-</span> <span class='fu'>getCommunitySlope</span><span class='op'>(</span><span class='va'>sim</span>, species <span class='op'>=</span> <span class='va'>dem_species</span>, min_w <span class='op'>=</span> <span class='fl'>10</span>, max_w <span class='op'>=</span> <span class='fl'>1000</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -271,11 +276,11 @@ coefficient of determination R^2.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
+  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
 </div>
 
       </footer>
@@ -300,6 +305,8 @@ coefficient of determination R^2.</p>
 </script>
 
 
+
+  
 
   </body>
 </html>

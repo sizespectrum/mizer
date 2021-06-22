@@ -60,6 +60,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    </li>
+    <li>
       <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
@@ -129,7 +132,7 @@
 
       
 
-      </header><script src="developer_FAQ_files/header-attrs-2.7/header-attrs.js"></script><script src="developer_FAQ_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="developer_FAQ_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Developer FAQ</h1>
@@ -143,7 +146,9 @@
     
     
 <p>Clicking on a question will reveal the answer.</p>
-<details><p><summary>How can I prepare a pull request without a clean master branch?</summary> If you want to contribute some of your code to the official mizer code at <a href="https://github.com/sizespectrum/mizer" class="uri">https://github.com/sizespectrum/mizer</a> you need to first create a branch in your repository that differs from the master branch of sizespectrum/mizer only by the code that you want to contribute, not by any other changes that you may have made in your fork. This answer explains how.</p>
+<details><summary>
+How can I prepare a pull request without a clean master branch?
+</summary><p>If you want to contribute some of your code to the official mizer code at <a href="https://github.com/sizespectrum/mizer" class="uri">https://github.com/sizespectrum/mizer</a> you need to first create a branch in your repository that differs from the master branch of sizespectrum/mizer only by the code that you want to contribute, not by any other changes that you may have made in your fork. This answer explains how.</p>
 <p>We assume that you have not followed the recommendation of keeping your master branch identical with that at sizespectrum/master, because if you had you could simply follow the procedure described in the “<a href="working_with_git.html">Working with git and GitHub</a>” tutorial. Given that your master branch differs from that at sizespectrum/mizer, you need to create a new branch not from your master branch but directly from that at sizespectrum/master. Follow the following steps:</p>
 <ol style="list-style-type: decimal">
 <li><p>Go to the “Terminal” tab in Rstudio. This should be the tab next to the “Console” tab. If it is not there and you don’t know why not, then you are possibly running an old version of RStudio and you will want to update to a newer version, which is easy from the Help menu under “Check for Updates”.</p></li>
@@ -161,7 +166,9 @@ git push --set-upstream origin name_of_your_branch</code></pre>
 <p>where you should replace both <code>name_of_your_branch</code> with the actual name that you<br>
 have chosen for you branch.</p>
 You now have a new branch that is identical to sizespectrum/master. You can now commit the relevant new code to this branch and create a pull request, as described in the “<a href="working_with_git.html">Working with git and GitHub</a>” tutorial
-</details><details><p><summary>How can I get a clean master branch?</summary> The recommended way of working in your fork of the mizer project is to keep the master branch of your repository always in sync with the master branch at <a href="https://github.com/sizespectrum/mizer" class="uri">https://github.com/sizespectrum/mizer</a>, and to create a feature branch for any of your code changes, as is explained in the “<a href="working_with_git.html#creating-a-branch">Creating a branch</a>” section of the “Working with git and GitHub” tutorial. Note however that having a clean master branch is not a prerequisite to making pull requests, see the answer to “<a href="#how-can-i-prepare-a-pull-request-without-a-clean-master-branch">How can I prepare a pull request without a clean master branch?</a>” above.</p>
+</details><details><summary>
+How can I get a clean master branch?
+</summary><p>The recommended way of working in your fork of the mizer project is to keep the master branch of your repository always in sync with the master branch at <a href="https://github.com/sizespectrum/mizer" class="uri">https://github.com/sizespectrum/mizer</a>, and to create a feature branch for any of your code changes, as is explained in the “<a href="working_with_git.html#creating-a-branch">Creating a branch</a>” section of the “Working with git and GitHub” tutorial. Note however that having a clean master branch is not a prerequisite to making pull requests, see the answer to “<a href="#how-can-i-prepare-a-pull-request-without-a-clean-master-branch">How can I prepare a pull request without a clean master branch?</a>” above.</p>
 <p>However if you would like to have a clean master branch, you can follow these steps:</p>
 <ol style="list-style-type: decimal">
 <li>Create a new branch for the content of your current master branch, so that you can still switch to it in the future. To create this new branch, first make sure you have selected the master branch on the “Switch branch” dropdown in RStudio Git panel and then click the button to the left of that dropdown.
