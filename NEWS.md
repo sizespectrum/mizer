@@ -1,4 +1,4 @@
-# mizer 2.1.0.9000
+# mizer 2.2
 
 ## New functionality
 
@@ -10,7 +10,6 @@
   now take any form, they no longer have to be a named list.
 * New argument `return_data` in the plot's functions allows to return the 
   data frame used for the ggplot instead of the plot.
-* New tutorial about single-species sizes-spectrum dynamics.
   
 ## Breaking changes
 
@@ -19,6 +18,8 @@
 
 ## Bug fixes
 
+* `getYield()` now also works with density-dependent fishing mortality.
+  Thanks to James Roger for discovering the problem.
 * The `gamma` argument now is no longer ignored in `newTraitParams()` but
   correctly overrides the `f0` argument. #188
 * `getFMort()` again works correctly when called with a MizerSim object.
@@ -28,6 +29,16 @@
 * Problems with different machine precision no longer prompts the error
   "The `w_min_idx` should point to the start of the size bin containing 
   the egg size `w_min`".
+* `addSpecies() no longer extends grid due to rounding errors.
+* If `valid_species_arg()` is called with `species = NULL` and there are no
+  background species then it returns `NULL`.
+
+## Documentation
+
+* New tutorial about single-species sizes-spectrum dynamics.
+* Improved documentation of `getDiet()` and `plotDiet()`.
+* More info on units added to documentation of summary functions.
+
 
 # mizer 2.1.0
 
