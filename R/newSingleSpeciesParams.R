@@ -42,11 +42,9 @@
 #' @return An object of type \code{MizerParams}
 #' @family functions for setting up models
 #' @examples
-#' \dontrun{
-#' params <- newSinglespeciesParams()
+#' params <- newSingleSpeciesParams()
 #' sim <- project(params, t_max = 5, effort = 0)
 #' plotSpectra(sim)
-#' }
 newSingleSpeciesParams <- 
     function(species_name = "Target species",
              w_inf = 100,
