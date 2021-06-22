@@ -136,7 +136,7 @@ explained in the
 
 ## Embedding videos
 It is easy to embed videos into a webpage by putting an iframe into the
-Rmarkdown source file. For example putting the line
+R Markdown source file. For example putting the line
 ```
 <iframe width="560" height="315" src="https://www.youtube.com/embed/0RlXqLbFbWc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 ```

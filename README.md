@@ -27,13 +27,9 @@ mizer contains many default options that can be easily changed by the
 user.
 
 <!-- Mizer can also be used to create web apps that allow users to explore models -->
-
 <!-- without the need to install R. An [example of such an -->
-
 <!-- app](https://mizer.shinyapps.io/selectivity/) investigates the effect of -->
-
 <!-- switching to a gear with a T90 extension net to reduce the catches of undersize -->
-
 <!-- hake and red mullet -->
 
 Mizer has been supporting research in marine ecology and fisheries
@@ -118,11 +114,11 @@ because it uses allometric scaling relations and size-based feeding
 rules to choose sensible defaults for unknown parameters.
 
 Setting up a new multi-species mizer model is a two-step process,
-similar to what may be familiar from Ecopath with Ecosym: First one
+similar to what may be familiar from Ecopath with Ecosim: First one
 calibrates the model to describe a steady state that is in agreement
 with current observations (as in Ecopath), then one chooses the
 additional parameters that determine the dynamics away from the steady
-state (as in Ecosym). This model can then be used to investigate future
+state (as in Ecosim). This model can then be used to investigate future
 effects of changes in fishing policy or of environmental stressors.
 
 ## Modelling environmental change

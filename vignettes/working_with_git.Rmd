@@ -60,7 +60,7 @@ the same content as the master branch that you have branched off from.
 Next you will make an edit to a file. In the "Files" tab in RStudio, navigate
 to the "vignette" subdirectory and click on the name "developer_vignette.Rmd".
 That will open that file in the Source editor pane. That file is the source
-file for this developer guide, written in [RMarkdown](https://rmarkdown.rstudio.com/) format.
+file for this developer guide, written in [R Markdown](https://rmarkdown.rstudio.com/) format.
 
 A good way to navigate within files is to use the document outline which will
 be displayed when you hit the right-most icon on the editor pane toolbar.
@@ -72,7 +72,7 @@ You will find the subheading "People with a mizer fork" towards the bottom of
 the outline. Clicking on it will move to the corresponding section of the file.
 You can now add another bullet point with your name and interests. 
 
-This is an RMarkdown file, so you can compile it by clicking on the "Knit"
+This is an R Markdown file, so you can compile it by clicking on the "Knit"
 button on the editor toolbar. This will also save your changes to the disk.
 After a short while the resulting html file will be displayed in an RStudio
 viewer which will allow you to check the formatting of your bullet point.
@@ -156,7 +156,7 @@ there is anything wrong with your changes, you will get friendly feedback from
 other developers. You can then make more changes and commit them to the same
 branch and your pull request will automatically get updated.
 
-The pull request is easy to create using the github web interface:
+The pull request is easy to create using the GitHub web interface:
 
 1. Go to the home page of your forked repository on GitHub
 2. Select the branch via the "Branch" drop-down.
@@ -166,7 +166,7 @@ Go ahead an create a pull request for your "add_my_info" branch.
 
 Once your pull request has been reviewed and accepted by a developer and your
 changes have thus been merged into the upstream master branch, you can
-delete your development branch. There is a delete button on github to delete a
+delete your development branch. There is a delete button on GitHub to delete a
 branch (for example on the page listing all your branches). You also need to
 delete the branch separately in your local repository by issuing
 ```

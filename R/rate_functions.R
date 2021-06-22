@@ -328,7 +328,7 @@ getPredMort <- function(object, n, n_pp, n_other,
     }
 }
 
-#' Alias for getPredMort
+#' Alias for `getPredMort()`
 #' 
 #' `r lifecycle::badge("deprecated")`
 #' An alias provided for backward compatibility with mizer version <= 1.0
@@ -373,7 +373,7 @@ getResourceMort <-
     mort
 }
 
-#' Alias for getResourceMort
+#' Alias for `getResourceMort()`
 #' 
 #' `r lifecycle::badge("deprecated")`
 #' An alias provided for backward compatibility with mizer version <= 1.0
@@ -688,7 +688,7 @@ getMort <- function(params,
     return(z)
 }
 
-#' Alias for getMort
+#' Alias for `getMort()`
 #' 
 #' `r lifecycle::badge("deprecated")`
 #' An alias provided for backward compatibility with mizer version <= 1.0
@@ -736,7 +736,7 @@ getERepro <- function(params, n = initialN(params),
     erepro
 }
 
-#' Alias for getERepro
+#' Alias for `getERepro()`
 #' 
 #' `r lifecycle::badge("deprecated")` 
 #' An alias provided for backward compatibility with mizer version <= 1.0

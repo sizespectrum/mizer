@@ -25,7 +25,7 @@ This is a helper function for \code{\link[=mizerFMort]{mizerFMort()}}.
 Here: fishing mortality = catchability x selectivity x effort.
 }
 \seealso{
-setFishing
+\code{\link[=setFishing]{setFishing()}}
 
 Other mizer rate functions: 
 \code{\link{mizerEGrowth}()},

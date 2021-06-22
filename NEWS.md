@@ -10,6 +10,7 @@
   now take any form, they no longer have to be a named list.
 * New argument `return_data` in the plot's functions allows to return the 
   data frame used for the ggplot instead of the plot.
+* New tutorial about single-species sizes-spectrum dynamics.
   
 ## Breaking changes
 
@@ -58,7 +59,7 @@
 
 ## Code improvements
 
-* Using lifecycle package to indicate status of some functions and arguments as
+* Using `lifecycle` package to indicate status of some functions and arguments as
   'experimental' or 'deprecated'.
 * Improved error handling in `setFishing()`. #172
 * Made use of vdiffr conditional, as required by §1.1.3.1 of
@@ -109,7 +110,7 @@
 * Old MizerParams objects are updated automatically when used in plot functions,
   rate functions, summary functions or in `project()` or `steady()`, #163.
 * New function `getRates()` to calculates all rates and collects them in a list.
-* `steady()` with `return_sim = TRUE` now creates the sim object the same way 
+* `steady()` with `return_sim = TRUE` now creates the MizerSim object the same way 
   as `project()`, namely with the original values in the first time slot.
 * Added documentation for `species_params()`, `gear_params()` and
   `resource_params()`.
@@ -127,7 +128,7 @@
 * Consistently passing the time argument to the rate functions. This will
   allow extensions to implement time-dependent rates.
 * Passing growth and mortality rate to RDI function.
-* Simplified the getRates functions by removing the arguments that passed in
+* Simplified the `getRates()` functions by removing the arguments that passed in
   other rates. Instead the required rates are now always calculated within 
   these functions.
 * Improved documentation of rate functions and of how to register your own rate 
@@ -320,7 +321,7 @@ gain experience in writing extensions for mizer.
 * All plot functions that are not time-resolved now accept also a MizerParams
   object as an alternative to the MizerSim object to plot the initial state.
 * New `plot()` method for MizerParams object to plot the initial state.
-* Avoiding duplicate graphs in rmarkdown documents.
+* Avoiding duplicate graphs in R Markdown documents.
 * New argument `include_critical` in `plotFeedingLevel()` allows to show also
   the critical feeding level.
 * New `wlim` argument to `plotSpectra()` in analogy to the existing `ylim`
@@ -445,7 +446,7 @@ species. The information is set up via a new `gear_params()` data frame. See
   + `MizerParams()` -> `emptyParams()` or `set_multispecies_model()`
 * Renamed maximum reproductive rate from `r_max` to `R_max`.
 * Updated list of publications (@Kenhasteandersen)
-* Using Rmarkdown in all roxygen comments
+* Using R Markdown in all roxygen comments.
 
 ## Bug fixes
 

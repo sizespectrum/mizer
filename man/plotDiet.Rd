@@ -12,7 +12,7 @@ plotDiet(object, species = NULL, return_data = FALSE)
 
 \item{species}{The name of the predator species for which to plot the diet.}
 
-\item{return_data}{A boolean value that determines whether the formated data
+\item{return_data}{A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default value is FALSE}
 }
 \value{

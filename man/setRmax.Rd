@@ -2,7 +2,7 @@
 % Please edit documentation in R/setBevertonHolt.R
 \name{setRmax}
 \alias{setRmax}
-\title{Alias for setBevertonHolt}
+\title{Alias for \code{setBevertonHolt()}}
 \usage{
 setRmax(params, R_factor)
 }

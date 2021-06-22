@@ -56,7 +56,7 @@ distanceSSLogN <- function(params, current, previous) {
 #'
 #' Run the full dynamics, as in [project()], but stop once the change has slowed
 #' down sufficiently, in the sense that the distance between states at
-#' successive timesteps is less than `tol`. You determine how the distance is
+#' successive time steps is less than `tol`. You determine how the distance is
 #' calculated.
 #'
 #' @inheritParams steady

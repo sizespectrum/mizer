@@ -36,7 +36,7 @@ fishing gears differently.
 The species in the model are: `r paste(NS_species_params[,"species"], collapse=", ")`,
 which account for about 90% of the total biomass of all species sampled by
 research trawl surveys in the North Sea. The `NS_species_params` object that
-comes as an example with the mizer packate is a
+comes as an example with the mizer package is a
 data.frame with columns for `species`, `w_inf`, `w_mat`, `beta`, `sigma`,
 `R_max` and `k_vb`.
 ```{r}

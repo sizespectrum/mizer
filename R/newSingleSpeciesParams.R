@@ -32,7 +32,7 @@
 #'   \code{w_mat} is supplied explicitly.
 #' @param w_mat Maturity size of species. Default value is
 #'   \code{eta * w_inf}.
-#' @param k_vb The vonBertalanffy growth parameter.
+#' @param k_vb The von Bertalanffy growth parameter.
 #' @inheritParams newTraitParams
 #' @param version A string specifying the version of mizer. If you want to make
 #'   sure that your code will still set up the model with the exact same default

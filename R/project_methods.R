@@ -541,7 +541,7 @@ mizerPredMort <- function(params, n, n_pp, n_other, t, pred_rate, ...) {
 #' @return An three dimensional array (gear x species x size) with the
 #'    fishing mortality 
 #' @note Here: fishing mortality = catchability x selectivity x effort.
-#' @seealso setFishing
+#' @seealso [setFishing()]
 #' @export
 #' @family mizer rate functions
 mizerFMortGear <- function(params, effort) {

@@ -96,7 +96,7 @@ complex. We can understand very simplified cases analytically, but in
 general we need to use numerical simulation to understand the
 consequences of various interventions.
 
-The mizer package can simulate the size-specrum dynamics. Given the
+The mizer package can simulate the size-spectrum dynamics. Given the
 model parameters that enter into the expression of the growth rate, the
 death rate and the reproductive rate, and an initial fish size spectrum,
 mizer simulates the changes in the size spectrum over time according to
@@ -376,7 +376,7 @@ discuss in the section on reproduction.
 
 First of all, the metabolic rate, i.e., the rate at which an organism
 expends energy on its basic metabolic needs, scales as a power of the
-organisms's body size, and the power is about $p = 3/4$.
+organism's body size, and the power is about $p = 3/4$.
 
 Because this energy needs to be supplied by consumption of food, it is
 natural to assume that also the consumption rate scales allometrically
@@ -606,7 +606,7 @@ There are four species parameters involved:
 
 -   the maturity size `w_mat` at which 50% of the individuals are
     mature.
--   the size `w_mat25` at wich 25% of the individuals are mature.
+-   the size `w_mat25` at which 25% of the individuals are mature.
 -   the asymptotic size `w_inf` at which an organism invests 100% of its
     income into reproduction and thus growth is zero.
 -   an exponent `m` that determines how the proportion that an
@@ -639,7 +639,7 @@ object so that we can keep the old version around unchanged.
 params_changed_maturity <- params
 ```
 
-In this copy we now change the species paramters
+In this copy we now change the species parameters
 
 ```{r}
 species_params(params_changed_maturity)$w_mat <- 40
@@ -1005,7 +1005,7 @@ be approximately described by the Sheldon power law, i.e., that
 $N(w) = N_0\ w^{-\lambda}$. A bit of maths then says that
 $$q = 2 - \lambda + n.$$ This explains the message you got when you
 created the params object with a certain choice of $\lambda$: mizer
-chose the search volume exponent automtically according to this formula.
+chose the search volume exponent automatically according to this formula.
 In the real world, evolution will have made sure that the fish will have
 developed a feeding strategy that allows it to cover its metabolic
 costs, and thus leads to that search volume exponent of $q$. Clearly,

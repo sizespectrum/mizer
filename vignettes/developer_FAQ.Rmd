@@ -32,7 +32,7 @@ your master branch differs from that at sizespectrum/mizer, you need to create a
 new branch not from your master branch but directly from that at 
 sizespectrum/master. Follow the following steps:
 
-1. Go to the "Terminal" tab in Rstudio. This should be the tab next to the
+1. Go to the "Terminal" tab in RStudio. This should be the tab next to the
 "Console" tab. If it is not there and you don't know why not, then you are 
 possibly running an old version of RStudio and you will want to update to
 a newer version, which is easy from the Help menu under "Check for Updates".
@@ -90,7 +90,7 @@ to the left of that dropdown.
 
 In the dialog box enter a name for your new branch and click "Create".
 
-2. Go to the "Terminal" tab in Rstudio. This should be the tab next to the
+2. Go to the "Terminal" tab in RStudio. This should be the tab next to the
 "Console" tab. If it is not there and you don't know why not, then you are 
 possibly running a very old version of RStudio and you will want to update to
 a newer version, which is easy from the Help menu under "Check for Updates".

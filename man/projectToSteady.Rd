@@ -55,7 +55,7 @@ shiny app. Default FALSE.}
 
 Run the full dynamics, as in \code{\link[=project]{project()}}, but stop once the change has slowed
 down sufficiently, in the sense that the distance between states at
-successive timesteps is less than \code{tol}. You determine how the distance is
+successive time steps is less than \code{tol}. You determine how the distance is
 calculated.
 }
 \seealso{

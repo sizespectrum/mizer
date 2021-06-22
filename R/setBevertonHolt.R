@@ -33,7 +33,7 @@ setBevertonHolt <- function(params, R_factor) {
     return(setReproduction(params, RDD = "BevertonHoltRDD"))
 }
 
-#' Alias for setBevertonHolt
+#' Alias for `setBevertonHolt()`
 #' 
 #' @description
 #' `r lifecycle::badge("deprecated")`

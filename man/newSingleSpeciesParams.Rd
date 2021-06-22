@@ -58,7 +58,7 @@ equal to the exponent \code{n}.}
 
 \item{alpha}{The assimilation efficiency.}
 
-\item{k_vb}{The vonBertalanffy growth parameter.}
+\item{k_vb}{The von Bertalanffy growth parameter.}
 
 \item{beta}{Preferred predator prey mass ratio.}
 

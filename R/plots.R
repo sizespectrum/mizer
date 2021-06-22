@@ -501,7 +501,7 @@ plotlyYieldGear <- function(sim, species = NULL,
 #'   are included. Ignored if the model does not contain background species.
 #'   Default is TRUE.
 #' @param highlight Name or vector of names of the species to be highlighted.
-#' @param return_data A boolean value that determines whether the formated data
+#' @param return_data A boolean value that determines whether the formatted data
 #' used for the plot is returned instead of the plot itself. Default value is FALSE
 #' @param ... Other arguments (currently unused)
 #'   
@@ -898,7 +898,7 @@ plotPredMort <- function(object, species = NULL,
     if (return_data) return(plot_dat) else return(p)
 }
 
-#' Alias for plotPredMort
+#' Alias for `plotPredMort()`
 #' 
 #' `r lifecycle::badge("deprecated")`
 #' An alias provided for backward compatibility with mizer version <= 1.0
