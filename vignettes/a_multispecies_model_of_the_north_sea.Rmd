@@ -33,22 +33,16 @@ life-history parameters and the interaction matrix for the North Sea model. We
 will use them again here but will make some changes. In particular we set up the
 fishing gears differently.
 
-The parameters and the interaction matrix are stored as *.csv files that need to
-be read in. We can use the `system.file()` function to tell us the location of
-the files.
-
-```{r label = show_load_ns_species_params}
-params_location <- system.file("doc/NS_species_params.csv", package = "mizer")
-species_params <- read.csv(params_location)
-inter_location <- system.file("doc/inter.csv", package = "mizer")
-inter <- read.csv(inter_location, row.names = 1)
-```
-
-The species in the model are: `r paste(species_params[,"species"], collapse=", ")`,
+The species in the model are: `r paste(NS_species_params[,"species"], collapse=", ")`,
 which account for about 90% of the total biomass of all species sampled by
-research trawl surveys in the North Sea. The `species_params` object is a
+research trawl surveys in the North Sea. The `NS_species_params` object that
+comes as an example with the mizer packate is a
 data.frame with columns for `species`, `w_inf`, `w_mat`, `beta`, `sigma`,
 `R_max` and `k_vb`.
+```{r}
+NS_species_params
+```
+
 
 We have seen before that only having these columns in the species data.frame is
 sufficient to make a `MizerParams` object. Any missing columns will be added and
@@ -59,7 +53,7 @@ will be estimated using the `k_vb` column.
 We will use the default density dependence in the reproduction rate, which is the
 Beverton-Holt shape. This requires a column `R_max` in the species data.frame
 which contains the maximum reproduction rate for each species. This column is
-already in the `species_params` data.frame. The values were found through a
+already in the `NS_species_params` data.frame. The values were found through a
 calibration process which is not covered here but will be added to a later
 version of this manual.
 
@@ -85,11 +79,11 @@ see the help page for more details. As the mizer model is weight based, and this
 selectivity function is length based, it uses the length-weight parameters `a`
 and `b` to convert between length and weight using the standard relation $w = a
 l^b$. These species parameters need to be added as columns to the
-`species_params` data frame.
+`NS_species_params` data frame.
 ```{r}
-species_params$a <- c(0.007, 0.001, 0.009, 0.002, 0.010, 0.006, 0.008, 0.004,
+NS_species_params$a <- c(0.007, 0.001, 0.009, 0.002, 0.010, 0.006, 0.008, 0.004,
                       0.007, 0.005, 0.005, 0.007)
-species_params$b <- c(3.014, 3.320, 2.941, 3.429, 2.986, 3.080, 3.019, 3.198,
+NS_species_params$b <- c(3.014, 3.320, 2.941, 3.429, 2.986, 3.080, 3.019, 3.198,
                       3.101, 3.160, 3.173, 3.075)
 ```
 
@@ -102,8 +96,8 @@ wish to use. Note it would probably be easier to put this data into a
 
 ```{r label=adding_sel_params}
 gear_params <- 
-    data.frame(species = species_params$species,
-               gear = species_params$species,
+    data.frame(species = NS_species_params$species,
+               gear = NS_species_params$species,
                sel_func = "sigmoid_length",
                l25 =  c(7.6, 9.8, 8.7, 10.1, 11.5, 19.8, 16.4, 19.8, 11.5,
                         19.1, 13.2, 35.3),
@@ -171,7 +165,7 @@ We now have all the information we need to create the `MizerParams` object using
 the species parameters data.frame.
 
 ```{r label=make_ns_params, results='hide'}
-params <- newMultispeciesParams(species_params, 
+params <- newMultispeciesParams(NS_species_params, 
                                 interaction = inter, 
                                 kappa = 9.27e10,
                                 gear_params = gear_params)

@@ -151,14 +151,18 @@ included in the package. This contains the species parameters for a multispecies
 North Sea model. The location of the file can be found by running
 ```{r label = get_location_for_ns_params}
 params_location <- system.file("doc/NS_species_params.csv", package = "mizer")
-params_location
 ```
 
 This file can be opened with most spreadsheets or a text editor for you to
 inspect. This can be loaded into R with
-```{r }
+```{r eval=FALSE}
 species_params <- read.csv(params_location)
 ```
+```{r echo=FALSE}
+# This one works also when the vignettes have not been built
+species_params <- NS_species_params
+```
+
 This reads the .csv file into R in the form of a data.frame.
 You can check this with the `class`:
 ```{r }
@@ -293,18 +297,19 @@ a .csv file.  The location of the file can be found by running:
 
 ```{r}
 inter_location <- system.file("doc/inter.csv", package = "mizer")
-inter_location
 ```
 
 Take a look at it in a spreadsheet if you want.  As mentioned above, to read
 this file into R we can make use of the `read.csv()` function. However, this
 time we want the first column of the .csv file to be the row names. We therefore
 use an additional argument to the `read.csv()` function: `row.names`.
-```{r}
+```{r eval=FALSE}
 inter <- read.csv(inter_location, row.names = 1)
 inter
 ```
-
+```{r echo=FALSE}
+inter
+```
 
 We can set the interaction matrix in our existing MizerParams object `params`
 with the `setInteraction()` function:
