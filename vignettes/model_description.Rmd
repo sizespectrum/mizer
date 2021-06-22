@@ -5,6 +5,10 @@ output:
     toc: yes
     fig_width: 5
     fig_height: 5
+vignette: >
+  %\VignetteIndexEntry{The General Mizer Size-spectrum Model}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include = FALSE}

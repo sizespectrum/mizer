@@ -37,16 +37,11 @@ The parameters and the interaction matrix are stored as *.csv files that need to
 be read in. We can use the `system.file()` function to tell us the location of
 the files.
 
-```{r label = show_load_ns_species_params, eval=FALSE}
+```{r label = show_load_ns_species_params}
 params_location <- system.file("doc/NS_species_params.csv", package = "mizer")
 species_params <- read.csv(params_location)
 inter_location <- system.file("doc/inter.csv", package = "mizer")
 inter <- read.csv(inter_location, row.names = 1)
-```
-
-```{r label = load_ns_species_params, echo=FALSE}
-species_params <- read.csv("NS_species_params.csv")
-inter <- as(read.csv("inter.csv", row.names = 1), "matrix")
 ```
 
 The species in the model are: `r paste(species_params[,"species"], collapse=", ")`,

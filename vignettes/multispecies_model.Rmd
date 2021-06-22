@@ -148,17 +148,16 @@ The first step is to prepare the species specific parameter data.frame. As
 mentioned above, one way of doing this is to use a spreadsheet and save it as a
 .csv file. We will use this approach here. An example .csv file has been
 included in the package. This contains the species parameters for a multispecies
-North Sea model. This file is placed in the `doc` folder of the package
-installation. The location of the file can be found by running
-```{r label = get_location_for_ns_params,eval=FALSE}
-system.file("doc/NS_species_params.csv",package="mizer")
+North Sea model. The location of the file can be found by running
+```{r label = get_location_for_ns_params}
+params_location <- system.file("doc/NS_species_params.csv", package = "mizer")
+params_location
 ```
 
 This file can be opened with most spreadsheets or a text editor for you to
-inspect. This can be loaded into R using the following code (after you have told
-R to look in the right directory):
+inspect. This can be loaded into R with
 ```{r }
-species_params <- read.csv("NS_species_params.csv")
+species_params <- read.csv(params_location)
 ```
 This reads the .csv file into R in the form of a data.frame.
 You can check this with the `class`:
@@ -292,14 +291,20 @@ which describes the spatial overlap between species.
 An example interaction matrix for the North Sea has been included in `mizer` as
 a .csv file.  The location of the file can be found by running:
 
-```{r eval=FALSE}
-system.file("doc/inter.csv",package="mizer")
+```{r}
+inter_location <- system.file("doc/inter.csv", package = "mizer")
+inter_location
 ```
 
 Take a look at it in a spreadsheet if you want.  As mentioned above, to read
 this file into R we can make use of the `read.csv()` function. However, this
 time we want the first column of the .csv file to be the row names. We therefore
 use an additional argument to the `read.csv()` function: `row.names`.
+```{r}
+inter <- read.csv(inter_location, row.names = 1)
+inter
+```
+
 
 We can set the interaction matrix in our existing MizerParams object `params`
 with the `setInteraction()` function:

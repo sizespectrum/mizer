@@ -9,5 +9,4 @@
 ^dev_scripts\.R$
 ^.github$
 
-^vignettes$
 ^CRAN-RELEASE$
