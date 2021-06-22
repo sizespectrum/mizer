@@ -409,27 +409,27 @@ ggplot(yield) +
                   linetype = effort))
 ```
 
-An alternative is to use the interactive comparison widgets from the
-vdiffr package. For that purpose we need to create the two plots with the
-same limits on the axes.
-```{r warning=FALSE}
-p1 <- ggplot(yield1) +
-    geom_line(aes(x = time, y = value, colour = sp)) +
-    ylim(0,1.75e12)
-p2 <- ggplot(yield2) +
-    geom_line(aes(x = time, y = value, colour = sp)) +
-    ylim(0,1.75e12)
-```
-We can then create a widget that allows the user to toggle between the two
-plots by clicking on it,
-```{r}
-vdiffr::widget_toggle(p1, p2)
-```
+<!-- An alternative is to use the interactive comparison widgets from the -->
+<!-- vdiffr package. For that purpose we need to create the two plots with the -->
+<!-- same limits on the axes. -->
+<!-- ```{r warning=FALSE} -->
+<!-- p1 <- ggplot(yield1) + -->
+<!--     geom_line(aes(x = time, y = value, colour = sp)) + -->
+<!--     ylim(0,1.75e12) -->
+<!-- p2 <- ggplot(yield2) + -->
+<!--     geom_line(aes(x = time, y = value, colour = sp)) + -->
+<!--     ylim(0,1.75e12) -->
+<!-- ``` -->
+<!-- We can then create a widget that allows the user to toggle between the two -->
+<!-- plots by clicking on it, -->
+<!-- ```{r} -->
+<!-- vdiffr::widget_toggle(p1, p2) -->
+<!-- ``` -->
 
-or by sliding across it:
-```{r}
-vdiffr::widget_slide(p1, p2)
-```
+<!-- or by sliding across it: -->
+<!-- ```{r} -->
+<!-- vdiffr::widget_slide(p1, p2) -->
+<!-- ``` -->
 
 plotly is less good at faceting, but it can put arbitrary plots
 side-by-side (or arrange them into a grid) with `subplot()`
