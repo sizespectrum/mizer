@@ -25,7 +25,7 @@ toc:
 
 navbar:
   structure:
-    left: [home, intro, reference, articles, publications, news]
+    left: [home, intro, articles, reference, publications, news]
     right: [github]
   components:
     publications:
@@ -33,10 +33,11 @@ navbar:
       href: articles/publications.html
 
 articles:
-- title: User Guide
+- title: Tutorials
   navbar: ~
   contents:
   - mizer
+  - single_species_size-spectrum_dynamics
   - model_description
   - community_model
   - trait_model
