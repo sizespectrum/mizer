@@ -321,6 +321,8 @@ plotYield <- function(sim, sim2,
                              value.name = "Yield")
         ym$Species <- factor(ym$Species, levels = species_levels)
         ym <- subset(ym, ym$Yield > 0)
+        if (return_data) return(ym) else
+        
         p <- ggplot(ym) +
                 geom_line(aes(x = Year, y = Yield,
                               colour = Species, linetype = Species,
@@ -340,7 +342,7 @@ plotYield <- function(sim, sim2,
             scale_colour_manual(values = sim@params@linecolour) +
             scale_linetype_manual(values = sim@params@linetype) +
             scale_size_manual(values = linesize)
-     if (return_data) return(ym) else return(p)
+        return(p)
     } else {
         if (!all(dimnames(sim@n)$time == dimnames(sim2@n)$time)) {
             stop("The two simulations do not have the same times")
@@ -368,6 +370,8 @@ plotYield <- function(sim, sim2,
         ym$Species <- factor(ym$Species, levels = species_levels)
         ym$Simulation <- as.factor(ym$Simulation)
         ym <- subset(ym, ym$Yield > 0)
+        if (return_data) return(ym)
+        
         p <- ggplot(ym) +
                 geom_line(aes(x = Year, y = Yield, colour = Species,
                               linetype = Species))
@@ -378,7 +382,7 @@ plotYield <- function(sim, sim2,
             p <- p + scale_y_continuous(name = "Yield [g/year]")
         }
         p <- p + facet_wrap(~ Simulation)
-        if (return_data) return(ym) else return(p)
+        return(p)
     }
 }
 
@@ -441,6 +445,8 @@ plotYieldGear <- function(sim,
         ym <- rbind(ym, yt)
     }
     ym <- subset(ym, ym$value > 0)
+    if (return_data) return(ym)
+    
     p <- ggplot(ym) +
             geom_line(aes(x = time, y = value, colour = Species, 
                           linetype = gear, size = Species))
@@ -452,7 +458,7 @@ plotYieldGear <- function(sim,
         scale_x_continuous(name = "Year") +
         scale_colour_manual(values = sim@params@linecolour) +
         scale_size_manual(values = linesize)
-    if (return_data) return(ym) else return(p)
+    return(p)
 }
 
 #' @rdname plotYieldGear
@@ -759,6 +765,8 @@ plotFeedingLevel <- function(object, species = NULL,
         }
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
+    if (return_data) return(plot_dat) else 
+    
     if (include_critical) {
         feed_crit <- getCriticalFeedingLevel(params)[sel_sp, , drop = FALSE]
         plot_dat_crit <- data.frame(
@@ -804,7 +812,7 @@ plotFeedingLevel <- function(object, species = NULL,
         scale_linetype_manual(values = params@linetype) +
         scale_size_manual(values = linesize)
     
-    if (return_data) return(plot_dat) else return(p)
+    return(p)
 }
 
 #' @rdname plotFeedingLevel
@@ -880,6 +888,7 @@ plotPredMort <- function(object, species = NULL,
         }
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
+    if (return_data) return(plot_dat)
     
     p <- ggplot(plot_dat) +
             geom_line(aes(x = w, y = value, colour = Species, 
@@ -895,7 +904,7 @@ plotPredMort <- function(object, species = NULL,
         scale_colour_manual(values = params@linecolour) +
         scale_linetype_manual(values = params@linetype) +
         scale_size_manual(values = linesize)
-    if (return_data) return(plot_dat) else return(p)
+    return(p)
 }
 
 #' Alias for `plotPredMort()`
@@ -976,6 +985,7 @@ plotFMort <- function(object, species = NULL,
         }
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
+    if (return_data) return(plot_dat)
     
     linesize <- rep(0.8, length(params@linetype))
     names(linesize) <- names(params@linetype)
@@ -992,7 +1002,7 @@ plotFMort <- function(object, species = NULL,
         scale_linetype_manual(values = params@linetype) + 
         scale_size_manual(values = linesize)
     
-    if (return_data) return(plot_dat) else return(p)
+    return(p)
     
 }
 
@@ -1080,6 +1090,7 @@ plotGrowthCurves <- function(object, species = NULL,
         plot_dat2$legend <- "von Bertalanffy"
         plot_dat <- rbind(plot_dat,plot_dat2)
     }
+    if (return_data) return(plot_dat)
     
     p <- ggplot(filter(plot_dat, legend == "model")) + 
         geom_line(aes(x = Age, y = value, 
@@ -1131,7 +1142,7 @@ plotGrowthCurves <- function(object, species = NULL,
             
         }
     }
-    if (return_data) return(plot_dat) else return(p)
+    return(p)
     
 }
 
@@ -1180,14 +1191,13 @@ plotDiet <- function(object, species = NULL, return_data = FALSE) {
         w = params@w,
         Prey = rep(prey, each = length(params@w)))
     plot_dat <- plot_dat[plot_dat$Proportion > 0, ]
-    p <- ggplot(plot_dat) +
+    if (return_data) return(plot_dat)
+    
+    ggplot(plot_dat) +
         geom_area(aes(x = w, y = Proportion, fill = Prey)) +
         scale_x_log10() +
         labs(x = "Size [g]") +
         scale_fill_manual(values = params@linecolour)
-    
-    if (return_data) return(plot_dat) else return(p)
-    
 }
 
 
