@@ -28,7 +28,7 @@ calculate the various ecological rates in the model (all collected together in
 additional details.
 
 We will not go into detail of how this model is 
-realised in code. Such detail will be provided in the [developer guide](developer_vignette.html). However some details are hidden on this page
+realised in code. Such detail will be provided in the [developer guide](https://sizespectrum.org/mizer/articles/developer_vignette.html). However some details are hidden on this page
 and you can see them by clicking on links like the following:
 <details>
 And clicking again will hide the details again.

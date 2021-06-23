@@ -108,7 +108,7 @@ use one of the convenient wrapper functions provided in the package:
 These wrapper functions make
 reasonable default choices for many of the model parameters that you do not want
 to specify explicitly. For example to set up a simple model (described
-more in the [Community Model](community_model.html) section) you can even let
+more in the [Community Model](https://sizespectrum.org/mizer/articles/community_model.html) section) you can even let
 mizer choose all the parameters for you.
 ```{r}
 params <- newCommunityParams()
@@ -136,7 +136,7 @@ results of the simulation. In this example we chose to set some parameters
 of the `project()` function to specify that we want to project 10 years into
 the future, under the assumption of zero fishing effort. 
 You can see the help page for `project()` for more details and it is described
-fully in [the section on running a simulation.](running_a_simulation.html)
+fully in [the section on running a simulation.](https://sizespectrum.org/mizer/articles/running_a_simulation.html)
 
 ## Exploring the results
 After a simulation has been run, the results can be
@@ -160,7 +160,7 @@ We can then use the full power of R to work with these results.
 
 The functionality provided by mizer to explore the simulation results is more
 fully described in 
-[the section on exploring the simulation results.](exploring_the_simulation_results.html)
+[the section on exploring the simulation results.](https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.html)
 
 ## Size-spectrum models
 Size spectrum models have emerged as a conceptually simple way to model a large
@@ -232,7 +232,7 @@ run it in different scenarios, and explore the results. We
 recommend that you explore these in the following order:
 
 ### Community model
-In the [community model](community_model.html), individuals are only 
+In the [community model](https://sizespectrum.org/mizer/articles/community_model.html), individuals are only 
 characterized by their size and are
 represented by a single group representing an across-species average. Community
 size spectrum models have been used to investigate how abundance size spectra
@@ -243,7 +243,7 @@ questions where detailed trait- and species-level parameterisations are not
 tractable.
 
 ### Trait-based model
-The [trait-based model](trait_model.html) resolves a continuum of species with
+The [trait-based model](https://sizespectrum.org/mizer/articles/trait_model.html) resolves a continuum of species with
 varying asymptotic sizes. The asymptotic size is considered to be the most
 important trait that characterizes a species' life history. The continuum is
 represented by a discrete number of species spread evenly over the range of
@@ -259,7 +259,7 @@ size and species selective fishing without the requirement for detailed
 species-specific parameters.
 
 ### Multispecies model
-In the [multispecies model](multispecies_model.html) individual species are
+In the [multispecies model](https://sizespectrum.org/mizer/articles/multispecies_model.html) individual species are
 resolved in detail and each has distinct life history, feeding and reproduction
 parameters. More detailed information is required to parameterise the
 multispecies model but the approach can be used to address management strategies
