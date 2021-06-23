@@ -50,6 +50,8 @@
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -61,9 +63,15 @@
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-index">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -77,31 +85,25 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/mizer.html">Get started</a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Tutorials
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    </li>
     <li>
       <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
@@ -141,6 +143,9 @@
       <a href="../articles/editing_website.html">Editing the Mizer Website</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../reference/index.html">Reference</a>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
@@ -190,7 +195,7 @@
       <tr>
         <th colspan="2">
           <h2 id="section-creating-a-new-model" class="hasAnchor"><a href="#section-creating-a-new-model" class="anchor"></a>Creating a new model</h2>
-          <p class="section-desc"><p>Mizer allows the easy set-up of three different types of models, of increasing levels of complexity. See <a href="https://sizespectrum.org/mizer/dev/articles/mizer.html#size-spectrum-models" class="uri">https://sizespectrum.org/mizer/dev/articles/mizer.html#size-spectrum-models</a> for a description of these model types.</p></p>
+          <p class="section-desc"><p>Mizer allows the easy set-up of four different types of models, of increasing level of complexity. See <a href="https://sizespectrum.org/mizer/dev/articles/mizer.html#size-spectrum-models" class="uri">https://sizespectrum.org/mizer/dev/articles/mizer.html#size-spectrum-models</a> for a description of these model types.</p></p>
         </th>
       </tr>
       
@@ -201,6 +206,12 @@
       <tr>
         
         <td>
+          <p><code><a href="newSingleSpeciesParams.html">newSingleSpeciesParams()</a></code> </p>
+        </td>
+        <td><p>Set up parameters for a single species in a power-law background</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="newCommunityParams.html">newCommunityParams()</a></code> </p>
         </td>
         <td><p>Set up parameters for a community-type model</p></td>
@@ -209,7 +220,7 @@
         <td>
           <p><code><a href="newTraitParams.html">newTraitParams()</a></code> </p>
         </td>
-        <td><p>Set up parameters for a trait-based model</p></td>
+        <td><p>Set up parameters for a trait-based multispecies model</p></td>
       </tr><tr>
         
         <td>
@@ -331,6 +342,37 @@
           <p><code><a href="compareParams.html">compareParams()</a></code> </p>
         </td>
         <td><p>Compare two MizerParams objects and print out differences</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-manipulating-species" class="hasAnchor"><a href="#section-manipulating-species" class="anchor"></a>Manipulating species</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="addSpecies.html">addSpecies()</a></code> </p>
+        </td>
+        <td><p>Add new species</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="removeSpecies.html">removeSpecies()</a></code> </p>
+        </td>
+        <td><p>Remove species</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="renameSpecies.html">renameSpecies()</a></code> </p>
+        </td>
+        <td><p>Rename species</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -472,13 +514,13 @@ step.</p></td>
         <td>
           <p><code><a href="getYield.html">getYield()</a></code> </p>
         </td>
-        <td><p>Calculate the total yield of each species</p></td>
+        <td><p>Calculate the yearly yield for each species</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="getYieldGear.html">getYieldGear()</a></code> </p>
         </td>
-        <td><p>Calculate the total yield per gear and species</p></td>
+        <td><p>Calculate the yearly yield per gear and species</p></td>
       </tr><tr>
         
         <td>
@@ -550,6 +592,12 @@ step.</p></td>
       </tr><tr>
         
         <td>
+          <p><code><a href="animateSpectra.html">animateSpectra()</a></code> </p>
+        </td>
+        <td><p>Animation of the abundance spectra</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="plotBiomass.html">plotBiomass()</a></code> <code><a href="plotBiomass.html">plotlyBiomass()</a></code> </p>
         </td>
         <td><p>Plot the biomass of species through time</p></td>
@@ -558,7 +606,7 @@ step.</p></td>
         <td>
           <p><code><a href="plotDiet.html">plotDiet()</a></code> </p>
         </td>
-        <td><p>Plot diet</p></td>
+        <td><p>Plot diet, resolved by prey species, as function of predator at size.</p></td>
       </tr><tr>
         
         <td>
@@ -1074,6 +1122,12 @@ model</p></td>
       </tr><tr>
         
         <td>
+          <p><code><a href="get_f0_default.html">get_f0_default()</a></code> </p>
+        </td>
+        <td><p>Get default value for f0</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="get_gamma_default.html">get_gamma_default()</a></code> </p>
         </td>
         <td><p>Get default value for gamma</p></td>
@@ -1283,25 +1337,25 @@ model</p></td>
         <td>
           <p><code><a href="MizerParams.html">MizerParams()</a></code> </p>
         </td>
-        <td><p>Alias for set_multispecies_model</p></td>
+        <td><p>Alias for <code>set_multispecies_model()</code></p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="getESpawning.html">getESpawning()</a></code> </p>
         </td>
-        <td><p>Alias for getERepro</p></td>
+        <td><p>Alias for <code>getERepro()</code></p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="getM2.html">getM2()</a></code> </p>
         </td>
-        <td><p>Alias for getPredMort</p></td>
+        <td><p>Alias for <code>getPredMort()</code></p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="getM2Background.html">getM2Background()</a></code> </p>
         </td>
-        <td><p>Alias for getResourceMort</p></td>
+        <td><p>Alias for <code>getResourceMort()</code></p></td>
       </tr><tr>
         
         <td>
@@ -1313,19 +1367,19 @@ model</p></td>
         <td>
           <p><code><a href="getZ.html">getZ()</a></code> </p>
         </td>
-        <td><p>Alias for getMort</p></td>
+        <td><p>Alias for <code>getMort()</code></p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="plotM2.html">plotM2()</a></code> </p>
         </td>
-        <td><p>Alias for plotPredMort</p></td>
+        <td><p>Alias for <code>plotPredMort()</code></p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="setRmax.html">setRmax()</a></code> </p>
         </td>
-        <td><p>Alias for setBevertonHolt</p></td>
+        <td><p>Alias for <code>setBevertonHolt()</code></p></td>
       </tr><tr>
         
         <td>
@@ -1359,11 +1413,11 @@ model</p></td>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
+  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
 </div>
 
       </footer>
@@ -1388,6 +1442,8 @@ model</p></td>
 </script>
 
 
+
+  
 
   </body>
 </html>

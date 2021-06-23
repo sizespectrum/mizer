@@ -21,6 +21,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -33,32 +35,26 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/mizer.html">Get started</a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Tutorials
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    </li>
+    <li>
       <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
@@ -99,6 +95,9 @@
   </ul>
 </li>
 <li>
+  <a href="../reference/index.html">Reference</a>
+</li>
+<li>
   <a href="../articles/publications.html">Publications</a>
 </li>
 <li>
@@ -107,7 +106,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/sizespectrum/mizer/">
+  <a href="https://github.com/sizespectrum/mizer/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -128,13 +127,13 @@
 
       
 
-      </header><script src="running_a_simulation_files/header-attrs-2.7/header-attrs.js"></script><script src="running_a_simulation_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="running_a_simulation_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Running a Simulation</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/master/vignettes/running_a_simulation.Rmd"><code>vignettes/running_a_simulation.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/master/vignettes/running_a_simulation.Rmd" class="external-link"><code>vignettes/running_a_simulation.Rmd</code></a></small>
       <div class="hidden name"><code>running_a_simulation.Rmd</code></div>
 
     </div>
@@ -143,7 +142,7 @@
     
 <div id="sec:projection" class="section level2">
 <h2 class="hasAnchor">
-<a href="#sec:projection" class="anchor"></a>Introduction</h2>
+<a href="#sec:projection" class="anchor" aria-hidden="true"></a>Introduction</h2>
 <p>In the <a href="community_model.html">community</a> and <a href="trait_model.html">trait-based</a> models, we used the <code><a href="../reference/project.html">project()</a></code> function to perform simple simulations where the fishing effort was held constant throughout the duration of the simulation. In the trait-based model example, we also looked at how the effort for different gears could be specified. In this section we take a detailed look at how the <code><a href="../reference/project.html">project()</a></code> function works and the different ways in which effort and time can be set up. This will allow us to run more general systems like the <a href="multispecies_model.html">multispecies model.</a></p>
 <p>In <code>mizer</code>, simulations are performed using the <code><a href="../reference/project.html">project()</a></code> function. This function takes a <code>MizerParams</code> object and projects it forward through time, starting from an initial population abundance and with a pre-determined fishing effort pattern.</p>
 <p>Running a projection with <code><a href="../reference/project.html">project()</a></code> requires various arguments:</p>
@@ -158,7 +157,7 @@
 </div>
 <div id="sec:time_arguments" class="section level2">
 <h2 class="hasAnchor">
-<a href="#sec:time_arguments" class="anchor"></a>The time arguments</h2>
+<a href="#sec:time_arguments" class="anchor" aria-hidden="true"></a>The time arguments</h2>
 <p>There are four arguments that control time in the <code><a href="../reference/project.html">project()</a></code> function: <code>dt</code>, <code>t_max</code> and <code>t_save</code> and <code>t_start</code>. All of them have default values.</p>
 <ul>
 <li>
@@ -173,7 +172,7 @@
 </div>
 <div id="setting-the-fishing-effort" class="section level2">
 <h2 class="hasAnchor">
-<a href="#setting-the-fishing-effort" class="anchor"></a>Setting the fishing effort</h2>
+<a href="#setting-the-fishing-effort" class="anchor" aria-hidden="true"></a>Setting the fishing effort</h2>
 <p>The fishing effort argument describes the effort of the fishing gears in the model through time. We have already seen that information on the fishing gears and their selectivities and catchabilities is stored in the <code>MizerParams</code> object.</p>
 <p>There are three ways of setting the fishing effort. Examples of all three can be seen in <a href="running_a_simulation.html#sec:projection_examples">the section on projection examples.</a></p>
 <p>The simplest way is by passing the <code>effort</code> argument as a single number. This value is then used as the fishing effort by all of the gears at each time step of the projection, i.e. fishing effort is constant throughout the simulation and is the same for all gears. We have seen this method in the community and trait-based model sections above. The length of the simulation is determined by the <code>t_max</code> argument.</p>
@@ -183,21 +182,21 @@
 </div>
 <div id="sec:setting_initial_abundances" class="section level2">
 <h2 class="hasAnchor">
-<a href="#sec:setting_initial_abundances" class="anchor"></a>Setting the initial population abundance</h2>
-<p>When running a simulation with the <code><a href="../reference/project.html">project()</a></code> function, the initial populations of the species and the resource spectrum need to be specified. Default values for the initial values are automatically set when creating a MizerParams object. However you can change these by assigning new values to <code><a href="../reference/initialN&lt;-.html">initialN()</a></code> and <code><a href="../reference/initialNResource&lt;-.html">initialNResource()</a></code>. <code><a href="../reference/initialN&lt;-.html">initialN()</a></code> should be set to a matrix (with dimensions species x size) that contains the initial abundances of each species at size (the sizes must match those in the species size spectrum). <code>initialNResource</code> to a vector of the same length as the the length of the full spectrum.</p>
+<a href="#sec:setting_initial_abundances" class="anchor" aria-hidden="true"></a>Setting the initial population abundance</h2>
+<p>When running a simulation with the <code><a href="../reference/project.html">project()</a></code> function, the initial populations of the species and the resource spectrum need to be specified. Default values for the initial values are automatically set when creating a MizerParams object. However you can change these by assigning new values to <code><a href="../reference/initialN-set.html">initialN()</a></code> and <code><a href="../reference/initialNResource-set.html">initialNResource()</a></code>. <code><a href="../reference/initialN-set.html">initialN()</a></code> should be set to a matrix (with dimensions species x size) that contains the initial abundances of each species at size (the sizes must match those in the species size spectrum). <code>initialNResource</code> to a vector of the same length as the the length of the full spectrum.</p>
 </div>
 <div id="sec:projection_examples" class="section level2">
 <h2 class="hasAnchor">
-<a href="#sec:projection_examples" class="anchor"></a>Projection examples</h2>
+<a href="#sec:projection_examples" class="anchor" aria-hidden="true"></a>Projection examples</h2>
 <p>In this section we’ll look at how to run simulations with the <code><a href="../reference/project.html">project()</a></code> function. The examples will focus on how fishing effort can be specified in different ways. The results of the simulations will not be explored in detail. We will leave that for <a href="exploring_the_simulation_results.html#">the section on exploring the simulation results.</a>.</p>
 <p>Remember that the fishing mortality by size on a species is the product of the selectivity, the catchability and the effort of the gear that caught it. We have not specified any catchability values in the species parameter data.frame so the default value of 1 is used. The selectivity ranges between 0 and 1. This means that in these examples the fishing mortality of a fully selected species is given by the effort of the gear that catches it.</p>
 <div id="projections-with-single-simple-constant-effort" class="section level3">
 <h3 class="hasAnchor">
-<a href="#projections-with-single-simple-constant-effort" class="anchor"></a>Projections with single, simple constant effort</h3>
+<a href="#projections-with-single-simple-constant-effort" class="anchor" aria-hidden="true"></a>Projections with single, simple constant effort</h3>
 <p>When we use a single value for the <code>effort</code> argument, the value is used as a constant effort for all the gears. This method can be particularly useful for quickly projecting forward without fishing (you just set the <code>effort</code> argument to 0).</p>
 <p>We will use a MizerParams object with four gears similar to the one that we created in <a href="multispecies_model.html#sec:params_example">the section with examples of making a MizerParams objects</a> This example MizerParams object is called <code>NS_params</code> and is shipped with the mizer package. Let’s have a look at its summary:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span></code></pre></div>
 <pre><code>## An object of class "MizerParams" 
 ## Consumer size spectrum:
 ##  minimum size:   0.001
@@ -232,13 +231,13 @@
 <code class="sourceCode R"><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">NS_params</span>, effort <span class="op">=</span> <span class="fl">1</span>, t_max <span class="op">=</span> <span class="fl">10</span>, dt <span class="op">=</span> <span class="fl">0.1</span>, t_save <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></code></pre></div>
 <p>The resulting <code>sim</code> object is of class <code>MizerSim</code>. At this point we won’t explore how the results can be investigated in detail. However, we will use the basic summary plot that you have seen before:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
 <p><img src="running_a_simulation_files/figure-html/plot_basic_ms_sim-1.png" width="700"></p>
 <p>The big difference between this multispecies model and the trait-based model can be seen in the range of predation mortality and feeding level values. With the trait-based model all the <em>species</em> had the same predation mortality and feeding level patterns. Here the species all have different patterns, driven by their differing life history characteristics and the heterogeneous interaction matrix.</p>
 <p>You can also see in the above figure that each species has different fishing selectivity (see the fishing mortality panel). Remember that the default setting for the fishing gears is a knife-edge gear where the knife-edge is positioned at the species <code>w_mat</code> parameter.</p>
-<p>The effort through time can be inspected with <code><a href="../reference/getEffort.html">getEffort()</a></code> (we use the <code><a href="https://rdrr.io/r/utils/head.html">head()</a></code> function to just show the first few lines).</p>
+<p>The effort through time can be inspected with <code><a href="../reference/getEffort.html">getEffort()</a></code> (we use the <code><a href="https://rdrr.io/r/utils/head.html" class="external-link">head()</a></code> function to just show the first few lines).</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/getEffort.html">getEffort</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/getEffort.html">getEffort</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>##     gear
 ## time Industrial Pelagic Beam Otter
 ##    0          1       1    1     1
@@ -248,13 +247,13 @@
 ##    4          1       1    1     1
 ##    5          1       1    1     1</code></pre>
 <p>The <code>effort</code> slot shows the effort by time and gear. In this example, we specified the <code>effort</code> argument as a single numeric of value 1. As you can see this results in the same effort being used for all gears for all time steps.</p>
-<p>A <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> method is also available for objects of type <code>MizerSim</code>. This is essentially the same as the summary for <code>MizerParams</code> objects, but includes information on the simulation time parameters.</p>
+<p>A <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> method is also available for objects of type <code>MizerSim</code>. This is essentially the same as the summary for <code>MizerParams</code> objects, but includes information on the simulation time parameters.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
 <p>If we decrease <code>t_save</code> but keep <code>t_max</code> the same then we can see that the time dimension of the <code>effort</code> array changes accordingly. This will also be true of the simulation results returned by <code><a href="../reference/N.html">N()</a></code> and <code><a href="../reference/N.html">NResource()</a></code>. Here we reduce <code>t_save</code> to 0.5, meaning that the effort and abundance information is stored at t = 1.0, 1.5, 2.0 etc.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">NS_params</span>, effort <span class="op">=</span> <span class="fl">1</span>, t_max <span class="op">=</span> <span class="fl">10</span>, dt <span class="op">=</span> <span class="fl">0.1</span>, t_save <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/getEffort.html">getEffort</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/getEffort.html">getEffort</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>##      gear
 ## time  Industrial Pelagic Beam Otter
 ##   0            1       1    1     1
@@ -266,15 +265,15 @@
 </div>
 <div id="sec:proj_diff_gears_constant_effort" class="section level3">
 <h3 class="hasAnchor">
-<a href="#sec:proj_diff_gears_constant_effort" class="anchor"></a>Setting constant effort for different gears</h3>
+<a href="#sec:proj_diff_gears_constant_effort" class="anchor" aria-hidden="true"></a>Setting constant effort for different gears</h3>
 <p>As mentioned above, we can also set the effort values for each gear separately using a vector of effort values. This still keeps the efforts constant through time but it means that each gear can have a different constant effort.</p>
 <p>We need to create a named vector of effort, where the names match the gears. For example, here we want to switch off the industrial gear (i.e. effort = 0), keep the pelagic gear effort at 1, set the effort of the beam trawl gears to 0.3 and the effort of the otter trawl gear to 0.7. We set the <code>effort</code> like this:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">effort</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>Industrial <span class="op">=</span> <span class="fl">0</span>, Pelagic <span class="op">=</span> <span class="fl">1</span>, Beam <span class="op">=</span> <span class="fl">0.3</span>, Otter <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></code></pre></div>
-<p>We then call <code><a href="../reference/project.html">project()</a></code> with this effort and inspect the resulting <code>effort</code> matrix (again we use the <code><a href="https://rdrr.io/r/utils/head.html">head()</a></code> function to just show the first few lines):</p>
+<code class="sourceCode R"><span class="va">effort</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Industrial <span class="op">=</span> <span class="fl">0</span>, Pelagic <span class="op">=</span> <span class="fl">1</span>, Beam <span class="op">=</span> <span class="fl">0.3</span>, Otter <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></code></pre></div>
+<p>We then call <code><a href="../reference/project.html">project()</a></code> with this effort and inspect the resulting <code>effort</code> matrix (again we use the <code><a href="https://rdrr.io/r/utils/head.html" class="external-link">head()</a></code> function to just show the first few lines):</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">NS_params</span>, effort <span class="op">=</span> <span class="va">effort</span>, t_max <span class="op">=</span> <span class="fl">10</span>, dt <span class="op">=</span> <span class="fl">1</span>, t_save <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/getEffort.html">getEffort</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/getEffort.html">getEffort</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>##     gear
 ## time Industrial Pelagic Beam Otter
 ##    0          0       1  0.3   0.7
@@ -285,30 +284,27 @@
 ##    5          0       1  0.3   0.7</code></pre>
 <p>You can see that the effort for each gear is constant but each gear has the effort that was specified in the <code>effort</code> argument.</p>
 <p>This impact of this can be seen plotting the fishing mortality. There is a dedicated plot, <code><a href="../reference/plotFMort.html">plotFMort()</a></code>, that shows the fishing mortality at size for each species at a particular time step (the default is the final time step). The fishing mortality on each of the species is determined by the effort of the gear that caught it.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotFMort.html">plotFMort</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
-<p><img src="running_a_simulation_files/figure-html/plotFMort-1.png" width="700"></p>
 </div>
 <div id="an-example-of-changing-effort-through-time" class="section level3">
 <h3 class="hasAnchor">
-<a href="#an-example-of-changing-effort-through-time" class="anchor"></a>An example of changing effort through time</h3>
+<a href="#an-example-of-changing-effort-through-time" class="anchor" aria-hidden="true"></a>An example of changing effort through time</h3>
 <p>In this example we set up a more complicated fishing effort structure that allows the fishing effort of each gear to change through time. As mentioned above, to do this, effort must be supplied as a two dimensional array or matrix. The first dimension is time and the second dimension is gear. The dimensions must be named. The gear names must match the gears in the <code>MizerParams</code> object. Also, as mentioned above, if effort is passed in as an array then the length of the simulation is determined by the time dimension names and the argument <code>t_max</code> is not used. Instead the simulation runs from the earliest time in the effort array to the latest.</p>
 <p>In this example, we will project forward from time <span class="math inline">\(t=1\)</span> to time <span class="math inline">\(t=10\)</span>. The effort of the industrial gear is held constant at 0.5, the effort of the pelagic gear is increased linearly from 1 to 2, the effort of the beam trawl decreases linearly from 1 to 0, whilst the effort of the otter trawl decreases linearly from 1 to 0.5.</p>
 <p>First we create the empty <code>effort</code> array:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">gear_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Industrial"</span>,<span class="st">"Pelagic"</span>,<span class="st">"Beam"</span>,<span class="st">"Otter"</span><span class="op">)</span>
+<span class="va">times</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">1</span>, to <span class="op">=</span> <span class="fl">10</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
+<span class="va">effort_array</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="cn">NA</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">times</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">gear_names</span><span class="op">)</span><span class="op">)</span>,
+    dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>time <span class="op">=</span> <span class="va">times</span>, gear <span class="op">=</span> <span class="va">gear_names</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<p>Then we fill it up, one gear at a time, making heavy use of the <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq()</a></code> function to create a sequence:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">gear_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Industrial"</span>,<span class="st">"Pelagic"</span>,<span class="st">"Beam"</span>,<span class="st">"Otter"</span><span class="op">)</span>
-<span class="va">times</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">1</span>, to <span class="op">=</span> <span class="fl">10</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
-<span class="va">effort_array</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html">array</a></span><span class="op">(</span><span class="cn">NA</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">times</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">gear_names</span><span class="op">)</span><span class="op">)</span>,
-    dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>time <span class="op">=</span> <span class="va">times</span>, gear <span class="op">=</span> <span class="va">gear_names</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<p>Then we fill it up, one gear at a time, making heavy use of the <code><a href="https://rdrr.io/r/base/seq.html">seq()</a></code> function to create a sequence:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">effort_array</span><span class="op">[</span>,<span class="st">"Industrial"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0.5</span>
-<span class="va">effort_array</span><span class="op">[</span>,<span class="st">"Pelagic"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">1</span>, to <span class="op">=</span> <span class="fl">2</span>, length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">times</span><span class="op">)</span><span class="op">)</span>
-<span class="va">effort_array</span><span class="op">[</span>,<span class="st">"Beam"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">1</span>, to <span class="op">=</span> <span class="fl">0</span>, length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">times</span><span class="op">)</span><span class="op">)</span>
-<span class="va">effort_array</span><span class="op">[</span>,<span class="st">"Otter"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">1</span>, to <span class="op">=</span> <span class="fl">0.5</span>, length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">times</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="va">effort_array</span><span class="op">[</span>,<span class="st">"Pelagic"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">1</span>, to <span class="op">=</span> <span class="fl">2</span>, length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">times</span><span class="op">)</span><span class="op">)</span>
+<span class="va">effort_array</span><span class="op">[</span>,<span class="st">"Beam"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">1</span>, to <span class="op">=</span> <span class="fl">0</span>, length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">times</span><span class="op">)</span><span class="op">)</span>
+<span class="va">effort_array</span><span class="op">[</span>,<span class="st">"Otter"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">1</span>, to <span class="op">=</span> <span class="fl">0.5</span>, length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">times</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>The first few rows of the effort array are shown as an illustration:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">effort_array</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">effort_array</span><span class="op">)</span></code></pre></div>
 <pre><code>##     gear
 ## time Industrial  Pelagic      Beam     Otter
 ##    1        0.5 1.000000 1.0000000 1.0000000
@@ -319,9 +315,9 @@
 ##    6        0.5 1.555556 0.4444444 0.7222222</code></pre>
 <p>The first row gives the effort between times 1 and 2, the second between times 2 and 3, and so on. The time 10 row in the array is not actually used, except to set the final time for the simulation.</p>
 <p>Now we can use this effort array in the projection:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">NS_params</span>, effort <span class="op">=</span> <span class="va">effort_array</span>, dt <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">sim</span><span class="op">@</span><span class="va">effort</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim</span><span class="op">@</span><span class="va">effort</span><span class="op">)</span></code></pre></div>
 <pre><code>##     gear
 ## time Industrial  Pelagic      Beam     Otter
 ##    1        0.5 1.000000 1.0000000 1.0000000
@@ -348,11 +344,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard">Julia Blanchard</a>, <a href="https://ken.haste.dk/">Ken Andersen</a>.</p>
+  <p></p>
+<p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

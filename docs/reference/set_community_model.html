@@ -53,6 +53,8 @@ newCommunityParams() that sets better default values." />
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -64,9 +66,15 @@ newCommunityParams() that sets better default values." />
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -80,31 +88,25 @@ newCommunityParams() that sets better default values." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/mizer.html">Get started</a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Tutorials
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    </li>
     <li>
       <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
@@ -144,6 +146,9 @@ newCommunityParams() that sets better default values." />
       <a href="../articles/editing_website.html">Editing the Mizer Website</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../reference/index.html">Reference</a>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
@@ -189,7 +194,7 @@ newCommunityParams() that sets better default values." />
 <code><a href='newCommunityParams.html'>newCommunityParams()</a></code> that sets better default values.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>set_community_model</span><span class='op'>(</span>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>set_community_model</span><span class='op'>(</span>
   max_w <span class='op'>=</span> <span class='fl'>1e+06</span>,
   min_w <span class='op'>=</span> <span class='fl'>0.001</span>,
   min_w_pp <span class='op'>=</span> <span class='fl'>1e-10</span>,
@@ -210,7 +215,7 @@ newCommunityParams() that sets better default values." />
   recruitment <span class='op'>=</span> <span class='va'>kappa</span> <span class='op'>*</span> <span class='va'>min_w</span><span class='op'>^</span><span class='op'>-</span><span class='va'>lambda</span>,
   rec_mult <span class='op'>=</span> <span class='fl'>1</span>,
   <span class='va'>...</span>
-<span class='op'>)</span></pre>
+<span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -346,15 +351,15 @@ individual efficiencies of size-structured communities, Proceedings of the
 Royal Society, 276, 109-114</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
-<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>set_community_model</span><span class='op'>(</span>f0<span class='op'>=</span><span class='fl'>0.7</span>, z0<span class='op'>=</span><span class='fl'>0.2</span>, recruitment<span class='op'>=</span><span class='fl'>3e7</span><span class='op'>)</span>
-<span class='co'># This is now achieved with</span>
-<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newCommunityParams.html'>newCommunityParams</a></span><span class='op'>(</span>f0 <span class='op'>=</span> <span class='fl'>0.7</span>, z0 <span class='op'>=</span> <span class='fl'>0.2</span><span class='op'>)</span>
-<span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort <span class='op'>=</span> <span class='fl'>0</span>, t_max <span class='op'>=</span> <span class='fl'>100</span>, dt<span class='op'>=</span><span class='fl'>0.1</span><span class='op'>)</span>
-<span class='fu'><a href='plotBiomass.html'>plotBiomass</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span>
-<span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span>
-<span class='op'>}</span>
-</div></pre>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>set_community_model</span><span class='op'>(</span>f0<span class='op'>=</span><span class='fl'>0.7</span>, z0<span class='op'>=</span><span class='fl'>0.2</span>, recruitment<span class='op'>=</span><span class='fl'>3e7</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># This is now achieved with</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newCommunityParams.html'>newCommunityParams</a></span><span class='op'>(</span>f0 <span class='op'>=</span> <span class='fl'>0.7</span>, z0 <span class='op'>=</span> <span class='fl'>0.2</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort <span class='op'>=</span> <span class='fl'>0</span>, t_max <span class='op'>=</span> <span class='fl'>100</span>, dt<span class='op'>=</span><span class='fl'>0.1</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='plotBiomass.html'>plotBiomass</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -366,11 +371,11 @@ Royal Society, 276, 109-114</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
+  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
 </div>
 
       </footer>
@@ -395,6 +400,8 @@ Royal Society, 276, 109-114</p>
 </script>
 
 
+
+  
 
   </body>
 </html>

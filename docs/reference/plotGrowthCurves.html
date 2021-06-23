@@ -56,6 +56,8 @@ superimposed in black." />
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -67,9 +69,15 @@ superimposed in black." />
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -83,31 +91,25 @@ superimposed in black." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/mizer.html">Get started</a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Tutorials
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    </li>
     <li>
       <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
@@ -147,6 +149,9 @@ superimposed in black." />
       <a href="../articles/editing_website.html">Editing the Mizer Website</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../reference/index.html">Reference</a>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
@@ -195,13 +200,15 @@ k_vb (and optionally t0), then the von Bertalanffy growth curve is
 superimposed in black.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotGrowthCurves</span><span class='op'>(</span>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>plotGrowthCurves</span><span class='op'>(</span>
   <span class='va'>object</span>,
   species <span class='op'>=</span> <span class='cn'>NULL</span>,
   max_age <span class='op'>=</span> <span class='fl'>20</span>,
   percentage <span class='op'>=</span> <span class='cn'>FALSE</span>,
   species_panel <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  highlight <span class='op'>=</span> <span class='cn'>NULL</span>
+  highlight <span class='op'>=</span> <span class='cn'>NULL</span>,
+  return_data <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  <span class='va'>...</span>
 <span class='op'>)</span>
 
 <span class='fu'>plotlyGrowthCurves</span><span class='op'>(</span>
@@ -211,7 +218,7 @@ superimposed in black.</p>
   percentage <span class='op'>=</span> <span class='cn'>FALSE</span>,
   species_panel <span class='op'>=</span> <span class='cn'>FALSE</span>,
   highlight <span class='op'>=</span> <span class='cn'>NULL</span>
-<span class='op'>)</span></pre>
+<span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -249,6 +256,15 @@ If TRUE, display all species with their Von Bertalanffy curves as facets
       <th>highlight</th>
       <td><p>Name or vector of names of the species to be highlighted.</p></td>
     </tr>
+    <tr>
+      <th>return_data</th>
+      <td><p>A boolean value that determines whether the formatted data
+used for the plot is returned instead of the plot itself. Default value is FALSE</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Other arguments (currently unused)</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -258,7 +274,8 @@ If TRUE, display all species with their Von Bertalanffy curves as facets
 
     <div class='dont-index'><p><a href='plotting_functions.html'>plotting_functions</a></p>
 <p>Other plotting functions: 
-<code><a href='plot,MizerSim,missing-method.html'>plot,MizerSim,missing-method</a></code>,
+<code><a href='animateSpectra.html'>animateSpectra</a>()</code>,
+<code><a href='plotMizerSim.html'>plot,MizerSim,missing-method</a></code>,
 <code><a href='plotBiomass.html'>plotBiomass</a>()</code>,
 <code><a href='plotDiet.html'>plotDiet</a>()</code>,
 <code><a href='plotFMort.html'>plotFMort</a>()</code>,
@@ -270,14 +287,621 @@ If TRUE, display all species with their Von Bertalanffy curves as facets
 <code><a href='plotting_functions.html'>plotting_functions</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span><span class='op'>(</span><span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span><span class='op'>)</span>
-<span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort<span class='op'>=</span><span class='fl'>1</span>, t_max<span class='op'>=</span><span class='fl'>20</span>, t_save <span class='op'>=</span> <span class='fl'>2</span>, progress_bar <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
-<span class='fu'>plotGrowthCurves</span><span class='op'>(</span><span class='va'>sim</span>, percentage <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
-</div><div class='img'><img src='plotGrowthCurves-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>plotGrowthCurves</span><span class='op'>(</span><span class='va'>sim</span>, species <span class='op'>=</span> <span class='st'>"Cod"</span>, max_age <span class='op'>=</span> <span class='fl'>24</span><span class='op'>)</span>
-</div><div class='img'><img src='plotGrowthCurves-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>plotGrowthCurves</span><span class='op'>(</span><span class='va'>sim</span>, species_panel <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
-</div><div class='img'><img src='plotGrowthCurves-3.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span>
-</div></pre>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='co'># \donttest{</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span><span class='op'>(</span><span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort<span class='op'>=</span><span class='fl'>1</span>, t_max<span class='op'>=</span><span class='fl'>20</span>, t_save <span class='op'>=</span> <span class='fl'>2</span>, progress_bar <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'>plotGrowthCurves</span><span class='op'>(</span><span class='va'>sim</span>, percentage <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-plt'><img src='plotGrowthCurves-1.png' alt='' width='700' height='433' /></span>
+<span class='r-in'><span class='fu'>plotGrowthCurves</span><span class='op'>(</span><span class='va'>sim</span>, species <span class='op'>=</span> <span class='st'>"Cod"</span>, max_age <span class='op'>=</span> <span class='fl'>24</span><span class='op'>)</span></span>
+<span class='r-plt'><img src='plotGrowthCurves-2.png' alt='' width='700' height='433' /></span>
+<span class='r-in'><span class='fu'>plotGrowthCurves</span><span class='op'>(</span><span class='va'>sim</span>, species_panel <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-plt'><img src='plotGrowthCurves-3.png' alt='' width='700' height='433' /></span>
+<span class='r-in'> </span>
+<span class='r-in'><span class='co'># Returning the data frame</span></span>
+<span class='r-in'><span class='fu'>plotGrowthCurves</span><span class='op'>(</span><span class='va'>sim</span>, return_data <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     Species        Age        value legend</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 1     Sprat  0.0000000 1.000000e-03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 2   Sandeel  0.0000000 1.000000e-03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 3    N.pout  0.0000000 1.000000e-03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 4   Herring  0.0000000 1.000000e-03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 5       Dab  0.0000000 1.000000e-03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 6   Whiting  0.0000000 1.000000e-03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 7      Sole  0.0000000 1.000000e-03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 8   Gurnard  0.0000000 1.000000e-03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 9    Plaice  0.0000000 1.000000e-03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 10  Haddock  0.0000000 1.000000e-03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 11      Cod  0.0000000 1.000000e-03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 12   Saithe  0.0000000 1.000000e-03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 13    Sprat  0.4081633 2.314681e-01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 14  Sandeel  0.4081633 1.227437e+00  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 15   N.pout  0.4081633 9.648907e-01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 16  Herring  0.4081633 1.740448e+00  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 17      Dab  0.4081633 1.697049e+00  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 18  Whiting  0.4081633 1.284951e+00  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 19     Sole  0.4081633 7.938550e-01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 20  Gurnard  0.4081633 5.765622e-01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 21   Plaice  0.4081633 3.315681e-01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 22  Haddock  0.4081633 3.477691e+00  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 23      Cod  0.4081633 1.464599e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 24   Saithe  0.4081633 5.670538e+00  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 25    Sprat  0.8163265 1.336769e+00  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 26  Sandeel  0.8163265 5.831094e+00  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 27   N.pout  0.8163265 5.852095e+00  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 28  Herring  0.8163265 1.116369e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 29      Dab  0.8163265 1.096768e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 30  Whiting  0.8163265 8.977488e+00  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 31     Sole  0.8163265 4.509721e+00  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 32  Gurnard  0.8163265 3.132908e+00  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 33   Plaice  0.8163265 1.894743e+00  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 34  Haddock  0.8163265 2.054873e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 35      Cod  0.8163265 1.424124e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 36   Saithe  0.8163265 3.369643e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 37    Sprat  1.2244898 3.880248e+00  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 38  Sandeel  1.2244898 1.002466e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 39   N.pout  1.2244898 1.959946e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 40  Herring  1.2244898 3.353561e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 41      Dab  1.2244898 2.978476e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 42  Whiting  1.2244898 3.319834e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 43     Sole  1.2244898 1.297451e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 44  Gurnard  1.2244898 8.662410e+00  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 45   Plaice  1.2244898 5.824104e+00  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 46  Haddock  1.2244898 6.206627e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 47      Cod  1.2244898 6.223436e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 48   Saithe  1.2244898 1.136314e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 49    Sprat  1.6326531 8.318896e+00  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 50  Sandeel  1.6326531 1.422992e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 51   N.pout  1.6326531 3.303480e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 52  Herring  1.6326531 7.296903e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 53      Dab  1.6326531 4.988412e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 54  Whiting  1.6326531 8.447333e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 55     Sole  1.6326531 2.827769e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 56  Gurnard  1.6326531 1.824495e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 57   Plaice  1.6326531 1.372664e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 58  Haddock  1.6326531 1.432270e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 59      Cod  1.6326531 1.719633e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 60   Saithe  1.6326531 2.960715e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 61    Sprat  2.0408163 1.364965e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 62  Sandeel  2.0408163 1.811181e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 63   N.pout  2.0408163 4.302232e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 64  Herring  2.0408163 1.138565e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 65      Dab  2.0408163 7.333277e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 66  Whiting  2.0408163 1.381715e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 67     Sole  2.0408163 5.287569e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 68  Gurnard  2.0408163 3.298444e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 69   Plaice  2.0408163 2.763416e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 70  Haddock  2.0408163 2.430936e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 71      Cod  2.0408163 2.962289e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 72   Saithe  2.0408163 6.455937e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 73    Sprat  2.4489796 1.667724e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 74  Sandeel  2.4489796 2.151063e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 75   N.pout  2.4489796 5.228736e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 76  Herring  2.4489796 1.382399e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 77      Dab  2.4489796 9.866550e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 78  Whiting  2.4489796 2.005895e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 79     Sole  2.4489796 8.428954e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 80  Gurnard  2.4489796 4.900099e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 81   Plaice  2.4489796 4.993425e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 82  Haddock  2.4489796 3.567890e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 83      Cod  2.4489796 4.427738e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 84   Saithe  2.4489796 1.183133e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 85    Sprat  2.8571429 1.871008e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 86  Sandeel  2.8571429 2.438680e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 87   N.pout  2.8571429 6.064149e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 88  Herring  2.8571429 1.578519e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 89      Dab  2.8571429 1.244493e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 90  Whiting  2.8571429 2.703482e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 91     Sole  2.8571429 1.114060e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 92  Gurnard  2.8571429 6.440722e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 93   Plaice  2.8571429 8.308089e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 94  Haddock  2.8571429 4.927885e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 95      Cod  2.8571429 6.092319e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 96   Saithe  2.8571429 1.760624e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 97    Sprat  3.2653061 2.037009e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 98  Sandeel  3.2653061 2.675810e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 99   N.pout  3.2653061 6.791289e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 100 Herring  3.2653061 1.754757e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 101     Dab  3.2653061 1.495347e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 102 Whiting  3.2653061 3.442278e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 103    Sole  3.2653061 1.384446e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 104 Gurnard  3.2653061 8.124112e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 105  Plaice  3.2653061 1.223093e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 106 Haddock  3.2653061 6.488853e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 107     Cod  3.2653061 7.890273e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 108  Saithe  3.2653061 2.434599e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 109   Sprat  3.6734694 2.180921e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 110 Sandeel  3.6734694 2.869302e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 111  N.pout  3.6734694 7.409431e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 112 Herring  3.6734694 1.916172e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 113     Dab  3.6734694 1.731145e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 114 Whiting  3.6734694 4.192924e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 115    Sole  3.6734694 1.670329e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 116 Gurnard  3.6734694 9.963801e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 117  Plaice  3.6734694 1.614959e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 118 Haddock  3.6734694 8.216368e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 119     Cod  3.6734694 9.764240e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 120  Saithe  3.6734694 3.214368e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 121   Sprat  4.0816327 2.308528e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 122 Sandeel  4.0816327 3.024263e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 123  N.pout  4.0816327 7.922020e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 124 Herring  4.0816327 2.064207e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 125     Dab  4.0816327 1.946505e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 126 Whiting  4.0816327 4.932230e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 127    Sole  4.0816327 1.970042e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 128 Gurnard  4.0816327 1.194105e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 129  Plaice  4.0816327 2.048581e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 130 Haddock  4.0816327 1.006951e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 131     Cod  4.0816327 1.166515e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 132  Saithe  4.0816327 4.089404e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 133   Sprat  4.4897959 2.421716e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 134 Sandeel  4.4897959 3.147103e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 135  N.pout  4.4897959 8.345802e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 136 Herring  4.4897959 2.199044e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 137     Dab  4.4897959 2.139614e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 138 Whiting  4.4897959 5.642567e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 139    Sole  4.4897959 2.279813e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 140 Gurnard  4.4897959 1.403252e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 141  Plaice  4.4897959 2.532757e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 142 Haddock  4.4897959 1.200649e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 143     Cod  4.4897959 1.355467e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 144  Saithe  4.4897959 5.046255e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 145   Sprat  4.8979592 2.522405e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 146 Sandeel  4.8979592 3.244479e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 147  N.pout  4.8979592 8.686174e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 148 Herring  4.8979592 2.321754e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 149     Dab  4.8979592 2.309230e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 150 Whiting  4.8979592 6.312976e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 151    Sole  4.8979592 2.595881e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 152 Gurnard  4.8979592 1.621319e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 153  Plaice  4.8979592 3.065264e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 154 Haddock  4.8979592 1.398739e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 155     Cod  4.8979592 1.540483e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 156  Saithe  4.8979592 6.071672e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 157   Sprat  5.3061224 2.612040e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 158 Sandeel  5.3061224 3.321668e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 159  N.pout  5.3061224 8.957391e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 160 Herring  5.3061224 2.433135e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 161     Dab  5.3061224 2.457264e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 162 Whiting  5.3061224 6.936246e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 163    Sole  5.3061224 2.914589e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 164 Gurnard  5.3061224 1.845926e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 165  Plaice  5.3061224 3.642151e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 166 Haddock  5.3061224 1.597575e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 167     Cod  5.3061224 1.719503e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 168  Saithe  5.3061224 7.152736e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 169   Sprat  5.7142857 2.691834e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 170 Sandeel  5.7142857 3.382859e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 171  N.pout  5.7142857 9.173497e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 172 Herring  5.7142857 2.533171e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 173     Dab  5.7142857 2.583581e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 174 Whiting  5.7142857 7.507367e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 175    Sole  5.7142857 3.232253e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 176 Gurnard  5.7142857 2.074683e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 177  Plaice  5.7142857 4.258771e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 178 Haddock  5.7142857 1.794311e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 179     Cod  5.7142857 1.890718e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 180  Saithe  5.7142857 8.277085e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 181   Sprat  6.1224490 2.762869e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 182 Sandeel  6.1224490 3.434739e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 183  N.pout  6.1224490 9.345695e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 184 Herring  6.1224490 2.622920e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 185     Dab  6.1224490 2.691139e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 186 Whiting  6.1224490 8.026579e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 187    Sole  6.1224490 3.546840e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 188 Gurnard  6.1224490 2.304986e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 189  Plaice  6.1224490 4.910091e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 190 Haddock  6.1224490 1.986200e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 191     Cod  6.1224490 2.053677e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 192  Saithe  6.1224490 9.433106e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 193   Sprat  6.5306122 2.826105e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 194 Sandeel  6.5306122 3.482513e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 195  N.pout  6.5306122 9.482896e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 196 Herring  6.5306122 2.703442e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 197     Dab  6.5306122 2.782724e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 198 Whiting  6.5306122 8.495992e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 199    Sole  6.5306122 3.854860e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 200 Gurnard  6.5306122 2.535263e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 201  Plaice  6.5306122 5.590648e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 202 Haddock  6.5306122 2.171183e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 203     Cod  6.5306122 2.207196e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 204  Saithe  6.5306122 1.061133e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 205   Sprat  6.9387755 2.882580e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 206 Sandeel  6.9387755 3.526513e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 207  N.pout  6.9387755 9.592224e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 208 Herring  6.9387755 2.775684e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 209     Dab  6.9387755 2.860868e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 210 Whiting  6.9387755 8.914263e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 211    Sole  6.9387755 4.155554e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 212 Gurnard  6.9387755 2.763113e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 213  Plaice  6.9387755 6.295780e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 214 Haddock  6.9387755 2.347979e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 215     Cod  6.9387755 2.351602e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 216  Saithe  6.9387755 1.180188e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 217   Sprat  7.3469388 2.933341e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 218 Sandeel  7.3469388 3.567038e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 219  N.pout  7.3469388 9.679340e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 220 Herring  7.3469388 2.840481e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 221     Dab  7.3469388 2.928466e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 222 Whiting  7.3469388 9.286660e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 223    Sole  7.3469388 4.445862e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 224 Gurnard  7.3469388 2.987538e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 225  Plaice  7.3469388 7.020167e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 226 Haddock  7.3469388 2.515526e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 227     Cod  7.3469388 2.486535e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 228  Saithe  7.3469388 1.299520e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 229   Sprat  7.7551020 2.978973e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 230 Sandeel  7.7551020 3.604361e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 231  N.pout  7.7551020 9.748754e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 232 Herring  7.7551020 2.898311e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 233     Dab  7.7551020 2.987083e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 234 Whiting  7.7551020 9.618211e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 235    Sole  7.7551020 4.725500e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 236 Gurnard  7.7551020 3.206317e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 237  Plaice  7.7551020 7.758151e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 238 Haddock  7.7551020 2.672690e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 239     Cod  7.7551020 2.611891e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 240  Saithe  7.7551020 1.418599e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 241   Sprat  8.1632653 3.019995e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 242 Sandeel  8.1632653 3.638736e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 243  N.pout  8.1632653 9.805517e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 244 Herring  8.1632653 2.949823e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 245     Dab  8.1632653 3.037914e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 246 Whiting  8.1632653 9.912321e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 247    Sole  8.1632653 4.993823e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 248 Gurnard  8.1632653 3.419380e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 249  Plaice  8.1632653 8.506550e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 250 Haddock  8.1632653 2.820104e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 251     Cod  8.1632653 2.728357e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 252  Saithe  8.1632653 1.536445e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 253   Sprat  8.5714286 3.056873e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 254 Sandeel  8.5714286 3.670395e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 255  N.pout  8.5714286 9.859371e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 256 Herring  8.5714286 2.995705e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 257     Dab  8.5714286 3.081994e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 258 Whiting  8.5714286 1.016954e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 259    Sole  8.5714286 5.248704e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 260 Gurnard  8.5714286 3.624836e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 261  Plaice  8.5714286 9.259072e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 262 Haddock  8.5714286 2.957013e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 263     Cod  8.5714286 2.836485e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 264  Saithe  8.5714286 1.652765e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 265   Sprat  8.9795918 3.090024e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 266 Sandeel  8.9795918 3.699553e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 267  N.pout  8.9795918 9.911667e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 268 Herring  8.9795918 3.036574e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 269     Dab  8.9795918 3.120219e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 270 Whiting  8.9795918 1.039417e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 271    Sole  8.9795918 5.490679e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 272 Gurnard  8.9795918 3.822091e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 273  Plaice  8.9795918 1.001395e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 274 Haddock  8.9795918 3.083156e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 275     Cod  8.9795918 2.936059e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 276  Saithe  8.9795918 1.766868e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 277   Sprat  9.3877551 3.119826e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 278 Sandeel  9.3877551 3.726408e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 279  N.pout  9.3877551 9.962450e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 280 Herring  9.3877551 3.072977e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 281     Dab  9.3877551 3.153365e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 282 Whiting  9.3877551 1.059036e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 283    Sole  9.3877551 5.720398e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 284 Gurnard  9.3877551 4.011480e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 285  Plaice  9.3877551 1.076517e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 286 Haddock  9.3877551 3.199378e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 287     Cod  9.3877551 3.027545e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 288  Saithe  9.3877551 1.878232e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 289   Sprat  9.7959184 3.146616e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 290 Sandeel  9.7959184 3.751142e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 291  N.pout  9.7959184 1.001176e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 292 Herring  9.7959184 3.105403e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 293     Dab  9.7959184 3.182107e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 294 Whiting  9.7959184 1.076169e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 295    Sole  9.7959184 5.937061e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 296 Gurnard  9.7959184 4.192155e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 297  Plaice  9.7959184 1.151115e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 298 Haddock  9.7959184 3.306460e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 299     Cod  9.7959184 3.111599e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 300  Saithe  9.7959184 1.986896e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 301   Sprat 10.2040816 3.170700e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 302 Sandeel 10.2040816 3.773922e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 303  N.pout 10.2040816 1.005965e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 304 Herring 10.2040816 3.134285e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 305     Dab 10.2040816 3.207032e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 306 Whiting 10.2040816 1.091131e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 307    Sole 10.2040816 6.139857e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 308 Gurnard 10.2040816 4.363148e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 309  Plaice 10.2040816 1.224907e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 310 Haddock 10.2040816 3.404895e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 311     Cod 10.2040816 3.188826e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 312  Saithe 10.2040816 2.092149e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 313   Sprat 10.6122449 3.192351e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 314 Sandeel 10.6122449 3.794902e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 315  N.pout 10.6122449 1.010615e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 316 Herring 10.6122449 3.160012e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 317     Dab 10.6122449 3.228644e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 318 Whiting 10.6122449 1.104199e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 319    Sole 10.6122449 6.329682e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 320 Gurnard 10.6122449 4.524975e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 321  Plaice 10.6122449 1.297438e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 322 Haddock 10.6122449 3.494235e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 323     Cod 10.6122449 3.259779e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 324  Saithe 10.6122449 2.193735e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 325   Sprat 11.0204082 3.211813e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 326 Sandeel 11.0204082 3.814225e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 327  N.pout 11.0204082 1.015131e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 328 Herring 11.0204082 3.182927e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 329     Dab 11.0204082 3.247386e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 330 Whiting 11.0204082 1.115610e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 331    Sole 11.0204082 6.507368e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 332 Gurnard 11.0204082 4.678127e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 333  Plaice 11.0204082 1.368719e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 334 Haddock 11.0204082 3.575154e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 335     Cod 11.0204082 3.324968e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 336  Saithe 11.0204082 2.291783e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 337   Sprat 11.4285714 3.229310e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 338 Sandeel 11.4285714 3.832021e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 339  N.pout 11.4285714 1.019516e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 340 Herring 11.4285714 3.203338e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 341     Dab 11.4285714 3.263638e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 342 Whiting 11.4285714 1.125577e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 343    Sole 11.4285714 6.673689e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 344 Gurnard 11.4285714 4.823036e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 345  Plaice 11.4285714 1.438574e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 346 Haddock 11.4285714 3.648449e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 347     Cod 11.4285714 3.384687e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 348  Saithe 11.4285714 2.386311e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 349   Sprat 11.8367347 3.245039e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 350 Sandeel 11.8367347 3.848412e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 351  N.pout 11.8367347 1.023774e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 352 Herring 11.8367347 3.221520e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 353     Dab 11.8367347 3.277731e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 354 Whiting 11.8367347 1.134280e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 355    Sole 11.8367347 6.829369e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 356 Gurnard 11.8367347 4.958933e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 357  Plaice 11.8367347 1.506577e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 358 Haddock 11.8367347 3.714836e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 359     Cod 11.8367347 3.439018e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 360  Saithe 11.8367347 2.476705e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 361   Sprat 12.2448980 3.259178e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 362 Sandeel 12.2448980 3.863508e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 363  N.pout 12.2448980 1.027909e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 364 Herring 12.2448980 3.237714e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 365     Dab 12.2448980 3.289952e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 366 Whiting 12.2448980 1.141882e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 367    Sole 12.2448980 6.974175e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 368 Gurnard 12.2448980 5.085745e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 369  Plaice 12.2448980 1.572753e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 370 Haddock 12.2448980 3.774966e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 371     Cod 12.2448980 3.488433e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 372  Saithe 12.2448980 2.562995e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 373   Sprat 12.6530612 3.271889e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 374 Sandeel 12.6530612 3.877411e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 375  N.pout 12.6530612 1.031924e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 376 Herring 12.6530612 3.252139e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 377     Dab 12.6530612 3.300550e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 378 Whiting 12.6530612 1.148520e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 379    Sole 12.6530612 7.107859e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 380 Gurnard 12.6530612 5.204082e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 381  Plaice 12.6530612 1.637152e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 382 Haddock 12.6530612 3.829429e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 383     Cod 12.6530612 3.533377e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 384  Saithe 12.6530612 2.645366e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 385   Sprat 13.0612245 3.283316e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 386 Sandeel 13.0612245 3.890217e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 387  N.pout 13.0612245 1.035824e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 388 Herring 13.0612245 3.264987e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 389     Dab 13.0612245 3.309739e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 390 Whiting 13.0612245 1.154317e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 391    Sole 13.0612245 7.231282e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 392 Gurnard 13.0612245 5.314512e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 393  Plaice 13.0612245 1.699663e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 394 Haddock 13.0612245 3.878760e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 395     Cod 13.0612245 3.574254e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 396  Saithe 13.0612245 2.723997e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 397   Sprat 13.4693878 3.293588e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 398 Sandeel 13.4693878 3.902010e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 399  N.pout 13.4693878 1.039610e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 400 Herring 13.4693878 3.276432e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 401     Dab 13.4693878 3.317708e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 402 Whiting 13.4693878 1.159383e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 403    Sole 13.4693878 7.345230e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 404 Gurnard 13.4693878 5.417560e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 405  Plaice 13.4693878 1.759955e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 406 Haddock 13.4693878 3.923442e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 407     Cod 13.4693878 3.611432e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 408  Saithe 13.4693878 2.799055e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 409   Sprat 13.8775510 3.302822e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 410 Sandeel 13.8775510 3.912872e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 411  N.pout 13.8775510 1.043287e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 412 Herring 13.8775510 3.286626e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 413     Dab 13.8775510 3.324618e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 414 Whiting 13.8775510 1.163894e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 415    Sole 13.8775510 7.450433e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 416 Gurnard 13.8775510 5.513722e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 417  Plaice 13.8775510 1.818080e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 418 Haddock 13.8775510 3.963912e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 419     Cod 13.8775510 3.645246e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 420  Saithe 13.8775510 2.870318e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 421   Sprat 14.2857143 3.311124e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 422 Sandeel 14.2857143 3.922876e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 423  N.pout 14.2857143 1.046857e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 424 Herring 14.2857143 3.295706e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 425     Dab 14.2857143 3.330611e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 426 Whiting 14.2857143 1.168251e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 427    Sole 14.2857143 7.547564e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 428 Gurnard 14.2857143 5.603458e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 429  Plaice 14.2857143 1.874121e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 430 Haddock 14.2857143 4.000569e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 431     Cod 14.2857143 3.676001e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 432  Saithe 14.2857143 2.937610e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 433   Sprat 14.6938776 3.318586e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 434 Sandeel 14.6938776 3.932089e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 435  N.pout 14.6938776 1.050325e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 436 Herring 14.6938776 3.303795e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 437     Dab 14.6938776 3.335807e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 438 Whiting 14.6938776 1.172521e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 439    Sole 14.6938776 7.637239e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 440 Gurnard 14.6938776 5.687196e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 441  Plaice 14.6938776 1.928151e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 442 Haddock 14.6938776 4.034543e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 443     Cod 14.6938776 3.703972e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 444  Saithe 14.6938776 3.001156e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 445   Sprat 15.1020408 3.325295e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 446 Sandeel 15.1020408 3.940575e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 447  N.pout 15.1020408 1.053691e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 448 Herring 15.1020408 3.310999e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 449     Dab 15.1020408 3.340313e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 450 Whiting 15.1020408 1.176709e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 451    Sole 15.1020408 7.720030e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 452 Gurnard 15.1020408 5.765321e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 453  Plaice 15.1020408 1.980237e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 454 Haddock 15.1020408 4.067024e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 455     Cod 15.1020408 3.729413e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 456  Saithe 15.1020408 3.061164e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 457   Sprat 15.5102041 3.331326e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 458 Sandeel 15.5102041 3.948391e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 459  N.pout 15.5102041 1.056961e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 460 Herring 15.5102041 3.317416e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 461     Dab 15.5102041 3.344220e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 462 Whiting 15.5102041 1.180813e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 463    Sole 15.5102041 7.796466e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 464 Gurnard 15.5102041 5.838139e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 465  Plaice 15.5102041 2.030185e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 466 Haddock 15.5102041 4.098082e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 467     Cod 15.5102041 3.752551e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 468  Saithe 15.5102041 3.117831e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 469   Sprat 15.9183673 3.336747e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 470 Sandeel 15.9183673 3.955589e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 471  N.pout 15.9183673 1.060136e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 472 Herring 15.9183673 3.323132e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 473     Dab 15.9183673 3.347608e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 474 Whiting 15.9183673 1.184838e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 475    Sole 15.9183673 7.867035e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 476 Gurnard 15.9183673 5.905995e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 477  Plaice 15.9183673 2.077919e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 478 Haddock 15.9183673 4.127784e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 479     Cod 15.9183673 3.773596e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 480  Saithe 15.9183673 3.171344e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 481   Sprat 16.3265306 3.341621e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 482 Sandeel 16.3265306 3.962218e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 483  N.pout 16.3265306 1.063219e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 484 Herring 16.3265306 3.328223e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 485     Dab 16.3265306 3.350547e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 486 Whiting 16.3265306 1.188783e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 487    Sole 16.3265306 7.932188e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 488 Gurnard 16.3265306 5.969230e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 489  Plaice 16.3265306 2.123538e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 490 Haddock 16.3265306 4.156186e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 491     Cod 16.3265306 3.792737e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 492  Saithe 16.3265306 3.221876e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 493   Sprat 16.7346939 3.346002e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 494 Sandeel 16.7346939 3.968324e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 495  N.pout 16.7346939 1.066213e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 496 Herring 16.7346939 3.332758e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 497     Dab 16.7346939 3.353094e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 498 Whiting 16.7346939 1.192651e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 499    Sole 16.7346939 7.992339e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 500 Gurnard 16.7346939 6.028156e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 501  Plaice 16.7346939 2.167134e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 502 Haddock 16.7346939 4.183346e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 503     Cod 16.7346939 3.810145e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 504  Saithe 16.7346939 3.269595e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 505   Sprat 17.1428571 3.349941e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 506 Sandeel 17.1428571 3.973947e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 507  N.pout 17.1428571 1.069120e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 508 Herring 17.1428571 3.336797e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 509     Dab 17.1428571 3.355304e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 510 Whiting 17.1428571 1.196444e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 511    Sole 17.1428571 8.047873e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 512 Gurnard 17.1428571 6.083067e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 513  Plaice 17.1428571 2.208799e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 514 Haddock 17.1428571 4.209319e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 515     Cod 17.1428571 3.825979e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 516  Saithe 17.1428571 3.314658e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 517   Sprat 17.5510204 3.353481e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 518 Sandeel 17.5510204 3.979127e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 519  N.pout 17.5510204 1.071943e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 520 Herring 17.5510204 3.340395e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 521     Dab 17.5510204 3.357220e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 522 Whiting 17.5510204 1.200162e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 523    Sole 17.5510204 8.099145e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 524 Gurnard 17.5510204 6.134238e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 525  Plaice 17.5510204 2.248618e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 526 Haddock 17.5510204 4.234156e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 527     Cod 17.5510204 3.840380e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 528  Saithe 17.5510204 3.357179e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 529   Sprat 17.9591837 3.356664e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 530 Sandeel 17.9591837 3.983897e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 531  N.pout 17.9591837 1.074685e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 532 Herring 17.9591837 3.343600e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 533     Dab 17.9591837 3.358881e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 534 Whiting 17.9591837 1.203807e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 535    Sole 17.9591837 8.146481e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 536 Gurnard 17.9591837 6.181922e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 537  Plaice 17.9591837 2.286671e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 538 Haddock 17.9591837 4.257906e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 539     Cod 17.9591837 3.853477e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 540  Saithe 17.9591837 3.397058e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 541   Sprat 18.3673469 3.359526e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 542 Sandeel 18.3673469 3.988290e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 543  N.pout 18.3673469 1.077347e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 544 Herring 18.3673469 3.346455e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 545     Dab 18.3673469 3.360322e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 546 Whiting 18.3673469 1.207380e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 547    Sole 18.3673469 8.190895e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 548 Gurnard 18.3673469 6.226357e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 549  Plaice 18.3673469 2.323038e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 550 Haddock 18.3673469 4.280618e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 551     Cod 18.3673469 3.865390e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 552  Saithe 18.3673469 3.434403e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 553   Sprat 18.7755102 3.362098e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 554 Sandeel 18.7755102 3.992336e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 555  N.pout 18.7755102 1.079932e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 556 Herring 18.7755102 3.348998e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 557     Dab 18.7755102 3.361571e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 558 Whiting 18.7755102 1.210884e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 559    Sole 18.7755102 8.234022e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 560 Gurnard 18.7755102 6.267765e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 561  Plaice 18.7755102 2.357793e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 562 Haddock 18.7755102 4.302336e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 563     Cod 18.7755102 3.876225e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 564  Saithe 18.7755102 3.469376e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 565   Sprat 19.1836735 3.364410e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 566 Sandeel 19.1836735 3.996063e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 567  N.pout 19.1836735 1.082442e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 568 Herring 19.1836735 3.351263e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 569     Dab 19.1836735 3.362654e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 570 Whiting 19.1836735 1.214318e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 571    Sole 19.1836735 8.275943e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 572 Gurnard 19.1836735 6.306351e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 573  Plaice 19.1836735 2.390855e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 574 Haddock 19.1836735 4.323105e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 575     Cod 19.1836735 3.886079e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 576  Saithe 19.1836735 3.502128e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 577   Sprat 19.5918367 3.366489e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 578 Sandeel 19.5918367 3.999495e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 579  N.pout 19.5918367 1.084880e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 580 Herring 19.5918367 3.353280e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 581     Dab 19.5918367 3.363594e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 582 Whiting 19.5918367 1.217686e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 583    Sole 19.5918367 8.316691e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 584 Gurnard 19.5918367 6.342309e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 585  Plaice 19.5918367 2.422192e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 586 Haddock 19.5918367 4.342966e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 587     Cod 19.5918367 3.895042e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 588  Saithe 19.5918367 3.532800e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 589   Sprat 20.0000000 3.368358e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 590 Sandeel 20.0000000 4.002656e+01  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 591  N.pout 20.0000000 1.087247e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 592 Herring 20.0000000 3.355077e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 593     Dab 20.0000000 3.364408e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 594 Whiting 20.0000000 1.220987e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 595    Sole 20.0000000 8.356300e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 596 Gurnard 20.0000000 6.375817e+02  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 597  Plaice 20.0000000 2.451894e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 598 Haddock 20.0000000 4.361958e+03  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 599     Cod 20.0000000 3.903193e+04  model</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 600  Saithe 20.0000000 3.561525e+04  model</span>
+<span class='r-in'><span class='co'># }</span></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -289,11 +913,11 @@ If TRUE, display all species with their Von Bertalanffy curves as facets
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
+  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
 </div>
 
       </footer>
@@ -318,6 +942,8 @@ If TRUE, display all species with their Von Bertalanffy curves as facets
 </script>
 
 
+
+  
 
   </body>
 </html>

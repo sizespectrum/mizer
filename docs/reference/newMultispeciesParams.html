@@ -57,6 +57,8 @@ details in the sections below the list." />
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -68,9 +70,15 @@ details in the sections below the list." />
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -84,31 +92,25 @@ details in the sections below the list." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/mizer.html">Get started</a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Tutorials
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    </li>
     <li>
       <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
@@ -148,6 +150,9 @@ details in the sections below the list." />
       <a href="../articles/editing_website.html">Editing the Mizer Website</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../reference/index.html">Reference</a>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
@@ -197,7 +202,7 @@ all of them have sensible default values. All arguments are described in more
 details in the sections below the list.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>newMultispeciesParams</span><span class='op'>(</span>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>newMultispeciesParams</span><span class='op'>(</span>
   <span class='va'>species_params</span>,
   interaction <span class='op'>=</span> <span class='cn'>NULL</span>,
   no_w <span class='op'>=</span> <span class='fl'>100</span>,
@@ -227,7 +232,7 @@ details in the sections below the list.</p>
   selectivity <span class='op'>=</span> <span class='cn'>NULL</span>,
   catchability <span class='op'>=</span> <span class='cn'>NULL</span>,
   initial_effort <span class='op'>=</span> <span class='cn'>NULL</span>
-<span class='op'>)</span></pre>
+<span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -626,7 +631,7 @@ that is invested into reproduction is the product of two factors: the
 proportion <code>maturity</code> of individuals that are mature and the proportion
 <code>repro_prop</code> of the energy available to a mature individual that is
 invested into reproduction.</p>
-<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Maturity ogive</h3>
+<h3 class='hasAnchor' id='maturity-ogive'><a class='anchor' aria-hidden='true' href='#maturity-ogive'></a>Maturity ogive</h3>
 <p>If the the proportion of individuals that are mature is not supplied via
 the <code>maturity</code> argument , then it is set to a sigmoidal
 maturity ogive that changes from 0 to 1 at around the maturity size:
@@ -647,7 +652,7 @@ maximum size, taken from the compulsory <code>w_inf</code> column in the
 <code>species_params</code> data frame. Also, for computational simplicity, any
 proportion smaller than <code>1e-8</code> is set to <code>0</code>.</p>
 
-<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Investment into reproduction</h3>
+<h3 class='hasAnchor' id='investment-into-reproduction'><a class='anchor' aria-hidden='true' href='#investment-into-reproduction'></a>Investment into reproduction</h3>
 <p>If the the energy available to a mature individual that is
 invested into reproduction is not supplied via the <code>repro_prop</code> argument,
 it is set to the allometric form
@@ -663,7 +668,7 @@ data frame.</p>
 <p>So finally we have
 $$\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)$$</p>
 
-<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Reproductive efficiency</h3>
+<h3 class='hasAnchor' id='reproductive-efficiency'><a class='anchor' aria-hidden='true' href='#reproductive-efficiency'></a>Reproductive efficiency</h3>
 <p>The reproductive efficiency \(\epsilon\), i.e., the proportion of energy allocated to
 reproduction that results in egg biomass, is set through the <code>erepro</code>
 column in the species_params data frame. If that is not provided, the default
@@ -672,7 +677,7 @@ by the egg biomass gives the rate of egg production, returned by
 <code><a href='getRDI.html'>getRDI()</a></code>:
 $$R_{di} = \frac{\epsilon}{2 w_{min}} \int N(w)  E_r(w) \psi(w) \, dw$$</p>
 
-<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Density dependence</h3>
+<h3 class='hasAnchor' id='density-dependence'><a class='anchor' aria-hidden='true' href='#density-dependence'></a>Density dependence</h3>
 <p>The stock-recruitment relationship is an emergent phenomenon in mizer, with
 several sources of density dependence. Firstly, the amount of energy invested
 into reproduction depends on the energy income of the spawners, which is
@@ -794,13 +799,14 @@ and <code>lambda</code> arguments.</p>
 
     <div class='dont-index'><p>Other functions for setting up models: 
 <code><a href='newCommunityParams.html'>newCommunityParams</a>()</code>,
+<code><a href='newSingleSpeciesParams.html'>newSingleSpeciesParams</a>()</code>,
 <code><a href='newTraitParams.html'>newTraitParams</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
-<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>newMultispeciesParams</span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span>
-<span class='op'>}</span>
-</div></pre>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>newMultispeciesParams</span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -812,11 +818,11 @@ and <code>lambda</code> arguments.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
+  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
 </div>
 
       </footer>
@@ -841,6 +847,8 @@ and <code>lambda</code> arguments.</p>
 </script>
 
 
+
+  
 
   </body>
 </html>

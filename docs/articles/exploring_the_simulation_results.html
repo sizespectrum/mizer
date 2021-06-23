@@ -21,6 +21,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -33,32 +35,26 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/mizer.html">Get started</a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Tutorials
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    </li>
+    <li>
       <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
@@ -99,6 +95,9 @@
   </ul>
 </li>
 <li>
+  <a href="../reference/index.html">Reference</a>
+</li>
+<li>
   <a href="../articles/publications.html">Publications</a>
 </li>
 <li>
@@ -107,7 +106,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/sizespectrum/mizer/">
+  <a href="https://github.com/sizespectrum/mizer/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -128,13 +127,13 @@
 
       
 
-      </header><script src="exploring_the_simulation_results_files/header-attrs-2.7/header-attrs.js"></script><script src="exploring_the_simulation_results_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="exploring_the_simulation_results_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Exploring the Simulation Results</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/master/vignettes/exploring_the_simulation_results.Rmd"><code>vignettes/exploring_the_simulation_results.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/master/vignettes/exploring_the_simulation_results.Rmd" class="external-link"><code>vignettes/exploring_the_simulation_results.Rmd</code></a></small>
       <div class="hidden name"><code>exploring_the_simulation_results.Rmd</code></div>
 
     </div>
@@ -143,7 +142,7 @@
     
 <div id="sec:exploring" class="section level2">
 <h2 class="hasAnchor">
-<a href="#sec:exploring" class="anchor"></a>Introduction</h2>
+<a href="#sec:exploring" class="anchor" aria-hidden="true"></a>Introduction</h2>
 <p>In the sections on <a href="multispecies_model.html">the multispecies model</a> and on <a href="running_a_simulation.html">running a simulation</a> we saw how to set up a model and project it forward through time under our desired fishing scenario. The result of running a projection is an object of class <code>MizerSim</code>. What do we then do? How can we explore the results of the simulation? In this section we introduce a range of summaries, plots and indicators that can be easily produced using functions included in mizer.</p>
 <p>We will use the following <code>MizerSim</code> object for these examples, where the effort array is the one we created in the <a href="running_a_simulation.html">previous section on running a simulation</a>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -151,10 +150,10 @@
 </div>
 <div id="accessing-the-simulation-results" class="section level2">
 <h2 class="hasAnchor">
-<a href="#accessing-the-simulation-results" class="anchor"></a>Accessing the simulation results</h2>
-<p>The projected species abundances at size through time can be obtained with <code><a href="../reference/N.html">N(sim)</a></code>. This returns a three-dimensional array (time x species x size). Consequently, this array can get very big so inspecting it can be difficult. In the example we have just run, the time dimension of <code>n</code> has 10 rows (one for the initial population and then one for each of the saved time steps). There are also 12 species each with 100 sizes. We can check this by running the <code><a href="https://rdrr.io/r/base/dim.html">dim()</a></code> function and looking at the dimensions of the <code>n</code> array:</p>
+<a href="#accessing-the-simulation-results" class="anchor" aria-hidden="true"></a>Accessing the simulation results</h2>
+<p>The projected species abundances at size through time can be obtained with <code>N(sim)</code>. This returns a three-dimensional array (time x species x size). Consequently, this array can get very big so inspecting it can be difficult. In the example we have just run, the time dimension of <code>n</code> has 10 rows (one for the initial population and then one for each of the saved time steps). There are also 12 species each with 100 sizes. We can check this by running the <code><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim()</a></code> function and looking at the dimensions of the <code>n</code> array:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="fu"><a href="../reference/N.html">N</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="fu"><a href="../reference/N.html">N</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1]  10  12 100</code></pre>
 <p>To pull out the abundances of a particular species through time at size you can subset the array. For example to look at Cod through time you can use:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -174,20 +173,20 @@
 </div>
 <div id="sec:summaries" class="section level2">
 <h2 class="hasAnchor">
-<a href="#sec:summaries" class="anchor"></a>Summary functions</h2>
-<p>As well as the <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> methods that are available for both <code>MizerParams</code> and <code>MizerSim</code> objects, there are other useful summary functions to pull information out of a <code>MizerSim</code> object. A description of the different summary functions available is given in <a href="../reference/summary_functions.html">the summary functions help page.</a></p>
+<a href="#sec:summaries" class="anchor" aria-hidden="true"></a>Summary functions</h2>
+<p>As well as the <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> methods that are available for both <code>MizerParams</code> and <code>MizerSim</code> objects, there are other useful summary functions to pull information out of a <code>MizerSim</code> object. A description of the different summary functions available is given in <a href="../reference/summary_functions.html">the summary functions help page.</a></p>
 <p>All of these functions have help files to explain how they are used. (It is also possible to use most of these functions with a <code>MizerParams</code> object if you also supply the population abundance as an argument. This can be useful for exploring how changes in parameter value or abundance can affect summary statistics and indicators. We won’t explore this here but you can see their help files for more details.)</p>
 <p>The functions <code><a href="../reference/getBiomass.html">getBiomass()</a></code> and <code><a href="../reference/getN.html">getN()</a></code> have additional arguments that allow the user to set the size range over which to calculate the summary statistic. This is done by passing in a combination of the arguments <code>min_l</code>, <code>min_w</code>, <code>max_l</code> and <code>max_w</code> for the minimum and maximum length or weight. If <code>min_l</code> is specified there is no need to specify <code>min_w</code> and so on. However, if a length is specified (minimum or maximum) then it is necessary for the species parameter data.frame (see <a href="multispecies_model.html#sec:species_parameters_dataframe">the species parameters section</a>) to include the parameters <code>a</code> and <code>b</code> for length-weight conversion. It is possible to mix length and weight constraints, e.g. by supplying a minimum weight and a maximum length. The default values are the minimum and maximum weights of the spectrum, i.e. the full range of the size spectrum is used.</p>
 <div id="sec:summaries_example" class="section level3">
 <h3 class="hasAnchor">
-<a href="#sec:summaries_example" class="anchor"></a>Examples of using the summary functions</h3>
-<p>Here we show a simple demonstration of using a summary function using the <code>sim</code> object we created earlier. Here, we use <code><a href="../reference/getSSB.html">getSSB()</a></code> to calculate the SSB of each species through time (note the use of the <code><a href="https://rdrr.io/r/utils/head.html">head()</a></code> function to only display the first few rows).</p>
+<a href="#sec:summaries_example" class="anchor" aria-hidden="true"></a>Examples of using the summary functions</h3>
+<p>Here we show a simple demonstration of using a summary function using the <code>sim</code> object we created earlier. Here, we use <code><a href="../reference/getSSB.html">getSSB()</a></code> to calculate the SSB of each species through time (note the use of the <code><a href="https://rdrr.io/r/utils/head.html" class="external-link">head()</a></code> function to only display the first few rows).</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">ssb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getSSB.html">getSSB</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">ssb</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">ssb</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] 10 12</code></pre>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">ssb</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ssb</span><span class="op">)</span></code></pre></div>
 <pre><code>##     sp
 ## time        Sprat      Sandeel       N.pout      Herring        Dab
 ##    1 210810187886 5.378411e+12 183159668755 442644004208 6885675636
@@ -215,7 +214,7 @@
 <p>As mentioned above, we can specify the size range for the <code>getsummaryBiomass()</code> and <code><a href="../reference/getN.html">getN()</a></code> functions. For example, here we calculate the total biomass of each species but only include individuals that are larger than 10 g and smaller than 1000 g.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">biomass</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span>, min_w <span class="op">=</span> <span class="fl">10</span>, max_w <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">biomass</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">biomass</span><span class="op">)</span></code></pre></div>
 <pre><code>##     sp
 ## time        Sprat      Sandeel       N.pout      Herring        Dab
 ##    1 244119195586 4.589606e+12 238847649463 1.273446e+12 8373096367
@@ -244,17 +243,17 @@
 </div>
 <div id="functions-for-calculating-indicators" class="section level2">
 <h2 class="hasAnchor">
-<a href="#functions-for-calculating-indicators" class="anchor"></a>Functions for calculating indicators</h2>
+<a href="#functions-for-calculating-indicators" class="anchor" aria-hidden="true"></a>Functions for calculating indicators</h2>
 <p>Functions are available to calculate a range of indicators from a <code>MizerSim</code> object after a projection. A description of the different indicator functions available is given in <a href="../reference/indicator_functions.html">the indicator functions help page.</a>. You can read the help pages for each of the functions for full instructions on how to use them, along with examples.</p>
 <p>With all of the functions in the table it is possible to specify the size range of the community to be used in the calculation (e.g. to exclude very small or very large individuals) so that the calculated metrics can be compared to empirical data. This is used in the same way that we saw with the function <code><a href="../reference/getBiomass.html">getBiomass()</a></code> in <a href="exploring_the_simulation_results.html#sec:summaries">the section on summary functions for MizerSim objects.</a>. It is also possible to specify which species to include in the calculation. See the help files for more details.</p>
 <div id="sec:indicators_example" class="section level3">
 <h3 class="hasAnchor">
-<a href="#sec:indicators_example" class="anchor"></a>Examples of calculating indicators</h3>
+<a href="#sec:indicators_example" class="anchor" aria-hidden="true"></a>Examples of calculating indicators</h3>
 <p>For these examples we use the <code>sim</code> object we created earlier.</p>
 <p>The slope of the community can be calculated using the <code><a href="../reference/getCommunitySlope.html">getCommunitySlope()</a></code> function. Initially we include all species and all sizes in the calculation (only the first five rows are shown):</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">slope</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getCommunitySlope.html">getCommunitySlope</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">slope</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">slope</span><span class="op">)</span></code></pre></div>
 <pre><code>##        slope intercept        r2
 ## 1 -0.7822250  25.40779 0.8722251
 ## 2 -0.7970084  25.24922 0.8666363
@@ -265,11 +264,11 @@
 <p>This gives the slope, intercept and <span class="math inline">\(R^2\)</span> value through time (see the help file for <code>getCommunitySlope</code> for more details).</p>
 <p>We can include only the species we want with the <code>species</code> argument. Below we only include demersal species. We also restrict the size range of the community that is used in the calculation to between 10 g and 5 kg. The <code>species</code> argument is a character vector of the names of the species that we want to include in the calculation.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">dem_species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Dab"</span>, <span class="st">"Whiting"</span>, <span class="st">"Sole"</span>, <span class="st">"Gurnard"</span>, <span class="st">"Plaice"</span>, <span class="st">"Haddock"</span>,
+<code class="sourceCode R"><span class="va">dem_species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Dab"</span>, <span class="st">"Whiting"</span>, <span class="st">"Sole"</span>, <span class="st">"Gurnard"</span>, <span class="st">"Plaice"</span>, <span class="st">"Haddock"</span>,
     <span class="st">"Cod"</span>, <span class="st">"Saithe"</span><span class="op">)</span>
 <span class="va">slope</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getCommunitySlope.html">getCommunitySlope</a></span><span class="op">(</span><span class="va">sim</span>, min_w <span class="op">=</span> <span class="fl">10</span>, max_w <span class="op">=</span> <span class="fl">5000</span>, 
     species <span class="op">=</span> <span class="va">dem_species</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">slope</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">slope</span><span class="op">)</span></code></pre></div>
 <pre><code>##       slope intercept        r2
 ## 1 -1.096584  26.88942 0.9749307
 ## 2 -1.177678  27.21999 0.9796408
@@ -281,24 +280,18 @@
 </div>
 <div id="plotting-the-results" class="section level2">
 <h2 class="hasAnchor">
-<a href="#plotting-the-results" class="anchor"></a>Plotting the results</h2>
-<p>R is very powerful when it comes to exploring data through plots. Two useful packages for plotting are <code>ggplot2</code> and <code>plotly</code>. These use data.frames for input data whereas many of the mizer functions return arrays or matrices. Fortunately it is straightforward to turn arrays and matrices into data.frames using the <code><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt()</a></code> function from the <code>reshape2</code> package that mizer makes available to you. Although <code>mizer</code> does include some dedicated plots, it is definitely worth your time getting to grips with these other plotting packages. This will make it possible for you to make your own plots. We provide some details in the section on <a href="plotting.html">using ggplot2 and plotly with mizer</a>.</p>
-<p>Included in <code>mizer</code> are several dedicated plots that use <code>MizerSim</code> objects as inputs (see <a href="../reference/plotting_functions.html">the plots help page.</a>). As well as displaying the plots, these functions all return objects of type <code>ggplot</code> from the <code>ggplot2</code> package, meaning that they can be further modified by the user (e.g. by changing the plotting theme). See the help page of the individual plot functions for more details. The generic <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot()</a></code> method has also been overloaded for <code>MizerSim</code> objects. This produces several plots in the same window to provide a snapshot of the results of the simulation.</p>
+<a href="#plotting-the-results" class="anchor" aria-hidden="true"></a>Plotting the results</h2>
+<p>R is very powerful when it comes to exploring data through plots. Two useful packages for plotting are <code>ggplot2</code> and <code>plotly</code>. These use data.frames for input data whereas many of the mizer functions return arrays or matrices. Fortunately it is straightforward to turn arrays and matrices into data.frames using the <code><a href="https://rdrr.io/pkg/reshape2/man/melt.html" class="external-link">melt()</a></code> function from the <code>reshape2</code> package that mizer makes available to you. Although <code>mizer</code> does include some dedicated plots, it is definitely worth your time getting to grips with these other plotting packages. This will make it possible for you to make your own plots. We provide some details in the section on <a href="plotting.html">using ggplot2 and plotly with mizer</a>.</p>
+<p>Included in <code>mizer</code> are several dedicated plots that use <code>MizerSim</code> objects as inputs (see <a href="../reference/plotting_functions.html">the plots help page.</a>). As well as displaying the plots, these functions all return objects of type <code>ggplot</code> from the <code>ggplot2</code> package, meaning that they can be further modified by the user (e.g. by changing the plotting theme). See the help page of the individual plot functions for more details. The generic <code><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot()</a></code> method has also been overloaded for <code>MizerSim</code> objects. This produces several plots in the same window to provide a snapshot of the results of the simulation.</p>
 <p>Some of the plots plot values by size (for example <code><a href="../reference/plotFeedingLevel.html">plotFeedingLevel()</a></code> and <code><a href="../reference/plotSpectra.html">plotSpectra()</a></code>). For these plots, the default is to use the data at the final time step of the projection. With these plotting functions, it is also possible to specify a different time, or a time range to average the values over before plotting.</p>
 <div id="sec:plot_examples" class="section level3">
 <h3 class="hasAnchor">
-<a href="#sec:plot_examples" class="anchor"></a>Plotting examples</h3>
+<a href="#sec:plot_examples" class="anchor" aria-hidden="true"></a>Plotting examples</h3>
 <p>Using the plotting functions is straightforward. For example, to plot the total biomass of each species against time you use the <code><a href="../reference/plotBiomass.html">plotBiomass()</a></code> function:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotBiomass.html">plotBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
-<p><img src="exploring_the_simulation_results_files/figure-html/plotBiomass-1.png" width="700"></p>
 <p>As mentioned above, some of the plot functions plot values against size at a point in time (or averaged over a time period). For these plots it is possible to specify the time step to plot, or the time period to average the values over. The default is to use the final time step. Here we plot the abundance spectra (biomass), averaged over time = 5 to 10:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">sim</span>, time_range <span class="op">=</span> <span class="fl">5</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
-<p><img src="exploring_the_simulation_results_files/figure-html/plotSpectra_example-1.png" width="700"></p>
-<p>As mentioned above, and as we have seen several times in this guide, the generic <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot()</a></code> method has also been overloaded. This produces 5 plots in the same window (<code><a href="../reference/plotFeedingLevel.html">plotFeedingLevel()</a></code>, <code><a href="../reference/plotBiomass.html">plotBiomass()</a></code>, <code><a href="../reference/plotPredMort.html">plotPredMort()</a></code>, <code><a href="../reference/plotFMort.html">plotFMort()</a></code> and <code><a href="../reference/plotSpectra.html">plotSpectra()</a></code>). It is possible to pass in the same arguments that these individual plots use, e.g. arguments to change the time period over which the data is averaged.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
+<p>As mentioned above, and as we have seen several times in this guide, the generic <code><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot()</a></code> method has also been overloaded. This produces 5 plots in the same window (<code><a href="../reference/plotFeedingLevel.html">plotFeedingLevel()</a></code>, <code><a href="../reference/plotBiomass.html">plotBiomass()</a></code>, <code><a href="../reference/plotPredMort.html">plotPredMort()</a></code>, <code><a href="../reference/plotFMort.html">plotFMort()</a></code> and <code><a href="../reference/plotSpectra.html">plotSpectra()</a></code>). It is possible to pass in the same arguments that these individual plots use, e.g. arguments to change the time period over which the data is averaged.</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
 <p><img src="exploring_the_simulation_results_files/figure-html/demo_summary_plot-1.png" width="700"></p>
 <p>The next section describes how to use what we have learned to <a href="a_multispecies_model_of_the_north_sea.html">model the North Sea.</a></p>
 </div>
@@ -316,11 +309,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard">Julia Blanchard</a>, <a href="https://ken.haste.dk/">Ken Andersen</a>.</p>
+  <p></p>
+<p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

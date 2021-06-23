@@ -51,6 +51,8 @@
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -62,9 +64,15 @@
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -78,31 +86,25 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/mizer.html">Get started</a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Tutorials
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    </li>
     <li>
       <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
@@ -142,6 +144,9 @@
       <a href="../articles/editing_website.html">Editing the Mizer Website</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../reference/index.html">Reference</a>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
@@ -185,7 +190,7 @@
     <p>Time index at end of simulation</p>
     </div>
 
-    <pre class="usage"><span class='fu'>idxFinalT</span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span></pre>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>idxFinalT</span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -202,19 +207,19 @@
 results for the final time step</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
-<span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>NS_params</span>, t_max <span class='op'>=</span> <span class='fl'>12</span>, t_save <span class='op'>=</span> <span class='fl'>0.5</span><span class='op'>)</span>
-<span class='va'>idx</span> <span class='op'>&lt;-</span> <span class='fu'>idxFinalT</span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span>
-<span class='va'>idx</span>
-<span class='co'># This coincides with</span>
-<span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span><span class='op'>(</span><span class='fu'><a href='getTimes.html'>getTimes</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>)</span>
-<span class='co'># and corresponds to the final time</span>
-<span class='fu'><a href='getTimes.html'>getTimes</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>[</span><span class='va'>idx</span><span class='op'>]</span>
-<span class='co'># We can use this index to extract the result at the final time</span>
-<span class='fu'><a href='https://rdrr.io/r/base/identical.html'>identical</a></span><span class='op'>(</span><span class='fu'><a href='N.html'>N</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>[</span><span class='va'>idx</span>, , <span class='op'>]</span>, <span class='fu'><a href='finalN.html'>finalN</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>)</span>
-<span class='fu'><a href='https://rdrr.io/r/base/identical.html'>identical</a></span><span class='op'>(</span><span class='fu'><a href='N.html'>NResource</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>[</span><span class='va'>idx</span>, <span class='op'>]</span>, <span class='fu'><a href='finalN.html'>finalNResource</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>)</span>
-<span class='op'>}</span>
-</div></pre>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'><span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>NS_params</span>, t_max <span class='op'>=</span> <span class='fl'>12</span>, t_save <span class='op'>=</span> <span class='fl'>0.5</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>idx</span> <span class='op'>&lt;-</span> <span class='fu'>idxFinalT</span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>idx</span></span>
+<span class='r-in'><span class='co'># This coincides with</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span><span class='op'>(</span><span class='fu'><a href='getTimes.html'>getTimes</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># and corresponds to the final time</span></span>
+<span class='r-in'><span class='fu'><a href='getTimes.html'>getTimes</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>[</span><span class='va'>idx</span><span class='op'>]</span></span>
+<span class='r-in'><span class='co'># We can use this index to extract the result at the final time</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/identical.html'>identical</a></span><span class='op'>(</span><span class='fu'><a href='N.html'>N</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>[</span><span class='va'>idx</span>, , <span class='op'>]</span>, <span class='fu'><a href='finalN.html'>finalN</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/identical.html'>identical</a></span><span class='op'>(</span><span class='fu'><a href='N.html'>NResource</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>[</span><span class='va'>idx</span>, <span class='op'>]</span>, <span class='fu'><a href='finalN.html'>finalNResource</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -226,11 +231,11 @@ results for the final time step</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
+  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
 </div>
 
       </footer>
@@ -255,6 +260,8 @@ results for the final time step</p>
 </script>
 
 
+
+  
 
   </body>
 </html>
