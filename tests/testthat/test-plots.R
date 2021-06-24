@@ -10,9 +10,9 @@ sim0 <- project(params, effort = 0, t_max = 3, dt = 1, t_save = 1)
 species <- c("Cod", "Haddock")
 
 # Need to use vdiffr conditionally
-expect_doppelganger <- function(title, fig, path = NULL, ...) {
+expect_doppelganger <- function(title, fig, ...) {
     testthat::skip_if_not_installed("vdiffr")
-    vdiffr::expect_doppelganger(title, fig, path = path, ...)
+    vdiffr::expect_doppelganger(title, fig, ...)
 }
 
 # plots have not changed ----
@@ -96,7 +96,7 @@ test_that("return_data is identical",{
     
     expect_equal(dim(plotYieldGear(sim, species = species, return_data = TRUE)), c(8,4))
     
-    expect_equal(dim(plotSpectra(sim, species = species, wlim = c(1,NA), return_data = TRUE)[[1]]), c(37,3))
+    expect_equal(dim(plotSpectra(sim, species = species, wlim = c(1,NA), return_data = TRUE)), c(37, 4))
     
     expect_equal(dim(plotFeedingLevel(sim, species = species, return_data = TRUE)), c(56,3))
     

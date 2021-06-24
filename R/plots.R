@@ -576,9 +576,7 @@ plot_spectra <- function(params, n, n_pp,
     if (is.na(wlim[2])) {
         wlim[2] <- max(params@w_full)
     }
-    # Need to keep species in order for legend
-    species_levels <- c(dimnames(params@initial_n)$sp,
-                        "Background", "Resource", "Total")
+    
     if (total) {
         # Calculate total community abundance
         fish_idx <- (length(params@w_full) - length(params@w) + 1):length(params@w_full)
@@ -599,11 +597,11 @@ plot_spectra <- function(params, n, n_pp,
     spec_n <- n[as.character(dimnames(n)[[1]]) %in% species, , drop = FALSE]
     # Make data.frame for plot
     plot_dat <- data.frame(value = c(spec_n),
-                           # ordering of factor is important for legend
-                           Species = factor(dimnames(spec_n)[[1]],
-                                            levels = species_levels),
+                           Species = dimnames(spec_n)[[1]],
+                           Legend = dimnames(spec_n)[[1]],
                            w = rep(params@w,
-                                   each = dim(spec_n)[[1]]))
+                                   each = dim(spec_n)[[1]])
+                           )
     if (resource) {
         resource_sel <- (params@w_full >= wlim[1]) & 
                         (params@w_full <= wlim[2])
@@ -614,14 +612,29 @@ plot_spectra <- function(params, n, n_pp,
             plot_dat <- rbind(plot_dat,
                               data.frame(value = c(plank_n),
                                          Species = "Resource",
-                                         w = w_resource))
+                                         Legend = "Resource",
+                                         w = w_resource)
+            )
         }
     }
     if (total) {
         plot_dat <- rbind(plot_dat,
                           data.frame(value = c(total_n),
                                      Species = "Total",
-                                     w = params@w_full))
+                                     Legend = "Total",
+                                     w = params@w_full)
+                          )
+    }
+    if (background && anyNA(params@A)) {
+        back_n <- n[is.na(params@A), , drop = FALSE]
+        plot_dat <- 
+            rbind(plot_dat,
+                  data.frame(value = c(back_n),
+                             Species = as.factor(dimnames(back_n)[[1]]),
+                             Legend = "Background",
+                             w = rep(params@w,
+                                     each = dim(back_n)[[1]]))
+            )
     }
     # lop off 0s and apply wlim
     plot_dat <- plot_dat[(plot_dat$value > 0) & 
@@ -635,44 +648,33 @@ plot_spectra <- function(params, n, n_pp,
         ylim[1] <- 1e-20
     }
     plot_dat <- plot_dat[plot_dat$value > ylim[1], ]
+    
+    # Need to keep species in order for legend
+    legend_levels <- 
+        intersect(c(dimnames(params@initial_n)$sp,
+                        "Background", "Resource", "Total"),
+                  plot_dat$Legend)
+    plot_dat$Legend <- factor(plot_dat$Legend, levels = legend_levels)
+    
+    if (return_data) return(plot_dat) 
+
     # Create plot
-    p <- ggplot(plot_dat, aes(x = w, y = value)) +
+    linecolour <- params@linecolour[legend_levels]
+    linetype <- params@linetype[legend_levels]
+    linesize <- rep_len(0.8, length(legend_levels))
+    names(linesize) <- legend_levels
+    linesize[highlight] <- 1.6
+    
+    ggplot(plot_dat, aes(x = w, y = value)) +
         scale_x_continuous(name = "Size [g]", trans = "log10",
                            breaks = log_breaks()) +
         scale_y_continuous(name = y_label, trans = "log10",
                            breaks = log_breaks()) +
-        scale_colour_manual(values = params@linecolour) +
-        scale_linetype_manual(values = params@linetype)
-    if (background) {
-        back_n <- n[is.na(params@A), , drop = FALSE]
-        plot_back <- data.frame(value = c(back_n),
-                                Species = as.factor(dimnames(back_n)[[1]]),
-                                w = rep(params@w,
-                                        each = dim(back_n)[[1]]))
-        # lop off 0s and apply wlim
-        plot_back <- plot_back[(plot_back$value > 0) & 
-                                   (plot_back$w >= wlim[1]) &
-                                   (plot_back$w <= wlim[2]), ]
-        # Impose ylim
-        if (!is.na(ylim[2])) {
-            plot_back <- plot_back[plot_back$value <= ylim[2], ]
-        }
-        plot_back <- plot_back[plot_back$value > ylim[1], ]
-        if (nrow(plot_back) > 0) {
-            # Add background species
-            p <- p +
-                geom_line(aes(group = Species),
-                          colour = params@linecolour["Background"],
-                          linetype = params@linetype["Background"],
-                          data = plot_back)
-        }
-    }
-    linesize <- rep(0.8, length(params@linetype))
-    names(linesize) <- names(params@linetype)
-    linesize[highlight] <- 1.6
-    p <- p + scale_size_manual(values = linesize) + 
-        geom_line(aes(colour = Species, linetype = Species, size = Species))
-    if (return_data) return(list(plot_dat, plot_back)) else return(p)
+        scale_colour_manual(values = linecolour) +
+        scale_linetype_manual(values = linetype) +
+        scale_size_manual(values = linesize) + 
+        geom_line(aes(group = Species,
+                      colour = Legend, linetype = Legend, size = Legend))
 }
 
 #' @rdname plotSpectra
