@@ -525,7 +525,7 @@ mizerPredRate <- function(params, n, n_pp, n_other, t, feeding_level, ...) {
 mizerPredMort <- function(params, n, n_pp, n_other, t, pred_rate, ...) {
     idx_sp <- (length(params@w_full) - 
                    length(params@w) + 1):length(params@w_full)
-    return((base::t(params@interaction) %*% pred_rate)[, idx_sp, drop = FALSE])
+    return((base::t(params@interaction) %*% pred_rate[, idx_sp, drop = FALSE]))
 }
 
 #' Get the fishing mortality needed to project 
