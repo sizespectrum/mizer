@@ -85,7 +85,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.1.0.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9000</span>
       </span>
     </div>
 
@@ -184,9 +184,13 @@
       <small>Source: <a href='https://github.com/sizespectrum/mizer/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="mizer-2109000" class="section level1">
-<h1 class="page-header" data-toc-text="2.1.0.9000">
-<a href="#mizer-2109000" class="anchor" aria-hidden="true"></a>mizer 2.1.0.9000<small> Unreleased </small></h1>
+    <div id="mizer-2209000-development-version" class="section level1">
+<h1 class="page-header" data-toc-text="2.2.0.9000">
+<a href="#mizer-2209000-development-version" class="anchor" aria-hidden="true"></a>mizer 2.2.0.9000 (development version)<small> Unreleased </small></h1>
+</div>
+    <div id="mizer-22" class="section level1">
+<h1 class="page-header" data-toc-text="2.2">
+<a href="#mizer-22" class="anchor" aria-hidden="true"></a>mizer 2.2<small> Unreleased </small></h1>
 <div id="new-functionality" class="section level2">
 <h2 class="hasAnchor">
 <a href="#new-functionality" class="anchor" aria-hidden="true"></a>New functionality</h2>
@@ -205,13 +209,24 @@
 <div id="bug-fixes" class="section level2">
 <h2 class="hasAnchor">
 <a href="#bug-fixes" class="anchor" aria-hidden="true"></a>Bug fixes</h2>
-<ul><li>The <code>gamma</code> argument now is no longer ignored in <code><a href="../reference/newTraitParams.html">newTraitParams()</a></code> but correctly overrides the <code>f0</code> argument. <a href='https://github.com/sizespectrum/mizer/issues/188'>#188</a></li>
+<ul><li>
+<code><a href="../reference/getYield.html">getYield()</a></code> now also works with density-dependent fishing mortality. Thanks to James Roger for discovering the problem.</li>
+<li>The <code>gamma</code> argument now is no longer ignored in <code><a href="../reference/newTraitParams.html">newTraitParams()</a></code> but correctly overrides the <code>f0</code> argument. <a href='https://github.com/sizespectrum/mizer/issues/188'>#188</a></li>
 <li>
 <code><a href="../reference/getFMort.html">getFMort()</a></code> again works correctly when called with a MizerSim object.</li>
 <li>
 <code><a href="../reference/resource_semichemostat.html">resource_semichemostat()</a></code> no longer fail when at some sizes both the resource growth rate and the resource mortality rate are both zero.</li>
 <li>The default for <code>no_w</code> in <code><a href="../reference/newTraitParams.html">newTraitParams()</a></code> is now always an integer.</li>
 <li>Problems with different machine precision no longer prompts the error “The <code>w_min_idx</code> should point to the start of the size bin containing the egg size <code>w_min</code>”.</li>
+<li>`addSpecies() no longer extends grid due to rounding errors.</li>
+<li>If <code><a href="../reference/valid_species_arg.html">valid_species_arg()</a></code> is called with <code>species = NULL</code> and there are no background species then it returns <code>NULL</code>.</li>
+</ul></div>
+<div id="documentation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#documentation" class="anchor" aria-hidden="true"></a>Documentation</h2>
+<ul><li>New tutorial about single-species sizes-spectrum dynamics.</li>
+<li>Improved documentation of <code><a href="../reference/getDiet.html">getDiet()</a></code> and <code><a href="../reference/plotDiet.html">plotDiet()</a></code>.</li>
+<li>More info on units added to documentation of summary functions.</li>
 </ul></div>
 </div>
     <div id="mizer-210" class="section level1">
@@ -245,7 +260,7 @@
 <div id="code-improvements" class="section level2">
 <h2 class="hasAnchor">
 <a href="#code-improvements" class="anchor" aria-hidden="true"></a>Code improvements</h2>
-<ul><li>Using lifecycle package to indicate status of some functions and arguments as ‘experimental’ or ‘deprecated’.</li>
+<ul><li>Using <code>lifecycle</code> package to indicate status of some functions and arguments as ‘experimental’ or ‘deprecated’.</li>
 <li>Improved error handling in <code><a href="../reference/setFishing.html">setFishing()</a></code>. <a href='https://github.com/sizespectrum/mizer/issues/172'>#172</a></li>
 <li>Made use of vdiffr conditional, as required by §1.1.3.1 of ‘Writing R Extensions’.</li>
 <li>Consistent handling of <code>species</code> argument in mizer functions, via the new <code><a href="../reference/valid_species_arg.html">valid_species_arg()</a></code> function. <a href='https://github.com/sizespectrum/mizer/issues/170'>#170</a></li>
@@ -293,7 +308,7 @@
 <li>Old MizerParams objects are updated automatically when used in plot functions, rate functions, summary functions or in <code><a href="../reference/project.html">project()</a></code> or <code><a href="../reference/steady.html">steady()</a></code>, <a href='https://github.com/sizespectrum/mizer/issues/163'>#163</a>.</li>
 <li>New function <code><a href="../reference/getRates.html">getRates()</a></code> to calculates all rates and collects them in a list.</li>
 <li>
-<code><a href="../reference/steady.html">steady()</a></code> with <code>return_sim = TRUE</code> now creates the sim object the same way as <code><a href="../reference/project.html">project()</a></code>, namely with the original values in the first time slot.</li>
+<code><a href="../reference/steady.html">steady()</a></code> with <code>return_sim = TRUE</code> now creates the MizerSim object the same way as <code><a href="../reference/project.html">project()</a></code>, namely with the original values in the first time slot.</li>
 <li>Added documentation for <code><a href="../reference/species_params.html">species_params()</a></code>, <code><a href="../reference/gear_params.html">gear_params()</a></code> and <code><a href="../reference/resource_params.html">resource_params()</a></code>.</li>
 <li>Numerous small improvements to documentation.</li>
 </ul></div>
@@ -311,7 +326,7 @@
 <a href="#enhancements-1" class="anchor" aria-hidden="true"></a>Enhancements</h2>
 <ul><li>Consistently passing the time argument to the rate functions. This will allow extensions to implement time-dependent rates.</li>
 <li>Passing growth and mortality rate to RDI function.</li>
-<li>Simplified the getRates functions by removing the arguments that passed in other rates. Instead the required rates are now always calculated within these functions.</li>
+<li>Simplified the <code><a href="../reference/getRates.html">getRates()</a></code> functions by removing the arguments that passed in other rates. Instead the required rates are now always calculated within these functions.</li>
 <li>Improved documentation of rate functions and of how to register your own rate functions.</li>
 <li>In <code><a href="../reference/validGearParams.html">validGearParams()</a></code> handle NAs more gracefully and check that there are no duplicates.</li>
 <li>Updated hake-mullet selectivity demonstration shiny app.</li>
@@ -463,7 +478,7 @@
 <li>In the legends of all plots the species are now consistently ordered in the same way as in the species parameter data frame.</li>
 <li>All plot functions that are not time-resolved now accept also a MizerParams object as an alternative to the MizerSim object to plot the initial state.</li>
 <li>New <code><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot()</a></code> method for MizerParams object to plot the initial state.</li>
-<li>Avoiding duplicate graphs in rmarkdown documents.</li>
+<li>Avoiding duplicate graphs in R Markdown documents.</li>
 <li>New argument <code>include_critical</code> in <code><a href="../reference/plotFeedingLevel.html">plotFeedingLevel()</a></code> allows to show also the critical feeding level.</li>
 <li>New <code>wlim</code> argument to <code><a href="../reference/plotSpectra.html">plotSpectra()</a></code> in analogy to the existing <code>ylim</code> argument to limit the <code>w</code> range in the plot.</li>
 <li>The colours used in plot functions can be set with <code><a href="../reference/setColours.html">setColours()</a></code>.</li>
@@ -525,9 +540,9 @@
 <li>Comments can be added to MizerParams objects and any of their slots. Slots that have comments are protected from being overwritten with allometric defaults.</li>
 <li>Gear selectivity functions now can use the species parameters.</li>
 </ul></div>
-<div id="documentation" class="section level2">
+<div id="documentation-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#documentation" class="anchor" aria-hidden="true"></a>Documentation</h2>
+<a href="#documentation-1" class="anchor" aria-hidden="true"></a>Documentation</h2>
 <ul><li>Mizer now has a documentation website at <a href="https://sizespectrum.org/mizer/" class="uri">https://sizespectrum.org/mizer/</a> for the latest released version and at <a href="https://sizespectrum.org/mizer/dev/" class="uri">https://sizespectrum.org/mizer/dev/</a> for the development version. (<a href='https://github.com/sizespectrum/mizer/issues/48'>#48</a>)</li>
 <li>The help pages of mizer functions has been extended massively, see for example the help for <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>.</li>
 <li>The vignette chapters are shown as pages on the website.</li>
@@ -559,7 +574,7 @@
 </ul></li>
 <li>Renamed maximum reproductive rate from <code>r_max</code> to <code>R_max</code>.</li>
 <li>Updated list of publications (<a href='https://github.com/Kenhasteandersen'>@Kenhasteandersen</a>)</li>
-<li>Using Rmarkdown in all roxygen comments</li>
+<li>Using R Markdown in all roxygen comments.</li>
 </ul></div>
 <div id="bug-fixes-6" class="section level2">
 <h2 class="hasAnchor">

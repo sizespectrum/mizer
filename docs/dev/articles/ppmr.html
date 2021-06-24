@@ -22,6 +22,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -34,27 +36,18 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.1.0.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9000</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/mizer.html">Get started</a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Tutorials
      
     <span class="caret"></span>
   </a>
@@ -103,6 +96,9 @@
   </ul>
 </li>
 <li>
+  <a href="../reference/index.html">Reference</a>
+</li>
+<li>
   <a href="../articles/publications.html">Publications</a>
 </li>
 <li>
@@ -111,7 +107,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/sizespectrum/mizer/">
+  <a href="https://github.com/sizespectrum/mizer/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -132,15 +128,15 @@
 
       
 
-      </header><script src="ppmr_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
+      </header><script src="ppmr_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Mean predator/prey mass ratio</h1>
-                        <h4 class="author">Gustav</h4>
+                        <h4 data-toc-skip class="author">Gustav</h4>
             
-            <h4 class="date">5/17/2021</h4>
+            <h4 data-toc-skip class="date">5/17/2021</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/master/vignettes/ppmr.Rmd"><code>vignettes/ppmr.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/master/vignettes/ppmr.Rmd" class="external-link"><code>vignettes/ppmr.Rmd</code></a></small>
       <div class="hidden name"><code>ppmr.Rmd</code></div>
 
     </div>
@@ -149,14 +145,14 @@
     
 <div id="diet" class="section level2">
 <h2 class="hasAnchor">
-<a href="#diet" class="anchor"></a>Diet</h2>
+<a href="#diet" class="anchor" aria-hidden="true"></a>Diet</h2>
 <p>The rate at which a predator of species i and size w consumes biomass coming from a prey of size w’ is <span class="math display">\[e_i(w'|w) = (1 - f_i(w)) \gamma_i(w) \phi_i(w,w')
 \left(\sum_j\theta_{ij}N_j(w')+\theta_{iR}N_R(w')\right)w'.\]</span> Romain says he has already coded up a function to calculate this, where of course the integral is replaced by the Riemann sum.</p>
 <p>When we integrate over all prey sizes we get <span class="math display">\[E_i(w) = \int d_i(w'|w)\,dw',\]</span> which is what the mizer function <code><a href="../reference/getEReproAndGrowth.html">getEReproAndGrowth()</a></code> calculates.</p>
 </div>
 <div id="average-predatorprey-size-ratio" class="section level2">
 <h2 class="hasAnchor">
-<a href="#average-predatorprey-size-ratio" class="anchor"></a>Average predator/prey size ratio</h2>
+<a href="#average-predatorprey-size-ratio" class="anchor" aria-hidden="true"></a>Average predator/prey size ratio</h2>
 <p>We are now interested in the average of the predator/prey size ratio weighted by its contribution to the predator’s diet. <span class="math display">\[ m_i(w) = \frac{1}{E_i(w)}\int \frac{w}{w'} e_i(w'|w)\,dw'.\]</span></p>
 <p>However, as Ken suggested, it might be more sensible to look at the average of the log of the predator/prey size ratio</p>
 <p><span class="math display">\[ l_i(w) = \frac{1}{E_i(w)} \int \log\left(\frac{w}{w'}\right) E_i(w'|w) \,dw'.\]</span></p>
@@ -175,11 +171,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard">Julia Blanchard</a>, <a href="https://ken.haste.dk/">Ken Andersen</a>.</p>
+  <p></p>
+<p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

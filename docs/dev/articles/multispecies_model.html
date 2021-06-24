@@ -22,6 +22,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -34,27 +36,18 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.1.0.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9000</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/mizer.html">Get started</a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Tutorials
      
     <span class="caret"></span>
   </a>
@@ -103,6 +96,9 @@
   </ul>
 </li>
 <li>
+  <a href="../reference/index.html">Reference</a>
+</li>
+<li>
   <a href="../articles/publications.html">Publications</a>
 </li>
 <li>
@@ -111,7 +107,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/sizespectrum/mizer/">
+  <a href="https://github.com/sizespectrum/mizer/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -132,13 +128,13 @@
 
       
 
-      </header><script src="multispecies_model_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
+      </header><script src="multispecies_model_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>The Multi Species Model</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/master/vignettes/multispecies_model.Rmd"><code>vignettes/multispecies_model.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/master/vignettes/multispecies_model.Rmd" class="external-link"><code>vignettes/multispecies_model.Rmd</code></a></small>
       <div class="hidden name"><code>multispecies_model.Rmd</code></div>
 
     </div>
@@ -152,10 +148,10 @@
 <p>We also take a closer look at some of the summary plots and analyses that can be performed, for example, calculating a range of size-based indicators.</p>
 <div id="sec:MizerParams" class="section level1">
 <h1 class="hasAnchor">
-<a href="#sec:MizerParams" class="anchor"></a>Setting up a multispecies model</h1>
+<a href="#sec:MizerParams" class="anchor" aria-hidden="true"></a>Setting up a multispecies model</h1>
 <div id="overview" class="section level2">
 <h2 class="hasAnchor">
-<a href="#overview" class="anchor"></a>Overview</h2>
+<a href="#overview" class="anchor" aria-hidden="true"></a>Overview</h2>
 <p>The MizerParams class is used for storing model parameters. We have already met the MizerParams class when we looked at community and trait-based models. However, to set up a multispecies model we will need to specify many more parameters.This is probably the most complicated part of using the mizer package, so we will take it slowly.</p>
 <p>A <code>MizerParams</code> object stores the:</p>
 <ul>
@@ -172,14 +168,14 @@
 </div>
 <div id="sec:species_parameters_dataframe" class="section level2">
 <h2 class="hasAnchor">
-<a href="#sec:species_parameters_dataframe" class="anchor"></a>The species parameters</h2>
+<a href="#sec:species_parameters_dataframe" class="anchor" aria-hidden="true"></a>The species parameters</h2>
 <p>Although many of the arguments used when creating a <code>MizerParams</code> object are optional, there is one argument that must be supplied by the user: the <em>species specific parameters</em>. These are stored in a single <code>data.frame</code> object. The <code>data.frame</code> is arranged species by parameter, so each column is a parameter and each row has the parameters for one of the species in the model. Although it is possible to create the data.frame by hand in R, it is probably easier to create the data externally as a .csv file (perhaps using a suitable open source spreadsheet such as LibreOffice) and then read the data into R.</p>
 <p>For each species in the model community there are certain parameters that are essential and that do not have default values. The user must provide values for these parameters. There are also some essential parameters that have default values, such as the selectivity function parameters, and some that are calculated internally using default relationships if not explicitly provided. These defaults are used if the parameters are not found in the data.frame.</p>
 <p>The essential columns of the species parameters data.frame that have no default values are: <code>species</code>, the names of the species in the community and <code>w_inf</code>, the asymptotic mass of the species.</p>
 </div>
 <div id="sec:fishing_gear" class="section level2">
 <h2 class="hasAnchor">
-<a href="#sec:fishing_gear" class="anchor"></a>The gear parameters</h2>
+<a href="#sec:fishing_gear" class="anchor" aria-hidden="true"></a>The gear parameters</h2>
 <p>In <code>mizer</code>, fishing mortality is imposed on species by fishing gears. The total fishing mortality is obtained by summing over the mortality from all gears, <span class="math display">\[\begin{equation}
 %     {#eq:muf}
     \mu_{f.i}(w) = \sum_g F_{g,i}(w),
@@ -192,17 +188,17 @@
 </div>
 <div id="sec:params_example" class="section level2">
 <h2 class="hasAnchor">
-<a href="#sec:params_example" class="anchor"></a>Example of making <code>MizerParams</code> objects</h2>
+<a href="#sec:params_example" class="anchor" aria-hidden="true"></a>Example of making <code>MizerParams</code> objects</h2>
 <p>As mentioned in the preceding sections, an object of <code>MizerParams</code> is created by using the <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code> constructor method.</p>
 <p>The first step is to prepare the species specific parameter data.frame. As mentioned above, one way of doing this is to use a spreadsheet and save it as a .csv file. We will use this approach here. An example .csv file has been included in the package. This contains the species parameters for a multispecies North Sea model. The location of the file can be found by running</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">params_location</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">"doc/NS_species_params.csv"</span>, package <span class="op">=</span> <span class="st">"mizer"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="va">params_location</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"doc/NS_species_params.csv"</span>, package <span class="op">=</span> <span class="st">"mizer"</span><span class="op">)</span></code></pre></div>
 <p>This file can be opened with most spreadsheets or a text editor for you to inspect. This can be loaded into R with</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">species_params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span><span class="op">(</span><span class="va">params_location</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="va">species_params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="va">params_location</span><span class="op">)</span></code></pre></div>
 <p>This reads the .csv file into R in the form of a data.frame. You can check this with the <code>class</code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/class.html">class</a></span><span class="op">(</span><span class="va">species_params</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">species_params</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] "data.frame"</code></pre>
 <p>Let’s have a look at the data frame:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -234,7 +230,7 @@
 <pre><code>## Note: Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</code></pre>
 <p>We have just created a <code>MizerParams</code> object:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/class.html">class</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] "MizerParams"
 ## attr(,"package")
 ## [1] "mizer"</code></pre>
@@ -298,9 +294,9 @@
 ## 11     Cod knife_edge_gear knife_edge            1606            1
 ## 12  Saithe knife_edge_gear knife_edge            1076            1</code></pre>
 <p>All species are caught by a gear called “knife_edge_gear”. The selectivity function for each fishing gear has been set in the <code>sel_func</code> column to the default function, <code><a href="../reference/knife_edge.html">knife_edge()</a></code>. A <code>catchability</code> column has been added with a default value of 1 for each of the species that the gear catches. An example of setting the catchability by hand can be seen in <a href="a_multispecies_model_of_the_north_sea.html">the section on the North Sea.</a></p>
-<p>There is a <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> method for <code>MizerParams</code> objects which prints a useful summary of the model parameters:</p>
+<p>There is a <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> method for <code>MizerParams</code> objects which prints a useful summary of the model parameters:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></code></pre></div>
 <pre><code>## An object of class "MizerParams" 
 ## Consumer size spectrum:
 ##  minimum size:   0.001
@@ -330,11 +326,11 @@
 <p>As well as giving a summary of the species in the model and what gear is fishing what species, it gives a summary of the size structure of the community. For example there are <span class="math inline">\(100\)</span> size classes in the community, ranging from <span class="math inline">\(0.001\)</span> to <span class="math inline">\(3.99\times 10^{4}\)</span> . These values are controlled by the arguments <code>no_w</code>, <code>min_w</code> and <code>max_w</code> respectively. For example, if we wanted 200 size classes in the model we would use:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">params200</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">species_params</span>, no_w <span class="op">=</span> <span class="fl">200</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">params200</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">params200</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="setting-the-interaction-matrix" class="section level2">
 <h2 class="hasAnchor">
-<a href="#setting-the-interaction-matrix" class="anchor"></a>Setting the interaction matrix</h2>
+<a href="#setting-the-interaction-matrix" class="anchor" aria-hidden="true"></a>Setting the interaction matrix</h2>
 <p>So far we have created a <code>MizerParams</code> object by passing in only the species parameter data.frame argument. We did not specify an interaction matrix. The interaction matrix  describes the interaction of each pair of species in the model. This can be viewed as a proxy for spatial interaction e.g. to model predator-prey interaction that is not size based. The values in the interaction matrix are used to scale the encountered food in [getEncounter()] and the predation mortality rate in [getPredMort()] (see <a href="model_description.html#sec:pref">the section on predator-prey encounter rate</a> and on <a href="model_description.html#mortality">predation mortality</a>).</p>
 <p>The entries of the interaction matrix are dimensionless numbers taking values are between 0 (species do not overlap and therefore do not interact with each other) to 1 (species overlap perfectly). By default mizer sets all values to 1, implying that all species fully interact with each other, i.e. the species are spread homogeneously across the model area.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
@@ -370,10 +366,10 @@
 <p>For the North Sea this is not the case and so the model would be improved by also including an interaction matrix which describes the spatial overlap between species.</p>
 <p>An example interaction matrix for the North Sea has been included in <code>mizer</code> as a .csv file. The location of the file can be found by running:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">inter_location</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">"doc/inter.csv"</span>, package <span class="op">=</span> <span class="st">"mizer"</span><span class="op">)</span></code></pre></div>
-<p>Take a look at it in a spreadsheet if you want. As mentioned above, to read this file into R we can make use of the <code><a href="https://rdrr.io/r/utils/read.table.html">read.csv()</a></code> function. However, this time we want the first column of the .csv file to be the row names. We therefore use an additional argument to the <code><a href="https://rdrr.io/r/utils/read.table.html">read.csv()</a></code> function: <code>row.names</code>.</p>
+<code class="sourceCode R"><span class="va">inter_location</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"doc/inter.csv"</span>, package <span class="op">=</span> <span class="st">"mizer"</span><span class="op">)</span></code></pre></div>
+<p>Take a look at it in a spreadsheet if you want. As mentioned above, to read this file into R we can make use of the <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv()</a></code> function. However, this time we want the first column of the .csv file to be the row names. We therefore use an additional argument to the <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv()</a></code> function: <code>row.names</code>.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span><span class="op">(</span><span class="va">inter_location</span>, row.names <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="va">inter_location</span>, row.names <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
 <span class="va">inter</span></code></pre></div>
 <pre><code>##              Sprat    Sandeel     N.pout    Herring        Dab    Whiting
 ## Sprat   0.72912919 0.03408440 0.06354517 0.27416982 0.36241552 0.26525924
@@ -415,13 +411,13 @@
 <p>Note that the first argument must be the species parameters data.frame. The remaining arguments can be in any order but should be named. We are using the default values for all other parameters.</p>
 <p>Both methods lead to identical MizerParams objects</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/identical.html">identical</a></span><span class="op">(</span><span class="va">params</span>, <span class="va">params_new</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">params</span>, <span class="va">params_new</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 <p>We now have all we need to start running projections. Before we get to that though, we’ll take a quick look at how different fishing gears can be set up.</p>
 </div>
 <div id="sec:setting_different_gears" class="section level2">
 <h2 class="hasAnchor">
-<a href="#sec:setting_different_gears" class="anchor"></a>Setting different gears</h2>
+<a href="#sec:setting_different_gears" class="anchor" aria-hidden="true"></a>Setting different gears</h2>
 <p>In the above example, each species is caught by the same gear (named “knife_edge_gear”). This is the default when no gear information is provided.</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></code></pre></div>
@@ -440,13 +436,13 @@
 ## 12  Saithe knife_edge_gear knife_edge            1076            1</code></pre>
 <p>Here, we look at an example where we set up four different gears: Industrial, Pelagic, Beam and Otter trawl, that catch different combinations of species. We can achieve that by only changing the <code>gear</code> column in the <code>gear_params</code> data frame.</p>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Industrial"</span>,<span class="st">"Industrial"</span>,<span class="st">"Industrial"</span>,
+<code class="sourceCode R"><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Industrial"</span>,<span class="st">"Industrial"</span>,<span class="st">"Industrial"</span>,
                               <span class="st">"Pelagic"</span>,<span class="st">"Beam"</span>,<span class="st">"Otter"</span>,
                               <span class="st">"Beam"</span>,<span class="st">"Otter"</span>,<span class="st">"Beam"</span>,
                               <span class="st">"Otter"</span>,<span class="st">"Otter"</span>,<span class="st">"Otter"</span><span class="op">)</span></code></pre></div>
-<p>You can see the result by calling <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> on the <code>params</code> object.</p>
+<p>You can see the result by calling <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> on the <code>params</code> object.</p>
 <div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></code></pre></div>
 <pre><code>## An object of class "MizerParams" 
 ## Consumer size spectrum:
 ##  minimum size:   0.001
@@ -480,7 +476,7 @@
 </div>
 <div id="setting-to-steady-state" class="section level2">
 <h2 class="hasAnchor">
-<a href="#setting-to-steady-state" class="anchor"></a>Setting to steady state</h2>
+<a href="#setting-to-steady-state" class="anchor" aria-hidden="true"></a>Setting to steady state</h2>
 <p>Once the <code>MizerParams</code> object has been properly set up, it may be the case that one wishes put the system in steady state. Sometimes this can be done simply by running the model using <code><a href="../reference/project.html">project()</a></code> until it reaches steady state. However, this method is not guaranteed to work, and there is a function called <code><a href="../reference/steady.html">steady()</a></code> that is more reliable. The function <code><a href="../reference/steady.html">steady()</a></code> must be supplied with a MizerParams object. It takes that MizerParams object, looks at the initial system state, computes the levels of reproduction of the different species, hold them fixed, and evolves the system until a steady state is reached (or more precisely, until the amount that the population abundances change during a time-step is below some small tolerance level). After this, the reproductive efficiency of each species is altered so that when the reproduction dynamics are turned back on (i.e., when we stop holding recruitment levels fixed), the values of the reproduction levels which we held the system fixed at will be realized. The steady function is not sure to converge, and the way it re-tunes the reproductive efficiency values may not be realistic, but the idea is to alter the other parameters in the system until <code><a href="../reference/steady.html">steady()</a></code> does arrive at a steady state with sensible reproductive efficiency values.</p>
 <p>Now that we know how to create a multispecies model we shall discuss how to <a href="running_a_simulation.html">run a multispecies model.</a></p>
 </div>
@@ -498,11 +494,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard">Julia Blanchard</a>, <a href="https://ken.haste.dk/">Ken Andersen</a>.</p>
+  <p></p>
+<p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
