@@ -195,8 +195,7 @@ getBiomassFrame <- function(sim,
 #' @examples
 #' \donttest{
 #' # Set up example MizerParams and MizerSim objects
-#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
-#' sim <- project(params, effort = 1, t_max = 20, t_save = 0.2, progress_bar = FALSE)
+#' sim <- project(NS_params, effort = 1, t_max = 20, t_save = 0.2, progress_bar = FALSE)
 #' 
 #' plotBiomass(sim)
 #' plotBiomass(sim, species = c("Cod", "Haddock"), total = TRUE)
@@ -205,7 +204,8 @@ getBiomassFrame <- function(sim,
 #' plotBiomass(sim, y_ticks = 3)
 #' 
 #' # Returning the data frame
-#' plotBiomass(sim, return_data = TRUE)
+#' fr <- plotBiomass(sim, return_data = TRUE)
+#' str(fr)
 #' }
 plotBiomass <- function(sim, species = NULL, 
                         start_time, end_time, 
@@ -298,7 +298,8 @@ plotlyBiomass <- function(sim,
 #' plotYield(sim, sim2, species = c("Cod", "Herring"), log = FALSE)
 #' 
 #' # Returning the data frame
-#' plotYield(sim, return_data = TRUE)
+#' fr <- plotYield(sim, return_data = TRUE)
+#' str(fr)
 #' }
 plotYield <- function(sim, sim2,
                       species = NULL,
@@ -422,7 +423,8 @@ plotlyYield <- function(sim, sim2,
 #' plotYieldGear(sim, species = c("Cod", "Herring"), total = TRUE)
 #'
 #' # Returning the data frame
-#' plotYieldGear(sim, return_data = TRUE)
+#' fr <- plotYieldGear(sim, return_data = TRUE)
+#' str(fr)
 #' }
 plotYieldGear <- function(sim,
                           species = NULL,
@@ -526,7 +528,8 @@ plotlyYieldGear <- function(sim, species = NULL,
 #' plotSpectra(sim, species = c("Cod", "Herring"), power = 1)
 #' 
 #' # Returning the data frame
-#' plotSpectra(sim, return_data = TRUE)
+#' fr <- plotSpectra(sim, return_data = TRUE)
+#' str(fr)
 #' }
 plotSpectra <- function(object, species = NULL,
                         time_range,
@@ -726,7 +729,8 @@ plotlySpectra <- function(object, species = NULL,
 #'                  include_critical = TRUE)
 #' 
 #' # Returning the data frame
-#' plotFeedingLevel(sim, return_data = TRUE)
+#' fr <- plotFeedingLevel(sim, return_data = TRUE)
+#' str(fr)
 #' }
 plotFeedingLevel <- function(object, species = NULL,
             time_range, highlight = NULL,
@@ -851,7 +855,8 @@ plotlyFeedingLevel <- function(object,
 #' plotPredMort(sim, time_range = 10:20)
 #' 
 #' # Returning the data frame
-#' plotPredMort(sim, return_data = TRUE)
+#' fr <- plotPredMort(sim, return_data = TRUE)
+#' str(fr)
 #' }
 plotPredMort <- function(object, species = NULL,
                          time_range, all.sizes = FALSE,
@@ -949,7 +954,8 @@ plotlyPredMort <- function(object, species = NULL,
 #' plotFMort(sim, highlight = c("Cod", "Haddock"))
 #'  
 #' # Returning the data frame
-#' plotFMort(sim, return_data = TRUE)
+#' fr <- plotFMort(sim, return_data = TRUE)
+#' str(fr)
 #' }
 plotFMort <- function(object, species = NULL,
                       time_range, all.sizes = FALSE,
@@ -1045,7 +1051,8 @@ plotlyFMort <- function(object, species = NULL,
 #' plotGrowthCurves(sim, species_panel = TRUE)
 #'  
 #' # Returning the data frame
-#' plotGrowthCurves(sim, return_data = TRUE)
+#' fr <- plotGrowthCurves(sim, return_data = TRUE)
+#' str(fr)
 #' }
 plotGrowthCurves <- function(object, species = NULL, 
                              max_age = 20, percentage = FALSE, 

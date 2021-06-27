@@ -58,7 +58,8 @@ plotFMort(sim)
 plotFMort(sim, highlight = c("Cod", "Haddock"))
  
 # Returning the data frame
-plotFMort(sim, return_data = TRUE)
+fr <- plotFMort(sim, return_data = TRUE)
+str(fr)
 }
 }
 \seealso{

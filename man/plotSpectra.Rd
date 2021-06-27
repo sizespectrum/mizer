@@ -108,8 +108,8 @@ plotSpectra(sim, time_range = 10:20, power = 0)
 plotSpectra(sim, species = c("Cod", "Herring"), power = 1)
 
 # Returning the data frame
-plotSpectra(sim, return_data = TRUE, species = c("Cod", "Herring"),
-    resource = FALSE, wlim = c(1, 5))
+fr <- plotSpectra(sim, return_data = TRUE)
+str(fr)
 }
 }
 \seealso{

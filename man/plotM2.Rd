@@ -53,7 +53,8 @@ plotPredMort(sim)
 plotPredMort(sim, time_range = 10:20)
 
 # Returning the data frame
-plotPredMort(sim, return_data = TRUE)
+fr <- plotPredMort(sim, return_data = TRUE)
+str(fr)
 }
 }
 \seealso{

@@ -70,7 +70,8 @@ sim2 <- project(params, effort=2, t_max=20, t_save = 0.2, progress_bar = FALSE)
 plotYield(sim, sim2, species = c("Cod", "Herring"), log = FALSE)
 
 # Returning the data frame
-plotYield(sim, return_data = TRUE)
+fr <- plotYield(sim, return_data = TRUE)
+str(fr)
 }
 }
 \seealso{

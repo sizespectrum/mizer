@@ -81,7 +81,8 @@ plotFeedingLevel(sim, time_range = 10:20, species = c("Cod", "Herring"),
                  include_critical = TRUE)
 
 # Returning the data frame
-plotFeedingLevel(sim, return_data = TRUE)
+fr <- plotFeedingLevel(sim, return_data = TRUE)
+str(fr)
 }
 }
 \seealso{

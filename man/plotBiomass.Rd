@@ -88,8 +88,7 @@ against time. The biomass is calculated within user defined size limits
 \examples{
 \donttest{
 # Set up example MizerParams and MizerSim objects
-params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
-sim <- project(params, effort = 1, t_max = 20, t_save = 0.2, progress_bar = FALSE)
+sim <- project(NS_params, effort = 1, t_max = 20, t_save = 0.2, progress_bar = FALSE)
 
 plotBiomass(sim)
 plotBiomass(sim, species = c("Cod", "Haddock"), total = TRUE)
@@ -98,7 +97,8 @@ plotBiomass(sim, start_time = 10, end_time = 15)
 plotBiomass(sim, y_ticks = 3)
 
 # Returning the data frame
-plotBiomass(sim, return_data = TRUE)
+fr <- plotBiomass(sim, return_data = TRUE)
+str(fr)
 }
 }
 \seealso{

@@ -215,7 +215,7 @@ suitable for inclusion in documents.</p>
 <tr><td><code><a href='plotYieldGear.html'>plotYieldGear()</a></code></td><td>Plots the total yield of each species by gear against time.</td></tr>
 <tr><td><code><a href='plotDiet.html'>plotDiet()</a></code></td><td>Plots the diet composition at size for a given predator species.</td></tr>
 <tr><td><code><a href='plotGrowthCurves.html'>plotGrowthCurves()</a></code></td><td>Plots the size as a function of age.</td></tr>
-<tr><td><code><a href='https://rdrr.io/r/graphics/plot.html'>plot()</a></code></td><td>Produces 5 plots (<code><a href='plotFeedingLevel.html'>plotFeedingLevel()</a></code>, <code><a href='plotBiomass.html'>plotBiomass()</a></code>, <code><a href='plotPredMort.html'>plotPredMort()</a></code>, <code><a href='plotFMort.html'>plotFMort()</a></code> and <code><a href='plotSpectra.html'>plotSpectra()</a></code>) in the same window.</td></tr>
+<tr><td><code><a href='https://rdrr.io/r/graphics/plot.default.html'>plot()</a></code></td><td>Produces 5 plots (<code><a href='plotFeedingLevel.html'>plotFeedingLevel()</a></code>, <code><a href='plotBiomass.html'>plotBiomass()</a></code>, <code><a href='plotPredMort.html'>plotPredMort()</a></code>, <code><a href='plotFMort.html'>plotFMort()</a></code> and <code><a href='plotSpectra.html'>plotSpectra()</a></code>) in the same window.</td></tr>
 </table>
 
 
@@ -276,6 +276,8 @@ the species parameter data frame.</p>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'># Manipulating the plot</span></span>
 <span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://ggplot2.tidyverse.org'>ggplot2</a></span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Want to understand how all the pieces fit together? Read R for Data</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Science: https://r4ds.had.co.nz/</span>
 <span class='r-in'><span class='va'>p</span> <span class='op'>&lt;-</span> <span class='fu'><a href='plotFeedingLevel.html'>plotFeedingLevel</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span></span>
 <span class='r-in'><span class='va'>p</span> <span class='op'>&lt;-</span> <span class='va'>p</span> <span class='op'>+</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_abline.html'>geom_hline</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>yintercept <span class='op'>=</span> <span class='fl'>0.7</span><span class='op'>)</span><span class='op'>)</span></span>
 <span class='r-in'><span class='va'>p</span> <span class='op'>&lt;-</span> <span class='va'>p</span> <span class='op'>+</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_bw</a></span><span class='op'>(</span><span class='op'>)</span></span>

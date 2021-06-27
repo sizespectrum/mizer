@@ -72,7 +72,8 @@ plotGrowthCurves(sim, species = "Cod", max_age = 24)
 plotGrowthCurves(sim, species_panel = TRUE)
  
 # Returning the data frame
-plotGrowthCurves(sim, return_data = TRUE)
+fr <- plotGrowthCurves(sim, return_data = TRUE)
+str(fr)
 }
 }
 \seealso{

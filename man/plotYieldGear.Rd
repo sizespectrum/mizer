@@ -55,7 +55,8 @@ plotYieldGear(sim)
 plotYieldGear(sim, species = c("Cod", "Herring"), total = TRUE)
 
 # Returning the data frame
-plotYieldGear(sim, return_data = TRUE)
+fr <- plotYieldGear(sim, return_data = TRUE)
+str(fr)
 }
 }
 \seealso{
