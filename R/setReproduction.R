@@ -191,6 +191,8 @@ setReproduction <- function(params, maturity = NULL,
             species_params$w_mat[missing] <- species_params$w_inf[missing] / 4
         }
         assert_that(all(species_params$w_mat > species_params$w_min))
+        assert_that(all(species_params$w_mat < species_params$w_inf))
+        params@species_params$w_mat <- species_params$w_mat
         
         # Set defaults for w_mat25
         species_params <- set_species_param_default(

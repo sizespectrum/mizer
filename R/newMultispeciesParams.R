@@ -108,13 +108,6 @@ newMultispeciesParams <- function(
     catchability = NULL,
     initial_effort = NULL) {
     no_sp <- nrow(species_params)
-    
-    ## For backwards compatibility, allow r_max instead of R_max
-    if (!("R_max" %in% names(species_params)) &&
-        "r_max" %in% names(species_params)) {
-        names(species_params)[names(species_params) == "r_max"] <- "R_max"
-    }
-    
     species_params <- validSpeciesParams(species_params)
     gear_params <- validGearParams(gear_params, species_params)
     

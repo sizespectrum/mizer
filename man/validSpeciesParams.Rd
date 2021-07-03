@@ -26,6 +26,9 @@ It sets default values if any of the following are missing or NA
 \item \code{interaction_resource} is set to \code{1}
 }
 
+Any \code{w_mat} that is given that is not smaller than \code{w_inf} is set to
+\code{w_inf / 4}.
+
 Any \code{w_mat25} that is given that is not smaller than \code{w_mat} is set to
 \code{w_mat * 3^(-0.1)}.
 
