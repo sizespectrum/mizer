@@ -1,5 +1,18 @@
 # mizer 2.2.0.9000 (development version)
 
+## Bug fixes
+
+* `setInitialValues()` correctly preserves the gear names on the
+  initial effort. Thanks to Axel Rossberg.
+  
+## Other improvements
+
+* Speed improvement in `mizerPredMort()` suggested by Axel Rossberg.
+* `plotSpectra()` now only shows those species in the legend that are
+  actually contained in the plot.
+* Updated tests of plots to use new version of vdiffr package.
+* Some improvements to the examples on the help pages.
+
 
 # mizer 2.2
 
