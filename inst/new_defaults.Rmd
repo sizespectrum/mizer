@@ -1,0 +1,119 @@
+---
+title: "Parameter defaults"
+author: "Gustav Delius"
+date: "7/6/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## [Predation kernel](https://sizespectrum.org/mizer/reference/setPredKernel.html#setting-predation-kernel)
+
+log-normal kernel
+
+-   `beta` = 30 for Multispecies and `beta` = 100 for Trait and Community.
+
+-   `sigma` = 2.0 for Multispecies and Community and `sigma` = 1.3 for Trait
+
+**NEW: still need to discuss, but ideally the same for all types of model**
+
+## [Search volume](https://sizespectrum.org/mizer/reference/setSearchVolume.html#setting-search-volume)
+
+-   `q` = `lambda` - 2 + `n`
+-   `gamma` is determined from `f0 = 0.6`, `h`, `kappa`, `lambda` and the predation kernel so that if the prey abundance was described by the power law $\kappa w^{-\lambda}$ then the encounter rate would lead to the feeding level `f0`.
+
+## [Maximum intake rate](https://sizespectrum.org/mizer/reference/setMaxIntakeRate.html#setting-maximum-intake-rate)
+
+-   `n` = 2/3
+
+-   `h`
+
+    -   In multispecies model `h` is determined so that with feeding level `f0 = 0.6` and under the assumption `p` = `n` the species reaches maturity size `w_mat` at the age predicted by the von Bertalanffy growth curve parameters `k_vb` and `t0` = 0. The calculation uses `w_min`, `w_inf`, `n`, `b = 3`, `fc = 0.2`.
+    -   trait: `h` = 40 **NEW value from Ken**
+    -   community: `h` = 10
+
+## Metabolic rate
+
+-   `p`
+
+    -   trait: `p` = `n`, `n` = 2/3
+
+    -   multispecies `p` = 0.7 **NEW: `p` = 2/3**
+
+        **NEW: issue warning about poor default when user chooses p different from n.**
+
+-   `k` = 0
+
+-   `ks` determined from `fc`, `alpha`, `h`, `n`, `p`
+
+    -   trait: set so that `fc` = 0.25 **NEW: `fc` = 0.2**
+    -   multispecies: set so that `fc` = 0.2 at `w_mat`.
+    -   community: `ks` = 0
+
+## [External mortality](https://sizespectrum.org/mizer/dev/reference/setExtMort.html#setting-external-mortality-rate)
+
+-   Multispecies: scales with `w_inf`
+
+    -   `z0pre` = 0.6
+    -   `z0exp` = `n` - 1
+
+-   Trait: proportional to predation mortality
+
+    -   `ext_mort_prop` = 0
+
+-   Community: `z0` = 0.1
+
+## [Reproduction](https://sizespectrum.org/mizer/dev/reference/setReproduction.html#setting-reproduction)
+
+-   `w_mat` = `w_inf` / `eta` with multispecies `eta` = 0.25, trait `eta` = 10\^(-0.6) \~ 0.25.
+
+-   `w_mat25` = `w_mat * 3^(-0.1)` (corresponds to U = 10)
+
+    **NEW: `w_mat25` = `w_mat * 3^(-0.2)` (corresponds to U = 5)**
+
+-   `m` = 1
+
+-   `w_min` = 0.001
+
+-   `erepro` = 1 **NEW: `erepro` = 0.01 (thus slightly higher than 0.0066)? Increase for some species if needed but issue warning.**
+
+-   `R_max` chosen to achieve desired biomass.
+
+## [Fishing](https://sizespectrum.org/mizer/reference/setFishing.html#setting-fishing)
+
+single knife_edge gear, catching all species,
+
+-   `catchability` = 1
+
+-   `knife_edge_size`
+
+    -   Multispecies: `knife_edge_size` = `w_mat`
+    -   Trait and community: `knife_edge_size` = 1000
+
+## [Resource](https://sizespectrum.org/mizer/reference/setResource.html#setting-resource-dynamics)
+
+-   `r_pp`
+
+    -   Multispecies `r_pp` = 10 **NEW: `r_pp` = 4**
+    -   Trait `r_pp` = 0.1 **NEW: determined by new parameter `resource_level` = 1/2**
+    -   Community: r_pp = 10
+
+-   `kappa`
+
+    -   Multispecies `kappa` = 1e+11 **NEW: Use value per m\^2, same as Trait**
+    -   Trait `kappa` = 0.005
+    -   Community = 1000
+
+-   `lambda` = 2.05
+
+## Other
+
+-   `alpha`
+
+    -   Multispecies: `alpha` = 0.6
+    -   Trait: `alpha` = 0.4
+    -   Community: `alpha` = 0.2
+
+**NEW: still need to discuss, but ideally the same for all types of model**
