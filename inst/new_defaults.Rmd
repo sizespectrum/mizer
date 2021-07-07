@@ -27,11 +27,9 @@ Ken: I would say:
 
 ## [Search volume](https://sizespectrum.org/mizer/reference/setSearchVolume.html#setting-search-volume)
 
--   `q` = `lambda` - 2 + `n`
+-   `q` = `lambda` - 2 + `n` **NEW: if no `lambda` is specified, then `q` = 0.8** See discussion in Andersen (2019; p.22-23 and Fig. 2.4),
 
-Ken: I would prefer: `q` = 0.8. See discussion in Andersen (2019; p.22-23 and Fig. 2.4)
-
--   `gamma` is determined from `f0 = 0.6`, `h`, `kappa`, `lambda` and the predation kernel so that if the prey abundance was described by the power law $\kappa w^{-\lambda}$ then the encounter rate leads to a feeding level `f0`.
+-   `gamma` is determined from `f0 = 0.6`, `h`, `kappa`, `lambda` and the predation kernel so that if the prey abundance was described by the power law $\kappa w^{-\lambda}$ then the encounter rate would lead to the feeding level`f0`.
 
 ## [Maximum intake rate](https://sizespectrum.org/mizer/reference/setMaxIntakeRate.html#setting-maximum-intake-rate)
 
@@ -120,7 +118,7 @@ single knife_edge gear, catching all species,
     -   Trait `kappa` = 0.005
     -   Community = 1000
 
--   `lambda` = 2.05
+-   `lambda` = 2.05 **NEW: `lambda` = `q` + 2 - `n` if the user specified a `q` (and this q is the same for all species), otherwise `lambda` = 2.05**
 
 ## Other
 
