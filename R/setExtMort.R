@@ -76,7 +76,7 @@ setExtMort <- function(params, z0 = NULL, z0pre = 0.6, z0exp = -1/4,
     species_params <- params@species_params
     assert_that(noNA(species_params$w_inf))
     # Sort out z0 (external mortality)
-    message <- ("Note: Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.")
+    message <- ("Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.")
     params <- set_species_param_default(params, "z0",
                                         z0pre * species_params$w_inf^z0exp,
                                         message)
