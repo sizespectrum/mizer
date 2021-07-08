@@ -117,8 +117,16 @@ single knife_edge gear, catching all species,
     -   Multispecies `kappa` = 1e+11 **NEW: Use value per m\^2, same as Trait**
     -   Trait `kappa` = 0.005
     -   Community = 1000
+    
+    Ken: In the absence of other information we use a "per area" specification of the resource spectrum. Below is the abundance spectrum as observed on the Scotian shelf from Boudreau and Dickie (1992):
+    
+![](Kappa.png)
+    
+The fit is made with `kappa` = 0.1 g\^{1.05} (assuming that ´q´=0.8 and ´n´=3/4; for `n`=2/3 the value is simular but different units: `kappa` = 0.1 g\^{1.14})
 
 -   `lambda` = 2.05 **NEW: `lambda` = `q` + 2 - `n` if the user specified a `q` (and this q is the same for all species), otherwise `lambda` = 2.05**
+
+
 
 ## Other
 
