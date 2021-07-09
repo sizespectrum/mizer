@@ -22,6 +22,8 @@
 #'   is set to the smallest value at which any of the consumers can feed.
 #' @param n The allometric growth exponent. This can be overruled for individual
 #'   species by including a `n` column in the `species_params`. 
+#' @param info_level Controls the amount of information messages that are shown
+#'   when the function sets default values for parameters. 
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' 
@@ -106,7 +108,20 @@ newMultispeciesParams <- function(
     gear_params = NULL,
     selectivity = NULL,
     catchability = NULL,
-    initial_effort = NULL) {
+    initial_effort = NULL,
+    info_level = 3) {
+    
+    # Define a signal handler that collects the information signals
+    # into the `infos` list.
+    infos <- list()
+    collect_info <- function(cnd) {
+        if (cnd$level >= info_level) {
+            infos[[cnd$var]] <<- cnd$message
+        }
+    }
+    # Register this signal handler
+    withCallingHandlers(
+        info_about_default = collect_info, {
     no_sp <- nrow(species_params)
     species_params <- validSpeciesParams(species_params)
     gear_params <- validGearParams(gear_params, species_params)
@@ -166,7 +181,10 @@ newMultispeciesParams <- function(
     params@initial_n <- get_initial_n(params)
     params@initial_n_pp <- params@cc_pp
     params@A <- rep(1, nrow(species_params))
-    
+    })
+    if (length(infos) > 0) {
+        message(paste(infos, collapse = "\n"))
+    }
     return(params)
 }
 
