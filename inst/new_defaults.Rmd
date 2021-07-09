@@ -138,4 +138,6 @@ The fit is made with `kappa` = 0.1 g\^{1.05} (assuming that ´q´=0.8 and ´n´=
 
 **NEW: still need to discuss, but ideally the same for all types of model**
 
-Ken: Suggest to use `alpha`=0.6 for all models (Andersen (2019, p.50)).
+Ken: Suggest to use `alpha`=0.6 for trait-based and multi-species models (Andersen (2019, p.50)).
+
+Ken: For the community model `alpha` does not represent the assimilation efficiency, but the it represents the average growth efficiency (see Andersen et al (2009), RPSLB (209) 109-114, section "average growth efficiency"). The average growth efficiency depends upon the physiological parameters and the predator-prey interaction parameters in a rather complex way. A value of 0.2 for beta=400 is reasonable (figure 4b).
