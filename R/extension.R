@@ -240,13 +240,18 @@ getComponent <- function(params, component) {
     params
 }
 
+#' @param object An object of class MizerParams or MizerSim
 #' @rdname initialNOther-set
 #' @export
-initialNOther <- function(params) {
-    params <- validParams(params)
-    params@initial_n_other
+initialNOther <- function(object) {
+    if (is(object, "MizerParams")) {
+        params <- validParams(object)
+        return(params@initial_n_other)
+    }
+    if (is(object, "MizerSim")) {
+        return(object@params@initial_n_other)
+    }
 }
-
 
 #' Time series of other components
 #' 

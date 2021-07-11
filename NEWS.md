@@ -12,7 +12,7 @@
   actually contained in the plot.
 * Updated tests of plots to use new version of vdiffr package.
 * Some improvements to the examples on the help pages.
-
+* `initialNOther()` also works with MizerSim object.
 
 # mizer 2.2
 
