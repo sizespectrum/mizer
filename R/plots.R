@@ -111,8 +111,6 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #' @param ytrans Transformation for the y-axis.
 #' @param y_ticks x
 #' @param highlight x
-#' 
-#' @export
 plotFrame <- function(frame, params, 
                       xlab = waiver(), ylab = waiver(), 
                       xtrans = "identity", ytrans = "identity", 
@@ -456,33 +454,38 @@ plotYieldGear <- function(sim,
                           highlight = NULL, return_data = FALSE,
                           ...) {
     species <- valid_species_arg(sim, species)
-    # Need to keep species in order for legend
-    species_levels <- c(dimnames(sim@n)$sp, "Background", "Resource", "Total")
     
     y <- getYieldGear(sim, ...)
     y_total <- rowSums(y, dims = 2)
     y <- y[, , dimnames(y)$sp %in% species, drop = FALSE]
     names(dimnames(y))[names(dimnames(y)) == "sp"] <- "Species"
     ym <- reshape2::melt(y)
-    ym$Species <- factor(ym$Species, levels = species_levels)
     if (total) {
         yt <- reshape2::melt(y_total)
         yt$Species <- "Total"
         ym <- rbind(ym, yt)
     }
     ym <- subset(ym, ym$value > 0)
+    
+    ym <- ym[, c(1, 4, 3, 2)]
+    
+    # Need to keep species in order for legend
+    species_levels <- intersect(c(dimnames(sim@n)$sp, "Total"),
+                                ym$Species)
+    ym$Species <- factor(ym$Species, levels = species_levels)
+    
     if (return_data) return(ym)
     
     p <- ggplot(ym) +
             geom_line(aes(x = time, y = value, colour = Species, 
                           linetype = gear, size = Species))
 
-    linesize <- rep(0.8, length(sim@params@linetype))
-    names(linesize) <- names(sim@params@linetype)
+    linesize <- rep(0.8, length(species_levels))
+    names(linesize) <- names(sim@params@linetype[species_levels])
     linesize[highlight] <- 1.6
     p <- p + scale_y_continuous(trans = "log10", name = "Yield [g]") +
         scale_x_continuous(name = "Year") +
-        scale_colour_manual(values = sim@params@linecolour) +
+        scale_colour_manual(values = sim@params@linecolour[species_levels]) +
         scale_size_manual(values = linesize)
     return(p)
 }
@@ -781,12 +784,12 @@ plotFeedingLevel <- function(object, species = NULL,
     sel_sp <- valid_species_arg(params, species, return.logical = TRUE)
     species <- dimnames(params@initial_n)$sp[sel_sp]
     feed <- feed[sel_sp, , drop = FALSE]
-    plot_dat <- data.frame(value = c(feed),
+    plot_dat <- data.frame(w = rep(params@w, each = length(species)),
+                           value = c(feed),
                            # ggplot orders the legend according to the ordering
                            # of the factors, hence we need the levels argument
                            Species = factor(dimnames(feed)$sp, 
-                                            levels = dimnames(feed)$sp),
-                           w = rep(params@w, each = length(species)))
+                                            levels = dimnames(feed)$sp))
     
     if (!all.sizes) {
         # Remove feeding level for sizes outside a species' size range
@@ -797,15 +800,14 @@ plotFeedingLevel <- function(object, species = NULL,
         }
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
-    if (return_data) return(plot_dat) else 
+    if (return_data) return(plot_dat)
     
     if (include_critical) {
         feed_crit <- getCriticalFeedingLevel(params)[sel_sp, , drop = FALSE]
         plot_dat_crit <- data.frame(
+            w = rep(params@w, each = length(species)),
             value = c(feed_crit),
-            Species = factor(dimnames(feed)$sp, 
-                             levels = dimnames(feed)$sp),
-            w = rep(params@w, each = length(species)))
+            Species = dimnames(feed)$sp)
         
         if (!all.sizes) {
             # Remove feeding level for sizes outside a species' size range
@@ -833,15 +835,21 @@ plotFeedingLevel <- function(object, species = NULL,
                           linetype = Species, size = Species),
                       data = plot_dat)
     }
-
-    linesize <- rep(0.8, length(params@linetype))
-    names(linesize) <- names(params@linetype)
+    
+    # Need to keep species in order for legend
+    legend_levels <- 
+        intersect(c(dimnames(params@initial_n)$sp,
+                    "Background", "Resource", "Total"),
+                  plot_dat$Species)
+    plot_dat$Species <- factor(plot_dat$Species, levels = legend_levels)
+    linesize <- rep(0.8, length(legend_levels))
+    names(linesize) <- names(params@linetype[legend_levels])
     linesize[highlight] <- 1.6
     p <- p +
         scale_x_continuous(name = "Size [g]", trans = "log10") +
         scale_y_continuous(name = "Feeding Level", limits = c(0, 1)) +
-        scale_colour_manual(values = params@linecolour) +
-        scale_linetype_manual(values = params@linetype) +
+        scale_colour_manual(values = params@linecolour[legend_levels]) +
+        scale_linetype_manual(values = params@linetype[legend_levels]) +
         scale_size_manual(values = linesize)
     
     return(p)
@@ -927,15 +935,21 @@ plotPredMort <- function(object, species = NULL,
             geom_line(aes(x = w, y = value, colour = Species, 
                           linetype = Species, size = Species))
 
-    linesize <- rep(0.8, length(params@linetype))
-    names(linesize) <- names(params@linetype)
+    # Need to keep species in order for legend
+    legend_levels <- 
+        intersect(c(dimnames(params@initial_n)$sp,
+                    "Background", "Resource", "Total"),
+                  plot_dat$Species)
+    plot_dat$Species <- factor(plot_dat$Species, levels = legend_levels)
+    linesize <- rep(0.8, length(legend_levels))
+    names(linesize) <- names(params@linetype[legend_levels])
     linesize[highlight] <- 1.6
     p <- p +
         scale_x_continuous(name = "Size [g]", trans = "log10") +
         scale_y_continuous(name = "Predation mortality [1/year]",
                            limits = c(0, max(plot_dat$value))) +
-        scale_colour_manual(values = params@linecolour) +
-        scale_linetype_manual(values = params@linetype) +
+        scale_colour_manual(values = params@linecolour[legend_levels]) +
+        scale_linetype_manual(values = params@linetype[legend_levels]) +
         scale_size_manual(values = linesize)
     return(p)
 }
@@ -1021,8 +1035,14 @@ plotFMort <- function(object, species = NULL,
     }
     if (return_data) return(plot_dat)
     
-    linesize <- rep(0.8, length(params@linetype))
-    names(linesize) <- names(params@linetype)
+    # Need to keep species in order for legend
+    legend_levels <- 
+        intersect(c(dimnames(params@initial_n)$sp,
+                    "Background", "Resource", "Total"),
+                  plot_dat$Species)
+    plot_dat$Species <- factor(plot_dat$Species, levels = legend_levels)
+    linesize <- rep(0.8, length(legend_levels))
+    names(linesize) <- names(params@linetype[legend_levels])
     linesize[highlight] <- 1.6
     p <- ggplot(plot_dat) +
             geom_line(aes(x = w, y = value, colour = Species, 
@@ -1032,8 +1052,8 @@ plotFMort <- function(object, species = NULL,
         scale_x_continuous(name = "Size [g]", trans = "log10") +
         scale_y_continuous(name = "Fishing mortality [1/Year]",
                            limits = c(0, max(plot_dat$value))) +
-        scale_colour_manual(values = params@linecolour) +
-        scale_linetype_manual(values = params@linetype) + 
+        scale_colour_manual(values = params@linecolour[legend_levels]) +
+        scale_linetype_manual(values = params@linetype[legend_levels]) + 
         scale_size_manual(values = linesize)
     
     return(p)
@@ -1133,13 +1153,19 @@ plotGrowthCurves <- function(object, species = NULL,
     y_label <- if (percentage) 
         "Percent of maximum size"
     else "Size [g]"
-    linesize <- rep(0.8, length(params@linetype))
-    names(linesize) <- names(params@linetype)
+    # Need to keep species in order for legend
+    legend_levels <- 
+        intersect(c(dimnames(params@initial_n)$sp,
+                    "Background", "Resource", "Total"),
+                  plot_dat$Species)
+    plot_dat$Species <- factor(plot_dat$Species, levels = legend_levels)
+    linesize <- rep(0.8, length(legend_levels))
+    names(linesize) <- names(params@linetype[legend_levels])
     linesize[highlight] <- 1.6
     p <- p + scale_x_continuous(name = "Age [Years]") + 
         scale_y_continuous(name = y_label) + 
-        scale_colour_manual(values = params@linecolour) + 
-        scale_linetype_manual(values = params@linetype) + 
+        scale_colour_manual(values = params@linecolour[legend_levels]) + 
+        scale_linetype_manual(values = params@linetype[legend_levels]) + 
         scale_size_manual(values = linesize)
     
     # starting cases now
@@ -1200,6 +1226,9 @@ plotlyGrowthCurves <- function(object, species = NULL,
 #' biomass consumed by the specified predator species, as a function of the
 #' predator's size. These proportions are obtained with `getDiet()`.
 #' 
+#' Prey species that contribute less than 1 promille to the diet are suppressed
+#' in the plot.
+#' 
 #' @inheritParams plotSpectra
 #' @param species The name of the predator species for which to plot the diet.
 #'
@@ -1220,19 +1249,23 @@ plotDiet <- function(object, species = NULL, return_data = FALSE) {
     species <- valid_species_arg(object, species, return.logical = TRUE)
     diet <- getDiet(params)[species, , ]
     prey <- dimnames(diet)$prey
+    # the plot looks better upsided down
     prey <- factor(prey, levels = rev(prey))
     plot_dat <- data.frame(
         Proportion = c(diet),
         w = params@w,
         Prey = rep(prey, each = length(params@w)))
-    plot_dat <- plot_dat[plot_dat$Proportion > 0, ]
+    plot_dat <- plot_dat[plot_dat$Proportion > 0.001, ]
     if (return_data) return(plot_dat)
     
+    legend_levels <- 
+        intersect(c(dimnames(params@initial_n)$sp, "Resource"),
+                  plot_dat$Prey)
     ggplot(plot_dat) +
         geom_area(aes(x = w, y = Proportion, fill = Prey)) +
         scale_x_log10() +
         labs(x = "Size [g]") +
-        scale_fill_manual(values = params@linecolour)
+        scale_fill_manual(values = params@linecolour[legend_levels])
 }
 
 
