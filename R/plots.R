@@ -95,11 +95,13 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #' This is used internally by most plotting functions.
 #' 
 #' @param frame
-#' The data frame should have four variables in the following order:
-#' 1. x variable
-#' 2. y variable
-#' 3. grouping variable
-#' 4. Legend label
+#'   The data frame should have three or four variables in the following order:
+#'   1. x variable
+#'   2. y variable
+#'   3. grouping variable
+#'   4. Legend label
+#'   If the fourth variable is not provided, the grouping variable will be
+#'   used.
 #' @param A MizerParams object, which is used for the line colours and
 #'   line types.
 #' @param xlab Label for the x-axis
@@ -117,15 +119,20 @@ plotFrame <- function(frame, params,
                       y_ticks = 6, highlight = NULL) {
     assert_that(is.data.frame(frame),
                 is(params, "MizerParams"))
-    if (ncol(frame) != 4) {
-        stop("The data frame needs to have 4 variables.")
+    if (ncol(frame) < 3) {
+        stop("The data frame needs to have at least 3 variables.")
     }
     
     var_names <- names(frame)
     x <- var_names[[1]]
     y <- var_names[[2]]
     group <- var_names[[3]]
-    legend <- var_names[[4]]
+    if (ncol(frame) == 3) {
+        frame$Legend <- frame[[group]]
+        legend <- "Legend"
+    } else {
+        legend <- var_names[[4]]
+    }
     legend_levels <- levels(frame[[legend]])
     if (!is.null(highlight) && !(highlight %in% legend_levels)) {
         stop("The species ", highlight, " is not contained in the data frame.")
@@ -352,7 +359,7 @@ plotYield <- function(sim, sim2,
         legend_levels <- 
             intersect(c(dimnames(params@initial_n)$sp, "Total"),
                       plot_dat$Species)
-        plot_dat$Legend <- factor(plot_dat$Species, levels = legend_levels)
+        plot_dat$Species <- factor(plot_dat$Species, levels = legend_levels)
         
         if (return_data) return(plot_dat)
         
