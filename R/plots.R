@@ -140,9 +140,11 @@ plotFrame <- function(frame, params,
     linetype <- params@linetype[legend_levels]
     linesize <- rep_len(0.8, length(legend_levels))
     names(linesize) <- legend_levels
-    linesize[highlight] <- 1.6
+    linesize[highlight] <- 1.6 
+    ybreaks <- waiver()
+    if (ytrans == "log10") ybreaks <- log_breaks(n = y_ticks)
     ggplot(frame, aes(x = .data[[x]], y = .data[[y]])) +
-        scale_y_continuous(trans = ytrans, breaks = log_breaks(n = y_ticks),
+        scale_y_continuous(trans = ytrans, breaks = ybreaks,
                            labels = prettyNum, name = ylab) +
         scale_x_continuous(trans = xtrans, name = xlab) +
         scale_colour_manual(values = linecolour) +
@@ -497,7 +499,8 @@ plotYieldGear <- function(sim,
 plotlyYieldGear <- function(sim, species = NULL,
                             total = FALSE, highlight = NULL, ...) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotYieldGear", argg))
+    ggplotly(do.call("plotYieldGear", argg),
+             tooltip = c("Species", "Year", "Yield"))
 }
 
 #' Plot the abundance spectra
@@ -914,14 +917,11 @@ plotPredMort <- function(object, species = NULL,
     }
     
     species <- valid_species_arg(params, species)
-    # Need to keep species in order for legend
-    species_levels <- c(as.character(params@species_params$species), 
-                        "Background", "Resource", "Total")
     pred_mort <- pred_mort[as.character(dimnames(pred_mort)[[1]]) %in% species, , drop = FALSE]
-    plot_dat <- data.frame(value = c(pred_mort),
-                           Species = factor(dimnames(pred_mort)[[1]],
-                                            levels = species_levels),
-                           w = rep(params@w, each = length(species)))
+    plot_dat <- data.frame(
+        w = rep(params@w, each = length(species)),
+        value = c(pred_mort),
+        Species = species)
     
     if (!all.sizes) {
         # Remove feeding level for sizes outside a species' size range
@@ -932,29 +932,23 @@ plotPredMort <- function(object, species = NULL,
         }
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
-    if (return_data) return(plot_dat)
     
-    p <- ggplot(plot_dat) +
-            geom_line(aes(x = w, y = value, colour = Species, 
-                          linetype = Species, size = Species))
-
     # Need to keep species in order for legend
     legend_levels <- 
         intersect(c(dimnames(params@initial_n)$sp,
                     "Background", "Resource", "Total"),
                   plot_dat$Species)
     plot_dat$Species <- factor(plot_dat$Species, levels = legend_levels)
-    linesize <- rep(0.8, length(legend_levels))
-    names(linesize) <- names(params@linetype[legend_levels])
-    linesize[highlight] <- 1.6
-    p <- p +
-        scale_x_continuous(name = "Size [g]", trans = "log10") +
-        scale_y_continuous(name = "Predation mortality [1/year]",
-                           limits = c(0, max(plot_dat$value))) +
-        scale_colour_manual(values = params@linecolour[legend_levels]) +
-        scale_linetype_manual(values = params@linetype[legend_levels]) +
-        scale_size_manual(values = linesize)
-    return(p)
+
+    if (return_data) return(plot_dat)
+    
+    p <- plotFrame(plot_dat, params, xlab = "Size [g]", xtrans = "log10",
+              highlight = highlight)
+    suppressMessages(
+        p <- p + scale_y_continuous(labels = prettyNum, 
+                                    name = "Predation mortality [1/year]",
+                                    limits = c(0, max(plot_dat$value))))
+    p
 }
 
 #' Alias for `plotPredMort()`
@@ -1019,14 +1013,10 @@ plotFMort <- function(object, species = NULL,
         f <- apply(f, c(2, 3), mean)
     }
     species <- valid_species_arg(params, species)
-    # Need to keep species in order for legend
-    species_levels <- c(as.character(params@species_params$species), 
-                        "Background", "Resource", "Total")
     f <- f[as.character(dimnames(f)[[1]]) %in% species, , drop = FALSE]
-    plot_dat <- data.frame(value = c(f),
-                           Species = factor(dimnames(f)[[1]],
-                                            levels = species_levels),
-                           w = rep(params@w, each = length(species)))
+    plot_dat <- data.frame(w = rep(params@w, each = length(species)),
+                           value = c(f),
+                           Species = species)
     
     if (!all.sizes) {
         # Remove feeding level for sizes outside a species' size range
@@ -1037,7 +1027,6 @@ plotFMort <- function(object, species = NULL,
         }
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
-    if (return_data) return(plot_dat)
     
     # Need to keep species in order for legend
     legend_levels <- 
@@ -1045,23 +1034,11 @@ plotFMort <- function(object, species = NULL,
                     "Background", "Resource", "Total"),
                   plot_dat$Species)
     plot_dat$Species <- factor(plot_dat$Species, levels = legend_levels)
-    linesize <- rep(0.8, length(legend_levels))
-    names(linesize) <- names(params@linetype[legend_levels])
-    linesize[highlight] <- 1.6
-    p <- ggplot(plot_dat) +
-            geom_line(aes(x = w, y = value, colour = Species, 
-                          linetype = Species, size = Species))
-
-    p <- p +
-        scale_x_continuous(name = "Size [g]", trans = "log10") +
-        scale_y_continuous(name = "Fishing mortality [1/Year]",
-                           limits = c(0, max(plot_dat$value))) +
-        scale_colour_manual(values = params@linecolour[legend_levels]) +
-        scale_linetype_manual(values = params@linetype[legend_levels]) + 
-        scale_size_manual(values = linesize)
     
-    return(p)
+    if (return_data) return(plot_dat)
     
+    plotFrame(plot_dat, params, xlab = "Size [g]", xtrans = "log10",
+              ylab = "Fishing mortality [1/Year]", highlight = highlight)
 }
 
 #' @rdname plotFMort
@@ -1232,7 +1209,7 @@ plotlyGrowthCurves <- function(object, species = NULL,
 #' biomass consumed by the specified predator species, as a function of the
 #' predator's size. These proportions are obtained with `getDiet()`.
 #' 
-#' Prey species that contribute less than 1 promille to the diet are suppressed
+#' Prey species that contribute less than 1 permille to the diet are suppressed
 #' in the plot.
 #' 
 #' @inheritParams plotSpectra
