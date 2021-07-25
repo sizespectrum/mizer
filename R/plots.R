@@ -88,7 +88,66 @@ NULL
 # Hackiness to get past the 'no visible binding ... ' warning when running check
 utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
                          "x", "y", "Year", "Yield", "Biomass", "Size",
-                         "Proportion", "Prey", "legend"))
+                         "Proportion", "Prey", "Legend"))
+
+#' Make a plot from a data frame
+#' 
+#' This is used internally by most plotting functions.
+#' 
+#' @param frame
+#' The data frame should have four variables in the following order:
+#' 1. x variable
+#' 2. y variable
+#' 3. grouping variable
+#' 4. Legend label
+#' @param A MizerParams object, which is used for the line colours and
+#'   line types.
+#' @param xlab Label for the x-axis
+#' @param xlab Label for the y-axis
+#' @param xtrans Transformation for the x-axis. Often "log10" may be useful
+#'   instead of the default of "identity".
+#' @param ytrans Transformation for the y-axis.
+#' @param y_ticks x
+#' @param highlight x
+#' 
+#' @export
+plotFrame <- function(frame, params, 
+                      xlab = waiver(), ylab = waiver(), 
+                      xtrans = "identity", ytrans = "identity", 
+                      y_ticks = 6, highlight = NULL) {
+    assert_that(is.data.frame(frame),
+                is(params, "MizerParams"))
+    if (ncol(frame) != 4) {
+        stop("The data frame needs to have 4 variables.")
+    }
+    
+    var_names <- names(frame)
+    x <- var_names[[1]]
+    y <- var_names[[2]]
+    group <- var_names[[3]]
+    legend <- var_names[[4]]
+    legend_levels <- levels(frame[[legend]])
+    if (!is.null(highlight) && !(highlight %in% legend_levels)) {
+        stop("The species ", highlight, " is not contained in the data frame.")
+    }
+    
+    linecolour <- params@linecolour[legend_levels]
+    linetype <- params@linetype[legend_levels]
+    linesize <- rep_len(0.8, length(legend_levels))
+    names(linesize) <- legend_levels
+    linesize[highlight] <- 1.6
+    ggplot(frame, aes(x = .data[[x]], y = .data[[y]])) +
+        scale_y_continuous(trans = ytrans, breaks = log_breaks(n = y_ticks),
+                           labels = prettyNum, name = ylab) +
+        scale_x_continuous(trans = xtrans, name = xlab) +
+        scale_colour_manual(values = linecolour) +
+        scale_linetype_manual(values = linetype) +
+        scale_size_manual(values = linesize) +
+        geom_line(aes(group = .data[[group]], 
+                      colour = .data[[legend]], 
+                      linetype = .data[[legend]], 
+                      size = .data[[legend]]))
+}
 
 #' Helper function to produce nice breaks on logarithmic axes
 #'
@@ -114,7 +173,7 @@ log_breaks <- function(n = 6) {
 }
 
 
-#' Get data frame of biomass of species through time, ready for ggplot2
+#' Plot the biomass of species through time
 #'
 #' After running a projection, the biomass of each species can be plotted
 #' against time. The biomass is calculated within user defined size limits 
@@ -131,61 +190,7 @@ log_breaks <- function(n = 6) {
 #'   values below 1e-20 are always cut off.
 #' @param total A boolean value that determines whether the total biomass from
 #'   all species is plotted as well. Default is FALSE.
-#' @inheritDotParams get_size_range_array -params
-#'   
-#' @return A data frame
-#' @family frame functions
-#' @keywords internal
-getBiomassFrame <- function(sim,
-            species = NULL,
-            start_time = as.numeric(dimnames(sim@n)[[1]][1]),
-            end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
-            ylim = c(NA, NA), total = FALSE, ...) {
-    species <- valid_species_arg(sim@params, species)
-    b <- getBiomass(sim, ...)
-    if (start_time >= end_time) {
-        stop("start_time must be less than end_time")
-    }
-    # Select time range
-    b <- b[(as.numeric(dimnames(b)[[1]]) >= start_time) &
-               (as.numeric(dimnames(b)[[1]]) <= end_time), , drop = FALSE]
-    b_total <- rowSums(b)
-    # Include total
-    if (total) {
-        b <- cbind(b, Total = b_total)
-        species <- c("Total", species)
-    }
-    bm <- reshape2::melt(b)
-    
-    # Implement ylim and a minimal cutoff
-    min_value <- 1e-20
-    bm <- bm[bm$value >= min_value &
-                 (is.na(ylim[1]) | bm$value >= ylim[1]) &
-                 (is.na(ylim[2]) | bm$value <= ylim[2]), ]
-    names(bm) <- c("Year", "Species", "Biomass")
-    
-    # Force Species column to be a factor (otherwise if numeric labels are
-    # used they may be interpreted as integer and hence continuous).
-    # Need to keep species in order for legend.
-    species_levels <- c(dimnames(sim@n)$sp, "Background", "Resource", "Total")
-    bm$Species <- factor(bm$Species, levels = species_levels)
-    
-    # Select species
-    bm <- bm[bm$Species %in% species, ]
-
-    return(bm)
-}
-
-
-#' Plot the biomass of species through time
-#'
-#' After running a projection, the biomass of each species can be plotted
-#' against time. The biomass is calculated within user defined size limits 
-#' (min_w, max_w, min_l, max_l, see [getBiomass()]). 
-#' 
-#' @inheritParams getBiomassFrame
 #' @inheritParams plotSpectra
-#' @param y_ticks The approximate number of ticks desired on the y axis
 #' @inheritDotParams get_size_range_array -params
 #'   
 #' @return A ggplot2 object
@@ -213,43 +218,64 @@ plotBiomass <- function(sim, species = NULL,
                         total = FALSE, background = TRUE, 
                         highlight = NULL, return_data = FALSE,
                         ...) {
+    assert_that(is(sim, "MizerSim"))
+    params <- sim@params
     species <- valid_species_arg(sim, species)
-    if (missing(start_time)) start_time <- as.numeric(dimnames(sim@n)[[1]][1])
-    if (missing(end_time)) end_time <- as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]])
-    # First we get the data frame for all species, including the background
-    bm <- getBiomassFrame(sim, species = dimnames(sim@n)$sp,
-                          start_time = start_time,
-                          end_time = end_time,
-                          ylim = ylim, total = total, ...)
+    if (missing(start_time)) start_time <- 
+            as.numeric(dimnames(sim@n)[[1]][1])
+    if (missing(end_time)) end_time <- 
+            as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]])
+    if (start_time >= end_time) {
+        stop("start_time must be less than end_time")
+    }
+    # First we get the data frame for all species, including the background,
+    # for all times but only the desired size range, by passing any size range
+    # arguments on to getBiomass()
+    bm <- getBiomass(sim, ...)
+    # Select time range
+    bm <- bm[(as.numeric(dimnames(bm)[[1]]) >= start_time) &
+               (as.numeric(dimnames(bm)[[1]]) <= end_time), , drop = FALSE]
+
+    # Include total
+    if (total) {
+        bm <- cbind(bm, Total = rowSums(bm))
+    }
+    
+    bm <- reshape2::melt(bm)
+    
+    # Implement ylim and a minimal cutoff and bring columns in desired order
+    min_value <- 1e-20
+    bm <- bm[bm$value >= min_value &
+                 (is.na(ylim[1]) | bm$value >= ylim[1]) &
+                 (is.na(ylim[2]) | bm$value <= ylim[2]), c(1, 3, 2)]
+    names(bm) <- c("Year", "Biomass", "Species")
+    
     # Select species
-    spec_bm <- bm[bm$Species %in% c("Total", species), ]
-    x_label <- "Year"
-    y_label <- "Biomass [g]"
-    p <- ggplot(spec_bm, aes(x = Year, y = Biomass)) +
-        scale_y_continuous(trans = "log10", breaks = log_breaks(n = y_ticks),
-                           labels = prettyNum, name = y_label) +
-        scale_x_continuous(name = x_label) +
-        scale_colour_manual(values = sim@params@linecolour) +
-        scale_linetype_manual(values = sim@params@linetype)
+    plot_dat <- bm[bm$Species %in% c("Total", species), ]
+    plot_dat$Legend <- plot_dat$Species
     
     if (background) {
         # Add background species in light grey
-        back_sp <- dimnames(sim@n)$sp[is.na(sim@params@A)]
-        back_bm <- bm[bm$Species %in% back_sp, ]
-        if (nrow(back_bm) > 0) {
-            p <- p + geom_line(aes(group = Species), data = back_bm,
-                               colour = sim@params@linecolour["Background"],
-                               linetype = sim@params@linetype["Background"])
+        bkgrd_sp <- dimnames(sim@n)$sp[is.na(sim@params@A)]
+        if (length(bkgrd_sp) > 0) {
+            bm_bkgrd <- bm[bm$Species %in% bkrgd_sp, ]
+            bm_bkgrd$Legend <- "Background"
+            plot_dat <- rbind(plot_dat, bm_bkgrd)
         }
     }
     
-    linesize <- rep(0.8, length(sim@params@linetype))
-    names(linesize) <- names(sim@params@linetype)
-    linesize[highlight] <- 1.6
-    p <- p + scale_size_manual(values = linesize) +
-        geom_line(aes(colour = Species, linetype = Species, size = Species))
+    # Need to keep species in order for legend
+    legend_levels <- 
+        intersect(c(dimnames(params@initial_n)$sp,
+                    "Background", "Resource", "Total"),
+                  plot_dat$Legend)
+    plot_dat$Legend <- factor(plot_dat$Legend, levels = legend_levels)
     
-   if (return_data) return(list(spec_bm, back_bm)) else return(p)
+    if (return_data) return(plot_dat) 
+    
+    plotFrame(plot_dat, params, xlab = "Year", ylab = "Biomass [g]",
+              ytrans = "log10", 
+              y_ticks = y_ticks, highlight = highlight)
 }
 
 #' @rdname plotBiomass
@@ -306,45 +332,36 @@ plotYield <- function(sim, sim2,
                       total = FALSE, log = TRUE,
                       highlight = NULL, return_data = FALSE,
                       ...) {
+    assert_that(is(sim, "MizerSim"))
+    params <- sim@params
     species <- valid_species_arg(sim, species)
-    # Need to keep species in order for legend
-    species_levels <- c(dimnames(sim@n)$sp, "Background", "Resource", "Total")
     if (missing(sim2)) {
         y <- getYield(sim, ...)
-        y_total <- rowSums(y)
         y <- y[, (as.character(dimnames(y)[[2]]) %in% species),
                drop = FALSE]
         if (total) {
             # Include total
-            y <- cbind(y, "Total" = y_total)
+            y <- cbind(y, "Total" = rowSums(y))
         }
-        ym <- reshape2::melt(y, varnames = c("Year", "Species"),
-                             value.name = "Yield")
-        ym$Species <- factor(ym$Species, levels = species_levels)
-        ym <- subset(ym, ym$Yield > 0)
-        if (return_data) return(ym) else
+        plot_dat <- reshape2::melt(y, varnames = c("Year", "Species"),
+                                   value.name = "Yield")
+        plot_dat <- subset(plot_dat, plot_dat$Yield > 0)
+        plot_dat <- plot_dat[, c(1, 3, 2)]
         
-        p <- ggplot(ym) +
-                geom_line(aes(x = Year, y = Yield,
-                              colour = Species, linetype = Species,
-                              size = Species))
-
-        if (log) {
-            p <- p + scale_y_continuous(trans = "log10", name = "Yield [g/year]",
-                                        breaks = log_breaks(),
-                                        labels = prettyNum)
-        } else {
-            p <- p + scale_y_continuous(name = "Yield [g/year]")
-        }
-        linesize <- rep(0.8, length(sim@params@linetype))
-        names(linesize) <- names(sim@params@linetype)
-        linesize[highlight] <- 1.6
-        p <- p +
-            scale_colour_manual(values = sim@params@linecolour) +
-            scale_linetype_manual(values = sim@params@linetype) +
-            scale_size_manual(values = linesize)
-        return(p)
+        # Need to keep species in order for legend
+        legend_levels <- 
+            intersect(c(dimnames(params@initial_n)$sp, "Total"),
+                      plot_dat$Species)
+        plot_dat$Legend <- factor(plot_dat$Species, levels = legend_levels)
+        
+        if (return_data) return(plot_dat)
+        
+        plotFrame(plot_dat, params,
+                  ylab = "Yield [g/year]",
+                  ytrans = ifelse(log, "log10", "identity"),
+                  highlight = highlight)
     } else {
+        species_levels <- c(dimnames(sim@n)$sp, "Background", "Resource", "Total")
         if (!all(dimnames(sim@n)$time == dimnames(sim2@n)$time)) {
             stop("The two simulations do not have the same times")
         }
@@ -502,7 +519,9 @@ plotlyYieldGear <- function(sim, species = NULL,
 #'   \code{biomass = TRUE} is equivalent to \code{power=1} and 
 #'   \code{biomass = FALSE} is equivalent to \code{power=0}
 #' @param total A boolean value that determines whether the total over all
-#'   species in the system is plotted as well. Default is FALSE
+#'   species in the system is plotted as well. Note that even if the plot
+#'   only shows a selection of species, the total is including all species.
+#'   Default is FALSE.
 #' @param resource A boolean value that determines whether resource is included.
 #'   Default is TRUE.
 #' @param background A boolean value that determines whether background species
@@ -1070,7 +1089,7 @@ plotGrowthCurves <- function(object, species = NULL,
     ws <- getGrowthCurves(params, species, max_age, percentage)
     plot_dat <- reshape2::melt(ws)
     plot_dat$Species <- factor(plot_dat$Species, params@species_params$species)
-    plot_dat$legend <- "model"
+    plot_dat$Legend <- "model"
     
     # creating some VB
     if (all(c("a", "b", "k_vb") %in% names(params@species_params))) {
@@ -1096,12 +1115,12 @@ plotGrowthCurves <- function(object, species = NULL,
                                        (as.numeric(x[2]) - VBdf$t0[sel])))
                       VBdf$a[sel] * length ^ VBdf$b[sel]
                   })
-        plot_dat2$legend <- "von Bertalanffy"
+        plot_dat2$Legend <- "von Bertalanffy"
         plot_dat <- rbind(plot_dat,plot_dat2)
     }
     if (return_data) return(plot_dat)
     
-    p <- ggplot(filter(plot_dat, legend == "model")) + 
+    p <- ggplot(filter(plot_dat, Legend == "model")) + 
         geom_line(aes(x = Age, y = value, 
                       colour = Species, linetype = Species, size = Species))
     y_label <- if (percentage) 
@@ -1127,14 +1146,14 @@ plotGrowthCurves <- function(object, species = NULL,
             p <- p + geom_hline(yintercept = w_mat, linetype = "dashed", 
                                 colour = "grey") + 
                 annotate("text", 0, w_mat, vjust = -1, label = "Maturity")
-            if ("von Bertalanffy" %in% plot_dat$legend) 
-                p <- p + geom_line(data = filter(plot_dat, legend == "von Bertalanffy"), 
+            if ("von Bertalanffy" %in% plot_dat$Legend) 
+                p <- p + geom_line(data = filter(plot_dat, Legend == "von Bertalanffy"), 
                                    aes(x = Age, y = value))
             
         } else if (species_panel) { # need to add either no panel if no param 
                                     # for VB or create a panel without VB
             p <- ggplot(plot_dat) +
-                geom_line(aes(x = Age, y = value , colour = legend)) +
+                geom_line(aes(x = Age, y = value , colour = Legend)) +
                 scale_x_continuous(name = "Age [years]") +
                 scale_y_continuous(name = "Size [g]") +
                 geom_hline(aes(yintercept = w_mat),
