@@ -263,7 +263,7 @@ plotBiomass <- function(sim, species = NULL,
         # Add background species in light grey
         bkgrd_sp <- dimnames(sim@n)$sp[is.na(sim@params@A)]
         if (length(bkgrd_sp) > 0) {
-            bm_bkgrd <- bm[bm$Species %in% bkrgd_sp, ]
+            bm_bkgrd <- bm[bm$Species %in% bkgrd_sp, ]
             bm_bkgrd$Legend <- "Background"
             plot_dat <- rbind(plot_dat, bm_bkgrd)
         }
@@ -296,7 +296,8 @@ plotlyBiomass <- function(sim,
              highlight = NULL,
              ...) {
     argg <- c(as.list(environment()), list(...))
-    ggplotly(do.call("plotBiomass", argg))
+    ggplotly(do.call("plotBiomass", argg),
+             tooltip = c("Species", "Year", "Biomass"))
 }
 
 
@@ -416,7 +417,8 @@ plotlyYield <- function(sim, sim2,
                         total = FALSE, log = TRUE,
                         highlight = NULL, ...) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotYield", argg))
+    ggplotly(do.call("plotYield", argg),
+             tooltip = c("Species", "Year", "Yield"))
 }
 
 
@@ -468,6 +470,7 @@ plotYieldGear <- function(sim,
     ym <- subset(ym, ym$value > 0)
     
     ym <- ym[, c(1, 4, 3, 2)]
+    names(ym) <- c("Year", "Yield", "Species", "Gear")
     
     # Need to keep species in order for legend
     species_levels <- intersect(c(dimnames(sim@n)$sp, "Total"),
@@ -477,14 +480,13 @@ plotYieldGear <- function(sim,
     if (return_data) return(ym)
     
     p <- ggplot(ym) +
-            geom_line(aes(x = time, y = value, colour = Species, 
-                          linetype = gear, size = Species))
+            geom_line(aes(x = Year, y = Yield, colour = Species, 
+                          linetype = Gear, size = Species))
 
     linesize <- rep(0.8, length(species_levels))
     names(linesize) <- names(sim@params@linetype[species_levels])
     linesize[highlight] <- 1.6
     p <- p + scale_y_continuous(trans = "log10", name = "Yield [g]") +
-        scale_x_continuous(name = "Year") +
         scale_colour_manual(values = sim@params@linecolour[species_levels]) +
         scale_size_manual(values = linesize)
     return(p)
@@ -719,7 +721,8 @@ plotlySpectra <- function(object, species = NULL,
                         background = TRUE,
                         highlight = NULL, ...) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotSpectra", argg))
+    ggplotly(do.call("plotSpectra", argg),
+             tooltip = c("Species", "w", "value"))
 }
 
 #' Plot the feeding level of species by size
@@ -863,9 +866,9 @@ plotlyFeedingLevel <- function(object,
                              highlight = NULL, 
                              include_critical, ...) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotFeedingLevel", argg))
+    ggplotly(do.call("plotFeedingLevel", argg),
+             tooltip = c("Species", "w", "value"))
 }
-    
 
 #' Plot predation mortality rate of each species against size
 #' 
@@ -969,7 +972,8 @@ plotlyPredMort <- function(object, species = NULL,
                            time_range,
                            highlight = NULL, ...) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotPredMort", argg))
+    ggplotly(do.call("plotPredMort", argg),
+             tooltip = c("Species", "w", "value"))
 }
 
 #' Plot total fishing mortality of each species by size
@@ -1066,7 +1070,8 @@ plotlyFMort <- function(object, species = NULL,
                         time_range,
                         highlight = NULL, ...) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotFMort", argg))
+    ggplotly(do.call("plotFMort", argg),
+             tooltip = c("Species", "w", "value"))
 }
 
 
@@ -1215,7 +1220,8 @@ plotlyGrowthCurves <- function(object, species = NULL,
                                species_panel = FALSE,
                                highlight = NULL) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotGrowthCurves", argg))
+    ggplotly(do.call("plotGrowthCurves", argg),
+             tooltip = c("Species", "Age", "value"))
 }
 
 
