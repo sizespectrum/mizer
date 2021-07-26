@@ -87,7 +87,9 @@ used for the plot is returned instead of the plot itself. Default value is FALSE
 \item{...}{Other arguments (currently unused)}
 }
 \value{
-A ggplot2 object
+A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
+frame with the four variables 'w', 'value', 'Species', 'Legend' is
+returned.
 }
 \description{
 Plots the number density multiplied by a power of the weight, with the power

@@ -37,7 +37,9 @@ used for the plot is returned instead of the plot itself. Default value is FALSE
 \item{...}{Other arguments (currently unused)}
 }
 \value{
-A ggplot2 object
+A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
+frame with the four variables 'Year', 'Yield', 'Species' and 'Gear' is
+returned.
 }
 \description{
 After running a projection, the total yield of each species by fishing gear

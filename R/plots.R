@@ -222,7 +222,9 @@ log_breaks <- function(n = 6) {
 #' @inheritParams plotSpectra
 #' @inheritDotParams get_size_range_array -params
 #'   
-#' @return A ggplot2 object
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
+#'   frame with the four variables 'Year', 'Biomass', 'Species', 'Legend' is
+#'   returned.
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions], [getBiomass()]
@@ -339,7 +341,8 @@ plotlyBiomass <- function(sim,
 #' @param log Boolean whether yield should be plotted on a logarithmic axis. 
 #'   Defaults to true.
 #'
-#' @return A ggplot2 object
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
+#'   frame with the three variables 'Year', 'Yield', 'Species' is returned.
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions],  [getYield()]
@@ -445,7 +448,9 @@ plotlyYield <- function(sim, sim2,
 #' @param sim An object of class \linkS4class{MizerSim}
 #' @inheritParams plotSpectra
 #'
-#' @return A ggplot2 object
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
+#'   frame with the four variables 'Year', 'Yield', 'Species' and 'Gear' is
+#'   returned.
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions],  [getYieldGear()]
@@ -557,7 +562,9 @@ plotlyYieldGear <- function(sim, species = NULL,
 #' used for the plot is returned instead of the plot itself. Default value is FALSE
 #' @param ... Other arguments (currently unused)
 #'   
-#' @return A ggplot2 object
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
+#'   frame with the four variables 'w', 'value', 'Species', 'Legend' is
+#'   returned.
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions]
@@ -746,7 +753,10 @@ plotlySpectra <- function(object, species = NULL,
 #' @param include_critical If TRUE, then the critical feeding level is also
 #'   plotted. Default FALSE.
 #'
-#' @return A ggplot2 object
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
+#'   frame with the variables 'w', 'value' and 'Species' is returned. If also
+#'   `include_critical = TRUE` then the data frame contains a fourth variable
+#'   'Type' that distinguishes between 'actual' and 'critical' feeding level.
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions], [getFeedingLevel()]
@@ -869,7 +879,8 @@ plotlyFeedingLevel <- function(object,
 #' @param all.sizes If TRUE, then predation mortality is plotted also for sizes
 #'   outside a species' size range. Default FALSE.
 #'
-#' @return A ggplot2 object
+#' @return  A ggplot2 object, unless `return_data = TRUE`, in which case a data
+#'   frame with the three variables 'w', 'value', 'Species' is returned.
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions],  [getPredMort()]
@@ -966,7 +977,8 @@ plotlyPredMort <- function(object, species = NULL,
 #' @inheritParams plotSpectra
 #' @param all.sizes If TRUE, then fishing mortality is plotted also for sizes
 #'   outside a species' size range. Default FALSE.
-#' @return A ggplot2 object
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
+#'   frame with the three variables 'w', 'value', 'Species' is returned.
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions], [getFMort()]
@@ -1202,7 +1214,8 @@ plotlyGrowthCurves <- function(object, species = NULL,
 #' @inheritParams plotSpectra
 #' @param species The name of the predator species for which to plot the diet.
 #'
-#' @return A ggplot2 object
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
+#'   frame with the three variables 'w', 'Proportion', 'Prey' is returned.
 #' @export
 #' @seealso [getDiet()]
 #' @family plotting functions
@@ -1222,8 +1235,8 @@ plotDiet <- function(object, species = NULL, return_data = FALSE) {
     # the plot looks better upsided down
     prey <- factor(prey, levels = rev(prey))
     plot_dat <- data.frame(
-        Proportion = c(diet),
         w = params@w,
+        Proportion = c(diet),
         Prey = rep(prey, each = length(params@w)))
     plot_dat <- plot_dat[plot_dat$Proportion > 0.001, ]
     if (return_data) return(plot_dat)

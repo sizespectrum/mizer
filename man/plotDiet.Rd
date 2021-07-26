@@ -16,7 +16,8 @@ plotDiet(object, species = NULL, return_data = FALSE)
 used for the plot is returned instead of the plot itself. Default value is FALSE}
 }
 \value{
-A ggplot2 object
+A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
+frame with the three variables 'w', 'Proportion', 'Prey' is returned.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
