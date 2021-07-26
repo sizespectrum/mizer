@@ -114,7 +114,9 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 plotFrame <- function(frame, params, 
                       xlab = waiver(), ylab = waiver(), 
                       xtrans = "identity", ytrans = "identity", 
-                      y_ticks = 6, highlight = NULL) {
+                      y_ticks = 6, highlight = NULL,
+                      legend_var = NULL,
+                      wrap_var = NULL) {
     assert_that(is.data.frame(frame),
                 is(params, "MizerParams"))
     if (ncol(frame) < 3) {
@@ -122,16 +124,19 @@ plotFrame <- function(frame, params,
     }
     
     var_names <- names(frame)
-    x <- var_names[[1]]
-    y <- var_names[[2]]
-    group <- var_names[[3]]
-    if (ncol(frame) == 3) {
-        frame$Legend <- frame[[group]]
-        legend <- "Legend"
+    x_var <- var_names[[1]]
+    y_var <- var_names[[2]]
+    group_var <- var_names[[3]]
+    if (is.null(legend_var)) {
+        frame$Legend <- frame[[group_var]]
+        legend_var <- "Legend"
     } else {
-        legend <- var_names[[4]]
+        if (!(legend_var %in% var_names)) {
+            stop("The `legend_var` argument must be the name of a variable ",
+                 "in the data frame.")
+        }
     }
-    legend_levels <- levels(frame[[legend]])
+    legend_levels <- levels(frame[[legend_var]])
     if (!is.null(highlight) && !(highlight %in% legend_levels)) {
         stop("The species ", highlight, " is not contained in the data frame.")
     }
@@ -141,6 +146,7 @@ plotFrame <- function(frame, params,
     linesize <- rep_len(0.8, length(legend_levels))
     names(linesize) <- legend_levels
     linesize[highlight] <- 1.6 
+    
     xbreaks <- waiver()
     if (xtrans == "log10") xbreaks <- log_breaks()
     ybreaks <- waiver()
@@ -149,17 +155,26 @@ plotFrame <- function(frame, params,
     # The reason why below `group = species` is included in `ggplot()`
     # rather than in `geom_line` is because that puts it first in the
     # plotly tooltips, due to a bug in plotly.
-    ggplot(frame, aes(group = .data[[group]])) +
+    p <- ggplot(frame, aes(group = .data[[group_var]])) +
         scale_y_continuous(trans = ytrans, breaks = ybreaks,
                            labels = prettyNum, name = ylab) +
         scale_x_continuous(trans = xtrans, name = xlab) +
         scale_colour_manual(values = linecolour) +
         scale_linetype_manual(values = linetype) +
         scale_size_manual(values = linesize) +
-        geom_line(aes(x = .data[[x]], y = .data[[y]],
-                      colour = .data[[legend]], 
-                      linetype = .data[[legend]], 
-                      size = .data[[legend]]))
+        geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
+                      colour = .data[[legend_var]], 
+                      linetype = .data[[legend_var]], 
+                      size = .data[[legend_var]]))
+    if (!is.null(wrap_var)) {
+        if (!(wrap_var %in% var_names)) {
+            stop("The `wrap_var` argument must be the name of a variable ",
+                 "in the data frame.")
+        }
+        p <- p + facet_wrap(wrap_var)
+    }
+    
+    p
 }
 
 #' Helper function to produce nice breaks on logarithmic axes
@@ -288,7 +303,8 @@ plotBiomass <- function(sim, species = NULL,
     
     plotFrame(plot_dat, params, xlab = "Year", ylab = "Biomass [g]",
               ytrans = "log10", 
-              y_ticks = y_ticks, highlight = highlight)
+              y_ticks = y_ticks, highlight = highlight,
+              legend_var = "Legend")
 }
 
 #' @rdname plotBiomass
@@ -368,6 +384,9 @@ plotYield <- function(sim, sim2,
                       plot_dat$Species)
         plot_dat$Species <- factor(plot_dat$Species, levels = legend_levels)
         
+        if (nrow(plot_dat) == 0) {
+            warning("There is no yield to include.")
+        }
         if (return_data) return(plot_dat)
         
         plotFrame(plot_dat, params,
@@ -375,46 +394,27 @@ plotYield <- function(sim, sim2,
                   ytrans = ifelse(log, "log10", "identity"),
                   highlight = highlight)
     } else {
-        species_levels <- c(dimnames(sim@n)$sp, "Background", "Resource", "Total")
+        # We need to combine two plots
         if (!all(dimnames(sim@n)$time == dimnames(sim2@n)$time)) {
             stop("The two simulations do not have the same times")
         }
-        y <- getYield(sim, ...)
-        y2 <- getYield(sim2, ...)
-        y_total <- rowSums(y)
-        y <- y[, (as.character(dimnames(y)[[2]]) %in% species) & colSums(y) > 0,
-               drop = FALSE]
-        y2_total <- rowSums(y2)
-        y2 <- y2[, (as.character(dimnames(y2)[[2]]) %in% species),
-                 drop = FALSE]
-        if (total) {
-            # Include total
-            y <- cbind(y, Total = y_total)
-            y2 <- cbind(y2, Total = y2_total)
-        }
-        ym <- reshape2::melt(y, varnames = c("Year", "Species"),
-                             value.name = "Yield")
-        ym2 <- reshape2::melt(y2, varnames = c("Year", "Species"),
-                              value.name = "Yield")
-        ym$Simulation <- 1
-        ym2$Simulation <- 2
+        ym <- plotYield(sim, species = species,
+                            total = total, log = log,
+                            highlight = highlight, return_data = TRUE, ...)
+        ym2 <- plotYield(sim2, species = species,
+                            total = total, log = log,
+                            highlight = highlight, return_data = TRUE, ...)
+        ym$Simulation <- rep(1, nrow(ym)) # We don't use recycling because that
+                                          # fails when there are zero rows.
+        ym2$Simulation <- rep(2, nrow(ym2))
         ym <- rbind(ym, ym2)
-        ym$Species <- factor(ym$Species, levels = species_levels)
-        ym$Simulation <- as.factor(ym$Simulation)
-        ym <- subset(ym, ym$Yield > 0)
+        
         if (return_data) return(ym)
         
-        p <- ggplot(ym) +
-                geom_line(aes(x = Year, y = Yield, colour = Species,
-                              linetype = Species))
-
-        if (log) {
-            p <- p + scale_y_continuous(trans = "log10", name = "Yield [g/year]")
-        } else {
-            p <- p + scale_y_continuous(name = "Yield [g/year]")
-        }
-        p <- p + facet_wrap(~ Simulation)
-        return(p)
+        plotFrame(ym, params,
+                  ylab = "Yield [g/year]",
+                  ytrans = ifelse(log, "log10", "identity"),
+                  highlight = highlight, wrap_var = "Simulation")
     }
 }
 
@@ -487,6 +487,7 @@ plotYieldGear <- function(sim,
     
     if (return_data) return(ym)
     
+    # This does not use `plotFrame()` because it uses Gear to set the linetype
     p <- ggplot(ym) +
             geom_line(aes(x = Year, y = Yield, colour = Species, 
                           linetype = Gear, size = Species))
@@ -702,7 +703,7 @@ plot_spectra <- function(params, n, n_pp,
     
     plotFrame(plot_dat, params, xlab = "Size [g]", ylab = y_label,
               xtrans = "log10", ytrans = "log10", 
-              highlight = highlight)
+              highlight = highlight, legend_var = "Legend")
 }
 
 #' @rdname plotSpectra
@@ -818,6 +819,9 @@ plotFeedingLevel <- function(object, species = NULL,
     linesize <- rep(0.8, length(legend_levels))
     names(linesize) <- names(params@linetype[legend_levels])
     linesize[highlight] <- 1.6
+    
+    # We do not use `plotFrame()` to create the plot because it would not
+    # handle the alpha transparency for the critical feeding level.
     
     # The reason why below `group = species` is included in `ggplot()`
     # rather than in `geom_line` is because that puts it first in the
@@ -1068,7 +1072,8 @@ plotGrowthCurves <- function(object, species = NULL,
     if (is(object, "MizerSim")) {
         params <- object@params
         t <- dim(object@n)[1]
-        params@initial_n[] <- object@n[t, , ] # Designed to work also with single species
+        params@initial_n[] <- object@n[t, , ] # Designed to work also
+                                              # with single species
         params@initial_n_pp <- object@n_pp[t, ]
     } else if (is(object, "MizerParams")) {
         params <- validParams(object)
