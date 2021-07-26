@@ -88,29 +88,31 @@ NULL
 # Hackiness to get past the 'no visible binding ... ' warning when running check
 utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
                          "x", "y", "Year", "Yield", "Biomass", "Size",
-                         "Proportion", "Prey", "Legend"))
+                         "Proportion", "Prey", "Legend", "Type", "Gear"))
 
 #' Make a plot from a data frame
 #' 
 #' This is used internally by most plotting functions.
 #' 
-#' @param frame
-#'   The data frame should have three or four variables in the following order:
-#'   1. x variable
-#'   2. y variable
-#'   3. grouping variable
-#'   4. Legend label
-#'   If the fourth variable is not provided, the grouping variable will be
-#'   used.
-#' @param A MizerParams object, which is used for the line colours and
+#' @param frame A data frame with at least three variables.
+#'   The first three variables are used, in that order, as:
+#'   1. Variable to be plotted on x-axis
+#'   2. Variable to be plotted on y-axis
+#'   3. Grouping variable
+#' @param params A MizerParams object, which is used for the line colours and
 #'   line types.
+#' @param legend_var The name of the variable that should be used in the legend
+#'   and to determine the line style. If NULL then the grouping variable is
+#'   used for this purpose.
+#' @param wrap_var Optional. The name of the variable that should be used for
+#'  creating wrapped facets.
 #' @param xlab Label for the x-axis
-#' @param xlab Label for the y-axis
+#' @param ylab Label for the y-axis
 #' @param xtrans Transformation for the x-axis. Often "log10" may be useful
 #'   instead of the default of "identity".
 #' @param ytrans Transformation for the y-axis.
-#' @param y_ticks x
-#' @param highlight x
+#' @param y_ticks The approximate number of ticks desired on the y axis
+#' @param highlight Name or vector of names of the species to be highlighted.
 plotFrame <- function(frame, params, 
                       xlab = waiver(), ylab = waiver(), 
                       xtrans = "identity", ytrans = "identity", 
@@ -137,9 +139,6 @@ plotFrame <- function(frame, params,
         }
     }
     legend_levels <- levels(frame[[legend_var]])
-    if (!is.null(highlight) && !(highlight %in% legend_levels)) {
-        stop("The species ", highlight, " is not contained in the data frame.")
-    }
     
     linecolour <- params@linecolour[legend_levels]
     linetype <- params@linetype[legend_levels]
@@ -209,6 +208,7 @@ log_breaks <- function(n = 6) {
 #' 
 #' @param sim An object of class \linkS4class{MizerSim}
 #' @inheritParams valid_species_arg
+#' @inheritParams plotFrame
 #' @param start_time The first time to be plotted. Default is the beginning
 #'   of the time series.
 #' @param end_time The last time to be plotted. Default is the end of the
