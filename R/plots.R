@@ -141,16 +141,22 @@ plotFrame <- function(frame, params,
     linesize <- rep_len(0.8, length(legend_levels))
     names(linesize) <- legend_levels
     linesize[highlight] <- 1.6 
+    xbreaks <- waiver()
+    if (xtrans == "log10") xbreaks <- log_breaks()
     ybreaks <- waiver()
     if (ytrans == "log10") ybreaks <- log_breaks(n = y_ticks)
-    ggplot(frame, aes(x = .data[[x]], y = .data[[y]])) +
+    
+    # The reason why below `group = species` is included in `ggplot()`
+    # rather than in `geom_line` is because that puts it first in the
+    # plotly tooltips, due to a bug in plotly.
+    ggplot(frame, aes(group = .data[[group]])) +
         scale_y_continuous(trans = ytrans, breaks = ybreaks,
                            labels = prettyNum, name = ylab) +
         scale_x_continuous(trans = xtrans, name = xlab) +
         scale_colour_manual(values = linecolour) +
         scale_linetype_manual(values = linetype) +
         scale_size_manual(values = linesize) +
-        geom_line(aes(group = .data[[group]], 
+        geom_line(aes(x = .data[[x]], y = .data[[y]],
                       colour = .data[[legend]], 
                       linetype = .data[[legend]], 
                       size = .data[[legend]]))
@@ -633,12 +639,11 @@ plot_spectra <- function(params, n, n_pp,
     # Select only the desired species
     spec_n <- n[as.character(dimnames(n)[[1]]) %in% species, , drop = FALSE]
     # Make data.frame for plot
-    plot_dat <- data.frame(value = c(spec_n),
+    plot_dat <- data.frame(w = rep(params@w,
+                                   each = dim(spec_n)[[1]]),
+                           value = c(spec_n),
                            Species = dimnames(spec_n)[[1]],
-                           Legend = dimnames(spec_n)[[1]],
-                           w = rep(params@w,
-                                   each = dim(spec_n)[[1]])
-                           )
+                           Legend = dimnames(spec_n)[[1]])
     if (resource) {
         resource_sel <- (params@w_full >= wlim[1]) & 
                         (params@w_full <= wlim[2])
@@ -647,30 +652,30 @@ plot_spectra <- function(params, n, n_pp,
             w_resource <- params@w_full[resource_sel]
             plank_n <- n_pp[resource_sel] * w_resource^power
             plot_dat <- rbind(plot_dat,
-                              data.frame(value = c(plank_n),
+                              data.frame(w = w_resource,
+                                         value = c(plank_n),
                                          Species = "Resource",
-                                         Legend = "Resource",
-                                         w = w_resource)
+                                         Legend = "Resource")
             )
         }
     }
     if (total) {
         plot_dat <- rbind(plot_dat,
-                          data.frame(value = c(total_n),
+                          data.frame(w = params@w_full,
+                                     value = c(total_n),
                                      Species = "Total",
-                                     Legend = "Total",
-                                     w = params@w_full)
+                                     Legend = "Total")
                           )
     }
     if (background && anyNA(params@A)) {
         back_n <- n[is.na(params@A), , drop = FALSE]
         plot_dat <- 
             rbind(plot_dat,
-                  data.frame(value = c(back_n),
+                  data.frame(w = rep(params@w,
+                                     each = dim(back_n)[[1]]),
+                             value = c(back_n),
                              Species = as.factor(dimnames(back_n)[[1]]),
-                             Legend = "Background",
-                             w = rep(params@w,
-                                     each = dim(back_n)[[1]]))
+                             Legend = "Background")
             )
     }
     # lop off 0s and apply wlim
@@ -694,24 +699,10 @@ plot_spectra <- function(params, n, n_pp,
     plot_dat$Legend <- factor(plot_dat$Legend, levels = legend_levels)
     
     if (return_data) return(plot_dat) 
-
-    # Create plot
-    linecolour <- params@linecolour[legend_levels]
-    linetype <- params@linetype[legend_levels]
-    linesize <- rep_len(0.8, length(legend_levels))
-    names(linesize) <- legend_levels
-    linesize[highlight] <- 1.6
     
-    ggplot(plot_dat, aes(x = w, y = value)) +
-        scale_x_continuous(name = "Size [g]", trans = "log10",
-                           breaks = log_breaks()) +
-        scale_y_continuous(name = y_label, trans = "log10",
-                           breaks = log_breaks()) +
-        scale_colour_manual(values = linecolour) +
-        scale_linetype_manual(values = linetype) +
-        scale_size_manual(values = linesize) + 
-        geom_line(aes(group = Species,
-                      colour = Legend, linetype = Legend, size = Legend))
+    plotFrame(plot_dat, params, xlab = "Size [g]", ylab = y_label,
+              xtrans = "log10", ytrans = "log10", 
+              highlight = highlight)
 }
 
 #' @rdname plotSpectra
@@ -790,75 +781,63 @@ plotFeedingLevel <- function(object, species = NULL,
     sel_sp <- valid_species_arg(params, species, return.logical = TRUE)
     species <- dimnames(params@initial_n)$sp[sel_sp]
     feed <- feed[sel_sp, , drop = FALSE]
+    
     plot_dat <- data.frame(w = rep(params@w, each = length(species)),
                            value = c(feed),
-                           # ggplot orders the legend according to the ordering
-                           # of the factors, hence we need the levels argument
-                           Species = factor(dimnames(feed)$sp, 
-                                            levels = dimnames(feed)$sp))
-    
-    if (!all.sizes) {
-        # Remove feeding level for sizes outside a species' size range
-        for (sp in species) {
-            plot_dat$value[plot_dat$Species == sp &
-                           (plot_dat$w < params@species_params[sp, "w_min"] |
-                            plot_dat$w > params@species_params[sp, "w_inf"])] <- NA
-        }
-        plot_dat <- plot_dat[complete.cases(plot_dat), ]
-    }
-    if (return_data) return(plot_dat)
+                           Species = species)
     
     if (include_critical) {
         feed_crit <- getCriticalFeedingLevel(params)[sel_sp, , drop = FALSE]
         plot_dat_crit <- data.frame(
             w = rep(params@w, each = length(species)),
             value = c(feed_crit),
-            Species = dimnames(feed)$sp)
-        
-        if (!all.sizes) {
-            # Remove feeding level for sizes outside a species' size range
-            for (sp in species) {
-                plot_dat_crit$value[
-                    plot_dat_crit$Species == sp &
-                        (plot_dat_crit$w < params@species_params[sp, "w_min"] |
-                             plot_dat_crit$w > params@species_params[sp, "w_inf"])] <- NA
-            }
-            plot_dat_crit <- plot_dat_crit[complete.cases(plot_dat_crit), ]
-        }
-        p <- ggplot() +
-            geom_line(aes(x = w, y = value, colour = Species, 
-                          linetype = Species, size = Species,
-                          alpha = "actual"),
-                      data = plot_dat) +
-            geom_line(aes(x = w, y = value, colour = Species, 
-                          linetype = Species, alpha = "critical"),
-                      data = plot_dat_crit) +
-            scale_discrete_manual("alpha", name = "Feeding Level", 
-                                  values = c(actual = 1, critical = 0.5))
-    } else {
-        p <- ggplot() +
-            geom_line(aes(x = w, y = value, colour = Species, 
-                          linetype = Species, size = Species),
-                      data = plot_dat)
+            Species = species)
+        plot_dat$Type <- "actual"
+        plot_dat_crit$Type <- "critical"
+        plot_dat <- rbind(plot_dat, plot_dat_crit)
     }
+    
+    if (!all.sizes) {
+        # Remove feeding level for sizes outside a species' size range
+        for (sp in species) {
+            plot_dat$value[plot_dat$Species == sp &
+                               (plot_dat$w < params@species_params[sp, "w_min"] |
+                                    plot_dat$w > params@species_params[sp, "w_inf"])] <- NA
+        }
+        plot_dat <- plot_dat[complete.cases(plot_dat), ]
+    }
+    
+    if (return_data) return(plot_dat)
     
     # Need to keep species in order for legend
     legend_levels <- 
         intersect(c(dimnames(params@initial_n)$sp,
                     "Background", "Resource", "Total"),
                   plot_dat$Species)
-    plot_dat$Species <- factor(plot_dat$Species, levels = legend_levels)
+    plot_dat$Legend <- factor(plot_dat$Species, levels = legend_levels)
     linesize <- rep(0.8, length(legend_levels))
     names(linesize) <- names(params@linetype[legend_levels])
     linesize[highlight] <- 1.6
-    p <- p +
+    
+    # The reason why below `group = species` is included in `ggplot()`
+    # rather than in `geom_line` is because that puts it first in the
+    # plotly tooltips, due to a bug in plotly.
+    if (include_critical) {
+        plot_dat$Species <- interaction(plot_dat$Species, plot_dat$Type)
+        p <- ggplot(plot_dat, aes(group = Species,
+                                  alpha = Type)) +
+            scale_discrete_manual("alpha", name = "Feeding Level", 
+                                  values = c(actual = 1, critical = 0.5))
+    } else {
+        p <- ggplot(plot_dat, aes(group = Species))
+    }
+    p + geom_line(aes(x = w, y = value,
+                      colour = Legend, linetype = Legend, size = Legend)) +
         scale_x_continuous(name = "Size [g]", trans = "log10") +
         scale_y_continuous(name = "Feeding Level", limits = c(0, 1)) +
         scale_colour_manual(values = params@linecolour[legend_levels]) +
         scale_linetype_manual(values = params@linetype[legend_levels]) +
         scale_size_manual(values = linesize)
-    
-    return(p)
 }
 
 #' @rdname plotFeedingLevel
