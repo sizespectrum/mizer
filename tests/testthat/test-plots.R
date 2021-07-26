@@ -1,5 +1,3 @@
-context("Plotting methods")
-
 # Initialisation ----------------
 species_params <- NS_species_params_gears
 # Make species names numeric because that created problems in the past
@@ -99,8 +97,8 @@ test_that("plotly functions do not throw error", {
 test_that("return_data is identical",{
     expect_equal(dim(plotBiomass(sim, species = species, total = TRUE,
                                  start_time = 0, end_time = 2.8, y_ticks = 4, return_data = TRUE)), c(9,4))
-    
-    expect_equal(dim(plotYield(sim, sim0, species = species, return_data = TRUE)), c(8,4))
+    expect_warning(p <- plotYield(sim, sim0, species = species, return_data = TRUE))
+    expect_equal(dim(p), c(8,4))
     
     expect_equal(dim(plotYieldGear(sim, species = species, return_data = TRUE)), c(8,4))
     
