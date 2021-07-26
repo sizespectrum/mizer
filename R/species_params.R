@@ -355,6 +355,9 @@ get_ks_default <- function(params) {
 #' * `alpha` is set to `0.6`
 #' * `interaction_resource` is set to `1`
 #' 
+#' Any `w_mat` that is given that is not smaller than `w_inf` is set to
+#' `w_inf / 4`.
+#' 
 #' Any `w_mat25` that is given that is not smaller than `w_mat` is set to
 #' `w_mat * 3^(-0.1)`.
 #' 
@@ -366,51 +369,67 @@ get_ks_default <- function(params) {
 validSpeciesParams <- function(species_params) {
     assert_that(is.data.frame(species_params))
     # Convert a tibble back to an ordinary data frame
-    species_params <- as.data.frame(species_params,
-                                    stringsAsFactors = FALSE) # for old versions of R
+    sp <- as.data.frame(species_params,
+                        stringsAsFactors = FALSE) # for old versions of R
     
     # check species ----
-    if (!("species" %in% colnames(species_params))) {
+    if (!("species" %in% colnames(sp))) {
         stop("The species params dataframe needs a column 'species' with the species names")
     }
-    species_names <- as.character(species_params$species)
-    row.names(species_params) <- species_names
-    no_sp <- nrow(species_params)
+    species_names <- as.character(sp$species)
+    sp$species <- species_names
+    row.names(sp) <- species_names
+    no_sp <- nrow(sp)
     if (length(unique(species_names)) != no_sp) {
         stop("The species parameter data frame has multiple rows for the same species")
     }
     
-    # check w_inf ----
-    if (!("w_inf" %in% colnames(species_params))) {
-        species_params$w_inf <- rep(NA, no_sp)
+    ## For backwards compatibility, allow r_max instead of R_max
+    if (!("R_max" %in% names(sp)) &&
+        "r_max" %in% names(sp)) {
+        names(sp)[names(sp) == "r_max"] <- "R_max"
     }
-    missing <- is.na(species_params$w_inf)
+    
+    # check w_inf ----
+    if (!("w_inf" %in% colnames(sp))) {
+        sp$w_inf <- rep(NA, no_sp)
+    }
+    missing <- is.na(sp$w_inf)
     if (any(missing)) {
         stop("You need to specify maximum sizes for all species.")
     }
-    if (!is.numeric(species_params$w_inf)) {
+    if (!is.numeric(sp$w_inf)) {
         stop("`w_inf` contains non-numeric values.")
     }
     
     # Defaults ----
-    species_params <- species_params %>% 
-        set_species_param_default("w_mat", species_params$w_inf / 4) %>% 
+    sp <- sp %>% 
+        set_species_param_default("w_mat", sp$w_inf / 4) %>% 
         set_species_param_default("w_min", 0.001) %>% 
         set_species_param_default("alpha", 0.6) %>% 
         set_species_param_default("interaction_resource", 1)
     
+    # check w_mat ----
+    wrong <- sp$w_mat >= sp$w_inf
+    if (any(wrong)) {
+        message("For the species ", 
+                paste(sp$species[wrong], collapse = ", "),
+                " the value for `w_mat` is not smaller than that of `w_inf`.",
+                " I have corrected that by setting it to about 25% of `w_mat.")
+        sp$w_mat[wrong] <- sp$w_inf[wrong] / 4
+    }
+    
     # check w_mat25 ----
     # For w_mat25 it is o.k. if it is NA, but if given it must be 
     #  smaller than w_mat
-    wrong <- !is.na(species_params$w_mat25) &
-        species_params$w_mat25 >= species_params$w_mat
+    wrong <- !is.na(sp$w_mat25) & sp$w_mat25 >= sp$w_mat
     if (any(wrong)) {
         message("For the species ", 
-                paste(species_params$species[wrong], collapse = ", "),
+                paste(sp$species[wrong], collapse = ", "),
                 " the value for `w_mat25` is not smaller than that of `w_mat`.",
                 " I have corrected that by setting it to about 90% of `w_mat.")
-        species_params$w_mat25[wrong] <- species_params$w_mat[wrong]/(3^(1/10))
+        sp$w_mat25[wrong] <- sp$w_mat[wrong]/(3^(1/10))
     }
     
-    species_params
+    sp
 }

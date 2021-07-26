@@ -7,13 +7,15 @@
 \usage{
 initialNOther(params) <- value
 
-initialNOther(params)
+initialNOther(object)
 }
 \arguments{
 \item{params}{A MizerParams object}
 
 \item{value}{A named list with the initial values of other ecosystem
 components}
+
+\item{object}{An object of class MizerParams or MizerSim}
 }
 \description{
 Values used as starting values for simulations with \code{project()}.

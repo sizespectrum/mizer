@@ -1,8 +1,9 @@
 params <- NS_params
-sim <- project(params, t_max = 0.1, t_save = 0.1)
+sim <- project(params, t_max = 0.1, t_save = 0.1, effort = 1)
 
 test_that("We can set and get initial values from sim object", {
     no_t <- dim(sim@effort)[[1]]
+    gear_names <- names(params@initial_effort)
     expect_identical(initialN(sim), initialN(params))
     expect_identical(initialNResource(sim), initialNResource(params))
     initialN(params) <- params@metab
@@ -13,6 +14,7 @@ test_that("We can set and get initial values from sim object", {
     expect_identical(finalN(sim), initialN(params))
     expect_identical(finalNResource(sim), initialNResource(params))
     expect_identical(sim@effort[no_t, ], params@initial_effort)
+    expect_named(params@initial_effort, gear_names)
     names(params@initial_effort) <- NULL
     expect_error(setInitialValues(params, sim),
                  "The gears in the simulation in `sim` have different names")

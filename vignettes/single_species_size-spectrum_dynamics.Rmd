@@ -769,7 +769,15 @@ deviates from the steady state, for example due to a change in fishing,
 the reproductive efficiency can be set to change according to a
 Beverton-Holt stock-recruitment curve. We will discuss this again later.
 
-# Effect of prey availability
+
+# Predation
+
+It is now time to discuss the important issue of predation. It is
+through predation that the fish obtains the energy it needs to maintain
+its metabolism, to grow and to invest in reproduction. So it is
+important how we model this predation.
+
+## Effect of prey availability
 
 The energy income for a fish comes from predation on its prey. If there
 is less prey, the fish consumes less and thus its growth rate will
@@ -784,7 +792,6 @@ params_starved <- params
 size_range <- w_full(params) > 10^-3 & w_full(params) < 10^-2
 initialNResource(params_starved)[size_range] <- 
   initialNResource(params)[size_range] / 10
-plotSpectra(params_starved, power = 2)
 ```
 
 That is of course quite a dramatic intervention, and so should allow us
@@ -825,12 +832,7 @@ plotSpectra(params_overfed, power = 2)
 ```
 </details>
 
-# Predation
-
-It is now time to discuss the important issue of predation. It is
-through predation that the fish obtains the energy it needs to maintain
-its metabolism, to grow and to invest in reproduction. So it is
-important how we model this predation.
+## How predation is modelled
 
 The easiest case in which to understand predation is to imagine a filter
 feeding fish, swimming around with its mouth open. Clearly the amount of
@@ -986,7 +988,9 @@ initialNResource(params3) <- initialNResource(params_starved)
 params3 <- steady(params3)
 plotSpectra(params3, power = 2)
 ```
-
+There is no pronounced bump created this time. This is because the
+larvae experience a decreased growth rate already almost from the
+start of their life. So th
 </details>
 
 ## Search volume
@@ -1145,7 +1149,7 @@ params_fishing <- setFishing(params_fishing, initial_effort = 1)
 plotFMort(params_fishing)
 ```
 
-
+# Reproduction
 
 # Outlook
 

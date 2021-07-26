@@ -6,21 +6,34 @@ no_sp <- nrow(params@species_params)
 ## validSpeciesParams ----
 test_that("validSpeciesParams() works", {
     species_params <- NS_species_params
+    
+    # test w_mat
+    sp <- species_params
+    sp$w_mat[1] <- NA
+    expect_message(sp <- validSpeciesParams(sp), NA)
+    expect_equal(sp$w_mat[1], sp$w_inf[1] / 4)
+    sp$w_mat[2:4] <- 100
+    expect_message(sp <- validSpeciesParams(sp),
+                   "For the species Sandeel, N.pout the value")
+    expect_equal(sp$w_mat[2], sp$w_inf[2] / 4)
+    
     # test w_mat25
+    sp <- species_params
     species_params$w_mat25 <- c(NA, 1:11)
-    expect_message(validSpeciesParams(species_params), NA)
+    expect_message(sp <- validSpeciesParams(species_params), NA)
     species_params$w_mat25[2:5] <- 21
     expect_message(validSpeciesParams(species_params),
                    "For the species Sandeel, Dab the value")
+    
     # minimal species_params
-    sp <- data.frame(species = c("species1", "species2"),
+    sp <- data.frame(species = c(2, 1),
                      w_inf = c(100, 1000),
                      stringsAsFactors = FALSE)
     expect_s3_class(sp <- validSpeciesParams(sp), "data.frame")
     expect_equal(sp$w_mat, sp$w_inf / 4)
     expect_equal(sp$alpha, c(0.6, 0.6))
     expect_equal(sp$interaction_resource, c(1, 1))
-    expect_identical(rownames(sp), c("species1", "species2"))
+    expect_identical(rownames(sp), c("2", "1"))
 })
 
 ## set_species_param_default ----

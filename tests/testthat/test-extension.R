@@ -119,7 +119,7 @@ test_that("We can set, get and remove components", {
 })
 
 # initial values ----
-test_that("We can set and get initial values", {
+test_that("We can set and get initial values for MizerParams", {
     p <- setComponent(params, "test", 1, 
                       dynamics_fun = "test_dyn")
     expect_identical(initialNOther(p), list(test = 1))
@@ -137,6 +137,9 @@ test_that("We can set and get initial values", {
                  "Missing values for components test2")
     initialNOther(p)$test <- 4
     expect_identical(initialNOther(p)$test, 4)
+    # test that we can get initial values from MizerSim object
+    sim <- project(p, t_max = 0.2, t_save = 0.1)
+    expect_identical(initialNOther(sim)$test, 4)
 })
 
 # encounter and mortality functions are called ----
