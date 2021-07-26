@@ -368,11 +368,12 @@ plotYield <- function(sim, sim2,
     species <- valid_species_arg(sim, species)
     if (missing(sim2)) {
         y <- getYield(sim, ...)
+        y_total <- rowSums(y)
         y <- y[, (as.character(dimnames(y)[[2]]) %in% species),
                drop = FALSE]
         if (total) {
             # Include total
-            y <- cbind(y, "Total" = rowSums(y))
+            y <- cbind(y, "Total" = y_total)
         }
         plot_dat <- reshape2::melt(y, varnames = c("Year", "Species"),
                                    value.name = "Yield")
