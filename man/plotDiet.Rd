@@ -24,6 +24,10 @@ Plots the proportions with which each prey species contributes to the total
 biomass consumed by the specified predator species, as a function of the
 predator's size. These proportions are obtained with \code{getDiet()}.
 }
+\details{
+Prey species that contribute less than 1 permille to the diet are suppressed
+in the plot.
+}
 \examples{
 \donttest{
 plotDiet(NS_params, species = "Cod")

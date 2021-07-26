@@ -25,7 +25,9 @@ numeric vector with the species indices, or a logical vector indicating for
 each species whether it is to be selected (TRUE) or not.}
 
 \item{total}{A boolean value that determines whether the total over all
-species in the system is plotted as well. Default is FALSE}
+species in the system is plotted as well. Note that even if the plot
+only shows a selection of species, the total is including all species.
+Default is FALSE.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 

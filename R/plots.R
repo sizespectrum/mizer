@@ -113,12 +113,13 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #' @param ytrans Transformation for the y-axis.
 #' @param y_ticks The approximate number of ticks desired on the y axis
 #' @param highlight Name or vector of names of the species to be highlighted.
-plotFrame <- function(frame, params, 
-                      xlab = waiver(), ylab = waiver(), 
-                      xtrans = "identity", ytrans = "identity", 
-                      y_ticks = 6, highlight = NULL,
-                      legend_var = NULL,
-                      wrap_var = NULL) {
+#' @keywords internal
+#' @export
+plotDataFrame <- 
+    function(frame, params, xlab = waiver(), ylab = waiver(),
+             xtrans = "identity", ytrans = "identity", 
+             y_ticks = 6, highlight = NULL,
+             legend_var = NULL, wrap_var = NULL) {
     assert_that(is.data.frame(frame),
                 is(params, "MizerParams"))
     if (ncol(frame) < 3) {
@@ -208,7 +209,7 @@ log_breaks <- function(n = 6) {
 #' 
 #' @param sim An object of class \linkS4class{MizerSim}
 #' @inheritParams valid_species_arg
-#' @inheritParams plotFrame
+#' @inheritParams plotDataFrame
 #' @param start_time The first time to be plotted. Default is the beginning
 #'   of the time series.
 #' @param end_time The last time to be plotted. Default is the end of the
@@ -301,10 +302,10 @@ plotBiomass <- function(sim, species = NULL,
     
     if (return_data) return(plot_dat) 
     
-    plotFrame(plot_dat, params, xlab = "Year", ylab = "Biomass [g]",
-              ytrans = "log10", 
-              y_ticks = y_ticks, highlight = highlight,
-              legend_var = "Legend")
+    plotDataFrame(plot_dat, params, xlab = "Year", ylab = "Biomass [g]",
+                  ytrans = "log10", 
+                  y_ticks = y_ticks, highlight = highlight,
+                  legend_var = "Legend")
 }
 
 #' @rdname plotBiomass
@@ -389,10 +390,10 @@ plotYield <- function(sim, sim2,
         }
         if (return_data) return(plot_dat)
         
-        plotFrame(plot_dat, params,
-                  ylab = "Yield [g/year]",
-                  ytrans = ifelse(log, "log10", "identity"),
-                  highlight = highlight)
+        plotDataFrame(plot_dat, params,
+                      ylab = "Yield [g/year]",
+                      ytrans = ifelse(log, "log10", "identity"),
+                      highlight = highlight)
     } else {
         # We need to combine two plots
         if (!all(dimnames(sim@n)$time == dimnames(sim2@n)$time)) {
@@ -411,10 +412,10 @@ plotYield <- function(sim, sim2,
         
         if (return_data) return(ym)
         
-        plotFrame(ym, params,
-                  ylab = "Yield [g/year]",
-                  ytrans = ifelse(log, "log10", "identity"),
-                  highlight = highlight, wrap_var = "Simulation")
+        plotDataFrame(ym, params,
+                      ylab = "Yield [g/year]",
+                      ytrans = ifelse(log, "log10", "identity"),
+                      highlight = highlight, wrap_var = "Simulation")
     }
 }
 
@@ -487,7 +488,8 @@ plotYieldGear <- function(sim,
     
     if (return_data) return(ym)
     
-    # This does not use `plotFrame()` because it uses Gear to set the linetype
+    # This does not use `plotDataFrame()` because it uses Gear to set 
+    # the linetype
     p <- ggplot(ym) +
             geom_line(aes(x = Year, y = Yield, colour = Species, 
                           linetype = Gear, size = Species))
@@ -701,9 +703,9 @@ plot_spectra <- function(params, n, n_pp,
     
     if (return_data) return(plot_dat) 
     
-    plotFrame(plot_dat, params, xlab = "Size [g]", ylab = y_label,
-              xtrans = "log10", ytrans = "log10", 
-              highlight = highlight, legend_var = "Legend")
+    plotDataFrame(plot_dat, params, xlab = "Size [g]", ylab = y_label,
+                  xtrans = "log10", ytrans = "log10", 
+                  highlight = highlight, legend_var = "Legend")
 }
 
 #' @rdname plotSpectra
@@ -820,7 +822,7 @@ plotFeedingLevel <- function(object, species = NULL,
     names(linesize) <- names(params@linetype[legend_levels])
     linesize[highlight] <- 1.6
     
-    # We do not use `plotFrame()` to create the plot because it would not
+    # We do not use `plotDataFrame()` to create the plot because it would not
     # handle the alpha transparency for the critical feeding level.
     
     # The reason why below `group = species` is included in `ggplot()`
@@ -925,8 +927,8 @@ plotPredMort <- function(object, species = NULL,
 
     if (return_data) return(plot_dat)
     
-    p <- plotFrame(plot_dat, params, xlab = "Size [g]", xtrans = "log10",
-              highlight = highlight)
+    p <- plotDataFrame(plot_dat, params, xlab = "Size [g]", xtrans = "log10",
+                       highlight = highlight)
     suppressMessages(
         p <- p + scale_y_continuous(labels = prettyNum, 
                                     name = "Predation mortality [1/year]",
@@ -1020,8 +1022,8 @@ plotFMort <- function(object, species = NULL,
     
     if (return_data) return(plot_dat)
     
-    plotFrame(plot_dat, params, xlab = "Size [g]", xtrans = "log10",
-              ylab = "Fishing mortality [1/Year]", highlight = highlight)
+    plotDataFrame(plot_dat, params, xlab = "Size [g]", xtrans = "log10",
+                  ylab = "Fishing mortality [1/Year]", highlight = highlight)
 }
 
 #' @rdname plotFMort

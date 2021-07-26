@@ -68,7 +68,9 @@ Only used if \code{power} argument is missing. Then
 \code{biomass = FALSE} is equivalent to \code{power=0}}
 
 \item{total}{A boolean value that determines whether the total over all
-species in the system is plotted as well. Default is FALSE}
+species in the system is plotted as well. Note that even if the plot
+only shows a selection of species, the total is including all species.
+Default is FALSE.}
 
 \item{resource}{A boolean value that determines whether resource is included.
 Default is TRUE.}
