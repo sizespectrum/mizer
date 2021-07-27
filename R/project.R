@@ -110,6 +110,7 @@ project <- function(object, effort,
                     progress_bar = TRUE, ...) {
     
     # Set and check initial values ----
+    assert_that(t_max > 0)
     if (is(object, "MizerSim")) {
         validObject(object)
         params <- object@params
