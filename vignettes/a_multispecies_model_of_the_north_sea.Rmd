@@ -1,5 +1,5 @@
 ---
-title: "A Multi-Species Model Of The North Sea"
+title: "A Multi-Species Model of the North Sea"
 output:
   html_document:
     toc: yes
@@ -9,14 +9,6 @@ output:
 
 ```{r include=FALSE}
 library(mizer)
-gear_names <- c("Industrial","Pelagic","Beam","Otter")
-times <- seq(from = 1, to = 10, by = 1)
-effort_array <- array(NA, dim = c(length(times), length(gear_names)),
-    dimnames = list(time = times, gear = gear_names))
-effort_array[,"Industrial"] <- 0.5
-effort_array[,"Pelagic"] <- seq(from = 1, to = 2, length = length(times))
-effort_array[,"Beam"] <- seq(from = 1, to = 0, length = length(times))
-effort_array[,"Otter"] <- seq(from = 1, to = 0.5, length = length(times))
 ```
 
 In this section we try to pull everything together with an extended example of a
@@ -33,19 +25,20 @@ life-history parameters and the interaction matrix for the North Sea model. We
 will use them again here but will make some changes. In particular we set up the
 fishing gears differently.
 
-The species in the model are: `r paste(NS_species_params[,"species"], collapse=", ")`,
+The species in the model are: 
+`r paste(NS_species_params[,"species"], collapse=", ")`,
 which account for about 90% of the total biomass of all species sampled by
 research trawl surveys in the North Sea. The `NS_species_params` object that
 comes as an example with the mizer package is a
 data.frame with columns for `species`, `w_inf`, `w_mat`, `beta`, `sigma`,
-`R_max` and `k_vb`.
+`k_vb` and `R_max`.
 ```{r}
 NS_species_params
 ```
 
 
 We have seen before that only having these columns in the species data.frame is
-sufficient to make a `MizerParams` object. Any missing columns will be added and
+sufficient to make a `MizerParams` object. Any missing columns will be 
 filled with default values by the `MizerParams` constructor. For example, the
 data.frame does not include columns for `h` or `gamma`. This means that they
 will be estimated using the `k_vb` column.
@@ -54,8 +47,8 @@ We will use the default density dependence in the reproduction rate, which is th
 Beverton-Holt shape. This requires a column `R_max` in the species data.frame
 which contains the maximum reproduction rate for each species. This column is
 already in the `NS_species_params` data.frame. The values were found through a
-calibration process which is not covered here but will be added to a later
-version of this manual.
+calibration process which is not covered here but will be described in a
+separate tutorial.
 
 At the moment we are not providing any information on the
 selectivity of the gears for the species. By default, the selectivity function
@@ -103,6 +96,7 @@ gear_params <-
                         19.1, 13.2, 35.3),
                l50 = c(8.1, 11.8, 12.2, 20.8, 17.0, 29.0, 25.8, 29.0, 17.0,
                        24.3, 22.9, 43.6))
+gear_params
 ```
 
 Note that we have set up a `gear` column so that each species will be caught by
@@ -191,45 +185,37 @@ initial population abundances (known as the transient behaviour - essentially
 the initial behaviour before the long term dynamics are reached). As this is
 ecology, we don't know what the initial abundance are. One way around this is to
 project forward at a constant fishing mortality equal to the mortality in the
-first historical year until equilibrium is reached. We then can carry on
-projecting forward using the remaining years of effort. This approach reduces
+first historical year until equilibrium is reached. We then use this steady
+state as the initial state for the simulation. This approach reduces
 the impact of transient dynamics.
 
-Here we make an initial effort matrix of 100 years at the first effort level. We
-need to include dimension names for the time dimension. We then stick it on top
-of the original matrix of historical relative effort using `rbind()`.
-
-```{r label=add_transient_years}
-initial_effort <- matrix(relative_effort[1, ], byrow = TRUE, nrow = 100,
-                         ncol = ncol(relative_effort), dimnames = list(1867:1966))
-relative_effort <- rbind(initial_effort, relative_effort)
+```{r}
+params <- projectToSteady(params, effort = relative_effort["1967", ])
 ```
 
 We now have our parameter object and out matrix of efforts relative to 1990.
-This includes an initial 100 years of constant relative effort at the 1957
-level, followed by the relative effort from 1957 to 2010. We use this effort
+We use this effort
 matrix as the `effort` argument to the `project()` function. We use `dt` = 0.25
 (the simulation will run faster than with the default value of 0.1, but tests
 show that the results are still stable) and save the results every year.
 
 ```{r label=project_ns_model}
-sim <- project(params, effort = relative_effort, dt = 0.25)
+sim <- project(params, effort = relative_effort, dt = 0.25, t_save = 1)
 ```
 
 Plotting the results, we can see how the biomasses of the stocks change over
-time. You can see the 100 year period of transients with constant fishing
-fishing mortality before the historical relative mortality is used from 1967.
+time.
 
-```{r label = plot_ns_biomass, fig.keep='last', fig.cap="Simulated biomasses of stocks in the North Sea with 100 years of transients."}
+```{r label = plot_ns_biomass}
 plotBiomass(sim)
 ```
 
 To explore the state of the community it is useful to calculate indicators of
-the unexploited community. Therefore we also project forward for 100 years with
-0 fishing effort.
+the unexploited community. Therefore we also project forward to the steady state
+with 0 fishing effort.
 
 ```{r label=unexploited_na}
-sim0 <- project(params, effort = 0, dt = 0.5, t_max = 100)
+sim0 <- projectToSteady(params, effort = 0, return_sim = TRUE)
 ```
 
 ## Exploring the model outputs
@@ -242,42 +228,41 @@ the simulated values of the LFI to a community target based on achieving a high
 proportion of the unexploited value of the LFI of $0.8 LFI_{F=0}$.
 
 The indicators are calculated using the functions described in 
-[the section about indicator functions for MizerSim objects.](exploring_the_simulation_results.html#functions-for-calculating-indicators)
+[the section about indicator functions](exploring_the_simulation_results.html#functions-for-calculating-indicators).
 Here we calculate the LFI and the other community indicators for the unexploited
 community. When calculating these indicators we only include demersal species
 and individuals in the size range 10 g to 100 kg, and the LFI is based on
 species larger than 40 cm. Each of these functions returns a time series. We are
 interested only in the equilibrium unexploited values so we just select the
-final time step (year = `100`).
+final time step.
 
 ```{r label=ns_comm_ref_point}
 demersal_species <- c("Dab", "Whiting", "Sole", "Gurnard", "Plaice",
                       "Haddock", "Cod", "Saithe")
+final <- idxFinalT(sim0)
 lfi0 <- getProportionOfLargeFish(sim0, species = demersal_species,
                                  min_w = 10, max_w = 100e3, 
-                                 threshold_l = 40)["100"]
+                                 threshold_l = 40)[[final]]
 mw0 <- getMeanWeight(sim0, species = demersal_species,
-                     min_w = 10,max_w = 100e3)["100"]
+                     min_w = 10,max_w = 100e3)[[final]]
 mmw0 <- getMeanMaxWeight(sim0, species = demersal_species,
-                         min_w = 10, max_w = 100e3)["100", "mmw_biomass"]
+                         min_w = 10, max_w = 100e3)[final, "mmw_biomass"]
 slope0 <- getCommunitySlope(sim0, species = demersal_species,
-                            min_w = 10, max_w = 100e3)["100", "slope"]
+                            min_w = 10, max_w = 100e3)[final, "slope"]
 ```
 
 We also calculate the time series of these indicators for the exploited
-community (we are only interested in the fishing history years, 1967 to 2010,
-ignoring the transients):
+community:
 ```{r label=ns_comm_indicators}
-years <- 1967:2010
 lfi <- getProportionOfLargeFish(sim, species = demersal_species,
                                 min_w = 10, max_w = 100e3, 
-                                threshold_l = 40)[as.character(years)]
+                                threshold_l = 40)
 mw <- getMeanWeight(sim, species = demersal_species,
-                    min_w = 10, max_w = 100e3)[as.character(years)]
+                    min_w = 10, max_w = 100e3)
 mmw <- getMeanMaxWeight(sim, species = demersal_species, min_w = 10,
-                        max_w = 100e3)[as.character(years), "mmw_biomass"]
+                        max_w = 100e3)[, "mmw_biomass"]
 slope <- getCommunitySlope(sim, species = demersal_species, min_w = 10,
-                           max_w = 100e3)[as.character(years), "slope"]
+                           max_w = 100e3)[, "slope"]
 ```
 
 We can plot the exploited and unexploited indicators, along LFI reference level.
@@ -287,6 +272,7 @@ reference level): Each data.frame is a data.frame of each of the measures,
 stacked on top of each other.
 ```{r label=plot_ns_indicators, fig.cap="Historical (solid) and unexploited (dashed) and reference (dotted) community indicators for the North Sea multispecies model."}
 library(ggplot2)
+years <- 1967:2010
 # Simulated data
 community_plot_data <- rbind(
     data.frame(year = years, measure = "LFI", data = lfi),
@@ -295,23 +281,22 @@ community_plot_data <- rbind(
     data.frame(year = years, measure = "Slope", data = slope))
 # Unexploited data
 community_unfished_data <- rbind(
-    data.frame(year = years, measure = "LFI", data = lfi0[[1]]),
-    data.frame(year = years, measure = "Mean Weight", data = mw0[[1]]),
-    data.frame(year = years, measure = "Mean Max Weight", data = mmw0[[1]]),
-    data.frame(year = years, measure = "Slope", data = slope0[[1]]))
+    data.frame(year = years, measure = "LFI", data = lfi0),
+    data.frame(year = years, measure = "Mean Weight", data = mw0),
+    data.frame(year = years, measure = "Mean Max Weight", data = mmw0),
+    data.frame(year = years, measure = "Slope", data = slope0))
 # Reference level
 community_reference_level <-
-    data.frame(year=years, measure = "LFI", data = lfi0[[1]] * 0.8)
+    data.frame(year = years, measure = "LFI", data = lfi0 * 0.8)
 # Build up the plot
-p <- ggplot(community_plot_data) + geom_line(aes(x=year, y = data)) +
-    facet_wrap(~measure, scales="free")
-p <- p + geom_line(aes(x=year,y=data), linetype="dashed",
-    data = community_unfished_data)
-p + geom_line(aes(x=year,y=data), linetype="dotted",
-    data = community_reference_level)
+ggplot(community_plot_data) + 
+    geom_line(aes(x = year, y = data)) +
+    facet_wrap(~measure, scales = "free") + 
+    geom_line(aes(x = year, y = data), linetype = "dashed",
+              data = community_unfished_data) +
+    geom_line(aes(x=year,y=data), linetype = "dotted",
+              data = community_reference_level)
 ```
-
-
 
 According to our simulations, historically the LFI in the North Sea has been below the reference level.
 
@@ -332,8 +317,8 @@ Here we build on our existing array of relative effort to make an array for the 
 We make an array of the future effort, and then bind it underneath the `relative_effort` array used in the previous section.
 
 ```{r label = ns_scenario1_relative_effort}
-scenario1 <- t(array(relative_effort["2010",], dim=c(12,40),
-    dimnames=list(NULL,year = 2011:2050)))
+scenario1 <- t(array(relative_effort["2010", ], dim = c(12, 40),
+    dimnames = list(NULL, year = 2011:2050)))
 scenario1 <- rbind(relative_effort, scenario1)
 ```
 
@@ -344,15 +329,15 @@ For this one we need values of $F_{MSY}$.
 fmsy <- c(Sprat = 0.2, Sandeel = 0.2, N.pout = 0.2, Herring = 0.25, Dab = 0.2,
     Whiting = 0.2, Sole = 0.22, Gurnard = 0.2, Plaice = 0.25, Haddock = 0.3,
     Cod = 0.19, Saithe = 0.3)
-scenario2 <- t(array(fmsy, dim=c(12,40), dimnames=list(NULL,year = 2011:2050)))
+scenario2 <- t(array(fmsy, dim = c(12, 40), 
+                     dimnames = list(NULL, year = 2011:2050)))
 scenario2 <- rbind(relative_effort, scenario2)
-for (sp in dimnames(scenario2)[[2]]){
-    scenario2[as.character(2011:2015),sp] <- scenario2["2010",sp] +
-        (((scenario2["2015",sp] - scenario2["2010",sp]) / 5) * 1:5)
+for (sp in dimnames(scenario2)[[2]]) {
+    scenario2[as.character(2011:2015), sp] <- scenario2["2010", sp] +
+        (((scenario2["2015", sp] - scenario2["2010", sp]) / 5) * 1:5)
 }
 ```
 
-Both of our new effort scenarios still include 100 years at the 1967 level to reduce the impact of the transient behaviour.
 We are now ready to project the two scenarios.
 ```{r label = project_ns_future_scenarios}
 sim1 <- project(params, effort = scenario1, dt = 0.25)
@@ -362,22 +347,19 @@ sim2 <- project(params, effort = scenario2, dt = 0.25)
 We can now compare the projected SSB values in both scenarios to the biodiversity reference points.
 First we calculate the biodiversity reference points (from the final time step in the unexploited `sim0` simulation):
 ```{r label=ns_biodiv_ref_point}
-ssb0 <- getSSB(sim0)["100",]
+ssb0 <- getSSB(sim0)[final, ]
 ```
 
 
-Now we build a data.frame of the projected SSB for each species, ignoring the transients.
-We make use of the `melt()` function in the very useful `reshape2` package (REF).
+Now we build a data.frame of the projected SSB for each species.
+We make use of the `melt()` function to transform arrays into data frames.
 ```{r label=projected_ssb_ns, fig.cap="Historical and projected SSB under two fishing scenarios. Status quo (red), Fmsy (yellow). Unexploited (blue) and reference levels (purple) are also shown."}
-library(reshape2)
 years <- 1967:2050
-ssb1 <- getSSB(sim1)[as.character(years),]
-ssb2 <- getSSB(sim2)[as.character(years),]
-ssb1_df <- melt(ssb1)
-ssb2_df <- melt(ssb2)
+ssb1_df <- melt(getSSB(sim1))
+ssb2_df <- melt(getSSB(sim2))
 ssb_df <- rbind(
-    cbind(ssb1_df, scenario = "Scenario 1"),
-    cbind(ssb2_df, scenario = "Scenario 2"))
+    cbind(ssb1_df, scenario = "Status quo"),
+    cbind(ssb2_df, scenario = "Fmsy"))
 ssb_unexploited_df <- cbind(expand.grid(
     sp = names(ssb0),
     time = 1967:2050),
@@ -386,15 +368,15 @@ ssb_unexploited_df <- cbind(expand.grid(
 ssb_reference_df <- cbind(expand.grid(
     sp = names(ssb0),
     time = 1967:2050),
-    value = as.numeric(ssb0*0.1),
+    value = as.numeric(ssb0 * 0.1),
     scenario = "Reference")
-ssb_all_df <- rbind(
-    ssb_df,
-    ssb_unexploited_df,
-    ssb_reference_df)
-p <- ggplot(ssb_all_df) +
+ssb_all_df <- rbind(ssb_df, ssb_unexploited_df, ssb_reference_df)
+colours <- c("Status quo" = "red", "Fmsy" = "yellow",
+             "Unexploited" = "blue", "Reference" = "purple")
+ggplot(ssb_all_df) +
     geom_line(aes(x = time, y = value, colour = scenario)) +
-    facet_wrap(~sp, scales = "free", nrow = 4)
-p + theme(legend.position = "none")
+    facet_wrap(~sp, scales = "free", nrow = 4) +
+    theme(legend.position = "none") +
+    scale_colour_manual(values = colours)
 ```
 
