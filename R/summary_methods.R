@@ -431,7 +431,7 @@ get_size_range_array <- function(params, min_w = min(params@w),
     return(size_n)
 }
 
-# TODO: Check documentation for summary
+
 #### summary for MizerParams ####
 #' Summarize MizerParams object 
 #'
@@ -442,10 +442,7 @@ get_size_range_array <- function(params, min_w = min(params@w),
 #' @export
 #' @concept summary_function
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears,inter)
-#' summary(params)
-#' }
+#' summary(NS_params)
 setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
     params <- validParams(object)
     cat("An object of class \"", as.character(class(params)), "\" \n", sep = "")
@@ -467,12 +464,15 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
     sp <- params@species_params[, sel_params]
     rownames(sp) <- NULL
     print(sp)
-    cat("Fishing gear details:\n")
-    cat("\tGear\t\t\tTarget species\n")
-    for (i in 1:dim(params@catchability)[1]){
-        cat("\t",dimnames(params@catchability)$gear[i], "\t\t",
-            dimnames(params@catchability)$sp[params@catchability[i,]>0], 
-            "\n", sep=" ") 
+    cat("\nFishing gear details:\n")
+    cat(sprintf("%-13s %s %s", "Gear", "Effort", " Target species"), "\n",
+        "----------------------------------\n")
+    gears <- dimnames(params@catchability)$gear
+    for (i in 1:dim(params@catchability)[1]) {
+        splist <- dimnames(params@catchability)$sp[params@catchability[i, ] > 0]
+        cat(sprintf("%-14s %1.2f   %s",
+                gears[i], params@initial_effort[[gears[i]]],
+                toString(splist)), "\n")
     }
     invisible(params)
 })
@@ -487,11 +487,8 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
 #' @export
 #' @concept summary_function
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears,inter)
-#' sim <- project(params, effort=1, t_max=5)
+#' sim <- project(NS_params, effort=1, t_max=5)
 #' summary(sim)
-#' }
 setMethod("summary", signature(object = "MizerSim"), function(object, ...){
     cat("An object of class \"", as.character(class(object)), "\" \n", sep = "")
     cat("Parameters:\n")
@@ -499,11 +496,13 @@ setMethod("summary", signature(object = "MizerSim"), function(object, ...){
     cat("Simulation parameters:\n")
     # Need to store t_max and dt in a description slot? Or just in simulation 
     # time parameters? Like a list?
-    cat("\tFinal time step: ", max(as.numeric(dimnames(object@n)$time)), 
+    cat("\tTime period: ", 
+        min(as.numeric(dimnames(object@n)$time)), " to ",
+        max(as.numeric(dimnames(object@n)$time)), 
         "\n", sep = "")
     cat("\tOutput stored every ", 
         as.numeric(dimnames(object@n)$time)[2] - 
-            as.numeric(dimnames(object@n)$time)[1], " time units\n", sep = "")
+            as.numeric(dimnames(object@n)$time)[1], " years\n", sep = "")
     invisible(object)
 })
 
