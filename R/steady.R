@@ -81,6 +81,7 @@ projectToSteady <- function(params,
                             progress_bar = TRUE, ...) {
     params <- validParams(params)
     effort <- validEffortVector(effort, params = params)
+    params@initial_effort <- effort
     assert_that(t_max >= t_per,
                 tol > 0)
     if ((t_per < dt) || !isTRUE(all.equal((t_per - round(t_per / dt) * dt), 0))) {

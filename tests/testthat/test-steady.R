@@ -1,5 +1,7 @@
+# projectToSteady ----
 test_that("projectToSteady() works", {
     params <- NS_params
+    effort <- params@initial_effort * 1.1
     initialN(params)[1, ] <- initialN(params)[1, ] * 3
     expect_error(projectToSteady(NS_params, dt = 1, t_per = 0.5),
                  "t_per must be a positive multiple of dt")
@@ -7,9 +9,10 @@ test_that("projectToSteady() works", {
                  "t_max not greater than or equal to t_per")
     expect_message(projectToSteady(params, t_max = 0.1, t_per = 0.1),
                    "Simulation run did not converge after 0.1 years.")
-    expect_message(paramsc <- projectToSteady(params, tol = 10),
+    expect_message(paramsc <- projectToSteady(params, tol = 10, effort = effort),
                    "Convergence was achieved in 4.5 years")
     expect_s4_class(paramsc, "MizerParams")
+    expect_identical(paramsc@initial_effort, effort)
     # shouldn't take long the second time we run to steady
     expect_message(projectToSteady(paramsc, tol = 10),
                    "Convergence was achieved in 1.5 years")
@@ -61,6 +64,7 @@ test_that("retune_erepro works", {
                  params@species_params$erepro[-11])
     expect_identical(params1@rates_funcs$RDD, "BevertonHoltRDD")
 })
+
 # retuneReproductiveEfficiency ----
 test_that("retuneReproductiveEfficiency works", {
     p <- newTraitParams(R_factor = 4)
