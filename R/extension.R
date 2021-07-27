@@ -250,6 +250,8 @@ initialNOther <- function(object) {
     }
     if (is(object, "MizerSim")) {
         return(object@params@initial_n_other)
+    } else {
+        stop("The argument needs to be a MizerSim or a MizerParams object.")
     }
 }
 

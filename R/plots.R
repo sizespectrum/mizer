@@ -61,9 +61,7 @@
 #' @name plotting_functions
 #' @examples
 #' \donttest{
-#' # Set up example MizerParams and MizerSim objects
-#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
-#' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
+#' sim <- NS_sim
 #' 
 #' # Some example plots
 #' plotFeedingLevel(sim)
@@ -72,7 +70,7 @@
 #' plotFeedingLevel(sim, species = c("Cod", "Herring"))
 #' 
 #' # Specifying new colours and linetypes for some species
-#' sim@params@linetype["Cod"] <- "solid"
+#' sim@params@linetype["Cod"] <- "dashed"
 #' sim@params@linecolour["Cod"] <- "red"
 #' plotFeedingLevel(sim, species = c("Cod", "Herring"))
 #' 
@@ -194,14 +192,9 @@ getBiomassFrame <- function(sim,
 #' @seealso [plotting_functions], [getBiomass()]
 #' @examples
 #' \donttest{
-#' # Set up example MizerParams and MizerSim objects
-#' sim <- project(NS_params, effort = 1, t_max = 20, t_save = 0.2, progress_bar = FALSE)
-#' 
-#' plotBiomass(sim)
-#' plotBiomass(sim, species = c("Cod", "Haddock"), total = TRUE)
-#' plotBiomass(sim, min_w = 10, max_w = 1000)
-#' plotBiomass(sim, start_time = 10, end_time = 15)
-#' plotBiomass(sim, y_ticks = 3)
+#' plotBiomass(NS_sim)
+#' plotBiomass(NS_sim, species = c("Sandeel", "Herring"), total = TRUE)
+#' plotBiomass(NS_sim, start_time = 1980, end_time = 1990)
 #' 
 #' # Returning the data frame
 #' fr <- plotBiomass(sim, return_data = TRUE)

@@ -177,12 +177,8 @@ getDiet <- function(params,
 #' @family summary functions
 #' @concept summary_function
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' # With constant fishing effort for all gears for 20 time steps
-#' sim <- project(params, t_max = 20, effort = 0.5)
-#' getSSB(sim)
-#' }
+#' ssb <- getSSB(NS_sim)
+#' ssb[c("1972", "2010"), c("Herring", "Cod")]
 getSSB <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     ssb <- apply(sweep(sweep(sim@n, c(2, 3), sim@params@maturity, "*"), 3, 
@@ -208,13 +204,10 @@ getSSB <- function(sim) {
 #' @family summary functions
 #' @concept summary_function
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' # With constant fishing effort for all gears for 20 time steps
-#' sim <- project(params, t_max = 20, effort = 0.5)
-#' getBiomass(sim)
-#' getBiomass(sim, min_w = 10, max_w = 1000)
-#' }
+#' biomass <- getBiomass(NS_sim)
+#' biomass["1972", "Herring"]
+#' biomass <- getBiomass(NS_sim, min_w = 10, max_w = 1000)
+#' biomass["1972", "Herring"]
 getBiomass <- function(sim, ...) {
     assert_that(is(sim, "MizerSim"))
     size_range <- get_size_range_array(sim@params, ...)
@@ -240,13 +233,12 @@ getBiomass <- function(sim, ...) {
 #' @family summary functions
 #' @concept summary_function
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' # With constant fishing effort for all gears for 20 time steps
-#' sim <- project(params, t_max = 20, effort = 0.5)
-#' getN(sim)
-#' getN(sim, min_w = 10, max_w = 1000)
-#' }
+#' numbers <- getN(NS_sim)
+#' numbers["1972", "Herring"]
+#' # The above gave a huge number, because that included all the larvae.
+#' # The number of Herrings between 10g and 1kg is much smaller.
+#' numbers <- getN(NS_sim, min_w = 10, max_w = 1000)
+#' numbers["1972", "Herring"]
 getN <- function(sim, ...) {
     assert_that(is(sim, "MizerSim"))
     size_range <- get_size_range_array(sim@params, ...)
@@ -270,12 +262,9 @@ getN <- function(sim, ...) {
 #' @concept summary_function
 #' @seealso [getYield()]
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' # With constant fishing effort for all gears for 20 time steps
-#' sim <- project(params, t_max = 20, effort = 0.5)
-#' getYieldGear(sim)
-#' }
+#' yield <- getYieldGear(NS_sim)
+#' yield["1972", "Herring", "Herring"]
+#' # (In this example MizerSim object each species was set up with its own gear)
 getYieldGear <- function(sim) {
     biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
     f_gear <- getFMortGear(sim)
@@ -299,11 +288,8 @@ getYieldGear <- function(sim) {
 #' @concept summary_function
 #' @seealso [getYieldGear()]
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' sim <- project(params, effort=1, t_max=10)
-#' y <- getYield(sim)
-#' }
+#' yield <- getYield(NS_sim)
+#' yield[c("1972", "2010"), c("Herring", "Cod")]
 getYield <- function(sim) {
     biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
     f <- getFMort(sim, drop = FALSE)
@@ -328,13 +314,13 @@ getYield <- function(sim) {
 #' @export
 #' @family summary functions
 #' @examples
-#' \dontrun{
-#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
-#' getGrowthCurves(params)
-#' sim <- project(params, effort=1, t_max = 20, t_save = 2, progress_bar = FALSE)
-#' getGrowthCurves(sim, max_age = 24)
-#' }
-
+#' growth_curves <- getGrowthCurves(NS_params, species = c("Cod", "Haddock"))
+#' str(growth_curves)
+#' 
+#' ggplot(melt(growth_curves)) +
+#'   geom_line(aes(Age, value)) +
+#'   facet_wrap(~ Species, scales = "free") +
+#'   ylab("Size[g]") + xlab("Age[years]")
 getGrowthCurves <- function(object, 
                             species = NULL,
                             max_age = 20,
@@ -486,8 +472,7 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
 #' @export
 #' @concept summary_function
 #' @examples
-#' sim <- project(NS_params, effort=1, t_max=5)
-#' summary(sim)
+#' summary(NS_sim)
 setMethod("summary", signature(object = "MizerSim"), function(object, ...){
     cat("An object of class \"", as.character(class(object)), "\" \n", sep = "")
     cat("Parameters:\n")
@@ -550,16 +535,15 @@ NULL
 #' @family functions for calculating indicators
 #' @concept summary_function
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' sim <- project(params, effort=1, t_max=10)
-#' getProportionOfLargeFish(sim)
-#' getProportionOfLargeFish(sim, species=c("Herring","Sprat","N.pout"))
-#' getProportionOfLargeFish(sim, min_w = 10, max_w = 5000)
-#' getProportionOfLargeFish(sim, min_w = 10, max_w = 5000, threshold_w = 500)
-#' getProportionOfLargeFish(sim, min_w = 10, max_w = 5000,
-#'     threshold_w = 500, biomass_proportion=FALSE)
-#' }
+#' lfi <- getProportionOfLargeFish(NS_sim, min_w = 10, max_w = 5000, 
+#'                                 threshold_w = 500)
+#' years <- c("1972", "2010")
+#' lfi[years]
+#' getProportionOfLargeFish(NS_sim)[years]
+#' getProportionOfLargeFish(NS_sim, species=c("Herring","Sprat","N.pout"))[years]
+#' getProportionOfLargeFish(NS_sim, min_w = 10, max_w = 5000)[years]
+#' getProportionOfLargeFish(NS_sim, min_w = 10, max_w = 5000,
+#'     threshold_w = 500, biomass_proportion = FALSE)[years]
 getProportionOfLargeFish <- function(sim, 
                                      species = NULL, 
                                      threshold_w = 100, threshold_l = NULL, 
@@ -617,13 +601,11 @@ getProportionOfLargeFish <- function(sim,
 #' @family functions for calculating indicators
 #' @concept summary_function
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' sim <- project(params, effort=1, t_max=10)
-#' getMeanWeight(sim)
-#' getMeanWeight(sim, species=c("Herring","Sprat","N.pout"))
-#' getMeanWeight(sim, min_w = 10, max_w = 5000)
-#' }
+#' mean_weight <- getMeanWeight(NS_sim)
+#' years <- c("1967", "2010")
+#' mean_weight[years]
+#' getMeanWeight(NS_sim, species = c("Herring", "Sprat", "N.pout"))[years]
+#' getMeanWeight(NS_sim, min_w = 10, max_w = 5000)[years]
 getMeanWeight <- function(sim, species = NULL, ...){
     species <- valid_species_arg(sim, species)
     n_species <- getN(sim, ...)
@@ -657,13 +639,11 @@ getMeanWeight <- function(sim, species = NULL, ...){
 #' @family functions for calculating indicators
 #' @concept summary_function
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' sim <- project(params, effort=1, t_max=10)
-#' getMeanMaxWeight(sim)
-#' getMeanMaxWeight(sim, species=c("Herring","Sprat","N.pout"))
-#' getMeanMaxWeight(sim, min_w = 10, max_w = 5000)
-#' }
+#' mmw <- getMeanMaxWeight(NS_sim)
+#' years <- c("1967", "2010")
+#' mmw[years, ]
+#' getMeanMaxWeight(NS_sim, species=c("Herring","Sprat","N.pout"))[years, ]
+#' getMeanMaxWeight(NS_sim, min_w = 10, max_w = 5000)[years, ]
 getMeanMaxWeight <- function(sim, species = NULL, 
                              measure = "both", ...) {
     if (!(measure %in% c("both","numbers","biomass"))) {
@@ -706,19 +686,26 @@ getMeanMaxWeight <- function(sim, species = NULL,
 #' @family functions for calculating indicators
 #' @concept summary_function
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' sim <- project(params, effort=1, t_max=40, dt = 1, t_save = 1)
 #' # Slope based on biomass, using all species and sizes
-#' slope_biomass <- getCommunitySlope(sim)
+#' slope_biomass <- getCommunitySlope(NS_sim)
+#' slope_biomass[1, ] # in 1976
+#' slope_biomass[idxFinalT(NS_sim), ] # in 2010
+#' 
 #' # Slope based on numbers, using all species and sizes
-#' slope_numbers <- getCommunitySlope(sim, biomass=FALSE)
+#' slope_numbers <- getCommunitySlope(NS_sim, biomass = FALSE)
+#' slope_numbers[1, ] # in 1976
+#' 
 #' # Slope based on biomass, using all species and sizes between 10g and 1000g
-#' slope_biomass <- getCommunitySlope(sim, min_w = 10, max_w = 1000)
-#' # Slope based on biomass, using only demersal species and sizes between 10g and 1000g
-#' dem_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock", "Cod","Saithe")
-#' slope_biomass <- getCommunitySlope(sim, species = dem_species, min_w = 10, max_w = 1000)
-#' }
+#' slope_biomass <- getCommunitySlope(NS_sim, min_w = 10, max_w = 1000)
+#' slope_biomass[1, ] # in 1976
+#' 
+#' # Slope based on biomass, using only demersal species and 
+#' # sizes between 10g and 1000g
+#' dem_species <- c("Dab","Whiting", "Sole", "Gurnard", "Plaice",
+#'                  "Haddock", "Cod", "Saithe")
+#' slope_biomass <- getCommunitySlope(NS_sim, species = dem_species, 
+#'                                    min_w = 10, max_w = 1000)
+#' slope_biomass[1, ] # in 1976
 getCommunitySlope <- function(sim, species = NULL,
                               biomass = TRUE, ...) {
     species <- valid_species_arg(sim, species)

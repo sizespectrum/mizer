@@ -53,9 +53,7 @@ the species parameter data frame.
 }
 \examples{
 \donttest{
-# Set up example MizerParams and MizerSim objects
-params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
-sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
+sim <- NS_sim
 
 # Some example plots
 plotFeedingLevel(sim)
@@ -64,7 +62,7 @@ plotFeedingLevel(sim)
 plotFeedingLevel(sim, species = c("Cod", "Herring"))
 
 # Specifying new colours and linetypes for some species
-sim@params@linetype["Cod"] <- "solid"
+sim@params@linetype["Cod"] <- "dashed"
 sim@params@linecolour["Cod"] <- "red"
 plotFeedingLevel(sim, species = c("Cod", "Herring"))
 

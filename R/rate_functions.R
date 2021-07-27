@@ -26,6 +26,10 @@
 #' @inheritParams mizerRates
 #' @export
 #' @family rate functions
+#' @examples
+#' rates <- getRates(NS_params)
+#' names(rates)
+#' identical(rates$encounter, getEncounter(NS_params))
 getRates <- function(params, n = initialN(params), 
                      n_pp = initialNResource(params),
                      n_other = initialNOther(params),
@@ -51,12 +55,8 @@ getRates <- function(params, n = initialN(params),
 #' @export
 #' @family rate functions
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' # Run simulation with constant fishing effort for all gears for 20 years
-#' sim <- project(params, t_max = 20, effort = 0.5)
-#' getEncounter(params, n = finalN(sim), n_pp = finalNResource(sim), t = 20)
-#' }
+#' encounter <- getEncounter(NS_params)
+#' str(encounter)
 getEncounter <- function(params, n = initialN(params), 
                          n_pp = initialNResource(params),
                          n_other = initialNOther(params),

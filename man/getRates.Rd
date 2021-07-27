@@ -54,6 +54,11 @@ By default this function returns a list with the following components:
 However you can replace any of these rate functions by your own rate
 function if you wish, see \code{\link[=setRateFunction]{setRateFunction()}} for details.
 }
+\examples{
+rates <- getRates(NS_params)
+names(rates)
+identical(rates$encounter, getEncounter(NS_params))
+}
 \seealso{
 Other rate functions: 
 \code{\link{getEGrowth}()},

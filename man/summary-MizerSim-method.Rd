@@ -15,7 +15,6 @@
 Outputs a general summary of the structure and content of the object
 }
 \examples{
-sim <- project(NS_params, effort=1, t_max=5)
-summary(sim)
+summary(NS_sim)
 }
 \concept{summary_function}

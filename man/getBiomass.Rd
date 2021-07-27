@@ -34,13 +34,10 @@ over weights (i.e. if both min_l and min_w are supplied, only min_l will be
 used).
 }
 \examples{
-\dontrun{
-params <- newMultispeciesParams(NS_species_params_gears, inter)
-# With constant fishing effort for all gears for 20 time steps
-sim <- project(params, t_max = 20, effort = 0.5)
-getBiomass(sim)
-getBiomass(sim, min_w = 10, max_w = 1000)
-}
+biomass <- getBiomass(NS_sim)
+biomass["1972", "Herring"]
+biomass <- getBiomass(NS_sim, min_w = 10, max_w = 1000)
+biomass["1972", "Herring"]
 }
 \seealso{
 Other summary functions: 

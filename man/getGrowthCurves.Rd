@@ -29,12 +29,13 @@ An array (species x age) containing the weight in grams.
 Get growth curves giving weight as a function of age
 }
 \examples{
-\dontrun{
-params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
-getGrowthCurves(params)
-sim <- project(params, effort=1, t_max = 20, t_save = 2, progress_bar = FALSE)
-getGrowthCurves(sim, max_age = 24)
-}
+growth_curves <- getGrowthCurves(NS_params, species = c("Cod", "Haddock"))
+str(growth_curves)
+
+ggplot(melt(growth_curves)) +
+  geom_line(aes(Age, value)) +
+  facet_wrap(~ Species, scales = "free") +
+  ylab("Size[g]") + xlab("Age[years]")
 }
 \seealso{
 Other summary functions: 

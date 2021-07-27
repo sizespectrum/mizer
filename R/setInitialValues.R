@@ -78,6 +78,14 @@ setInitialValues <- function(params, sim) {
 #' @rdname initialN-set
 #' @param object An object of class MizerParams or MizerSim
 #' @export
+#' @examples 
+#' # Doubling abundance of Cod in the initial state of the North Sea model
+#' params <- NS_params
+#' initialN(params)["Cod", ] <- 2 * initialN(params)["Cod", ]
+#' # Calculating the corresponding initial biomass
+#' biomass <- initialN(params)["Cod", ] * dw(NS_params) * w(NS_params)
+#' # Of course this initial state will no longer be a steady state
+#' params <- steady(params)
 initialN <- function(object) {
     if (is(object, "MizerParams")) {
         params <- validParams(object)
@@ -96,6 +104,12 @@ initialN <- function(object) {
 #' @param value A vector with the initial number densities for the resource
 #'   spectrum
 #' @export
+#' @examples
+#' # Doubling resource abundance in the initial state of the North Sea model
+#' params <- NS_params
+#' initialNResource(params) <- 2 * initialNResource(params)
+#' # Of course this initial state will no longer be a steady state
+#' params <- steady(params)
 `initialNResource<-` <- function(params, value) {
     if (!is(params, "MizerParams")) {
         stop("You can only assign an initial N to a MizerParams object. ",

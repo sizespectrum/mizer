@@ -15,3 +15,9 @@ The MizerParams object that was used to run the simulation
 \description{
 Extract the parameter object underlying a simulation
 }
+\examples{
+# This will be identical to the params object that was used to create the
+# simulation
+sim <- project(NS_params, t_max = 1)
+identical(getParams(sim), NS_params)
+}

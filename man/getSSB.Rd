@@ -18,12 +18,8 @@ the \code{MizerSim} class. SSB is calculated as the total mass of all mature
 individuals.
 }
 \examples{
-\dontrun{
-params <- newMultispeciesParams(NS_species_params_gears, inter)
-# With constant fishing effort for all gears for 20 time steps
-sim <- project(params, t_max = 20, effort = 0.5)
-getSSB(sim)
-}
+ssb <- getSSB(NS_sim)
+ssb[c("1972", "2010"), c("Herring", "Cod")]
 }
 \seealso{
 Other summary functions: 

@@ -17,9 +17,7 @@ results for the final time step
 Time index at end of simulation
 }
 \examples{
-\dontrun{
-sim <- project(NS_params, t_max = 12, t_save = 0.5)
-idx <- idxFinalT(sim)
+idx <- idxFinalT(NS_sim)
 idx
 # This coincides with
 length(getTimes(sim))
@@ -28,5 +26,4 @@ getTimes(sim)[idx]
 # We can use this index to extract the result at the final time
 identical(N(sim)[idx, , ], finalN(sim))
 identical(NResource(sim)[idx, ], finalNResource(sim))
-}
 }

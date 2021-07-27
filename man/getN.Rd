@@ -33,13 +33,12 @@ lengths for the species. Lengths take precedence over weights (i.e. if both
 min_l and min_w are supplied, only min_l will be used)
 }
 \examples{
-\dontrun{
-params <- newMultispeciesParams(NS_species_params_gears, inter)
-# With constant fishing effort for all gears for 20 time steps
-sim <- project(params, t_max = 20, effort = 0.5)
-getN(sim)
-getN(sim, min_w = 10, max_w = 1000)
-}
+numbers <- getN(NS_sim)
+numbers["1972", "Herring"]
+# The above gave a huge number, because that included all the larvae.
+# The number of Herrings between 10g and 1kg is much smaller.
+numbers <- getN(NS_sim, min_w = 10, max_w = 1000)
+numbers["1972", "Herring"]
 }
 \seealso{
 Other summary functions: 
