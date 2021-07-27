@@ -425,7 +425,6 @@ get_size_range_array <- function(params, min_w = min(params@w),
     min_n <- plyr::aaply(min_w, 1, function(x) params@w >= x, .drop = FALSE)
     max_n <- plyr::aaply(max_w, 1, function(x) params@w <= x, .drop = FALSE)
     size_n <- min_n & max_n
-    # Add dimnames?
     dimnames(size_n) <- list(sp = params@species_params$species, 
                              w = signif(params@w, 3)) 
     return(size_n)
@@ -564,21 +563,37 @@ NULL
 getProportionOfLargeFish <- function(sim, 
                                      species = NULL, 
                                      threshold_w = 100, threshold_l = NULL, 
-                                     biomass_proportion=TRUE, ...) {
+                                     biomass_proportion = TRUE, ...) {
     species <- valid_species_arg(sim, species)
+    
+    total_size_range <- get_size_range_array(sim@params, ...)
     # This args stuff is pretty ugly - couldn't work out another way of using ...
     args <- list(...)
     args[["params"]] <- sim@params
-    total_size_range <- do.call("get_size_range_array", args = args)
     args[["max_w"]] <- threshold_w
     args[["max_l"]] <- threshold_l
     large_size_range <- do.call("get_size_range_array", args = args)
+    
+    total_size_range <- total_size_range[species, , drop = FALSE]
+    large_size_range <- large_size_range[species, , drop = FALSE]
+    
     w <- sim@params@w
-    if (!biomass_proportion) # based on abundance numbers
+    if (!biomass_proportion) { # based on abundance numbers
         w[] <- 1
-    total_measure <- apply(sweep(sweep(sim@n[,species,,drop=FALSE],c(2,3),total_size_range[species,,drop=FALSE],"*"),3,w * sim@params@dw, "*"),1,sum)
-    upto_threshold_measure <- apply(sweep(sweep(sim@n[,species,,drop=FALSE],c(2,3),large_size_range[species,,drop=FALSE],"*"),3,w * sim@params@dw, "*"),1,sum)
-    #lfi = data.frame(time = as.numeric(dimnames(sim@n)$time), proportion = 1-(upto_threshold_measure / total_measure))
+    }
+    
+    n <- sim@n[, species, , drop = FALSE]
+    total_measure <- 
+        apply(sweep(sweep(n, c(2, 3), total_size_range, "*"),
+                    3, w * sim@params@dw, "*"),
+              1, sum)
+    upto_threshold_measure <- 
+        apply(sweep(sweep(n, c(2, 3), large_size_range, "*"),
+                    3, w * sim@params@dw, "*"),
+              1, sum)
+
+    #lfi = data.frame(time = as.numeric(dimnames(sim@n)$time), 
+    #                 proportion = 1 - (upto_threshold_measure / total_measure))
     #return(lfi)
     return(1 - (upto_threshold_measure / total_measure))
 }
