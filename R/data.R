@@ -89,3 +89,19 @@ NULL
 #' }
 NULL
 
+# NS_sim ----
+#' Example MizerSim object for the North Sea example
+#'
+#' A MizerSim object containing a simulation with historical fishing
+#' mortalities from the North Sea, as created in the tutorial
+#' "A Multi-Species Model of the North Sea".
+#' @format A MizerSim object
+#' @source \url{https://sizespectrum.org/mizer/articles/a_multispecies_model_of_the_north_sea.html}
+#' @docType data
+#' @name NS_sim
+#' @family example parameter objects
+#' @examples 
+#' \dontrun{
+#' plotBiomass(NS_sim)
+#' }
+NULL
