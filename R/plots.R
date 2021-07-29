@@ -137,6 +137,7 @@ plotDataFrame <-
                  "in the data frame.")
         }
     }
+    frame[[legend_var]] <- as.factor(frame[[legend_var]])
     legend_levels <- levels(frame[[legend_var]])
     
     linecolour <- params@linecolour[legend_levels]
