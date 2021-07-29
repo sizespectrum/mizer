@@ -25,7 +25,9 @@ numeric vector with the species indices, or a logical vector indicating for
 each species whether it is to be selected (TRUE) or not.}
 
 \item{total}{A boolean value that determines whether the total over all
-species in the system is plotted as well. Default is FALSE}
+species in the system is plotted as well. Note that even if the plot
+only shows a selection of species, the total is including all species.
+Default is FALSE.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 
@@ -35,7 +37,9 @@ used for the plot is returned instead of the plot itself. Default value is FALSE
 \item{...}{Other arguments (currently unused)}
 }
 \value{
-A ggplot2 object
+A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
+frame with the four variables 'Year', 'Yield', 'Species' and 'Gear' is
+returned.
 }
 \description{
 After running a projection, the total yield of each species by fishing gear

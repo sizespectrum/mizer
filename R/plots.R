@@ -86,7 +86,94 @@ NULL
 # Hackiness to get past the 'no visible binding ... ' warning when running check
 utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
                          "x", "y", "Year", "Yield", "Biomass", "Size",
-                         "Proportion", "Prey", "legend"))
+                         "Proportion", "Prey", "Legend", "Type", "Gear"))
+
+#' Make a plot from a data frame
+#' 
+#' This is used internally by most plotting functions.
+#' 
+#' @param frame A data frame with at least three variables.
+#'   The first three variables are used, in that order, as:
+#'   1. Variable to be plotted on x-axis
+#'   2. Variable to be plotted on y-axis
+#'   3. Grouping variable
+#' @param params A MizerParams object, which is used for the line colours and
+#'   line types.
+#' @param legend_var The name of the variable that should be used in the legend
+#'   and to determine the line style. If NULL then the grouping variable is
+#'   used for this purpose.
+#' @param wrap_var Optional. The name of the variable that should be used for
+#'  creating wrapped facets.
+#' @param xlab Label for the x-axis
+#' @param ylab Label for the y-axis
+#' @param xtrans Transformation for the x-axis. Often "log10" may be useful
+#'   instead of the default of "identity".
+#' @param ytrans Transformation for the y-axis.
+#' @param y_ticks The approximate number of ticks desired on the y axis
+#' @param highlight Name or vector of names of the species to be highlighted.
+#' @keywords internal
+#' @export
+plotDataFrame <- 
+    function(frame, params, xlab = waiver(), ylab = waiver(),
+             xtrans = "identity", ytrans = "identity", 
+             y_ticks = 6, highlight = NULL,
+             legend_var = NULL, wrap_var = NULL) {
+    assert_that(is.data.frame(frame),
+                is(params, "MizerParams"))
+    if (ncol(frame) < 3) {
+        stop("The data frame needs to have at least 3 variables.")
+    }
+    
+    var_names <- names(frame)
+    x_var <- var_names[[1]]
+    y_var <- var_names[[2]]
+    group_var <- var_names[[3]]
+    if (is.null(legend_var)) {
+        frame$Legend <- frame[[group_var]]
+        legend_var <- "Legend"
+    } else {
+        if (!(legend_var %in% var_names)) {
+            stop("The `legend_var` argument must be the name of a variable ",
+                 "in the data frame.")
+        }
+    }
+    legend_levels <- levels(frame[[legend_var]])
+    
+    linecolour <- params@linecolour[legend_levels]
+    linetype <- params@linetype[legend_levels]
+    linesize <- rep_len(0.8, length(legend_levels))
+    names(linesize) <- legend_levels
+    linesize[highlight] <- 1.6 
+    
+    xbreaks <- waiver()
+    if (xtrans == "log10") xbreaks <- log_breaks()
+    ybreaks <- waiver()
+    if (ytrans == "log10") ybreaks <- log_breaks(n = y_ticks)
+    
+    # The reason why below `group = species` is included in `ggplot()`
+    # rather than in `geom_line` is because that puts it first in the
+    # plotly tooltips, due to a bug in plotly.
+    p <- ggplot(frame, aes(group = .data[[group_var]])) +
+        scale_y_continuous(trans = ytrans, breaks = ybreaks,
+                           labels = prettyNum, name = ylab) +
+        scale_x_continuous(trans = xtrans, name = xlab) +
+        scale_colour_manual(values = linecolour) +
+        scale_linetype_manual(values = linetype) +
+        scale_size_manual(values = linesize) +
+        geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
+                      colour = .data[[legend_var]], 
+                      linetype = .data[[legend_var]], 
+                      size = .data[[legend_var]]))
+    if (!is.null(wrap_var)) {
+        if (!(wrap_var %in% var_names)) {
+            stop("The `wrap_var` argument must be the name of a variable ",
+                 "in the data frame.")
+        }
+        p <- p + facet_wrap(wrap_var)
+    }
+    
+    p
+}
 
 #' Helper function to produce nice breaks on logarithmic axes
 #'
@@ -112,7 +199,7 @@ log_breaks <- function(n = 6) {
 }
 
 
-#' Get data frame of biomass of species through time, ready for ggplot2
+#' Plot the biomass of species through time
 #'
 #' After running a projection, the biomass of each species can be plotted
 #' against time. The biomass is calculated within user defined size limits 
@@ -120,6 +207,7 @@ log_breaks <- function(n = 6) {
 #' 
 #' @param sim An object of class \linkS4class{MizerSim}
 #' @inheritParams valid_species_arg
+#' @inheritParams plotDataFrame
 #' @param start_time The first time to be plotted. Default is the beginning
 #'   of the time series.
 #' @param end_time The last time to be plotted. Default is the end of the
@@ -129,64 +217,12 @@ log_breaks <- function(n = 6) {
 #'   values below 1e-20 are always cut off.
 #' @param total A boolean value that determines whether the total biomass from
 #'   all species is plotted as well. Default is FALSE.
-#' @inheritDotParams get_size_range_array -params
-#'   
-#' @return A data frame
-#' @family frame functions
-#' @keywords internal
-getBiomassFrame <- function(sim,
-            species = NULL,
-            start_time = as.numeric(dimnames(sim@n)[[1]][1]),
-            end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
-            ylim = c(NA, NA), total = FALSE, ...) {
-    species <- valid_species_arg(sim@params, species)
-    b <- getBiomass(sim, ...)
-    if (start_time >= end_time) {
-        stop("start_time must be less than end_time")
-    }
-    # Select time range
-    b <- b[(as.numeric(dimnames(b)[[1]]) >= start_time) &
-               (as.numeric(dimnames(b)[[1]]) <= end_time), , drop = FALSE]
-    b_total <- rowSums(b)
-    # Include total
-    if (total) {
-        b <- cbind(b, Total = b_total)
-        species <- c("Total", species)
-    }
-    bm <- reshape2::melt(b)
-    
-    # Implement ylim and a minimal cutoff
-    min_value <- 1e-20
-    bm <- bm[bm$value >= min_value &
-                 (is.na(ylim[1]) | bm$value >= ylim[1]) &
-                 (is.na(ylim[2]) | bm$value <= ylim[2]), ]
-    names(bm) <- c("Year", "Species", "Biomass")
-    
-    # Force Species column to be a factor (otherwise if numeric labels are
-    # used they may be interpreted as integer and hence continuous).
-    # Need to keep species in order for legend.
-    species_levels <- c(dimnames(sim@n)$sp, "Background", "Resource", "Total")
-    bm$Species <- factor(bm$Species, levels = species_levels)
-    
-    # Select species
-    bm <- bm[bm$Species %in% species, ]
-
-    return(bm)
-}
-
-
-#' Plot the biomass of species through time
-#'
-#' After running a projection, the biomass of each species can be plotted
-#' against time. The biomass is calculated within user defined size limits 
-#' (min_w, max_w, min_l, max_l, see [getBiomass()]). 
-#' 
-#' @inheritParams getBiomassFrame
 #' @inheritParams plotSpectra
-#' @param y_ticks The approximate number of ticks desired on the y axis
 #' @inheritDotParams get_size_range_array -params
 #'   
-#' @return A ggplot2 object
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
+#'   frame with the four variables 'Year', 'Biomass', 'Species', 'Legend' is
+#'   returned.
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions], [getBiomass()]
@@ -206,43 +242,65 @@ plotBiomass <- function(sim, species = NULL,
                         total = FALSE, background = TRUE, 
                         highlight = NULL, return_data = FALSE,
                         ...) {
+    assert_that(is(sim, "MizerSim"))
+    params <- sim@params
     species <- valid_species_arg(sim, species)
-    if (missing(start_time)) start_time <- as.numeric(dimnames(sim@n)[[1]][1])
-    if (missing(end_time)) end_time <- as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]])
-    # First we get the data frame for all species, including the background
-    bm <- getBiomassFrame(sim, species = dimnames(sim@n)$sp,
-                          start_time = start_time,
-                          end_time = end_time,
-                          ylim = ylim, total = total, ...)
+    if (missing(start_time)) start_time <- 
+            as.numeric(dimnames(sim@n)[[1]][1])
+    if (missing(end_time)) end_time <- 
+            as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]])
+    if (start_time >= end_time) {
+        stop("start_time must be less than end_time")
+    }
+    # First we get the data frame for all species, including the background,
+    # for all times but only the desired size range, by passing any size range
+    # arguments on to getBiomass()
+    bm <- getBiomass(sim, ...)
+    # Select time range
+    bm <- bm[(as.numeric(dimnames(bm)[[1]]) >= start_time) &
+               (as.numeric(dimnames(bm)[[1]]) <= end_time), , drop = FALSE]
+
+    # Include total
+    if (total) {
+        bm <- cbind(bm, Total = rowSums(bm))
+    }
+    
+    bm <- reshape2::melt(bm)
+    
+    # Implement ylim and a minimal cutoff and bring columns in desired order
+    min_value <- 1e-20
+    bm <- bm[bm$value >= min_value &
+                 (is.na(ylim[1]) | bm$value >= ylim[1]) &
+                 (is.na(ylim[2]) | bm$value <= ylim[2]), c(1, 3, 2)]
+    names(bm) <- c("Year", "Biomass", "Species")
+    
     # Select species
-    spec_bm <- bm[bm$Species %in% c("Total", species), ]
-    x_label <- "Year"
-    y_label <- "Biomass [g]"
-    p <- ggplot(spec_bm, aes(x = Year, y = Biomass)) +
-        scale_y_continuous(trans = "log10", breaks = log_breaks(n = y_ticks),
-                           labels = prettyNum, name = y_label) +
-        scale_x_continuous(name = x_label) +
-        scale_colour_manual(values = sim@params@linecolour) +
-        scale_linetype_manual(values = sim@params@linetype)
+    plot_dat <- bm[bm$Species %in% c("Total", species), ]
+    plot_dat$Legend <- plot_dat$Species
     
     if (background) {
         # Add background species in light grey
-        back_sp <- dimnames(sim@n)$sp[is.na(sim@params@A)]
-        back_bm <- bm[bm$Species %in% back_sp, ]
-        if (nrow(back_bm) > 0) {
-            p <- p + geom_line(aes(group = Species), data = back_bm,
-                               colour = sim@params@linecolour["Background"],
-                               linetype = sim@params@linetype["Background"])
+        bkgrd_sp <- dimnames(sim@n)$sp[is.na(sim@params@A)]
+        if (length(bkgrd_sp) > 0) {
+            bm_bkgrd <- bm[bm$Species %in% bkgrd_sp, ]
+            bm_bkgrd$Legend <- "Background"
+            plot_dat <- rbind(plot_dat, bm_bkgrd)
         }
     }
     
-    linesize <- rep(0.8, length(sim@params@linetype))
-    names(linesize) <- names(sim@params@linetype)
-    linesize[highlight] <- 1.6
-    p <- p + scale_size_manual(values = linesize) +
-        geom_line(aes(colour = Species, linetype = Species, size = Species))
+    # Need to keep species in order for legend
+    legend_levels <- 
+        intersect(c(dimnames(params@initial_n)$sp,
+                    "Background", "Resource", "Total"),
+                  plot_dat$Legend)
+    plot_dat$Legend <- factor(plot_dat$Legend, levels = legend_levels)
     
-   if (return_data) return(list(spec_bm, back_bm)) else return(p)
+    if (return_data) return(plot_dat) 
+    
+    plotDataFrame(plot_dat, params, xlab = "Year", ylab = "Biomass [g]",
+                  ytrans = "log10", 
+                  y_ticks = y_ticks, highlight = highlight,
+                  legend_var = "Legend")
 }
 
 #' @rdname plotBiomass
@@ -258,7 +316,8 @@ plotlyBiomass <- function(sim,
              highlight = NULL,
              ...) {
     argg <- c(as.list(environment()), list(...))
-    ggplotly(do.call("plotBiomass", argg))
+    ggplotly(do.call("plotBiomass", argg),
+             tooltip = c("Species", "Year", "Biomass"))
 }
 
 
@@ -275,7 +334,8 @@ plotlyBiomass <- function(sim,
 #' @param log Boolean whether yield should be plotted on a logarithmic axis. 
 #'   Defaults to true.
 #'
-#' @return A ggplot2 object
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
+#'   frame with the three variables 'Year', 'Yield', 'Species' is returned.
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions],  [getYield()]
@@ -299,9 +359,9 @@ plotYield <- function(sim, sim2,
                       total = FALSE, log = TRUE,
                       highlight = NULL, return_data = FALSE,
                       ...) {
+    assert_that(is(sim, "MizerSim"))
+    params <- sim@params
     species <- valid_species_arg(sim, species)
-    # Need to keep species in order for legend
-    species_levels <- c(dimnames(sim@n)$sp, "Background", "Resource", "Total")
     if (missing(sim2)) {
         y <- getYield(sim, ...)
         y_total <- rowSums(y)
@@ -311,72 +371,48 @@ plotYield <- function(sim, sim2,
             # Include total
             y <- cbind(y, "Total" = y_total)
         }
-        ym <- reshape2::melt(y, varnames = c("Year", "Species"),
-                             value.name = "Yield")
-        ym$Species <- factor(ym$Species, levels = species_levels)
-        ym <- subset(ym, ym$Yield > 0)
-        if (return_data) return(ym) else
+        plot_dat <- reshape2::melt(y, varnames = c("Year", "Species"),
+                                   value.name = "Yield")
+        plot_dat <- subset(plot_dat, plot_dat$Yield > 0)
+        plot_dat <- plot_dat[, c(1, 3, 2)]
         
-        p <- ggplot(ym) +
-                geom_line(aes(x = Year, y = Yield,
-                              colour = Species, linetype = Species,
-                              size = Species))
-
-        if (log) {
-            p <- p + scale_y_continuous(trans = "log10", name = "Yield [g/year]",
-                                        breaks = log_breaks(),
-                                        labels = prettyNum)
-        } else {
-            p <- p + scale_y_continuous(name = "Yield [g/year]")
+        # Need to keep species in order for legend
+        legend_levels <- 
+            intersect(c(dimnames(params@initial_n)$sp, "Total"),
+                      plot_dat$Species)
+        plot_dat$Species <- factor(plot_dat$Species, levels = legend_levels)
+        
+        if (nrow(plot_dat) == 0) {
+            warning("There is no yield to include.")
         }
-        linesize <- rep(0.8, length(sim@params@linetype))
-        names(linesize) <- names(sim@params@linetype)
-        linesize[highlight] <- 1.6
-        p <- p +
-            scale_colour_manual(values = sim@params@linecolour) +
-            scale_linetype_manual(values = sim@params@linetype) +
-            scale_size_manual(values = linesize)
-        return(p)
+        if (return_data) return(plot_dat)
+        
+        plotDataFrame(plot_dat, params,
+                      ylab = "Yield [g/year]",
+                      ytrans = ifelse(log, "log10", "identity"),
+                      highlight = highlight)
     } else {
+        # We need to combine two plots
         if (!all(dimnames(sim@n)$time == dimnames(sim2@n)$time)) {
             stop("The two simulations do not have the same times")
         }
-        y <- getYield(sim, ...)
-        y2 <- getYield(sim2, ...)
-        y_total <- rowSums(y)
-        y <- y[, (as.character(dimnames(y)[[2]]) %in% species) & colSums(y) > 0,
-               drop = FALSE]
-        y2_total <- rowSums(y2)
-        y2 <- y2[, (as.character(dimnames(y2)[[2]]) %in% species),
-                 drop = FALSE]
-        if (total) {
-            # Include total
-            y <- cbind(y, Total = y_total)
-            y2 <- cbind(y2, Total = y2_total)
-        }
-        ym <- reshape2::melt(y, varnames = c("Year", "Species"),
-                             value.name = "Yield")
-        ym2 <- reshape2::melt(y2, varnames = c("Year", "Species"),
-                              value.name = "Yield")
-        ym$Simulation <- 1
-        ym2$Simulation <- 2
+        ym <- plotYield(sim, species = species,
+                            total = total, log = log,
+                            highlight = highlight, return_data = TRUE, ...)
+        ym2 <- plotYield(sim2, species = species,
+                            total = total, log = log,
+                            highlight = highlight, return_data = TRUE, ...)
+        ym$Simulation <- rep(1, nrow(ym)) # We don't use recycling because that
+                                          # fails when there are zero rows.
+        ym2$Simulation <- rep(2, nrow(ym2))
         ym <- rbind(ym, ym2)
-        ym$Species <- factor(ym$Species, levels = species_levels)
-        ym$Simulation <- as.factor(ym$Simulation)
-        ym <- subset(ym, ym$Yield > 0)
+        
         if (return_data) return(ym)
         
-        p <- ggplot(ym) +
-                geom_line(aes(x = Year, y = Yield, colour = Species,
-                              linetype = Species))
-
-        if (log) {
-            p <- p + scale_y_continuous(trans = "log10", name = "Yield [g/year]")
-        } else {
-            p <- p + scale_y_continuous(name = "Yield [g/year]")
-        }
-        p <- p + facet_wrap(~ Simulation)
-        return(p)
+        plotDataFrame(ym, params,
+                      ylab = "Yield [g/year]",
+                      ytrans = ifelse(log, "log10", "identity"),
+                      highlight = highlight, wrap_var = "Simulation")
     }
 }
 
@@ -387,7 +423,8 @@ plotlyYield <- function(sim, sim2,
                         total = FALSE, log = TRUE,
                         highlight = NULL, ...) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotYield", argg))
+    ggplotly(do.call("plotYield", argg),
+             tooltip = c("Species", "Year", "Yield"))
 }
 
 
@@ -404,7 +441,9 @@ plotlyYield <- function(sim, sim2,
 #' @param sim An object of class \linkS4class{MizerSim}
 #' @inheritParams plotSpectra
 #'
-#' @return A ggplot2 object
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
+#'   frame with the four variables 'Year', 'Yield', 'Species' and 'Gear' is
+#'   returned.
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions],  [getYieldGear()]
@@ -425,33 +464,40 @@ plotYieldGear <- function(sim,
                           highlight = NULL, return_data = FALSE,
                           ...) {
     species <- valid_species_arg(sim, species)
-    # Need to keep species in order for legend
-    species_levels <- c(dimnames(sim@n)$sp, "Background", "Resource", "Total")
     
     y <- getYieldGear(sim, ...)
     y_total <- rowSums(y, dims = 2)
     y <- y[, , dimnames(y)$sp %in% species, drop = FALSE]
     names(dimnames(y))[names(dimnames(y)) == "sp"] <- "Species"
     ym <- reshape2::melt(y)
-    ym$Species <- factor(ym$Species, levels = species_levels)
     if (total) {
         yt <- reshape2::melt(y_total)
         yt$Species <- "Total"
         ym <- rbind(ym, yt)
     }
     ym <- subset(ym, ym$value > 0)
+    
+    ym <- ym[, c(1, 4, 3, 2)]
+    names(ym) <- c("Year", "Yield", "Species", "Gear")
+    
+    # Need to keep species in order for legend
+    species_levels <- intersect(c(dimnames(sim@n)$sp, "Total"),
+                                ym$Species)
+    ym$Species <- factor(ym$Species, levels = species_levels)
+    
     if (return_data) return(ym)
     
+    # This does not use `plotDataFrame()` because it uses Gear to set 
+    # the linetype
     p <- ggplot(ym) +
-            geom_line(aes(x = time, y = value, colour = Species, 
-                          linetype = gear, size = Species))
+            geom_line(aes(x = Year, y = Yield, colour = Species, 
+                          linetype = Gear, size = Species))
 
-    linesize <- rep(0.8, length(sim@params@linetype))
-    names(linesize) <- names(sim@params@linetype)
+    linesize <- rep(0.8, length(species_levels))
+    names(linesize) <- names(sim@params@linetype[species_levels])
     linesize[highlight] <- 1.6
     p <- p + scale_y_continuous(trans = "log10", name = "Yield [g]") +
-        scale_x_continuous(name = "Year") +
-        scale_colour_manual(values = sim@params@linecolour) +
+        scale_colour_manual(values = sim@params@linecolour[species_levels]) +
         scale_size_manual(values = linesize)
     return(p)
 }
@@ -461,7 +507,8 @@ plotYieldGear <- function(sim,
 plotlyYieldGear <- function(sim, species = NULL,
                             total = FALSE, highlight = NULL, ...) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotYieldGear", argg))
+    ggplotly(do.call("plotYieldGear", argg),
+             tooltip = c("Species", "Year", "Yield"))
 }
 
 #' Plot the abundance spectra
@@ -495,7 +542,9 @@ plotlyYieldGear <- function(sim, species = NULL,
 #'   \code{biomass = TRUE} is equivalent to \code{power=1} and 
 #'   \code{biomass = FALSE} is equivalent to \code{power=0}
 #' @param total A boolean value that determines whether the total over all
-#'   species in the system is plotted as well. Default is FALSE
+#'   species in the system is plotted as well. Note that even if the plot
+#'   only shows a selection of species, the total is including all species.
+#'   Default is FALSE.
 #' @param resource A boolean value that determines whether resource is included.
 #'   Default is TRUE.
 #' @param background A boolean value that determines whether background species
@@ -506,7 +555,9 @@ plotlyYieldGear <- function(sim, species = NULL,
 #' used for the plot is returned instead of the plot itself. Default value is FALSE
 #' @param ... Other arguments (currently unused)
 #'   
-#' @return A ggplot2 object
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
+#'   frame with the four variables 'w', 'value', 'Species', 'Legend' is
+#'   returned.
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions]
@@ -592,12 +643,11 @@ plot_spectra <- function(params, n, n_pp,
     # Select only the desired species
     spec_n <- n[as.character(dimnames(n)[[1]]) %in% species, , drop = FALSE]
     # Make data.frame for plot
-    plot_dat <- data.frame(value = c(spec_n),
+    plot_dat <- data.frame(w = rep(params@w,
+                                   each = dim(spec_n)[[1]]),
+                           value = c(spec_n),
                            Species = dimnames(spec_n)[[1]],
-                           Legend = dimnames(spec_n)[[1]],
-                           w = rep(params@w,
-                                   each = dim(spec_n)[[1]])
-                           )
+                           Legend = dimnames(spec_n)[[1]])
     if (resource) {
         resource_sel <- (params@w_full >= wlim[1]) & 
                         (params@w_full <= wlim[2])
@@ -606,30 +656,30 @@ plot_spectra <- function(params, n, n_pp,
             w_resource <- params@w_full[resource_sel]
             plank_n <- n_pp[resource_sel] * w_resource^power
             plot_dat <- rbind(plot_dat,
-                              data.frame(value = c(plank_n),
+                              data.frame(w = w_resource,
+                                         value = c(plank_n),
                                          Species = "Resource",
-                                         Legend = "Resource",
-                                         w = w_resource)
+                                         Legend = "Resource")
             )
         }
     }
     if (total) {
         plot_dat <- rbind(plot_dat,
-                          data.frame(value = c(total_n),
+                          data.frame(w = params@w_full,
+                                     value = c(total_n),
                                      Species = "Total",
-                                     Legend = "Total",
-                                     w = params@w_full)
+                                     Legend = "Total")
                           )
     }
     if (background && anyNA(params@A)) {
         back_n <- n[is.na(params@A), , drop = FALSE]
         plot_dat <- 
             rbind(plot_dat,
-                  data.frame(value = c(back_n),
+                  data.frame(w = rep(params@w,
+                                     each = dim(back_n)[[1]]),
+                             value = c(back_n),
                              Species = as.factor(dimnames(back_n)[[1]]),
-                             Legend = "Background",
-                             w = rep(params@w,
-                                     each = dim(back_n)[[1]]))
+                             Legend = "Background")
             )
     }
     # lop off 0s and apply wlim
@@ -653,24 +703,10 @@ plot_spectra <- function(params, n, n_pp,
     plot_dat$Legend <- factor(plot_dat$Legend, levels = legend_levels)
     
     if (return_data) return(plot_dat) 
-
-    # Create plot
-    linecolour <- params@linecolour[legend_levels]
-    linetype <- params@linetype[legend_levels]
-    linesize <- rep_len(0.8, length(legend_levels))
-    names(linesize) <- legend_levels
-    linesize[highlight] <- 1.6
     
-    ggplot(plot_dat, aes(x = w, y = value)) +
-        scale_x_continuous(name = "Size [g]", trans = "log10",
-                           breaks = log_breaks()) +
-        scale_y_continuous(name = y_label, trans = "log10",
-                           breaks = log_breaks()) +
-        scale_colour_manual(values = linecolour) +
-        scale_linetype_manual(values = linetype) +
-        scale_size_manual(values = linesize) + 
-        geom_line(aes(group = Species,
-                      colour = Legend, linetype = Legend, size = Legend))
+    plotDataFrame(plot_dat, params, xlab = "Size [g]", ylab = y_label,
+                  xtrans = "log10", ytrans = "log10", 
+                  highlight = highlight, legend_var = "Legend")
 }
 
 #' @rdname plotSpectra
@@ -683,7 +719,8 @@ plotlySpectra <- function(object, species = NULL,
                         background = TRUE,
                         highlight = NULL, ...) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotSpectra", argg))
+    ggplotly(do.call("plotSpectra", argg),
+             tooltip = c("Species", "w", "value"))
 }
 
 #' Plot the feeding level of species by size
@@ -709,7 +746,10 @@ plotlySpectra <- function(object, species = NULL,
 #' @param include_critical If TRUE, then the critical feeding level is also
 #'   plotted. Default FALSE.
 #'
-#' @return A ggplot2 object
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
+#'   frame with the variables 'w', 'value' and 'Species' is returned. If also
+#'   `include_critical = TRUE` then the data frame contains a fourth variable
+#'   'Type' that distinguishes between 'actual' and 'critical' feeding level.
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions], [getFeedingLevel()]
@@ -748,70 +788,66 @@ plotFeedingLevel <- function(object, species = NULL,
     sel_sp <- valid_species_arg(params, species, return.logical = TRUE)
     species <- dimnames(params@initial_n)$sp[sel_sp]
     feed <- feed[sel_sp, , drop = FALSE]
-    plot_dat <- data.frame(value = c(feed),
-                           # ggplot orders the legend according to the ordering
-                           # of the factors, hence we need the levels argument
-                           Species = factor(dimnames(feed)$sp, 
-                                            levels = dimnames(feed)$sp),
-                           w = rep(params@w, each = length(species)))
+    
+    plot_dat <- data.frame(w = rep(params@w, each = length(species)),
+                           value = c(feed),
+                           Species = species)
+    
+    if (include_critical) {
+        feed_crit <- getCriticalFeedingLevel(params)[sel_sp, , drop = FALSE]
+        plot_dat_crit <- data.frame(
+            w = rep(params@w, each = length(species)),
+            value = c(feed_crit),
+            Species = species)
+        plot_dat$Type <- "actual"
+        plot_dat_crit$Type <- "critical"
+        plot_dat <- rbind(plot_dat, plot_dat_crit)
+    }
     
     if (!all.sizes) {
         # Remove feeding level for sizes outside a species' size range
         for (sp in species) {
             plot_dat$value[plot_dat$Species == sp &
-                           (plot_dat$w < params@species_params[sp, "w_min"] |
-                            plot_dat$w > params@species_params[sp, "w_inf"])] <- NA
+                               (plot_dat$w < params@species_params[sp, "w_min"] |
+                                    plot_dat$w > params@species_params[sp, "w_inf"])] <- NA
         }
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
-    if (return_data) return(plot_dat) else 
     
+    if (return_data) return(plot_dat)
+    
+    # Need to keep species in order for legend
+    legend_levels <- 
+        intersect(c(dimnames(params@initial_n)$sp,
+                    "Background", "Resource", "Total"),
+                  plot_dat$Species)
+    plot_dat$Legend <- factor(plot_dat$Species, levels = legend_levels)
+    linesize <- rep(0.8, length(legend_levels))
+    names(linesize) <- names(params@linetype[legend_levels])
+    linesize[highlight] <- 1.6
+    
+    # We do not use `plotDataFrame()` to create the plot because it would not
+    # handle the alpha transparency for the critical feeding level.
+    
+    # The reason why below `group = species` is included in `ggplot()`
+    # rather than in `geom_line` is because that puts it first in the
+    # plotly tooltips, due to a bug in plotly.
     if (include_critical) {
-        feed_crit <- getCriticalFeedingLevel(params)[sel_sp, , drop = FALSE]
-        plot_dat_crit <- data.frame(
-            value = c(feed_crit),
-            Species = factor(dimnames(feed)$sp, 
-                             levels = dimnames(feed)$sp),
-            w = rep(params@w, each = length(species)))
-        
-        if (!all.sizes) {
-            # Remove feeding level for sizes outside a species' size range
-            for (sp in species) {
-                plot_dat_crit$value[
-                    plot_dat_crit$Species == sp &
-                        (plot_dat_crit$w < params@species_params[sp, "w_min"] |
-                             plot_dat_crit$w > params@species_params[sp, "w_inf"])] <- NA
-            }
-            plot_dat_crit <- plot_dat_crit[complete.cases(plot_dat_crit), ]
-        }
-        p <- ggplot() +
-            geom_line(aes(x = w, y = value, colour = Species, 
-                          linetype = Species, size = Species,
-                          alpha = "actual"),
-                      data = plot_dat) +
-            geom_line(aes(x = w, y = value, colour = Species, 
-                          linetype = Species, alpha = "critical"),
-                      data = plot_dat_crit) +
+        plot_dat$Species <- interaction(plot_dat$Species, plot_dat$Type)
+        p <- ggplot(plot_dat, aes(group = Species,
+                                  alpha = Type)) +
             scale_discrete_manual("alpha", name = "Feeding Level", 
                                   values = c(actual = 1, critical = 0.5))
     } else {
-        p <- ggplot() +
-            geom_line(aes(x = w, y = value, colour = Species, 
-                          linetype = Species, size = Species),
-                      data = plot_dat)
+        p <- ggplot(plot_dat, aes(group = Species))
     }
-
-    linesize <- rep(0.8, length(params@linetype))
-    names(linesize) <- names(params@linetype)
-    linesize[highlight] <- 1.6
-    p <- p +
+    p + geom_line(aes(x = w, y = value,
+                      colour = Legend, linetype = Legend, size = Legend)) +
         scale_x_continuous(name = "Size [g]", trans = "log10") +
         scale_y_continuous(name = "Feeding Level", limits = c(0, 1)) +
-        scale_colour_manual(values = params@linecolour) +
-        scale_linetype_manual(values = params@linetype) +
+        scale_colour_manual(values = params@linecolour[legend_levels]) +
+        scale_linetype_manual(values = params@linetype[legend_levels]) +
         scale_size_manual(values = linesize)
-    
-    return(p)
 }
 
 #' @rdname plotFeedingLevel
@@ -822,9 +858,9 @@ plotlyFeedingLevel <- function(object,
                              highlight = NULL, 
                              include_critical, ...) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotFeedingLevel", argg))
+    ggplotly(do.call("plotFeedingLevel", argg),
+             tooltip = c("Species", "w", "value"))
 }
-    
 
 #' Plot predation mortality rate of each species against size
 #' 
@@ -836,7 +872,8 @@ plotlyFeedingLevel <- function(object,
 #' @param all.sizes If TRUE, then predation mortality is plotted also for sizes
 #'   outside a species' size range. Default FALSE.
 #'
-#' @return A ggplot2 object
+#' @return  A ggplot2 object, unless `return_data = TRUE`, in which case a data
+#'   frame with the three variables 'w', 'value', 'Species' is returned.
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions],  [getPredMort()]
@@ -870,14 +907,11 @@ plotPredMort <- function(object, species = NULL,
     }
     
     species <- valid_species_arg(params, species)
-    # Need to keep species in order for legend
-    species_levels <- c(as.character(params@species_params$species), 
-                        "Background", "Resource", "Total")
     pred_mort <- pred_mort[as.character(dimnames(pred_mort)[[1]]) %in% species, , drop = FALSE]
-    plot_dat <- data.frame(value = c(pred_mort),
-                           Species = factor(dimnames(pred_mort)[[1]],
-                                            levels = species_levels),
-                           w = rep(params@w, each = length(species)))
+    plot_dat <- data.frame(
+        w = rep(params@w, each = length(species)),
+        value = c(pred_mort),
+        Species = species)
     
     if (!all.sizes) {
         # Remove feeding level for sizes outside a species' size range
@@ -888,23 +922,23 @@ plotPredMort <- function(object, species = NULL,
         }
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
+    
+    # Need to keep species in order for legend
+    legend_levels <- 
+        intersect(c(dimnames(params@initial_n)$sp,
+                    "Background", "Resource", "Total"),
+                  plot_dat$Species)
+    plot_dat$Species <- factor(plot_dat$Species, levels = legend_levels)
+
     if (return_data) return(plot_dat)
     
-    p <- ggplot(plot_dat) +
-            geom_line(aes(x = w, y = value, colour = Species, 
-                          linetype = Species, size = Species))
-
-    linesize <- rep(0.8, length(params@linetype))
-    names(linesize) <- names(params@linetype)
-    linesize[highlight] <- 1.6
-    p <- p +
-        scale_x_continuous(name = "Size [g]", trans = "log10") +
-        scale_y_continuous(name = "Predation mortality [1/year]",
-                           limits = c(0, max(plot_dat$value))) +
-        scale_colour_manual(values = params@linecolour) +
-        scale_linetype_manual(values = params@linetype) +
-        scale_size_manual(values = linesize)
-    return(p)
+    p <- plotDataFrame(plot_dat, params, xlab = "Size [g]", xtrans = "log10",
+                       highlight = highlight)
+    suppressMessages(
+        p <- p + scale_y_continuous(labels = prettyNum, 
+                                    name = "Predation mortality [1/year]",
+                                    limits = c(0, max(plot_dat$value))))
+    p
 }
 
 #' Alias for `plotPredMort()`
@@ -922,7 +956,8 @@ plotlyPredMort <- function(object, species = NULL,
                            time_range,
                            highlight = NULL, ...) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotPredMort", argg))
+    ggplotly(do.call("plotPredMort", argg),
+             tooltip = c("Species", "w", "value"))
 }
 
 #' Plot total fishing mortality of each species by size
@@ -935,7 +970,8 @@ plotlyPredMort <- function(object, species = NULL,
 #' @inheritParams plotSpectra
 #' @param all.sizes If TRUE, then fishing mortality is plotted also for sizes
 #'   outside a species' size range. Default FALSE.
-#' @return A ggplot2 object
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
+#'   frame with the three variables 'w', 'value', 'Species' is returned.
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions], [getFMort()]
@@ -968,14 +1004,10 @@ plotFMort <- function(object, species = NULL,
         f <- apply(f, c(2, 3), mean)
     }
     species <- valid_species_arg(params, species)
-    # Need to keep species in order for legend
-    species_levels <- c(as.character(params@species_params$species), 
-                        "Background", "Resource", "Total")
     f <- f[as.character(dimnames(f)[[1]]) %in% species, , drop = FALSE]
-    plot_dat <- data.frame(value = c(f),
-                           Species = factor(dimnames(f)[[1]],
-                                            levels = species_levels),
-                           w = rep(params@w, each = length(species)))
+    plot_dat <- data.frame(w = rep(params@w, each = length(species)),
+                           value = c(f),
+                           Species = species)
     
     if (!all.sizes) {
         # Remove feeding level for sizes outside a species' size range
@@ -986,25 +1018,18 @@ plotFMort <- function(object, species = NULL,
         }
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
+    
+    # Need to keep species in order for legend
+    legend_levels <- 
+        intersect(c(dimnames(params@initial_n)$sp,
+                    "Background", "Resource", "Total"),
+                  plot_dat$Species)
+    plot_dat$Species <- factor(plot_dat$Species, levels = legend_levels)
+    
     if (return_data) return(plot_dat)
     
-    linesize <- rep(0.8, length(params@linetype))
-    names(linesize) <- names(params@linetype)
-    linesize[highlight] <- 1.6
-    p <- ggplot(plot_dat) +
-            geom_line(aes(x = w, y = value, colour = Species, 
-                          linetype = Species, size = Species))
-
-    p <- p +
-        scale_x_continuous(name = "Size [g]", trans = "log10") +
-        scale_y_continuous(name = "Fishing mortality [1/Year]",
-                           limits = c(0, max(plot_dat$value))) +
-        scale_colour_manual(values = params@linecolour) +
-        scale_linetype_manual(values = params@linetype) + 
-        scale_size_manual(values = linesize)
-    
-    return(p)
-    
+    plotDataFrame(plot_dat, params, xlab = "Size [g]", xtrans = "log10",
+                  ylab = "Fishing mortality [1/Year]", highlight = highlight)
 }
 
 #' @rdname plotFMort
@@ -1013,7 +1038,8 @@ plotlyFMort <- function(object, species = NULL,
                         time_range,
                         highlight = NULL, ...) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotFMort", argg))
+    ggplotly(do.call("plotFMort", argg),
+             tooltip = c("Species", "w", "value"))
 }
 
 
@@ -1054,7 +1080,8 @@ plotGrowthCurves <- function(object, species = NULL,
     if (is(object, "MizerSim")) {
         params <- object@params
         t <- dim(object@n)[1]
-        params@initial_n[] <- object@n[t, , ] # Designed to work also with single species
+        params@initial_n[] <- object@n[t, , ] # Designed to work also
+                                              # with single species
         params@initial_n_pp <- object@n_pp[t, ]
     } else if (is(object, "MizerParams")) {
         params <- validParams(object)
@@ -1063,7 +1090,7 @@ plotGrowthCurves <- function(object, species = NULL,
     ws <- getGrowthCurves(params, species, max_age, percentage)
     plot_dat <- reshape2::melt(ws)
     plot_dat$Species <- factor(plot_dat$Species, params@species_params$species)
-    plot_dat$legend <- "model"
+    plot_dat$Legend <- "model"
     
     # creating some VB
     if (all(c("a", "b", "k_vb") %in% names(params@species_params))) {
@@ -1089,24 +1116,30 @@ plotGrowthCurves <- function(object, species = NULL,
                                        (as.numeric(x[2]) - VBdf$t0[sel])))
                       VBdf$a[sel] * length ^ VBdf$b[sel]
                   })
-        plot_dat2$legend <- "von Bertalanffy"
+        plot_dat2$Legend <- "von Bertalanffy"
         plot_dat <- rbind(plot_dat,plot_dat2)
     }
     if (return_data) return(plot_dat)
     
-    p <- ggplot(filter(plot_dat, legend == "model")) + 
+    p <- ggplot(filter(plot_dat, Legend == "model")) + 
         geom_line(aes(x = Age, y = value, 
                       colour = Species, linetype = Species, size = Species))
     y_label <- if (percentage) 
         "Percent of maximum size"
     else "Size [g]"
-    linesize <- rep(0.8, length(params@linetype))
-    names(linesize) <- names(params@linetype)
+    # Need to keep species in order for legend
+    legend_levels <- 
+        intersect(c(dimnames(params@initial_n)$sp,
+                    "Background", "Resource", "Total"),
+                  plot_dat$Species)
+    plot_dat$Species <- factor(plot_dat$Species, levels = legend_levels)
+    linesize <- rep(0.8, length(legend_levels))
+    names(linesize) <- names(params@linetype[legend_levels])
     linesize[highlight] <- 1.6
     p <- p + scale_x_continuous(name = "Age [Years]") + 
         scale_y_continuous(name = y_label) + 
-        scale_colour_manual(values = params@linecolour) + 
-        scale_linetype_manual(values = params@linetype) + 
+        scale_colour_manual(values = params@linecolour[legend_levels]) + 
+        scale_linetype_manual(values = params@linetype[legend_levels]) + 
         scale_size_manual(values = linesize)
     
     # starting cases now
@@ -1120,14 +1153,14 @@ plotGrowthCurves <- function(object, species = NULL,
             p <- p + geom_hline(yintercept = w_mat, linetype = "dashed", 
                                 colour = "grey") + 
                 annotate("text", 0, w_mat, vjust = -1, label = "Maturity")
-            if ("von Bertalanffy" %in% plot_dat$legend) 
-                p <- p + geom_line(data = filter(plot_dat, legend == "von Bertalanffy"), 
+            if ("von Bertalanffy" %in% plot_dat$Legend) 
+                p <- p + geom_line(data = filter(plot_dat, Legend == "von Bertalanffy"), 
                                    aes(x = Age, y = value))
             
         } else if (species_panel) { # need to add either no panel if no param 
                                     # for VB or create a panel without VB
             p <- ggplot(plot_dat) +
-                geom_line(aes(x = Age, y = value , colour = legend)) +
+                geom_line(aes(x = Age, y = value , colour = Legend)) +
                 scale_x_continuous(name = "Age [years]") +
                 scale_y_continuous(name = "Size [g]") +
                 geom_hline(aes(yintercept = w_mat),
@@ -1156,7 +1189,8 @@ plotlyGrowthCurves <- function(object, species = NULL,
                                species_panel = FALSE,
                                highlight = NULL) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotGrowthCurves", argg))
+    ggplotly(do.call("plotGrowthCurves", argg),
+             tooltip = c("Species", "Age", "value"))
 }
 
 
@@ -1167,10 +1201,14 @@ plotlyGrowthCurves <- function(object, species = NULL,
 #' biomass consumed by the specified predator species, as a function of the
 #' predator's size. These proportions are obtained with `getDiet()`.
 #' 
+#' Prey species that contribute less than 1 permille to the diet are suppressed
+#' in the plot.
+#' 
 #' @inheritParams plotSpectra
 #' @param species The name of the predator species for which to plot the diet.
 #'
-#' @return A ggplot2 object
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
+#'   frame with the three variables 'w', 'Proportion', 'Prey' is returned.
 #' @export
 #' @seealso [getDiet()]
 #' @family plotting functions
@@ -1187,19 +1225,23 @@ plotDiet <- function(object, species = NULL, return_data = FALSE) {
     species <- valid_species_arg(object, species, return.logical = TRUE)
     diet <- getDiet(params)[species, , ]
     prey <- dimnames(diet)$prey
+    # the plot looks better upsided down
     prey <- factor(prey, levels = rev(prey))
     plot_dat <- data.frame(
-        Proportion = c(diet),
         w = params@w,
+        Proportion = c(diet),
         Prey = rep(prey, each = length(params@w)))
-    plot_dat <- plot_dat[plot_dat$Proportion > 0, ]
+    plot_dat <- plot_dat[plot_dat$Proportion > 0.001, ]
     if (return_data) return(plot_dat)
     
+    legend_levels <- 
+        intersect(c(dimnames(params@initial_n)$sp, "Resource"),
+                  plot_dat$Prey)
     ggplot(plot_dat) +
         geom_area(aes(x = w, y = Proportion, fill = Prey)) +
         scale_x_log10() +
         labs(x = "Size [g]") +
-        scale_fill_manual(values = params@linecolour)
+        scale_fill_manual(values = params@linecolour[legend_levels])
 }
 
 

@@ -78,7 +78,9 @@ over \code{max_w}.}
   }}
 }
 \value{
-A ggplot2 object
+A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
+frame with the four variables 'Year', 'Biomass', 'Species', 'Legend' is
+returned.
 }
 \description{
 After running a projection, the biomass of each species can be plotted
