@@ -88,10 +88,8 @@ against time. The biomass is calculated within user defined size limits
 \examples{
 \donttest{
 plotBiomass(NS_sim)
-plotBiomass(NS_sim, species = c("Cod", "Haddock"), total = TRUE)
-plotBiomass(NS_sim, min_w = 10, max_w = 1000)
+plotBiomass(NS_sim, species = c("Sandeel", "Herring"), total = TRUE)
 plotBiomass(NS_sim, start_time = 1980, end_time = 1990)
-plotBiomass(NS_sim, y_ticks = 2)
 
 # Returning the data frame
 fr <- plotBiomass(sim, return_data = TRUE)

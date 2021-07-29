@@ -13,7 +13,7 @@
 #' * `feeding_level` from [mizerFeedingLevel()]
 #' * `pred_rate` from [mizerPredRate()]
 #' * `pred_mort` from [mizerPredMort()]
-#' * `fishing_mort` from [mizerFMort()]
+#' * `f_mort` from [mizerFMort()]
 #' * `mort` from [mizerMort()]
 #' * `resource_mort` from [mizerResourceMort()]
 #' * `e` from [mizerEReproAndGrowth()]

@@ -319,6 +319,7 @@ getYield <- function(sim) {
 #' growth_curves <- getGrowthCurves(NS_params, species = c("Cod", "Haddock"))
 #' str(growth_curves)
 #' 
+#' library(ggplot2)
 #' ggplot(melt(growth_curves)) +
 #'   geom_line(aes(Age, value)) +
 #'   facet_wrap(~ Species, scales = "free") +
