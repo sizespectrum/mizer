@@ -266,6 +266,7 @@ getN <- function(sim, ...) {
 #' yield["1972", "Herring", "Herring"]
 #' # (In this example MizerSim object each species was set up with its own gear)
 getYieldGear <- function(sim) {
+    assert_that(is(sim, "MizerSim"))
     biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
     f_gear <- getFMortGear(sim)
     yield_species_gear <- apply(sweep(f_gear, c(1, 3, 4), biomass, "*"),
@@ -291,6 +292,7 @@ getYieldGear <- function(sim) {
 #' yield <- getYield(NS_sim)
 #' yield[c("1972", "2010"), c("Herring", "Cod")]
 getYield <- function(sim) {
+    assert_that(is(sim, "MizerSim"))
     biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
     f <- getFMort(sim, drop = FALSE)
     yield <- apply(f * biomass,
@@ -334,6 +336,9 @@ getGrowthCurves <- function(object,
         params <- validParams(object)
         n <- object@initial_n
         n_pp <- object@initial_n_pp
+    } else {
+        stop("The first argument to `getGrowthCurves()` must be a ",
+             "MizerParams or a MizerSim object.")
     }
     species <- valid_species_arg(params, species)
     # reorder list of species to coincide with order in params
@@ -548,6 +553,7 @@ getProportionOfLargeFish <- function(sim,
                                      species = NULL, 
                                      threshold_w = 100, threshold_l = NULL, 
                                      biomass_proportion = TRUE, ...) {
+    assert_that(is(sim, "MizerSim"))
     species <- valid_species_arg(sim, species)
     
     total_size_range <- get_size_range_array(sim@params, ...)
@@ -607,6 +613,7 @@ getProportionOfLargeFish <- function(sim,
 #' getMeanWeight(NS_sim, species = c("Herring", "Sprat", "N.pout"))[years]
 #' getMeanWeight(NS_sim, min_w = 10, max_w = 5000)[years]
 getMeanWeight <- function(sim, species = NULL, ...){
+    assert_that(is(sim, "MizerSim"))
     species <- valid_species_arg(sim, species)
     n_species <- getN(sim, ...)
     biomass_species <- getBiomass(sim, ...)
@@ -646,7 +653,8 @@ getMeanWeight <- function(sim, species = NULL, ...){
 #' getMeanMaxWeight(NS_sim, min_w = 10, max_w = 5000)[years, ]
 getMeanMaxWeight <- function(sim, species = NULL, 
                              measure = "both", ...) {
-    if (!(measure %in% c("both","numbers","biomass"))) {
+    assert_that(is(sim, "MizerSim"))
+    if (!(measure %in% c("both", "numbers", "biomass"))) {
         stop("measure must be one of 'both', 'numbers' or 'biomass'")
     }
     species <- valid_species_arg(sim, species)
@@ -708,6 +716,7 @@ getMeanMaxWeight <- function(sim, species = NULL,
 #' slope_biomass[1, ] # in 1976
 getCommunitySlope <- function(sim, species = NULL,
                               biomass = TRUE, ...) {
+    assert_that(is(sim, "MizerSim"))
     species <- valid_species_arg(sim, species)
     size_range <- get_size_range_array(sim@params, ...)
     # set entries for unwanted sizes to zero and sum over wanted species, giving
