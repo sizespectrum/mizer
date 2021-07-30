@@ -137,8 +137,11 @@ plotDataFrame <-
                  "in the data frame.")
         }
     }
-    frame[[legend_var]] <- as.factor(frame[[legend_var]])
-    legend_levels <- levels(frame[[legend_var]])
+    
+    # Need to keep species in order for legend
+    legend_levels <- 
+        intersect(names(params@linecolour), frame[[legend_var]])
+    frame[[legend_var]] <- factor(frame[[legend_var]], levels = legend_levels)
     
     linecolour <- params@linecolour[legend_levels]
     linetype <- params@linetype[legend_levels]
@@ -289,13 +292,6 @@ plotBiomass <- function(sim, species = NULL,
         }
     }
     
-    # Need to keep species in order for legend
-    legend_levels <- 
-        intersect(c(dimnames(params@initial_n)$sp,
-                    "Background", "Resource", "Total"),
-                  plot_dat$Legend)
-    plot_dat$Legend <- factor(plot_dat$Legend, levels = legend_levels)
-    
     if (return_data) return(plot_dat) 
     
     plotDataFrame(plot_dat, params, xlab = "Year", ylab = "Biomass [g]",
@@ -375,13 +371,8 @@ plotYield <- function(sim, sim2,
         plot_dat <- reshape2::melt(y, varnames = c("Year", "Species"),
                                    value.name = "Yield")
         plot_dat <- subset(plot_dat, plot_dat$Yield > 0)
+        # plotDataFrame() needs the columns in a particular order
         plot_dat <- plot_dat[, c(1, 3, 2)]
-        
-        # Need to keep species in order for legend
-        legend_levels <- 
-            intersect(c(dimnames(params@initial_n)$sp, "Total"),
-                      plot_dat$Species)
-        plot_dat$Species <- factor(plot_dat$Species, levels = legend_levels)
         
         if (nrow(plot_dat) == 0) {
             warning("There is no yield to include.")
@@ -464,6 +455,8 @@ plotYieldGear <- function(sim,
                           total = FALSE,
                           highlight = NULL, return_data = FALSE,
                           ...) {
+    assert_that(is(sim, "MizerSim"))
+    params <- sim@params
     species <- valid_species_arg(sim, species)
     
     y <- getYieldGear(sim, ...)
@@ -481,26 +474,22 @@ plotYieldGear <- function(sim,
     ym <- ym[, c(1, 4, 3, 2)]
     names(ym) <- c("Year", "Yield", "Species", "Gear")
     
-    # Need to keep species in order for legend
-    species_levels <- intersect(c(dimnames(sim@n)$sp, "Total"),
-                                ym$Species)
-    ym$Species <- factor(ym$Species, levels = species_levels)
-    
     if (return_data) return(ym)
     
     # This does not use `plotDataFrame()` because it uses Gear to set 
     # the linetype
-    p <- ggplot(ym) +
-            geom_line(aes(x = Year, y = Yield, colour = Species, 
-                          linetype = Gear, size = Species))
-
+    # Need to keep species in order for legend
+    species_levels <- intersect(names(params@linecolour), ym$Species)
+    ym$Species <- factor(ym$Species, levels = species_levels)
     linesize <- rep(0.8, length(species_levels))
-    names(linesize) <- names(sim@params@linetype[species_levels])
+    names(linesize) <- names(params@linetype[species_levels])
     linesize[highlight] <- 1.6
-    p <- p + scale_y_continuous(trans = "log10", name = "Yield [g]") +
-        scale_colour_manual(values = sim@params@linecolour[species_levels]) +
+    ggplot(ym) +
+        geom_line(aes(x = Year, y = Yield, colour = Species,
+                      linetype = Gear, size = Species)) +
+        scale_y_continuous(trans = "log10", name = "Yield [g]") +
+        scale_colour_manual(values = params@linecolour[species_levels]) +
         scale_size_manual(values = linesize)
-    return(p)
 }
 
 #' @rdname plotYieldGear
@@ -601,7 +590,7 @@ plotSpectra <- function(object, species = NULL,
                            background = background, highlight = highlight, 
                            return_data = return_data)
         return(ps)
-    } else {
+    } else if (is(object, "MizerParams")) {
         ps <- plot_spectra(object, n = object@initial_n,
                            n_pp = object@initial_n_pp,
                            species = species, wlim = wlim, ylim = ylim,
@@ -609,6 +598,9 @@ plotSpectra <- function(object, species = NULL,
                            background = background, highlight = highlight, 
                            return_data = return_data)
         return(ps)
+    } else {
+        stop("First argument of `plotSpectra()` needs to be a MizerSim or ",
+             "a MizerParams object.")
     }
 }
 
@@ -696,13 +688,6 @@ plot_spectra <- function(params, n, n_pp,
     }
     plot_dat <- plot_dat[plot_dat$value > ylim[1], ]
     
-    # Need to keep species in order for legend
-    legend_levels <- 
-        intersect(c(dimnames(params@initial_n)$sp,
-                        "Background", "Resource", "Total"),
-                  plot_dat$Legend)
-    plot_dat$Legend <- factor(plot_dat$Legend, levels = legend_levels)
-    
     if (return_data) return(plot_dat) 
     
     plotDataFrame(plot_dat, params, xlab = "Size [g]", ylab = y_label,
@@ -776,7 +761,7 @@ plotFeedingLevel <- function(object, species = NULL,
         }
         params <- validParams(object@params)
         feed <- getFeedingLevel(object, time_range = time_range, drop = FALSE)
-    } else {
+    } else if (is(object, "MizerParams")) {
         params <- validParams(object)
         feed <- getFeedingLevel(params, drop = FALSE)
     }
@@ -819,9 +804,7 @@ plotFeedingLevel <- function(object, species = NULL,
     
     # Need to keep species in order for legend
     legend_levels <- 
-        intersect(c(dimnames(params@initial_n)$sp,
-                    "Background", "Resource", "Total"),
-                  plot_dat$Species)
+        intersect(names(params@linecolour), plot_dat$Species)
     plot_dat$Legend <- factor(plot_dat$Species, levels = legend_levels)
     linesize <- rep(0.8, length(legend_levels))
     names(linesize) <- names(params@linetype[legend_levels])
@@ -923,13 +906,6 @@ plotPredMort <- function(object, species = NULL,
         }
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
-    
-    # Need to keep species in order for legend
-    legend_levels <- 
-        intersect(c(dimnames(params@initial_n)$sp,
-                    "Background", "Resource", "Total"),
-                  plot_dat$Species)
-    plot_dat$Species <- factor(plot_dat$Species, levels = legend_levels)
 
     if (return_data) return(plot_dat)
     
@@ -1019,13 +995,6 @@ plotFMort <- function(object, species = NULL,
         }
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
-    
-    # Need to keep species in order for legend
-    legend_levels <- 
-        intersect(c(dimnames(params@initial_n)$sp,
-                    "Background", "Resource", "Total"),
-                  plot_dat$Species)
-    plot_dat$Species <- factor(plot_dat$Species, levels = legend_levels)
     
     if (return_data) return(plot_dat)
     
@@ -1236,8 +1205,7 @@ plotDiet <- function(object, species = NULL, return_data = FALSE) {
     if (return_data) return(plot_dat)
     
     legend_levels <- 
-        intersect(c(dimnames(params@initial_n)$sp, "Resource"),
-                  plot_dat$Prey)
+        intersect(names(params@linecolour), plot_dat$Prey)
     ggplot(plot_dat) +
         geom_area(aes(x = w, y = Proportion, fill = Prey)) +
         scale_x_log10() +
