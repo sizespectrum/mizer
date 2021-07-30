@@ -622,7 +622,7 @@ emptyParams <- function(species_params,
         linecolour <- rep(colour_palette, length.out = no_sp)
     }
     names(linecolour) <- as.character(species_names)
-    linecolour <- c(linecolour, "Total" = "black", "Resource" = "green",
+    linecolour <- c(linecolour, "Resource" = "green", "Total" = "black",
                     "Background" = "grey", "Fishing" = "red")
     
     if ("linetype" %in% names(species_params)) {
@@ -632,7 +632,7 @@ emptyParams <- function(species_params,
         linetype <- rep(type_palette, length.out = no_sp)
     }
     names(linetype) <- as.character(species_names)
-    linetype <- c(linetype, "Total" = "solid", "Resource" = "solid",
+    linetype <- c(linetype, "Resource" = "solid", "Total" = "solid",
                   "Background" = "solid", "Fishing" = "solid")
     
     # Make object ----
@@ -699,6 +699,9 @@ emptyParams <- function(species_params,
 
 #' Set line colours to be used in mizer plots
 #' 
+#' Colours for names that already had a colour set will be overwritten by
+#' the colour you specify. Colours for names that did not yet have a colour
+#' will be appended to the list of colours.
 #' @param params A MizerParams object
 #' @param colours A named list or named vector of line colours.
 #' 
@@ -732,6 +735,9 @@ validColour <- function(colour) {
 
 #' Set linetypes to be used in mizer plots
 #' 
+#' Linetypes for names that already had a linetype set will be overwritten by
+#' the linetype you specify. Linetypes for names that did not yet have a 
+#' linetype will be appended to the list of linetypes.
 #' @param params A MizerParams object
 #' @param linetypes A named list or named vector of linetypes.
 #' 
