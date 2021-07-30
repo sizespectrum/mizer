@@ -94,7 +94,7 @@ plotBiomass(NS_sim, species = c("Sandeel", "Herring"), total = TRUE)
 plotBiomass(NS_sim, start_time = 1980, end_time = 1990)
 
 # Returning the data frame
-fr <- plotBiomass(sim, return_data = TRUE)
+fr <- plotBiomass(NS_sim, return_data = TRUE)
 str(fr)
 }
 }

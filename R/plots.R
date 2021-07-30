@@ -113,11 +113,10 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #' @param highlight Name or vector of names of the species to be highlighted.
 #' @keywords internal
 #' @export
-plotDataFrame <- 
-    function(frame, params, xlab = waiver(), ylab = waiver(),
-             xtrans = "identity", ytrans = "identity", 
-             y_ticks = 6, highlight = NULL,
-             legend_var = NULL, wrap_var = NULL) {
+plotDataFrame <- function(frame, params, xlab = waiver(), ylab = waiver(),
+                          xtrans = "identity", ytrans = "identity", 
+                          y_ticks = 6, highlight = NULL,
+                          legend_var = NULL, wrap_var = NULL) {
     assert_that(is.data.frame(frame),
                 is(params, "MizerParams"))
     if (ncol(frame) < 3) {
@@ -237,7 +236,7 @@ log_breaks <- function(n = 6) {
 #' plotBiomass(NS_sim, start_time = 1980, end_time = 1990)
 #' 
 #' # Returning the data frame
-#' fr <- plotBiomass(sim, return_data = TRUE)
+#' fr <- plotBiomass(NS_sim, return_data = TRUE)
 #' str(fr)
 #' }
 plotBiomass <- function(sim, species = NULL, 
