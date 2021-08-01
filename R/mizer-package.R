@@ -31,6 +31,7 @@
 #' @importFrom stats fft mvfft lm pnorm runif complete.cases
 #' @importFrom grDevices col2rgb
 #' @importFrom utils modifyList
+#' @importFrom lifecycle deprecated
 "_PACKAGE"
 
 #' @importFrom reshape2 melt
