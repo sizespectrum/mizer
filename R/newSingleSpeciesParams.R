@@ -28,10 +28,6 @@
 #'   \code{eta * w_inf}.
 #' @param k_vb The von Bertalanffy growth parameter.
 #' @inheritParams newTraitParams
-#' @param version A string specifying the version of mizer. If you want to make
-#'   sure that your code will still set up the model with the exact same default
-#'   values even if it is run with a future versions of mizer that would choose
-#'   defaults differently, then set this argument to "v2.2.0".
 #' @export
 #' @return An object of type \code{MizerParams}
 #' @family functions for setting up models
@@ -60,8 +56,7 @@ newSingleSpeciesParams <-
              gamma = NA,
              ext_mort_prop = 0,
              reproduction_level = 0,
-             R_factor = deprecated(),
-             version) {
+             R_factor = deprecated()) {
     assert_that(is.string(species_name), length(species_name) == 1)
     no_sp <- 1
     ## Much of the following code is copied from newTraitParams
