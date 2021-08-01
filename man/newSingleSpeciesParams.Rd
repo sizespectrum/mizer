@@ -25,8 +25,7 @@ newSingleSpeciesParams(
   gamma = NA,
   ext_mort_prop = 0,
   reproduction_level = 0,
-  R_factor = deprecated(),
-  version
+  R_factor = deprecated()
 )
 }
 \arguments{
@@ -87,11 +86,6 @@ level of density dependence in reproduction, see \code{\link[=setBevertonHolt]{s
 
 \item{R_factor}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use
 \code{reproduction_level = 1 / R_factor} instead.}
-
-\item{version}{A string specifying the version of mizer. If you want to make
-sure that your code will still set up the model with the exact same default
-values even if it is run with a future versions of mizer that would choose
-defaults differently, then set this argument to "v2.2.0".}
 }
 \value{
 An object of type \code{MizerParams}

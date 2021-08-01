@@ -51,7 +51,7 @@ A plotly object
 }
 \examples{
 \donttest{
-animateSpectra(NS_sim, power = 2, wlim = c(0.1, NA))
+animateSpectra(NS_sim, power = 2, wlim = c(0.1, NA), time_range = 1997:2007)
 }
 }
 \seealso{
