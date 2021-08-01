@@ -17,7 +17,7 @@
 
 * `setInitialValues()` correctly preserves the gear names on the
   initial effort. Thanks to Axel Rossberg.
-* `getFmort()` correctly passes the `t` argument on to any custom fishing
+* `getFMort()` correctly passes the `t` argument on to any custom fishing
   mortality function you may have written.
 * The legends in the plots now only show the species that are actually 
   included in the plot.
