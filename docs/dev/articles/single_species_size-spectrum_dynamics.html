@@ -36,7 +36,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9001</span>
       </span>
     </div>
 
@@ -74,7 +74,7 @@
       <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
     </li>
     <li>
-      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
     </li>
     <li>
       <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
@@ -185,7 +185,7 @@ width of the size class. So the fish density has units of fish per gram.  -->
 <p>Mizer collects all the parameters describing a size-spectrum model into one object of class <code>MizerParams</code>. You do not need to set up this object by hand but instead there are several wrapper functions in mizer that create the object for you for various types of models, and also many functions for changing specific parameters in a model. We will use the <code><a href="../reference/newSingleSpeciesParams.html">newSingleSpeciesParams()</a></code> function to set up a model describing a single fish species living in an ecosystem whose community size spectrum is given by a power-law.</p>
 <p>The <code><a href="../reference/newSingleSpeciesParams.html">newSingleSpeciesParams()</a></code> function has many arguments that allow you to specify parameters for the fish species as well as for the community, but all these arguments have default values, so we can simply call the function without specifying those arguments. We will only specify the power-law exponent of the background community</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newSingleSpeciesParams.html">newSingleSpeciesParams</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">2.05</span>, R_factor <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newSingleSpeciesParams.html">newSingleSpeciesParams</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">2.05</span><span class="op">)</span></code></pre></div>
 <p>The function returns a <code>MizerParams</code> object and we have assigned that to the variable <code>params</code>. We will be explaining more about this model as we go along.</p>
 </div>
 <div id="steady-state-spectrum" class="section level1">
@@ -344,10 +344,9 @@ Solution
 <p>Of course in a real model, the growth rate would not so exactly follow a power law, due to variations in the growth rate due to variations in food availability, for example.</p>
 <blockquote>
 <h2 id="exercise-3">Exercise 3</h2>
-Now over to you. Do exercise 3 in the exercise notebook. Use the methods you have just seen to make a log-log plot of the mortality rate. You can get the mortality rate with the <code><a href="../reference/getMort.html">getMort()</a></code> function. While adjusting the code to this new task, you need to take into account that the name of the size-dimension of the array returned by <code><a href="../reference/getMort.html">getMort()</a></code> is <code>"w_prey"</code> instead of <code>"w"</code>.
-<details></details>
+<p>Now over to you. Do exercise 3 in the exercise notebook. Use the methods you have just seen to make a log-log plot of the mortality rate. You can get the mortality rate with the <code><a href="../reference/getMort.html">getMort()</a></code> function. While adjusting the code to this new task, you need to take into account that the name of the size-dimension of the array returned by <code><a href="../reference/getMort.html">getMort()</a></code> is <code>"w_prey"</code> instead of <code>"w"</code>.</p>
 </blockquote>
-<summary>
+<details><summary>
 Solution
 </summary><div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">mort_rate_frame</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html" class="external-link">melt</a></span><span class="op">(</span><span class="fu"><a href="../reference/getMort.html">getMort</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span>
@@ -359,8 +358,7 @@ Solution
          y <span class="op">=</span> <span class="st">"Growth rate [g/year]"</span><span class="op">)</span>
 <span class="va">p</span></code></pre></div>
 <p><img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-25-1.png" width="700"></p>
-
-<blockquote>
+</details><blockquote>
 <p>Then fit a linear model to determine the slope and and intercept and thus the allometric exponent and the coefficient for the mortality rate, to establish that the mortality rate is <span class="math display">\[\mu(w) = \mu_0\ w^{p-1} = 2.038 \ w^{-1/4}.\]</span></p>
 </blockquote>
 <details><summary>
@@ -536,18 +534,20 @@ Solution
 <p>This is the reproductive efficiency at steady state. When the population deviates from the steady state, for example due to a change in fishing, the reproductive efficiency can be set to change according to a Beverton-Holt stock-recruitment curve. We will discuss this again later.</p>
 </div>
 </div>
-<div id="effect-of-prey-availability" class="section level1">
+<div id="predation" class="section level1">
 <h1 class="hasAnchor">
-<a href="#effect-of-prey-availability" class="anchor" aria-hidden="true"></a>Effect of prey availability</h1>
+<a href="#predation" class="anchor" aria-hidden="true"></a>Predation</h1>
+<p>It is now time to discuss the important issue of predation. It is through predation that the fish obtains the energy it needs to maintain its metabolism, to grow and to invest in reproduction. So it is important how we model this predation.</p>
+<div id="effect-of-prey-availability" class="section level2">
+<h2 class="hasAnchor">
+<a href="#effect-of-prey-availability" class="anchor" aria-hidden="true"></a>Effect of prey availability</h2>
 <p>The energy income for a fish comes from predation on its prey. If there is less prey, the fish consumes less and thus its growth rate will decrease. Let us investigate this by artificially removing some prey.</p>
 <p>Below we decrease the community spectrum by a factor of 10 in the size range from 1mg to 10mg. We again create a new parameter object to be able to keep the old one around</p>
 <div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">params_starved</span> <span class="op">&lt;-</span> <span class="va">params</span>
 <span class="va">size_range</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/w.html">w_full</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">10</span><span class="op">^</span><span class="op">-</span><span class="fl">3</span> <span class="op">&amp;</span> <span class="fu"><a href="../reference/w.html">w_full</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">10</span><span class="op">^</span><span class="op">-</span><span class="fl">2</span>
 <span class="fu"><a href="../reference/initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params_starved</span><span class="op">)</span><span class="op">[</span><span class="va">size_range</span><span class="op">]</span> <span class="op">&lt;-</span> 
-  <span class="fu"><a href="../reference/initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="va">size_range</span><span class="op">]</span> <span class="op">/</span> <span class="fl">10</span>
-<span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">params_starved</span>, power <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
-<p><img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-45-1.png" width="700"></p>
+  <span class="fu"><a href="../reference/initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="va">size_range</span><span class="op">]</span> <span class="op">/</span> <span class="fl">10</span></code></pre></div>
 <p>That is of course quite a dramatic intervention, and so should allow us to clearly see its effect on the steady-state size distribution of our species.</p>
 <div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">params_starved</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steady.html">steady</a></span><span class="op">(</span><span class="va">params_starved</span><span class="op">)</span></code></pre></div>
@@ -573,10 +573,9 @@ Solution
 <code class="sourceCode R"><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">params_overfed</span>, power <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
 <img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-48-1.png" width="700"></details>
 </div>
-<div id="predation" class="section level1">
-<h1 class="hasAnchor">
-<a href="#predation" class="anchor" aria-hidden="true"></a>Predation</h1>
-<p>It is now time to discuss the important issue of predation. It is through predation that the fish obtains the energy it needs to maintain its metabolism, to grow and to invest in reproduction. So it is important how we model this predation.</p>
+<div id="how-predation-is-modelled" class="section level2">
+<h2 class="hasAnchor">
+<a href="#how-predation-is-modelled" class="anchor" aria-hidden="true"></a>How predation is modelled</h2>
 <p>The easiest case in which to understand predation is to imagine a filter feeding fish, swimming around with its mouth open. Clearly the amount of food it takes in is determined by four things:</p>
 <ul>
 <li>the density of prey in the water,</li>
@@ -592,6 +591,7 @@ Solution
 <li>how fast it can digest the food.</li>
 </ul>
 <p>Of these four factors, we have of course already been discussing the density of prey. In the next section we will discuss the ability to filter out or catch prey of particular sizes, which we model via the predation kernel. In the section after that we will discuss the search volume and then in the following section the maximum consumption rate.</p>
+</div>
 <div id="the-predation-kernel" class="section level2">
 <h2 class="hasAnchor">
 <a href="#the-predation-kernel" class="anchor" aria-hidden="true"></a>The predation kernel</h2>
@@ -662,7 +662,7 @@ Solution
 <pre><code>## Convergence was achieved in 4.5 years.</code></pre>
 <div class="sourceCode" id="cb82"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">params3</span>, power <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
-<p><img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-57-1.png" width="700"></p>
+<img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-57-1.png" width="700"> There is no pronounced bump created this time. This is because the larvae experience a decreased growth rate already almost from the start of their life. So th
 </details>
 </div>
 <div id="search-volume" class="section level2">
@@ -754,6 +754,10 @@ Solution
 <span class="fu"><a href="../reference/plotFMort.html">plotFMort</a></span><span class="op">(</span><span class="va">params_fishing</span><span class="op">)</span></code></pre></div>
 <p><img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-67-1.png" width="700"></p>
 </div>
+</div>
+<div id="reproduction" class="section level1">
+<h1 class="hasAnchor">
+<a href="#reproduction" class="anchor" aria-hidden="true"></a>Reproduction</h1>
 </div>
 <div id="outlook" class="section level1">
 <h1 class="hasAnchor">

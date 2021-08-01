@@ -85,7 +85,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9001</span>
       </span>
     </div>
 
@@ -123,7 +123,7 @@
       <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
     </li>
     <li>
-      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
     </li>
     <li>
       <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
@@ -187,6 +187,23 @@
     <div id="mizer-2209000-development-version" class="section level1">
 <h1 class="page-header" data-toc-text="2.2.0.9000">
 <a href="#mizer-2209000-development-version" class="anchor" aria-hidden="true"></a>mizer 2.2.0.9000 (development version)<small> Unreleased </small></h1>
+<div id="bug-fixes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#bug-fixes" class="anchor" aria-hidden="true"></a>Bug fixes</h2>
+<ul><li>
+<code><a href="../reference/setInitialValues.html">setInitialValues()</a></code> correctly preserves the gear names on the initial effort. Thanks to Axel Rossberg.</li>
+</ul></div>
+<div id="other-improvements" class="section level2">
+<h2 class="hasAnchor">
+<a href="#other-improvements" class="anchor" aria-hidden="true"></a>Other improvements</h2>
+<ul><li>Speed improvement in <code><a href="../reference/mizerPredMort.html">mizerPredMort()</a></code> suggested by Axel Rossberg.</li>
+<li>
+<code><a href="../reference/plotSpectra.html">plotSpectra()</a></code> now only shows those species in the legend that are actually contained in the plot.</li>
+<li>Updated tests of plots to use new version of vdiffr package.</li>
+<li>Some improvements to the examples on the help pages.</li>
+<li>
+<code><a href="../reference/initialNOther-set.html">initialNOther()</a></code> also works with MizerSim object.</li>
+</ul></div>
 </div>
     <div id="mizer-22" class="section level1">
 <h1 class="page-header" data-toc-text="2.2">
@@ -206,9 +223,9 @@
 <ul><li>
 <code><a href="../reference/steady.html">steady()</a></code> no longer switches off the Beverton-Holt density dependence. You can do this manually with <code><a href="../reference/setBevertonHolt.html">setBevertonHolt()</a></code> with <code>R_factor = Inf</code>.</li>
 </ul></div>
-<div id="bug-fixes" class="section level2">
+<div id="bug-fixes-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes" class="anchor" aria-hidden="true"></a>Bug fixes</h2>
+<a href="#bug-fixes-1" class="anchor" aria-hidden="true"></a>Bug fixes</h2>
 <ul><li>
 <code><a href="../reference/getYield.html">getYield()</a></code> now also works with density-dependent fishing mortality. Thanks to James Roger for discovering the problem.</li>
 <li>The <code>gamma</code> argument now is no longer ignored in <code><a href="../reference/newTraitParams.html">newTraitParams()</a></code> but correctly overrides the <code>f0</code> argument. <a href='https://github.com/sizespectrum/mizer/issues/188'>#188</a></li>
@@ -249,9 +266,9 @@
 <a href="#breaking-changes-1" class="anchor" aria-hidden="true"></a>Breaking changes</h2>
 <ul><li>By default, the functions <code><a href="../reference/plotPredMort.html">plotPredMort()</a></code> and <code>plotFMort</code> will stop displaying mortality values past the species’ asymptotic size. The argument<br><code>all.sizes</code> allows you to continue to show these values.</li>
 </ul></div>
-<div id="bug-fixes-1" class="section level2">
+<div id="bug-fixes-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-1" class="anchor" aria-hidden="true"></a>Bug fixes</h2>
+<a href="#bug-fixes-2" class="anchor" aria-hidden="true"></a>Bug fixes</h2>
 <ul><li>
 <code><a href="../reference/getFMort.html">getFMort()</a></code> now passes time argument correctly. <a href='https://github.com/sizespectrum/mizer/issues/181'>#181</a></li>
 <li>
@@ -275,9 +292,9 @@
     <div id="mizer-204" class="section level1">
 <h1 class="page-header" data-toc-text="2.0.4">
 <a href="#mizer-204" class="anchor" aria-hidden="true"></a>mizer 2.0.4<small> 2020-08-30 </small></h1>
-<div id="bug-fixes-2" class="section level2">
+<div id="bug-fixes-3" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-2" class="anchor" aria-hidden="true"></a>Bug fixes</h2>
+<a href="#bug-fixes-3" class="anchor" aria-hidden="true"></a>Bug fixes</h2>
 <ul><li>The value of <code>t</code> passed to dynamics functions has been corrected.</li>
 <li>
 <code><a href="../reference/setReproduction.html">setReproduction()</a></code> now correctly sets the the total proportion psi when the maturity proportion is changed.</li>
@@ -316,9 +333,9 @@
     <div id="mizer-203" class="section level1">
 <h1 class="page-header" data-toc-text="2.0.3">
 <a href="#mizer-203" class="anchor" aria-hidden="true"></a>mizer 2.0.3<small> 2020-07-28 </small></h1>
-<div id="bug-fixes-3" class="section level2">
+<div id="bug-fixes-4" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-3" class="anchor" aria-hidden="true"></a>Bug fixes</h2>
+<a href="#bug-fixes-4" class="anchor" aria-hidden="true"></a>Bug fixes</h2>
 <ul><li>Correct handling of shiny progress bar in <code><a href="../reference/project.html">project()</a></code>.</li>
 </ul></div>
 <div id="enhancements-1" class="section level2">
@@ -336,9 +353,9 @@
     <div id="mizer-202" class="section level1">
 <h1 class="page-header" data-toc-text="2.0.2">
 <a href="#mizer-202" class="anchor" aria-hidden="true"></a>mizer 2.0.2<small> 2020-06-08 </small></h1>
-<div id="bug-fixes-4" class="section level2">
+<div id="bug-fixes-5" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-4" class="anchor" aria-hidden="true"></a>Bug fixes</h2>
+<a href="#bug-fixes-5" class="anchor" aria-hidden="true"></a>Bug fixes</h2>
 <ul><li>Time passed to rate functions is now the actual simulation time, not the time elapsed since start of simulation.</li>
 <li>
 <code><a href="../reference/upgradeParams.html">upgradeParams()</a></code> works also on params objects that were created with a development version of mizer.</li>
@@ -374,9 +391,9 @@
     <div id="mizer-201" class="section level1">
 <h1 class="page-header" data-toc-text="2.0.1">
 <a href="#mizer-201" class="anchor" aria-hidden="true"></a>mizer 2.0.1<small> 2020-05-05 </small></h1>
-<div id="bug-fixes-5" class="section level2">
+<div id="bug-fixes-6" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-5" class="anchor" aria-hidden="true"></a>Bug fixes</h2>
+<a href="#bug-fixes-6" class="anchor" aria-hidden="true"></a>Bug fixes</h2>
 <ul><li>
 <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> now also works with non-default feeding kernels. <a href='https://github.com/sizespectrum/mizer/issues/159'>#159</a></li>
 <li>
@@ -477,7 +494,7 @@
 <li>New <code>highlight</code> argument to all plot functions that display curves for multiple species. Displays highlighted species with wider lines.</li>
 <li>In the legends of all plots the species are now consistently ordered in the same way as in the species parameter data frame.</li>
 <li>All plot functions that are not time-resolved now accept also a MizerParams object as an alternative to the MizerSim object to plot the initial state.</li>
-<li>New <code><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot()</a></code> method for MizerParams object to plot the initial state.</li>
+<li>New <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method for MizerParams object to plot the initial state.</li>
 <li>Avoiding duplicate graphs in R Markdown documents.</li>
 <li>New argument <code>include_critical</code> in <code><a href="../reference/plotFeedingLevel.html">plotFeedingLevel()</a></code> allows to show also the critical feeding level.</li>
 <li>New <code>wlim</code> argument to <code><a href="../reference/plotSpectra.html">plotSpectra()</a></code> in analogy to the existing <code>ylim</code> argument to limit the <code>w</code> range in the plot.</li>
@@ -576,9 +593,9 @@
 <li>Updated list of publications (<a href='https://github.com/Kenhasteandersen'>@Kenhasteandersen</a>)</li>
 <li>Using R Markdown in all roxygen comments.</li>
 </ul></div>
-<div id="bug-fixes-6" class="section level2">
+<div id="bug-fixes-7" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-6" class="anchor" aria-hidden="true"></a>Bug fixes</h2>
+<a href="#bug-fixes-7" class="anchor" aria-hidden="true"></a>Bug fixes</h2>
 <ul><li>In <code><a href="../reference/getSSB.html">getSSB()</a></code>, the calculation of the spawning stock biomass is done correctly using the maturity ogive instead of the proportion of energy allocated to reproduction. (<a href='https://github.com/sizespectrum/mizer/issues/47'>#47</a>)</li>
 <li>The fast FFT method and the old method for calculating integrals now give the same numerical results. (<a href='https://github.com/sizespectrum/mizer/issues/39'>#39</a>)</li>
 <li>

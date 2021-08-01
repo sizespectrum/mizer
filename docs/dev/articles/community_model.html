@@ -36,7 +36,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9001</span>
       </span>
     </div>
 
@@ -74,7 +74,7 @@
       <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
     </li>
     <li>
-      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
     </li>
     <li>
       <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
@@ -177,9 +177,11 @@
 ## Species details:
 ##     species w_inf w_mat w_min  f0 beta sigma
 ## 1 Community 1e+06    NA 0.001 0.5  100     2
+## 
 ## Fishing gear details:
-##  Gear            Target species
-##   Community       Community</code></pre>
+## Gear          Effort  Target species 
+##  ----------------------------------
+## Community      0.00   Community</code></pre>
 <p>In the summary you can see that the size range of the community spectrum has been set from <span class="math inline">\(0.001\)</span> to <span class="math inline">\(10^{6}\)</span> and this is divided into <span class="math inline">\(100\)</span> size bins. Similar information is available for the resource spectrum. Additionally, the community is made up of only one species, called <em>Community</em>, which has an asymptotic size of <span class="math inline">\(10^{6}\)</span> and a preferred predator prey mass ratio of <span class="math inline">\(100\)</span>. The <code>w_mat</code> parameter has been set to <code>NA</code> as it is not used when running a community model. These values have all been set by default using the <code><a href="../reference/newCommunityParams.html">newCommunityParams()</a></code> function.</p>
 </div>
 <div id="sec:running_comm_model" class="section level2">
@@ -197,9 +199,9 @@
 ## [1] "mizer"</code></pre>
 <p>This class holds the results of the simulation, including the community and resource abundances at size through time, as well as the original model parameters. It is explained in detail in <a href="running_a_simulation.html">the section on running a simulation.</a></p>
 <p>After running the projection, it is possible to explore the results using a range of plots and analyses. These are described fully in <a href="exploring_the_simulation_results.html">the section on exploring the simulation results.</a></p>
-<p>To quickly look at the results of the projection you can call the <code><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot()</a></code> method. This plots the feeding level, predation mortality, fishing mortality and abundance by size in the last time step of the simulation, and the total biomass through time. Each of the plots can be shown individually if desired.</p>
+<p>To quickly look at the results of the projection you can call the <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method. This plots the feeding level, predation mortality, fishing mortality and abundance by size in the last time step of the simulation, and the total biomass through time. Each of the plots can be shown individually if desired.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
 <p><img src="community_model_files/figure-html/print_plot_comm_sim-1.png" width="700"></p>
 <p>In the above plot there are several things going on that are worth talking about. Looking at the total biomass of the community against time, you can see that the biomass quickly reaches a stable equilibrium. The other panels show what is happening at the last time step in the simulation, which in this case is when the community is at equilibrium. Fishing mortality is 0 because we set the <code>effort</code> argument to 0 when running the simulation. The predation mortality rate is clearly a function of size, with the smallest sizes experiencing the highest levels of predation. The feeding level describes how satiated an individual is, with 0 being unfed, and 1 being full satiated. The feeding level at size will be strongly affected by the values of the <code>f0</code> and <code>alpha</code> arguments passed to the <code><a href="../reference/newCommunityParams.html">newCommunityParams()</a></code> function.</p>
 <p>The resource and community spectra are shown in the bottom panel of the plot (the plotted resource spectrum has been truncated to make for a better plot, but really extends all the way back to <span class="math inline">\(8.11\times 10^{-11}\)</span> g). You can see that the community spectrum forms a continuum with the resource spectrum. This is strongly affected by the level of fixed reproduction rate (the <code>reproduction</code> argument passed to <code><a href="../reference/newCommunityParams.html">newCommunityParams()</a></code>)</p>
@@ -216,7 +218,7 @@
 <code class="sourceCode R"><span class="va">pred_mort_final</span> <span class="op">&lt;-</span> <span class="va">pred_mort</span><span class="op">[</span><span class="fu"><a href="../reference/idxFinalT.html">idxFinalT</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>, <span class="op">]</span></code></pre></div>
 <p>If you plot this predation mortality on a log-log scale you can see how the predation mortality declines to almost zero for the largest sizes.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">pred_mort_final</span>, log <span class="op">=</span> <span class="st">"xy"</span>, type <span class="op">=</span> <span class="st">"l"</span>, 
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">pred_mort_final</span>, log <span class="op">=</span> <span class="st">"xy"</span>, type <span class="op">=</span> <span class="st">"l"</span>, 
      xlab <span class="op">=</span> <span class="st">"Size [g]"</span>, ylab <span class="op">=</span> <span class="st">"Predation mortality [1/year]"</span><span class="op">)</span></code></pre></div>
 <p><img src="community_model_files/figure-html/print_plot_comm_m2-1.png" width="700"></p>
 <p>Note how we used <code>w(sim)</code> to get the vector of sizes to plot along the x-axis and how we specified that we wanted to have logarithmic axes.</p>
@@ -245,9 +247,9 @@
 <p>Now we want to simulate again, this time with fishing. In the simulations, fishing mortality is calculated as the product of the fishing selectivity, effort and catchability (see <a href="multispecies_model.html#sec:fishing_gear">the section on fishing gears</a> for more details). By default catchability is set to 1. This means that a fishing effort of 1 will result in a fishing mortality of 1/year for fully selected sizes. Here we run a simulation with fishing effort set to 1 for the duration of the simulation:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sim1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params_knife</span>, effort <span class="op">=</span> <span class="fl">1</span>, t_max <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></code></pre></div>
-<p>You can compare the difference between these scenarios by using the <code><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot()</a></code> method as before. Of particular interest is the fishing mortality at size. The knife-edge selectivity at 1000 g can be clearly seen and an effort of 1 has resulted in a fishing mortality of 1 for the fully selected sizes.</p>
+<p>You can compare the difference between these scenarios by using the <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method as before. Of particular interest is the fishing mortality at size. The knife-edge selectivity at 1000 g can be clearly seen and an effort of 1 has resulted in a fishing mortality of 1 for the fully selected sizes.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim1</span>, power <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim1</span>, power <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
 <p><img src="community_model_files/figure-html/print_plot_comm_fmort-1.png" width="700"></p>
 <p>To explore the presence of a trophic cascade, we are interested in looking at the relative change in abundance when the community is fished compared to when it is not fished. To do this we need to get the abundances at size from the simulation objects. This is done with the <code><a href="../reference/N.html">N()</a></code> function, which returns a three dimensional array with dimensions time x species x size. Here we have 51 time steps (50 from the simulation plus one which stores the initial population), 1 species and 100 sizes:</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
@@ -261,7 +263,7 @@
 <code class="sourceCode R"><span class="va">relative_abundance</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/finalN.html">finalN</a></span><span class="op">(</span><span class="va">sim1</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="../reference/finalN.html">finalN</a></span><span class="op">(</span><span class="va">sim0</span><span class="op">)</span></code></pre></div>
 <p>This can then be plotted using basic R plotting commands.</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">relative_abundance</span>, log <span class="op">=</span> <span class="st">"x"</span>, type <span class="op">=</span> <span class="st">"n"</span>,
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">relative_abundance</span>, log <span class="op">=</span> <span class="st">"x"</span>, type <span class="op">=</span> <span class="st">"n"</span>,
     xlab <span class="op">=</span> <span class="st">"Size (g)"</span>, ylab <span class="op">=</span> <span class="st">"Relative abundance"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">relative_abundance</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>

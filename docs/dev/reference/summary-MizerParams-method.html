@@ -86,7 +86,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9001</span>
       </span>
     </div>
 
@@ -124,7 +124,7 @@
       <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
     </li>
     <li>
-      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
     </li>
     <li>
       <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
@@ -208,10 +208,38 @@
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
-<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>,<span class='va'>inter</span><span class='op'>)</span></span>
-<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
-<span class='r-in'><span class='op'>}</span></span>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> An object of class "MizerParams" </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Consumer size spectrum:</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 	minimum size:	0.001</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 	maximum size:	39851.3</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 	no. size bins:	100</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Resource size spectrum:</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 	minimum size:	2.12182e-13</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 	maximum size:	9.82091</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 	no. size bins:	179	(226 size bins in total)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Species details:</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>    species   w_inf w_mat w_min  f0  k_vb   beta sigma</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 1    Sprat    33.0    13 0.001 0.6 0.681  51076   0.8</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 2  Sandeel    36.0     4 0.001 0.6 1.000 398849   1.9</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 3   N.pout   100.0    23 0.001 0.6 0.849     22   1.5</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 4  Herring   334.0    99 0.001 0.6 0.606 280540   3.2</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 5      Dab   324.0    21 0.001 0.6 0.536    191   1.9</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 6  Whiting  1192.0    75 0.001 0.6 0.323     22   1.5</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 7     Sole   866.0    78 0.001 0.6 0.284    381   1.9</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 8  Gurnard   668.0    39 0.001 0.6 0.266    283   1.8</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 9   Plaice  2976.0   105 0.001 0.6 0.122    113   1.6</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 10 Haddock  4316.5   165 0.001 0.6 0.271    558   2.1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 11     Cod 39851.3  1606 0.001 0.6 0.216     66   1.3</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 12  Saithe 39658.6  1076 0.001 0.6 0.175     40   1.1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Fishing gear details:</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Gear          Effort  Target species </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  ----------------------------------</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Industrial     0.00   Sprat, Sandeel, N.pout </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Pelagic        1.00   Herring </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Beam           0.50   Dab, Sole, Plaice </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Otter          0.50   Whiting, Gurnard, Haddock, Cod, Saithe </span>
 </code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -87,7 +87,7 @@ described by params." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9001</span>
       </span>
     </div>
 
@@ -125,7 +125,7 @@ described by params." />
       <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
     </li>
     <li>
-      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
     </li>
     <li>
       <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
@@ -212,18 +212,66 @@ described by <code>params</code>.</p>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p><code>w()</code> returns a vector with the sizes at the start of each size bin
-of the community spectrum.</p>
+of the consumer spectrum.</p>
 <p><code>w_full()</code> returns a vector with the sizes at the start of each size bin
 of the resource spectrum, which typically starts at smaller sizes than
-the community spectrum.</p>
+the consumer spectrum.</p>
 <p><code>dw()</code> returns a vector with the widths of the size bins of the
-community spectrum.</p>
+consumer spectrum.</p>
 <p><code>dw_full()</code> returns a vector with the widths of the size bins of the
 resource spectrum.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>TODO: Give more details about how mizer discretises the size</p>
+    <p>To represent the continuous size spectrum in the computer, the size
+variable is discretized into a vector <code>w</code> of discrete weights,
+providing a grid of sizes spanning the range from the smallest egg size
+to the largest asymptotic size. These grid values divide the full size
+range into a finite number of size bins. The size bins should be chosen
+small enough to avoid the discretisation errors from becoming too big.
+You can fetch this vector with <code>w()</code> and the vector of bin widths with
+<code>dw()</code>.</p>
+<p>The weight grid is set up to be logarithmically spaced, so that
+<code>w[j]=w[1]*10^(j*dx)</code> for some fixed <code>dx</code>. This means that the bin widths
+increase with size: <code>dw[j] = w[j] * (10^dx - 1)</code>.
+This grid is set up automatically when creating a MizerParams object.</p>
+<p>Because the resource spectrum spans a larger range of sizes, these sizes
+are discretized into a different vector of weights <code>w_full</code>. This usually
+starts at a much smaller size than <code>w</code>, but also runs up to the same
+largest size, so that the last entries of <code>w_full</code> have to coincide with the
+entries of <code>w</code>. The logarithmic spacing for <code>w_full</code> is the same as that for
+<code>w</code>, so that again <code>w_full[j]=w_full[1]*10^(j*dx)</code>. The function <code>w_full()</code>
+gives the vector of sizes and <code>dw_full()</code> gives the vector of bin widths.</p>
+<p>You will need these vectors when converting number densities to numbers.
+For example the size spectrum of a species is stored as a vector of
+values that represent the <em>density</em> of fish in each size bin rather than
+the <em>number</em> of fish. The number of fish in the size bin between <code>w[j]</code> and
+<code>w[j+1]=w[j]+dw[j]</code> is obtained as <code>N[j]*dw[j]</code>.</p>
+<p>The vector <code>w</code> can be used for example to convert the number of individuals
+in a size bin into the biomass in the size bin. The biomass in the
+<code>j</code>th bin is <code>biomass[j] = N[j] * dw[j] * w[j]</code>.</p>
+<p>Of course all these calculations with discrete sizes and size bins are
+only giving approximations to the continuous values, and these approximations
+get better the smaller the size bins are, i.e., the more size bins are
+used. However using more size bins also slows down the calculations, so
+there is a trade-off. This is why the functions setting up MizerParams
+objects allow you to choose the number of size bins <code>no_w</code>.</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='op'>(</span><span class='fu'>w</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  num [1:100] 0.001 0.00119 0.00142 0.0017 0.00203 ...</span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='op'>(</span><span class='fu'>dw</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  num [1:100] 0.000193 0.000231 0.000275 0.000329 0.000392 ...</span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='op'>(</span><span class='fu'>w_full</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  num [1:226] 2.12e-13 2.53e-13 3.02e-13 3.61e-13 4.30e-13 ...</span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='op'>(</span><span class='fu'>dw_full</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  num [1:226] 4.10e-14 4.90e-14 5.84e-14 6.97e-14 8.32e-14 ...</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Calculating the biomass of Cod in each bin in the North Sea model</span></span>
+<span class='r-in'><span class='va'>biomass</span> <span class='op'>&lt;-</span> <span class='fu'><a href='initialN-set.html'>initialN</a></span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span><span class='op'>[</span><span class='st'>"Cod"</span>, <span class='op'>]</span> <span class='op'>*</span> <span class='fu'>dw</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span> <span class='op'>*</span> <span class='fu'>w</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># Summing to get total biomass</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='va'>biomass</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] 601591842546</span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

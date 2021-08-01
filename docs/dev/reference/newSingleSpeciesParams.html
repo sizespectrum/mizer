@@ -94,7 +94,7 @@ many arguments, all of which have default values." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9001</span>
       </span>
     </div>
 
@@ -132,7 +132,7 @@ many arguments, all of which have default values." />
       <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
     </li>
     <li>
-      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
     </li>
     <li>
       <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
@@ -226,8 +226,8 @@ many arguments, all of which have default values.</p>
   ks <span class='op'>=</span> <span class='cn'>NA</span>,
   gamma <span class='op'>=</span> <span class='cn'>NA</span>,
   ext_mort_prop <span class='op'>=</span> <span class='fl'>0</span>,
-  R_factor <span class='op'>=</span> <span class='fl'>4</span>,
-  <span class='va'>version</span>
+  reproduction_level <span class='op'>=</span> <span class='fl'>0</span>,
+  R_factor <span class='op'>=</span> <span class='fu'><a href='https://tibble.tidyverse.org/reference/deprecated.html'>deprecated</a></span><span class='op'>(</span><span class='op'>)</span>
 <span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -324,18 +324,14 @@ external mortality, i.e., from sources not explicitly modelled. A number in
 the interval [0, 1).</p></td>
     </tr>
     <tr>
-      <th>R_factor</th>
-      <td><p>The factor such that <code>R_max = R_factor * R</code>, where <code>R_max</code>
-is the maximum reproduction rate allowed and <code>R</code> is the steady-state
-reproduction rate. Thus the larger <code>R_factor</code> the less the impact of the
-density-dependence.</p></td>
+      <th>reproduction_level</th>
+      <td><p>A number between 0 an 1 that determines the
+level of density dependence in reproduction, see <code><a href='setBevertonHolt.html'>setBevertonHolt()</a></code>.</p></td>
     </tr>
     <tr>
-      <th>version</th>
-      <td><p>A string specifying the version of mizer. If you want to make
-sure that your code will still set up the model with the exact same default
-values even if it is run with a future versions of mizer that would choose
-defaults differently, then set this argument to "v2.2.0".</p></td>
+      <th>R_factor</th>
+      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#deprecated'><img src='figures/lifecycle-deprecated.svg' alt='[Deprecated]' /></a> Use
+<code>reproduction_level = 1 / R_factor</code> instead.</p></td>
     </tr>
     </table>
 
@@ -347,11 +343,6 @@ defaults differently, then set this argument to "v2.2.0".</p></td>
     <p>In addition to setting up the parameters, this function also sets up an
 initial condition that is close to steady state, under the assumption of
 no fishing.</p>
-<p>Although the steady state is often stable without imposing a stock
-recruitment relationship, the function can set a Beverton-Holt type stock
-recruitment relationship that imposes a maximal reproduction rate that is a
-multiple of the recruitment rate at steady state. That multiple is set by the
-argument <code>R_factor</code>.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for setting up models: 

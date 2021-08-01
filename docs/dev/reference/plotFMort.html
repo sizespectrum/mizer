@@ -89,7 +89,7 @@ step)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9001</span>
       </span>
     </div>
 
@@ -127,7 +127,7 @@ step)." />
       <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
     </li>
     <li>
-      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
     </li>
     <li>
       <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
@@ -252,7 +252,8 @@ used for the plot is returned instead of the plot itself. Default value is FALSE
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A ggplot2 object</p>
+    <p>A ggplot2 object, unless <code>return_data = TRUE</code>, in which case a data
+frame with the three variables 'w', 'value', 'Species' is returned.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><a href='plotting_functions.html'>plotting_functions</a>, <code><a href='getFMort.html'>getFMort()</a></code></p>
@@ -282,9 +283,9 @@ used for the plot is returned instead of the plot itself. Default value is FALSE
 <span class='r-in'><span class='va'>fr</span> <span class='op'>&lt;-</span> <span class='fu'>plotFMort</span><span class='op'>(</span><span class='va'>sim</span>, return_data <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
 <span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='op'>(</span><span class='va'>fr</span><span class='op'>)</span></span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> 'data.frame':	934 obs. of  3 variables:</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  $ value  : num  0 0 0 0 0 0 0 0 0 0 ...</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  $ Species: Factor w/ 15 levels "Sprat","Sandeel",..: 1 2 3 4 5 6 7 8 9 10 ...</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>  $ w      : num  0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  $ value  : num  0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  $ Species: chr  "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
 <span class='r-in'><span class='co'># }</span></span>
 </code></pre></div>
   </div>

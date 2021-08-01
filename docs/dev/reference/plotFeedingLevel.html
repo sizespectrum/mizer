@@ -88,7 +88,7 @@ for the time range can be used)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9001</span>
       </span>
     </div>
 
@@ -126,7 +126,7 @@ for the time range can be used)." />
       <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
     </li>
     <li>
-      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
     </li>
     <li>
       <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
@@ -263,7 +263,10 @@ used for the plot is returned instead of the plot itself. Default value is FALSE
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A ggplot2 object</p>
+    <p>A ggplot2 object, unless <code>return_data = TRUE</code>, in which case a data
+frame with the variables 'w', 'value' and 'Species' is returned. If also
+<code>include_critical = TRUE</code> then the data frame contains a fourth variable
+'Type' that distinguishes between 'actual' and 'critical' feeding level.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>When called with a <a href='MizerSim-class.html'>MizerSim</a> object, the feeding level is averaged
@@ -305,9 +308,9 @@ where the feeding level drops to the critical feeding level.</p>
 <span class='r-in'><span class='va'>fr</span> <span class='op'>&lt;-</span> <span class='fu'>plotFeedingLevel</span><span class='op'>(</span><span class='va'>sim</span>, return_data <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
 <span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='op'>(</span><span class='va'>fr</span><span class='op'>)</span></span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> 'data.frame':	934 obs. of  3 variables:</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  $ value  : num  0.6 0.6 0.586 0.598 0.594 ...</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  $ Species: Factor w/ 12 levels "Sprat","Sandeel",..: 1 2 3 4 5 6 7 8 9 10 ...</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>  $ w      : num  0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  $ value  : num  0.6 0.6 0.586 0.598 0.594 ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  $ Species: chr  "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
 <span class='r-in'><span class='co'># }</span></span>
 </code></pre></div>
   </div>

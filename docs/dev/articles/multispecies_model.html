@@ -36,7 +36,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9001</span>
       </span>
     </div>
 
@@ -74,7 +74,7 @@
       <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
     </li>
     <li>
-      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
     </li>
     <li>
       <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
@@ -320,9 +320,11 @@
 ## 10 Haddock  4316.5   165 0.001 0.271    558   2.1
 ## 11     Cod 39851.3  1606 0.001 0.216     66   1.3
 ## 12  Saithe 39658.6  1076 0.001 0.175     40   1.1
+## 
 ## Fishing gear details:
-##  Gear            Target species
-##   knife_edge_gear         Sprat Sandeel N.pout Herring Dab Whiting Sole Gurnard Plaice Haddock Cod Saithe</code></pre>
+## Gear          Effort  Target species 
+##  ----------------------------------
+## knife_edge_gear 0.00   Sprat, Sandeel, N.pout, Herring, Dab, Whiting, Sole, Gurnard, Plaice, Haddock, Cod, Saithe</code></pre>
 <p>As well as giving a summary of the species in the model and what gear is fishing what species, it gives a summary of the size structure of the community. For example there are <span class="math inline">\(100\)</span> size classes in the community, ranging from <span class="math inline">\(0.001\)</span> to <span class="math inline">\(3.99\times 10^{4}\)</span> . These values are controlled by the arguments <code>no_w</code>, <code>min_w</code> and <code>max_w</code> respectively. For example, if we wanted 200 size classes in the model we would use:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">params200</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">species_params</span>, no_w <span class="op">=</span> <span class="fl">200</span><span class="op">)</span>
@@ -466,12 +468,14 @@
 ## 10 Haddock  4316.5   165 0.001 0.271    558   2.1
 ## 11     Cod 39851.3  1606 0.001 0.216     66   1.3
 ## 12  Saithe 39658.6  1076 0.001 0.175     40   1.1
+## 
 ## Fishing gear details:
-##  Gear            Target species
-##   Industrial          Sprat Sandeel N.pout 
-##   Pelagic         Herring 
-##   Beam        Dab Sole Plaice 
-##   Otter       Whiting Gurnard Haddock Cod Saithe</code></pre>
+## Gear          Effort  Target species 
+##  ----------------------------------
+## Industrial     0.00   Sprat, Sandeel, N.pout 
+## Pelagic        0.00   Herring 
+## Beam           0.00   Dab, Sole, Plaice 
+## Otter          0.00   Whiting, Gurnard, Haddock, Cod, Saithe</code></pre>
 <p>In this example the same gear now catches multiple stocks. For example, the <em>Industrial</em> gear catches Sprat, Sandeel and Norway Pout. Why would we want to set up the gears like this? In the next section on <a href="running_a_simulation.html">running a multispecies model</a> we will see that to project the model through time you can specify the fishing effort for each gear through time. By setting the gears up in this way you can run different management scenarios of changing the efforts of the fishing gears rather than on individual species. It also means that after a simulation has been run you can examine the catches by gear.</p>
 </div>
 <div id="setting-to-steady-state" class="section level2">

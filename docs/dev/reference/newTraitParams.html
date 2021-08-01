@@ -95,7 +95,7 @@ details and examples of the trait-based model." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9001</span>
       </span>
     </div>
 
@@ -133,7 +133,7 @@ details and examples of the trait-based model." />
       <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
     </li>
     <li>
-      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
     </li>
     <li>
       <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
@@ -233,7 +233,8 @@ details and examples of the trait-based model.</p>
   ks <span class='op'>=</span> <span class='cn'>NA</span>,
   gamma <span class='op'>=</span> <span class='cn'>NA</span>,
   ext_mort_prop <span class='op'>=</span> <span class='fl'>0</span>,
-  R_factor <span class='op'>=</span> <span class='fl'>4</span>,
+  reproduction_level <span class='op'>=</span> <span class='fl'>1</span><span class='op'>/</span><span class='fl'>4</span>,
+  R_factor <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Deprecated.html'>deprecated</a></span><span class='op'>(</span><span class='op'>)</span>,
   gear_names <span class='op'>=</span> <span class='st'>"knife_edge_gear"</span>,
   knife_edge_size <span class='op'>=</span> <span class='fl'>1000</span>,
   egg_size_scaling <span class='op'>=</span> <span class='cn'>FALSE</span>,
@@ -361,11 +362,14 @@ external mortality, i.e., from sources not explicitly modelled. A number in
 the interval [0, 1).</p></td>
     </tr>
     <tr>
+      <th>reproduction_level</th>
+      <td><p>A number between 0 an 1 that determines the
+level of density dependence in reproduction, see <code><a href='setBevertonHolt.html'>setBevertonHolt()</a></code>.</p></td>
+    </tr>
+    <tr>
       <th>R_factor</th>
-      <td><p>The factor such that <code>R_max = R_factor * R</code>, where <code>R_max</code>
-is the maximum reproduction rate allowed and <code>R</code> is the steady-state
-reproduction rate. Thus the larger <code>R_factor</code> the less the impact of the
-density-dependence.</p></td>
+      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#deprecated'><img src='figures/lifecycle-deprecated.svg' alt='[Deprecated]' /></a> Use
+<code>reproduction_level = 1 / R_factor</code> instead.</p></td>
     </tr>
     <tr>
       <th>gear_names</th>
@@ -422,16 +426,11 @@ the ratio between asymptotic size and egg size is the same for all species.
 Otherwise all species have the same egg size.</p>
 <p>In addition to setting up the parameters, this function also sets up an
 initial condition that is close to steady state.</p>
-<p>Although the trait based model's steady state is often stable without
-imposing additional density-dependence, the function can set a Beverton-Holt
-type density-dependence that imposes a maximum for the reproduction rate that
-is a multiple of the reproduction rate at steady state. That multiple is set
-by the argument <code>R_factor</code>.</p>
 <p>The search rate coefficient <code>gamma</code> is calculated using the expected
 feeding level, <code>f0</code>.</p>
-<p>The option of including fishing is given, but the steady state may lose its
+<p>The option of including fishing is given, but the steady state may loose its
 natural stability if too much fishing is included. In such a case the user
-may wish to include stabilising effects (like <code>R_factor</code>) to ensure the
+may wish to include stabilising effects (like <code>reproduction_level</code>) to ensure the
 steady state is stable. Fishing selectivity is modelled as a knife-edge
 function with one parameter, <code>knife_edge_size</code>, which is the size at
 which species are selected. Each species can either be fished by the same

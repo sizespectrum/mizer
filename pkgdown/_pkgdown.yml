@@ -179,6 +179,7 @@ reference:
 - title: Reproduction functions
   contents:
   - BevertonHoltRDD
+  - getReproductionLevel
   - RickerRDD
   - SheperdRDD
   - noRDD
