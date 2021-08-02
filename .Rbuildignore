@@ -28,3 +28,10 @@
 ^vignettes/mizer_vignette.pdf$
 ^vignettes/images$
 ^vignettes/Lysekil$
+^vignettes/inter.csv$
+^vignettes/NS_f_history.csv$
+^vignettes/NS_species_params.csv$
+^vignettes/reflib.bib$
+^vignettes/mizer.Rmd$
+^vignettes/model_description.Rmd$
+^vignettes/Growth_curve.pdf$

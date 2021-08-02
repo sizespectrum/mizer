@@ -1,6 +1,6 @@
 ## Test environments
   
-* local ubuntu 20.04 focal, R 3.6.3
+* local Linux Mint 19.3 Cinnamon (Ubuntu 18.04), R 4.1.0
 
 0 errors ✓ | 0 warnings ✓ | 0 notes ✓
   
@@ -12,5 +12,3 @@
   - Fedora Linux, R-devel, clang, gfortran: OK
   - Debian Linux, R-devel, GCC ASAN/UBSAN: OK
 
-* rstudio.cloud R 4.0.3
-  No Notes, Warnings or Errors, except that rstudio cloud does not have qpdf
