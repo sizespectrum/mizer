@@ -53,7 +53,7 @@ If no maximum is imposed on the reproduction rate
 (\eqn{R_{max} = \infty}{R_max = Inf}) then the resulting density-independent
 reproduction rate \eqn{R_{di}}{R_di} is proportional
 to the total rate \eqn{E_R} at which energy is invested into reproduction,
-\deqn{R_{di} = \frac{\text{erepro}}{2 w_{min}} E_R,}{R_di = (erepro/(2 w_min)) E_R,}
+\deqn{R_{di} = \frac{\rm{erepro}}{2 w_{min}} E_R,}{R_di = (erepro/(2 w_min)) E_R,}
 where the proportionality factor is given by the reproductive efficiency
 \code{erepro} divided by the egg size \code{w_min} to convert energy to egg number and
 divided by 2 to account for the two sexes.
