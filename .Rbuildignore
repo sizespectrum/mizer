@@ -21,8 +21,10 @@
 ^vignettes/multispecies_model.Rmd$
 ^vignettes/plotting.Rmd$
 ^vignettes/ppmr.Rmd$
-^vignettes/publications.Rmd$
 ^vignettes/running_a_simulation.Rmd$
 ^vignettes/single_species_size-spectrum_dynamics.Rmd$
 ^vignettes/trait_model.Rmd$
 ^vignettes/working_with_git.Rmd$
+^vignettes/mizer_vignette.pdf$
+^vignettes/images$
+^vignettes/Lysekil$

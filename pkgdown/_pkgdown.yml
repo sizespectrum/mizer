@@ -25,12 +25,12 @@ toc:
 
 navbar:
   structure:
-    left: [home, intro, articles, reference, publications, news]
+    left: [home, intro, articles, reference, news, blog]
     right: [github, twitter]
   components:
-    publications:
-      text: Publications
-      href: articles/publications.html
+    blog:
+      text: Blog
+      href: https://sizespectrum.org/mizerBlog/
     twitter:
        icon: "fab fa-twitter fa-lg"
        href: https://twitter.com/mizer_model
