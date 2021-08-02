@@ -1,4 +1,4 @@
-# mizer 2.2.0.9000 (development version)
+# mizer 2.2.1
 
 
 ## New functionality
@@ -29,7 +29,7 @@
   actually contained in the plot.
 * Updated tests of plots to use new version of vdiffr package.
 * Some improvements to the examples on the help pages.
-* Some functions do more thorogh tests of their arguments to give more
+* Some functions do more thorough tests of their arguments to give more
   useful error messages.
 * `initialNOther()` also works with MizerSim object.
 * When `projectToSteady()` is called with `effort`, this effort is now also
