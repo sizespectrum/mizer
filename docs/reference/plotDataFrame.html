@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get data frame of biomass of species through time, ready for ggplot2 — getBiomassFrame • mizer</title>
+<title>Make a plot from a data frame — plotDataFrame • mizer</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -45,12 +52,9 @@
 
 
 
-<meta property="og:title" content="Get data frame of biomass of species through time, ready for ggplot2 — getBiomassFrame" />
-<meta property="og:description" content="After running a projection, the biomass of each species can be plotted
-against time. The biomass is calculated within user defined size limits
-(min_w, max_w, min_l, max_l, see getBiomass())." />
-
-
+<meta property="og:title" content="Make a plot from a data frame — plotDataFrame" />
+<meta property="og:description" content="This is used internally by most plotting functions." />
+<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
 
 
 
@@ -66,15 +70,9 @@ against time. The biomass is calculated within user defined size limits
 
 
 
-  
-
-  
-
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -88,7 +86,7 @@ against time. The biomass is calculated within user defined size limits
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
       </span>
     </div>
 
@@ -99,11 +97,13 @@ against time. The biomass is calculated within user defined size limits
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Tutorials
+    Articles
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li class="divider"></li>
+    <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
     </li>
@@ -126,10 +126,15 @@ against time. The biomass is calculated within user defined size limits
       <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
     </li>
     <li>
-      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
     </li>
     <li>
       <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">Publications</li>
+    <li>
+      <a href="../articles/publications.html">Publications</a>
     </li>
     <li class="divider"></li>
     <li class="dropdown-header">For developers</li>
@@ -151,14 +156,20 @@ against time. The biomass is calculated within user defined size limits
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/publications.html">Publications</a>
-</li>
-<li>
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
+  <a href="https://blog.mizer.sizespectrum.org">Blog</a>
+</li>
+<li>
+  <a href="https://twitter.com/mizer_model">
+    <span class="fab fa-twitter fa-lg"></span>
+     
+  </a>
+</li>
+<li>
   <a href="https://github.com/sizespectrum/mizer/">
     <span class="fab fa-github fa-lg"></span>
      
@@ -183,81 +194,83 @@ against time. The biomass is calculated within user defined size limits
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get data frame of biomass of species through time, ready for ggplot2</h1>
+    <h1>Make a plot from a data frame</h1>
     <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/plots.R'><code>R/plots.R</code></a></small>
-    <div class="hidden name"><code>getBiomassFrame.Rd</code></div>
+    <div class="hidden name"><code>plotDataFrame.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>After running a projection, the biomass of each species can be plotted
-against time. The biomass is calculated within user defined size limits
-(min_w, max_w, min_l, max_l, see <code><a href='getBiomass.html'>getBiomass()</a></code>).</p>
+    <p>This is used internally by most plotting functions.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>getBiomassFrame</span><span class='op'>(</span>
-  <span class='va'>sim</span>,
-  species <span class='op'>=</span> <span class='cn'>NULL</span>,
-  start_time <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/dimnames.html'>dimnames</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>@</span><span class='va'>n</span><span class='op'>)</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>)</span>,
-  end_time <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/dimnames.html'>dimnames</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>@</span><span class='va'>n</span><span class='op'>)</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/dim.html'>dim</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>@</span><span class='va'>n</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span>,
-  ylim <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='cn'>NA</span>, <span class='cn'>NA</span><span class='op'>)</span>,
-  total <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  <span class='va'>...</span>
-<span class='op'>)</span></code></pre></div>
+    <pre class="usage"><span class='fu'>plotDataFrame</span><span class='op'>(</span>
+  <span class='va'>frame</span>,
+  <span class='va'>params</span>,
+  xlab <span class='op'>=</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/waiver.html'>waiver</a></span><span class='op'>(</span><span class='op'>)</span>,
+  ylab <span class='op'>=</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/waiver.html'>waiver</a></span><span class='op'>(</span><span class='op'>)</span>,
+  xtrans <span class='op'>=</span> <span class='st'>"identity"</span>,
+  ytrans <span class='op'>=</span> <span class='st'>"identity"</span>,
+  y_ticks <span class='op'>=</span> <span class='fl'>6</span>,
+  highlight <span class='op'>=</span> <span class='cn'>NULL</span>,
+  legend_var <span class='op'>=</span> <span class='cn'>NULL</span>,
+  wrap_var <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>sim</th>
-      <td><p>An object of class <a href='MizerSim-class.html'>MizerSim</a></p></td>
+      <th>frame</th>
+      <td><p>A data frame with at least three variables.
+The first three variables are used, in that order, as:</p><ol>
+<li><p>Variable to be plotted on x-axis</p></li>
+<li><p>Variable to be plotted on y-axis</p></li>
+<li><p>Grouping variable</p></li>
+</ol></td>
     </tr>
     <tr>
-      <th>species</th>
-      <td><p>The species to be selected. Optional. By default all target
-species are selected. A vector of species names, or a
-numeric vector with the species indices, or a logical vector indicating for
-each species whether it is to be selected (TRUE) or not.</p></td>
+      <th>params</th>
+      <td><p>A MizerParams object, which is used for the line colours and
+line types.</p></td>
     </tr>
     <tr>
-      <th>start_time</th>
-      <td><p>The first time to be plotted. Default is the beginning
-of the time series.</p></td>
+      <th>xlab</th>
+      <td><p>Label for the x-axis</p></td>
     </tr>
     <tr>
-      <th>end_time</th>
-      <td><p>The last time to be plotted. Default is the end of the
-time series.</p></td>
+      <th>ylab</th>
+      <td><p>Label for the y-axis</p></td>
     </tr>
     <tr>
-      <th>ylim</th>
-      <td><p>A numeric vector of length two providing lower and upper limits
-for the y axis. Use NA to refer to the existing minimum or maximum. Any
-values below 1e-20 are always cut off.</p></td>
+      <th>xtrans</th>
+      <td><p>Transformation for the x-axis. Often "log10" may be useful
+instead of the default of "identity".</p></td>
     </tr>
     <tr>
-      <th>total</th>
-      <td><p>A boolean value that determines whether the total biomass from
-all species is plotted as well. Default is FALSE.</p></td>
+      <th>ytrans</th>
+      <td><p>Transformation for the y-axis.</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>Arguments passed on to <code><a href='get_size_range_array.html'>get_size_range_array</a></code></p><dl>
-    <dt><code>min_w</code></dt><dd><p>Smallest weight in size range. Defaults to smallest weight in
-the model.</p></dd>
-    <dt><code>max_w</code></dt><dd><p>Largest weight in size range. Defaults to largest weight in the
-model.</p></dd>
-    <dt><code>min_l</code></dt><dd><p>Smallest length in size range. If supplied, this takes
-precedence over <code>min_w</code>.</p></dd>
-    <dt><code>max_l</code></dt><dd><p>Largest length in size range. If supplied, this takes precedence
-over <code>max_w</code>.</p></dd>
-  
-</dl></td>
+      <th>y_ticks</th>
+      <td><p>The approximate number of ticks desired on the y axis</p></td>
+    </tr>
+    <tr>
+      <th>highlight</th>
+      <td><p>Name or vector of names of the species to be highlighted.</p></td>
+    </tr>
+    <tr>
+      <th>legend_var</th>
+      <td><p>The name of the variable that should be used in the legend
+and to determine the line style. If NULL then the grouping variable is
+used for this purpose.</p></td>
+    </tr>
+    <tr>
+      <th>wrap_var</th>
+      <td><p>Optional. The name of the variable that should be used for
+creating wrapped facets.</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>A data frame</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -270,11 +283,11 @@ over <code>max_w</code>.</p></dd>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
+  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -299,8 +312,6 @@ over <code>max_w</code>.</p></dd>
 </script>
 
 
-
-  
 
   </body>
 </html>

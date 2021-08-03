@@ -8,6 +8,13 @@
 
 <title>Set reproduction parameters — setReproduction • mizer</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -49,8 +56,7 @@
 <meta property="og:description" content="Sets the proportion of the total energy available for reproduction and growth
 that is invested into reproduction as a function of the size of the
 individual and sets additional density dependence." />
-
-
+<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
 
 
 
@@ -66,15 +72,9 @@ individual and sets additional density dependence." />
 
 
 
-  
-
-  
-
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -88,7 +88,7 @@ individual and sets additional density dependence." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
       </span>
     </div>
 
@@ -99,11 +99,13 @@ individual and sets additional density dependence." />
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Tutorials
+    Articles
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li class="divider"></li>
+    <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
     </li>
@@ -126,10 +128,15 @@ individual and sets additional density dependence." />
       <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
     </li>
     <li>
-      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
     </li>
     <li>
       <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">Publications</li>
+    <li>
+      <a href="../articles/publications.html">Publications</a>
     </li>
     <li class="divider"></li>
     <li class="dropdown-header">For developers</li>
@@ -151,14 +158,20 @@ individual and sets additional density dependence." />
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/publications.html">Publications</a>
-</li>
-<li>
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
+  <a href="https://blog.mizer.sizespectrum.org">Blog</a>
+</li>
+<li>
+  <a href="https://twitter.com/mizer_model">
+    <span class="fab fa-twitter fa-lg"></span>
+     
+  </a>
+</li>
+<li>
   <a href="https://github.com/sizespectrum/mizer/">
     <span class="fab fa-github fa-lg"></span>
      
@@ -194,7 +207,7 @@ that is invested into reproduction as a function of the size of the
 individual and sets additional density dependence.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>setReproduction</span><span class='op'>(</span>
+    <pre class="usage"><span class='fu'>setReproduction</span><span class='op'>(</span>
   <span class='va'>params</span>,
   maturity <span class='op'>=</span> <span class='cn'>NULL</span>,
   comment_maturity <span class='op'>=</span> <span class='st'>"set manually"</span>,
@@ -206,7 +219,7 @@ individual and sets additional density dependence.</p>
 
 <span class='fu'>getMaturityProportion</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
 
-<span class='fu'>getReproductionProportion</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></code></pre></div>
+<span class='fu'>getReproductionProportion</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -281,7 +294,7 @@ that is invested into reproduction is the product of two factors: the
 proportion <code>maturity</code> of individuals that are mature and the proportion
 <code>repro_prop</code> of the energy available to a mature individual that is
 invested into reproduction.</p>
-<h3 class='hasAnchor' id='maturity-ogive'><a class='anchor' aria-hidden='true' href='#maturity-ogive'></a>Maturity ogive</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Maturity ogive</h3>
 <p>If the the proportion of individuals that are mature is not supplied via
 the <code>maturity</code> argument , then it is set to a sigmoidal
 maturity ogive that changes from 0 to 1 at around the maturity size:
@@ -302,7 +315,7 @@ maximum size, taken from the compulsory <code>w_inf</code> column in the
 <code>species_params</code> data frame. Also, for computational simplicity, any
 proportion smaller than <code>1e-8</code> is set to <code>0</code>.</p>
 
-<h3 class='hasAnchor' id='investment-into-reproduction'><a class='anchor' aria-hidden='true' href='#investment-into-reproduction'></a>Investment into reproduction</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Investment into reproduction</h3>
 <p>If the the energy available to a mature individual that is
 invested into reproduction is not supplied via the <code>repro_prop</code> argument,
 it is set to the allometric form
@@ -318,7 +331,7 @@ data frame.</p>
 <p>So finally we have
 $$\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)$$</p>
 
-<h3 class='hasAnchor' id='reproductive-efficiency'><a class='anchor' aria-hidden='true' href='#reproductive-efficiency'></a>Reproductive efficiency</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Reproductive efficiency</h3>
 <p>The reproductive efficiency \(\epsilon\), i.e., the proportion of energy allocated to
 reproduction that results in egg biomass, is set through the <code>erepro</code>
 column in the species_params data frame. If that is not provided, the default
@@ -327,7 +340,7 @@ by the egg biomass gives the rate of egg production, returned by
 <code><a href='getRDI.html'>getRDI()</a></code>:
 $$R_{di} = \frac{\epsilon}{2 w_{min}} \int N(w)  E_r(w) \psi(w) \, dw$$</p>
 
-<h3 class='hasAnchor' id='density-dependence'><a class='anchor' aria-hidden='true' href='#density-dependence'></a>Density dependence</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Density dependence</h3>
 <p>The stock-recruitment relationship is an emergent phenomenon in mizer, with
 several sources of density dependence. Firstly, the amount of energy invested
 into reproduction depends on the energy income of the spawners, which is
@@ -366,7 +379,7 @@ these as models for writing your own functions.</p>
 <code><a href='species_params.html'>species_params</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='co'># \donttest{</span></span>
+    <pre class="examples"><span class='r-in'><span class='co'># \donttest{</span></span>
 <span class='r-in'><span class='co'># Plot maturity and reproduction ogives for Cod in North Sea model</span></span>
 <span class='r-in'><span class='va'>maturity</span> <span class='op'>&lt;-</span> <span class='fu'>getMaturityProportion</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span><span class='op'>[</span><span class='st'>"Cod"</span>, <span class='op'>]</span></span>
 <span class='r-in'><span class='va'>repro_prop</span> <span class='op'>&lt;-</span> <span class='fu'>getReproductionProportion</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span><span class='op'>[</span><span class='st'>"Cod"</span>, <span class='op'>]</span></span>
@@ -381,7 +394,7 @@ these as models for writing your own functions.</p>
 <span class='r-in'><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='va'>dff</span><span class='op'>)</span> <span class='op'>+</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>Size</span>, y <span class='op'>=</span> <span class='va'>Proportion</span>, colour <span class='op'>=</span> <span class='va'>Type</span><span class='op'>)</span><span class='op'>)</span></span>
 <span class='r-plt'><img src='setReproduction-1.png' alt='' width='700' height='433' /></span>
 <span class='r-in'><span class='co'># }</span></span>
-</code></pre></div>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -393,11 +406,11 @@ these as models for writing your own functions.</p>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
+  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -422,8 +435,6 @@ these as models for writing your own functions.</p>
 </script>
 
 
-
-  
 
   </body>
 </html>

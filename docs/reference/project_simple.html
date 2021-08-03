@@ -8,6 +8,13 @@
 
 <title>Project abundances by a given number of time steps into the future — project_simple • mizer</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -48,8 +55,7 @@
 <meta property="og:title" content="Project abundances by a given number of time steps into the future — project_simple" />
 <meta property="og:description" content="This is an internal function used by the user-facing project() function.
 It is of potential interest only to mizer extension authors." />
-
-
+<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
 
 
 
@@ -65,15 +71,9 @@ It is of potential interest only to mizer extension authors." />
 
 
 
-  
-
-  
-
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -87,7 +87,7 @@ It is of potential interest only to mizer extension authors." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
       </span>
     </div>
 
@@ -98,11 +98,13 @@ It is of potential interest only to mizer extension authors." />
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Tutorials
+    Articles
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li class="divider"></li>
+    <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
     </li>
@@ -125,10 +127,15 @@ It is of potential interest only to mizer extension authors." />
       <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
     </li>
     <li>
-      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
     </li>
     <li>
       <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">Publications</li>
+    <li>
+      <a href="../articles/publications.html">Publications</a>
     </li>
     <li class="divider"></li>
     <li class="dropdown-header">For developers</li>
@@ -150,14 +157,20 @@ It is of potential interest only to mizer extension authors." />
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/publications.html">Publications</a>
-</li>
-<li>
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
+  <a href="https://blog.mizer.sizespectrum.org">Blog</a>
+</li>
+<li>
+  <a href="https://twitter.com/mizer_model">
+    <span class="fab fa-twitter fa-lg"></span>
+     
+  </a>
+</li>
+<li>
   <a href="https://github.com/sizespectrum/mizer/">
     <span class="fab fa-github fa-lg"></span>
      
@@ -192,20 +205,20 @@ It is of potential interest only to mizer extension authors." />
 It is of potential interest only to mizer extension authors.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>project_simple</span><span class='op'>(</span>
+    <pre class="usage"><span class='fu'>project_simple</span><span class='op'>(</span>
   <span class='va'>params</span>,
-  <span class='va'>n</span>,
-  <span class='va'>n_pp</span>,
-  <span class='va'>n_other</span>,
-  <span class='va'>t</span>,
-  <span class='va'>dt</span>,
+  n <span class='op'>=</span> <span class='va'>params</span><span class='op'>@</span><span class='va'>initial_n</span>,
+  n_pp <span class='op'>=</span> <span class='va'>params</span><span class='op'>@</span><span class='va'>initial_n_pp</span>,
+  n_other <span class='op'>=</span> <span class='va'>params</span><span class='op'>@</span><span class='va'>initial_n_other</span>,
+  effort <span class='op'>=</span> <span class='va'>params</span><span class='op'>@</span><span class='va'>initial_effort</span>,
+  t <span class='op'>=</span> <span class='fl'>0</span>,
+  dt <span class='op'>=</span> <span class='fl'>0.1</span>,
   <span class='va'>steps</span>,
-  <span class='va'>effort</span>,
-  <span class='va'>resource_dynamics_fn</span>,
-  <span class='va'>other_dynamics_fns</span>,
-  <span class='va'>rates_fns</span>,
+  resource_dynamics_fn <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/get.html'>get</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>@</span><span class='va'>resource_dynamics</span><span class='op'>)</span>,
+  other_dynamics_fns <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>@</span><span class='va'>other_dynamics</span>, <span class='va'>get</span><span class='op'>)</span>,
+  rates_fns <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>@</span><span class='va'>rates_funcs</span>, <span class='va'>get</span><span class='op'>)</span>,
   <span class='va'>...</span>
-<span class='op'>)</span></code></pre></div>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -230,6 +243,11 @@ simulation.</p></td>
 of simulation.</p></td>
     </tr>
     <tr>
+      <th>effort</th>
+      <td><p>The fishing effort to be used throughout the simulation. This
+must be a vector or list with one named entry per fishing gear.</p></td>
+    </tr>
+    <tr>
       <th>t</th>
       <td><p>Time at the start of the simulation.</p></td>
     </tr>
@@ -240,11 +258,6 @@ of simulation.</p></td>
     <tr>
       <th>steps</th>
       <td><p>The number of time steps by which to project.</p></td>
-    </tr>
-    <tr>
-      <th>effort</th>
-      <td><p>The fishing effort to be used throughout the simulation. This
-must be a vector or list with one named entry per fishing gear.</p></td>
     </tr>
     <tr>
       <th>resource_dynamics_fn</th>
@@ -278,10 +291,10 @@ as possible to allow it to be used in a loop. For example, it is called in
 intermediate results but only returns the result at time <code>t + dt * steps</code>.
 During this time it uses the constant fishing effort <code>effort</code>.</p>
 <p>The functional arguments can be calculated from slots in the <code>params</code> object
-with</p><pre class='sourceCode r'><code><span class='va'>resource_dynamics_fn</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/get.html'>get</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>@</span><span class='va'>resource_dynamics</span><span class='op'>)</span>
+with</p><pre><span class='va'>resource_dynamics_fn</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/get.html'>get</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>@</span><span class='va'>resource_dynamics</span><span class='op'>)</span>
 <span class='va'>other_dynamics_fns</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>@</span><span class='va'>other_dynamics</span>, <span class='va'>get</span><span class='op'>)</span>
 <span class='va'>rates_fns</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>@</span><span class='va'>rates_funcs</span>, <span class='va'>get</span><span class='op'>)</span>
-</code></pre>
+</pre>
 
 <p>The reason the function does not do that itself is to shave 20 microseconds
 of its running time, which pays when the function is called hundreds of
@@ -305,11 +318,11 @@ final time step, these too are included in the returned list.</p>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
+  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -334,8 +347,6 @@ final time step, these too are included in the returned list.</p>
 </script>
 
 
-
-  
 
   </body>
 </html>
