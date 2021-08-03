@@ -25,19 +25,21 @@ toc:
 
 navbar:
   structure:
-    left: [home, intro, articles, reference, news, blog]
+    left: [home, intro, articles, reference, news]
     right: [github, twitter]
   components:
-    blog:
-      text: Blog
-      href: https://sizespectrum.org/mizerBlog/
     twitter:
        icon: "fab fa-twitter fa-lg"
        href: https://twitter.com/mizer_model
 
+
 articles:
+- title: Blog
+  navbar: Blog
+  contents:
+  - starts_with("blog")
 - title: Tutorials
-  navbar: ~
+  navbar: Tutorials
   contents:
   - mizer
   - single_species_size-spectrum_dynamics
@@ -49,6 +51,10 @@ articles:
   - exploring_the_simulation_results
   - a_multispecies_model_of_the_north_sea
   - plotting
+- title: Publications
+  navbar: Publications
+  contents:
+  - publications
 - title: Developer Guide
   navbar: For developers
   contents:
