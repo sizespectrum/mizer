@@ -94,4 +94,3 @@ URL: https://sizespectrum.org/mizer/, https://github.com/sizespectrum/mizer
 BugReports: https://github.com/sizespectrum/mizer/issues
 Language: en-GB
 RdMacros: lifecycle
-VignetteBuilder: knitr
