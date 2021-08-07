@@ -54,6 +54,17 @@ of the way the R language works, \code{setFishing()} does not make the changes
 to the params object that you pass to it but instead returns a new params
 object. So to affect the change you call the function in the form
 \code{params <- setFishing(params, ...)}.
+
+For \code{getCatchability()}: An array (gear x species) that holds the catchability of
+each species by each gear, \eqn{Q_{g,i}}.
+The names of the dimensions are "gear, "sp".
+
+For \code{getSelectivity()}: An array (gear x species x size) that holds
+the selectivity of each gear for species and size, \eqn{S_{g,i,w}}.
+The names of the dimensions are "gear, "sp", "w".
+
+For \code{getInitialEffort()}: A named vector with the initial fishing
+effort for each gear.
 }
 \description{
 Set fishing parameters
@@ -144,6 +155,11 @@ the simulation is run with \code{project()}, where it is also possible to specif
 an effort that varies through time.
 }
 
+\examples{
+str(getCatchability(NS_params))
+str(getSelectivity(NS_params))
+str(getInitialEffort(NS_params))
+}
 \seealso{
 \code{\link[=gear_params]{gear_params()}}
 
