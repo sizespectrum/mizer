@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-<img src="man/figures/mizer.png" style='height: 100%; width: 100%; object-fit: contain'/>
+<img src="man/figures/mizer.png" style='height: 100%; width: 100%; object-fit: contain' title="mizer logo created by Kira Askaroff (www.kiraaskaroff.com)"/>
 
 [![CRAN
 Status](https://www.r-pkg.org/badges/version-ago/mizer)](https://cran.r-project.org/package=mizer)
