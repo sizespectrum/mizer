@@ -8,6 +8,13 @@
 
 <title>Set up parameters for a single species in a power-law background — newSingleSpeciesParams • mizer</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -55,6 +62,7 @@ switched off. The predation mortality arises only from the predators in the
 power-law community and it is assumed that the predators in the community
 have the same feeding parameters as the foreground species. The function has
 many arguments, all of which have default values." />
+<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
 
 
 <meta name="robots" content="noindex">
@@ -94,7 +102,7 @@ many arguments, all of which have default values." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9000</span>
       </span>
     </div>
 
@@ -110,6 +118,8 @@ many arguments, all of which have default values." />
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li class="divider"></li>
+    <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
     </li>
@@ -138,6 +148,11 @@ many arguments, all of which have default values." />
       <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
     </li>
     <li class="divider"></li>
+    <li class="dropdown-header">Publications</li>
+    <li>
+      <a href="../articles/publications.html">Publications</a>
+    </li>
+    <li class="divider"></li>
     <li class="dropdown-header">For developers</li>
     <li>
       <a href="../articles/developer_vignette.html">Developer Guide</a>
@@ -157,14 +172,20 @@ many arguments, all of which have default values." />
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/publications.html">Publications</a>
-</li>
-<li>
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
+  <a href="https://blog.mizer.sizespectrum.org">Blog</a>
+</li>
+<li>
+  <a href="https://twitter.com/mizer_model">
+    <span class="fab fa-twitter fa-lg"></span>
+     
+  </a>
+</li>
+<li>
   <a href="https://github.com/sizespectrum/mizer/">
     <span class="fab fa-github fa-lg"></span>
      
@@ -227,7 +248,7 @@ many arguments, all of which have default values.</p>
   gamma <span class='op'>=</span> <span class='cn'>NA</span>,
   ext_mort_prop <span class='op'>=</span> <span class='fl'>0</span>,
   reproduction_level <span class='op'>=</span> <span class='fl'>0</span>,
-  R_factor <span class='op'>=</span> <span class='fu'><a href='https://tibble.tidyverse.org/reference/deprecated.html'>deprecated</a></span><span class='op'>(</span><span class='op'>)</span>
+  R_factor <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Deprecated.html'>deprecated</a></span><span class='op'>(</span><span class='op'>)</span>
 <span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>

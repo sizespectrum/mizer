@@ -8,6 +8,13 @@
 
 <title>Changelog • mizer</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -46,6 +53,7 @@
 
 
 <meta property="og:title" content="Changelog" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
 
 
 <meta name="robots" content="noindex">
@@ -85,7 +93,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9000</span>
       </span>
     </div>
 
@@ -101,6 +109,8 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li class="divider"></li>
+    <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
     </li>
@@ -129,6 +139,11 @@
       <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
     </li>
     <li class="divider"></li>
+    <li class="dropdown-header">Publications</li>
+    <li>
+      <a href="../articles/publications.html">Publications</a>
+    </li>
+    <li class="divider"></li>
     <li class="dropdown-header">For developers</li>
     <li>
       <a href="../articles/developer_vignette.html">Developer Guide</a>
@@ -148,22 +163,22 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/publications.html">Publications</a>
-</li>
-<li>
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/sizespectrum/mizer/">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
+  <a href="https://blog.mizer.sizespectrum.org">Blog</a>
 </li>
 <li>
   <a href="https://twitter.com/mizer_model">
     <span class="fab fa-twitter fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://github.com/sizespectrum/mizer/">
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -190,9 +205,9 @@
       <small>Source: <a href='https://github.com/sizespectrum/mizer/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="mizer-2209000-development-version" class="section level1">
-<h1 class="page-header" data-toc-text="2.2.0.9000">
-<a href="#mizer-2209000-development-version" class="anchor" aria-hidden="true"></a>mizer 2.2.0.9000 (development version)<small> Unreleased </small></h1>
+    <div id="mizer-221" class="section level1">
+<h1 class="page-header" data-toc-text="2.2.1">
+<a href="#mizer-221" class="anchor" aria-hidden="true"></a>mizer 2.2.1<small> 2021-08-03 </small></h1>
 <div id="new-functionality" class="section level2">
 <h2 class="hasAnchor">
 <a href="#new-functionality" class="anchor" aria-hidden="true"></a>New functionality</h2>
@@ -218,7 +233,7 @@
 <code><a href="../reference/plotSpectra.html">plotSpectra()</a></code> now only shows those species in the legend that are actually contained in the plot.</li>
 <li>Updated tests of plots to use new version of vdiffr package.</li>
 <li>Some improvements to the examples on the help pages.</li>
-<li>Some functions do more thorogh tests of their arguments to give more useful error messages.</li>
+<li>Some functions do more thorough tests of their arguments to give more useful error messages.</li>
 <li>
 <code><a href="../reference/initialNOther-set.html">initialNOther()</a></code> also works with MizerSim object.</li>
 <li>When <code><a href="../reference/projectToSteady.html">projectToSteady()</a></code> is called with <code>effort</code>, this effort is now also stored in the <code>initial_effort</code> slot.</li>

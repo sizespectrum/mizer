@@ -8,6 +8,13 @@
 
 <title>Set fishing parameters — setFishing • mizer</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -47,6 +54,7 @@
 
 <meta property="og:title" content="Set fishing parameters — setFishing" />
 <meta property="og:description" content="Set fishing parameters" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
 
 
 <meta name="robots" content="noindex">
@@ -86,7 +94,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9000</span>
       </span>
     </div>
 
@@ -102,6 +110,8 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li class="divider"></li>
+    <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
     </li>
@@ -130,6 +140,11 @@
       <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
     </li>
     <li class="divider"></li>
+    <li class="dropdown-header">Publications</li>
+    <li>
+      <a href="../articles/publications.html">Publications</a>
+    </li>
+    <li class="divider"></li>
     <li class="dropdown-header">For developers</li>
     <li>
       <a href="../articles/developer_vignette.html">Developer Guide</a>
@@ -149,14 +164,20 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/publications.html">Publications</a>
-</li>
-<li>
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
+  <a href="https://blog.mizer.sizespectrum.org">Blog</a>
+</li>
+<li>
+  <a href="https://twitter.com/mizer_model">
+    <span class="fab fa-twitter fa-lg"></span>
+     
+  </a>
+</li>
+<li>
   <a href="https://github.com/sizespectrum/mizer/">
     <span class="fab fa-github fa-lg"></span>
      
@@ -256,6 +277,14 @@ of the way the R language works, <code>setFishing()</code> does not make the cha
 to the params object that you pass to it but instead returns a new params
 object. So to affect the change you call the function in the form
 <code>params &lt;- setFishing(params, ...)</code>.</p>
+<p>For <code>getCatchability()</code>: An array (gear x species) that holds the catchability of
+each species by each gear, \(Q_{g,i}\).
+The names of the dimensions are "gear, "sp".</p>
+<p>For <code>getSelectivity()</code>: An array (gear x species x size) that holds
+the selectivity of each gear for species and size, \(S_{g,i,w}\).
+The names of the dimensions are "gear, "sp", "w".</p>
+<p>For <code>getInitialEffort()</code>: A named vector with the initial fishing
+effort for each gear.</p>
     <h2 class="hasAnchor" id="setting-fishing"><a class="anchor" href="#setting-fishing"></a>Setting fishing</h2>
 
     
@@ -348,6 +377,22 @@ an effort that varies through time.</p>
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code>,
 <code><a href='species_params.html'>species_params</a>()</code></p></div>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='op'>(</span><span class='fu'>getCatchability</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  num [1:4, 1:12] 1 0 0 0 1 0 0 0 1 0 ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  - attr(*, "dimnames")=List of 2</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   ..$ gear: chr [1:4] "Industrial" "Pelagic" "Beam" "Otter"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   ..$ sp  : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='op'>(</span><span class='fu'>getSelectivity</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  num [1:4, 1:12, 1:100] 0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  - attr(*, "dimnames")=List of 3</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   ..$ gear: chr [1:4] "Industrial" "Pelagic" "Beam" "Otter"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   ..$ sp  : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   ..$ w   : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='op'>(</span><span class='fu'>getInitialEffort</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  Named num [1:4] 0 1 0.5 0.5</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  - attr(*, "names")= chr [1:4] "Industrial" "Pelagic" "Beam" "Otter"</span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
