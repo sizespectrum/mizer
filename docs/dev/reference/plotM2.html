@@ -60,8 +60,6 @@ An alias provided for backward compatibility with mizer version &amp;lt;= 1.0" /
 
 <meta name="robots" content="noindex">
 
-
-
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -73,15 +71,9 @@ An alias provided for backward compatibility with mizer version &amp;lt;= 1.0" /
 
 
 
-  
-
-  
-
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -106,7 +98,7 @@ An alias provided for backward compatibility with mizer version &amp;lt;= 1.0" /
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Tutorials
+    Articles
      
     <span class="caret"></span>
   </a>
@@ -213,7 +205,7 @@ An alias provided for backward compatibility with mizer version &amp;lt;= 1.0" /
 An alias provided for backward compatibility with mizer version &lt;= 1.0</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>plotM2</span><span class='op'>(</span>
+    <pre class="usage"><span class='fu'>plotM2</span><span class='op'>(</span>
   <span class='va'>object</span>,
   species <span class='op'>=</span> <span class='cn'>NULL</span>,
   <span class='va'>time_range</span>,
@@ -221,7 +213,7 @@ An alias provided for backward compatibility with mizer version &lt;= 1.0</p>
   highlight <span class='op'>=</span> <span class='cn'>NULL</span>,
   return_data <span class='op'>=</span> <span class='cn'>FALSE</span>,
   <span class='va'>...</span>
-<span class='op'>)</span></code></pre></div>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -274,7 +266,7 @@ frame with the three variables 'w', 'value', 'Species' is returned.</p>
     <div class='dont-index'><p><a href='plotting_functions.html'>plotting_functions</a>,  <code><a href='getPredMort.html'>getPredMort()</a></code></p>
 <p>Other plotting functions: 
 <code><a href='animateSpectra.html'>animateSpectra</a>()</code>,
-<code><a href='plotMizerSim.html'>plot,MizerSim,missing-method</a></code>,
+<code><a href='plot,MizerSim,missing-method.html'>plot,MizerSim,missing-method</a></code>,
 <code><a href='plotBiomass.html'>plotBiomass</a>()</code>,
 <code><a href='plotDiet.html'>plotDiet</a>()</code>,
 <code><a href='plotFMort.html'>plotFMort</a>()</code>,
@@ -286,23 +278,20 @@ frame with the three variables 'w', 'value', 'Species' is returned.</p>
 <code><a href='plotting_functions.html'>plotting_functions</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='co'># \donttest{</span></span>
-<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span><span class='op'>(</span><span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span><span class='op'>)</span></span>
-<span class='r-in'><span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort<span class='op'>=</span><span class='fl'>1</span>, t_max<span class='op'>=</span><span class='fl'>20</span>, t_save <span class='op'>=</span> <span class='fl'>2</span>, progress_bar <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></span>
-<span class='r-in'><span class='fu'><a href='plotPredMort.html'>plotPredMort</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span></span>
-<span class='r-plt'><img src='plotM2-1.png' alt='' width='700' height='433' /></span>
-<span class='r-in'><span class='fu'><a href='plotPredMort.html'>plotPredMort</a></span><span class='op'>(</span><span class='va'>sim</span>, time_range <span class='op'>=</span> <span class='fl'>10</span><span class='op'>:</span><span class='fl'>20</span><span class='op'>)</span></span>
-<span class='r-plt'><img src='plotM2-2.png' alt='' width='700' height='433' /></span>
-<span class='r-in'></span>
-<span class='r-in'><span class='co'># Returning the data frame</span></span>
-<span class='r-in'><span class='va'>fr</span> <span class='op'>&lt;-</span> <span class='fu'><a href='plotPredMort.html'>plotPredMort</a></span><span class='op'>(</span><span class='va'>sim</span>, return_data <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
-<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='op'>(</span><span class='va'>fr</span><span class='op'>)</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 'data.frame':	934 obs. of  3 variables:</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  $ w      : num  0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 ...</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  $ value  : num  5.54 2.5 5.48 6.67 8.18 ...</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  $ Species: chr  "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class='r-in'><span class='co'># }</span></span>
-</code></pre></div>
+    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span><span class='op'>(</span><span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort<span class='op'>=</span><span class='fl'>1</span>, t_max<span class='op'>=</span><span class='fl'>20</span>, t_save <span class='op'>=</span> <span class='fl'>2</span>, progress_bar <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+<span class='fu'><a href='plotPredMort.html'>plotPredMort</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span>
+</div><div class='img'><img src='plotM2-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='plotPredMort.html'>plotPredMort</a></span><span class='op'>(</span><span class='va'>sim</span>, time_range <span class='op'>=</span> <span class='fl'>10</span><span class='op'>:</span><span class='fl'>20</span><span class='op'>)</span>
+</div><div class='img'><img src='plotM2-2.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='co'># Returning the data frame</span>
+<span class='va'>fr</span> <span class='op'>&lt;-</span> <span class='fu'><a href='plotPredMort.html'>plotPredMort</a></span><span class='op'>(</span><span class='va'>sim</span>, return_data <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='op'>(</span><span class='va'>fr</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; 'data.frame':	934 obs. of  3 variables:
+#&gt;  $ w      : num  0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 ...
+#&gt;  $ value  : num  5.54 2.5 5.48 6.67 8.18 ...
+#&gt;  $ Species: chr  "Sprat" "Sandeel" "N.pout" "Herring" ...</div><div class='input'><span class='co'># }</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -314,11 +303,11 @@ frame with the three variables 'w', 'value', 'Species' is returned.</p>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
+  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -343,8 +332,6 @@ frame with the three variables 'w', 'value', 'Species' is returned.</p>
 </script>
 
 
-
-  
 
   </body>
 </html>

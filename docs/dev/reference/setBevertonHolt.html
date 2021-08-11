@@ -71,8 +71,6 @@ provided below." />
 
 <meta name="robots" content="noindex">
 
-
-
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -84,15 +82,9 @@ provided below." />
 
 
 
-  
-
-  
-
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -117,7 +109,7 @@ provided below." />
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Tutorials
+    Articles
      
     <span class="caret"></span>
   </a>
@@ -235,13 +227,13 @@ you pick the desired reproduction curve. More details of these parameters are
 provided below.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>setBevertonHolt</span><span class='op'>(</span>
+    <pre class="usage"><span class='fu'>setBevertonHolt</span><span class='op'>(</span>
   <span class='va'>params</span>,
   R_factor <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Deprecated.html'>deprecated</a></span><span class='op'>(</span><span class='op'>)</span>,
   <span class='va'>erepro</span>,
   <span class='va'>R_max</span>,
   <span class='va'>reproduction_level</span>
-<span class='op'>)</span></code></pre></div>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -332,62 +324,54 @@ energy income. As a result the species will also be less sensitive to
 fishing, leading to a higher F_MSY.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='va'>NS_params</span></span>
-<span class='r-in'><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>erepro</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  [1] 1 1 1 1 1 1 1 1 1 1 1 1</span>
-<span class='r-in'><span class='co'># Attempting to set the same erepro for all species</span></span>
-<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setBevertonHolt</span><span class='op'>(</span><span class='va'>params</span>, erepro <span class='op'>=</span> <span class='fl'>0.1</span><span class='op'>)</span></span>
-<span class='r-wrn co'><span class='r-pr'>#&gt;</span> <span class='warning'>Warning: </span>For the following species the requested `erepro` was too small and has been increased to the smallest possible value: Gurnard, Plaice</span>
-<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span><span class='op'>(</span><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"erepro"</span>, <span class='st'>"R_max"</span><span class='op'>)</span><span class='op'>]</span><span class='op'>)</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>               Sprat      Sandeel       N.pout      Herring          Dab</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> erepro 1.000000e-01 1.000000e-01 1.000000e-01 1.000000e-01 1.000000e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> R_max  8.071481e+11 4.112049e+11 3.472063e+13 1.197577e+12 1.167176e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>            Whiting         Sole   Gurnard    Plaice      Haddock          Cod</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> erepro 1.00000e-01 1.000000e-01 0.5582259 0.9212325 1.000000e-01          0.1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> R_max  6.22081e+11 4.007876e+10       Inf       Inf 3.929056e+12 8280106764.0</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>              Saithe</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> erepro 1.000000e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> R_max  1.145835e+11</span>
-<span class='r-in'><span class='co'># Setting erepro for some species</span></span>
-<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setBevertonHolt</span><span class='op'>(</span><span class='va'>params</span>, erepro <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Gurnard"</span> <span class='op'>=</span> <span class='fl'>0.6</span>, <span class='st'>"Plaice"</span> <span class='op'>=</span> <span class='fl'>0.95</span><span class='op'>)</span><span class='op'>)</span></span>
-<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span><span class='op'>(</span><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"erepro"</span>, <span class='st'>"R_max"</span><span class='op'>)</span><span class='op'>]</span><span class='op'>)</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>               Sprat      Sandeel       N.pout      Herring          Dab</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> erepro 1.000000e-01 1.000000e-01 1.000000e-01 1.000000e-01 1.000000e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> R_max  8.071481e+11 4.112049e+11 3.472063e+13 1.197577e+12 1.167176e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>            Whiting         Sole      Gurnard       Plaice      Haddock</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> erepro 1.00000e-01 1.000000e-01 6.000000e-01 9.500000e-01 1.000000e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> R_max  6.22081e+11 4.007876e+10 1.047481e+13 1.082568e+15 3.929056e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>                 Cod       Saithe</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> erepro          0.1 1.000000e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> R_max  8280106764.0 1.145835e+11</span>
-<span class='r-in'><span class='co'># Setting R_max</span></span>
-<span class='r-in'><span class='va'>R_max</span> <span class='op'>&lt;-</span> <span class='fl'>1e17</span> <span class='op'>*</span> <span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>w_inf</span><span class='op'>^</span><span class='op'>-</span><span class='fl'>1</span></span>
-<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setBevertonHolt</span><span class='op'>(</span><span class='va'>NS_params</span>, R_max <span class='op'>=</span> <span class='va'>R_max</span><span class='op'>)</span></span>
-<span class='r-wrn co'><span class='r-pr'>#&gt;</span> <span class='warning'>Warning: </span>The following species require an unrealistic reproductive efficiency greater than 1: Plaice</span>
-<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span><span class='op'>(</span><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"erepro"</span>, <span class='st'>"R_max"</span><span class='op'>)</span><span class='op'>]</span><span class='op'>)</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>               Sprat      Sandeel       N.pout      Herring          Dab</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> erepro 9.274305e-03 1.297184e-04 7.257409e-02 8.045063e-03 4.224791e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> R_max  3.030303e+15 2.777778e+15 1.000000e+15 2.994012e+14 3.086420e+14</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>             Whiting         Sole      Gurnard       Plaice      Haddock</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> erepro 1.292557e-02 3.571380e-03 5.609587e-01 3.773957e+01 6.020565e-02</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> R_max  8.389262e+13 1.154734e+14 1.497006e+14 3.360215e+13 2.316692e+13</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>                 Cod       Saithe</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> erepro 6.375069e-05 2.433424e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> R_max  2.509328e+12 2.521521e+12</span>
-<span class='r-in'><span class='co'># Setting reproduction_level</span></span>
-<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setBevertonHolt</span><span class='op'>(</span><span class='va'>params</span>, reproduction_level <span class='op'>=</span> <span class='fl'>0.3</span><span class='op'>)</span></span>
-<span class='r-wrn co'><span class='r-pr'>#&gt;</span> <span class='warning'>Warning: </span>The following species require an unrealistic reproductive efficiency greater than 1: Plaice</span>
-<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span><span class='op'>(</span><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"erepro"</span>, <span class='st'>"R_max"</span><span class='op'>)</span><span class='op'>]</span><span class='op'>)</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>               Sprat      Sandeel       N.pout      Herring          Dab</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> erepro 1.324581e-02 1.852847e-04 1.026645e-01 1.145066e-02 6.035197e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> R_max  2.441029e+12 1.368905e+12 3.256200e+13 3.671952e+12 3.726224e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>             Whiting         Sole      Gurnard       Plaice      Haddock</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> erepro 1.834577e-02 5.100263e-03 7.974655e-01 1.316046e+00 7.954325e-02</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> R_max  1.807310e+12 1.288262e+11 2.430980e+12 1.092730e+14 5.804489e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>                 Cod       Saithe</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> erepro 9.077210e-05 3.322021e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> R_max  2.758282e+10 3.730633e+11</span>
-</code></pre></div>
+    <pre class="examples"><div class='input'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='va'>NS_params</span>
+<span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>erepro</span>
+</div><div class='output co'>#&gt;  [1] 1 1 1 1 1 1 1 1 1 1 1 1</div><div class='input'><span class='co'># Attempting to set the same erepro for all species</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setBevertonHolt</span><span class='op'>(</span><span class='va'>params</span>, erepro <span class='op'>=</span> <span class='fl'>0.1</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='warning'>Warning: For the following species the requested `erepro` was too small and has been increased to the smallest possible value: Gurnard, Plaice</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span><span class='op'>(</span><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"erepro"</span>, <span class='st'>"R_max"</span><span class='op'>)</span><span class='op'>]</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;               Sprat      Sandeel       N.pout      Herring          Dab
+#&gt; erepro 1.000000e-01 1.000000e-01 1.000000e-01 1.000000e-01 1.000000e-01
+#&gt; R_max  8.071481e+11 4.112049e+11 3.472063e+13 1.197577e+12 1.167176e+10
+#&gt;            Whiting         Sole   Gurnard    Plaice      Haddock          Cod
+#&gt; erepro 1.00000e-01 1.000000e-01 0.5582259 0.9212325 1.000000e-01          0.1
+#&gt; R_max  6.22081e+11 4.007876e+10       Inf       Inf 3.929056e+12 8280106764.0
+#&gt;              Saithe
+#&gt; erepro 1.000000e-01
+#&gt; R_max  1.145835e+11</div><div class='input'><span class='co'># Setting erepro for some species</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setBevertonHolt</span><span class='op'>(</span><span class='va'>params</span>, erepro <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Gurnard"</span> <span class='op'>=</span> <span class='fl'>0.6</span>, <span class='st'>"Plaice"</span> <span class='op'>=</span> <span class='fl'>0.95</span><span class='op'>)</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span><span class='op'>(</span><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"erepro"</span>, <span class='st'>"R_max"</span><span class='op'>)</span><span class='op'>]</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;               Sprat      Sandeel       N.pout      Herring          Dab
+#&gt; erepro 1.000000e-01 1.000000e-01 1.000000e-01 1.000000e-01 1.000000e-01
+#&gt; R_max  8.071481e+11 4.112049e+11 3.472063e+13 1.197577e+12 1.167176e+10
+#&gt;            Whiting         Sole      Gurnard       Plaice      Haddock
+#&gt; erepro 1.00000e-01 1.000000e-01 6.000000e-01 9.500000e-01 1.000000e-01
+#&gt; R_max  6.22081e+11 4.007876e+10 1.047481e+13 1.082568e+15 3.929056e+12
+#&gt;                 Cod       Saithe
+#&gt; erepro          0.1 1.000000e-01
+#&gt; R_max  8280106764.0 1.145835e+11</div><div class='input'><span class='co'># Setting R_max</span>
+<span class='va'>R_max</span> <span class='op'>&lt;-</span> <span class='fl'>1e17</span> <span class='op'>*</span> <span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>w_inf</span><span class='op'>^</span><span class='op'>-</span><span class='fl'>1</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setBevertonHolt</span><span class='op'>(</span><span class='va'>NS_params</span>, R_max <span class='op'>=</span> <span class='va'>R_max</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='warning'>Warning: The following species require an unrealistic reproductive efficiency greater than 1: Plaice</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span><span class='op'>(</span><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"erepro"</span>, <span class='st'>"R_max"</span><span class='op'>)</span><span class='op'>]</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;               Sprat      Sandeel       N.pout      Herring          Dab
+#&gt; erepro 9.274305e-03 1.297184e-04 7.257409e-02 8.045063e-03 4.224791e-03
+#&gt; R_max  3.030303e+15 2.777778e+15 1.000000e+15 2.994012e+14 3.086420e+14
+#&gt;             Whiting         Sole      Gurnard       Plaice      Haddock
+#&gt; erepro 1.292557e-02 3.571380e-03 5.609587e-01 3.773957e+01 6.020565e-02
+#&gt; R_max  8.389262e+13 1.154734e+14 1.497006e+14 3.360215e+13 2.316692e+13
+#&gt;                 Cod       Saithe
+#&gt; erepro 6.375069e-05 2.433424e-03
+#&gt; R_max  2.509328e+12 2.521521e+12</div><div class='input'><span class='co'># Setting reproduction_level</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setBevertonHolt</span><span class='op'>(</span><span class='va'>params</span>, reproduction_level <span class='op'>=</span> <span class='fl'>0.3</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='warning'>Warning: The following species require an unrealistic reproductive efficiency greater than 1: Plaice</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span><span class='op'>(</span><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"erepro"</span>, <span class='st'>"R_max"</span><span class='op'>)</span><span class='op'>]</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;               Sprat      Sandeel       N.pout      Herring          Dab
+#&gt; erepro 1.324581e-02 1.852847e-04 1.026645e-01 1.145066e-02 6.035197e-03
+#&gt; R_max  2.441029e+12 1.368905e+12 3.256200e+13 3.671952e+12 3.726224e+10
+#&gt;             Whiting         Sole      Gurnard       Plaice      Haddock
+#&gt; erepro 1.834577e-02 5.100263e-03 7.974655e-01 1.316046e+00 7.954325e-02
+#&gt; R_max  1.807310e+12 1.288262e+11 2.430980e+12 1.092730e+14 5.804489e+12
+#&gt;                 Cod       Saithe
+#&gt; erepro 9.077210e-05 3.322021e-03
+#&gt; R_max  2.758282e+10 3.730633e+11</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -399,11 +383,11 @@ fishing, leading to a higher F_MSY.</p>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
+  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -428,8 +412,6 @@ fishing, leading to a higher F_MSY.</p>
 </script>
 
 
-
-  
 
   </body>
 </html>

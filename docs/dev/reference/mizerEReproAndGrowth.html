@@ -67,8 +67,6 @@ function has been registered, see below." />
 
 <meta name="robots" content="noindex">
 
-
-
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -80,15 +78,9 @@ function has been registered, see below." />
 
 
 
-  
-
-  
-
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -113,7 +105,7 @@ function has been registered, see below." />
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Tutorials
+    Articles
      
     <span class="caret"></span>
   </a>
@@ -226,7 +218,7 @@ You would not usually call this function directly but instead use
 function has been registered, see below.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>mizerEReproAndGrowth</span><span class='op'>(</span>
+    <pre class="usage"><span class='fu'>mizerEReproAndGrowth</span><span class='op'>(</span>
   <span class='va'>params</span>,
   <span class='va'>n</span>,
   <span class='va'>n_pp</span>,
@@ -235,7 +227,7 @@ function has been registered, see below.</p>
   <span class='va'>encounter</span>,
   <span class='va'>feeding_level</span>,
   <span class='va'>...</span>
-<span class='op'>)</span></code></pre></div>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -302,8 +294,8 @@ cover the cost of metabolism and movement.</p>
 <p>By default <code><a href='getEReproAndGrowth.html'>getEReproAndGrowth()</a></code> calls <code>mizerEReproAndGrowth()</code>. However you
 can replace this with your own alternative energy rate function. If
 your function is called <code>"myEReproAndGrowth"</code> then you register it in a
-MizerParams object <code>params</code> with</p><pre class='sourceCode r'><code><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span><span class='op'>(</span><span class='va'>params</span>, <span class='st'>"EReproAndGrowth"</span>, <span class='st'>"myEReproAndGrowth"</span><span class='op'>)</span>
-</code></pre>
+MizerParams object <code>params</code> with</p><pre><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span><span class='op'>(</span><span class='va'>params</span>, <span class='st'>"EReproAndGrowth"</span>, <span class='st'>"myEReproAndGrowth"</span><span class='op'>)</span>
+</pre>
 
 <p>Your function will then be called instead of <code>mizerEReproAndGrowth()</code>, with
 the same arguments.</p>
@@ -334,11 +326,11 @@ the same arguments.</p>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
+  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -363,8 +355,6 @@ the same arguments.</p>
 </script>
 
 
-
-  
 
   </body>
 </html>

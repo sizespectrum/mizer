@@ -66,8 +66,6 @@ Fish Index. The proportion is based on either abundance or biomass." />
 
 <meta name="robots" content="noindex">
 
-
-
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -79,15 +77,9 @@ Fish Index. The proportion is based on either abundance or biomass." />
 
 
 
-  
-
-  
-
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -112,7 +104,7 @@ Fish Index. The proportion is based on either abundance or biomass." />
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Tutorials
+    Articles
      
     <span class="caret"></span>
   </a>
@@ -225,14 +217,14 @@ be used in the calculation. This function can be used to calculate the Large
 Fish Index. The proportion is based on either abundance or biomass.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>getProportionOfLargeFish</span><span class='op'>(</span>
+    <pre class="usage"><span class='fu'>getProportionOfLargeFish</span><span class='op'>(</span>
   <span class='va'>sim</span>,
   species <span class='op'>=</span> <span class='cn'>NULL</span>,
   threshold_w <span class='op'>=</span> <span class='fl'>100</span>,
   threshold_l <span class='op'>=</span> <span class='cn'>NULL</span>,
   biomass_proportion <span class='op'>=</span> <span class='cn'>TRUE</span>,
   <span class='va'>...</span>
-<span class='op'>)</span></code></pre></div>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -290,26 +282,21 @@ over <code>max_w</code>.</p></dd>
 <code><a href='getMeanWeight.html'>getMeanWeight</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='va'>lfi</span> <span class='op'>&lt;-</span> <span class='fu'>getProportionOfLargeFish</span><span class='op'>(</span><span class='va'>NS_sim</span>, min_w <span class='op'>=</span> <span class='fl'>10</span>, max_w <span class='op'>=</span> <span class='fl'>5000</span>, </span>
-<span class='r-in'>                                threshold_w <span class='op'>=</span> <span class='fl'>500</span><span class='op'>)</span></span>
-<span class='r-in'><span class='va'>years</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"1972"</span>, <span class='st'>"2010"</span><span class='op'>)</span></span>
-<span class='r-in'><span class='va'>lfi</span><span class='op'>[</span><span class='va'>years</span><span class='op'>]</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>      1972      2010 </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 0.1425938 0.2573979 </span>
-<span class='r-in'><span class='fu'>getProportionOfLargeFish</span><span class='op'>(</span><span class='va'>NS_sim</span><span class='op'>)</span><span class='op'>[</span><span class='va'>years</span><span class='op'>]</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>      1972      2010 </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 0.3115163 0.4441647 </span>
-<span class='r-in'><span class='fu'>getProportionOfLargeFish</span><span class='op'>(</span><span class='va'>NS_sim</span>, species<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Herring"</span>,<span class='st'>"Sprat"</span>,<span class='st'>"N.pout"</span><span class='op'>)</span><span class='op'>)</span><span class='op'>[</span><span class='va'>years</span><span class='op'>]</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>       1972       2010 </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 0.06371869 0.21844009 </span>
-<span class='r-in'><span class='fu'>getProportionOfLargeFish</span><span class='op'>(</span><span class='va'>NS_sim</span>, min_w <span class='op'>=</span> <span class='fl'>10</span>, max_w <span class='op'>=</span> <span class='fl'>5000</span><span class='op'>)</span><span class='op'>[</span><span class='va'>years</span><span class='op'>]</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>      1972      2010 </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 0.3474937 0.5662073 </span>
-<span class='r-in'><span class='fu'>getProportionOfLargeFish</span><span class='op'>(</span><span class='va'>NS_sim</span>, min_w <span class='op'>=</span> <span class='fl'>10</span>, max_w <span class='op'>=</span> <span class='fl'>5000</span>,</span>
-<span class='r-in'>    threshold_w <span class='op'>=</span> <span class='fl'>500</span>, biomass_proportion <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span><span class='op'>[</span><span class='va'>years</span><span class='op'>]</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>       1972       2010 </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 0.00441820 0.01212436 </span>
-</code></pre></div>
+    <pre class="examples"><div class='input'><span class='va'>lfi</span> <span class='op'>&lt;-</span> <span class='fu'>getProportionOfLargeFish</span><span class='op'>(</span><span class='va'>NS_sim</span>, min_w <span class='op'>=</span> <span class='fl'>10</span>, max_w <span class='op'>=</span> <span class='fl'>5000</span>, 
+                                threshold_w <span class='op'>=</span> <span class='fl'>500</span><span class='op'>)</span>
+<span class='va'>years</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"1972"</span>, <span class='st'>"2010"</span><span class='op'>)</span>
+<span class='va'>lfi</span><span class='op'>[</span><span class='va'>years</span><span class='op'>]</span>
+</div><div class='output co'>#&gt;      1972      2010 
+#&gt; 0.1425938 0.2573979 </div><div class='input'><span class='fu'>getProportionOfLargeFish</span><span class='op'>(</span><span class='va'>NS_sim</span><span class='op'>)</span><span class='op'>[</span><span class='va'>years</span><span class='op'>]</span>
+</div><div class='output co'>#&gt;      1972      2010 
+#&gt; 0.3115163 0.4441647 </div><div class='input'><span class='fu'>getProportionOfLargeFish</span><span class='op'>(</span><span class='va'>NS_sim</span>, species<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Herring"</span>,<span class='st'>"Sprat"</span>,<span class='st'>"N.pout"</span><span class='op'>)</span><span class='op'>)</span><span class='op'>[</span><span class='va'>years</span><span class='op'>]</span>
+</div><div class='output co'>#&gt;       1972       2010 
+#&gt; 0.06371869 0.21844009 </div><div class='input'><span class='fu'>getProportionOfLargeFish</span><span class='op'>(</span><span class='va'>NS_sim</span>, min_w <span class='op'>=</span> <span class='fl'>10</span>, max_w <span class='op'>=</span> <span class='fl'>5000</span><span class='op'>)</span><span class='op'>[</span><span class='va'>years</span><span class='op'>]</span>
+</div><div class='output co'>#&gt;      1972      2010 
+#&gt; 0.3474937 0.5662073 </div><div class='input'><span class='fu'>getProportionOfLargeFish</span><span class='op'>(</span><span class='va'>NS_sim</span>, min_w <span class='op'>=</span> <span class='fl'>10</span>, max_w <span class='op'>=</span> <span class='fl'>5000</span>,
+    threshold_w <span class='op'>=</span> <span class='fl'>500</span>, biomass_proportion <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span><span class='op'>[</span><span class='va'>years</span><span class='op'>]</span>
+</div><div class='output co'>#&gt;       1972       2010 
+#&gt; 0.00441820 0.01212436 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -321,11 +308,11 @@ over <code>max_w</code>.</p></dd>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
+  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -350,8 +337,6 @@ over <code>max_w</code>.</p></dd>
 </script>
 
 
-
-  
 
   </body>
 </html>

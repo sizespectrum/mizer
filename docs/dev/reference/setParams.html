@@ -70,8 +70,6 @@ See the Details section below for a discussion of how to use this function." />
 
 <meta name="robots" content="noindex">
 
-
-
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -83,15 +81,9 @@ See the Details section below for a discussion of how to use this function." />
 
 
 
-  
-
-  
-
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -116,7 +108,7 @@ See the Details section below for a discussion of how to use this function." />
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Tutorials
+    Articles
      
     <span class="caret"></span>
   </a>
@@ -233,7 +225,7 @@ functions</p><ul>
 </ul><p>See the Details section below for a discussion of how to use this function.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>setParams</span><span class='op'>(</span><span class='va'>params</span>, interaction <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></code></pre></div>
+    <pre class="usage"><span class='fu'>setParams</span><span class='op'>(</span><span class='va'>params</span>, interaction <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -343,7 +335,8 @@ attribute.</p></dd>
     <dt><code>n</code></dt><dd><p>Allometric growth exponent for resource</p></dd>
     <dt><code>kappa</code></dt><dd><p>Coefficient of the intrinsic resource carrying capacity</p></dd>
     <dt><code>lambda</code></dt><dd><p>Scaling exponent of the intrinsic resource carrying capacity</p></dd>
-    <dt><code>w_pp_cutoff</code></dt><dd><p>The upper cut off size of the resource spectrum.
+    <dt><code>w_pp_cutoff</code></dt><dd><p>The upper cut off size of the resource spectrum.  The
+carrying capacity will be set to 0 above this size.
 Default is 10 g.</p></dd>
     <dt><code>resource_dynamics</code></dt><dd><p>Optional. Name of the function that determines the
 resource dynamics by calculating the resource spectrum at the next time
@@ -374,8 +367,8 @@ species parameters, you would make those changes in the <code>species_params</co
 frame contained in the <code>params</code> object using <code><a href='species_params.html'>species_params&lt;-()</a></code>.
 Here is an example which assumes that
 you have have a MizerParams object <code>params</code> in which you just want to change
-the <code>gamma</code> parameter of the third species:</p><pre class='sourceCode r'><code><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>gamma</span><span class='op'>[[</span><span class='fl'>3</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fl'>1000</span>
-</code></pre>
+the <code>gamma</code> parameter of the third species:</p><pre><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>gamma</span><span class='op'>[[</span><span class='fl'>3</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fl'>1000</span>
+</pre>
 
 <p>Internally that will actually call <code>setParams()</code> to recalculate any of the
 other parameters that are affected by the change in the species parameter.</p>
@@ -389,9 +382,9 @@ above example you would have used <code>params &lt;- setSearchVolume(params)</co
 instead of <code>params &lt;- setParams(params)</code>.</p>
 <p>If you have added a comment to a slot of the params object, then setParams()
 and its subfunctions will not recalculate the value for that slot from the
-species parameters. For example</p><pre class='sourceCode r'><code><span class='fu'><a href='https://rdrr.io/r/base/comment.html'>comment</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>@</span><span class='va'>search_vol</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='st'>"This should not change"</span>
+species parameters. For example</p><pre><span class='fu'><a href='https://rdrr.io/r/base/comment.html'>comment</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>@</span><span class='va'>search_vol</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='st'>"This should not change"</span>
 <span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>gamma</span> <span class='op'>&lt;-</span> <span class='fl'>10</span>
-</code></pre>
+</pre>
 
 <p>will just issue a warning "The search volume has been commented and therefore
 will not be recalculated from the species parameters". You can remove the
@@ -591,7 +584,7 @@ that is invested into reproduction is the product of two factors: the
 proportion <code>maturity</code> of individuals that are mature and the proportion
 <code>repro_prop</code> of the energy available to a mature individual that is
 invested into reproduction.</p>
-<h3 class='hasAnchor' id='maturity-ogive'><a class='anchor' aria-hidden='true' href='#maturity-ogive'></a>Maturity ogive</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Maturity ogive</h3>
 <p>If the the proportion of individuals that are mature is not supplied via
 the <code>maturity</code> argument , then it is set to a sigmoidal
 maturity ogive that changes from 0 to 1 at around the maturity size:
@@ -612,7 +605,7 @@ maximum size, taken from the compulsory <code>w_inf</code> column in the
 <code>species_params</code> data frame. Also, for computational simplicity, any
 proportion smaller than <code>1e-8</code> is set to <code>0</code>.</p>
 
-<h3 class='hasAnchor' id='investment-into-reproduction'><a class='anchor' aria-hidden='true' href='#investment-into-reproduction'></a>Investment into reproduction</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Investment into reproduction</h3>
 <p>If the the energy available to a mature individual that is
 invested into reproduction is not supplied via the <code>repro_prop</code> argument,
 it is set to the allometric form
@@ -628,7 +621,7 @@ data frame.</p>
 <p>So finally we have
 $$\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)$$</p>
 
-<h3 class='hasAnchor' id='reproductive-efficiency'><a class='anchor' aria-hidden='true' href='#reproductive-efficiency'></a>Reproductive efficiency</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Reproductive efficiency</h3>
 <p>The reproductive efficiency \(\epsilon\), i.e., the proportion of energy allocated to
 reproduction that results in egg biomass, is set through the <code>erepro</code>
 column in the species_params data frame. If that is not provided, the default
@@ -637,7 +630,7 @@ by the egg biomass gives the rate of egg production, returned by
 <code><a href='getRDI.html'>getRDI()</a></code>:
 $$R_{di} = \frac{\epsilon}{2 w_{min}} \int N(w)  E_r(w) \psi(w) \, dw$$</p>
 
-<h3 class='hasAnchor' id='density-dependence'><a class='anchor' aria-hidden='true' href='#density-dependence'></a>Density dependence</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Density dependence</h3>
 <p>The stock-recruitment relationship is an emergent phenomenon in mizer, with
 several sources of density dependence. Firstly, the amount of energy invested
 into reproduction depends on the energy income of the spawners, which is
@@ -783,11 +776,11 @@ and <code>lambda</code> arguments.</p>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
+  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -812,8 +805,6 @@ and <code>lambda</code> arguments.</p>
 </script>
 
 
-
-  
 
   </body>
 </html>

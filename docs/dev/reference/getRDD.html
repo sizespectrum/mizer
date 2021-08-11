@@ -65,8 +65,6 @@ setReproduction() for more details." />
 
 <meta name="robots" content="noindex">
 
-
-
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -78,15 +76,9 @@ setReproduction() for more details." />
 
 
 
-  
-
-  
-
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -111,7 +103,7 @@ setReproduction() for more details." />
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Tutorials
+    Articles
      
     <span class="caret"></span>
   </a>
@@ -223,15 +215,15 @@ density dependence function. This is the Beverton-Holt function
 <code><a href='setReproduction.html'>setReproduction()</a></code> for more details.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>getRDD</span><span class='op'>(</span>
+    <pre class="usage"><span class='fu'>getRDD</span><span class='op'>(</span>
   <span class='va'>params</span>,
-  n <span class='op'>=</span> <span class='fu'><a href='initialN-set.html'>initialN</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>,
-  n_pp <span class='op'>=</span> <span class='fu'><a href='initialNResource-set.html'>initialNResource</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>,
-  n_other <span class='op'>=</span> <span class='fu'><a href='initialNOther-set.html'>initialNOther</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>,
+  n <span class='op'>=</span> <span class='fu'><a href='initialN<-.html'>initialN</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>,
+  n_pp <span class='op'>=</span> <span class='fu'><a href='initialNResource<-.html'>initialNResource</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>,
+  n_other <span class='op'>=</span> <span class='fu'><a href='initialNOther<-.html'>initialNOther</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>,
   t <span class='op'>=</span> <span class='fl'>0</span>,
   rdi <span class='op'>=</span> <span class='fu'><a href='getRDI.html'>getRDI</a></span><span class='op'>(</span><span class='va'>params</span>, n <span class='op'>=</span> <span class='va'>n</span>, n_pp <span class='op'>=</span> <span class='va'>n_pp</span>, n_other <span class='op'>=</span> <span class='va'>n_other</span>, t <span class='op'>=</span> <span class='va'>t</span><span class='op'>)</span>,
   <span class='va'>...</span>
-<span class='op'>)</span></code></pre></div>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -293,14 +285,14 @@ species. If not specified, rdi is calculated internally using
 <code><a href='getResourceMort.html'>getResourceMort</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
-<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span></span>
-<span class='r-in'><span class='co'># Project with constant fishing effort for all gears for 20 time steps</span></span>
-<span class='r-in'><span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, t_max <span class='op'>=</span> <span class='fl'>20</span>, effort <span class='op'>=</span> <span class='fl'>0.5</span><span class='op'>)</span></span>
-<span class='r-in'><span class='co'># Get the rate at a particular time step</span></span>
-<span class='r-in'><span class='fu'>getRDD</span><span class='op'>(</span><span class='va'>params</span>, n <span class='op'>=</span> <span class='fu'><a href='N.html'>N</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>15</span>, , <span class='op'>]</span>, n_pp <span class='op'>=</span> <span class='fu'><a href='N.html'>NResource</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>15</span>, <span class='op'>]</span>, t <span class='op'>=</span> <span class='fl'>15</span><span class='op'>)</span></span>
-<span class='r-in'><span class='op'>}</span></span>
-</code></pre></div>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span>
+<span class='co'># Project with constant fishing effort for all gears for 20 time steps</span>
+<span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, t_max <span class='op'>=</span> <span class='fl'>20</span>, effort <span class='op'>=</span> <span class='fl'>0.5</span><span class='op'>)</span>
+<span class='co'># Get the rate at a particular time step</span>
+<span class='fu'>getRDD</span><span class='op'>(</span><span class='va'>params</span>, n <span class='op'>=</span> <span class='fu'><a href='N.html'>N</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>15</span>, , <span class='op'>]</span>, n_pp <span class='op'>=</span> <span class='fu'><a href='N.html'>NResource</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>15</span>, <span class='op'>]</span>, t <span class='op'>=</span> <span class='fl'>15</span><span class='op'>)</span>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -312,11 +304,11 @@ species. If not specified, rdi is calculated internally using
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
+  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -341,8 +333,6 @@ species. If not specified, rdi is calculated internally using
 </script>
 
 
-
-  
 
   </body>
 </html>
