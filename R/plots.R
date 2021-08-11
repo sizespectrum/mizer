@@ -1133,13 +1133,13 @@ plotGrowthCurves <- function(object, species = NULL,
                 scale_x_continuous(name = "Age [years]") +
                 scale_y_continuous(name = "Size [g]") +
                 geom_hline(aes(yintercept = w_mat),
-                           data = tibble(Species = object@params@species_params$species[],
-                                         w_mat = object@params@species_params$w_mat[]),
+                           data = tibble(Species = params@species_params$species[],
+                                         w_mat = params@species_params$w_mat[]),
                            linetype = "dashed",
                            colour = "grey") +
                 geom_hline(aes(yintercept = w_inf),
-                           data = tibble(Species = object@params@species_params$species[],
-                                         w_inf = object@params@species_params$w_inf[]),
+                           data = tibble(Species = params@species_params$species[],
+                                         w_inf = params@species_params$w_inf[]),
                            linetype = "solid",
                            colour = "grey") +
                 facet_wrap(~Species, scales = "free_y")
