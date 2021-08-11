@@ -54,7 +54,8 @@ attribute.}
 
 \item{n}{Allometric growth exponent for resource}
 
-\item{w_pp_cutoff}{The upper cut off size of the resource spectrum.
+\item{w_pp_cutoff}{The upper cut off size of the resource spectrum.  The
+carrying capacity will be set to 0 above this size.
 Default is 10 g.}
 
 \item{resource_dynamics}{Optional. Name of the function that determines the

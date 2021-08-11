@@ -21,7 +21,15 @@ The resource parameters are stored as a named list with the slot names
 \code{r_pp}, \code{kappa}, \code{lambda}, \code{n}, \code{w_pp_cutoff}. For their meaning see
 \code{\link[=setResource]{setResource()}}. If you change these parameters then this will
 recalculate the resource rate and the resource capacity, unless you have
-protected these with comments.
+protected these with comments. If you have specified a different
+resource dynamics function that requires additional parameters, then these
+should also be added to the \code{resource_params} list.
+}
+\examples{
+resource_params(NS_params)
+# Doubling the replenishment rate
+params <- NS_params
+resource_params(params)$r_pp <- 2 * resource_params(params)$r_pp
 }
 \seealso{
 Other functions for setting parameters: 

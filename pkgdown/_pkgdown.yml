@@ -82,6 +82,7 @@ reference:
   contents:
   - species_params
   - gear_params
+  - resource_params
   - setParams
   - setPredKernel
   - getPredKernel
@@ -93,7 +94,6 @@ reference:
   - setReproduction
   - setFishing
   - setResource
-  - resource_params
   - setInitialValues
   - setBevertonHolt
   - compareParams
