@@ -25,7 +25,7 @@ test_that("addSpecies handles gear params correctly", {
     p <- newTraitParams(no_sp = 2)
     sp <- data.frame(species = c("new1", "new2"),
                      w_inf = c(10, 100),
-                     k_vb = c(1, 1),
+                     k_vb = c(4, 1),
                      n = 2/3,
                      p = 2/3)
     gp <- data.frame(gear = c("gear1", "gear2", "gear1"),
@@ -33,14 +33,14 @@ test_that("addSpecies handles gear params correctly", {
                      sel_func = "knife_edge",
                      knife_edge_size = c(5, 5, 50))
     
-    # If no inital_effort for new gear is provide, it is 0
-    pa <- addSpecies(p, sp, gp)
+    # If no inital_effort for new gear is provided, it is 0
+    expect_warning(pa <- addSpecies(p, sp, gp))
     expect_identical(pa@initial_effort,
                      c(knife_edge_gear = 0, gear1 = 0, gear2 = 0))
     expect_identical(nrow(pa@gear_params), 5L)
     
     extra_effort = c(gear1 = 2, gear2 = 3)
-    pa <- addSpecies(p, sp, gp, initial_effort = extra_effort)
+    expect_warning(pa <- addSpecies(p, sp, gp, initial_effort = extra_effort))
     expect_identical(pa@initial_effort, c(knife_edge_gear = 0, extra_effort))
     
     effort = 2
@@ -57,20 +57,20 @@ test_that("addSpecies handles interaction matrix correctly", {
     p <- setInteraction(p, interaction = matrix(1:4/8, ncol = 2))
     sp <- data.frame(species = c("new1", "new2"),
                      w_inf = c(10, 100),
-                     k_vb = c(1, 1),
+                     k_vb = c(4, 1),
                      n = 2/3,
                      p = 2/3)
     
     interaction = matrix(1:4/4, ncol = 2)
     ones = matrix(rep(1, 4), ncol = 2)
-    pa <- addSpecies(p, sp, interaction = interaction)
+    expect_warning(pa <- addSpecies(p, sp, interaction = interaction))
     expect_equivalent(pa@interaction[3:4, 3:4], interaction)
     expect_equivalent(pa@interaction[1:2, 3:4], ones)
     expect_equivalent(pa@interaction[3:4, 1:2], ones)
     expect_equivalent(pa@interaction[1:2, 1:2], p@interaction)
     
     interaction = matrix(1:16/16, ncol = 4)
-    pa <- addSpecies(p, sp, interaction = interaction)
+    expect_warning(pa <- addSpecies(p, sp, interaction = interaction))
     expect_equivalent(pa@interaction, interaction)
     
     expect_error(addSpecies(p, sp,
@@ -98,6 +98,17 @@ test_that("addSpecies works when adding a species with a smaller w_min", {
     expect_equal(p@w[28:127], NS_params@w)
     expect_equal(p@w_full[1:length(NS_params@w_full)], NS_params@w_full)
     expect_gte(1e-5, min(p@w))
+})
+
+test_that("New species have 0 reproduction level", {
+    sp <- data.frame(species = c("new1", "new2"),
+                     w_inf = c(10, 100),
+                     k_vb = c(4, 1),
+                     n = 2/3,
+                     p = 2/3)
+    p <- addSpecies(NS_params, sp)
+    expect_equal(getReproductionLevel(p)[13:14],
+                 c(new1 = 0, new2 = 0))
 })
 
 # removeSpecies ----
@@ -143,7 +154,7 @@ test_that("adding and then removing species leaves params unaltered", {
     # two arbitrary species
     sp <- data.frame(species = c("new1", "new2"),
                      w_inf = c(10, 100),
-                     k_vb = c(1, 1),
+                     k_vb = c(4, 1),
                      stringsAsFactors = FALSE)
     # add comments to test that they will be preserved as well
     comment(params) <- "test"

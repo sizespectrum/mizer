@@ -53,12 +53,10 @@ a new species has an egg size smaller than those of existing species or
 a maximum size larger than those of existing species) then the grid will
 be expanded and all arrays will be enlarged accordingly.
 
-If any of the rate arrays had been set by the user to values other than
-those calculated as default from the species parameters, then these will
-be preserved.
-
 After adding the new species, the background species are not retuned and the
-system is not run to steady state.
+system is not run to steady state. This could be done with \code{\link[=steady]{steady()}}. The
+new species will have no density dependence in their reproduction, this could
+be switched on with \code{\link[=setBevertonHolt]{setBevertonHolt()}}
 }
 \examples{
 \dontrun{
