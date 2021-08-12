@@ -216,13 +216,18 @@ projectToSteady <- function(params,
 #' plotSpectra(params)
 #' }
 steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
-                   tol = 0.1 * dt, return_sim = FALSE, progress_bar = TRUE) {
+                   tol = 0.1 * dt, return_sim = FALSE, 
+                   preserve = c("reproduction_level", "R_max"),
+                   progress_bar = TRUE) {
     params <- validParams(params)
+    
+    preserve <- match.arg(preserve)
+    old_reproduction_level <- getReproductionLevel(params)
+    old_R_max <- params@species_params$R_max
     
     # Force the reproduction to stay at the current level
     params@species_params$constant_reproduction <- getRDD(params)
     old_rdd_fun <- params@rates_funcs$RDD
-    old_reproduction_level <- getReproductionLevel(params)
     params@rates_funcs$RDD <- "constantRDD"
     
     # Force other components to stay at current level
@@ -249,8 +254,13 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
     params@other_dynamics <- old_other_dynamics
     params@species_params$constant_reproduction <- NULL
     
-    params <- setBevertonHolt(params, 
-                              reproduction_level = old_reproduction_level)
+    if (preserve == "reproduction_level") {
+        params <- setBevertonHolt(params, 
+                                  reproduction_level = old_reproduction_level)
+    } else if (preserve == "R_max") {
+        params <- setBevertonHolt(params, 
+                                  R_max = old_R_max)
+    }
     
     if (return_sim) {
         object@params <- params

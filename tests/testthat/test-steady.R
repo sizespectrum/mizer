@@ -65,6 +65,14 @@ test_that("steady() preserves reproduction level", {
     expect_equal(getReproductionLevel(params),
                  repro_level)
 })
+test_that("steady() preserves R_max", {
+    params <- NS_params
+    species_params(params)$erepro <- 1.01 * species_params(params)$erepro
+    r_max <- params@species_params$R_max
+    expect_warning(params <- steady(params, t_per = 1, preserve = "R_max"),
+                   "The following species require an unrealistic reproductive")
+    expect_equal(r_max, params@species_params$R_max)
+})
 
 # valid_species_arg ----
 test_that("valid_species_arg works", {
