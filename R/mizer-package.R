@@ -31,6 +31,7 @@
 #' @importFrom stats fft mvfft lm pnorm runif complete.cases
 #' @importFrom grDevices col2rgb
 #' @importFrom utils modifyList
+#' @importFrom rlang signal cnd_muffle
 #' @importFrom lifecycle deprecated
 "_PACKAGE"
 

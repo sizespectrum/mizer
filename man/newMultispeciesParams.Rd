@@ -33,7 +33,8 @@ newMultispeciesParams(
   gear_params = NULL,
   selectivity = NULL,
   catchability = NULL,
-  initial_effort = NULL
+  initial_effort = NULL,
+  info_level = 3
 )
 }
 \arguments{
@@ -134,6 +135,9 @@ each species by each gear, \eqn{Q_{g,i}}.}
 \item{initial_effort}{Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.}
+
+\item{info_level}{Controls the amount of information messages that are shown
+when the function sets default values for parameters.}
 }
 \value{
 An object of type \linkS4class{MizerParams}
