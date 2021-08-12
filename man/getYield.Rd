@@ -18,11 +18,8 @@ Calculates the yearly yield (biomass fished per year) for each species
 across all gears at each simulation time step.
 }
 \examples{
-\dontrun{
-params <- newMultispeciesParams(NS_species_params_gears, inter)
-sim <- project(params, effort=1, t_max=10)
-y <- getYield(sim)
-}
+yield <- getYield(NS_sim)
+yield[c("1972", "2010"), c("Herring", "Cod")]
 }
 \seealso{
 \code{\link[=getYieldGear]{getYieldGear()}}

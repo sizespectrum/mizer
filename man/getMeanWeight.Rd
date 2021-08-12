@@ -39,13 +39,11 @@ min_l will be used). You can also specify the species to be used in the
 calculation.
 }
 \examples{
-\dontrun{
-params <- newMultispeciesParams(NS_species_params_gears, inter)
-sim <- project(params, effort=1, t_max=10)
-getMeanWeight(sim)
-getMeanWeight(sim, species=c("Herring","Sprat","N.pout"))
-getMeanWeight(sim, min_w = 10, max_w = 5000)
-}
+mean_weight <- getMeanWeight(NS_sim)
+years <- c("1967", "2010")
+mean_weight[years]
+getMeanWeight(NS_sim, species = c("Herring", "Sprat", "N.pout"))[years]
+getMeanWeight(NS_sim, min_w = 10, max_w = 5000)[years]
 }
 \seealso{
 Other functions for calculating indicators: 

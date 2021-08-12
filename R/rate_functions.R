@@ -26,6 +26,10 @@
 #' @inheritParams mizerRates
 #' @export
 #' @family rate functions
+#' @examples
+#' rates <- getRates(NS_params)
+#' names(rates)
+#' identical(rates$encounter, getEncounter(NS_params))
 getRates <- function(params, n = initialN(params), 
                      n_pp = initialNResource(params),
                      n_other = initialNOther(params),
@@ -51,12 +55,8 @@ getRates <- function(params, n = initialN(params),
 #' @export
 #' @family rate functions
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' # Run simulation with constant fishing effort for all gears for 20 years
-#' sim <- project(params, t_max = 20, effort = 0.5)
-#' getEncounter(params, n = finalN(sim), n_pp = finalNResource(sim), t = 20)
-#' }
+#' encounter <- getEncounter(NS_params)
+#' str(encounter)
 getEncounter <- function(params, n = initialN(params), 
                          n_pp = initialNResource(params),
                          n_other = initialNOther(params),
@@ -577,7 +577,7 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
             for (i in 1:dim(effort)[1]) {
                 f_mort[i, , ] <- 
                     f(params, n = n, n_pp = n_pp, n_other = n_other,
-                      effort = effort[i, ],
+                      effort = effort[i, ], t = times[i],
                       e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
                                             n_other = n_other, t = times[i]), 
                       pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
@@ -587,7 +587,7 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
             return(f_mort)
         } else if (length(effort) <= 1) {
             fmort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
-                       effort = rep(effort, no_gears),
+                       effort = rep(effort, no_gears), t = t,
                        e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
                                              n_other = n_other, t = t), 
                        pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
@@ -597,7 +597,7 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
             return(fmort)
         } else if (length(effort) == no_gears) {
             fmort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
-                       effort = effort,
+                       effort = effort, t = t,
                        e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
                                              n_other = n_other, t = t), 
                        pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
@@ -630,7 +630,7 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
         for (i in 1:dim(effort)[1]) {
             f_mort[i, , ] <- 
                 f(params, n = n[i, , ], n_pp = n_pp[i, ], 
-                  n_other = n_other[i, ], effort = effort[i, ],
+                  n_other = n_other[i, ], effort = effort[i, ], t = times[i],
                   e_growth = getEGrowth(params, n = n[i, , ], n_pp = n_pp[i, ],
                                         n_other = n_other[i, ], t = times[i]), 
                   pred_mort = getPredMort(params, n = n[i, , ], 

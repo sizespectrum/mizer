@@ -88,6 +88,9 @@
     <loc>https://sizespectrum.org/mizer/reference/NS_params.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/NS_sim.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/NS_species_params.html</loc>
   </url>
   <url>
@@ -152,9 +155,6 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getBiomass.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/getBiomassFrame.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getCommunitySlope.html</loc>
@@ -242,6 +242,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getRates.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/getReproductionLevel.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getResourceMort.html</loc>
@@ -377,6 +380,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/plotBiomass.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/plotDataFrame.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/plotDiet.html</loc>

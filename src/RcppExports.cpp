@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // inner_project_loop
 NumericMatrix inner_project_loop(int no_sp, int no_w, NumericMatrix n, NumericMatrix A, NumericMatrix B, NumericMatrix S, NumericVector w_min_idx);
 RcppExport SEXP _mizer_inner_project_loop(SEXP no_spSEXP, SEXP no_wSEXP, SEXP nSEXP, SEXP ASEXP, SEXP BSEXP, SEXP SSEXP, SEXP w_min_idxSEXP) {

@@ -68,7 +68,9 @@ Only used if \code{power} argument is missing. Then
 \code{biomass = FALSE} is equivalent to \code{power=0}}
 
 \item{total}{A boolean value that determines whether the total over all
-species in the system is plotted as well. Default is FALSE}
+species in the system is plotted as well. Note that even if the plot
+only shows a selection of species, the total is including all species.
+Default is FALSE.}
 
 \item{resource}{A boolean value that determines whether resource is included.
 Default is TRUE.}
@@ -85,7 +87,9 @@ used for the plot is returned instead of the plot itself. Default value is FALSE
 \item{...}{Other arguments (currently unused)}
 }
 \value{
-A ggplot2 object
+A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
+frame with the four variables 'w', 'value', 'Species', 'Legend' is
+returned.
 }
 \description{
 Plots the number density multiplied by a power of the weight, with the power

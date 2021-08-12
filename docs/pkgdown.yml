@@ -12,13 +12,12 @@ articles:
   model_description: model_description.html
   multispecies_model: multispecies_model.html
   plotting: plotting.html
-  ppmr: ppmr.html
   publications: publications.html
   running_a_simulation: running_a_simulation.html
   single_species_size-spectrum_dynamics: single_species_size-spectrum_dynamics.html
   trait_model: trait_model.html
   working_with_git: working_with_git.html
-last_built: 2021-06-23T21:50Z
+last_built: 2021-08-03T14:34Z
 urls:
   reference: https://sizespectrum.org/mizer/reference
   article: https://sizespectrum.org/mizer/articles

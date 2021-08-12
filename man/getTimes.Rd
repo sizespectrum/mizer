@@ -16,3 +16,6 @@ have been stored in the MizerSim object.
 \description{
 Times for which simulation results are available
 }
+\examples{
+getTimes(NS_sim)
+}

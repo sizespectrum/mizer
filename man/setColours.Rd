@@ -18,7 +18,9 @@ getColours(params)
 The MizerParams object with updated line colours
 }
 \description{
-Set line colours to be used in mizer plots
+Colours for names that already had a colour set will be overwritten by
+the colour you specify. Colours for names that did not yet have a colour
+will be appended to the list of colours.
 }
 \examples{
 params <- NS_params

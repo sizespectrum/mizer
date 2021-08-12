@@ -24,4 +24,8 @@ sim = project(NS_params, effort = c(Industrial = 0, Pelagic = 1,
 plot(sim)
 }
 }
+\seealso{
+Other example parameter objects: 
+\code{\link{NS_sim}}
+}
 \concept{example parameter objects}

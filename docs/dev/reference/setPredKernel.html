@@ -8,6 +8,13 @@
 
 <title>Set predation kernel — setPredKernel • mizer</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -53,11 +60,10 @@ calculating the rate at which a prey is predated upon. The predation kernel
 can be a function of the predator/prey size ratio or it can be a function of
 the predator size and the prey size separately. Both types can be set up with
 this function." />
+<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
 
 
 <meta name="robots" content="noindex">
-
-
 
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
@@ -70,15 +76,9 @@ this function." />
 
 
 
-  
-
-  
-
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -92,7 +92,7 @@ this function." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9000</span>
       </span>
     </div>
 
@@ -103,11 +103,13 @@ this function." />
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Tutorials
+    Articles
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li class="divider"></li>
+    <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
     </li>
@@ -130,10 +132,15 @@ this function." />
       <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
     </li>
     <li>
-      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
     </li>
     <li>
       <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">Publications</li>
+    <li>
+      <a href="../articles/publications.html">Publications</a>
     </li>
     <li class="divider"></li>
     <li class="dropdown-header">For developers</li>
@@ -155,14 +162,20 @@ this function." />
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/publications.html">Publications</a>
-</li>
-<li>
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
+  <a href="https://blog.mizer.sizespectrum.org">Blog</a>
+</li>
+<li>
+  <a href="https://twitter.com/mizer_model">
+    <span class="fab fa-twitter fa-lg"></span>
+     
+  </a>
+</li>
+<li>
   <a href="https://github.com/sizespectrum/mizer/">
     <span class="fab fa-github fa-lg"></span>
      
@@ -202,12 +215,12 @@ the predator size and the prey size separately. Both types can be set up with
 this function.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>setPredKernel</span><span class='op'>(</span>
+    <pre class="usage"><span class='fu'>setPredKernel</span><span class='op'>(</span>
   <span class='va'>params</span>,
   pred_kernel <span class='op'>=</span> <span class='cn'>NULL</span>,
   comment_pred_kernel <span class='op'>=</span> <span class='st'>"set manually"</span>,
   <span class='va'>...</span>
-<span class='op'>)</span></code></pre></div>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -304,28 +317,28 @@ different.</p>
 <code><a href='species_params.html'>species_params</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
-<span class='r-in'><span class='co'>## Set up a MizerParams object</span></span>
-<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span></span>
-<span class='r-in'></span>
-<span class='r-in'><span class='co'>## If you change predation kernel parameters after setting up a model, </span></span>
-<span class='r-in'><span class='co'>#  this will be used to recalculate the kernel</span></span>
-<span class='r-in'><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span><span class='st'>"Cod"</span>, <span class='st'>"beta"</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fl'>200</span></span>
-<span class='r-in'></span>
-<span class='r-in'><span class='co'>## You can change to a different predation kernel type</span></span>
-<span class='r-in'><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>ppmr_max</span> <span class='op'>&lt;-</span> <span class='fl'>4000</span></span>
-<span class='r-in'><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>ppmr_min</span> <span class='op'>&lt;-</span> <span class='fl'>200</span></span>
-<span class='r-in'><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>pred_kernel_type</span> <span class='op'>&lt;-</span> <span class='st'>"box"</span></span>
-<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span><span class='op'>(</span><span class='fu'><a href='w.html'>w_full</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>, <span class='fu'><a href='getPredKernel.html'>getPredKernel</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span><span class='st'>"Cod"</span>, <span class='fl'>100</span>, <span class='op'>]</span>, type<span class='op'>=</span><span class='st'>"l"</span>, log<span class='op'>=</span><span class='st'>"x"</span><span class='op'>)</span></span>
-<span class='r-in'></span>
-<span class='r-in'><span class='co'>## If you need a kernel that depends also on prey size you need to define</span></span>
-<span class='r-in'><span class='co'># it yourself.</span></span>
-<span class='r-in'><span class='va'>pred_kernel</span> <span class='op'>&lt;-</span> <span class='fu'><a href='getPredKernel.html'>getPredKernel</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
-<span class='r-in'><span class='va'>pred_kernel</span><span class='op'>[</span><span class='st'>"Herring"</span>, , <span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/sweep.html'>sweep</a></span><span class='op'>(</span><span class='va'>pred_kernel</span><span class='op'>[</span><span class='st'>"Herring"</span>, , <span class='op'>]</span>, <span class='fl'>2</span>, </span>
-<span class='r-in'>                                    <span class='va'>params</span><span class='op'>@</span><span class='va'>w_full</span>, <span class='st'>"*"</span><span class='op'>)</span></span>
-<span class='r-in'><span class='va'>params</span><span class='op'>&lt;-</span> <span class='fu'>setPredKernel</span><span class='op'>(</span><span class='va'>params</span>, pred_kernel <span class='op'>=</span> <span class='va'>pred_kernel</span><span class='op'>)</span></span>
-<span class='r-in'><span class='op'>}</span></span>
-</code></pre></div>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='co'>## Set up a MizerParams object</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span>
+
+<span class='co'>## If you change predation kernel parameters after setting up a model, </span>
+<span class='co'>#  this will be used to recalculate the kernel</span>
+<span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span><span class='st'>"Cod"</span>, <span class='st'>"beta"</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fl'>200</span>
+
+<span class='co'>## You can change to a different predation kernel type</span>
+<span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>ppmr_max</span> <span class='op'>&lt;-</span> <span class='fl'>4000</span>
+<span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>ppmr_min</span> <span class='op'>&lt;-</span> <span class='fl'>200</span>
+<span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>pred_kernel_type</span> <span class='op'>&lt;-</span> <span class='st'>"box"</span>
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='fu'><a href='w.html'>w_full</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>, <span class='fu'><a href='getPredKernel.html'>getPredKernel</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span><span class='st'>"Cod"</span>, <span class='fl'>100</span>, <span class='op'>]</span>, type<span class='op'>=</span><span class='st'>"l"</span>, log<span class='op'>=</span><span class='st'>"x"</span><span class='op'>)</span>
+
+<span class='co'>## If you need a kernel that depends also on prey size you need to define</span>
+<span class='co'># it yourself.</span>
+<span class='va'>pred_kernel</span> <span class='op'>&lt;-</span> <span class='fu'><a href='getPredKernel.html'>getPredKernel</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+<span class='va'>pred_kernel</span><span class='op'>[</span><span class='st'>"Herring"</span>, , <span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/sweep.html'>sweep</a></span><span class='op'>(</span><span class='va'>pred_kernel</span><span class='op'>[</span><span class='st'>"Herring"</span>, , <span class='op'>]</span>, <span class='fl'>2</span>, 
+                                    <span class='va'>params</span><span class='op'>@</span><span class='va'>w_full</span>, <span class='st'>"*"</span><span class='op'>)</span>
+<span class='va'>params</span><span class='op'>&lt;-</span> <span class='fu'>setPredKernel</span><span class='op'>(</span><span class='va'>params</span>, pred_kernel <span class='op'>=</span> <span class='va'>pred_kernel</span><span class='op'>)</span>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -337,11 +350,11 @@ different.</p>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
+  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -366,8 +379,6 @@ different.</p>
 </script>
 
 
-
-  
 
   </body>
 </html>

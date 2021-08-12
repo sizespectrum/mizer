@@ -26,14 +26,14 @@ test_that("validSpeciesParams() works", {
                    "For the species Sandeel, Dab the value")
     
     # minimal species_params
-    sp <- data.frame(species = c("species1", "species2"),
+    sp <- data.frame(species = c(2, 1),
                      w_inf = c(100, 1000),
                      stringsAsFactors = FALSE)
     expect_s3_class(sp <- validSpeciesParams(sp), "data.frame")
     expect_equal(sp$w_mat, sp$w_inf / 4)
     expect_equal(sp$alpha, c(0.6, 0.6))
     expect_equal(sp$interaction_resource, c(1, 1))
-    expect_identical(rownames(sp), c("species1", "species2"))
+    expect_identical(rownames(sp), c("2", "1"))
 })
 
 ## set_species_param_default ----

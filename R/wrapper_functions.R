@@ -66,8 +66,8 @@
 #' @family functions for setting up models
 #' @examples
 #' \dontrun{
-#' params <- newCommunityParams(f0=0.7, z0=0.2, reproduction=3e7)
-#' sim <- project(params, effort = 0, t_max = 100, dt=0.1)
+#' params <- newCommunityParams(f0 = 0.7, z0 = 0.2)
+#' sim <- project(params, t_max = 10)
 #' plotBiomass(sim)
 #' plotSpectra(sim)
 #' }
@@ -166,18 +166,12 @@ newCommunityParams <- function(max_w = 1e6,
 #' In addition to setting up the parameters, this function also sets up an
 #' initial condition that is close to steady state.
 #'
-#' Although the trait based model's steady state is often stable without
-#' imposing additional density-dependence, the function can set a Beverton-Holt
-#' type density-dependence that imposes a maximum for the reproduction rate that
-#' is a multiple of the reproduction rate at steady state. That multiple is set
-#' by the argument `R_factor`.
-#'
 #' The search rate coefficient `gamma` is calculated using the expected
 #' feeding level, `f0`.
 #'
-#' The option of including fishing is given, but the steady state may lose its
+#' The option of including fishing is given, but the steady state may loose its
 #' natural stability if too much fishing is included. In such a case the user
-#' may wish to include stabilising effects (like `R_factor`) to ensure the
+#' may wish to include stabilising effects (like `reproduction_level`) to ensure the
 #' steady state is stable. Fishing selectivity is modelled as a knife-edge
 #' function with one parameter, `knife_edge_size`, which is the size at
 #' which species are selected. Each species can either be fished by the same
@@ -235,10 +229,10 @@ newCommunityParams <- function(max_w = 1e6,
 #' @param ext_mort_prop The proportion of the total mortality that comes from
 #'   external mortality, i.e., from sources not explicitly modelled. A number in
 #'   the interval [0, 1).
-#' @param R_factor The factor such that \code{R_max = R_factor * R}, where `R_max`
-#'   is the maximum reproduction rate allowed and `R` is the steady-state
-#'   reproduction rate. Thus the larger `R_factor` the less the impact of the
-#'   density-dependence.
+#' @param reproduction_level A number between 0 an 1 that determines the
+#'   level of density dependence in reproduction, see [setBevertonHolt()].
+#' @param R_factor `r lifecycle::badge("deprecated")` Use
+#'   `reproduction_level = 1 / R_factor` instead.
 #' @param gear_names The names of the fishing gears for each species. A
 #'   character vector, the same length as the number of species.
 #' @param knife_edge_size The minimum size at which the gear or gears select
@@ -289,7 +283,8 @@ newTraitParams <- function(no_sp = 11,
                            ks = NA,
                            gamma = NA,
                            ext_mort_prop = 0,
-                           R_factor = 4,
+                           reproduction_level = 1/4,
+                           R_factor = deprecated(),
                            gear_names = "knife_edge_gear",
                            knife_edge_size = 1000,
                            egg_size_scaling = FALSE,
@@ -304,10 +299,6 @@ newTraitParams <- function(no_sp = 11,
         stop("ext_mort_prop must be a number between 0 and 1",
              " because it should be the proportion of the total mortality",
              " coming from sources other than predation.")
-    }
-    if (R_factor <= 1) {
-        message("R_factor needs to be larger than 1. Setting R_factor = 1.01")
-        R_factor <- 1.01
     }
     if (min_w <= 0) {
         stop("The smallest egg size min_w must be greater than zero.")
@@ -357,6 +348,12 @@ newTraitParams <- function(no_sp = 11,
     }
     if ((length(gear_names) != 1) & (length(gear_names) != no_sp)) {
         stop("Length of gear_names argument must equal the number of species.")
+    }
+    if (lifecycle::is_present(R_factor)) {
+        lifecycle::deprecate_soft("2.3.0", "newTraitParams(R_factor)",
+                                  "newTraitParams(reproduction_level)",
+                                  "Set `reproduction_level = 1 / R_factor`.")
+        reproduction_level = 1 / R_factor
     }
     
     if (perfect_scaling) {
@@ -556,7 +553,7 @@ newTraitParams <- function(no_sp = 11,
     ## Set reproduction to meet boundary condition ----
     params@species_params$erepro <- params@species_params$erepro *
         get_required_reproduction(params) / getRDI(params) 
-    params <- setBevertonHolt(params, R_factor = R_factor)
+    params <- setBevertonHolt(params, reproduction_level = reproduction_level)
 
     return(params)
 }

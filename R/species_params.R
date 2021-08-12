@@ -381,6 +381,7 @@ validSpeciesParams <- function(species_params) {
         stop("The species params dataframe needs a column 'species' with the species names")
     }
     species_names <- as.character(sp$species)
+    sp$species <- species_names
     row.names(sp) <- species_names
     no_sp <- nrow(sp)
     if (length(unique(species_names)) != no_sp) {

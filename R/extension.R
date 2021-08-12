@@ -13,7 +13,7 @@
 #' * `feeding_level` from [mizerFeedingLevel()]
 #' * `pred_rate` from [mizerPredRate()]
 #' * `pred_mort` from [mizerPredMort()]
-#' * `fishing_mort` from [mizerFMort()]
+#' * `f_mort` from [mizerFMort()]
 #' * `mort` from [mizerMort()]
 #' * `resource_mort` from [mizerResourceMort()]
 #' * `e` from [mizerEReproAndGrowth()]
@@ -240,13 +240,20 @@ getComponent <- function(params, component) {
     params
 }
 
+#' @param object An object of class MizerParams or MizerSim
 #' @rdname initialNOther-set
 #' @export
-initialNOther <- function(params) {
-    params <- validParams(params)
-    params@initial_n_other
+initialNOther <- function(object) {
+    if (is(object, "MizerParams")) {
+        params <- validParams(object)
+        return(params@initial_n_other)
+    }
+    if (is(object, "MizerSim")) {
+        return(object@params@initial_n_other)
+    } else {
+        stop("The argument needs to be a MizerSim or a MizerParams object.")
+    }
 }
-
 
 #' Time series of other components
 #' 

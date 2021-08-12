@@ -43,7 +43,8 @@
 #' @param n Allometric growth exponent for resource
 #' @param kappa Coefficient of the intrinsic resource carrying capacity
 #' @param lambda Scaling exponent of the intrinsic resource carrying capacity
-#' @param w_pp_cutoff The upper cut off size of the resource spectrum. 
+#' @param w_pp_cutoff The upper cut off size of the resource spectrum.  The
+#'   carrying capacity will be set to 0 above this size.
 #'   Default is 10 g.
 #' @param resource_dynamics Optional. Name of the function that determines the
 #'   resource dynamics by calculating the resource spectrum at the next time
@@ -75,7 +76,7 @@ setResource <- function(params,
                 is.number(kappa), kappa > 0,
                 is.number(lambda),
                 is.number(r_pp), r_pp > 0,
-                is.number(w_pp_cutoff),
+                is.number(w_pp_cutoff), w_pp_cutoff > 0,
                 is.number(n))
     params@resource_params[["kappa"]] <- kappa
     params@resource_params[["lambda"]] <- lambda
@@ -158,11 +159,15 @@ getResourceDynamics <- function(params) {
 #' `r_pp`, `kappa`, `lambda`, `n`, `w_pp_cutoff`. For their meaning see
 #' [setResource()]. If you change these parameters then this will
 #' recalculate the resource rate and the resource capacity, unless you have
-#' protected these with comments.
+#' protected these with comments. If you have specified a different 
+#' resource dynamics function that requires additional parameters, then these
+#' should also be added to the `resource_params` list.
 #' 
 #' @param params A MizerParams object
 #' @export
 #' @family functions for setting parameters
+#' @examples 
+#' resource_params(NS_params)
 resource_params <- function(params) {
     params@resource_params
 }
@@ -170,6 +175,10 @@ resource_params <- function(params) {
 #' @rdname resource_params
 #' @param value A named list of resource parameters.
 #' @export
+#' @examples
+#' # Doubling the replenishment rate
+#' params <- NS_params
+#' resource_params(params)$r_pp <- 2 * resource_params(params)$r_pp
 `resource_params<-` <- function(params, value) {
     assert_that(
         is(params, "MizerParams"),

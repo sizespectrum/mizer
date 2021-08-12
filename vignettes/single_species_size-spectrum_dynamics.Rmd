@@ -152,7 +152,7 @@ call the function without specifying those arguments. We will only
 specify the power-law exponent of the background community
 
 ```{r}
-params <- newSingleSpeciesParams(lambda = 2.05, R_factor = Inf)
+params <- newSingleSpeciesParams(lambda = 2.05)
 ```
 
 The function returns a `MizerParams` object and we have assigned that to
@@ -492,6 +492,7 @@ m0 <- round(mm$coefficients[[1]], digits = 3)
 > the code to this new task, you need to take into account that the name
 > of the size-dimension of the array returned by `getMort()` is `"w_prey"`
 > instead of `"w"`. 
+
 <details>
 
 <summary> Solution </summary>

@@ -8,6 +8,13 @@
 
 <title>Plot the total yield of each species by gear through time — plotYieldGear • mizer</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -48,8 +55,7 @@
 <meta property="og:title" content="Plot the total yield of each species by gear through time — plotYieldGear" />
 <meta property="og:description" content="After running a projection, the total yield of each species by fishing gear
 can be plotted against time." />
-
-
+<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
 
 
 
@@ -65,15 +71,9 @@ can be plotted against time." />
 
 
 
-  
-
-  
-
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -87,7 +87,7 @@ can be plotted against time." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
       </span>
     </div>
 
@@ -98,11 +98,13 @@ can be plotted against time." />
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Tutorials
+    Articles
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li class="divider"></li>
+    <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
     </li>
@@ -125,10 +127,15 @@ can be plotted against time." />
       <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
     </li>
     <li>
-      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
     </li>
     <li>
       <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">Publications</li>
+    <li>
+      <a href="../articles/publications.html">Publications</a>
     </li>
     <li class="divider"></li>
     <li class="dropdown-header">For developers</li>
@@ -150,14 +157,20 @@ can be plotted against time." />
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/publications.html">Publications</a>
-</li>
-<li>
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
+  <a href="https://blog.mizer.sizespectrum.org">Blog</a>
+</li>
+<li>
+  <a href="https://twitter.com/mizer_model">
+    <span class="fab fa-twitter fa-lg"></span>
+     
+  </a>
+</li>
+<li>
   <a href="https://github.com/sizespectrum/mizer/">
     <span class="fab fa-github fa-lg"></span>
      
@@ -192,7 +205,7 @@ can be plotted against time." />
 can be plotted against time.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>plotYieldGear</span><span class='op'>(</span>
+    <pre class="usage"><span class='fu'>plotYieldGear</span><span class='op'>(</span>
   <span class='va'>sim</span>,
   species <span class='op'>=</span> <span class='cn'>NULL</span>,
   total <span class='op'>=</span> <span class='cn'>FALSE</span>,
@@ -201,7 +214,7 @@ can be plotted against time.</p>
   <span class='va'>...</span>
 <span class='op'>)</span>
 
-<span class='fu'>plotlyYieldGear</span><span class='op'>(</span><span class='va'>sim</span>, species <span class='op'>=</span> <span class='cn'>NULL</span>, total <span class='op'>=</span> <span class='cn'>FALSE</span>, highlight <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></code></pre></div>
+<span class='fu'>plotlyYieldGear</span><span class='op'>(</span><span class='va'>sim</span>, species <span class='op'>=</span> <span class='cn'>NULL</span>, total <span class='op'>=</span> <span class='cn'>FALSE</span>, highlight <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -220,7 +233,9 @@ each species whether it is to be selected (TRUE) or not.</p></td>
     <tr>
       <th>total</th>
       <td><p>A boolean value that determines whether the total over all
-species in the system is plotted as well. Default is FALSE</p></td>
+species in the system is plotted as well. Note that even if the plot
+only shows a selection of species, the total is including all species.
+Default is FALSE.</p></td>
     </tr>
     <tr>
       <th>highlight</th>
@@ -239,7 +254,9 @@ used for the plot is returned instead of the plot itself. Default value is FALSE
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A ggplot2 object</p>
+    <p>A ggplot2 object, unless <code>return_data = TRUE</code>, in which case a data
+frame with the four variables 'Year', 'Yield', 'Species' and 'Gear' is
+returned.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This plot is pretty easy to do by hand. It just
@@ -251,7 +268,7 @@ etc. Just look at the source code for details.</p>
     <div class='dont-index'><p><a href='plotting_functions.html'>plotting_functions</a>,  <code><a href='getYieldGear.html'>getYieldGear()</a></code></p>
 <p>Other plotting functions: 
 <code><a href='animateSpectra.html'>animateSpectra</a>()</code>,
-<code><a href='plotMizerSim.html'>plot,MizerSim,missing-method</a></code>,
+<code><a href='plot,MizerSim,missing-method.html'>plot,MizerSim,missing-method</a></code>,
 <code><a href='plotBiomass.html'>plotBiomass</a>()</code>,
 <code><a href='plotDiet.html'>plotDiet</a>()</code>,
 <code><a href='plotFMort.html'>plotFMort</a>()</code>,
@@ -263,7 +280,7 @@ etc. Just look at the source code for details.</p>
 <code><a href='plotting_functions.html'>plotting_functions</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='co'># \donttest{</span></span>
+    <pre class="examples"><span class='r-in'><span class='co'># \donttest{</span></span>
 <span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span><span class='op'>(</span><span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span><span class='op'>)</span></span>
 <span class='r-in'><span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort<span class='op'>=</span><span class='fl'>1</span>, t_max<span class='op'>=</span><span class='fl'>20</span>, t_save <span class='op'>=</span> <span class='fl'>0.2</span>, progress_bar <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></span>
 <span class='r-in'><span class='fu'>plotYieldGear</span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span></span>
@@ -272,1222 +289,15 @@ etc. Just look at the source code for details.</p>
 <span class='r-plt'><img src='plotYieldGear-2.png' alt='' width='700' height='433' /></span>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'># Returning the data frame</span></span>
-<span class='r-in'><span class='fu'>plotYieldGear</span><span class='op'>(</span><span class='va'>sim</span>, return_data <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>      time       gear Species        value</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1     0.0 Industrial   Sprat 5.091359e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2     0.2 Industrial   Sprat 5.203447e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3     0.4 Industrial   Sprat 5.642335e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4     0.6 Industrial   Sprat 8.152967e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 5     0.8 Industrial   Sprat 2.169190e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 6     1.0 Industrial   Sprat 7.002696e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 7     1.2 Industrial   Sprat 1.834082e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 8     1.4 Industrial   Sprat 3.662571e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 9     1.6 Industrial   Sprat 5.807394e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 10    1.8 Industrial   Sprat 7.733818e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 11    2.0 Industrial   Sprat 9.121051e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 12    2.2 Industrial   Sprat 1.001789e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 13    2.4 Industrial   Sprat 1.075952e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 14    2.6 Industrial   Sprat 1.179994e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 15    2.8 Industrial   Sprat 1.359593e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 16    3.0 Industrial   Sprat 1.657504e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 17    3.2 Industrial   Sprat 2.114928e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 18    3.4 Industrial   Sprat 2.771879e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 19    3.6 Industrial   Sprat 3.662542e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 20    3.8 Industrial   Sprat 4.805489e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 21    4.0 Industrial   Sprat 6.193004e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 22    4.2 Industrial   Sprat 7.785855e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 23    4.4 Industrial   Sprat 9.517722e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 24    4.6 Industrial   Sprat 1.130728e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 25    4.8 Industrial   Sprat 1.306971e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 26    5.0 Industrial   Sprat 1.472023e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 27    5.2 Industrial   Sprat 1.617077e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 28    5.4 Industrial   Sprat 1.732849e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 29    5.6 Industrial   Sprat 1.810421e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 30    5.8 Industrial   Sprat 1.843092e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 31    6.0 Industrial   Sprat 1.828422e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 32    6.2 Industrial   Sprat 1.769392e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 33    6.4 Industrial   Sprat 1.674105e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 34    6.6 Industrial   Sprat 1.554128e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 35    6.8 Industrial   Sprat 1.422210e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 36    7.0 Industrial   Sprat 1.290146e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 37    7.2 Industrial   Sprat 1.167314e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 38    7.4 Industrial   Sprat 1.060014e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 39    7.6 Industrial   Sprat 9.714495e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 40    7.8 Industrial   Sprat 9.020697e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 41    8.0 Industrial   Sprat 8.500691e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 42    8.2 Industrial   Sprat 8.119515e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 43    8.4 Industrial   Sprat 7.831616e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 44    8.6 Industrial   Sprat 7.588017e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 45    8.8 Industrial   Sprat 7.343858e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 46    9.0 Industrial   Sprat 7.065049e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 47    9.2 Industrial   Sprat 6.732525e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 48    9.4 Industrial   Sprat 6.343135e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 49    9.6 Industrial   Sprat 5.907252e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 50    9.8 Industrial   Sprat 5.444137e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 51   10.0 Industrial   Sprat 4.976591e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 52   10.2 Industrial   Sprat 4.526257e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 53   10.4 Industrial   Sprat 4.110386e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 54   10.6 Industrial   Sprat 3.740281e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 55   10.8 Industrial   Sprat 3.421143e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 56   11.0 Industrial   Sprat 3.152843e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 57   11.2 Industrial   Sprat 2.931168e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 58   11.4 Industrial   Sprat 2.749195e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 59   11.6 Industrial   Sprat 2.598596e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 60   11.8 Industrial   Sprat 2.470801e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 61   12.0 Industrial   Sprat 2.357957e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 62   12.2 Industrial   Sprat 2.253656e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 63   12.4 Industrial   Sprat 2.153380e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 64   12.6 Industrial   Sprat 2.054635e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 65   12.8 Industrial   Sprat 1.956792e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 66   13.0 Industrial   Sprat 1.860676e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 67   13.2 Industrial   Sprat 1.768033e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 68   13.4 Industrial   Sprat 1.680965e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 69   13.6 Industrial   Sprat 1.601456e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 70   13.8 Industrial   Sprat 1.531029e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 71   14.0 Industrial   Sprat 1.470555e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 72   14.2 Industrial   Sprat 1.420199e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 73   14.4 Industrial   Sprat 1.379468e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 74   14.6 Industrial   Sprat 1.347324e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 75   14.8 Industrial   Sprat 1.322343e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 76   15.0 Industrial   Sprat 1.302888e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 77   15.2 Industrial   Sprat 1.287288e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 78   15.4 Industrial   Sprat 1.273997e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 79   15.6 Industrial   Sprat 1.261727e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 80   15.8 Industrial   Sprat 1.249541e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 81   16.0 Industrial   Sprat 1.236882e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 82   16.2 Industrial   Sprat 1.223567e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 83   16.4 Industrial   Sprat 1.209723e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 84   16.6 Industrial   Sprat 1.195703e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 85   16.8 Industrial   Sprat 1.181981e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 86   17.0 Industrial   Sprat 1.169059e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 87   17.2 Industrial   Sprat 1.157377e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 88   17.4 Industrial   Sprat 1.147260e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 89   17.6 Industrial   Sprat 1.138882e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 90   17.8 Industrial   Sprat 1.132258e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 91   18.0 Industrial   Sprat 1.127259e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 92   18.2 Industrial   Sprat 1.123643e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 93   18.4 Industrial   Sprat 1.121091e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 94   18.6 Industrial   Sprat 1.119260e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 95   18.8 Industrial   Sprat 1.117814e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 96   19.0 Industrial   Sprat 1.116467e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 97   19.2 Industrial   Sprat 1.115005e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 98   19.4 Industrial   Sprat 1.113300e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 99   19.6 Industrial   Sprat 1.111306e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 100  19.8 Industrial   Sprat 1.109054e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 101  20.0 Industrial   Sprat 1.106630e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 405   0.0 Industrial Sandeel 8.540068e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 406   0.2 Industrial Sandeel 6.107251e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 407   0.4 Industrial Sandeel 7.561297e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 408   0.6 Industrial Sandeel 4.214798e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 409   0.8 Industrial Sandeel 1.353949e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 410   1.0 Industrial Sandeel 2.899489e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 411   1.2 Industrial Sandeel 4.575348e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 412   1.4 Industrial Sandeel 5.834325e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 413   1.6 Industrial Sandeel 6.500318e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 414   1.8 Industrial Sandeel 6.682914e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 415   2.0 Industrial Sandeel 6.570373e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 416   2.2 Industrial Sandeel 6.330748e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 417   2.4 Industrial Sandeel 6.087505e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 418   2.6 Industrial Sandeel 5.921895e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 419   2.8 Industrial Sandeel 5.881054e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 420   3.0 Industrial Sandeel 5.984945e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 421   3.2 Industrial Sandeel 6.231578e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 422   3.4 Industrial Sandeel 6.602276e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 423   3.6 Industrial Sandeel 7.068064e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 424   3.8 Industrial Sandeel 7.596053e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 425   4.0 Industrial Sandeel 8.154162e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 426   4.2 Industrial Sandeel 8.714451e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 427   4.4 Industrial Sandeel 9.256082e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 428   4.6 Industrial Sandeel 9.766757e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 429   4.8 Industrial Sandeel 1.024045e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 430   5.0 Industrial Sandeel 1.067199e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 431   5.2 Industrial Sandeel 1.105224e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 432   5.4 Industrial Sandeel 1.136723e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 433   5.6 Industrial Sandeel 1.160174e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 434   5.8 Industrial Sandeel 1.174457e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 435   6.0 Industrial Sandeel 1.179280e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 436   6.2 Industrial Sandeel 1.175329e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 437   6.4 Industrial Sandeel 1.164156e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 438   6.6 Industrial Sandeel 1.147903e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 439   6.8 Industrial Sandeel 1.128960e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 440   7.0 Industrial Sandeel 1.109613e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 441   7.2 Industrial Sandeel 1.091743e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 442   7.4 Industrial Sandeel 1.076614e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 443   7.6 Industrial Sandeel 1.064779e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 444   7.8 Industrial Sandeel 1.056132e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 445   8.0 Industrial Sandeel 1.050076e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 446   8.2 Industrial Sandeel 1.045758e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 447   8.4 Industrial Sandeel 1.042305e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 448   8.6 Industrial Sandeel 1.038986e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 449   8.8 Industrial Sandeel 1.035291e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 450   9.0 Industrial Sandeel 1.030920e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 451   9.2 Industrial Sandeel 1.025742e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 452   9.4 Industrial Sandeel 1.019734e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 453   9.6 Industrial Sandeel 1.012941e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 454   9.8 Industrial Sandeel 1.005448e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 455  10.0 Industrial Sandeel 9.973799e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 456  10.2 Industrial Sandeel 9.888903e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 457  10.4 Industrial Sandeel 9.801653e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 458  10.6 Industrial Sandeel 9.714127e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 459  10.8 Industrial Sandeel 9.628467e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 460  11.0 Industrial Sandeel 9.546683e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 461  11.2 Industrial Sandeel 9.470464e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 462  11.4 Industrial Sandeel 9.401011e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 463  11.6 Industrial Sandeel 9.338950e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 464  11.8 Industrial Sandeel 9.284287e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 465  12.0 Industrial Sandeel 9.236450e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 466  12.2 Industrial Sandeel 9.194401e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 467  12.4 Industrial Sandeel 9.156818e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 468  12.6 Industrial Sandeel 9.122315e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 469  12.8 Industrial Sandeel 9.089670e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 470  13.0 Industrial Sandeel 9.057990e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 471  13.2 Industrial Sandeel 9.026807e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 472  13.4 Industrial Sandeel 8.996082e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 473  13.6 Industrial Sandeel 8.966134e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 474  13.8 Industrial Sandeel 8.937521e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 475  14.0 Industrial Sandeel 8.910894e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 476  14.2 Industrial Sandeel 8.886861e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 477  14.4 Industrial Sandeel 8.865875e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 478  14.6 Industrial Sandeel 8.848164e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 479  14.8 Industrial Sandeel 8.833701e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 480  15.0 Industrial Sandeel 8.822223e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 481  15.2 Industrial Sandeel 8.813279e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 482  15.4 Industrial Sandeel 8.806299e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 483  15.6 Industrial Sandeel 8.800676e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 484  15.8 Industrial Sandeel 8.795836e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 485  16.0 Industrial Sandeel 8.791300e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 486  16.2 Industrial Sandeel 8.786721e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 487  16.4 Industrial Sandeel 8.781900e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 488  16.6 Industrial Sandeel 8.776785e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 489  16.8 Industrial Sandeel 8.771445e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 490  17.0 Industrial Sandeel 8.766038e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 491  17.2 Industrial Sandeel 8.760770e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 492  17.4 Industrial Sandeel 8.755855e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 493  17.6 Industrial Sandeel 8.751482e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 494  17.8 Industrial Sandeel 8.747789e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 495  18.0 Industrial Sandeel 8.744846e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 496  18.2 Industrial Sandeel 8.742655e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 497  18.4 Industrial Sandeel 8.741152e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 498  18.6 Industrial Sandeel 8.740224e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 499  18.8 Industrial Sandeel 8.739722e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 500  19.0 Industrial Sandeel 8.739489e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 501  19.2 Industrial Sandeel 8.739371e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 502  19.4 Industrial Sandeel 8.739240e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 503  19.6 Industrial Sandeel 8.738999e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 504  19.8 Industrial Sandeel 8.738593e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 505  20.0 Industrial Sandeel 8.738004e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 809   0.0 Industrial  N.pout 7.445069e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 810   0.2 Industrial  N.pout 1.314333e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 811   0.4 Industrial  N.pout 1.320663e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 812   0.6 Industrial  N.pout 1.102133e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 813   0.8 Industrial  N.pout 6.358438e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 814   1.0 Industrial  N.pout 2.128516e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 815   1.2 Industrial  N.pout 3.697527e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 816   1.4 Industrial  N.pout 4.123549e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 817   1.6 Industrial  N.pout 3.620630e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 818   1.8 Industrial  N.pout 2.798234e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 819   2.0 Industrial  N.pout 2.009226e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 820   2.2 Industrial  N.pout 1.379859e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 821   2.4 Industrial  N.pout 9.226087e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 822   2.6 Industrial  N.pout 6.082719e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 823   2.8 Industrial  N.pout 4.013767e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 824   3.0 Industrial  N.pout 2.734968e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 825   3.2 Industrial  N.pout 2.046016e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 826   3.4 Industrial  N.pout 1.783553e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 827   3.6 Industrial  N.pout 1.781026e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 828   3.8 Industrial  N.pout 1.888130e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 829   4.0 Industrial  N.pout 2.018932e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 830   4.2 Industrial  N.pout 2.164171e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 831   4.4 Industrial  N.pout 2.362943e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 832   4.6 Industrial  N.pout 2.670868e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 833   4.8 Industrial  N.pout 3.142632e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 834   5.0 Industrial  N.pout 3.818547e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 835   5.2 Industrial  N.pout 4.702689e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 836   5.4 Industrial  N.pout 5.737855e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 837   5.6 Industrial  N.pout 6.799733e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 838   5.8 Industrial  N.pout 7.727524e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 839   6.0 Industrial  N.pout 8.379337e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 840   6.2 Industrial  N.pout 8.679411e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 841   6.4 Industrial  N.pout 8.633701e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 842   6.6 Industrial  N.pout 8.314809e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 843   6.8 Industrial  N.pout 7.831498e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 844   7.0 Industrial  N.pout 7.297698e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 845   7.2 Industrial  N.pout 6.809117e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 846   7.4 Industrial  N.pout 6.429516e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 847   7.6 Industrial  N.pout 6.185925e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 848   7.8 Industrial  N.pout 6.071927e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 849   8.0 Industrial  N.pout 6.058092e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 850   8.2 Industrial  N.pout 6.106687e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 851   8.4 Industrial  N.pout 6.185204e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 852   8.6 Industrial  N.pout 6.273589e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 853   8.8 Industrial  N.pout 6.363744e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 854   9.0 Industrial  N.pout 6.454064e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 855   9.2 Industrial  N.pout 6.543274e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 856   9.4 Industrial  N.pout 6.626688e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 857   9.6 Industrial  N.pout 6.695846e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 858   9.8 Industrial  N.pout 6.740771e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 859  10.0 Industrial  N.pout 6.753256e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 860  10.2 Industrial  N.pout 6.729654e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 861  10.4 Industrial  N.pout 6.672214e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 862  10.6 Industrial  N.pout 6.588712e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 863  10.8 Industrial  N.pout 6.490799e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 864  11.0 Industrial  N.pout 6.391739e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 865  11.2 Industrial  N.pout 6.304205e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 866  11.4 Industrial  N.pout 6.238535e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 867  11.6 Industrial  N.pout 6.201528e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 868  11.8 Industrial  N.pout 6.195770e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 869  12.0 Industrial  N.pout 6.219465e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 870  12.2 Industrial  N.pout 6.266839e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 871  12.4 Industrial  N.pout 6.329161e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 872  12.6 Industrial  N.pout 6.396282e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 873  12.8 Industrial  N.pout 6.458392e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 874  13.0 Industrial  N.pout 6.507596e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 875  13.2 Industrial  N.pout 6.538969e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 876  13.4 Industrial  N.pout 6.550920e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 877  13.6 Industrial  N.pout 6.544909e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 878  13.8 Industrial  N.pout 6.524711e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 879  14.0 Industrial  N.pout 6.495452e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 880  14.2 Industrial  N.pout 6.462644e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 881  14.4 Industrial  N.pout 6.431360e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 882  14.6 Industrial  N.pout 6.405638e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 883  14.8 Industrial  N.pout 6.388140e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 884  15.0 Industrial  N.pout 6.380043e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 885  15.2 Industrial  N.pout 6.381143e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 886  15.4 Industrial  N.pout 6.390099e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 887  15.6 Industrial  N.pout 6.404783e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 888  15.8 Industrial  N.pout 6.422663e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 889  16.0 Industrial  N.pout 6.441174e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 890  16.2 Industrial  N.pout 6.458041e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 891  16.4 Industrial  N.pout 6.471514e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 892  16.6 Industrial  N.pout 6.480504e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 893  16.8 Industrial  N.pout 6.484625e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 894  17.0 Industrial  N.pout 6.484138e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 895  17.2 Industrial  N.pout 6.479825e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 896  17.4 Industrial  N.pout 6.472822e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 897  17.6 Industrial  N.pout 6.464429e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 898  17.8 Industrial  N.pout 6.455928e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 899  18.0 Industrial  N.pout 6.448431e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 900  18.2 Industrial  N.pout 6.442767e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 901  18.4 Industrial  N.pout 6.439419e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 902  18.6 Industrial  N.pout 6.438515e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 903  18.8 Industrial  N.pout 6.439858e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 904  19.0 Industrial  N.pout 6.442997e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 905  19.2 Industrial  N.pout 6.447314e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 906  19.4 Industrial  N.pout 6.452127e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 907  19.6 Industrial  N.pout 6.456781e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 908  19.8 Industrial  N.pout 6.460729e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 909  20.0 Industrial  N.pout 6.463584e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1314  0.0    Pelagic Herring 4.975727e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1315  0.2    Pelagic Herring 4.974814e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1316  0.4    Pelagic Herring 7.204808e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1317  0.6    Pelagic Herring 3.309006e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1318  0.8    Pelagic Herring 1.942037e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1319  1.0    Pelagic Herring 8.199913e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1320  1.2    Pelagic Herring 2.550447e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1321  1.4    Pelagic Herring 6.215922e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1322  1.6    Pelagic Herring 1.223759e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1323  1.8    Pelagic Herring 1.995099e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1324  2.0    Pelagic Herring 2.765130e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1325  2.2    Pelagic Herring 3.343870e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1326  2.4    Pelagic Herring 3.614360e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1327  2.6    Pelagic Herring 3.567860e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1328  2.8    Pelagic Herring 3.278650e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1329  3.0    Pelagic Herring 2.854488e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1330  3.2    Pelagic Herring 2.395166e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1331  3.4    Pelagic Herring 1.971494e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1332  3.6    Pelagic Herring 1.621865e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1333  3.8    Pelagic Herring 1.358268e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1334  4.0    Pelagic Herring 1.174909e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1335  4.2    Pelagic Herring 1.056471e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1336  4.4    Pelagic Herring 9.856320e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1337  4.6    Pelagic Herring 9.492886e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1338  4.8    Pelagic Herring 9.421124e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1339  5.0    Pelagic Herring 9.668711e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1340  5.2    Pelagic Herring 1.032589e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1341  5.4    Pelagic Herring 1.151956e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1342  5.6    Pelagic Herring 1.338195e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1343  5.8    Pelagic Herring 1.600646e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1344  6.0    Pelagic Herring 1.938875e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1345  6.2    Pelagic Herring 2.337001e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1346  6.4    Pelagic Herring 2.761598e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1347  6.6    Pelagic Herring 3.165992e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1348  6.8    Pelagic Herring 3.500790e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1349  7.0    Pelagic Herring 3.726797e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1350  7.2    Pelagic Herring 3.824901e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1351  7.4    Pelagic Herring 3.799161e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1352  7.6    Pelagic Herring 3.672787e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1353  7.8    Pelagic Herring 3.479763e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1354  8.0    Pelagic Herring 3.255817e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1355  8.2    Pelagic Herring 3.031598e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1356  8.4    Pelagic Herring 2.829167e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1357  8.6    Pelagic Herring 2.661462e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1358  8.8    Pelagic Herring 2.533644e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1359  9.0    Pelagic Herring 2.445207e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1360  9.2    Pelagic Herring 2.392072e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1361  9.4    Pelagic Herring 2.368227e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1362  9.6    Pelagic Herring 2.366826e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1363  9.8    Pelagic Herring 2.380806e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1364 10.0    Pelagic Herring 2.403199e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1365 10.2    Pelagic Herring 2.427348e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1366 10.4    Pelagic Herring 2.447143e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1367 10.6    Pelagic Herring 2.457384e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1368 10.8    Pelagic Herring 2.454200e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1369 11.0    Pelagic Herring 2.435454e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1370 11.2    Pelagic Herring 2.400981e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1371 11.4    Pelagic Herring 2.352551e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1372 11.6    Pelagic Herring 2.293545e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1373 11.8    Pelagic Herring 2.228382e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1374 12.0    Pelagic Herring 2.161832e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1375 12.2    Pelagic Herring 2.098350e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1376 12.4    Pelagic Herring 2.041544e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1377 12.6    Pelagic Herring 1.993842e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1378 12.8    Pelagic Herring 1.956369e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1379 13.0    Pelagic Herring 1.929007e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1380 13.2    Pelagic Herring 1.910590e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1381 13.4    Pelagic Herring 1.899206e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1382 13.6    Pelagic Herring 1.892539e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1383 13.8    Pelagic Herring 1.888224e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1384 14.0    Pelagic Herring 1.884164e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1385 14.2    Pelagic Herring 1.878763e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1386 14.4    Pelagic Herring 1.871060e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1387 14.6    Pelagic Herring 1.860757e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1388 14.8    Pelagic Herring 1.848137e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1389 15.0    Pelagic Herring 1.833918e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1390 15.2    Pelagic Herring 1.819064e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1391 15.4    Pelagic Herring 1.804601e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1392 15.6    Pelagic Herring 1.791449e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1393 15.8    Pelagic Herring 1.780308e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1394 16.0    Pelagic Herring 1.771590e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1395 16.2    Pelagic Herring 1.765399e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1396 16.4    Pelagic Herring 1.761567e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1397 16.6    Pelagic Herring 1.759703e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1398 16.8    Pelagic Herring 1.759275e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1399 17.0    Pelagic Herring 1.759694e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1400 17.2    Pelagic Herring 1.760394e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1401 17.4    Pelagic Herring 1.760892e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1402 17.6    Pelagic Herring 1.760841e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1403 17.8    Pelagic Herring 1.760045e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1404 18.0    Pelagic Herring 1.758464e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1405 18.2    Pelagic Herring 1.756191e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1406 18.4    Pelagic Herring 1.753418e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1407 18.6    Pelagic Herring 1.750397e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1408 18.8    Pelagic Herring 1.747395e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1409 19.0    Pelagic Herring 1.744659e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1410 19.2    Pelagic Herring 1.742380e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1411 19.4    Pelagic Herring 1.740680e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1412 19.6    Pelagic Herring 1.739604e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1413 19.8    Pelagic Herring 1.739123e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1414 20.0    Pelagic Herring 1.739144e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1819  0.0       Beam     Dab 7.344057e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1820  0.2       Beam     Dab 9.496998e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1821  0.4       Beam     Dab 5.461090e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1822  0.6       Beam     Dab 3.101031e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1823  0.8       Beam     Dab 1.034863e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1824  1.0       Beam     Dab 2.192329e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1825  1.2       Beam     Dab 3.420811e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1826  1.4       Beam     Dab 4.455169e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1827  1.6       Beam     Dab 5.083566e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1828  1.8       Beam     Dab 5.205848e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1829  2.0       Beam     Dab 4.892511e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1830  2.2       Beam     Dab 4.309636e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1831  2.4       Beam     Dab 3.623779e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1832  2.6       Beam     Dab 2.954798e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1833  2.8       Beam     Dab 2.371167e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1834  3.0       Beam     Dab 1.903033e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1835  3.2       Beam     Dab 1.556543e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1836  3.4       Beam     Dab 1.323953e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1837  3.6       Beam     Dab 1.189587e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1838  3.8       Beam     Dab 1.133230e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1839  4.0       Beam     Dab 1.132630e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1840  4.2       Beam     Dab 1.166503e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1841  4.4       Beam     Dab 1.217884e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1842  4.6       Beam     Dab 1.276103e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1843  4.8       Beam     Dab 1.336205e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1844  5.0       Beam     Dab 1.396469e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1845  5.2       Beam     Dab 1.455626e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1846  5.4       Beam     Dab 1.510989e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1847  5.6       Beam     Dab 1.558014e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1848  5.8       Beam     Dab 1.591151e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1849  6.0       Beam     Dab 1.605436e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1850  6.2       Beam     Dab 1.598049e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1851  6.4       Beam     Dab 1.569228e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1852  6.6       Beam     Dab 1.522219e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1853  6.8       Beam     Dab 1.462424e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1854  7.0       Beam     Dab 1.396113e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1855  7.2       Beam     Dab 1.329146e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1856  7.4       Beam     Dab 1.265953e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1857  7.6       Beam     Dab 1.208941e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1858  7.8       Beam     Dab 1.158382e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1859  8.0       Beam     Dab 1.112819e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1860  8.2       Beam     Dab 1.069884e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1861  8.4       Beam     Dab 1.027269e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1862  8.6       Beam     Dab 9.834889e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1863  8.8       Beam     Dab 9.382068e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1864  9.0       Beam     Dab 8.921235e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1865  9.2       Beam     Dab 8.465909e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1866  9.4       Beam     Dab 8.031613e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1867  9.6       Beam     Dab 7.632072e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1868  9.8       Beam     Dab 7.276702e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1869 10.0       Beam     Dab 6.969402e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1870 10.2       Beam     Dab 6.708436e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1871 10.4       Beam     Dab 6.487168e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1872 10.6       Beam     Dab 6.295464e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1873 10.8       Beam     Dab 6.121541e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1874 11.0       Beam     Dab 5.954043e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1875 11.2       Beam     Dab 5.783932e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1876 11.4       Beam     Dab 5.605804e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1877 11.6       Beam     Dab 5.418324e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1878 11.8       Beam     Dab 5.223742e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1879 12.0       Beam     Dab 5.026780e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1880 12.2       Beam     Dab 4.833269e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1881 12.4       Beam     Dab 4.648933e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1882 12.6       Beam     Dab 4.478531e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1883 12.8       Beam     Dab 4.325400e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1884 13.0       Beam     Dab 4.191336e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1885 13.2       Beam     Dab 4.076705e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1886 13.4       Beam     Dab 3.980679e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1887 13.6       Beam     Dab 3.901520e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1888 13.8       Beam     Dab 3.836875e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1889 14.0       Beam     Dab 3.784066e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1890 14.2       Beam     Dab 3.740353e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1891 14.4       Beam     Dab 3.703173e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1892 14.6       Beam     Dab 3.670322e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1893 14.8       Beam     Dab 3.640085e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1894 15.0       Beam     Dab 3.611285e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1895 15.2       Beam     Dab 3.583271e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1896 15.4       Beam     Dab 3.555846e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1897 15.6       Beam     Dab 3.529158e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1898 15.8       Beam     Dab 3.503573e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1899 16.0       Beam     Dab 3.479562e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1900 16.2       Beam     Dab 3.457586e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1901 16.4       Beam     Dab 3.438025e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1902 16.6       Beam     Dab 3.421114e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1903 16.8       Beam     Dab 3.406922e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1904 17.0       Beam     Dab 3.395349e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1905 17.2       Beam     Dab 3.386143e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1906 17.4       Beam     Dab 3.378938e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1907 17.6       Beam     Dab 3.373303e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1908 17.8       Beam     Dab 3.368788e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1909 18.0       Beam     Dab 3.364975e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1910 18.2       Beam     Dab 3.361512e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1911 18.4       Beam     Dab 3.358141e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1912 18.6       Beam     Dab 3.354708e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1913 18.8       Beam     Dab 3.351155e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1914 19.0       Beam     Dab 3.347509e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1915 19.2       Beam     Dab 3.343858e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1916 19.4       Beam     Dab 3.340320e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1917 19.6       Beam     Dab 3.337025e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1918 19.8       Beam     Dab 3.334086e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1919 20.0       Beam     Dab 3.331585e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2324  0.0      Otter Whiting 7.776222e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2325  0.2      Otter Whiting 6.770335e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2326  0.4      Otter Whiting 8.551029e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2327  0.6      Otter Whiting 3.714972e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2328  0.8      Otter Whiting 2.227476e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2329  1.0      Otter Whiting 9.671157e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2330  1.2      Otter Whiting 2.651981e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2331  1.4      Otter Whiting 4.972062e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2332  1.6      Otter Whiting 7.173872e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2333  1.8      Otter Whiting 8.683544e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2334  2.0      Otter Whiting 9.323309e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2335  2.2      Otter Whiting 9.205084e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2336  2.4      Otter Whiting 8.557098e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2337  2.6      Otter Whiting 7.608084e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2338  2.8      Otter Whiting 6.541861e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2339  3.0      Otter Whiting 5.493125e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2340  3.2      Otter Whiting 4.559207e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2341  3.4      Otter Whiting 3.816225e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2342  3.6      Otter Whiting 3.332033e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2343  3.8      Otter Whiting 3.164108e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2344  4.0      Otter Whiting 3.336567e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2345  4.2      Otter Whiting 3.813922e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2346  4.4      Otter Whiting 4.504119e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2347  4.6      Otter Whiting 5.300489e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2348  4.8      Otter Whiting 6.131425e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2349  5.0      Otter Whiting 6.979785e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2350  5.2      Otter Whiting 7.864841e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2351  5.4      Otter Whiting 8.806010e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2352  5.6      Otter Whiting 9.790814e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2353  5.8      Otter Whiting 1.076179e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2354  6.0      Otter Whiting 1.162737e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2355  6.2      Otter Whiting 1.229055e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2356  6.4      Otter Whiting 1.268039e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2357  6.6      Otter Whiting 1.277201e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2358  6.8      Otter Whiting 1.258945e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2359  7.0      Otter Whiting 1.219463e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2360  7.2      Otter Whiting 1.167030e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2361  7.4      Otter Whiting 1.110320e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2362  7.6      Otter Whiting 1.057016e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2363  7.8      Otter Whiting 1.012749e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2364  8.0      Otter Whiting 9.803907e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2365  8.2      Otter Whiting 9.598778e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2366  8.4      Otter Whiting 9.487250e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2367  8.6      Otter Whiting 9.431424e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2368  8.8      Otter Whiting 9.393498e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2369  9.0      Otter Whiting 9.345938e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2370  9.2      Otter Whiting 9.275846e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2371  9.4      Otter Whiting 9.183841e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2372  9.6      Otter Whiting 9.079723e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2373  9.8      Otter Whiting 8.977350e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2374 10.0      Otter Whiting 8.890265e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2375 10.2      Otter Whiting 8.828638e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2376 10.4      Otter Whiting 8.797478e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2377 10.6      Otter Whiting 8.795958e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2378 10.8      Otter Whiting 8.817752e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2379 11.0      Otter Whiting 8.852368e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2380 11.2      Otter Whiting 8.887359e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2381 11.4      Otter Whiting 8.910977e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2382 11.6      Otter Whiting 8.914610e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2383 11.8      Otter Whiting 8.894316e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2384 12.0      Otter Whiting 8.851075e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2385 12.2      Otter Whiting 8.789868e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2386 12.4      Otter Whiting 8.718030e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2387 12.6      Otter Whiting 8.643474e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2388 12.8      Otter Whiting 8.573229e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2389 13.0      Otter Whiting 8.512543e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2390 13.2      Otter Whiting 8.464544e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2391 13.4      Otter Whiting 8.430326e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2392 13.6      Otter Whiting 8.409298e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2393 13.8      Otter Whiting 8.399634e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2394 14.0      Otter Whiting 8.398737e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2395 14.2      Otter Whiting 8.403666e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2396 14.4      Otter Whiting 8.411503e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2397 14.6      Otter Whiting 8.419654e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2398 14.8      Otter Whiting 8.426070e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2399 15.0      Otter Whiting 8.429386e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2400 15.2      Otter Whiting 8.428954e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2401 15.4      Otter Whiting 8.424789e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2402 15.6      Otter Whiting 8.417444e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2403 15.8      Otter Whiting 8.407837e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2404 16.0      Otter Whiting 8.397061e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2405 16.2      Otter Whiting 8.386213e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2406 16.4      Otter Whiting 8.376255e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2407 16.6      Otter Whiting 8.367914e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2408 16.8      Otter Whiting 8.361629e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2409 17.0      Otter Whiting 8.357545e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2410 17.2      Otter Whiting 8.355535e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2411 17.4      Otter Whiting 8.355254e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2412 17.6      Otter Whiting 8.356210e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2413 17.8      Otter Whiting 8.357843e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2414 18.0      Otter Whiting 8.359609e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2415 18.2      Otter Whiting 8.361045e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2416 18.4      Otter Whiting 8.361819e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2417 18.6      Otter Whiting 8.361758e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2418 18.8      Otter Whiting 8.360845e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2419 19.0      Otter Whiting 8.359198e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2420 19.2      Otter Whiting 8.357037e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2421 19.4      Otter Whiting 8.354632e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2422 19.6      Otter Whiting 8.352258e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2423 19.8      Otter Whiting 8.350160e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2424 20.0      Otter Whiting 8.348517e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2627  0.0       Beam    Sole 7.431455e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2628  0.2       Beam    Sole 6.490593e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2629  0.4       Beam    Sole 6.024813e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2630  0.6       Beam    Sole 9.302959e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2631  0.8       Beam    Sole 3.258133e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2632  1.0       Beam    Sole 1.050813e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2633  1.2       Beam    Sole 2.503382e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2634  1.4       Beam    Sole 5.133721e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2635  1.6       Beam    Sole 9.646494e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2636  1.8       Beam    Sole 1.670303e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2637  2.0       Beam    Sole 2.666137e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2638  2.2       Beam    Sole 3.938824e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2639  2.4       Beam    Sole 5.413994e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2640  2.6       Beam    Sole 6.958013e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2641  2.8       Beam    Sole 8.403036e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2642  3.0       Beam    Sole 9.594012e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2643  3.2       Beam    Sole 1.043683e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2644  3.4       Beam    Sole 1.092006e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2645  3.6       Beam    Sole 1.110064e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2646  3.8       Beam    Sole 1.106916e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2647  4.0       Beam    Sole 1.091806e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2648  4.2       Beam    Sole 1.072459e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2649  4.4       Beam    Sole 1.054699e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2650  4.6       Beam    Sole 1.042647e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2651  4.8       Beam    Sole 1.039021e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2652  5.0       Beam    Sole 1.045373e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2653  5.2       Beam    Sole 1.062261e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2654  5.4       Beam    Sole 1.089377e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2655  5.6       Beam    Sole 1.125635e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2656  5.8       Beam    Sole 1.169229e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2657  6.0       Beam    Sole 1.217671e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2658  6.2       Beam    Sole 1.267872e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2659  6.4       Beam    Sole 1.316264e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2660  6.6       Beam    Sole 1.359006e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2661  6.8       Beam    Sole 1.392279e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2662  7.0       Beam    Sole 1.412672e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2663  7.2       Beam    Sole 1.417650e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2664  7.4       Beam    Sole 1.405995e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2665  7.6       Beam    Sole 1.378091e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2666  7.8       Beam    Sole 1.335935e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2667  8.0       Beam    Sole 1.282822e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2668  8.2       Beam    Sole 1.222796e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2669  8.4       Beam    Sole 1.160029e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2670  8.6       Beam    Sole 1.098288e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2671  8.8       Beam    Sole 1.040597e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2672  9.0       Beam    Sole 9.890778e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2673  9.2       Beam    Sole 9.449486e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2674  9.4       Beam    Sole 9.085871e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2675  9.6       Beam    Sole 8.796384e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2676  9.8       Beam    Sole 8.571436e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2677 10.0       Beam    Sole 8.396940e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2678 10.2       Beam    Sole 8.256193e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2679 10.4       Beam    Sole 8.131996e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2680 10.6       Beam    Sole 8.008763e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2681 10.8       Beam    Sole 7.874264e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2682 11.0       Beam    Sole 7.720682e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2683 11.2       Beam    Sole 7.544848e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2684 11.4       Beam    Sole 7.347738e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2685 11.6       Beam    Sole 7.133454e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2686 11.8       Beam    Sole 6.908002e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2687 12.0       Beam    Sole 6.678090e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2688 12.2       Beam    Sole 6.450143e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2689 12.4       Beam    Sole 6.229602e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2690 12.6       Beam    Sole 6.020541e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2691 12.8       Beam    Sole 5.825543e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2692 13.0       Beam    Sole 5.645803e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2693 13.2       Beam    Sole 5.481371e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2694 13.4       Beam    Sole 5.331469e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2695 13.6       Beam    Sole 5.194836e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2696 13.8       Beam    Sole 5.070032e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2697 14.0       Beam    Sole 4.955681e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2698 14.2       Beam    Sole 4.850627e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2699 14.4       Beam    Sole 4.754012e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2700 14.6       Beam    Sole 4.665271e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2701 14.8       Beam    Sole 4.584089e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2702 15.0       Beam    Sole 4.510313e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2703 15.2       Beam    Sole 4.443865e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2704 15.4       Beam    Sole 4.384651e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2705 15.6       Beam    Sole 4.332491e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2706 15.8       Beam    Sole 4.287070e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2707 16.0       Beam    Sole 4.247913e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2708 16.2       Beam    Sole 4.214401e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2709 16.4       Beam    Sole 4.185795e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2710 16.6       Beam    Sole 4.161289e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2711 16.8       Beam    Sole 4.140072e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2712 17.0       Beam    Sole 4.121381e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2713 17.2       Beam    Sole 4.104562e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2714 17.4       Beam    Sole 4.089096e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2715 17.6       Beam    Sole 4.074624e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2716 17.8       Beam    Sole 4.060940e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2717 18.0       Beam    Sole 4.047975e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2718 18.2       Beam    Sole 4.035761e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2719 18.4       Beam    Sole 4.024399e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2720 18.6       Beam    Sole 4.014015e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2721 18.8       Beam    Sole 4.004727e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2722 19.0       Beam    Sole 3.996618e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2723 19.2       Beam    Sole 3.989716e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2724 19.4       Beam    Sole 3.983987e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2725 19.6       Beam    Sole 3.979341e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2726 19.8       Beam    Sole 3.975637e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2727 20.0       Beam    Sole 3.972700e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3132  0.0      Otter Gurnard 7.057995e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3133  0.2      Otter Gurnard 6.183729e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3134  0.4      Otter Gurnard 6.407831e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3135  0.6      Otter Gurnard 1.654805e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3136  0.8      Otter Gurnard 7.374228e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3137  1.0      Otter Gurnard 2.335569e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3138  1.2      Otter Gurnard 4.963304e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3139  1.4      Otter Gurnard 8.191751e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3140  1.6      Otter Gurnard 1.128738e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3141  1.8      Otter Gurnard 1.338433e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3142  2.0      Otter Gurnard 1.402887e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3143  2.2      Otter Gurnard 1.334523e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3144  2.4      Otter Gurnard 1.178935e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3145  2.6      Otter Gurnard 9.860150e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3146  2.8      Otter Gurnard 7.945505e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3147  3.0      Otter Gurnard 6.289981e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3148  3.2      Otter Gurnard 5.022736e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3149  3.4      Otter Gurnard 4.196900e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3150  3.6      Otter Gurnard 3.813759e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3151  3.8      Otter Gurnard 3.827408e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3152  4.0      Otter Gurnard 4.147029e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3153  4.2      Otter Gurnard 4.661218e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3154  4.4      Otter Gurnard 5.286297e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3155  4.6      Otter Gurnard 6.007669e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3156  4.8      Otter Gurnard 6.886094e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3157  5.0      Otter Gurnard 8.033691e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3158  5.2      Otter Gurnard 9.580315e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3159  5.4      Otter Gurnard 1.163963e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3160  5.6      Otter Gurnard 1.427169e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3161  5.8      Otter Gurnard 1.744104e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3162  6.0      Otter Gurnard 2.098266e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3163  6.2      Otter Gurnard 2.459865e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3164  6.4      Otter Gurnard 2.790424e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3165  6.6      Otter Gurnard 3.051810e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3166  6.8      Otter Gurnard 3.216467e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3167  7.0      Otter Gurnard 3.274569e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3168  7.2      Otter Gurnard 3.235359e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3169  7.4      Otter Gurnard 3.122817e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3170  7.6      Otter Gurnard 2.968163e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3171  7.8      Otter Gurnard 2.802294e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3172  8.0      Otter Gurnard 2.650398e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3173  8.2      Otter Gurnard 2.529524e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3174  8.4      Otter Gurnard 2.448655e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3175  8.6      Otter Gurnard 2.410238e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3176  8.8      Otter Gurnard 2.412082e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3177  9.0      Otter Gurnard 2.448962e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3178  9.2      Otter Gurnard 2.513667e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3179  9.4      Otter Gurnard 2.597602e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3180  9.6      Otter Gurnard 2.691197e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3181  9.8      Otter Gurnard 2.784375e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3182 10.0      Otter Gurnard 2.867237e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3183 10.2      Otter Gurnard 2.930975e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3184 10.4      Otter Gurnard 2.968879e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3185 10.6      Otter Gurnard 2.977200e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3186 10.8      Otter Gurnard 2.955654e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3187 11.0      Otter Gurnard 2.907409e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3188 11.2      Otter Gurnard 2.838534e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3189 11.4      Otter Gurnard 2.757018e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3190 11.6      Otter Gurnard 2.671561e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3191 11.8      Otter Gurnard 2.590396e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3192 12.0      Otter Gurnard 2.520313e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3193 12.2      Otter Gurnard 2.466031e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3194 12.4      Otter Gurnard 2.429889e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3195 12.6      Otter Gurnard 2.411855e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3196 12.8      Otter Gurnard 2.409768e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3197 13.0      Otter Gurnard 2.419794e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3198 13.2      Otter Gurnard 2.437046e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3199 13.4      Otter Gurnard 2.456308e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3200 13.6      Otter Gurnard 2.472788e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3201 13.8      Otter Gurnard 2.482761e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3202 14.0      Otter Gurnard 2.484012e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3203 14.2      Otter Gurnard 2.475984e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3204 14.4      Otter Gurnard 2.459643e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3205 14.6      Otter Gurnard 2.437111e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3206 14.8      Otter Gurnard 2.411168e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3207 15.0      Otter Gurnard 2.384744e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3208 15.2      Otter Gurnard 2.360475e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3209 15.4      Otter Gurnard 2.340383e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3210 15.6      Otter Gurnard 2.325705e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3211 15.8      Otter Gurnard 2.316847e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3212 16.0      Otter Gurnard 2.313459e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3213 16.2      Otter Gurnard 2.314588e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3214 16.4      Otter Gurnard 2.318877e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3215 16.6      Otter Gurnard 2.324803e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3216 16.8      Otter Gurnard 2.330883e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3217 17.0      Otter Gurnard 2.335867e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3218 17.2      Otter Gurnard 2.338862e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3219 17.4      Otter Gurnard 2.339402e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3220 17.6      Otter Gurnard 2.337441e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3221 17.8      Otter Gurnard 2.333298e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3222 18.0      Otter Gurnard 2.327558e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3223 18.2      Otter Gurnard 2.320953e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3224 18.4      Otter Gurnard 2.314243e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3225 18.6      Otter Gurnard 2.308112e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3226 18.8      Otter Gurnard 2.303089e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3227 19.0      Otter Gurnard 2.299504e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3228 19.2      Otter Gurnard 2.297474e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3229 19.4      Otter Gurnard 2.296915e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3230 19.6      Otter Gurnard 2.297583e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3231 19.8      Otter Gurnard 2.299123e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3232 20.0      Otter Gurnard 2.301130e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3435  0.0       Beam  Plaice 7.398323e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3436  0.2       Beam  Plaice 6.203683e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3437  0.4       Beam  Plaice 5.217532e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3438  0.6       Beam  Plaice 4.411212e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3439  0.8       Beam  Plaice 3.799357e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3440  1.0       Beam  Plaice 3.516705e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3441  1.2       Beam  Plaice 3.789438e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3442  1.4       Beam  Plaice 4.881572e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3443  1.6       Beam  Plaice 7.169165e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3444  1.8       Beam  Plaice 1.113665e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3445  2.0       Beam  Plaice 1.732061e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3446  2.2       Beam  Plaice 2.628405e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3447  2.4       Beam  Plaice 3.856732e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3448  2.6       Beam  Plaice 5.450489e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3449  2.8       Beam  Plaice 7.388396e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3450  3.0       Beam  Plaice 9.561127e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3451  3.2       Beam  Plaice 1.176823e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3452  3.4       Beam  Plaice 1.376067e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3453  3.6       Beam  Plaice 1.531048e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3454  3.8       Beam  Plaice 1.627423e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3455  4.0       Beam  Plaice 1.663541e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3456  4.2       Beam  Plaice 1.653045e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3457  4.4       Beam  Plaice 1.625883e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3458  4.6       Beam  Plaice 1.627141e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3459  4.8       Beam  Plaice 1.714530e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3460  5.0       Beam  Plaice 1.956453e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3461  5.2       Beam  Plaice 2.431387e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3462  5.4       Beam  Plaice 3.226953e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3463  5.6       Beam  Plaice 4.436195e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3464  5.8       Beam  Plaice 6.150270e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3465  6.0       Beam  Plaice 8.449569e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3466  6.2       Beam  Plaice 1.139672e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3467  6.4       Beam  Plaice 1.503294e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3468  6.6       Beam  Plaice 1.937463e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3469  6.8       Beam  Plaice 2.440317e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3470  7.0       Beam  Plaice 3.004299e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3471  7.2       Beam  Plaice 3.613430e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3472  7.4       Beam  Plaice 4.242365e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3473  7.6       Beam  Plaice 4.860303e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3474  7.8       Beam  Plaice 5.440824e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3475  8.0       Beam  Plaice 5.974295e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3476  8.2       Beam  Plaice 6.476296e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3477  8.4       Beam  Plaice 6.987110e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3478  8.6       Beam  Plaice 7.562812e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3479  8.8       Beam  Plaice 8.263241e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3480  9.0       Beam  Plaice 9.142687e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3481  9.2       Beam  Plaice 1.024597e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3482  9.4       Beam  Plaice 1.160861e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3483  9.6       Beam  Plaice 1.325747e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3484  9.8       Beam  Plaice 1.520774e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3485 10.0       Beam  Plaice 1.745458e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3486 10.2       Beam  Plaice 1.996065e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3487 10.4       Beam  Plaice 2.264529e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3488 10.6       Beam  Plaice 2.538367e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3489 10.8       Beam  Plaice 2.802224e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3490 11.0       Beam  Plaice 3.040971e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3491 11.2       Beam  Plaice 3.243327e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3492 11.4       Beam  Plaice 3.404511e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3493 11.6       Beam  Plaice 3.526907e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3494 11.8       Beam  Plaice 3.618673e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3495 12.0       Beam  Plaice 3.691132e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3496 12.2       Beam  Plaice 3.756017e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3497 12.4       Beam  Plaice 3.823344e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3498 12.6       Beam  Plaice 3.900187e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3499 12.8       Beam  Plaice 3.990250e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3500 13.0       Beam  Plaice 4.093986e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3501 13.2       Beam  Plaice 4.209041e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3502 13.4       Beam  Plaice 4.330885e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3503 13.6       Beam  Plaice 4.453599e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3504 13.8       Beam  Plaice 4.570774e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3505 14.0       Beam  Plaice 4.676460e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3506 14.2       Beam  Plaice 4.766033e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3507 14.4       Beam  Plaice 4.836832e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3508 14.6       Beam  Plaice 4.888429e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3509 14.8       Beam  Plaice 4.922504e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3510 15.0       Beam  Plaice 4.942374e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3511 15.2       Beam  Plaice 4.952318e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3512 15.4       Beam  Plaice 4.956855e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3513 15.6       Beam  Plaice 4.960108e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3514 15.8       Beam  Plaice 4.965343e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3515 16.0       Beam  Plaice 4.974710e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3516 16.2       Beam  Plaice 4.989177e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3517 16.4       Beam  Plaice 5.008616e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3518 16.6       Beam  Plaice 5.032010e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3519 16.8       Beam  Plaice 5.057731e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3520 17.0       Beam  Plaice 5.083850e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3521 17.2       Beam  Plaice 5.108447e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3522 17.4       Beam  Plaice 5.129881e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3523 17.6       Beam  Plaice 5.146985e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3524 17.8       Beam  Plaice 5.159184e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3525 18.0       Beam  Plaice 5.166503e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3526 18.2       Beam  Plaice 5.169505e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3527 18.4       Beam  Plaice 5.169147e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3528 18.6       Beam  Plaice 5.166608e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3529 18.8       Beam  Plaice 5.163112e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3530 19.0       Beam  Plaice 5.159770e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3531 19.2       Beam  Plaice 5.157455e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3532 19.4       Beam  Plaice 5.156733e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3533 19.6       Beam  Plaice 5.157844e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3534 19.8       Beam  Plaice 5.160717e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3535 20.0       Beam  Plaice 5.165033e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3940  0.0      Otter Haddock 7.132412e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3941  0.2      Otter Haddock 7.218871e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3942  0.4      Otter Haddock 3.554337e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3943  0.6      Otter Haddock 3.175898e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3944  0.8      Otter Haddock 1.886051e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3945  1.0      Otter Haddock 7.542300e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3946  1.2      Otter Haddock 2.034065e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3947  1.4      Otter Haddock 4.110348e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3948  1.6      Otter Haddock 6.831277e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3949  1.8      Otter Haddock 9.778615e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3950  2.0      Otter Haddock 1.237956e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3951  2.2      Otter Haddock 1.416881e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3952  2.4      Otter Haddock 1.495299e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3953  2.6      Otter Haddock 1.480757e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3954  2.8      Otter Haddock 1.397658e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3955  3.0      Otter Haddock 1.275153e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3956  3.2      Otter Haddock 1.138057e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3957  3.4      Otter Haddock 1.003028e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3958  3.6      Otter Haddock 8.790152e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3959  3.8      Otter Haddock 7.694724e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3960  4.0      Otter Haddock 6.744987e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3961  4.2      Otter Haddock 5.924259e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3962  4.4      Otter Haddock 5.210616e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3963  4.6      Otter Haddock 4.586139e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3964  4.8      Otter Haddock 4.041180e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3965  5.0      Otter Haddock 3.573824e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3966  5.2      Otter Haddock 3.187370e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3967  5.4      Otter Haddock 2.888208e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3968  5.6      Otter Haddock 2.684294e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3969  5.8      Otter Haddock 2.583017e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3970  6.0      Otter Haddock 2.587558e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3971  6.2      Otter Haddock 2.692213e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3972  6.4      Otter Haddock 2.878621e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3973  6.6      Otter Haddock 3.115374e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3974  6.8      Otter Haddock 3.362384e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3975  7.0      Otter Haddock 3.579169e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3976  7.2      Otter Haddock 3.734065e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3977  7.4      Otter Haddock 3.810748e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3978  7.6      Otter Haddock 3.809658e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3979  7.8      Otter Haddock 3.744456e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3980  8.0      Otter Haddock 3.635766e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3981  8.2      Otter Haddock 3.505118e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3982  8.4      Otter Haddock 3.370972e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3983  8.6      Otter Haddock 3.247194e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3984  8.8      Otter Haddock 3.143254e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3985  9.0      Otter Haddock 3.065142e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3986  9.2      Otter Haddock 3.016270e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3987  9.4      Otter Haddock 2.997982e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3988  9.6      Otter Haddock 3.009658e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3989  9.8      Otter Haddock 3.048538e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3990 10.0      Otter Haddock 3.109530e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3991 10.2      Otter Haddock 3.185277e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3992 10.4      Otter Haddock 3.266664e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3993 10.6      Otter Haddock 3.343847e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3994 10.8      Otter Haddock 3.407653e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3995 11.0      Otter Haddock 3.451035e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3996 11.2      Otter Haddock 3.470184e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3997 11.4      Otter Haddock 3.464999e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3998 11.6      Otter Haddock 3.438805e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3999 11.8      Otter Haddock 3.397465e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4000 12.0      Otter Haddock 3.348180e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4001 12.2      Otter Haddock 3.298272e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4002 12.4      Otter Haddock 3.254183e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4003 12.6      Otter Haddock 3.220767e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4004 12.8      Otter Haddock 3.200911e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4005 13.0      Otter Haddock 3.195425e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4006 13.2      Otter Haddock 3.203189e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4007 13.4      Otter Haddock 3.221502e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4008 13.6      Otter Haddock 3.246599e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4009 13.8      Otter Haddock 3.274267e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4010 14.0      Otter Haddock 3.300474e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4011 14.2      Otter Haddock 3.321919e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4012 14.4      Otter Haddock 3.336405e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4013 14.6      Otter Haddock 3.343006e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4014 14.8      Otter Haddock 3.342006e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4015 15.0      Otter Haddock 3.334673e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4016 15.2      Otter Haddock 3.322924e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4017 15.4      Otter Haddock 3.308957e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4018 15.6      Otter Haddock 3.294911e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4019 15.8      Otter Haddock 3.282603e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4020 16.0      Otter Haddock 3.273346e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4021 16.2      Otter Haddock 3.267872e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4022 16.4      Otter Haddock 3.266324e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4023 16.6      Otter Haddock 3.268332e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4024 16.8      Otter Haddock 3.273130e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4025 17.0      Otter Haddock 3.279707e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4026 17.2      Otter Haddock 3.286970e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4027 17.4      Otter Haddock 3.293889e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4028 17.6      Otter Haddock 3.299627e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4029 17.8      Otter Haddock 3.303612e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4030 18.0      Otter Haddock 3.305579e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4031 18.2      Otter Haddock 3.305559e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4032 18.4      Otter Haddock 3.303833e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4033 18.6      Otter Haddock 3.300860e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4034 18.8      Otter Haddock 3.297190e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4035 19.0      Otter Haddock 3.293386e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4036 19.2      Otter Haddock 3.289949e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4037 19.4      Otter Haddock 3.287261e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4038 19.6      Otter Haddock 3.285558e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4039 19.8      Otter Haddock 3.284920e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4040 20.0      Otter Haddock 3.285281e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4344  0.0      Otter     Cod 6.873099e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4345  0.2      Otter     Cod 5.692655e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4346  0.4      Otter     Cod 4.733569e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4347  0.6      Otter     Cod 4.096963e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4348  0.8      Otter     Cod 6.851395e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4349  1.0      Otter     Cod 4.986649e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4350  1.2      Otter     Cod 2.840967e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4351  1.4      Otter     Cod 9.832140e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4352  1.6      Otter     Cod 2.440639e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4353  1.8      Otter     Cod 4.838552e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4354  2.0      Otter     Cod 8.163409e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4355  2.2      Otter     Cod 1.220815e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4356  2.4      Otter     Cod 1.664482e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4357  2.6      Otter     Cod 2.112385e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4358  2.8      Otter     Cod 2.535869e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4359  3.0      Otter     Cod 2.916700e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4360  3.2      Otter     Cod 3.245605e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4361  3.4      Otter     Cod 3.517195e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4362  3.6      Otter     Cod 3.726992e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4363  3.8      Otter     Cod 3.874551e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4364  4.0      Otter     Cod 3.967927e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4365  4.2      Otter     Cod 4.021968e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4366  4.4      Otter     Cod 4.051333e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4367  4.6      Otter     Cod 4.065175e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4368  4.8      Otter     Cod 4.067070e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4369  5.0      Otter     Cod 4.058364e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4370  5.2      Otter     Cod 4.041591e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4371  5.4      Otter     Cod 4.022125e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4372  5.6      Otter     Cod 4.007904e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4373  5.8      Otter     Cod 4.007874e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4374  6.0      Otter     Cod 4.029908e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4375  6.2      Otter     Cod 4.078876e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4376  6.4      Otter     Cod 4.155432e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4377  6.6      Otter     Cod 4.255885e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4378  6.8      Otter     Cod 4.373164e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4379  7.0      Otter     Cod 4.498511e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4380  7.2      Otter     Cod 4.623319e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4381  7.4      Otter     Cod 4.740545e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4382  7.6      Otter     Cod 4.845353e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4383  7.8      Otter     Cod 4.934968e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4384  8.0      Otter     Cod 5.008058e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4385  8.2      Otter     Cod 5.064042e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4386  8.4      Otter     Cod 5.102626e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4387  8.6      Otter     Cod 5.123677e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4388  8.8      Otter     Cod 5.127373e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4389  9.0      Otter     Cod 5.114500e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4390  9.2      Otter     Cod 5.086728e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4391  9.4      Otter     Cod 5.046744e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4392  9.6      Otter     Cod 4.998200e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4393  9.8      Otter     Cod 4.945472e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4394 10.0      Otter     Cod 4.893297e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4395 10.2      Otter     Cod 4.846350e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4396 10.4      Otter     Cod 4.808800e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4397 10.6      Otter     Cod 4.783882e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4398 10.8      Otter     Cod 4.773515e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4399 11.0      Otter     Cod 4.778016e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4400 11.2      Otter     Cod 4.795990e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4401 11.4      Otter     Cod 4.824475e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4402 11.6      Otter     Cod 4.859368e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4403 11.8      Otter     Cod 4.896075e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4404 12.0      Otter     Cod 4.930244e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4405 12.2      Otter     Cod 4.958399e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4406 12.4      Otter     Cod 4.978348e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4407 12.6      Otter     Cod 4.989287e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4408 12.8      Otter     Cod 4.991667e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4409 13.0      Otter     Cod 4.986885e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4410 13.2      Otter     Cod 4.976920e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4411 13.4      Otter     Cod 4.963977e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4412 13.6      Otter     Cod 4.950189e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4413 13.8      Otter     Cod 4.937390e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4414 14.0      Otter     Cod 4.926963e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4415 14.2      Otter     Cod 4.919763e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4416 14.4      Otter     Cod 4.916098e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4417 14.6      Otter     Cod 4.915780e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4418 14.8      Otter     Cod 4.918220e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4419 15.0      Otter     Cod 4.922565e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4420 15.2      Otter     Cod 4.927852e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4421 15.4      Otter     Cod 4.933153e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4422 15.6      Otter     Cod 4.937699e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4423 15.8      Otter     Cod 4.940952e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4424 16.0      Otter     Cod 4.942644e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4425 16.2      Otter     Cod 4.942763e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4426 16.4      Otter     Cod 4.941511e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4427 16.6      Otter     Cod 4.939244e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4428 16.8      Otter     Cod 4.936396e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4429 17.0      Otter     Cod 4.933414e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4430 17.2      Otter     Cod 4.930695e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4431 17.4      Otter     Cod 4.928547e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4432 17.6      Otter     Cod 4.927159e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4433 17.8      Otter     Cod 4.926593e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4434 18.0      Otter     Cod 4.926796e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4435 18.2      Otter     Cod 4.927620e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4436 18.4      Otter     Cod 4.928856e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4437 18.6      Otter     Cod 4.930270e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4438 18.8      Otter     Cod 4.931635e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4439 19.0      Otter     Cod 4.932766e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4440 19.2      Otter     Cod 4.933531e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4441 19.4      Otter     Cod 4.933867e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4442 19.6      Otter     Cod 4.933777e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4443 19.8      Otter     Cod 4.933319e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4444 20.0      Otter     Cod 4.932592e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4748  0.0      Otter  Saithe 5.840814e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4749  0.2      Otter  Saithe 4.821228e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4750  0.4      Otter  Saithe 3.984474e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4751  0.6      Otter  Saithe 3.307072e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4752  0.8      Otter  Saithe 2.852040e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4753  1.0      Otter  Saithe 3.832017e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4754  1.2      Otter  Saithe 1.228863e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4755  1.4      Otter  Saithe 3.823902e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4756  1.6      Otter  Saithe 8.784669e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4757  1.8      Otter  Saithe 1.595563e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4758  2.0      Otter  Saithe 2.470909e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4759  2.2      Otter  Saithe 3.450589e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4760  2.4      Otter  Saithe 4.540104e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4761  2.6      Otter  Saithe 5.858249e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4762  2.8      Otter  Saithe 7.738162e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4763  3.0      Otter  Saithe 1.094961e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4764  3.2      Otter  Saithe 1.713376e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4765  3.4      Otter  Saithe 2.950001e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4766  3.6      Otter  Saithe 5.366077e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4767  3.8      Otter  Saithe 9.797885e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4768  4.0      Otter  Saithe 1.717684e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4769  4.2      Otter  Saithe 2.794848e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4770  4.4      Otter  Saithe 4.131780e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4771  4.6      Otter  Saithe 5.512988e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4772  4.8      Otter  Saithe 6.679813e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4773  5.0      Otter  Saithe 7.454720e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4774  5.2      Otter  Saithe 7.799461e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4775  5.4      Otter  Saithe 7.787678e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4776  5.6      Otter  Saithe 7.538378e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4777  5.8      Otter  Saithe 7.161344e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4778  6.0      Otter  Saithe 6.734598e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4779  6.2      Otter  Saithe 6.305960e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4780  6.4      Otter  Saithe 5.903068e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4781  6.6      Otter  Saithe 5.542090e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4782  6.8      Otter  Saithe 5.232681e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4783  7.0      Otter  Saithe 4.980294e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4784  7.2      Otter  Saithe 4.787396e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4785  7.4      Otter  Saithe 4.654275e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4786  7.6      Otter  Saithe 4.579257e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4787  7.8      Otter  Saithe 4.557985e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4788  8.0      Otter  Saithe 4.582074e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4789  8.2      Otter  Saithe 4.638359e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4790  8.4      Otter  Saithe 4.710029e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4791  8.6      Otter  Saithe 4.779711e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4792  8.8      Otter  Saithe 4.833162e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4793  9.0      Otter  Saithe 4.861829e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4794  9.2      Otter  Saithe 4.863428e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4795  9.4      Otter  Saithe 4.840841e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4796  9.6      Otter  Saithe 4.800190e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4797  9.8      Otter  Saithe 4.748919e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4798 10.0      Otter  Saithe 4.694306e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4799 10.2      Otter  Saithe 4.642529e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4800 10.4      Otter  Saithe 4.598184e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4801 10.6      Otter  Saithe 4.564145e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4802 10.8      Otter  Saithe 4.541633e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4803 11.0      Otter  Saithe 4.530407e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4804 11.2      Otter  Saithe 4.529025e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4805 11.4      Otter  Saithe 4.535136e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4806 11.6      Otter  Saithe 4.545805e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4807 11.8      Otter  Saithe 4.557857e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4808 12.0      Otter  Saithe 4.568260e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4809 12.2      Otter  Saithe 4.574494e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4810 12.4      Otter  Saithe 4.574878e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4811 12.6      Otter  Saithe 4.568761e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4812 12.8      Otter  Saithe 4.556538e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4813 13.0      Otter  Saithe 4.539485e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4814 13.2      Otter  Saithe 4.519458e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4815 13.4      Otter  Saithe 4.498546e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4816 13.6      Otter  Saithe 4.478753e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4817 13.8      Otter  Saithe 4.461743e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4818 14.0      Otter  Saithe 4.448697e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4819 14.2      Otter  Saithe 4.440240e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4820 14.4      Otter  Saithe 4.436447e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4821 14.6      Otter  Saithe 4.436897e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4822 14.8      Otter  Saithe 4.440768e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4823 15.0      Otter  Saithe 4.446960e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4824 15.2      Otter  Saithe 4.454242e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4825 15.4      Otter  Saithe 4.461407e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4826 15.6      Otter  Saithe 4.467416e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4827 15.8      Otter  Saithe 4.471509e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4828 16.0      Otter  Saithe 4.473276e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4829 16.2      Otter  Saithe 4.472664e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4830 16.4      Otter  Saithe 4.469936e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4831 16.6      Otter  Saithe 4.465596e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4832 16.8      Otter  Saithe 4.460286e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4833 17.0      Otter  Saithe 4.454688e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4834 17.2      Otter  Saithe 4.449433e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4835 17.4      Otter  Saithe 4.445032e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4836 17.6      Otter  Saithe 4.441832e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4837 17.8      Otter  Saithe 4.439996e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4838 18.0      Otter  Saithe 4.439508e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4839 18.2      Otter  Saithe 4.440199e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4840 18.4      Otter  Saithe 4.441784e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4841 18.6      Otter  Saithe 4.443911e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4842 18.8      Otter  Saithe 4.446213e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4843 19.0      Otter  Saithe 4.448353e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4844 19.2      Otter  Saithe 4.450062e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4845 19.4      Otter  Saithe 4.451165e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4846 19.6      Otter  Saithe 4.451589e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4847 19.8      Otter  Saithe 4.451358e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4848 20.0      Otter  Saithe 4.450577e+11</span>
+<span class='r-in'><span class='va'>fr</span> <span class='op'>&lt;-</span> <span class='fu'>plotYieldGear</span><span class='op'>(</span><span class='va'>sim</span>, return_data <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='op'>(</span><span class='va'>fr</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 'data.frame':	1212 obs. of  4 variables:</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  $ Year   : num  0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  $ Yield  : num  5.09e+07 5.20e+07 5.64e+07 8.15e+07 2.17e+08 ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  $ Species: Factor w/ 12 levels "Sprat","Sandeel",..: 1 1 1 1 1 1 1 1 1 1 ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  $ Gear   : Factor w/ 4 levels "Industrial","Pelagic",..: 1 1 1 1 1 1 1 1 1 1 ...</span>
 <span class='r-in'><span class='co'># }</span></span>
-</code></pre></div>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -1499,11 +309,11 @@ etc. Just look at the source code for details.</p>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
+  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -1528,8 +338,6 @@ etc. Just look at the source code for details.</p>
 </script>
 
 
-
-  
 
   </body>
 </html>

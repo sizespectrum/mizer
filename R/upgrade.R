@@ -159,6 +159,9 @@ upgradeParams <- function(params) {
     if (.hasSlot(params, "f0")) {
         params@species_params[["f0"]] <- params@f0
     }
+    
+    params@species_params$species <- as.character(params@species_params$species)
+    
     pnew <- newMultispeciesParams(
         params@species_params,
         interaction = params@interaction,
@@ -267,6 +270,7 @@ upgradeParams <- function(params) {
             comment(slot(pnew, slot)) <- comment(slot(params, slot))
         }
     }
+    
     validObject(pnew)
     pnew
 }

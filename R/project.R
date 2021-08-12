@@ -110,6 +110,7 @@ project <- function(object, effort,
                     progress_bar = TRUE, ...) {
     
     # Set and check initial values ----
+    assert_that(t_max > 0)
     if (is(object, "MizerSim")) {
         validObject(object)
         params <- object@params
@@ -305,9 +306,16 @@ project <- function(object, effort,
 #' 
 #' @export
 #' @concept helper
-project_simple <- function(params, n, n_pp, n_other, t, dt, steps, 
-                           effort, resource_dynamics_fn, other_dynamics_fns,
-                           rates_fns, ...) {    
+project_simple <- 
+    function(params, 
+             n = params@initial_n,
+             n_pp = params@initial_n_pp,
+             n_other = params@initial_n_other,
+             effort = params@initial_effort,
+             t = 0, dt = 0.1, steps,
+             resource_dynamics_fn = get(params@resource_dynamics),
+             other_dynamics_fns = lapply(params@other_dynamics, get),
+             rates_fns = lapply(params@rates_funcs, get), ...) {    
     # Handy things ----
     no_sp <- nrow(params@species_params) # number of species
     no_w <- length(params@w) # number of fish size bins

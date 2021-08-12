@@ -89,12 +89,8 @@ same arguments.
 }
 
 \examples{
-\dontrun{
-params <- newMultispeciesParams(NS_species_params_gears, inter)
-# Run simulation with constant fishing effort for all gears for 20 years
-sim <- project(params, t_max = 20, effort = 0.5)
-getEncounter(params, n = finalN(sim), n_pp = finalNResource(sim), t = 20)
-}
+encounter <- getEncounter(NS_params)
+str(encounter)
 }
 \seealso{
 Other rate functions: 

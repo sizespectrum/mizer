@@ -622,7 +622,7 @@ emptyParams <- function(species_params,
         linecolour <- rep(colour_palette, length.out = no_sp)
     }
     names(linecolour) <- as.character(species_names)
-    linecolour <- c(linecolour, "Total" = "black", "Resource" = "green",
+    linecolour <- c(linecolour, "Resource" = "green", "Total" = "black",
                     "Background" = "grey", "Fishing" = "red")
     
     if ("linetype" %in% names(species_params)) {
@@ -632,7 +632,7 @@ emptyParams <- function(species_params,
         linetype <- rep(type_palette, length.out = no_sp)
     }
     names(linetype) <- as.character(species_names)
-    linetype <- c(linetype, "Total" = "solid", "Resource" = "solid",
+    linetype <- c(linetype, "Resource" = "solid", "Total" = "solid",
                   "Background" = "solid", "Fishing" = "solid")
     
     # Make object ----
@@ -699,6 +699,9 @@ emptyParams <- function(species_params,
 
 #' Set line colours to be used in mizer plots
 #' 
+#' Colours for names that already had a colour set will be overwritten by
+#' the colour you specify. Colours for names that did not yet have a colour
+#' will be appended to the list of colours.
 #' @param params A MizerParams object
 #' @param colours A named list or named vector of line colours.
 #' 
@@ -732,6 +735,9 @@ validColour <- function(colour) {
 
 #' Set linetypes to be used in mizer plots
 #' 
+#' Linetypes for names that already had a linetype set will be overwritten by
+#' the linetype you specify. Linetypes for names that did not yet have a 
+#' linetype will be appended to the list of linetypes.
 #' @param params A MizerParams object
 #' @param linetypes A named list or named vector of linetypes.
 #' 
@@ -761,12 +767,59 @@ getLinetypes <- function(params) {
 #' Functions to fetch information about the size bins used in the model
 #' described by `params`. 
 #' 
-#' TODO: Give more details about how mizer discretises the size
+#' To represent the continuous size spectrum in the computer, the size
+#' variable is discretized into a vector `w` of discrete weights,
+#' providing a grid of sizes spanning the range from the smallest egg size
+#' to the largest asymptotic size. These grid values divide the full size
+#' range into a finite number of size bins. The size bins should be chosen
+#' small enough to avoid the discretisation errors from becoming too big.
+#' You can fetch this vector with `w()` and the vector of bin widths with
+#' `dw()`.
+#' 
+#' The weight grid is set up to be logarithmically spaced, so that
+#' `w[j]=w[1]*10^(j*dx)` for some fixed `dx`. This means that the bin widths
+#' increase with size: `dw[j] = w[j] * (10^dx - 1)`.
+#' This grid is set up automatically when creating a MizerParams object.
+#' 
+#' Because the resource spectrum spans a larger range of sizes, these sizes
+#' are discretized into a different vector of weights `w_full`. This usually
+#' starts at a much smaller size than `w`, but also runs up to the same
+#' largest size, so that the last entries of `w_full` have to coincide with the
+#' entries of `w`. The logarithmic spacing for `w_full` is the same as that for
+#' `w`, so that again `w_full[j]=w_full[1]*10^(j*dx)`. The function `w_full()`
+#' gives the vector of sizes and `dw_full()` gives the vector of bin widths.
+#' 
+#' You will need these vectors when converting number densities to numbers.
+#' For example the size spectrum of a species is stored as a vector of
+#' values that represent the *density* of fish in each size bin rather than
+#' the *number* of fish. The number of fish in the size bin between `w[j]` and
+#' `w[j+1]=w[j]+dw[j]` is obtained as `N[j]*dw[j]`.
+#' 
+#' The vector `w` can be used for example to convert the number of individuals
+#' in a size bin into the biomass in the size bin. The biomass in the
+#' `j`th bin is `biomass[j] = N[j] * dw[j] * w[j]`. 
+#' 
+#' Of course all these calculations with discrete sizes and size bins are
+#' only giving approximations to the continuous values, and these approximations
+#' get better the smaller the size bins are, i.e., the more size bins are
+#' used. However using more size bins also slows down the calculations, so
+#' there is a trade-off. This is why the functions setting up MizerParams 
+#' objects allow you to choose the number of size bins `no_w`.
 #' 
 #' @param params A MizerParams object
 #' @return `w()` returns a vector with the sizes at the start of each size bin
-#'   of the community spectrum.
+#'   of the consumer spectrum.
 #' @export
+#' @examples 
+#' str(w(NS_params))
+#' str(dw(NS_params))
+#' str(w_full(NS_params))
+#' str(dw_full(NS_params))
+#' 
+#' # Calculating the biomass of Cod in each bin in the North Sea model
+#' biomass <- initialN(NS_params)["Cod", ] * dw(NS_params) * w(NS_params)
+#' # Summing to get total biomass
+#' sum(biomass)
 w <- function(params) {
     params@w
 }
@@ -774,7 +827,7 @@ w <- function(params) {
 #' @rdname w
 #' @return `w_full()` returns a vector with the sizes at the start of each size bin
 #'   of the resource spectrum, which typically starts at smaller sizes than
-#'   the community spectrum.
+#'   the consumer spectrum.
 #' @export
 w_full <- function(params) {
     params@w_full
@@ -782,7 +835,7 @@ w_full <- function(params) {
 
 #' @rdname w
 #' @return `dw()` returns a vector with the widths of the size bins of the
-#'   community spectrum.
+#'   consumer spectrum.
 #' @export
 dw <- function(params) {
     params@dw

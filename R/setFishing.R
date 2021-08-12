@@ -299,19 +299,33 @@ gear_params <- function(params) {
 }
 
 #' @rdname setFishing
+#' @return For `getCatchability()`: An array (gear x species) that holds the catchability of
+#'   each species by each gear, \eqn{Q_{g,i}}.
+#'   The names of the dimensions are "gear, "sp".
 #' @export
+#' @examples
+#' str(getCatchability(NS_params))
 getCatchability <- function(params) {
     params@catchability
 }
 
 #' @rdname setFishing
+#' @return For `getSelectivity()`: An array (gear x species x size) that holds
+#'   the selectivity of each gear for species and size, \eqn{S_{g,i,w}}.
+#'   The names of the dimensions are "gear, "sp", "w".
 #' @export
+#' @examples
+#' str(getSelectivity(NS_params))
 getSelectivity <- function(params) {
     params@selectivity
 }
 
 #' @rdname setFishing
+#' @return For `getInitialEffort()`: A named vector with the initial fishing
+#'   effort for each gear.
 #' @export
+#' @examples
+#' str(getInitialEffort(NS_params))
 getInitialEffort <- function(params) {
     params@initial_effort
 }

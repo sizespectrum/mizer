@@ -64,7 +64,8 @@ You can fetch this vector with `w()` and the vector of bin sizes with
 `dw()`.
 
 The weight grid is set up to be logarithmically spaced, so that
-`w[j]=w[1]*exp(j*dx)` for some fixed `dx`. 
+`w[j]=w[1]*10^(j*dx)` for some fixed `dx`. This means that the bin widths
+increase with size: `dw[j] = w[j+1] - w[j] = w[j] * (10^dx - 1)`.
 This grid is set up automatically when creating a MizerParams object.
 
 In the code the size spectrum is stored as an array `N` such that `N[i, a]`
@@ -78,6 +79,12 @@ but the *density* at a grid point.
 The number of individuals in the size bin between `w[a]` and
 `w[a+1]=w[a]+dw[a]` is only approximately given as `N[i, a]*dw[a]`,
 where `dw[a]= w[a+1]-w[a]`.
+
+Of course all these calculations with discrete sizes and size bins are
+only giving approximations to the continuous values, and these approximations
+get better the smaller the size bins are, i.e., the more size bins are
+used. This is why the functions setting up MizerParams objects allow you to
+choose the number of size bins `no_w`.
 
 </details>
 
@@ -164,11 +171,10 @@ described in the help page for `setResource()`. The mortality $\mu_R(w)$ is
 due to predation by consumers and is described in the subsection 
 [Resource mortality].
 
-Because the resource spectrum spans a different range of sizes these sizes
+Because the resource spectrum spans a larger range of sizes these sizes
+Because the resource spectrum spans a larger range of sizes these sizes
+Because the resource spectrum spans a larger range of sizes these sizes
 are discretized into a different vector of weights
-`w_full`. The last entries of `w_full` have to coincide with the entries
-of `w`. The function `w_full()` gives the vector of sizes and `dw_full()`
-gives the vector of bin sizes.
 
 The resource spectrum is then represented by a vector `NResource` such that
 `NResource[c]` =$N_R($`w_full[c]`$)$.

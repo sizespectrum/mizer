@@ -252,6 +252,11 @@ addSpecies <- function(params, species_params,
     p@other_params <- params@other_params
     p@rates_funcs <- params@rates_funcs
     
+    # The following does not affect the new species but preserves
+    # any changes the user might have made in the original params object
+    p <- setColours(p, params@linecolour)
+    p <- setLinetypes(p, params@linetype)
+    
     # we assume same background death for all species
     # p@mu_b[new_sp, ] <- rep(params@mu_b[1, ], each = no_new_sp)
     

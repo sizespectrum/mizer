@@ -18,7 +18,9 @@ getLinetypes(params)
 The MizerParams object with updated linetypes
 }
 \description{
-Set linetypes to be used in mizer plots
+Linetypes for names that already had a linetype set will be overwritten by
+the linetype you specify. Linetypes for names that did not yet have a
+linetype will be appended to the list of linetypes.
 }
 \examples{
 params <- NS_params

@@ -44,19 +44,26 @@ min_l will be used). You can also specify the species to be used in the
 calculation.
 }
 \examples{
-\dontrun{
-params <- newMultispeciesParams(NS_species_params_gears, inter)
-sim <- project(params, effort=1, t_max=40, dt = 1, t_save = 1)
 # Slope based on biomass, using all species and sizes
-slope_biomass <- getCommunitySlope(sim)
+slope_biomass <- getCommunitySlope(NS_sim)
+slope_biomass[1, ] # in 1976
+slope_biomass[idxFinalT(NS_sim), ] # in 2010
+
 # Slope based on numbers, using all species and sizes
-slope_numbers <- getCommunitySlope(sim, biomass=FALSE)
+slope_numbers <- getCommunitySlope(NS_sim, biomass = FALSE)
+slope_numbers[1, ] # in 1976
+
 # Slope based on biomass, using all species and sizes between 10g and 1000g
-slope_biomass <- getCommunitySlope(sim, min_w = 10, max_w = 1000)
-# Slope based on biomass, using only demersal species and sizes between 10g and 1000g
-dem_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock", "Cod","Saithe")
-slope_biomass <- getCommunitySlope(sim, species = dem_species, min_w = 10, max_w = 1000)
-}
+slope_biomass <- getCommunitySlope(NS_sim, min_w = 10, max_w = 1000)
+slope_biomass[1, ] # in 1976
+
+# Slope based on biomass, using only demersal species and 
+# sizes between 10g and 1000g
+dem_species <- c("Dab","Whiting", "Sole", "Gurnard", "Plaice",
+                 "Haddock", "Cod", "Saithe")
+slope_biomass <- getCommunitySlope(NS_sim, species = dem_species, 
+                                   min_w = 10, max_w = 1000)
+slope_biomass[1, ] # in 1976
 }
 \seealso{
 Other functions for calculating indicators: 

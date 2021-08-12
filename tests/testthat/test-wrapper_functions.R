@@ -9,8 +9,8 @@ test_that("Providing gamma overrules f0 in newTraitParams()", {
 test_that("newTraitParams produces errors and messages", {
     expect_error(newTraitParams(ext_mort_prop = 2),
                  "ext_mort_prop must be a number between 0 and 1")
-    expect_message(newTraitParams(R_factor = 0.5),
-                   "R_factor needs to be larger than 1. Setting R_factor = 1.01")
+    expect_error(newTraitParams(reproduction_level = 1),
+                   "The reproduction level must be smaller than 1 and non-negative.")
     expect_error(newTraitParams(min_w = -1),
                  "The smallest egg size min_w must be greater than zero.")
     expect_error(newTraitParams(min_w_inf = 10^4),

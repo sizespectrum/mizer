@@ -1,9 +1,26 @@
-# mizer 2.2.0.9000 (development version)
+# mizer 2.2.1
+
+
+## New functionality
+
+* The `setBevertonHolt()` function has been expanded with more arguments. It
+  allows you to change the density dependence in reproduction without changing
+  the steady state of your model.
+* The new `getReproductionLevel()` function tells you at what proportion of 
+  their maximum reproduction rate the species are operating in your model.
+* The package now comes with an example MizerSim object `NS_sim` which holds
+  a simulation of the North Sea model.
+* New function `plotDataFrame()` allows easier creation of plots.
+
 
 ## Bug fixes
 
 * `setInitialValues()` correctly preserves the gear names on the
   initial effort. Thanks to Axel Rossberg.
+* `getFMort()` correctly passes the `t` argument on to any custom fishing
+  mortality function you may have written.
+* The legends in the plots now only show the species that are actually 
+  included in the plot.
   
 ## Other improvements
 
@@ -12,9 +29,23 @@
   actually contained in the plot.
 * Updated tests of plots to use new version of vdiffr package.
 * Some improvements to the examples on the help pages.
+* Some functions do more thorough tests of their arguments to give more
+  useful error messages.
+* `initialNOther()` also works with MizerSim object.
+* When `projectToSteady()` is called with `effort`, this effort is now also
+  stored in the `initial_effort` slot.
+* Improvement to `summary()` which is now using `sprintf()` for better
+  formatting and also gives the initial_effort.
+* Improved documentation of size grid and bins.
+* The arguments to `project_simple()` have been given convenient defaults.
+* The tooltips in the plotly plots have been cleaned up a bit.
+* Species names are now always coerced to strings, even if the user supplies
+  numeric names.
+* Update to the "A Multi-Species Model of the North Sea" tutorial to use
+  `projectToSteady()`.
 
 
-# mizer 2.2
+# mizer 2.2.0
 
 ## New functionality
 

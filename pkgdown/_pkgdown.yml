@@ -25,16 +25,21 @@ toc:
 
 navbar:
   structure:
-    left: [home, intro, articles, reference, publications, news]
-    right: [github]
+    left: [intro, articles, reference, news]
+    right: [blog, twitter, github]
   components:
-    publications:
-      text: Publications
-      href: articles/publications.html
+    home: ~
+    blog:
+      text: Blog
+      href: https://blog.mizer.sizespectrum.org
+    twitter:
+       icon: "fab fa-twitter fa-lg"
+       href: https://twitter.com/mizer_model
+
 
 articles:
 - title: Tutorials
-  navbar: ~
+  navbar: Tutorials
   contents:
   - mizer
   - single_species_size-spectrum_dynamics
@@ -46,6 +51,10 @@ articles:
   - exploring_the_simulation_results
   - a_multispecies_model_of_the_north_sea
   - plotting
+- title: Publications
+  navbar: Publications
+  contents:
+  - publications
 - title: Developer Guide
   navbar: For developers
   contents:
@@ -73,6 +82,7 @@ reference:
   contents:
   - species_params
   - gear_params
+  - resource_params
   - setParams
   - setPredKernel
   - getPredKernel
@@ -84,7 +94,6 @@ reference:
   - setReproduction
   - setFishing
   - setResource
-  - resource_params
   - setInitialValues
   - setBevertonHolt
   - compareParams
@@ -179,6 +188,7 @@ reference:
 - title: Reproduction functions
   contents:
   - BevertonHoltRDD
+  - getReproductionLevel
   - RickerRDD
   - SheperdRDD
   - noRDD
@@ -234,6 +244,7 @@ reference:
   - NS_species_params
   - NS_species_params_gears
   - inter
+  - NS_sim
 - title: Deprecated
   desc: These functions are available for backwards compatibility with earlier
     versions of mizer

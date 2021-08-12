@@ -8,6 +8,13 @@
 
 <title>Plot the biomass of species through time — plotBiomass • mizer</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -49,8 +56,7 @@
 <meta property="og:description" content="After running a projection, the biomass of each species can be plotted
 against time. The biomass is calculated within user defined size limits
 (min_w, max_w, min_l, max_l, see getBiomass())." />
-
-
+<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
 
 
 
@@ -66,15 +72,9 @@ against time. The biomass is calculated within user defined size limits
 
 
 
-  
-
-  
-
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -88,7 +88,7 @@ against time. The biomass is calculated within user defined size limits
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
       </span>
     </div>
 
@@ -99,11 +99,13 @@ against time. The biomass is calculated within user defined size limits
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Tutorials
+    Articles
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li class="divider"></li>
+    <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
     </li>
@@ -126,10 +128,15 @@ against time. The biomass is calculated within user defined size limits
       <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
     </li>
     <li>
-      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
     </li>
     <li>
       <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">Publications</li>
+    <li>
+      <a href="../articles/publications.html">Publications</a>
     </li>
     <li class="divider"></li>
     <li class="dropdown-header">For developers</li>
@@ -151,14 +158,20 @@ against time. The biomass is calculated within user defined size limits
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/publications.html">Publications</a>
-</li>
-<li>
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
+  <a href="https://blog.mizer.sizespectrum.org">Blog</a>
+</li>
+<li>
+  <a href="https://twitter.com/mizer_model">
+    <span class="fab fa-twitter fa-lg"></span>
+     
+  </a>
+</li>
+<li>
   <a href="https://github.com/sizespectrum/mizer/">
     <span class="fab fa-github fa-lg"></span>
      
@@ -194,7 +207,7 @@ against time. The biomass is calculated within user defined size limits
 (min_w, max_w, min_l, max_l, see <code><a href='getBiomass.html'>getBiomass()</a></code>).</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>plotBiomass</span><span class='op'>(</span>
+    <pre class="usage"><span class='fu'>plotBiomass</span><span class='op'>(</span>
   <span class='va'>sim</span>,
   species <span class='op'>=</span> <span class='cn'>NULL</span>,
   <span class='va'>start_time</span>,
@@ -219,7 +232,7 @@ against time. The biomass is calculated within user defined size limits
   background <span class='op'>=</span> <span class='cn'>TRUE</span>,
   highlight <span class='op'>=</span> <span class='cn'>NULL</span>,
   <span class='va'>...</span>
-<span class='op'>)</span></code></pre></div>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -293,13 +306,15 @@ over <code>max_w</code>.</p></dd>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A ggplot2 object</p>
+    <p>A ggplot2 object, unless <code>return_data = TRUE</code>, in which case a data
+frame with the four variables 'Year', 'Biomass', 'Species', 'Legend' is
+returned.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><a href='plotting_functions.html'>plotting_functions</a>, <code><a href='getBiomass.html'>getBiomass()</a></code></p>
 <p>Other plotting functions: 
 <code><a href='animateSpectra.html'>animateSpectra</a>()</code>,
-<code><a href='plotMizerSim.html'>plot,MizerSim,missing-method</a></code>,
+<code><a href='plot,MizerSim,missing-method.html'>plot,MizerSim,missing-method</a></code>,
 <code><a href='plotDiet.html'>plotDiet</a>()</code>,
 <code><a href='plotFMort.html'>plotFMort</a>()</code>,
 <code><a href='plotFeedingLevel.html'>plotFeedingLevel</a>()</code>,
@@ -311,1245 +326,24 @@ over <code>max_w</code>.</p></dd>
 <code><a href='plotting_functions.html'>plotting_functions</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='co'># \donttest{</span></span>
-<span class='r-in'><span class='co'># Set up example MizerParams and MizerSim objects</span></span>
-<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span><span class='op'>(</span><span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span><span class='op'>)</span></span>
-<span class='r-in'><span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort <span class='op'>=</span> <span class='fl'>1</span>, t_max <span class='op'>=</span> <span class='fl'>20</span>, t_save <span class='op'>=</span> <span class='fl'>0.2</span>, progress_bar <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></span>
-<span class='r-in'></span>
-<span class='r-in'><span class='fu'>plotBiomass</span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span></span>
+    <pre class="examples"><span class='r-in'><span class='co'># \donttest{</span></span>
+<span class='r-in'><span class='fu'>plotBiomass</span><span class='op'>(</span><span class='va'>NS_sim</span><span class='op'>)</span></span>
 <span class='r-plt'><img src='plotBiomass-1.png' alt='' width='700' height='433' /></span>
-<span class='r-in'><span class='fu'>plotBiomass</span><span class='op'>(</span><span class='va'>sim</span>, species <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Cod"</span>, <span class='st'>"Haddock"</span><span class='op'>)</span>, total <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'>plotBiomass</span><span class='op'>(</span><span class='va'>NS_sim</span>, species <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Sandeel"</span>, <span class='st'>"Herring"</span><span class='op'>)</span>, total <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
 <span class='r-plt'><img src='plotBiomass-2.png' alt='' width='700' height='433' /></span>
-<span class='r-in'><span class='fu'>plotBiomass</span><span class='op'>(</span><span class='va'>sim</span>, min_w <span class='op'>=</span> <span class='fl'>10</span>, max_w <span class='op'>=</span> <span class='fl'>1000</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'>plotBiomass</span><span class='op'>(</span><span class='va'>NS_sim</span>, start_time <span class='op'>=</span> <span class='fl'>1980</span>, end_time <span class='op'>=</span> <span class='fl'>1990</span><span class='op'>)</span></span>
 <span class='r-plt'><img src='plotBiomass-3.png' alt='' width='700' height='433' /></span>
-<span class='r-in'><span class='fu'>plotBiomass</span><span class='op'>(</span><span class='va'>sim</span>, start_time <span class='op'>=</span> <span class='fl'>10</span>, end_time <span class='op'>=</span> <span class='fl'>15</span><span class='op'>)</span></span>
-<span class='r-plt'><img src='plotBiomass-4.png' alt='' width='700' height='433' /></span>
-<span class='r-in'><span class='fu'>plotBiomass</span><span class='op'>(</span><span class='va'>sim</span>, y_ticks <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span></span>
-<span class='r-plt'><img src='plotBiomass-5.png' alt='' width='700' height='433' /></span>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'># Returning the data frame</span></span>
-<span class='r-in'><span class='fu'>plotBiomass</span><span class='op'>(</span><span class='va'>sim</span>, return_data <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> [[1]]</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>      Year Species      Biomass</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1     0.0   Sprat 8.767492e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2     0.2   Sprat 3.502008e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3     0.4   Sprat 1.501717e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4     0.6   Sprat 4.346333e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 5     0.8   Sprat 9.446213e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 6     1.0   Sprat 1.645853e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 7     1.2   Sprat 2.455517e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 8     1.4   Sprat 3.345340e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 9     1.6   Sprat 4.314322e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 10    1.8   Sprat 5.353666e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 11    2.0   Sprat 6.478296e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 12    2.2   Sprat 7.751637e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 13    2.4   Sprat 9.272893e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 14    2.6   Sprat 1.114899e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 15    2.8   Sprat 1.346865e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 16    3.0   Sprat 1.628056e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 17    3.2   Sprat 1.957565e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 18    3.4   Sprat 2.327708e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 19    3.6   Sprat 2.724173e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 20    3.8   Sprat 3.127349e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 21    4.0   Sprat 3.514934e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 22    4.2   Sprat 3.865881e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 23    4.4   Sprat 4.164373e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 24    4.6   Sprat 4.401411e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 25    4.8   Sprat 4.573114e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 26    5.0   Sprat 4.677534e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 27    5.2   Sprat 4.712673e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 28    5.4   Sprat 4.676975e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 29    5.6   Sprat 4.571630e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 30    5.8   Sprat 4.402931e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 31    6.0   Sprat 4.183177e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 32    6.2   Sprat 3.929590e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 33    6.4   Sprat 3.661710e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 34    6.6   Sprat 3.398267e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 35    6.8   Sprat 3.154436e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 36    7.0   Sprat 2.940055e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 37    7.2   Sprat 2.758982e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 38    7.4   Sprat 2.609490e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 39    7.6   Sprat 2.485526e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 40    7.8   Sprat 2.378549e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 41    8.0   Sprat 2.279572e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 42    8.2   Sprat 2.180980e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 43    8.4   Sprat 2.077724e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 44    8.6   Sprat 1.967759e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 45    8.8   Sprat 1.851765e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 46    9.0   Sprat 1.732416e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 47    9.2   Sprat 1.613434e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 48    9.4   Sprat 1.498691e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 49    9.6   Sprat 1.391490e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 50    9.8   Sprat 1.294119e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 51   10.0   Sprat 1.207691e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 52   10.2   Sprat 1.132205e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 53   10.4   Sprat 1.066782e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 54   10.6   Sprat 1.009967e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 55   10.8   Sprat 9.600570e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 56   11.0   Sprat 9.153726e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 57   11.2   Sprat 8.744689e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 58   11.4   Sprat 8.362541e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 59   11.6   Sprat 8.000293e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 60   11.8   Sprat 7.654617e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 61   12.0   Sprat 7.325153e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 62   12.2   Sprat 7.013602e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 63   12.4   Sprat 6.722770e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 64   12.6   Sprat 6.455703e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 65   12.8   Sprat 6.214960e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 66   13.0   Sprat 6.002103e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 67   13.2   Sprat 5.817420e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 68   13.4   Sprat 5.659877e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 69   13.6   Sprat 5.527257e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 70   13.8   Sprat 5.416453e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 71   14.0   Sprat 5.323816e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 72   14.2   Sprat 5.245533e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 73   14.4   Sprat 5.177960e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 74   14.6   Sprat 5.117892e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 75   14.8   Sprat 5.062753e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 76   15.0   Sprat 5.010695e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 77   15.2   Sprat 4.960603e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 78   15.4   Sprat 4.912028e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 79   15.6   Sprat 4.865062e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 80   15.8   Sprat 4.820170e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 81   16.0   Sprat 4.778010e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 82   16.2   Sprat 4.739262e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 83   16.4   Sprat 4.704491e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 84   16.6   Sprat 4.674048e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 85   16.8   Sprat 4.648021e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 86   17.0   Sprat 4.626233e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 87   17.2   Sprat 4.608275e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 88   17.4   Sprat 4.593567e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 89   17.6   Sprat 4.581437e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 90   17.8   Sprat 4.571195e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 91   18.0   Sprat 4.562205e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 92   18.2   Sprat 4.553938e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 93   18.4   Sprat 4.546007e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 94   18.6   Sprat 4.538177e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 95   18.8   Sprat 4.530361e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 96   19.0   Sprat 4.522593e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 97   19.2   Sprat 4.514998e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 98   19.4   Sprat 4.507750e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 99   19.6   Sprat 4.501032e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 100  19.8   Sprat 4.495004e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 101  20.0   Sprat 4.489781e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 102   0.0 Sandeel 9.535034e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 103   0.2 Sandeel 3.735250e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 104   0.4 Sandeel 2.886999e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 105   0.6 Sandeel 1.083115e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 106   0.8 Sandeel 2.581831e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 107   1.0 Sandeel 4.470707e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 108   1.2 Sandeel 6.141441e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 109   1.4 Sandeel 7.221404e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 110   1.6 Sandeel 7.710497e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 111   1.8 Sandeel 7.776939e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 112   2.0 Sandeel 7.607414e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 113   2.2 Sandeel 7.358146e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 114   2.4 Sandeel 7.143197e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 115   2.6 Sandeel 7.035490e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 116   2.8 Sandeel 7.072774e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 117   3.0 Sandeel 7.264338e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 118   3.2 Sandeel 7.597567e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 119   3.4 Sandeel 8.045098e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 120   3.6 Sandeel 8.572352e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 121   3.8 Sandeel 9.143792e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 122   4.0 Sandeel 9.727039e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 123   4.2 Sandeel 1.029605e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 124   4.4 Sandeel 1.083382e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 125   4.6 Sandeel 1.133246e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 126   4.8 Sandeel 1.178907e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 127   5.0 Sandeel 1.219960e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 128   5.2 Sandeel 1.255498e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 129   5.4 Sandeel 1.284168e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 130   5.6 Sandeel 1.304605e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 131   5.8 Sandeel 1.315938e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 132   6.0 Sandeel 1.318130e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 133   6.2 Sandeel 1.312067e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 134   6.4 Sandeel 1.299416e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 135   6.6 Sandeel 1.282342e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 136   6.8 Sandeel 1.263171e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 137   7.0 Sandeel 1.244047e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 138   7.2 Sandeel 1.226646e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 139   7.4 Sandeel 1.211989e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 140   7.6 Sandeel 1.200402e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 141   7.8 Sandeel 1.191616e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 142   8.0 Sandeel 1.184975e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 143   8.2 Sandeel 1.179674e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 144   8.4 Sandeel 1.174967e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 145   8.6 Sandeel 1.170285e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 146   8.8 Sandeel 1.165261e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 147   9.0 Sandeel 1.159700e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 148   9.2 Sandeel 1.153525e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 149   9.4 Sandeel 1.146724e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 150   9.6 Sandeel 1.139326e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 151   9.8 Sandeel 1.131386e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 152  10.0 Sandeel 1.122986e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 153  10.2 Sandeel 1.114241e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 154  10.4 Sandeel 1.105300e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 155  10.6 Sandeel 1.096338e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 156  10.8 Sandeel 1.087543e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 157  11.0 Sandeel 1.079102e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 158  11.2 Sandeel 1.071178e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 159  11.4 Sandeel 1.063897e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 160  11.6 Sandeel 1.057333e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 161  11.8 Sandeel 1.051501e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 162  12.0 Sandeel 1.046359e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 163  12.2 Sandeel 1.041817e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 164  12.4 Sandeel 1.037753e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 165  12.6 Sandeel 1.034039e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 166  12.8 Sandeel 1.030558e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 167  13.0 Sandeel 1.027223e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 168  13.2 Sandeel 1.023989e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 169  13.4 Sandeel 1.020846e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 170  13.6 Sandeel 1.017818e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 171  13.8 Sandeel 1.014951e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 172  14.0 Sandeel 1.012298e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 173  14.2 Sandeel 1.009907e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 174  14.4 Sandeel 1.007816e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 175  14.6 Sandeel 1.006040e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 176  14.8 Sandeel 1.004572e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 177  15.0 Sandeel 1.003385e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 178  15.2 Sandeel 1.002437e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 179  15.4 Sandeel 1.001676e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 180  15.6 Sandeel 1.001046e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 181  15.8 Sandeel 1.000496e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 182  16.0 Sandeel 9.999835e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 183  16.2 Sandeel 9.994772e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 184  16.4 Sandeel 9.989599e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 185  16.6 Sandeel 9.984267e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 186  16.8 Sandeel 9.978836e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 187  17.0 Sandeel 9.973441e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 188  17.2 Sandeel 9.968257e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 189  17.4 Sandeel 9.963465e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 190  17.6 Sandeel 9.959221e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 191  17.8 Sandeel 9.955636e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 192  18.0 Sandeel 9.952761e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 193  18.2 Sandeel 9.950587e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 194  18.4 Sandeel 9.949049e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 195  18.6 Sandeel 9.948038e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 196  18.8 Sandeel 9.947421e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 197  19.0 Sandeel 9.947051e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 198  19.2 Sandeel 9.946794e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 199  19.4 Sandeel 9.946533e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 200  19.6 Sandeel 9.946185e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 201  19.8 Sandeel 9.945700e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 202  20.0 Sandeel 9.945065e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 203   0.0  N.pout 9.414533e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 204   0.2  N.pout 3.454814e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 205   0.4  N.pout 2.477575e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 206   0.6  N.pout 1.413079e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 207   0.8  N.pout 4.780190e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 208   1.0  N.pout 7.462550e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 209   1.2  N.pout 7.583940e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 210   1.4  N.pout 6.429441e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 211   1.6  N.pout 5.043267e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 212   1.8  N.pout 3.833502e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 213   2.0  N.pout 2.921967e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 214   2.2  N.pout 2.313235e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 215   2.4  N.pout 1.964333e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 216   2.6  N.pout 1.819376e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 217   2.8  N.pout 1.821797e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 218   3.0  N.pout 1.915885e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 219   3.2  N.pout 2.050801e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 220   3.4  N.pout 2.192340e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 221   3.6  N.pout 2.330474e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 222   3.8  N.pout 2.467345e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 223   4.0  N.pout 2.599396e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 224   4.2  N.pout 2.718000e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 225   4.4  N.pout 2.821448e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 226   4.6  N.pout 2.917018e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 227   4.8  N.pout 3.011525e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 228   5.0  N.pout 3.102718e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 229   5.2  N.pout 3.179026e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 230   5.4  N.pout 3.226034e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 231   5.6  N.pout 3.233981e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 232   5.8  N.pout 3.201859e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 233   6.0  N.pout 3.137199e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 234   6.2  N.pout 3.053205e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 235   6.4  N.pout 2.965186e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 236   6.6  N.pout 2.887353e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 237   6.8  N.pout 2.830291e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 238   7.0  N.pout 2.799266e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 239   7.2  N.pout 2.793637e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 240   7.4  N.pout 2.807670e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 241   7.6  N.pout 2.832689e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 242   7.8  N.pout 2.859928e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 243   8.0  N.pout 2.882952e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 244   8.2  N.pout 2.898712e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 245   8.4  N.pout 2.907087e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 246   8.6  N.pout 2.909523e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 247   8.8  N.pout 2.907678e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 248   9.0  N.pout 2.902646e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 249   9.2  N.pout 2.894855e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 250   9.4  N.pout 2.884385e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 251   9.6  N.pout 2.871365e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 252   9.8  N.pout 2.856263e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 253  10.0  N.pout 2.839978e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 254  10.2  N.pout 2.823760e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 255  10.4  N.pout 2.809023e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 256  10.6  N.pout 2.797101e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 257  10.8  N.pout 2.789035e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 258  11.0  N.pout 2.785416e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 259  11.2  N.pout 2.786296e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 260  11.4  N.pout 2.791172e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 261  11.6  N.pout 2.799037e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 262  11.8  N.pout 2.808520e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 263  12.0  N.pout 2.818110e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 264  12.2  N.pout 2.826413e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 265  12.4  N.pout 2.832390e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 266  12.6  N.pout 2.835493e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 267  12.8  N.pout 2.835698e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 268  13.0  N.pout 2.833427e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 269  13.2  N.pout 2.829410e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 270  13.4  N.pout 2.824528e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 271  13.6  N.pout 2.819657e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 272  13.8  N.pout 2.815538e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 273  14.0  N.pout 2.812697e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 274  14.2  N.pout 2.811402e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 275  14.4  N.pout 2.811662e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 276  14.6  N.pout 2.813271e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 277  14.8  N.pout 2.815865e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 278  15.0  N.pout 2.818999e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 279  15.2  N.pout 2.822224e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 280  15.4  N.pout 2.825143e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 281  15.6  N.pout 2.827458e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 282  15.8  N.pout 2.828994e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 283  16.0  N.pout 2.829702e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 284  16.2  N.pout 2.829640e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 285  16.4  N.pout 2.828956e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 286  16.6  N.pout 2.827849e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 287  16.8  N.pout 2.826539e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 288  17.0  N.pout 2.825238e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 289  17.2  N.pout 2.824125e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 290  17.4  N.pout 2.823326e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 291  17.6  N.pout 2.822910e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 292  17.8  N.pout 2.822886e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 293  18.0  N.pout 2.823213e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 294  18.2  N.pout 2.823810e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 295  18.4  N.pout 2.824571e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 296  18.6  N.pout 2.825386e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 297  18.8  N.pout 2.826151e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 298  19.0  N.pout 2.826782e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 299  19.2  N.pout 2.827224e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 300  19.4  N.pout 2.827451e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 301  19.6  N.pout 2.827468e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 302  19.8  N.pout 2.827306e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 303  20.0  N.pout 2.827012e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 304   0.0 Herring 7.683387e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 305   0.2 Herring 2.027814e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 306   0.4 Herring 1.202983e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 307   0.6 Herring 4.054037e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 308   0.8 Herring 1.065599e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 309   1.0 Herring 2.179628e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 310   1.2 Herring 3.487090e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 311   1.4 Herring 4.747539e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 312   1.6 Herring 5.817668e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 313   1.8 Herring 6.569817e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 314   2.0 Herring 6.923794e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 315   2.2 Herring 6.890192e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 316   2.4 Herring 6.564345e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 317   2.6 Herring 6.087659e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 318   2.8 Herring 5.604286e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 319   3.0 Herring 5.228797e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 320   3.2 Herring 5.029115e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 321   3.4 Herring 5.023967e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 322   3.6 Herring 5.191424e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 323   3.8 Herring 5.483006e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 324   4.0 Herring 5.840044e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 325   4.2 Herring 6.212227e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 326   4.4 Herring 6.574428e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 327   4.6 Herring 6.932445e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 328   4.8 Herring 7.313164e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 329   5.0 Herring 7.745999e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 330   5.2 Herring 8.246853e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 331   5.4 Herring 8.810632e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 332   5.6 Herring 9.411510e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 333   5.8 Herring 1.000760e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 334   6.0 Herring 1.054782e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 335   6.2 Herring 1.098046e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 336   6.4 Herring 1.126276e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 337   6.6 Herring 1.137002e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 338   6.8 Herring 1.130111e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 339   7.0 Herring 1.107854e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 340   7.2 Herring 1.074260e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 341   7.4 Herring 1.034169e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 342   7.6 Herring 9.922259e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 343   7.8 Herring 9.521205e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 344   8.0 Herring 9.162544e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 345   8.2 Herring 8.857903e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 346   8.4 Herring 8.609438e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 347   8.6 Herring 8.413358e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 348   8.8 Herring 8.262853e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 349   9.0 Herring 8.149939e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 350   9.2 Herring 8.066351e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 351   9.4 Herring 8.003832e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 352   9.6 Herring 7.954188e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 353   9.8 Herring 7.909377e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 354  10.0 Herring 7.861778e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 355  10.2 Herring 7.804656e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 356  10.4 Herring 7.732751e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 357  10.6 Herring 7.642868e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 358  10.8 Herring 7.534306e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 359  11.0 Herring 7.408979e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 360  11.2 Herring 7.271162e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 361  11.4 Herring 7.126849e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 362  11.6 Herring 6.982841e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 363  11.8 Herring 6.845727e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 364  12.0 Herring 6.720980e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 365  12.2 Herring 6.612317e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 366  12.4 Herring 6.521430e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 367  12.6 Herring 6.448065e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 368  12.8 Herring 6.390373e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 369  13.0 Herring 6.345431e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 370  13.2 Herring 6.309799e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 371  13.4 Herring 6.280056e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 372  13.6 Herring 6.253215e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 373  13.8 Herring 6.227016e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 374  14.0 Herring 6.200061e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 375  14.2 Herring 6.171811e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 376  14.4 Herring 6.142463e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 377  14.6 Herring 6.112753e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 378  14.8 Herring 6.083713e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 379  15.0 Herring 6.056445e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 380  15.2 Herring 6.031914e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 381  15.4 Herring 6.010814e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 382  15.6 Herring 5.993489e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 383  15.8 Herring 5.979922e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 384  16.0 Herring 5.969779e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 385  16.2 Herring 5.962488e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 386  16.4 Herring 5.957333e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 387  16.6 Herring 5.953558e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 388  16.8 Herring 5.950461e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 389  17.0 Herring 5.947458e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 390  17.2 Herring 5.944137e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 391  17.4 Herring 5.940271e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 392  17.6 Herring 5.935813e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 393  17.8 Herring 5.930869e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 394  18.0 Herring 5.925653e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 395  18.2 Herring 5.920442e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 396  18.4 Herring 5.915522e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 397  18.6 Herring 5.911146e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 398  18.8 Herring 5.907503e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 399  19.0 Herring 5.904698e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 400  19.2 Herring 5.902744e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 401  19.4 Herring 5.901571e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 402  19.6 Herring 5.901043e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 403  19.8 Herring 5.900983e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 404  20.0 Herring 5.901193e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 405   0.0     Dab 7.928558e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 406   0.2     Dab 8.741060e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 407   0.4     Dab 4.896645e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 408   0.6     Dab 1.510072e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 409   0.8     Dab 3.213546e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 410   1.0     Dab 5.077938e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 411   1.2     Dab 6.452566e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 412   1.4     Dab 7.134946e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 413   1.6     Dab 7.163111e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 414   1.8     Dab 6.692796e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 415   2.0     Dab 5.931994e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 416   2.2     Dab 5.071221e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 417   2.4     Dab 4.246157e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 418   2.6     Dab 3.535352e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 419   2.8     Dab 2.974159e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 420   3.0     Dab 2.569583e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 421   3.2     Dab 2.310695e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 422   3.4     Dab 2.175351e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 423   3.6     Dab 2.135068e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 424   3.8     Dab 2.159052e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 425   4.0     Dab 2.218058e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 426   4.2     Dab 2.288488e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 427   4.4     Dab 2.355509e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 428   4.6     Dab 2.413099e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 429   4.8     Dab 2.460877e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 430   5.0     Dab 2.499825e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 431   5.2     Dab 2.529259e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 432   5.4     Dab 2.546054e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 433   5.6     Dab 2.545767e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 434   5.8     Dab 2.524538e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 435   6.0     Dab 2.480782e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 436   6.2     Dab 2.415992e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 437   6.4     Dab 2.334561e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 438   6.6     Dab 2.242786e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 439   6.8     Dab 2.147483e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 440   7.0     Dab 2.054594e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 441   7.2     Dab 1.968097e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 442   7.4     Dab 1.889436e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 443   7.6     Dab 1.817564e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 444   7.8     Dab 1.749635e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 445   8.0     Dab 1.682169e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 446   8.2     Dab 1.612314e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 447   8.4     Dab 1.538755e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 448   8.6     Dab 1.461977e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 449   8.8     Dab 1.383916e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 450   9.0     Dab 1.307250e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 451   9.2     Dab 1.234677e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 452   9.4     Dab 1.168358e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 453   9.6     Dab 1.109622e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 454   9.8     Dab 1.058885e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 455  10.0     Dab 1.015743e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 456  10.2     Dab 9.791441e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 457  10.4     Dab 9.476127e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 458  10.6     Dab 9.194891e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 459  10.8     Dab 8.931671e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 460  11.0     Dab 8.673117e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 461  11.2     Dab 8.410262e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 462  11.4     Dab 8.139314e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 463  11.6     Dab 7.861414e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 464  11.8     Dab 7.581464e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 465  12.0     Dab 7.306468e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 466  12.2     Dab 7.043846e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 467  12.4     Dab 6.800127e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 468  12.6     Dab 6.580150e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 469  12.8     Dab 6.386751e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 470  13.0     Dab 6.220805e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 471  13.2     Dab 6.081480e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 472  13.4     Dab 5.966591e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 473  13.6     Dab 5.872994e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 474  13.8     Dab 5.796980e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 475  14.0     Dab 5.734654e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 476  14.2     Dab 5.682270e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 477  14.4     Dab 5.636520e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 478  14.6     Dab 5.594743e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 479  14.8     Dab 5.555038e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 480  15.0     Dab 5.516280e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 481  15.2     Dab 5.478050e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 482  15.4     Dab 5.440491e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 483  15.6     Dab 5.404136e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 484  15.8     Dab 5.369716e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 485  16.0     Dab 5.337990e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 486  16.2     Dab 5.309611e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 487  16.4     Dab 5.285023e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 488  16.6     Dab 5.264411e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 489  16.8     Dab 5.247693e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 490  17.0     Dab 5.234539e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 491  17.2     Dab 5.224428e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 492  17.4     Dab 5.216719e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 493  17.6     Dab 5.210726e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 494  17.8     Dab 5.205796e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 495  18.0     Dab 5.201370e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 496  18.2     Dab 5.197025e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 497  18.4     Dab 5.192497e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 498  18.6     Dab 5.187679e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 499  18.8     Dab 5.182598e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 500  19.0     Dab 5.177387e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 501  19.2     Dab 5.172239e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 502  19.4     Dab 5.167367e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 503  19.6     Dab 5.162967e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 504  19.8     Dab 5.159191e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 505  20.0     Dab 5.156127e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 506   0.0 Whiting 8.289863e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 507   0.2 Whiting 6.869752e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 508   0.4 Whiting 3.829462e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 509   0.6 Whiting 1.331835e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 510   0.8 Whiting 3.828653e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 511   1.0 Whiting 7.946417e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 512   1.2 Whiting 1.168184e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 513   1.4 Whiting 1.405569e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 514   1.6 Whiting 1.512556e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 515   1.8 Whiting 1.514494e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 516   2.0 Whiting 1.442174e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 517   2.2 Whiting 1.328700e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 518   2.4 Whiting 1.204532e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 519   2.6 Whiting 1.094706e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 520   2.8 Whiting 1.018301e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 521   3.0 Whiting 9.884496e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 522   3.2 Whiting 1.011975e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 523   3.4 Whiting 1.088948e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 524   3.6 Whiting 1.212549e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 525   3.8 Whiting 1.369249e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 526   4.0 Whiting 1.540247e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 527   4.2 Whiting 1.705999e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 528   4.4 Whiting 1.852827e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 529   4.6 Whiting 1.976850e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 530   4.8 Whiting 2.082044e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 531   5.0 Whiting 2.174520e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 532   5.2 Whiting 2.257478e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 533   5.4 Whiting 2.329399e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 534   5.6 Whiting 2.385176e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 535   5.8 Whiting 2.418681e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 536   6.0 Whiting 2.425373e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 537   6.2 Whiting 2.404110e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 538   6.4 Whiting 2.357788e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 539   6.6 Whiting 2.292847e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 540   6.8 Whiting 2.217972e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 541   7.0 Whiting 2.142384e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 542   7.2 Whiting 2.074136e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 543   7.4 Whiting 2.018705e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 544   7.6 Whiting 1.978152e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 545   7.8 Whiting 1.951068e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 546   8.0 Whiting 1.933385e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 547   8.2 Whiting 1.919856e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 548   8.4 Whiting 1.905686e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 549   8.6 Whiting 1.887745e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 550   8.8 Whiting 1.865031e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 551   9.0 Whiting 1.838404e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 552   9.2 Whiting 1.809914e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 553   9.4 Whiting 1.782033e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 554   9.6 Whiting 1.757030e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 555   9.8 Whiting 1.736575e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 556  10.0 Whiting 1.721546e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 557  10.2 Whiting 1.711996e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 558  10.4 Whiting 1.707230e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 559  10.6 Whiting 1.705962e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 560  10.8 Whiting 1.706539e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 561  11.0 Whiting 1.707236e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 562  11.2 Whiting 1.706551e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 563  11.4 Whiting 1.703460e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 564  11.6 Whiting 1.697555e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 565  11.8 Whiting 1.689027e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 566  12.0 Whiting 1.678528e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 567  12.2 Whiting 1.666960e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 568  12.4 Whiting 1.655271e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 569  12.6 Whiting 1.644295e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 570  12.8 Whiting 1.634657e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 571  13.0 Whiting 1.626748e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 572  13.2 Whiting 1.620725e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 573  13.4 Whiting 1.616551e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 574  13.6 Whiting 1.614032e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 575  13.8 Whiting 1.612866e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 576  14.0 Whiting 1.612686e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 577  14.2 Whiting 1.613104e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 578  14.4 Whiting 1.613750e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 579  14.6 Whiting 1.614313e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 580  14.8 Whiting 1.614559e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 581  15.0 Whiting 1.614349e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 582  15.2 Whiting 1.613643e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 583  15.4 Whiting 1.612479e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 584  15.6 Whiting 1.610963e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 585  15.8 Whiting 1.609238e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 586  16.0 Whiting 1.607460e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 587  16.2 Whiting 1.605775e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 588  16.4 Whiting 1.604304e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 589  16.6 Whiting 1.603129e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 590  16.8 Whiting 1.602290e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 591  17.0 Whiting 1.601784e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 592  17.2 Whiting 1.601572e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 593  17.4 Whiting 1.601590e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 594  17.6 Whiting 1.601756e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 595  17.8 Whiting 1.601987e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 596  18.0 Whiting 1.602208e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 597  18.2 Whiting 1.602359e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 598  18.4 Whiting 1.602403e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 599  18.6 Whiting 1.602327e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 600  18.8 Whiting 1.602135e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 601  19.0 Whiting 1.601853e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 602  19.2 Whiting 1.601515e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 603  19.4 Whiting 1.601158e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 604  19.6 Whiting 1.600821e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 605  19.8 Whiting 1.600532e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 606  20.0 Whiting 1.600314e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 607   0.0    Sole 8.146022e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 608   0.2    Sole 6.232661e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 609   0.4    Sole 3.321611e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 610   0.6    Sole 1.042816e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 611   0.8    Sole 2.414936e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 612   1.0    Sole 4.458465e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 613   1.2    Sole 7.003043e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 614   1.4    Sole 9.954416e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 615   1.6    Sole 1.315921e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 616   1.8    Sole 1.638686e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 617   2.0    Sole 1.940695e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 618   2.2    Sole 2.203142e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 619   2.4    Sole 2.412693e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 620   2.6    Sole 2.562162e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 621   2.8    Sole 2.651515e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 622   3.0    Sole 2.688481e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 623   3.2    Sole 2.687410e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 624   3.4    Sole 2.665867e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 625   3.6    Sole 2.640083e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 626   3.8    Sole 2.621365e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 627   4.0    Sole 2.615008e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 628   4.2    Sole 2.621727e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 629   4.4    Sole 2.640139e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 630   4.6    Sole 2.668621e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 631   4.8    Sole 2.705883e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 632   5.0    Sole 2.750627e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 633   5.2    Sole 2.800928e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 634   5.4    Sole 2.853782e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 635   5.6    Sole 2.905036e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 636   5.8    Sole 2.949706e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 637   6.0    Sole 2.982588e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 638   6.2    Sole 2.999002e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 639   6.4    Sole 2.995481e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 640   6.6    Sole 2.970249e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 641   6.8    Sole 2.923418e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 642   7.0    Sole 2.856880e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 643   7.2    Sole 2.773945e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 644   7.4    Sole 2.678804e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 645   7.6    Sole 2.575926e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 646   7.8    Sole 2.469511e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 647   8.0    Sole 2.363122e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 648   8.2    Sole 2.259517e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 649   8.4    Sole 2.160672e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 650   8.6    Sole 2.067891e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 651   8.8    Sole 1.981940e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 652   9.0    Sole 1.903160e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 653   9.2    Sole 1.831544e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 654   9.4    Sole 1.766791e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 655   9.6    Sole 1.708345e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 656   9.8    Sole 1.655444e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 657  10.0    Sole 1.607178e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 658  10.2    Sole 1.562550e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 659  10.4    Sole 1.520553e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 660  10.6    Sole 1.480232e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 661  10.8    Sole 1.440760e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 662  11.0    Sole 1.401493e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 663  11.2    Sole 1.362031e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 664  11.4    Sole 1.322240e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 665  11.6    Sole 1.282250e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 666  11.8    Sole 1.242402e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 667  12.0    Sole 1.203177e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 668  12.2    Sole 1.165109e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 669  12.4    Sole 1.128711e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 670  12.6    Sole 1.094415e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 671  12.8    Sole 1.062545e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 672  13.0    Sole 1.033302e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 673  13.2    Sole 1.006770e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 674  13.4    Sole 9.829297e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 675  13.6    Sole 9.616771e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 676  13.8    Sole 9.428450e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 677  14.0    Sole 9.262237e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 678  14.2    Sole 9.115804e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 679  14.4    Sole 8.986764e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 680  14.6    Sole 8.872810e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 681  14.8    Sole 8.771824e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 682  15.0    Sole 8.681943e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 683  15.2    Sole 8.601593e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 684  15.4    Sole 8.529484e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 685  15.6    Sole 8.464589e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 686  15.8    Sole 8.406098e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 687  16.0    Sole 8.353373e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 688  16.2    Sole 8.305904e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 689  16.4    Sole 8.263268e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 690  16.6    Sole 8.225095e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 691  16.8    Sole 8.191043e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 692  17.0    Sole 8.160784e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 693  17.2    Sole 8.133990e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 694  17.4    Sole 8.110334e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 695  17.6    Sole 8.089489e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 696  17.8    Sole 8.071132e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 697  18.0    Sole 8.054958e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 698  18.2    Sole 8.040679e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 699  18.4    Sole 8.028040e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 700  18.6    Sole 8.016814e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 701  18.8    Sole 8.006814e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 702  19.0    Sole 7.997882e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 703  19.2    Sole 7.989894e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 704  19.4    Sole 7.982751e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 705  19.6    Sole 7.976373e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 706  19.8    Sole 7.970692e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 707  20.0    Sole 7.965652e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 708   0.0 Gurnard 7.524188e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 709   0.2 Gurnard 6.399221e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 710   0.4 Gurnard 3.340244e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 711   0.6 Gurnard 1.002051e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 712   0.8 Gurnard 2.115585e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 713   1.0 Gurnard 3.267361e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 714   1.2 Gurnard 3.971768e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 715   1.4 Gurnard 4.258179e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 716   1.6 Gurnard 4.292501e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 717   1.8 Gurnard 4.175668e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 718   2.0 Gurnard 4.001987e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 719   2.2 Gurnard 3.875514e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 720   2.4 Gurnard 3.886672e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 721   2.6 Gurnard 4.095836e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 722   2.8 Gurnard 4.525729e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 723   3.0 Gurnard 5.156139e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 724   3.2 Gurnard 5.925640e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 725   3.4 Gurnard 6.747902e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 726   3.6 Gurnard 7.538064e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 727   3.8 Gurnard 8.234669e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 728   4.0 Gurnard 8.810403e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 729   4.2 Gurnard 9.275248e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 730   4.4 Gurnard 9.671292e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 731   4.6 Gurnard 1.005461e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 732   4.8 Gurnard 1.046996e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 733   5.0 Gurnard 1.093285e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 734   5.2 Gurnard 1.142779e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 735   5.4 Gurnard 1.191938e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 736   5.6 Gurnard 1.236683e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 737   5.8 Gurnard 1.273495e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 738   6.0 Gurnard 1.300051e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 739   6.2 Gurnard 1.315559e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 740   6.4 Gurnard 1.320919e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 741   6.6 Gurnard 1.318605e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 742   6.8 Gurnard 1.312174e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 743   7.0 Gurnard 1.305413e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 744   7.2 Gurnard 1.301354e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 745   7.4 Gurnard 1.301548e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 746   7.6 Gurnard 1.305851e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 747   7.8 Gurnard 1.312828e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 748   8.0 Gurnard 1.320515e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 749   8.2 Gurnard 1.327171e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 750   8.4 Gurnard 1.331717e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 751   8.6 Gurnard 1.333773e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 752   8.8 Gurnard 1.333452e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 753   9.0 Gurnard 1.331077e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 754   9.2 Gurnard 1.326960e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 755   9.4 Gurnard 1.321290e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 756   9.6 Gurnard 1.314114e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 757   9.8 Gurnard 1.305391e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 758  10.0 Gurnard 1.295081e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 759  10.2 Gurnard 1.283229e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 760  10.4 Gurnard 1.270032e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 761  10.6 Gurnard 1.255866e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 762  10.8 Gurnard 1.241269e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 763  11.0 Gurnard 1.226885e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 764  11.2 Gurnard 1.213368e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 765  11.4 Gurnard 1.201280e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 766  11.6 Gurnard 1.190990e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 767  11.8 Gurnard 1.182612e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 768  12.0 Gurnard 1.176010e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 769  12.2 Gurnard 1.170845e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 770  12.4 Gurnard 1.166667e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 771  12.6 Gurnard 1.163013e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 772  12.8 Gurnard 1.159478e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 773  13.0 Gurnard 1.155767e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 774  13.2 Gurnard 1.151718e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 775  13.4 Gurnard 1.147298e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 776  13.6 Gurnard 1.142585e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 777  13.8 Gurnard 1.137739e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 778  14.0 Gurnard 1.132967e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 779  14.2 Gurnard 1.128482e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 780  14.4 Gurnard 1.124465e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 781  14.6 Gurnard 1.121043e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 782  14.8 Gurnard 1.118269e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 783  15.0 Gurnard 1.116126e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 784  15.2 Gurnard 1.114534e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 785  15.4 Gurnard 1.113372e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 786  15.6 Gurnard 1.112499e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 787  15.8 Gurnard 1.111779e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 788  16.0 Gurnard 1.111092e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 789  16.2 Gurnard 1.110353e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 790  16.4 Gurnard 1.109510e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 791  16.6 Gurnard 1.108548e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 792  16.8 Gurnard 1.107483e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 793  17.0 Gurnard 1.106351e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 794  17.2 Gurnard 1.105205e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 795  17.4 Gurnard 1.104101e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 796  17.6 Gurnard 1.103092e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 797  17.8 Gurnard 1.102218e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 798  18.0 Gurnard 1.101504e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 799  18.2 Gurnard 1.100959e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 800  18.4 Gurnard 1.100574e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 801  18.6 Gurnard 1.100325e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 802  18.8 Gurnard 1.100182e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 803  19.0 Gurnard 1.100107e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 804  19.2 Gurnard 1.100065e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 805  19.4 Gurnard 1.100024e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 806  19.6 Gurnard 1.099960e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 807  19.8 Gurnard 1.099859e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 808  20.0 Gurnard 1.099714e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 809   0.0  Plaice 7.680840e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 810   0.2  Plaice 1.644220e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 811   0.4  Plaice 6.114717e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 812   0.6  Plaice 1.731745e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 813   0.8  Plaice 3.643086e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 814   1.0  Plaice 5.799006e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 815   1.2  Plaice 7.468197e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 816   1.4  Plaice 8.514744e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 817   1.6  Plaice 9.076688e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 818   1.8  Plaice 9.310750e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 819   2.0  Plaice 9.358817e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 820   2.2  Plaice 9.357938e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 821   2.4  Plaice 9.456892e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 822   2.6  Plaice 9.843971e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 823   2.8  Plaice 1.078046e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 824   3.0  Plaice 1.262067e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 825   3.2  Plaice 1.579422e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 826   3.4  Plaice 2.073651e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 827   3.6  Plaice 2.777510e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 828   3.8  Plaice 3.700521e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 829   4.0  Plaice 4.821888e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 830   4.2  Plaice 6.095744e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 831   4.4  Plaice 7.467100e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 832   4.6  Plaice 8.887337e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 833   4.8  Plaice 1.032169e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 834   5.0  Plaice 1.175121e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 835   5.2  Plaice 1.317421e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 836   5.4  Plaice 1.460853e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 837   5.6  Plaice 1.609325e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 838   5.8  Plaice 1.768883e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 839   6.0  Plaice 1.947593e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 840   6.2  Plaice 2.155355e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 841   6.4  Plaice 2.403681e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 842   6.6  Plaice 2.705247e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 843   6.8  Plaice 3.072829e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 844   7.0  Plaice 3.517052e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 845   7.2  Plaice 4.042728e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 846   7.4  Plaice 4.644604e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 847   7.6  Plaice 5.304751e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 848   7.8  Plaice 5.994171e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 849   8.0  Plaice 6.679260e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 850   8.2  Plaice 7.330562e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 851   8.4  Plaice 7.929782e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 852   8.6  Plaice 8.472510e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 853   8.8  Plaice 8.966854e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 854   9.0  Plaice 9.429685e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 855   9.2  Plaice 9.882180e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 856   9.4  Plaice 1.034561e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 857   9.6  Plaice 1.083773e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 858   9.8  Plaice 1.137001e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 859  10.0  Plaice 1.194565e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 860  10.2  Plaice 1.255878e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 861  10.4  Plaice 1.319505e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 862  10.6  Plaice 1.383397e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 863  10.8  Plaice 1.445279e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 864  11.0  Plaice 1.503098e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 865  11.2  Plaice 1.555400e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 866  11.4  Plaice 1.601501e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 867  11.6  Plaice 1.641447e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 868  11.8  Plaice 1.675831e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 869  12.0  Plaice 1.705554e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 870  12.2  Plaice 1.731629e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 871  12.4  Plaice 1.755038e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 872  12.6  Plaice 1.776628e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 873  12.8  Plaice 1.797051e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 874  13.0  Plaice 1.816728e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 875  13.2  Plaice 1.835839e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 876  13.4  Plaice 1.854349e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 877  13.6  Plaice 1.872062e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 878  13.8  Plaice 1.888693e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 879  14.0  Plaice 1.903946e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 880  14.2  Plaice 1.917587e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 881  14.4  Plaice 1.929481e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 882  14.6  Plaice 1.939618e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 883  14.8  Plaice 1.948100e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 884  15.0  Plaice 1.955118e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 885  15.2  Plaice 1.960919e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 886  15.4  Plaice 1.965771e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 887  15.6  Plaice 1.969933e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 888  15.8  Plaice 1.973634e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 889  16.0  Plaice 1.977054e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 890  16.2  Plaice 1.980318e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 891  16.4  Plaice 1.983495e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 892  16.6  Plaice 1.986600e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 893  16.8  Plaice 1.989612e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 894  17.0  Plaice 1.992477e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 895  17.2  Plaice 1.995135e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 896  17.4  Plaice 1.997525e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 897  17.6  Plaice 1.999604e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 898  17.8  Plaice 2.001348e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 899  18.0  Plaice 2.002759e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 900  18.2  Plaice 2.003864e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 901  18.4  Plaice 2.004705e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 902  18.6  Plaice 2.005339e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 903  18.8  Plaice 2.005825e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 904  19.0  Plaice 2.006223e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 905  19.2  Plaice 2.006582e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 906  19.4  Plaice 2.006940e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 907  19.6  Plaice 2.007322e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 908  19.8  Plaice 2.007737e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 909  20.0  Plaice 2.008184e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 910   0.0 Haddock 7.404775e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 911   0.2 Haddock 3.442290e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 912   0.4 Haddock 2.184005e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 913   0.6 Haddock 9.139396e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 914   0.8 Haddock 3.150707e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 915   1.0 Haddock 6.917061e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 916   1.2 Haddock 1.079365e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 917   1.4 Haddock 1.421247e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 918   1.6 Haddock 1.695148e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 919   1.8 Haddock 1.874750e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 920   2.0 Haddock 1.947804e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 921   2.2 Haddock 1.924191e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 922   2.4 Haddock 1.828781e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 923   2.6 Haddock 1.690955e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 924   2.8 Haddock 1.537035e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 925   3.0 Haddock 1.386609e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 926   3.2 Haddock 1.251794e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 927   3.4 Haddock 1.138144e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 928   3.6 Haddock 1.046192e+12</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 929   3.8 Haddock 9.729868e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 930   4.0 Haddock 9.137093e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 931   4.2 Haddock 8.637603e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 932   4.4 Haddock 8.206955e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 933   4.6 Haddock 7.846865e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 934   4.8 Haddock 7.573081e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 935   5.0 Haddock 7.398878e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 936   5.2 Haddock 7.325836e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 937   5.4 Haddock 7.343536e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 938   5.6 Haddock 7.433356e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 939   5.8 Haddock 7.571930e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 940   6.0 Haddock 7.733159e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 941   6.2 Haddock 7.889955e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 942   6.4 Haddock 8.017030e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 943   6.6 Haddock 8.094754e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 944   6.8 Haddock 8.112771e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 945   7.0 Haddock 8.071690e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 946   7.2 Haddock 7.981887e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 947   7.4 Haddock 7.859816e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 948   7.6 Haddock 7.723392e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 949   7.8 Haddock 7.588280e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 950   8.0 Haddock 7.466170e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 951   8.2 Haddock 7.364827e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 952   8.4 Haddock 7.288960e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 953   8.6 Haddock 7.240972e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 954   8.8 Haddock 7.221260e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 955   9.0 Haddock 7.228202e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 956   9.2 Haddock 7.258151e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 957   9.4 Haddock 7.305604e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 958   9.6 Haddock 7.363622e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 959   9.8 Haddock 7.424449e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 960  10.0 Haddock 7.480286e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 961  10.2 Haddock 7.524148e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 962  10.4 Haddock 7.550704e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 963  10.6 Haddock 7.556983e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 964  10.8 Haddock 7.542796e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 965  11.0 Haddock 7.510763e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 966  11.2 Haddock 7.465869e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 967  11.4 Haddock 7.414593e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 968  11.6 Haddock 7.363787e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 969  11.8 Haddock 7.319546e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 970  12.0 Haddock 7.286336e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 971  12.2 Haddock 7.266530e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 972  12.4 Haddock 7.260368e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 973  12.6 Haddock 7.266266e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 974  12.8 Haddock 7.281315e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 975  13.0 Haddock 7.301868e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 976  13.2 Haddock 7.324113e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 977  13.4 Haddock 7.344585e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 978  13.6 Haddock 7.360556e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 979  13.8 Haddock 7.370293e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 980  14.0 Haddock 7.373159e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 981  14.2 Haddock 7.369545e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 982  14.4 Haddock 7.360682e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 983  14.6 Haddock 7.348345e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 984  14.8 Haddock 7.334527e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 985  15.0 Haddock 7.321134e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 986  15.2 Haddock 7.309739e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 987  15.4 Haddock 7.301419e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 988  15.6 Haddock 7.296699e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 989  15.8 Haddock 7.295571e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 990  16.0 Haddock 7.297576e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 991  16.2 Haddock 7.301939e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 992  16.4 Haddock 7.307710e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 993  16.6 Haddock 7.313905e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 994  16.8 Haddock 7.319636e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 995  17.0 Haddock 7.324204e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 996  17.2 Haddock 7.327159e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 997  17.4 Haddock 7.328324e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 998  17.6 Haddock 7.327774e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 999  17.8 Haddock 7.325797e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1000 18.0 Haddock 7.322825e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1001 18.2 Haddock 7.319356e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1002 18.4 Haddock 7.315887e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1003 18.6 Haddock 7.312846e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1004 18.8 Haddock 7.310547e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1005 19.0 Haddock 7.309169e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1006 19.2 Haddock 7.308750e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1007 19.4 Haddock 7.309203e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1008 19.6 Haddock 7.310343e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1009 19.8 Haddock 7.311928e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1010 20.0 Haddock 7.313690e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1011  0.0     Cod 7.135562e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1012  0.2     Cod 1.103091e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1013  0.4     Cod 3.806013e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1014  0.6     Cod 1.240760e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1015  0.8     Cod 3.806704e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1016  1.0     Cod 1.146694e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1017  1.2     Cod 2.733721e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1018  1.4     Cod 5.254940e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1019  1.6     Cod 8.726937e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1020  1.8     Cod 1.303482e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1021  2.0     Cod 1.792255e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1022  2.2     Cod 2.304814e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1023  2.4     Cod 2.805750e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1024  2.6     Cod 3.264712e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1025  2.8     Cod 3.660403e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1026  3.0     Cod 3.981946e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1027  3.2     Cod 4.228009e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1028  3.4     Cod 4.404765e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1029  3.6     Cod 4.523657e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1030  3.8     Cod 4.598847e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1031  4.0     Cod 4.643817e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1032  4.2     Cod 4.668242e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1033  4.4     Cod 4.677231e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1034  4.6     Cod 4.673296e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1035  4.8     Cod 4.659296e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1036  5.0     Cod 4.640399e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1037  5.2     Cod 4.624286e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1038  5.4     Cod 4.619959e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1039  5.6     Cod 4.635928e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1040  5.8     Cod 4.678453e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1041  6.0     Cod 4.750288e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1042  6.2     Cod 4.850135e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1043  6.4     Cod 4.972925e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1044  6.6     Cod 5.110822e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1045  6.8     Cod 5.254690e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1046  7.0     Cod 5.395617e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1047  7.2     Cod 5.526114e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1048  7.4     Cod 5.640755e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1049  7.6     Cod 5.736237e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1050  7.8     Cod 5.811003e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1051  8.0     Cod 5.864718e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1052  8.2     Cod 5.897808e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1053  8.4     Cod 5.911211e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1054  8.6     Cod 5.906345e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1055  8.8     Cod 5.885217e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1056  9.0     Cod 5.850536e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1057  9.2     Cod 5.805750e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1058  9.4     Cod 5.754936e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1059  9.6     Cod 5.702560e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1060  9.8     Cod 5.653141e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1061 10.0     Cod 5.610851e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1062 10.2     Cod 5.579121e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1063 10.4     Cod 5.560276e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1064 10.6     Cod 5.555258e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1065 10.8     Cod 5.563492e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1066 11.0     Cod 5.582945e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1067 11.2     Cod 5.610416e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1068 11.4     Cod 5.642012e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1069 11.6     Cod 5.673748e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1070 11.8     Cod 5.702118e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1071 12.0     Cod 5.724540e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1072 12.2     Cod 5.739578e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1073 12.4     Cod 5.746945e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1074 12.6     Cod 5.747328e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1075 12.8     Cod 5.742115e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1076 13.0     Cod 5.733081e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1077 13.2     Cod 5.722101e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1078 13.4     Cod 5.710911e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1079 13.6     Cod 5.700932e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1080 13.8     Cod 5.693166e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1081 14.0     Cod 5.688145e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1082 14.2     Cod 5.685957e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1083 14.4     Cod 5.686300e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1084 14.6     Cod 5.688593e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1085 14.8     Cod 5.692097e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1086 15.0     Cod 5.696039e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1087 15.2     Cod 5.699724e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1088 15.4     Cod 5.702614e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1089 15.6     Cod 5.704377e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1090 15.8     Cod 5.704896e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1091 16.0     Cod 5.704244e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1092 16.2     Cod 5.702648e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1093 16.4     Cod 5.700429e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1094 16.6     Cod 5.697944e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1095 16.8     Cod 5.695538e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1096 17.0     Cod 5.693496e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1097 17.2     Cod 5.692015e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1098 17.4     Cod 5.691193e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1099 17.6     Cod 5.691027e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1100 17.8     Cod 5.691430e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1101 18.0     Cod 5.692251e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1102 18.2     Cod 5.693305e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1103 18.4     Cod 5.694402e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1104 18.6     Cod 5.695373e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1105 18.8     Cod 5.696088e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1106 19.0     Cod 5.696473e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1107 19.2     Cod 5.696503e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1108 19.4     Cod 5.696208e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1109 19.6     Cod 5.695656e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1110 19.8     Cod 5.694940e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1111 20.0     Cod 5.694162e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1112  0.0  Saithe 6.027134e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1113  0.2  Saithe 5.481647e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1114  0.4  Saithe 7.073114e+07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1115  0.6  Saithe 1.375558e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1116  0.8  Saithe 3.313892e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1117  1.0  Saithe 8.897247e+08</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1118  1.2  Saithe 2.453139e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1119  1.4  Saithe 6.583770e+09</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1120  1.6  Saithe 1.532742e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1121  1.8  Saithe 2.987385e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1122  2.0  Saithe 5.068815e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1123  2.2  Saithe 7.840384e+10</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1124  2.4  Saithe 1.141589e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1125  2.6  Saithe 1.593043e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1126  2.8  Saithe 2.148666e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1127  3.0  Saithe 2.811912e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1128  3.2  Saithe 3.580358e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1129  3.4  Saithe 4.448965e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1130  3.6  Saithe 5.408596e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1131  3.8  Saithe 6.434758e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1132  4.0  Saithe 7.471353e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1133  4.2  Saithe 8.425445e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1134  4.4  Saithe 9.188971e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1135  4.6  Saithe 9.681477e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1136  4.8  Saithe 9.883814e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1137  5.0  Saithe 9.838897e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1138  5.2  Saithe 9.624644e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1139  5.4  Saithe 9.321596e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1140  5.6  Saithe 8.992486e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1141  5.8  Saithe 8.677011e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1142  6.0  Saithe 8.395980e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1143  6.2  Saithe 8.157903e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1144  6.4  Saithe 7.964300e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1145  6.6  Saithe 7.813047e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1146  6.8  Saithe 7.700284e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1147  7.0  Saithe 7.621450e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1148  7.2  Saithe 7.571663e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1149  7.4  Saithe 7.545555e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1150  7.6  Saithe 7.536840e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1151  7.8  Saithe 7.538101e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1152  8.0  Saithe 7.541252e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1153  8.2  Saithe 7.538743e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1154  8.4  Saithe 7.525070e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1155  8.6  Saithe 7.497863e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1156  8.8  Saithe 7.458078e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1157  9.0  Saithe 7.409294e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1158  9.2  Saithe 7.356516e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1159  9.4  Saithe 7.304938e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1160  9.6  Saithe 7.258995e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1161  9.8  Saithe 7.221795e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1162 10.0  Saithe 7.194900e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1163 10.2  Saithe 7.178380e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1164 10.4  Saithe 7.171032e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1165 10.6  Saithe 7.170709e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1166 10.8  Saithe 7.174702e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1167 11.0  Saithe 7.180142e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1168 11.2  Saithe 7.184381e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1169 11.4  Saithe 7.185304e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1170 11.6  Saithe 7.181547e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1171 11.8  Saithe 7.172591e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1172 12.0  Saithe 7.158728e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1173 12.2  Saithe 7.140937e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1174 12.4  Saithe 7.120674e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1175 12.6  Saithe 7.099625e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1176 12.8  Saithe 7.079460e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1177 13.0  Saithe 7.061604e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1178 13.2  Saithe 7.047085e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1179 13.4  Saithe 7.036452e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1180 13.6  Saithe 7.029777e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1181 13.8  Saithe 7.026712e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1182 14.0  Saithe 7.026597e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1183 14.2  Saithe 7.028579e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1184 14.4  Saithe 7.031733e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1185 14.6  Saithe 7.035170e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1186 14.8  Saithe 7.038128e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1187 15.0  Saithe 7.040035e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1188 15.2  Saithe 7.040549e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1189 15.4  Saithe 7.039562e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1190 15.6  Saithe 7.037183e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1191 15.8  Saithe 7.033696e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1192 16.0  Saithe 7.029500e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1193 16.2  Saithe 7.025043e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1194 16.4  Saithe 7.020756e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1195 16.6  Saithe 7.017002e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1196 16.8  Saithe 7.014040e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1197 17.0  Saithe 7.012007e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1198 17.2  Saithe 7.010921e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1199 17.4  Saithe 7.010690e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1200 17.6  Saithe 7.011144e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1201 17.8  Saithe 7.012061e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1202 18.0  Saithe 7.013204e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1203 18.2  Saithe 7.014348e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1204 18.4  Saithe 7.015303e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1205 18.6  Saithe 7.015937e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1206 18.8  Saithe 7.016179e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1207 19.0  Saithe 7.016021e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1208 19.2  Saithe 7.015510e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1209 19.4  Saithe 7.014733e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1210 19.6  Saithe 7.013802e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1211 19.8  Saithe 7.012834e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1212 20.0  Saithe 7.011937e+11</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> [[2]]</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] Year    Species Biomass</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> &lt;0 rows&gt; (or 0-length row.names)</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-in'><span class='va'>fr</span> <span class='op'>&lt;-</span> <span class='fu'>plotBiomass</span><span class='op'>(</span><span class='va'>NS_sim</span>, return_data <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='op'>(</span><span class='va'>fr</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 'data.frame':	528 obs. of  4 variables:</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  $ Year   : int  1967 1968 1969 1970 1971 1972 1973 1974 1975 1976 ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  $ Biomass: num  5.08e+10 5.57e+10 5.48e+10 5.32e+10 5.16e+10 ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  $ Species: Factor w/ 12 levels "Sprat","Sandeel",..: 1 1 1 1 1 1 1 1 1 1 ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  $ Legend : Factor w/ 12 levels "Sprat","Sandeel",..: 1 1 1 1 1 1 1 1 1 1 ...</span>
 <span class='r-in'><span class='co'># }</span></span>
-</code></pre></div>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -1561,11 +355,11 @@ over <code>max_w</code>.</p></dd>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
+  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -1590,8 +384,6 @@ over <code>max_w</code>.</p></dd>
 </script>
 
 
-
-  
 
   </body>
 </html>

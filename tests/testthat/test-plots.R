@@ -1,13 +1,19 @@
-context("Plotting methods")
-
 # Initialisation ----------------
 species_params <- NS_species_params_gears
+# Make species names numeric because that created problems in the past
+species_params$species <- 1:(nrow(species_params))
 species_params$pred_kernel_type <- "truncated_lognormal"
 params <- newMultispeciesParams(species_params, inter, no_w = 30,
                                 n = 2/3, p = 0.7, lambda = 2.8 - 2/3)
 sim <- project(params, effort = 1, t_max = 3, dt = 1, t_save = 1)
 sim0 <- project(params, effort = 0, t_max = 3, dt = 1, t_save = 1)
-species <- c("Cod", "Haddock")
+species <- c(11, 10)
+# Mark some species as background
+params_bkgrd <- params
+params_bkgrd@A[1:3] <- NA
+# params object with single species
+sp_single <- data.frame(species = 1, w_inf = 1000, h = 30)
+params_single <- newMultispeciesParams(sp_single, no_w = 30)
 
 # Need to use vdiffr conditionally
 expect_doppelganger <- function(title, fig, ...) {
@@ -42,13 +48,13 @@ expect_doppelganger("Plot Feeding Level critical", p)
 p <- plotPredMort(sim, species = species, time_range = 1:3,
                   all.sizes = TRUE)
 expect_doppelganger("PlotPredation Mortality", p)
-p <- plotPredMort(sim, species = "Sandeel", time_range = 1:3)
+p <- plotPredMort(sim, species = 2, time_range = 1:3)
 expect_doppelganger("PlotPredMort truncated", p)
 
 p <- plotFMort(sim, species = species, time_range = 1:3,
                all.sizes = TRUE)
 expect_doppelganger("PlotFishing Mortality", p)
-p <- plotFMort(sim, species = "Sandeel", time_range = 1:3)
+p <- plotFMort(sim, species = 2, time_range = 1:3)
 expect_doppelganger("PlotFMort truncated", p)
 
 p <- plotGrowthCurves(sim, species = species, percentage = TRUE,
@@ -60,7 +66,7 @@ expect_doppelganger("Plot Growth Curves panel", p)
 
 sim@params@species_params[["a"]] <- 0.0058
 sim@params@species_params[["b"]] <- 3.13
-p <- plotGrowthCurves(sim, species = "Haddock", max_age = 50)
+p <- plotGrowthCurves(sim, species = "10", max_age = 50)
 expect_doppelganger("Plot Single Growth Curve", p)
 
 p <- plotDiet(NS_params, species = "Haddock")
@@ -90,9 +96,9 @@ test_that("plotly functions do not throw error", {
 # testing the plot outputs
 test_that("return_data is identical",{
     expect_equal(dim(plotBiomass(sim, species = species, total = TRUE,
-                                 start_time = 0, end_time = 2.8, y_ticks = 4, return_data = TRUE)[[1]]), c(9,3))
-    
-    expect_equal(dim(plotYield(sim, sim0, species = species, return_data = TRUE)), c(8,4))
+                                 start_time = 0, end_time = 2.8, y_ticks = 4, return_data = TRUE)), c(9,4))
+    expect_warning(p <- plotYield(sim, sim0, species = species, return_data = TRUE))
+    expect_equal(dim(p), c(8,4))
     
     expect_equal(dim(plotYieldGear(sim, species = species, return_data = TRUE)), c(8,4))
     
@@ -111,3 +117,20 @@ test_that("return_data is identical",{
     # expect_equal(dim(plotDiet(sim@params, species = species, return_data = TRUE)), c(717,3))
 }
 )
+
+# Legends have the correct entries ----
+test_that("Legends have correct entries", {
+    # plotSpectra
+    p <- plotSpectra(params, species = 2:3)
+    expect_length(unique(p$data$Legend), 3)
+    p <- plotSpectra(params, species = 2:4, resource = FALSE)
+    expect_length(unique(p$data$Legend), 3)
+    p <- plotSpectra(params, species = 2:3, total = TRUE)
+    expect_length(unique(p$data$Legend), 4)
+    p <- plotSpectra(params, species = 8:9, background = TRUE)
+    expect_length(unique(p$data$Legend), 3)
+    p <- plotSpectra(params_bkgrd, species = 8:9, background = TRUE)
+    expect_length(unique(p$data$Legend), 4)
+    p <- plotSpectra(params_single)
+    expect_length(unique(p$data$Legend), 2)
+})

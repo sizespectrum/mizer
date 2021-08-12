@@ -53,7 +53,10 @@ used for the plot is returned instead of the plot itself. Default value is FALSE
 \item{...}{Other arguments (currently unused)}
 }
 \value{
-A ggplot2 object
+A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
+frame with the variables 'w', 'value' and 'Species' is returned. If also
+\code{include_critical = TRUE} then the data frame contains a fourth variable
+'Type' that distinguishes between 'actual' and 'critical' feeding level.
 }
 \description{
 After running a projection, plot the feeding level of each species by size.

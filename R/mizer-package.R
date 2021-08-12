@@ -32,6 +32,7 @@
 #' @importFrom grDevices col2rgb
 #' @importFrom utils modifyList
 #' @importFrom rlang signal cnd_muffle
+#' @importFrom lifecycle deprecated
 "_PACKAGE"
 
 #' @importFrom reshape2 melt

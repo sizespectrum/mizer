@@ -255,6 +255,9 @@ setReproduction <- function(params, maturity = NULL,
     } else {
         # Set defaults for m
         params <- set_species_param_default(params, "m", 1)
+        if (any(params@species_params$m < params@species_params$n)) {
+            stop("The exponent `m` must not be smaller than the exponent `n`.")
+        }
         
         repro_prop <- array(
             unlist(
