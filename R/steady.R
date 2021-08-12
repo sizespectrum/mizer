@@ -188,9 +188,9 @@ projectToSteady <- function(params,
 #' Set initial values to a steady state for the model
 #'
 #' The steady state is found by running the dynamics while keeping reproduction
-#' and other components constant until the size spectra no longer change (or
-#' until time `t_max` is reached, if earlier). Then the reproductive efficiencies
-#' are set to the values that give the level of reproduction observed in that
+#' and other components constant until the size spectra no longer change much (or
+#' until time `t_max` is reached, if earlier). Then the reproduction parameters
+#' are set to values that give the level of reproduction observed in that
 #' steady state.
 #'
 #' @param params A \linkS4class{MizerParams} object
@@ -205,6 +205,9 @@ projectToSteady <- function(params,
 #' @param return_sim If TRUE, the function returns the MizerSim object holding
 #'   the result of the simulation run. If FALSE (default) the function returns
 #'   a MizerParams object with the "initial" slots set to the steady state.
+#' @param preserve Specifies whether the `reproduction_level` should be
+#'   preserved or the maximum reproduction rate `R_max`. See [setBevertonHolt()]
+#'   for an explanation of the `reproduction_level`.
 #' @param progress_bar A shiny progress object to implement a progress bar in a
 #'   shiny app. Default FALSE.
 #' @export
