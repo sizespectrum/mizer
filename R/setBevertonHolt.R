@@ -96,7 +96,10 @@
 #' species for which the given value is `NA` will remain unaffected.
 #'
 #' The values for `R_max` must be larger than \eqn{R_{dd}}{R_dd} and can range
-#' up to `Inf`. The values for the `reproduction_level` must be positive and
+#' up to `Inf`. If a smaller value is requested a warning is issued and the
+#' value is increased to the value required for a reproduction level of 0.99.
+#' 
+#' The values for the `reproduction_level` must be positive and
 #' less than 1. The values for `erepro` must be large enough to allow the
 #' required reproduction rate. If a smaller value is requested a warning is
 #' issued and the value is increased to the smallest possible value. The values
@@ -216,9 +219,11 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
     if (!missing(R_max)) {
         wrong <- values < rdd_new
         if (any(wrong)) {
-            stop("For the following species the `R_max` you have provided is ",
-                 "too small: ",
-                 paste(species[wrong], collapse = ", "))
+            warning("For the following species the requested `R_max` ",
+                    "was too small and has been increased to give a ",
+                    "reproduction level of 0.99: ",
+                    paste(species[wrong], collapse = ", "))
+            values[wrong] <- rdd_new[wrong] / 0.99
         }
         r_max_new <- values
     }

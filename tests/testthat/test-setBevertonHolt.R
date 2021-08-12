@@ -1,4 +1,4 @@
-# erepro ----
+# setBevertonHolt ----
 test_that("setBevertonHolt sets erepro correctly when setting all values", {
     params <- setBevertonHolt(NS_params,
                               erepro = 10 * NS_params@species_params$erepro)
@@ -115,8 +115,6 @@ test_that("setBevertonHolt throws error when called with invalid values", {
                  "The reproduction level must be smaller than 1 and non-negative.")
     expect_error(setBevertonHolt(NS_params, R_factor = 1/2),
                  "The R_factor must be greater than 1.")
-    expect_error(setBevertonHolt(NS_params, R_max = c(1, 2, rep(NA, 10))),
-                 "For the following species the `R_max` you have provided is too small: Sprat, Sandeel")
 })
 
 test_that("reproduction_level of 0 works", {
@@ -127,4 +125,10 @@ test_that("reproduction_level of 0 works", {
     params <- setBevertonHolt(NS_params, R_factor = Inf)
     expect_equal(getRDD(params), mizer:::getRequiredRDD(params))
     expect_equal(params@species_params$R_max[1], Inf)
+})
+
+test_that("R_max is increased when needed", {
+    expect_warning(p <- setBevertonHolt(NS_params, R_max = c(1, 2, rep(NA, 10))),
+                 "has been increased to give a reproduction level of 0.99: Sprat, Sandeel")
+    expect_gt(p@species_params$R_max[1], NS_params@species_params$R_max[1])
 })

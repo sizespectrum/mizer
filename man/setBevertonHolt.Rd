@@ -95,7 +95,10 @@ affected, or a single unnamed value that is then used for all species. Any
 species for which the given value is \code{NA} will remain unaffected.
 
 The values for \code{R_max} must be larger than \eqn{R_{dd}}{R_dd} and can range
-up to \code{Inf}. The values for the \code{reproduction_level} must be positive and
+up to \code{Inf}. If a smaller value is requested a warning is issued and the
+value is increased to the value required for a reproduction level of 0.99.
+
+The values for the \code{reproduction_level} must be positive and
 less than 1. The values for \code{erepro} must be large enough to allow the
 required reproduction rate. If a smaller value is requested a warning is
 issued and the value is increased to the smallest possible value. The values
