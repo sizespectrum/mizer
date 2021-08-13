@@ -1,5 +1,8 @@
 ---
 title: "Single-species size-spectrum dynamics"
+opengraph:
+  image:
+    src: "https://sizespectrum.org/mizer/articles/single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-47-1.png"
 output:
   html_document:
     toc: yes
