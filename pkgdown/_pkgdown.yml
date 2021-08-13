@@ -22,11 +22,11 @@ template:
       index_name: sizespectrum_mizer
   opengraph:
     image:
-      src: man/figures/mizer_twitter.jpeg
+      src: man/figures/logo.png
       alt: "mizer: Multi-Species Size Spectrum Modelling in R"
     twitter:
       site: "@mizer_model"
-      card: summary_large_image
+      card: summary
 
 development:
   mode: auto
