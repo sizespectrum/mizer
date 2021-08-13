@@ -1,5 +1,9 @@
 # This is the configuration for the mizer website using the pkgdown package.
 
+home:
+  title: Multi-Species Dynamic Size Spectrum Modelling in R
+  description: Mizer is an R package to create and run dynamic multi-species size-spectrum models of fish communities that are subject to fishing. 
+
 url: https://sizespectrum.org/mizer
 
 authors:
@@ -16,6 +20,13 @@ template:
     docsearch:
       api_key: 96e9641255d3fff35a4fd16d1a1bf70c
       index_name: sizespectrum_mizer
+  opengraph:
+    image:
+      src: man/figures/mizer.png
+      alt: "mizer: Multi-Species Size Spectrum Modelling in R"
+    twitter:
+      site: "@mizer_model"
+      card: summary_large_image
 
 development:
   mode: auto
