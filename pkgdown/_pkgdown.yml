@@ -22,7 +22,7 @@ template:
       index_name: sizespectrum_mizer
   opengraph:
     image:
-      src: man/figures/mizer.png
+      src: man/figures/mizer_twitter.jpeg
       alt: "mizer: Multi-Species Size Spectrum Modelling in R"
     twitter:
       site: "@mizer_model"
