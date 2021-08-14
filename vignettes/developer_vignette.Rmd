@@ -155,6 +155,17 @@ to 4, because that is the convention the mizer code follows.
 ![](images/tabs.png){width=50%}
 </center>
 
+## usethis package
+
+Many useful commands for working with packages and with GitHub are provided
+by the
+[usethis](https://usethis.r-lib.org/) 
+package, which is automatically installed along with
+devtools. The package comes with a useful vignette with suggestions for 
+[how to set things up](https://usethis.r-lib.org/articles/articles/usethis-setup.html)
+most conveniently.
+
+
 ## Installing mizer
 You are now ready to install the mizer package using the development code from
 GitHub. First you should do this with the command
