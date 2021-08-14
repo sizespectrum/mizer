@@ -8,6 +8,7 @@
 ^README\.Rmd$
 ^dev_scripts\.R$
 ^.github$
+^runtime\.txt$
 
 ^CRAN-RELEASE$
 
