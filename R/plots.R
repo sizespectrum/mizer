@@ -1056,6 +1056,7 @@ plotGrowthCurves <- function(object, species = NULL,
         params <- validParams(object)
     }
     species <- valid_species_arg(params, species)
+    sp_sel <- params@species_params$species %in% species
     ws <- getGrowthCurves(params, species, max_age, percentage)
     plot_dat <- reshape2::melt(ws)
     plot_dat$Species <- factor(plot_dat$Species, params@species_params$species)
@@ -1086,7 +1087,7 @@ plotGrowthCurves <- function(object, species = NULL,
                       VBdf$a[sel] * length ^ VBdf$b[sel]
                   })
         plot_dat2$Legend <- "von Bertalanffy"
-        plot_dat <- rbind(plot_dat,plot_dat2)
+        plot_dat <- rbind(plot_dat, plot_dat2)
     }
     if (return_data) return(plot_dat)
     
@@ -1133,13 +1134,13 @@ plotGrowthCurves <- function(object, species = NULL,
                 scale_x_continuous(name = "Age [years]") +
                 scale_y_continuous(name = "Size [g]") +
                 geom_hline(aes(yintercept = w_mat),
-                           data = tibble(Species = params@species_params$species[],
-                                         w_mat = params@species_params$w_mat[]),
+                           data = tibble(Species = params@species_params$species[sp_sel],
+                                         w_mat = params@species_params$w_mat[sp_sel]),
                            linetype = "dashed",
                            colour = "grey") +
                 geom_hline(aes(yintercept = w_inf),
-                           data = tibble(Species = params@species_params$species[],
-                                         w_inf = params@species_params$w_inf[]),
+                           data = tibble(Species = params@species_params$species[sp_sel],
+                                         w_inf = params@species_params$w_inf[sp_sel]),
                            linetype = "solid",
                            colour = "grey") +
                 facet_wrap(~Species, scales = "free_y")
