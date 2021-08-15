@@ -108,13 +108,9 @@ is stored in the csv file `NS_f_history.csv` included in the package. As before,
 we can use `read.csv()` to read in the data. This reads the data in as a
 `data.frame`. We want this to be a `matrix` so we use the `as()` function:
 
-```{r label=show_load_f_history, eval = FALSE}
-f_location <- system.file("doc/NS_f_history.csv", package = "mizer")
+```{r label=show_load_f_history}
+f_location <- system.file("extdata", "NS_f_history.csv", package = "mizer")
 f_history <- as(read.csv(f_location, row.names = 1), "matrix")
-```
-
-```{r label=load_f_history, echo = FALSE}
-f_history <- as(read.csv("NS_f_history.csv", row.names = 1), "matrix")
 ```
 
 We can take a look at the first years of the data:
