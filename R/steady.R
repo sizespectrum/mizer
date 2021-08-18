@@ -188,9 +188,9 @@ projectToSteady <- function(params,
 #' Set initial values to a steady state for the model
 #'
 #' The steady state is found by running the dynamics while keeping reproduction
-#' and other components constant until the size spectra no longer change (or
-#' until time `t_max` is reached, if earlier). Then the reproductive efficiencies
-#' are set to the values that give the level of reproduction observed in that
+#' and other components constant until the size spectra no longer change much (or
+#' until time `t_max` is reached, if earlier). Then the reproduction parameters
+#' are set to values that give the level of reproduction observed in that
 #' steady state.
 #'
 #' @param params A \linkS4class{MizerParams} object
@@ -205,6 +205,9 @@ projectToSteady <- function(params,
 #' @param return_sim If TRUE, the function returns the MizerSim object holding
 #'   the result of the simulation run. If FALSE (default) the function returns
 #'   a MizerParams object with the "initial" slots set to the steady state.
+#' @param preserve Specifies whether the `reproduction_level` should be
+#'   preserved or the maximum reproduction rate `R_max`. See [setBevertonHolt()]
+#'   for an explanation of the `reproduction_level`.
 #' @param progress_bar A shiny progress object to implement a progress bar in a
 #'   shiny app. Default FALSE.
 #' @export
@@ -216,8 +219,14 @@ projectToSteady <- function(params,
 #' plotSpectra(params)
 #' }
 steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
-                   tol = 0.1 * dt, return_sim = FALSE, progress_bar = TRUE) {
+                   tol = 0.1 * dt, return_sim = FALSE, 
+                   preserve = c("reproduction_level", "R_max"),
+                   progress_bar = TRUE) {
     params <- validParams(params)
+    
+    preserve <- match.arg(preserve)
+    old_reproduction_level <- getReproductionLevel(params)
+    old_R_max <- params@species_params$R_max
     
     # Force the reproduction to stay at the current level
     params@species_params$constant_reproduction <- getRDD(params)
@@ -246,10 +255,15 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
     # Restore original RDD and other dynamics
     params@rates_funcs$RDD <- old_rdd_fun
     params@other_dynamics <- old_other_dynamics
+    params@species_params$constant_reproduction <- NULL
     
-    # Retune the values of erepro so that we get the correct level of
-    # reproduction
-    params <- retune_erepro(params)
+    if (preserve == "reproduction_level") {
+        params <- setBevertonHolt(params, 
+                                  reproduction_level = old_reproduction_level)
+    } else if (preserve == "R_max") {
+        params <- setBevertonHolt(params, 
+                                  R_max = old_R_max)
+    }
     
     if (return_sim) {
         object@params <- params
@@ -257,55 +271,6 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
     } else {
         return(params)
     }
-}
-
-
-#' Retune reproduction efficiency to maintain initial egg abundances
-#'
-#' Sets the reproductive efficiency for all species so that the rate of egg
-#' production exactly compensates for the loss from the first size class due
-#' to growth and mortality. 
-#' 
-#' Currently works only if the model uses either Beverton-Holt density
-#' dependent reproduction or density-independent reproduction.
-#'
-#' @inheritParams steady
-#' @inheritParams valid_species_arg
-#' @return A MizerParams object with updated values for the `erepro` column
-#'   in the `species_params` data frame.
-#' @export
-#' @concept helper
-retune_erepro <- function(params, species = species_params(params)$species) {
-    assert_that(is(params, "MizerParams"))
-    species <- valid_species_arg(params, species, return.logical = TRUE)
-    if (sum(species) == 0) return(params)
-
-    mumu <- getMort(params)
-    gg <- getEGrowth(params)
-    rdi <- getRDI(params)
-    if (any(rdi == 0)) {
-        stop("Some species have no reproduction.")
-    }
-    rdd_new <- getRDD(params)
-    for (i in seq_len(nrow(params@species_params))[species]) {
-        gg0 <- gg[i, params@w_min_idx[i]]
-        mumu0 <- mumu[i, params@w_min_idx[i]]
-        DW <- params@dw[params@w_min_idx[i]]
-        n0 <- params@initial_n[i, params@w_min_idx[i]]
-        rdd_new[i] <- n0 * (gg0 + DW * mumu0)
-    }
-    if (params@rates_funcs$RDD == "BevertonHoltRDD") {
-        params@species_params$R_max[species] <- 4 * rdd_new[species]
-        rdi_new <- rdd_new / (1 - rdd_new / params@species_params$R_max)
-        params@species_params$erepro <- params@species_params$erepro *
-            rdi_new / rdi
-    } else if (params@rates_funcs$RDD == "noRDD") {
-        params@species_params$erepro <- rdd_new / rdi
-    } else {
-        stop("Currently mizer can no retune the reproduction when the model is",
-             " using ", params@rates_funcs$RDD)
-    }
-    params
 }
 
 

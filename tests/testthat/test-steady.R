@@ -41,10 +41,11 @@ test_that("projectToSteady() works", {
 
 # steady ----
 test_that("steady works", {
-    expect_message(params <- newTraitParams(no_sp = 4, no_w = 30, R_factor = Inf,
+    expect_message(params <- newTraitParams(no_sp = 4, no_w = 30,
                                             n = 2/3, lambda = 2 + 3/4 - 2/3,
                                             max_w_inf = 1e3, min_w = 1e-4,
-                                            w_pp_cutoff = 10, ks = 4),
+                                            w_pp_cutoff = 10, ks = 4,
+                                            reproduction_level = 0),
                    "Increased no_w to 36")
     params@species_params$gamma[2] <- 2000
     params <- setSearchVolume(params)
@@ -56,30 +57,21 @@ test_that("steady works", {
     expect_known_value(getRDD(sim@params), "values/steady")
 })
 
-# retune_erepro ----
-test_that("retune_erepro works", {
+test_that("steady() preserves reproduction level", {
     params <- NS_params
-    params1 <- retune_erepro(params, species = "Cod")
-    expect_equal(params1@species_params$erepro[-11],
-                 params@species_params$erepro[-11])
-    expect_identical(params1@rates_funcs$RDD, "BevertonHoltRDD")
+    species_params(params)$R_max <- 1.01 * species_params(params)$R_max
+    repro_level <- getReproductionLevel(params)
+    params <- steady(params, t_per = 1)
+    expect_equal(getReproductionLevel(params),
+                 repro_level)
 })
-
-# retuneReproductiveEfficiency ----
-test_that("retuneReproductiveEfficiency works", {
-    p <- newTraitParams(R_factor = 4)
-    no_sp <- nrow(p@species_params)
-    erepro <- p@species_params$erepro
-    p@species_params$erepro[5] <- 15
-    ps <- retune_erepro(p)
-    expect_equal(ps@species_params$erepro, erepro)
-    # can also select species in various ways
-    ps <- retune_erepro(p, species = p@species_params$species[5])
-    expect_equal(ps@species_params$erepro, erepro)
-    p@species_params$erepro[3] <- 15
-    species <- (1:no_sp) %in% c(3,5)
-    ps <- retune_erepro(p, species = species)
-    expect_equal(ps@species_params$erepro, erepro)
+test_that("steady() preserves R_max", {
+    params <- NS_params
+    species_params(params)$erepro <- 1.01 * species_params(params)$erepro
+    r_max <- params@species_params$R_max
+    expect_warning(params <- steady(params, t_per = 1, preserve = "R_max"),
+                   "The following species require an unrealistic reproductive")
+    expect_equal(r_max, params@species_params$R_max)
 })
 
 # valid_species_arg ----
