@@ -36,7 +36,8 @@ Boolean array (species x size)
 \description{
 Helper function that returns an array (species x size) of boolean values
 indicating whether that size bin is within the size limits specified by the
-arguments.
+arguments. Either the size limits can be the same for all species or they
+can be specified as vectors with one value for each species in the model.
 }
 \section{Length to weight conversion}{
 
@@ -47,8 +48,9 @@ that determine the relation between length \eqn{l} and weight \eqn{w} by
 \deqn{w = a l^b.}
 
 It is possible to mix length and weight constraints, e.g. by supplying a
-minimum weight and a maximum length. The default values are the minimum and
-maximum weights of the spectrum, i.e. the full range of the size spectrum is
+minimum weight and a maximum length, but this must be done the same for
+all species. The default values are the minimum and
+maximum weights of the spectrum, i.e., the full range of the size spectrum is
 used.
 }
 

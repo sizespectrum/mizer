@@ -368,7 +368,8 @@ getGrowthCurves <- function(object,
 #' 
 #' Helper function that returns an array (species x size) of boolean values
 #' indicating whether that size bin is within the size limits specified by the
-#' arguments.
+#' arguments. Either the size limits can be the same for all species or they
+#' can be specified as vectors with one value for each species in the model.
 #' 
 #' @param params MizerParams object
 #' @param min_w Smallest weight in size range. Defaults to smallest weight in
@@ -391,8 +392,9 @@ getGrowthCurves <- function(object,
 #' \deqn{w = a l^b.}
 #' 
 #' It is possible to mix length and weight constraints, e.g. by supplying a
-#' minimum weight and a maximum length. The default values are the minimum and
-#' maximum weights of the spectrum, i.e. the full range of the size spectrum is
+#' minimum weight and a maximum length, but this must be done the same for
+#' all species. The default values are the minimum and
+#' maximum weights of the spectrum, i.e., the full range of the size spectrum is
 #' used.
 #' @export
 #' @concept helper
@@ -400,20 +402,41 @@ get_size_range_array <- function(params, min_w = min(params@w),
                                  max_w = max(params@w), 
                                  min_l = NULL, max_l = NULL, ...) {
     no_sp <- nrow(params@species_params)
-    if (!is.null(min_l) | !is.null(max_l))
-        if (any(!c("a", "b") %in% names(params@species_params)))
+    if (!is.null(min_l) | !is.null(max_l)) {
+        if (any(!c("a", "b") %in% names(params@species_params))) {
             stop("species_params slot must have columns 'a' and 'b' for ",
                  "length-weight conversion")
-    if (!is.null(min_l))
+        }
+        if (anyNA(params@species_params[["a"]]) ||
+            anyNA(params@species_params[["a"]])) {
+            stop("There must be no NAs in the species_params columns 'a' and 'b'.")
+        }
+    }
+    if (!is.null(min_l)) {
+        if (length(min_l) != 1 && length(min_l) != no_sp) {
+            stop("min_l must be a single number or a vector with one value for each species.")
+        }
         min_w <- params@species_params[["a"]] * 
             min_l ^ params@species_params[["b"]]
-    else min_w <- rep(min_w, no_sp)
-    if (!is.null(max_l))
+    }
+    if (!is.null(max_l)) {
+        if (length(max_l) != 1 && length(max_l) != no_sp) {
+            stop("max_l must be a single number or a vector with one value for each species.")
+        }
         max_w <- params@species_params[["a"]] *
             max_l ^ params@species_params[["b"]]
-    else max_w <- rep(max_w, no_sp)
-    if (!all(min_w < max_w))
-        stop("min_w must be less than max_w")
+    }
+    if (length(min_w) == 1) {
+        min_w <- rep(min_w, no_sp)
+    }
+    if (length(max_w) == 1) {
+        max_w <- rep(max_w, no_sp)
+    }
+    if (length(min_w) != no_sp || length(max_w) != no_sp) {
+        stop("min_w and max_w must be a single number of a vector with one
+             value for each species.")
+    }
+    if (!all(min_w < max_w)) stop("min_w must be less than max_w")
     min_n <- plyr::aaply(min_w, 1, function(x) params@w >= x, .drop = FALSE)
     max_n <- plyr::aaply(max_w, 1, function(x) params@w <= x, .drop = FALSE)
     size_n <- min_n & max_n

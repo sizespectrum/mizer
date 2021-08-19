@@ -15,67 +15,97 @@ n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
 n_pp <- abs(rnorm(length(params@w_full)))
 
 ## get_size_range_array ----
-test_that("get_size_range_array",{
-    NS_species_params_gears[["a"]] <- 0.01
-    NS_species_params_gears[["b"]] <- 3
-    params <- newMultispeciesParams(NS_species_params_gears, inter)
+test_that("get_size_range_array works",{
+    params@species_params[["a"]] <- 
+        c(0.007, 0.001, 0.009, 0.002, 0.010, 0.006, 0.008, 0.004,
+            0.007, 0.005, 0.005, 0.007)
+    params@species_params[["b"]] <- 
+        c(3.014, 3.320, 2.941, 3.429, 2.986, 3.080, 3.019, 3.198,
+            3.101, 3.160, 3.173, 3.075)
+    
+    # no limits
     size_n <- get_size_range_array(params)
     expect_true(all(size_n))
+    
+    # specifying weights
     size_n <- get_size_range_array(params, min_w = 1)
-    expect_true(!all(size_n[,which(params@w < 1)]))
-    expect_true(all(size_n[,which(params@w >= 1)]))
+    expect_true(!all(size_n[, which(params@w < 1)]))
+    expect_true(all(size_n[, which(params@w >= 1)]))
     size_n <- get_size_range_array(params, max_w = 100)
-    expect_true(all(size_n[,which(params@w <= 100)]))
-    expect_true(!all(size_n[,which(params@w > 1)]))
+    expect_true(all(size_n[, which(params@w <= 100)]))
+    expect_true(!all(size_n[, which(params@w > 1)]))
     size_n <- get_size_range_array(params, min_w = 1, max_w = 100)
-    expect_true(!all(size_n[,which(params@w > 100)]))
-    expect_true(!all(size_n[,which(params@w < 1)]))
-    expect_true(all(size_n[,which((params@w >= 1) & (params@w<=100))]))
-    size_n <- get_size_range_array(params, min_l = 1)
-
-    min_w <- params@species_params$a * 1 ^ params@species_params$b
-    for (sp in 1:nrow(params@species_params)){ 
-        expect_true(all(size_n[sp,which(params@w >= min_w[sp])]))
-        expect_true(!all(size_n[sp,which(params@w < min_w[sp])]))
+    expect_true(!all(size_n[, which(params@w > 100)]))
+    expect_true(!all(size_n[, which(params@w < 1)]))
+    expect_true(all(size_n[, which((params@w >= 1) & (params@w <= 100))]))
+    
+    # specifying lengths
+    min_l <- 2
+    size_n <- get_size_range_array(params, min_l = min_l)
+    min_w <- params@species_params$a * min_l ^ params@species_params$b
+    for (sp in 1:nrow(params@species_params)) { 
+        expect_true(all(size_n[sp, which(params@w >= min_w[sp])]))
+        expect_true(!all(size_n[sp, which(params@w < min_w[sp])]))
     }
-    size_n <- get_size_range_array(params, max_l = 100)
-    max_w <- params@species_params$a * 100 ^ params@species_params$b
-    for (sp in 1:nrow(params@species_params)){ 
-        expect_true(all(size_n[sp,which(params@w <= max_w[sp])]))
-        expect_true(!all(size_n[sp,which(params@w > max_w[sp])]))
+    max_l <- 100
+    size_n <- get_size_range_array(params, max_l = max_l)
+    max_w <- params@species_params$a * max_l ^ params@species_params$b
+    for (sp in 1:nrow(params@species_params)) { 
+        expect_true(all(size_n[sp, which(params@w <= max_w[sp])]))
+        expect_true(!all(size_n[sp, which(params@w > max_w[sp])]))
     }
-    size_n <- get_size_range_array(params, min_l = 1, max_l = 100)
-    min_w <- params@species_params$a * 1 ^ params@species_params$b
-    max_w <- params@species_params$a * 100 ^ params@species_params$b
-    for (sp in 1:nrow(params@species_params)){ 
-        expect_true(all(size_n[sp,which((params@w <= max_w[sp]) & (params@w >= min_w[sp]))]))
-        expect_true(!all(size_n[sp,which(params@w < min_w[sp])]))
-        expect_true(!all(size_n[sp,which(params@w > max_w[sp])]))
+    size_n <- get_size_range_array(params, min_l = min_l, max_l = max_l)
+    min_w <- params@species_params$a * min_l ^ params@species_params$b
+    max_w <- params@species_params$a * max_l ^ params@species_params$b
+    for (sp in 1:nrow(params@species_params)) { 
+        expect_true(all(size_n[sp, which((params@w <= max_w[sp]) & 
+                                             (params@w >= min_w[sp]))]))
+        expect_true(!all(size_n[sp, which(params@w < min_w[sp])]))
+        expect_true(!all(size_n[sp, which(params@w > max_w[sp])]))
     }
-    size_n <- get_size_range_array(params, min_w = 1, max_l = 100)
-    min_w <- rep(1,nrow(params@species_params))
-    max_w <- params@species_params$a * 100 ^ params@species_params$b
-    for (sp in 1:nrow(params@species_params)){ 
-        expect_true(all(size_n[sp,which((params@w <= max_w[sp]) & (params@w >= min_w[sp]))]))
-        expect_true(!all(size_n[sp,which(params@w < min_w[sp])]))
-        expect_true(!all(size_n[sp,which(params@w > max_w[sp])]))
+    
+    # mixed weights and lengths
+    size_n <- get_size_range_array(params, min_w = 1, max_l = max_l)
+    min_w <- rep(1, nrow(params@species_params))
+    for (sp in 1:nrow(params@species_params)) { 
+        expect_true(all(size_n[sp, which((params@w <= max_w[sp]) & 
+                                             (params@w >= min_w[sp]))]))
+        expect_true(!all(size_n[sp, which(params@w < min_w[sp])]))
+        expect_true(!all(size_n[sp, which(params@w > max_w[sp])]))
     }
-    size_n <- get_size_range_array(params, min_l = 1, max_w = 100)
-    min_w <- params@species_params$a * 1 ^ params@species_params$b
+    size_n <- get_size_range_array(params, min_l = min_l, max_w = 100)
     max_w <- rep(100,nrow(params@species_params))
-    for (sp in 1:nrow(params@species_params)){ 
-        expect_true(all(size_n[sp,which((params@w <= max_w[sp]) & (params@w >= min_w[sp]))]))
-        expect_true(!all(size_n[sp,which(params@w < min_w[sp])]))
-        expect_true(!all(size_n[sp,which(params@w > max_w[sp])]))
+    for (sp in 1:nrow(params@species_params)) { 
+        expect_true(all(size_n[sp, which((params@w <= max_w[sp]) & 
+                                             (params@w >= min_w[sp]))]))
+        expect_true(!all(size_n[sp, which(params@w < min_w[sp])]))
+        expect_true(!all(size_n[sp, which(params@w > max_w[sp])]))
     }
-    expect_that(get_size_range_array(params, min_w = 1000, max_w = 1), throws_error())
-    expect_that(get_size_range_array(params, min_l = 1000, max_l = 1), throws_error())
-    expect_that(get_size_range_array(params, min_l = 1000, max_w = 1), throws_error())
-    expect_that(get_size_range_array(params, min_w = 1000, max_l = 1), throws_error())
+    
+    # Gives expected error messages
+    expect_error(get_size_range_array(params, min_w = 1000, max_w = 1),
+                 "min_w must be less than max_w")
+    expect_error(get_size_range_array(params, min_l = 1000, max_l = 1),
+                 "min_w must be less than max_w")
+    expect_error(get_size_range_array(params, min_l = 1000, max_w = 1),
+                 "min_w must be less than max_w")
+    expect_error(get_size_range_array(params, min_w = 1000, max_l = 1),
+                 "min_w must be less than max_w")
+    expect_error(get_size_range_array(params, min_l = 1:4, max_w = 10),
+                 "min_l must be a single number or a vector")
+    expect_error(get_size_range_array(params, min_l = 1, max_l = 1:10),
+                 "max_l must be a single number or a vector")
+    expect_error(get_size_range_array(params, min_w = 1:4, max_w = 10),
+                 "min_w and max_w must be a single number of a vector")
     # checking if fails if a and b not in species_params
     no_ab_params <- params
-    no_ab_params@species_params <- params@species_params[,!(names(params@species_params) %in% c("a","b"))]
-    expect_that(get_size_range_array(no_ab_params, min_l = 1, max_w = 100), throws_error())
+    no_ab_params@species_params$a[1] <- NA
+    expect_error(get_size_range_array(no_ab_params, min_l = 1, max_w = 100),
+                 "There must be no NAs in the species_params columns 'a' and 'b'")
+    no_ab_params@species_params <- 
+        params@species_params[,!(names(params@species_params) %in% c("a","b"))]
+    expect_error(get_size_range_array(no_ab_params, min_l = 1, max_w = 100),
+                 "pecies_params slot must have columns 'a' and 'b'")
 })
 
 # get_time_elements ----
