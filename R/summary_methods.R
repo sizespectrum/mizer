@@ -351,7 +351,8 @@ getGrowthCurves <- function(object,
     g <- getEGrowth(params, n, n_pp)
     for (j in seq_along(species)) {
         i <- idx[j]
-        g_fn <- stats::approxfun(params@w, g[i, ])
+        g_fn <- stats::approxfun(c(params@w, params@species_params$w_inf[[i]]),
+                                 c(g[i, ], 0))
         myodefun <- function(t, state, parameters) {
             return(list(g_fn(state)))
         }
