@@ -22,10 +22,10 @@
 #' @param params MizerParams
 #' @param z0 Optional. An array (species x size) holding the external
 #'   mortality rate.
-#' @param reset If set to TRUE, then the intake rate will be reset to the value
-#'   calculated from the species parameters, even if it was previously 
-#'   overwritten with a custom value. If set to FALSE (default) then a
-#'   recalculation from the species parameters will take place only if no
+#' @param reset If set to TRUE, then the external mortality rate will be reset
+#'   to the value calculated from the species parameters, even if it was
+#'   previously overwritten with a custom value. If set to FALSE (default) then
+#'   a recalculation from the species parameters will take place only if no
 #'   custom value has been set.
 #' @param z0pre If `z0`, the mortality from other sources, is not a column
 #'   in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.

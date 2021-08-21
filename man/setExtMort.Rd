@@ -23,10 +23,10 @@ Default value is 0.6.}
 in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
 Default value is \code{n-1}.}
 
-\item{reset}{If set to TRUE, then the intake rate will be reset to the value
-calculated from the species parameters, even if it was previously
-overwritten with a custom value. If set to FALSE (default) then a
-recalculation from the species parameters will take place only if no
+\item{reset}{If set to TRUE, then the external mortality rate will be reset
+to the value calculated from the species parameters, even if it was
+previously overwritten with a custom value. If set to FALSE (default) then
+a recalculation from the species parameters will take place only if no
 custom value has been set.}
 
 \item{...}{Unused}
