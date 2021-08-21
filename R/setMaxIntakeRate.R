@@ -20,10 +20,11 @@
 #' @param intake_max Optional. An array (species x size) holding the maximum
 #'   intake rate for each species at size. If not supplied, a default is set as
 #'   described in the section "Setting maximum intake rate".
-#' @param comment_intake_max `r lifecycle::badge("experimental")`
-#'   A string describing how the value for 'intake_max' was obtained. This is
-#'   ignored if 'intake_max' is not supplied or already has a comment
-#'   attribute.
+#' @param reset If set to TRUE, then the intake rate will be reset to the value
+#'   calculated from the species parameters, even if it was previously 
+#'   overwritten with a custom value. If set to FALSE (default) then a
+#'   recalculation from the species parameters will take place only if no
+#'   custom value has been set.
 #' @param ... Unused
 #' 
 #' @return A `MizerParams` object with updated maximum intake rate. Because
@@ -33,16 +34,29 @@
 #'   `params <- setMaxIntakeRate(params, ...)`.
 #' @export
 #' @family functions for setting parameters
-setMaxIntakeRate <- function(params, 
-                             intake_max = NULL, 
-                             comment_intake_max = "set manually", ...) {
-    assert_that(is(params, "MizerParams"))
+setMaxIntakeRate <- function(params, intake_max = NULL, reset = FALSE, ...) {
+    assert_that(is(params, "MizerParams"),
+                is.logical(reset))
     species_params <- params@species_params
+    
+    if (reset) {
+        if (!is.null(intake_max)) {
+            warning("Because you set `reset = TRUE`, the value you provided ", 
+                    "for `intake_max` will be ignored and a value will be ",
+                    "calculated from the species parameters.")
+            intake_max <- NULL
+        }
+        comment(params@intake_max) <- NULL
+    }
     
     # If intake_max array is supplied, check it, store it and return
     if (!is.null(intake_max)) {
         if (is.null(comment(intake_max))) {
-            comment(intake_max) <- comment_intake_max
+            if (is.null(comment(params@intake_max))) {
+                comment(intake_max) <- "set manually"
+            } else {
+                comment(intake_max) <- comment(params@intake_max)
+            }
         }
         assert_that(is.array(intake_max),
                     identical(dim(intake_max), dim(params@intake_max)))
@@ -58,6 +72,7 @@ setMaxIntakeRate <- function(params,
         return(params)
     }
     
+    # Else recalculate from species params
     params@species_params$h <- get_h_default(params)
     
     intake_max <- sweep(outer(params@species_params[["n"]], 
