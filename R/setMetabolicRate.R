@@ -27,10 +27,11 @@
 #' @param p The allometric metabolic exponent. This is only used if `metab`
 #'   is not given explicitly and if the exponent is not specified in a `p`
 #'   column in the `species_params`.
-#' @param comment_metab `r lifecycle::badge("experimental")`
-#'   A string describing how the value for 'metab' was obtained. This is
-#'   ignored if 'metab' is not supplied or already has a comment
-#'   attribute.
+#' @param reset If set to TRUE, then the metabolic rate will be reset to the
+#'   value calculated from the species parameters, even if it was previously
+#'   overwritten with a custom value. If set to FALSE (default) then a
+#'   recalculation from the species parameters will take place only if no
+#'   custom value has been set.
 #' @param ... Unused
 #' 
 #' @return MizerParams object with updated metabolic rate. Because of the way
@@ -40,18 +41,33 @@
 #'   `params <- setMetabolicRate(params, ...)`.
 #' @export
 #' @family functions for setting parameters
-setMetabolicRate <- function(params, 
-                             metab = NULL, p = NULL, 
-                             comment_metab = "set manually", ...) {
-    assert_that(is(params, "MizerParams"))
+setMetabolicRate <- function(params, metab = NULL, p = NULL, 
+                             reset = FALSE, ...) {
+    assert_that(is(params, "MizerParams"),
+                is.logical(reset))
     if (!is.null(p)) {
         assert_that(is.numeric(p))
         params <- set_species_param_default(params, "p", p)
     }
     species_params <- params@species_params
+    
+    if (reset) {
+        if (!is.null(metab)) {
+            warning("Because you set `reset = TRUE`, the value you provided ", 
+                    "for `metab` will be ignored and a value will be ",
+                    "calculated from the species parameters.")
+            metab <- NULL
+        }
+        comment(params@metab) <- NULL
+    }
+    
     if (!is.null(metab)) {
         if (is.null(comment(metab))) {
-            comment(metab) <- comment_metab
+            if (is.null(comment(params@metab))) {
+                comment(metab) <- "set manually"
+            } else {
+                comment(metab) <- comment(params@metab)
+            }
         }
         assert_that(is.array(metab),
                     identical(dim(metab), dim(params@metab)))

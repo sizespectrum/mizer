@@ -36,10 +36,11 @@ the section "Setting metabolic rate".}
     \item{\code{p}}{The allometric metabolic exponent. This is only used if \code{metab}
 is not given explicitly and if the exponent is not specified in a \code{p}
 column in the \code{species_params}.}
-    \item{\code{comment_metab}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'metab' was obtained. This is
-ignored if 'metab' is not supplied or already has a comment
-attribute.}
+    \item{\code{reset}}{If set to TRUE, then the metabolic rate will be reset to the
+value calculated from the species parameters, even if it was previously
+overwritten with a custom value. If set to FALSE (default) then a
+recalculation from the species parameters will take place only if no
+custom value has been set.}
     \item{\code{z0}}{Optional. An array (species x size) holding the external
 mortality rate.}
     \item{\code{comment_z0}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
