@@ -5,14 +5,7 @@
 \alias{getExtMort}
 \title{Set external mortality rate}
 \usage{
-setExtMort(
-  params,
-  z0 = NULL,
-  z0pre = 0.6,
-  z0exp = -1/4,
-  comment_z0 = "set manually",
-  ...
-)
+setExtMort(params, z0 = NULL, z0pre = 0.6, z0exp = -1/4, reset = FALSE, ...)
 
 getExtMort(params)
 }
@@ -30,10 +23,11 @@ Default value is 0.6.}
 in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
 Default value is \code{n-1}.}
 
-\item{comment_z0}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'z0' was obtained. This is
-ignored if 'z0' is not supplied or already has a comment
-attribute.}
+\item{reset}{If set to TRUE, then the intake rate will be reset to the value
+calculated from the species parameters, even if it was previously
+overwritten with a custom value. If set to FALSE (default) then a
+recalculation from the species parameters will take place only if no
+custom value has been set.}
 
 \item{...}{Unused}
 }

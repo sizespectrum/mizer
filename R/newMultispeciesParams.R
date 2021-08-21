@@ -210,8 +210,8 @@ newMultispeciesParams <- function(
 #' @inheritDotParams setPredKernel
 #' @inheritDotParams setSearchVolume -reset
 #' @inheritDotParams setMaxIntakeRate -reset
-#' @inheritDotParams setMetabolicRate
-#' @inheritDotParams setExtMort
+#' @inheritDotParams setMetabolicRate -reset
+#' @inheritDotParams setExtMort -reset
 #' @inheritDotParams setReproduction
 #' @inheritDotParams setFishing
 #' @inheritDotParams setResource
