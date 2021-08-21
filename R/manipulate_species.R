@@ -41,8 +41,8 @@
 #'
 #'   After adding the new species, the background species are not retuned and
 #'   the system is not run to steady state. This could be done with [steady()].
-#'   The new species will have no density dependence in their reproduction, this
-#'   could be switched on with [setBevertonHolt()]
+#'   The new species will have a reproduction level of 1/4, this can then be
+#'   changed with [setBevertonHolt()]
 #'
 #' @seealso [removeSpecies()]
 #' @export
@@ -292,7 +292,7 @@ addSpecies <- function(params, species_params,
     p@interaction[new_sp, new_sp] <- inter[new_sp, new_sp]
     
     # Retune reproductive efficiencies of new species
-    repro_level <- rep(0, length(new_sp))
+    repro_level <- rep(1/4, length(new_sp))
     names(repro_level) <- p@species_params$species[new_sp]
     p <- setBevertonHolt(p, reproduction_level = repro_level)
     

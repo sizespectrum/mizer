@@ -61,8 +61,8 @@ species will be calculated from their species parameters.
 
 After adding the new species, the background species are not retuned and
 the system is not run to steady state. This could be done with \code{\link[=steady]{steady()}}.
-The new species will have no density dependence in their reproduction, this
-could be switched on with \code{\link[=setBevertonHolt]{setBevertonHolt()}}
+The new species will have a reproduction level of 1/4, this can then be
+changed with \code{\link[=setBevertonHolt]{setBevertonHolt()}}
 }
 \examples{
 params <- newTraitParams()

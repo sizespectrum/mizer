@@ -125,7 +125,7 @@ test_that("addSpecies has other documented properties", {
     
     # New species have 0 reproduction level
     expect_equal(getReproductionLevel(p)[13:14],
-                 c(new1 = 0, new2 = 0))
+                 c(new1 = 1/4, new2 = 1/4))
     
     # Maximum of ratio between new species density and Sheldon density is 1/100 
     fraction <- p@initial_n[13, ] / 
@@ -135,7 +135,7 @@ test_that("addSpecies has other documented properties", {
 
 test_that("Added species stay at low abundance", {
     # Use example from man page
-    params <- newTraitParams() |> steady()
+    params <- newTraitParams()
     species_params <- data.frame(
         species = "mullet",
         w_inf = 173,
@@ -149,7 +149,7 @@ test_that("Added species stay at low abundance", {
     params <- addSpecies(params, species_params)
     no_sp <- nrow(params@species_params)
     sim <- project(params, t_max = 1, progress_bar = FALSE)
-    expect_equal(finalN(sim)[no_sp, ], initialN(sim)[no_sp, ])
+    expect_lt(finalN(sim)[no_sp, 1] / initialN(sim)[no_sp, 1], 1.04)
 })
 
 
