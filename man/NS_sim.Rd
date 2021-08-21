@@ -10,6 +10,9 @@ A MizerSim object
 \source{
 \url{https://sizespectrum.org/mizer/articles/a_multispecies_model_of_the_north_sea.html}
 }
+\usage{
+NS_sim
+}
 \description{
 A MizerSim object containing a simulation with historical fishing
 mortalities from the North Sea, as created in the tutorial
@@ -25,3 +28,4 @@ Other example parameter objects:
 \code{\link{NS_params}}
 }
 \concept{example parameter objects}
+\keyword{datasets}

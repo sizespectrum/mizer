@@ -48,7 +48,7 @@ described in the help page for \code{\link[=setResource]{setResource()}}.
 }
 \examples{
 \dontrun{
-params <- newMultispeciesParams(NS_species_params_gears, inter,
+params <- newMultispeciesParams(NS_species_params_gears, NS_interaction,
                                 resource_dynamics = "resource_semichemostat")
 }
 }

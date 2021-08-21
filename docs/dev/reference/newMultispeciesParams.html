@@ -60,7 +60,11 @@ emptyParams() and then filling the slots by passing its arguments
 to setParams(). There is a long list of arguments, but almost
 all of them have sensible default values. All arguments are described in more
 details in the sections below the list." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 <meta name="robots" content="noindex">
@@ -92,7 +96,7 @@ details in the sections below the list." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9003</span>
       </span>
     </div>
 
@@ -244,7 +248,8 @@ details in the sections below the list.</p>
   gear_params <span class='op'>=</span> <span class='cn'>NULL</span>,
   selectivity <span class='op'>=</span> <span class='cn'>NULL</span>,
   catchability <span class='op'>=</span> <span class='cn'>NULL</span>,
-  initial_effort <span class='op'>=</span> <span class='cn'>NULL</span>
+  initial_effort <span class='op'>=</span> <span class='cn'>NULL</span>,
+  info_level <span class='op'>=</span> <span class='fl'>3</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -405,6 +410,11 @@ each species by each gear, \(Q_{g,i}\).</p></td>
       <td><p>Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.</p></td>
+    </tr>
+    <tr>
+      <th>info_level</th>
+      <td><p>Controls the amount of information messages that are shown
+when the function sets default values for parameters.</p></td>
     </tr>
     </table>
 
@@ -818,7 +828,7 @@ and <code>lambda</code> arguments.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
-<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>newMultispeciesParams</span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>newMultispeciesParams</span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>NS_interaction</span><span class='op'>)</span>
 <span class='op'>}</span>
 </div></pre>
   </div>

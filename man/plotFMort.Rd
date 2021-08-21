@@ -53,7 +53,7 @@ step).
 }
 \examples{
 \donttest{
-params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
+params <-  NS_params
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotFMort(sim)
 plotFMort(sim, highlight = c("Cod", "Haddock"))

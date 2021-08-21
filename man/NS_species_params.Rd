@@ -19,6 +19,9 @@ A data frame with 12 rows and 7 columns. Each row is a species.
 \source{
 {Blanchard et al.}
 }
+\usage{
+NS_species_params
+}
 \description{
 This data set is based on species in the North Sea (Blanchard et al.).
 It is a data.frame that contains all the necessary information to be used by the
@@ -33,3 +36,4 @@ sim = project(params)
 plot(sim)
 }
 }
+\keyword{datasets}

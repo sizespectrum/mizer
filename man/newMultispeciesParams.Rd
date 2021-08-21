@@ -603,7 +603,7 @@ and \code{lambda} arguments.
 
 \examples{
 \dontrun{
-params <- newMultispeciesParams(NS_species_params_gears, inter)
+params <- newMultispeciesParams(NS_species_params_gears, NS_interaction)
 }
 }
 \seealso{

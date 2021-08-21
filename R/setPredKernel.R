@@ -78,7 +78,7 @@
 #' @examples
 #' \dontrun{
 #' ## Set up a MizerParams object
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
+#' params <-  NS_params
 #' 
 #' ## If you change predation kernel parameters after setting up a model, 
 #' #  this will be used to recalculate the kernel

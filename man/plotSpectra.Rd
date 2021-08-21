@@ -103,7 +103,7 @@ object the initial abundance is plotted.
 }
 \examples{
 \donttest{
-params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
+params <-  NS_params
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotSpectra(sim)
 plotSpectra(sim, wlim = c(1e-6, NA))

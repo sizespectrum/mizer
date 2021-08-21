@@ -75,7 +75,7 @@ years.
 
 ``` r
 library(mizer)
-params <- newMultispeciesParams(NS_species_params, inter)
+params <- newMultispeciesParams(NS_species_params, NS_interaction)
 sim <- project(params, t_max = 10, effort = 0)
 ```
 

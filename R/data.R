@@ -26,7 +26,7 @@
 #' sim = project(params)
 #' plot(sim)
 #' }
-NULL
+"NS_species_params"
 
 # NS_species_params_gears ----
 #' Example species parameter set based on the North Sea with different gears
@@ -56,17 +56,36 @@ NULL
 #'                                  Beam = 0.5, Otter = 0.5))
 #' plot(sim)
 #' }
-NULL
+"NS_species_params_gears"
 
-# inter ----
+# NS_interaction ----
 #' Example interaction matrix for the North Sea example
 #'
-#' The interaction coefficient between predators and preys in the North Sea.
+#' The interaction coefficient between predator and prey species
+#' in the North Sea.
 #' @format A 12 x 12 matrix.
 #' @source{Blanchard et al.}
 #' @docType data
-#' @name inter
-NULL
+#' @name NS_interaction
+#' @examples 
+#' \dontrun{
+#' params <- MizerParams(NS_species_params_gears,
+#'                       interaction = NS_inter)
+#' sim = project(params, effort = c(Industrial = 0, Pelagic = 1, 
+#'                                  Beam = 0.5, Otter = 0.5))
+#' plot(sim)
+#' }
+"NS_interaction"
+
+#' Alias for `NS_interaction`
+#' 
+#' `r lifecycle::badge("deprecated")`
+#' An alias provided for backward compatibility with mizer version <= 2.3
+#' @format A 12 x 12 matrix.
+#' @source{Blanchard et al.}
+#' @docType data
+#' @concept deprecated
+"inter"
 
 # NS_params ----
 #' Example MizerParams object for the North Sea example
@@ -87,7 +106,7 @@ NULL
 #'                                     Beam = 0.5, Otter = 0.5))
 #' plot(sim)
 #' }
-NULL
+"NS_params"
 
 # NS_sim ----
 #' Example MizerSim object for the North Sea example
@@ -104,4 +123,4 @@ NULL
 #' \dontrun{
 #' plotBiomass(NS_sim)
 #' }
-NULL
+"NS_sim"

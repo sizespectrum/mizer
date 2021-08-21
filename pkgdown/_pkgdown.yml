@@ -254,7 +254,7 @@ reference:
   - NS_params
   - NS_species_params
   - NS_species_params_gears
-  - inter
+  - NS_interaction
   - NS_sim
 - title: Deprecated
   desc: These functions are available for backwards compatibility with earlier

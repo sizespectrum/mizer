@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Example MizerSim object for the North Sea example — NS_sim • mizer</title>
+<title>Example interaction matrix for the North Sea example — NS_interaction • mizer</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -52,10 +52,9 @@
 
 
 
-<meta property="og:title" content="Example MizerSim object for the North Sea example — NS_sim" />
-<meta property="og:description" content="A MizerSim object containing a simulation with historical fishing
-mortalities from the North Sea, as created in the tutorial
-&quot;A Multi-Species Model of the North Sea&quot;." />
+<meta property="og:title" content="Example interaction matrix for the North Sea example — NS_interaction" />
+<meta property="og:description" content="The interaction coefficient between predator and prey species
+in the North Sea." />
 <meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
 <meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
 <meta name="twitter:card" content="summary" />
@@ -200,34 +199,33 @@ mortalities from the North Sea, as created in the tutorial
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Example MizerSim object for the North Sea example</h1>
+    <h1>Example interaction matrix for the North Sea example</h1>
     <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/data.R'><code>R/data.R</code></a></small>
-    <div class="hidden name"><code>NS_sim.Rd</code></div>
+    <div class="hidden name"><code>NS_interaction.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>A MizerSim object containing a simulation with historical fishing
-mortalities from the North Sea, as created in the tutorial
-"A Multi-Species Model of the North Sea".</p>
+    <p>The interaction coefficient between predator and prey species
+in the North Sea.</p>
     </div>
 
-    <pre class="usage"><span class='va'>NS_sim</span></pre>
+    <pre class="usage"><span class='va'>NS_interaction</span></pre>
 
 
     <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
 
-    <p>A MizerSim object</p>
+    <p>A 12 x 12 matrix.</p>
     <h2 class="hasAnchor" id="source"><a class="anchor" href="#source"></a>Source</h2>
 
-    <p><a href='https://sizespectrum.org/mizer/articles/a_multispecies_model_of_the_north_sea.html'>https://sizespectrum.org/mizer/articles/a_multispecies_model_of_the_north_sea.html</a></p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>Other example parameter objects: 
-<code><a href='NS_params.html'>NS_params</a></code></p></div>
+    <p>Blanchard et al.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
-<span class='fu'><a href='plotBiomass.html'>plotBiomass</a></span><span class='op'>(</span><span class='va'>NS_sim</span><span class='op'>)</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='MizerParams.html'>MizerParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>,
+                      interaction <span class='op'>=</span> <span class='va'>NS_inter</span><span class='op'>)</span>
+<span class='va'>sim</span> <span class='op'>=</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>Industrial <span class='op'>=</span> <span class='fl'>0</span>, Pelagic <span class='op'>=</span> <span class='fl'>1</span>, 
+                                 Beam <span class='op'>=</span> <span class='fl'>0.5</span>, Otter <span class='op'>=</span> <span class='fl'>0.5</span><span class='op'>)</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span>
 <span class='op'>}</span>
 </div></pre>
   </div>

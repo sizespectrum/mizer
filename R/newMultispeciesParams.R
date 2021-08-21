@@ -69,7 +69,7 @@
 #' @family functions for setting up models
 #' @examples
 #' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, NS_interaction)
 #' }
 newMultispeciesParams <- function(
     species_params,

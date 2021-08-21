@@ -65,7 +65,7 @@ superimposed in black.
 }
 \examples{
 \donttest{
-params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
+params <-  NS_params
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotGrowthCurves(sim, percentage = TRUE)
 plotGrowthCurves(sim, species = "Cod", max_age = 24)

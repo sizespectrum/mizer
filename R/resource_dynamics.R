@@ -31,7 +31,7 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter,
+#' params <- newMultispeciesParams(NS_species_params_gears, NS_interaction,
 #'                                 resource_dynamics = "resource_semichemostat")
 #' }
 resource_semichemostat <- function(params, n, n_pp, n_other, rates, t, dt, ...) {
@@ -69,7 +69,7 @@ resource_semichemostat <- function(params, n, n_pp, n_other, rates, t, dt, ...) 
 #' @export
 #' @examples
 #' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter,
+#' params <- newMultispeciesParams(NS_species_params_gears, NS_interaction,
 #'                                 resource_dynamics = "resource_constant")
 #' }
 resource_constant <- function(params, n, n_pp, n_other, rates, t, dt, ...) {

@@ -33,7 +33,7 @@ spectrum constant over time.
 }
 \examples{
 \dontrun{
-params <- newMultispeciesParams(NS_species_params_gears, inter,
+params <- newMultispeciesParams(NS_species_params_gears, NS_interaction,
                                 resource_dynamics = "resource_constant")
 }
 }

@@ -55,7 +55,11 @@
 <meta property="og:title" content="Plot the abundance spectra — plotSpectra" />
 <meta property="og:description" content="Plots the number density multiplied by a power of the weight, with the power
 specified by the power argument." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 <meta name="robots" content="noindex">
@@ -87,7 +91,7 @@ specified by the power argument." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9003</span>
       </span>
     </div>
 
@@ -345,7 +349,7 @@ object the initial abundance is plotted.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span><span class='op'>(</span><span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span>  <span class='va'>NS_params</span>
 <span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort<span class='op'>=</span><span class='fl'>1</span>, t_max<span class='op'>=</span><span class='fl'>20</span>, t_save <span class='op'>=</span> <span class='fl'>2</span>, progress_bar <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 <span class='fu'>plotSpectra</span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span>
 </div><div class='img'><img src='plotSpectra-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>plotSpectra</span><span class='op'>(</span><span class='va'>sim</span>, wlim <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1e-6</span>, <span class='cn'>NA</span><span class='op'>)</span><span class='op'>)</span>
@@ -358,7 +362,7 @@ object the initial abundance is plotted.</p>
 <span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='op'>(</span><span class='va'>fr</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; 'data.frame':	1024 obs. of  4 variables:
 #&gt;  $ w      : num  0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 ...
-#&gt;  $ value  : num  1.59e+10 5.33e+09 1.05e+11 1.25e+10 1.17e+08 ...
+#&gt;  $ value  : num  1.83e+10 6.92e+09 1.30e+11 1.46e+10 1.69e+08 ...
 #&gt;  $ Species: chr  "Sprat" "Sandeel" "N.pout" "Herring" ...
 #&gt;  $ Legend : chr  "Sprat" "Sandeel" "N.pout" "Herring" ...</div><div class='input'><span class='co'># }</span>
 </div></pre>

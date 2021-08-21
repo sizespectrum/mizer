@@ -53,7 +53,7 @@ etc. Just look at the source code for details.
 }
 \examples{
 \donttest{
-params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
+params <-  NS_params
 sim <- project(params, effort=1, t_max=20, t_save = 0.2, progress_bar = FALSE)
 plotYieldGear(sim)
 plotYieldGear(sim, species = c("Cod", "Herring"), total = TRUE)

@@ -64,7 +64,7 @@ same arguments.
 
 \examples{
 \dontrun{
-params <- newMultispeciesParams(NS_species_params_gears, inter)
+params <- NS_params
 # Get the total fishing mortality when effort is constant for all 
 # gears and time:
 getFMort(params, effort = 1)
