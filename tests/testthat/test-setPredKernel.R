@@ -12,7 +12,7 @@ test_that("setPredKernel works", {
                  "missing from the parameter dataframe: ppmr_max")
     params@species_params$ppmr_max <- 4
     p2 <- setPredKernel(params)
-    pred_kernel <- getPredKernel(params)
+    pred_kernel <- 2 * getPredKernel(params)
     expect_error(setPredKernel(params, pred_kernel[1:2, ]),
                  "incorrect number of dimensions")
     expect_error(setPredKernel(params, pred_kernel - 1),
