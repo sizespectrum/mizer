@@ -47,18 +47,10 @@ Default value is \code{n-1}.}
     \item{\code{maturity}}{Optional. An array (species x size) that holds the proportion
 of individuals of each species at size that are mature. If not supplied, a
 default is set as described in the section "Setting reproduction".}
-    \item{\code{comment_maturity}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'maturity' was obtained. This is
-ignored if 'maturity' is not supplied or already has a comment
-attribute.}
     \item{\code{repro_prop}}{Optional. An array (species x size) that holds the
 proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".}
-    \item{\code{comment_repro_prop}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'repro_prop' was obtained. This is
-ignored if 'repro_prop' is not supplied or already has a comment
-attribute.}
     \item{\code{RDD}}{The name of the function calculating the density-dependent
 reproduction rate from the density-independent rate. Defaults to
 "\code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}".}

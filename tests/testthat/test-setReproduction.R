@@ -5,12 +5,14 @@ no_sp <- nrow(params@species_params)
 test_that("setReproduction works", {
     expect_equal(setReproduction(params), params)
     maturity <- array(1, dim = c(no_sp, length(params@w)))
-    p2 <- setReproduction(params, maturity = maturity,)
-    expect_equal(p2, setReproduction(p2, maturity = maturity,
-                                     repro_prop = p2@psi,
-                                     comment_repro_prop = NULL))
-    expect_equal(params, setReproduction(params, repro_prop = p2@psi,
-                                         comment_repro_prop = NULL))
+    p2 <- setReproduction(params, maturity = maturity)
+    p3 <- setReproduction(p2, maturity = maturity,
+                          repro_prop = p2@psi)
+    comment(p3@psi) <- comment(p2@psi)
+    expect_equal(p2, p3)
+    p3 <- setReproduction(params, repro_prop = p2@psi)
+    comment(p3@psi) <- comment(params@psi)
+    expect_equal(params, p3)
     expect_error(setReproduction(params, RDD = "str"),
                  "Arguments of RDD function can only contain 'rdi', 'species_params' and `t`.")
     expect_error(setReproduction(params, RDD = "sum"),
@@ -47,63 +49,73 @@ test_that("setReproduction checks arguments", {
 
 # * Comments ----
 test_that("Comment works on maturity", {
-    params <- setReproduction(NS_params)
+    params <- NS_params
+    # if no comment, it is set automatically
     maturity <- params@maturity
+    params <- setReproduction(params, maturity = maturity)
+    expect_identical(comment(params@maturity), "set manually")
+    
+    # comment is stored
     comment(maturity) <- "test"
     params <- setReproduction(params, maturity = maturity)
     expect_identical(comment(params@maturity), "test")
+    
+    # if no comment, previous comment is kept
+    comment(maturity) <- NULL
+    params <- setReproduction(params, maturity = maturity)
+    expect_identical(comment(params@maturity), "test")
+    
     # no message when nothing changes
     expect_message(setReproduction(params), NA)
     # but message when a change is not stored due to comment
-    params@species_params$w_mat <- params@species_params$w_mat + 1
-    expect_message(setReproduction(params),
-                   "maturity ogive has been commented")
-    
-    params <- setReproduction(params, maturity = maturity,
-                         comment_maturity = "overwrite")
-    expect_identical(comment(params@maturity), "test")
-    # but it is used otherwise
-    comment(maturity) <- NULL
-    params <- setReproduction(params, maturity = maturity,
-                         comment_maturity = "overwrite")
-    expect_identical(comment(params@maturity), "overwrite")
+    params@species_params$w_mat <- params@species_params$w_mat * 1.1
+    expect_message(setReproduction(params),  "has been commented")
+    # Can reset
+    p <- setReproduction(params, reset = TRUE)
+    # The increase in w_mat should lower the maturity curve
+    expect_gt(max(params@maturity - p@maturity), 0)
+    expect_warning(setReproduction(params, maturity = maturity,
+                                    reset = TRUE),
+                   "Because you set `reset = TRUE`, the")
 })
 
 test_that("Comment works on psi", {
     params <- NS_params
-    repro_prop <- params@psi
-    repro_prop[] <- 1
+    # if no comment, it is set automatically
+    repro_prop <- getReproductionProportion(params)
+    params <- setReproduction(params, repro_prop = repro_prop)
+    expect_identical(comment(getReproductionProportion(params)), "set manually")
+    
+    # comment is stored
     comment(repro_prop) <- "test"
     params <- setReproduction(params, repro_prop = repro_prop)
-    expect_identical(comment(params@psi), "test")
-    # We use entry 50 below to be above the low-value cutoff in psi
-    expect_equal(params@psi[1, 50], params@maturity[1, 50])
-    expect_message(setReproduction(params),
-                   "has been commented")
+    expect_identical(comment(getReproductionProportion(params)), "test")
     
-    params <- setReproduction(params, repro_prop = repro_prop,
-                              comment_repro_prop = "overwrite")
-    expect_identical(comment(params@psi), "test")
-    # but it is used otherwise
+    # if no comment, previous comment is kept
     comment(repro_prop) <- NULL
-    params <- setReproduction(params, repro_prop = repro_prop,
-                              comment_repro_prop = "overwrite")
-    expect_identical(comment(params@psi), "overwrite")
+    params <- setReproduction(params, repro_prop = repro_prop)
+    expect_identical(comment(getReproductionProportion(params)), "test")
     
-    # Test that we can still update maturity
-    maturity <- getMaturityProportion(params)
-    maturity[] <- 1
-    params <- setReproduction(params, maturity = maturity)
-    expect_equal(params@psi[1, 50], 1)
-    
+    # no message when nothing changes
+    expect_message(setReproduction(params), NA)
+    # but message when a change is not stored due to comment
+    params@species_params$w_inf <- params@species_params$w_inf * 1.1
+    expect_message(setReproduction(params),  "has been commented")
+    # Can reset
+    p <- setReproduction(params, reset = TRUE)
+    # The increase in w_inf should lower the psi curve
+    expect_gt(max(params@psi - p@psi), 0)
+    expect_warning(setReproduction(params, repro_prop = repro_prop,
+                                    reset = TRUE),
+                   "Because you set `reset = TRUE`, the")
 })
 
 # getMaturityProportion ----
 test_that("getMaturityProportion works", {
     params <- setReproduction(NS_params)
     maturity <- getMaturityProportion(params)
-    params2 <- setReproduction(params, maturity =  maturity,
-                               comment_maturity = NULL)
+    params2 <- setReproduction(params, maturity =  maturity)
+    comment(params2@maturity) <- NULL
     expect_identical(params, params2)
 })
 
@@ -111,7 +123,7 @@ test_that("getMaturityProportion works", {
 test_that("getReproductionProportion works", {
     params <- setReproduction(NS_params)
     repro_prop <- getReproductionProportion(params)
-    params2 <- setReproduction(params, repro_prop = repro_prop,
-                               comment_repro_prop = NULL)
+    params2 <- setReproduction(params, repro_prop = repro_prop)
+    comment(params2@psi) <- NULL
     expect_identical(params, params2)
 })
