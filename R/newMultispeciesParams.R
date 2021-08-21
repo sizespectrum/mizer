@@ -208,7 +208,7 @@ newMultispeciesParams <- function(
 #' @param params A \linkS4class{MizerParams} object
 #' @inheritParams setInteraction
 #' @inheritDotParams setPredKernel
-#' @inheritDotParams setSearchVolume
+#' @inheritDotParams setSearchVolume -reset
 #' @inheritDotParams setMaxIntakeRate -reset
 #' @inheritDotParams setMetabolicRate
 #' @inheritDotParams setExtMort

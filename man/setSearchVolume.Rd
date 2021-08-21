@@ -5,12 +5,7 @@
 \alias{getSearchVolume}
 \title{Set search volume}
 \usage{
-setSearchVolume(
-  params,
-  search_vol = NULL,
-  comment_search_vol = "set manually",
-  ...
-)
+setSearchVolume(params, search_vol = NULL, reset = FALSE, ...)
 
 getSearchVolume(params)
 }
@@ -21,10 +16,11 @@ getSearchVolume(params)
 for each species at size. If not supplied, a default is set as described in
 the section "Setting search volume".}
 
-\item{comment_search_vol}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'search_vol' was obtained. This is
-ignored if 'search_vol' is not supplied or already has a comment
-attribute.}
+\item{reset}{If set to TRUE, then the search volume will be reset to the
+value calculated from the species parameters, even if it was previously
+overwritten with a custom value. If set to FALSE (default) then a
+recalculation from the species parameters will take place only if no custom
+value has been set.}
 
 \item{...}{Unused}
 }
