@@ -18,16 +18,17 @@ addSpecies(
 \item{species_params}{Data frame with the species parameters of the new
 species we want to add to the system.}
 
-\item{gear_params}{Optional data frame with the gear parameters for the new
-species.}
+\item{gear_params}{Data frame with the gear parameters for the new
+species. If not provided then the new species will not be fished.}
 
 \item{initial_effort}{A named vector with the effort for new fishing gear
-introduced in \code{gear_params}. Only needed if new gear are introduced, not
-if the new species are fished only by existing gear.}
+introduced in \code{gear_params}. New gear for which no effort is set via this
+vector will have an initial effort of 0. Should not include effort values
+for existing gear.}
 
 \item{interaction}{Interaction matrix. A square matrix giving either the
-interaction coefficients between all species or only those between the
-new species. In the latter case all interaction between an old and a new
+interaction coefficients between all species or only those between the new
+species. In the latter case all interaction between an old and a new
 species are set to 1. If this argument is missing, all interactions
 involving a new species are set to 1.}
 }
@@ -42,51 +43,41 @@ given parameters to the ecosystem. It sets the initial values for these new
 species to their steady-state solution in the given initial state of the
 existing ecosystem. This will be close to the true steady state if the
 abundances of the new species are sufficiently low. Hence the abundances of
-the new species are set so that the maximal biomass density of each new
-species lies at 1/100 of the community power law. The reproductive
-efficiencies of the new species are set so as to keep them at that low level.
+the new species are set so that they are at most 1/100th of the resource
+power law. Their reproductive efficiencies are set so as to keep them at
+that low level.
 }
 \details{
-The resulting MizerParams object will use the same size grid where possible,
-but if one of the new species needs a larger range of w (either because
-a new species has an egg size smaller than those of existing species or
-a maximum size larger than those of existing species) then the grid will
-be expanded and all arrays will be enlarged accordingly.
+The resulting MizerParams object will use the same size grid where
+possible, but if one of the new species needs a larger range of w (either
+because a new species has an egg size smaller than those of existing
+species or a maximum size larger than those of existing species) then the
+grid will be expanded and all arrays will be enlarged accordingly.
 
-After adding the new species, the background species are not retuned and the
-system is not run to steady state. This could be done with \code{\link[=steady]{steady()}}. The
-new species will have no density dependence in their reproduction, this could
-be switched on with \code{\link[=setBevertonHolt]{setBevertonHolt()}}
+If any of the rate arrays of the existing species had been set by the user
+to values other than those calculated as default from the species
+parameters, then these will be preserved. Only the rates for the new
+species will be calculated from their species parameters.
+
+After adding the new species, the background species are not retuned and
+the system is not run to steady state. This could be done with \code{\link[=steady]{steady()}}.
+The new species will have no density dependence in their reproduction, this
+could be switched on with \code{\link[=setBevertonHolt]{setBevertonHolt()}}
 }
 \examples{
-\dontrun{
 params <- newTraitParams()
-a_m <- 0.0085
-b_m <- 3.11
-L_inf_m <- 24.3
-L_mat <- 11.1
 species_params <- data.frame(
-    species = "mullet",
-    w_min = 0.001,
-    w_inf = a_m*L_inf_m^b_m,
-    w_mat = a_m*L_mat^b_m,
+    species = "Mullet",
+    w_inf = 173,
+    w_mat = 15,
     beta = 283,
     sigma = 1.8,
-    z0 = 0,
-    alpha = 0.6,
-    sel_func = "knife_edge",
-    knife_edge_size = 100,
-    gear = "knife_edge_gear",
-    k = 0,
     k_vb = 0.6,
-    a = a_m,
-    b = b_m
+    a = 0.0085,
+    b = 3.11
 )
 params <- addSpecies(params, species_params)
 plotSpectra(params)
-sim <- project(params, t_max=50, progress_bar = FALSE)
-plotBiomass(sim)
-}
 }
 \seealso{
 \code{\link[=removeSpecies]{removeSpecies()}}

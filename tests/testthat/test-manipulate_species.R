@@ -7,9 +7,9 @@ test_that("addSpecies works when adding a second identical species", {
     species_params$species = "new"
     # Adding species 5 again should lead two copies of the species
     pa <- addSpecies(p, species_params)
-    expect_identical(pa@metab[5, ], pa@metab[no_sp+1, ])
-    expect_identical(pa@psi[5, ], pa@psi[no_sp+1, ])
-    expect_identical(pa@ft_pred_kernel_e[5, ], pa@ft_pred_kernel_e[no_sp+1, ])
+    expect_identical(pa@metab[5, ], pa@metab[no_sp + 1, ])
+    expect_identical(pa@psi[5, ], pa@psi[no_sp + 1, ])
+    expect_identical(pa@ft_pred_kernel_e[5, ], pa@ft_pred_kernel_e[no_sp + 1, ])
     
     # test that we can remove species again
     pr <- removeSpecies(pa, "new")
@@ -33,12 +33,15 @@ test_that("addSpecies handles gear params correctly", {
                      sel_func = "knife_edge",
                      knife_edge_size = c(5, 5, 50))
     
-    # If no inital_effort for new gear is provided, it is 0
+    # If no initial_effort for new gear is provided, it is 0
+    # Wrapping in `expect_warning()` to ignore warnings about unrealistic
+    # reproductive efficiency
     expect_warning(pa <- addSpecies(p, sp, gp))
     expect_identical(pa@initial_effort,
                      c(knife_edge_gear = 0, gear1 = 0, gear2 = 0))
     expect_identical(nrow(pa@gear_params), 5L)
     
+    # effort for existing gear is not changed
     extra_effort = c(gear1 = 2, gear2 = 3)
     expect_warning(pa <- addSpecies(p, sp, gp, initial_effort = extra_effort))
     expect_identical(pa@initial_effort, c(knife_edge_gear = 0, extra_effort))
@@ -47,7 +50,7 @@ test_that("addSpecies handles gear params correctly", {
     expect_error(addSpecies(p, sp, gp, initial_effort = effort),
                  "The `initial_effort` must be a named list or vector")
     
-    effort = c(gear3 = 1)
+    effort = c(knife_edge_gear = 1)
     expect_error(addSpecies(p, sp, gp, initial_effort = effort),
                  "The names of the `initial_effort` do not match the names of the new gears.")
 })
@@ -81,35 +84,74 @@ test_that("addSpecies works when adding a species with a larger w_inf", {
     sp <- data.frame(species = "Blue whale", w_inf = 5e4,
                      w_mat = 1e3, beta = 1000, sigma = 2,
                      k_vb = 0.6, gear = 'Whale hunter')
+    params <- NS_params
+    # change a slot to test that such changes will be preserved
+    params <- setMaxIntakeRate(params, 2 * getMaxIntakeRate(params))
     
-    p <- addSpecies(NS_params, sp)
-    expect_identical(p@w[1:100], NS_params@w)
-    expect_identical(p@w_full[1:length(NS_params@w_full)], NS_params@w_full)
+    p <- addSpecies(params, sp)
+    expect_identical(p@w[1:100], params@w)
+    expect_identical(p@w_full[1:length(params@w_full)], params@w_full)
     expect_lte(5e4, max(p@w))
+    # changed rates are preserved
+    expect_equal(getMaxIntakeRate(p)[1:12, 1:100],
+                 getMaxIntakeRate(params),
+                 check.attributes = FALSE)
 })
 test_that("addSpecies works when adding a species with a smaller w_min", {
     sp <- data.frame(species = "Blue whale", w_inf = 5e4, w_min = 1e-5,
                      w_mat = 1e3, beta = 1000, sigma = 2,
                      k_vb = 0.6, gear = 'Whale hunter')
+    params <- NS_params
+    # change a slot to test that such changes will be preserved
+    params <- setMaxIntakeRate(params, 2 * getMaxIntakeRate(params))
     
-    p <- addSpecies(NS_params, sp)
-    no_w <- length(NS_params@w)
-    new_no_w <- length(p@w)
-    expect_equal(p@w[28:127], NS_params@w)
-    expect_equal(p@w_full[1:length(NS_params@w_full)], NS_params@w_full)
+    p <- addSpecies(params, sp)
+    expect_equal(p@w[28:127], params@w)
+    expect_equal(p@w_full[1:length(params@w_full)], params@w_full)
     expect_gte(1e-5, min(p@w))
+    # changed rates are preserved
+    expect_equal(getMaxIntakeRate(p)[1:12, 28:127],
+                 getMaxIntakeRate(params),
+                 check.attributes = FALSE)
 })
 
-test_that("New species have 0 reproduction level", {
+test_that("addSpecies has other documented properties", {
     sp <- data.frame(species = c("new1", "new2"),
                      w_inf = c(10, 100),
                      k_vb = c(4, 1),
                      n = 2/3,
                      p = 2/3)
     p <- addSpecies(NS_params, sp)
+    
+    # New species have 0 reproduction level
     expect_equal(getReproductionLevel(p)[13:14],
                  c(new1 = 0, new2 = 0))
+    
+    # Maximum of ratio between new species density and Sheldon density is 1/100 
+    fraction <- p@initial_n[13, ] / 
+        (p@resource_params$kappa * p@w ^ -p@resource_params$lambda)
+    expect_equal(max(fraction), 1/100)
 })
+
+test_that("Added species stay at low abundance", {
+    # Use example from man page
+    params <- newTraitParams() |> steady()
+    species_params <- data.frame(
+        species = "mullet",
+        w_inf = 173,
+        w_mat = 15,
+        beta = 283,
+        sigma = 1.8,
+        k_vb = 0.6,
+        a = 0.0085,
+        b = 3.11
+    )
+    params <- addSpecies(params, species_params)
+    no_sp <- nrow(params@species_params)
+    sim <- project(params, t_max = 1, progress_bar = FALSE)
+    expect_equal(finalN(sim)[no_sp, ], initialN(sim)[no_sp, ])
+})
+
 
 # removeSpecies ----
 test_that("removeSpecies works", {
