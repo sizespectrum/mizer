@@ -194,8 +194,10 @@ removeComponent <- function(params, component) {
 #' @param component Name of the component of interest. If missing, a list of
 #'   all components will be returned.
 #' @return A list with the entries `initial_value`, `dynamics_fun`,
-#'   `encounter_fun`, `mort_fun`, `component_params`. If `component` is
-#'   missing, then a list of lists for all components is returned.
+#'   `encounter_fun`, `mort_fun`, `component_params` for the requested
+#'   component. If the requested component does not exist, `NULL` is returne. If
+#'   no `component` argument is given, then a list of lists for all components
+#'   is returned.
 #' @export
 getComponent <- function(params, component) {
     if (missing(component)) {
@@ -205,7 +207,7 @@ getComponent <- function(params, component) {
         return(l)
     }
     if (!component %in% names(params@other_dynamics)) {
-        stop("There is no component named ", component)
+        return(NULL)
     }
     list(initial_value = initialNOther(params)[[component]],
          dynamics_fun = params@other_dynamics[[component]],

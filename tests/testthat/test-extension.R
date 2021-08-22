@@ -110,8 +110,7 @@ test_that("We can set, get and remove components", {
     expect_null(getComponent(p, "test2")$mort_fun)
     expect_error(removeComponent(p2, "test3"),
                  "There is no component named test3")
-    expect_error(getComponent(p2, "test3"),
-                 "There is no component named test3")
+    expect_null(getComponent(p2, "test3"))
     p1 <- removeComponent(p2, "test")
     d <- getComponent(p1, "test2")
     expect_length(p1@other_dynamics, 1)

@@ -54,7 +54,11 @@
 
 <meta property="og:title" content="Get information about other ecosystem components — getComponent" />
 <meta property="og:description" content="Get information about other ecosystem components" />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 <meta name="robots" content="noindex">
@@ -86,7 +90,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9003</span>
       </span>
     </div>
 
@@ -222,8 +226,10 @@ all components will be returned.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A list with the entries <code>initial_value</code>, <code>dynamics_fun</code>,
-<code>encounter_fun</code>, <code>mort_fun</code>, <code>component_params</code>. If <code>component</code> is
-missing, then a list of lists for all components is returned.</p>
+<code>encounter_fun</code>, <code>mort_fun</code>, <code>component_params</code> for the requested
+component. If the requested component does not exist, <code>NULL</code> is returne. If
+no <code>component</code> argument is given, then a list of lists for all components
+is returned.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -14,8 +14,10 @@ all components will be returned.}
 }
 \value{
 A list with the entries \code{initial_value}, \code{dynamics_fun},
-\code{encounter_fun}, \code{mort_fun}, \code{component_params}. If \code{component} is
-missing, then a list of lists for all components is returned.
+\code{encounter_fun}, \code{mort_fun}, \code{component_params} for the requested
+component. If the requested component does not exist, \code{NULL} is returne. If
+no \code{component} argument is given, then a list of lists for all components
+is returned.
 }
 \description{
 Get information about other ecosystem components
