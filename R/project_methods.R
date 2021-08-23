@@ -667,8 +667,6 @@ mizerMort <- function(params, n, n_pp, n_other, t, f_mort, pred_mort, ...){
 #' @return A vector of mortality rate by resource size.
 #' @family mizer rate functions
 #' @export
-mizerResourceMort <- 
-    function(params, n, n_pp, n_other, t, pred_rate, ...) {
-        
-        return(as.vector(params@species_params$interaction_resource %*% pred_rate))
-    }
+mizerResourceMort <- function(params, n, n_pp, n_other, t, pred_rate, ...) {
+    as.vector(params@species_params$interaction_resource %*% pred_rate)
+}
