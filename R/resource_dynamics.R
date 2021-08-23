@@ -25,6 +25,8 @@
 #' @param rates A list of rates as returned by [mizerRates()]
 #' @param t The current time
 #' @param dt Time step
+#' @param resource_rate Resource replenishment rate
+#' @param resource_capacity Resource carrying capacity
 #' @param ... Unused
 #'   
 #' @return Vector containing resource spectrum at next timestep
@@ -34,11 +36,12 @@
 #' params <- newMultispeciesParams(NS_species_params_gears, NS_interaction,
 #'                                 resource_dynamics = "resource_semichemostat")
 #' }
-resource_semichemostat <- function(params, n, n_pp, n_other, rates, t, dt, ...) {
+resource_semichemostat <- function(params, n, n_pp, n_other, rates, t, dt,
+                                   resource_rate, resource_capacity, ...) {
     # We use the exact solution under the assumption of constant mortality 
     # during timestep
-    mur <- params@rr_pp + rates$resource_mort
-    n_steady <- params@rr_pp * params@cc_pp / mur
+    mur <- resource_rate + rates$resource_mort
+    n_steady <- resource_rate * resource_capacity / mur
     n_pp_new <- n_steady + (n_pp - n_steady) * exp(-mur * dt)
     
     # Here is an alternative expression that looks as if it might be more
@@ -72,6 +75,6 @@ resource_semichemostat <- function(params, n, n_pp, n_other, rates, t, dt, ...) 
 #' params <- newMultispeciesParams(NS_species_params_gears, NS_interaction,
 #'                                 resource_dynamics = "resource_constant")
 #' }
-resource_constant <- function(params, n, n_pp, n_other, rates, t, dt, ...) {
+resource_constant <- function(params, n_pp, ...) {
     return(n_pp)
 }

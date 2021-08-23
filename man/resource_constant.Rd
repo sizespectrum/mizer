@@ -4,22 +4,12 @@
 \alias{resource_constant}
 \title{Keep resource abundance constant}
 \usage{
-resource_constant(params, n, n_pp, n_other, rates, t, dt, ...)
+resource_constant(params, n_pp, ...)
 }
 \arguments{
 \item{params}{A \link{MizerParams} object}
 
-\item{n}{A matrix of species abundances (species x size)}
-
 \item{n_pp}{A vector of the resource abundance by size}
-
-\item{n_other}{A list with the abundances of other components}
-
-\item{rates}{A list of rates as returned by \code{\link[=mizerRates]{mizerRates()}}}
-
-\item{t}{The current time}
-
-\item{dt}{Time step}
 
 \item{...}{Unused}
 }

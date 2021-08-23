@@ -10,7 +10,9 @@ test_that("resource_semichemostat preserves steady state", {
                                 n_pp = params@initial_n_pp,
                                 n_other = params@initial_n_other,
                                 rates = getRates(params),
-                                t = 0, dt = 0.1)
+                                t = 0, dt = 0.1,
+                                resource_capacity = params@cc_pp,
+                                resource_rate = params@rr_pp)
     expect_equal(x, params@initial_n_pp,
                  tolerance = 1e-15,
                  check.attributes = FALSE)
@@ -40,7 +42,9 @@ test_that("resource_semichemostat evolves towards steady state", {
                                 n_pp = n_pp_pert,
                                 n_other = params@initial_n_other,
                                 rates = getRates(params),
-                                t = 0, dt = 0.1)
+                                t = 0, dt = 0.1,
+                                resource_capacity = params@cc_pp,
+                                resource_rate = params@rr_pp)
     expect_lte(max(abs(x - n_pp_pert)), 0)
 })
 

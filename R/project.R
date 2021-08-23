@@ -355,7 +355,9 @@ project_simple <-
         # * Update resource ----
         n_pp <- resource_dynamics_fn(params, n = n, n_pp = n_pp,
                                      n_other = n_other_current, rates = r,
-                                     t = t, dt = dt, ...)
+                                     t = t, dt = dt,
+                                     resource_rate = params@rr_pp,
+                                     resource_capacity = params@cc_pp, ...)
         
         # * Update species ----
         # a_{ij} = - g_i(w_{j-1}) / dw_j dt
