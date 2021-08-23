@@ -26,7 +26,6 @@ TRUE entry for each selected species.
 }
 \description{
 If the species argument contains invalid species, then these are
-ignored but a warning is issued. If non of the species is valid, then
-an error is produced.
+ignored but a warning is issued.
 }
 \concept{helper}

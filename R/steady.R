@@ -289,8 +289,7 @@ constant_other <- function(params, n_other, component, ...) {
 #' Helper function to assure validity of species argument
 #' 
 #' If the species argument contains invalid species, then these are
-#' ignored but a warning is issued. If non of the species is valid, then
-#' an error is produced.
+#' ignored but a warning is issued.
 #' 
 #' @param object A MizerSim or MizerParams object from which the species
 #'   should be selected.
@@ -344,13 +343,10 @@ valid_species_arg <- function(object, species = NULL, return.logical = FALSE) {
                     "integers 1 to ", no_sp)
         }
         species.logical <- 1:no_sp %in% species
-        if (sum(species.logical) == 0) {
-            stop("None of the numbers in the species argument are valid species indices.")
-        }
         if (return.logical) {
             return(species.logical)
         }
-        return(all_species[species])
+        return(all_species[species[species %in% (1:no_sp)]])
     }
     invalid <- setdiff(species, all_species)
     if (length(invalid) > 0) {
@@ -358,9 +354,6 @@ valid_species_arg <- function(object, species = NULL, return.logical = FALSE) {
                 toString(invalid))
     }
     species <- intersect(species, all_species)
-    if (length(species) == 0) {
-        stop("The species argument matches none of the species in the params object")
-    }
     if (return.logical) {
         return(all_species %in% species)
     }

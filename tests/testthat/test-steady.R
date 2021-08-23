@@ -76,24 +76,19 @@ test_that("steady() preserves R_max", {
 
 # valid_species_arg ----
 test_that("valid_species_arg works", {
-    expect_warning(valid_species_arg(NS_params, c("Cod", "non", "sense")),
+    expect_warning(s <- valid_species_arg(NS_params, c("non", "sense")),
                    "The following species do not exist: non, sense")
-    suppressWarnings(
-        expect_error(valid_species_arg(NS_params, c("non", "sense")),
-                   "The species argument matches none of the species in the params object")
-    )
+    expect_identical(s, vector(mode = "character"))
+
     expect_identical(valid_species_arg(NS_params, c("Cod", "Sandeel")),
                      c("Cod", "Sandeel"))
     expect_identical(valid_species_arg(NS_params, c("Sprat", "Sandeel"),
                                        return.logical = TRUE),
                      c(TRUE, TRUE, rep(FALSE, 10)))
     # numeric species argument
-    expect_warning(valid_species_arg(NS_params, c(2.5, 3)),
+    expect_warning(s <- valid_species_arg(NS_params, c(2.5, 13)),
                  "A numeric 'species' argument should only contain the integers 1 to 12")
-    suppressWarnings(
-        expect_error(valid_species_arg(NS_params, c(2.5, 13)),
-                     "None of the numbers in the species argument are valid species indices.")
-    )
+    expect_identical(s, vector(mode = "character"))
     expect_identical(valid_species_arg(NS_params, c(3, 1)),
                      c("N.pout", "Sprat"))
     expect_identical(valid_species_arg(NS_params, c(1, 3)),
