@@ -102,9 +102,8 @@ getDiet <- function(params,
     # object@w_full[idx_sp] = object@w
     idx_sp <- (no_w_full - no_w + 1):no_w_full
     
-    # If the feeding kernel does not have a fixed predator/prey mass ratio
-    # then the integral is not a convolution integral and we can not use fft.
-    if (length(params@ft_pred_kernel_e) == 1) {
+    # If the user has set a custom kernel we can not use fft.
+    if (!is.null(comment(params@pred_kernel))) {
         # pred_kernel is predator species x predator size x prey size
         # We want to multiply this by the prey abundance, which is
         # prey species by prey size, sum over prey size. We use matrix

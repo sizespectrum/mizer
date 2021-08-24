@@ -56,7 +56,11 @@
 <meta property="og:description" content="Sets the proportion of the total energy available for reproduction and growth
 that is invested into reproduction as a function of the size of the
 individual and sets additional density dependence." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 <meta name="robots" content="noindex">
@@ -88,7 +92,7 @@ individual and sets additional density dependence." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9002</span>
       </span>
     </div>
 
@@ -210,9 +214,8 @@ individual and sets additional density dependence.</p>
     <pre class="usage"><span class='fu'>setReproduction</span><span class='op'>(</span>
   <span class='va'>params</span>,
   maturity <span class='op'>=</span> <span class='cn'>NULL</span>,
-  comment_maturity <span class='op'>=</span> <span class='st'>"set manually"</span>,
   repro_prop <span class='op'>=</span> <span class='cn'>NULL</span>,
-  comment_repro_prop <span class='op'>=</span> <span class='st'>"set manually"</span>,
+  reset <span class='op'>=</span> <span class='cn'>FALSE</span>,
   RDD <span class='op'>=</span> <span class='cn'>NULL</span>,
   <span class='va'>...</span>
 <span class='op'>)</span>
@@ -235,13 +238,6 @@ of individuals of each species at size that are mature. If not supplied, a
 default is set as described in the section "Setting reproduction".</p></td>
     </tr>
     <tr>
-      <th>comment_maturity</th>
-      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
-A string describing how the value for 'maturity' was obtained. This is
-ignored if 'maturity' is not supplied or already has a comment
-attribute.</p></td>
-    </tr>
-    <tr>
       <th>repro_prop</th>
       <td><p>Optional. An array (species x size) that holds the
 proportion of consumed energy that a mature individual allocates to
@@ -249,11 +245,12 @@ reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".</p></td>
     </tr>
     <tr>
-      <th>comment_repro_prop</th>
-      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
-A string describing how the value for 'repro_prop' was obtained. This is
-ignored if 'repro_prop' is not supplied or already has a comment
-attribute.</p></td>
+      <th>reset</th>
+      <td><p>If set to TRUE, then both <code>maturity</code> and <code>repro_prop</code> will be
+reset to the value calculated from the species parameters, even if they
+were previously overwritten with custom values. If set to FALSE (default)
+then a recalculation from the species parameters will take place only if no
+custom values have been set.</p></td>
     </tr>
     <tr>
       <th>RDD</th>
@@ -391,7 +388,8 @@ these as models for writing your own functions.</p>
             variable.name <span class='op'>=</span> <span class='st'>"Type"</span>, 
             value.name <span class='op'>=</span> <span class='st'>"Proportion"</span><span class='op'>)</span>
 <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://ggplot2.tidyverse.org'>ggplot2</a></span><span class='op'>)</span>
-<span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='va'>dff</span><span class='op'>)</span> <span class='op'>+</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>Size</span>, y <span class='op'>=</span> <span class='va'>Proportion</span>, colour <span class='op'>=</span> <span class='va'>Type</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>Want to understand how all the pieces fit together? Read R for Data</span>
+#&gt; <span class='message'>Science: https://r4ds.had.co.nz/</span></div><div class='input'><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='va'>dff</span><span class='op'>)</span> <span class='op'>+</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>Size</span>, y <span class='op'>=</span> <span class='va'>Proportion</span>, colour <span class='op'>=</span> <span class='va'>Type</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='img'><img src='setReproduction-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span>
 </div></pre>
   </div>

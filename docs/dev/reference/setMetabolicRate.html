@@ -54,7 +54,11 @@
 
 <meta property="og:title" content="Set metabolic rate — setMetabolicRate" />
 <meta property="og:description" content="Sets the rate at which energy is used for metabolism and activity" />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 <meta name="robots" content="noindex">
@@ -86,7 +90,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9002</span>
       </span>
     </div>
 
@@ -203,13 +207,7 @@
     <p>Sets the rate at which energy is used for metabolism and activity</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setMetabolicRate</span><span class='op'>(</span>
-  <span class='va'>params</span>,
-  metab <span class='op'>=</span> <span class='cn'>NULL</span>,
-  p <span class='op'>=</span> <span class='cn'>NULL</span>,
-  comment_metab <span class='op'>=</span> <span class='st'>"set manually"</span>,
-  <span class='va'>...</span>
-<span class='op'>)</span>
+    <pre class="usage"><span class='fu'>setMetabolicRate</span><span class='op'>(</span><span class='va'>params</span>, metab <span class='op'>=</span> <span class='cn'>NULL</span>, p <span class='op'>=</span> <span class='cn'>NULL</span>, reset <span class='op'>=</span> <span class='cn'>FALSE</span>, <span class='va'>...</span><span class='op'>)</span>
 
 <span class='fu'>getMetabolicRate</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
 
@@ -233,11 +231,12 @@ is not given explicitly and if the exponent is not specified in a <code>p</code>
 column in the <code>species_params</code>.</p></td>
     </tr>
     <tr>
-      <th>comment_metab</th>
-      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
-A string describing how the value for 'metab' was obtained. This is
-ignored if 'metab' is not supplied or already has a comment
-attribute.</p></td>
+      <th>reset</th>
+      <td><p>If set to TRUE, then the metabolic rate will be reset to the
+value calculated from the species parameters, even if it was previously
+overwritten with a custom value. If set to FALSE (default) then a
+recalculation from the species parameters will take place only if no
+custom value has been set.</p></td>
     </tr>
     <tr>
       <th>...</th>

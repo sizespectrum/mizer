@@ -4,12 +4,7 @@
 \alias{setPredKernel}
 \title{Set predation kernel}
 \usage{
-setPredKernel(
-  params,
-  pred_kernel = NULL,
-  comment_pred_kernel = "set manually",
-  ...
-)
+setPredKernel(params, pred_kernel = NULL, reset = FALSE, ...)
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -19,10 +14,11 @@ that holds the predation coefficient of each predator at size on each prey
 size. If not supplied, a default is set as described in section "Setting
 predation kernel".}
 
-\item{comment_pred_kernel}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'pred_kernel' was obtained. This is
-ignored if 'pred_kernel' is not supplied or already has a comment
-attribute.}
+\item{reset}{If set to TRUE, then the predation kernel will be reset to the
+value calculated from the species parameters, even if it was previously
+overwritten with a custom value. If set to FALSE (default) then a
+recalculation from the species parameters will take place only if no custom
+value has been set.}
 
 \item{...}{Unused}
 }
