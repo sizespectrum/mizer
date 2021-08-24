@@ -98,39 +98,66 @@ test_that("Setting catchability works", {
     expect_identical(comment(getCatchability(params)), "catchability")
 })
 
-test_that("Comments protect catchability slot", {
-    catchability <- getCatchability(params)
-    comment(catchability) <- "catchability"
-    params <- setFishing(params, catchability = catchability)
-    expect_message(gear_params(params) <- params@gear_params,
-                   "The catchability has been commented")
+test_that("Comment works on selectivity", {
+    params <- NS_params
+    # if no comment, it is set automatically
+    selectivity <- params@selectivity
+    params <- setFishing(params, selectivity = selectivity)
+    expect_identical(comment(params@selectivity), "set manually")
     
-    # comment argument is ignored when there is a comment on catchability
-    params <- setFishing(params, catchability = catchability,
-                         comment_catchability = "overwrite")
-    expect_identical(comment(params@catchability), "catchability")
-    # but it is used otherwise
-    comment(catchability) <- NULL
-    params <- setFishing(params, catchability = catchability,
-                         comment_catchability = "overwrite")
-    expect_identical(comment(params@catchability), "overwrite")
-
-    selectivity <- getSelectivity(params)
-    comment(selectivity) <- "selectivity"
-    expect_message(params <- setFishing(params, selectivity = selectivity),
-                   "The catchability has been commented")
-    expect_message(gear_params(params) <- params@gear_params,
-                   "The selectivity has been commented")
+    # comment is stored
+    comment(selectivity) <- "test"
+    params <- setFishing(params, selectivity = selectivity)
+    expect_identical(comment(params@selectivity), "test")
     
-    # comment argument is ignored when there is a comment on catchability
-    params <- setFishing(params, selectivity = selectivity,
-                         comment_selectivity = "overwrite")
-    expect_identical(comment(params@selectivity), "selectivity")
-    # but it is used otherwise
+    # if no comment, previous comment is kept
     comment(selectivity) <- NULL
-    params <- setFishing(params, selectivity = selectivity,
-                         comment_selectivity = "overwrite")
-    expect_identical(comment(params@catchability), "overwrite")
+    params <- setFishing(params, selectivity = selectivity)
+    expect_identical(comment(params@selectivity), "test")
+    
+    # no message when nothing changes
+    expect_message(setFishing(params), NA)
+    # but message when a change is not stored due to comment
+    params@gear_params$knife_edge_size <- 0
+    expect_message(setFishing(params),  "has been commented")
+    # Can reset
+    p <- setFishing(params, reset = TRUE)
+    expect_equal(p@selectivity[1, 1, 1], 1,
+                 check.attributes = FALSE)
+    expect_warning(setFishing(params, selectivity = selectivity,
+                                    reset = TRUE),
+                   "Because you set `reset = TRUE`, the")
+})
+
+test_that("Comment works on catchability", {
+    params <- NS_params
+    # if no comment, it is set automatically
+    catchability <- params@catchability
+    params <- setFishing(params, catchability = catchability)
+    expect_identical(comment(params@catchability), "set manually")
+    
+    # comment is stored
+    comment(catchability) <- "test"
+    params <- setFishing(params, catchability = catchability)
+    expect_identical(comment(params@catchability), "test")
+    
+    # if no comment, previous comment is kept
+    comment(catchability) <- NULL
+    params <- setFishing(params, catchability = catchability)
+    expect_identical(comment(params@catchability), "test")
+    
+    # no message when nothing changes
+    expect_message(setFishing(params), NA)
+    # but message when a change is not stored due to comment
+    params@gear_params$catchability <- 2
+    expect_message(setFishing(params),  "has been commented")
+    # Can reset
+    p <- setFishing(params, reset = TRUE)
+    expect_equal(p@catchability[1, 1], 2,
+                 check.attributes = FALSE)
+    expect_warning(setFishing(params, catchability = catchability,
+                                    reset = TRUE),
+                   "Because you set `reset = TRUE`, the")
 })
 
 test_that("We can change gears via catchability and selectivity arrays", {
@@ -140,9 +167,10 @@ test_that("We can change gears via catchability and selectivity arrays", {
                  "you also need to supply a selectivity array")
     selectivity <- getSelectivity(params)
     p2 <- setFishing(params, catchability = catchability[sel, ],
-                     selectivity = selectivity[sel, , ], 
-                     comment_catchability = NULL, comment_selectivity = NULL)
+                     selectivity = selectivity[sel, , ])
+    comment(p2@selectivity) <- NULL
     expect_identical(p2@selectivity, selectivity[sel, , ])
+    comment(p2@catchability) <- NULL
     expect_identical(p2@catchability, catchability[sel, ])
     expect_identical(p2@initial_effort, params@initial_effort[sel])
     expect_error(setFishing(params, catchability = catchability[sel, ],

@@ -11,8 +11,7 @@ setFishing(
   params,
   selectivity = NULL,
   catchability = NULL,
-  comment_selectivity = "set manually",
-  comment_catchability = "set manually",
+  reset = FALSE,
   initial_effort = NULL,
   ...
 )
@@ -32,15 +31,11 @@ selectivity of each gear for species and size, \eqn{S_{g,i,w}}.}
 \item{catchability}{Optional. An array (gear x species) that holds the catchability of
 each species by each gear, \eqn{Q_{g,i}}.}
 
-\item{comment_selectivity}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'selectivity' was obtained. This is
-ignored if 'selectivity' is not supplied or already has a comment
-attribute.}
-
-\item{comment_catchability}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'catchability' was obtained. This is
-ignored if 'catchability' is not supplied or already has a comment
-attribute.}
+\item{reset}{If set to TRUE, then both \code{catchability} and \code{selectivity} will
+be reset to the values calculated from the gear parameters, even if it was
+previously overwritten with a custom value. If set to FALSE (default) then
+a recalculation from the gear parameters will take place only if no custom
+value has been set.}
 
 \item{initial_effort}{Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If

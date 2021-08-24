@@ -213,7 +213,7 @@ newMultispeciesParams <- function(
 #' @inheritDotParams setMetabolicRate -reset
 #' @inheritDotParams setExtMort -reset
 #' @inheritDotParams setReproduction -reset
-#' @inheritDotParams setFishing
+#' @inheritDotParams setFishing -reset
 #' @inheritDotParams setResource -reset
 #' 
 #' @return A \linkS4class{MizerParams} object

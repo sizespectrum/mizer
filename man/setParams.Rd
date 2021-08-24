@@ -61,14 +61,6 @@ each species by each gear, \eqn{Q_{g,i}}.}
     \item{\code{initial_effort}}{Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.}
-    \item{\code{comment_selectivity}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'selectivity' was obtained. This is
-ignored if 'selectivity' is not supplied or already has a comment
-attribute.}
-    \item{\code{comment_catchability}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'catchability' was obtained. This is
-ignored if 'catchability' is not supplied or already has a comment
-attribute.}
     \item{\code{resource_rate}}{Optional. Vector of resource intrinsic birth rates}
     \item{\code{resource_capacity}}{Optional. Vector of resource intrinsic carrying
 capacity}
