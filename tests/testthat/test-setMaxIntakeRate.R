@@ -44,3 +44,13 @@ test_that("getMaxIntakeRate works", {
     expect_identical(getMaxIntakeRate(NS_params),
                      NS_params@intake_max)
 })
+
+test_that("Can get and set slot", {
+    params <- NS_params
+    intake_max <- getMaxIntakeRate(params)
+    expect_identical(intake_max(params), intake_max)
+    new <- 2 * intake_max
+    comment(new) <- "test"
+    intake_max(params) <- new
+    expect_identical(intake_max(params), new)
+})

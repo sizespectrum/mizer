@@ -73,6 +73,13 @@ test_that("getting and setting pred kernel leads to same dynamics" ,{
     expect_equal(finalN(sim1), finalN(sim2), tolerance = 1e-4)
 })
 
+test_that("Can get and set pred_kernel slot", {
+    params <- NS_params
+    new <- 2 * pred_kernel(params)
+    comment(new) <- "test"
+    pred_kernel(params) <- new
+    expect_identical(pred_kernel(params), new)
+})
 
 ## get_phi ----
 test_that("get_phi works", {

@@ -245,3 +245,24 @@ test_that("Non-existing species give error", {
     expect_error(gear_params(params) <- gp,
                  "The gear_params dataframe contains species that do not exist in the model.")
 })
+
+test_that("Can get and set selectivity slot", {
+    params <- NS_params
+    new <- 2 * selectivity(params)
+    comment(new) <- "test"
+    selectivity(params) <- new
+    expect_identical(selectivity(params), new)
+})
+test_that("Can get and set catchability slot", {
+    params <- NS_params
+    new <- 2 * catchability(params)
+    comment(new) <- "test"
+    catchability(params) <- new
+    expect_identical(catchability(params), new)
+})
+test_that("Can get and set initial_effort slot", {
+    params <- NS_params
+    new <- 2 * initial_effort(params)
+    initial_effort(params) <- new
+    expect_identical(initial_effort(params), new)
+})

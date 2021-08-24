@@ -161,7 +161,7 @@ getResourceRate <- function(params) {
 #' @rdname setResource
 #' @export
 resource_rate <- function(params) {
-    params@r_pp
+    params@rr_pp
 }
 
 #' @rdname setResource
