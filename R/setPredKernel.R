@@ -69,11 +69,7 @@
 #'   value has been set.
 #' @param ... Unused
 #' 
-#' @return A MizerParams object with updated predation kernel. Because of the
-#'   way the R language works, `setPredKernel()` does not make the changes
-#'   to the params object that you pass to it but instead returns a new params
-#'   object. So to affect the change you call the function in the form
-#'   `params <- setPredKernel(params, ...)`.
+#' @return `setPredKernel`: A MizerParams object with updated predation kernel.
 #' @export
 #' @family functions for setting parameters
 #' @examples
@@ -190,19 +186,15 @@ setPredKernel <- function(params,
     return(params)
 }
 
-
-#' Get predation kernel
-#' 
-#' If no explicit predation kernel \eqn{\phi_i(w, w_p)} is stored in the params
-#' object, then this function calculates it from the information in the species
-#' parameter data frame in the params object.
-#' 
-#' For more detail about the predation kernel see [setPredKernel()].
-#' 
-#' @param params A MizerParams object
-#' @return An array (predator species x predator_size x prey_size)
+#' @rdname setPredKernel
+#' @return `getPredKernel`: An array (predator species x predator_size x
+#'   prey_size)
 #' @export
 getPredKernel <- function(params) {
+    # This function is more complicated than you might have thought because
+    # usually the predation kernel is not stored in the MizerParams object,
+    # but rather only the Fourier coefficients needed for fast calculation of
+    # the convolution integrals. 
     assert_that(is(params, "MizerParams"))
     if (length(dim(params@pred_kernel)) > 1) {
         return(params@pred_kernel)
@@ -232,6 +224,18 @@ getPredKernel <- function(params) {
         }
     }
     return(pred_kernel)
+}
+
+#' @rdname setPredKernel
+#' @export
+pred_kernel <- function(params) {
+    getPredKernel(params)
+}
+
+#' @rdname setPredKernel
+#' @export
+`pred_kernel<-` <- function(params, value) {
+    setPredKernel(params, pred_kernel = value)
 }
 
 #' Set defaults for predation kernel parameters

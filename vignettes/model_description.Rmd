@@ -314,7 +314,7 @@ mortality is not implemented in mizer at the moment.
 
 # Mortality
 The mortality rate of an individual $\mu_i(w)$ has three sources: 
-predation mortality $\mu_{p.i}(w)$, background mortality $\mu_{b.i}(w)$ and 
+predation mortality $\mu_{p.i}(w)$, background mortality $\mu_{ext.i}(w)$ and 
 fishing mortality $\mu_{f.i}(w)$. 
 
 Predation mortality is calculated such that all that is eaten translates into 

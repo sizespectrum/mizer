@@ -99,11 +99,8 @@
 #'   value has been set.
 #' @param ... Unused
 #'   
-#' @return MizerParams object with updated catchability and selectivity. Because
-#'   of the way the R language works, `setFishing()` does not make the changes
-#'   to the params object that you pass to it but instead returns a new params
-#'   object. So to affect the change you call the function in the form
-#'   `params <- setFishing(params, ...)`.
+#' @return `setFishing`: A MizerParams object with updated fishing
+#'   parameters.
 #' @export
 #' @seealso [gear_params()]
 #' @family functions for setting parameters
@@ -334,6 +331,18 @@ getCatchability <- function(params) {
 }
 
 #' @rdname setFishing
+#' @export
+catchability <- function(params) {
+    params@catchability
+}
+
+#' @rdname setFishing
+#' @export
+`catchability<-` <- function(params, value) {
+    setFishing(params, catchability = value)
+}
+
+#' @rdname setFishing
 #' @return For `getSelectivity()`: An array (gear x species x size) that holds
 #'   the selectivity of each gear for species and size, \eqn{S_{g,i,w}}.
 #'   The names of the dimensions are "gear, "sp", "w".
@@ -345,6 +354,18 @@ getSelectivity <- function(params) {
 }
 
 #' @rdname setFishing
+#' @export
+selectivity <- function(params) {
+    params@selectivity
+}
+
+#' @rdname setFishing
+#' @export
+`selectivity<-` <- function(params, value) {
+    setFishing(params, selectivity = value)
+}
+
+#' @rdname setFishing
 #' @return For `getInitialEffort()`: A named vector with the initial fishing
 #'   effort for each gear.
 #' @export
@@ -352,6 +373,18 @@ getSelectivity <- function(params) {
 #' str(getInitialEffort(NS_params))
 getInitialEffort <- function(params) {
     params@initial_effort
+}
+
+#' @rdname setFishing
+#' @export
+initial_effort <- function(params) {
+    params@initial_effort
+}
+
+#' @rdname setFishing
+#' @export
+`initial_effort<-` <- function(params, value) {
+    setFishing(params, initial_effort = value)
 }
 
 #' Check validity of gear parameters and set defaults

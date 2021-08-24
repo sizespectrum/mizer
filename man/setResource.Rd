@@ -3,8 +3,14 @@
 \name{setResource}
 \alias{setResource}
 \alias{getResourceRate}
+\alias{resource_rate}
+\alias{resource_rate<-}
 \alias{getResourceCapacity}
+\alias{resource_capacity}
+\alias{resource_capacity<-}
 \alias{getResourceDynamics}
+\alias{resource_dynamics}
+\alias{resource_dynamics<-}
 \title{Set up resource}
 \usage{
 setResource(
@@ -23,9 +29,21 @@ setResource(
 
 getResourceRate(params)
 
+resource_rate(params)
+
+resource_rate(params) <- value
+
 getResourceCapacity(params)
 
+resource_capacity(params)
+
+resource_capacity(params) <- value
+
 getResourceDynamics(params)
+
+resource_dynamics(params)
+
+resource_dynamics(params) <- value
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -61,11 +79,7 @@ want to use the default \code{\link[=resource_semichemostat]{resource_semichemos
 \item{...}{Unused}
 }
 \value{
-A MizerParams object with updated resource parameters. Because of the
-way the R language works, \code{setResource()} does not make the changes to the
-params object that you pass to it but instead returns a new params object.
-So to affect the change you call the function in the form
-\code{params <- setResource(params, ...)}.
+\code{setResource}: A MizerParams object with updated resource parameters
 }
 \description{
 Sets the intrinsic resource growth rate and the intrinsic resource carrying

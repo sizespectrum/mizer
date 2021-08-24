@@ -7,23 +7,23 @@
 #' (e.g. mammals or seabirds) or due to other causes like illness. It is a rate
 #' with units 1/year.
 #' 
-#' The `z0` argument allows you to specify an external mortality rate
+#' The `ext_mort` argument allows you to specify an external mortality rate
 #' that depends on species and body size. You can see an example of this in
 #' the Examples section of the help page for [setExtMort()].
 #' 
-#' If the `z0` argument is not supplied, then the external mortality
+#' If the `ext_mort` argument is not supplied, then the external mortality
 #' is assumed to depend only on the species, not on the
-#' size of the individual: \eqn{\mu_{b.i}(w) = z_{0.i}}. The value of the
+#' size of the individual: \eqn{\mu_{ext.i}(w) = z_{0.i}}. The value of the
 #' constant \eqn{z_0} for each species is taken from the `z0` column of the
 #' species_params data frame, if that column exists. Otherwise it is calculated
 #' as 
 #' \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
 #' 
 #' @param params MizerParams
-#' @param z0 Optional. An array (species x size) holding the external
+#' @param ext_mort Optional. An array (species x size) holding the external
 #'   mortality rate.
 #' @param reset If set to TRUE, then the external mortality rate will be reset
-#'   to the value calculated from the species parameters, even if it was
+#'   to the value calculated from the `z0` parameters, even if it was
 #'   previously overwritten with a custom value. If set to FALSE (default) then
 #'   a recalculation from the species parameters will take place only if no
 #'   custom value has been set.
@@ -33,13 +33,12 @@
 #' @param z0exp If `z0`, the mortality from other sources, is not a column
 #'   in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
 #'   Default value is \code{n-1}.
+#' @param z0 `r lifecycle::badge("deprecated")` Use `ext_mort` instead. Not to
+#'   be confused with the species_parameter `z0`.
 #' @param ... Unused
 #' 
-#' @return MizerParams object with updated external mortality rate. Because of
-#'   the way the R language works, `setExtMort()` does not make the changes
-#'   to the params object that you pass to it but instead returns a new params
-#'   object. So to affect the change you call the function in the form
-#'   `params <- setExtMort(params, ...)`.
+#' @return `setExtMort`: A MizerParams object with updated external mortality 
+#'   rate.
 #' @export
 #' @family functions for setting parameters
 #' @examples
@@ -53,13 +52,14 @@
 #' 
 #' # Multiply by power of size with exponent, here chosen to be -1/4
 #' # The outer() function makes it an array species x size
-#' z0 <- outer(z0pre, w(params)^(-1/4))
+#' allo_mort <- outer(z0pre, w(params)^(-1/4))
 #' 
 #' # Change the external mortality rate in the params object
-#' params <- setExtMort(params, z0 = z0)
+#' ext_mort(params) <- allo_mort
 #' }
-setExtMort <- function(params, z0 = NULL, z0pre = 0.6, z0exp = -1/4,
-                       reset = FALSE,  ...) {
+setExtMort <- function(params, ext_mort = NULL,
+                       z0pre = 0.6, z0exp = -1/4,
+                       reset = FALSE, z0 = NULL, ...) {
     assert_that(is(params, "MizerParams"),
                 is.logical(reset))
     
@@ -114,7 +114,21 @@ setExtMort <- function(params, z0 = NULL, z0pre = 0.6, z0exp = -1/4,
 }
 
 #' @rdname setExtMort
+#' @return `getExtMort`: An array (species x size) with dimension names "sp"
+#'   and "w".
 #' @export
 getExtMort <- function(params) {
     params@mu_b
+}
+
+#' @rdname setExtMort
+#' @export
+ext_mort <- function(params) {
+    params@mu_b
+}
+
+#' @rdname setExtMort
+#' @export
+`ext_mort<-` <- function(params, value) {
+    setExtMort(params, ext_mort = value)
 }

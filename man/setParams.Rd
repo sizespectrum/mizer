@@ -32,7 +32,7 @@ the section "Setting metabolic rate".}
     \item{\code{p}}{The allometric metabolic exponent. This is only used if \code{metab}
 is not given explicitly and if the exponent is not specified in a \code{p}
 column in the \code{species_params}.}
-    \item{\code{z0}}{Optional. An array (species x size) holding the external
+    \item{\code{ext_mort}}{Optional. An array (species x size) holding the external
 mortality rate.}
     \item{\code{z0pre}}{If \code{z0}, the mortality from other sources, is not a column
 in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
@@ -40,6 +40,8 @@ Default value is 0.6.}
     \item{\code{z0exp}}{If \code{z0}, the mortality from other sources, is not a column
 in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
 Default value is \code{n-1}.}
+    \item{\code{z0}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{ext_mort} instead. Not to
+be confused with the species_parameter \code{z0}.}
     \item{\code{maturity}}{Optional. An array (species x size) that holds the proportion
 of individuals of each species at size that are mature. If not supplied, a
 default is set as described in the section "Setting reproduction".}
@@ -313,13 +315,13 @@ due to predation by predators that are not explicitly included in the model
 (e.g. mammals or seabirds) or due to other causes like illness. It is a rate
 with units 1/year.
 
-The \code{z0} argument allows you to specify an external mortality rate
+The \code{ext_mort} argument allows you to specify an external mortality rate
 that depends on species and body size. You can see an example of this in
 the Examples section of the help page for \code{\link[=setExtMort]{setExtMort()}}.
 
-If the \code{z0} argument is not supplied, then the external mortality
+If the \code{ext_mort} argument is not supplied, then the external mortality
 is assumed to depend only on the species, not on the
-size of the individual: \eqn{\mu_{b.i}(w) = z_{0.i}}. The value of the
+size of the individual: \eqn{\mu_{ext.i}(w) = z_{0.i}}. The value of the
 constant \eqn{z_0} for each species is taken from the \code{z0} column of the
 species_params data frame, if that column exists. Otherwise it is calculated
 as

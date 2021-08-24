@@ -36,11 +36,7 @@
 #'   value has been set.
 #' @param ... Unused
 #' 
-#' @return MizerParams with updated search volume. Because of the way the R
-#'   language works, `setSearchVolume()` does not make the changes to the params
-#'   object that you pass to it but instead returns a new params object. So to
-#'   affect the change you call the function in the form
-#'   `params <- setSearchVolume(params, ...)`.
+#' @return `setReproduction`: A MizerParams object with updated search volume.
 #' @export
 #' @family functions for setting parameters
 setSearchVolume <- function(params, search_vol = NULL, reset = FALSE, ...) {
@@ -106,4 +102,17 @@ setSearchVolume <- function(params, search_vol = NULL, reset = FALSE, ...) {
 #' @export
 getSearchVolume <- function(params) {
     params@search_vol
+}
+
+
+#' @rdname setSearchVolume
+#' @export
+search_vol <- function(params) {
+    params@search_vol
+}
+
+#' @rdname setSearchVolume
+#' @export
+`search_vol<-` <- function(params, value) {
+    setSearchVolume(params, search_vol = value)
 }

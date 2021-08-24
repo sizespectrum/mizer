@@ -292,7 +292,7 @@ validMizerParams <- function(object) {
 #' @slot metab An array (species x size) that holds the metabolism
 #'   for each species at size. Changed with [setMetabolicRate()].
 #' @slot mu_b An array (species x size) that holds the external mortality rate
-#'   \eqn{\mu_{b.i}(w)}. Changed with [setExtMort()].
+#'   \eqn{\mu_{ext.i}(w)}. Changed with [setExtMort()].
 #' @slot pred_kernel An array (species x predator size x prey size) that holds
 #'   the predation coefficient of each predator at size on each prey size. If
 #'   this is NA then the following two slots will be used. Changed with 

@@ -107,12 +107,8 @@
 #'   "[BevertonHoltRDD()]".
 #' @param ... Unused
 #' 
-#' @return For `setReproduction()`:
-#'   The updated MizerParams object. Because of the way the R language
-#'   works, `setReproduction()` does not make the changes to the params object
-#'   that you pass to it but instead returns a new params object. So to affect
-#'   the change you call the function in the form
-#'   `params <- setReproduction(params, ...)`.
+#' @return `setReproduction`: A MizerParams object with updated reproduction
+#'   parameters.
 #' @export
 #' @family functions for setting parameters
 #' @examples
@@ -351,6 +347,18 @@ getMaturityProportion <- function(params) {
 }
 
 #' @rdname setReproduction
+#' @export
+maturity <- function(params) {
+    params@maturity
+}
+
+#' @rdname setReproduction
+#' @export
+`maturity<-` <- function(params, value) {
+    setReproduction(params, maturity = value)
+}
+
+#' @rdname setReproduction
 #' @return For `getReproductionProportion`:
 #'   An array (species x size) that holds the
 #'   proportion of consumed energy that a mature individual allocates to
@@ -363,4 +371,17 @@ getReproductionProportion <- function(params) {
     repro_prop[is.nan(repro_prop)] <- 0
     comment(repro_prop) <- comment(params@psi)
     repro_prop
+}
+
+
+#' @rdname setReproduction
+#' @export
+repro_prop <- function(params) {
+    getReproductionProportion(params)
+}
+
+#' @rdname setReproduction
+#' @export
+`repro_prop<-` <- function(params, value) {
+    setReproduction(params, repro_prop = value)
 }

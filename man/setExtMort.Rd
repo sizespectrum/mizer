@@ -3,16 +3,30 @@
 \name{setExtMort}
 \alias{setExtMort}
 \alias{getExtMort}
+\alias{ext_mort}
+\alias{ext_mort<-}
 \title{Set external mortality rate}
 \usage{
-setExtMort(params, z0 = NULL, z0pre = 0.6, z0exp = -1/4, reset = FALSE, ...)
+setExtMort(
+  params,
+  ext_mort = NULL,
+  z0pre = 0.6,
+  z0exp = -1/4,
+  reset = FALSE,
+  z0 = NULL,
+  ...
+)
 
 getExtMort(params)
+
+ext_mort(params)
+
+ext_mort(params) <- value
 }
 \arguments{
 \item{params}{MizerParams}
 
-\item{z0}{Optional. An array (species x size) holding the external
+\item{ext_mort}{Optional. An array (species x size) holding the external
 mortality rate.}
 
 \item{z0pre}{If \code{z0}, the mortality from other sources, is not a column
@@ -24,19 +38,22 @@ in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
 Default value is \code{n-1}.}
 
 \item{reset}{If set to TRUE, then the external mortality rate will be reset
-to the value calculated from the species parameters, even if it was
+to the value calculated from the \code{z0} parameters, even if it was
 previously overwritten with a custom value. If set to FALSE (default) then
 a recalculation from the species parameters will take place only if no
 custom value has been set.}
 
+\item{z0}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{ext_mort} instead. Not to
+be confused with the species_parameter \code{z0}.}
+
 \item{...}{Unused}
 }
 \value{
-MizerParams object with updated external mortality rate. Because of
-the way the R language works, \code{setExtMort()} does not make the changes
-to the params object that you pass to it but instead returns a new params
-object. So to affect the change you call the function in the form
-\code{params <- setExtMort(params, ...)}.
+\code{setExtMort}: A MizerParams object with updated external mortality
+rate.
+
+\code{getExtMort}: An array (species x size) with dimension names "sp"
+and "w".
 }
 \description{
 Set external mortality rate
@@ -49,13 +66,13 @@ due to predation by predators that are not explicitly included in the model
 (e.g. mammals or seabirds) or due to other causes like illness. It is a rate
 with units 1/year.
 
-The \code{z0} argument allows you to specify an external mortality rate
+The \code{ext_mort} argument allows you to specify an external mortality rate
 that depends on species and body size. You can see an example of this in
 the Examples section of the help page for \code{\link[=setExtMort]{setExtMort()}}.
 
-If the \code{z0} argument is not supplied, then the external mortality
+If the \code{ext_mort} argument is not supplied, then the external mortality
 is assumed to depend only on the species, not on the
-size of the individual: \eqn{\mu_{b.i}(w) = z_{0.i}}. The value of the
+size of the individual: \eqn{\mu_{ext.i}(w) = z_{0.i}}. The value of the
 constant \eqn{z_0} for each species is taken from the \code{z0} column of the
 species_params data frame, if that column exists. Otherwise it is calculated
 as
@@ -73,10 +90,10 @@ z0pre <- rep(0.1, nrow(species_params(params)))
 
 # Multiply by power of size with exponent, here chosen to be -1/4
 # The outer() function makes it an array species x size
-z0 <- outer(z0pre, w(params)^(-1/4))
+allo_mort <- outer(z0pre, w(params)^(-1/4))
 
 # Change the external mortality rate in the params object
-params <- setExtMort(params, z0 = z0)
+ext_mort(params) <- allo_mort
 }
 }
 \seealso{

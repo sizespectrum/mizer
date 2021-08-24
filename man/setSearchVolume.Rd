@@ -3,11 +3,17 @@
 \name{setSearchVolume}
 \alias{setSearchVolume}
 \alias{getSearchVolume}
+\alias{search_vol}
+\alias{search_vol<-}
 \title{Set search volume}
 \usage{
 setSearchVolume(params, search_vol = NULL, reset = FALSE, ...)
 
 getSearchVolume(params)
+
+search_vol(params)
+
+search_vol(params) <- value
 }
 \arguments{
 \item{params}{MizerParams}
@@ -25,11 +31,7 @@ value has been set.}
 \item{...}{Unused}
 }
 \value{
-MizerParams with updated search volume. Because of the way the R
-language works, \code{setSearchVolume()} does not make the changes to the params
-object that you pass to it but instead returns a new params object. So to
-affect the change you call the function in the form
-\code{params <- setSearchVolume(params, ...)}.
+\code{setReproduction}: A MizerParams object with updated search volume.
 }
 \description{
 Set search volume
