@@ -116,25 +116,9 @@ the \code{gamma} parameter of the third species:\preformatted{species_params(par
 Internally that will actually call \code{setParams()} to recalculate any of the
 other parameters that are affected by the change in the species parameter.
 
-\code{setParams()} will use the species parameters in the \code{params} object to recalculate
-the values of all the model functions that you do not specify explicitly when
-calling this function, unless you have protected the corresponding slots with
-a comment. If you have changed any of the model functions in the
-\code{params} object previously and now want to make changes to a different slot,
-you will want to call the appropriate change function individually. So in the
-above example you would have used \code{params <- setSearchVolume(params)}
-instead of \code{params <- setParams(params)}.
-
-If you have added a comment to a slot of the params object, then setParams()
-and its subfunctions will not recalculate the value for that slot from the
-species parameters. For example\preformatted{comment(params@search_vol) <- "This should not change"
-species_params(params)$gamma <- 10
-}
-
-will just issue a warning "The search volume has been commented and therefore
-will not be recalculated from the species parameters". You can remove the
-comment, and therefore allow recalculation of the slot, with
-\code{comment(params@search_vol) <- NULL}.
+\code{setParams()} will use the species parameters in the \code{params} object to
+recalculate the values of all the model functions except those for which you have set custom
+values.
 }
 \section{Units in mizer}{
 

@@ -332,24 +332,9 @@ the <code>gamma</code> parameter of the third species:</p><pre><span class='fu'>
 
 <p>Internally that will actually call <code>setParams()</code> to recalculate any of the
 other parameters that are affected by the change in the species parameter.</p>
-<p><code>setParams()</code> will use the species parameters in the <code>params</code> object to recalculate
-the values of all the model functions that you do not specify explicitly when
-calling this function, unless you have protected the corresponding slots with
-a comment. If you have changed any of the model functions in the
-<code>params</code> object previously and now want to make changes to a different slot,
-you will want to call the appropriate change function individually. So in the
-above example you would have used <code>params &lt;- setSearchVolume(params)</code>
-instead of <code>params &lt;- setParams(params)</code>.</p>
-<p>If you have added a comment to a slot of the params object, then setParams()
-and its subfunctions will not recalculate the value for that slot from the
-species parameters. For example</p><pre><span class='fu'><a href='https://rdrr.io/r/base/comment.html'>comment</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>@</span><span class='va'>search_vol</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='st'>"This should not change"</span>
-<span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>gamma</span> <span class='op'>&lt;-</span> <span class='fl'>10</span>
-</pre>
-
-<p>will just issue a warning "The search volume has been commented and therefore
-will not be recalculated from the species parameters". You can remove the
-comment, and therefore allow recalculation of the slot, with
-<code>comment(params@search_vol) &lt;- NULL</code>.</p>
+<p><code>setParams()</code> will use the species parameters in the <code>params</code> object to
+recalculate the values of all the model functions except those for which you have set custom
+values.</p>
     <h2 class="hasAnchor" id="units-in-mizer"><a class="anchor" href="#units-in-mizer"></a>Units in mizer</h2>
 
     

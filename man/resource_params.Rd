@@ -15,15 +15,14 @@ resource_params(params) <- value
 \item{value}{A named list of resource parameters.}
 }
 \description{
-These functions allow you to get or set the resource parameters stored in
-a MizerParams object.
-The resource parameters are stored as a named list with the slot names
-\code{r_pp}, \code{kappa}, \code{lambda}, \code{n}, \code{w_pp_cutoff}. For their meaning see
-\code{\link[=setResource]{setResource()}}. If you change these parameters then this will
-recalculate the resource rate and the resource capacity, unless you have
-protected these with comments. If you have specified a different
-resource dynamics function that requires additional parameters, then these
-should also be added to the \code{resource_params} list.
+These functions allow you to get or set the resource parameters stored in a
+MizerParams object. The resource parameters are stored as a named list with
+the slot names \code{r_pp}, \code{kappa}, \code{lambda}, \code{n}, \code{w_pp_cutoff}. For their
+meaning see \code{\link[=setResource]{setResource()}}. If you change these parameters then this will
+recalculate the resource rate and the resource capacity, unless you have set
+custom values for these. If you have specified a different resource dynamics
+function that requires additional parameters, then these should also be added
+to the \code{resource_params} list.
 }
 \examples{
 resource_params(NS_params)

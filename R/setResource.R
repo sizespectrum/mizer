@@ -176,15 +176,14 @@ getResourceDynamics <- function(params) {
 
 #' Resource parameters
 #' 
-#' These functions allow you to get or set the resource parameters stored in
-#' a MizerParams object.
-#' The resource parameters are stored as a named list with the slot names
-#' `r_pp`, `kappa`, `lambda`, `n`, `w_pp_cutoff`. For their meaning see
-#' [setResource()]. If you change these parameters then this will
-#' recalculate the resource rate and the resource capacity, unless you have
-#' protected these with comments. If you have specified a different 
-#' resource dynamics function that requires additional parameters, then these
-#' should also be added to the `resource_params` list.
+#' These functions allow you to get or set the resource parameters stored in a
+#' MizerParams object. The resource parameters are stored as a named list with
+#' the slot names `r_pp`, `kappa`, `lambda`, `n`, `w_pp_cutoff`. For their
+#' meaning see [setResource()]. If you change these parameters then this will
+#' recalculate the resource rate and the resource capacity, unless you have set
+#' custom values for these. If you have specified a different resource dynamics
+#' function that requires additional parameters, then these should also be added
+#' to the `resource_params` list.
 #' 
 #' @param params A MizerParams object
 #' @export

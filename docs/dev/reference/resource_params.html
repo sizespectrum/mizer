@@ -53,16 +53,19 @@
 
 
 <meta property="og:title" content="Resource parameters — resource_params" />
-<meta property="og:description" content="These functions allow you to get or set the resource parameters stored in
-a MizerParams object.
-The resource parameters are stored as a named list with the slot names
-r_pp, kappa, lambda, n, w_pp_cutoff. For their meaning see
-setResource(). If you change these parameters then this will
-recalculate the resource rate and the resource capacity, unless you have
-protected these with comments. If you have specified a different
-resource dynamics function that requires additional parameters, then these
-should also be added to the resource_params list." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:description" content="These functions allow you to get or set the resource parameters stored in a
+MizerParams object. The resource parameters are stored as a named list with
+the slot names r_pp, kappa, lambda, n, w_pp_cutoff. For their
+meaning see setResource(). If you change these parameters then this will
+recalculate the resource rate and the resource capacity, unless you have set
+custom values for these. If you have specified a different resource dynamics
+function that requires additional parameters, then these should also be added
+to the resource_params list." />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 <meta name="robots" content="noindex">
@@ -94,7 +97,7 @@ should also be added to the resource_params list." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9002</span>
       </span>
     </div>
 
@@ -208,15 +211,14 @@ should also be added to the resource_params list." />
     </div>
 
     <div class="ref-description">
-    <p>These functions allow you to get or set the resource parameters stored in
-a MizerParams object.
-The resource parameters are stored as a named list with the slot names
-<code>r_pp</code>, <code>kappa</code>, <code>lambda</code>, <code>n</code>, <code>w_pp_cutoff</code>. For their meaning see
-<code><a href='setResource.html'>setResource()</a></code>. If you change these parameters then this will
-recalculate the resource rate and the resource capacity, unless you have
-protected these with comments. If you have specified a different
-resource dynamics function that requires additional parameters, then these
-should also be added to the <code>resource_params</code> list.</p>
+    <p>These functions allow you to get or set the resource parameters stored in a
+MizerParams object. The resource parameters are stored as a named list with
+the slot names <code>r_pp</code>, <code>kappa</code>, <code>lambda</code>, <code>n</code>, <code>w_pp_cutoff</code>. For their
+meaning see <code><a href='setResource.html'>setResource()</a></code>. If you change these parameters then this will
+recalculate the resource rate and the resource capacity, unless you have set
+custom values for these. If you have specified a different resource dynamics
+function that requires additional parameters, then these should also be added
+to the <code>resource_params</code> list.</p>
     </div>
 
     <pre class="usage"><span class='fu'>resource_params</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
