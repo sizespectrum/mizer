@@ -107,7 +107,7 @@
 #'   "[BevertonHoltRDD()]".
 #' @param ... Unused
 #' 
-#' @return `setReproduction`: A MizerParams object with updated reproduction
+#' @return `setReproduction()`: A MizerParams object with updated reproduction
 #'   parameters.
 #' @export
 #' @family functions for setting parameters
@@ -337,7 +337,7 @@ setReproduction <- function(params, maturity = NULL,
 }
 
 #' @rdname setReproduction
-#' @return For `getMaturityProportion()`: 
+#' @return `getMaturityProportion()` or equivalently `maturity(): 
 #'   An array (species x size) that holds the proportion
 #'   of individuals of each species at size that are mature.
 #' @export
@@ -359,7 +359,7 @@ maturity <- function(params) {
 }
 
 #' @rdname setReproduction
-#' @return For `getReproductionProportion`:
+#' @return `getReproductionProportion()` or equivalently `repro_prop()`:
 #'   An array (species x size) that holds the
 #'   proportion of consumed energy that a mature individual allocates to
 #'   reproduction for each species at size. For sizes where the maturity

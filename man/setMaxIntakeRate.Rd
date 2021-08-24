@@ -31,8 +31,11 @@ custom value has been set.}
 \item{...}{Unused}
 }
 \value{
-\code{setReproduction}: A MizerParams object with updated maximum
+\code{setReproduction()}: A MizerParams object with updated maximum
 intake rate.
+
+\code{getMaxIntakeRate()} or equivalently \code{intake_max()}: An array
+(species x size) with the maximum intake rate.
 }
 \description{
 Set maximum intake rate

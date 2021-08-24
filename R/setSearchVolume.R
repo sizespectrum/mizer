@@ -36,7 +36,7 @@
 #'   value has been set.
 #' @param ... Unused
 #' 
-#' @return `setReproduction`: A MizerParams object with updated search volume.
+#' @return `setSearchVolume()`: A MizerParams object with updated search volume.
 #' @export
 #' @family functions for setting parameters
 setSearchVolume <- function(params, search_vol = NULL, reset = FALSE, ...) {
@@ -99,6 +99,8 @@ setSearchVolume <- function(params, search_vol = NULL, reset = FALSE, ...) {
 }
 
 #' @rdname setSearchVolume
+#' @return `getSearchVolume()` or equivalently `search_vol()`: An array (species
+#'   x size) holding the search volume
 #' @export
 getSearchVolume <- function(params) {
     params@search_vol

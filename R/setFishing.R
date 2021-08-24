@@ -99,7 +99,7 @@
 #'   value has been set.
 #' @param ... Unused
 #'   
-#' @return `setFishing`: A MizerParams object with updated fishing
+#' @return `setFishing()`: A MizerParams object with updated fishing
 #'   parameters.
 #' @export
 #' @seealso [gear_params()]
@@ -320,7 +320,7 @@ gear_params <- function(params) {
 }
 
 #' @rdname setFishing
-#' @return For `getCatchability()`: An array (gear x species) that holds the catchability of
+#' @return `getCatchability()` or equivalently `catchability()`: An array (gear x species) that holds the catchability of
 #'   each species by each gear, \eqn{Q_{g,i}}.
 #'   The names of the dimensions are "gear, "sp".
 #' @export
@@ -343,7 +343,7 @@ catchability <- function(params) {
 }
 
 #' @rdname setFishing
-#' @return For `getSelectivity()`: An array (gear x species x size) that holds
+#' @return `getSelectivity()` or equivalently `selectivity()`: An array (gear x species x size) that holds
 #'   the selectivity of each gear for species and size, \eqn{S_{g,i,w}}.
 #'   The names of the dimensions are "gear, "sp", "w".
 #' @export
@@ -366,7 +366,7 @@ selectivity <- function(params) {
 }
 
 #' @rdname setFishing
-#' @return For `getInitialEffort()`: A named vector with the initial fishing
+#' @return `getInitialEffort()` or equivalently `initial_effort()`: A named vector with the initial fishing
 #'   effort for each gear.
 #' @export
 #' @examples

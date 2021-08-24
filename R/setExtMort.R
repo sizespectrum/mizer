@@ -37,7 +37,7 @@
 #'   be confused with the species_parameter `z0`.
 #' @param ... Unused
 #' 
-#' @return `setExtMort`: A MizerParams object with updated external mortality 
+#' @return `setExtMort()`: A MizerParams object with updated external mortality 
 #'   rate.
 #' @export
 #' @family functions for setting parameters
@@ -118,8 +118,8 @@ setExtMort <- function(params, ext_mort = NULL,
 }
 
 #' @rdname setExtMort
-#' @return `getExtMort`: An array (species x size) with dimension names "sp"
-#'   and "w".
+#' @return `getExtMort()` or equivalently `ext_mort()`: An array (species x
+#'   size) with the external mortality.
 #' @export
 getExtMort <- function(params) {
     params@mu_b

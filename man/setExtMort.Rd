@@ -49,11 +49,11 @@ be confused with the species_parameter \code{z0}.}
 \item{...}{Unused}
 }
 \value{
-\code{setExtMort}: A MizerParams object with updated external mortality
+\code{setExtMort()}: A MizerParams object with updated external mortality
 rate.
 
-\code{getExtMort}: An array (species x size) with dimension names "sp"
-and "w".
+\code{getExtMort()} or equivalently \code{ext_mort()}: An array (species x
+size) with the external mortality.
 }
 \description{
 Set external mortality rate

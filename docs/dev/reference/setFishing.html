@@ -218,9 +218,21 @@
 
 <span class='fu'>getCatchability</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
 
+<span class='fu'>catchability</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>catchability</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span>
+
 <span class='fu'>getSelectivity</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
 
-<span class='fu'>getInitialEffort</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
+<span class='fu'>selectivity</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>selectivity</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span>
+
+<span class='fu'>getInitialEffort</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>initial_effort</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>initial_effort</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -261,18 +273,15 @@ a vector, must be named by gear.</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>MizerParams object with updated catchability and selectivity. Because
-of the way the R language works, <code>setFishing()</code> does not make the changes
-to the params object that you pass to it but instead returns a new params
-object. So to affect the change you call the function in the form
-<code>params &lt;- setFishing(params, ...)</code>.</p>
-<p>For <code>getCatchability()</code>: An array (gear x species) that holds the catchability of
+    <p><code>setFishing()</code>: A MizerParams object with updated fishing
+parameters.</p>
+<p><code>getCatchability()</code> or equivalently <code>catchability()</code>: An array (gear x species) that holds the catchability of
 each species by each gear, \(Q_{g,i}\).
 The names of the dimensions are "gear, "sp".</p>
-<p>For <code>getSelectivity()</code>: An array (gear x species x size) that holds
+<p><code>getSelectivity()</code> or equivalently <code>selectivity()</code>: An array (gear x species x size) that holds
 the selectivity of each gear for species and size, \(S_{g,i,w}\).
 The names of the dimensions are "gear, "sp", "w".</p>
-<p>For <code>getInitialEffort()</code>: A named vector with the initial fishing
+<p><code>getInitialEffort()</code> or equivalently <code>initial_effort()</code>: A named vector with the initial fishing
 effort for each gear.</p>
     <h2 class="hasAnchor" id="setting-fishing"><a class="anchor" href="#setting-fishing"></a>Setting fishing</h2>
 

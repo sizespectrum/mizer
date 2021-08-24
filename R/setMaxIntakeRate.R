@@ -27,7 +27,7 @@
 #'   custom value has been set.
 #' @param ... Unused
 #' 
-#' @return `setReproduction`: A MizerParams object with updated maximum
+#' @return `setReproduction()`: A MizerParams object with updated maximum
 #'   intake rate.
 #' @export
 #' @family functions for setting parameters
@@ -90,6 +90,8 @@ setMaxIntakeRate <- function(params, intake_max = NULL, reset = FALSE, ...) {
 }
 
 #' @rdname setMaxIntakeRate
+#' @return `getMaxIntakeRate()` or equivalently `intake_max()`: An array
+#'   (species x size) with the maximum intake rate.
 #' @export
 getMaxIntakeRate <- function(params) {
     params@intake_max

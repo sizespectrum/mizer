@@ -69,7 +69,7 @@
 #'   value has been set.
 #' @param ... Unused
 #' 
-#' @return `setPredKernel`: A MizerParams object with updated predation kernel.
+#' @return `setPredKernel()`: A MizerParams object with updated predation kernel.
 #' @export
 #' @family functions for setting parameters
 #' @examples
@@ -187,8 +187,8 @@ setPredKernel <- function(params,
 }
 
 #' @rdname setPredKernel
-#' @return `getPredKernel`: An array (predator species x predator_size x
-#'   prey_size)
+#' @return `getPredKernel()` or equivalently `pred_kernel()`: An array (predator
+#'   species x predator_size x prey_size)
 #' @export
 getPredKernel <- function(params) {
     # This function is more complicated than you might have thought because

@@ -56,14 +56,14 @@ reproduction rate from the density-independent rate. Defaults to
 \item{...}{Unused}
 }
 \value{
-\code{setReproduction}: A MizerParams object with updated reproduction
+\code{setReproduction()}: A MizerParams object with updated reproduction
 parameters.
 
-For \code{getMaturityProportion()}:
+\code{getMaturityProportion()} or equivalently `maturity():
 An array (species x size) that holds the proportion
 of individuals of each species at size that are mature.
 
-For \code{getReproductionProportion}:
+\code{getReproductionProportion()} or equivalently \code{repro_prop()}:
 An array (species x size) that holds the
 proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. For sizes where the maturity

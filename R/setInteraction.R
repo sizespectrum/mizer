@@ -39,20 +39,14 @@
 #'   species x prey species). Entries should be numbers between 0 and 1. By
 #'   default all entries are 1. See "Setting interactions" section below.
 #'
-#' @return MizerParams object with updated interaction matrix. Because of the
-#'   way the R language works, `setInteraction()` does not make the changes to
-#'   the params object that you pass to it but instead returns a new params
-#'   object. So to affect the change you call the function in the form
-#'   `params <- setInteraction(params, ...)`.
+#' @return `setInteraction`: A MizerParams object with updated interaction matrix
 #' @export
 #' @family functions for setting parameters
 #' @examples
-#' \dontrun{
-#' params <- newTraitParams()
-#' interaction <- getInteraction(params)
-#' interaction[1, 3] <- 0
-#' params <- setInteraction(params, interaction)
-#' }
+#' params <- newTraitParams(no_sp = 3)
+#' getInteraction(params)
+#' interaction(params)[1, 2:3] <- 0
+#' getInteraction(params)
 setInteraction <- function(params,
                            interaction = NULL) {
     assert_that(is(params, "MizerParams"))
@@ -109,6 +103,8 @@ setInteraction <- function(params,
 }
 
 #' @rdname setInteraction
+#' @return `getInteraction()` or equivalently `interaction()`: The interaction matrix
+#'   (predator species x prey species)
 #' @export
 getInteraction <- function(params) {
     params@interaction

@@ -34,7 +34,7 @@
 #'   custom value has been set.
 #' @param ... Unused
 #' 
-#' @return `setMetabolicRate`: A MizerParams object with updated metabolic rate.
+#' @return `setMetabolicRate()`: A MizerParams object with updated metabolic rate.
 #' @export
 #' @family functions for setting parameters
 setMetabolicRate <- function(params, metab = NULL, p = NULL, 
@@ -100,6 +100,8 @@ setMetabolicRate <- function(params, metab = NULL, p = NULL,
 }
 
 #' @rdname setMetabolicRate
+#' @return `getMetabolicRate()` or equivalently `metab()`: An array
+#'   (species x size) with the metabolic rate.
 #' @export
 getMetabolicRate <- function(params) {
     params@metab

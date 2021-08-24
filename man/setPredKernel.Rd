@@ -32,10 +32,10 @@ value has been set.}
 \item{...}{Unused}
 }
 \value{
-\code{setPredKernel}: A MizerParams object with updated predation kernel.
+\code{setPredKernel()}: A MizerParams object with updated predation kernel.
 
-\code{getPredKernel}: An array (predator species x predator_size x
-prey_size)
+\code{getPredKernel()} or equivalently \code{pred_kernel()}: An array (predator
+species x predator_size x prey_size)
 }
 \description{
 The predation kernel determines the distribution of prey sizes that a

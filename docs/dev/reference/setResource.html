@@ -227,9 +227,21 @@ dynamics</p>
 
 <span class='fu'>getResourceRate</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
 
+<span class='fu'>resource_rate</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>resource_rate</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span>
+
 <span class='fu'>getResourceCapacity</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
 
-<span class='fu'>getResourceDynamics</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
+<span class='fu'>resource_capacity</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>resource_capacity</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span>
+
+<span class='fu'>getResourceDynamics</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>resource_dynamics</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>resource_dynamics</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -292,11 +304,7 @@ want to use the default <code><a href='resource_semichemostat.html'>resource_sem
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A MizerParams object with updated resource parameters. Because of the
-way the R language works, <code>setResource()</code> does not make the changes to the
-params object that you pass to it but instead returns a new params object.
-So to affect the change you call the function in the form
-<code>params &lt;- setResource(params, ...)</code>.</p>
+    <p><code>setResource</code>: A MizerParams object with updated resource parameters</p>
     <h2 class="hasAnchor" id="setting-resource-dynamics"><a class="anchor" href="#setting-resource-dynamics"></a>Setting resource dynamics</h2>
 
     
