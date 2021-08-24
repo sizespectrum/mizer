@@ -1,6 +1,5 @@
-params <- NS_params
-
 test_that("We can set and get resource parameters", {
+  params <- NS_params
   rp <- resource_params(params)
   expect_identical(rp, params@resource_params)
   # Check that when called without parameters it leaves the params untouched
@@ -64,27 +63,68 @@ test_that("We can set and get resource parameters", {
   expect_identical(NS_params, params)
 })
 
-test_that("setResource sets comments correctly", {
-  rate <- getResourceRate(params)
-  capacity <- getResourceCapacity(params)
-  # The comment arguments are ignored when the values are already commented
-  comment(rate) <- "testr"
-  comment(capacity) <- "testc"
-  params <- setResource(params, resource_rate = rate,
-                        comment_rate = "overwriter",
-                        resource_capacity = capacity,
-                        comment_capacity = "overwritec")
-  expect_identical(comment(params@rr_pp), "testr")
-  expect_identical(comment(params@cc_pp), "testc")
-  # But otherwise the comment arguments are stored correctly.
-  comment(rate) <- NULL
-  comment(capacity) <- NULL
-  params <- setResource(params, resource_rate = rate,
-                        comment_rate = "overwriter",
-                        resource_capacity = capacity,
-                        comment_capacity = "overwritec")
-  expect_identical(comment(params@rr_pp), "overwriter")
-  expect_identical(comment(params@cc_pp), "overwritec")
+test_that("Comment works on resource_rate", {
+  params <- NS_params
+  # if no comment, it is set automatically
+  resource_rate <- params@rr_pp
+  params <- setResource(params, resource_rate = resource_rate)
+  expect_identical(comment(params@rr_pp), "set manually")
+  
+  # comment is stored
+  comment(resource_rate) <- "test"
+  params <- setResource(params, resource_rate = resource_rate)
+  expect_identical(comment(params@rr_pp), "test")
+  
+  # if no comment, previous comment is kept
+  comment(resource_rate) <- NULL
+  params <- setResource(params, resource_rate = resource_rate)
+  expect_identical(comment(params@rr_pp), "test")
+  
+  # no message when nothing changes
+  expect_message(setResource(params), NA)
+  # but message when a change is not stored due to comment
+  params@resource_params$r_pp <- 1
+  expect_message(setResource(params),  "has been commented")
+  # Can reset
+  p <- setResource(params, reset = TRUE)
+  expect_equal(p@rr_pp[1], 
+               params@w_full[1] ^ (params@resource_params$n - 1),
+               check.attributes = FALSE)
+  expect_warning(setResource(params, resource_rate = resource_rate,
+                                  reset = TRUE),
+                 "Because you set `reset = TRUE`, the")
+})
+
+test_that("Comment works on resource_capacity", {
+  params <- NS_params
+  # if no comment, it is set automatically
+  resource_capacity <- params@cc_pp
+  params <- setResource(params, resource_capacity = resource_capacity)
+  expect_identical(comment(params@cc_pp), "set manually")
+  
+  # comment is stored
+  comment(resource_capacity) <- "test"
+  params <- setResource(params, resource_capacity = resource_capacity)
+  expect_identical(comment(params@cc_pp), "test")
+  
+  # if no comment, previous comment is kept
+  comment(resource_capacity) <- NULL
+  params <- setResource(params, resource_capacity = resource_capacity)
+  expect_identical(comment(params@cc_pp), "test")
+  
+  # no message when nothing changes
+  expect_message(setResource(params), NA)
+  # but message when a change is not stored due to comment
+  params@resource_params$kappa <- 1
+  expect_message(setResource(params),  "has been commented")
+  # Can reset
+  p <- setResource(params, reset = TRUE)
+  expect_equal(p@cc_pp[1], 
+               params@w_full[1] ^ (-params@resource_params$lambda),
+               check.attributes = FALSE)
+  expect_warning(setResource(params, resource_capacity = resource_capacity,
+                             reset = TRUE),
+                 "Because you set `reset = TRUE`, the")
 })
 
 test_that("setResource gives error", {

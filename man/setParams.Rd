@@ -20,40 +20,20 @@ default all entries are 1. See "Setting interactions" section below.}
 that holds the predation coefficient of each predator at size on each prey
 size. If not supplied, a default is set as described in section "Setting
 predation kernel".}
-    \item{\code{comment_pred_kernel}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'pred_kernel' was obtained. This is
-ignored if 'pred_kernel' is not supplied or already has a comment
-attribute.}
     \item{\code{search_vol}}{Optional. An array (species x size) holding the search volume
 for each species at size. If not supplied, a default is set as described in
 the section "Setting search volume".}
-    \item{\code{comment_search_vol}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'search_vol' was obtained. This is
-ignored if 'search_vol' is not supplied or already has a comment
-attribute.}
     \item{\code{intake_max}}{Optional. An array (species x size) holding the maximum
 intake rate for each species at size. If not supplied, a default is set as
 described in the section "Setting maximum intake rate".}
-    \item{\code{comment_intake_max}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'intake_max' was obtained. This is
-ignored if 'intake_max' is not supplied or already has a comment
-attribute.}
     \item{\code{metab}}{Optional. An array (species x size) holding the metabolic rate
 for each species at size. If not supplied, a default is set as described in
 the section "Setting metabolic rate".}
     \item{\code{p}}{The allometric metabolic exponent. This is only used if \code{metab}
 is not given explicitly and if the exponent is not specified in a \code{p}
 column in the \code{species_params}.}
-    \item{\code{comment_metab}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'metab' was obtained. This is
-ignored if 'metab' is not supplied or already has a comment
-attribute.}
     \item{\code{z0}}{Optional. An array (species x size) holding the external
 mortality rate.}
-    \item{\code{comment_z0}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'z0' was obtained. This is
-ignored if 'z0' is not supplied or already has a comment
-attribute.}
     \item{\code{z0pre}}{If \code{z0}, the mortality from other sources, is not a column
 in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 Default value is 0.6.}
@@ -63,18 +43,10 @@ Default value is \code{n-1}.}
     \item{\code{maturity}}{Optional. An array (species x size) that holds the proportion
 of individuals of each species at size that are mature. If not supplied, a
 default is set as described in the section "Setting reproduction".}
-    \item{\code{comment_maturity}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'maturity' was obtained. This is
-ignored if 'maturity' is not supplied or already has a comment
-attribute.}
     \item{\code{repro_prop}}{Optional. An array (species x size) that holds the
 proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".}
-    \item{\code{comment_repro_prop}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'repro_prop' was obtained. This is
-ignored if 'repro_prop' is not supplied or already has a comment
-attribute.}
     \item{\code{RDD}}{The name of the function calculating the density-dependent
 reproduction rate from the density-independent rate. Defaults to
 "\code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}".}
@@ -85,25 +57,9 @@ each species by each gear, \eqn{Q_{g,i}}.}
     \item{\code{initial_effort}}{Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.}
-    \item{\code{comment_selectivity}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'selectivity' was obtained. This is
-ignored if 'selectivity' is not supplied or already has a comment
-attribute.}
-    \item{\code{comment_catchability}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'catchability' was obtained. This is
-ignored if 'catchability' is not supplied or already has a comment
-attribute.}
     \item{\code{resource_rate}}{Optional. Vector of resource intrinsic birth rates}
-    \item{\code{comment_rate}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'resource_rate' was obtained. This is
-ignored if 'resource_rate' is not supplied or already has a comment
-attribute.}
     \item{\code{resource_capacity}}{Optional. Vector of resource intrinsic carrying
 capacity}
-    \item{\code{comment_capacity}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'resource_capacity' was obtained. This is
-ignored if 'resource_capacity' is not supplied or already has a comment
-attribute.}
     \item{\code{r_pp}}{Coefficient of the intrinsic resource birth rate}
     \item{\code{n}}{Allometric growth exponent for resource}
     \item{\code{kappa}}{Coefficient of the intrinsic resource carrying capacity}
@@ -160,25 +116,9 @@ the \code{gamma} parameter of the third species:\preformatted{species_params(par
 Internally that will actually call \code{setParams()} to recalculate any of the
 other parameters that are affected by the change in the species parameter.
 
-\code{setParams()} will use the species parameters in the \code{params} object to recalculate
-the values of all the model functions that you do not specify explicitly when
-calling this function, unless you have protected the corresponding slots with
-a comment. If you have changed any of the model functions in the
-\code{params} object previously and now want to make changes to a different slot,
-you will want to call the appropriate change function individually. So in the
-above example you would have used \code{params <- setSearchVolume(params)}
-instead of \code{params <- setParams(params)}.
-
-If you have added a comment to a slot of the params object, then setParams()
-and its subfunctions will not recalculate the value for that slot from the
-species parameters. For example\preformatted{comment(params@search_vol) <- "This should not change"
-species_params(params)$gamma <- 10
-}
-
-will just issue a warning "The search volume has been commented and therefore
-will not be recalculated from the species parameters". You can remove the
-comment, and therefore allow recalculation of the slot, with
-\code{comment(params@search_vol) <- NULL}.
+\code{setParams()} will use the species parameters in the \code{params} object to
+recalculate the values of all the model functions except those for which you have set custom
+values.
 }
 \section{Units in mizer}{
 

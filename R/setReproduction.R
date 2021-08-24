@@ -93,18 +93,15 @@
 #' @param maturity Optional. An array (species x size) that holds the proportion
 #'   of individuals of each species at size that are mature. If not supplied, a
 #'   default is set as described in the section "Setting reproduction".
-#' @param comment_maturity `r lifecycle::badge("experimental")`
-#'   A string describing how the value for 'maturity' was obtained. This is
-#'   ignored if 'maturity' is not supplied or already has a comment
-#'   attribute.
 #' @param repro_prop Optional. An array (species x size) that holds the
 #'   proportion of consumed energy that a mature individual allocates to
 #'   reproduction for each species at size. If not supplied, a default is set as
 #'   described in the section "Setting reproduction".
-#' @param comment_repro_prop `r lifecycle::badge("experimental")`
-#'   A string describing how the value for 'repro_prop' was obtained. This is
-#'   ignored if 'repro_prop' is not supplied or already has a comment
-#'   attribute.
+#' @param reset If set to TRUE, then both `maturity` and `repro_prop` will be
+#'   reset to the value calculated from the species parameters, even if they
+#'   were previously overwritten with custom values. If set to FALSE (default)
+#'   then a recalculation from the species parameters will take place only if no
+#'   custom values have been set.
 #' @param RDD The name of the function calculating the density-dependent 
 #'   reproduction rate from the density-independent rate. Defaults to 
 #'   "[BevertonHoltRDD()]".
@@ -133,18 +130,34 @@
 #' library(ggplot2)
 #' ggplot(dff) + geom_line(aes(x = Size, y = Proportion, colour = Type))
 #' }
-setReproduction <- function(params, maturity = NULL, 
-                            comment_maturity = "set manually",
-                            repro_prop = NULL, 
-                            comment_repro_prop = "set manually",
+setReproduction <- function(params, maturity = NULL,
+                            repro_prop = NULL, reset = FALSE,
                             RDD = NULL, ...) {
     # check arguments ----
-    assert_that(is(params, "MizerParams"))
+    assert_that(is(params, "MizerParams"),
+                is.logical(reset))
     if (is.null(RDD)) RDD <- params@rates_funcs[["RDD"]]
     assert_that(is.string(RDD),
                 exists(RDD),
                 is.function(get(RDD)))
     species_params <- params@species_params
+    
+    if (reset) {
+        if (!is.null(maturity)) {
+            warning("Because you set `reset = TRUE`, the value you provided ", 
+                    "for `maturity` will be ignored and a value will be ",
+                    "calculated from the species parameters.")
+            maturity <- NULL
+        }
+        comment(params@maturity) <- NULL
+        if (!is.null(repro_prop)) {
+            warning("Because you set `reset = TRUE`, the value you provided ", 
+                    "for `repro_prop` will be ignored and a value will be ",
+                    "calculated from the species parameters.")
+            repro_prop <- NULL
+        }
+        comment(params@psi) <- NULL
+    }
     
     # Check maximum sizes
     if (!("w_inf" %in% colnames(species_params))) {
@@ -175,7 +188,11 @@ setReproduction <- function(params, maturity = NULL,
                  "params object: ", toString(species_params$species))
         }
         if (is.null(comment(maturity))) {
-            comment(maturity) <- comment_maturity
+            if (is.null(comment(params@maturity))) {
+                comment(maturity) <- "set manually"
+            } else {
+                comment(maturity) <- comment(params@maturity)
+            }
         }
     } else {
         # Check maturity sizes
@@ -250,7 +267,11 @@ setReproduction <- function(params, maturity = NULL,
                  "params object: ", toString(species_params$species))
         }
         if (is.null(comment(repro_prop))) {
-            comment(repro_prop) <- comment_repro_prop
+            if (is.null(comment(params@psi))) {
+                comment(repro_prop) <- "set manually"
+            } else {
+                comment(repro_prop) <- comment(params@psi)
+            }
         }
     } else {
         # Set defaults for m

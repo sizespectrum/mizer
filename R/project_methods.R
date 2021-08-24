@@ -173,10 +173,9 @@ mizerEncounter <- function(params, n, n_pp, n_other, t, ...) {
     # params@w_full[idx_sp] = params@w
     idx_sp <- (length(params@w_full) - length(params@w) + 1):length(params@w_full)
     
-    # If the feeding kernel does not have a fixed predator/prey mass ratio
-    # then the integral is not a convolution integral and we can not use fft.
+    # If the the user has set a custom pred_kernel we can not use fft.
     # In this case we use the code from mizer version 0.3
-    if (length(params@ft_pred_kernel_e) == 1) {
+    if (!is.null(comment(params@pred_kernel))) {
         # n_eff_prey is the total prey abundance by size exposed to each
         # predator (prey not broken into species - here we are just working out
         # how much a predator eats - not which species are being eaten - that is
@@ -456,10 +455,9 @@ mizerPredRate <- function(params, n, n_pp, n_other, t, feeding_level, ...) {
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
     
-    # If the feeding kernel does not have a fixed predator/prey mass ratio
-    # then the integral is not a convolution integral and we can not use fft.
+    # If the the user has set a custom pred_kernel we can not use fft.
     # In this case we use the code from mizer version 0.3
-    if (length(params@ft_pred_kernel_p) == 1) {
+    if (!is.null(comment(params@pred_kernel))) {
         n_total_in_size_bins <- sweep(n, 2, params@dw, '*', check.margin = FALSE)
         # The next line is a bottle neck
         pred_rate <- sweep(params@pred_kernel, c(1,2),

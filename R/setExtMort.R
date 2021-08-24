@@ -22,10 +22,11 @@
 #' @param params MizerParams
 #' @param z0 Optional. An array (species x size) holding the external
 #'   mortality rate.
-#' @param comment_z0 `r lifecycle::badge("experimental")`
-#'   A string describing how the value for 'z0' was obtained. This is
-#'   ignored if 'z0' is not supplied or already has a comment
-#'   attribute.
+#' @param reset If set to TRUE, then the external mortality rate will be reset
+#'   to the value calculated from the species parameters, even if it was
+#'   previously overwritten with a custom value. If set to FALSE (default) then
+#'   a recalculation from the species parameters will take place only if no
+#'   custom value has been set.
 #' @param z0pre If `z0`, the mortality from other sources, is not a column
 #'   in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 #'   Default value is 0.6.
@@ -58,11 +59,27 @@
 #' params <- setExtMort(params, z0 = z0)
 #' }
 setExtMort <- function(params, z0 = NULL, z0pre = 0.6, z0exp = -1/4,
-                       comment_z0 = "set manually",  ...) {
-    assert_that(is(params, "MizerParams"))
+                       reset = FALSE,  ...) {
+    assert_that(is(params, "MizerParams"),
+                is.logical(reset))
+    
+    if (reset) {
+        if (!is.null(z0)) {
+            warning("Because you set `reset = TRUE`, the value you provided ", 
+                    "for `z0` will be ignored and a value will be ",
+                    "calculated from the species parameters.")
+            z0 <- NULL
+        }
+        comment(params@mu_b) <- NULL
+    }
+    
     if (!is.null(z0)) {
         if (is.null(comment(z0))) {
-            comment(z0) <- comment_z0
+            if (is.null(comment(params@mu_b))) {
+                comment(z0) <- "set manually"
+            } else {
+                comment(z0) <- comment(params@mu_b)
+            }
         }
         assert_that(is.array(z0),
                     identical(dim(z0), dim(params@mu_b)))

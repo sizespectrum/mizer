@@ -92,14 +92,11 @@
 #' @param initial_effort Optional. A number or a named numeric vector specifying
 #'   the fishing effort. If a number, the same effort is used for all gears. If
 #'   a vector, must be named by gear.
-#' @param comment_selectivity `r lifecycle::badge("experimental")`
-#'   A string describing how the value for 'selectivity' was obtained. This is
-#'   ignored if 'selectivity' is not supplied or already has a comment
-#'   attribute.
-#' @param comment_catchability `r lifecycle::badge("experimental")`
-#'   A string describing how the value for 'catchability' was obtained. This is
-#'   ignored if 'catchability' is not supplied or already has a comment
-#'   attribute.
+#' @param reset If set to TRUE, then both `catchability` and `selectivity` will
+#'   be reset to the values calculated from the gear parameters, even if it was
+#'   previously overwritten with a custom value. If set to FALSE (default) then
+#'   a recalculation from the gear parameters will take place only if no custom
+#'   value has been set.
 #' @param ... Unused
 #'   
 #' @return MizerParams object with updated catchability and selectivity. Because
@@ -110,11 +107,11 @@
 #' @export
 #' @seealso [gear_params()]
 #' @family functions for setting parameters
-setFishing <- function(params, selectivity = NULL, catchability = NULL, 
-                       comment_selectivity = "set manually", 
-                       comment_catchability = "set manually", 
+setFishing <- function(params, selectivity = NULL, catchability = NULL,
+                       reset = FALSE,
                        initial_effort = NULL, ...) {
-    assert_that(is(params, "MizerParams"))
+    assert_that(is(params, "MizerParams"),
+                is.logical(reset))
     species_params <- params@species_params
     gear_params <- params@gear_params
     sp_names <- as.character(species_params$species)
@@ -123,6 +120,39 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
     no_w <- length(params@w)
     gear_names <- as.character(unique(gear_params$gear))
     no_gears <- length(gear_names)
+    
+    if (reset) {
+        if (!is.null(selectivity)) {
+            warning("Because you set `reset = TRUE`, the value you provided ", 
+                    "for `selectivity` will be ignored and a value will be ",
+                    "calculated from the gear parameters.")
+            selectivity <- NULL
+        }
+        comment(params@selectivity) <- NULL
+        if (!is.null(catchability)) {
+            warning("Because you set `reset = TRUE`, the value you provided ", 
+                    "for `catchability` will be ignored and a value will be ",
+                    "calculated from the gear parameters.")
+            catchability <- NULL
+        }
+        comment(params@catchability) <- NULL
+    }
+    
+    if (!is.null(selectivity) && is.null(comment(selectivity))) {
+        if (is.null(comment(params@selectivity))) {
+            comment(selectivity) <- "set manually"
+        } else {
+            comment(selectivity) <- comment(params@selectivity)
+        }
+    }
+    if (!is.null(catchability) && is.null(comment(catchability))) {
+        if (is.null(comment(params@catchability))) {
+            comment(catchability) <- "set manually"
+        } else {
+            comment(catchability) <- comment(params@catchability)
+        }
+    }
+    
     # The number of gears could be set by the catchability array
     if (!is.null(catchability) && (dim(catchability)[[1]] != no_gears)) {
         if (is.null(selectivity)) {
@@ -143,9 +173,6 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
     }
     
     if (!is.null(selectivity)) {
-        if (is.null(comment(selectivity))) {
-            comment(selectivity) <- comment_selectivity
-        }
         assert_that(length(dim(selectivity)) == 3,
                     dim(selectivity)[[1]] == no_gears,
                     dim(selectivity)[[2]] == no_sp,
@@ -202,18 +229,15 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
             selectivity[gear, species, ] <- sel
         }
         if (!is.null(comment(params@selectivity)) &&
-            !identical(selectivity, params@selectivity)) {
+            different(selectivity, params@selectivity)) {
             message("The selectivity has been commented and therefore will ",
-                    "not be recalculated from the species parameters.")
+                    "not be recalculated from the gear parameters.")
         } else {
             params@selectivity <- selectivity
         }
     }
     
     if (!is.null(catchability)) {
-        if (is.null(comment(catchability))) {
-            comment(catchability) <- comment_catchability
-        }
         assert_that(length(dim(catchability)) == 2,
                     dim(catchability)[[2]] == no_sp)
         # Check dimnames if they were provided, otherwise set them
@@ -245,9 +269,9 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
                 gear_params$catchability[[g]]
         }
         if (!is.null(comment(params@catchability)) &&
-            !identical(catchability, params@catchability)) {
+            different(catchability, params@catchability)) {
             message("The catchability has been commented and therefore will ",
-                    "not be updated from the species parameters.")
+                    "not be updated from the gear parameters.")
         } else {
             params@catchability <- catchability
         }
@@ -280,7 +304,7 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
 #' 
 #' If you change a gear parameter, this will be used to recalculate the
 #' `selectivity` and `catchability` arrays by calling [setFishing()],
-#' unless you have protected these with comments.
+#' unless you have previously set these by hand.
 #' @param params A MizerParams object
 #' @export
 #' @family functions for setting parameters

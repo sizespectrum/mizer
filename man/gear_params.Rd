@@ -27,7 +27,7 @@ species. For the details see \code{\link[=setFishing]{setFishing()}}.
 
 If you change a gear parameter, this will be used to recalculate the
 \code{selectivity} and \code{catchability} arrays by calling \code{\link[=setFishing]{setFishing()}},
-unless you have protected these with comments.
+unless you have previously set these by hand.
 }
 \seealso{
 \code{\link[=validGearParams]{validGearParams()}}

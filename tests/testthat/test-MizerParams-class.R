@@ -67,7 +67,6 @@ test_that("Slots are allowed to have comments", {
         comment(slot(params, slot)) <- slot
     }
     expect_error(validObject(params), NA)
-    expect_error(project(params, t_max = 0.1), NA)
 })
 
 # setColours, getColours ----

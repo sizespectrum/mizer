@@ -5,12 +5,7 @@
 \alias{getMaxIntakeRate}
 \title{Set maximum intake rate}
 \usage{
-setMaxIntakeRate(
-  params,
-  intake_max = NULL,
-  comment_intake_max = "set manually",
-  ...
-)
+setMaxIntakeRate(params, intake_max = NULL, reset = FALSE, ...)
 
 getMaxIntakeRate(params)
 }
@@ -21,10 +16,11 @@ getMaxIntakeRate(params)
 intake rate for each species at size. If not supplied, a default is set as
 described in the section "Setting maximum intake rate".}
 
-\item{comment_intake_max}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'intake_max' was obtained. This is
-ignored if 'intake_max' is not supplied or already has a comment
-attribute.}
+\item{reset}{If set to TRUE, then the intake rate will be reset to the value
+calculated from the species parameters, even if it was previously
+overwritten with a custom value. If set to FALSE (default) then a
+recalculation from the species parameters will take place only if no
+custom value has been set.}
 
 \item{...}{Unused}
 }

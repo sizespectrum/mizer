@@ -18,30 +18,41 @@ test_that("setPredKernel works", {
     expect_error(setPredKernel(params, pred_kernel - 1),
                  "pred_kernel >= 0 are not true")
     p2 <- setPredKernel(params, pred_kernel)
-    expect_equal(p2@ft_pred_kernel_e, array())
-    expect_equal(p2@ft_pred_kernel_p, array())
     expect_equivalent(p2@pred_kernel, pred_kernel)
     expect_identical(p2@pred_kernel, getPredKernel(p2))
 })
-test_that("Comment works on pred kernel", {
-    pred_kernel <- getPredKernel(params)
-    comment(pred_kernel) <- "test"
-    params_c <- setPredKernel(params, pred_kernel = pred_kernel)
-    expect_identical(comment(params_c@pred_kernel), "test")
-})
 
-test_that("setPredKernel sets comments correctly", {
+test_that("Comment works on pred_kernel", {
+    params <- NS_params
+    # if no comment, it is set automatically
     pred_kernel <- getPredKernel(params)
-    # The comment argument is ignored when the values is already commented
+    params <- setPredKernel(params, pred_kernel = pred_kernel)
+    expect_identical(comment(params@pred_kernel), "set manually")
+    
+    # comment is stored
     comment(pred_kernel) <- "test"
-    params <- setPredKernel(params, pred_kernel = pred_kernel,
-                            comment_pred_kernel = "overwrite")
+    params <- setPredKernel(params, pred_kernel = pred_kernel)
     expect_identical(comment(params@pred_kernel), "test")
-    # But otherwise the comment arguments are stored correctly.
+    
+    # if no comment, previous comment is kept
     comment(pred_kernel) <- NULL
-    params <- setPredKernel(params, pred_kernel = pred_kernel,
-                            comment_pred_kernel = "overwrite")
-    expect_identical(comment(params@pred_kernel), "overwrite")
+    params <- setPredKernel(params, pred_kernel = pred_kernel)
+    expect_identical(comment(params@pred_kernel), "test")
+    
+    # no message when nothing changes
+    expect_message(setPredKernel(params), NA)
+    # but message when a change is not stored due to comment
+    beta <- params@species_params$beta
+    params@species_params$beta <- 1
+    expect_message(setPredKernel(params),
+                   "You have set a custom predation kernel")
+    # Can reset
+    params@species_params$beta <- beta
+    p <- setPredKernel(params, reset = TRUE)
+    expect_equal(p@pred_kernel, pred_kernel)
+    expect_warning(setPredKernel(params, pred_kernel = pred_kernel,
+                                    reset = TRUE),
+                   "Because you set `reset = TRUE`, the")
 })
 
 # getPredKernel ----

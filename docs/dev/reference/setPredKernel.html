@@ -96,7 +96,7 @@ this function." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9003</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9005</span>
       </span>
     </div>
 
@@ -219,12 +219,7 @@ the predator size and the prey size separately. Both types can be set up with
 this function.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setPredKernel</span><span class='op'>(</span>
-  <span class='va'>params</span>,
-  pred_kernel <span class='op'>=</span> <span class='cn'>NULL</span>,
-  comment_pred_kernel <span class='op'>=</span> <span class='st'>"set manually"</span>,
-  <span class='va'>...</span>
-<span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>setPredKernel</span><span class='op'>(</span><span class='va'>params</span>, pred_kernel <span class='op'>=</span> <span class='cn'>NULL</span>, reset <span class='op'>=</span> <span class='cn'>FALSE</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -241,11 +236,12 @@ size. If not supplied, a default is set as described in section "Setting
 predation kernel".</p></td>
     </tr>
     <tr>
-      <th>comment_pred_kernel</th>
-      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
-A string describing how the value for 'pred_kernel' was obtained. This is
-ignored if 'pred_kernel' is not supplied or already has a comment
-attribute.</p></td>
+      <th>reset</th>
+      <td><p>If set to TRUE, then the predation kernel will be reset to the
+value calculated from the species parameters, even if it was previously
+overwritten with a custom value. If set to FALSE (default) then a
+recalculation from the species parameters will take place only if no custom
+value has been set.</p></td>
     </tr>
     <tr>
       <th>...</th>
