@@ -3,11 +3,17 @@
 \name{setInteraction}
 \alias{setInteraction}
 \alias{getInteraction}
+\alias{interaction}
+\alias{interaction<-}
 \title{Set species interaction matrix}
 \usage{
 setInteraction(params, interaction = NULL)
 
 getInteraction(params)
+
+interaction(params)
+
+interaction(params) <- value
 }
 \arguments{
 \item{params}{MizerParams object}

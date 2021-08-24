@@ -32,3 +32,12 @@ test_that("getInteraction works", {
     p <- setInteraction(params, interaction = getInteraction(params))
     expect_identical(params, p)
 })
+
+test_that("Can get and set slot", {
+    params <- NS_params
+    interaction <- interaction(params)
+    expect_identical(interaction(params), interaction)
+    new <- interaction / 2
+    interaction(params) <- new
+    expect_identical(interaction(params), new)
+})

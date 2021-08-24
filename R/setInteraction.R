@@ -113,3 +113,15 @@ setInteraction <- function(params,
 getInteraction <- function(params) {
     params@interaction
 }
+
+#' @rdname setInteraction
+#' @export
+interaction <- function(params) {
+    params@interaction
+}
+
+#' @rdname setInteraction
+#' @export
+`interaction<-` <- function(params, value) {
+    setInteraction(params, interaction = value)
+}
