@@ -90,7 +90,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9002</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9005</span>
       </span>
     </div>
 
@@ -207,9 +207,21 @@
     <p>Set external mortality rate</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setExtMort</span><span class='op'>(</span><span class='va'>params</span>, z0 <span class='op'>=</span> <span class='cn'>NULL</span>, z0pre <span class='op'>=</span> <span class='fl'>0.6</span>, z0exp <span class='op'>=</span> <span class='op'>-</span><span class='fl'>1</span><span class='op'>/</span><span class='fl'>4</span>, reset <span class='op'>=</span> <span class='cn'>FALSE</span>, <span class='va'>...</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>setExtMort</span><span class='op'>(</span>
+  <span class='va'>params</span>,
+  ext_mort <span class='op'>=</span> <span class='cn'>NULL</span>,
+  z0pre <span class='op'>=</span> <span class='fl'>0.6</span>,
+  z0exp <span class='op'>=</span> <span class='op'>-</span><span class='fl'>1</span><span class='op'>/</span><span class='fl'>4</span>,
+  reset <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  z0 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Deprecated.html'>deprecated</a></span><span class='op'>(</span><span class='op'>)</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span>
 
-<span class='fu'>getExtMort</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
+<span class='fu'>getExtMort</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>ext_mort</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>ext_mort</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -219,7 +231,7 @@
       <td><p>MizerParams</p></td>
     </tr>
     <tr>
-      <th>z0</th>
+      <th>ext_mort</th>
       <td><p>Optional. An array (species x size) holding the external
 mortality rate.</p></td>
     </tr>
@@ -238,10 +250,15 @@ Default value is <code>n-1</code>.</p></td>
     <tr>
       <th>reset</th>
       <td><p>If set to TRUE, then the external mortality rate will be reset
-to the value calculated from the species parameters, even if it was
+to the value calculated from the <code>z0</code> parameters, even if it was
 previously overwritten with a custom value. If set to FALSE (default) then
 a recalculation from the species parameters will take place only if no
 custom value has been set.</p></td>
+    </tr>
+    <tr>
+      <th>z0</th>
+      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#deprecated'><img src='figures/lifecycle-deprecated.svg' alt='[Deprecated]' /></a> Use <code>ext_mort</code> instead. Not to
+be confused with the species_parameter <code>z0</code>.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -251,11 +268,10 @@ custom value has been set.</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>MizerParams object with updated external mortality rate. Because of
-the way the R language works, <code>setExtMort()</code> does not make the changes
-to the params object that you pass to it but instead returns a new params
-object. So to affect the change you call the function in the form
-<code>params &lt;- setExtMort(params, ...)</code>.</p>
+    <p><code>setExtMort</code>: A MizerParams object with updated external mortality
+rate.</p>
+<p><code>getExtMort</code>: An array (species x size) with dimension names "sp"
+and "w".</p>
     <h2 class="hasAnchor" id="setting-external-mortality-rate"><a class="anchor" href="#setting-external-mortality-rate"></a>Setting external mortality rate</h2>
 
     
@@ -265,12 +281,12 @@ predation by predators included in the model. The external mortality could be
 due to predation by predators that are not explicitly included in the model
 (e.g. mammals or seabirds) or due to other causes like illness. It is a rate
 with units 1/year.</p>
-<p>The <code>z0</code> argument allows you to specify an external mortality rate
+<p>The <code>ext_mort</code> argument allows you to specify an external mortality rate
 that depends on species and body size. You can see an example of this in
 the Examples section of the help page for <code>setExtMort()</code>.</p>
-<p>If the <code>z0</code> argument is not supplied, then the external mortality
+<p>If the <code>ext_mort</code> argument is not supplied, then the external mortality
 is assumed to depend only on the species, not on the
-size of the individual: \(\mu_{b.i}(w) = z_{0.i}\). The value of the
+size of the individual: \(\mu_{ext.i}(w) = z_{0.i}\). The value of the
 constant \(z_0\) for each species is taken from the <code>z0</code> column of the
 species_params data frame, if that column exists. Otherwise it is calculated
 as
@@ -303,10 +319,10 @@ $$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$</p>
 
 <span class='co'># Multiply by power of size with exponent, here chosen to be -1/4</span>
 <span class='co'># The outer() function makes it an array species x size</span>
-<span class='va'>z0</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/outer.html'>outer</a></span><span class='op'>(</span><span class='va'>z0pre</span>, <span class='fu'><a href='w.html'>w</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>^</span><span class='op'>(</span><span class='op'>-</span><span class='fl'>1</span><span class='op'>/</span><span class='fl'>4</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>allo_mort</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/outer.html'>outer</a></span><span class='op'>(</span><span class='va'>z0pre</span>, <span class='fu'><a href='w.html'>w</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>^</span><span class='op'>(</span><span class='op'>-</span><span class='fl'>1</span><span class='op'>/</span><span class='fl'>4</span><span class='op'>)</span><span class='op'>)</span>
 
 <span class='co'># Change the external mortality rate in the params object</span>
-<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setExtMort</span><span class='op'>(</span><span class='va'>params</span>, z0 <span class='op'>=</span> <span class='va'>z0</span><span class='op'>)</span>
+<span class='fu'>ext_mort</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>allo_mort</span>
 <span class='op'>}</span>
 </div></pre>
   </div>

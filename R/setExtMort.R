@@ -59,32 +59,36 @@
 #' }
 setExtMort <- function(params, ext_mort = NULL,
                        z0pre = 0.6, z0exp = -1/4,
-                       reset = FALSE, z0 = NULL, ...) {
+                       reset = FALSE, z0 = deprecated(), ...) {
+    if (lifecycle::is_present(z0)) {
+        lifecycle::deprecate_warn("2.2.3", "setExtMort(z0)", "setExtMort(ext_mort)")
+        ext_mort <- z0
+    }
     assert_that(is(params, "MizerParams"),
                 is.logical(reset))
     
     if (reset) {
-        if (!is.null(z0)) {
+        if (!is.null(ext_mort)) {
             warning("Because you set `reset = TRUE`, the value you provided ", 
-                    "for `z0` will be ignored and a value will be ",
+                    "for `ext_mort` will be ignored and a value will be ",
                     "calculated from the species parameters.")
-            z0 <- NULL
+            ext_mort <- NULL
         }
         comment(params@mu_b) <- NULL
     }
     
-    if (!is.null(z0)) {
-        if (is.null(comment(z0))) {
+    if (!is.null(ext_mort)) {
+        if (is.null(comment(ext_mort))) {
             if (is.null(comment(params@mu_b))) {
-                comment(z0) <- "set manually"
+                comment(ext_mort) <- "set manually"
             } else {
-                comment(z0) <- comment(params@mu_b)
+                comment(ext_mort) <- comment(params@mu_b)
             }
         }
-        assert_that(is.array(z0),
-                    identical(dim(z0), dim(params@mu_b)))
-        params@mu_b[] <- z0
-        comment(params@mu_b) <- comment(z0)
+        assert_that(is.array(ext_mort),
+                    identical(dim(ext_mort), dim(params@mu_b)))
+        params@mu_b[] <- ext_mort
+        comment(params@mu_b) <- comment(ext_mort)
         return(params)
     }
     

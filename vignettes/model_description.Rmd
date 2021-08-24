@@ -346,10 +346,12 @@ The mortality rate due to predation is then obtained as
 \end{equation}
 This predation mortality rate is calculated by the function `getPredMort()`.
 
-External mortality $z0_i(w)$ is independent of the abundances and is
-changed with `setExtMort()`. By default mizer assumes an allometric form
-\[z0_i(w) = z0_{pre} w_{\infty.i}^{1-n},\]
-where $w_{\infty.i}$ is the asymptotic size of species $i$.
+External mortality $\mu_{ext.i}(w)$ is independent of the abundances and is
+changed with `setExtMort()`. By default mizer assumes that the external
+mortality for each species is a constant $z0_i$ independent of size. The value
+of $z0_i$ is either specified as a species parameter or it is assumed to
+depend allometrically on the asymptotic size:
+\[z0_i = z0_{pre} w_{\infty.i}^{1-n}.\]
 
 
 ## Fishing mortality
@@ -360,7 +362,7 @@ Fishing mortality $\mu_{f.i}(w)$ is calculated with the function `getFMort()`.
 
 ## Total mortality
 The total mortality rate
-\[\mu_i(w)=\mu_{p.i}(w)+z0_i(w)+\mu_{f.i}(w)\]
+\[\mu_i(w)=\mu_{p.i}(w)+\mu_{ext,u}(w)+\mu_{f.i}(w)\]
 is calculated with the function `getMort()`.
 
 

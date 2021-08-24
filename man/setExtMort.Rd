@@ -13,7 +13,7 @@ setExtMort(
   z0pre = 0.6,
   z0exp = -1/4,
   reset = FALSE,
-  z0 = NULL,
+  z0 = deprecated(),
   ...
 )
 

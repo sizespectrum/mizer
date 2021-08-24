@@ -16,7 +16,7 @@ newMultispeciesParams(
   intake_max = NULL,
   metab = NULL,
   p = 0.7,
-  z0 = NULL,
+  ext_mort = NULL,
   z0pre = 0.6,
   z0exp = n - 1,
   maturity = NULL,
@@ -34,7 +34,8 @@ newMultispeciesParams(
   selectivity = NULL,
   catchability = NULL,
   initial_effort = NULL,
-  info_level = 3
+  info_level = 3,
+  z0 = deprecated()
 )
 }
 \arguments{
@@ -77,8 +78,8 @@ the section "Setting metabolic rate".}
 is not given explicitly and if the exponent is not specified in a \code{p}
 column in the \code{species_params}.}
 
-\item{z0}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{ext_mort} instead. Not to
-be confused with the species_parameter \code{z0}.}
+\item{ext_mort}{Optional. An array (species x size) holding the external
+mortality rate.}
 
 \item{z0pre}{If \code{z0}, the mortality from other sources, is not a column
 in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
@@ -138,6 +139,9 @@ a vector, must be named by gear.}
 
 \item{info_level}{Controls the amount of information messages that are shown
 when the function sets default values for parameters.}
+
+\item{z0}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{ext_mort} instead. Not to
+be confused with the species_parameter \code{z0}.}
 }
 \value{
 An object of type \linkS4class{MizerParams}
