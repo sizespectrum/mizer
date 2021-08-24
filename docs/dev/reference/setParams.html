@@ -258,34 +258,17 @@ attribute.</p></dd>
     <dt><code>search_vol</code></dt><dd><p>Optional. An array (species x size) holding the search volume
 for each species at size. If not supplied, a default is set as described in
 the section "Setting search volume".</p></dd>
-    <dt><code>comment_search_vol</code></dt><dd><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
-A string describing how the value for 'search_vol' was obtained. This is
-ignored if 'search_vol' is not supplied or already has a comment
-attribute.</p></dd>
     <dt><code>intake_max</code></dt><dd><p>Optional. An array (species x size) holding the maximum
 intake rate for each species at size. If not supplied, a default is set as
 described in the section "Setting maximum intake rate".</p></dd>
-    <dt><code>reset</code></dt><dd><p>If set to TRUE, then the intake rate will be reset to the value
-calculated from the species parameters, even if it was previously
-overwritten with a custom value. If set to FALSE (default) then a
-recalculation from the species parameters will take place only if no
-custom value has been set.</p></dd>
     <dt><code>metab</code></dt><dd><p>Optional. An array (species x size) holding the metabolic rate
 for each species at size. If not supplied, a default is set as described in
 the section "Setting metabolic rate".</p></dd>
     <dt><code>p</code></dt><dd><p>The allometric metabolic exponent. This is only used if <code>metab</code>
 is not given explicitly and if the exponent is not specified in a <code>p</code>
 column in the <code>species_params</code>.</p></dd>
-    <dt><code>comment_metab</code></dt><dd><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
-A string describing how the value for 'metab' was obtained. This is
-ignored if 'metab' is not supplied or already has a comment
-attribute.</p></dd>
     <dt><code>z0</code></dt><dd><p>Optional. An array (species x size) holding the external
 mortality rate.</p></dd>
-    <dt><code>comment_z0</code></dt><dd><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
-A string describing how the value for 'z0' was obtained. This is
-ignored if 'z0' is not supplied or already has a comment
-attribute.</p></dd>
     <dt><code>z0pre</code></dt><dd><p>If <code>z0</code>, the mortality from other sources, is not a column
 in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 Default value is 0.6.</p></dd>
@@ -295,18 +278,10 @@ Default value is <code>n-1</code>.</p></dd>
     <dt><code>maturity</code></dt><dd><p>Optional. An array (species x size) that holds the proportion
 of individuals of each species at size that are mature. If not supplied, a
 default is set as described in the section "Setting reproduction".</p></dd>
-    <dt><code>comment_maturity</code></dt><dd><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
-A string describing how the value for 'maturity' was obtained. This is
-ignored if 'maturity' is not supplied or already has a comment
-attribute.</p></dd>
     <dt><code>repro_prop</code></dt><dd><p>Optional. An array (species x size) that holds the
 proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".</p></dd>
-    <dt><code>comment_repro_prop</code></dt><dd><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
-A string describing how the value for 'repro_prop' was obtained. This is
-ignored if 'repro_prop' is not supplied or already has a comment
-attribute.</p></dd>
     <dt><code>RDD</code></dt><dd><p>The name of the function calculating the density-dependent
 reproduction rate from the density-independent rate. Defaults to
 "<code><a href='BevertonHoltRDD.html'>BevertonHoltRDD()</a></code>".</p></dd>
@@ -326,16 +301,8 @@ A string describing how the value for 'catchability' was obtained. This is
 ignored if 'catchability' is not supplied or already has a comment
 attribute.</p></dd>
     <dt><code>resource_rate</code></dt><dd><p>Optional. Vector of resource intrinsic birth rates</p></dd>
-    <dt><code>comment_rate</code></dt><dd><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
-A string describing how the value for 'resource_rate' was obtained. This is
-ignored if 'resource_rate' is not supplied or already has a comment
-attribute.</p></dd>
     <dt><code>resource_capacity</code></dt><dd><p>Optional. Vector of resource intrinsic carrying
 capacity</p></dd>
-    <dt><code>comment_capacity</code></dt><dd><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
-A string describing how the value for 'resource_capacity' was obtained. This is
-ignored if 'resource_capacity' is not supplied or already has a comment
-attribute.</p></dd>
     <dt><code>r_pp</code></dt><dd><p>Coefficient of the intrinsic resource birth rate</p></dd>
     <dt><code>n</code></dt><dd><p>Allometric growth exponent for resource</p></dd>
     <dt><code>kappa</code></dt><dd><p>Coefficient of the intrinsic resource carrying capacity</p></dd>

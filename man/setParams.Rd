@@ -70,16 +70,8 @@ A string describing how the value for 'catchability' was obtained. This is
 ignored if 'catchability' is not supplied or already has a comment
 attribute.}
     \item{\code{resource_rate}}{Optional. Vector of resource intrinsic birth rates}
-    \item{\code{comment_rate}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'resource_rate' was obtained. This is
-ignored if 'resource_rate' is not supplied or already has a comment
-attribute.}
     \item{\code{resource_capacity}}{Optional. Vector of resource intrinsic carrying
 capacity}
-    \item{\code{comment_capacity}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'resource_capacity' was obtained. This is
-ignored if 'resource_capacity' is not supplied or already has a comment
-attribute.}
     \item{\code{r_pp}}{Coefficient of the intrinsic resource birth rate}
     \item{\code{n}}{Allometric growth exponent for resource}
     \item{\code{kappa}}{Coefficient of the intrinsic resource carrying capacity}

@@ -29,16 +29,13 @@
 #' 
 #' @param params A MizerParams object
 #' @param resource_rate Optional. Vector of resource intrinsic birth rates 
-#' @param comment_rate `r lifecycle::badge("experimental")`
-#'   A string describing how the value for 'resource_rate' was obtained. This is
-#'   ignored if 'resource_rate' is not supplied or already has a comment
-#'   attribute.
 #' @param resource_capacity Optional. Vector of resource intrinsic carrying 
 #'   capacity 
-#' @param comment_capacity `r lifecycle::badge("experimental")`
-#'   A string describing how the value for 'resource_capacity' was obtained. This is
-#'   ignored if 'resource_capacity' is not supplied or already has a comment
-#'   attribute.
+#' @param reset If set to TRUE, then both `resource_rate` and
+#'   `resource_capacity` will be reset to the value calculated from the resource
+#'   parameters, even if they were previously overwritten with custom values. If
+#'   set to FALSE (default) then a recalculation from the resource parameters
+#'   will take place only if no custom values have been set.
 #' @param r_pp Coefficient of the intrinsic resource birth rate
 #' @param n Allometric growth exponent for resource
 #' @param kappa Coefficient of the intrinsic resource carrying capacity
@@ -62,9 +59,8 @@
 #' @family functions for setting parameters
 setResource <- function(params,
                         resource_rate = NULL,
-                        comment_rate = "set manually",
                         resource_capacity = NULL,
-                        comment_capacity = "set manually",
+                        reset = FALSE,
                         r_pp = resource_params(params)[["r_pp"]],
                         kappa = resource_params(params)[["kappa"]],
                         lambda = resource_params(params)[["lambda"]],
@@ -73,6 +69,7 @@ setResource <- function(params,
                         resource_dynamics = NULL,
                         ...) {
     assert_that(is(params, "MizerParams"),
+                is.logical(reset),
                 is.number(kappa), kappa > 0,
                 is.number(lambda),
                 is.number(r_pp), r_pp > 0,
@@ -83,10 +80,32 @@ setResource <- function(params,
     params@resource_params[["r_pp"]] <- r_pp
     params@resource_params[["n"]] <- n
     params@resource_params[["w_pp_cutoff"]] <- w_pp_cutoff
+    
+    if (reset) {
+        if (!is.null(resource_rate)) {
+            warning("Because you set `reset = TRUE`, the value you provided ", 
+                    "for `resource_rate` will be ignored and a value will be ",
+                    "calculated from the resource parameters.")
+            resource_rate <- NULL
+        }
+        comment(params@rr_pp) <- NULL
+        if (!is.null(resource_capacity)) {
+            warning("Because you set `reset = TRUE`, the value you provided ", 
+                    "for `resource_capacity` will be ignored and a value will be ",
+                    "calculated from the resource parameters.")
+            resource_capacity <- NULL
+        }
+        comment(params@cc_pp) <- NULL
+    }
+    
     # weight specific resource growth rate
     if (!is.null(resource_rate)) {
         if (is.null(comment(resource_rate))) {
-            comment(resource_rate) <- comment_rate
+            if (is.null(comment(params@rr_pp))) {
+                comment(resource_rate) <- "set manually"
+            } else {
+                comment(resource_rate) <- comment(params@rr_pp)
+            }
         }
         assert_that(is.numeric(resource_rate),
                     identical(length(resource_rate), length(params@rr_pp)))
@@ -105,7 +124,11 @@ setResource <- function(params,
     # the resource carrying capacity
     if (!is.null(resource_capacity)) {
         if (is.null(comment(resource_capacity))) {
-            comment(resource_capacity) <- comment_capacity
+            if (is.null(comment(params@cc_pp))) {
+                comment(resource_capacity) <- "set manually"
+            } else {
+                comment(resource_capacity) <- comment(params@cc_pp)
+            }
         }
         assert_that(is.numeric(resource_capacity),
                     identical(length(resource_capacity), length(params@cc_pp)))
