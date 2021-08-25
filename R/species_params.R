@@ -365,6 +365,7 @@ get_ks_default <- function(params) {
 #' Any `w_mat25` that is given that is not smaller than `w_mat` is set to
 #' `w_mat * 3^(-0.1)`.
 #' 
+#' The row names of the returned data frame will be the species names.
 #' If `species_params` was provided as a tibble it is converted back to an
 #' ordinary data frame.
 #' 

@@ -41,6 +41,12 @@ test_that("validGearParams works", {
     expect_identical(validGearParams(gp, sp)$catchability[[2]], 1)
     gp$knife_edge_size[[2]] <- NA
     expect_identical(validGearParams(gp, sp)$knife_edge_size[[2]], 250)
+    
+    # The rownames must be of the form "species, gear"
+    gp$species <- c("species1", "species1")
+    gp$gear <- c("g1", "g2")
+    expect_identical(rownames(validGearParams(gp, sp)), 
+                     c("species1, g1", "species1, g2"))
 })
 
 # validEffortVector ----
@@ -72,10 +78,11 @@ test_that("validEffortParams works when no gears are set up", {
 
 # setFishing and gear_params ----
 test_that("Set Fishing works", {
+    params1 <- params
     expect_identical(gear_params(params), params@gear_params)
     expect_identical(params, setFishing(params))
     gear_params(params) <- params@gear_params
-    expect_identical(params, NS_params)
+    expect_identical(params, params1)
 })
 
 test_that("Setting selectivity works", {

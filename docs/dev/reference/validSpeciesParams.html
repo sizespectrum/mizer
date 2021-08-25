@@ -55,7 +55,11 @@
 <meta property="og:title" content="Validate species parameter data frame — validSpeciesParams" />
 <meta property="og:description" content="Check validity of species parameters and set defaults for missing but
 required parameters" />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 <meta name="robots" content="noindex">
@@ -87,7 +91,7 @@ required parameters" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9005</span>
       </span>
     </div>
 
@@ -235,7 +239,8 @@ required parameters</p>
 <code>w_inf / 4</code>.</p>
 <p>Any <code>w_mat25</code> that is given that is not smaller than <code>w_mat</code> is set to
 <code>w_mat * 3^(-0.1)</code>.</p>
-<p>If <code>species_params</code> was provided as a tibble it is converted back to an
+<p>The row names of the returned data frame will be the species names.
+If <code>species_params</code> was provided as a tibble it is converted back to an
 ordinary data frame.</p>
 
   </div>

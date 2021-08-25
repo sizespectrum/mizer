@@ -305,6 +305,13 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
 #' @param params A MizerParams object
 #' @export
 #' @family functions for setting parameters
+#' @examples 
+#' params <- NS_params
+#' gear_params(params) <- data.frame(
+#'     gear = c("gear1", "gear2", "gear1"),
+#'     species = c("Cod", "Cod", "Haddock"))
+#' gear_params(params)
+#' gear_params(params)["Cod, gear1", "knife_edge_size"] <- 500
 gear_params <- function(params) {
     params@gear_params
 }
@@ -413,9 +420,12 @@ initial_effort <- function(params) {
 #' * If there is no `catchability` column or it is NA then this is set to 1.
 #' * If the selectivity function is `knife_edge` and no `knife_edge_size` is
 #'   provided, it is set to `w_mat`.
-#'   
+#' 
+#' The row names of the returned data frame are of the form
+#' "species, gear".
+#' 
 #' For backwards compatibility, when `gear_params` is `NULL` and there is no
-#' gear information in the `species_params`, then a gear called `knife_edge_gear`
+#' gear information in `species_params`, then a gear called `knife_edge_gear`
 #' is set up with a `knife_edge` selectivity for each species and a
 #' `knive_edge_size` equal to `w_mat`. Catchability is set to 1 for all species.
 #' 
@@ -521,7 +531,7 @@ validGearParams <- function(gear_params, species_params) {
     sel <- is.na(gear_params$gear)
     gear_params$gear[sel] <- gear_params$species[sel]
     
-    # Ensure there is knife_edge_size columng if any knife_edge selectivity function
+    # Ensure there is knife_edge_size column if any knife_edge selectivity function
     if (any(gear_params$sel_func == "knife_edge") &&
         !("knife_edge_size" %in% names(gear_params))) {
         gear_params$knife_edge_size <- NA
@@ -551,6 +561,9 @@ validGearParams <- function(gear_params, species_params) {
         gear_params$catchability <- 1
     }
     gear_params$catchability[is.na(gear_params$catchability)] <- 1
+    
+    rownames(gear_params) <- paste(gear_params$species, gear_params$gear,
+                                       sep = ", ")
 
     gear_params
 }

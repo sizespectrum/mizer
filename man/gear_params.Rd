@@ -29,6 +29,14 @@ If you change a gear parameter, this will be used to recalculate the
 \code{selectivity} and \code{catchability} arrays by calling \code{\link[=setFishing]{setFishing()}},
 unless you have previously set these by hand.
 }
+\examples{
+params <- NS_params
+gear_params(params) <- data.frame(
+    gear = c("gear1", "gear2", "gear1"),
+    species = c("Cod", "Cod", "Haddock"))
+gear_params(params)
+gear_params(params)["Cod, gear1", "knife_edge_size"] <- 500
+}
 \seealso{
 \code{\link[=validGearParams]{validGearParams()}}
 
