@@ -1,5 +1,7 @@
 # mizer 2.2.1.9000
 
+* Changing `linecolour` or `linetype` in the species parameters now actually
+  changes the linecolours and linetypes as intended.
 * `setColours()` and `setLinetypes()` now issue warnings when invalid values
   are given and ignores NAs.
 * The rownames of `gear_params` are now set to "species, gear", so that one

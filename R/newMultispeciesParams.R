@@ -305,6 +305,18 @@ setParams <- function(params, interaction = NULL, ...) {
     params <- setSearchVolume(params, ...)
     params <- setReproduction(params, ...)
     params <- setFishing(params, ...)
+    
+    colours <- params@species_params$linecolour
+    if (!is.null(colours)) {
+        names(colours) <- params@species_params$species
+        params <- setColours(params, colours)
+    }
+    linetypes <- params@species_params$linetype
+    if (!is.null(linetypes)) {
+        names(linetypes) <- params@species_params$species
+        params <- setLinetypes(params, linetypes)
+    }
+    
     validObject(params)
     params
 }

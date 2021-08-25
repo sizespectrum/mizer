@@ -55,7 +55,11 @@
 <meta property="og:title" content="Species parameters — species_params" />
 <meta property="og:description" content="These functions allow you to get or set the species parameters stored in
 a MizerParams object." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 <meta name="robots" content="noindex">
@@ -87,7 +91,7 @@ a MizerParams object." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9006</span>
       </span>
     </div>
 
@@ -274,6 +278,13 @@ invested into reproduction that is converted to egg biomass, see
 the reproduction, see <code><a href='BevertonHoltRDD.html'>BevertonHoltRDD()</a></code>. There will be other such
 parameters if you use other density dependence functions, see the
 "Density dependence" section in the help for <code><a href='setReproduction.html'>setReproduction()</a></code>.</p></li>
+</ul>
+
+<p>Finally there are two species parameters that control the way the species are
+represented in plots:</p><ul>
+<li><p><code>linecolour</code> specifies the colour and can be any valid R colour value.</p></li>
+<li><p><code>linetype</code> specifies the line type ("solid", "dashed", "dotted", "dotdash",
+"longdash", "twodash" or "blank")</p></li>
 </ul>
 
 <p>When you set up a MizerParams object with <code><a href='newMultispeciesParams.html'>newMultispeciesParams()</a></code> you

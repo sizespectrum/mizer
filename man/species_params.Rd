@@ -75,6 +75,14 @@ parameters if you use other density dependence functions, see the
 "Density dependence" section in the help for \code{\link[=setReproduction]{setReproduction()}}.
 }
 
+Finally there are two species parameters that control the way the species are
+represented in plots:
+\itemize{
+\item \code{linecolour} specifies the colour and can be any valid R colour value.
+\item \code{linetype} specifies the line type ("solid", "dashed", "dotted", "dotdash",
+"longdash", "twodash" or "blank")
+}
+
 When you set up a MizerParams object with \code{\link[=newMultispeciesParams]{newMultispeciesParams()}} you
 need to specify a species parameter data frame, but you do not need to
 give values for all of the species parameters described above. The only

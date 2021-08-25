@@ -3,30 +3,59 @@
 \name{setColours}
 \alias{setColours}
 \alias{getColours}
-\title{Set line colours to be used in mizer plots}
+\alias{setLinetypes}
+\alias{getLinetypes}
+\title{Set line colours and line types to be used in mizer plots}
 \usage{
 setColours(params, colours)
 
 getColours(params)
+
+setLinetypes(params, linetypes)
+
+getLinetypes(params)
 }
 \arguments{
 \item{params}{A MizerParams object}
 
 \item{colours}{A named list or named vector of line colours.}
+
+\item{linetypes}{A named list or named vector of linetypes.}
 }
 \value{
 \code{setColours}: The MizerParams object with updated line colours
 
 \code{getColours()}: A named vector of colours
+
+\code{setLinetypes()}: The MizerParams object with updated linetypes
+
+\code{getLinetypes()}: A named vector of linetypes
 }
 \description{
-Colours for names that already had a colour set will be overwritten by
-the colour you specify. Colours for names that did not yet have a colour
+Used for setting the colour and type of lines representing "Total",
+"Resource", "Fishing", "Background" and possibly other categories in plots.
+}
+\details{
+Colours for names that already had a colour set for them will be overwritten
+by the colour you specify. Colours for names that did not yet have a colour
 will be appended to the list of colours.
+
+Do not use this for setting the colours or linetypes of species, because
+those are determined by setting the \code{linecolour} and \code{linetype} variables in
+the species parameter data frame.
+
+You can use the same colours in your own ggplot2 plots by adding
+\code{scale_colour_manual(values = getColours(params))} to your plot. Similarly
+you can use the linetypes with
+\code{scale_linetype_manual(values = getLinetypes(params))}.
 }
 \examples{
 params <- setColours(NS_params, list("Resource" = "red", "Total" = "#0000ff"))
+params <- setLinetypes(NS_params, list("Total" = "dotted"))
+# Set colours and linetypes for species
 species_params(params)["Cod", "linecolour"] <- "black"
+species_params(params)["Cod", "linetype"] <- "dashed"
 plotSpectra(params, total = TRUE)
 getColours(params)
+getLinetypes(params)
 }

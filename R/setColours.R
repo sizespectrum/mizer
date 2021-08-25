@@ -1,18 +1,35 @@
-#' Set line colours to be used in mizer plots
-#' 
-#' Colours for names that already had a colour set will be overwritten by
-#' the colour you specify. Colours for names that did not yet have a colour
+#' Set line colours and line types to be used in mizer plots
+#'
+#' Used for setting the colour and type of lines representing "Total",
+#' "Resource", "Fishing", "Background" and possibly other categories in plots.
+#'
+#' Colours for names that already had a colour set for them will be overwritten
+#' by the colour you specify. Colours for names that did not yet have a colour
 #' will be appended to the list of colours.
+#'
+#' Do not use this for setting the colours or linetypes of species, because
+#' those are determined by setting the `linecolour` and `linetype` variables in
+#' the species parameter data frame.
+#'
+#' You can use the same colours in your own ggplot2 plots by adding
+#' `scale_colour_manual(values = getColours(params))` to your plot. Similarly
+#' you can use the linetypes with 
+#' `scale_linetype_manual(values = getLinetypes(params))`.
+#'
 #' @param params A MizerParams object
 #' @param colours A named list or named vector of line colours.
-#' 
+#'
 #' @return `setColours`: The MizerParams object with updated line colours
 #' @export
 #' @examples
 #' params <- setColours(NS_params, list("Resource" = "red", "Total" = "#0000ff"))
+#' params <- setLinetypes(NS_params, list("Total" = "dotted"))
+#' # Set colours and linetypes for species
 #' species_params(params)["Cod", "linecolour"] <- "black"
+#' species_params(params)["Cod", "linetype"] <- "dashed"
 #' plotSpectra(params, total = TRUE)
 #' getColours(params)
+#' getLinetypes(params)
 setColours <- function(params, colours) {
     assert_that(is(params, "MizerParams"))
     colours <- validColours(colours)
@@ -41,21 +58,12 @@ validColours <- function(colours) {
     as.list(colours[valid & !is.na(colours)])
 }
 
-#' Set linetypes to be used in mizer plots
-#' 
-#' Linetypes for names that already had a linetype set will be overwritten by
-#' the linetype you specify. Linetypes for names that did not yet have a 
-#' linetype will be appended to the list of linetypes.
-#' @param params A MizerParams object
+
+#' @rdname setColours
 #' @param linetypes A named list or named vector of linetypes.
 #' 
 #' @return `setLinetypes()`: The MizerParams object with updated linetypes
 #' @export
-#' @examples
-#' params <- setLinetypes(NS_params, list("Total" = "dotted"))
-#' species_params(params)["Cod", "linetype"] <- "dashed"
-#' plotSpectra(params, total = TRUE)
-#' getLinetypes(params)
 setLinetypes <- function(params, linetypes) {
     assert_that(is(params, "MizerParams"))
     linetypes <- validLinetypes(linetypes)
@@ -64,7 +72,7 @@ setLinetypes <- function(params, linetypes) {
     params
 }
 
-#' @rdname setLinetypes
+#' @rdname setColours
 #' @return `getLinetypes()`: A named vector of linetypes
 #' @export
 getLinetypes <- function(params) {
