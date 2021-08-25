@@ -1,3 +1,47 @@
+# mizer 2.2.1.9000
+
+* The rownames of `gear_params` are now set to "species, gear", so that one
+  can access individual entries with for example
+  `gear_params(NS_params)["Cod, Otter", "catchability"]`
+* The `z0` argument of `setExtMort()` has been deprecated in favour of
+  `ext_mort` in order to avoid confusion with the species parameter `z0`.
+* There are now accessor and replacement functions for rates. So for example
+  instead of `params <- setReproduction(params, maturity = my_maturity)` one
+  can simply use `maturity(params) <- my_maturity`. These are documented
+  together with the setter functions
+* The experimental `comment` arguments to the setter functions have been
+  removed.
+* The setter functions have a new `reset` argument which, when set to `TRUE`
+  will recalculate the rates from the species_, gear_ and resource_params even
+  when custom values had been set.
+* The `species` argument to various functions, which is checked with 
+  `valid_species_arg()`, now does not throw an error even when there is no
+  valid species included. Only a warning is issued. That means that for
+  example `plotSpectra(NS_params, species = list(), total = TRUE)` is now
+  allowed.
+* `getComponent()` from the mizer extension mechanism now returns NULL when
+  asked for a non-existent component instead of giving an error. This gives
+  an easy way to check for the existence of a component.
+* The example interaction matrix `inter` for the North Sea model now has the
+  alternative name `NS_inter`, with the old name deprecated.
+* Species added with `addSpecies()` are now by default given a reproduction
+  level of 1/4 instead of 0, because at the low densities at which they are
+  introduced there would otherwise not be enough density dependence to 
+  stabilise them.
+* Growth curves calculated with `getGrowthCurves()` and plotted with
+  `plotGrowthCurves()` are now correct, and no longer extend above the
+  asymptotic size.
+* The size range arguments `min_w`, `max_w`, `min_l` and `max_l` used in some 
+  summary functions and processed by `get_size_range_array()` accept vector
+  values setting different limits for different species.
+* `plotGrowthCurves()` with `species_panel = TRUE` now respects the `species`
+  argument to only show growth curves for selected species, and it works with
+  a MizerParams object as well as a MizerSim object.
+* `steady()` now has a `preserve` argument with possible values `R_max` or
+  `reproduction_level` to specify which quantity to keep preserve.
+
+
+
 # mizer 2.2.1
 
 
