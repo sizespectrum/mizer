@@ -3,17 +3,11 @@
 \name{setInteraction}
 \alias{setInteraction}
 \alias{getInteraction}
-\alias{interaction}
-\alias{interaction<-}
 \title{Set species interaction matrix}
 \usage{
 setInteraction(params, interaction = NULL)
 
 getInteraction(params)
-
-interaction(params)
-
-interaction(params) <- value
 }
 \arguments{
 \item{params}{MizerParams object}
@@ -25,8 +19,8 @@ default all entries are 1. See "Setting interactions" section below.}
 \value{
 \code{setInteraction}: A MizerParams object with updated interaction matrix
 
-\code{getInteraction()} or equivalently \code{interaction()}: The interaction matrix
-(predator species x prey species)
+\code{getInteraction()}: The interaction matrix (predator species x prey
+species)
 }
 \description{
 Set species interaction matrix

@@ -209,11 +209,7 @@
 
     <pre class="usage"><span class='fu'>setInteraction</span><span class='op'>(</span><span class='va'>params</span>, interaction <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>
 
-<span class='fu'>getInteraction</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
-
-<span class='fu'>interaction</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
-
-<span class='fu'>interaction</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span></pre>
+<span class='fu'>getInteraction</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -233,8 +229,8 @@ default all entries are 1. See "Setting interactions" section below.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p><code>setInteraction</code>: A MizerParams object with updated interaction matrix</p>
-<p><code>getInteraction()</code> or equivalently <code>interaction()</code>: The interaction matrix
-(predator species x prey species)</p>
+<p><code>getInteraction()</code>: The interaction matrix (predator species x prey
+species)</p>
     <h2 class="hasAnchor" id="setting-interactions"><a class="anchor" href="#setting-interactions"></a>Setting interactions</h2>
 
     
@@ -291,11 +287,11 @@ be numbers between 0 and 1. By default this column is set to all 1s.</p>
 #&gt; predator 1 2 3
 #&gt;        1 1 1 1
 #&gt;        2 1 1 1
-#&gt;        3 1 1 1</div><div class='input'><span class='fu'>interaction</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>1</span>, <span class='fl'>2</span><span class='op'>:</span><span class='fl'>3</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fl'>0</span>
-<span class='fu'>getInteraction</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+#&gt;        3 1 1 1</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/interaction.html'>interaction</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>1</span>, <span class='fl'>2</span><span class='op'>:</span><span class='fl'>3</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fl'>0</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in unique.default(x, nmax = nmax): unique() applies only to vectors</span></div><div class='input'><span class='fu'>getInteraction</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;         prey
 #&gt; predator 1 2 3
-#&gt;        1 1 0 0
+#&gt;        1 1 1 1
 #&gt;        2 1 1 1
 #&gt;        3 1 1 1</div></pre>
   </div>
