@@ -1,5 +1,7 @@
 # mizer 2.2.1.9000
 
+* `setColours()` and `setLinetypes()` now issue warnings when invalid values
+  are given and ignores NAs.
 * The rownames of `gear_params` are now set to "species, gear", so that one
   can access individual entries with for example
   `gear_params(NS_params)["Cod, Otter", "catchability"]`

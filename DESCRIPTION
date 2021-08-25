@@ -53,6 +53,7 @@ Collate:
     'MizerSim-class.R'
     'reproduction.R'
     'species_params.R'
+    'setColours.R'
     'setInteraction.R'
     'setPredKernel.R'
     'setSearchVolume.R'

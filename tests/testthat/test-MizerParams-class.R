@@ -69,35 +69,6 @@ test_that("Slots are allowed to have comments", {
     expect_error(validObject(params), NA)
 })
 
-# setColours, getColours ----
-test_that("setColours and getColours works", {
-    params <- NS_params
-    no_col <- length(getColours(params))
-    # set new entry
-    params <- setColours(params, list("test" = "orange"))
-    expect_equal(length(getColours(params)), no_col + 1)
-    expect_identical(getColours(params)[["test"]], "orange")
-    # overwrite existing and set new
-    params <- setColours(params, list("test" = "blue", test2 = "orange"))
-    expect_equal(length(getColours(params)), no_col + 2)
-    expect_identical(getColours(params)[["test"]], "blue")
-    expect_identical(getColours(params)[["test2"]], "orange")
-})
-
-# setLinetypes, getLinetypes ----
-test_that("setLinetypes and getLinetypes works", {
-    params <- NS_params
-    no_types <- length(getLinetypes(params))
-    # set new entry
-    params <- setLinetypes(params, list("test" = "dashed"))
-    expect_equal(length(getLinetypes(params)), no_types + 1)
-    expect_identical(getLinetypes(params)[["test"]], "dashed")
-    # overwrite existing and set new
-    params <- setLinetypes(params, list("test" = "dotted", test2 = "dashed"))
-    expect_equal(length(getLinetypes(params)), no_types + 2)
-    expect_identical(getLinetypes(params)[["test"]], "dotted")
-    expect_identical(getLinetypes(params)[["test2"]], "dashed")
-})
 
 # size bins ----
 test_that("w, w_full, dw, dw_full work", {
