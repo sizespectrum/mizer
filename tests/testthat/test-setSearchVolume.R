@@ -44,3 +44,12 @@ test_that("getSearchVolume works", {
     expect_identical(getSearchVolume(NS_params),
                      NS_params@search_vol)
 })
+
+
+test_that("Can get and set search_vol slot", {
+    params <- NS_params
+    new <- 2 * search_vol(params)
+    comment(new) <- "test"
+    search_vol(params) <- new
+    expect_identical(search_vol(params), new)
+})

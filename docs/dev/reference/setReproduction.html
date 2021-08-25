@@ -222,7 +222,15 @@ individual and sets additional density dependence.</p>
 
 <span class='fu'>getMaturityProportion</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
 
-<span class='fu'>getReproductionProportion</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
+<span class='fu'>maturity</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>maturity</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span>
+
+<span class='fu'>getReproductionProportion</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>repro_prop</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>repro_prop</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -266,16 +274,12 @@ reproduction rate from the density-independent rate. Defaults to
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>For <code>setReproduction()</code>:
-The updated MizerParams object. Because of the way the R language
-works, <code>setReproduction()</code> does not make the changes to the params object
-that you pass to it but instead returns a new params object. So to affect
-the change you call the function in the form
-<code>params &lt;- setReproduction(params, ...)</code>.</p>
-<p>For <code>getMaturityProportion()</code>:
+    <p><code>setReproduction()</code>: A MizerParams object with updated reproduction
+parameters.</p>
+<p><code>getMaturityProportion()</code> or equivalently `maturity():
 An array (species x size) that holds the proportion
 of individuals of each species at size that are mature.</p>
-<p>For <code>getReproductionProportion</code>:
+<p><code>getReproductionProportion()</code> or equivalently <code>repro_prop()</code>:
 An array (species x size) that holds the
 proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. For sizes where the maturity

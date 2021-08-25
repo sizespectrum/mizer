@@ -425,6 +425,8 @@ renameSpecies <- function(params, replace) {
                 replace[[params@gear_params$species[[i]]]]
         }
     }
+    params@gear_params <- validGearParams(params@gear_params, 
+                                          params@species_params)
     linenames <- names(params@linecolour)
     names(linenames) <- linenames
     linenames[to_replace] <- replace

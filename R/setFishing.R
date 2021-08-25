@@ -99,11 +99,8 @@
 #'   value has been set.
 #' @param ... Unused
 #'   
-#' @return MizerParams object with updated catchability and selectivity. Because
-#'   of the way the R language works, `setFishing()` does not make the changes
-#'   to the params object that you pass to it but instead returns a new params
-#'   object. So to affect the change you call the function in the form
-#'   `params <- setFishing(params, ...)`.
+#' @return `setFishing()`: A MizerParams object with updated fishing
+#'   parameters.
 #' @export
 #' @seealso [gear_params()]
 #' @family functions for setting parameters
@@ -308,6 +305,13 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
 #' @param params A MizerParams object
 #' @export
 #' @family functions for setting parameters
+#' @examples 
+#' params <- NS_params
+#' gear_params(params) <- data.frame(
+#'     gear = c("gear1", "gear2", "gear1"),
+#'     species = c("Cod", "Cod", "Haddock"))
+#' gear_params(params)
+#' gear_params(params)["Cod, gear1", "knife_edge_size"] <- 500
 gear_params <- function(params) {
     params@gear_params
 }
@@ -323,7 +327,7 @@ gear_params <- function(params) {
 }
 
 #' @rdname setFishing
-#' @return For `getCatchability()`: An array (gear x species) that holds the catchability of
+#' @return `getCatchability()` or equivalently `catchability()`: An array (gear x species) that holds the catchability of
 #'   each species by each gear, \eqn{Q_{g,i}}.
 #'   The names of the dimensions are "gear, "sp".
 #' @export
@@ -334,7 +338,19 @@ getCatchability <- function(params) {
 }
 
 #' @rdname setFishing
-#' @return For `getSelectivity()`: An array (gear x species x size) that holds
+#' @export
+catchability <- function(params) {
+    params@catchability
+}
+
+#' @rdname setFishing
+#' @export
+`catchability<-` <- function(params, value) {
+    setFishing(params, catchability = value)
+}
+
+#' @rdname setFishing
+#' @return `getSelectivity()` or equivalently `selectivity()`: An array (gear x species x size) that holds
 #'   the selectivity of each gear for species and size, \eqn{S_{g,i,w}}.
 #'   The names of the dimensions are "gear, "sp", "w".
 #' @export
@@ -345,13 +361,37 @@ getSelectivity <- function(params) {
 }
 
 #' @rdname setFishing
-#' @return For `getInitialEffort()`: A named vector with the initial fishing
+#' @export
+selectivity <- function(params) {
+    params@selectivity
+}
+
+#' @rdname setFishing
+#' @export
+`selectivity<-` <- function(params, value) {
+    setFishing(params, selectivity = value)
+}
+
+#' @rdname setFishing
+#' @return `getInitialEffort()` or equivalently `initial_effort()`: A named vector with the initial fishing
 #'   effort for each gear.
 #' @export
 #' @examples
 #' str(getInitialEffort(NS_params))
 getInitialEffort <- function(params) {
     params@initial_effort
+}
+
+#' @rdname setFishing
+#' @export
+initial_effort <- function(params) {
+    params@initial_effort
+}
+
+#' @rdname setFishing
+#' @export
+`initial_effort<-` <- function(params, value) {
+    setFishing(params, initial_effort = value)
 }
 
 #' Check validity of gear parameters and set defaults
@@ -380,9 +420,12 @@ getInitialEffort <- function(params) {
 #' * If there is no `catchability` column or it is NA then this is set to 1.
 #' * If the selectivity function is `knife_edge` and no `knife_edge_size` is
 #'   provided, it is set to `w_mat`.
-#'   
+#' 
+#' The row names of the returned data frame are of the form
+#' "species, gear".
+#' 
 #' For backwards compatibility, when `gear_params` is `NULL` and there is no
-#' gear information in the `species_params`, then a gear called `knife_edge_gear`
+#' gear information in `species_params`, then a gear called `knife_edge_gear`
 #' is set up with a `knife_edge` selectivity for each species and a
 #' `knive_edge_size` equal to `w_mat`. Catchability is set to 1 for all species.
 #' 
@@ -488,7 +531,7 @@ validGearParams <- function(gear_params, species_params) {
     sel <- is.na(gear_params$gear)
     gear_params$gear[sel] <- gear_params$species[sel]
     
-    # Ensure there is knife_edge_size columng if any knife_edge selectivity function
+    # Ensure there is knife_edge_size column if any knife_edge selectivity function
     if (any(gear_params$sel_func == "knife_edge") &&
         !("knife_edge_size" %in% names(gear_params))) {
         gear_params$knife_edge_size <- NA
@@ -518,6 +561,9 @@ validGearParams <- function(gear_params, species_params) {
         gear_params$catchability <- 1
     }
     gear_params$catchability[is.na(gear_params$catchability)] <- 1
+    
+    rownames(gear_params) <- paste(gear_params$species, gear_params$gear,
+                                       sep = ", ")
 
     gear_params
 }

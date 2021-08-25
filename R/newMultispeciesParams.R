@@ -88,7 +88,7 @@ newMultispeciesParams <- function(
     metab = NULL,
     p = 0.7,
     # setExtMort
-    z0 = NULL,
+    ext_mort = NULL,
     z0pre = 0.6,
     z0exp = n - 1,
     # setReproduction
@@ -109,7 +109,12 @@ newMultispeciesParams <- function(
     selectivity = NULL,
     catchability = NULL,
     initial_effort = NULL,
-    info_level = 3) {
+    info_level = 3,
+    z0 = deprecated()) {
+    if (lifecycle::is_present(z0)) {
+        lifecycle::deprecate_warn("2.2.3", "newMultispeciesParams(z0)", "newMultispeciesParams(ext_mort)")
+        ext_mort <- z0
+    }
     
     # Define a signal handler that collects the information signals
     # into the `infos` list.
@@ -156,7 +161,7 @@ newMultispeciesParams <- function(
                   # setMetabolicRate()
                   metab = metab,
                   # setExtMort
-                  z0 = z0,
+                  ext_mort = ext_mort,
                   z0pre = z0pre,
                   z0exp = z0exp,
                   # setReproduction

@@ -131,3 +131,20 @@ test_that("setResource gives error", {
   expect_error(setResource(NS_params, resource_dynamics = "fake"),
                'The resource dynamics function "fake" is not defined.')
 })
+
+
+
+test_that("Can get and set resource_capacity slot", {
+  params <- NS_params
+  new <- 2 * resource_capacity(params)
+  comment(new) <- "test"
+  resource_capacity(params) <- new
+  expect_identical(resource_capacity(params), new)
+})
+test_that("Can get and set resource_rate slot", {
+  params <- NS_params
+  new <- 2 * resource_rate(params)
+  comment(new) <- "test"
+  resource_rate(params) <- new
+  expect_identical(resource_rate(params), new)
+})

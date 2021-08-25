@@ -34,11 +34,7 @@
 #'   custom value has been set.
 #' @param ... Unused
 #' 
-#' @return MizerParams object with updated metabolic rate. Because of the way
-#'   the R language works, `setMetabolicRate()` does not make the changes to the
-#'   params object that you pass to it but instead returns a new params object.
-#'   So to affect the change you call the function in the form
-#'   `params <- setMetabolicRate(params, ...)`.
+#' @return `setMetabolicRate()`: A MizerParams object with updated metabolic rate.
 #' @export
 #' @family functions for setting parameters
 setMetabolicRate <- function(params, metab = NULL, p = NULL, 
@@ -104,7 +100,21 @@ setMetabolicRate <- function(params, metab = NULL, p = NULL,
 }
 
 #' @rdname setMetabolicRate
+#' @return `getMetabolicRate()` or equivalently `metab()`: An array
+#'   (species x size) with the metabolic rate.
 #' @export
 getMetabolicRate <- function(params) {
     params@metab
+}
+
+#' @rdname setMetabolicRate
+#' @export
+metab <- function(params) {
+    params@metab
+}
+
+#' @rdname setMetabolicRate
+#' @export
+`metab<-` <- function(params, value) {
+    setMetabolicRate(params, metab = value)
 }

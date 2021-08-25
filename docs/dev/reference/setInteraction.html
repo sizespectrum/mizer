@@ -54,7 +54,11 @@
 
 <meta property="og:title" content="Set species interaction matrix — setInteraction" />
 <meta property="og:description" content="Set species interaction matrix" />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 <meta name="robots" content="noindex">
@@ -86,7 +90,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9005</span>
       </span>
     </div>
 
@@ -224,11 +228,9 @@ default all entries are 1. See "Setting interactions" section below.</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>MizerParams object with updated interaction matrix. Because of the
-way the R language works, <code>setInteraction()</code> does not make the changes to
-the params object that you pass to it but instead returns a new params
-object. So to affect the change you call the function in the form
-<code>params &lt;- setInteraction(params, ...)</code>.</p>
+    <p><code>setInteraction</code>: A MizerParams object with updated interaction matrix</p>
+<p><code>getInteraction()</code>: The interaction matrix (predator species x prey
+species)</p>
     <h2 class="hasAnchor" id="setting-interactions"><a class="anchor" href="#setting-interactions"></a>Setting interactions</h2>
 
     
@@ -279,13 +281,19 @@ be numbers between 0 and 1. By default this column is set to all 1s.</p>
 <code><a href='species_params.html'>species_params</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
-<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newTraitParams.html'>newTraitParams</a></span><span class='op'>(</span><span class='op'>)</span>
-<span class='va'>interaction</span> <span class='op'>&lt;-</span> <span class='fu'>getInteraction</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
-<span class='va'>interaction</span><span class='op'>[</span><span class='fl'>1</span>, <span class='fl'>3</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fl'>0</span>
-<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setInteraction</span><span class='op'>(</span><span class='va'>params</span>, <span class='va'>interaction</span><span class='op'>)</span>
-<span class='op'>}</span>
-</div></pre>
+    <pre class="examples"><div class='input'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newTraitParams.html'>newTraitParams</a></span><span class='op'>(</span>no_sp <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span>
+<span class='fu'>getInteraction</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;         prey
+#&gt; predator 1 2 3
+#&gt;        1 1 1 1
+#&gt;        2 1 1 1
+#&gt;        3 1 1 1</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/interaction.html'>interaction</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>1</span>, <span class='fl'>2</span><span class='op'>:</span><span class='fl'>3</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fl'>0</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in unique.default(x, nmax = nmax): unique() applies only to vectors</span></div><div class='input'><span class='fu'>getInteraction</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;         prey
+#&gt; predator 1 2 3
+#&gt;        1 1 1 1
+#&gt;        2 1 1 1
+#&gt;        3 1 1 1</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

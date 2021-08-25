@@ -49,11 +49,7 @@
 #'   want to use the default [resource_semichemostat()].
 #' @param ... Unused
 #' 
-#' @return A MizerParams object with updated resource parameters. Because of the
-#'   way the R language works, `setResource()` does not make the changes to the
-#'   params object that you pass to it but instead returns a new params object.
-#'   So to affect the change you call the function in the form
-#'   `params <- setResource(params, ...)`.
+#' @return `setResource`: A MizerParams object with updated resource parameters
 #' @export
 #' @seealso [resource_params()]
 #' @family functions for setting parameters
@@ -164,14 +160,50 @@ getResourceRate <- function(params) {
 
 #' @rdname setResource
 #' @export
+resource_rate <- function(params) {
+    params@rr_pp
+}
+
+#' @rdname setResource
+#' @export
+`resource_rate<-` <- function(params, value) {
+    setResource(params, resource_rate = value)
+}
+
+#' @rdname setResource
+#' @export
 getResourceCapacity <- function(params) {
     params@cc_pp
 }
 
 #' @rdname setResource
 #' @export
+resource_capacity <- function(params) {
+    params@cc_pp
+}
+
+#' @rdname setResource
+#' @export
+`resource_capacity<-` <- function(params, value) {
+    setResource(params, resource_capacity = value)
+}
+
+#' @rdname setResource
+#' @export
 getResourceDynamics <- function(params) {
     params@resource_dynamics
+}
+
+#' @rdname setResource
+#' @export
+resource_dynamics <- function(params) {
+    params@resource_dynamics
+}
+
+#' @rdname setResource
+#' @export
+`resource_dynamics<-` <- function(params, value) {
+    setResource(params, resource_dynamics = value)
 }
 
 #' Resource parameters

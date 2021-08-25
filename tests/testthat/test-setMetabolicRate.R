@@ -54,3 +54,11 @@ test_that("getMetabolicRate works", {
     expect_identical(getMetabolicRate(NS_params),
                      NS_params@metab)
 })
+
+test_that("Can get and set metab slot", {
+    params <- NS_params
+    new <- 2 * metab(params)
+    comment(new) <- "test"
+    metab(params) <- new
+    expect_identical(metab(params), new)
+})

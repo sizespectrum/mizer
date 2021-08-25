@@ -127,3 +127,18 @@ test_that("getReproductionProportion works", {
     comment(params2@psi) <- NULL
     expect_identical(params, params2)
 })
+
+test_that("Can get and set repro_prop", {
+    params <- NS_params
+    new <- repro_prop(params) ^ 2 
+    comment(new) <- "test"
+    repro_prop(params) <- new
+    expect_equal(repro_prop(params)[2,50], new[2, 50])
+})
+test_that("Can get and set maturity", {
+    params <- NS_params
+    new <- 1/2 * maturity(params)
+    comment(new) <- "test"
+    maturity(params) <- new
+    expect_identical(maturity(params), new)
+})

@@ -2,9 +2,18 @@
 % Please edit documentation in R/setPredKernel.R
 \name{setPredKernel}
 \alias{setPredKernel}
+\alias{getPredKernel}
+\alias{pred_kernel}
+\alias{pred_kernel<-}
 \title{Set predation kernel}
 \usage{
 setPredKernel(params, pred_kernel = NULL, reset = FALSE, ...)
+
+getPredKernel(params)
+
+pred_kernel(params)
+
+pred_kernel(params) <- value
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -23,11 +32,10 @@ value has been set.}
 \item{...}{Unused}
 }
 \value{
-A MizerParams object with updated predation kernel. Because of the
-way the R language works, \code{setPredKernel()} does not make the changes
-to the params object that you pass to it but instead returns a new params
-object. So to affect the change you call the function in the form
-\code{params <- setPredKernel(params, ...)}.
+\code{setPredKernel()}: A MizerParams object with updated predation kernel.
+
+\code{getPredKernel()} or equivalently \code{pred_kernel()}: An array (predator
+species x predator_size x prey_size)
 }
 \description{
 The predation kernel determines the distribution of prey sizes that a

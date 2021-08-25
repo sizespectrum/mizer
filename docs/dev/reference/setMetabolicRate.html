@@ -209,7 +209,11 @@
 
     <pre class="usage"><span class='fu'>setMetabolicRate</span><span class='op'>(</span><span class='va'>params</span>, metab <span class='op'>=</span> <span class='cn'>NULL</span>, p <span class='op'>=</span> <span class='cn'>NULL</span>, reset <span class='op'>=</span> <span class='cn'>FALSE</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'>getMetabolicRate</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
+<span class='fu'>getMetabolicRate</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>metab</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>metab</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -246,11 +250,9 @@ custom value has been set.</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>MizerParams object with updated metabolic rate. Because of the way
-the R language works, <code>setMetabolicRate()</code> does not make the changes to the
-params object that you pass to it but instead returns a new params object.
-So to affect the change you call the function in the form
-<code>params &lt;- setMetabolicRate(params, ...)</code>.</p>
+    <p><code>setMetabolicRate()</code>: A MizerParams object with updated metabolic rate.</p>
+<p><code>getMetabolicRate()</code> or equivalently <code>metab()</code>: An array
+(species x size) with the metabolic rate.</p>
     <h2 class="hasAnchor" id="setting-metabolic-rate"><a class="anchor" href="#setting-metabolic-rate"></a>Setting metabolic rate</h2>
 
     

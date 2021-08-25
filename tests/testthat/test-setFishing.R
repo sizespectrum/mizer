@@ -41,6 +41,12 @@ test_that("validGearParams works", {
     expect_identical(validGearParams(gp, sp)$catchability[[2]], 1)
     gp$knife_edge_size[[2]] <- NA
     expect_identical(validGearParams(gp, sp)$knife_edge_size[[2]], 250)
+    
+    # The rownames must be of the form "species, gear"
+    gp$species <- c("species1", "species1")
+    gp$gear <- c("g1", "g2")
+    expect_identical(rownames(validGearParams(gp, sp)), 
+                     c("species1, g1", "species1, g2"))
 })
 
 # validEffortVector ----
@@ -72,10 +78,11 @@ test_that("validEffortParams works when no gears are set up", {
 
 # setFishing and gear_params ----
 test_that("Set Fishing works", {
+    params1 <- params
     expect_identical(gear_params(params), params@gear_params)
     expect_identical(params, setFishing(params))
     gear_params(params) <- params@gear_params
-    expect_identical(params, NS_params)
+    expect_identical(params, params1)
 })
 
 test_that("Setting selectivity works", {
@@ -244,4 +251,25 @@ test_that("Non-existing species give error", {
     gp$species[[1]] <- "test"
     expect_error(gear_params(params) <- gp,
                  "The gear_params dataframe contains species that do not exist in the model.")
+})
+
+test_that("Can get and set selectivity slot", {
+    params <- NS_params
+    new <- 2 * selectivity(params)
+    comment(new) <- "test"
+    selectivity(params) <- new
+    expect_identical(selectivity(params), new)
+})
+test_that("Can get and set catchability slot", {
+    params <- NS_params
+    new <- 2 * catchability(params)
+    comment(new) <- "test"
+    catchability(params) <- new
+    expect_identical(catchability(params), new)
+})
+test_that("Can get and set initial_effort slot", {
+    params <- NS_params
+    new <- 2 * initial_effort(params)
+    initial_effort(params) <- new
+    expect_identical(initial_effort(params), new)
 })

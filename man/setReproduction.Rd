@@ -3,7 +3,11 @@
 \name{setReproduction}
 \alias{setReproduction}
 \alias{getMaturityProportion}
+\alias{maturity}
+\alias{maturity<-}
 \alias{getReproductionProportion}
+\alias{repro_prop}
+\alias{repro_prop<-}
 \title{Set reproduction parameters}
 \usage{
 setReproduction(
@@ -17,7 +21,15 @@ setReproduction(
 
 getMaturityProportion(params)
 
+maturity(params)
+
+maturity(params) <- value
+
 getReproductionProportion(params)
+
+repro_prop(params)
+
+repro_prop(params) <- value
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -44,18 +56,14 @@ reproduction rate from the density-independent rate. Defaults to
 \item{...}{Unused}
 }
 \value{
-For \code{setReproduction()}:
-The updated MizerParams object. Because of the way the R language
-works, \code{setReproduction()} does not make the changes to the params object
-that you pass to it but instead returns a new params object. So to affect
-the change you call the function in the form
-\code{params <- setReproduction(params, ...)}.
+\code{setReproduction()}: A MizerParams object with updated reproduction
+parameters.
 
-For \code{getMaturityProportion()}:
+\code{getMaturityProportion()} or equivalently `maturity():
 An array (species x size) that holds the proportion
 of individuals of each species at size that are mature.
 
-For \code{getReproductionProportion}:
+\code{getReproductionProportion()} or equivalently \code{repro_prop()}:
 An array (species x size) that holds the
 proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. For sizes where the maturity

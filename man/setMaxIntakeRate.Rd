@@ -3,11 +3,17 @@
 \name{setMaxIntakeRate}
 \alias{setMaxIntakeRate}
 \alias{getMaxIntakeRate}
+\alias{intake_max}
+\alias{intake_max<-}
 \title{Set maximum intake rate}
 \usage{
 setMaxIntakeRate(params, intake_max = NULL, reset = FALSE, ...)
 
 getMaxIntakeRate(params)
+
+intake_max(params)
+
+intake_max(params) <- value
 }
 \arguments{
 \item{params}{MizerParams}
@@ -25,11 +31,11 @@ custom value has been set.}
 \item{...}{Unused}
 }
 \value{
-A \code{MizerParams} object with updated maximum intake rate. Because
-of the way the R language works, \code{setMaxIntakeRate()} does not make the
-changes to the params object that you pass to it but instead returns a new
-params object. So to affect the change you call the function in the form
-\code{params <- setMaxIntakeRate(params, ...)}.
+\code{setReproduction()}: A MizerParams object with updated maximum
+intake rate.
+
+\code{getMaxIntakeRate()} or equivalently \code{intake_max()}: An array
+(species x size) with the maximum intake rate.
 }
 \description{
 Set maximum intake rate

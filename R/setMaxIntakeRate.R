@@ -27,11 +27,8 @@
 #'   custom value has been set.
 #' @param ... Unused
 #' 
-#' @return A `MizerParams` object with updated maximum intake rate. Because
-#'   of the way the R language works, `setMaxIntakeRate()` does not make the
-#'   changes to the params object that you pass to it but instead returns a new
-#'   params object. So to affect the change you call the function in the form
-#'   `params <- setMaxIntakeRate(params, ...)`.
+#' @return `setReproduction()`: A MizerParams object with updated maximum
+#'   intake rate.
 #' @export
 #' @family functions for setting parameters
 setMaxIntakeRate <- function(params, intake_max = NULL, reset = FALSE, ...) {
@@ -93,7 +90,22 @@ setMaxIntakeRate <- function(params, intake_max = NULL, reset = FALSE, ...) {
 }
 
 #' @rdname setMaxIntakeRate
+#' @return `getMaxIntakeRate()` or equivalently `intake_max()`: An array
+#'   (species x size) with the maximum intake rate.
 #' @export
 getMaxIntakeRate <- function(params) {
     params@intake_max
+}
+
+
+#' @rdname setMaxIntakeRate
+#' @export
+intake_max <- function(params) {
+    params@intake_max
+}
+
+#' @rdname setMaxIntakeRate
+#' @export
+`intake_max<-` <- function(params, value) {
+    setMaxIntakeRate(params, intake_max = value)
 }

@@ -60,7 +60,7 @@ each species at size. Changed with \code{\link[=setSearchVolume]{setSearchVolume
 for each species at size. Changed with \code{\link[=setMetabolicRate]{setMetabolicRate()}}.}
 
 \item{\code{mu_b}}{An array (species x size) that holds the external mortality rate
-\eqn{\mu_{b.i}(w)}. Changed with \code{\link[=setExtMort]{setExtMort()}}.}
+\eqn{\mu_{ext.i}(w)}. Changed with \code{\link[=setExtMort]{setExtMort()}}.}
 
 \item{\code{pred_kernel}}{An array (species x predator size x prey size) that holds
 the predation coefficient of each predator at size on each prey size. If

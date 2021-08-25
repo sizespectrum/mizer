@@ -209,7 +209,11 @@
 
     <pre class="usage"><span class='fu'>setMaxIntakeRate</span><span class='op'>(</span><span class='va'>params</span>, intake_max <span class='op'>=</span> <span class='cn'>NULL</span>, reset <span class='op'>=</span> <span class='cn'>FALSE</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'>getMaxIntakeRate</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
+<span class='fu'>getMaxIntakeRate</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>intake_max</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>intake_max</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -240,11 +244,10 @@ custom value has been set.</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A <code>MizerParams</code> object with updated maximum intake rate. Because
-of the way the R language works, <code>setMaxIntakeRate()</code> does not make the
-changes to the params object that you pass to it but instead returns a new
-params object. So to affect the change you call the function in the form
-<code>params &lt;- setMaxIntakeRate(params, ...)</code>.</p>
+    <p><code><a href='setReproduction.html'>setReproduction()</a></code>: A MizerParams object with updated maximum
+intake rate.</p>
+<p><code>getMaxIntakeRate()</code> or equivalently <code>intake_max()</code>: An array
+(species x size) with the maximum intake rate.</p>
     <h2 class="hasAnchor" id="setting-maximum-intake-rate"><a class="anchor" href="#setting-maximum-intake-rate"></a>Setting maximum intake rate</h2>
 
     

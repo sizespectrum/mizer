@@ -3,11 +3,17 @@
 \name{setMetabolicRate}
 \alias{setMetabolicRate}
 \alias{getMetabolicRate}
+\alias{metab}
+\alias{metab<-}
 \title{Set metabolic rate}
 \usage{
 setMetabolicRate(params, metab = NULL, p = NULL, reset = FALSE, ...)
 
 getMetabolicRate(params)
+
+metab(params)
+
+metab(params) <- value
 }
 \arguments{
 \item{params}{MizerParams}
@@ -29,11 +35,10 @@ custom value has been set.}
 \item{...}{Unused}
 }
 \value{
-MizerParams object with updated metabolic rate. Because of the way
-the R language works, \code{setMetabolicRate()} does not make the changes to the
-params object that you pass to it but instead returns a new params object.
-So to affect the change you call the function in the form
-\code{params <- setMetabolicRate(params, ...)}.
+\code{setMetabolicRate()}: A MizerParams object with updated metabolic rate.
+
+\code{getMetabolicRate()} or equivalently \code{metab()}: An array
+(species x size) with the metabolic rate.
 }
 \description{
 Sets the rate at which energy is used for metabolism and activity

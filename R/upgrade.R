@@ -176,7 +176,7 @@ upgradeParams <- function(params) {
         search_vol = params@search_vol,
         intake_max = params@intake_max,
         metab = metab,
-        z0 = mu_b,
+        ext_mort = mu_b,
         maturity = maturity,
         repro_prop = repro_prop,
         RDD = RDD,

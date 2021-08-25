@@ -3,8 +3,14 @@
 \name{setFishing}
 \alias{setFishing}
 \alias{getCatchability}
+\alias{catchability}
+\alias{catchability<-}
 \alias{getSelectivity}
+\alias{selectivity}
+\alias{selectivity<-}
 \alias{getInitialEffort}
+\alias{initial_effort}
+\alias{initial_effort<-}
 \title{Set fishing parameters}
 \usage{
 setFishing(
@@ -18,9 +24,21 @@ setFishing(
 
 getCatchability(params)
 
+catchability(params)
+
+catchability(params) <- value
+
 getSelectivity(params)
 
+selectivity(params)
+
+selectivity(params) <- value
+
 getInitialEffort(params)
+
+initial_effort(params)
+
+initial_effort(params) <- value
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -44,21 +62,18 @@ a vector, must be named by gear.}
 \item{...}{Unused}
 }
 \value{
-MizerParams object with updated catchability and selectivity. Because
-of the way the R language works, \code{setFishing()} does not make the changes
-to the params object that you pass to it but instead returns a new params
-object. So to affect the change you call the function in the form
-\code{params <- setFishing(params, ...)}.
+\code{setFishing()}: A MizerParams object with updated fishing
+parameters.
 
-For \code{getCatchability()}: An array (gear x species) that holds the catchability of
+\code{getCatchability()} or equivalently \code{catchability()}: An array (gear x species) that holds the catchability of
 each species by each gear, \eqn{Q_{g,i}}.
 The names of the dimensions are "gear, "sp".
 
-For \code{getSelectivity()}: An array (gear x species x size) that holds
+\code{getSelectivity()} or equivalently \code{selectivity()}: An array (gear x species x size) that holds
 the selectivity of each gear for species and size, \eqn{S_{g,i,w}}.
 The names of the dimensions are "gear, "sp", "w".
 
-For \code{getInitialEffort()}: A named vector with the initial fishing
+\code{getInitialEffort()} or equivalently \code{initial_effort()}: A named vector with the initial fishing
 effort for each gear.
 }
 \description{
