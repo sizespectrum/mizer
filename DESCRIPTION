@@ -26,6 +26,7 @@ Imports:
     dplyr,
     ggplot2,
     grid,
+    lubridate,
     methods,
     plotly,
     plyr,
