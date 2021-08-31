@@ -263,6 +263,16 @@ upgradeParams <- function(params) {
         pnew@A <- params@A
     }
     
+    if (.hasSlot(params, "title")) {
+        pnew@title <- params@title
+        pnew@description <- params@description
+        pnew@authors <- params@authors
+        pnew@orcid <- params@orcid
+        pnew@version <- params@version
+        pnew@time_created <- params@time_created
+        pnew@extionsions <- params@extensions
+    }
+    
     # Copy over all comments
     comment(pnew) <- comment(params)
     for (slot in slotNames(pnew)) {
