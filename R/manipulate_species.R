@@ -380,6 +380,8 @@ removeSpecies <- function(params, species) {
     }
     
     validObject(p)
+    
+    p@time_modified <- lubridate::now()
     return(p)
 }
 
@@ -389,7 +391,8 @@ removeSpecies <- function(params, species) {
 #' @description
 #' `r lifecycle::badge("experimental")`
 #'
-#' Changes the names of species in a MizerParams object
+#' Changes the names of species in a MizerParams object. This involves for
+#' example changing the species dimension names of rate arrays appropriately.
 #'
 #' @param params A mizer params object
 #' @param replace A named character vector, with new names as values, and old
@@ -398,11 +401,9 @@ removeSpecies <- function(params, species) {
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
 #' @examples
-#' \dontrun{
 #' replace <- c(Cod = "Kabeljau", Haddock = "Schellfisch")
 #' params <- renameSpecies(NS_params, replace)
 #' species_params(params)$species
-#' }
 renameSpecies <- function(params, replace) {
     params <- validParams(params)
     replace[] <- as.character(replace)
@@ -453,5 +454,7 @@ renameSpecies <- function(params, replace) {
     dimnames(params@catchability)$sp <- species
     
     validObject(params)
+    
+    params@time_modified <- lubridate::now()
     return(params)
 }

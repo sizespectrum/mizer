@@ -284,7 +284,7 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
     existing <- names(params@initial_effort) %in% gear_names
     params@initial_effort <- validEffortVector(params@initial_effort[existing], 
                                                params)
-    
+    params@time_modified <- lubridate::now()
     return(params)
 }
 

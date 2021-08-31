@@ -134,6 +134,7 @@ setPredKernel <- function(params,
                  w_pred = signif(params@w, 3),
                  w_prey = signif(params@w_full, 3))
         params@pred_kernel <- pred_kernel
+        params@time_modified <- lubridate::now()
         return(params)
     }
     
@@ -183,6 +184,7 @@ setPredKernel <- function(params,
     params@ft_pred_kernel_e[] <- ft_pred_kernel_e
     params@ft_pred_kernel_p[] <- ft_pred_kernel_p
     
+    params@time_modified <- lubridate::now()
     return(params)
 }
 

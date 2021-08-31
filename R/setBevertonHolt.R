@@ -199,6 +199,8 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
         r_max_new[is.nan(r_max_new)] <- Inf
         params@species_params$erepro[sp_idx] <- erepro_new
         params@species_params$R_max[sp_idx] <- r_max_new
+        
+        params@time_modified <- lubridate::now()
         return(params)
     }
     
@@ -242,6 +244,7 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
                 paste(species[wrong], collapse = ", "))
     }
     
+    params@time_modified <- lubridate::now()
     return(params)
 }
 

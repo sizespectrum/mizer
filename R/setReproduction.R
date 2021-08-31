@@ -333,6 +333,7 @@ setReproduction <- function(params, maturity = NULL,
         params <- set_species_param_default(params, "R_max", Inf)
     }
     
+    params@time_modified <- lubridate::now()
     return(params)
 }
 

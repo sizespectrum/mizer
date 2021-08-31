@@ -181,6 +181,7 @@ projectToSteady <- function(params,
         sim@effort <- sim@effort[sel, , drop = FALSE]
         return(sim)
     } else {
+        params@time_modified <- lubridate::now()
         return(params)
     }
 }
@@ -269,6 +270,7 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
         object@params <- params
         return(object)
     } else {
+        params@time_modified <- lubridate::now()
         return(params)
     }
 }

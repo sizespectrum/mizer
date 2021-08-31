@@ -272,6 +272,8 @@ upgradeParams <- function(params) {
     }
     
     validObject(pnew)
+    
+    pnew@time_modified <- lubridate::now()
     pnew
 }
 
