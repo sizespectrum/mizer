@@ -65,7 +65,7 @@ setResource <- function(params,
                         resource_dynamics = NULL,
                         ...) {
     assert_that(is(params, "MizerParams"),
-                is.logical(reset),
+                is.flag(reset),
                 is.number(kappa), kappa > 0,
                 is.number(lambda),
                 is.number(r_pp), r_pp > 0,

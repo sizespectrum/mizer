@@ -131,7 +131,7 @@ setReproduction <- function(params, maturity = NULL,
                             RDD = NULL, ...) {
     # check arguments ----
     assert_that(is(params, "MizerParams"),
-                is.logical(reset))
+                is.flag(reset))
     if (is.null(RDD)) RDD <- params@rates_funcs[["RDD"]]
     assert_that(is.string(RDD),
                 exists(RDD),

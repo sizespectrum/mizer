@@ -108,7 +108,7 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
                        reset = FALSE,
                        initial_effort = NULL, ...) {
     assert_that(is(params, "MizerParams"),
-                is.logical(reset))
+                is.flag(reset))
     species_params <- params@species_params
     gear_params <- params@gear_params
     sp_names <- as.character(species_params$species)

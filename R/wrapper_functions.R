@@ -292,9 +292,9 @@ newTraitParams <- function(no_sp = 11,
                            perfect_scaling = FALSE) {
     
     ## Check validity of parameters ----
-    assert_that(is.logical(egg_size_scaling),
-                is.logical(resource_scaling),
-                is.logical(perfect_scaling))
+    assert_that(is.flag(egg_size_scaling),
+                is.flag(resource_scaling),
+                is.flag(perfect_scaling))
     if (ext_mort_prop >= 1 || ext_mort_prop < 0) {
         stop("ext_mort_prop must be a number between 0 and 1",
              " because it should be the proportion of the total mortality",

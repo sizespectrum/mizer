@@ -98,7 +98,7 @@ setPredKernel <- function(params,
                           pred_kernel = NULL,
                           reset = FALSE, ...) {
     assert_that(is(params, "MizerParams"),
-                is.logical(reset))
+                is.flag(reset))
     
     if (reset) {
         if (!is.null(pred_kernel)) {

@@ -37,12 +37,17 @@ animateSpectra <- function(sim,
                            power = 1,
                            total = FALSE,
                            resource = TRUE) {
+    assert_that(is.flag(total), is.flag(resource),
+                is.number(power), 
+                length(wlim) == 2,
+                length(ylim) == 2)
 
     species <- valid_species_arg(sim, species)
     if (missing(time_range)) {
         time_range  <- as.numeric(dimnames(sim@n)$time)
     }
     time_elements <- get_time_elements(sim, time_range)
+    
     nf <- melt(sim@n[time_elements,
                      as.character(dimnames(sim@n)$sp) %in% species,
                                , drop = FALSE])

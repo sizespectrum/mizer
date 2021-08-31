@@ -314,7 +314,7 @@ valid_species_arg <- function(object, species = NULL, return.logical = FALSE) {
     } else {
         stop("The first argument must be a MizerSim or MizerParams object.")
     }
-    assert_that(is.logical(return.logical))
+    assert_that(is.flag(return.logical))
     all_species <- dimnames(params@initial_n)$sp
     no_sp <- nrow(params@species_params)
     # Set species if missing to list of all non-background species

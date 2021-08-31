@@ -65,7 +65,8 @@ setExtMort <- function(params, ext_mort = NULL,
         ext_mort <- z0
     }
     assert_that(is(params, "MizerParams"),
-                is.logical(reset))
+                is.flag(reset),
+                is.number(z0pre), is.number(z0exp))
     
     if (reset) {
         if (!is.null(ext_mort)) {

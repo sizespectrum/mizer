@@ -40,7 +40,7 @@
 setMetabolicRate <- function(params, metab = NULL, p = NULL, 
                              reset = FALSE, ...) {
     assert_that(is(params, "MizerParams"),
-                is.logical(reset))
+                is.flag(reset))
     if (!is.null(p)) {
         assert_that(is.numeric(p))
         params <- set_species_param_default(params, "p", p)

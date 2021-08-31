@@ -245,7 +245,11 @@ plotBiomass <- function(sim, species = NULL,
                         total = FALSE, background = TRUE, 
                         highlight = NULL, return_data = FALSE,
                         ...) {
-    assert_that(is(sim, "MizerSim"))
+    assert_that(is(sim, "MizerSim"),
+                is.flag(total),
+                is.flag(background),
+                is.flag(return_data),
+                length(ylim) == 2)
     params <- sim@params
     species <- valid_species_arg(sim, species)
     if (missing(start_time)) start_time <- 
@@ -355,7 +359,10 @@ plotYield <- function(sim, sim2,
                       total = FALSE, log = TRUE,
                       highlight = NULL, return_data = FALSE,
                       ...) {
-    assert_that(is(sim, "MizerSim"))
+    assert_that(is(sim, "MizerSim"),
+                is.flag(total),
+                is.flag(log),
+                is.flag(return_data))
     params <- sim@params
     species <- valid_species_arg(sim, species)
     if (missing(sim2)) {
@@ -454,7 +461,9 @@ plotYieldGear <- function(sim,
                           total = FALSE,
                           highlight = NULL, return_data = FALSE,
                           ...) {
-    assert_that(is(sim, "MizerSim"))
+    assert_that(is(sim, "MizerSim"),
+                is.flag(total),
+                is.flag(return_data))
     params <- sim@params
     species <- valid_species_arg(sim, species)
     
@@ -575,6 +584,11 @@ plotSpectra <- function(object, species = NULL,
     if (missing(power)) {
         power <- as.numeric(biomass)
     }
+    assert_that(is.flag(total), is.flag(resource),
+                is.flag(background),
+                is.number(power), 
+                length(wlim) == 2,
+                length(ylim) == 2)
     species <- valid_species_arg(object, species)
     if (is(object, "MizerSim")) {
         if (missing(time_range)) {
@@ -754,6 +768,9 @@ plotFeedingLevel <- function(object, species = NULL,
             time_range, highlight = NULL,
             all.sizes = FALSE, include_critical = FALSE,
             return_data = FALSE, ...) {
+    assert_that(is.flag(all.sizes),
+                is.flag(include_critical),
+                is.flag(return_data))
     if (is(object, "MizerSim")) {
         if (missing(time_range)) {
             time_range  <- max(as.numeric(dimnames(object@n)$time))
@@ -875,6 +892,8 @@ plotPredMort <- function(object, species = NULL,
                          time_range, all.sizes = FALSE,
                          highlight = NULL, return_data = FALSE,
                          ...) {
+    assert_that(is.flag(all.sizes),
+                is.flag(return_data))
     if (is(object, "MizerSim")) {
         if (missing(time_range)) {
             time_range  <- max(as.numeric(dimnames(object@n)$time))
@@ -966,6 +985,8 @@ plotFMort <- function(object, species = NULL,
                       time_range, all.sizes = FALSE,
                       highlight = NULL, return_data = FALSE,
                       ...) {
+    assert_that(is.flag(all.sizes),
+                is.flag(return_data))
     if (is(object, "MizerSim")) {
         if (missing(time_range)) {
             time_range  <- max(as.numeric(dimnames(object@n)$time))
@@ -1046,6 +1067,10 @@ plotGrowthCurves <- function(object, species = NULL,
                              max_age = 20, percentage = FALSE, 
                              species_panel = FALSE, highlight = NULL,
                              return_data = FALSE, ...) {
+    assert_that(is.flag(percentage),
+                is.flag(species_panel),
+                is.flag(return_data),
+                is.number(max_age))
     if (is(object, "MizerSim")) {
         params <- object@params
         t <- dim(object@n)[1]
@@ -1191,6 +1216,7 @@ plotlyGrowthCurves <- function(object, species = NULL,
 #' str(fr)
 #' }
 plotDiet <- function(object, species = NULL, return_data = FALSE) {
+    assert_that(is.flag(return_data))
     params <- validParams(object)
     species <- valid_species_arg(object, species, return.logical = TRUE)
     diet <- getDiet(params)[species, , ]

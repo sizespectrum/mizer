@@ -41,7 +41,7 @@
 #' @family functions for setting parameters
 setSearchVolume <- function(params, search_vol = NULL, reset = FALSE, ...) {
     assert_that(is(params, "MizerParams"),
-                is.logical(reset))
+                is.flag(reset))
     species_params <- params@species_params
     
     if (reset) {
