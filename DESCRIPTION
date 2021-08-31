@@ -60,6 +60,7 @@ Collate:
     'setSearchVolume.R'
     'setMaxIntakeRate.R'
     'setMetabolicRate.R'
+    'setMetadata.R'
     'setExtMort.R'
     'setReproduction.R'
     'setResource.R'
