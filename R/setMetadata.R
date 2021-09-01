@@ -1,6 +1,7 @@
 #' Set metadata for a model
 #' 
-#' @details 
+#' @section Setting model metadata:
+#' 
 #' The metadata of a model consists of the following slots:
 #' * `title` A string with the title for the model
 #' * `description` A string with a description of the model

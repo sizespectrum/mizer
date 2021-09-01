@@ -37,7 +37,9 @@ The MizerParams object with updated metadata
 \description{
 Set metadata for a model
 }
-\details{
+\section{Setting model metadata}{
+
+
 The metadata of a model consists of the following slots:
 \itemize{
 \item \code{title} A string with the title for the model
@@ -59,3 +61,4 @@ The \code{version}, \code{time_created} \code{time_modified} and \code{extension
 set automatically by the appropriate functions. The other fields are set
 via \code{setMetadata()}.
 }
+
