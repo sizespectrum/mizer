@@ -177,7 +177,7 @@ test_that("removeSpecies works with 3d pred kernel", {
     params2 <- NS_params
     params2 <- removeSpecies(params2, "Cod")
     params2 <- setPredKernel(params2, pred_kernel = getPredKernel(params2))
-    expect_identical(params1, params2)
+    expect_unchanged(params1, params2)
 })
 test_that("removeSpecies works correctly on gear_params", {
     # We'll check that the resulting gear_params lead to the same selectivity
@@ -185,7 +185,7 @@ test_that("removeSpecies works correctly on gear_params", {
     params <- removeSpecies(NS_params, "Cod")
     expect_equal(nrow(params@gear_params), 11)
     params2 <- setFishing(params)
-    expect_identical(params, params2)
+    expect_unchanged(params, params2)
 })
 
 test_that("adding and then removing species leaves params unaltered", {
@@ -216,12 +216,9 @@ test_that("adding and then removing species leaves params unaltered", {
     params2@linetype <- params@linetype
     params2@species_params$linecolour <- NULL
     params2@species_params$linetype <- NULL
-    # Previous to mizer2.1.0.9000 addSpecies changed RDD
-    # Once mizer 2.1.1 is released the following line can be deleted
-    params2@rates_funcs$RDD <- params@rates_funcs$RDD
     # comment on w_min_idx are not preserved
     comment(params@w_min_idx) <- NULL
-    expect_equal(params, params2)
+    expect_unchanged(params, params2)
 })
 
 # renameSpecies ----
@@ -233,6 +230,8 @@ test_that("renameSpecies works", {
     names(replace) <- sp$species
     p2 <- newMultispeciesParams(sp)
     p2 <- renameSpecies(p2, replace)
+    p2@time_modified <- p@time_modified
+    p2@time_created <- p@time_created
     expect_identical(p, p2)
 })
 test_that("renameSpecies warns on wrong names", {

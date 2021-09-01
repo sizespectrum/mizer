@@ -10,7 +10,8 @@ setMetadata(
   title = NULL,
   description = NULL,
   authors = NULL,
-  orcid = NULL
+  orcid = NULL,
+  ...
 )
 
 getMetadata(params)

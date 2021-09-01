@@ -30,7 +30,7 @@
 #' @return The MizerParams object with updated metadata
 #' @export
 setMetadata <- function(params, title = NULL, description = NULL,
-                        authors = NULL, orcid = NULL) {
+                        authors = NULL, orcid = NULL, ...) {
     params <- validParams(params)
     if (!is.null(title)) {
         assert_that(is.string(title))

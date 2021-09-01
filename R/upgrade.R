@@ -270,7 +270,7 @@ upgradeParams <- function(params) {
         pnew@orcid <- params@orcid
         pnew@version <- params@version
         pnew@time_created <- params@time_created
-        pnew@extionsions <- params@extensions
+        pnew@extensions <- params@extensions
     }
     
     # Copy over all comments

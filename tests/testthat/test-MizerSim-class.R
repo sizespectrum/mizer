@@ -54,5 +54,5 @@ test_that("upgradeSim leaves upgraded sim unchanged", {
     comment(sim@params) <- "params"
     comment(sim@params@intake_max) <- "intake_max"
     comment(sim@n) <- "n"
-    expect_identical(sim, upgradeSim(sim))
+    expect_unchanged(sim, upgradeSim(sim))
 })

@@ -83,6 +83,7 @@ Collate:
     'wrapper_functions.R'
     'newSingleSpeciesParams.R'
     'steady.R'
+    'test-helpers.R'
     'extension.R'
     'data.R'
     'RcppExports.R'

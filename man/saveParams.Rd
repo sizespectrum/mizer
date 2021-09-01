@@ -2,12 +2,12 @@
 % Please edit documentation in R/saveParams.R
 \name{saveParams}
 \alias{saveParams}
-\alias{loadParams}
+\alias{readParams}
 \title{Save a MizerParams object}
 \usage{
 saveParams(params, file)
 
-loadParams(file)
+readParams(file)
 }
 \arguments{
 \item{params}{A MizerParams object}

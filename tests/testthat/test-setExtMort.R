@@ -8,7 +8,7 @@ test_that("setExtMort works", {
     expect_identical(2 * params@mu_b, p2@mu_b)
     # only mu_b changed
     p2@mu_b <- params@mu_b
-    expect_identical(p2, params)
+    expect_unchanged(p2, params)
     
     # supplying ext_mort
     p2 <- setExtMort(params, 3 * params@mu_b)
