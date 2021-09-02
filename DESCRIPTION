@@ -75,6 +75,7 @@ Collate:
     'rate_functions.R'
     'summary_methods.R'
     'plots.R'
+    'plotBiomassObservedVsModel.R'
     'animateSpectra.R'
     'newMultispeciesParams.R'
     'wrapper_functions.R'
@@ -88,6 +89,8 @@ Collate:
     'compareParams.R'
     'customFunction.R'
     'manipulate_species.R'
+    'calibrate.R'
+    'match.R'
 RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
