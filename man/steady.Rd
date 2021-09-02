@@ -11,7 +11,7 @@ steady(
   dt = 0.1,
   tol = 0.1 * dt,
   return_sim = FALSE,
-  preserve = c("reproduction_level", "R_max"),
+  preserve = c("erepro", "reproduction_level", "R_max"),
   progress_bar = TRUE
 )
 }
@@ -35,8 +35,9 @@ the result of the simulation run. If FALSE (default) the function returns
 a MizerParams object with the "initial" slots set to the steady state.}
 
 \item{preserve}{Specifies whether the \code{reproduction_level} should be
-preserved or the maximum reproduction rate \code{R_max}. See \code{\link[=setBevertonHolt]{setBevertonHolt()}}
-for an explanation of the \code{reproduction_level}.}
+preserved or the maximum reproduction rate \code{R_max} or the reproductive
+efficiency \code{erepro} (Default). See \code{\link[=setBevertonHolt]{setBevertonHolt()}} for an explanation
+of the \code{reproduction_level}.}
 
 \item{progress_bar}{A shiny progress object to implement a progress bar in a
 shiny app. Default FALSE.}

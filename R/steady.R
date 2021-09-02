@@ -206,8 +206,9 @@ projectToSteady <- function(params,
 #'   the result of the simulation run. If FALSE (default) the function returns
 #'   a MizerParams object with the "initial" slots set to the steady state.
 #' @param preserve Specifies whether the `reproduction_level` should be
-#'   preserved or the maximum reproduction rate `R_max`. See [setBevertonHolt()]
-#'   for an explanation of the `reproduction_level`.
+#'   preserved or the maximum reproduction rate `R_max` or the reproductive
+#'   efficiency `erepro` (Default). See [setBevertonHolt()] for an explanation
+#'   of the `reproduction_level`.
 #' @param progress_bar A shiny progress object to implement a progress bar in a
 #'   shiny app. Default FALSE.
 #' @export
@@ -220,13 +221,14 @@ projectToSteady <- function(params,
 #' }
 steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
                    tol = 0.1 * dt, return_sim = FALSE, 
-                   preserve = c("reproduction_level", "R_max"),
+                   preserve = c("erepro", "reproduction_level", "R_max"),
                    progress_bar = TRUE) {
     params <- validParams(params)
     
     preserve <- match.arg(preserve)
     old_reproduction_level <- getReproductionLevel(params)
     old_R_max <- params@species_params$R_max
+    old_erepro <- params@species_params$erepro
     
     # Force the reproduction to stay at the current level
     params@species_params$constant_reproduction <- getRDD(params)
@@ -263,6 +265,8 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
     } else if (preserve == "R_max") {
         params <- setBevertonHolt(params, 
                                   R_max = old_R_max)
+    } else {
+        params <- setBevertonHolt(params, erepro = old_erepro)
     }
     
     if (return_sim) {

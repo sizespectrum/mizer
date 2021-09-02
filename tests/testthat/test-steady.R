@@ -57,21 +57,24 @@ test_that("steady works", {
     expect_known_value(getRDD(sim@params), "values/steady")
 })
 
+test_that("steady() preserves erepro", {
+    params <- NS_params
+    species_params(params)$R_max <- 1.01 * species_params(params)$R_max
+    p2 <- steady(params, t_per = 1)
+    expect_equal(p2@species_params$erepro, params@species_params$erepro)
+})
 test_that("steady() preserves reproduction level", {
     params <- NS_params
     species_params(params)$R_max <- 1.01 * species_params(params)$R_max
-    repro_level <- getReproductionLevel(params)
-    params <- steady(params, t_per = 1)
-    expect_equal(getReproductionLevel(params),
-                 repro_level)
+    p2 <- steady(params, t_per = 1, preserve = "reproduction_level")
+    expect_equal(getReproductionLevel(p2), getReproductionLevel(params))
 })
 test_that("steady() preserves R_max", {
     params <- NS_params
     species_params(params)$erepro <- 1.01 * species_params(params)$erepro
-    r_max <- params@species_params$R_max
-    expect_warning(params <- steady(params, t_per = 1, preserve = "R_max"),
+    expect_warning(p2 <- steady(params, t_per = 1, preserve = "R_max"),
                    "The following species require an unrealistic reproductive")
-    expect_equal(r_max, params@species_params$R_max)
+    expect_equal(p2@species_params$R_max, params@species_params$R_max)
 })
 
 # valid_species_arg ----
