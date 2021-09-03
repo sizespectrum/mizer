@@ -105,6 +105,7 @@ reference:
   - setReproduction
   - setFishing
   - setResource
+  - setMetadata
   - setBevertonHolt
   - compareParams
 - title: Tuning model to observations
@@ -227,6 +228,7 @@ reference:
 - title: Classes
   contents:
   - MizerParams-class
+  - saveParams
   - summary,MizerParams-method
   - "w"
   - validParams

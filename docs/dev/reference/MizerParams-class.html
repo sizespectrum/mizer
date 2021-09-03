@@ -231,6 +231,27 @@ abundances or harvest effort through time. These are held in
     
 
 <dl>
+<dt><code>title</code></dt><dd><p>A string with the title for the model.</p></dd>
+
+<dt><code>description</code></dt><dd><p>A string with a description of the model.</p></dd>
+
+<dt><code>authors</code></dt><dd><p>A vector of strings with the author names.</p></dd>
+
+<dt><code>orcid</code></dt><dd><p>A named vector of strings where each name is an author name and
+each value is an orcid id.</p></dd>
+
+<dt><code>version</code></dt><dd><p>The package version of mizer (as returned by
+<code>packageVersion("mizer")</code>) that created or last saved the model.</p></dd>
+
+<dt><code>extensions</code></dt><dd><p>A named vector of strings where each name is the name of
+and extension package needed to run the model and each value is a string
+giving the information that the remotes package needs to install the
+correct version of the extension package, see https://remotes.r-lib.org/.</p></dd>
+
+<dt><code>time_created</code></dt><dd><p>A POSIXct date-time object with the creation time.</p></dd>
+
+<dt><code>time_modified</code></dt><dd><p>A POSIXct date-time object with the last modified time.</p></dd>
+
 <dt><code>w</code></dt><dd><p>The size grid for the fish part of the spectrum. An increasing
 vector of weights (in grams) running from the smallest egg size to the
 largest asymptotic size.</p></dd>
