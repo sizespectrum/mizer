@@ -5,7 +5,7 @@
 \alias{getMetadata}
 \title{Set metadata for a model}
 \usage{
-setMetadata(params, title, description, authors, orcid, url, doi, ...)
+setMetadata(params, title, description, authors, url, doi, ...)
 
 getMetadata(params)
 }
@@ -20,9 +20,6 @@ example contain information about any publications using the model.}
 \item{authors}{An author entry or a list of author entries, where each author
 entry could either be just a name or could itself be a list with fields
 like \code{name}, \code{orcid}, possibly \code{email}.}
-
-\item{orcid}{A named vector of strings where each name is an author name and
-each value is an orcid id.}
 
 \item{url}{A URL where more information about the model can be found. This
 could be a blog post on the mizer blog, for example.}

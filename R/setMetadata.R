@@ -28,8 +28,6 @@
 #' @param authors An author entry or a list of author entries, where each author
 #'   entry could either be just a name or could itself be a list with fields
 #'   like `name`, `orcid`, possibly `email`.
-#' @param orcid A named vector of strings where each name is an author name and
-#'    each value is an orcid id.
 #' @param url A URL where more information about the model can be found. This
 #'    could be a blog post on the mizer blog, for example.
 #' @param doi The digital object identifier for your model. To create a doi you
@@ -39,7 +37,7 @@
 #' @return `setMetadata()`: The MizerParams object with updated metadata
 #' @export
 setMetadata <- function(params, title, description,
-                        authors, orcid, url, doi, ...) {
+                        authors, url, doi, ...) {
     params <- validParams(params)
     extra <- list(...)
     special <- c("mizer_version", "extensions", "time_modified", "time_created")

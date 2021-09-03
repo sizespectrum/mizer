@@ -213,7 +213,7 @@ of your own choosing. If you set a value
 for a field that already existed, the old value will be overwritten.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setMetadata</span><span class='op'>(</span><span class='va'>params</span>, <span class='va'>title</span>, <span class='va'>description</span>, <span class='va'>authors</span>, <span class='va'>orcid</span>, <span class='va'>url</span>, <span class='va'>doi</span>, <span class='va'>...</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>setMetadata</span><span class='op'>(</span><span class='va'>params</span>, <span class='va'>title</span>, <span class='va'>description</span>, <span class='va'>authors</span>, <span class='va'>url</span>, <span class='va'>doi</span>, <span class='va'>...</span><span class='op'>)</span>
 
 <span class='fu'>getMetadata</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
 
@@ -238,11 +238,6 @@ example contain information about any publications using the model.</p></td>
       <td><p>An author entry or a list of author entries, where each author
 entry could either be just a name or could itself be a list with fields
 like <code>name</code>, <code>orcid</code>, possibly <code>email</code>.</p></td>
-    </tr>
-    <tr>
-      <th>orcid</th>
-      <td><p>A named vector of strings where each name is an author name and
-each value is an orcid id.</p></td>
     </tr>
     <tr>
       <th>url</th>
