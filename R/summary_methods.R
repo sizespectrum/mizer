@@ -329,25 +329,21 @@ getGrowthCurves <- function(object,
                             percentage = FALSE) {
     if (is(object, "MizerSim")) {
         params <- object@params
-        t <- dim(object@n)[1]
-        n <- object@n[t, , ]
-        n_pp <- object@n_pp[t, ]
+        params <- setInitialValues(params, object)
     } else if (is(object, "MizerParams")) {
         params <- validParams(object)
-        n <- object@initial_n
-        n_pp <- object@initial_n_pp
     } else {
         stop("The first argument to `getGrowthCurves()` must be a ",
              "MizerParams or a MizerSim object.")
     }
     species <- valid_species_arg(params, species)
     # reorder list of species to coincide with order in params
-    idx <- which(dimnames(n)$sp %in% species)
-    species <- dimnames(n)$sp[idx]
+    idx <- which(params@species_params$species %in% species)
+    species <- params@species_params$species[idx]
     age <- seq(0, max_age, length.out = 50)
     ws <- array(dim = c(length(species), length(age)),
                 dimnames = list(Species = species, Age = age))
-    g <- getEGrowth(params, n, n_pp)
+    g <- getEGrowth(params)
     for (j in seq_along(species)) {
         i <- idx[j]
         g_fn <- stats::approxfun(c(params@w, params@species_params$w_inf[[i]]),

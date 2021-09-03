@@ -55,8 +55,13 @@
 <meta property="og:title" content="Get size range array — get_size_range_array" />
 <meta property="og:description" content="Helper function that returns an array (species x size) of boolean values
 indicating whether that size bin is within the size limits specified by the
-arguments." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+arguments. Either the size limits can be the same for all species or they
+can be specified as vectors with one value for each species in the model." />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 <meta name="robots" content="noindex">
@@ -88,7 +93,7 @@ arguments." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9007</span>
       </span>
     </div>
 
@@ -204,7 +209,8 @@ arguments." />
     <div class="ref-description">
     <p>Helper function that returns an array (species x size) of boolean values
 indicating whether that size bin is within the size limits specified by the
-arguments.</p>
+arguments. Either the size limits can be the same for all species or they
+can be specified as vectors with one value for each species in the model.</p>
     </div>
 
     <pre class="usage"><span class='fu'>get_size_range_array</span><span class='op'>(</span>
@@ -262,8 +268,9 @@ for the species parameter data.frame to include the parameters <code>a</code> an
 that determine the relation between length \(l\) and weight \(w\) by
 $$w = a l^b.$$</p>
 <p>It is possible to mix length and weight constraints, e.g. by supplying a
-minimum weight and a maximum length. The default values are the minimum and
-maximum weights of the spectrum, i.e. the full range of the size spectrum is
+minimum weight and a maximum length, but this must be done the same for
+all species. The default values are the minimum and
+maximum weights of the spectrum, i.e., the full range of the size spectrum is
 used.</p>
 
   </div>

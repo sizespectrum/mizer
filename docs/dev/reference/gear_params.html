@@ -93,7 +93,7 @@ determine the fishing mortality." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9005</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9007</span>
       </span>
     </div>
 
@@ -257,16 +257,17 @@ unless you have previously set these by hand.</p>
 <code><a href='species_params.html'>species_params</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='va'>NS_params</span>
-<span class='fu'>gear_params</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>
-    gear <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"gear1"</span>, <span class='st'>"gear2"</span>, <span class='st'>"gear1"</span><span class='op'>)</span>,
-    species <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Cod"</span>, <span class='st'>"Cod"</span>, <span class='st'>"Haddock"</span><span class='op'>)</span><span class='op'>)</span>
-<span class='fu'>gear_params</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;                 gear species   sel_func knife_edge_size catchability
-#&gt; Cod, gear1     gear1     Cod knife_edge            1606            1
-#&gt; Cod, gear2     gear2     Cod knife_edge            1606            1
-#&gt; Haddock, gear1 gear1 Haddock knife_edge             165            1</div><div class='input'><span class='fu'>gear_params</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span><span class='st'>"Cod, gear1"</span>, <span class='st'>"knife_edge_size"</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fl'>500</span>
-</div></pre>
+    <pre class="examples"><span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='va'>NS_params</span></span>
+<span class='r-in'><span class='fu'>gear_params</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span></span>
+<span class='r-in'>    gear <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"gear1"</span>, <span class='st'>"gear2"</span>, <span class='st'>"gear1"</span><span class='op'>)</span>,</span>
+<span class='r-in'>    species <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Cod"</span>, <span class='st'>"Cod"</span>, <span class='st'>"Haddock"</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'>gear_params</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                 gear species   sel_func knife_edge_size catchability</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Cod, gear1     gear1     Cod knife_edge            1606            1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Cod, gear2     gear2     Cod knife_edge            1606            1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Haddock, gear1 gear1 Haddock knife_edge             165            1</span>
+<span class='r-in'><span class='fu'>gear_params</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span><span class='st'>"Cod, gear1"</span>, <span class='st'>"knife_edge_size"</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fl'>500</span></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

@@ -91,7 +91,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9003</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9007</span>
       </span>
     </div>
 
@@ -296,14 +296,14 @@ see <code><a href='constantEggRDI.html'>constantEggRDI()</a></code>.</p>
 <code><a href='getResourceMort.html'>getResourceMort</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
-<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='va'>NS_params</span>
-<span class='co'># Project with constant fishing effort for all gears for 20 time steps</span>
-<span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, t_max <span class='op'>=</span> <span class='fl'>20</span>, effort <span class='op'>=</span> <span class='fl'>0.5</span><span class='op'>)</span>
-<span class='co'># Get the density-independent reproduction rate at a particular time step</span>
-<span class='fu'>getRDI</span><span class='op'>(</span><span class='va'>params</span>, n <span class='op'>=</span> <span class='fu'><a href='N.html'>N</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>15</span>, , <span class='op'>]</span>, n_pp <span class='op'>=</span> <span class='fu'><a href='N.html'>NResource</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>15</span>, <span class='op'>]</span>, t <span class='op'>=</span> <span class='fl'>15</span><span class='op'>)</span>
-<span class='op'>}</span>
-</div></pre>
+    <pre class="examples"><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='va'>NS_params</span></span>
+<span class='r-in'><span class='co'># Project with constant fishing effort for all gears for 20 time steps</span></span>
+<span class='r-in'><span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, t_max <span class='op'>=</span> <span class='fl'>20</span>, effort <span class='op'>=</span> <span class='fl'>0.5</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># Get the density-independent reproduction rate at a particular time step</span></span>
+<span class='r-in'><span class='fu'>getRDI</span><span class='op'>(</span><span class='va'>params</span>, n <span class='op'>=</span> <span class='fu'><a href='N.html'>N</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>15</span>, , <span class='op'>]</span>, n_pp <span class='op'>=</span> <span class='fu'><a href='N.html'>NResource</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>15</span>, <span class='op'>]</span>, t <span class='op'>=</span> <span class='fl'>15</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

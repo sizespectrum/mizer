@@ -1073,10 +1073,7 @@ plotGrowthCurves <- function(object, species = NULL,
                 is.number(max_age))
     if (is(object, "MizerSim")) {
         params <- object@params
-        t <- dim(object@n)[1]
-        params@initial_n[] <- object@n[t, , ] # Designed to work also
-                                              # with single species
-        params@initial_n_pp <- object@n_pp[t, ]
+        params <- setInitialValues(params, object)
     } else if (is(object, "MizerParams")) {
         params <- validParams(object)
     }

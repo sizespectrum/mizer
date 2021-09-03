@@ -79,7 +79,7 @@ reference:
 - title: Creating a new model
   description: Mizer allows the easy set-up of four different types of models, 
     of increasing level of complexity. See
-    https://sizespectrum.org/mizer/dev/articles/mizer.html#size-spectrum-models
+    https://sizespectrum.org/mizer/articles/mizer.html#size-spectrum-models
     for a description of these model types.
   contents:
   - newSingleSpeciesParams
@@ -105,9 +105,17 @@ reference:
   - setReproduction
   - setFishing
   - setResource
-  - setInitialValues
   - setBevertonHolt
   - compareParams
+- title: Tuning model to observations
+  contents:
+  - plotBiomassObservedVsModel
+  - calibrateBiomass
+  - matchBiomasses
+  - plotYieldObservedVsModel
+  - calibrateYield
+  - matchYields
+  - scaleModel
 - title: Manipulating species
   contents:
   - addSpecies
@@ -215,26 +223,7 @@ reference:
   - -mizer
 - title: Internal helper functions
   contents:
-    # The following should list all functions with @concept helper
-    # but instead lists all functions. A bug in pkgdown?
   - has_concept("helper")
-  #- validSpeciesParams
-  #- validGearParams
-  #- set_species_param_default
-  #- get_h_default
-  #- get_gamma_default
-  #- get_ks_default
-  #- get_phi
-  #- log_breaks
-  #- get_initial_n
-  #- retune_erepro
-  #- get_required_reproduction
-  #- valid_species_arg
-  #- different
-  #- emptyParams
-  #- project_simple
-  #- distanceMaxRelRDI
-  #- distanceSSLogN
 - title: Classes
   contents:
   - MizerParams-class

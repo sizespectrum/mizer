@@ -16,15 +16,14 @@ Mizer is an R package to run [dynamic multi-species size-spectrum
 models](#dynamic-multi-species-size-spectrum-models) of fish
 communities. The package has been developed to model marine ecosystems
 that are subject to fishing. However, it may also be appropriate for
-other ecosystems.
+other aquatic ecosystems.
 
-The package contains routines and functions to allow users to set up an
-ecosystem model, and then project it through time under different
-fishing strategies. Methods are included to explore the results,
-including plots and calculation of community indicators such as the
-slope of the size spectrum. Size-based models can be complicated so
-mizer contains many default options that can be easily changed by the
-user.
+The package contains functions to allow users to set up an ecosystem
+model, and then project it through time under different fishing
+strategies. Methods are included to explore the results, including plots
+and calculation of community indicators such as the slope of the size
+spectrum. Size-based models can be complicated so mizer contains many
+default options that can be easily changed by the user.
 
 <!-- Mizer can also be used to create web apps that allow users to explore models -->
 <!-- without the need to install R. An [example of such an -->
@@ -41,11 +40,11 @@ from the user community are very welcome. There is a sister package
 called [mizerExperimental](https://sizespectrum.org/mizerExperimental/)
 where user contributions can be checked out and receive feedback from
 the community. Example mizer models can be contributed to
-[mizerExamples](https://sizespectrum.org/mizerExamples/).
-
-Does your project or publication use mizer? If so, we would love to
-know. You can also join our Google Discussion group here:
-<https://groups.google.com/forum/#!forum/size-spectrum-models>
+[mizerExamples](https://sizespectrum.org/mizerExamples/). Follow us on
+[twitter](https://twitter.com/mizer_model) and read our
+[blog](https://blog.mizer.sizespectrum.org) to stay up-to-date with new
+developments. Does your project or publication use mizer? If so, we
+would love to know.
 
 Recent work on mizer was funded by the European Commission Horizon 2020
 Research and Innovation Programme under Grant Agreement No 634495 for
@@ -59,11 +58,11 @@ The package is on [CRAN](https://cran.r-project.org/package=mizer) and
 therefore available from R’s built-in package manager.
 
 ``` r
-# Install release version from CRAN
+# Install latest released version from CRAN
 install.packages("mizer")
 
-# Alternatively, install development version from GitHub
-devtools::install_github("sizespectrum/mizer")
+# Alternatively, install the development version from GitHub
+remotes::install_github("sizespectrum/mizer")
 ```
 
 ## Example

@@ -57,7 +57,11 @@
 allowing you to replace any mizer function with your own version. You
 should do this only as a last resort, when you find that you can not use
 the standard mizer extension mechanism to achieve your goal." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 <meta name="robots" content="noindex">
@@ -89,7 +93,7 @@ the standard mizer extension mechanism to achieve your goal." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9007</span>
       </span>
     </div>
 
@@ -248,16 +252,16 @@ However you can always undo the effect by reloading mizer with</p><pre><span cla
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
-<span class='va'>fake_project</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>...</span><span class='op'>)</span> <span class='st'>"Fake"</span>
-<span class='fu'>customFunction</span><span class='op'>(</span><span class='st'>"project"</span>, <span class='va'>fake_project</span><span class='op'>)</span>
-<span class='fu'>mizer</span><span class='fu'>::</span><span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span> <span class='co'># This will print "Fake"</span>
-<span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span> <span class='co'># This will still use the old project() function</span>
-<span class='co'># To undo the effect:</span>
-<span class='fu'>customFunction</span><span class='op'>(</span><span class='st'>"project"</span>, <span class='va'>project</span><span class='op'>)</span>
-<span class='fu'>mizer</span><span class='fu'>::</span><span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span> <span class='co'># This will again use the old project()</span>
-<span class='op'>}</span>
-</div></pre>
+    <pre class="examples"><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'><span class='va'>fake_project</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>...</span><span class='op'>)</span> <span class='st'>"Fake"</span></span>
+<span class='r-in'><span class='fu'>customFunction</span><span class='op'>(</span><span class='st'>"project"</span>, <span class='va'>fake_project</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'>mizer</span><span class='fu'>::</span><span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span> <span class='co'># This will print "Fake"</span></span>
+<span class='r-in'><span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span> <span class='co'># This will still use the old project() function</span></span>
+<span class='r-in'><span class='co'># To undo the effect:</span></span>
+<span class='r-in'><span class='fu'>customFunction</span><span class='op'>(</span><span class='st'>"project"</span>, <span class='va'>project</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'>mizer</span><span class='fu'>::</span><span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span> <span class='co'># This will again use the old project()</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

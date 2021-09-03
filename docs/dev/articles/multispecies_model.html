@@ -45,7 +45,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9007</span>
       </span>
     </div>
 
@@ -300,19 +300,32 @@
 <p>Also note how the default fishing gears have been set up. Even though we did not provide a gear parameter data frame, the MizerParams object has one that we can access with</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></code></pre></div>
-<pre><code>##    species            gear   sel_func knife_edge_size catchability
-## 1    Sprat knife_edge_gear knife_edge              13            1
-## 2  Sandeel knife_edge_gear knife_edge               4            1
-## 3   N.pout knife_edge_gear knife_edge              23            1
-## 4  Herring knife_edge_gear knife_edge              99            1
-## 5      Dab knife_edge_gear knife_edge              21            1
-## 6  Whiting knife_edge_gear knife_edge              75            1
-## 7     Sole knife_edge_gear knife_edge              78            1
-## 8  Gurnard knife_edge_gear knife_edge              39            1
-## 9   Plaice knife_edge_gear knife_edge             105            1
-## 10 Haddock knife_edge_gear knife_edge             165            1
-## 11     Cod knife_edge_gear knife_edge            1606            1
-## 12  Saithe knife_edge_gear knife_edge            1076            1</code></pre>
+<pre><code>##                          species            gear   sel_func knife_edge_size
+## Sprat, knife_edge_gear     Sprat knife_edge_gear knife_edge              13
+## Sandeel, knife_edge_gear Sandeel knife_edge_gear knife_edge               4
+## N.pout, knife_edge_gear   N.pout knife_edge_gear knife_edge              23
+## Herring, knife_edge_gear Herring knife_edge_gear knife_edge              99
+## Dab, knife_edge_gear         Dab knife_edge_gear knife_edge              21
+## Whiting, knife_edge_gear Whiting knife_edge_gear knife_edge              75
+## Sole, knife_edge_gear       Sole knife_edge_gear knife_edge              78
+## Gurnard, knife_edge_gear Gurnard knife_edge_gear knife_edge              39
+## Plaice, knife_edge_gear   Plaice knife_edge_gear knife_edge             105
+## Haddock, knife_edge_gear Haddock knife_edge_gear knife_edge             165
+## Cod, knife_edge_gear         Cod knife_edge_gear knife_edge            1606
+## Saithe, knife_edge_gear   Saithe knife_edge_gear knife_edge            1076
+##                          catchability
+## Sprat, knife_edge_gear              1
+## Sandeel, knife_edge_gear            1
+## N.pout, knife_edge_gear             1
+## Herring, knife_edge_gear            1
+## Dab, knife_edge_gear                1
+## Whiting, knife_edge_gear            1
+## Sole, knife_edge_gear               1
+## Gurnard, knife_edge_gear            1
+## Plaice, knife_edge_gear             1
+## Haddock, knife_edge_gear            1
+## Cod, knife_edge_gear                1
+## Saithe, knife_edge_gear             1</code></pre>
 <p>All species are caught by a gear called “knife_edge_gear”. The selectivity function for each fishing gear has been set in the <code>sel_func</code> column to the default function, <code><a href="../reference/knife_edge.html">knife_edge()</a></code>. A <code>catchability</code> column has been added with a default value of 1 for each of the species that the gear catches. An example of setting the catchability by hand can be seen in <a href="a_multispecies_model_of_the_north_sea.html">the section on the North Sea.</a></p>
 <p>There is a <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> method for <code>MizerParams</code> objects which prints a useful summary of the model parameters:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
@@ -441,19 +454,32 @@
 <p>In the above example, each species is caught by the same gear (named “knife_edge_gear”). This is the default when no gear information is provided.</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></code></pre></div>
-<pre><code>##    species            gear   sel_func knife_edge_size catchability
-## 1    Sprat knife_edge_gear knife_edge              13            1
-## 2  Sandeel knife_edge_gear knife_edge               4            1
-## 3   N.pout knife_edge_gear knife_edge              23            1
-## 4  Herring knife_edge_gear knife_edge              99            1
-## 5      Dab knife_edge_gear knife_edge              21            1
-## 6  Whiting knife_edge_gear knife_edge              75            1
-## 7     Sole knife_edge_gear knife_edge              78            1
-## 8  Gurnard knife_edge_gear knife_edge              39            1
-## 9   Plaice knife_edge_gear knife_edge             105            1
-## 10 Haddock knife_edge_gear knife_edge             165            1
-## 11     Cod knife_edge_gear knife_edge            1606            1
-## 12  Saithe knife_edge_gear knife_edge            1076            1</code></pre>
+<pre><code>##                          species            gear   sel_func knife_edge_size
+## Sprat, knife_edge_gear     Sprat knife_edge_gear knife_edge              13
+## Sandeel, knife_edge_gear Sandeel knife_edge_gear knife_edge               4
+## N.pout, knife_edge_gear   N.pout knife_edge_gear knife_edge              23
+## Herring, knife_edge_gear Herring knife_edge_gear knife_edge              99
+## Dab, knife_edge_gear         Dab knife_edge_gear knife_edge              21
+## Whiting, knife_edge_gear Whiting knife_edge_gear knife_edge              75
+## Sole, knife_edge_gear       Sole knife_edge_gear knife_edge              78
+## Gurnard, knife_edge_gear Gurnard knife_edge_gear knife_edge              39
+## Plaice, knife_edge_gear   Plaice knife_edge_gear knife_edge             105
+## Haddock, knife_edge_gear Haddock knife_edge_gear knife_edge             165
+## Cod, knife_edge_gear         Cod knife_edge_gear knife_edge            1606
+## Saithe, knife_edge_gear   Saithe knife_edge_gear knife_edge            1076
+##                          catchability
+## Sprat, knife_edge_gear              1
+## Sandeel, knife_edge_gear            1
+## N.pout, knife_edge_gear             1
+## Herring, knife_edge_gear            1
+## Dab, knife_edge_gear                1
+## Whiting, knife_edge_gear            1
+## Sole, knife_edge_gear               1
+## Gurnard, knife_edge_gear            1
+## Plaice, knife_edge_gear             1
+## Haddock, knife_edge_gear            1
+## Cod, knife_edge_gear                1
+## Saithe, knife_edge_gear             1</code></pre>
 <p>Here, we look at an example where we set up four different gears: Industrial, Pelagic, Beam and Otter trawl, that catch different combinations of species. We can achieve that by only changing the <code>gear</code> column in the <code>gear_params</code> data frame.</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Industrial"</span>,<span class="st">"Industrial"</span>,<span class="st">"Industrial"</span>,
