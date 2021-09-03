@@ -89,7 +89,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9006</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9007</span>
       </span>
     </div>
 
@@ -206,15 +206,16 @@
 <a href="#mizer-2219000" class="anchor"></a>mizer 2.2.1.9000<small> Unreleased </small>
 </h1>
 <ul>
+<li>Changing <code>linecolour</code> or <code>linetype</code> in the species parameters now actually changes the linecolours and linetypes as intended.</li>
 <li>
-<code><a href="../reference/setColours.html">setColours()</a></code> and <code><a href="../reference/setLinetypes.html">setLinetypes()</a></code> now issue warnings when invalid values are given and ignores NAs.</li>
+<code><a href="../reference/setColours.html">setColours()</a></code> and <code><a href="../reference/setColours.html">setLinetypes()</a></code> now issue warnings when invalid values are given and ignores NAs.</li>
 <li>The rownames of <code>gear_params</code> are now set to “species, gear”, so that one can access individual entries with for example <code>gear_params(NS_params)["Cod, Otter", "catchability"]</code>
 </li>
 <li>The <code>z0</code> argument of <code><a href="../reference/setExtMort.html">setExtMort()</a></code> has been deprecated in favour of <code>ext_mort</code> in order to avoid confusion with the species parameter <code>z0</code>.</li>
 <li>There are now accessor and replacement functions for rates. So for example instead of <code>params &lt;- setReproduction(params, maturity = my_maturity)</code> one can simply use <code>maturity(params) &lt;- my_maturity</code>. These are documented together with the setter functions</li>
 <li>The experimental <code>comment</code> arguments to the setter functions have been removed.</li>
 <li>The setter functions have a new <code>reset</code> argument which, when set to <code>TRUE</code> will recalculate the rates from the species_, gear_ and resource_params even when custom values had been set.</li>
-<li>The <code>species</code> argument to various functions, which is checked with <code><a href="../reference/valid_species_arg.html">valid_species_arg()</a></code>, now does not throw an error even when there is no valid species included. Only a warning is issued. That means that for example <code><a href="../reference/plotSpectra.html">plotSpectra(NS_params, species = list(), total = TRUE)</a></code> is now allowed.</li>
+<li>The <code>species</code> argument to various functions, which is checked with <code><a href="../reference/valid_species_arg.html">valid_species_arg()</a></code>, now does not throw an error even when there is no valid species included. Only a warning is issued. That means that for example <code>plotSpectra(NS_params, species = list(), total = TRUE)</code> is now allowed.</li>
 <li>
 <code><a href="../reference/getComponent.html">getComponent()</a></code> from the mizer extension mechanism now returns NULL when asked for a non-existent component instead of giving an error. This gives an easy way to check for the existence of a component.</li>
 <li>The example interaction matrix <code>inter</code> for the North Sea model now has the alternative name <code>NS_inter</code>, with the old name deprecated.</li>
@@ -620,7 +621,7 @@
 <li>New argument <code>include_critical</code> in <code><a href="../reference/plotFeedingLevel.html">plotFeedingLevel()</a></code> allows to show also the critical feeding level.</li>
 <li>New <code>wlim</code> argument to <code><a href="../reference/plotSpectra.html">plotSpectra()</a></code> in analogy to the existing <code>ylim</code> argument to limit the <code>w</code> range in the plot.</li>
 <li>The colours used in plot functions can be set with <code><a href="../reference/setColours.html">setColours()</a></code>.</li>
-<li>The default line type is <code>solid</code> but this can be changed via the <code><a href="../reference/setLinetypes.html">setLinetypes()</a></code> function.</li>
+<li>The default line type is <code>solid</code> but this can be changed via the <code><a href="../reference/setColours.html">setLinetypes()</a></code> function.</li>
 <li>Use colour and linetype for plots irrespective of the number of species.</li>
 </ul>
 </div>

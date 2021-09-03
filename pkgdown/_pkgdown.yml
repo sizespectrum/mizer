@@ -79,7 +79,7 @@ reference:
 - title: Creating a new model
   description: Mizer allows the easy set-up of four different types of models, 
     of increasing level of complexity. See
-    https://sizespectrum.org/mizer/dev/articles/mizer.html#size-spectrum-models
+    https://sizespectrum.org/mizer/articles/mizer.html#size-spectrum-models
     for a description of these model types.
   contents:
   - newSingleSpeciesParams
@@ -112,6 +112,9 @@ reference:
   - plotBiomassObservedVsModel
   - calibrateBiomass
   - matchBiomasses
+  - plotYieldObservedVsModel
+  - calibrateYield
+  - matchYields
   - scaleModel
 - title: Manipulating species
   contents:

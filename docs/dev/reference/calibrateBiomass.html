@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Calibrate model biomass to observed biomass — calibrateBiomass • mizer</title>
+<title>Calibrate the model scale to match total observed biomass — calibrateBiomass • mizer</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -52,13 +52,12 @@
 
 
 
-<meta property="og:title" content="Calibrate model biomass to observed biomass — calibrateBiomass" />
+<meta property="og:title" content="Calibrate the model scale to match total observed biomass — calibrateBiomass" />
 <meta property="og:description" content="Given a MizerParams object params for which biomass observations are
-available for at least some species via
-species_params(params)$biomass_observed, this function returns an
-updated MizerParams object which is rescaled so that the total biomass
-of the observed species in the model agrees with the total observed
-biomass." />
+available for at least some species via the biomass_observed column in the
+species_params data frame, this function returns an updated MizerParams
+object which is rescaled with scaleModel() so that the total biomass in
+the model agrees with the total observed biomass." />
 <meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
 <meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
 <meta name="twitter:card" content="summary" />
@@ -67,8 +66,6 @@ biomass." />
 
 
 <meta name="robots" content="noindex">
-
-
 
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
@@ -81,15 +78,9 @@ biomass." />
 
 
 
-  
-
-  
-
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -103,7 +94,7 @@ biomass." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9006</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9007</span>
       </span>
     </div>
 
@@ -114,7 +105,7 @@ biomass." />
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Tutorials
+    Articles
      
     <span class="caret"></span>
   </a>
@@ -211,21 +202,20 @@ biomass." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Calibrate model biomass to observed biomass</h1>
+    <h1>Calibrate the model scale to match total observed biomass</h1>
     <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/calibrate.R'><code>R/calibrate.R</code></a></small>
     <div class="hidden name"><code>calibrateBiomass.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>Given a MizerParams object <code>params</code> for which biomass observations are
-available for at least some species via
-<code>species_params(params)$biomass_observed</code>, this function returns an
-updated MizerParams object which is rescaled so that the total biomass
-of the observed species in the model agrees with the total observed
-biomass.</p>
+available for at least some species via the <code>biomass_observed</code> column in the
+species_params data frame, this function returns an updated MizerParams
+object which is rescaled with <code><a href='scaleModel.html'>scaleModel()</a></code> so that the total biomass in
+the model agrees with the total observed biomass.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>calibrateBiomass</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></code></pre></div>
+    <pre class="usage"><span class='fu'>calibrateBiomass</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -241,20 +231,28 @@ biomass.</p>
     <p>A MizerParams object</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Observed biomasses usually only include individuals above a certain size.
-This size should either be specified in
-<code>species_params(params)$biomass_cutoff</code> in grams, or else a cutoff size
-of <code>w_mat/20</code> is assumed.</p>
+    <p>Biomass observations usually only include individuals above a certain size.
+This size should be specified in a biomass_cutoff column of the species
+parameter data frame. If this is missing, it is assumed that all sizes are
+included in the observed biomass, i.e., it includes larval biomass.</p>
+<p>After using this function the total biomass in the model will match the
+total biomass, summed over all species. However the biomasses of the
+individual species will not match observations yet, with some species
+having biomasses that are too high and others too low. So after this
+function you may want to use <code><a href='matchBiomasses.html'>matchBiomasses()</a></code>. This is described in the
+blog post at https://bit.ly/2YqXESV.</p>
+<p>If you have observations of the yearly yield instead of biomasses, you can
+use <code><a href='calibrateYield.html'>calibrateYield()</a></code> instead of this function.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='va'>NS_params</span></span>
+    <pre class="examples"><span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='va'>NS_params</span></span>
 <span class='r-in'><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>biomass_observed</span> <span class='op'>&lt;-</span> </span>
 <span class='r-in'>    <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.8</span>, <span class='fl'>61</span>, <span class='fl'>12</span>, <span class='fl'>35</span>, <span class='fl'>1.6</span>, <span class='fl'>20</span>, <span class='fl'>10</span>, <span class='fl'>7.6</span>, <span class='fl'>135</span>, <span class='fl'>60</span>, <span class='fl'>30</span>, <span class='fl'>78</span><span class='op'>)</span></span>
 <span class='r-in'><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>biomass_cutoff</span> <span class='op'>&lt;-</span> <span class='fl'>10</span></span>
 <span class='r-in'><span class='va'>params2</span> <span class='op'>&lt;-</span> <span class='fu'>calibrateBiomass</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
 <span class='r-in'><span class='fu'><a href='plotBiomassObservedVsModel.html'>plotBiomassObservedVsModel</a></span><span class='op'>(</span><span class='va'>params2</span><span class='op'>)</span></span>
 <span class='r-plt'><img src='calibrateBiomass-1.png' alt='' width='700' height='433' /></span>
-</code></pre></div>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -266,11 +264,11 @@ of <code>w_mat/20</code> is assumed.</p>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
+  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -295,8 +293,6 @@ of <code>w_mat/20</code> is assumed.</p>
 </script>
 
 
-
-  
 
   </body>
 </html>

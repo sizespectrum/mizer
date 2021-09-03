@@ -56,7 +56,11 @@
 <meta property="og:description" content="
 The reproduction level is the ratio between the density-dependent
 reproduction rate and the maximal reproduction rate." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 <meta name="robots" content="noindex">
@@ -88,7 +92,7 @@ reproduction rate and the maximal reproduction rate." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9007</span>
       </span>
     </div>
 
@@ -223,22 +227,26 @@ reproduction rate and the maximal reproduction rate.</p>
     <p>A named vector with the reproduction level for each species.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>getReproductionLevel</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;      Sprat    Sandeel     N.pout    Herring        Dab    Whiting       Sole 
-#&gt; 0.99074238 0.99987053 0.92829319 0.99198802 0.99578514 0.98718674 0.99643774 
-#&gt;    Gurnard     Plaice    Haddock        Cod     Saithe 
-#&gt; 0.44189813 0.08022106 0.94443443 0.99993658 0.99767830 </div><div class='input'>
-<span class='co'># The reproduction level can be changed without changing the steady state:</span>
-<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setBevertonHolt.html'>setBevertonHolt</a></span><span class='op'>(</span><span class='va'>NS_params</span>, reproduction_level <span class='op'>=</span> <span class='fl'>0.9</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='warning'>Warning: The following species require an unrealistic reproductive efficiency greater than 1: Gurnard, Plaice</span></div><div class='input'><span class='fu'>getReproductionLevel</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;   Sprat Sandeel  N.pout Herring     Dab Whiting    Sole Gurnard  Plaice Haddock 
-#&gt;     0.9     0.9     0.9     0.9     0.9     0.9     0.9     0.9     0.9     0.9 
-#&gt;     Cod  Saithe 
-#&gt;     0.9     0.9 </div><div class='input'>
-<span class='co'># The result is the ratio of RDD and R_max</span>
-<span class='fu'><a href='https://rdrr.io/r/base/identical.html'>identical</a></span><span class='op'>(</span><span class='fu'><a href='getRDD.html'>getRDD</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>/</span> <span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>R_max</span>,
-          <span class='fu'>getReproductionLevel</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] TRUE</div></pre>
+    <pre class="examples"><span class='r-in'><span class='fu'>getReproductionLevel</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>      Sprat    Sandeel     N.pout    Herring        Dab    Whiting       Sole </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 0.99074238 0.99987053 0.92829319 0.99198802 0.99578514 0.98718674 0.99643774 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>    Gurnard     Plaice    Haddock        Cod     Saithe </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 0.44189813 0.08022106 0.94443443 0.99993658 0.99767830 </span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># The reproduction level can be changed without changing the steady state:</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setBevertonHolt.html'>setBevertonHolt</a></span><span class='op'>(</span><span class='va'>NS_params</span>, reproduction_level <span class='op'>=</span> <span class='fl'>0.9</span><span class='op'>)</span></span>
+<span class='r-wrn co'><span class='r-pr'>#&gt;</span> <span class='warning'>Warning: </span>The following species require an unrealistic reproductive efficiency greater than 1: Gurnard, Plaice</span>
+<span class='r-in'><span class='fu'>getReproductionLevel</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   Sprat Sandeel  N.pout Herring     Dab Whiting    Sole Gurnard  Plaice Haddock </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     0.9     0.9     0.9     0.9     0.9     0.9     0.9     0.9     0.9     0.9 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     Cod  Saithe </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     0.9     0.9 </span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># The result is the ratio of RDD and R_max</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/identical.html'>identical</a></span><span class='op'>(</span><span class='fu'><a href='getRDD.html'>getRDD</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>/</span> <span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>R_max</span>,</span>
+<span class='r-in'>          <span class='fu'>getReproductionLevel</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] TRUE</span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

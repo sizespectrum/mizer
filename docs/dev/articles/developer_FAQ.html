@@ -21,7 +21,11 @@
 <link href="../docsearch.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script><meta property="og:title" content="Developer FAQ">
 <meta property="og:description" content="mizer">
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png">
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png">
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@mizer_model">
+<meta name="twitter:site" content="@mizer_model">
 <meta name="robots" content="noindex">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -29,8 +33,6 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -43,7 +45,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9007</span>
       </span>
     </div>
 
@@ -54,7 +56,7 @@
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Tutorials
+    Articles
      
     <span class="caret"></span>
   </a>
@@ -118,16 +120,16 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://blog.mizer.sizespectrum.org" class="external-link">Blog</a>
+  <a href="https://blog.mizer.sizespectrum.org">Blog</a>
 </li>
 <li>
-  <a href="https://twitter.com/mizer_model" class="external-link">
+  <a href="https://twitter.com/mizer_model">
     <span class="fab fa-twitter fa-lg"></span>
      
   </a>
 </li>
 <li>
-  <a href="https://github.com/sizespectrum/mizer/" class="external-link">
+  <a href="https://github.com/sizespectrum/mizer/">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -148,13 +150,13 @@
 
       
 
-      </header><script src="developer_FAQ_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
+      </header><script src="developer_FAQ_files/header-attrs-2.10/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Developer FAQ</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/master/vignettes/developer_FAQ.Rmd" class="external-link"><code>vignettes/developer_FAQ.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/master/vignettes/developer_FAQ.Rmd"><code>vignettes/developer_FAQ.Rmd</code></a></small>
       <div class="hidden name"><code>developer_FAQ.Rmd</code></div>
 
     </div>
@@ -164,7 +166,7 @@
 <p>Clicking on a question will reveal the answer.</p>
 <details><summary>
 How can I prepare a pull request without a clean master branch?
-</summary><p>If you want to contribute some of your code to the official mizer code at <a href="https://github.com/sizespectrum/mizer" class="external-link uri">https://github.com/sizespectrum/mizer</a> you need to first create a branch in your repository that differs from the master branch of sizespectrum/mizer only by the code that you want to contribute, not by any other changes that you may have made in your fork. This answer explains how.</p>
+</summary><p>If you want to contribute some of your code to the official mizer code at <a href="https://github.com/sizespectrum/mizer" class="uri">https://github.com/sizespectrum/mizer</a> you need to first create a branch in your repository that differs from the master branch of sizespectrum/mizer only by the code that you want to contribute, not by any other changes that you may have made in your fork. This answer explains how.</p>
 <p>We assume that you have not followed the recommendation of keeping your master branch identical with that at sizespectrum/master, because if you had you could simply follow the procedure described in the “<a href="working_with_git.html">Working with git and GitHub</a>” tutorial. Given that your master branch differs from that at sizespectrum/mizer, you need to create a new branch not from your master branch but directly from that at sizespectrum/master. Follow the following steps:</p>
 <ol style="list-style-type: decimal">
 <li><p>Go to the “Terminal” tab in RStudio. This should be the tab next to the “Console” tab. If it is not there and you don’t know why not, then you are possibly running an old version of RStudio and you will want to update to a newer version, which is easy from the Help menu under “Check for Updates”.</p></li>
@@ -184,7 +186,7 @@ have chosen for you branch.</p>
 You now have a new branch that is identical to sizespectrum/master. You can now commit the relevant new code to this branch and create a pull request, as described in the “<a href="working_with_git.html">Working with git and GitHub</a>” tutorial
 </details><details><summary>
 How can I get a clean master branch?
-</summary><p>The recommended way of working in your fork of the mizer project is to keep the master branch of your repository always in sync with the master branch at <a href="https://github.com/sizespectrum/mizer" class="external-link uri">https://github.com/sizespectrum/mizer</a>, and to create a feature branch for any of your code changes, as is explained in the “<a href="working_with_git.html#creating-a-branch">Creating a branch</a>” section of the “Working with git and GitHub” tutorial. Note however that having a clean master branch is not a prerequisite to making pull requests, see the answer to “<a href="#how-can-i-prepare-a-pull-request-without-a-clean-master-branch">How can I prepare a pull request without a clean master branch?</a>” above.</p>
+</summary><p>The recommended way of working in your fork of the mizer project is to keep the master branch of your repository always in sync with the master branch at <a href="https://github.com/sizespectrum/mizer" class="uri">https://github.com/sizespectrum/mizer</a>, and to create a feature branch for any of your code changes, as is explained in the “<a href="working_with_git.html#creating-a-branch">Creating a branch</a>” section of the “Working with git and GitHub” tutorial. Note however that having a clean master branch is not a prerequisite to making pull requests, see the answer to “<a href="#how-can-i-prepare-a-pull-request-without-a-clean-master-branch">How can I prepare a pull request without a clean master branch?</a>” above.</p>
 <p>However if you would like to have a clean master branch, you can follow these steps:</p>
 <ol style="list-style-type: decimal">
 <li>Create a new branch for the content of your current master branch, so that you can still switch to it in the future. To create this new branch, first make sure you have selected the master branch on the “Switch branch” dropdown in RStudio Git panel and then click the button to the left of that dropdown.
@@ -222,13 +224,11 @@ You can of course still get at your modified code by switching to the branch you
 
 
       <footer><div class="copyright">
-  <p></p>
-<p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link external-link">Ken Andersen</a>.</p>
+  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard">Julia Blanchard</a>, <a href="https://ken.haste.dk/">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

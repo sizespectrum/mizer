@@ -54,7 +54,11 @@
 
 <meta property="og:title" content="Get all rates — getRates" />
 <meta property="og:description" content="Calls other rate functions in sequence and collects the results in a list." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 <meta name="robots" content="noindex">
@@ -86,7 +90,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9007</span>
       </span>
     </div>
 
@@ -284,12 +288,14 @@ function if you wish, see <code><a href='setRateFunction.html'>setRateFunction()
 <code><a href='getResourceMort.html'>getResourceMort</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='va'>rates</span> <span class='op'>&lt;-</span> <span class='fu'>getRates</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span>
-<span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>rates</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;  [1] "encounter"     "feeding_level" "e"             "e_repro"      
-#&gt;  [5] "e_growth"      "pred_rate"     "pred_mort"     "f_mort"       
-#&gt;  [9] "mort"          "rdi"           "rdd"           "resource_mort"</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/identical.html'>identical</a></span><span class='op'>(</span><span class='va'>rates</span><span class='op'>$</span><span class='va'>encounter</span>, <span class='fu'><a href='getEncounter.html'>getEncounter</a></span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] TRUE</div></pre>
+    <pre class="examples"><span class='r-in'><span class='va'>rates</span> <span class='op'>&lt;-</span> <span class='fu'>getRates</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>rates</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [1] "encounter"     "feeding_level" "e"             "e_repro"      </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [5] "e_growth"      "pred_rate"     "pred_mort"     "f_mort"       </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [9] "mort"          "rdi"           "rdd"           "resource_mort"</span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/identical.html'>identical</a></span><span class='op'>(</span><span class='va'>rates</span><span class='op'>$</span><span class='va'>encounter</span>, <span class='fu'><a href='getEncounter.html'>getEncounter</a></span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] TRUE</span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

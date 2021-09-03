@@ -57,8 +57,8 @@
 The abundances in mizer and some rates depend on the size of the area to
 which they refer. So they could be given per square meter or per square
 kilometer or for an entire study area or any other choice of yours. This
-function allows you to change the size by automatically changing the
-abundances and rates accordingly." />
+function allows you to change the scale of the model by automatically
+changing the abundances and rates accordingly." />
 <meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
 <meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
 <meta name="twitter:card" content="summary" />
@@ -67,8 +67,6 @@ abundances and rates accordingly." />
 
 
 <meta name="robots" content="noindex">
-
-
 
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
@@ -81,15 +79,9 @@ abundances and rates accordingly." />
 
 
 
-  
-
-  
-
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -103,7 +95,7 @@ abundances and rates accordingly." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9006</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9007</span>
       </span>
     </div>
 
@@ -114,7 +106,7 @@ abundances and rates accordingly." />
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Tutorials
+    Articles
      
     <span class="caret"></span>
   </a>
@@ -221,46 +213,47 @@ abundances and rates accordingly." />
 <p>The abundances in mizer and some rates depend on the size of the area to
 which they refer. So they could be given per square meter or per square
 kilometer or for an entire study area or any other choice of yours. This
-function allows you to change the size by automatically changing the
-abundances and rates accordingly.</p>
+function allows you to change the scale of the model by automatically
+changing the abundances and rates accordingly.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>scaleModel</span><span class='op'>(</span><span class='va'>params</span>, <span class='va'>factor</span><span class='op'>)</span></code></pre></div>
+    <pre class="usage"><span class='fu'>scaleModel</span><span class='op'>(</span><span class='va'>params</span>, <span class='va'>factor</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>params</th>
-      <td><p>A mizer params object</p></td>
+      <td><p>A MizerParams object</p></td>
     </tr>
     <tr>
       <th>factor</th>
-      <td><p>The factor by which the size is rescaled with respect to which
-the abundances are given.</p></td>
+      <td><p>The factor by which the scale is multiplied</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An object of type <a href='MizerParams-class.html'>MizerParams</a></p>
+    <p>The rescaled MizerParams object</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>If you rescale the system by a factor \(c\) then this function makes the
+    <p>If you rescale the model by a factor \(c\) then this function makes the
 following rescalings in the params object:</p><ul>
-<li><p>The initial abundances <code>initial_n</code>, <code>initial_n_pp</code> and
-<code>initial_n_other</code> are rescaled by \(c\).</p></li>
+<li><p>The initial abundances are rescaled by \(c\).</p></li>
 <li><p>The search volume is rescaled by \(1/c\).</p></li>
 <li><p>The resource carrying capacity is rescaled by \(c\)</p></li>
-<li><p>The maximum reproduction rate \(R_{max}\), if used, is rescaled by
+<li><p>The maximum reproduction rate \(R_{max}\) is rescaled by
 \(c\).</p></li>
-</ul><p>The effect of this is that the dynamics of the rescaled system are identical
-to those of the unscaled system, in the sense that it does not matter whether
+</ul><p>The effect of this is that the dynamics of the rescaled model are identical
+to those of the unscaled model, in the sense that it does not matter whether
 one first calls <code>scaleModel()</code> and then runs a simulation with
 <code><a href='project.html'>project()</a></code> or whether one first runs a simulation and then rescales the
 resulting abundances.</p>
 <p>Note that if you use non-standard resource dynamics or other components then you
 may need to rescale additional parameters that appear in those dynamics.</p>
+<p>In practice you will need to use some observations to set the scale for your
+model. If you have biomass observations you can use <code><a href='calibrateBiomass.html'>calibrateBiomass()</a></code>,
+if you have yearly yields you can use <code><a href='calibrateYield.html'>calibrateYield()</a></code>.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -273,11 +266,11 @@ may need to rescale additional parameters that appear in those dynamics.</p>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p></p>
+  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.</p></p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -302,8 +295,6 @@ may need to rescale additional parameters that appear in those dynamics.</p>
 </script>
 
 
-
-  
 
   </body>
 </html>

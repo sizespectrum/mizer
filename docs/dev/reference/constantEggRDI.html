@@ -58,7 +58,11 @@ The new egg production is set to compensate for the loss of individuals from
 the smallest size class through growth and mortality. The result should not
 be modified by density dependence, so this should be used together with
 the noRDD() function, see example." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 <meta name="robots" content="noindex">
@@ -90,7 +94,7 @@ the noRDD() function, see example." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9007</span>
       </span>
     </div>
 
@@ -250,22 +254,22 @@ rate as calculated by <code><a href='mizerMort.html'>mizerMort()</a></code>.</p>
 <code><a href='noRDD.html'>noRDD</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
-<span class='co'># choose an example params object</span>
-<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='va'>NS_params</span>
-<span class='co'># We set the reproduction rate functions</span>
-<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span><span class='op'>(</span><span class='va'>params</span>, <span class='st'>"RDI"</span>, <span class='st'>"constantEggRDI"</span><span class='op'>)</span>
-<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span><span class='op'>(</span><span class='va'>params</span>, <span class='st'>"RDD"</span>, <span class='st'>"noRDD"</span><span class='op'>)</span>
-<span class='co'># Now the egg density should stay fixed no matter how we fish</span>
-<span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort <span class='op'>=</span> <span class='fl'>10</span>, progress_bar <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
-<span class='co'># To check that indeed the egg densities have not changed, we first construct</span>
-<span class='co'># the indices for addressing the egg densities</span>
-<span class='va'>no_sp</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>@</span><span class='va'>species_params</span><span class='op'>)</span>
-<span class='va'>idx</span> <span class='op'>&lt;-</span> <span class='op'>(</span><span class='va'>params</span><span class='op'>@</span><span class='va'>w_min_idx</span> <span class='op'>-</span> <span class='fl'>1</span><span class='op'>)</span> <span class='op'>*</span> <span class='va'>no_sp</span> <span class='op'>+</span> <span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='va'>no_sp</span><span class='op'>)</span>
-<span class='co'># Now we can check equality between egg densities at the start and the end</span>
-<span class='fu'><a href='https://rdrr.io/r/base/all.equal.html'>all.equal</a></span><span class='op'>(</span><span class='fu'><a href='finalN.html'>finalN</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>[</span><span class='va'>idx</span><span class='op'>]</span>, <span class='fu'><a href='initialN<-.html'>initialN</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span><span class='va'>idx</span><span class='op'>]</span><span class='op'>)</span>
-<span class='op'>}</span>
-</div></pre>
+    <pre class="examples"><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'><span class='co'># choose an example params object</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='va'>NS_params</span></span>
+<span class='r-in'><span class='co'># We set the reproduction rate functions</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span><span class='op'>(</span><span class='va'>params</span>, <span class='st'>"RDI"</span>, <span class='st'>"constantEggRDI"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setRateFunction.html'>setRateFunction</a></span><span class='op'>(</span><span class='va'>params</span>, <span class='st'>"RDD"</span>, <span class='st'>"noRDD"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># Now the egg density should stay fixed no matter how we fish</span></span>
+<span class='r-in'><span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, effort <span class='op'>=</span> <span class='fl'>10</span>, progress_bar <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># To check that indeed the egg densities have not changed, we first construct</span></span>
+<span class='r-in'><span class='co'># the indices for addressing the egg densities</span></span>
+<span class='r-in'><span class='va'>no_sp</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>@</span><span class='va'>species_params</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>idx</span> <span class='op'>&lt;-</span> <span class='op'>(</span><span class='va'>params</span><span class='op'>@</span><span class='va'>w_min_idx</span> <span class='op'>-</span> <span class='fl'>1</span><span class='op'>)</span> <span class='op'>*</span> <span class='va'>no_sp</span> <span class='op'>+</span> <span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='va'>no_sp</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># Now we can check equality between egg densities at the start and the end</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/all.equal.html'>all.equal</a></span><span class='op'>(</span><span class='fu'><a href='finalN.html'>finalN</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>[</span><span class='va'>idx</span><span class='op'>]</span>, <span class='fu'><a href='initialN<-.html'>initialN</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span><span class='va'>idx</span><span class='op'>]</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

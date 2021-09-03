@@ -54,7 +54,11 @@
 
 <meta property="og:title" content="Initial value for resource spectrum — initialNResource&lt;-" />
 <meta property="og:description" content="Value used as starting value for simulations with project()." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 <meta name="robots" content="noindex">
@@ -86,7 +90,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9007</span>
       </span>
     </div>
 
@@ -227,12 +231,13 @@ spectrum</p></td>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># Doubling resource abundance in the initial state of the North Sea model</span>
-<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='va'>NS_params</span>
-<span class='fu'>initialNResource</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='fl'>2</span> <span class='op'>*</span> <span class='fu'>initialNResource</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
-<span class='co'># Of course this initial state will no longer be a steady state</span>
-<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='steady.html'>steady</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Convergence was achieved in 16.5 years.</span></div></pre>
+    <pre class="examples"><span class='r-in'><span class='co'># Doubling resource abundance in the initial state of the North Sea model</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='va'>NS_params</span></span>
+<span class='r-in'><span class='fu'>initialNResource</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='fl'>2</span> <span class='op'>*</span> <span class='fu'>initialNResource</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># Of course this initial state will no longer be a steady state</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='steady.html'>steady</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Convergence was achieved in 16.5 years.</span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
