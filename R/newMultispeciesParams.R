@@ -207,7 +207,6 @@ newMultispeciesParams <- function(
 #' \item [setReproduction()]
 #' \item [setFishing()]
 #' \item [setResource()]
-#' \item [setMetadata()]
 #' }
 #' See the Details section below for a discussion of how to use this function.
 #' 
@@ -221,7 +220,6 @@ newMultispeciesParams <- function(
 #' @inheritDotParams setReproduction -reset
 #' @inheritDotParams setFishing -reset
 #' @inheritDotParams setResource -reset
-#' @inheritDotParams setMetadata
 #' 
 #' @return A \linkS4class{MizerParams} object
 #' 
@@ -292,7 +290,6 @@ newMultispeciesParams <- function(
 #' @inheritSection setReproduction Setting reproduction
 #' @inheritSection setFishing Setting fishing
 #' @inheritSection setResource Setting resource dynamics
-#' @inheritSection setMetadata Setting model metadata
 #' @export
 #' @family functions for setting parameters
 # The reason we list `interaction` explicitly rather than including it in
@@ -310,7 +307,6 @@ setParams <- function(params, interaction = NULL, ...) {
     params <- setSearchVolume(params, ...)
     params <- setReproduction(params, ...)
     params <- setFishing(params, ...)
-    params <- setMetadata(params, ...)
     
     colours <- params@species_params$linecolour
     if (!is.null(colours)) {
