@@ -80,9 +80,9 @@ test_that("validEffortParams works when no gears are set up", {
 test_that("Set Fishing works", {
     params1 <- params
     expect_identical(gear_params(params), params@gear_params)
-    expect_identical(params, setFishing(params))
+    expect_unchanged(params, setFishing(params))
     gear_params(params) <- params@gear_params
-    expect_identical(params, params1)
+    expect_unchanged(params, params1)
 })
 
 test_that("Setting selectivity works", {

@@ -75,6 +75,8 @@ setMetabolicRate <- function(params, metab = NULL, p = NULL,
         assert_that(all(metab >= 0))
         params@metab[] <- metab
         comment(params@metab) <- comment(metab)
+        
+        params@time_modified <- lubridate::now()
         return(params)
     }
     
@@ -96,6 +98,8 @@ setMetabolicRate <- function(params, metab = NULL, p = NULL,
         return(params)
     }
     params@metab[] <- metab
+    
+    params@time_modified <- lubridate::now()
     return(params)
 }
 

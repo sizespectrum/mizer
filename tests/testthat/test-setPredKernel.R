@@ -3,8 +3,8 @@ no_sp <- nrow(params@species_params)
 
 ## setPredKernel ----
 test_that("setPredKernel works", {
-    expect_equal(setPredKernel(params), params)
-    expect_equal(setPredKernel(params, pred_kernel = NULL), 
+    expect_unchanged(setPredKernel(params), params)
+    expect_unchanged(setPredKernel(params, pred_kernel = NULL), 
                      params)
     params@species_params$pred_kernel_type <- "box"
     params@species_params$ppmr_min <- 2

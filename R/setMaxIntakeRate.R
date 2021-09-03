@@ -66,6 +66,8 @@ setMaxIntakeRate <- function(params, intake_max = NULL, reset = FALSE, ...) {
         assert_that(all(intake_max >= 0))
         params@intake_max[] <- intake_max
         comment(params@intake_max) <- comment(intake_max)
+        
+        params@time_modified <- lubridate::now()
         return(params)
     }
     
@@ -86,6 +88,8 @@ setMaxIntakeRate <- function(params, intake_max = NULL, reset = FALSE, ...) {
         return(params)
     }
     params@intake_max[] <- intake_max
+    
+    params@time_modified <- lubridate::now()
     return(params)
 }
 

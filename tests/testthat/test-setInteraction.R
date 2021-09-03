@@ -3,7 +3,7 @@ no_sp <- nrow(params@species_params)
 
 ## setInteraction ----
 test_that("setInteraction works", {
-    expect_identical(setInteraction(params, interaction = params@interaction),
+    expect_unchanged(setInteraction(params, interaction = params@interaction),
                      params)
     inter <- matrix(1/2, nrow = no_sp, ncol = no_sp)
     p2 <- setInteraction(params, inter)
@@ -30,5 +30,5 @@ test_that("setInteraction works", {
 # getInteraction ----
 test_that("getInteraction works", {
     p <- setInteraction(params, interaction = getInteraction(params))
-    expect_identical(params, p)
+    expect_unchanged(params, p)
 })

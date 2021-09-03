@@ -18,12 +18,11 @@ An object of type \linkS4class{MizerParams}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-Changes the names of species in a MizerParams object
+Changes the names of species in a MizerParams object. This involves for
+example changing the species dimension names of rate arrays appropriately.
 }
 \examples{
-\dontrun{
 replace <- c(Cod = "Kabeljau", Haddock = "Schellfisch")
 params <- renameSpecies(NS_params, replace)
 species_params(params)$species
-}
 }

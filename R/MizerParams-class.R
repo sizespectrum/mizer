@@ -266,6 +266,19 @@ validMizerParams <- function(object) {
 #' abundances or harvest effort through time. These are held in
 #' \linkS4class{MizerSim} objects.
 #' 
+#' @slot title A string with the title for the model.
+#' @slot description A string with a description of the model.
+#' @slot authors A vector of strings with the author names.
+#' @slot orcid A named vector of strings where each name is an author name and
+#'    each value is an orcid id.
+#' @slot version The package version of mizer (as returned by
+#'   `packageVersion("mizer")`) that created or last saved the model.
+#' @slot extensions A named vector of strings where each name is the name of
+#'    and extension package needed to run the model and each value is a string 
+#'    giving the information that the remotes package needs to install the 
+#'    correct version of the extension package, see https://remotes.r-lib.org/.
+#' @slot time_created A POSIXct date-time object with the creation time.
+#' @slot time_modified A POSIXct date-time object with the last modified time.
 #' @slot w The size grid for the fish part of the spectrum. An increasing
 #'   vector of weights (in grams) running from the smallest egg size to the
 #'   largest asymptotic size.
@@ -371,6 +384,14 @@ validMizerParams <- function(object) {
 setClass(
     "MizerParams",
     slots = c(
+        title = "character",
+        description = "character",
+        authors = "character",
+        orcid = "character",
+        version = "ANY",
+        extensions = "character",
+        time_created = "POSIXct",
+        time_modified = "POSIXct",
         w = "numeric",
         dw = "numeric",
         w_full = "numeric",
@@ -639,6 +660,14 @@ emptyParams <- function(species_params,
     # Should Z0, rrPP and ccPP have names (species names etc)?
     params <- new(
         "MizerParams",
+        title = "",
+        description = "",
+        authors = vector(mode = "character"),
+        orcid = vector(mode = "character"),
+        version = packageVersion("mizer"),
+        extensions = vector(mode = "character"),
+        time_created = lubridate::now(),
+        time_modified = lubridate::now(),
         w = w,
         dw = dw,
         w_full = w_full,

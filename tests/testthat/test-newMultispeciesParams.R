@@ -48,5 +48,5 @@ test_that("Errors are reported", {
 
 ## setParams ----
 test_that("setParams can leave params unchanged", {
-    expect_equal(setParams(NS_params), NS_params)
+    expect_unchanged(setParams(NS_params), NS_params)
 })

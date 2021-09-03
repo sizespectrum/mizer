@@ -99,6 +99,7 @@ setInteraction <- function(params,
     }
     params@species_params$interaction_resource <- species_params$interaction_resource
     
+    params@time_modified <- lubridate::now()
     return(params)
 }
 

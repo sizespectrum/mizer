@@ -90,6 +90,8 @@ setExtMort <- function(params, ext_mort = NULL,
                     identical(dim(ext_mort), dim(params@mu_b)))
         params@mu_b[] <- ext_mort
         comment(params@mu_b) <- comment(ext_mort)
+        
+        params@time_modified <- lubridate::now()
         return(params)
     }
     
@@ -115,6 +117,8 @@ setExtMort <- function(params, ext_mort = NULL,
         return(params)
     }
     params@mu_b[] <- mu_b
+    
+    params@time_modified <- lubridate::now()
     return(params)
 }
 

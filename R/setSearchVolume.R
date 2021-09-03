@@ -74,6 +74,8 @@ setSearchVolume <- function(params, search_vol = NULL, reset = FALSE, ...) {
         assert_that(all(search_vol >= 0))
         params@search_vol[] <- search_vol
         comment(params@search_vol) <- comment(search_vol)
+        
+        params@time_modified <- lubridate::now()
         return(params)
     }
     
@@ -95,6 +97,8 @@ setSearchVolume <- function(params, search_vol = NULL, reset = FALSE, ...) {
         return(params)
     }
     params@search_vol[] <- search_vol
+    
+    params@time_modified <- lubridate::now()
     return(params)
 }
 

@@ -3,16 +3,16 @@ no_sp <- nrow(params@species_params)
 
 # setReproduction ----
 test_that("setReproduction works", {
-    expect_equal(setReproduction(params), params)
+    expect_unchanged(setReproduction(params), params)
     maturity <- array(1, dim = c(no_sp, length(params@w)))
     p2 <- setReproduction(params, maturity = maturity)
     p3 <- setReproduction(p2, maturity = maturity,
                           repro_prop = p2@psi)
     comment(p3@psi) <- comment(p2@psi)
-    expect_equal(p2, p3)
+    expect_unchanged(p2, p3)
     p3 <- setReproduction(params, repro_prop = p2@psi)
     comment(p3@psi) <- comment(params@psi)
-    expect_equal(params, p3)
+    expect_unchanged(params, p3)
     expect_error(setReproduction(params, RDD = "str"),
                  "Arguments of RDD function can only contain 'rdi', 'species_params' and `t`.")
     expect_error(setReproduction(params, RDD = "sum"),
@@ -116,7 +116,7 @@ test_that("getMaturityProportion works", {
     maturity <- getMaturityProportion(params)
     params2 <- setReproduction(params, maturity =  maturity)
     comment(params2@maturity) <- NULL
-    expect_identical(params, params2)
+    expect_unchanged(params, params2)
 })
 
 # getReproductionProportion ----
@@ -125,7 +125,7 @@ test_that("getReproductionProportion works", {
     repro_prop <- getReproductionProportion(params)
     params2 <- setReproduction(params, repro_prop = repro_prop)
     comment(params2@psi) <- NULL
-    expect_identical(params, params2)
+    expect_unchanged(params, params2)
 })
 
 test_that("Can get and set repro_prop", {

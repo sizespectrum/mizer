@@ -7,7 +7,7 @@ test_that("setMetabolicRate works", {
     expect_identical(2 * params@metab, p2@metab)
     # only metab changed
     p2@metab <- params@metab
-    expect_identical(p2, params)
+    expect_unchanged(p2, params)
 })
 test_that("setMetabolicRate can set exponent p", {
     # no change where p is already set in species_params

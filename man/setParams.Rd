@@ -14,7 +14,7 @@ species x prey species). Entries should be numbers between 0 and 1. By
 default all entries are 1. See "Setting interactions" section below.}
 
 \item{...}{
-  Arguments passed on to \code{\link[=setPredKernel]{setPredKernel}}, \code{\link[=setSearchVolume]{setSearchVolume}}, \code{\link[=setMaxIntakeRate]{setMaxIntakeRate}}, \code{\link[=setMetabolicRate]{setMetabolicRate}}, \code{\link[=setExtMort]{setExtMort}}, \code{\link[=setReproduction]{setReproduction}}, \code{\link[=setFishing]{setFishing}}, \code{\link[=setResource]{setResource}}
+  Arguments passed on to \code{\link[=setPredKernel]{setPredKernel}}, \code{\link[=setSearchVolume]{setSearchVolume}}, \code{\link[=setMaxIntakeRate]{setMaxIntakeRate}}, \code{\link[=setMetabolicRate]{setMetabolicRate}}, \code{\link[=setExtMort]{setExtMort}}, \code{\link[=setReproduction]{setReproduction}}, \code{\link[=setFishing]{setFishing}}, \code{\link[=setResource]{setResource}}, \code{\link[=setMetadata]{setMetadata}}
   \describe{
     \item{\code{pred_kernel}}{Optional. An array (species x predator size x prey size)
 that holds the predation coefficient of each predator at size on each prey
@@ -73,6 +73,11 @@ Default is 10 g.}
 resource dynamics by calculating the resource spectrum at the next time
 step from the current state. You only need to specify this if you do not
 want to use the default \code{\link[=resource_semichemostat]{resource_semichemostat()}}.}
+    \item{\code{title}}{A string with the title for the model}
+    \item{\code{description}}{A string with a description of the model}
+    \item{\code{authors}}{A vector of strings with the author names}
+    \item{\code{orcid}}{A named vector of strings where each name is an author name and
+each value is an orcid id.}
   }}
 }
 \value{
@@ -91,6 +96,7 @@ functions
 \item \code{\link[=setReproduction]{setReproduction()}}
 \item \code{\link[=setFishing]{setFishing()}}
 \item \code{\link[=setResource]{setResource()}}
+\item \code{\link[=setMetadata]{setMetadata()}}
 }
 See the Details section below for a discussion of how to use this function.
 }
@@ -525,6 +531,31 @@ is set to \deqn{c(w) = \kappa\, w^{-\lambda}}{c(w) = \kappa w^{-\lambda}}
 for all \eqn{w} less than \code{w_pp_cutoff} and zero for larger sizes.
 The values of \eqn{\kappa} and \eqn{\lambda} are taken from the \code{kappa}
 and \code{lambda} arguments.
+}
+
+\section{Setting model metadata}{
+
+
+The metadata of a model consists of the following slots:
+\itemize{
+\item \code{title} A string with the title for the model
+\item \code{description} A string with a description of the model
+\item \code{authors} A vector of strings with the author names
+\item \code{orcid} A named vector of strings where each name is an author name and
+each value is an orcid id.
+\item \code{version} The version string of the mizer version that last modified the
+model as returned by packageVersion("mizer")
+\item \code{extensions} A named vector of strings where each name is the name of
+and extension package needed to run the model and each value is a string
+giving the information that the remotes package needs to install the
+correct version of the extension package, see https://remotes.r-lib.org/
+\item \code{time_created} A POSIXct date-time object with the creation time
+\item \code{time_modified} A POSIXct date-time object with the last modified time
+}
+
+The \code{version}, \code{time_created} \code{time_modified} and \code{extensions} fields are
+set automatically by the appropriate functions. The other fields are set
+via \code{setMetadata()}.
 }
 
 \seealso{

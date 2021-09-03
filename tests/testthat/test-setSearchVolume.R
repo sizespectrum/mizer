@@ -6,7 +6,7 @@ test_that("setSearchVolume works", {
     expect_equal(2 * params@search_vol, p2@search_vol)
     # only search_vol changed
     p2@search_vol <- params@search_vol
-    expect_identical(p2, params)
+    expect_unchanged(p2, params)
 })
 test_that("Comment works on search volume", {
     params <- NS_params

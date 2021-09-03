@@ -49,6 +49,8 @@ setInitialValues <- function(params, sim) {
     params@initial_n_pp[] <- sim@n_pp[no_t, ]
     params@initial_n_other[] <- sim@n_other[no_t, ]
     params@initial_effort[] <- sim@effort[no_t, ]
+    
+    params@time_modified <- lubridate::now()
     params
 }
 
@@ -72,6 +74,8 @@ setInitialValues <- function(params, sim) {
         warning("The dimnames do not match. I will ignore them.")
     }
     params@initial_n[] <- value
+    
+    params@time_modified <- lubridate::now()
     params
 }
 
@@ -122,6 +126,8 @@ initialN <- function(object) {
         warning("The dimnames do not match. I will ignore them.")
     }
     params@initial_n_pp[] <- value
+    
+    params@time_modified <- lubridate::now()
     params
 }
 

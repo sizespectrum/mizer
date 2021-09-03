@@ -149,6 +149,7 @@ setResource <- function(params,
         params@resource_dynamics <- resource_dynamics
     }
     
+    params@time_modified <- lubridate::now()
     return(params)
 }
 
