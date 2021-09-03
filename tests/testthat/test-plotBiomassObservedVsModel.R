@@ -46,8 +46,8 @@ expect_equal(dummy$observed,
 dummy = plotBiomassObservedVsModel(params, return_data = T)
 p <- plotBiomassObservedVsModel(params)
 expect_true(is.ggplot(p))
-expect_identical(p$labels$x, "observed biomass")
-expect_identical(p$labels$y, "model biomass")
+expect_identical(p$labels$x, "observed biomass [g]")
+expect_identical(p$labels$y, "model biomass [g]")
 expect_identical(p$data, dummy)
 
 vdiffr::expect_doppelganger("plotBiomassObservedVsModel", p)

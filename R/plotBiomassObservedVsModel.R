@@ -34,7 +34,7 @@
 #'   the x-axis is on the log10 scale. Default is TRUE.
 #' @param labels Whether to show text labels for each species (TRUE) or not
 #'   (FALSE). Default is TRUE.
-#' @param show_unobserved Whether to include also species for which not
+#' @param show_unobserved Whether to include also species for which no
 #'   biomass observation is available. If TRUE, these species will be 
 #'   shown as if their observed biomass was equal to the model biomass.
 #' @param return_data Whether to return the data frame for the plot (TRUE) or
@@ -124,13 +124,13 @@ plotBiomassObservedVsModel = function(object, species = NULL, ratio = FALSE,
     }
     
     # Build dataframe
-    dummy = data.frame(species, sim_biomass, biomass_observed[row_select]) %>%
-        rename('species' = 1, 'model' = 2, 'observed' = 3) %>%
+    dummy = data.frame(species = species, 
+                       model = sim_biomass, 
+                       observed = biomass_observed[row_select]) %>%
         mutate(species = factor(species, levels = species),
                is_observed = !is.na(observed) & observed > 0,
                observed = case_when(is_observed ~ observed, !is_observed ~ model),
                ratio = model/observed)
-    
     
     # Check that at least one observed biomass exists
     if (sum(dummy$is_observed) == 0) {
@@ -159,7 +159,7 @@ plotBiomassObservedVsModel = function(object, species = NULL, ratio = FALSE,
             geom_abline(aes(intercept = 0, slope = 1), colour = 'purple',
                         linetype = "dashed", size = 1.3) + # y = x line
             geom_point(size = 3) +
-            labs(y = 'model biomass') +
+            labs(y = 'model biomass [g]') +
             coord_cartesian(ylim = range(dummy$model, dummy$observed))
     } else {
         gg <- ggplot(data = dummy, aes(x = observed, y = ratio,
@@ -171,7 +171,7 @@ plotBiomassObservedVsModel = function(object, species = NULL, ratio = FALSE,
             coord_cartesian(ylim = range(dummy$ratio))
     }
     
-    gg <- gg + labs(x = 'observed biomass', caption = caption) +
+    gg <- gg + labs(x = 'observed biomass [g]', caption = caption) +
         scale_colour_manual(values = getColours(params)[dummy$species]) +
         scale_shape_manual(values = c("TRUE" = 19, "FALSE" = 1)) +
         guides(shape = "none")

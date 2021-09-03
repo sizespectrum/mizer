@@ -79,8 +79,8 @@
 <text x='89.41' y='542.74' text-anchor='middle' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='4.89px' lengthAdjust='spacingAndGlyphs'>1</text>
 <text x='337.72' y='542.74' text-anchor='middle' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='9.79px' lengthAdjust='spacingAndGlyphs'>10</text>
 <text x='586.04' y='542.74' text-anchor='middle' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='14.68px' lengthAdjust='spacingAndGlyphs'>100</text>
-<text x='341.87' y='554.87' text-anchor='middle' style='font-size: 11.00px; font-family: sans;' textLength='89.29px' lengthAdjust='spacingAndGlyphs'>observed biomass</text>
-<text transform='translate(13.05,277.27) rotate(-90)' text-anchor='middle' style='font-size: 11.00px; font-family: sans;' textLength='73.99px' lengthAdjust='spacingAndGlyphs'>model biomass</text>
+<text x='341.87' y='554.87' text-anchor='middle' style='font-size: 11.00px; font-family: sans;' textLength='104.58px' lengthAdjust='spacingAndGlyphs'>observed biomass [g]</text>
+<text transform='translate(13.05,277.27) rotate(-90)' text-anchor='middle' style='font-size: 11.00px; font-family: sans;' textLength='89.28px' lengthAdjust='spacingAndGlyphs'>model biomass [g]</text>
 <rect x='657.02' y='165.92' width='57.50' height='222.69' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
 <text x='657.02' y='174.63' style='font-size: 11.00px; font-family: sans;' textLength='37.31px' lengthAdjust='spacingAndGlyphs'>species</text>
 <rect x='657.02' y='181.25' width='17.28' height='17.28' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
