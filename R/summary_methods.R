@@ -338,8 +338,8 @@ getGrowthCurves <- function(object,
     }
     species <- valid_species_arg(params, species)
     # reorder list of species to coincide with order in params
-    idx <- which(dimnames(n)$sp %in% species)
-    species <- dimnames(n)$sp[idx]
+    idx <- which(params@species_params$species %in% species)
+    species <- params@species_params$species[idx]
     age <- seq(0, max_age, length.out = 50)
     ws <- array(dim = c(length(species), length(age)),
                 dimnames = list(Species = species, Age = age))
