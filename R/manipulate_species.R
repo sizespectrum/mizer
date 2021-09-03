@@ -240,6 +240,7 @@ addSpecies <- function(params, species_params,
     p@rates_funcs <- params@rates_funcs
     
     p@time_created <- params@time_created
+    p@version <- params@version
     
     # The following does not affect the new species but preserves
     # any changes the user might have made in the original params object
