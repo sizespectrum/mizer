@@ -62,10 +62,6 @@ calibrateBiomass <- function(params) {
 #' object which is rescaled with [scaleModel()] so that the total yield in
 #' the model agrees with the total observed yield.
 #' 
-#' In addition to the observed yield, this function will also need to use the
-#' fishing mortalities. It assumes that you have set the catchabilities of
-#' the observed species to equal the estimated fishing mortalities.
-#' 
 #' After using this function the total yield in the model will match the
 #' total observed yield, summed over all species. However the yields of the
 #' individual species will not match observations yet, with some species

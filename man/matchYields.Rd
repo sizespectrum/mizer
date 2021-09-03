@@ -34,10 +34,6 @@ Before you can use this function you will need to have added a
 \code{yield_observed} column to your model which gives the observed yields in
 grams per year.  For species for which you have no observed biomass, you
 should set the value in the \code{yield_observed} column to 0 or NA.
-
-In addition to the observed yield, this function will also need to use the
-fishing mortalities. It assumes that you have set the catchabilities of
-the observed species to equal the estimated fishing mortalities.
 }
 \examples{
 params <- NS_params

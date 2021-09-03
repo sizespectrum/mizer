@@ -74,10 +74,6 @@ matchBiomasses <- function(params, species = NULL) {
 #' `yield_observed` column to your model which gives the observed yields in
 #' grams per year.  For species for which you have no observed biomass, you
 #' should set the value in the `yield_observed` column to 0 or NA.
-#'
-#' In addition to the observed yield, this function will also need to use the
-#' fishing mortalities. It assumes that you have set the catchabilities of
-#' the observed species to equal the estimated fishing mortalities.
 #' 
 #' @param params A MizerParams object
 #' @param species The species to be affected. Optional. By default all observed
@@ -99,19 +95,36 @@ matchYields <- function(params, species = NULL) {
     if (!("yield_observed" %in% names(params@species_params))) {
         return(params)
     }
-    species <- valid_species_arg(params, species = species, 
-                                 return.logical = TRUE) &
-        !is.na(params@species_params$yield_observed) &
-        params@species_params$yield_observed > 0
-    for (sp in (1:nrow(params@species_params))[species]) {
-        cutoff <- params@species_params$yield_cutoff[[sp]]
-        if (is.null(cutoff) || is.na(cutoff)) {
-            cutoff <- 0
-        }
-        total <- sum((params@initial_n[sp, ] * params@w * params@dw)
-                     [params@w >= cutoff])
-        factor <- params@species_params$yield_observed[[sp]] / total
-        params@initial_n[sp, ] <- params@initial_n[sp, ] * factor
+    biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
+    yield_model <- rowSums(biomass * getFMort(params))
+    
+    all_species <- params@species_params$species
+    include <- valid_species_arg(params, species = species, 
+                                 return.logical = TRUE)
+    
+    # ignore species with no observations
+    no_obs <- include &
+        (is.na(params@species_params$yield_observed) |
+        params@species_params$yield_observed <= 0)
+    if (any(no_obs)) {
+        message("The following species have no yield observations and ",
+                "their abundances will not be changed: ",
+                paste0(all_species[no_obs], collapse = ", "), ".")
+        include <- include & !no_obs
     }
+    
+    # ignore species with no model yield
+    no_yield <- include & yield_model == 0
+    if (any(no_yield)) {
+        message("The following species are not being fished in your model ",
+                "and their abundances will not be changed: ",
+                paste0(all_species[no_yield], collapse = ", "), ".")
+        include <- include & !no_yield
+    }
+    
+    factors <- params@species_params$yield_observed[include] /
+        yield_model[include]
+    params@initial_n[include, ] <- 
+        sweep(params@initial_n[include, ], 1, factors, "*")
     params
 }

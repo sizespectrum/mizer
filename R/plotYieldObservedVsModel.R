@@ -11,10 +11,6 @@
 #' grams per year.  For species for which you have no observed yield, you should set
 #' the value in the `yield_observed` column to 0 or NA.
 #'
-#' In addition to the observed yield, this function will also need to use the
-#' fishing mortalities. It assumes that you have set the catchabilities of
-#' the observed species to equal the estimated fishing mortalities.
-#'
 #' The total relative error is shown in the caption of the plot, calculated by
 #'   \deqn{TRE = \sum_i|1-\rm{ratio_i}|}{TRE = sum_i |1-ratio_i|} where
 #'   \eqn{\rm{ratio_i}}{ratio_i} is the ratio of model yield / observed
@@ -86,8 +82,18 @@ plotYieldObservedVsModel = function(object, species = NULL, ratio = FALSE,
     }
     sp_params <- params@species_params # get species_params data frame
     
+    biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
+    yield_model <- rowSums(biomass * getFMort(params))
+    
     # Select appropriate species
     species = valid_species_arg(object, species)
+    no_yield <- yield_model[species] == 0
+    if (any(no_yield)) {
+        message("The following species are not being fished in your model ",
+                "and will not be included in the plot: ",
+                paste0(species[no_yield], collapse = ", "), ".")
+        species <- species[!no_yield]
+    }
     if (length(species) == 0) stop("No species selected, please fix.")
     
     # find rows corresponding to species selected
@@ -101,9 +107,6 @@ plotYieldObservedVsModel = function(object, species = NULL, ratio = FALSE,
     } else { # accept
         yield_observed = sp_params$yield_observed
     }
-    
-    biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
-    yield_model <- rowSums(biomass * getFMort(params))
     
     # Build dataframe
     dummy = data.frame(species = species, 

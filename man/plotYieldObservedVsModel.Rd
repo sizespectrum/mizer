@@ -68,10 +68,6 @@ Before you can use this function you will need to have added a
 grams per year.  For species for which you have no observed yield, you should set
 the value in the \code{yield_observed} column to 0 or NA.
 
-In addition to the observed yield, this function will also need to use the
-fishing mortalities. It assumes that you have set the catchabilities of
-the observed species to equal the estimated fishing mortalities.
-
 The total relative error is shown in the caption of the plot, calculated by
 \deqn{TRE = \sum_i|1-\rm{ratio_i}|}{TRE = sum_i |1-ratio_i|} where
 \eqn{\rm{ratio_i}}{ratio_i} is the ratio of model yield / observed
