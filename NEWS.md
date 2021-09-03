@@ -13,7 +13,7 @@
 * There are now accessor and replacement functions for rates. So for example
   instead of `params <- setReproduction(params, maturity = my_maturity)` one
   can simply use `maturity(params) <- my_maturity`. These are documented
-  together with the setter functions.
+  together with the setter functions. #213
 * New `setMetadata()` to add information to a MizerParams object describing
   the model, for example a title, a description, the author or list of
   authors, a url and a doi. This will be particularly useful for sharing your
@@ -31,7 +31,7 @@
 * `steady()` now has a `preserve` argument with possible values `erepro`,
   `R_max` or `reproduction_level` to specify which quantity to preserve.
   This means that one can continue to use `steady()` also
-  once one has started to tune the density dependence in reproduction.
+  once one has started to tune the density dependence in reproduction. #208
 * Our website is now using the nice new mizer logo designed by Kira Askaroff
   (www.kiraaskaroff.com)
 
@@ -39,16 +39,16 @@
 
 * The rownames of `gear_params` are now set to "species, gear", so that one
   can access individual entries with for example
-  `gear_params(NS_params)["Cod, Otter", "catchability"]`
+  `gear_params(NS_params)["Cod, Otter", "catchability"]`. #212
 * The `z0` argument of `setExtMort()` has been deprecated in favour of
   `ext_mort` in order to avoid confusion with the species parameter `z0`.
 * `setColours()` and `setLinetypes()` now issue warnings when invalid values
   are given and ignores NAs.
 * The experimental `comment` arguments to the setter functions have been
-  removed.
+  removed. #214
 * The setter functions have a new `reset` argument which, when set to `TRUE`
   will recalculate the rates from the species_, gear_ and resource_params even
-  when custom values had been set.
+  when custom values had been set. #214
 * The `species` argument to various functions, which is checked with 
   `valid_species_arg()`, now does not throw an error even when there is no
   valid species included. Only a warning is issued. That means that for
@@ -69,6 +69,10 @@
 * The resource dynamics function is now also passed the `resource_rate` and the
   `resource_capacity` as arguments, which makes it easier to use them in 
   extension packages.
+* Species names are now always coerced to strings, even if the user gives them
+  as numbers. #202
+* There is a new system for informing the user about how defaults were set by
+  `newMultispeciesParams()`, #199
 * Many improvements in the documentation.
 * Many small improvements to code quality and testing.
 * Better social media cards, especially for twitter.
