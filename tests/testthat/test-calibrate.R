@@ -9,10 +9,10 @@ test_that("calibrateBiomass works", {
     species_params(params)$biomass_cutoff <- 1e-4
     species_params(params)$biomass_observed <- 
         rowSums(sweep(params@initial_n, 2, params@w * params@dw, "*"))
-    expect_equal(calibrateBiomass(params), params)
+    expect_unchanged(calibrateBiomass(params), params)
     # Even if only partially observed
     species_params(params)$biomass_observed[1:5] <- NA
-    expect_equal(calibrateBiomass(params), params)
+    expect_unchanged(calibrateBiomass(params), params)
     # If we double the observations, we get twice the abundance
     species_params(params)$biomass_observed <- 
         species_params(params)$biomass_observed * 2
@@ -33,10 +33,10 @@ test_that("calibrateYield works", {
     biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
     yield_model <- rowSums(biomass * getFMort(params))
     species_params(params)$yield_observed <- yield_model
-    expect_equal(calibrateYield(params), params)
+    expect_unchanged(calibrateYield(params), params)
     # Even if only partially observed
     species_params(params)$yield_observed[1:5] <- NA
-    expect_equal(calibrateYield(params), params)
+    expect_unchanged(calibrateYield(params), params)
     # If we double the observations, we get twice the abundance
     species_params(params)$yield_observed <- 
         species_params(params)$yield_observed * 2
