@@ -1,9 +1,11 @@
-#' Save a MizerParams object
+#' Save a MizerParams object to file, and restore it
 #' 
-#' saveParams()` saves a MizerParams object to a file. This can then be loaded
-#' back with `readParams()`.
+#' `saveParams()` saves a MizerParams object to a file. This can then be
+#' restored with `readParams()`.
 #' 
 #' Issues a warning if the model you are saving relies on some custom functions.
+#' Before saving a model you may want to set its metadata with
+#' [setMetadata()].
 #' 
 #' @param params A MizerParams object
 #' @param file The name of the file or a connection where the MizerParams object

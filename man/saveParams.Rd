@@ -3,7 +3,7 @@
 \name{saveParams}
 \alias{saveParams}
 \alias{readParams}
-\title{Save a MizerParams object}
+\title{Save a MizerParams object to file, and restore it}
 \usage{
 saveParams(params, file)
 
@@ -16,7 +16,11 @@ readParams(file)
 is saved to or read from.}
 }
 \description{
-\code{This}saveParams()`` saves a MizerParams object including all functions that
-are referenced in the MizerParams object. This can then be loaded back with
-\code{loadParams()}.
+\code{saveParams()} saves a MizerParams object to a file. This can then be
+restored with \code{readParams()}.
+}
+\details{
+Issues a warning if the model you are saving relies on some custom functions.
+Before saving a model you may want to set its metadata with
+\code{\link[=setMetadata]{setMetadata()}}.
 }

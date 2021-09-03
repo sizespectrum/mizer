@@ -53,7 +53,10 @@
 
 
 <meta property="og:title" content="Set metadata for a model — setMetadata" />
-<meta property="og:description" content="Set metadata for a model" />
+<meta property="og:description" content="Setting metadata is particularly important for sharing your model with
+others. All metadata fields are optional and you can also add other fields
+of your own choosing. If you set a value
+for a field that already existed, the old value will be overwritten." />
 <meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
 <meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
 <meta name="twitter:card" content="summary" />
@@ -204,17 +207,13 @@
     </div>
 
     <div class="ref-description">
-    <p>Set metadata for a model</p>
+    <p>Setting metadata is particularly important for sharing your model with
+others. All metadata fields are optional and you can also add other fields
+of your own choosing. If you set a value
+for a field that already existed, the old value will be overwritten.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setMetadata</span><span class='op'>(</span>
-  <span class='va'>params</span>,
-  title <span class='op'>=</span> <span class='cn'>NULL</span>,
-  description <span class='op'>=</span> <span class='cn'>NULL</span>,
-  authors <span class='op'>=</span> <span class='cn'>NULL</span>,
-  orcid <span class='op'>=</span> <span class='cn'>NULL</span>,
-  <span class='va'>...</span>
-<span class='op'>)</span>
+    <pre class="usage"><span class='fu'>setMetadata</span><span class='op'>(</span><span class='va'>params</span>, <span class='va'>title</span>, <span class='va'>description</span>, <span class='va'>authors</span>, <span class='va'>orcid</span>, <span class='va'>url</span>, <span class='va'>doi</span>, <span class='va'>...</span><span class='op'>)</span>
 
 <span class='fu'>getMetadata</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
 
@@ -231,49 +230,60 @@
     </tr>
     <tr>
       <th>description</th>
-      <td><p>A string with a description of the model</p></td>
+      <td><p>A string with a description of the model. This could for
+example contain information about any publications using the model.</p></td>
     </tr>
     <tr>
       <th>authors</th>
-      <td><p>A vector of strings with the author names</p></td>
+      <td><p>An author entry or a list of author entries, where each author
+entry could either be just a name or could itself be a list with fields
+like <code>name</code>, <code>orcid</code>, possibly <code>email</code>.</p></td>
     </tr>
     <tr>
       <th>orcid</th>
       <td><p>A named vector of strings where each name is an author name and
 each value is an orcid id.</p></td>
     </tr>
+    <tr>
+      <th>url</th>
+      <td><p>A URL where more information about the model can be found. This
+could be a blog post on the mizer blog, for example.</p></td>
+    </tr>
+    <tr>
+      <th>doi</th>
+      <td><p>The digital object identifier for your model. To create a doi you
+can use online services like https://zenodo.org/ or https://figshare.com.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Additional metadata fields that you would like to add</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The MizerParams object with updated metadata</p>
-<p><code>getMetadata()</code>: A list with the entries <code>title</code>, <code>description</code>,
-<code>authors</code>, <code>orcid</code>, <code>version</code>, <code>extensions</code>, <code>time_created</code> and
-<code>time_modified</code>.</p>
-    <h2 class="hasAnchor" id="setting-model-metadata"><a class="anchor" href="#setting-model-metadata"></a>Setting model metadata</h2>
+    <p><code>setMetadata()</code>: The MizerParams object with updated metadata</p>
+<p><code>getMetadata()</code>: A list with all metadata entries that have been set,
+including at least
+<code>mizer_version</code>, <code>extensions</code>, <code>time_created</code> and <code>time_modified</code>.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    
-
-
-<p>The metadata of a model consists of the following slots:</p><ul>
-<li><p><code>title</code> A string with the title for the model</p></li>
-<li><p><code>description</code> A string with a description of the model</p></li>
-<li><p><code>authors</code> A vector of strings with the author names</p></li>
-<li><p><code>orcid</code> A named vector of strings where each name is an author name and
-each value is an orcid id.</p></li>
-<li><p><code>version</code> The version string of the mizer version that last modified the
-model as returned by packageVersion("mizer")</p></li>
-<li><p><code>extensions</code> A named vector of strings where each name is the name of
-and extension package needed to run the model and each value is a string
-giving the information that the remotes package needs to install the
-correct version of the extension package, see https://remotes.r-lib.org/</p></li>
-<li><p><code>time_created</code> A POSIXct date-time object with the creation time</p></li>
-<li><p><code>time_modified</code> A POSIXct date-time object with the last modified time</p></li>
+    <p>In addition to the metadata fields you can set by hand, there are four fields
+that are set automatically by mizer:</p><ul>
+<li><p><code>mizer_version</code> The version string of the mizer version under which the
+model was last saved. Can be compared to the current version which is
+obtained with <code>packageVersion("mizer")</code>. The purpose of this field is that
+if the model is not working as expected in the current version of mizer,
+you can go back to the older version under which presumably it was working.</p></li>
+<li><p><code>extensions</code> A named vector of strings where each name is the name of and
+extension package needed to run the model and each value is a string giving
+the information that the remotes package needs to install the correct version
+of the extension package, see https://remotes.r-lib.org/. This field is
+set by the extension packages.</p></li>
+<li><p><code>time_created</code> A POSIXct date-time object with the creation time.</p></li>
+<li><p><code>time_modified</code> A POSIXct date-time object with the last modified time.</p></li>
 </ul>
 
-<p>The <code>version</code>, <code>time_created</code> <code>time_modified</code> and <code>extensions</code> fields are
-set automatically by the appropriate functions. The other fields are set
-via <code>setMetadata()</code>.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

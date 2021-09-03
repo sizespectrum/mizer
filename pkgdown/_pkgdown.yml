@@ -117,6 +117,10 @@ reference:
   - calibrateYield
   - matchYields
   - scaleModel
+- title: Sharing models
+  contents:
+  - setMetadata
+  - saveParams
 - title: Manipulating species
   contents:
   - addSpecies
@@ -228,7 +232,6 @@ reference:
 - title: Classes
   contents:
   - MizerParams-class
-  - saveParams
   - summary,MizerParams-method
   - "w"
   - validParams

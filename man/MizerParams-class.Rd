@@ -24,16 +24,9 @@ abundances or harvest effort through time. These are held in
 \section{Slots}{
 
 \describe{
-\item{\code{title}}{A string with the title for the model.}
+\item{\code{metadata}}{A list with metadata information. See \code{\link[=setMetadata]{setMetadata()}}.}
 
-\item{\code{description}}{A string with a description of the model.}
-
-\item{\code{authors}}{A vector of strings with the author names.}
-
-\item{\code{orcid}}{A named vector of strings where each name is an author name and
-each value is an orcid id.}
-
-\item{\code{version}}{The package version of mizer (as returned by
+\item{\code{mizer_version}}{The package version of mizer (as returned by
 \code{packageVersion("mizer")}) that created or last saved the model.}
 
 \item{\code{extensions}}{A named vector of strings where each name is the name of

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Save a MizerParams object — saveParams • mizer</title>
+<title>Save a MizerParams object to file, and restore it — saveParams • mizer</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -52,10 +52,9 @@
 
 
 
-<meta property="og:title" content="Save a MizerParams object — saveParams" />
-<meta property="og:description" content="ThissaveParams()`` saves a MizerParams object including all functions that
-are referenced in the MizerParams object. This can then be loaded back with
-loadParams()." />
+<meta property="og:title" content="Save a MizerParams object to file, and restore it — saveParams" />
+<meta property="og:description" content="saveParams() saves a MizerParams object to a file. This can then be
+restored with readParams()." />
 <meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
 <meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
 <meta name="twitter:card" content="summary" />
@@ -200,15 +199,14 @@ loadParams()." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Save a MizerParams object</h1>
+    <h1>Save a MizerParams object to file, and restore it</h1>
     <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/saveParams.R'><code>R/saveParams.R</code></a></small>
     <div class="hidden name"><code>saveParams.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p><code>This</code>saveParams()`` saves a MizerParams object including all functions that
-are referenced in the MizerParams object. This can then be loaded back with
-<code>loadParams()</code>.</p>
+    <p><code>saveParams()</code> saves a MizerParams object to a file. This can then be
+restored with <code>readParams()</code>.</p>
     </div>
 
     <pre class="usage"><span class='fu'>saveParams</span><span class='op'>(</span><span class='va'>params</span>, <span class='va'>file</span><span class='op'>)</span>
@@ -229,6 +227,11 @@ is saved to or read from.</p></td>
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Issues a warning if the model you are saving relies on some custom functions.
+Before saving a model you may want to set its metadata with
+<code><a href='setMetadata.html'>setMetadata()</a></code>.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

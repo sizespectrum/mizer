@@ -263,14 +263,11 @@ upgradeParams <- function(params) {
         pnew@A <- params@A
     }
     
-    if (.hasSlot(params, "title")) {
-        pnew@title <- params@title
-        pnew@description <- params@description
-        pnew@authors <- params@authors
-        pnew@orcid <- params@orcid
-        pnew@version <- params@version
+    if (.hasSlot(params, "metadata")) {
+        pnew@metadata <- params@metadata
         pnew@time_created <- params@time_created
         pnew@extensions <- params@extensions
+        pnew@mizer_version <- params@mizer_version
     }
     
     # Copy over all comments
@@ -282,8 +279,6 @@ upgradeParams <- function(params) {
     }
     
     validObject(pnew)
-    
-    pnew@time_modified <- lubridate::now()
     pnew
 }
 

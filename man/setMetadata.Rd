@@ -5,14 +5,7 @@
 \alias{getMetadata}
 \title{Set metadata for a model}
 \usage{
-setMetadata(
-  params,
-  title = NULL,
-  description = NULL,
-  authors = NULL,
-  orcid = NULL,
-  ...
-)
+setMetadata(params, title, description, authors, orcid, url, doi, ...)
 
 getMetadata(params)
 }
@@ -21,45 +14,52 @@ getMetadata(params)
 
 \item{title}{A string with the title for the model}
 
-\item{description}{A string with a description of the model}
+\item{description}{A string with a description of the model. This could for
+example contain information about any publications using the model.}
 
-\item{authors}{A vector of strings with the author names}
+\item{authors}{An author entry or a list of author entries, where each author
+entry could either be just a name or could itself be a list with fields
+like \code{name}, \code{orcid}, possibly \code{email}.}
 
 \item{orcid}{A named vector of strings where each name is an author name and
 each value is an orcid id.}
+
+\item{url}{A URL where more information about the model can be found. This
+could be a blog post on the mizer blog, for example.}
+
+\item{doi}{The digital object identifier for your model. To create a doi you
+can use online services like https://zenodo.org/ or https://figshare.com.}
+
+\item{...}{Additional metadata fields that you would like to add}
 }
 \value{
-The MizerParams object with updated metadata
+\code{setMetadata()}: The MizerParams object with updated metadata
 
-\code{getMetadata()}: A list with the entries \code{title}, \code{description},
-\code{authors}, \code{orcid}, \code{version}, \code{extensions}, \code{time_created} and
-\code{time_modified}.
+\code{getMetadata()}: A list with all metadata entries that have been set,
+including at least
+\code{mizer_version}, \code{extensions}, \code{time_created} and \code{time_modified}.
 }
 \description{
-Set metadata for a model
+Setting metadata is particularly important for sharing your model with
+others. All metadata fields are optional and you can also add other fields
+of your own choosing. If you set a value
+for a field that already existed, the old value will be overwritten.
 }
-\section{Setting model metadata}{
-
-
-The metadata of a model consists of the following slots:
+\details{
+In addition to the metadata fields you can set by hand, there are four fields
+that are set automatically by mizer:
 \itemize{
-\item \code{title} A string with the title for the model
-\item \code{description} A string with a description of the model
-\item \code{authors} A vector of strings with the author names
-\item \code{orcid} A named vector of strings where each name is an author name and
-each value is an orcid id.
-\item \code{version} The version string of the mizer version that last modified the
-model as returned by packageVersion("mizer")
-\item \code{extensions} A named vector of strings where each name is the name of
-and extension package needed to run the model and each value is a string
-giving the information that the remotes package needs to install the
-correct version of the extension package, see https://remotes.r-lib.org/
-\item \code{time_created} A POSIXct date-time object with the creation time
-\item \code{time_modified} A POSIXct date-time object with the last modified time
+\item \code{mizer_version} The version string of the mizer version under which the
+model was last saved. Can be compared to the current version which is
+obtained with \code{packageVersion("mizer")}. The purpose of this field is that
+if the model is not working as expected in the current version of mizer,
+you can go back to the older version under which presumably it was working.
+\item \code{extensions} A named vector of strings where each name is the name of and
+extension package needed to run the model and each value is a string giving
+the information that the remotes package needs to install the correct version
+of the extension package, see https://remotes.r-lib.org/. This field is
+set by the extension packages.
+\item \code{time_created} A POSIXct date-time object with the creation time.
+\item \code{time_modified} A POSIXct date-time object with the last modified time.
 }
-
-The \code{version}, \code{time_created} \code{time_modified} and \code{extensions} fields are
-set automatically by the appropriate functions. The other fields are set
-via \code{setMetadata()}.
 }
-
