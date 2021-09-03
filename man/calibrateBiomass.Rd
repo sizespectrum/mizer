@@ -2,7 +2,7 @@
 % Please edit documentation in R/calibrate.R
 \name{calibrateBiomass}
 \alias{calibrateBiomass}
-\title{Calibrate model biomass to observed biomass}
+\title{Calibrate the model scale to match total observed biomass}
 \usage{
 calibrateBiomass(params)
 }
@@ -14,17 +14,26 @@ A MizerParams object
 }
 \description{
 Given a MizerParams object \code{params} for which biomass observations are
-available for at least some species via
-\code{species_params(params)$biomass_observed}, this function returns an
-updated MizerParams object which is rescaled so that the total biomass
-of the observed species in the model agrees with the total observed
-biomass.
+available for at least some species via the \code{biomass_observed} column in the
+species_params data frame, this function returns an updated MizerParams
+object which is rescaled with \code{\link[=scaleModel]{scaleModel()}} so that the total biomass in
+the model agrees with the total observed biomass.
 }
 \details{
-Observed biomasses usually only include individuals above a certain size.
-This size should either be specified in
-\code{species_params(params)$biomass_cutoff} in grams, or else a cutoff size
-of \code{w_mat/20} is assumed.
+Biomass observations usually only include individuals above a certain size.
+This size should be specified in a biomass_cutoff column of the species
+parameter data frame. If this is missing, it is assumed that all sizes are
+included in the observed biomass, i.e., it includes larval biomass.
+
+After using this function the total biomass in the model will match the
+total biomass, summed over all species. However the biomasses of the
+individual species will not match observations yet, with some species
+having biomasses that are too high and others too low. So after this
+function you may want to use \code{\link[=matchBiomasses]{matchBiomasses()}}. This is described in the
+blog post at https://bit.ly/2YqXESV.
+
+If you have observations of the yearly yield instead of biomasses, you can
+use \code{\link[=calibrateYield]{calibrateYield()}} instead of this function.
 }
 \examples{
 params <- NS_params

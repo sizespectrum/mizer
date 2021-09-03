@@ -18,7 +18,27 @@ whether it is to be affected (TRUE) or not.}
 A MizerParams object
 }
 \description{
-Match biomasses to observations
+The function adjusts the abundances of the species in the model so that their biomasses
+match with observations.
+}
+\details{
+The function works by multiplying for each species the abundance density
+at all sizes by the same factor. This will of course not give a steady
+state solution, even if the initial abundance densities were at steady state.
+So after using this function you may want to use \code{steady()} to run the model
+to steady state, after which of course the biomasses will no longer match
+exactly. You could then iterate this process. This is described in the
+blog post at https://bit.ly/2YqXESV.
+
+Before you can use this function you will need to have added a
+\code{biomass_observed} column to your model which gives the observed biomass in
+grams.  For species for which you have no observed biomass, you should set
+the value in the \code{biomass_observed} column to 0 or NA.
+
+Biomass observations usually only include individuals above a certain size.
+This size should be specified in a \code{biomass_cutoff} column of the species
+parameter data frame. If this is missing, it is assumed that all sizes are
+included in the observed biomass, i.e., it includes larval biomass.
 }
 \examples{
 params <- NS_params
@@ -27,5 +47,5 @@ species_params(params)$biomass_observed <-
 species_params(params)$biomass_cutoff <- 10
 params <- calibrateBiomass(params)
 params <- matchBiomasses(params)
-lotBiomassObservedVsModel(params)
+plotBiomassObservedVsModel(params)
 }

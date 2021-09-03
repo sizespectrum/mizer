@@ -46,7 +46,7 @@ not (FALSE). Default is FALSE.}
 \item{labels}{Whether to show text labels for each species (TRUE) or not
 (FALSE). Default is TRUE.}
 
-\item{show_unobserved}{Whether to include also species for which not
+\item{show_unobserved}{Whether to include also species for which no
 biomass observation is available. If TRUE, these species will be
 shown as if their observed biomass was equal to the model biomass.}
 }
