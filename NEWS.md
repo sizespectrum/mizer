@@ -1,18 +1,49 @@
-# mizer 2.2.1.9000
+# mizer 2.2.1.9007
 
-* Changing `linecolour` or `linetype` in the species parameters now actually
-  changes the linecolours and linetypes as intended.
-* `setColours()` and `setLinetypes()` now issue warnings when invalid values
-  are given and ignores NAs.
+## New features
+
+* New plots `plotBiomassObservedVsModel()` and `plotYieldObservedVsModel()`
+  contributed by @SamikDatta., together with their plotly counterparts.
+* New `calibrateBiomass()`, `calibrateYield()` to set the model scale to agree
+  with total observed biomass or total observed yield. Uses the new
+  `scaleModel()`.
+* New `matchBiomasses()` and `matchYields()` will try to adjust the abundances
+  of the species to produce the observed biomasses or yields.
+  See blog post at https://bit.ly/2YqXESV .
+* There are now accessor and replacement functions for rates. So for example
+  instead of `params <- setReproduction(params, maturity = my_maturity)` one
+  can simply use `maturity(params) <- my_maturity`. These are documented
+  together with the setter functions.
+* New `setMetadata()` to add information to a MizerParams object describing
+  the model, for example a title, a description, the author or list of
+  authors, a url and a doi. This will be particularly useful for sharing your
+  models with others
+* New `saveParams()` for saving a MizerParams object to a file and
+  `readParams()` for reading it back in. The resulting files can be shared
+  with others who want to run your model.
+* A MizerParams object now saves the mizer version under which the model was
+  last saved. Should the model not be working as expected in the current version
+  of mizer, you can go back to the older version under which presumably it was
+  working. This helps with the reproducibility of your research.
+* A MizerParams model saves the time when it was created and the time the model
+  was last modified. See `getMetadata()`. This helps you keep track of 
+  different versions of your model.
+* `steady()` now has a `preserve` argument with possible values `erepro`,
+  `R_max` or `reproduction_level` to specify which quantity to preserve.
+  This means that one can continue to use `steady()` also
+  once one has started to tune the density dependence in reproduction.
+* Our website is now using the nice new mizer logo designed by Kira Askaroff
+  (www.kiraaskaroff.com)
+
+## Small improvements
+
 * The rownames of `gear_params` are now set to "species, gear", so that one
   can access individual entries with for example
   `gear_params(NS_params)["Cod, Otter", "catchability"]`
 * The `z0` argument of `setExtMort()` has been deprecated in favour of
   `ext_mort` in order to avoid confusion with the species parameter `z0`.
-* There are now accessor and replacement functions for rates. So for example
-  instead of `params <- setReproduction(params, maturity = my_maturity)` one
-  can simply use `maturity(params) <- my_maturity`. These are documented
-  together with the setter functions
+* `setColours()` and `setLinetypes()` now issue warnings when invalid values
+  are given and ignores NAs.
 * The experimental `comment` arguments to the setter functions have been
   removed.
 * The setter functions have a new `reset` argument which, when set to `TRUE`
@@ -27,27 +58,37 @@
   asked for a non-existent component instead of giving an error. This gives
   an easy way to check for the existence of a component.
 * The example interaction matrix `inter` for the North Sea model now has the
-  alternative name `NS_inter`, with the old name deprecated.
+  alternative name `NS_interaction`, with the old name deprecated.
 * Species added with `addSpecies()` are now by default given a reproduction
   level of 1/4 instead of 0, because at the low densities at which they are
   introduced there would otherwise not be enough density dependence to 
   stabilise them.
-* Growth curves calculated with `getGrowthCurves()` and plotted with
-  `plotGrowthCurves()` are now correct, and no longer extend above the
-  asymptotic size.
 * The size range arguments `min_w`, `max_w`, `min_l` and `max_l` used in some 
   summary functions and processed by `get_size_range_array()` accept vector
   values setting different limits for different species.
+* The resource dynamics function is now also passed the `resource_rate` and the
+  `resource_capacity` as arguments, which makes it easier to use them in 
+  extension packages.
+* Many improvements in the documentation.
+* Many small improvements to code quality and testing.
+* Better social media cards, especially for twitter.
+* mizer can be run on binder, https://mybinder.org/v2/gh/sizespectrum/mizer/HEAD?urlpath=rstudio
+
+## Bug fixes
+
+* Changing `linecolour` or `linetype` in the species parameters now actually
+  changes the linecolours and linetypes as intended.
+* Growth curves calculated with `getGrowthCurves()` and plotted with
+  `plotGrowthCurves()` are now correct, and no longer extend above the
+  asymptotic size.
 * `plotGrowthCurves()` with `species_panel = TRUE` now respects the `species`
   argument to only show growth curves for selected species, and it works with
   a MizerParams object as well as a MizerSim object.
-* `steady()` now has a `preserve` argument with possible values `R_max` or
-  `reproduction_level` to specify which quantity to keep preserve.
-
+* Reinstated the example .csv files that were missing from the package because
+  the vignettes are no longer included.
 
 
 # mizer 2.2.1
-
 
 ## New functionality
 

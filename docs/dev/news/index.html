@@ -201,32 +201,63 @@
       <small>Source: <a href='https://github.com/sizespectrum/mizer/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="mizer-2219000" class="section level1">
-<h1 class="page-header" data-toc-text="2.2.1.9000">
-<a href="#mizer-2219000" class="anchor"></a>mizer 2.2.1.9000<small> Unreleased </small>
+    <div id="mizer-2219007" class="section level1">
+<h1 class="page-header" data-toc-text="2.2.1.9007">
+<a href="#mizer-2219007" class="anchor"></a>mizer 2.2.1.9007<small> Unreleased </small>
 </h1>
+<div id="new-features" class="section level2">
+<h2 class="hasAnchor">
+<a href="#new-features" class="anchor"></a>New features</h2>
 <ul>
-<li>Changing <code>linecolour</code> or <code>linetype</code> in the species parameters now actually changes the linecolours and linetypes as intended.</li>
+<li>New plots <code><a href="../reference/plotBiomassObservedVsModel.html">plotBiomassObservedVsModel()</a></code> and <code><a href="../reference/plotYieldObservedVsModel.html">plotYieldObservedVsModel()</a></code> contributed by <a href='https://github.com/SamikDatta'>@SamikDatta</a>., together with their plotly counterparts.</li>
+<li>New <code><a href="../reference/calibrateBiomass.html">calibrateBiomass()</a></code>, <code><a href="../reference/calibrateYield.html">calibrateYield()</a></code> to set the model scale to agree with total observed biomass or total observed yield. Uses the new <code><a href="../reference/scaleModel.html">scaleModel()</a></code>.</li>
+<li>New <code><a href="../reference/matchBiomasses.html">matchBiomasses()</a></code> and <code><a href="../reference/matchYields.html">matchYields()</a></code> will try to adjust the abundances of the species to produce the observed biomasses or yields. See blog post at <a href="https://bit.ly/2YqXESV" class="uri">https://bit.ly/2YqXESV</a> .</li>
+<li>There are now accessor and replacement functions for rates. So for example instead of <code>params &lt;- setReproduction(params, maturity = my_maturity)</code> one can simply use <code>maturity(params) &lt;- my_maturity</code>. These are documented together with the setter functions.</li>
+<li>New <code><a href="../reference/setMetadata.html">setMetadata()</a></code> to add information to a MizerParams object describing the model, for example a title, a description, the author or list of authors, a url and a doi. This will be particularly useful for sharing your models with others</li>
+<li>New <code><a href="../reference/saveParams.html">saveParams()</a></code> for saving a MizerParams object to a file and <code><a href="../reference/saveParams.html">readParams()</a></code> for reading it back in. The resulting files can be shared with others who want to run your model.</li>
+<li>A MizerParams object now saves the mizer version under which the model was last saved. Should the model not be working as expected in the current version of mizer, you can go back to the older version under which presumably it was working. This helps with the reproducibility of your research.</li>
+<li>A MizerParams model saves the time when it was created and the time the model was last modified. See <code><a href="../reference/setMetadata.html">getMetadata()</a></code>. This helps you keep track of different versions of your model.</li>
 <li>
-<code><a href="../reference/setColours.html">setColours()</a></code> and <code><a href="../reference/setColours.html">setLinetypes()</a></code> now issue warnings when invalid values are given and ignores NAs.</li>
+<code><a href="../reference/steady.html">steady()</a></code> now has a <code>preserve</code> argument with possible values <code>erepro</code>, <code>R_max</code> or <code>reproduction_level</code> to specify which quantity to preserve. This means that one can continue to use <code><a href="../reference/steady.html">steady()</a></code> also once one has started to tune the density dependence in reproduction.</li>
+<li>Our website is now using the nice new mizer logo designed by Kira Askaroff (www.kiraaskaroff.com)</li>
+</ul>
+</div>
+<div id="small-improvements" class="section level2">
+<h2 class="hasAnchor">
+<a href="#small-improvements" class="anchor"></a>Small improvements</h2>
+<ul>
 <li>The rownames of <code>gear_params</code> are now set to “species, gear”, so that one can access individual entries with for example <code>gear_params(NS_params)["Cod, Otter", "catchability"]</code>
 </li>
 <li>The <code>z0</code> argument of <code><a href="../reference/setExtMort.html">setExtMort()</a></code> has been deprecated in favour of <code>ext_mort</code> in order to avoid confusion with the species parameter <code>z0</code>.</li>
-<li>There are now accessor and replacement functions for rates. So for example instead of <code>params &lt;- setReproduction(params, maturity = my_maturity)</code> one can simply use <code>maturity(params) &lt;- my_maturity</code>. These are documented together with the setter functions</li>
+<li>
+<code><a href="../reference/setColours.html">setColours()</a></code> and <code><a href="../reference/setColours.html">setLinetypes()</a></code> now issue warnings when invalid values are given and ignores NAs.</li>
 <li>The experimental <code>comment</code> arguments to the setter functions have been removed.</li>
 <li>The setter functions have a new <code>reset</code> argument which, when set to <code>TRUE</code> will recalculate the rates from the species_, gear_ and resource_params even when custom values had been set.</li>
 <li>The <code>species</code> argument to various functions, which is checked with <code><a href="../reference/valid_species_arg.html">valid_species_arg()</a></code>, now does not throw an error even when there is no valid species included. Only a warning is issued. That means that for example <code>plotSpectra(NS_params, species = list(), total = TRUE)</code> is now allowed.</li>
 <li>
 <code><a href="../reference/getComponent.html">getComponent()</a></code> from the mizer extension mechanism now returns NULL when asked for a non-existent component instead of giving an error. This gives an easy way to check for the existence of a component.</li>
-<li>The example interaction matrix <code>inter</code> for the North Sea model now has the alternative name <code>NS_inter</code>, with the old name deprecated.</li>
+<li>The example interaction matrix <code>inter</code> for the North Sea model now has the alternative name <code>NS_interaction</code>, with the old name deprecated.</li>
 <li>Species added with <code><a href="../reference/addSpecies.html">addSpecies()</a></code> are now by default given a reproduction level of 1/4 instead of 0, because at the low densities at which they are introduced there would otherwise not be enough density dependence to stabilise them.</li>
-<li>Growth curves calculated with <code><a href="../reference/getGrowthCurves.html">getGrowthCurves()</a></code> and plotted with <code><a href="../reference/plotGrowthCurves.html">plotGrowthCurves()</a></code> are now correct, and no longer extend above the asymptotic size.</li>
 <li>The size range arguments <code>min_w</code>, <code>max_w</code>, <code>min_l</code> and <code>max_l</code> used in some summary functions and processed by <code><a href="../reference/get_size_range_array.html">get_size_range_array()</a></code> accept vector values setting different limits for different species.</li>
+<li>The resource dynamics function is now also passed the <code>resource_rate</code> and the <code>resource_capacity</code> as arguments, which makes it easier to use them in extension packages.</li>
+<li>Many improvements in the documentation.</li>
+<li>Many small improvements to code quality and testing.</li>
+<li>Better social media cards, especially for twitter.</li>
+<li>mizer can be run on binder, <a href="https://mybinder.org/v2/gh/sizespectrum/mizer/HEAD?urlpath=rstudio" class="uri">https://mybinder.org/v2/gh/sizespectrum/mizer/HEAD?urlpath=rstudio</a>
+</li>
+</ul>
+</div>
+<div id="bug-fixes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#bug-fixes" class="anchor"></a>Bug fixes</h2>
+<ul>
+<li>Changing <code>linecolour</code> or <code>linetype</code> in the species parameters now actually changes the linecolours and linetypes as intended.</li>
+<li>Growth curves calculated with <code><a href="../reference/getGrowthCurves.html">getGrowthCurves()</a></code> and plotted with <code><a href="../reference/plotGrowthCurves.html">plotGrowthCurves()</a></code> are now correct, and no longer extend above the asymptotic size.</li>
 <li>
 <code><a href="../reference/plotGrowthCurves.html">plotGrowthCurves()</a></code> with <code>species_panel = TRUE</code> now respects the <code>species</code> argument to only show growth curves for selected species, and it works with a MizerParams object as well as a MizerSim object.</li>
-<li>
-<code><a href="../reference/steady.html">steady()</a></code> now has a <code>preserve</code> argument with possible values <code>R_max</code> or <code>reproduction_level</code> to specify which quantity to keep preserve.</li>
+<li>Reinstated the example .csv files that were missing from the package because the vignettes are no longer included.</li>
 </ul>
+</div>
 </div>
     <div id="mizer-221" class="section level1">
 <h1 class="page-header" data-toc-text="2.2.1">
@@ -242,9 +273,9 @@
 <li>New function <code><a href="../reference/plotDataFrame.html">plotDataFrame()</a></code> allows easier creation of plots.</li>
 </ul>
 </div>
-<div id="bug-fixes" class="section level2">
+<div id="bug-fixes-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-1" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>
 <code><a href="../reference/setInitialValues.html">setInitialValues()</a></code> correctly preserves the gear names on the initial effort. Thanks to Axel Rossberg.</li>
@@ -298,9 +329,9 @@
 <code><a href="../reference/steady.html">steady()</a></code> no longer switches off the Beverton-Holt density dependence. You can do this manually with <code><a href="../reference/setBevertonHolt.html">setBevertonHolt()</a></code> with <code>R_factor = Inf</code>.</li>
 </ul>
 </div>
-<div id="bug-fixes-1" class="section level2">
+<div id="bug-fixes-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-1" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-2" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>
 <code><a href="../reference/getYield.html">getYield()</a></code> now also works with density-dependent fishing mortality. Thanks to James Roger for discovering the problem.</li>
@@ -350,9 +381,9 @@
 <li>By default, the functions <code><a href="../reference/plotPredMort.html">plotPredMort()</a></code> and <code>plotFMort</code> will stop displaying mortality values past the species’ asymptotic size. The argument<br><code>all.sizes</code> allows you to continue to show these values.</li>
 </ul>
 </div>
-<div id="bug-fixes-2" class="section level2">
+<div id="bug-fixes-3" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-2" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-3" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>
 <code><a href="../reference/getFMort.html">getFMort()</a></code> now passes time argument correctly. <a href='https://github.com/sizespectrum/mizer/issues/181'>#181</a></li>
@@ -381,9 +412,9 @@
 <h1 class="page-header" data-toc-text="2.0.4">
 <a href="#mizer-204" class="anchor"></a>mizer 2.0.4<small> 2020-08-30 </small>
 </h1>
-<div id="bug-fixes-3" class="section level2">
+<div id="bug-fixes-4" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-3" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-4" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>The value of <code>t</code> passed to dynamics functions has been corrected.</li>
 <li>
@@ -427,9 +458,9 @@
 <h1 class="page-header" data-toc-text="2.0.3">
 <a href="#mizer-203" class="anchor"></a>mizer 2.0.3<small> 2020-07-28 </small>
 </h1>
-<div id="bug-fixes-4" class="section level2">
+<div id="bug-fixes-5" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-4" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-5" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>Correct handling of shiny progress bar in <code><a href="../reference/project.html">project()</a></code>.</li>
 </ul>
@@ -452,9 +483,9 @@
 <h1 class="page-header" data-toc-text="2.0.2">
 <a href="#mizer-202" class="anchor"></a>mizer 2.0.2<small> 2020-06-08 </small>
 </h1>
-<div id="bug-fixes-5" class="section level2">
+<div id="bug-fixes-6" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-5" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-6" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>Time passed to rate functions is now the actual simulation time, not the time elapsed since start of simulation.</li>
 <li>
@@ -497,9 +528,9 @@
 <h1 class="page-header" data-toc-text="2.0.1">
 <a href="#mizer-201" class="anchor"></a>mizer 2.0.1<small> 2020-05-05 </small>
 </h1>
-<div id="bug-fixes-6" class="section level2">
+<div id="bug-fixes-7" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-6" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-7" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>
 <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> now also works with non-default feeding kernels. <a href='https://github.com/sizespectrum/mizer/issues/159'>#159</a></li>
@@ -726,9 +757,9 @@
 <li>Using R Markdown in all roxygen comments.</li>
 </ul>
 </div>
-<div id="bug-fixes-7" class="section level2">
+<div id="bug-fixes-8" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-7" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-8" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>In <code><a href="../reference/getSSB.html">getSSB()</a></code>, the calculation of the spawning stock biomass is done correctly using the maturity ogive instead of the proportion of energy allocated to reproduction. (<a href='https://github.com/sizespectrum/mizer/issues/47'>#47</a>)</li>
 <li>The fast FFT method and the old method for calculating integrals now give the same numerical results. (<a href='https://github.com/sizespectrum/mizer/issues/39'>#39</a>)</li>
