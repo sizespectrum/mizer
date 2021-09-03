@@ -76,6 +76,7 @@ Collate:
     'summary_methods.R'
     'plots.R'
     'plotBiomassObservedVsModel.R'
+    'plotYieldObservedVsModel.R'
     'animateSpectra.R'
     'newMultispeciesParams.R'
     'wrapper_functions.R'

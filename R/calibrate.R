@@ -1,16 +1,25 @@
-#' Calibrate model biomass to observed biomass
+#' Calibrate the model scale to match total observed biomass
 #' 
 #' Given a MizerParams object `params` for which biomass observations are
-#' available for at least some species via 
-#' `species_params(params)$biomass_observed`, this function returns an
-#' updated MizerParams object which is rescaled so that the total biomass
-#' of the observed species in the model agrees with the total observed
-#' biomass. 
+#' available for at least some species via the `biomass_observed` column in the
+#' species_params data frame, this function returns an updated MizerParams
+#' object which is rescaled with [scaleModel()] so that the total biomass in
+#' the model agrees with the total observed biomass.
 #' 
-#' Observed biomasses usually only include individuals above a certain size.
-#' This size should either be specified in 
-#' `species_params(params)$biomass_cutoff` in grams, or else a cutoff size
-#' of `w_mat/20` is assumed.
+#' Biomass observations usually only include individuals above a certain size.
+#' This size should be specified in a biomass_cutoff column of the species
+#' parameter data frame. If this is missing, it is assumed that all sizes are
+#' included in the observed biomass, i.e., it includes larval biomass.
+#' 
+#' After using this function the total biomass in the model will match the
+#' total biomass, summed over all species. However the biomasses of the
+#' individual species will not match observations yet, with some species
+#' having biomasses that are too high and others too low. So after this
+#' function you may want to use [matchBiomasses()]. This is described in the
+#' blog post at https://bit.ly/2YqXESV.
+#' 
+#' If you have observations of the yearly yield instead of biomasses, you can
+#' use [calibrateYield()] instead of this function.
 #' 
 #' @param params A MizerParams object
 #' @return A MizerParams object
@@ -45,6 +54,53 @@ calibrateBiomass <- function(params) {
     scaleModel(params, factor = observed_total / model_total)
 }
 
+#' Calibrate the model scale to match total observed yield
+#' 
+#' Given a MizerParams object `params` for which yield observations are
+#' available for at least some species via the `yield_observed` column in the
+#' species_params data frame, this function returns an updated MizerParams
+#' object which is rescaled with [scaleModel()] so that the total yield in
+#' the model agrees with the total observed yield.
+#' 
+#' In addition to the observed yield, this function will also need to use the
+#' fishing mortalities. It assumes that you have set the catchabilities of
+#' the observed species to equal the estimated fishing mortalities.
+#' 
+#' After using this function the total yield in the model will match the
+#' total observed yield, summed over all species. However the yields of the
+#' individual species will not match observations yet, with some species
+#' having yields that are too high and others too low. So after this
+#' function you may want to use [matchYields()].
+#' 
+#' If you have observations of species biomasses instead of yields, you can
+#' use [calibrateBiomass()] instead of this function.
+#' 
+#' @param params A MizerParams object
+#' @return A MizerParams object
+#' @export
+#' @examples 
+#' params <- NS_params
+#' species_params(params)$yield_observed <-
+#'     c(0.8, 61, 12, 35, 1.6, 20, 10, 7.6, 135, 60, 30, 78)
+#' gear_params(params)$catchability <-
+#'     c(1.3, 0.065, 0.31, 0.18, 0.98, 0.24, 0.37, 0.46, 0.18, 0.30, 0.27, 0.39)
+#' params2 <- calibrateYield(params)
+#' plotYieldObservedVsModel(params2)
+calibrateYield<- function(params) {
+    if ((!("yield_observed" %in% names(params@species_params))) ||
+        all(is.na(params@species_params$yield_observed))) {
+        return(params)
+    }
+    no_sp <- nrow(params@species_params)
+    observed <- params@species_params$yield_observed
+    observed_total <- sum(observed, na.rm = TRUE)
+    sp_observed <- which(!is.na(observed))
+    biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
+    yield_model <- rowSums(biomass * getFMort(params))[sp_observed]
+    model_total <- sum(yield_model)
+    scaleModel(params, factor = observed_total / model_total)
+}
+
 
 #' Change scale of the model
 #'
@@ -54,34 +110,36 @@ calibrateBiomass <- function(params) {
 #' The abundances in mizer and some rates depend on the size of the area to
 #' which they refer. So they could be given per square meter or per square
 #' kilometer or for an entire study area or any other choice of yours. This
-#' function allows you to change the size by automatically changing the
-#' abundances and rates accordingly.
+#' function allows you to change the scale of the model by automatically
+#' changing the abundances and rates accordingly.
 #'
 #' @details
-#' If you rescale the system by a factor \eqn{c} then this function makes the
+#' If you rescale the model by a factor \eqn{c} then this function makes the
 #' following rescalings in the params object:
 #' \itemize{
-#' \item The initial abundances `initial_n`, `initial_n_pp` and
-#'   `initial_n_other` are rescaled by \eqn{c}.
+#' \item The initial abundances are rescaled by \eqn{c}.
 #' \item The search volume is rescaled by \eqn{1/c}.
 #' \item The resource carrying capacity is rescaled by \eqn{c}
-#' \item The maximum reproduction rate \eqn{R_{max}}, if used, is rescaled by
+#' \item The maximum reproduction rate \eqn{R_{max}} is rescaled by
 #'   \eqn{c}.
 #' }
-#' The effect of this is that the dynamics of the rescaled system are identical
-#' to those of the unscaled system, in the sense that it does not matter whether
+#' The effect of this is that the dynamics of the rescaled model are identical
+#' to those of the unscaled model, in the sense that it does not matter whether
 #' one first calls [scaleModel()] and then runs a simulation with
 #' [project()] or whether one first runs a simulation and then rescales the
 #' resulting abundances.
 #'
 #' Note that if you use non-standard resource dynamics or other components then you
 #' may need to rescale additional parameters that appear in those dynamics.
+#' 
+#' In practice you will need to use some observations to set the scale for your
+#' model. If you have biomass observations you can use [calibrateBiomass()],
+#' if you have yearly yields you can use [calibrateYield()].
 #'
-#' @param params A mizer params object
-#' @param factor The factor by which the size is rescaled with respect to which
-#'   the abundances are given.
+#' @param params A MizerParams object
+#' @param factor The factor by which the scale is multiplied
 #'
-#' @return An object of type \linkS4class{MizerParams}
+#' @return The rescaled MizerParams object
 #' @export
 scaleModel <- function(params, factor) {
     params <- validParams(params)
