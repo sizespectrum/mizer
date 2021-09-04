@@ -86,8 +86,9 @@
   `plotGrowthCurves()` are now correct, and no longer extend above the
   asymptotic size.
 * `plotGrowthCurves()` with `species_panel = TRUE` now respects the `species`
-  argument to only show growth curves for selected species, and it works with
-  a MizerParams object as well as a MizerSim object.
+  argument to only show growth curves for selected species, it works with
+  a MizerParams object as well as a MizerSim object, and it shows the panels
+  in the correct order. #201
 * Reinstated the example .csv files that were missing from the package because
   the vignettes are no longer included.
 

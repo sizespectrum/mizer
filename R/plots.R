@@ -1156,12 +1156,12 @@ plotGrowthCurves <- function(object, species = NULL,
                 scale_x_continuous(name = "Age [years]") +
                 scale_y_continuous(name = "Size [g]") +
                 geom_hline(aes(yintercept = w_mat),
-                           data = tibble(Species = params@species_params$species[sp_sel],
+                           data = tibble(Species = factor(legend_levels),
                                          w_mat = params@species_params$w_mat[sp_sel]),
                            linetype = "dashed",
                            colour = "grey") +
                 geom_hline(aes(yintercept = w_inf),
-                           data = tibble(Species = params@species_params$species[sp_sel],
+                           data = tibble(Species = factor(legend_levels),
                                          w_inf = params@species_params$w_inf[sp_sel]),
                            linetype = "solid",
                            colour = "grey") +
