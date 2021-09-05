@@ -54,7 +54,8 @@ matchBiomasses <- function(params, species = NULL) {
         factor <- params@species_params$biomass_observed[[sp]] / total
         params@initial_n[sp, ] <- params@initial_n[sp, ] * factor
     }
-    params
+    
+    setBevertonHolt(params)
 }
 
 #' Match yields to observations
@@ -126,5 +127,6 @@ matchYields <- function(params, species = NULL) {
         yield_model[include]
     params@initial_n[include, ] <- 
         sweep(params@initial_n[include, ], 1, factors, "*")
-    params
+    
+    setBevertonHolt(params)
 }
