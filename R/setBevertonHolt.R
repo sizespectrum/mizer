@@ -2,15 +2,13 @@
 #'
 #' `r lifecycle::badge("experimental")`
 #' Takes a MizerParams object `params` with arbitrary density dependence and
-#' returns a MizerParams object with Beverton-Holt density-dependence with your
-#' chosen reproductive efficiency or your chosen maximal reproduction rate.
-#' If you have tuned your `params` object to describe a particular steady state,
-#' then setting the Beverton-Holt density dependence with this function will
-#' leave you with the exact same steady state, because it only allows you to
-#' choose among those Beverton-Holt reproduction curves that have the property
-#' that the energy invested into reproduction by the mature individuals leads to
-#' the reproduction rate that is required to maintain the given egg abundance.
-#' By specifying one of the parameters `erepro`, `R_max` or `reproduction_level`
+#' returns a MizerParams object with Beverton-Holt density-dependence in such a
+#' way that the energy invested into reproduction by the mature individuals
+#' leads to the reproduction rate that is required to maintain the given egg
+#' abundance. Hence if you have tuned your `params` object to describe a
+#' particular steady state, then setting the Beverton-Holt density dependence
+#' with this function will leave you with the exact same steady state. By
+#' specifying one of the parameters `erepro`, `R_max` or `reproduction_level`
 #' you pick the desired reproduction curve. More details of these parameters are
 #' provided below.
 #'
@@ -90,7 +88,10 @@
 #' ratio between the density-dependent reproduction rate \eqn{R_{dd}}{R_dd} and
 #' the maximal reproduction rate  \eqn{R_{max}}{R_max}.
 #'
-#' The parameter you provide can be either a vector with one value for each
+#' If you do not provide a value for any of the reproduction parameter
+#' arguments, then `erepro` will be set to the value it has in the current
+#' species parameter data frame. If you do provide one of the reproduction
+#' parameters, this can be either a vector with one value for each
 #' species, or a named vector where the names determine which species are
 #' affected, or a single unnamed value that is then used for all species. Any
 #' species for which the given value is `NA` will remain unaffected.
@@ -143,13 +144,20 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
                             R_max, reproduction_level) {
     assert_that(is(params, "MizerParams"))
     no_sp <- nrow(params@species_params)
-    # check that there are only two arguments
-    if (hasArg("erepro") + hasArg("R_max") + hasArg("reproduction_level") +
-        hasArg("R_factor") != 1) {
+    
+    # check number of arguments
+    num_args <- hasArg("erepro") + hasArg("R_max") + 
+        hasArg("reproduction_level") + hasArg("R_factor")
+    if (num_args > 1) {
         stop("You should only provide `params` and one other argument.")
     }
+    if (num_args == 0) {
+        # no values given, so use previous erepro
+        erepro <- species_params(params)$erepro
+    }
+    
     # No matter which argument is given, I want to manipulate the values
-    if (hasArg("erepro")) values <- erepro
+    if (!missing("erepro")) values <- erepro
     if (hasArg("R_max")) values <- R_max
     if (hasArg("reproduction_level")) values <- reproduction_level
     if (hasArg("R_factor")) values <- R_factor
@@ -188,12 +196,14 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
         rdi_new <- rdi * erepro_new / erepro_old
         wrong <- rdi_new < rdd_new
         if (any(wrong)) {
-            warning("For the following species the requested `erepro` ",
-                    "was too small and has been increased to the smallest ",
-                    "possible value: ",
-                    paste(species[wrong], collapse = ", "))
             rdi_new[wrong] <- rdd_new[wrong]
             erepro_new[wrong] <- (erepro_old * rdi_new / rdi)[wrong]
+            warning("For the following species `erepro` ",
+                    "has been increased to the smallest ",
+                    "possible value: ",
+                    paste0("erepro[", species[wrong], "] = ",
+                           signif(erepro_new[wrong], 3),
+                           collapse = "; "))
         }
         r_max_new <- rdi_new * rdd_new / (rdi_new - rdd_new)
         r_max_new[is.nan(r_max_new)] <- Inf

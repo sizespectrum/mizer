@@ -9,7 +9,7 @@ test_that("setBevertonHolt sets erepro correctly when setting all values", {
 
 test_that("setBevertonHolt sets erepro correctly when setting same value for all species", {
     expect_warning(params <- setBevertonHolt(NS_params, erepro = 0.1),
-                   "For the following species the requested `erepro` was too small and has been increased to the smallest possible value: Gurnard, Plaice")
+                   "For the following species `erepro` has been")
     expect_identical(params@species_params$R_max[params@species_params$species == "Gurnard"],
                      Inf)
     expect_equal(getRequiredRDD(NS_params), getRDD(params))
