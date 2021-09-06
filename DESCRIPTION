@@ -25,6 +25,7 @@ Imports:
     deSolve,
     dplyr,
     ggplot2,
+    ggrepel,
     grid,
     lubridate,
     methods,

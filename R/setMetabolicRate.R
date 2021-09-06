@@ -118,6 +118,7 @@ metab <- function(params) {
 }
 
 #' @rdname setMetabolicRate
+#' @param value metab
 #' @export
 `metab<-` <- function(params, value) {
     setMetabolicRate(params, metab = value)

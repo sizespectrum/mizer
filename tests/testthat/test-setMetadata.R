@@ -15,5 +15,4 @@ test_that("setMetadata works", {
     metadata <- getMetadata(params)
     expect_identical(metadata$title, "new")
     expect_null(metadata$new)
-    expect_identical(metadata$mizer_version, packageVersion("mizer"))
 })

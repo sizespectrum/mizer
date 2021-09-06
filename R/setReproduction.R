@@ -354,6 +354,7 @@ maturity <- function(params) {
 }
 
 #' @rdname setReproduction
+#' @param value .
 #' @export
 `maturity<-` <- function(params, value) {
     setReproduction(params, maturity = value)
@@ -382,6 +383,7 @@ repro_prop <- function(params) {
 }
 
 #' @rdname setReproduction
+#' @param value .
 #' @export
 `repro_prop<-` <- function(params, value) {
     setReproduction(params, repro_prop = value)

@@ -90,7 +90,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9007</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9008</span>
       </span>
     </div>
 
@@ -106,13 +106,13 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -282,18 +282,13 @@ be numbers between 0 and 1. By default this column is set to all 1s.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newTraitParams.html'>newTraitParams</a></span><span class='op'>(</span>no_sp <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>inter</span> <span class='op'>&lt;-</span> <span class='fu'>getInteraction</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>inter</span><span class='op'>[</span><span class='fl'>1</span>, <span class='fl'>2</span><span class='op'>:</span><span class='fl'>3</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fl'>0</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setInteraction</span><span class='op'>(</span><span class='va'>params</span>, interaction <span class='op'>=</span> <span class='va'>inter</span><span class='op'>)</span></span>
 <span class='r-in'><span class='fu'>getInteraction</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>         prey</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> predator 1 2 3</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>        1 1 1 1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>        2 1 1 1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>        3 1 1 1</span>
-<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/interaction.html'>interaction</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>1</span>, <span class='fl'>2</span><span class='op'>:</span><span class='fl'>3</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fl'>0</span></span>
-<span class='r-err co'><span class='r-pr'>#&gt;</span> <span class='error'>Error in unique.default(x, nmax = nmax)</span> unique() applies only to vectors</span>
-<span class='r-in'><span class='fu'>getInteraction</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>         prey</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> predator 1 2 3</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>        1 1 1 1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>        1 1 0 0</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>        2 1 1 1</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>        3 1 1 1</span>
 </pre>

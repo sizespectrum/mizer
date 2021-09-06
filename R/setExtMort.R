@@ -137,6 +137,7 @@ ext_mort <- function(params) {
 }
 
 #' @rdname setExtMort
+#' @param value ext_mort
 #' @export
 `ext_mort<-` <- function(params, value) {
     setExtMort(params, ext_mort = value)

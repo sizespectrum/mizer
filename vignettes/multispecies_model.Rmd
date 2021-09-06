@@ -321,11 +321,6 @@ Note that the first argument must be the species parameters data.frame.
 The remaining arguments can be in any order but should be named.
 We are using the default values for all other parameters.
 
-Both methods lead to identical MizerParams objects
-```{r}
-identical(params, params_new)
-```
-
 We now have all we need to start running projections. Before we get to that
 though, we'll take a quick look at how different fishing gears can be set up.
 

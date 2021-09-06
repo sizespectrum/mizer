@@ -52,7 +52,7 @@
 #'   invested into reproduction that is converted to egg biomass, see
 #'   [getRDI()].
 #' * `Rmax` is the parameter in the Beverton-Holt density dependence added to
-#'   the reproduction, see [BevertonHoltRDD()]. There will be other such
+#'   the reproduction, see [setBevertonHolt()]. There will be other such
 #'   parameters if you use other density dependence functions, see the
 #'   "Density dependence" section in the help for [setReproduction()].
 #'

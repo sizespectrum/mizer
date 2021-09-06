@@ -33,6 +33,8 @@ recalculation from the species parameters will take place only if no
 custom value has been set.}
 
 \item{...}{Unused}
+
+\item{value}{metab}
 }
 \value{
 \code{setMetabolicRate()}: A MizerParams object with updated metabolic rate.

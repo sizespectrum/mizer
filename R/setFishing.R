@@ -307,11 +307,21 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
 #' @family functions for setting parameters
 #' @examples 
 #' params <- NS_params
+#' # gears set up in example
+#' gear_params(params)
+#' # setting totally different gears
 #' gear_params(params) <- data.frame(
 #'     gear = c("gear1", "gear2", "gear1"),
-#'     species = c("Cod", "Cod", "Haddock"))
+#'     species = c("Cod", "Cod", "Haddock"),
+#'     catchability = c(0.5, 2, 1),
+#'     sel_fun = c("sigmoid_weight", "knife_edge", "sigmoid_weight"),
+#'     sigmoidal_weight = c(1000, NA, 800),
+#'     sigmoidal_sigma = c(100, NA, 100),
+#'     knife_edge_size = c(NA, 1000, NA)
+#'     )
 #' gear_params(params)
-#' gear_params(params)["Cod, gear1", "knife_edge_size"] <- 500
+#' # changing an individual entry
+#' gear_params(params)["Cod, gear1", "catchability"] <- 0.8
 gear_params <- function(params) {
     params@gear_params
 }
@@ -344,6 +354,7 @@ catchability <- function(params) {
 }
 
 #' @rdname setFishing
+#' @param value .
 #' @export
 `catchability<-` <- function(params, value) {
     setFishing(params, catchability = value)
@@ -382,13 +393,25 @@ getInitialEffort <- function(params) {
     params@initial_effort
 }
 
-#' @rdname setFishing
+#' Initial fishing effort
+#' 
+#' The fishing effort is a named vector, specifying for each fishing gear the
+#' effort invested into fishing with that gear. The effort value for each gear
+#' is multiplied by the catchability and the selectivity to determine the
+#' fishing mortality imposed by that gear, see [setFishing()] for more details.
+#' 
+#' The initial effort you have set can be overruled when running a simulation
+#' by providing an `effort` argument to [project()] which allows you to
+#' specify a time-varying effort.
+#' 
+#' @param params A MizerParams object
 #' @export
 initial_effort <- function(params) {
     params@initial_effort
 }
 
-#' @rdname setFishing
+#' @rdname initial_effort
+#' @param value The initial fishing effort
 #' @export
 `initial_effort<-` <- function(params, value) {
     setFishing(params, initial_effort = value)
@@ -570,9 +593,6 @@ validGearParams <- function(gear_params, species_params) {
 
 #' Return valid effort vector
 #' 
-#' A valid effort vector is a named vector with one entry for each gear,
-#' with the gear names in the same order as in the params object. 
-#' 
 #' The function also accepts an `effort` that is not yet valid:
 #' 
 #' * a scalar, which is then replicated for each gear
@@ -588,13 +608,11 @@ validGearParams <- function(gear_params, species_params) {
 #' * named but where some names do not match any of the gears
 #' * not numeric
 #' 
-#' @param params A MizerParams object
-#' @param effort An vector or scalar.
+#' @param effort A vector or scalar.
 #' 
-#' @return A valid effort vector with one entry for each gear, named by gear,
-#'   in the same order as in the params object.
 #' @export
 #' @concept helper
+#' @rdname initial_effort
 validEffortVector <- function(effort, params) {
     assert_that(is(params, "MizerParams"),
                 (is.null(effort) || is.numeric(effort)))

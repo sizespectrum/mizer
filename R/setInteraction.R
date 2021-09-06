@@ -44,8 +44,9 @@
 #' @family functions for setting parameters
 #' @examples
 #' params <- newTraitParams(no_sp = 3)
-#' getInteraction(params)
-#' interaction(params)[1, 2:3] <- 0
+#' inter <- getInteraction(params)
+#' inter[1, 2:3] <- 0
+#' params <- setInteraction(params, interaction = inter)
 #' getInteraction(params)
 setInteraction <- function(params,
                            interaction = NULL) {

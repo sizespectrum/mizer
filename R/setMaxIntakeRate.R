@@ -109,6 +109,7 @@ intake_max <- function(params) {
 }
 
 #' @rdname setMaxIntakeRate
+#' @param value intake_max
 #' @export
 `intake_max<-` <- function(params, value) {
     setMaxIntakeRate(params, intake_max = value)

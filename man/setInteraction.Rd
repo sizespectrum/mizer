@@ -63,8 +63,9 @@ be numbers between 0 and 1. By default this column is set to all 1s.
 
 \examples{
 params <- newTraitParams(no_sp = 3)
-getInteraction(params)
-interaction(params)[1, 2:3] <- 0
+inter <- getInteraction(params)
+inter[1, 2:3] <- 0
+params <- setInteraction(params, interaction = inter)
 getInteraction(params)
 }
 \seealso{

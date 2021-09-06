@@ -89,7 +89,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9007</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9008</span>
       </span>
     </div>
 
@@ -105,13 +105,13 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -248,7 +248,7 @@
     </tbody><tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-model-parameters" class="hasAnchor"><a href="#section-model-parameters" class="anchor"></a>Model parameters</h2>
+          <h2 id="section-changing-model-parameters" class="hasAnchor"><a href="#section-changing-model-parameters" class="anchor"></a>Changing model parameters</h2>
           <p class="section-desc"><p>Even after you have created a model, you can still make changes with the following functions. This is useful while tuning the model and for investigating the impact of changes in parameters.</p></p>
         </th>
       </tr>
@@ -278,87 +278,33 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="setParams.html">setParams()</a></code> </p>
+          <p><code><a href="initialN-set.html">`initialN&lt;-`()</a></code> <code><a href="initialN-set.html">initialN()</a></code> </p>
         </td>
-        <td><p>Set or change any model parameters</p></td>
+        <td><p>Initial values for fish spectra</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="setPredKernel.html">setPredKernel()</a></code> <code><a href="setPredKernel.html">getPredKernel()</a></code> <code><a href="setPredKernel.html">pred_kernel()</a></code> <code><a href="setPredKernel.html">`pred_kernel&lt;-`()</a></code> </p>
+          <p><code><a href="initialNResource-set.html">`initialNResource&lt;-`()</a></code> <code><a href="initialNResource-set.html">initialNResource()</a></code> </p>
         </td>
-        <td><p>Set predation kernel</p></td>
+        <td><p>Initial value for resource spectrum</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="setSearchVolume.html">setSearchVolume()</a></code> <code><a href="setSearchVolume.html">getSearchVolume()</a></code> <code><a href="setSearchVolume.html">search_vol()</a></code> <code><a href="setSearchVolume.html">`search_vol&lt;-`()</a></code> </p>
+          <p><code><a href="initial_effort.html">initial_effort()</a></code> <code><a href="initial_effort.html">`initial_effort&lt;-`()</a></code> <code><a href="initial_effort.html">validEffortVector()</a></code> </p>
         </td>
-        <td><p>Set search volume</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setInteraction.html">setInteraction()</a></code> <code><a href="setInteraction.html">getInteraction()</a></code> </p>
-        </td>
-        <td><p>Set species interaction matrix</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setMaxIntakeRate.html">setMaxIntakeRate()</a></code> <code><a href="setMaxIntakeRate.html">getMaxIntakeRate()</a></code> <code><a href="setMaxIntakeRate.html">intake_max()</a></code> <code><a href="setMaxIntakeRate.html">`intake_max&lt;-`()</a></code> </p>
-        </td>
-        <td><p>Set maximum intake rate</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setMetabolicRate.html">setMetabolicRate()</a></code> <code><a href="setMetabolicRate.html">getMetabolicRate()</a></code> <code><a href="setMetabolicRate.html">metab()</a></code> <code><a href="setMetabolicRate.html">`metab&lt;-`()</a></code> </p>
-        </td>
-        <td><p>Set metabolic rate</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setExtMort.html">setExtMort()</a></code> <code><a href="setExtMort.html">getExtMort()</a></code> <code><a href="setExtMort.html">ext_mort()</a></code> <code><a href="setExtMort.html">`ext_mort&lt;-`()</a></code> </p>
-        </td>
-        <td><p>Set external mortality rate</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setReproduction.html">setReproduction()</a></code> <code><a href="setReproduction.html">getMaturityProportion()</a></code> <code><a href="setReproduction.html">maturity()</a></code> <code><a href="setReproduction.html">`maturity&lt;-`()</a></code> <code><a href="setReproduction.html">getReproductionProportion()</a></code> <code><a href="setReproduction.html">repro_prop()</a></code> <code><a href="setReproduction.html">`repro_prop&lt;-`()</a></code> </p>
-        </td>
-        <td><p>Set reproduction parameters</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setFishing.html">setFishing()</a></code> <code><a href="setFishing.html">getCatchability()</a></code> <code><a href="setFishing.html">catchability()</a></code> <code><a href="setFishing.html">`catchability&lt;-`()</a></code> <code><a href="setFishing.html">getSelectivity()</a></code> <code><a href="setFishing.html">selectivity()</a></code> <code><a href="setFishing.html">`selectivity&lt;-`()</a></code> <code><a href="setFishing.html">getInitialEffort()</a></code> <code><a href="setFishing.html">initial_effort()</a></code> <code><a href="setFishing.html">`initial_effort&lt;-`()</a></code> </p>
-        </td>
-        <td><p>Set fishing parameters</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setResource.html">setResource()</a></code> <code><a href="setResource.html">getResourceRate()</a></code> <code><a href="setResource.html">resource_rate()</a></code> <code><a href="setResource.html">`resource_rate&lt;-`()</a></code> <code><a href="setResource.html">getResourceCapacity()</a></code> <code><a href="setResource.html">resource_capacity()</a></code> <code><a href="setResource.html">`resource_capacity&lt;-`()</a></code> <code><a href="setResource.html">getResourceDynamics()</a></code> <code><a href="setResource.html">resource_dynamics()</a></code> <code><a href="setResource.html">`resource_dynamics&lt;-`()</a></code> </p>
-        </td>
-        <td><p>Set up resource</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setMetadata.html">setMetadata()</a></code> <code><a href="setMetadata.html">getMetadata()</a></code> </p>
-        </td>
-        <td><p>Set metadata for a model</p></td>
+        <td><p>Initial fishing effort</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="setBevertonHolt.html">setBevertonHolt()</a></code> </p>
         </td>
         <td><p>Set Beverton-Holt density dependence</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="compareParams.html">compareParams()</a></code> </p>
-        </td>
-        <td><p>Compare two MizerParams objects and print out differences</p></td>
       </tr>
     </tbody><tbody>
       <tr>
         <th colspan="2">
           <h2 id="section-tuning-model-to-observations" class="hasAnchor"><a href="#section-tuning-model-to-observations" class="anchor"></a>Tuning model to observations</h2>
-          <p class="section-desc"></p>
+          <p class="section-desc"><p>Some functions to make your model match observed biomasses or yields, as explained in this <a href="https://bit.ly/2YqXESV">blog post</a>.</p></p>
         </th>
       </tr>
       
@@ -437,37 +383,6 @@
     </tbody><tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-manipulating-species" class="hasAnchor"><a href="#section-manipulating-species" class="anchor"></a>Manipulating species</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="addSpecies.html">addSpecies()</a></code> </p>
-        </td>
-        <td><p>Add new species</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="removeSpecies.html">removeSpecies()</a></code> </p>
-        </td>
-        <td><p>Remove species</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="renameSpecies.html">renameSpecies()</a></code> </p>
-        </td>
-        <td><p>Rename species</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
           <h2 id="section-running-simulations" class="hasAnchor"><a href="#section-running-simulations" class="anchor"></a>Running simulations</h2>
           <p class="section-desc"></p>
         </th>
@@ -489,18 +404,6 @@
           <p><code><a href="projectToSteady.html">projectToSteady()</a></code> </p>
         </td>
         <td><p>Project to steady state</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="initialN-set.html">`initialN&lt;-`()</a></code> <code><a href="initialN-set.html">initialN()</a></code> </p>
-        </td>
-        <td><p>Initial values for fish spectra</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="initialNResource-set.html">`initialNResource&lt;-`()</a></code> <code><a href="initialNResource-set.html">initialNResource()</a></code> </p>
-        </td>
-        <td><p>Initial value for resource spectrum</p></td>
       </tr><tr>
         
         <td>
@@ -764,6 +667,110 @@ step.</p></td>
           <p><code><a href="setColours.html">setColours()</a></code> <code><a href="setColours.html">getColours()</a></code> <code><a href="setColours.html">setLinetypes()</a></code> <code><a href="setColours.html">getLinetypes()</a></code> </p>
         </td>
         <td><p>Set line colours and line types to be used in mizer plots</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-manipulating-species" class="hasAnchor"><a href="#section-manipulating-species" class="anchor"></a>Manipulating species</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="addSpecies.html">addSpecies()</a></code> </p>
+        </td>
+        <td><p>Add new species</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="removeSpecies.html">removeSpecies()</a></code> </p>
+        </td>
+        <td><p>Remove species</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="renameSpecies.html">renameSpecies()</a></code> </p>
+        </td>
+        <td><p>Rename species</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-setting-custom-rates" class="hasAnchor"><a href="#section-setting-custom-rates" class="anchor"></a>Setting custom rates</h2>
+          <p class="section-desc"><p>You can override the rates mizer calculates from the species parameters, resource parameters and gear parameters with your own rate arrays.</p></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="setParams.html">setParams()</a></code> </p>
+        </td>
+        <td><p>Set or change any model parameters</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setPredKernel.html">setPredKernel()</a></code> <code><a href="setPredKernel.html">getPredKernel()</a></code> <code><a href="setPredKernel.html">pred_kernel()</a></code> <code><a href="setPredKernel.html">`pred_kernel&lt;-`()</a></code> </p>
+        </td>
+        <td><p>Set predation kernel</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setSearchVolume.html">setSearchVolume()</a></code> <code><a href="setSearchVolume.html">getSearchVolume()</a></code> <code><a href="setSearchVolume.html">search_vol()</a></code> <code><a href="setSearchVolume.html">`search_vol&lt;-`()</a></code> </p>
+        </td>
+        <td><p>Set search volume</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setInteraction.html">setInteraction()</a></code> <code><a href="setInteraction.html">getInteraction()</a></code> </p>
+        </td>
+        <td><p>Set species interaction matrix</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setMaxIntakeRate.html">setMaxIntakeRate()</a></code> <code><a href="setMaxIntakeRate.html">getMaxIntakeRate()</a></code> <code><a href="setMaxIntakeRate.html">intake_max()</a></code> <code><a href="setMaxIntakeRate.html">`intake_max&lt;-`()</a></code> </p>
+        </td>
+        <td><p>Set maximum intake rate</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setMetabolicRate.html">setMetabolicRate()</a></code> <code><a href="setMetabolicRate.html">getMetabolicRate()</a></code> <code><a href="setMetabolicRate.html">metab()</a></code> <code><a href="setMetabolicRate.html">`metab&lt;-`()</a></code> </p>
+        </td>
+        <td><p>Set metabolic rate</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setExtMort.html">setExtMort()</a></code> <code><a href="setExtMort.html">getExtMort()</a></code> <code><a href="setExtMort.html">ext_mort()</a></code> <code><a href="setExtMort.html">`ext_mort&lt;-`()</a></code> </p>
+        </td>
+        <td><p>Set external mortality rate</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setReproduction.html">setReproduction()</a></code> <code><a href="setReproduction.html">getMaturityProportion()</a></code> <code><a href="setReproduction.html">maturity()</a></code> <code><a href="setReproduction.html">`maturity&lt;-`()</a></code> <code><a href="setReproduction.html">getReproductionProportion()</a></code> <code><a href="setReproduction.html">repro_prop()</a></code> <code><a href="setReproduction.html">`repro_prop&lt;-`()</a></code> </p>
+        </td>
+        <td><p>Set reproduction parameters</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setFishing.html">setFishing()</a></code> <code><a href="setFishing.html">getCatchability()</a></code> <code><a href="setFishing.html">catchability()</a></code> <code><a href="setFishing.html">`catchability&lt;-`()</a></code> <code><a href="setFishing.html">getSelectivity()</a></code> <code><a href="setFishing.html">selectivity()</a></code> <code><a href="setFishing.html">`selectivity&lt;-`()</a></code> <code><a href="setFishing.html">getInitialEffort()</a></code> </p>
+        </td>
+        <td><p>Set fishing parameters</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setResource.html">setResource()</a></code> <code><a href="setResource.html">getResourceRate()</a></code> <code><a href="setResource.html">resource_rate()</a></code> <code><a href="setResource.html">`resource_rate&lt;-`()</a></code> <code><a href="setResource.html">getResourceCapacity()</a></code> <code><a href="setResource.html">resource_capacity()</a></code> <code><a href="setResource.html">`resource_capacity&lt;-`()</a></code> <code><a href="setResource.html">getResourceDynamics()</a></code> <code><a href="setResource.html">resource_dynamics()</a></code> <code><a href="setResource.html">`resource_dynamics&lt;-`()</a></code> </p>
+        </td>
+        <td><p>Set up resource</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -1273,6 +1280,12 @@ model</p></td>
       </tr><tr>
         
         <td>
+          <p><code><a href="initial_effort.html">initial_effort()</a></code> <code><a href="initial_effort.html">`initial_effort&lt;-`()</a></code> <code><a href="initial_effort.html">validEffortVector()</a></code> </p>
+        </td>
+        <td><p>Initial fishing effort</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="project_simple.html">project_simple()</a></code> </p>
         </td>
         <td><p>Project abundances by a given number of time steps into the future</p></td>
@@ -1282,12 +1295,6 @@ model</p></td>
           <p><code><a href="set_species_param_default.html">set_species_param_default()</a></code> </p>
         </td>
         <td><p>Set a species parameter to a default value</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="validEffortVector.html">validEffortVector()</a></code> </p>
-        </td>
-        <td><p>Return valid effort vector</p></td>
       </tr><tr>
         
         <td>
@@ -1331,6 +1338,12 @@ model</p></td>
           <p><code><a href="summary-MizerParams-method.html">summary(<i>&lt;MizerParams&gt;</i>)</a></code> </p>
         </td>
         <td><p>Summarize MizerParams object</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="compareParams.html">compareParams()</a></code> </p>
+        </td>
+        <td><p>Compare two MizerParams objects and print out differences</p></td>
       </tr><tr>
         
         <td>

@@ -166,6 +166,7 @@ resource_rate <- function(params) {
 }
 
 #' @rdname setResource
+#' @param value .
 #' @export
 `resource_rate<-` <- function(params, value) {
     setResource(params, resource_rate = value)
@@ -184,6 +185,7 @@ resource_capacity <- function(params) {
 }
 
 #' @rdname setResource
+#' @param value .
 #' @export
 `resource_capacity<-` <- function(params, value) {
     setResource(params, resource_capacity = value)
@@ -202,6 +204,7 @@ resource_dynamics <- function(params) {
 }
 
 #' @rdname setResource
+#' @param value .
 #' @export
 `resource_dynamics<-` <- function(params, value) {
     setResource(params, resource_dynamics = value)
@@ -212,11 +215,30 @@ resource_dynamics <- function(params) {
 #' These functions allow you to get or set the resource parameters stored in a
 #' MizerParams object. The resource parameters are stored as a named list with
 #' the slot names `r_pp`, `kappa`, `lambda`, `n`, `w_pp_cutoff`. For their
-#' meaning see [setResource()]. If you change these parameters then this will
+#' meaning see Details below. If you change these parameters then this will
 #' recalculate the resource rate and the resource capacity, unless you have set
 #' custom values for these. If you have specified a different resource dynamics
 #' function that requires additional parameters, then these should also be added
 #' to the `resource_params` list.
+#' 
+#' The resource parameters `r_pp` and `n` are used to set the intrinsic
+#' replenishment rate \eqn{r_R(w)} for the resource at size \eqn{w} to 
+#' \deqn{r_R(w) = r_{pp}\, w^{n-1}.}{r_R(w) = r_pp w^{n-1}}
+#' 
+#' The resource paramters `kappa`, `lambda` and `w_pp_cutoff` are used to set
+#' the intrinsic resource carrying capacity capacity \eqn{c_R(w)} at size \eqn{w}
+#' is set to
+#' \deqn{c_R(w) = \kappa\, w^{-\lambda}}{c_R(w) = \kappa w^{-\lambda}}
+#' for all \eqn{w} less than `w_pp_cutoff` and zero for larger sizes.
+#' 
+#' If you use the default semichemostat dynamics for the resource then these
+#' rates enter the equation for the resource abundance density as
+#' \deqn{\frac{\partial N_R(w,t)}{\partial t} = r_R(w) \Big[ c_R (w) - N_R(w,t) \Big] - \mu_R(w, t) N_R(w,t)}{dN_R(w,t)/d t  = r_R(w) ( c_R (w) - N_R(w,t) ) - \mu_R(w,t ) N_R(w,t)}
+#' where the mortality \eqn{\mu_R(w, t)} is
+#' due to predation by consumers and is calculate with [getResourceMort()].
+#' 
+#' You can however set up different resource dynamics with
+#' [resource_dynamics<-()].
 #' 
 #' @param params A MizerParams object
 #' @export

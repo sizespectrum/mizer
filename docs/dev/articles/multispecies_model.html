@@ -45,7 +45,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9007</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9008</span>
       </span>
     </div>
 
@@ -442,17 +442,13 @@
 ## No ks column so calculating from critical feeding level.
 ## Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</code></pre>
 <p>Note that the first argument must be the species parameters data.frame. The remaining arguments can be in any order but should be named. We are using the default values for all other parameters.</p>
-<p>Both methods lead to identical MizerParams objects</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/identical.html">identical</a></span><span class="op">(</span><span class="va">params</span>, <span class="va">params_new</span><span class="op">)</span></code></pre></div>
-<pre><code>## [1] TRUE</code></pre>
 <p>We now have all we need to start running projections. Before we get to that though, we’ll take a quick look at how different fishing gears can be set up.</p>
 </div>
 <div id="sec:setting_different_gears" class="section level2">
 <h2 class="hasAnchor">
 <a href="#sec:setting_different_gears" class="anchor"></a>Setting different gears</h2>
 <p>In the above example, each species is caught by the same gear (named “knife_edge_gear”). This is the default when no gear information is provided.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></code></pre></div>
 <pre><code>##                          species            gear   sel_func knife_edge_size
 ## Sprat, knife_edge_gear     Sprat knife_edge_gear knife_edge              13
@@ -481,13 +477,13 @@
 ## Cod, knife_edge_gear                1
 ## Saithe, knife_edge_gear             1</code></pre>
 <p>Here, we look at an example where we set up four different gears: Industrial, Pelagic, Beam and Otter trawl, that catch different combinations of species. We can achieve that by only changing the <code>gear</code> column in the <code>gear_params</code> data frame.</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Industrial"</span>,<span class="st">"Industrial"</span>,<span class="st">"Industrial"</span>,
                               <span class="st">"Pelagic"</span>,<span class="st">"Beam"</span>,<span class="st">"Otter"</span>,
                               <span class="st">"Beam"</span>,<span class="st">"Otter"</span>,<span class="st">"Beam"</span>,
                               <span class="st">"Otter"</span>,<span class="st">"Otter"</span>,<span class="st">"Otter"</span><span class="op">)</span></code></pre></div>
 <p>You can see the result by calling <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> on the <code>params</code> object.</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></code></pre></div>
 <pre><code>## An object of class "MizerParams" 
 ## Consumer size spectrum:

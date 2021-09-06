@@ -49,12 +49,15 @@ navbar:
 
 
 articles:
+- title: Model description
+  navbar: ~
+  contents:
+  - model_description
 - title: Tutorials
   navbar: Tutorials
   contents:
   - mizer
   - single_species_size-spectrum_dynamics
-  - model_description
   - community_model
   - trait_model
   - multispecies_model
@@ -86,7 +89,7 @@ reference:
   - newCommunityParams
   - newTraitParams
   - newMultispeciesParams
-- title: Model parameters
+- title: Changing model parameters
   description: Even after you have created a model, you can still make changes
     with the following functions. This is useful while tuning the model and for
     investigating the impact of changes in parameters.
@@ -94,21 +97,13 @@ reference:
   - species_params
   - gear_params
   - resource_params
-  - setParams
-  - setPredKernel
-  - getPredKernel
-  - setSearchVolume
-  - setInteraction
-  - setMaxIntakeRate
-  - setMetabolicRate
-  - setExtMort
-  - setReproduction
-  - setFishing
-  - setResource
-  - setMetadata
+  - initialN
+  - initialNResource
+  - initial_effort
   - setBevertonHolt
-  - compareParams
 - title: Tuning model to observations
+  desc: Some functions to make your model match observed biomasses or yields,
+    as explained in this [blog post](https://bit.ly/2YqXESV).
   contents:
   - plotBiomassObservedVsModel
   - calibrateBiomass
@@ -121,17 +116,10 @@ reference:
   contents:
   - setMetadata
   - saveParams
-- title: Manipulating species
-  contents:
-  - addSpecies
-  - removeSpecies
-  - renameSpecies
 - title: Running simulations
   contents:
   - project
   - projectToSteady
-  - initialN
-  - initialNResource
   - setInitialValues
   - steady
 - title: Accessing results
@@ -167,6 +155,26 @@ reference:
   - -plotM2
   - setColours
   - setLinetypes
+- title: Manipulating species
+  contents:
+  - addSpecies
+  - removeSpecies
+  - renameSpecies
+- title: Setting custom rates
+  desc: You can override the rates mizer calculates from the species parameters,
+    resource parameters and gear parameters with your own rate arrays.
+  contents:
+  - setParams
+  - setPredKernel
+  - getPredKernel
+  - setSearchVolume
+  - setInteraction
+  - setMaxIntakeRate
+  - setMetabolicRate
+  - setExtMort
+  - setReproduction
+  - setFishing
+  - setResource
 - title: Calculating rates
   contents:
   - getRates
@@ -233,6 +241,7 @@ reference:
   contents:
   - MizerParams-class
   - summary,MizerParams-method
+  - compareParams
   - "w"
   - validParams
   - upgradeParams
@@ -255,14 +264,4 @@ reference:
     versions of mizer
   contents:
   - has_concept("deprecated")
-  #- set_multispecies_model
-  #- set_community_model
-  #- set_trait_model
-  #- MizerParams
-  #- getESpawning
-  #- getPhiPrey
-  #- getM2
-  #- getM2Background
-  #- getZ
-  #- plotM2
 

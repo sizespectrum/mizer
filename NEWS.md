@@ -1,4 +1,4 @@
-# mizer 2.2.1.9007
+# mizer 2.3 release candidate
 
 ## New features
 

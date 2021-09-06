@@ -47,6 +47,8 @@ custom value has been set.}
 be confused with the species_parameter \code{z0}.}
 
 \item{...}{Unused}
+
+\item{value}{ext_mort}
 }
 \value{
 \code{setExtMort()}: A MizerParams object with updated external mortality

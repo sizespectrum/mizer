@@ -9,7 +9,7 @@
 ^dev_scripts\.R$
 ^.github$
 ^runtime\.txt$
-
+^CITATION.cff
 ^CRAN-RELEASE$
 
 ^vignettes/_estimating_feeding_kernel_params.Rmd$

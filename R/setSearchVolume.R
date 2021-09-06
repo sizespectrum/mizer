@@ -118,6 +118,7 @@ search_vol <- function(params) {
 }
 
 #' @rdname setSearchVolume
+#' @param value search_vol
 #' @export
 `search_vol<-` <- function(params, value) {
     setSearchVolume(params, search_vol = value)

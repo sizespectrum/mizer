@@ -29,6 +29,8 @@ recalculation from the species parameters will take place only if no
 custom value has been set.}
 
 \item{...}{Unused}
+
+\item{value}{intake_max}
 }
 \value{
 \code{setReproduction()}: A MizerParams object with updated maximum

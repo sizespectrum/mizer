@@ -77,6 +77,8 @@ step from the current state. You only need to specify this if you do not
 want to use the default \code{\link[=resource_semichemostat]{resource_semichemostat()}}.}
 
 \item{...}{Unused}
+
+\item{value}{.}
 }
 \value{
 \code{setResource}: A MizerParams object with updated resource parameters

@@ -29,6 +29,8 @@ recalculation from the species parameters will take place only if no custom
 value has been set.}
 
 \item{...}{Unused}
+
+\item{value}{search_vol}
 }
 \value{
 \code{setSearchVolume()}: A MizerParams object with updated search volume.

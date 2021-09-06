@@ -235,6 +235,7 @@ pred_kernel <- function(params) {
 }
 
 #' @rdname setPredKernel
+#' @param value pred_kernel
 #' @export
 `pred_kernel<-` <- function(params, value) {
     setPredKernel(params, pred_kernel = value)

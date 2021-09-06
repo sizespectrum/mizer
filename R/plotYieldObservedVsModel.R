@@ -57,7 +57,7 @@
 #' plotYieldObservedVsModel(params, ratio = TRUE)
 #'
 #' # Run a simulation
-#' params <- matchYieldss(params)
+#' params <- matchYields(params)
 #' sim <- project(params, t_max = 10, progress_bar = FALSE)
 #' plotBiomass(sim)
 #'

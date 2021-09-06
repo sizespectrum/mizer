@@ -30,6 +30,8 @@ recalculation from the species parameters will take place only if no custom
 value has been set.}
 
 \item{...}{Unused}
+
+\item{value}{pred_kernel}
 }
 \value{
 \code{setPredKernel()}: A MizerParams object with updated predation kernel.

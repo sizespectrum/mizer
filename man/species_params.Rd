@@ -70,7 +70,7 @@ see "Predation encounter" section in the help for \code{\link[=getEncounter]{get
 invested into reproduction that is converted to egg biomass, see
 \code{\link[=getRDI]{getRDI()}}.
 \item \code{Rmax} is the parameter in the Beverton-Holt density dependence added to
-the reproduction, see \code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}. There will be other such
+the reproduction, see \code{\link[=setBevertonHolt]{setBevertonHolt()}}. There will be other such
 parameters if you use other density dependence functions, see the
 "Density dependence" section in the help for \code{\link[=setReproduction]{setReproduction()}}.
 }

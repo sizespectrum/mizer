@@ -203,9 +203,9 @@ removeComponent <- function(params, component) {
 #'   all components will be returned.
 #' @return A list with the entries `initial_value`, `dynamics_fun`,
 #'   `encounter_fun`, `mort_fun`, `component_params` for the requested
-#'   component. If the requested component does not exist, `NULL` is returne. If
-#'   no `component` argument is given, then a list of lists for all components
-#'   is returned.
+#'   component. If the requested component does not exist, `NULL` is returned.
+#'   If no `component` argument is given, then a list of lists for all
+#'   components is returned.
 #' @export
 getComponent <- function(params, component) {
     assert_that(is(params, "MizerParams"))

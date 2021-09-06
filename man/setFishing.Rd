@@ -9,8 +9,6 @@
 \alias{selectivity}
 \alias{selectivity<-}
 \alias{getInitialEffort}
-\alias{initial_effort}
-\alias{initial_effort<-}
 \title{Set fishing parameters}
 \usage{
 setFishing(
@@ -35,10 +33,6 @@ selectivity(params)
 selectivity(params) <- value
 
 getInitialEffort(params)
-
-initial_effort(params)
-
-initial_effort(params) <- value
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -60,6 +54,8 @@ the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.}
 
 \item{...}{Unused}
+
+\item{value}{.}
 }
 \value{
 \code{setFishing()}: A MizerParams object with updated fishing
