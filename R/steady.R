@@ -206,7 +206,8 @@ projectToSteady <- function(params,
 #' @param return_sim If TRUE, the function returns the MizerSim object holding
 #'   the result of the simulation run. If FALSE (default) the function returns
 #'   a MizerParams object with the "initial" slots set to the steady state.
-#' @param preserve Specifies whether the `reproduction_level` should be
+#' @param preserve `r lifecycle::badge("experimental")`
+#'   Specifies whether the `reproduction_level` should be
 #'   preserved or the maximum reproduction rate `R_max` or the reproductive
 #'   efficiency `erepro` (Default). See [setBevertonHolt()] for an explanation
 #'   of the `reproduction_level`.

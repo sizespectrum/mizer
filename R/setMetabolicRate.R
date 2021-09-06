@@ -27,7 +27,8 @@
 #' @param p The allometric metabolic exponent. This is only used if `metab`
 #'   is not given explicitly and if the exponent is not specified in a `p`
 #'   column in the `species_params`.
-#' @param reset If set to TRUE, then the metabolic rate will be reset to the
+#' @param reset `r lifecycle::badge("experimental")`
+#'   If set to TRUE, then the metabolic rate will be reset to the
 #'   value calculated from the species parameters, even if it was previously
 #'   overwritten with a custom value. If set to FALSE (default) then a
 #'   recalculation from the species parameters will take place only if no

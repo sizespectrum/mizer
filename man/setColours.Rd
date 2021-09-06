@@ -32,6 +32,7 @@ getLinetypes(params)
 \code{getLinetypes()}: A named vector of linetypes
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Used for setting the colour and type of lines representing "Total",
 "Resource", "Fishing", "Background" and possibly other categories in plots.
 }

@@ -23,7 +23,8 @@ that holds the predation coefficient of each predator at size on each prey
 size. If not supplied, a default is set as described in section "Setting
 predation kernel".}
 
-\item{reset}{If set to TRUE, then the predation kernel will be reset to the
+\item{reset}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If set to TRUE, then the predation kernel will be reset to the
 value calculated from the species parameters, even if it was previously
 overwritten with a custom value. If set to FALSE (default) then a
 recalculation from the species parameters will take place only if no custom

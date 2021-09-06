@@ -94,7 +94,7 @@ steady state." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9007</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.1.9008</span>
       </span>
     </div>
 
@@ -110,13 +110,13 @@ steady state." />
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -261,7 +261,8 @@ a MizerParams object with the "initial" slots set to the steady state.</p></td>
     </tr>
     <tr>
       <th>preserve</th>
-      <td><p>Specifies whether the <code>reproduction_level</code> should be
+      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+Specifies whether the <code>reproduction_level</code> should be
 preserved or the maximum reproduction rate <code>R_max</code> or the reproductive
 efficiency <code>erepro</code> (Default). See <code><a href='setBevertonHolt.html'>setBevertonHolt()</a></code> for an explanation
 of the <code>reproduction_level</code>.</p></td>

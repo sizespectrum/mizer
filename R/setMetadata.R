@@ -1,5 +1,6 @@
 #' Set metadata for a model
 #' 
+#' `r lifecycle::badge("experimental")`
 #' Setting metadata is particularly important for sharing your model with
 #' others. All metadata fields are optional and you can also add other fields
 #' of your own choosing. If you set a value

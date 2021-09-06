@@ -1,5 +1,6 @@
 #' Set line colours and line types to be used in mizer plots
 #'
+#' `r lifecycle::badge("experimental")`
 #' Used for setting the colour and type of lines representing "Total",
 #' "Resource", "Fishing", "Background" and possibly other categories in plots.
 #'

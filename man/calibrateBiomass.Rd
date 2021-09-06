@@ -13,6 +13,7 @@ calibrateBiomass(params)
 A MizerParams object
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Given a MizerParams object \code{params} for which biomass observations are
 available for at least some species via the \code{biomass_observed} column in the
 species_params data frame, this function returns an updated MizerParams

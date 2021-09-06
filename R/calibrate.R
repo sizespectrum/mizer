@@ -1,5 +1,6 @@
 #' Calibrate the model scale to match total observed biomass
 #' 
+#' `r lifecycle::badge("experimental")`
 #' Given a MizerParams object `params` for which biomass observations are
 #' available for at least some species via the `biomass_observed` column in the
 #' species_params data frame, this function returns an updated MizerParams
@@ -56,6 +57,7 @@ calibrateBiomass <- function(params) {
 
 #' Calibrate the model scale to match total observed yield
 #' 
+#' `r lifecycle::badge("experimental")`
 #' Given a MizerParams object `params` for which yield observations are
 #' available for at least some species via the `yield_observed` column in the
 #' species_params data frame, this function returns an updated MizerParams

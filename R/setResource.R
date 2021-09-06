@@ -31,7 +31,8 @@
 #' @param resource_rate Optional. Vector of resource intrinsic birth rates 
 #' @param resource_capacity Optional. Vector of resource intrinsic carrying 
 #'   capacity 
-#' @param reset If set to TRUE, then both `resource_rate` and
+#' @param reset `r lifecycle::badge("experimental")`
+#'   If set to TRUE, then both `resource_rate` and
 #'   `resource_capacity` will be reset to the value calculated from the resource
 #'   parameters, even if they were previously overwritten with custom values. If
 #'   set to FALSE (default) then a recalculation from the resource parameters

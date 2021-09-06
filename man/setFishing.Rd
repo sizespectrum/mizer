@@ -43,7 +43,8 @@ selectivity of each gear for species and size, \eqn{S_{g,i,w}}.}
 \item{catchability}{Optional. An array (gear x species) that holds the catchability of
 each species by each gear, \eqn{Q_{g,i}}.}
 
-\item{reset}{If set to TRUE, then both \code{catchability} and \code{selectivity} will
+\item{reset}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If set to TRUE, then both \code{catchability} and \code{selectivity} will
 be reset to the values calculated from the gear parameters, even if it was
 previously overwritten with a custom value. If set to FALSE (default) then
 a recalculation from the gear parameters will take place only if no custom

@@ -26,7 +26,8 @@ the section "Setting metabolic rate".}
 is not given explicitly and if the exponent is not specified in a \code{p}
 column in the \code{species_params}.}
 
-\item{reset}{If set to TRUE, then the metabolic rate will be reset to the
+\item{reset}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If set to TRUE, then the metabolic rate will be reset to the
 value calculated from the species parameters, even if it was previously
 overwritten with a custom value. If set to FALSE (default) then a
 recalculation from the species parameters will take place only if no

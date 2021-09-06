@@ -1,5 +1,6 @@
 #' Save a MizerParams object to file, and restore it
 #' 
+#' `r lifecycle::badge("experimental")`
 #' `saveParams()` saves a MizerParams object to a file. This can then be
 #' restored with `readParams()`.
 #' 

@@ -43,7 +43,8 @@ proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".}
 
-\item{reset}{If set to TRUE, then both \code{maturity} and \code{repro_prop} will be
+\item{reset}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If set to TRUE, then both \code{maturity} and \code{repro_prop} will be
 reset to the value calculated from the species parameters, even if they
 were previously overwritten with custom values. If set to FALSE (default)
 then a recalculation from the species parameters will take place only if no

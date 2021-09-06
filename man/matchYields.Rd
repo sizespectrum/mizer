@@ -18,6 +18,7 @@ whether it is to be affected (TRUE) or not.}
 A MizerParams object
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 The function adjusts the abundances of the species in the model so that their
 yearly yields under the given fishing mortalities match with observations.
 }

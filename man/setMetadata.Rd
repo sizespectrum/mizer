@@ -37,6 +37,7 @@ including at least
 \code{mizer_version}, \code{extensions}, \code{time_created} and \code{time_modified}.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Setting metadata is particularly important for sharing your model with
 others. All metadata fields are optional and you can also add other fields
 of your own choosing. If you set a value

@@ -1,5 +1,6 @@
 #' Plotting observed vs. model biomass data
 #'
+#' `r lifecycle::badge("experimental")`
 #' If biomass observations are available for at least some species via the
 #' `biomass_observed` column in the species parameter data frame, this function
 #' plots the biomass of each species in the model against the observed

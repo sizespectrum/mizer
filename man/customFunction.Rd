@@ -12,6 +12,7 @@ customFunction(name, fun)
 \item{fun}{The custom function to use as replacement}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 This function allows you to make arbitrary changes to how mizer works by
 allowing you to replace any mizer function with your own version. You
 should do this only as a last resort, when you find that you can not use

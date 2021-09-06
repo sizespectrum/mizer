@@ -1,5 +1,6 @@
 #' Plotting observed vs. model yields
 #'
+#' `r lifecycle::badge("experimental")`
 #' If yield observations are available for at least some species via the
 #' `yield_observed` column in the species parameter data frame, this function
 #' plots the yield of each species in the model against the observed

@@ -56,6 +56,7 @@ to observed yield. If \code{return_data = TRUE}, the data frame used to
 create the plot is returned instead of the plot.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 If yield observations are available for at least some species via the
 \code{yield_observed} column in the species parameter data frame, this function
 plots the yield of each species in the model against the observed

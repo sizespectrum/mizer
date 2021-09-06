@@ -92,7 +92,8 @@
 #' @param initial_effort Optional. A number or a named numeric vector specifying
 #'   the fishing effort. If a number, the same effort is used for all gears. If
 #'   a vector, must be named by gear.
-#' @param reset If set to TRUE, then both `catchability` and `selectivity` will
+#' @param reset `r lifecycle::badge("experimental")`
+#'   If set to TRUE, then both `catchability` and `selectivity` will
 #'   be reset to the values calculated from the gear parameters, even if it was
 #'   previously overwritten with a custom value. If set to FALSE (default) then
 #'   a recalculation from the gear parameters will take place only if no custom

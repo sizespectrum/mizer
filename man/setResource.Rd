@@ -53,7 +53,8 @@ resource_dynamics(params) <- value
 \item{resource_capacity}{Optional. Vector of resource intrinsic carrying
 capacity}
 
-\item{reset}{If set to TRUE, then both \code{resource_rate} and
+\item{reset}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If set to TRUE, then both \code{resource_rate} and
 \code{resource_capacity} will be reset to the value calculated from the resource
 parameters, even if they were previously overwritten with custom values. If
 set to FALSE (default) then a recalculation from the resource parameters

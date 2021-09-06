@@ -20,7 +20,8 @@
 #' @param intake_max Optional. An array (species x size) holding the maximum
 #'   intake rate for each species at size. If not supplied, a default is set as
 #'   described in the section "Setting maximum intake rate".
-#' @param reset If set to TRUE, then the intake rate will be reset to the value
+#' @param reset `r lifecycle::badge("experimental")`
+#'   If set to TRUE, then the intake rate will be reset to the value
 #'   calculated from the species parameters, even if it was previously 
 #'   overwritten with a custom value. If set to FALSE (default) then a
 #'   recalculation from the species parameters will take place only if no

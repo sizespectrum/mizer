@@ -22,7 +22,8 @@ search_vol(params) <- value
 for each species at size. If not supplied, a default is set as described in
 the section "Setting search volume".}
 
-\item{reset}{If set to TRUE, then the search volume will be reset to the
+\item{reset}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If set to TRUE, then the search volume will be reset to the
 value calculated from the species parameters, even if it was previously
 overwritten with a custom value. If set to FALSE (default) then a
 recalculation from the species parameters will take place only if no custom

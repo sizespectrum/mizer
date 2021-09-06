@@ -1,5 +1,6 @@
 #' Match biomasses to observations
 #' 
+#' `r lifecycle::badge("experimental")`
 #' The function adjusts the abundances of the species in the model so that their biomasses
 #' match with observations. 
 #' 
@@ -60,6 +61,7 @@ matchBiomasses <- function(params, species = NULL) {
 
 #' Match yields to observations
 #' 
+#' `r lifecycle::badge("experimental")`
 #' The function adjusts the abundances of the species in the model so that their
 #' yearly yields under the given fishing mortalities match with observations.
 #' 
