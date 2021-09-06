@@ -21,11 +21,11 @@
 * New `saveParams()` for saving a MizerParams object to a file and
   `readParams()` for reading it back in. The resulting files can be shared
   with others who want to run your model.
-* A MizerParams object now saves the mizer version under which the model was
+* A MizerParams object now registers the mizer version under which the model was
   last saved. Should the model not be working as expected in the current version
   of mizer, you can go back to the older version under which presumably it was
   working. This helps with the reproducibility of your research.
-* A MizerParams model saves the time when it was created and the time the model
+* A MizerParams object registers the time when it was created and the time it
   was last modified. See `getMetadata()`. This helps you keep track of 
   different versions of your model.
 * `steady()` now has a `preserve` argument with possible values `erepro`,
@@ -34,6 +34,9 @@
   once one has started to tune the density dependence in reproduction. #208
 * Our website is now using the nice new mizer logo designed by Kira Askaroff
   (www.kiraaskaroff.com)
+* There is a new mizer extension package 
+  [mizerMR](https://sizespectrum.org/mizerMR)
+  allowing you to include multiple resource spectra in your model.
 
 ## Small improvements
 

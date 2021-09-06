@@ -215,11 +215,12 @@
 <li>There are now accessor and replacement functions for rates. So for example instead of <code>params &lt;- setReproduction(params, maturity = my_maturity)</code> one can simply use <code>maturity(params) &lt;- my_maturity</code>. These are documented together with the setter functions. <a href='https://github.com/sizespectrum/mizer/issues/213'>#213</a></li>
 <li>New <code><a href="../reference/setMetadata.html">setMetadata()</a></code> to add information to a MizerParams object describing the model, for example a title, a description, the author or list of authors, a url and a doi. This will be particularly useful for sharing your models with others</li>
 <li>New <code><a href="../reference/saveParams.html">saveParams()</a></code> for saving a MizerParams object to a file and <code><a href="../reference/saveParams.html">readParams()</a></code> for reading it back in. The resulting files can be shared with others who want to run your model.</li>
-<li>A MizerParams object now saves the mizer version under which the model was last saved. Should the model not be working as expected in the current version of mizer, you can go back to the older version under which presumably it was working. This helps with the reproducibility of your research.</li>
-<li>A MizerParams model saves the time when it was created and the time the model was last modified. See <code><a href="../reference/setMetadata.html">getMetadata()</a></code>. This helps you keep track of different versions of your model.</li>
+<li>A MizerParams object now registers the mizer version under which the model was last saved. Should the model not be working as expected in the current version of mizer, you can go back to the older version under which presumably it was working. This helps with the reproducibility of your research.</li>
+<li>A MizerParams object registers the time when it was created and the time it was last modified. See <code><a href="../reference/setMetadata.html">getMetadata()</a></code>. This helps you keep track of different versions of your model.</li>
 <li>
 <code><a href="../reference/steady.html">steady()</a></code> now has a <code>preserve</code> argument with possible values <code>erepro</code>, <code>R_max</code> or <code>reproduction_level</code> to specify which quantity to preserve. This means that one can continue to use <code><a href="../reference/steady.html">steady()</a></code> also once one has started to tune the density dependence in reproduction. <a href='https://github.com/sizespectrum/mizer/issues/208'>#208</a></li>
 <li>Our website is now using the nice new mizer logo designed by Kira Askaroff (www.kiraaskaroff.com)</li>
+<li>There is a new mizer extension package <a href="https://sizespectrum.org/mizerMR">mizerMR</a> allowing you to include multiple resource spectra in your model.</li>
 </ul>
 </div>
 <div id="small-improvements" class="section level2">
