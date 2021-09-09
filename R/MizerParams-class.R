@@ -811,9 +811,7 @@ validParams <- function(params) {
     # because `slotnames()` just looks at the class definition. 
     has_slot <- sapply(slotNames(mizer::NS_params),
                       function(name) .hasSlot(params, name))
-    if (!all(has_slot) ||
-        "interaction_p" %in% names(params@species_params) ||
-        "r_max" %in% names(params@species_params)) {
+    if (!.hasSlot(params, "metadata")) {
         params <- upgradeParams(params)
         warning("You need to upgrade your MizerParams object with `upgradeParams()`.")
     }
