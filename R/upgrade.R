@@ -270,6 +270,12 @@ upgradeParams <- function(params) {
         pnew@mizer_version <- params@mizer_version
     }
     
+    # renaming catch_observed to yield_observed in mizer 2.3
+    if ("catch_observed" %in% names(pnew@species_params)) {
+        pnew@species_params$yield_observed <- pnew@species_params$catch_observed
+        pnew@species_params$catch_observed <- NULL
+    }
+    
     # Copy over all comments
     comment(pnew) <- comment(params)
     for (slot in slotNames(pnew)) {
