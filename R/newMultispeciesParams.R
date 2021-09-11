@@ -57,7 +57,7 @@
 #' All the parameters will be mentioned in the following sections.
 #' @inheritSection emptyParams Size grid
 #' @inheritSection setParams Units in mizer
-#' @inheritSection setInteraction Setting interactions
+#' @inheritSection setInteraction Setting interaction matrix
 #' @inheritSection setPredKernel Setting predation kernel
 #' @inheritSection setSearchVolume Setting search volume
 #' @inheritSection setMaxIntakeRate Setting maximum intake rate
@@ -282,7 +282,7 @@ newMultispeciesParams <- function(
 #' of the productive layer. In that respect, case 2 is a bit cumbersome. The
 #' function [scaleModel()] is useful to change the units you are using.
 #' 
-#' @inheritSection setInteraction Setting interactions
+#' @inheritSection setInteraction Setting interaction matrix
 #' @inheritSection setPredKernel Setting predation kernel
 #' @inheritSection setSearchVolume Setting search volume
 #' @inheritSection setMaxIntakeRate Setting maximum intake rate

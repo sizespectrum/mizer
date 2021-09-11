@@ -242,7 +242,7 @@ functions</p><ul>
       <th>interaction</th>
       <td><p>Optional interaction matrix of the species (predator
 species x prey species). Entries should be numbers between 0 and 1. By
-default all entries are 1. See "Setting interactions" section below.</p></td>
+default all entries are 1. See "Setting interaction matrix" section below.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -367,6 +367,40 @@ need to multiply with the area of the ecosystem to get the total quantity.
 If you work with case 2, you need to multiply by both area and the thickness
 of the productive layer. In that respect, case 2 is a bit cumbersome. The
 function <code><a href='scaleModel.html'>scaleModel()</a></code> is useful to change the units you are using.</p>
+    <h2 class="hasAnchor" id="setting-interaction-matrix"><a class="anchor" href="#setting-interaction-matrix"></a>Setting interaction matrix</h2>
+
+    
+
+
+<p>You do not need to specify an interaction matrix. If you do not, then the
+predator-prey interactions are purely determined by the size of predator
+and prey and totally independent of the species of predator and prey.</p>
+<p>The interaction matrix \(\theta_{ij}\) describes the interaction of each
+pair of species in the model. This can be viewed as a proxy for spatial
+interaction e.g. to model predator-prey interaction that is not size based.
+The values in the interaction matrix are used to scale the encountered food
+and predation mortality (see on the website
+<a href='https://sizespectrum.org/mizer/articles/model_description.html#sec:pref'>the section on predator-prey encounter rate</a>
+and on <a href='https://sizespectrum.org/mizer/articles/model_description.html#mortality'>predation mortality</a>).
+The first index refers to the predator species and the second to the prey
+species.</p>
+<p>It is used when calculating the food encounter rate in <code><a href='getEncounter.html'>getEncounter()</a></code> and
+the predation mortality rate in <code><a href='getPredMort.html'>getPredMort()</a></code>. Its entries are
+dimensionless numbers.The values are between 0 (species do not overlap and
+therefore do not interact with each other) to 1 (species overlap perfectly).
+If all the values in the interaction matrix are set to 1 then predator-prey
+interactions are determined entirely by size-preference.</p>
+<p>This function checks that the supplied interaction matrix is valid and then
+stores it in the <code>interaction</code> slot of the <code>params</code> object.</p>
+<p>The order of the columns and rows of the <code>interaction</code> argument should be the
+same as the order in the species params data frame in the <code>params</code> object. If
+you supply a named array then the function will check the order and warn if
+it is different. One way of creating your own interaction matrix is to enter
+the data using a spreadsheet program and saving it as a .csv file. The data
+can be read into R using the command <code><a href='https://rdrr.io/r/utils/read.table.html'>read.csv()</a></code>.</p>
+<p>The interaction of the species with the resource are set via a column
+<code>interaction_resource</code> in the <code>species_params</code> data frame. Again the entries have to
+be numbers between 0 and 1. By default this column is set to all 1s.</p>
     <h2 class="hasAnchor" id="setting-predation-kernel"><a class="anchor" href="#setting-predation-kernel"></a>Setting predation kernel</h2>
 
     

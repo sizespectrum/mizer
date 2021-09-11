@@ -14,7 +14,7 @@ getInteraction(params)
 
 \item{interaction}{Optional interaction matrix of the species (predator
 species x prey species). Entries should be numbers between 0 and 1. By
-default all entries are 1. See "Setting interactions" section below.}
+default all entries are 1. See "Setting interaction matrix" section below.}
 }
 \value{
 \code{setInteraction}: A MizerParams object with updated interaction matrix
