@@ -60,7 +60,7 @@ test_that("steady works", {
 test_that("steady() preserves erepro", {
     params <- NS_params
     species_params(params)$R_max <- 1.01 * species_params(params)$R_max
-    p2 <- steady(params, t_per = 1)
+    p2 <- steady(params, t_per = 1, preserve = "erepro")
     expect_equal(p2@species_params$erepro, params@species_params$erepro)
 })
 test_that("steady() preserves reproduction level", {
