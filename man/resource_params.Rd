@@ -29,7 +29,7 @@ The resource parameters \code{r_pp} and \code{n} are used to set the intrinsic
 replenishment rate \eqn{r_R(w)} for the resource at size \eqn{w} to
 \deqn{r_R(w) = r_{pp}\, w^{n-1}.}{r_R(w) = r_pp w^{n-1}}
 
-The resource paramters \code{kappa}, \code{lambda} and \code{w_pp_cutoff} are used to set
+The resource parameters \code{kappa}, \code{lambda} and \code{w_pp_cutoff} are used to set
 the intrinsic resource carrying capacity capacity \eqn{c_R(w)} at size \eqn{w}
 is set to
 \deqn{c_R(w) = \kappa\, w^{-\lambda}}{c_R(w) = \kappa w^{-\lambda}}
