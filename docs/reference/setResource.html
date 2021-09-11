@@ -56,7 +56,11 @@
 <meta property="og:description" content="Sets the intrinsic resource growth rate and the intrinsic resource carrying
 capacity as well as the name of the function used to simulate the resource
 dynamics" />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 
@@ -88,7 +92,7 @@ dynamics" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
       </span>
     </div>
 
@@ -104,13 +108,13 @@ dynamics" />
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -210,9 +214,8 @@ dynamics</p>
     <pre class="usage"><span class='fu'>setResource</span><span class='op'>(</span>
   <span class='va'>params</span>,
   resource_rate <span class='op'>=</span> <span class='cn'>NULL</span>,
-  comment_rate <span class='op'>=</span> <span class='st'>"set manually"</span>,
   resource_capacity <span class='op'>=</span> <span class='cn'>NULL</span>,
-  comment_capacity <span class='op'>=</span> <span class='st'>"set manually"</span>,
+  reset <span class='op'>=</span> <span class='cn'>FALSE</span>,
   r_pp <span class='op'>=</span> <span class='fu'><a href='resource_params.html'>resource_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[[</span><span class='st'>"r_pp"</span><span class='op'>]</span><span class='op'>]</span>,
   kappa <span class='op'>=</span> <span class='fu'><a href='resource_params.html'>resource_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[[</span><span class='st'>"kappa"</span><span class='op'>]</span><span class='op'>]</span>,
   lambda <span class='op'>=</span> <span class='fu'><a href='resource_params.html'>resource_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[[</span><span class='st'>"lambda"</span><span class='op'>]</span><span class='op'>]</span>,
@@ -224,9 +227,21 @@ dynamics</p>
 
 <span class='fu'>getResourceRate</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
 
+<span class='fu'>resource_rate</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>resource_rate</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span>
+
 <span class='fu'>getResourceCapacity</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
 
-<span class='fu'>getResourceDynamics</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
+<span class='fu'>resource_capacity</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>resource_capacity</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span>
+
+<span class='fu'>getResourceDynamics</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>resource_dynamics</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>resource_dynamics</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -240,23 +255,18 @@ dynamics</p>
       <td><p>Optional. Vector of resource intrinsic birth rates</p></td>
     </tr>
     <tr>
-      <th>comment_rate</th>
-      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
-A string describing how the value for 'resource_rate' was obtained. This is
-ignored if 'resource_rate' is not supplied or already has a comment
-attribute.</p></td>
-    </tr>
-    <tr>
       <th>resource_capacity</th>
       <td><p>Optional. Vector of resource intrinsic carrying
 capacity</p></td>
     </tr>
     <tr>
-      <th>comment_capacity</th>
+      <th>reset</th>
       <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
-A string describing how the value for 'resource_capacity' was obtained. This is
-ignored if 'resource_capacity' is not supplied or already has a comment
-attribute.</p></td>
+If set to TRUE, then both <code>resource_rate</code> and
+<code>resource_capacity</code> will be reset to the value calculated from the resource
+parameters, even if they were previously overwritten with custom values. If
+set to FALSE (default) then a recalculation from the resource parameters
+will take place only if no custom values have been set.</p></td>
     </tr>
     <tr>
       <th>r_pp</th>
@@ -276,7 +286,8 @@ attribute.</p></td>
     </tr>
     <tr>
       <th>w_pp_cutoff</th>
-      <td><p>The upper cut off size of the resource spectrum.
+      <td><p>The upper cut off size of the resource spectrum.  The
+carrying capacity will be set to 0 above this size.
 Default is 10 g.</p></td>
     </tr>
     <tr>
@@ -290,15 +301,15 @@ want to use the default <code><a href='resource_semichemostat.html'>resource_sem
       <th>...</th>
       <td><p>Unused</p></td>
     </tr>
+    <tr>
+      <th>value</th>
+      <td><p>.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A MizerParams object with updated resource parameters. Because of the
-way the R language works, <code>setResource()</code> does not make the changes to the
-params object that you pass to it but instead returns a new params object.
-So to affect the change you call the function in the form
-<code>params &lt;- setResource(params, ...)</code>.</p>
+    <p><code>setResource</code>: A MizerParams object with updated resource parameters</p>
     <h2 class="hasAnchor" id="setting-resource-dynamics"><a class="anchor" href="#setting-resource-dynamics"></a>Setting resource dynamics</h2>
 
     

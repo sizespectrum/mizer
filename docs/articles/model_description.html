@@ -21,7 +21,11 @@
 <link href="../docsearch.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script><meta property="og:title" content="The General Mizer Size-spectrum Model">
 <meta property="og:description" content="mizer">
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png">
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png">
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@mizer_model">
+<meta name="twitter:site" content="@mizer_model">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -40,7 +44,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
       </span>
     </div>
 
@@ -56,13 +60,13 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
-<li class="divider">
+<li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
+    <li class="divider">
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -145,7 +149,7 @@
 
       
 
-      </header><script src="model_description_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
+      </header><script src="model_description_files/header-attrs-2.10/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>The General Mizer Size-spectrum Model</h1>
@@ -281,7 +285,7 @@ And clicking again will hide the details again.
 <div id="mortality" class="section level1">
 <h1 class="hasAnchor">
 <a href="#mortality" class="anchor"></a>Mortality</h1>
-<p>The mortality rate of an individual <span class="math inline">\(\mu_i(w)\)</span> has three sources: predation mortality <span class="math inline">\(\mu_{p.i}(w)\)</span>, background mortality <span class="math inline">\(\mu_{b.i}(w)\)</span> and fishing mortality <span class="math inline">\(\mu_{f.i}(w)\)</span>.</p>
+<p>The mortality rate of an individual <span class="math inline">\(\mu_i(w)\)</span> has three sources: predation mortality <span class="math inline">\(\mu_{p.i}(w)\)</span>, background mortality <span class="math inline">\(\mu_{ext.i}(w)\)</span> and fishing mortality <span class="math inline">\(\mu_{f.i}(w)\)</span>.</p>
 <p>Predation mortality is calculated such that all that is eaten translates into corresponding predation mortalities on the ingested prey individuals. Recalling that <span class="math inline">\(1-f_j(w)\)</span> is the proportion of the food encountered by a predator of species <span class="math inline">\(j\)</span> and weight <span class="math inline">\(w\)</span> that is actually consumed, the rate at which all predators of species <span class="math inline">\(j\)</span> consume prey of size <span class="math inline">\(w_p\)</span> is <span class="math display">\[\begin{equation}
   \label{eq:pred_rated}
   {\tt pred\_rate}_j(w_p) = \int \phi_j(w,w_p) (1-f_j(w))
@@ -296,7 +300,7 @@ And clicking again will hide the details again.
   \label{eq:mup}
   \mu_{p.i}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{ji}.
 \end{equation}\]</span> This predation mortality rate is calculated by the function <code><a href="../reference/getPredMort.html">getPredMort()</a></code>.</p>
-<p>External mortality <span class="math inline">\(z0_i(w)\)</span> is independent of the abundances and is changed with <code><a href="../reference/setExtMort.html">setExtMort()</a></code>. By default mizer assumes an allometric form <span class="math display">\[z0_i(w) = z0_{pre} w_{\infty.i}^{1-n},\]</span> where <span class="math inline">\(w_{\infty.i}\)</span> is the asymptotic size of species <span class="math inline">\(i\)</span>.</p>
+<p>External mortality <span class="math inline">\(\mu_{ext.i}(w)\)</span> is independent of the abundances and is changed with <code><a href="../reference/setExtMort.html">setExtMort()</a></code>. By default mizer assumes that the external mortality for each species is a constant <span class="math inline">\(z0_i\)</span> independent of size. The value of <span class="math inline">\(z0_i\)</span> is either specified as a species parameter or it is assumed to depend allometrically on the asymptotic size: <span class="math display">\[z0_i = z0_{pre} w_{\infty.i}^{1-n}.\]</span></p>
 <div id="fishing-mortality" class="section level2">
 <h2 class="hasAnchor">
 <a href="#fishing-mortality" class="anchor"></a>Fishing mortality</h2>
@@ -305,7 +309,7 @@ And clicking again will hide the details again.
 <div id="total-mortality" class="section level2">
 <h2 class="hasAnchor">
 <a href="#total-mortality" class="anchor"></a>Total mortality</h2>
-<p>The total mortality rate <span class="math display">\[\mu_i(w)=\mu_{p.i}(w)+z0_i(w)+\mu_{f.i}(w)\]</span> is calculated with the function <code><a href="../reference/getMort.html">getMort()</a></code>.</p>
+<p>The total mortality rate <span class="math display">\[\mu_i(w)=\mu_{p.i}(w)+\mu_{ext,u}(w)+\mu_{f.i}(w)\]</span> is calculated with the function <code><a href="../reference/getMort.html">getMort()</a></code>.</p>
 </div>
 <div id="resource-mortality" class="section level2">
 <h2 class="hasAnchor">

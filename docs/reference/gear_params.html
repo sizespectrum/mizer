@@ -57,7 +57,11 @@
 a MizerParams object. These are used by setFishing() to set up the
 selectivity and catchability and thus together with the fishing effort
 determine the fishing mortality." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 
@@ -89,7 +93,7 @@ determine the fishing mortality." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
       </span>
     </div>
 
@@ -105,13 +109,13 @@ determine the fishing mortality." />
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -233,7 +237,7 @@ column for each parameter that determines how that gear interacts with that
 species. For the details see <code><a href='setFishing.html'>setFishing()</a></code>.</p>
 <p>If you change a gear parameter, this will be used to recalculate the
 <code>selectivity</code> and <code>catchability</code> arrays by calling <code><a href='setFishing.html'>setFishing()</a></code>,
-unless you have protected these with comments.</p>
+unless you have previously set these by hand.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='validGearParams.html'>validGearParams()</a></code></p>
@@ -252,6 +256,45 @@ unless you have protected these with comments.</p>
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code>,
 <code><a href='species_params.html'>species_params</a>()</code></p></div>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='va'>NS_params</span></span>
+<span class='r-in'><span class='co'># gears set up in example</span></span>
+<span class='r-in'><span class='fu'>gear_params</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                           gear species   sel_func knife_edge_size catchability</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Sprat, Industrial   Industrial   Sprat knife_edge              13            1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Sandeel, Industrial Industrial Sandeel knife_edge               4            1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> N.pout, Industrial  Industrial  N.pout knife_edge              23            1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Herring, Pelagic       Pelagic Herring knife_edge              99            1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Dab, Beam                 Beam     Dab knife_edge              21            1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Whiting, Otter           Otter Whiting knife_edge              75            1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Sole, Beam                Beam    Sole knife_edge              78            1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Gurnard, Otter           Otter Gurnard knife_edge              39            1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Plaice, Beam              Beam  Plaice knife_edge             105            1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Haddock, Otter           Otter Haddock knife_edge             165            1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Cod, Otter               Otter     Cod knife_edge            1606            1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Saithe, Otter            Otter  Saithe knife_edge            1076            1</span>
+<span class='r-in'><span class='co'># setting totally different gears</span></span>
+<span class='r-in'><span class='fu'>gear_params</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span></span>
+<span class='r-in'>    gear <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"gear1"</span>, <span class='st'>"gear2"</span>, <span class='st'>"gear1"</span><span class='op'>)</span>,</span>
+<span class='r-in'>    species <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Cod"</span>, <span class='st'>"Cod"</span>, <span class='st'>"Haddock"</span><span class='op'>)</span>,</span>
+<span class='r-in'>    catchability <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.5</span>, <span class='fl'>2</span>, <span class='fl'>1</span><span class='op'>)</span>,</span>
+<span class='r-in'>    sel_fun <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"sigmoid_weight"</span>, <span class='st'>"knife_edge"</span>, <span class='st'>"sigmoid_weight"</span><span class='op'>)</span>,</span>
+<span class='r-in'>    sigmoidal_weight <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1000</span>, <span class='cn'>NA</span>, <span class='fl'>800</span><span class='op'>)</span>,</span>
+<span class='r-in'>    sigmoidal_sigma <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>100</span>, <span class='cn'>NA</span>, <span class='fl'>100</span><span class='op'>)</span>,</span>
+<span class='r-in'>    knife_edge_size <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='cn'>NA</span>, <span class='fl'>1000</span>, <span class='cn'>NA</span><span class='op'>)</span></span>
+<span class='r-in'>    <span class='op'>)</span></span>
+<span class='r-in'><span class='fu'>gear_params</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                 gear species catchability        sel_fun sigmoidal_weight</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Cod, gear1     gear1     Cod          0.5 sigmoid_weight             1000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Cod, gear2     gear2     Cod          2.0     knife_edge               NA</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Haddock, gear1 gear1 Haddock          1.0 sigmoid_weight              800</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                sigmoidal_sigma knife_edge_size   sel_func</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Cod, gear1                 100            1606 knife_edge</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Cod, gear2                  NA            1000 knife_edge</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Haddock, gear1             100             165 knife_edge</span>
+<span class='r-in'><span class='co'># changing an individual entry</span></span>
+<span class='r-in'><span class='fu'>gear_params</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span><span class='st'>"Cod, gear1"</span>, <span class='st'>"catchability"</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fl'>0.8</span></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

@@ -54,7 +54,11 @@
 
 <meta property="og:title" content="Set search volume — setSearchVolume" />
 <meta property="og:description" content="Set search volume" />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 
@@ -86,7 +90,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
       </span>
     </div>
 
@@ -102,13 +106,13 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -203,14 +207,13 @@
     <p>Set search volume</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setSearchVolume</span><span class='op'>(</span>
-  <span class='va'>params</span>,
-  search_vol <span class='op'>=</span> <span class='cn'>NULL</span>,
-  comment_search_vol <span class='op'>=</span> <span class='st'>"set manually"</span>,
-  <span class='va'>...</span>
-<span class='op'>)</span>
+    <pre class="usage"><span class='fu'>setSearchVolume</span><span class='op'>(</span><span class='va'>params</span>, search_vol <span class='op'>=</span> <span class='cn'>NULL</span>, reset <span class='op'>=</span> <span class='cn'>FALSE</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'>getSearchVolume</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
+<span class='fu'>getSearchVolume</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>search_vol</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>search_vol</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -226,25 +229,29 @@ for each species at size. If not supplied, a default is set as described in
 the section "Setting search volume".</p></td>
     </tr>
     <tr>
-      <th>comment_search_vol</th>
+      <th>reset</th>
       <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
-A string describing how the value for 'search_vol' was obtained. This is
-ignored if 'search_vol' is not supplied or already has a comment
-attribute.</p></td>
+If set to TRUE, then the search volume will be reset to the
+value calculated from the species parameters, even if it was previously
+overwritten with a custom value. If set to FALSE (default) then a
+recalculation from the species parameters will take place only if no custom
+value has been set.</p></td>
     </tr>
     <tr>
       <th>...</th>
       <td><p>Unused</p></td>
     </tr>
+    <tr>
+      <th>value</th>
+      <td><p>search_vol</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>MizerParams with updated search volume. Because of the way the R
-language works, <code>setSearchVolume()</code> does not make the changes to the params
-object that you pass to it but instead returns a new params object. So to
-affect the change you call the function in the form
-<code>params &lt;- setSearchVolume(params, ...)</code>.</p>
+    <p><code>setSearchVolume()</code>: A MizerParams object with updated search volume.</p>
+<p><code>getSearchVolume()</code> or equivalently <code>search_vol()</code>: An array (species
+x size) holding the search volume</p>
     <h2 class="hasAnchor" id="setting-search-volume"><a class="anchor" href="#setting-search-volume"></a>Setting search volume</h2>
 
     
@@ -256,7 +263,7 @@ predation rate in <code><a href='getPredRate.html'>getPredRate()</a></code>.</p>
 <p>The name "search volume" is a bit misleading, because \(\gamma_i(w)\) does
 not have units of volume. It is simply a parameter that determines the rate
 of predation. Its units depend on your choice, see section "Units in mizer".
-If you have chose to work with total abundances, then it is a rate with units
+If you have chosen to work with total abundances, then it is a rate with units
 1/year. If you have chosen to work with abundances per m^2 then it has units
 of m^2/year. If you have chosen to work with abundances per m^3 then it has
 units of m^3/year.</p>

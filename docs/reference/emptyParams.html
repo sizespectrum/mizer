@@ -57,7 +57,11 @@
 Sets up a valid MizerParams object with all the slots
 initialised and given dimension names, but with some slots left empty. This
 function is to be used by other functions to set up full parameter objects." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 
@@ -89,7 +93,7 @@ function is to be used by other functions to set up full parameter objects." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
       </span>
     </div>
 
@@ -105,13 +109,13 @@ function is to be used by other functions to set up full parameter objects." />
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -260,7 +264,8 @@ frame.</p></td>
 <p>A size grid is created so that
 the log-sizes are equally spaced. The spacing is chosen so that there will be
 <code>no_w</code> fish size bins, with the smallest starting at <code>min_w</code> and the largest
-starting at <code>max_w</code>. For <code>w_full</code> additional size bins are added below
+starting at <code>max_w</code>. For the resource spectrum there is a larger set of
+bins containing additional bins below
 <code>min_w</code>, with the same log size. The number of extra bins is such that
 <code>min_w_pp</code> comes to lie within the smallest bin.</p>
     <h2 class="hasAnchor" id="changes-to-species-params"><a class="anchor" href="#changes-to-species-params"></a>Changes to species params</h2>

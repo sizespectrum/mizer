@@ -54,11 +54,15 @@
 
 <meta property="og:title" content="Set initial values to a steady state for the model — steady" />
 <meta property="og:description" content="The steady state is found by running the dynamics while keeping reproduction
-and other components constant until the size spectra no longer change (or
-until time t_max is reached, if earlier). Then the reproductive efficiencies
-are set to the values that give the level of reproduction observed in that
+and other components constant until the size spectra no longer change much (or
+until time t_max is reached, if earlier). Then the reproduction parameters
+are set to values that give the level of reproduction observed in that
 steady state." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 
@@ -90,7 +94,7 @@ steady state." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
       </span>
     </div>
 
@@ -106,13 +110,13 @@ steady state." />
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -205,9 +209,9 @@ steady state." />
 
     <div class="ref-description">
     <p>The steady state is found by running the dynamics while keeping reproduction
-and other components constant until the size spectra no longer change (or
-until time <code>t_max</code> is reached, if earlier). Then the reproductive efficiencies
-are set to the values that give the level of reproduction observed in that
+and other components constant until the size spectra no longer change much (or
+until time <code>t_max</code> is reached, if earlier). Then the reproduction parameters
+are set to values that give the level of reproduction observed in that
 steady state.</p>
     </div>
 
@@ -218,6 +222,7 @@ steady state.</p>
   dt <span class='op'>=</span> <span class='fl'>0.1</span>,
   tol <span class='op'>=</span> <span class='fl'>0.1</span> <span class='op'>*</span> <span class='va'>dt</span>,
   return_sim <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  preserve <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"reproduction_level"</span>, <span class='st'>"erepro"</span>, <span class='st'>"R_max"</span><span class='op'>)</span>,
   progress_bar <span class='op'>=</span> <span class='cn'>TRUE</span>
 <span class='op'>)</span></pre>
 
@@ -253,6 +258,14 @@ production RDI over <code>t_per</code> years is less than <code>tol</code> for e
       <td><p>If TRUE, the function returns the MizerSim object holding
 the result of the simulation run. If FALSE (default) the function returns
 a MizerParams object with the "initial" slots set to the steady state.</p></td>
+    </tr>
+    <tr>
+      <th>preserve</th>
+      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+Specifies whether the <code>reproduction_level</code> should be preserved (default)
+or the maximum reproduction rate <code>R_max</code> or the reproductive
+efficiency <code>erepro</code>. See <code><a href='setBevertonHolt.html'>setBevertonHolt()</a></code> for an explanation
+of the <code>reproduction_level</code>.</p></td>
     </tr>
     <tr>
       <th>progress_bar</th>

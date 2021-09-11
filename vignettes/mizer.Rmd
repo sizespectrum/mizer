@@ -7,6 +7,8 @@ output:
     fig_height: 5
 bibliography: reflib.bib
 link-citations: true
+resource_files:
+  - images/cheat_sheet.pdf
 vignette: >
   %\VignetteIndexEntry{Getting started with mizer}
   %\VignetteEngine{knitr::rmarkdown}
@@ -30,8 +32,11 @@ described in more detail in sections below.
 
 If you run into any difficulties or have any questions or suggestions, let us
 know about it by posting about it on our [issue tracker](https://github.com/sizespectrum/mizer/issues/new). You can also twitter
-to [@mizer_model](https://twitter.com/mizer_model]. We love to hear from
+to @[mizer_model](https://twitter.com/mizer_model). We love to hear from
 you.
+
+Click on this preview to open a mizer cheat sheet.
+[![Cheat Sheet](images/cheat_sheet_preview.png)](https://sizespectrum.org/mizer/articles/images/cheat_sheet.pdf)
 
 There is a [series of YouTube videos](https://www.youtube.com/watch?v=zh0PDyTUssw&list=PLCTMeyjMKRkqR7uohI3p-61P7ZJj8sd5B) 
 by Richard Southwell about mizer which are however no longer entirely up-to-date.

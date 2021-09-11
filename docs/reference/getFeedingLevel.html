@@ -56,7 +56,11 @@
 <meta property="og:description" content="Returns the feeding level.
 By default this function uses mizerFeedingLevel() to calculate
 the feeding level, but this can be overruled via setRateFunction()." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 
@@ -88,7 +92,7 @@ the feeding level, but this can be overruled via setRateFunction()." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
       </span>
     </div>
 
@@ -104,13 +108,13 @@ the feeding level, but this can be overruled via setRateFunction()." />
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -303,7 +307,7 @@ same arguments.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
-<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='va'>NS_params</span></span>
 <span class='r-in'><span class='co'># Get initial feeding level</span></span>
 <span class='r-in'><span class='va'>fl</span> <span class='op'>&lt;-</span> <span class='fu'>getFeedingLevel</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
 <span class='r-in'><span class='co'># Project with constant fishing effort for all gears for 20 time steps</span></span>

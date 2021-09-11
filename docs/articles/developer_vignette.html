@@ -21,7 +21,11 @@
 <link href="../docsearch.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script><meta property="og:title" content="Developer Guide">
 <meta property="og:description" content="mizer">
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png">
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png">
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@mizer_model">
+<meta name="twitter:site" content="@mizer_model">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -40,7 +44,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
       </span>
     </div>
 
@@ -56,13 +60,13 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
-<li class="divider">
+<li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
+    <li class="divider">
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -145,7 +149,7 @@
 
       
 
-      </header><script src="developer_vignette_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
+      </header><script src="developer_vignette_files/header-attrs-2.10/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Developer Guide</h1>
@@ -171,7 +175,7 @@
 <div id="installing-r-rstudio-and-git" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installing-r-rstudio-and-git" class="anchor"></a>Installing R, RStudio and Git</h2>
-<p>Mizer is compatible with <strong>R</strong> versions 3.1 and later. If you still need to <a href="https://cran.r-project.org/">install R</a>, simply install the latest version. This guide was prepared with R version 4.1.0 (2021-05-18).</p>
+<p>Mizer is compatible with <strong>R</strong> versions 3.1 and later. If you still need to <a href="https://cran.r-project.org/">install R</a>, simply install the latest version. This guide was prepared with R version 4.1.1 (2021-08-10).</p>
 <p>This guide assumes that you will be using <strong>RStudio</strong> to work with R. There is really no reason not to use RStudio and it makes a lot of things much easier. RStudio develops rapidly and adds useful features all the time and so it pays to upgrade to the <a href="https://www.rstudio.com/products/rstudio/download/preview/">latest version</a> frequently. This guide was written with version 1.2.1268.</p>
 <p>Mizer is developed using the version control system <strong>Git</strong> and the code is hosted on GitHub. To contribute to the mizer code, you need to have the Git software installed on your system. On most Linux machines it will be installed already, but on other platforms you need to <a href="http://happygitwithr.com/install-git.html">install it</a>. You do not need to install any GUI for git because RStudio has <a href="https://support.rstudio.com/hc/en-us/articles/200532077-Version-Control-with-Git-and-SVN">built-in support for git</a>. A good place to learn about using Git and GitHub is <a href="http://r-pkgs.had.co.nz/git.html">this chapter</a> in the guide by Hadley on R package development.</p>
 </div>
@@ -230,6 +234,11 @@ To find the correct repository URL you go back to GitHub to the front page of th
 <center>
 <img src="images/tabs.png" style="width:50.0%">
 </center>
+</div>
+<div id="usethis-package" class="section level2">
+<h2 class="hasAnchor">
+<a href="#usethis-package" class="anchor"></a>usethis package</h2>
+<p>Many useful commands for working with packages and with GitHub are provided by the <a href="https://usethis.r-lib.org/">usethis</a> package, which is automatically installed along with devtools. The package comes with a useful vignette with suggestions for <a href="https://usethis.r-lib.org/articles/articles/usethis-setup.html">how to set things up</a> most conveniently.</p>
 </div>
 <div id="installing-mizer" class="section level2">
 <h2 class="hasAnchor">

@@ -58,7 +58,11 @@ not recommended and several constructors are available. Dynamic simulations
 are performed using project() function on objects of this class. As a
 user you should never need to access the slots inside a MizerParams object
 directly." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 
@@ -90,7 +94,7 @@ directly." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
       </span>
     </div>
 
@@ -106,13 +110,13 @@ directly." />
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -227,6 +231,20 @@ abundances or harvest effort through time. These are held in
     
 
 <dl>
+<dt><code>metadata</code></dt><dd><p>A list with metadata information. See <code><a href='setMetadata.html'>setMetadata()</a></code>.</p></dd>
+
+<dt><code>mizer_version</code></dt><dd><p>The package version of mizer (as returned by
+<code>packageVersion("mizer")</code>) that created or last saved the model.</p></dd>
+
+<dt><code>extensions</code></dt><dd><p>A named vector of strings where each name is the name of
+and extension package needed to run the model and each value is a string
+giving the information that the remotes package needs to install the
+correct version of the extension package, see https://remotes.r-lib.org/.</p></dd>
+
+<dt><code>time_created</code></dt><dd><p>A POSIXct date-time object with the creation time.</p></dd>
+
+<dt><code>time_modified</code></dt><dd><p>A POSIXct date-time object with the last modified time.</p></dd>
+
 <dt><code>w</code></dt><dd><p>The size grid for the fish part of the spectrum. An increasing
 vector of weights (in grams) running from the smallest egg size to the
 largest asymptotic size.</p></dd>
@@ -263,7 +281,7 @@ each species at size. Changed with <code><a href='setSearchVolume.html'>setSearc
 for each species at size. Changed with <code><a href='setMetabolicRate.html'>setMetabolicRate()</a></code>.</p></dd>
 
 <dt><code>mu_b</code></dt><dd><p>An array (species x size) that holds the external mortality rate
-\(\mu_{b.i}(w)\). Changed with <code><a href='setExtMort.html'>setExtMort()</a></code>.</p></dd>
+\(\mu_{ext.i}(w)\). Changed with <code><a href='setExtMort.html'>setExtMort()</a></code>.</p></dd>
 
 <dt><code>pred_kernel</code></dt><dd><p>An array (species x predator size x prey size) that holds
 the predation coefficient of each predator at size on each prey size. If

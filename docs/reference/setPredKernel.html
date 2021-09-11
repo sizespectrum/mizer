@@ -60,7 +60,11 @@ calculating the rate at which a prey is predated upon. The predation kernel
 can be a function of the predator/prey size ratio or it can be a function of
 the predator size and the prey size separately. Both types can be set up with
 this function." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 
@@ -92,7 +96,7 @@ this function." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
       </span>
     </div>
 
@@ -108,13 +112,13 @@ this function." />
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -215,12 +219,13 @@ the predator size and the prey size separately. Both types can be set up with
 this function.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setPredKernel</span><span class='op'>(</span>
-  <span class='va'>params</span>,
-  pred_kernel <span class='op'>=</span> <span class='cn'>NULL</span>,
-  comment_pred_kernel <span class='op'>=</span> <span class='st'>"set manually"</span>,
-  <span class='va'>...</span>
-<span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>setPredKernel</span><span class='op'>(</span><span class='va'>params</span>, pred_kernel <span class='op'>=</span> <span class='cn'>NULL</span>, reset <span class='op'>=</span> <span class='cn'>FALSE</span>, <span class='va'>...</span><span class='op'>)</span>
+
+<span class='fu'>getPredKernel</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>pred_kernel</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>pred_kernel</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -237,25 +242,29 @@ size. If not supplied, a default is set as described in section "Setting
 predation kernel".</p></td>
     </tr>
     <tr>
-      <th>comment_pred_kernel</th>
+      <th>reset</th>
       <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
-A string describing how the value for 'pred_kernel' was obtained. This is
-ignored if 'pred_kernel' is not supplied or already has a comment
-attribute.</p></td>
+If set to TRUE, then the predation kernel will be reset to the
+value calculated from the species parameters, even if it was previously
+overwritten with a custom value. If set to FALSE (default) then a
+recalculation from the species parameters will take place only if no custom
+value has been set.</p></td>
     </tr>
     <tr>
       <th>...</th>
       <td><p>Unused</p></td>
     </tr>
+    <tr>
+      <th>value</th>
+      <td><p>pred_kernel</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A MizerParams object with updated predation kernel. Because of the
-way the R language works, <code>setPredKernel()</code> does not make the changes
-to the params object that you pass to it but instead returns a new params
-object. So to affect the change you call the function in the form
-<code>params &lt;- setPredKernel(params, ...)</code>.</p>
+    <p><code>setPredKernel()</code>: A MizerParams object with updated predation kernel.</p>
+<p><code>getPredKernel()</code> or equivalently <code>pred_kernel()</code>: An array (predator
+species x predator_size x prey_size)</p>
     <h2 class="hasAnchor" id="setting-predation-kernel"><a class="anchor" href="#setting-predation-kernel"></a>Setting predation kernel</h2>
 
     
@@ -265,7 +274,7 @@ object. So to affect the change you call the function in the form
 predation kernel that depends only on the ratio of predator mass to prey
 mass, not on the two masses independently. The shape of that kernel is then
 determined by the <code>pred_kernel_type</code> column in species_params.</p>
-<p>The default pred_kernel_type is "lognormal". This will call the function
+<p>The default for <code>pred_kernel_type</code> is "lognormal". This will call the function
 <code><a href='lognormal_pred_kernel.html'>lognormal_pred_kernel()</a></code> to calculate the predation kernel.
 An alternative pred_kernel type is "box", implemented by the function
 <code><a href='box_pred_kernel.html'>box_pred_kernel()</a></code>, and "power_law", implemented by the function
@@ -276,9 +285,9 @@ and <code>ppmr_max</code>. They are explained in the help pages for the kernel
 functions. Except for <code>beta</code> and <code>sigma</code>, no defaults are set for
 these parameters. If they are missing from the species_params data frame then
 mizer will issue an error message.</p>
-<p>You can use any other string as the type. If for example you choose "my" then
-you need to define a function <code>my_pred_kernel</code> that you can model on the
-existing functions like <code><a href='lognormal_pred_kernel.html'>lognormal_pred_kernel()</a></code>.</p>
+<p>You can use any other string for <code>pred_kernel_type</code>. If for example you
+choose "my" then you need to define a function <code>my_pred_kernel</code> that you can
+model on the existing functions like <code><a href='lognormal_pred_kernel.html'>lognormal_pred_kernel()</a></code>.</p>
 <p>When using a kernel that depends on the predator/prey size ratio only, mizer
 does not need to store the entire three dimensional array in the MizerParams
 object. Such an array can be very big when there is a large number of size
@@ -286,7 +295,7 @@ bins. Instead, mizer only needs to store two two-dimensional arrays that hold
 Fourier transforms of the feeding kernel function that allow the encounter
 rate and the predation rate to be calculated very efficiently. However, if
 you need the full three-dimensional array you can calculate it with the
-<code><a href='getPredKernel.html'>getPredKernel()</a></code> function.</p>
+<code>getPredKernel()</code> function.</p>
 <p><strong>Kernel dependent on both predator and prey size</strong></p>
 <p>If you want to work with a feeding kernel that depends on predator mass and
 prey mass independently, you can specify the full feeding kernel as a
@@ -319,7 +328,7 @@ different.</p>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
 <span class='r-in'><span class='co'>## Set up a MizerParams object</span></span>
-<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span>  <span class='va'>NS_params</span></span>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'>## If you change predation kernel parameters after setting up a model, </span></span>
 <span class='r-in'><span class='co'>#  this will be used to recalculate the kernel</span></span>
@@ -329,11 +338,11 @@ different.</p>
 <span class='r-in'><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>ppmr_max</span> <span class='op'>&lt;-</span> <span class='fl'>4000</span></span>
 <span class='r-in'><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>ppmr_min</span> <span class='op'>&lt;-</span> <span class='fl'>200</span></span>
 <span class='r-in'><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>pred_kernel_type</span> <span class='op'>&lt;-</span> <span class='st'>"box"</span></span>
-<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='fu'><a href='w.html'>w_full</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>, <span class='fu'><a href='getPredKernel.html'>getPredKernel</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span><span class='st'>"Cod"</span>, <span class='fl'>100</span>, <span class='op'>]</span>, type<span class='op'>=</span><span class='st'>"l"</span>, log<span class='op'>=</span><span class='st'>"x"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='fu'><a href='w.html'>w_full</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>, <span class='fu'>getPredKernel</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span><span class='st'>"Cod"</span>, <span class='fl'>100</span>, <span class='op'>]</span>, type<span class='op'>=</span><span class='st'>"l"</span>, log<span class='op'>=</span><span class='st'>"x"</span><span class='op'>)</span></span>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'>## If you need a kernel that depends also on prey size you need to define</span></span>
 <span class='r-in'><span class='co'># it yourself.</span></span>
-<span class='r-in'><span class='va'>pred_kernel</span> <span class='op'>&lt;-</span> <span class='fu'><a href='getPredKernel.html'>getPredKernel</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>pred_kernel</span> <span class='op'>&lt;-</span> <span class='fu'>getPredKernel</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
 <span class='r-in'><span class='va'>pred_kernel</span><span class='op'>[</span><span class='st'>"Herring"</span>, , <span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/sweep.html'>sweep</a></span><span class='op'>(</span><span class='va'>pred_kernel</span><span class='op'>[</span><span class='st'>"Herring"</span>, , <span class='op'>]</span>, <span class='fl'>2</span>, </span>
 <span class='r-in'>                                    <span class='va'>params</span><span class='op'>@</span><span class='va'>w_full</span>, <span class='st'>"*"</span><span class='op'>)</span></span>
 <span class='r-in'><span class='va'>params</span><span class='op'>&lt;-</span> <span class='fu'>setPredKernel</span><span class='op'>(</span><span class='va'>params</span>, pred_kernel <span class='op'>=</span> <span class='va'>pred_kernel</span><span class='op'>)</span></span>

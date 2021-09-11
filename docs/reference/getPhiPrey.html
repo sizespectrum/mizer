@@ -57,7 +57,11 @@
 This is deprecated and is no longer used by the mizer project() method.
 Calculates the amount \(E_{a,i}(w)\) of food exposed to each predator as
 a function of predator size." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 
@@ -89,7 +93,7 @@ a function of predator size." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
       </span>
     </div>
 
@@ -105,13 +109,13 @@ a function of predator size." />
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -241,7 +245,7 @@ a function of predator size.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
-<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='MizerParams.html'>MizerParams</a></span><span class='op'>(</span><span class='va'>NS_species_params_gears</span>, <span class='va'>inter</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span>  <span class='va'>NS_params</span></span>
 <span class='r-in'><span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, t_max <span class='op'>=</span> <span class='fl'>20</span>, effort <span class='op'>=</span> <span class='fl'>0.5</span><span class='op'>)</span></span>
 <span class='r-in'><span class='va'>n</span> <span class='op'>&lt;-</span> <span class='va'>sim</span><span class='op'>@</span><span class='va'>n</span><span class='op'>[</span><span class='fl'>21</span>,,<span class='op'>]</span></span>
 <span class='r-in'><span class='va'>n_pp</span> <span class='op'>&lt;-</span> <span class='va'>sim</span><span class='op'>@</span><span class='va'>n_pp</span><span class='op'>[</span><span class='fl'>21</span>,<span class='op'>]</span></span>

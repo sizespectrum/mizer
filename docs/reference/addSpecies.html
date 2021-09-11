@@ -59,10 +59,14 @@ given parameters to the ecosystem. It sets the initial values for these new
 species to their steady-state solution in the given initial state of the
 existing ecosystem. This will be close to the true steady state if the
 abundances of the new species are sufficiently low. Hence the abundances of
-the new species are set so that the maximal biomass density of each new
-species lies at 1/100 of the community power law. The reproductive
-efficiencies of the new species are set so as to keep them at that low level." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+the new species are set so that they are at most 1/100th of the resource
+power law. Their reproductive efficiencies are set so as to keep them at
+that low level." />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 
@@ -94,7 +98,7 @@ efficiencies of the new species are set so as to keep them at that low level." /
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
       </span>
     </div>
 
@@ -110,13 +114,13 @@ efficiencies of the new species are set so as to keep them at that low level." /
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -214,9 +218,9 @@ given parameters to the ecosystem. It sets the initial values for these new
 species to their steady-state solution in the given initial state of the
 existing ecosystem. This will be close to the true steady state if the
 abundances of the new species are sufficiently low. Hence the abundances of
-the new species are set so that the maximal biomass density of each new
-species lies at 1/100 of the community power law. The reproductive
-efficiencies of the new species are set so as to keep them at that low level.</p>
+the new species are set so that they are at most 1/100th of the resource
+power law. Their reproductive efficiencies are set so as to keep them at
+that low level.</p>
     </div>
 
     <pre class="usage"><span class='fu'>addSpecies</span><span class='op'>(</span>
@@ -241,20 +245,21 @@ species we want to add to the system.</p></td>
     </tr>
     <tr>
       <th>gear_params</th>
-      <td><p>Optional data frame with the gear parameters for the new
-species.</p></td>
+      <td><p>Data frame with the gear parameters for the new
+species. If not provided then the new species will not be fished.</p></td>
     </tr>
     <tr>
       <th>initial_effort</th>
       <td><p>A named vector with the effort for new fishing gear
-introduced in <code>gear_params</code>. Only needed if new gear are introduced, not
-if the new species are fished only by existing gear.</p></td>
+introduced in <code>gear_params</code>. New gear for which no effort is set via this
+vector will have an initial effort of 0. Should not include effort values
+for existing gear.</p></td>
     </tr>
     <tr>
       <th>interaction</th>
       <td><p>Interaction matrix. A square matrix giving either the
-interaction coefficients between all species or only those between the
-new species. In the latter case all interaction between an old and a new
+interaction coefficients between all species or only those between the new
+species. In the latter case all interaction between an old and a new
 species are set to 1. If this argument is missing, all interactions
 involving a new species are set to 1.</p></td>
     </tr>
@@ -265,49 +270,39 @@ involving a new species are set to 1.</p></td>
     <p>An object of type <a href='MizerParams-class.html'>MizerParams</a></p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The resulting MizerParams object will use the same size grid where possible,
-but if one of the new species needs a larger range of w (either because
-a new species has an egg size smaller than those of existing species or
-a maximum size larger than those of existing species) then the grid will
-be expanded and all arrays will be enlarged accordingly.</p>
-<p>If any of the rate arrays had been set by the user to values other than
-those calculated as default from the species parameters, then these will
-be preserved.</p>
-<p>After adding the new species, the background species are not retuned and the
-system is not run to steady state.</p>
+    <p>The resulting MizerParams object will use the same size grid where
+possible, but if one of the new species needs a larger range of w (either
+because a new species has an egg size smaller than those of existing
+species or a maximum size larger than those of existing species) then the
+grid will be expanded and all arrays will be enlarged accordingly.</p>
+<p>If any of the rate arrays of the existing species had been set by the user
+to values other than those calculated as default from the species
+parameters, then these will be preserved. Only the rates for the new
+species will be calculated from their species parameters.</p>
+<p>After adding the new species, the background species are not retuned and
+the system is not run to steady state. This could be done with <code><a href='steady.html'>steady()</a></code>.
+The new species will have a reproduction level of 1/4, this can then be
+changed with <code><a href='setBevertonHolt.html'>setBevertonHolt()</a></code></p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='removeSpecies.html'>removeSpecies()</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
-<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newTraitParams.html'>newTraitParams</a></span><span class='op'>(</span><span class='op'>)</span></span>
-<span class='r-in'><span class='va'>a_m</span> <span class='op'>&lt;-</span> <span class='fl'>0.0085</span></span>
-<span class='r-in'><span class='va'>b_m</span> <span class='op'>&lt;-</span> <span class='fl'>3.11</span></span>
-<span class='r-in'><span class='va'>L_inf_m</span> <span class='op'>&lt;-</span> <span class='fl'>24.3</span></span>
-<span class='r-in'><span class='va'>L_mat</span> <span class='op'>&lt;-</span> <span class='fl'>11.1</span></span>
+    <pre class="examples"><span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newTraitParams.html'>newTraitParams</a></span><span class='op'>(</span><span class='op'>)</span></span>
 <span class='r-in'><span class='va'>species_params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span></span>
-<span class='r-in'>    species <span class='op'>=</span> <span class='st'>"mullet"</span>,</span>
-<span class='r-in'>    w_min <span class='op'>=</span> <span class='fl'>0.001</span>,</span>
-<span class='r-in'>    w_inf <span class='op'>=</span> <span class='va'>a_m</span><span class='op'>*</span><span class='va'>L_inf_m</span><span class='op'>^</span><span class='va'>b_m</span>,</span>
-<span class='r-in'>    w_mat <span class='op'>=</span> <span class='va'>a_m</span><span class='op'>*</span><span class='va'>L_mat</span><span class='op'>^</span><span class='va'>b_m</span>,</span>
+<span class='r-in'>    species <span class='op'>=</span> <span class='st'>"Mullet"</span>,</span>
+<span class='r-in'>    w_inf <span class='op'>=</span> <span class='fl'>173</span>,</span>
+<span class='r-in'>    w_mat <span class='op'>=</span> <span class='fl'>15</span>,</span>
 <span class='r-in'>    beta <span class='op'>=</span> <span class='fl'>283</span>,</span>
 <span class='r-in'>    sigma <span class='op'>=</span> <span class='fl'>1.8</span>,</span>
-<span class='r-in'>    z0 <span class='op'>=</span> <span class='fl'>0</span>,</span>
-<span class='r-in'>    alpha <span class='op'>=</span> <span class='fl'>0.6</span>,</span>
-<span class='r-in'>    sel_func <span class='op'>=</span> <span class='st'>"knife_edge"</span>,</span>
-<span class='r-in'>    knife_edge_size <span class='op'>=</span> <span class='fl'>100</span>,</span>
-<span class='r-in'>    gear <span class='op'>=</span> <span class='st'>"knife_edge_gear"</span>,</span>
-<span class='r-in'>    k <span class='op'>=</span> <span class='fl'>0</span>,</span>
 <span class='r-in'>    k_vb <span class='op'>=</span> <span class='fl'>0.6</span>,</span>
-<span class='r-in'>    a <span class='op'>=</span> <span class='va'>a_m</span>,</span>
-<span class='r-in'>    b <span class='op'>=</span> <span class='va'>b_m</span></span>
+<span class='r-in'>    a <span class='op'>=</span> <span class='fl'>0.0085</span>,</span>
+<span class='r-in'>    b <span class='op'>=</span> <span class='fl'>3.11</span></span>
 <span class='r-in'><span class='op'>)</span></span>
 <span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>addSpecies</span><span class='op'>(</span><span class='va'>params</span>, <span class='va'>species_params</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> No h provided for some species, so using f0 and k_vb to calculate it.</span>
 <span class='r-in'><span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
-<span class='r-in'><span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, t_max<span class='op'>=</span><span class='fl'>50</span>, progress_bar <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></span>
-<span class='r-in'><span class='fu'><a href='plotBiomass.html'>plotBiomass</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span></span>
-<span class='r-in'><span class='op'>}</span></span>
+<span class='r-plt'><img src='addSpecies-1.png' alt='' width='700' height='433' /></span>
 </pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

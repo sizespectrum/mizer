@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Retune reproduction efficiency to maintain initial egg abundances — retune_erepro • mizer</title>
+<title>Match biomasses to observations — matchBiomasses • mizer</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -52,11 +52,15 @@
 
 
 
-<meta property="og:title" content="Retune reproduction efficiency to maintain initial egg abundances — retune_erepro" />
-<meta property="og:description" content="Sets the reproductive efficiency for all species so that the rate of egg
-production exactly compensates for the loss from the first size class due
-to growth and mortality." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:title" content="Match biomasses to observations — matchBiomasses" />
+<meta property="og:description" content="
+The function adjusts the abundances of the species in the model so that their biomasses
+match with observations." />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 
@@ -88,7 +92,7 @@ to growth and mortality." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
       </span>
     </div>
 
@@ -104,13 +108,13 @@ to growth and mortality." />
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -196,44 +200,66 @@ to growth and mortality." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Retune reproduction efficiency to maintain initial egg abundances</h1>
-    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/steady.R'><code>R/steady.R</code></a></small>
-    <div class="hidden name"><code>retune_erepro.Rd</code></div>
+    <h1>Match biomasses to observations</h1>
+    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/match.R'><code>R/match.R</code></a></small>
+    <div class="hidden name"><code>matchBiomasses.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Sets the reproductive efficiency for all species so that the rate of egg
-production exactly compensates for the loss from the first size class due
-to growth and mortality.</p>
+    <p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+The function adjusts the abundances of the species in the model so that their biomasses
+match with observations.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>retune_erepro</span><span class='op'>(</span><span class='va'>params</span>, species <span class='op'>=</span> <span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>species</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>matchBiomasses</span><span class='op'>(</span><span class='va'>params</span>, species <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>params</th>
-      <td><p>A <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
+      <td><p>A MizerParams object</p></td>
     </tr>
     <tr>
       <th>species</th>
-      <td><p>The species to be selected. Optional. By default all target
-species are selected. A vector of species names, or a
-numeric vector with the species indices, or a logical vector indicating for
-each species whether it is to be selected (TRUE) or not.</p></td>
+      <td><p>The species to be affected. Optional. By default all observed
+biomasses will be matched. A vector of species names, or a numeric vector
+with the species indices, or a logical vector indicating for each species
+whether it is to be affected (TRUE) or not.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A MizerParams object with updated values for the <code>erepro</code> column
-in the <code>species_params</code> data frame.</p>
+    <p>A MizerParams object</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Currently works only if the model uses either Beverton-Holt density
-dependent reproduction or density-independent reproduction.</p>
+    <p>The function works by multiplying for each species the abundance density
+at all sizes by the same factor. This will of course not give a steady
+state solution, even if the initial abundance densities were at steady state.
+So after using this function you may want to use <code><a href='steady.html'>steady()</a></code> to run the model
+to steady state, after which of course the biomasses will no longer match
+exactly. You could then iterate this process. This is described in the
+blog post at https://bit.ly/2YqXESV.</p>
+<p>Before you can use this function you will need to have added a
+<code>biomass_observed</code> column to your model which gives the observed biomass in
+grams.  For species for which you have no observed biomass, you should set
+the value in the <code>biomass_observed</code> column to 0 or NA.</p>
+<p>Biomass observations usually only include individuals above a certain size.
+This size should be specified in a <code>biomass_cutoff</code> column of the species
+parameter data frame. If this is missing, it is assumed that all sizes are
+included in the observed biomass, i.e., it includes larval biomass.</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='va'>NS_params</span></span>
+<span class='r-in'><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>biomass_observed</span> <span class='op'>&lt;-</span> </span>
+<span class='r-in'>    <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.8</span>, <span class='fl'>61</span>, <span class='fl'>12</span>, <span class='fl'>35</span>, <span class='fl'>1.6</span>, <span class='fl'>20</span>, <span class='fl'>10</span>, <span class='fl'>7.6</span>, <span class='fl'>135</span>, <span class='fl'>60</span>, <span class='fl'>30</span>, <span class='fl'>78</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>biomass_cutoff</span> <span class='op'>&lt;-</span> <span class='fl'>10</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='calibrateBiomass.html'>calibrateBiomass</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>matchBiomasses</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='plotBiomassObservedVsModel.html'>plotBiomassObservedVsModel</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
+<span class='r-plt'><img src='matchBiomasses-1.png' alt='' width='700' height='433' /></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

@@ -21,7 +21,11 @@
 <link href="../docsearch.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script><meta property="og:title" content="Exploring the Simulation Results">
 <meta property="og:description" content="mizer">
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png">
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png">
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@mizer_model">
+<meta name="twitter:site" content="@mizer_model">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -40,7 +44,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
       </span>
     </div>
 
@@ -56,13 +60,13 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
-<li class="divider">
+<li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
+    <li class="divider">
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -145,7 +149,7 @@
 
       
 
-      </header><script src="exploring_the_simulation_results_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
+      </header><script src="exploring_the_simulation_results_files/header-attrs-2.10/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Exploring the Simulation Results</h1>
@@ -306,9 +310,15 @@
 <h3 class="hasAnchor">
 <a href="#sec:plot_examples" class="anchor"></a>Plotting examples</h3>
 <p>Using the plotting functions is straightforward. For example, to plot the total biomass of each species against time you use the <code><a href="../reference/plotBiomass.html">plotBiomass()</a></code> function:</p>
-<p>As mentioned above, some of the plot functions plot values against size at a point in time (or averaged over a time period). For these plots it is possible to specify the time step to plot, or the time period to average the values over. The default is to use the final time step. Here we plot the abundance spectra (biomass), averaged over time = 5 to 10:</p>
-<p>As mentioned above, and as we have seen several times in this guide, the generic <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot()</a></code> method has also been overloaded. This produces 5 plots in the same window (<code><a href="../reference/plotFeedingLevel.html">plotFeedingLevel()</a></code>, <code><a href="../reference/plotBiomass.html">plotBiomass()</a></code>, <code><a href="../reference/plotPredMort.html">plotPredMort()</a></code>, <code><a href="../reference/plotFMort.html">plotFMort()</a></code> and <code><a href="../reference/plotSpectra.html">plotSpectra()</a></code>). It is possible to pass in the same arguments that these individual plots use, e.g. arguments to change the time period over which the data is averaged.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plotBiomass.html">plotBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
+<p><img src="exploring_the_simulation_results_files/figure-html/plotBiomass-1.png" width="700"></p>
+<p>As mentioned above, some of the plot functions plot values against size at a point in time (or averaged over a time period). For these plots it is possible to specify the time step to plot, or the time period to average the values over. The default is to use the final time step. Here we plot the abundance spectra (biomass), averaged over time = 5 to 10:</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">sim</span>, time_range <span class="op">=</span> <span class="fl">5</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
+<p><img src="exploring_the_simulation_results_files/figure-html/plotSpectra_example-1.png" width="700"></p>
+<p>As mentioned above, and as we have seen several times in this guide, the generic <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot()</a></code> method has also been overloaded. This produces 5 plots in the same window (<code><a href="../reference/plotFeedingLevel.html">plotFeedingLevel()</a></code>, <code><a href="../reference/plotBiomass.html">plotBiomass()</a></code>, <code><a href="../reference/plotPredMort.html">plotPredMort()</a></code>, <code><a href="../reference/plotFMort.html">plotFMort()</a></code> and <code><a href="../reference/plotSpectra.html">plotSpectra()</a></code>). It is possible to pass in the same arguments that these individual plots use, e.g. arguments to change the time period over which the data is averaged.</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
 <p><img src="exploring_the_simulation_results_files/figure-html/demo_summary_plot-1.png" width="700"></p>
 <p>The next section describes how to use what we have learned to <a href="a_multispecies_model_of_the_north_sea.html">model the North Sea.</a></p>

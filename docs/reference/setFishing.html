@@ -54,7 +54,11 @@
 
 <meta property="og:title" content="Set fishing parameters — setFishing" />
 <meta property="og:description" content="Set fishing parameters" />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 
@@ -86,7 +90,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
       </span>
     </div>
 
@@ -102,13 +106,13 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -207,15 +211,22 @@
   <span class='va'>params</span>,
   selectivity <span class='op'>=</span> <span class='cn'>NULL</span>,
   catchability <span class='op'>=</span> <span class='cn'>NULL</span>,
-  comment_selectivity <span class='op'>=</span> <span class='st'>"set manually"</span>,
-  comment_catchability <span class='op'>=</span> <span class='st'>"set manually"</span>,
+  reset <span class='op'>=</span> <span class='cn'>FALSE</span>,
   initial_effort <span class='op'>=</span> <span class='cn'>NULL</span>,
   <span class='va'>...</span>
 <span class='op'>)</span>
 
 <span class='fu'>getCatchability</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
 
+<span class='fu'>catchability</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>catchability</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span>
+
 <span class='fu'>getSelectivity</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>selectivity</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>selectivity</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span>
 
 <span class='fu'>getInitialEffort</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
 
@@ -237,18 +248,13 @@ selectivity of each gear for species and size, \(S_{g,i,w}\).</p></td>
 each species by each gear, \(Q_{g,i}\).</p></td>
     </tr>
     <tr>
-      <th>comment_selectivity</th>
+      <th>reset</th>
       <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
-A string describing how the value for 'selectivity' was obtained. This is
-ignored if 'selectivity' is not supplied or already has a comment
-attribute.</p></td>
-    </tr>
-    <tr>
-      <th>comment_catchability</th>
-      <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
-A string describing how the value for 'catchability' was obtained. This is
-ignored if 'catchability' is not supplied or already has a comment
-attribute.</p></td>
+If set to TRUE, then both <code>catchability</code> and <code>selectivity</code> will
+be reset to the values calculated from the gear parameters, even if it was
+previously overwritten with a custom value. If set to FALSE (default) then
+a recalculation from the gear parameters will take place only if no custom
+value has been set.</p></td>
     </tr>
     <tr>
       <th>initial_effort</th>
@@ -260,15 +266,24 @@ a vector, must be named by gear.</p></td>
       <th>...</th>
       <td><p>Unused</p></td>
     </tr>
+    <tr>
+      <th>value</th>
+      <td><p>.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>MizerParams object with updated catchability and selectivity. Because
-of the way the R language works, <code>setFishing()</code> does not make the changes
-to the params object that you pass to it but instead returns a new params
-object. So to affect the change you call the function in the form
-<code>params &lt;- setFishing(params, ...)</code>.</p>
+    <p><code>setFishing()</code>: A MizerParams object with updated fishing
+parameters.</p>
+<p><code>getCatchability()</code> or equivalently <code>catchability()</code>: An array (gear x species) that holds the catchability of
+each species by each gear, \(Q_{g,i}\).
+The names of the dimensions are "gear, "sp".</p>
+<p><code>getSelectivity()</code> or equivalently <code>selectivity()</code>: An array (gear x species x size) that holds
+the selectivity of each gear for species and size, \(S_{g,i,w}\).
+The names of the dimensions are "gear, "sp", "w".</p>
+<p><code>getInitialEffort()</code> or equivalently <code><a href='initial_effort.html'>initial_effort()</a></code>: A named vector with the initial fishing
+effort for each gear.</p>
     <h2 class="hasAnchor" id="setting-fishing"><a class="anchor" href="#setting-fishing"></a>Setting fishing</h2>
 
     
@@ -361,6 +376,22 @@ an effort that varies through time.</p>
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code>,
 <code><a href='species_params.html'>species_params</a>()</code></p></div>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='op'>(</span><span class='fu'>getCatchability</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  num [1:4, 1:12] 1 0 0 0 1 0 0 0 1 0 ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  - attr(*, "dimnames")=List of 2</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   ..$ gear: chr [1:4] "Industrial" "Pelagic" "Beam" "Otter"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   ..$ sp  : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='op'>(</span><span class='fu'>getSelectivity</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  num [1:4, 1:12, 1:100] 0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  - attr(*, "dimnames")=List of 3</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   ..$ gear: chr [1:4] "Industrial" "Pelagic" "Beam" "Otter"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   ..$ sp  : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   ..$ w   : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='op'>(</span><span class='fu'>getInitialEffort</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  Named num [1:4] 0 1 0.5 0.5</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  - attr(*, "names")= chr [1:4] "Industrial" "Pelagic" "Beam" "Otter"</span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

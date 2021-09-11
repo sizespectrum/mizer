@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Set line colours to be used in mizer plots — setColours • mizer</title>
+<title>Set line colours and line types to be used in mizer plots — setColours • mizer</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -52,11 +52,15 @@
 
 
 
-<meta property="og:title" content="Set line colours to be used in mizer plots — setColours" />
-<meta property="og:description" content="Colours for names that already had a colour set will be overwritten by
-the colour you specify. Colours for names that did not yet have a colour
-will be appended to the list of colours." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:title" content="Set line colours and line types to be used in mizer plots — setColours" />
+<meta property="og:description" content="
+Used for setting the colour and type of lines representing &quot;Total&quot;,
+&quot;Resource&quot;, &quot;Fishing&quot;, &quot;Background&quot; and possibly other categories in plots." />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 
@@ -88,7 +92,7 @@ will be appended to the list of colours." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
       </span>
     </div>
 
@@ -104,13 +108,13 @@ will be appended to the list of colours." />
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -196,20 +200,24 @@ will be appended to the list of colours." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Set line colours to be used in mizer plots</h1>
-    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
+    <h1>Set line colours and line types to be used in mizer plots</h1>
+    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/setColours.R'><code>R/setColours.R</code></a></small>
     <div class="hidden name"><code>setColours.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Colours for names that already had a colour set will be overwritten by
-the colour you specify. Colours for names that did not yet have a colour
-will be appended to the list of colours.</p>
+    <p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
+Used for setting the colour and type of lines representing "Total",
+"Resource", "Fishing", "Background" and possibly other categories in plots.</p>
     </div>
 
     <pre class="usage"><span class='fu'>setColours</span><span class='op'>(</span><span class='va'>params</span>, <span class='va'>colours</span><span class='op'>)</span>
 
-<span class='fu'>getColours</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
+<span class='fu'>getColours</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>setLinetypes</span><span class='op'>(</span><span class='va'>params</span>, <span class='va'>linetypes</span><span class='op'>)</span>
+
+<span class='fu'>getLinetypes</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -222,24 +230,53 @@ will be appended to the list of colours.</p>
       <th>colours</th>
       <td><p>A named list or named vector of line colours.</p></td>
     </tr>
+    <tr>
+      <th>linetypes</th>
+      <td><p>A named list or named vector of linetypes.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The MizerParams object with updated line colours</p>
+    <p><code>setColours</code>: The MizerParams object with updated line colours</p>
+<p><code>getColours()</code>: A named vector of colours</p>
+<p><code>setLinetypes()</code>: The MizerParams object with updated linetypes</p>
+<p><code>getLinetypes()</code>: A named vector of linetypes</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Colours for names that already had a colour set for them will be overwritten
+by the colour you specify. Colours for names that did not yet have a colour
+will be appended to the list of colours.</p>
+<p>Do not use this for setting the colours or linetypes of species, because
+those are determined by setting the <code>linecolour</code> and <code>linetype</code> variables in
+the species parameter data frame.</p>
+<p>You can use the same colours in your own ggplot2 plots by adding
+<code>scale_colour_manual(values = getColours(params))</code> to your plot. Similarly
+you can use the linetypes with
+<code>scale_linetype_manual(values = getLinetypes(params))</code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='va'>NS_params</span></span>
-<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setColours</span><span class='op'>(</span><span class='va'>params</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='st'>"Cod"</span> <span class='op'>=</span> <span class='st'>"red"</span>, <span class='st'>"Haddock"</span> <span class='op'>=</span> <span class='st'>"#00ff00"</span><span class='op'>)</span><span class='op'>)</span></span>
-<span class='r-in'><span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
+    <pre class="examples"><span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setColours</span><span class='op'>(</span><span class='va'>NS_params</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='st'>"Resource"</span> <span class='op'>=</span> <span class='st'>"red"</span>, <span class='st'>"Total"</span> <span class='op'>=</span> <span class='st'>"#0000ff"</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setLinetypes</span><span class='op'>(</span><span class='va'>NS_params</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='st'>"Total"</span> <span class='op'>=</span> <span class='st'>"dotted"</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># Set colours and linetypes for species</span></span>
+<span class='r-in'><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span><span class='st'>"Cod"</span>, <span class='st'>"linecolour"</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='st'>"black"</span></span>
+<span class='r-in'><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span><span class='st'>"Cod"</span>, <span class='st'>"linetype"</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='st'>"dashed"</span></span>
+<span class='r-in'><span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span><span class='op'>(</span><span class='va'>params</span>, total <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
 <span class='r-plt'><img src='setColours-1.png' alt='' width='700' height='433' /></span>
 <span class='r-in'><span class='fu'>getColours</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>      Sprat    Sandeel     N.pout    Herring        Dab    Whiting       Sole </span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>  "#E69F00"  "#56B4E9"  "#009E73"  "#F0E442"  "#0072B2"  "#D55E00"  "#CC79A7" </span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>    Gurnard     Plaice    Haddock        Cod     Saithe      Total   Resource </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  "#E69F00"  "#56B4E9"  "#00ff00"      "red"  "#0072B2"    "black"    "green" </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  "#E69F00"  "#56B4E9"  "#009E73"    "black"  "#0072B2"    "black"    "green" </span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> Background </span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>     "grey" </span>
+<span class='r-in'><span class='fu'>getLinetypes</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>      Sprat    Sandeel     N.pout    Herring        Dab    Whiting       Sole </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>    "solid"    "solid"    "solid"    "solid"    "solid"    "solid"    "solid" </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>    Gurnard     Plaice    Haddock        Cod     Saithe      Total   Resource </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>    "solid"    "solid"    "solid"   "dashed"    "solid"   "dotted"    "solid" </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Background </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>    "solid" </span>
 </pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

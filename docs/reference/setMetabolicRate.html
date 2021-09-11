@@ -54,7 +54,11 @@
 
 <meta property="og:title" content="Set metabolic rate — setMetabolicRate" />
 <meta property="og:description" content="Sets the rate at which energy is used for metabolism and activity" />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 
@@ -86,7 +90,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
       </span>
     </div>
 
@@ -102,13 +106,13 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -203,15 +207,13 @@
     <p>Sets the rate at which energy is used for metabolism and activity</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setMetabolicRate</span><span class='op'>(</span>
-  <span class='va'>params</span>,
-  metab <span class='op'>=</span> <span class='cn'>NULL</span>,
-  p <span class='op'>=</span> <span class='cn'>NULL</span>,
-  comment_metab <span class='op'>=</span> <span class='st'>"set manually"</span>,
-  <span class='va'>...</span>
-<span class='op'>)</span>
+    <pre class="usage"><span class='fu'>setMetabolicRate</span><span class='op'>(</span><span class='va'>params</span>, metab <span class='op'>=</span> <span class='cn'>NULL</span>, p <span class='op'>=</span> <span class='cn'>NULL</span>, reset <span class='op'>=</span> <span class='cn'>FALSE</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'>getMetabolicRate</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
+<span class='fu'>getMetabolicRate</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>metab</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>metab</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -233,25 +235,29 @@ is not given explicitly and if the exponent is not specified in a <code>p</code>
 column in the <code>species_params</code>.</p></td>
     </tr>
     <tr>
-      <th>comment_metab</th>
+      <th>reset</th>
       <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
-A string describing how the value for 'metab' was obtained. This is
-ignored if 'metab' is not supplied or already has a comment
-attribute.</p></td>
+If set to TRUE, then the metabolic rate will be reset to the
+value calculated from the species parameters, even if it was previously
+overwritten with a custom value. If set to FALSE (default) then a
+recalculation from the species parameters will take place only if no
+custom value has been set.</p></td>
     </tr>
     <tr>
       <th>...</th>
       <td><p>Unused</p></td>
     </tr>
+    <tr>
+      <th>value</th>
+      <td><p>metab</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>MizerParams object with updated metabolic rate. Because of the way
-the R language works, <code>setMetabolicRate()</code> does not make the changes to the
-params object that you pass to it but instead returns a new params object.
-So to affect the change you call the function in the form
-<code>params &lt;- setMetabolicRate(params, ...)</code>.</p>
+    <p><code>setMetabolicRate()</code>: A MizerParams object with updated metabolic rate.</p>
+<p><code>getMetabolicRate()</code> or equivalently <code>metab()</code>: An array
+(species x size) with the metabolic rate.</p>
     <h2 class="hasAnchor" id="setting-metabolic-rate"><a class="anchor" href="#setting-metabolic-rate"></a>Setting metabolic rate</h2>
 
     
@@ -261,13 +267,13 @@ the rate at which energy is available for growth and reproduction, see
 <code><a href='getEReproAndGrowth.html'>getEReproAndGrowth()</a></code>. It is measured in grams/year.</p>
 <p>If the <code>metab</code> argument is not supplied, then for each species the
 metabolic rate \(k(w)\) for an individual of size \(w\) is set to
-$$k(w) = ks w^p + k w,$$
-where \(ks w^p\) represents the rate of standard metabolism and \(k w\)
+$$k(w) = k_s w^p + k w,$$
+where \(k_s w^p\) represents the rate of standard metabolism and \(k w\)
 is the rate at which energy is expended on activity and movement. The values
-of \(ks\), \(p\) and \(k\) are taken from the <code>ks</code>, <code>p</code> and
+of \(k_s\), \(p\) and \(k\) are taken from the <code>ks</code>, <code>p</code> and
 <code>k</code> columns in the species parameter dataframe. If any of these
 parameters are not supplied, the defaults are \(k = 0\), \(p = n\) and
-$$ks = f_c h \alpha w_{mat}^{n-p},$$
+$$k_s = f_c h \alpha w_{mat}^{n-p},$$
 where \(f_c\) is the critical feeding level taken from the <code>fc</code> column
 in the species parameter data frame. If the critical feeding level is not
 specified, a default of \(f_c = 0.2\) is used.</p>

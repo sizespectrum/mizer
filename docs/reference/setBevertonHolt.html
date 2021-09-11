@@ -55,18 +55,20 @@
 <meta property="og:title" content="Set Beverton-Holt density dependence — setBevertonHolt" />
 <meta property="og:description" content="
 Takes a MizerParams object params with arbitrary density dependence and
-returns a MizerParams object with Beverton-Holt density-dependence with your
-chosen reproductive efficiency or your chosen maximal reproduction rate.
-If you have tuned your params object to describe a particular steady state,
-then setting the Beverton-Holt density dependence with this function will
-leave you with the exact same steady state, because it only allows you to
-choose among those Beverton-Holt reproduction curves that have the property
-that the energy invested into reproduction by the mature individuals leads to
-the reproduction rate that is required to maintain the given egg abundance.
-By specifying one of the parameters erepro, R_max or reproduction_level
+returns a MizerParams object with Beverton-Holt density-dependence in such a
+way that the energy invested into reproduction by the mature individuals
+leads to the reproduction rate that is required to maintain the given egg
+abundance. Hence if you have tuned your params object to describe a
+particular steady state, then setting the Beverton-Holt density dependence
+with this function will leave you with the exact same steady state. By
+specifying one of the parameters erepro, R_max or reproduction_level
 you pick the desired reproduction curve. More details of these parameters are
 provided below." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 
@@ -98,7 +100,7 @@ provided below." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
       </span>
     </div>
 
@@ -114,13 +116,13 @@ provided below." />
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -214,15 +216,13 @@ provided below." />
     <div class="ref-description">
     <p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
 Takes a MizerParams object <code>params</code> with arbitrary density dependence and
-returns a MizerParams object with Beverton-Holt density-dependence with your
-chosen reproductive efficiency or your chosen maximal reproduction rate.
-If you have tuned your <code>params</code> object to describe a particular steady state,
-then setting the Beverton-Holt density dependence with this function will
-leave you with the exact same steady state, because it only allows you to
-choose among those Beverton-Holt reproduction curves that have the property
-that the energy invested into reproduction by the mature individuals leads to
-the reproduction rate that is required to maintain the given egg abundance.
-By specifying one of the parameters <code>erepro</code>, <code>R_max</code> or <code>reproduction_level</code>
+returns a MizerParams object with Beverton-Holt density-dependence in such a
+way that the energy invested into reproduction by the mature individuals
+leads to the reproduction rate that is required to maintain the given egg
+abundance. Hence if you have tuned your <code>params</code> object to describe a
+particular steady state, then setting the Beverton-Holt density dependence
+with this function will leave you with the exact same steady state. By
+specifying one of the parameters <code>erepro</code>, <code>R_max</code> or <code>reproduction_level</code>
 you pick the desired reproduction curve. More details of these parameters are
 provided below.</p>
     </div>
@@ -305,12 +305,17 @@ through that point. This parameter can be <code>erepro</code> or <code>R_max</co
 <code>R_max</code> you can alternatively specify the <code>reproduction_level</code> which is the
 ratio between the density-dependent reproduction rate \(R_{dd}\) and
 the maximal reproduction rate  \(R_{max}\).</p>
-<p>The parameter you provide can be either a vector with one value for each
+<p>If you do not provide a value for any of the reproduction parameter
+arguments, then <code>erepro</code> will be set to the value it has in the current
+species parameter data frame. If you do provide one of the reproduction
+parameters, this can be either a vector with one value for each
 species, or a named vector where the names determine which species are
 affected, or a single unnamed value that is then used for all species. Any
 species for which the given value is <code>NA</code> will remain unaffected.</p>
 <p>The values for <code>R_max</code> must be larger than \(R_{dd}\) and can range
-up to <code>Inf</code>. The values for the <code>reproduction_level</code> must be positive and
+up to <code>Inf</code>. If a smaller value is requested a warning is issued and the
+value is increased to the value required for a reproduction level of 0.99.</p>
+<p>The values for the <code>reproduction_level</code> must be positive and
 less than 1. The values for <code>erepro</code> must be large enough to allow the
 required reproduction rate. If a smaller value is requested a warning is
 issued and the value is increased to the smallest possible value. The values
@@ -329,7 +334,7 @@ fishing, leading to a higher F_MSY.</p>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>  [1] 1 1 1 1 1 1 1 1 1 1 1 1</span>
 <span class='r-in'><span class='co'># Attempting to set the same erepro for all species</span></span>
 <span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>setBevertonHolt</span><span class='op'>(</span><span class='va'>params</span>, erepro <span class='op'>=</span> <span class='fl'>0.1</span><span class='op'>)</span></span>
-<span class='r-wrn co'><span class='r-pr'>#&gt;</span> <span class='warning'>Warning: </span>For the following species the requested `erepro` was too small and has been increased to the smallest possible value: Gurnard, Plaice</span>
+<span class='r-wrn co'><span class='r-pr'>#&gt;</span> <span class='warning'>Warning: </span>For the following species `erepro` has been increased to the smallest possible value: erepro[Gurnard] = 0.558; erepro[Plaice] = 0.921</span>
 <span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span><span class='op'>(</span><span class='fu'><a href='species_params.html'>species_params</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"erepro"</span>, <span class='st'>"R_max"</span><span class='op'>)</span><span class='op'>]</span><span class='op'>)</span></span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>               Sprat      Sandeel       N.pout      Herring          Dab</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> erepro 1.000000e-01 1.000000e-01 1.000000e-01 1.000000e-01 1.000000e-01</span>

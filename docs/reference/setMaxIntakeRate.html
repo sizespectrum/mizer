@@ -54,7 +54,11 @@
 
 <meta property="og:title" content="Set maximum intake rate — setMaxIntakeRate" />
 <meta property="og:description" content="Set maximum intake rate" />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 
@@ -86,7 +90,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
       </span>
     </div>
 
@@ -102,13 +106,13 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -203,14 +207,13 @@
     <p>Set maximum intake rate</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setMaxIntakeRate</span><span class='op'>(</span>
-  <span class='va'>params</span>,
-  intake_max <span class='op'>=</span> <span class='cn'>NULL</span>,
-  comment_intake_max <span class='op'>=</span> <span class='st'>"set manually"</span>,
-  <span class='va'>...</span>
-<span class='op'>)</span>
+    <pre class="usage"><span class='fu'>setMaxIntakeRate</span><span class='op'>(</span><span class='va'>params</span>, intake_max <span class='op'>=</span> <span class='cn'>NULL</span>, reset <span class='op'>=</span> <span class='cn'>FALSE</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'>getMaxIntakeRate</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></pre>
+<span class='fu'>getMaxIntakeRate</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>intake_max</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+
+<span class='fu'>intake_max</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='va'>value</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -226,25 +229,30 @@ intake rate for each species at size. If not supplied, a default is set as
 described in the section "Setting maximum intake rate".</p></td>
     </tr>
     <tr>
-      <th>comment_intake_max</th>
+      <th>reset</th>
       <td><p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a>
-A string describing how the value for 'intake_max' was obtained. This is
-ignored if 'intake_max' is not supplied or already has a comment
-attribute.</p></td>
+If set to TRUE, then the intake rate will be reset to the value
+calculated from the species parameters, even if it was previously
+overwritten with a custom value. If set to FALSE (default) then a
+recalculation from the species parameters will take place only if no
+custom value has been set.</p></td>
     </tr>
     <tr>
       <th>...</th>
       <td><p>Unused</p></td>
     </tr>
+    <tr>
+      <th>value</th>
+      <td><p>intake_max</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A <code>MizerParams</code> object with updated maximum intake rate. Because
-of the way the R language works, <code>setMaxIntakeRate()</code> does not make the
-changes to the params object that you pass to it but instead returns a new
-params object. So to affect the change you call the function in the form
-<code>params &lt;- setMaxIntakeRate(params, ...)</code>.</p>
+    <p><code><a href='setReproduction.html'>setReproduction()</a></code>: A MizerParams object with updated maximum
+intake rate.</p>
+<p><code>getMaxIntakeRate()</code> or equivalently <code>intake_max()</code>: An array
+(species x size) with the maximum intake rate.</p>
     <h2 class="hasAnchor" id="setting-maximum-intake-rate"><a class="anchor" href="#setting-maximum-intake-rate"></a>Setting maximum intake rate</h2>
 
     
@@ -258,9 +266,9 @@ The values of \(h_i\) (the maximum intake rate of an individual of size 1
 gram) and \(n_i\) (the allometric exponent for the intake rate) are taken
 from the <code>h</code> and <code>n</code> columns in the species parameter dataframe. If
 the <code>h</code> column is not supplied in the species parameter dataframe, it is
-calculated by the <code><a href='get_h_default.html'>get_h_default()</a></code> function, using <code>f0</code> and
+calculated by the <code><a href='get_h_default.html'>get_h_default()</a></code> function, using the <code>f0</code> and
 the <code>k_vb</code> column, if they are supplied.</p>
-<p>If \(h_i\) is set to <code>Inf</code>, fish will consume all encountered food.</p>
+<p>If \(h_i\) is set to <code>Inf</code>, fish of species i will consume all encountered food.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for setting parameters: 

@@ -53,14 +53,19 @@
 
 
 <meta property="og:title" content="Resource parameters — resource_params" />
-<meta property="og:description" content="These functions allow you to get or set the resource parameters stored in
-a MizerParams object.
-The resource parameters are stored as a named list with the slot names
-r_pp, kappa, lambda, n, w_pp_cutoff. For their meaning see
-setResource(). If you change these parameters then this will
-recalculate the resource rate and the resource capacity, unless you have
-protected these with comments." />
-<meta property="og:image" content="https://sizespectrum.org/mizer/logo.png" />
+<meta property="og:description" content="These functions allow you to get or set the resource parameters stored in a
+MizerParams object. The resource parameters are stored as a named list with
+the slot names r_pp, kappa, lambda, n, w_pp_cutoff. For their
+meaning see Details below. If you change these parameters then this will
+recalculate the resource rate and the resource capacity, unless you have set
+custom values for these. If you have specified a different resource dynamics
+function that requires additional parameters, then these should also be added
+to the resource_params list." />
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@mizer_model" />
+<meta name="twitter:site" content="@mizer_model" />
 
 
 
@@ -92,7 +97,7 @@ protected these with comments." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
       </span>
     </div>
 
@@ -108,13 +113,13 @@ protected these with comments." />
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tutorials</li>
     <li>
       <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
     </li>
     <li>
       <a href="../articles/community_model.html">The Community Model</a>
@@ -206,13 +211,14 @@ protected these with comments." />
     </div>
 
     <div class="ref-description">
-    <p>These functions allow you to get or set the resource parameters stored in
-a MizerParams object.
-The resource parameters are stored as a named list with the slot names
-<code>r_pp</code>, <code>kappa</code>, <code>lambda</code>, <code>n</code>, <code>w_pp_cutoff</code>. For their meaning see
-<code><a href='setResource.html'>setResource()</a></code>. If you change these parameters then this will
-recalculate the resource rate and the resource capacity, unless you have
-protected these with comments.</p>
+    <p>These functions allow you to get or set the resource parameters stored in a
+MizerParams object. The resource parameters are stored as a named list with
+the slot names <code>r_pp</code>, <code>kappa</code>, <code>lambda</code>, <code>n</code>, <code>w_pp_cutoff</code>. For their
+meaning see Details below. If you change these parameters then this will
+recalculate the resource rate and the resource capacity, unless you have set
+custom values for these. If you have specified a different resource dynamics
+function that requires additional parameters, then these should also be added
+to the <code>resource_params</code> list.</p>
     </div>
 
     <pre class="usage"><span class='fu'>resource_params</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
@@ -232,6 +238,23 @@ protected these with comments.</p>
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The resource parameters <code>r_pp</code> and <code>n</code> are used to set the intrinsic
+replenishment rate \(r_R(w)\) for the resource at size \(w\) to
+$$r_R(w) = r_{pp}\, w^{n-1}.$$</p>
+<p>The resource parameters <code>kappa</code>, <code>lambda</code> and <code>w_pp_cutoff</code> are used to set
+the intrinsic resource carrying capacity capacity \(c_R(w)\) at size \(w\)
+is set to
+$$c_R(w) = \kappa\, w^{-\lambda}$$
+for all \(w\) less than <code>w_pp_cutoff</code> and zero for larger sizes.</p>
+<p>If you use the default semichemostat dynamics for the resource then these
+rates enter the equation for the resource abundance density as
+$$\frac{\partial N_R(w,t)}{\partial t} = r_R(w) \Big[ c_R (w) - N_R(w,t) \Big] - \mu_R(w, t) N_R(w,t)$$
+where the mortality \(\mu_R(w, t)\) is
+due to predation by consumers and is calculate with <code><a href='getResourceMort.html'>getResourceMort()</a></code>.</p>
+<p>You can however set up different resource dynamics with
+<code><a href='setResource.html'>resource_dynamics&lt;-()</a></code>.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for setting parameters: 
@@ -249,6 +272,27 @@ protected these with comments.</p>
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code>,
 <code><a href='species_params.html'>species_params</a>()</code></p></div>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='r-in'><span class='fu'>resource_params</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> $kappa</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] 1e+11</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> $lambda</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] 2.133333</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> $r_pp</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] 10</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> $n</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] 0.6666667</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> $w_pp_cutoff</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] 9.820907</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-in'><span class='co'># Doubling the replenishment rate</span></span>
+<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='va'>NS_params</span></span>
+<span class='r-in'><span class='fu'>resource_params</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>r_pp</span> <span class='op'>&lt;-</span> <span class='fl'>2</span> <span class='op'>*</span> <span class='fu'>resource_params</span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span><span class='op'>$</span><span class='va'>r_pp</span></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
