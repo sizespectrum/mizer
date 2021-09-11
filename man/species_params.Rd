@@ -46,7 +46,7 @@ using other predation kernel functions.
 }
 
 When you change one of the above species parameters in an already existing
-MizerParams object using \link[=`species_params<-`]{\verb{species_params<-}()}, the new value will be
+MizerParams object using \code{\link[=species_params<-]{species_params<-()}}, the new value will be
 used to update the corresponding size-dependent rates automatically, unless
 you have set those size-dependent rates manually, in which case the
 corresponding species parameters will be ignored.
