@@ -96,7 +96,7 @@ test_that("Comment works on resource_rate", {
 })
 
 test_that("Comment works on resource_capacity", {
-  params <- NS_params
+  params <- setResource(NS_params)
   # if no comment, it is set automatically
   resource_capacity <- params@cc_pp
   params <- setResource(params, resource_capacity = resource_capacity)
