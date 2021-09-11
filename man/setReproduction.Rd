@@ -108,7 +108,7 @@ specifies the weight at which 25\% of individuals are mature, which sets
 The sigmoidal function given above would strictly reach 1 only asymptotically.
 Mizer instead sets the function equal to 1 already at the species'
 maximum size, taken from the compulsory \code{w_inf} column in the
-\code{species_params} data frame. Also, for computational simplicity, any
+species parameter data frame. Also, for computational simplicity, any
 proportion smaller than \code{1e-8} is set to \code{0}.
 }
 
@@ -124,10 +124,11 @@ reproduction for mature individuals. By default it is chosen to be
 \eqn{m = 1} so that the rate at which energy is invested into reproduction
 scales linearly with the size. This default can be overridden by including a
 column \code{m} in the species parameter dataframe. The asymptotic sizes
-are taken from the compulsory \code{w_inf} column in the species_params
+are taken from the compulsory \code{w_inf} column in the species parameter
 data frame.
 
-So finally we have
+The total proportion of energy invested into reproduction of an individual
+of size \eqn{w} is then
 \deqn{\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)}{psi(w) = maturity(w) * repro_prop(w)}
 }
 

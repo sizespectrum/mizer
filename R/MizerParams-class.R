@@ -444,7 +444,8 @@ remove(validMizerParams)
 #' A size grid is created so that
 #' the log-sizes are equally spaced. The spacing is chosen so that there will be
 #' `no_w` fish size bins, with the smallest starting at `min_w` and the largest
-#' starting at `max_w`. For `w_full` additional size bins are added below
+#' starting at `max_w`. For the resource spectrum there is a larger set of
+#' bins containing additional bins below
 #' `min_w`, with the same log size. The number of extra bins is such that
 #' `min_w_pp` comes to lie within the smallest bin. 
 #' 

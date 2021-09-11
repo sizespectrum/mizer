@@ -1,6 +1,10 @@
 #' Set species interaction matrix
 #'
-#' @section Setting interactions:
+#' @section Setting interaction matrix:
+#' 
+#' You do not need to specify an interaction matrix. If you do not, then the
+#' predator-prey interactions are purely determined by the size of predator
+#' and prey and totally independent of the species of predator and prey.
 #' 
 #' The interaction matrix \eqn{\theta_{ij}} describes the interaction of each
 #' pair of species in the model. This can be viewed as a proxy for spatial
@@ -20,8 +24,7 @@
 #' interactions are determined entirely by size-preference.
 #' 
 #' This function checks that the supplied interaction matrix is valid and then
-#' stores it in the `interaction` slot of the params object before returning
-#' that object.
+#' stores it in the `interaction` slot of the `params` object.
 #'
 #' The order of the columns and rows of the `interaction` argument should be the
 #' same as the order in the species params data frame in the `params` object. If

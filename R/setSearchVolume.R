@@ -9,7 +9,7 @@
 #' The name "search volume" is a bit misleading, because \eqn{\gamma_i(w)} does
 #' not have units of volume. It is simply a parameter that determines the rate
 #' of predation. Its units depend on your choice, see section "Units in mizer".
-#' If you have chose to work with total abundances, then it is a rate with units
+#' If you have chosen to work with total abundances, then it is a rate with units
 #' 1/year. If you have chosen to work with abundances per m^2 then it has units
 #' of m^2/year. If you have chosen to work with abundances per m^3 then it has
 #' units of m^3/year.

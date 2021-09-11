@@ -2,10 +2,9 @@
 #'
 #' Sets up a multi-species size spectrum model by filling all slots in the
 #' \linkS4class{MizerParams} object based on user-provided or default
-#' parameters. It does this by creating an empty MizerParams object with
-#' [emptyParams()] and then filling the slots by passing its arguments
-#' to [setParams()]. There is a long list of arguments, but almost
-#' all of them have sensible default values. All arguments are described in more
+#' parameters. There is a long list of arguments, but almost
+#' all of them have sensible default values. The only required argument is
+#' the `species_params` data frame. All arguments are described in more
 #' details in the sections below the list.
 #' 
 #' @inheritParams emptyParams
@@ -36,7 +35,8 @@
 #' There are two essential columns that must be included in the species
 #' parameter data.frame and that do not have default values: the 
 #' `species` column that should hold strings with the names of the
-#' species and the `w_inf` column with the asymptotic sizes of the species. 
+#' species and the `w_inf` column with the asymptotic sizes of the species
+#' in grams. 
 #' 
 #' The species_params dataframe also needs to contain the parameters needed
 #' by any predation kernel function or size selectivity function. This will
@@ -47,12 +47,14 @@
 #' automatically added when the `MizerParams` object is created. For these
 #' parameters you can also specify values for only some species and leave the
 #' other entries as NA and the missing values will be set to the defaults.
+#' So the `species_params` data frame saved in the returned MizerParams object
+#' will differ from the one you supply because it will have the missing 
+#' species parameters filled in with default values.
 #' 
 #' If you are not happy with any of the species parameter values used you can
 #' always change them later with [species_params<-()].
 #' 
 #' All the parameters will be mentioned in the following sections.
-#' @inheritSection emptyParams Changes to species params
 #' @inheritSection emptyParams Size grid
 #' @inheritSection setParams Units in mizer
 #' @inheritSection setInteraction Setting interactions
@@ -68,9 +70,7 @@
 #' @export
 #' @family functions for setting up models
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, NS_interaction)
-#' }
+#' params <- newMultispeciesParams(NS_species_params)
 newMultispeciesParams <- function(
     species_params,
     interaction = NULL,
@@ -267,19 +267,20 @@ newMultispeciesParams <- function(
 #' the parameters. This will be mentioned when the parameters are discussed in
 #' the sections below.
 #' 
-#' You choice will also affect the units of the quantities you may want to
+#' Your choice will also affect the units of the quantities you may want to
 #' calculate with the model. For example, the yield will be in grams/year/m^2 in
 #' case 1 if you choose m^2 as your measure of area, in grams/year/m^3 in case 2
 #' if you choose m^3 as your unit of volume, or simply grams/year in case 3. The
 #' same comment applies for other measures, like total biomass, which will be
 #' grams/area in case 1, grams/volume in case 2 or simply grams in case 3. When
-#' mizer puts units on axes, for example in `plotBiomass`, it will simply
-#' put grams, as appropriate for case 3.
+#' mizer puts units on axes in plots, it will choose the units appropriate for
+#' case 3. So for example in [plotBiomass()] it gives the unit as grams.
 #' 
 #' You can convert between these choices. For example, if you use case 1, you
 #' need to multiply with the area of the ecosystem to get the total quantity. 
 #' If you work with case 2, you need to multiply by both area and the thickness 
-#' of the productive layer. In that respect, case 2 is a bit cumbersome.
+#' of the productive layer. In that respect, case 2 is a bit cumbersome. The
+#' function [scaleModel()] is useful to change the units you are using.
 #' 
 #' @inheritSection setInteraction Setting interactions
 #' @inheritSection setPredKernel Setting predation kernel

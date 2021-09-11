@@ -43,7 +43,8 @@ function is to be used by other functions to set up full parameter objects.
 A size grid is created so that
 the log-sizes are equally spaced. The spacing is chosen so that there will be
 \code{no_w} fish size bins, with the smallest starting at \code{min_w} and the largest
-starting at \code{max_w}. For \code{w_full} additional size bins are added below
+starting at \code{max_w}. For the resource spectrum there is a larger set of
+bins containing additional bins below
 \code{min_w}, with the same log size. The number of extra bins is such that
 \code{min_w_pp} comes to lie within the smallest bin.
 }

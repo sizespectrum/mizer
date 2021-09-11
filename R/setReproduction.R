@@ -34,7 +34,7 @@
 #' The sigmoidal function given above would strictly reach 1 only asymptotically.
 #' Mizer instead sets the function equal to 1 already at the species' 
 #' maximum size, taken from the compulsory `w_inf` column in the
-#' `species_params` data frame. Also, for computational simplicity, any 
+#' species parameter data frame. Also, for computational simplicity, any 
 #' proportion smaller than `1e-8` is set to `0`.
 #' }
 #' 
@@ -50,10 +50,11 @@
 #' \eqn{m = 1} so that the rate at which energy is invested into reproduction 
 #' scales linearly with the size. This default can be overridden by including a 
 #' column `m` in the species parameter dataframe. The asymptotic sizes
-#' are taken from the compulsory `w_inf` column in the species_params
+#' are taken from the compulsory `w_inf` column in the species parameter
 #' data frame.
 #' 
-#' So finally we have
+#' The total proportion of energy invested into reproduction of an individual
+#' of size \eqn{w} is then
 #' \deqn{\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)}{psi(w) = maturity(w) * repro_prop(w)}
 #' }
 #' 

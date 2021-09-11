@@ -58,7 +58,7 @@ predation kernel that depends only on the ratio of predator mass to prey
 mass, not on the two masses independently. The shape of that kernel is then
 determined by the \code{pred_kernel_type} column in species_params.
 
-The default pred_kernel_type is "lognormal". This will call the function
+The default for \code{pred_kernel_type} is "lognormal". This will call the function
 \code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}} to calculate the predation kernel.
 An alternative pred_kernel type is "box", implemented by the function
 \code{\link[=box_pred_kernel]{box_pred_kernel()}}, and "power_law", implemented by the function
@@ -70,9 +70,9 @@ functions. Except for \code{beta} and \code{sigma}, no defaults are set for
 these parameters. If they are missing from the species_params data frame then
 mizer will issue an error message.
 
-You can use any other string as the type. If for example you choose "my" then
-you need to define a function \code{my_pred_kernel} that you can model on the
-existing functions like \code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}}.
+You can use any other string for \code{pred_kernel_type}. If for example you
+choose "my" then you need to define a function \code{my_pred_kernel} that you can
+model on the existing functions like \code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}}.
 
 When using a kernel that depends on the predator/prey size ratio only, mizer
 does not need to store the entire three dimensional array in the MizerParams

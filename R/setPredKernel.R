@@ -16,7 +16,7 @@
 #' mass, not on the two masses independently. The shape of that kernel is then
 #' determined by the `pred_kernel_type` column in species_params.
 #'
-#' The default pred_kernel_type is "lognormal". This will call the function
+#' The default for `pred_kernel_type` is "lognormal". This will call the function
 #' [lognormal_pred_kernel()] to calculate the predation kernel.
 #' An alternative pred_kernel type is "box", implemented by the function
 #' [box_pred_kernel()], and "power_law", implemented by the function
@@ -28,9 +28,9 @@
 #' these parameters. If they are missing from the species_params data frame then
 #' mizer will issue an error message.
 #'
-#' You can use any other string as the type. If for example you choose "my" then
-#' you need to define a function `my_pred_kernel` that you can model on the
-#' existing functions like [lognormal_pred_kernel()].
+#' You can use any other string for `pred_kernel_type`. If for example you
+#' choose "my" then you need to define a function `my_pred_kernel` that you can
+#' model on the existing functions like [lognormal_pred_kernel()].
 #' 
 #' When using a kernel that depends on the predator/prey size ratio only, mizer
 #' does not need to store the entire three dimensional array in the MizerParams
