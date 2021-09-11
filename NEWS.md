@@ -35,7 +35,7 @@
 * Our website is now using the nice new mizer logo designed by Kira Askaroff
   (www.kiraaskaroff.com)
 * There is a new mizer extension package 
-  [mizerMR](https://sizespectrum.org/mizerMR)
+  [mizerMR](https://sizespectrum.org/mizerMR/)
   allowing you to include multiple resource spectra in your model.
 
 ## Small improvements
