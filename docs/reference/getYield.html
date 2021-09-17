@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Calculate the yearly yield for each species — getYield • mizer</title>
+<title>Calculate the rate at which biomass of each species is fished — getYield • mizer</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -52,9 +52,9 @@
 
 
 
-<meta property="og:title" content="Calculate the yearly yield for each species — getYield" />
-<meta property="og:description" content="Calculates the yearly yield (biomass fished per year) for each species
-across all gears at each simulation time step." />
+<meta property="og:title" content="Calculate the rate at which biomass of each species is fished — getYield" />
+<meta property="og:description" content="This yield rate is given in grams per year. It is calculated at each time
+step saved in the MizerSim object." />
 <meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png" />
 <meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R" />
 <meta name="twitter:card" content="summary" />
@@ -199,14 +199,14 @@ across all gears at each simulation time step." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Calculate the yearly yield for each species</h1>
+    <h1>Calculate the rate at which biomass of each species is fished</h1>
     <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/summary_methods.R'><code>R/summary_methods.R</code></a></small>
     <div class="hidden name"><code>getYield.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Calculates the yearly yield (biomass fished per year) for each species
-across all gears at each simulation time step.</p>
+    <p>This yield rate is given in grams per year. It is calculated at each time
+step saved in the MizerSim object.</p>
     </div>
 
     <pre class="usage"><span class='fu'>getYield</span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span></pre>
@@ -222,8 +222,28 @@ across all gears at each simulation time step.</p>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An array (time x species) containing the total yearly yield in
-grams.</p>
+    <p>An array (time x species) containing the yield rate in grams per
+year.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The yield rate \(y_i(t)\) for species \(i\) at time \(t\) is defined as
+$$y_i(t)=\int\mu_{f.i}(w, t)N_i(w, t)w dw$$
+where \(\mu_{f.i}(w, t)\) is the fishing mortality of an individual of
+species \(i\) and weight \(w\) at time \(t\) and \(N_i(w, t)\) is the
+abundance density of such individuals.  The factor of \(w\) converts the
+abundance density into a biomass density and the integral aggregates the
+contribution from all sizes.</p>
+<p>The total catch in a time period from \(t_1\) to  \(t_2\) is the integral
+of the yield rate over that period:
+$$C = \int_{t_1}^{t2}y_i(t)dt$$
+In practice, as the yield rate is only available
+at the saved times, one can only approximate this integral by averaging over
+the available yield rates during the time period and multiplying by the time
+period. The less the yield changes between the saved values, the more
+accurate this approximation is. So the approximation can be improved by
+saving simulation results at smaller intervals, using the <code>t_save</code> argument
+to <code><a href='project.html'>project()</a></code>. But this is only a concern if abundances change quickly
+during the time period of interest.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='getYieldGear.html'>getYieldGear()</a></code></p>
@@ -236,13 +256,24 @@ grams.</p>
 <code><a href='getYieldGear.html'>getYieldGear</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='r-in'><span class='va'>yield</span> <span class='op'>&lt;-</span> <span class='fu'>getYield</span><span class='op'>(</span><span class='va'>NS_sim</span><span class='op'>)</span></span>
-<span class='r-in'><span class='va'>yield</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"1972"</span>, <span class='st'>"2010"</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Herring"</span>, <span class='st'>"Cod"</span><span class='op'>)</span><span class='op'>]</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>       sp</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> time       Herring          Cod</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   1972 80002050975 355351719122</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   2010 30496241734 289022888045</span>
-</pre>
+    <pre class="examples"><div class='input'><span class='va'>yield</span> <span class='op'>&lt;-</span> <span class='fu'>getYield</span><span class='op'>(</span><span class='va'>NS_sim</span><span class='op'>)</span>
+<span class='va'>yield</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"1972"</span>, <span class='st'>"2010"</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Herring"</span>, <span class='st'>"Cod"</span><span class='op'>)</span><span class='op'>]</span>
+</div><div class='output co'>#&gt;       sp
+#&gt; time       Herring          Cod
+#&gt;   1972 80002050975 355351719122
+#&gt;   2010 30496241734 289022888045</div><div class='input'>
+<span class='co'># Running simulation for another year, saving intermediate time steps</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='setInitialValues.html'>setInitialValues</a></span><span class='op'>(</span><span class='fu'><a href='getParams.html'>getParams</a></span><span class='op'>(</span><span class='va'>NS_sim</span><span class='op'>)</span>, <span class='va'>NS_sim</span><span class='op'>)</span>
+<span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span><span class='op'>(</span><span class='va'>params</span>, t_save <span class='op'>=</span> <span class='fl'>0.1</span>, t_max <span class='op'>=</span> <span class='fl'>1</span>, 
+               t_start <span class='op'>=</span> <span class='fl'>2010</span>, progress_bar <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+<span class='co'># The yield rate for Herring decreases during the year</span>
+<span class='fu'>getYield</span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>[</span>, <span class='st'>"Herring"</span><span class='op'>]</span>
+</div><div class='output co'>#&gt;        2010      2010.1      2010.2      2010.3      2010.4      2010.5 
+#&gt; 30496241734 30406503779 30297907652 30173956406 30038604629 29896229522 
+#&gt;      2010.6      2010.7      2010.8      2010.9        2011 
+#&gt; 29751183405 29607379160 29468046935 29335685116 29212159486 </div><div class='input'><span class='co'># We get the total catch in the year by averaging over the year</span>
+<span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='fu'>getYield</span><span class='op'>(</span><span class='va'>sim</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>10</span>, <span class='st'>"Herring"</span><span class='op'>]</span> <span class='op'>/</span> <span class='fl'>10</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] 29947173834</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

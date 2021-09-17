@@ -247,15 +247,18 @@ getN <- function(sim, ...) {
 }
 
 
-#' Calculate the yearly yield per gear and species
+#' Calculate the rate at which biomass of each species is fished by each gear
 #'
-#' Calculates the yearly yield (biomass fished per year) per gear and species at
-#' each simulation time step.
+#' This yield rate is given in grams per year. It is calculated at each time
+#' step saved in the MizerSim object. 
+#' 
+#' For details of how the yield rate is defined see the help page of
+#' [getYield()].
 #'
 #' @param sim An object of class `MizerSim`.
 #'
-#' @return An array (time x gear x species) containing the yearly yield in
-#'   grams.
+#' @return An array (time x gear x species) containing the yield rate in
+#'   grams per year.
 #' @export
 #' @family summary functions
 #' @concept summary_function
@@ -274,15 +277,36 @@ getYieldGear <- function(sim) {
 }
 
 
-#' Calculate the yearly yield for each species
+#' Calculate the rate at which biomass of each species is fished
 #'
-#' Calculates the yearly yield (biomass fished per year) for each species
-#' across all gears at each simulation time step.
+#' This yield rate is given in grams per year. It is calculated at each time
+#' step saved in the MizerSim object.
+#' 
+#' @details
+#' The yield rate \eqn{y_i(t)} for species \eqn{i} at time \eqn{t} is defined as
+#' \deqn{y_i(t)=\int\mu_{f.i}(w, t)N_i(w, t)w dw}
+#' where \eqn{\mu_{f.i}(w, t)} is the fishing mortality of an individual of
+#' species \eqn{i} and weight \eqn{w} at time \eqn{t} and \eqn{N_i(w, t)} is the
+#' abundance density of such individuals.  The factor of \eqn{w} converts the
+#' abundance density into a biomass density and the integral aggregates the
+#' contribution from all sizes.
+#' 
+#' The total catch in a time period from \eqn{t_1} to  \eqn{t_2} is the integral
+#' of the yield rate over that period:
+#' \deqn{C = \int_{t_1}^{t2}y_i(t)dt}
+#' In practice, as the yield rate is only available
+#' at the saved times, one can only approximate this integral by averaging over
+#' the available yield rates during the time period and multiplying by the time
+#' period. The less the yield changes between the saved values, the more
+#' accurate this approximation is. So the approximation can be improved by
+#' saving simulation results at smaller intervals, using the `t_save` argument
+#' to [project()]. But this is only a concern if abundances change quickly
+#' during the time period of interest.
 #'
 #' @param sim An object of class `MizerSim`.
 #'
-#' @return An array (time x species) containing the total yearly yield in 
-#' grams.
+#' @return An array (time x species) containing the yield rate in grams per 
+#'   year.
 #' @export
 #' @family summary functions
 #' @concept summary_function
@@ -290,6 +314,15 @@ getYieldGear <- function(sim) {
 #' @examples
 #' yield <- getYield(NS_sim)
 #' yield[c("1972", "2010"), c("Herring", "Cod")]
+#' 
+#' # Running simulation for another year, saving intermediate time steps
+#' params <- setInitialValues(getParams(NS_sim), NS_sim)
+#' sim <- project(params, t_save = 0.1, t_max = 1, 
+#'                t_start = 2010, progress_bar = FALSE)
+#' # The yield rate for Herring decreases during the year
+#' getYield(sim)[, "Herring"]
+#' # We get the total catch in the year by averaging over the year
+#' sum(getYield(sim)[1:10, "Herring"] / 10)
 getYield <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
