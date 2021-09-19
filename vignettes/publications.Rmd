@@ -12,6 +12,8 @@ output: html_document
 
 ## Publications using mizer
 
+* Benoit, D. M., Giacomini, H. C., Chu, C. & Jackson, D. A. Identifying influential parameters of a multi-species fish size spectrum model for a northern temperate lake through sensitivity analyses. Ecological Modelling 460, 109740 (2021).
+
 * Canales, T. M., Delius, G. W. & Law, R. Regulation of fish stocks without stock–recruitment relationships: The case of small pelagic fish. Fish and Fisheries 21, 857–871 (2020).
 
 * Wo, J. et al. Modeling the Dynamics of Multispecies Fisheries: A Case Study in the Coastal Water of North Yellow Sea, China. Front. Mar. Sci. 7, (2020).
