@@ -386,22 +386,21 @@ these as models for writing your own functions.</p>
 <code><a href='species_params.html'>species_params</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='r-in'><span class='co'># \donttest{</span></span>
-<span class='r-in'><span class='co'># Plot maturity and reproduction ogives for Cod in North Sea model</span></span>
-<span class='r-in'><span class='va'>maturity</span> <span class='op'>&lt;-</span> <span class='fu'>getMaturityProportion</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span><span class='op'>[</span><span class='st'>"Cod"</span>, <span class='op'>]</span></span>
-<span class='r-in'><span class='va'>repro_prop</span> <span class='op'>&lt;-</span> <span class='fu'>getReproductionProportion</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span><span class='op'>[</span><span class='st'>"Cod"</span>, <span class='op'>]</span></span>
-<span class='r-in'><span class='va'>df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>Size <span class='op'>=</span> <span class='fu'><a href='w.html'>w</a></span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span>, </span>
-<span class='r-in'>                 Reproduction <span class='op'>=</span> <span class='va'>repro_prop</span>, </span>
-<span class='r-in'>                 Maturity <span class='op'>=</span> <span class='va'>maturity</span>, </span>
-<span class='r-in'>                 Total <span class='op'>=</span> <span class='va'>maturity</span> <span class='op'>*</span> <span class='va'>repro_prop</span><span class='op'>)</span></span>
-<span class='r-in'><span class='va'>dff</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/reshape2/man/melt.html'>melt</a></span><span class='op'>(</span><span class='va'>df</span>, id.vars <span class='op'>=</span> <span class='st'>"Size"</span>, </span>
-<span class='r-in'>            variable.name <span class='op'>=</span> <span class='st'>"Type"</span>, </span>
-<span class='r-in'>            value.name <span class='op'>=</span> <span class='st'>"Proportion"</span><span class='op'>)</span></span>
-<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://ggplot2.tidyverse.org'>ggplot2</a></span><span class='op'>)</span></span>
-<span class='r-in'><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='va'>dff</span><span class='op'>)</span> <span class='op'>+</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>Size</span>, y <span class='op'>=</span> <span class='va'>Proportion</span>, colour <span class='op'>=</span> <span class='va'>Type</span><span class='op'>)</span><span class='op'>)</span></span>
-<span class='r-plt'><img src='setReproduction-1.png' alt='' width='700' height='433' /></span>
-<span class='r-in'><span class='co'># }</span></span>
-</pre>
+    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
+<span class='co'># Plot maturity and reproduction ogives for Cod in North Sea model</span>
+<span class='va'>maturity</span> <span class='op'>&lt;-</span> <span class='fu'>getMaturityProportion</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span><span class='op'>[</span><span class='st'>"Cod"</span>, <span class='op'>]</span>
+<span class='va'>repro_prop</span> <span class='op'>&lt;-</span> <span class='fu'>getReproductionProportion</span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span><span class='op'>[</span><span class='st'>"Cod"</span>, <span class='op'>]</span>
+<span class='va'>df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>Size <span class='op'>=</span> <span class='fu'><a href='w.html'>w</a></span><span class='op'>(</span><span class='va'>NS_params</span><span class='op'>)</span>, 
+                 Reproduction <span class='op'>=</span> <span class='va'>repro_prop</span>, 
+                 Maturity <span class='op'>=</span> <span class='va'>maturity</span>, 
+                 Total <span class='op'>=</span> <span class='va'>maturity</span> <span class='op'>*</span> <span class='va'>repro_prop</span><span class='op'>)</span>
+<span class='va'>dff</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/reshape2/man/melt.html'>melt</a></span><span class='op'>(</span><span class='va'>df</span>, id.vars <span class='op'>=</span> <span class='st'>"Size"</span>, 
+            variable.name <span class='op'>=</span> <span class='st'>"Type"</span>, 
+            value.name <span class='op'>=</span> <span class='st'>"Proportion"</span><span class='op'>)</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://ggplot2.tidyverse.org'>ggplot2</a></span><span class='op'>)</span>
+<span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='va'>dff</span><span class='op'>)</span> <span class='op'>+</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>Size</span>, y <span class='op'>=</span> <span class='va'>Proportion</span>, colour <span class='op'>=</span> <span class='va'>Type</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='img'><img src='setReproduction-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

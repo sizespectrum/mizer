@@ -268,37 +268,32 @@ coefficient of determination R^2.</p>
 <code><a href='getProportionOfLargeFish.html'>getProportionOfLargeFish</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='r-in'><span class='co'># Slope based on biomass, using all species and sizes</span></span>
-<span class='r-in'><span class='va'>slope_biomass</span> <span class='op'>&lt;-</span> <span class='fu'>getCommunitySlope</span><span class='op'>(</span><span class='va'>NS_sim</span><span class='op'>)</span></span>
-<span class='r-in'><span class='va'>slope_biomass</span><span class='op'>[</span><span class='fl'>1</span>, <span class='op'>]</span> <span class='co'># in 1976</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>          slope intercept        r2</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1967 -0.830658  25.43745 0.8878355</span>
-<span class='r-in'><span class='va'>slope_biomass</span><span class='op'>[</span><span class='fu'><a href='idxFinalT.html'>idxFinalT</a></span><span class='op'>(</span><span class='va'>NS_sim</span><span class='op'>)</span>, <span class='op'>]</span> <span class='co'># in 2010</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>           slope intercept       r2</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2010 -0.7925937  25.61399 0.935702</span>
-<span class='r-in'></span>
-<span class='r-in'><span class='co'># Slope based on numbers, using all species and sizes</span></span>
-<span class='r-in'><span class='va'>slope_numbers</span> <span class='op'>&lt;-</span> <span class='fu'>getCommunitySlope</span><span class='op'>(</span><span class='va'>NS_sim</span>, biomass <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></span>
-<span class='r-in'><span class='va'>slope_numbers</span><span class='op'>[</span><span class='fl'>1</span>, <span class='op'>]</span> <span class='co'># in 1976</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>          slope intercept        r2</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1967 -1.830658  25.43745 0.9746487</span>
-<span class='r-in'></span>
-<span class='r-in'><span class='co'># Slope based on biomass, using all species and sizes between 10g and 1000g</span></span>
-<span class='r-in'><span class='va'>slope_biomass</span> <span class='op'>&lt;-</span> <span class='fu'>getCommunitySlope</span><span class='op'>(</span><span class='va'>NS_sim</span>, min_w <span class='op'>=</span> <span class='fl'>10</span>, max_w <span class='op'>=</span> <span class='fl'>1000</span><span class='op'>)</span></span>
-<span class='r-in'><span class='va'>slope_biomass</span><span class='op'>[</span><span class='fl'>1</span>, <span class='op'>]</span> <span class='co'># in 1976</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>          slope intercept        r2</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1967 -1.526323  30.00691 0.9337066</span>
-<span class='r-in'></span>
-<span class='r-in'><span class='co'># Slope based on biomass, using only demersal species and </span></span>
-<span class='r-in'><span class='co'># sizes between 10g and 1000g</span></span>
-<span class='r-in'><span class='va'>dem_species</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Dab"</span>,<span class='st'>"Whiting"</span>, <span class='st'>"Sole"</span>, <span class='st'>"Gurnard"</span>, <span class='st'>"Plaice"</span>,</span>
-<span class='r-in'>                 <span class='st'>"Haddock"</span>, <span class='st'>"Cod"</span>, <span class='st'>"Saithe"</span><span class='op'>)</span></span>
-<span class='r-in'><span class='va'>slope_biomass</span> <span class='op'>&lt;-</span> <span class='fu'>getCommunitySlope</span><span class='op'>(</span><span class='va'>NS_sim</span>, species <span class='op'>=</span> <span class='va'>dem_species</span>, </span>
-<span class='r-in'>                                   min_w <span class='op'>=</span> <span class='fl'>10</span>, max_w <span class='op'>=</span> <span class='fl'>1000</span><span class='op'>)</span></span>
-<span class='r-in'><span class='va'>slope_biomass</span><span class='op'>[</span><span class='fl'>1</span>, <span class='op'>]</span> <span class='co'># in 1976</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>           slope intercept        r2</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1967 -0.9704957  26.69254 0.8095734</span>
-</pre>
+    <pre class="examples"><div class='input'><span class='co'># Slope based on biomass, using all species and sizes</span>
+<span class='va'>slope_biomass</span> <span class='op'>&lt;-</span> <span class='fu'>getCommunitySlope</span><span class='op'>(</span><span class='va'>NS_sim</span><span class='op'>)</span>
+<span class='va'>slope_biomass</span><span class='op'>[</span><span class='fl'>1</span>, <span class='op'>]</span> <span class='co'># in 1976</span>
+</div><div class='output co'>#&gt;          slope intercept        r2
+#&gt; 1967 -0.830658  25.43745 0.8878355</div><div class='input'><span class='va'>slope_biomass</span><span class='op'>[</span><span class='fu'><a href='idxFinalT.html'>idxFinalT</a></span><span class='op'>(</span><span class='va'>NS_sim</span><span class='op'>)</span>, <span class='op'>]</span> <span class='co'># in 2010</span>
+</div><div class='output co'>#&gt;           slope intercept       r2
+#&gt; 2010 -0.7925937  25.61399 0.935702</div><div class='input'>
+<span class='co'># Slope based on numbers, using all species and sizes</span>
+<span class='va'>slope_numbers</span> <span class='op'>&lt;-</span> <span class='fu'>getCommunitySlope</span><span class='op'>(</span><span class='va'>NS_sim</span>, biomass <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+<span class='va'>slope_numbers</span><span class='op'>[</span><span class='fl'>1</span>, <span class='op'>]</span> <span class='co'># in 1976</span>
+</div><div class='output co'>#&gt;          slope intercept        r2
+#&gt; 1967 -1.830658  25.43745 0.9746487</div><div class='input'>
+<span class='co'># Slope based on biomass, using all species and sizes between 10g and 1000g</span>
+<span class='va'>slope_biomass</span> <span class='op'>&lt;-</span> <span class='fu'>getCommunitySlope</span><span class='op'>(</span><span class='va'>NS_sim</span>, min_w <span class='op'>=</span> <span class='fl'>10</span>, max_w <span class='op'>=</span> <span class='fl'>1000</span><span class='op'>)</span>
+<span class='va'>slope_biomass</span><span class='op'>[</span><span class='fl'>1</span>, <span class='op'>]</span> <span class='co'># in 1976</span>
+</div><div class='output co'>#&gt;          slope intercept        r2
+#&gt; 1967 -1.526323  30.00691 0.9337066</div><div class='input'>
+<span class='co'># Slope based on biomass, using only demersal species and </span>
+<span class='co'># sizes between 10g and 1000g</span>
+<span class='va'>dem_species</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Dab"</span>,<span class='st'>"Whiting"</span>, <span class='st'>"Sole"</span>, <span class='st'>"Gurnard"</span>, <span class='st'>"Plaice"</span>,
+                 <span class='st'>"Haddock"</span>, <span class='st'>"Cod"</span>, <span class='st'>"Saithe"</span><span class='op'>)</span>
+<span class='va'>slope_biomass</span> <span class='op'>&lt;-</span> <span class='fu'>getCommunitySlope</span><span class='op'>(</span><span class='va'>NS_sim</span>, species <span class='op'>=</span> <span class='va'>dem_species</span>, 
+                                   min_w <span class='op'>=</span> <span class='fl'>10</span>, max_w <span class='op'>=</span> <span class='fl'>1000</span><span class='op'>)</span>
+<span class='va'>slope_biomass</span><span class='op'>[</span><span class='fl'>1</span>, <span class='op'>]</span> <span class='co'># in 1976</span>
+</div><div class='output co'>#&gt;           slope intercept        r2
+#&gt; 1967 -0.9704957  26.69254 0.8095734</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

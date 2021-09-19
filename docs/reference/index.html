@@ -508,13 +508,13 @@ step.</p></td>
         <td>
           <p><code><a href="getYield.html">getYield()</a></code> </p>
         </td>
-        <td><p>Calculate the yearly yield for each species</p></td>
+        <td><p>Calculate the rate at which biomass of each species is fished</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="getYieldGear.html">getYieldGear()</a></code> </p>
         </td>
-        <td><p>Calculate the yearly yield per gear and species</p></td>
+        <td><p>Calculate the rate at which biomass of each species is fished by each gear</p></td>
       </tr><tr>
         
         <td>
@@ -610,15 +610,15 @@ step.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="plotFMort.html">plotFMort()</a></code> <code><a href="plotFMort.html">plotlyFMort()</a></code> </p>
-        </td>
-        <td><p>Plot total fishing mortality of each species by size</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="plotFeedingLevel.html">plotFeedingLevel()</a></code> <code><a href="plotFeedingLevel.html">plotlyFeedingLevel()</a></code> </p>
         </td>
         <td><p>Plot the feeding level of species by size</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plotFMort.html">plotFMort()</a></code> <code><a href="plotFMort.html">plotlyFMort()</a></code> </p>
+        </td>
+        <td><p>Plot total fishing mortality of each species by size</p></td>
       </tr><tr>
         
         <td>
@@ -1112,6 +1112,12 @@ and size.</p></td>
       </tr><tr>
         
         <td>
+          <p><code><a href="mizerEncounter.html">mizerEncounter()</a></code> </p>
+        </td>
+        <td><p>Get encounter rate needed to project standard mizer model</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="mizerERepro.html">mizerERepro()</a></code> </p>
         </td>
         <td><p>Get energy rate available for reproduction needed to project standard mizer
@@ -1126,9 +1132,9 @@ standard mizer model</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="mizerEncounter.html">mizerEncounter()</a></code> </p>
+          <p><code><a href="mizerFeedingLevel.html">mizerFeedingLevel()</a></code> </p>
         </td>
-        <td><p>Get encounter rate needed to project standard mizer model</p></td>
+        <td><p>Get feeding level needed to project standard mizer model</p></td>
       </tr><tr>
         
         <td>
@@ -1142,12 +1148,6 @@ standard mizer model</p></td>
         </td>
         <td><p>Get the fishing mortality needed to project
 standard mizer model</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="mizerFeedingLevel.html">mizerFeedingLevel()</a></code> </p>
-        </td>
-        <td><p>Get feeding level needed to project standard mizer model</p></td>
       </tr><tr>
         
         <td>
@@ -1451,12 +1451,6 @@ model</p></td>
       <tr>
         
         <td>
-          <p><code><a href="MizerParams.html">MizerParams()</a></code> </p>
-        </td>
-        <td><p>Alias for <code>set_multispecies_model()</code></p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="getESpawning.html">getESpawning()</a></code> </p>
         </td>
         <td><p>Alias for <code>getERepro()</code></p></td>
@@ -1490,6 +1484,12 @@ model</p></td>
           <p><code><a href="inter.html">inter</a></code> </p>
         </td>
         <td><p>Alias for <code>NS_interaction</code></p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="MizerParams.html">MizerParams()</a></code> </p>
+        </td>
+        <td><p>Alias for <code>set_multispecies_model()</code></p></td>
       </tr><tr>
         
         <td>

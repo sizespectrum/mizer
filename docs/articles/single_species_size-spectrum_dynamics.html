@@ -149,7 +149,7 @@
 
       
 
-      </header><script src="single_species_size-spectrum_dynamics_files/header-attrs-2.10/header-attrs.js"></script><div class="row">
+      </header><script src="single_species_size-spectrum_dynamics_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Single-species size-spectrum dynamics</h1>
@@ -401,7 +401,7 @@ Solution
 <p>We have seen that for juvenile fish the growth rate and the death rate are both power laws with exponents <span class="math inline">\(p=3/4\)</span> and <span class="math inline">\(p-1=-1/4\)</span> respectively. By solving a differential equation we can derive that the juvenile spectrum also follows a power law: <span class="math display">\[N(w) = N_0\ w^{-\mu_0/g_0 - p}\]</span></p>
 <p>I won’t do the maths here with you (and you probably don’t want me to anyway), but we can check this claim numerically. Let’s look at the spectrum up to 10 grams. By now we know how to do this. We first convert the number density matrix <code>n</code> into a dataframe and then filter out all observations that do not have <span class="math inline">\(w\leq 10\)</span>. The resulting data frame we pass to <code><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot()</a></code> and ask it to plot a line on log-log axes.</p>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">nf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> 
+<code class="sourceCode R"><span class="va">nf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="op">%&gt;%</span> 
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">w</span> <span class="op">&lt;=</span> <span class="fl">10</span><span class="op">)</span>
 
 <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">nf</span><span class="op">)</span> <span class="op">+</span>
@@ -642,8 +642,8 @@ Solution
 <span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params_pk</span><span class="op">)</span><span class="op">$</span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fl">1000</span></code></pre></div>
 <p>Let’s make a plot to see that the predation kernel has indeed changed.</p>
 <div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/setPredKernel.html">getPredKernel</a></span><span class="op">(</span><span class="va">params_pk</span><span class="op">)</span><span class="op">[</span>, <span class="fl">81</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> 
-  <span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> 
+<code class="sourceCode R"><span class="fu"><a href="../reference/setPredKernel.html">getPredKernel</a></span><span class="op">(</span><span class="va">params_pk</span><span class="op">)</span><span class="op">[</span>, <span class="fl">81</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span> <span class="op">%&gt;%</span> 
+  <span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span> 
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">w_prey</span>, y <span class="op">=</span> <span class="va">value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_log10</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
@@ -672,8 +672,8 @@ Solution
 <code class="sourceCode R"><span class="va">params3</span> <span class="op">&lt;-</span> <span class="va">params</span>
 <span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params3</span><span class="op">)</span><span class="op">$</span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fl">50</span>
 <span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params3</span><span class="op">)</span><span class="op">$</span><span class="va">sigma</span> <span class="op">&lt;-</span> <span class="fl">2</span>
-<span class="fu"><a href="../reference/setPredKernel.html">getPredKernel</a></span><span class="op">(</span><span class="va">params3</span><span class="op">)</span><span class="op">[</span>, <span class="fl">61</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> 
-  <span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> 
+<span class="fu"><a href="../reference/setPredKernel.html">getPredKernel</a></span><span class="op">(</span><span class="va">params3</span><span class="op">)</span><span class="op">[</span>, <span class="fl">61</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span> <span class="op">%&gt;%</span> 
+  <span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span> 
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">w_prey</span>, y <span class="op">=</span> <span class="va">value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_log10</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>

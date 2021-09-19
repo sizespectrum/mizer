@@ -201,9 +201,9 @@
       <small>Source: <a href='https://github.com/sizespectrum/mizer/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="mizer-23" class="section level1">
-<h1 class="page-header" data-toc-text="2.3">
-<a href="#mizer-23" class="anchor"></a>mizer 2.3<small> Unreleased </small>
+    <div id="mizer-230" class="section level1">
+<h1 class="page-header" data-toc-text="2.3.0">
+<a href="#mizer-230" class="anchor"></a>mizer 2.3.0<small> 2021-09-11 </small>
 </h1>
 <div id="new-features" class="section level2">
 <h2 class="hasAnchor">
@@ -233,7 +233,7 @@
 <code><a href="../reference/setColours.html">setColours()</a></code> and <code><a href="../reference/setColours.html">setLinetypes()</a></code> now issue warnings when invalid values are given and ignores NAs.</li>
 <li>The experimental <code>comment</code> arguments to the setter functions have been removed. <a href='https://github.com/sizespectrum/mizer/issues/214'>#214</a></li>
 <li>The setter functions have a new <code>reset</code> argument which, when set to <code>TRUE</code> will recalculate the rates from the species_, gear_ and resource_params even when custom values had been set. <a href='https://github.com/sizespectrum/mizer/issues/214'>#214</a></li>
-<li>The <code>species</code> argument to various functions, which is checked with <code><a href="../reference/valid_species_arg.html">valid_species_arg()</a></code>, now does not throw an error even when there is no valid species included. Only a warning is issued. That means that for example <code>plotSpectra(NS_params, species = list(), total = TRUE)</code> is now allowed.</li>
+<li>The <code>species</code> argument to various functions, which is checked with <code><a href="../reference/valid_species_arg.html">valid_species_arg()</a></code>, now does not throw an error even when there is no valid species included. Only a warning is issued. That means that for example <code><a href="../reference/plotSpectra.html">plotSpectra(NS_params, species = list(), total = TRUE)</a></code> is now allowed.</li>
 <li>
 <code><a href="../reference/getComponent.html">getComponent()</a></code> from the mizer extension mechanism now returns NULL when asked for a non-existent component instead of giving an error. This gives an easy way to check for the existence of a component.</li>
 <li>The example interaction matrix <code>inter</code> for the North Sea model now has the alternative name <code>NS_interaction</code>, with the old name deprecated.</li>

@@ -149,7 +149,7 @@
 
       
 
-      </header><script src="exploring_the_simulation_results_files/header-attrs-2.10/header-attrs.js"></script><div class="row">
+      </header><script src="exploring_the_simulation_results_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Exploring the Simulation Results</h1>
@@ -173,7 +173,7 @@
 <div id="accessing-the-simulation-results" class="section level2">
 <h2 class="hasAnchor">
 <a href="#accessing-the-simulation-results" class="anchor"></a>Accessing the simulation results</h2>
-<p>The projected species abundances at size through time can be obtained with <code>N(sim)</code>. This returns a three-dimensional array (time x species x size). Consequently, this array can get very big so inspecting it can be difficult. In the example we have just run, the time dimension of <code>n</code> has 10 rows (one for the initial population and then one for each of the saved time steps). There are also 12 species each with 100 sizes. We can check this by running the <code><a href="https://rdrr.io/r/base/dim.html">dim()</a></code> function and looking at the dimensions of the <code>n</code> array:</p>
+<p>The projected species abundances at size through time can be obtained with <code><a href="../reference/N.html">N(sim)</a></code>. This returns a three-dimensional array (time x species x size). Consequently, this array can get very big so inspecting it can be difficult. In the example we have just run, the time dimension of <code>n</code> has 10 rows (one for the initial population and then one for each of the saved time steps). There are also 12 species each with 100 sizes. We can check this by running the <code><a href="https://rdrr.io/r/base/dim.html">dim()</a></code> function and looking at the dimensions of the <code>n</code> array:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="fu"><a href="../reference/N.html">N</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1]  10  12 100</code></pre>

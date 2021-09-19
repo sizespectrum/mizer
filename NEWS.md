@@ -1,4 +1,4 @@
-# mizer 2.3
+# mizer 2.3.0
 
 ## New features
 

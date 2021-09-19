@@ -288,22 +288,20 @@ changed with <code><a href='setBevertonHolt.html'>setBevertonHolt()</a></code></
     <div class='dont-index'><p><code><a href='removeSpecies.html'>removeSpecies()</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newTraitParams.html'>newTraitParams</a></span><span class='op'>(</span><span class='op'>)</span></span>
-<span class='r-in'><span class='va'>species_params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span></span>
-<span class='r-in'>    species <span class='op'>=</span> <span class='st'>"Mullet"</span>,</span>
-<span class='r-in'>    w_inf <span class='op'>=</span> <span class='fl'>173</span>,</span>
-<span class='r-in'>    w_mat <span class='op'>=</span> <span class='fl'>15</span>,</span>
-<span class='r-in'>    beta <span class='op'>=</span> <span class='fl'>283</span>,</span>
-<span class='r-in'>    sigma <span class='op'>=</span> <span class='fl'>1.8</span>,</span>
-<span class='r-in'>    k_vb <span class='op'>=</span> <span class='fl'>0.6</span>,</span>
-<span class='r-in'>    a <span class='op'>=</span> <span class='fl'>0.0085</span>,</span>
-<span class='r-in'>    b <span class='op'>=</span> <span class='fl'>3.11</span></span>
-<span class='r-in'><span class='op'>)</span></span>
-<span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>addSpecies</span><span class='op'>(</span><span class='va'>params</span>, <span class='va'>species_params</span><span class='op'>)</span></span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> No h provided for some species, so using f0 and k_vb to calculate it.</span>
-<span class='r-in'><span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span></span>
-<span class='r-plt'><img src='addSpecies-1.png' alt='' width='700' height='433' /></span>
-</pre>
+    <pre class="examples"><div class='input'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='newTraitParams.html'>newTraitParams</a></span><span class='op'>(</span><span class='op'>)</span>
+<span class='va'>species_params</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>
+    species <span class='op'>=</span> <span class='st'>"Mullet"</span>,
+    w_inf <span class='op'>=</span> <span class='fl'>173</span>,
+    w_mat <span class='op'>=</span> <span class='fl'>15</span>,
+    beta <span class='op'>=</span> <span class='fl'>283</span>,
+    sigma <span class='op'>=</span> <span class='fl'>1.8</span>,
+    k_vb <span class='op'>=</span> <span class='fl'>0.6</span>,
+    a <span class='op'>=</span> <span class='fl'>0.0085</span>,
+    b <span class='op'>=</span> <span class='fl'>3.11</span>
+<span class='op'>)</span>
+<span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>addSpecies</span><span class='op'>(</span><span class='va'>params</span>, <span class='va'>species_params</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>No h provided for some species, so using f0 and k_vb to calculate it.</span></div><div class='input'><span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span><span class='op'>(</span><span class='va'>params</span><span class='op'>)</span>
+</div><div class='img'><img src='addSpecies-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

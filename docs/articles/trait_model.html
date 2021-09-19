@@ -149,7 +149,7 @@
 
       
 
-      </header><script src="trait_model_files/header-attrs-2.10/header-attrs.js"></script><div class="row">
+      </header><script src="trait_model_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>The Trait-Based Model</h1>
@@ -241,7 +241,7 @@
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">sim1</span><span class="op">)</span></code></pre></div>
 <p><img src="trait_model_files/figure-html/plot_trait_fmort-1.png" width="700"></p>
-<p>The trophic cascade can be explored by comparing the total abundances of all species at size when the community is fished and unfished. As mentioned above, we obtain the abundances with <code>N(sim)</code>, which returns a three dimensional array with dimensions time x species x size. Here we have 76 time steps (75 from the simulation plus one which stores the initial population), 10 species and 100 sizes:</p>
+<p>The trophic cascade can be explored by comparing the total abundances of all species at size when the community is fished and unfished. As mentioned above, we obtain the abundances with <code><a href="../reference/N.html">N(sim)</a></code>, which returns a three dimensional array with dimensions time x species x size. Here we have 76 time steps (75 from the simulation plus one which stores the initial population), 10 species and 100 sizes:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="fu"><a href="../reference/N.html">N</a></span><span class="op">(</span><span class="va">sim0</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1]  76  10 161</code></pre>

@@ -833,11 +833,10 @@ and <code>lambda</code> arguments.</p>
 <code><a href='newTraitParams.html'>newTraitParams</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='r-in'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>newMultispeciesParams</span><span class='op'>(</span><span class='va'>NS_species_params</span><span class='op'>)</span></span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> No h provided for some species, so using f0 and k_vb to calculate it.</span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> No ks column so calculating from critical feeding level.</span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</span>
-</pre>
+    <pre class="examples"><div class='input'><span class='va'>params</span> <span class='op'>&lt;-</span> <span class='fu'>newMultispeciesParams</span><span class='op'>(</span><span class='va'>NS_species_params</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>No h provided for some species, so using f0 and k_vb to calculate it.</span>
+#&gt; <span class='message'>No ks column so calculating from critical feeding level.</span>
+#&gt; <span class='message'>Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
