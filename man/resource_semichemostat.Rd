@@ -67,3 +67,8 @@ params <- newMultispeciesParams(NS_species_params_gears, NS_interaction,
                                 resource_dynamics = "resource_semichemostat")
 }
 }
+\seealso{
+Other resource dynamics: 
+\code{\link{resource_constant}()}
+}
+\concept{resource dynamics}

@@ -31,6 +31,7 @@
 #'   
 #' @return Vector containing resource spectrum at next timestep
 #' @export
+#' @family resource dynamics
 #' @examples
 #' \dontrun{
 #' params <- newMultispeciesParams(NS_species_params_gears, NS_interaction,
@@ -70,6 +71,7 @@ resource_semichemostat <- function(params, n, n_pp, n_other, rates, t, dt,
 #'   
 #' @return Vector containing resource spectrum at next timestep
 #' @export
+#' @family resource dynamics
 #' @examples
 #' \dontrun{
 #' params <- newMultispeciesParams(NS_species_params_gears, NS_interaction,

@@ -203,29 +203,17 @@ reference:
   - customFunction
 - title: Predation kernels
   contents:
-  - lognormal_pred_kernel
-  - box_pred_kernel
-  - power_law_pred_kernel
-  - truncated_lognormal_pred_kernel
+  - has_concept("predation kernel")
 - title: Fishing selectivity functions
   contents:
-  - knife_edge
-  - sigmoid_length
-  - sigmoid_weight
-  - double_sigmoid_length
+  - has_concept("selectivity functions")
 - title: Resource dynamics
   contents:
-  - resource_semichemostat
-  - resource_constant
+  - has_concept("resource dynamics")
 - title: Reproduction functions
   contents:
-  - BevertonHoltRDD
+  - has_concept("functions calculating density-dependent reproduction rate")
   - getReproductionLevel
-  - RickerRDD
-  - SheperdRDD
-  - noRDD
-  - constantRDD
-  - constantEggRDI
 - title: Internal rate functions
   description: These functions are used by project() to calculate 
     instantaneous rates at each time step. You should use the get...() 
