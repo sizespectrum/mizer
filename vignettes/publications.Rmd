@@ -22,6 +22,7 @@ output: html_document
 Faculty of Natural Resources and Agricultural Sciences, SLU.
 https://pub.epsilon.slu.se/16711/ (2020).
 
+* Woodworth-Jefcoats, P. A., Blanchard, J. L. & Drazen, J. C. Relative Impacts of Simultaneous Stressors on a Pelagic Marine Ecosystem. Frontiers in Marine Science 6, 383 (2019).
 
 * Spence, M. A. et al. A general framework for combining ecosystem models. Fish and Fisheries 19, 1031–1042 (2018).
 
