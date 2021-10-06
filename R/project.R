@@ -43,6 +43,14 @@ NULL
 #' @param append A boolean that determines whether the new simulation results
 #'   are appended to the previous ones. Only relevant if `object` is a
 #'   `MizerSim` object. Default = TRUE.
+#' @param step_callback `r lifecycle::badge("experimental")` Optional. Name of a
+#'   function. This function will be called at each time step with
+#'   arguments `params` (the current MizerParams object) and `t` (the time
+#'   at the time step that was just saved) and should return a valid MizerParams
+#'   object. This allows parameters to be changed during the simulation.
+#' @param save_callback `r lifecycle::badge("experimental")` Optional. Name of a
+#'   function. Similar to `step_callback` but called only each time a result is
+#'   saved, i.e., at intervals of `t_save`.
 #' @param progress_bar Either a boolean value to determine whether a progress
 #'   bar should be shown in the console, or a shiny Progress object to implement 
 #'   a progress bar in a shiny app.
@@ -106,6 +114,8 @@ project <- function(object, effort,
                     t_max = 100, dt = 0.1, t_save = 1, t_start = 0,
                     initial_n, initial_n_pp,
                     append = TRUE,
+                    step_callback = do_nothing,
+                    save_callback = do_nothing,
                     progress_bar = TRUE, ...) {
     
     # Set and check initial values ----
@@ -212,7 +222,10 @@ project <- function(object, effort,
             effort = effort[i - 1, ],
             resource_dynamics_fn = resource_dynamics_fn,
             other_dynamics_fns = other_dynamics_fns,
-            rates_fns = rates_fns, ...)
+            rates_fns = rates_fns, step_callback = step_callback, ...)
+        
+        params <- save_callback(n_list$params, t = t)
+        
         # Calculate start time for next iteration
         # The reason we don't simply use the next entry in `times` is that
         # those entries may not be separated by exact multiples of dt.
@@ -250,6 +263,10 @@ project <- function(object, effort,
         return(new_sim)
     }
     return(sim)
+}
+
+do_nothing <- function(params, ...) {
+    params
 }
 
 #' Project abundances by a given number of time steps into the future
@@ -300,6 +317,11 @@ project <- function(object, effort,
 #'   dynamics of the other components. See Details.
 #' @param rates_fns List with the functions for calculating
 #'   the rates. See Details.
+#' @param step_callback `r lifecycle::badge("experimental")` Optional. Name of a
+#'   function. This function will be called at each time step with
+#'   arguments `params` (the current MizerParams object) and `t` (the time
+#'   at the time step that was just saved) and should return a valid MizerParams
+#'   object. This allows parameters to be changed during the simulation.
 #' @param ... Other arguments that are passed on to the rate functions.
 #' @return List with the final values of `n`, `n_pp` and `n_other`, `rates`.
 #' 
@@ -314,7 +336,8 @@ project_simple <-
              t = 0, dt = 0.1, steps,
              resource_dynamics_fn = get(params@resource_dynamics),
              other_dynamics_fns = lapply(params@other_dynamics, get),
-             rates_fns = lapply(params@rates_funcs, get), ...) {    
+             rates_fns = lapply(params@rates_funcs, get),
+             step_callback = do_nothing, ...) {    
     # Handy things ----
     no_sp <- nrow(params@species_params) # number of species
     no_w <- length(params@w) # number of fish size bins
@@ -381,12 +404,13 @@ project_simple <-
         n <- inner_project_loop(no_sp = no_sp, no_w = no_w, n = n,
                                 A = a, B = b, S = S,
                                 w_min_idx = params@w_min_idx)
-        
+        params <- step_callback(params, t)
         # * Update time ----
         t <- t + dt
     }
     
-    return(list(n = n, n_pp = n_pp, n_other = n_other, rates = r))
+    return(list(n = n, n_pp = n_pp, n_other = n_other, rates = r,
+                params = params))
 }
 
 validEffortArray <- function(effort, params) {

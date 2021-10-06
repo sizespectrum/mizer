@@ -16,6 +16,7 @@ project_simple(
   resource_dynamics_fn = get(params@resource_dynamics),
   other_dynamics_fns = lapply(params@other_dynamics, get),
   rates_fns = lapply(params@rates_funcs, get),
+  step_callback = do_nothing,
   ...
 )
 }
@@ -48,6 +49,12 @@ dynamics of the other components. See Details.}
 
 \item{rates_fns}{List with the functions for calculating
 the rates. See Details.}
+
+\item{step_callback}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Optional. Name of a
+function. This function will be called at each time step with
+arguments \code{params} (the current MizerParams object) and \code{t} (the time
+at the time step that was just saved) and should return a valid MizerParams
+object. This allows parameters to be changed during the simulation.}
 
 \item{...}{Other arguments that are passed on to the rate functions.}
 }

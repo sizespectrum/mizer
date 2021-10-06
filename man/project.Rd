@@ -14,6 +14,8 @@ project(
   initial_n,
   initial_n_pp,
   append = TRUE,
+  step_callback = do_nothing,
+  save_callback = do_nothing,
   progress_bar = TRUE,
   ...
 )
@@ -49,6 +51,16 @@ desired value.}
 \item{append}{A boolean that determines whether the new simulation results
 are appended to the previous ones. Only relevant if \code{object} is a
 \code{MizerSim} object. Default = TRUE.}
+
+\item{step_callback}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Optional. Name of a
+function. This function will be called at each time step with
+arguments \code{params} (the current MizerParams object) and \code{t} (the time
+at the time step that was just saved) and should return a valid MizerParams
+object. This allows parameters to be changed during the simulation.}
+
+\item{save_callback}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Optional. Name of a
+function. Similar to \code{step_callback} but called only each time a result is
+saved, i.e., at intervals of \code{t_save}.}
 
 \item{progress_bar}{Either a boolean value to determine whether a progress
 bar should be shown in the console, or a shiny Progress object to implement
