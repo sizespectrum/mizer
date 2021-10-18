@@ -95,12 +95,17 @@ Other plotting functions:
 \code{\link{animateSpectra}()},
 \code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},
+\code{\link{plotDeath}()},
 \code{\link{plotDiet}()},
+\code{\link{plotEnergyBudget}()},
 \code{\link{plotFMort}()},
 \code{\link{plotGrowthCurves}()},
 \code{\link{plotPredMort}()},
+\code{\link{plotResourcePred}()},
+\code{\link{plotResource}()},
 \code{\link{plotSpectra}()},
 \code{\link{plotYieldGear}()},
+\code{\link{plotYieldvsAbundance}()},
 \code{\link{plotYield}()},
 \code{\link{plotting_functions}}
 }

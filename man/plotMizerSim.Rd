@@ -56,26 +56,36 @@ plot(params, min_w = 10, max_w = 1000) # change size range for biomass plot
 Other plotting functions: 
 \code{\link{animateSpectra}()},
 \code{\link{plotBiomass}()},
+\code{\link{plotDeath}()},
 \code{\link{plotDiet}()},
+\code{\link{plotEnergyBudget}()},
 \code{\link{plotFMort}()},
 \code{\link{plotFeedingLevel}()},
 \code{\link{plotGrowthCurves}()},
 \code{\link{plotPredMort}()},
+\code{\link{plotResourcePred}()},
+\code{\link{plotResource}()},
 \code{\link{plotSpectra}()},
 \code{\link{plotYieldGear}()},
+\code{\link{plotYieldvsAbundance}()},
 \code{\link{plotYield}()},
 \code{\link{plotting_functions}}
 
 Other plotting functions: 
 \code{\link{animateSpectra}()},
 \code{\link{plotBiomass}()},
+\code{\link{plotDeath}()},
 \code{\link{plotDiet}()},
+\code{\link{plotEnergyBudget}()},
 \code{\link{plotFMort}()},
 \code{\link{plotFeedingLevel}()},
 \code{\link{plotGrowthCurves}()},
 \code{\link{plotPredMort}()},
+\code{\link{plotResourcePred}()},
+\code{\link{plotResource}()},
 \code{\link{plotSpectra}()},
 \code{\link{plotYieldGear}()},
+\code{\link{plotYieldvsAbundance}()},
 \code{\link{plotYield}()},
 \code{\link{plotting_functions}}
 }

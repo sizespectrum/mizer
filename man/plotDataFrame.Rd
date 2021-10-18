@@ -7,14 +7,17 @@
 plotDataFrame(
   frame,
   params,
+  style = "line",
   xlab = waiver(),
   ylab = waiver(),
   xtrans = "identity",
   ytrans = "identity",
   y_ticks = 6,
   highlight = NULL,
+  legend_format = NULL,
   legend_var = NULL,
-  wrap_var = NULL
+  wrap_var = NULL,
+  wrap_scale = NULL
 )
 }
 \arguments{
@@ -29,6 +32,9 @@ The first three variables are used, in that order, as:
 \item{params}{A MizerParams object, which is used for the line colours and
 line types.}
 
+\item{style}{The style of the plot. Availalble options are "line' for geom_line
+and "area" for geom_area. Default is "line".}
+
 \item{xlab}{Label for the x-axis}
 
 \item{ylab}{Label for the y-axis}
@@ -42,12 +48,18 @@ instead of the default of "identity".}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 
+\item{legend_format}{If not supplied (default is NULL), the legend will use the
+linecolour and linetype slot to be displayed. If ones want to plot something undefined,
+legend format needs to be supplied with anything (work in progress)}
+
 \item{legend_var}{The name of the variable that should be used in the legend
 and to determine the line style. If NULL then the grouping variable is
 used for this purpose.}
 
 \item{wrap_var}{Optional. The name of the variable that should be used for
 creating wrapped facets.}
+
+\item{wrap_scale}{Optional. Used to pass the scales argument to facet_wrap().}
 }
 \description{
 This is used internally by most plotting functions.

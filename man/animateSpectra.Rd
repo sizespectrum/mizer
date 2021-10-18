@@ -58,13 +58,18 @@ animateSpectra(NS_sim, power = 2, wlim = c(0.1, NA), time_range = 1997:2007)
 Other plotting functions: 
 \code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},
+\code{\link{plotDeath}()},
 \code{\link{plotDiet}()},
+\code{\link{plotEnergyBudget}()},
 \code{\link{plotFMort}()},
 \code{\link{plotFeedingLevel}()},
 \code{\link{plotGrowthCurves}()},
 \code{\link{plotPredMort}()},
+\code{\link{plotResourcePred}()},
+\code{\link{plotResource}()},
 \code{\link{plotSpectra}()},
 \code{\link{plotYieldGear}()},
+\code{\link{plotYieldvsAbundance}()},
 \code{\link{plotYield}()},
 \code{\link{plotting_functions}}
 }

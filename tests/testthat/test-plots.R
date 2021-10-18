@@ -14,6 +14,8 @@ params_bkgrd@A[1:3] <- NA
 # params object with single species
 sp_single <- data.frame(species = 1, w_inf = 1000, h = 30)
 params_single <- newMultispeciesParams(sp_single, no_w = 30)
+# Make some data frame for plotDataFrame
+sampleDf <- plotBiomass(sim, return_data = TRUE)
 
 # Need to use vdiffr conditionally
 expect_doppelganger <- function(title, fig, ...) {
@@ -71,6 +73,24 @@ expect_doppelganger("Plot Single Growth Curve", p)
 
 p <- plotDiet(NS_params, species = "Haddock")
 expect_doppelganger("Plot Diet", p)
+
+p <- plotDataFrame(sampleDf, params)
+expect_doppelganger("Plot Data Frame", p)
+
+p <- plotDeath(NS_params, species = "Haddock")
+expect_doppelganger("Plot Death", p)
+
+p <- plotResourcePred(NS_params)
+expect_doppelganger("Plot Resource Pred", p)
+
+p <- plotResource(NS_params)
+expect_doppelganger("Plot Resource", p)
+
+p <- plotEnergyBudget(NS_params, species = "Haddock")
+expect_doppelganger("Plot Energy Budget", p)
+
+p <- plotYieldvsAbundance(NS_params, species = "Haddock")
+expect_doppelganger("Plot Yield vs Abundance", p)
 })
 
 test_that("plot function do not throw error", {
@@ -90,6 +110,10 @@ test_that("plotly functions do not throw error", {
     expect_error(plotlyFMort(sim, species = species), NA)
     expect_error(plotlyGrowthCurves(sim, species = species), NA)
     expect_error(plotlyGrowthCurves(params, species = species), NA)
+    expect_error(plotlyDeath(params, species = species), NA)
+    expect_error(plotlyResourcePred(params), NA)
+    expect_error(plotlyEnergyBudget(params, species = species), NA)
+    expect_error(plotlyYieldvsAbundance(params, species = species), NA)
 })
 
 
@@ -111,6 +135,17 @@ test_that("return_data is identical",{
     expect_equal(dim(plotFMort(sim, species = species, return_data = TRUE)), c(56,3))
     
     expect_equal(dim(plotGrowthCurves(sim, species = species, return_data = TRUE)), c(100,4))
+    
+    expect_equal(dim(plotDeath(sim, species = species, return_data = TRUE)), c(784,4))
+    
+    expect_equal(dim(plotResourcePred(sim, return_data = TRUE)), c(612,3))
+    
+    expect_equal(dim(plotResource(sim, return_data = TRUE)), c(51,3))
+    
+    expect_equal(dim(plotEnergyBudget(sim, species = species, return_data = TRUE)[[1]]), c(224,4))
+    
+    expect_equal(dim(plotYieldvsAbundance(sim, species = species, return_data = TRUE)[[1]]), c(43,6))
+    
     # the following is not a good test because the size of the returned data
     # frame is machine dependent due to the selection of only results above a
     # certain threshold.
