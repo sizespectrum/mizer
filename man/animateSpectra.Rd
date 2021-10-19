@@ -69,7 +69,7 @@ Other plotting functions:
 \code{\link{plotResource}()},
 \code{\link{plotSpectra}()},
 \code{\link{plotYieldGear}()},
-\code{\link{plotYieldvsAbundance}()},
+\code{\link{plotYieldVsSize}()},
 \code{\link{plotYield}()},
 \code{\link{plotting_functions}}
 }

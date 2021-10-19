@@ -104,9 +104,6 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #' @param legend_var The name of the variable that should be used in the legend
 #'   and to determine the line style. If NULL then the grouping variable is
 #'   used for this purpose.
-#' @param legend_format If not supplied (default is NULL), the legend will use the 
-#' linecolour and linetype slot to be displayed. If ones want to plot something undefined,
-#' legend format needs to be supplied with anything (work in progress)
 #' @param wrap_var Optional. The name of the variable that should be used for
 #'  creating wrapped facets.
 #' @param wrap_scale Optional. Used to pass the scales argument to facet_wrap(). 
@@ -121,8 +118,8 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #' @export
 plotDataFrame <- function(frame, params, style = "line", xlab = waiver(), 
                           ylab = waiver(), xtrans = "identity", ytrans = "identity", 
-                          y_ticks = 6, highlight = NULL, legend_format = NULL,
-                          legend_var = NULL, wrap_var = NULL, wrap_scale = NULL) {
+                          y_ticks = 6, highlight = NULL, legend_var = NULL, 
+                          wrap_var = NULL, wrap_scale = NULL) {
     assert_that(is.data.frame(frame),
                 is(params, "MizerParams"))
     if (ncol(frame) < 3) {
@@ -143,29 +140,18 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
         }
     }
     # Need to keep species in order for legend
-    if(is.null(legend_format)) # if legend is defined in params object. Not automated but user dependent for now
-    {
-        legend_levels <- 
-            intersect(names(params@linecolour), frame[[legend_var]])
-        frame[[legend_var]] <- factor(frame[[legend_var]], levels = legend_levels)
-        
-        linecolour <- params@linecolour[legend_levels]
-        linetype <- params@linetype[legend_levels]
-        linesize <- rep_len(0.8, length(legend_levels))
-        names(linesize) <- legend_levels
-        linesize[highlight] <- 1.6 
-    } else { # default value if legend is not defined in params object
-        # TODO use legend_format as dataframe place holder to supply below values over default
-        legend_levels <- unique(frame$Legend)
-        frame[[legend_var]] <- factor(frame[[legend_var]], levels = legend_levels)
-        colfunc <- colorRampPalette(c("#F8766D","#7CAE00","#00BFCFC4","#C77CFF")) # 4 base ggpplot colors
-        linecolour <- colfunc(length(legend_levels))
-        linetype <- rep_len("solid", length(legend_levels))
-        names(linetype) <- legend_levels
-        linesize <- rep_len(0.8, length(legend_levels))
-        names(linesize) <- legend_levels
-        linesize[highlight] <- 1.6 
-    }
+    legend_levels <- 
+        intersect(names(params@linecolour), frame[[legend_var]])
+    frame[[legend_var]] <- factor(frame[[legend_var]], levels = legend_levels)
+    
+    if(sum(is.na(frame$Legend))) 
+        warning("missing legend in params@linecolour, some groups won't be displayed")
+    
+    linecolour <- params@linecolour[legend_levels]
+    linetype <- params@linetype[legend_levels]
+    linesize <- rep_len(0.8, length(legend_levels))
+    names(linesize) <- legend_levels
+    linesize[highlight] <- 1.6 
     
     xbreaks <- waiver()
     if (xtrans == "log10") xbreaks <- log_breaks()
@@ -179,7 +165,7 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
         scale_y_continuous(trans = ytrans, breaks = ybreaks,
                            labels = prettyNum, name = ylab) +
         scale_x_continuous(trans = xtrans, name = xlab)
-    
+
     switch (style,
             "line" = {p <- p + 
                 geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
@@ -1299,8 +1285,8 @@ plotDeath <- function(object, species = NULL, proportion = TRUE, return_data = F
     
     SpIdx <- factor(params@species_params$species,
                     levels = params@species_params$species)
-    
-    if(is.null(species)) species <- SpIdx
+    species <- valid_species_arg(params,species)
+
     plot_dat <- NULL
     for(iSpecies in species)
     {
@@ -1341,7 +1327,7 @@ plotDeath <- function(object, species = NULL, proportion = TRUE, return_data = F
     if (return_data) return(plot_dat) 
     
     plotDataFrame(plot_dat, params, style = "area", xtrans = "log10", wrap_var = "Prey",
-                  wrap_scale = "free", xlab = "Size [g]", ylab = ylab)
+                  wrap_scale = "free_x", xlab = "Size [g]", ylab = ylab)
 }
 
 
@@ -1385,55 +1371,25 @@ plotResourcePred <- function(object, proportion = TRUE, return_data = FALSE)
     SpIdx <- factor(params@species_params$species,
                     levels = params@species_params$species)
     
-    #How many backgrounds are being used? Assuming using only mizerMR for now for additional backgrounds
-    if(!is.null(params@other_params$other)) 
-    {
-        plot_dat <- NULL
-        for(iRes in 1:dim(params@other_params$other$MR$resource_params)[1])
-        {
-            select <- (params@other_params$MR$capacity[iRes,] > 0)
-            pred_rate <- params@other_params$MR$interaction[,iRes] *
-                getPredRate(params)[, select]
-            total <- colSums(pred_rate)
-            
-            ylab <- "Death rate [1/year]"
-            if (proportion) {
-                pred_rate <- pred_rate / rep(total, each = dim(pred_rate)[[1]])
-                ylab = "Proportion of predation"
-            }
-            # Make data.frame for plot
-            plot_dat <- rbind(plot_dat,
-                              data.frame(
-                                  w = rep(params@w_full[select], each = dim(pred_rate)[[1]]),
-                                  value = c(pred_rate),
-                                  Predator = SpIdx,
-                                  Resource = params@other_params$other$MR$resource_params$resource[iRes]
-                              ))
-        }
-        pl <- plotDataFrame(plot_dat, params, style = "area", xtrans = "log10",
-                            xlab = "Resource size [g]", ylab = ylab, 
-                            wrap_var = "Resource", wrap_scale = "free")
-    } else {        
-        select <- (params@cc_pp > 0)
-        pred_rate <- params@species_params$interaction_resource *
-            getPredRate(params)[, select]
-        total <- colSums(pred_rate)
-        ylab <- "Death rate [1/year]"
-        if (proportion) {
-            pred_rate <- pred_rate / rep(total, each = dim(pred_rate)[[1]])
-            ylab = "Proportion of predation"
-        }
-        # Make data.frame for plot
-        plot_dat <- data.frame(
-            w = rep(params@w_full[select], each = dim(pred_rate)[[1]]),
-            value = c(pred_rate),
-            Predator = SpIdx
-        )
-        pl <- plotDataFrame(plot_dat, params, style = "area", xtrans = "log10",
-                            xlab = "Resource size [g]", ylab = ylab)
+    select <- (params@cc_pp > 0)
+    pred_rate <- params@species_params$interaction_resource *
+        getPredRate(params)[, select]
+    total <- colSums(pred_rate)
+    ylab <- "Death rate [1/year]"
+    if (proportion) {
+        pred_rate <- pred_rate / rep(total, each = dim(pred_rate)[[1]])
+        ylab = "Proportion of predation"
     }
+    # Make data.frame for plot
+    plot_dat <- data.frame(
+        w = rep(params@w_full[select], each = dim(pred_rate)[[1]]),
+        value = c(pred_rate),
+        Predator = SpIdx
+    )
+    if(return_data) return(plot_dat)
     
-    if(return_data) return(plot_dat) else return(pl)
+    plotDataFrame(plot_dat, params, style = "area", xtrans = "log10",
+                  xlab = "Resource size [g]", ylab = ylab)
 }
 
 #' @rdname plotResourcePred
@@ -1472,29 +1428,13 @@ plotResource <- function(object, return_data = FALSE)
     } else if (is(object, "MizerParams")) {
         params <- validParams(object)
     }
-    #How many backgrounds are being used? Assuming using only mizerMR for now for additional backgrounds
-    if(!is.null(params@other_params$other)) 
-    {
-        plot_dat <- NULL
-        for(iRes in 1:dim(params@other_params$other$MR$resource_params)[1])
-        {
-            select <- (params@other_params$MR$capacity[iRes,] > 0)
-            plot_dat <- rbind(plot_dat,
-                              data.frame(
-                                  w = params@w_full[select],
-                                  value = params@initial_n_other$MR[iRes,select] / params@other_params$MR$capacity[iRes,select],
-                                  Resource = params@other_params$other$MR$resource_params$resource[iRes])
-            )
-        }
-    } else {
-        select <- (params@cc_pp > 0)
-        plot_dat <- data.frame(
-            w = params@w_full[select],
-            value = params@initial_n_pp[select] / params@cc_pp[select],
-            Resource = "Resource" # 3rd var for plotDataFrame()
-        )
-    }
     
+    select <- (params@cc_pp > 0)
+    plot_dat <- data.frame(
+        w = params@w_full[select],
+        value = params@initial_n_pp[select] / params@cc_pp[select],
+        Resource = "Resource" # 3rd var for plotDataFrame()
+    )
     if(return_data) return(plot_dat)
     
     plotDataFrame(plot_dat, params, xtrans = "log10",
@@ -1535,8 +1475,8 @@ plotEnergyBudget <- function(object , species = NULL, logarithmic = TRUE, return
     }
     SpIdx <- factor(params@species_params$species,
                     levels = params@species_params$species)
+    species <- valid_species_arg(params,species)
     
-    if(is.null(species)) species <- SpIdx
     plot_dat <- NULL
     for(iSpecies in species)
     {
@@ -1568,9 +1508,9 @@ plotEnergyBudget <- function(object , species = NULL, logarithmic = TRUE, return
     
     if(logarithmic) xtrans = "log10" else xtrans = "identity"
     
-    pl <- plotDataFrame(plot_dat, params, style = "area", xlab = "Size [g]",
-                        ylab = "Rate [g/year]", xtrans = xtrans, wrap_var = "Species",
-                        wrap_scale = "free",legend_format = TRUE)
+    # adding legends to params object
+    params <- setColours(params, list("Growth" = "#F8766D", "Income" = "#7CAE00", 
+                                      "Metabolic loss" =  "#00BFCFC4", "Reproduction" = "#C77CFF"))
     
     sizeVline <- data.frame(
         w_mat = params@species_params[species, "w_mat"], 
@@ -1579,13 +1519,19 @@ plotEnergyBudget <- function(object , species = NULL, logarithmic = TRUE, return
         Type = NA) # geon_text wants a group var for some reasons
     colnames(sizeVline)[3:4] <- c("Species", "y_coord")
     
+    if(return_data) return(list(plot_dat,sizeVline))
+    
+    pl <- plotDataFrame(plot_dat, params, style = "area", xlab = "Size [g]",
+                        ylab = "Rate [g/year]", xtrans = xtrans, wrap_var = "Species",
+                        wrap_scale = "free")
+    
     pl <- pl +
         geom_vline(data  = sizeVline, aes(xintercept = w_mat, group = Species), linetype = "dotted") +
         geom_vline(data  =sizeVline, aes(xintercept = w_inf, group = Species), linetype = "dotted") +
         geom_text(data = sizeVline, aes(x = w_mat, y = y_coord * 0.2, label = "\nMaturity"), angle = 90) +
         geom_text(data = sizeVline, aes(x = w_inf, y = y_coord * 0.2, label = "\nMaximum"), angle = 90)
-    
-    if(return_data) return(list(plot_dat,sizeVline)) else return(pl)
+
+    return(pl)
 }
 
 #' @rdname plotEnergyBudget
@@ -1614,24 +1560,25 @@ plotlyEnergyBudget <- function(object,
 #'   size bins in grams. The data frame also needs to have the columns
 #'   \code{species} (the name of the species), \code{catch} (the number of
 #'   individuals of a particular species caught in a size bin).
-#' @param catch_x Choose to display the values using weight data ("Weight") or 
-#' size data ("Size"). Default is "Weight".
-#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a list composed of
-#' two slots is returned. First slot is a data frame with the six variables 'w', 'l', 'catch_w', 
-#' 'catch_l', 'Type', 'Species and the second slot is a data frame with the four variables 'w_mat',
+#' @param x_var Choose to display the values using weight data ("Weight") or 
+#' length data ("Length"). Default is "Weight".
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a list 
+#' composed of two slots is returned. First slot is a data frame with the four 
+#' variables 'w' or 'l' (depending on `x_var`), 'Catch density', 'Type', 'Species 
+#' and the second slot is a data frame with the four variables 'w_mat',
 #' 'Species', 'y_coord', 'Type' (to plot vertical lines).
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions]
 #' @examples 
 #' \donttest{
-#' plotYieldvsAbundance(NS_params, species = "Cod")
+#' plotYieldVsSize(NS_params, species = "Cod")
 #' 
 #' # Returning the data frame
-#' fr <- plotYieldvsAbundance(NS_params, species = "Cod", return_data = TRUE)
+#' fr <- plotYieldVsSize(NS_params, species = "Cod", return_data = TRUE)
 #' str(fr)
 #' }
-plotYieldvsAbundance <- function(object, species = NULL, catch = NULL, catch_x = "Weight", return_data = FALSE)
+plotYieldVsSize <- function(object, species = NULL, catch = NULL, x_var = c("Weight", "Length"), return_data = FALSE)
 {
     if (is(object, "MizerSim")) {
         params <- object@params
@@ -1639,11 +1586,14 @@ plotYieldvsAbundance <- function(object, species = NULL, catch = NULL, catch_x =
     } else if (is(object, "MizerParams")) {
         params <- validParams(object)
     }
+    
+    x_var = match.arg(x_var)
+    
     SpIdx <- factor(params@species_params$species,
                     levels = params@species_params$species)
-    if(is.null(species)) species <- SpIdx
-    
+    species <- valid_species_arg(params,species)
     species <- which(params@species_params$species %in% species)
+    
     params <- set_species_param_default(params, "a", 0.006)
     params <- set_species_param_default(params, "b", 3)
     
@@ -1722,7 +1672,7 @@ plotYieldvsAbundance <- function(object, species = NULL, catch = NULL, catch_x =
         }
         # From the abundance only keep values that are no larger than
         # the maximum of the other shown densities.
-        if (catch_x == "Weight") {
+        if (x_var == "Weight") {
             abundance <- subset(abundance, catch_w < max(df$catch_w))
         } else {
             abundance <- subset(abundance, catch_l < max(df$catch_l))
@@ -1734,11 +1684,13 @@ plotYieldvsAbundance <- function(object, species = NULL, catch = NULL, catch_x =
         plot_dat <- rbind(plot_dat,df)
     }
     
-    if (catch_x == "Weight") {
-        
-        pl <- plotDataFrame(plot_dat[,-c(2,4)], params, wrap_var = "Species", xtrans = "log10",
-                            xlab = "Size [g]", ylab = "Normalised number density [1/g]",
-                            wrap_scale = "free", legend_format = TRUE)
+    # adding legends to params object
+    params <- setColours(params, list("Model catch" = "#F8766D", "Abundance"  =  "#00BFCFC4"))
+    params <- setLinetypes(params, list("Model catch" = "solid", "Abundance"  =  "solid"))
+    
+    if (x_var == "Weight") {
+        plot_dat <- plot_dat[,-c(2,4)]
+        colnames(plot_dat)[2] <- "Catch density"
         
         sizeVline <- data.frame(
             w_mat = params@species_params[species, "w_mat"], 
@@ -1746,13 +1698,18 @@ plotYieldvsAbundance <- function(object, species = NULL, catch = NULL, catch_x =
             Type = NA) # geon_text wants a group var for some reasons
         colnames(sizeVline)[2:3] <- c("Species", "y_coord")
         
+        if(return_data) return(list(plot_dat,sizeVline))
+        
+        pl <- plotDataFrame(plot_dat, params, wrap_var = "Species", 
+                            xlab = "Size [g]", ylab = "Normalised number density [1/g]",
+                            wrap_scale = "free")
+        
         pl <- pl +          
             geom_vline(data  = sizeVline, aes(xintercept = w_mat, group = Species), linetype = "dotted") +
             geom_text(data = sizeVline, aes(x = w_mat, y = y_coord * 0.9, label = "\nMaturity")) 
     } else {
-        pl <- plotDataFrame(plot_dat[,-c(1,3)], params, wrap_var = "Species", xtrans = "log10",
-                            xlab = "Size [cm]", ylab = "Normalised number density [1/cm]",
-                            wrap_scale = "free", legend_format = TRUE)
+        plot_dat <- plot_dat[,-c(1,3)]
+        colnames(plot_dat)[2] <- "Catch density"
         
         sizeVline <- data.frame(
             w_mat = (params@species_params[species, "w_mat"] /a) ^ (1 / b), 
@@ -1760,23 +1717,29 @@ plotYieldvsAbundance <- function(object, species = NULL, catch = NULL, catch_x =
             Type = NA) # geon_text wants a group var for some reasons
         colnames(sizeVline)[2:3] <- c("Species", "y_coord")
         
+        if(return_data) return(list(plot_dat,sizeVline))
+        
+        pl <- plotDataFrame(plot_dat, params, wrap_var = "Species", 
+                            xlab = "Size [cm]", ylab = "Normalised number density [1/cm]",
+                            wrap_scale = "free")
+
         pl <- pl +          
             geom_vline(data  = sizeVline, aes(xintercept = w_mat, group = Species), linetype = "dotted") +
             geom_text(data = sizeVline, aes(x = w_mat, y = y_coord * 0.9, label = "\nMaturity")) 
     }
-    if(return_data) return(list(plot_dat,sizeVline)) else return(pl)
+     return(pl)
 }
 
-#' @rdname plotYieldvsAbundance
+#' @rdname plotYieldVsSize
 #' @export
-plotlyYieldvsAbundance <- function(object,
+plotlyYieldVsSize <- function(object,
                                species = NULL, 
                                catch = NULL,
-                               catch_x = "Weight",
+                               x_var = c("Weight", "Length"),
                                ...) {
     argg <- c(as.list(environment()), list(...))
-    ggplotly(do.call("plotYieldvsAbundance", argg),
-             tooltip = c("catch_w", "catch_l", "Type", "w", "l"))
+    ggplotly(do.call("plotYieldVsSize", argg),
+             tooltip = c("Catch density", "Type", "w", "l"))
 }
 
 #### plot ####

@@ -89,8 +89,8 @@ expect_doppelganger("Plot Resource", p)
 p <- plotEnergyBudget(NS_params, species = "Haddock")
 expect_doppelganger("Plot Energy Budget", p)
 
-p <- plotYieldvsAbundance(NS_params, species = "Haddock")
-expect_doppelganger("Plot Yield vs Abundance", p)
+p <- plotYieldVsSize(NS_params, species = "Haddock")
+expect_doppelganger("Plot Yield vs Size", p)
 })
 
 test_that("plot function do not throw error", {
@@ -113,7 +113,7 @@ test_that("plotly functions do not throw error", {
     expect_error(plotlyDeath(params, species = species), NA)
     expect_error(plotlyResourcePred(params), NA)
     expect_error(plotlyEnergyBudget(params, species = species), NA)
-    expect_error(plotlyYieldvsAbundance(params, species = species), NA)
+    expect_error(plotlyYieldVsSize(params, species = species), NA)
 })
 
 
@@ -144,7 +144,7 @@ test_that("return_data is identical",{
     
     expect_equal(dim(plotEnergyBudget(sim, species = species, return_data = TRUE)[[1]]), c(224,4))
     
-    expect_equal(dim(plotYieldvsAbundance(sim, species = species, return_data = TRUE)[[1]]), c(43,6))
+    expect_equal(dim(plotYieldVsSize(sim, species = species, return_data = TRUE)[[1]]), c(43,4))
     
     # the following is not a good test because the size of the returned data
     # frame is machine dependent due to the selection of only results above a

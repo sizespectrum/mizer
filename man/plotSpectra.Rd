@@ -133,7 +133,7 @@ Other plotting functions:
 \code{\link{plotResourcePred}()},
 \code{\link{plotResource}()},
 \code{\link{plotYieldGear}()},
-\code{\link{plotYieldvsAbundance}()},
+\code{\link{plotYieldVsSize}()},
 \code{\link{plotYield}()},
 \code{\link{plotting_functions}}
 }

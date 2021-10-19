@@ -14,7 +14,6 @@ plotDataFrame(
   ytrans = "identity",
   y_ticks = 6,
   highlight = NULL,
-  legend_format = NULL,
   legend_var = NULL,
   wrap_var = NULL,
   wrap_scale = NULL
@@ -47,10 +46,6 @@ instead of the default of "identity".}
 \item{y_ticks}{The approximate number of ticks desired on the y axis}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
-
-\item{legend_format}{If not supplied (default is NULL), the legend will use the
-linecolour and linetype slot to be displayed. If ones want to plot something undefined,
-legend format needs to be supplied with anything (work in progress)}
 
 \item{legend_var}{The name of the variable that should be used in the legend
 and to determine the line style. If NULL then the grouping variable is
