@@ -128,7 +128,7 @@ matchYields <- function(params, species = NULL) {
     factors <- params@species_params$yield_observed[include] /
         yield_model[include]
     params@initial_n[include, ] <- 
-        sweep(params@initial_n[include, ], 1, factors, "*")
+        sweep(params@initial_n[include, , drop = FALSE], 1, factors, "*")
     
     setBevertonHolt(params)
 }
