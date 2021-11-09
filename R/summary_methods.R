@@ -169,20 +169,30 @@ getDiet <- function(params,
 #' the `MizerSim` class. SSB is calculated as the total mass of all mature
 #' individuals.
 #' 
-#' @param sim An object of class `MizerSim`.
-#'   
-#' @return An array (time x species) containing the SSB in grams.
+#' @param object An object of class `MizerParams` or MizerSim`.
+#'
+#' @return If called with a MizerParams object, a vector with the SSB in
+#'   grams for each species in the model. If called with a MizerSim object, an
+#'   array (time x species) containing the SSB in grams at each time step
+#'   for all species.
 #' @export
 #' @family summary functions
 #' @concept summary_function
 #' @examples
 #' ssb <- getSSB(NS_sim)
 #' ssb[c("1972", "2010"), c("Herring", "Cod")]
-getSSB <- function(sim) {
-    assert_that(is(sim, "MizerSim"))
-    ssb <- apply(sweep(sweep(sim@n, c(2, 3), sim@params@maturity, "*"), 3, 
-                       sim@params@w * sim@params@dw, "*"), c(1, 2), sum) 
-    return(ssb)
+getSSB <- function(object) {
+    if (is(object, "MizerSim")) {
+        sim <- object
+        return(apply(sweep(sweep(sim@n, c(2, 3), sim@params@maturity, "*"), 3, 
+                           sim@params@w * sim@params@dw, "*"), c(1, 2), sum) )
+    }
+    if (is(object, "MizerParams")) {
+        params <- object
+        return(((params@initial_n * params@maturity) %*% 
+                    (params@w * params@dw))[, , drop = TRUE])
+    }
+    stop("'object' should be a MizerParams or a MizerSim object")
 }
 
 
@@ -195,10 +205,13 @@ getSSB <- function(sim) {
 #' over weights (i.e. if both min_l and min_w are supplied, only min_l will be
 #' used).
 #' 
-#' @param sim An object of class `MizerSim`.
+#' @param object An object of class `MizerParams` or `MizerSim`.
 #' @inheritDotParams get_size_range_array -params
 #'
-#' @return An array (time x species) containing the biomass in grams.
+#' @return If called with a MizerParams object, a vector with the biomass in
+#'   grams for each species in the model. If called with a MizerSim object, an
+#'   array (time x species) containing the biomass in grams at each time step
+#'   for all species.
 #' @export
 #' @family summary functions
 #' @concept summary_function
@@ -207,27 +220,36 @@ getSSB <- function(sim) {
 #' biomass["1972", "Herring"]
 #' biomass <- getBiomass(NS_sim, min_w = 10, max_w = 1000)
 #' biomass["1972", "Herring"]
-getBiomass <- function(sim, ...) {
-    assert_that(is(sim, "MizerSim"))
-    size_range <- get_size_range_array(sim@params, ...)
-    biomass <- apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
-                           sim@params@w * sim@params@dw, "*"), c(1, 2), sum)
-    return(biomass)
+getBiomass <- function(object, ...) {
+    if (is(object, "MizerSim")) {
+        sim <- object
+        size_range <- get_size_range_array(sim@params, ...)
+        return(apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
+                           sim@params@w * sim@params@dw, "*"), c(1, 2), sum))
+    }
+    if (is(object, "MizerParams")) {
+        params <- object
+        size_range <- get_size_range_array(params, ...)
+        return(((params@initial_n * size_range) %*% 
+                    (params@w * params@dw))[, , drop = TRUE])
+    }
+    stop("'object' should be a MizerParams or a MizerSim object")
 }
 
 
 #' Calculate the number of individuals within a size range
 #'
-#' Calculates the number of individuals within user-defined size limits, for
-#' each time and each species in the `MizerSim` object. The default option
-#' is to use the whole size range. You can specify minimum and maximum weight or
-#' lengths for the species. Lengths take precedence over weights (i.e. if both
-#' min_l and min_w are supplied, only min_l will be used)
+#' Calculates the number of individuals within user-defined size limits. The
+#' default option is to use the whole size range. You can specify minimum and
+#' maximum weight or lengths for the species. Lengths take precedence over
+#' weights (i.e. if both min_l and min_w are supplied, only min_l will be used)
 #' 
-#' @param sim An object of class `MizerSim`.
+#' @param object An object of class `MizerParams` or `MizerSim`.
 #' @inheritDotParams get_size_range_array -params
 #'
-#' @return An array (time x species) containing the total numbers.
+#' @return If called with a MizerParams object, a vector with the numbers for
+#'   each species in the model. If called with a MizerSim object, an array (time
+#'   x species) containing the numbers at each time step for all species.
 #' @export
 #' @family summary functions
 #' @concept summary_function
@@ -238,12 +260,19 @@ getBiomass <- function(sim, ...) {
 #' # The number of Herrings between 10g and 1kg is much smaller.
 #' numbers <- getN(NS_sim, min_w = 10, max_w = 1000)
 #' numbers["1972", "Herring"]
-getN <- function(sim, ...) {
-    assert_that(is(sim, "MizerSim"))
-    size_range <- get_size_range_array(sim@params, ...)
-    n <- apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
-                     sim@params@dw, "*"), c(1, 2), sum)
-    return(n)
+getN <- function(object, ...) {
+    if (is(object, "MizerSim")) {
+        sim <- object
+        size_range <- get_size_range_array(sim@params, ...)
+        return(apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
+                           sim@params@dw, "*"), c(1, 2), sum))
+    }
+    if (is(object, "MizerParams")) {
+        params <- object
+        size_range <- get_size_range_array(params, ...)
+        return(((params@initial_n * size_range) %*% params@dw)[, , drop = TRUE])
+    }
+    stop("'object' should be a MizerParams or a MizerSim object")
 }
 
 
@@ -255,10 +284,12 @@ getN <- function(sim, ...) {
 #' For details of how the yield rate is defined see the help page of
 #' [getYield()].
 #'
-#' @param sim An object of class `MizerSim`.
+#' @param object An object of class `MizerParams` or `MizerSim`.
 #'
-#' @return An array (time x gear x species) containing the yield rate in
-#'   grams per year.
+#' @return If called with a MizerParams object, an array (gear x species) with
+#'   the yield rate in grams per year from each gear for each species in the
+#'   model. If called with a MizerSim object, an array (time x gear x species)
+#'   containing the yield rate at each time step.
 #' @export
 #' @family summary functions
 #' @concept summary_function
@@ -267,13 +298,20 @@ getN <- function(sim, ...) {
 #' yield <- getYieldGear(NS_sim)
 #' yield["1972", "Herring", "Herring"]
 #' # (In this example MizerSim object each species was set up with its own gear)
-getYieldGear <- function(sim) {
-    assert_that(is(sim, "MizerSim"))
-    biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
-    f_gear <- getFMortGear(sim)
-    yield_species_gear <- apply(sweep(f_gear, c(1, 3, 4), biomass, "*"),
-                                c(1, 2, 3), sum)
-    return(yield_species_gear)
+getYieldGear <- function(object) {
+    if (is(object, "MizerSim")) {
+        sim <- object
+        biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
+        f_gear <- getFMortGear(sim)
+        return(apply(sweep(f_gear, c(1, 3, 4), biomass, "*"), c(1, 2, 3), sum))
+    }
+    if (is(object, "MizerParams")) {
+        params <- object
+        biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
+        f_gear <- getFMortGear(params)
+        return(apply(sweep(f_gear, c(2, 3), biomass, "*"), c(1, 2), sum))
+    }
+    stop("'object' should be a MizerParams or a MizerSim object")
 }
 
 
@@ -303,10 +341,12 @@ getYieldGear <- function(sim) {
 #' to [project()]. But this is only a concern if abundances change quickly
 #' during the time period of interest.
 #'
-#' @param sim An object of class `MizerSim`.
+#' @param object An object of class `MizerParams` or `MizerSim`.
 #'
-#' @return An array (time x species) containing the yield rate in grams per 
-#'   year.
+#' @return If called with a MizerParams object, a vector with the yield rate in
+#'   grams per year for each species in the model. If called with a MizerSim
+#'   object, an array (time x species) containing the yield rate at each time
+#'   step for all species.
 #' @export
 #' @family summary functions
 #' @concept summary_function
@@ -323,13 +363,20 @@ getYieldGear <- function(sim) {
 #' getYield(sim)[, "Herring"]
 #' # We get the total catch in the year by averaging over the year
 #' sum(getYield(sim)[1:10, "Herring"] / 10)
-getYield <- function(sim) {
-    assert_that(is(sim, "MizerSim"))
-    biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
-    f <- getFMort(sim, drop = FALSE)
-    yield <- apply(f * biomass,
-                   c(1, 2), sum)
-    return(yield)
+getYield <- function(object) {
+    if (is(object, "MizerSim")) {
+        sim <- object
+        biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
+        f <- getFMort(sim, drop = FALSE)
+        return(apply(f * biomass, c(1, 2), sum))
+    }
+    if (is(object, "MizerParams")) {
+        params <- object
+        biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
+        f <- getFMort(params, drop = FALSE)
+        return(apply(f * biomass, 1, sum))
+    }
+    stop("'object' should be a MizerParams or a MizerSim object")
 }
 
 
