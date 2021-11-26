@@ -509,6 +509,7 @@ plotlyYieldGear <- function(sim, species = NULL,
              tooltip = c("Species", "Year", "Yield"))
 }
 
+# plotSpectra ----
 #' Plot the abundance spectra
 #' 
 #' Plots the number density multiplied by a power of the weight, with the power
@@ -562,7 +563,7 @@ plotlyYieldGear <- function(sim, species = NULL,
 #' @examples
 #' \donttest{
 #' params <-  NS_params
-#' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
+#' sim <- project(params, effort = 1, t_max = 20, t_save = 2, progress_bar = FALSE)
 #' plotSpectra(sim)
 #' plotSpectra(sim, wlim = c(1e-6, NA))
 #' plotSpectra(sim, time_range = 10:20)
@@ -573,7 +574,12 @@ plotlyYieldGear <- function(sim, species = NULL,
 #' fr <- plotSpectra(sim, return_data = TRUE)
 #' str(fr)
 #' }
-plotSpectra <- function(object, species = NULL,
+setGeneric("plotSpectra",
+           function(object, ...) standardGeneric("plotSpectra"))
+
+#' @rdname plotSpectra
+setMethod("plotSpectra", "MizerParams",
+          function(object, species = NULL,
                         time_range,
                         wlim = c(NA, NA), ylim = c(NA, NA),
                         power = 1, biomass = TRUE,
@@ -584,44 +590,31 @@ plotSpectra <- function(object, species = NULL,
     if (missing(power)) {
         power <- as.numeric(biomass)
     }
+    plot_spectra(object, n = object@initial_n,
+                           n_pp = object@initial_n_pp,
+                           species = species, wlim = wlim, ylim = ylim,
+                           power = power, total = total, resource = resource,
+                           background = background, highlight = highlight, 
+                           return_data = return_data, ...)
+})
+
+#' @rdname plotSpectra
+setMethod("plotSpectra", "MizerSim",
+          function(object, time_range, ...) {
+    params <- setInitialValues(object@params, object, time_range)
+    plotSpectra(params, ...)
+})
+    
+plot_spectra <- function(params, n, n_pp,
+                         species, wlim, ylim, power,
+                         total, resource, background, 
+                         highlight, return_data) {
     assert_that(is.flag(total), is.flag(resource),
                 is.flag(background),
                 is.number(power), 
                 length(wlim) == 2,
                 length(ylim) == 2)
-    species <- valid_species_arg(object, species)
-    if (is(object, "MizerSim")) {
-        if (missing(time_range)) {
-            time_range  <- max(as.numeric(dimnames(object@n)$time))
-        }
-        time_elements <- get_time_elements(object, time_range)
-        n <- apply(object@n[time_elements, , , drop = FALSE], c(2, 3), mean)
-        n_pp <- apply(object@n_pp[time_elements, , drop = FALSE], 2, mean)
-        ps <- plot_spectra(object@params, n = n, n_pp = n_pp,
-                           species = species, wlim = wlim, ylim = ylim,
-                           power = power, total = total, resource = resource,
-                           background = background, highlight = highlight, 
-                           return_data = return_data)
-        return(ps)
-    } else if (is(object, "MizerParams")) {
-        ps <- plot_spectra(object, n = object@initial_n,
-                           n_pp = object@initial_n_pp,
-                           species = species, wlim = wlim, ylim = ylim,
-                           power = power, total = total, resource = resource,
-                           background = background, highlight = highlight, 
-                           return_data = return_data)
-        return(ps)
-    } else {
-        stop("First argument of `plotSpectra()` needs to be a MizerSim or ",
-             "a MizerParams object.")
-    }
-}
-
-
-plot_spectra <- function(params, n, n_pp,
-                         species, wlim, ylim, power,
-                         total, resource, background, 
-                         highlight, return_data) {
+    species <- valid_species_arg(params, species)
     params <- validParams(params)
     if (is.na(wlim[1])) {
         wlim[1] <- min(params@w) / 100

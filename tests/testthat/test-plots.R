@@ -74,8 +74,8 @@ expect_doppelganger("Plot Diet", p)
 })
 
 test_that("plot function do not throw error", {
-    expect_error(plot(sim, species = species, wlim = c(10, 100), w_min = 10), NA)
-    expect_error(plot(params, species = species, wlim = c(10, 100), w_min = 10), NA)
+    expect_error(plot(sim, species = species, wlim = c(10, 100)), NA)
+    expect_error(plot(params, species = species, wlim = c(10, 100)), NA)
 })
 
 # plotly functions do not throw error
