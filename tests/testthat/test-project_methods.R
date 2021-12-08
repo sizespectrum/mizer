@@ -287,6 +287,9 @@ test_that("getFmortGear", {
                      effort_mat[, gear] * params@catchability[gear, sp] * 
                          params@selectivity[gear, sp, widx])
     expect_known_value(f3, "values/getFMortGear")
+    
+    expect_equal(getFMortGear(sim)[1, 1, 1, ], 
+                 getFMortGear(sim@params, effort = sim@effort[1, ])[1, 1, ])
 })
 
 

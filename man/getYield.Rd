@@ -4,14 +4,16 @@
 \alias{getYield}
 \title{Calculate the rate at which biomass of each species is fished}
 \usage{
-getYield(sim)
+getYield(object)
 }
 \arguments{
-\item{sim}{An object of class \code{MizerSim}.}
+\item{object}{An object of class \code{MizerParams} or \code{MizerSim}.}
 }
 \value{
-An array (time x species) containing the yield rate in grams per
-year.
+If called with a MizerParams object, a vector with the yield rate in
+grams per year for each species in the model. If called with a MizerSim
+object, an array (time x species) containing the yield rate at each time
+step for all species.
 }
 \description{
 This yield rate is given in grams per year. It is calculated at each time

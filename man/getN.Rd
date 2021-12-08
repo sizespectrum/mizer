@@ -4,10 +4,10 @@
 \alias{getN}
 \title{Calculate the number of individuals within a size range}
 \usage{
-getN(sim, ...)
+getN(object, ...)
 }
 \arguments{
-\item{sim}{An object of class \code{MizerSim}.}
+\item{object}{An object of class \code{MizerParams} or \code{MizerSim}.}
 
 \item{...}{
   Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
@@ -23,14 +23,15 @@ over \code{max_w}.}
   }}
 }
 \value{
-An array (time x species) containing the total numbers.
+If called with a MizerParams object, a vector with the numbers for
+each species in the model. If called with a MizerSim object, an array (time
+x species) containing the numbers at each time step for all species.
 }
 \description{
-Calculates the number of individuals within user-defined size limits, for
-each time and each species in the \code{MizerSim} object. The default option
-is to use the whole size range. You can specify minimum and maximum weight or
-lengths for the species. Lengths take precedence over weights (i.e. if both
-min_l and min_w are supplied, only min_l will be used)
+Calculates the number of individuals within user-defined size limits. The
+default option is to use the whole size range. You can specify minimum and
+maximum weight or lengths for the species. Lengths take precedence over
+weights (i.e. if both min_l and min_w are supplied, only min_l will be used)
 }
 \examples{
 numbers <- getN(NS_sim)

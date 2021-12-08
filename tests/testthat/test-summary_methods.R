@@ -4,8 +4,9 @@ context("Summary methods")
 species_params <- NS_species_params_gears
 species_params$pred_kernel_type <- "truncated_lognormal"
 params <- newMultispeciesParams(species_params, inter, min_w_pp = 1e-12,
-                                n = 2/3, p = 0.7, lambda = 2.8 - 2/3)
-sim <- project(params, effort = 1, t_max = 10)
+                                n = 2/3, p = 0.7, lambda = 2.8 - 2/3,
+                                initial_effort = 1)
+sim <- project(params, t_max = 10)
 no_sp <- nrow(species_params)
 no_w <- length(params@w)
 
@@ -154,7 +155,7 @@ test_that("getProportionOfLargeFish works",{
 
 # getMeanWeight ----
 test_that("getMeanWeight works",{
-    sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
+    sim <- project(params, t_max = 20, dt = 0.5, t_save = 0.5)
     # all species, all size range
     total_biomass <- apply(sweep(sim@n, 3, sim@params@w * sim@params@dw, "*"),1,sum)
     total_n  <- apply(sweep(sim@n, 3, sim@params@dw, "*"),1,sum)
@@ -207,6 +208,8 @@ test_that("getYieldGear works",{
     expect_that(sum((biomass*f_gear[,1,,])[1,1,]),equals(y[1,1,1]))
     # numeric test
     expect_known_value(y, "values/getYieldGear")
+    expect_equal(getYieldGear(sim)[1, , ], 
+                 getYieldGear(sim@params))
 })
 
 
@@ -221,6 +224,7 @@ test_that("getYield works",{
     expect_that(sum((f*biomass)[1,1,]),equals(y[1,1]))
     # numeric test
     expect_known_value(y, "values/getYield")
+    expect_equal(getYield(sim)[1, ], getYield(sim@params))
 })
 
 
@@ -315,18 +319,21 @@ test_that("getDiet works with additional components", {
 test_that("getSSB works", {
     ssb <- getSSB(sim)
     expect_known_value(ssb, "values/getSSB")
+    expect_equal(getSSB(sim)[1, ], getSSB(sim@params))
 })
 
 # getBiomass ----
 test_that("getBiomass works", {
     biomass <- getBiomass(sim)
     expect_known_value(biomass, "values/getBiomass")
+    expect_equal(getBiomass(sim)[1, ], getBiomass(sim@params))
 })
 
 # getN ----
 test_that("getN works", {
     N <- getN(sim)
     expect_known_value(N, "values/getN")
+    expect_equal(getN(sim)[1, ], getN(sim@params))
 })
 
 # getGrowthCurves ----

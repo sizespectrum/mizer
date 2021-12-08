@@ -1,3 +1,8 @@
+# mizer 2.3.0.9000
+
+* Now `getSSB()`, `getBiomass()`, `getN()`, `getYieldGear()` and `getYield()`
+can be called with a MizerParams object as well as with a MizerSim object. #200
+
 # mizer 2.3.0
 
 ## New features

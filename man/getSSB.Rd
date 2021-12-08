@@ -4,13 +4,16 @@
 \alias{getSSB}
 \title{Calculate the SSB of species}
 \usage{
-getSSB(sim)
+getSSB(object)
 }
 \arguments{
-\item{sim}{An object of class \code{MizerSim}.}
+\item{object}{An object of class \code{MizerParams} or MizerSim`.}
 }
 \value{
-An array (time x species) containing the SSB in grams.
+If called with a MizerParams object, a vector with the SSB in
+grams for each species in the model. If called with a MizerSim object, an
+array (time x species) containing the SSB in grams at each time step
+for all species.
 }
 \description{
 Calculates the spawning stock biomass (SSB) through time of the species in

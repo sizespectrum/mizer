@@ -5,10 +5,10 @@
 \title{Calculate the total biomass of each species within a size range at each time
 step.}
 \usage{
-getBiomass(sim, ...)
+getBiomass(object, ...)
 }
 \arguments{
-\item{sim}{An object of class \code{MizerSim}.}
+\item{object}{An object of class \code{MizerParams} or \code{MizerSim}.}
 
 \item{...}{
   Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
@@ -24,7 +24,10 @@ over \code{max_w}.}
   }}
 }
 \value{
-An array (time x species) containing the biomass in grams.
+If called with a MizerParams object, a vector with the biomass in
+grams for each species in the model. If called with a MizerSim object, an
+array (time x species) containing the biomass in grams at each time step
+for all species.
 }
 \description{
 Calculates the total biomass through time within user defined size limits.
