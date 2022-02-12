@@ -433,12 +433,19 @@ renameSpecies <- function(params, replace) {
     }
     params@gear_params <- validGearParams(params@gear_params, 
                                           params@species_params)
+    # rename line colours
     linenames <- names(params@linecolour)
     names(linenames) <- linenames
     linenames[to_replace] <- replace
     names(linenames) <- NULL
     names(params@linecolour) <- linenames
+    # rename line types
+    linenames <- names(params@linetype)
+    names(linenames) <- linenames
+    linenames[to_replace] <- replace
+    names(linenames) <- NULL
     names(params@linetype) <- linenames
+    
     names(params@w_min_idx) <- species
     dimnames(params@maturity)$sp <- species
     dimnames(params@psi)$sp <- species

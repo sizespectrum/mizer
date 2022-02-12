@@ -1,5 +1,7 @@
 # mizer 2.3.0.9000
 
+* `renameSpecies()` no longer fails when linecolour and linetype are of
+  different lengths.
 * Now `getSSB()`, `getBiomass()`, `getN()`, `getYieldGear()` and `getYield()`
 can be called with a MizerParams object as well as with a MizerSim object. #200
 
