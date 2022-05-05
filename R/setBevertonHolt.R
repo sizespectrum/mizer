@@ -180,8 +180,7 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
     # select the species that are affected
     species <- valid_species_arg(params, names(values))
     sp_idx <- match(species, params@species_params$species)
-    
-    rdd <- getRDD(params)[species]
+
     rdi <- getRDI(params)[species]
     if (any(rdi == 0)) { # This should never happen, but did happen in the past.
         stop("Some species have no reproduction.")
@@ -266,15 +265,15 @@ getRequiredRDD <- function(params) {
     for (i in seq_len(nrow(params@species_params))) {
         gg0 <- gg[i, params@w_min_idx[i]]
         if (!(gg0 > 0)) {
-            stop("Eggs of species ", params@species_params$species[i],
-                 " have zero growth rate.")
+            warning("Eggs of species ", params@species_params$species[i],
+                    " have zero growth rate.")
         }
         mumu0 <- mumu[i, params@w_min_idx[i]]
         DW <- params@dw[params@w_min_idx[i]]
         n0 <- params@initial_n[i, params@w_min_idx[i]]
         if (!(n0 > 0)) {
-            stop("Species ", params@species_params$species[i],
-                 "appears to have no eggs.")
+            warning("Species ", params@species_params$species[i],
+                    "appears to have no eggs.")
         }
         rdd_new[i] <- n0 * (gg0 + DW * mumu0)
     }
