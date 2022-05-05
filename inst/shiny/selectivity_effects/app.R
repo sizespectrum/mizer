@@ -294,8 +294,8 @@ server <- function(input, output, session) {
         year <- input$catch_year - 2018
         s2 <- sim()
         p <- params()
-        w_min_idx <- sum(p@w < 4)
-        w_max_idx <- which.min(p@w < 200)
+        w_min_idx <- sum(p@w < 0.01)
+        w_max_idx <- which.min(p@w < 1000)
         w_sel <- seq(w_min_idx, w_max_idx, by = 1)
         w <- p@w[w_sel]
         catch_old <- sim_old@params@selectivity[2, 11:12, w_sel] * 
