@@ -3,6 +3,7 @@ library(shinyBS)
 library(ggplot2)
 library(mizer)
 library(progress)
+library(dplyr)
 
 #### Server ####
 server <- function(input, output, session) {
@@ -312,7 +313,7 @@ server <- function(input, output, session) {
             ggplot(catchf, aes(x = w, y = value)) +
                 geom_line(aes(colour = Species, linetype = Gear)) +
                 scale_x_continuous(name = "Size [g]", labels = prettyNum) +
-                scale_y_continuous(name = "Yield distribution") +
+                scale_y_continuous(name = "Yield density [tonnes/year/g]") +
                 scale_colour_manual(values = p@linecolour[c("Mullet", "Hake")]) +
                 scale_linetype_manual(values = c("Current" = "dotted", 
                                                  "Modified" = "solid")) +
@@ -322,10 +323,13 @@ server <- function(input, output, session) {
             names(a) <- p@species_params$species[11:12]
             b <- p@species_params$b[11:12]
             names(b) <- p@species_params$species[11:12]
-            ggplot(catchf, aes(x = (w/a[Species])^(1/b[Species]), y = value)) +
+            catchf <- mutate(catchf, 
+                             l = (w/a[Species])^(1/b[Species]),
+                             value = value * b[Species] * w / l)
+            ggplot(catchf, aes(x = l, y = value)) +
                 geom_line(aes(colour = Species, linetype = Gear)) +
                 scale_x_continuous(name = "Length [cm]", labels = prettyNum) +
-                scale_y_continuous(name = "Yield distribution") +
+                scale_y_continuous(name = "Yield density [tonnes/year/cm]") +
                 scale_colour_manual(values = p@linecolour[c("Mullet", "Hake")]) +
                 scale_linetype_manual(values = c("Current" = "dotted", 
                                                  "Modified" = "solid")) +
