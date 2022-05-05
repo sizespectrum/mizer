@@ -42,6 +42,7 @@
 #' @export
 #' @seealso [validParams()]
 upgradeParams <- function(params) {
+    assert_that(is(params, "MizerParams"))
     
     if ("interaction_p" %in% names(params@species_params)) {
         params@species_params$interaction_resource <- 
@@ -311,6 +312,7 @@ upgradeParams <- function(params) {
 #' @return The upgraded MizerSim object
 #' @export
 upgradeSim <- function(sim) {
+    assert_that(is(sim, "MizerSim"))
     t_dimnames <- dimnames(sim@n_pp)[[1]]
     no_gears <- dim(sim@effort)[[2]]
     new_sim <- MizerSim(upgradeParams(sim@params),
