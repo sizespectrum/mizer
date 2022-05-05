@@ -185,7 +185,7 @@ server <- function(input, output, session) {
         ggplot(ym) + 
             geom_line(aes(x = Year, y = Yield, colour = Species, linetype = Gear)) +
             scale_y_continuous(name="Yield [tonnes/year]", limits = c(0, NA)) +
-            scale_colour_manual(values = params()@linecolour) +
+            scale_colour_manual(values = params()@linecolour[c("Mullet", "Hake")]) +
             scale_linetype_manual(values = c("Current" = "dotted", "Modified" = "solid")) +
             theme(text = element_text(size = 18))
     })
@@ -201,7 +201,7 @@ server <- function(input, output, session) {
         ggplot(bm) + 
             geom_line(aes(x = Year, y = SSB, colour = Species, linetype = Gear)) +
             scale_y_continuous(name="SSB [tonnes]", limits = c(0, NA)) +
-            scale_colour_manual(values = params()@linecolour) +
+            scale_colour_manual(values = params()@linecolour[c("Mullet", "Hake")]) +
             scale_linetype_manual(values = c("Current" = "dotted", "Modified" = "solid")) +
             theme(text = element_text(size = 18))
     })
@@ -238,14 +238,13 @@ server <- function(input, output, session) {
                          "Species" = p@species_params$species[11:12])
         
         ggplot(cf, aes(x = w, y = value)) +
-            geom_line(aes(colour = Species, linetype = Species, group = sp)) +
+            geom_line(aes(colour = Species, group = sp)) +
             geom_hline(yintercept = 0) +
             scale_x_log10(name = "Size [g]", labels = prettyNum,
                           breaks = 10^(-3:4)) +
             scale_y_continuous(name = "Percentage change", limits = c(-0.50, 0.60),
                                labels = scales::percent, breaks = (-7:9)/10) +
-            scale_colour_manual(values = p@linecolour) +
-            scale_linetype_manual(values = p@linetype) +
+            scale_colour_manual(values = p@linecolour[c("Mullet", "Hake", "Background")]) +
             theme(text = element_text(size = 14)) +
             geom_point(aes(x = w, y = y, colour = Species, shape = Points), 
                        data = sp, size=3)
@@ -273,7 +272,7 @@ server <- function(input, output, session) {
                 scale_x_continuous(name = "Size [g]", labels = prettyNum) +
                 scale_y_continuous(name = "Selectivity",
                                    labels = scales::percent) +
-                scale_colour_manual(values = p@linecolour) +
+                scale_colour_manual(values = p@linecolour[c("Mullet", "Hake")]) +
                 theme(text = element_text(size = 18))
         } else {
             a <- p@species_params$a
@@ -285,7 +284,7 @@ server <- function(input, output, session) {
                 scale_x_continuous(name = "Length [cm]", labels = prettyNum) +
                 scale_y_continuous(name = "Selectivity",
                                    labels = scales::percent) +
-                scale_colour_manual(values = p@linecolour) +
+                scale_colour_manual(values = p@linecolour[c("Mullet", "Hake")]) +
                 theme(text = element_text(size = 18))
         }
     })
@@ -314,7 +313,7 @@ server <- function(input, output, session) {
                 geom_line(aes(colour = Species, linetype = Gear)) +
                 scale_x_continuous(name = "Size [g]", labels = prettyNum) +
                 scale_y_continuous(name = "Yield distribution") +
-                scale_colour_manual(values = p@linecolour) +
+                scale_colour_manual(values = p@linecolour[c("Mullet", "Hake")]) +
                 scale_linetype_manual(values = c("Current" = "dotted", 
                                                  "Modified" = "solid")) +
                 theme(text = element_text(size = 18))
@@ -327,7 +326,7 @@ server <- function(input, output, session) {
                 geom_line(aes(colour = Species, linetype = Gear)) +
                 scale_x_continuous(name = "Length [cm]", labels = prettyNum) +
                 scale_y_continuous(name = "Yield distribution") +
-                scale_colour_manual(values = p@linecolour) +
+                scale_colour_manual(values = p@linecolour[c("Mullet", "Hake")]) +
                 scale_linetype_manual(values = c("Current" = "dotted", 
                                                  "Modified" = "solid")) +
                 theme(text = element_text(size = 18))
