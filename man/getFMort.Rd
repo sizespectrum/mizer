@@ -42,7 +42,8 @@ used.
 }
 \description{
 Calculates the total fishing mortality  (in units 1/year) from all gears by
-species and size and possibly time.
+species and size and possibly time. See \code{setFishing()} for details of
+how fishing gears are set up.
 }
 \details{
 The total fishing mortality is just the sum of the fishing mortalities

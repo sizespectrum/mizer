@@ -492,7 +492,8 @@ getFMortGear <- function(object, effort, time_range) {
 #' and size.
 #' 
 #' Calculates the total fishing mortality  (in units 1/year) from all gears by
-#' species and size and possibly time.
+#' species and size and possibly time. See `setFishing()` for details of
+#' how fishing gears are set up.
 #' 
 #' The total fishing mortality is just the sum of the fishing mortalities
 #' imposed by each gear, \eqn{\mu_{f.i}(w)=\sum_g F_{g,i,w}}.

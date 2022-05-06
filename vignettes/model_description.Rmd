@@ -119,8 +119,11 @@ mortality:
   = -\mu_i(w) N_i(w),
 \end{equation}
 
-where individual growth $g_i(w)$ and mortality $\mu_i(w)$ will be described
-below. There is no need for you to understand the mathematical notation used in
+where individual growth $g_i(w)$ is described below in the [Growth](#growth)
+section and mortality $\mu_i(w)$ is described in the [Mortality](#mortality)
+section.
+
+There is no need for you to understand the mathematical notation used in
 this equation to understand its origin: it just says that the rate at which the
 number of fish in a size bracket changes is the rate at which fish grow into the
 size bracket from a smaller size minus the rate at which fish grow out of it to
@@ -142,7 +145,9 @@ Of course there also needs to be reproduction into the smallest size class,
 otherwise there would be no small fish any more after a while. So for the
 smallest size class instead of a rate of growth into the size class there is
 a rate of reproduction of new individuals into that size class. This
-reproduction will be described further below.
+reproduction will be described below in the [Reproduction](#reproduction)
+section.
+
 
 ## Resource density
 
@@ -186,9 +191,9 @@ The resource spectrum is then represented by a vector `NResource` such that
 
 Consumers can grow only by consuming prey. In the next few subsections we will
 build towards determining the growth rate resulting from predation.
-We will discuss how we model the predator-prey encounter rate, the resulting rate
-of consumption, the rate of loss due to metabolism, and the partitioning of the
-remaining energy into reproduction and growth.
+We will discuss how we model the [predator-prey encounter rate], the resulting rate
+of [consumption], the rate of [metabolic losses], and the partitioning of the
+remaining energy into [reproduction](#sec:repro) and [growth](#resulting-growth).
 
 ## Predator-prey encounter rate {#sec:pref}
 
@@ -247,7 +252,7 @@ a convolution sum and can be evaluated efficiently via fast Fourier transform.
 
 ## Consumption
 
-The encountered food is consumed subjected to a standard Holling functional 
+The encountered food is consumed subject to a standard Holling functional 
 response type II to represent satiation. This determines the 
 *feeding level* $f_i(w)$, which is a dimensionless number between 0 
 (no food) and 1 (fully satiated) so that $1-f_i(w)$ is the proportion of the
@@ -309,7 +314,9 @@ It is calculated by the `getEGrowth()` function.
 When food supply does not cover the requirements of metabolism and activity, 
 growth and reproduction stops, i.e. there is no negative growth.
 The individual should then be subjected to a starvation mortality, but starvation
-mortality is not implemented in mizer at the moment.
+mortality is not implemented in core mizer but is provided
+by the [mizerStarvation](https://sizespectrum.org/mizerStarvation)
+extension package.
 
 
 # Mortality
