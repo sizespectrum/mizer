@@ -188,11 +188,12 @@ projectToSteady <- function(params,
 
 #' Set initial values to a steady state for the model
 #'
-#' The steady state is found by running the dynamics while keeping reproduction
-#' and other components constant until the size spectra no longer change much (or
-#' until time `t_max` is reached, if earlier). Then the reproduction parameters
-#' are set to values that give the level of reproduction observed in that
-#' steady state.
+#' The steady state is found by running the dynamics while keeping reproduction,
+#' resources and other components constant until the size spectra no longer
+#' change much (or until time `t_max` is reached, if earlier). Then the
+#' reproduction parameters are set to values that give the level of reproduction
+#' observed in that steady state. Similarly the resource replenishment rate
+#' is set to equal the rate at which resource is consumed in the steady state.
 #'
 #' @param params A \linkS4class{MizerParams} object
 #' @param t_max The maximum number of years to run the simulation. Default is 100.
@@ -226,6 +227,10 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
                    preserve = c("reproduction_level", "erepro", "R_max"),
                    progress_bar = TRUE) {
     params <- validParams(params)
+    # Check that resource level is below its carrying capacity
+    if (any(params@cc_pp <= params@initial_n_pp)) {
+        stop("The initial resource abundance needs to be below the carrying capacity.")
+    }
     
     preserve <- match.arg(preserve)
     old_reproduction_level <- getReproductionLevel(params)
@@ -236,6 +241,10 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
     params@species_params$constant_reproduction <- getRDD(params)
     old_rdd_fun <- params@rates_funcs$RDD
     params@rates_funcs$RDD <- "constantRDD"
+    
+    # Force the resource to stay at the current level
+    old_resource_dynamics <- params@resource_dynamics
+    params@resource_dynamics <- "resource_constant"
     
     # Force other components to stay at current level
     old_other_dynamics <- params@other_dynamics
@@ -256,11 +265,13 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
     } else {
         params <- object
     }
-    # Restore original RDD and other dynamics
+    # Restore original RDD and resource and other dynamics
     params@rates_funcs$RDD <- old_rdd_fun
+    params@resource_dynamics <- old_resource_dynamics
     params@other_dynamics <- old_other_dynamics
     params@species_params$constant_reproduction <- NULL
     
+    # Adjust reproduction
     if (preserve == "reproduction_level") {
         params <- setBevertonHolt(params, 
                                   reproduction_level = old_reproduction_level)
@@ -270,6 +281,11 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
     } else {
         params <- setBevertonHolt(params, erepro = old_erepro)
     }
+    
+    # Adjust resource replenishment rate
+    r <- (getResourceMort(params) * params@initial_n_pp) /
+        (params@cc_pp - params@initial_n)
+    setResource(params, resource_rate = r)
     
     if (return_sim) {
         object@params <- params
