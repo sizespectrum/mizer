@@ -112,8 +112,10 @@ species parameters, you would make those changes in the \code{species_params} da
 frame contained in the \code{params} object using \code{\link[=species_params<-]{species_params<-()}}.
 Here is an example which assumes that
 you have have a MizerParams object \code{params} in which you just want to change
-the \code{gamma} parameter of the third species:\preformatted{species_params(params)$gamma[[3]] <- 1000
-}
+the \code{gamma} parameter of the third species:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{species_params(params)$gamma[[3]] <- 1000
+}\if{html}{\out{</div>}}
 
 Internally that will actually call \code{setParams()} to recalculate any of the
 other parameters that are affected by the change in the species parameter.

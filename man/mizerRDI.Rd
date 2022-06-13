@@ -59,8 +59,10 @@ See \code{\link[=setReproduction]{setReproduction()}} for more details.
 By default \code{\link[=getRDI]{getRDI()}} calls \code{\link[=mizerRDI]{mizerRDI()}}. However you can
 replace this with your own alternative reproduction function. If
 your function is called \code{"myRDI"} then you register it in a MizerParams
-object \code{params} with\preformatted{params <- setRateFunction(params, "RDI", "myRDI")
-}
+object \code{params} with
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{params <- setRateFunction(params, "RDI", "myRDI")
+}\if{html}{\out{</div>}}
 
 Your function will then be called instead of \code{\link[=mizerRDI]{mizerRDI()}}, with the
 same arguments. For an example of an alternative reproduction function

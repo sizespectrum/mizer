@@ -42,8 +42,10 @@ accounted for.
 By default \code{\link[=getEGrowth]{getEGrowth()}} calls \code{\link[=mizerEGrowth]{mizerEGrowth()}}. However you can
 replace this with your own alternative growth rate function. If
 your function is called \code{"myEGrowth"} then you register it in a MizerParams
-object \code{params} with\preformatted{params <- setRateFunction(params, "EGrowth", "myEGrowth")
-}
+object \code{params} with
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{params <- setRateFunction(params, "EGrowth", "myEGrowth")
+}\if{html}{\out{</div>}}
 
 Your function will then be called instead of \code{\link[=mizerEGrowth]{mizerEGrowth()}}, with the
 same arguments.

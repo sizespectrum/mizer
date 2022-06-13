@@ -17,8 +17,10 @@ Occasionally, during the development of new features for mizer, the
 \linkS4class{MizerSim} class or the \linkS4class{MizerParams} class gains
 extra slots. MizerSim objects created in older versions of mizer are then no
 longer valid in the new version because of the missing slots. You need to
-upgrade them with\preformatted{sim <- upgradeSim(sim)
-}
+upgrade them with
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{sim <- upgradeSim(sim)
+}\if{html}{\out{</div>}}
 
 where \code{sim} should be replaced by the name of your MizerSim object.
 }
@@ -34,8 +36,10 @@ discrepancies between the results obtained with the upgraded object
 in the new version and the original object in the old version. If it
 is important for you to reproduce the exact results then you should install
 the version of mizer with which you obtained the results. You can do this
-with\preformatted{remotes::install_github("sizespectrum/mizer", ref = "v0.2")
-}
+with
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{remotes::install_github("sizespectrum/mizer", ref = "v0.2")
+}\if{html}{\out{</div>}}
 
 where you should replace "v0.2" with the version number you require. You can
 see the list of available releases at

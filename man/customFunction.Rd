@@ -38,9 +38,11 @@ will become clear when you run the code in the Examples section.
 
 This function does not in any way check that your replacement function is
 compatible with mizer. Calling this function can totally break mizer.
-However you can always undo the effect by reloading mizer with\preformatted{detach(package:mizer, unload = TRUE)
+However you can always undo the effect by reloading mizer with
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{detach(package:mizer, unload = TRUE)
 library(mizer)
-}
+}\if{html}{\out{</div>}}
 }
 \examples{
 \dontrun{

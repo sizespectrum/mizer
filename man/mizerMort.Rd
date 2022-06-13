@@ -51,8 +51,10 @@ value.
 By default \code{\link[=getMort]{getMort()}} calls \code{\link[=mizerMort]{mizerMort()}}. However you can
 replace this with your own alternative mortality function. If
 your function is called \code{"myMort"} then you register it in a MizerParams
-object \code{params} with\preformatted{params <- setRateFunction(params, "Mort", "myMort")
-}
+object \code{params} with
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{params <- setRateFunction(params, "Mort", "myMort")
+}\if{html}{\out{</div>}}
 
 Your function will then be called instead of \code{\link[=mizerMort]{mizerMort()}}, with the
 same arguments.

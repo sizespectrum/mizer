@@ -47,8 +47,10 @@ function unless an alternative function has been registered, see below.
 By default \code{\link[=getPredRate]{getPredRate()}} calls \code{\link[=mizerPredRate]{mizerPredRate()}}. However you can
 replace this with your own alternative predation rate function. If
 your function is called \code{"myPredRate"} then you register it in a MizerParams
-object \code{params} with\preformatted{params <- setRateFunction(params, "PredRate", "myPredRate")
-}
+object \code{params} with
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{params <- setRateFunction(params, "PredRate", "myPredRate")
+}\if{html}{\out{</div>}}
 
 Your function will then be called instead of \code{\link[=mizerPredRate]{mizerPredRate()}}, with
 the same arguments.

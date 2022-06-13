@@ -61,8 +61,10 @@ predator actually consumes.
 By default \code{\link[=getFeedingLevel]{getFeedingLevel()}} calls \code{\link[=mizerFeedingLevel]{mizerFeedingLevel()}}. However you can
 replace this with your own alternative feeding level function. If
 your function is called \code{"myFeedingLevel"} then you register it in a MizerParams
-object \code{params} with\preformatted{params <- setRateFunction(params, "FeedingLevel", "myFeedingLevel")
-}
+object \code{params} with
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{params <- setRateFunction(params, "FeedingLevel", "myFeedingLevel")
+}\if{html}{\out{</div>}}
 
 Your function will then be called instead of \code{\link[=mizerFeedingLevel]{mizerFeedingLevel()}}, with the
 same arguments.

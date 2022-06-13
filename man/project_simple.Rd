@@ -66,10 +66,12 @@ intermediate results but only returns the result at time \code{t + dt * steps}.
 During this time it uses the constant fishing effort \code{effort}.
 
 The functional arguments can be calculated from slots in the \code{params} object
-with\preformatted{resource_dynamics_fn <- get(params@resource_dynamics)
+with
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{resource_dynamics_fn <- get(params@resource_dynamics)
 other_dynamics_fns <- lapply(params@other_dynamics, get)
 rates_fns <- lapply(params@rates_funcs, get)
-}
+}\if{html}{\out{</div>}}
 
 The reason the function does not do that itself is to shave 20 microseconds
 of its running time, which pays when the function is called hundreds of

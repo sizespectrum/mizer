@@ -45,8 +45,10 @@ The predation rate \code{pred_rate} is returned by \code{\link[=getPredRate]{get
 By default \code{\link[=getPredMort]{getPredMort()}} calls \code{\link[=mizerPredMort]{mizerPredMort()}}. However you can
 replace this with your own alternative predation mortality function. If
 your function is called \code{"myPredMort"} then you register it in a MizerParams
-object \code{params} with\preformatted{params <- setRateFunction(params, "PredMort", "myPredMort")
-}
+object \code{params} with
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{params <- setRateFunction(params, "PredMort", "myPredMort")
+}\if{html}{\out{</div>}}
 
 Your function will then be called instead of \code{\link[=mizerPredMort]{mizerPredMort()}}, with the
 same arguments.
