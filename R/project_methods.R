@@ -481,8 +481,8 @@ mizerPredRate <- function(params, n, n_pp, n_other, t, feeding_level, ...) {
                          params@dw, "*")
 
     # We do our spectral integration in parallel over the different species
-    pred_rate <- Re(t(mvfft(t(params@ft_pred_kernel_p) *
-                                 mvfft(t(Q)), inverse = TRUE))) / no_w_full
+    pred_rate <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_p) *
+                                 mvfft(base::t(Q)), inverse = TRUE))) / no_w_full
     # Due to numerical errors we might get negative or very small entries that
     # should be 0
     pred_rate[pred_rate < 1e-18] <- 0
