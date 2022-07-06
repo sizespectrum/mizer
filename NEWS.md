@@ -1,9 +1,19 @@
-# mizer 2.3.0.9000
+# mizer 2.3.1
 
+* Resolved conflict in `mizerPredRate()` between the argument `t` and the 
+  function `base::t()`.
+* Assert that upgradeParams() must be called with a MizerParams object and 
+  `upgradeSim()` with a MizerSim object.
+* Errors changed to warnings in `getRequiredRDD()`
 * `renameSpecies()` no longer fails when linecolour and linetype are of
   different lengths.
-* Now `getSSB()`, `getBiomass()`, `getN()`, `getYieldGear()` and `getYield()`
-can be called with a MizerParams object as well as with a MizerSim object. #200
+* matchYields() now also works for a model with only a single species.
+* `setInitialValues()` can now average over a time_range.
+* `getSSB()`, `getBiomass()`, `getN()`, `getYieldGear()` and `getYield()`
+  can now be called with a MizerParams object as well as with a MizerSim 
+  object. (#200)
+* Updated the shiny app in inst/shiny/selectivity_effects to current mizer
+  version.
 
 # mizer 2.3.0
 
