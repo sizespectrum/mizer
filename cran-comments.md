@@ -1,16 +1,26 @@
 ## Test environments
   
-* local Linux Mint 20.2 Cinnamon (Ubuntu 20.04), R 4.1.1
+* local Windows 10, R 4.2.1
 
   0 errors ✓ | 0 warnings ✓ | 0 notes ✓
   
-* win-builder (devel, release and oldrelease)
 
-  No Notes, Warnings or Errors
+* rhub::check_for_cran(platforms = "macos-highsierra-release-cran")
+  
+  SUCCESS
 
-* r-hub 
-  - Windows Server 2008 R2 SP1, R-devel, 32/64 bit: OK
-  - Ubuntu Linux 20.04.1 LTS, R-release, GCC: OK
-  - Fedora Linux, R-devel, clang, gfortran: OK
-  - Debian Linux, R-devel, GCC ASAN/UBSAN: PREPERROR
-    Configuration failed because libxml-2.0 was not found
+* RStudio Cloud with x86_64-pc-linux-gnu (64-bit), R 4.2.1
+* Win builder devel
+
+  0 errors ✔ | 0 warnings ✔ | 1 note ✖
+  
+  checking CRAN incoming feasibility ... NOTE
+  Maintainer: ‘Gustav Delius <gustav.delius@york.ac.uk>’
+  
+  Found the following (possibly) invalid DOIs:
+    DOI: 10.1111/2041-210X.12256
+      From: inst/CITATION
+      Status: Service Unavailable
+      Message: 503
+      
+  I have checked the DOI at https://www.doi.org/ and it is correct

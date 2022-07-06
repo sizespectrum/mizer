@@ -15,11 +15,8 @@ authors:
     href: https://www.york.ac.uk/maths/staff/gustav-delius/
 
 template:
-  params:
-    bootswatch: cerulean
-    docsearch:
-      api_key: 96e9641255d3fff35a4fd16d1a1bf70c
-      index_name: sizespectrum_mizer
+  bootstrap: 5
+  bootswatch: cerulean
   opengraph:
     image:
       src: man/figures/logo.png
@@ -89,6 +86,7 @@ reference:
   - newCommunityParams
   - newTraitParams
   - newMultispeciesParams
+  - mizer-package
 - title: Changing model parameters
   description: Even after you have created a model, you can still make changes
     with the following functions. This is useful while tuning the model and for

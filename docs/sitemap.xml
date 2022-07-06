@@ -1,7 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://sizespectrum.org/mizer/404.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/a_multispecies_model_of_the_north_sea.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/community_model.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/developer_FAQ.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/developer_vignette.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/editing_website.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/mizer.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/model_description.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/multispecies_model.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/plotting.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/publications.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/running_a_simulation.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/single_species_size-spectrum_dynamics.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/trait_model.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/working_with_git.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/authors.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/CONTRIBUTING.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/index.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/news/index.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/addSpecies.html</loc>
@@ -200,6 +260,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/idxFinalT.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/index.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/indicator_functions.html</loc>
@@ -518,50 +581,5 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/w.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/articles/a_multispecies_model_of_the_north_sea.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/articles/community_model.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/articles/developer_FAQ.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/articles/developer_vignette.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/articles/editing_website.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/articles/mizer.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/articles/model_description.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/articles/multispecies_model.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/articles/plotting.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/articles/publications.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/articles/running_a_simulation.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/articles/single_species_size-spectrum_dynamics.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/articles/trait_model.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/articles/working_with_git.html</loc>
   </url>
 </urlset>

@@ -1,5 +1,5 @@
-pandoc: 2.11.4
-pkgdown: 1.6.1
+pandoc: 2.17.1.1
+pkgdown: 2.0.5
 pkgdown_sha: ~
 articles:
   a_multispecies_model_of_the_north_sea: a_multispecies_model_of_the_north_sea.html
@@ -17,7 +17,7 @@ articles:
   single_species_size-spectrum_dynamics: single_species_size-spectrum_dynamics.html
   trait_model: trait_model.html
   working_with_git: working_with_git.html
-last_built: 2021-09-19T07:32Z
+last_built: 2022-07-06T00:40Z
 urls:
   reference: https://sizespectrum.org/mizer/reference
   article: https://sizespectrum.org/mizer/articles

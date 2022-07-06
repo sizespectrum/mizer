@@ -108,7 +108,7 @@ Setting the model parameters is done by creating an object of `class ?
 MizerParams`. This includes model parameters such as the life history parameters
 of each species, and the fishing gears. For each type of sizespectrum model
 there is a function for creating a new MizerParams object,
-`newSinglespeciesParams()`,
+`newSingleSpeciesParams()`,
 `newCommunityParams()`, `newTraitParams()` and `newMultispeciesParams()`.
 
 These functions make
