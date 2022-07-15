@@ -12,6 +12,8 @@
   longer restricted to be less or equal to 1. #232
 * If user supplies no row names in the interaction matrix but give column names
   then the column names are also used as row names. #247
+* `project()` now also works when called with a MizerSim object with additional
+  components.
 
 
 # mizer 2.3.1
