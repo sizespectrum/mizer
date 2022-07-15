@@ -1,3 +1,5 @@
+# mizer (development version)
+
 # mizer 2.3.1
 
 * Resolved conflict in `mizerPredRate()` between the argument `t` and the 
