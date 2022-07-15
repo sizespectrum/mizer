@@ -12,6 +12,8 @@ knitr::opts_chunk$set(
 )
 ```
 
+\ 
+
 <img src="man/figures/mizer.png" style='height: 100%; width: 100%; object-fit: contain' title="mizer logo created by Kira Askaroff (www.kiraaskaroff.com)"/>
 
 [![CRAN Status](https://www.r-pkg.org/badges/version-ago/mizer)](https://cran.r-project.org/package=mizer)
@@ -161,6 +163,6 @@ the ecosystem close to its natural productive state.
 ## A model one can understand
 One big advantage of a mizer model is that it is based on a strong mathematical
 foundation. This allows a degree of a priori understanding of the behaviour of
-the model that is absent in many other multi-species model. This theoretical
+the model that is absent in many other multi-species models. This theoretical
 foundation is well presented in the book "Fish Ecology, Evolution, and
 Exploitation" by Ken Andersen.

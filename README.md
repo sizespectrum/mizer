@@ -1,6 +1,8 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+ 
+
 <img src="man/figures/mizer.png" style='height: 100%; width: 100%; object-fit: contain' title="mizer logo created by Kira Askaroff (www.kiraaskaroff.com)"/>
 
 [![CRAN
@@ -172,5 +174,5 @@ to its natural productive state.
 One big advantage of a mizer model is that it is based on a strong
 mathematical foundation. This allows a degree of a priori understanding
 of the behaviour of the model that is absent in many other multi-species
-model. This theoretical foundation is well presented in the book “Fish
+models. This theoretical foundation is well presented in the book “Fish
 Ecology, Evolution, and Exploitation” by Ken Andersen.

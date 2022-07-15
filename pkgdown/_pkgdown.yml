@@ -3,6 +3,8 @@
 home:
   title: Multi-Species Dynamic Size Spectrum Modelling in R
   description: Mizer is an R package to create and run dynamic multi-species size-spectrum models of fish communities that are subject to fishing. 
+  sidebar:
+    structure: [links, community, license, toc]
 
 url: https://sizespectrum.org/mizer
 
@@ -16,7 +18,8 @@ authors:
 
 template:
   bootstrap: 5
-  bootswatch: cerulean
+  params:
+    bootswatch: cerulean
   opengraph:
     image:
       src: man/figures/logo.png
@@ -43,7 +46,7 @@ navbar:
     twitter:
        icon: "fab fa-twitter fa-lg"
        href: https://twitter.com/mizer_model
-
+       aria-label: Twitter
 
 articles:
 - title: Model description
