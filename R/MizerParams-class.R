@@ -573,7 +573,8 @@ emptyParams <- function(species_params,
                                          w = signif(w, 3)))
     catchability <- array(0, dim = c(length(gear_names), no_sp), 
                           dimnames = list(gear = gear_names, sp = species_names))
-    initial_effort <- rep(0, length(gear_names))
+    default_effort <- ifelse(defaults_edition() < 2, 0, 1)
+    initial_effort <- rep(default_effort, length(gear_names))
     names(initial_effort) <- gear_names
     
     interaction <- array(1, dim = c(no_sp, no_sp),

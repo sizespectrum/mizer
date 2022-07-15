@@ -448,10 +448,10 @@ initial_effort <- function(params) {
 #' The row names of the returned data frame are of the form
 #' "species, gear".
 #' 
-#' For backwards compatibility, when `gear_params` is `NULL` and there is no
-#' gear information in `species_params`, then a gear called `knife_edge_gear`
-#' is set up with a `knife_edge` selectivity for each species and a
-#' `knive_edge_size` equal to `w_mat`. Catchability is set to 1 for all species.
+#' When `gear_params` is `NULL` and there is no gear information in
+#' `species_params`, then a gear called `knife_edge_gear` is set up with a
+#' `knife_edge` selectivity for each species and a `knive_edge_size` equal to
+#' `w_mat`. Catchability is set to 0.3 for all species.
 #' 
 #' @param gear_params Gear parameter data frame
 #' @param species_params Species parameter data frame
@@ -461,7 +461,9 @@ initial_effort <- function(params) {
 #' @export
 validGearParams <- function(gear_params, species_params) {
     
-    # This is to agree with old defaults
+    catchability_default <- ifelse(defaults_edition() < 2, 1, 0.3)
+    
+    # if no gear parameters are given, set up knife-edge gear
     if (is.null(gear_params) && 
         !("gear" %in% names(species_params) || 
             "sel_func" %in% names(species_params))) {
@@ -470,7 +472,7 @@ validGearParams <- function(gear_params, species_params) {
                        gear = "knife_edge_gear",
                        sel_func = "knife_edge",
                        knife_edge_size = species_params$w_mat,
-                       catchability = 1,
+                       catchability = catchability_default,
                        stringsAsFactors = FALSE) # for old versions of R
     }
     
@@ -502,9 +504,10 @@ validGearParams <- function(gear_params, species_params) {
         }
         if ("catchability" %in% names(species_params)) {
             gear_params$catchability <- species_params$catchability
-            gear_params$catchability[is.na(gear_params$catchability)] <- 1
+            gear_params$catchability[is.na(gear_params$catchability)] <-
+                catchability_default
         } else {
-            gear_params$catchability <- 1
+            gear_params$catchability <- catchability_default
         }
         # copy over any selectivity function parameters
         for (g in seq_len(no_sp)) {
@@ -582,9 +585,10 @@ validGearParams <- function(gear_params, species_params) {
         }
     }
     if (!("catchability" %in% names(gear_params))) {
-        gear_params$catchability <- 1
+        gear_params$catchability <- catchability_default
     }
-    gear_params$catchability[is.na(gear_params$catchability)] <- 1
+    gear_params$catchability[is.na(gear_params$catchability)] <- 
+        catchability_default
     
     rownames(gear_params) <- paste(gear_params$species, gear_params$gear,
                                        sep = ", ")
@@ -639,9 +643,10 @@ validEffortVector <- function(effort, params) {
         stop("The effort vector is invalid as it has names that are not among the gear names")
     }
 
-    # Set any missing efforts to zero
+    # Set any missing efforts to default
+    effort_default <- ifelse(defaults_edition() < 2, 0, 1)
     missing <- setdiff(gear_names, names(effort))
-    new <- rep(0, length(missing))
+    new <- rep(effort_default, length(missing))
     names(new) <- missing
     effort <- c(effort, new)
     
