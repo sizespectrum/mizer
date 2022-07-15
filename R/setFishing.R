@@ -650,6 +650,9 @@ validEffortVector <- function(effort, params) {
     names(new) <- missing
     effort <- c(effort, new)
     
+    # Set any NAs to default
+    effort[is.na(effort)] <- effort_default
+    
     # Sort vector
     effort <- effort[gear_names]
     

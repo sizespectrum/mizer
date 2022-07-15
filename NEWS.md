@@ -1,11 +1,13 @@
 # mizer (development version)
 
 * Improved defaults can now be implemented while keeping backwards compatibility
-  via `defaults_edition()`.
+  via `defaults_edition()`. #186
 * New defaults edition 2: catchability = 0.3 instead of 1, initial effort = 1
-  instead of 0.
+  instead of 0. #243
 * In defaults edition 2, `get_gamma_default()` ensures a feeding level of `f0`
-  for larvae also if `interaction_resource` is not equal to 1.
+  for larvae also if `interaction_resource` is not equal to 1. #238
+* If an effort vector or effort array contains NA's, these are now replaced by
+  the default effort value. #230
 * The entries of the interaction matrix and of interaction_resource are not
   longer restricted to be less or equal to 1. #232
 * If user supplies no row names in the interaction matrix but give column names

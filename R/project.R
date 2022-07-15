@@ -418,6 +418,11 @@ validEffortArray <- function(effort, params) {
     if (is.unsorted(time_effort)) {
         stop("The time dimname of the effort argument should be increasing.")
     }
+    
+    # Replace any NA's with default value
+    effort_default <- ifelse(defaults_edition() < 2, 0, 1)
+    effort[is.na(effort)] <- effort_default
+    
     names(dimnames(effort)) <- c("time", "gear")
     effort
 }
