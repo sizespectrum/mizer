@@ -81,6 +81,13 @@ setInteraction <- function(params,
             }
         }
         names(dimnames(interaction)) <- names(dimnames(params@interaction))
+        # If user did not supply rownames, then save to assume that they have
+        # put the rows in the same order as the columns, so copy over 
+        # the colnames
+        if (is.null(rownames(interaction)) || 
+            rownames(interaction()) == as.character(1:nrow(interaction))) {
+            rownames(interaction) <- colnames(interaction)
+        }
         if (!identical(dimnames(params@interaction),
                        dimnames(interaction))) {
             message("Note: Dimnames of interaction matrix do not match the ",

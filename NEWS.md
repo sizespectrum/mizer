@@ -1,5 +1,9 @@
 # mizer (development version)
 
+* If user supplies no row names in the interaction matrix but give column names
+  then the column names are also used as row names. #247
+
+
 # mizer 2.3.1
 
 * Resolved conflict in `mizerPredRate()` between the argument `t` and the 
