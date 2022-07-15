@@ -3,11 +3,16 @@
 #' These functions allow you to get or set the species parameters stored in
 #' a MizerParams object.
 #' 
-#' The `species_params` data frame holds species-specific parameters that Mizer
-#' can use, together with allometric assumptions, to set its various 
-#' size-dependent parameters. The data frame has one row for each species and
-#' one column for each species parameter. There are a lot of species parameters
-#' as we will now discuss, but most of them have sensible default values.
+#' The `species_params` data frame holds species-specific parameters. The data
+#' frame has one row for each species and one column for each species parameter.
+#' There are a lot of species parameters and we will list them all below, but
+#' most of them have sensible default values. The only required columns are
+#' `species` for the species name and `w_inf` for its asymptotic size. However
+#' if you have information about the values of other parameters then you should
+#' include them in the `species_params` data frame.
+#' 
+#' There are some species parameters that are used to set up the
+#' size-dependent parameters that are used in the mizer model:
 #' 
 #' * `gamma` and `q` are used to set the search volume, see [setSearchVolume()].
 #' * `h` and `n` are used to set the maximum intake rate, see [setMaxIntakeRate()].
@@ -16,15 +21,46 @@
 #' * `z0` is used to set the external mortality rate, see [setExtMort()].
 #' * `w_mat`, `w_mat25`, `w_inf` and `m` are used to set the allocation to
 #'   reproduction, see [setReproduction()].
-#' * `w_min` is the egg size.
+#' * `pred_kernel_type` specifies the shape of the predation kernel. The default
+#'   is a "lognormal", for other options see the "Setting predation kernel"
+#'   section in the help for [setPredKernel()].
 #' * `beta` and `sigma` are parameters of the lognormal predation kernel, see
 #'   [lognormal_pred_kernel()]. There will be other parameters if you are 
-#'   using other predation kernel functions, see the "Setting predation kernel"
-#'   section in the help for [setPredKernel()].
+#'   using other predation kernel functions.
+#'   
+#' When you change one of the above species parameters in an already existing
+#' MizerParams object using [species_params<-()], the new value will be
+#' used to update the corresponding size-dependent rates automatically, unless
+#' you have set those size-dependent rates manually, in which case the
+#' corresponding species parameters will be ignored.
 #' 
-#' Not all of these parameters have to be specified by the user. If they are
-#' missing, mizer will give them default values, sometimes by using other
-#' species parameters.
+#' There are some species parameters that are used directly in the model
+#' rather than being used for setting up size-dependent parameters:
+#' 
+#' * `alpha` is the assimilation efficiency, the proportion of the consumed
+#'   biomass that can be used for growth, metabolism and reproduction, see
+#'   the help for [getEReproAndGrowth()].
+#' * `w_min` is the egg size.
+#' * `interaction_resource` sets the interaction strength with the resource,
+#'   see "Predation encounter" section in the help for [getEncounter()].
+#' * `erepro` is the reproductive efficiency, the proportion of the energy
+#'   invested into reproduction that is converted to egg biomass, see
+#'   [getRDI()].
+#' * `Rmax` is the parameter in the Beverton-Holt density dependence added to
+#'   the reproduction, see [setBevertonHolt()]. There will be other such
+#'   parameters if you use other density dependence functions, see the
+#'   "Density dependence" section in the help for [setReproduction()].
+#'
+#' Two parameters are used only by functions that need to convert between
+#' weight and length:
+#' 
+#' * `a` and `b` are the parameters in the allometric weight-length
+#'   relationship \eqn{w = a l ^ b}.
+#'   
+#' Not all of species parameters have to be specified by the user. If they are
+#' missing, [newMultispeciesParams()] will give them default values, sometimes
+#' by using other species parameters. The parameters that are only used to
+#' calculate default values for other parameters are:
 #' 
 #' * `k_vb` and `t0` are the von Bertalanffy growth parameters and are used
 #'   together with the length-weight relationship exponent `b` and the egg
@@ -38,34 +74,39 @@
 #'   of the metabolic rate `ks`, see [get_ks_default()].
 #'   
 #' Note that these parameters are ignored if the parameters for which they allow
-#' defaults to be calculated have instead been set explicitly.
+#' defaults to be calculated have instead been set explicitly. Also, these
+#' parameters will only be used when setting up a new model with 
+#' [newMultispeciesParams()]. Changing them later will have no effect 
+#' because the default for the other parameters will not be recalculated.
 #' 
-#' There are also some species parameters that are used directly in the model
-#' rather than being used for setting up size-dependent parameters:
+#' There are other species parameters that are used in tuning the model to
+#' observations:
 #' 
-#' * `alpha` is the assimilation efficiency, the proportion of the consumed
-#'   biomass that can be used for growth, metabolism and reproduction, see
-#'   the help for [getEReproAndGrowth()].
-#' * `interaction_resource` sets the interaction strength with the resource,
-#'   see "Predation encounter" section in the help for [getEncounter()].
-#' * `erepro` is the reproductive efficiency, the proportion of the energy
-#'   invested into reproduction that is converted to egg biomass, see
-#'   [getRDI()].
-#' * `Rmax` is the parameter in the Beverton-Holt density dependence added to
-#'   the reproduction, see [BevertonHoltRDD()]. There will be other such
-#'   parameters if you use other density dependence functions, see the
-#'   "Density dependence" section in the help for [setReproduction()].
+#' * `biomass_observed` and `biomass_cutoff` allow you to specify for each
+#'   species the total observed biomass above some cutoff size. This is
+#'   used by [calibrateBiomass()] and [matchBiomasses()].
+#' * `yield_observed` allows you to specify for each
+#'   species the total annual fisheries yield. This is
+#'   used by [calibrateYield()] and [matchYields()].
 #' 
-#' When you set up a MizerParams object with [newMultispeciesParams()] you 
-#' need to specify a species parameter data frame, but you do not need to 
-#' give values for all of the species parameters described above. The only
-#' required columns are `species` for the species name and `w_inf` for its
-#' asymptotic size. Mizer will choose default values for all others, see
-#' [newMultispeciesParams()].
+#' Finally there are two species parameters that control the way the species are
+#' represented in plots:
+#'
+#' * `linecolour` specifies the colour and can be any valid R colour value.
+#' * `linetype` specifies the line type ("solid", "dashed", "dotted", "dotdash",
+#'    "longdash", "twodash" or "blank") 
 #' 
-#' When you change a species parameter in an already existing MizerParams
-#' object, then this will be used to update the corresponding size-dependent
-#' rates by automatically calling [setParams()].
+#' Other species-specific information that is related to how the species is
+#' fished is specified in a gear parameter data frame, see [gear_params()].
+#' However in the case where each species is caught by only a single gear, 
+#' this information can also optionally be provided as columns in the
+#' `species_params` data frame and [newMultispeciesParams()] will transfer
+#' them to the `gear_params` data frame. However changing these parameters later
+#' in the species parameter data frame will have no effect.
+#' 
+#' You are allowed to include additional columns in the `species_params`
+#' data frame. They will simply be ignored by mizer but will be stored in the
+#' MizerParams object, in case your own code makes use of them.
 #' 
 #' @param params A MizerParams object
 #' @export
@@ -206,9 +247,9 @@ get_h_default <- function(params) {
 
 #' Get default value for gamma
 #' 
-#' Fills in any missing values for gamma so that if the prey abundance was
-#' described by the power law \eqn{\kappa w^{-\lambda}} then the encounter rate
-#' would lead to the feeding level \eqn{f_0}. Only for internal use.
+#' Fills in any missing values for gamma so that fish feeding on a resource
+#' spectrum described by the power law \eqn{\kappa w^{-\lambda}} achieve a
+#' feeding level \eqn{f_0}. Only for internal use.
 #' 
 #' @param params A MizerParams object
 #' @return A vector with the values of gamma for all species
@@ -239,7 +280,10 @@ get_gamma_default <- function(params) {
         params <- setSearchVolume(params)
         # and setting a power-law prey spectrum
         params@initial_n[] <- 0
-        params@species_params$interaction_resource <- 1
+        if (defaults_edition() < 2) {
+            # See issue #238
+            params@species_params$interaction_resource <- 1
+        }
         params@initial_n_pp[] <- params@resource_params$kappa * 
             params@w_full^(-params@resource_params$lambda)
         avail_energy <- getEncounter(params)[, length(params@w)] /
@@ -365,6 +409,7 @@ get_ks_default <- function(params) {
 #' Any `w_mat25` that is given that is not smaller than `w_mat` is set to
 #' `w_mat * 3^(-0.1)`.
 #' 
+#' The row names of the returned data frame will be the species names.
 #' If `species_params` was provided as a tibble it is converted back to an
 #' ordinary data frame.
 #' 
@@ -381,6 +426,7 @@ validSpeciesParams <- function(species_params) {
         stop("The species params dataframe needs a column 'species' with the species names")
     }
     species_names <- as.character(sp$species)
+    sp$species <- species_names
     row.names(sp) <- species_names
     no_sp <- nrow(sp)
     if (length(unique(species_names)) != no_sp) {

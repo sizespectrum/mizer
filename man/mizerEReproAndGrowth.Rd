@@ -73,8 +73,10 @@ function has been registered, see below.
 By default \code{\link[=getEReproAndGrowth]{getEReproAndGrowth()}} calls \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGrowth()}}. However you
 can replace this with your own alternative energy rate function. If
 your function is called \code{"myEReproAndGrowth"} then you register it in a
-MizerParams object \code{params} with\preformatted{params <- setRateFunction(params, "EReproAndGrowth", "myEReproAndGrowth")
-}
+MizerParams object \code{params} with
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{params <- setRateFunction(params, "EReproAndGrowth", "myEReproAndGrowth")
+}\if{html}{\out{</div>}}
 
 Your function will then be called instead of \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGrowth()}}, with
 the same arguments.

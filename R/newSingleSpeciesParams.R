@@ -17,12 +17,6 @@
 #' initial condition that is close to steady state, under the assumption of
 #' no fishing.
 #'
-#' Although the steady state is often stable without imposing a stock
-#' recruitment relationship, the function can set a Beverton-Holt type stock
-#' recruitment relationship that imposes a maximal reproduction rate that is a
-#' multiple of the recruitment rate at steady state. That multiple is set by the
-#' argument \code{R_factor}.
-#'
 #' @param species_name A string with a name for the species. Will be used in
 #'   plot legends.
 #' @param w_inf Asymptotic size of species
@@ -34,10 +28,6 @@
 #'   \code{eta * w_inf}.
 #' @param k_vb The von Bertalanffy growth parameter.
 #' @inheritParams newTraitParams
-#' @param version A string specifying the version of mizer. If you want to make
-#'   sure that your code will still set up the model with the exact same default
-#'   values even if it is run with a future versions of mizer that would choose
-#'   defaults differently, then set this argument to "v2.2.0".
 #' @export
 #' @return An object of type \code{MizerParams}
 #' @family functions for setting up models
@@ -65,8 +55,8 @@ newSingleSpeciesParams <-
              ks = NA,
              gamma = NA,
              ext_mort_prop = 0,
-             R_factor = 4,
-             version) {
+             reproduction_level = 0,
+             R_factor = deprecated()) {
     assert_that(is.string(species_name), length(species_name) == 1)
     no_sp <- 1
     ## Much of the following code is copied from newTraitParams
@@ -76,10 +66,6 @@ newSingleSpeciesParams <-
         stop("ext_mort_prop can not take the value ", ext_mort_prop,
              " because it should be the proportion of the total mortality",
              " coming from sources other than predation.")
-    }
-    if (R_factor <= 1) {
-        message("R_factor needs to be larger than 1. Setting R_factor=1.01")
-        R_factor <- 1.01
     }
     if (w_min <= 0) {
         stop("The egg size w_min must be greater than zero.")
@@ -114,6 +100,12 @@ newSingleSpeciesParams <-
     }
     if (!is.na(gamma)) {  # If gamma is supplied, f0 is ignored
         f0 <- NA
+    }
+    if (lifecycle::is_present(R_factor)) {
+        lifecycle::deprecate_soft("2.3.0", "newTraitParams(R_factor)",
+                                  "newTraitParams(reproduction_level)",
+                                  "Set `reproduction_level = 1 / R_factor`.")
+        reproduction_level = 1 / R_factor
     }
 
     ## Build Params Object ----
@@ -202,7 +194,7 @@ newSingleSpeciesParams <-
     params@species_params$erepro <- params@species_params$erepro *
         get_required_reproduction(params) / getRDI(params) 
     
-    params <- setBevertonHolt(params, R_factor = R_factor)
+    params <- setBevertonHolt(params, reproduction_level = reproduction_level)
 
     return(params)
 }

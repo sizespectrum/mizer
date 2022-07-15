@@ -24,6 +24,20 @@ abundances or harvest effort through time. These are held in
 \section{Slots}{
 
 \describe{
+\item{\code{metadata}}{A list with metadata information. See \code{\link[=setMetadata]{setMetadata()}}.}
+
+\item{\code{mizer_version}}{The package version of mizer (as returned by
+\code{packageVersion("mizer")}) that created or last saved the model.}
+
+\item{\code{extensions}}{A named vector of strings where each name is the name of
+and extension package needed to run the model and each value is a string
+giving the information that the remotes package needs to install the
+correct version of the extension package, see https://remotes.r-lib.org/.}
+
+\item{\code{time_created}}{A POSIXct date-time object with the creation time.}
+
+\item{\code{time_modified}}{A POSIXct date-time object with the last modified time.}
+
 \item{\code{w}}{The size grid for the fish part of the spectrum. An increasing
 vector of weights (in grams) running from the smallest egg size to the
 largest asymptotic size.}
@@ -60,7 +74,7 @@ each species at size. Changed with \code{\link[=setSearchVolume]{setSearchVolume
 for each species at size. Changed with \code{\link[=setMetabolicRate]{setMetabolicRate()}}.}
 
 \item{\code{mu_b}}{An array (species x size) that holds the external mortality rate
-\eqn{\mu_{b.i}(w)}. Changed with \code{\link[=setExtMort]{setExtMort()}}.}
+\eqn{\mu_{ext.i}(w)}. Changed with \code{\link[=setExtMort]{setExtMort()}}.}
 
 \item{\code{pred_kernel}}{An array (species x predator size x prey size) that holds
 the predation coefficient of each predator at size on each prey size. If

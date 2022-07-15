@@ -24,6 +24,7 @@
 #' @return A vector giving the value of the predation kernel at each of the
 #'   predator/prey mass ratios in the \code{ppmr} argument.
 #' @export
+#' @family predation kernel
 lognormal_pred_kernel <- function(ppmr, beta, sigma) {
     Beta <- log(beta)
     phi <- exp(-(log(ppmr) - Beta)^2 / (2 * sigma^2))
@@ -57,6 +58,7 @@ lognormal_pred_kernel <- function(ppmr, beta, sigma) {
 #' @return A vector giving the value of the predation kernel at each of the
 #'   predator/prey mass ratios in the `ppmr` argument.
 #' @export
+#' @family predation kernel
 truncated_lognormal_pred_kernel <- function(ppmr, beta, sigma) {
     Beta <- log(beta)
     phi <- exp(-(log(ppmr) - Beta)^2 / (2 * sigma^2))
@@ -84,6 +86,7 @@ truncated_lognormal_pred_kernel <- function(ppmr, beta, sigma) {
 #' @return A vector giving the value of the predation kernel at each of the
 #'   predator/prey mass ratios in the `ppmr` argument.
 #' @export
+#' @family predation kernel
 box_pred_kernel <- function(ppmr, ppmr_min, ppmr_max) {
     assert_that(ppmr_min < ppmr_max)
     phi <- rep(1, length(ppmr))
@@ -119,6 +122,7 @@ box_pred_kernel <- function(ppmr, ppmr_min, ppmr_max) {
 #' @return A vector giving the value of the predation kernel at each of the
 #'   predator/prey mass ratios in the `ppmr` argument.
 #' @export
+#' @family predation kernel
 power_law_pred_kernel <- function(ppmr, kernel_exp,
                                   kernel_l_l, kernel_u_l,
                                   kernel_l_r, kernel_u_r) {

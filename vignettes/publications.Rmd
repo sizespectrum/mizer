@@ -1,23 +1,30 @@
 ---
 title: "Publications"
-output:
-  html_document:
-    toc: yes
-    fig_width: 5
-    fig_height: 5
+output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-### Publications describing mizer:
+## Publications describing mizer
 * F. Scott, J.L. Blanchard and K.H. Andersen: mizer: an R package for multispecies, trait-based and community size spectrum ecological modelling. Methods in Ecology and Evolution 5(10) 1121-1125 (2014). _Contains the "official" announcement and description of mizer_
 
 * K.H. Andersen, N.S. Jacobsen and K.D. Farnsworth (2016): [The theoretical foundations for size spectrum models of fish communities](https://www.nrcresearchpress.com/doi/abs/10.1139/cjfas-2015-0230#.XLGeHS97HOR). Canadian Journal of Fisheries and Aquatic Science 73(4): 575-588. _Describes the theoretical background of the three types of size spectrum models_
 
 * K.H. Andersen (2019): Fish Ecology, Evolution, and Exploitation - a New Theoretical Synthesis. [Princeton University Press](https://press.princeton.edu/titles/13516.html).  _In depth theory_
 
-### Publications using mizer:
+## Publications using mizer
+
+* Benoit, D. M., Giacomini, H. C., Chu, C. & Jackson, D. A. Identifying influential parameters of a multi-species fish size spectrum model for a northern temperate lake through sensitivity analyses. Ecological Modelling 460, 109740 (2021).
+
+* Canales, T. M., Delius, G. W. & Law, R. Regulation of fish stocks without stock–recruitment relationships: The case of small pelagic fish. Fish and Fisheries 21, 857–871 (2020).
+
+* Wo, J. et al. Modeling the Dynamics of Multispecies Fisheries: A Case Study in the Coastal Water of North Yellow Sea, China. Front. Mar. Sci. 7, (2020).
+
+* Lindmark, M. Temperature- and body size scaling. Doctoral Thesis No 2020:8,
+Faculty of Natural Resources and Agricultural Sciences, SLU.
+https://pub.epsilon.slu.se/16711/ (2020).
+
+* Woodworth-Jefcoats, P. A., Blanchard, J. L. & Drazen, J. C. Relative Impacts of Simultaneous Stressors on a Pelagic Marine Ecosystem. Frontiers in Marine Science 6, 383 (2019).
+
+* Spence, M. A. et al. A general framework for combining ecosystem models. Fish and Fisheries 19, 1031–1042 (2018).
 
 * Zhang C, Chen Y, Xu B, Xue Y, Ren Y. Evaluating fishing effects on the stability of fish communities using a size-spectrum model. Fisheries Research. 2018 Jan 1;197:123-30.
 
@@ -44,7 +51,7 @@ Production, Catch Potential, Responses to Fishing and Associated Uncertainties i
 * J.L. Blanchard, K.H. Andersen, F. Scott, N.T. Hinzen, G. Piet, S. Jennings (2014): Evaluating targets and trade-offs among fisheries and conservation objectives using a multispecies size spectrum model. J. Applied Ecology, 51: 612–622. doi:10.1111/1365-2664.12238. _Application of Mizer on the North Sea_
 
 
-### Projects that have used/are using mizer:
+## Projects that have used/are using mizer
 
 The MINOUW Project (http://minouw-project.eu/) European Commission Horizon 2020 Research and Innovation Programme under Grant Agreement No. 634495
 

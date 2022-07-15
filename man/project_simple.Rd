@@ -6,16 +6,16 @@
 \usage{
 project_simple(
   params,
-  n,
-  n_pp,
-  n_other,
-  t,
-  dt,
+  n = params@initial_n,
+  n_pp = params@initial_n_pp,
+  n_other = params@initial_n_other,
+  effort = params@initial_effort,
+  t = 0,
+  dt = 0.1,
   steps,
-  effort,
-  resource_dynamics_fn,
-  other_dynamics_fns,
-  rates_fns,
+  resource_dynamics_fn = get(params@resource_dynamics),
+  other_dynamics_fns = lapply(params@other_dynamics, get),
+  rates_fns = lapply(params@rates_funcs, get),
   ...
 )
 }
@@ -31,14 +31,14 @@ simulation.}
 \item{n_other}{A named list with the abundances of other components at start
 of simulation.}
 
+\item{effort}{The fishing effort to be used throughout the simulation. This
+must be a vector or list with one named entry per fishing gear.}
+
 \item{t}{Time at the start of the simulation.}
 
 \item{dt}{Size of time step.}
 
 \item{steps}{The number of time steps by which to project.}
-
-\item{effort}{The fishing effort to be used throughout the simulation. This
-must be a vector or list with one named entry per fishing gear.}
 
 \item{resource_dynamics_fn}{The function for the resource
 dynamics. See Details.}
@@ -66,10 +66,12 @@ intermediate results but only returns the result at time \code{t + dt * steps}.
 During this time it uses the constant fishing effort \code{effort}.
 
 The functional arguments can be calculated from slots in the \code{params} object
-with\preformatted{resource_dynamics_fn <- get(params@resource_dynamics)
+with
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{resource_dynamics_fn <- get(params@resource_dynamics)
 other_dynamics_fns <- lapply(params@other_dynamics, get)
 rates_fns <- lapply(params@rates_funcs, get)
-}
+}\if{html}{\out{</div>}}
 
 The reason the function does not do that itself is to shave 20 microseconds
 of its running time, which pays when the function is called hundreds of

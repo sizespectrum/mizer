@@ -1,14 +1,24 @@
-#' Set initial values to final values of a simulation
+#' Set initial values to values from a simulation
 #' 
-#' Takes the final values from a simulation in a MizerSim object and stores them
-#' as initial values in a MizerParams object.
+#' This is used to use the results from one simulation as the starting values
+#' for another simulation.
+#' 
+#' The initial abundances (for both species and resource) in the `params`
+#' object are set to the abundances in a MizerSim object, averaged over
+#' a range of times. Similarly, the initial effort in the `params` object is
+#' set to the effort in the MizerSim object, again averaged over that range
+#' of times.
+#' When no time range is specified, the initial values are taken from the final
+#' time step of the simulation.
 #'
 #' @param params A [MizerParams()] object
 #' @param sim A `MizerSim` object.
+#' @param time_range The time range (either a vector of values, a vector of min
+#'   and max time, or a single value) to average the abundances over. Default is
+#'   the final time step.
 #'   
-#' @return The `params` object with updated initial values and initial effort, 
-#'   taken from the
-#'   values at the final time of the simulation in `sim`. Because of the way the
+#' @return The `params` object with updated initial values and initial effort. 
+#'   Because of the way the
 #'   R language works, `setInitialValues()` does not make the changes to the
 #'   params object that you pass to it but instead returns a new params object.
 #'   So to affect the change you call the function in the form
@@ -21,7 +31,7 @@
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' params <- setInitialValues(params, sim)
 #' }
-setInitialValues <- function(params, sim) {
+setInitialValues <- function(params, sim, time_range) {
     assert_that(is(params, "MizerParams"),
                 is(sim, "MizerSim"))
     no_t <- dim(sim@n)[1]
@@ -45,10 +55,28 @@ setInitialValues <- function(params, sim) {
         stop("The gears in the simulation in `sim` have different names ",
              "from those in `params`.")
     }
-    params@initial_n[] <- sim@n[no_t, , ]
-    params@initial_n_pp[] <- sim@n_pp[no_t, ]
-    params@initial_n_other[] <- sim@n_other[no_t, ]
-    params@initial_effort[] <- sim@effort[no_t, ]
+    if (missing(time_range)) {
+        time_range  <- max(as.numeric(dimnames(sim@n)$time))
+    }
+    time_elements <- get_time_elements(sim, time_range)
+    params@initial_n[] <-
+        apply(sim@n[time_elements, , , drop = FALSE], c(2, 3), mean)
+    params@initial_n_pp[] <-
+        apply(sim@n_pp[time_elements, , drop = FALSE], 2, mean)
+    # Below we have to work around the fact that "+" does not do
+    # componentwise addition of lists
+    mizer_add <- function(l1, l2) {
+        ifelse(is.list(l1), Map("+", l1, l2), l1 + l2)
+    }
+    params@initial_n_other[] <-
+        apply(sim@n_other[time_elements, , drop = FALSE], 2,
+              function(l) Reduce(mizer_add, l) / length(l),
+              simplify = FALSE)
+    
+    params@initial_effort[] <-
+        apply(sim@effort[time_elements, , drop = FALSE], 2, mean)
+    
+    params@time_modified <- lubridate::now()
     params
 }
 
@@ -72,12 +100,22 @@ setInitialValues <- function(params, sim) {
         warning("The dimnames do not match. I will ignore them.")
     }
     params@initial_n[] <- value
+    
+    params@time_modified <- lubridate::now()
     params
 }
 
 #' @rdname initialN-set
 #' @param object An object of class MizerParams or MizerSim
 #' @export
+#' @examples 
+#' # Doubling abundance of Cod in the initial state of the North Sea model
+#' params <- NS_params
+#' initialN(params)["Cod", ] <- 2 * initialN(params)["Cod", ]
+#' # Calculating the corresponding initial biomass
+#' biomass <- initialN(params)["Cod", ] * dw(NS_params) * w(NS_params)
+#' # Of course this initial state will no longer be a steady state
+#' params <- steady(params)
 initialN <- function(object) {
     if (is(object, "MizerParams")) {
         params <- validParams(object)
@@ -96,6 +134,12 @@ initialN <- function(object) {
 #' @param value A vector with the initial number densities for the resource
 #'   spectrum
 #' @export
+#' @examples
+#' # Doubling resource abundance in the initial state of the North Sea model
+#' params <- NS_params
+#' initialNResource(params) <- 2 * initialNResource(params)
+#' # Of course this initial state will no longer be a steady state
+#' params <- steady(params)
 `initialNResource<-` <- function(params, value) {
     if (!is(params, "MizerParams")) {
         stop("You can only assign an initial N to a MizerParams object. ",
@@ -108,6 +152,8 @@ initialN <- function(object) {
         warning("The dimnames do not match. I will ignore them.")
     }
     params@initial_n_pp[] <- value
+    
+    params@time_modified <- lubridate::now()
     params
 }
 

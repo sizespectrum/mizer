@@ -57,16 +57,15 @@ be used in the calculation. This function can be used to calculate the Large
 Fish Index. The proportion is based on either abundance or biomass.
 }
 \examples{
-\dontrun{
-params <- newMultispeciesParams(NS_species_params_gears, inter)
-sim <- project(params, effort=1, t_max=10)
-getProportionOfLargeFish(sim)
-getProportionOfLargeFish(sim, species=c("Herring","Sprat","N.pout"))
-getProportionOfLargeFish(sim, min_w = 10, max_w = 5000)
-getProportionOfLargeFish(sim, min_w = 10, max_w = 5000, threshold_w = 500)
-getProportionOfLargeFish(sim, min_w = 10, max_w = 5000,
-    threshold_w = 500, biomass_proportion=FALSE)
-}
+lfi <- getProportionOfLargeFish(NS_sim, min_w = 10, max_w = 5000, 
+                                threshold_w = 500)
+years <- c("1972", "2010")
+lfi[years]
+getProportionOfLargeFish(NS_sim)[years]
+getProportionOfLargeFish(NS_sim, species=c("Herring","Sprat","N.pout"))[years]
+getProportionOfLargeFish(NS_sim, min_w = 10, max_w = 5000)[years]
+getProportionOfLargeFish(NS_sim, min_w = 10, max_w = 5000,
+    threshold_w = 500, biomass_proportion = FALSE)[years]
 }
 \seealso{
 Other functions for calculating indicators: 

@@ -1,78 +1,65 @@
 #' Add new species
 #'
-#' @description
-#' `r lifecycle::badge("experimental")`
+#' @description `r lifecycle::badge("experimental")`
 #'
-#' Takes a \linkS4class{MizerParams} object and adds additional species with
-#' given parameters to the ecosystem. It sets the initial values for these new
-#' species to their steady-state solution in the given initial state of the
-#' existing ecosystem. This will be close to the true steady state if the
-#' abundances of the new species are sufficiently low. Hence the abundances of
-#' the new species are set so that the maximal biomass density of each new
-#' species lies at 1/100 of the community power law. The reproductive
-#' efficiencies of the new species are set so as to keep them at that low level.
+#'   Takes a \linkS4class{MizerParams} object and adds additional species with
+#'   given parameters to the ecosystem. It sets the initial values for these new
+#'   species to their steady-state solution in the given initial state of the
+#'   existing ecosystem. This will be close to the true steady state if the
+#'   abundances of the new species are sufficiently low. Hence the abundances of
+#'   the new species are set so that they are at most 1/100th of the resource 
+#'   power law. Their reproductive efficiencies are set so as to keep them at
+#'   that low level.
 #'
 #' @param params A mizer params object for the original system.
 #' @param species_params Data frame with the species parameters of the new
 #'   species we want to add to the system.
 #' @param interaction Interaction matrix. A square matrix giving either the
-#'   interaction coefficients between all species or only those between the
-#'   new species. In the latter case all interaction between an old and a new
+#'   interaction coefficients between all species or only those between the new
+#'   species. In the latter case all interaction between an old and a new
 #'   species are set to 1. If this argument is missing, all interactions
 #'   involving a new species are set to 1.
-#' @param gear_params Optional data frame with the gear parameters for the new
-#'   species.
+#' @param gear_params Data frame with the gear parameters for the new
+#'   species. If not provided then the new species will not be fished.
 #' @param initial_effort A named vector with the effort for new fishing gear
-#'   introduced in `gear_params`. Only needed if new gear are introduced, not
-#'   if the new species are fished only by existing gear.
+#'   introduced in `gear_params`. New gear for which no effort is set via this
+#'   vector will have an initial effort of 0. Should not include effort values
+#'   for existing gear.
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #'
-#' @details
-#' The resulting MizerParams object will use the same size grid where possible,
-#' but if one of the new species needs a larger range of w (either because
-#' a new species has an egg size smaller than those of existing species or
-#' a maximum size larger than those of existing species) then the grid will
-#' be expanded and all arrays will be enlarged accordingly.
+#' @details The resulting MizerParams object will use the same size grid where
+#'   possible, but if one of the new species needs a larger range of w (either
+#'   because a new species has an egg size smaller than those of existing
+#'   species or a maximum size larger than those of existing species) then the
+#'   grid will be expanded and all arrays will be enlarged accordingly.
 #'
-#' If any of the rate arrays had been set by the user to values other than
-#' those calculated as default from the species parameters, then these will
-#' be preserved.
+#'   If any of the rate arrays of the existing species had been set by the user
+#'   to values other than those calculated as default from the species
+#'   parameters, then these will be preserved. Only the rates for the new
+#'   species will be calculated from their species parameters.
 #'
-#' After adding the new species, the background species are not retuned and the
-#' system is not run to steady state.
+#'   After adding the new species, the background species are not retuned and
+#'   the system is not run to steady state. This could be done with [steady()].
+#'   The new species will have a reproduction level of 1/4, this can then be
+#'   changed with [setBevertonHolt()]
 #'
 #' @seealso [removeSpecies()]
 #' @export
 #' @examples
-#' \dontrun{
 #' params <- newTraitParams()
-#' a_m <- 0.0085
-#' b_m <- 3.11
-#' L_inf_m <- 24.3
-#' L_mat <- 11.1
 #' species_params <- data.frame(
-#'     species = "mullet",
-#'     w_min = 0.001,
-#'     w_inf = a_m*L_inf_m^b_m,
-#'     w_mat = a_m*L_mat^b_m,
+#'     species = "Mullet",
+#'     w_inf = 173,
+#'     w_mat = 15,
 #'     beta = 283,
 #'     sigma = 1.8,
-#'     z0 = 0,
-#'     alpha = 0.6,
-#'     sel_func = "knife_edge",
-#'     knife_edge_size = 100,
-#'     gear = "knife_edge_gear",
-#'     k = 0,
 #'     k_vb = 0.6,
-#'     a = a_m,
-#'     b = b_m
+#'     a = 0.0085,
+#'     b = 3.11
 #' )
 #' params <- addSpecies(params, species_params)
 #' plotSpectra(params)
-#' sim <- project(params, t_max=50, progress_bar = FALSE)
-#' plotBiomass(sim)
-#' }
 addSpecies <- function(params, species_params,
                        gear_params = data.frame(), initial_effort,
                        interaction) {
@@ -252,6 +239,16 @@ addSpecies <- function(params, species_params,
     p@other_params <- params@other_params
     p@rates_funcs <- params@rates_funcs
     
+    p@metadata <- params@metadata
+    p@time_created <- params@time_created
+    p@mizer_version <- params@mizer_version
+    p@extensions <- params@extensions
+    
+    # The following does not affect the new species but preserves
+    # any changes the user might have made in the original params object
+    p <- setColours(p, params@linecolour)
+    p <- setLinetypes(p, params@linetype)
+    
     # we assume same background death for all species
     # p@mu_b[new_sp, ] <- rep(params@mu_b[1, ], each = no_new_sp)
     
@@ -278,13 +275,14 @@ addSpecies <- function(params, species_params,
             c(1, cumprod(g[idx] / ((g + mu * p@dw)[idx + 1])))
         
         # set low abundance ----
-        # Normalise solution so that at its maximum it lies at 1/100 of the
+        # Normalise solution so that it is never more than 1/100th of the
         # Sheldon spectrum.
         # We look at the maximum of abundance times w^lambda
         # because that is always an increasing function at small size.
         idx <- which.max(p@initial_n[i, ] * p@w^p@resource_params$lambda)
         p@initial_n[i, ] <- p@initial_n[i, ] *
-            p@resource_params$kappa * p@w[idx]^(-p@resource_params$lambda) / p@initial_n[i, idx] / 100
+            p@resource_params$kappa * p@w[idx]^(-p@resource_params$lambda) / 
+            p@initial_n[i, idx] / 100
         p@A[i] <- sum(p@initial_n[i, ] * p@w * p@dw * p@maturity[i, ])
     }
     
@@ -299,7 +297,9 @@ addSpecies <- function(params, species_params,
     p@interaction[new_sp, new_sp] <- inter[new_sp, new_sp]
     
     # Retune reproductive efficiencies of new species
-    p <- retune_erepro(p, p@species_params$species[new_sp])
+    repro_level <- rep(1/4, length(new_sp))
+    names(repro_level) <- p@species_params$species[new_sp]
+    p <- setBevertonHolt(p, reproduction_level = repro_level)
     
     return(p)
 }
@@ -385,6 +385,8 @@ removeSpecies <- function(params, species) {
     }
     
     validObject(p)
+    
+    p@time_modified <- lubridate::now()
     return(p)
 }
 
@@ -394,7 +396,8 @@ removeSpecies <- function(params, species) {
 #' @description
 #' `r lifecycle::badge("experimental")`
 #'
-#' Changes the names of species in a MizerParams object
+#' Changes the names of species in a MizerParams object. This involves for
+#' example changing the species dimension names of rate arrays appropriately.
 #'
 #' @param params A mizer params object
 #' @param replace A named character vector, with new names as values, and old
@@ -403,11 +406,9 @@ removeSpecies <- function(params, species) {
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
 #' @examples
-#' \dontrun{
 #' replace <- c(Cod = "Kabeljau", Haddock = "Schellfisch")
 #' params <- renameSpecies(NS_params, replace)
 #' species_params(params)$species
-#' }
 renameSpecies <- function(params, replace) {
     params <- validParams(params)
     replace[] <- as.character(replace)
@@ -430,12 +431,21 @@ renameSpecies <- function(params, replace) {
                 replace[[params@gear_params$species[[i]]]]
         }
     }
+    params@gear_params <- validGearParams(params@gear_params, 
+                                          params@species_params)
+    # rename line colours
     linenames <- names(params@linecolour)
     names(linenames) <- linenames
     linenames[to_replace] <- replace
     names(linenames) <- NULL
     names(params@linecolour) <- linenames
+    # rename line types
+    linenames <- names(params@linetype)
+    names(linenames) <- linenames
+    linenames[to_replace] <- replace
+    names(linenames) <- NULL
     names(params@linetype) <- linenames
+    
     names(params@w_min_idx) <- species
     dimnames(params@maturity)$sp <- species
     dimnames(params@psi)$sp <- species
@@ -456,5 +466,7 @@ renameSpecies <- function(params, replace) {
     dimnames(params@catchability)$sp <- species
     
     validObject(params)
+    
+    params@time_modified <- lubridate::now()
     return(params)
 }

@@ -498,7 +498,7 @@ set_community_model <- function(max_w = 1e6,
 #' @concept deprecated
 #' @examples
 #' \dontrun{
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <-  NS_params
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' n <- sim@n[21,,]
 #' n_pp <- sim@n_pp[21,]

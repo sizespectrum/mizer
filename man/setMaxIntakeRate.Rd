@@ -3,16 +3,17 @@
 \name{setMaxIntakeRate}
 \alias{setMaxIntakeRate}
 \alias{getMaxIntakeRate}
+\alias{intake_max}
+\alias{intake_max<-}
 \title{Set maximum intake rate}
 \usage{
-setMaxIntakeRate(
-  params,
-  intake_max = NULL,
-  comment_intake_max = "set manually",
-  ...
-)
+setMaxIntakeRate(params, intake_max = NULL, reset = FALSE, ...)
 
 getMaxIntakeRate(params)
+
+intake_max(params)
+
+intake_max(params) <- value
 }
 \arguments{
 \item{params}{MizerParams}
@@ -21,19 +22,23 @@ getMaxIntakeRate(params)
 intake rate for each species at size. If not supplied, a default is set as
 described in the section "Setting maximum intake rate".}
 
-\item{comment_intake_max}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'intake_max' was obtained. This is
-ignored if 'intake_max' is not supplied or already has a comment
-attribute.}
+\item{reset}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If set to TRUE, then the intake rate will be reset to the value
+calculated from the species parameters, even if it was previously
+overwritten with a custom value. If set to FALSE (default) then a
+recalculation from the species parameters will take place only if no
+custom value has been set.}
 
 \item{...}{Unused}
+
+\item{value}{intake_max}
 }
 \value{
-A \code{MizerParams} object with updated maximum intake rate. Because
-of the way the R language works, \code{setMaxIntakeRate()} does not make the
-changes to the params object that you pass to it but instead returns a new
-params object. So to affect the change you call the function in the form
-\code{params <- setMaxIntakeRate(params, ...)}.
+\code{setReproduction()}: A MizerParams object with updated maximum
+intake rate.
+
+\code{getMaxIntakeRate()} or equivalently \code{intake_max()}: An array
+(species x size) with the maximum intake rate.
 }
 \description{
 Set maximum intake rate
@@ -50,10 +55,10 @@ The values of \eqn{h_i} (the maximum intake rate of an individual of size 1
 gram) and \eqn{n_i} (the allometric exponent for the intake rate) are taken
 from the \code{h} and \code{n} columns in the species parameter dataframe. If
 the \code{h} column is not supplied in the species parameter dataframe, it is
-calculated by the \code{\link[=get_h_default]{get_h_default()}} function, using \code{f0} and
+calculated by the \code{\link[=get_h_default]{get_h_default()}} function, using the \code{f0} and
 the \code{k_vb} column, if they are supplied.
 
-If \eqn{h_i} is set to \code{Inf}, fish will consume all encountered food.
+If \eqn{h_i} is set to \code{Inf}, fish of species i will consume all encountered food.
 }
 
 \seealso{

@@ -39,7 +39,8 @@ used for the plot is returned instead of the plot itself. Default value is FALSE
 \item{...}{Other arguments (currently unused)}
 }
 \value{
-A ggplot2 object
+A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
+frame with the three variables 'w', 'value', 'Species' is returned.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
@@ -47,7 +48,7 @@ An alias provided for backward compatibility with mizer version <= 1.0
 }
 \examples{
 \donttest{
-params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
+params <-  NS_params
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotPredMort(sim)
 plotPredMort(sim, time_range = 10:20)

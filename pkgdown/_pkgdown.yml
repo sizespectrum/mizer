@@ -1,5 +1,11 @@
 # This is the configuration for the mizer website using the pkgdown package.
 
+home:
+  title: Multi-Species Dynamic Size Spectrum Modelling in R
+  description: Mizer is an R package to create and run dynamic multi-species size-spectrum models of fish communities that are subject to fishing. 
+  sidebar:
+    structure: [links, community, license, toc]
+
 url: https://sizespectrum.org/mizer
 
 authors:
@@ -11,11 +17,16 @@ authors:
     href: https://www.york.ac.uk/maths/staff/gustav-delius/
 
 template:
+  bootstrap: 5
   params:
     bootswatch: cerulean
-    docsearch:
-      api_key: 96e9641255d3fff35a4fd16d1a1bf70c
-      index_name: sizespectrum_mizer
+  opengraph:
+    image:
+      src: man/figures/logo.png
+      alt: "mizer: Multi-Species Size Spectrum Modelling in R"
+    twitter:
+      site: "@mizer_model"
+      card: summary
 
 development:
   mode: auto
@@ -25,20 +36,28 @@ toc:
 
 navbar:
   structure:
-    left: [home, intro, articles, reference, publications, news]
-    right: [github]
+    left: [intro, articles, reference, news]
+    right: [blog, twitter, github]
   components:
-    publications:
-      text: Publications
-      href: articles/publications.html
+    home: ~
+    blog:
+      text: Blog
+      href: https://blog.mizer.sizespectrum.org
+    twitter:
+       icon: "fab fa-twitter fa-lg"
+       href: https://twitter.com/mizer_model
+       aria-label: Twitter
 
 articles:
-- title: Tutorials
+- title: Model description
   navbar: ~
+  contents:
+  - model_description
+- title: Tutorials
+  navbar: Tutorials
   contents:
   - mizer
   - single_species_size-spectrum_dynamics
-  - model_description
   - community_model
   - trait_model
   - multispecies_model
@@ -46,6 +65,10 @@ articles:
   - exploring_the_simulation_results
   - a_multispecies_model_of_the_north_sea
   - plotting
+- title: Publications
+  navbar: Publications
+  contents:
+  - publications
 - title: Developer Guide
   navbar: For developers
   contents:
@@ -59,46 +82,46 @@ reference:
 - title: Creating a new model
   description: Mizer allows the easy set-up of four different types of models, 
     of increasing level of complexity. See
-    https://sizespectrum.org/mizer/dev/articles/mizer.html#size-spectrum-models
+    https://sizespectrum.org/mizer/articles/mizer.html#size-spectrum-models
     for a description of these model types.
   contents:
   - newSingleSpeciesParams
   - newCommunityParams
   - newTraitParams
   - newMultispeciesParams
-- title: Model parameters
+  - mizer-package
+  - defaults_edition
+- title: Changing model parameters
   description: Even after you have created a model, you can still make changes
     with the following functions. This is useful while tuning the model and for
     investigating the impact of changes in parameters.
   contents:
   - species_params
   - gear_params
-  - setParams
-  - setPredKernel
-  - getPredKernel
-  - setSearchVolume
-  - setInteraction
-  - setMaxIntakeRate
-  - setMetabolicRate
-  - setExtMort
-  - setReproduction
-  - setFishing
-  - setResource
   - resource_params
-  - setInitialValues
+  - initialN
+  - initialNResource
+  - initial_effort
   - setBevertonHolt
-  - compareParams
-- title: Manipulating species
+- title: Tuning model to observations
+  desc: Some functions to make your model match observed biomasses or yields,
+    as explained in this [blog post](https://bit.ly/2YqXESV).
   contents:
-  - addSpecies
-  - removeSpecies
-  - renameSpecies
+  - plotBiomassObservedVsModel
+  - calibrateBiomass
+  - matchBiomasses
+  - plotYieldObservedVsModel
+  - calibrateYield
+  - matchYields
+  - scaleModel
+- title: Sharing models
+  contents:
+  - setMetadata
+  - saveParams
 - title: Running simulations
   contents:
   - project
   - projectToSteady
-  - initialN
-  - initialNResource
   - setInitialValues
   - steady
 - title: Accessing results
@@ -134,6 +157,26 @@ reference:
   - -plotM2
   - setColours
   - setLinetypes
+- title: Manipulating species
+  contents:
+  - addSpecies
+  - removeSpecies
+  - renameSpecies
+- title: Setting custom rates
+  desc: You can override the rates mizer calculates from the species parameters,
+    resource parameters and gear parameters with your own rate arrays.
+  contents:
+  - setParams
+  - setPredKernel
+  - getPredKernel
+  - setSearchVolume
+  - setInteraction
+  - setMaxIntakeRate
+  - setMetabolicRate
+  - setExtMort
+  - setReproduction
+  - setFishing
+  - setResource
 - title: Calculating rates
   contents:
   - getRates
@@ -162,28 +205,17 @@ reference:
   - customFunction
 - title: Predation kernels
   contents:
-  - lognormal_pred_kernel
-  - box_pred_kernel
-  - power_law_pred_kernel
-  - truncated_lognormal_pred_kernel
+  - has_concept("predation kernel")
 - title: Fishing selectivity functions
   contents:
-  - knife_edge
-  - sigmoid_length
-  - sigmoid_weight
-  - double_sigmoid_length
+  - has_concept("selectivity functions")
 - title: Resource dynamics
   contents:
-  - resource_semichemostat
-  - resource_constant
+  - has_concept("resource dynamics")
 - title: Reproduction functions
   contents:
-  - BevertonHoltRDD
-  - RickerRDD
-  - SheperdRDD
-  - noRDD
-  - constantRDD
-  - constantEggRDI
+  - has_concept("functions calculating density-dependent reproduction rate")
+  - getReproductionLevel
 - title: Internal rate functions
   description: These functions are used by project() to calculate 
     instantaneous rates at each time step. You should use the get...() 
@@ -194,30 +226,12 @@ reference:
   - -mizer
 - title: Internal helper functions
   contents:
-    # The following should list all functions with @concept helper
-    # but instead lists all functions. A bug in pkgdown?
   - has_concept("helper")
-  #- validSpeciesParams
-  #- validGearParams
-  #- set_species_param_default
-  #- get_h_default
-  #- get_gamma_default
-  #- get_ks_default
-  #- get_phi
-  #- log_breaks
-  #- get_initial_n
-  #- retune_erepro
-  #- get_required_reproduction
-  #- valid_species_arg
-  #- different
-  #- emptyParams
-  #- project_simple
-  #- distanceMaxRelRDI
-  #- distanceSSLogN
 - title: Classes
   contents:
   - MizerParams-class
   - summary,MizerParams-method
+  - compareParams
   - "w"
   - validParams
   - upgradeParams
@@ -233,20 +247,11 @@ reference:
   - NS_params
   - NS_species_params
   - NS_species_params_gears
-  - inter
+  - NS_interaction
+  - NS_sim
 - title: Deprecated
   desc: These functions are available for backwards compatibility with earlier
     versions of mizer
   contents:
   - has_concept("deprecated")
-  #- set_multispecies_model
-  #- set_community_model
-  #- set_trait_model
-  #- MizerParams
-  #- getESpawning
-  #- getPhiPrey
-  #- getM2
-  #- getM2Background
-  #- getZ
-  #- plotM2
 

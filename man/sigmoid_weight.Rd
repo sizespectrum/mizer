@@ -19,3 +19,10 @@ sigmoid_weight(w, sigmoidal_weight, sigmoidal_sigma, ...)
 A sigmoidal selectivity function with 50\% selectivity at
 weight \code{sigmoidal_weight} and width \code{sigmoidal_sigma}.
 }
+\seealso{
+Other selectivity functions: 
+\code{\link{double_sigmoid_length}()},
+\code{\link{knife_edge}()},
+\code{\link{sigmoid_length}()}
+}
+\concept{selectivity functions}

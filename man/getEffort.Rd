@@ -10,7 +10,7 @@ getEffort(sim)
 \item{sim}{A MizerSim object}
 }
 \value{
-An array (time x gear) that stores the fishing effort by time and
+An array (time x gear) that contains the fishing effort by time and
 gear.
 }
 \description{
@@ -18,4 +18,7 @@ Note that the array returned may not be exactly the same as the \code{effort}
 argument that was passed in to \code{project()}. This is because only the saved
 effort is stored (the frequency of saving is determined by the argument
 \code{t_save}).
+}
+\examples{
+str(getEffort(NS_sim))
 }

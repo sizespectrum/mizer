@@ -9,7 +9,7 @@
 #' The name "search volume" is a bit misleading, because \eqn{\gamma_i(w)} does
 #' not have units of volume. It is simply a parameter that determines the rate
 #' of predation. Its units depend on your choice, see section "Units in mizer".
-#' If you have chose to work with total abundances, then it is a rate with units
+#' If you have chosen to work with total abundances, then it is a rate with units
 #' 1/year. If you have chosen to work with abundances per m^2 then it has units
 #' of m^2/year. If you have chosen to work with abundances per m^3 then it has
 #' units of m^3/year.
@@ -29,28 +29,40 @@
 #' @param search_vol Optional. An array (species x size) holding the search volume
 #'   for each species at size. If not supplied, a default is set as described in
 #'   the section "Setting search volume". 
-#' @param comment_search_vol `r lifecycle::badge("experimental")`
-#'   A string describing how the value for 'search_vol' was obtained. This is
-#'   ignored if 'search_vol' is not supplied or already has a comment
-#'   attribute.
+#' @param reset `r lifecycle::badge("experimental")`
+#'   If set to TRUE, then the search volume will be reset to the
+#'   value calculated from the species parameters, even if it was previously
+#'   overwritten with a custom value. If set to FALSE (default) then a
+#'   recalculation from the species parameters will take place only if no custom
+#'   value has been set.
 #' @param ... Unused
 #' 
-#' @return MizerParams with updated search volume. Because of the way the R
-#'   language works, `setSearchVolume()` does not make the changes to the params
-#'   object that you pass to it but instead returns a new params object. So to
-#'   affect the change you call the function in the form
-#'   `params <- setSearchVolume(params, ...)`.
+#' @return `setSearchVolume()`: A MizerParams object with updated search volume.
 #' @export
 #' @family functions for setting parameters
-setSearchVolume <- function(params, 
-                            search_vol = NULL, 
-                            comment_search_vol = "set manually", ...) {
-    assert_that(is(params, "MizerParams"))
+setSearchVolume <- function(params, search_vol = NULL, reset = FALSE, ...) {
+    assert_that(is(params, "MizerParams"),
+                is.flag(reset))
     species_params <- params@species_params
+    
+    if (reset) {
+        if (!is.null(search_vol)) {
+            warning("Because you set `reset = TRUE`, the value you provided ", 
+                    "for `search_vol` will be ignored and a value will be ",
+                    "calculated from the species parameters.")
+            search_vol <- NULL
+        }
+        comment(params@search_vol) <- NULL
+    }
+    
     # If search_vol array is supplied, check it, store it and return
     if (!is.null(search_vol)) {
         if (is.null(comment(search_vol))) {
-            comment(search_vol) <- comment_search_vol
+            if (is.null(comment(params@search_vol))) {
+                comment(search_vol) <- "set manually"
+            } else {
+                comment(search_vol) <- comment(params@search_vol)
+            }
         }
         assert_that(is.array(search_vol))
         assert_that(identical(dim(search_vol), dim(params@search_vol)))
@@ -63,6 +75,8 @@ setSearchVolume <- function(params,
         assert_that(all(search_vol >= 0))
         params@search_vol[] <- search_vol
         comment(params@search_vol) <- comment(search_vol)
+        
+        params@time_modified <- lubridate::now()
         return(params)
     }
     
@@ -84,11 +98,29 @@ setSearchVolume <- function(params,
         return(params)
     }
     params@search_vol[] <- search_vol
+    
+    params@time_modified <- lubridate::now()
     return(params)
 }
 
 #' @rdname setSearchVolume
+#' @return `getSearchVolume()` or equivalently `search_vol()`: An array (species
+#'   x size) holding the search volume
 #' @export
 getSearchVolume <- function(params) {
     params@search_vol
+}
+
+
+#' @rdname setSearchVolume
+#' @export
+search_vol <- function(params) {
+    params@search_vol
+}
+
+#' @rdname setSearchVolume
+#' @param value search_vol
+#' @export
+`search_vol<-` <- function(params, value) {
+    setSearchVolume(params, search_vol = value)
 }

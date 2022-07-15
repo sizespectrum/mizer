@@ -50,8 +50,10 @@ Here: fishing mortality = catchability x selectivity x effort.
 By default \code{\link[=getFMort]{getFMort()}} calls \code{\link[=mizerFMort]{mizerFMort()}}. However you can
 replace this with your own alternative fishing mortality function. If
 your function is called \code{"myFMort"} then you register it in a MizerParams
-object \code{params} with\preformatted{params <- setRateFunction(params, "FMort", "myFMort")
-}
+object \code{params} with
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{params <- setRateFunction(params, "FMort", "myFMort")
+}\if{html}{\out{</div>}}
 
 Your function will then be called instead of \code{\link[=mizerFMort]{mizerFMort()}}, with the
 same arguments.

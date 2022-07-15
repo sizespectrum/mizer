@@ -81,20 +81,18 @@ the encounters of these components will be included in the returned value.
 By default \code{\link[=getEncounter]{getEncounter()}} calls \code{\link[=mizerEncounter]{mizerEncounter()}}. However you can
 replace this with your own alternative encounter function. If
 your function is called \code{"myEncounter"} then you register it in a MizerParams
-object \code{params} with\preformatted{params <- setRateFunction(params, "Encounter", "myEncounter")
-}
+object \code{params} with
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{params <- setRateFunction(params, "Encounter", "myEncounter")
+}\if{html}{\out{</div>}}
 
 Your function will then be called instead of \code{\link[=mizerEncounter]{mizerEncounter()}}, with the
 same arguments.
 }
 
 \examples{
-\dontrun{
-params <- newMultispeciesParams(NS_species_params_gears, inter)
-# Run simulation with constant fishing effort for all gears for 20 years
-sim <- project(params, t_max = 20, effort = 0.5)
-getEncounter(params, n = finalN(sim), n_pp = finalNResource(sim), t = 20)
-}
+encounter <- getEncounter(NS_params)
+str(encounter)
 }
 \seealso{
 Other rate functions: 

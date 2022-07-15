@@ -25,3 +25,10 @@ selected respectively. As the size-based model is weight based, and this
 selectivity function is length based, it uses the
 length-weight parameters \code{a} and \code{b} to convert between length and weight.
 }
+\seealso{
+Other selectivity functions: 
+\code{\link{double_sigmoid_length}()},
+\code{\link{knife_edge}()},
+\code{\link{sigmoid_weight}()}
+}
+\concept{selectivity functions}

@@ -12,7 +12,10 @@ knitr::opts_chunk$set(
 )
 ```
 
-# mizer
+\ 
+
+<img src="man/figures/mizer.png" style='height: 100%; width: 100%; object-fit: contain' title="mizer logo created by Kira Askaroff (www.kiraaskaroff.com)"/>
+
 [![CRAN Status](https://www.r-pkg.org/badges/version-ago/mizer)](https://cran.r-project.org/package=mizer)
 [![CRAN Downloads](http://cranlogs.r-pkg.org/badges/grand-total/mizer)](https://cran.r-project.org/package=mizer)
 [![CRAN Downloads](http://cranlogs.r-pkg.org/badges/mizer)](https://cran.r-project.org/package=mizer)
@@ -21,10 +24,10 @@ knitr::opts_chunk$set(
 Mizer is an R package to run 
 [dynamic multi-species size-spectrum models](#dynamic-multi-species-size-spectrum-models) 
 of fish communities. The package has been developed to model marine ecosystems
-that are subject to fishing. However, it may also be appropriate for other
+that are subject to fishing. However, it may also be appropriate for other aquatic
 ecosystems.
 
-The package contains routines and functions to allow users to set up an ecosystem 
+The package contains functions to allow users to set up an ecosystem 
 model, and then project it through time under different fishing strategies.
 Methods are included to explore the results, including plots and calculation of
 community indicators such as the slope of the size spectrum. Size-based models
@@ -47,11 +50,11 @@ welcome. There is a sister package called
 [mizerExperimental](https://sizespectrum.org/mizerExperimental/) where user
 contributions can be checked out and receive feedback from the community. 
 Example mizer models can be contributed to 
-[mizerExamples](https://sizespectrum.org/mizerExamples/).
-
-Does your project or publication use mizer? If so, we would love to know. You can
-also join our Google Discussion group here:
-https://groups.google.com/forum/#!forum/size-spectrum-models
+[mizerExamples](https://sizespectrum.org/mizerExamples/). Follow us on
+[twitter](https://twitter.com/mizer_model) and read our 
+[blog](https://blog.mizer.sizespectrum.org) to stay up-to-date with new
+developments. 
+Does your project or publication use mizer? If so, we would love to know. 
 
 Recent work on mizer was funded by the European
 Commission Horizon 2020 Research and Innovation Programme under Grant Agreement
@@ -64,11 +67,11 @@ Research Council Discovery Project [Rewiring Marine Food Webs](https://marinesoc
 The package is on [CRAN](https://cran.r-project.org/package=mizer) and therefore
 available from R's built-in package manager.
 ```{r, eval = FALSE}
-# Install release version from CRAN
+# Install latest released version from CRAN
 install.packages("mizer")
 
-# Alternatively, install development version from GitHub
-devtools::install_github("sizespectrum/mizer")
+# Alternatively, install the development version from GitHub
+remotes::install_github("sizespectrum/mizer")
 ```
 
 ## Example
@@ -77,7 +80,7 @@ in the North Sea that comes as an example with the package, sets up the
 parameters for the mizer model, and runs a simulation for 10 years.
 ```{r, message = FALSE}
 library(mizer)
-params <- newMultispeciesParams(NS_species_params, inter)
+params <- newMultispeciesParams(NS_species_params, NS_interaction)
 sim <- project(params, t_max = 10, effort = 0)
 ```
 The results of the simulation can then be analysed, for example via plots:
@@ -160,6 +163,6 @@ the ecosystem close to its natural productive state.
 ## A model one can understand
 One big advantage of a mizer model is that it is based on a strong mathematical
 foundation. This allows a degree of a priori understanding of the behaviour of
-the model that is absent in many other multi-species model. This theoretical
+the model that is absent in many other multi-species models. This theoretical
 foundation is well presented in the book "Fish Ecology, Evolution, and
 Exploitation" by Ken Andersen.

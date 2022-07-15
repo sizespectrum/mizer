@@ -287,6 +287,9 @@ test_that("getFmortGear", {
                      effort_mat[, gear] * params@catchability[gear, sp] * 
                          params@selectivity[gear, sp, widx])
     expect_known_value(f3, "values/getFMortGear")
+    
+    expect_equal(getFMortGear(sim)[1, 1, 1, ], 
+                 getFMortGear(sim@params, effort = sim@effort[1, ])[1, 1, ])
 })
 
 
@@ -323,6 +326,22 @@ test_that("getFMort", {
     expect_equal(f2, fmg22)
     expect_equal(f3, fmg33)
     expect_known_value(f1, "values/getFMort")
+})
+
+test_that("getFMort passes correct time", {
+    # Here we will check that when getFMort() calls mizerFMort().
+    # it passes the correct time. To implement the test we write simple
+    # replacement for mizerFMort() that puts the time
+    # argument into the returned array.
+    times <- as.numeric(dimnames(sim@effort)$time)
+    e <- globalenv() # We need to define the following functions in the
+    # global environment so that mizer can find them
+    e$testFMort <- function(params, n, t, ...) {
+        n * t
+    }
+    sim@params <- setRateFunction(sim@params, "FMort", "testFMort")
+    expect_identical(getFMort(sim),
+                     sweep(sim@n, 1, times, "*"))
 })
 
 test_that("getFMort passes correct time", {

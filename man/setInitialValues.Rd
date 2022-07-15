@@ -2,27 +2,39 @@
 % Please edit documentation in R/setInitialValues.R
 \name{setInitialValues}
 \alias{setInitialValues}
-\title{Set initial values to final values of a simulation}
+\title{Set initial values to values from a simulation}
 \usage{
-setInitialValues(params, sim)
+setInitialValues(params, sim, time_range)
 }
 \arguments{
 \item{params}{A \code{\link[=MizerParams]{MizerParams()}} object}
 
 \item{sim}{A \code{MizerSim} object.}
+
+\item{time_range}{The time range (either a vector of values, a vector of min
+and max time, or a single value) to average the abundances over. Default is
+the final time step.}
 }
 \value{
-The \code{params} object with updated initial values and initial effort,
-taken from the
-values at the final time of the simulation in \code{sim}. Because of the way the
+The \code{params} object with updated initial values and initial effort.
+Because of the way the
 R language works, \code{setInitialValues()} does not make the changes to the
 params object that you pass to it but instead returns a new params object.
 So to affect the change you call the function in the form
 \code{params <- setInitialValues(params, sim)}.
 }
 \description{
-Takes the final values from a simulation in a MizerSim object and stores them
-as initial values in a MizerParams object.
+This is used to use the results from one simulation as the starting values
+for another simulation.
+}
+\details{
+The initial abundances (for both species and resource) in the \code{params}
+object are set to the abundances in a MizerSim object, averaged over
+a range of times. Similarly, the initial effort in the \code{params} object is
+set to the effort in the MizerSim object, again averaged over that range
+of times.
+When no time range is specified, the initial values are taken from the final
+time step of the simulation.
 }
 \examples{
 \dontrun{

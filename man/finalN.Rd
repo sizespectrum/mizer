@@ -16,9 +16,19 @@ finalNResource(sim)
 For \code{finalN()}: An array (species x size) holding the consumer
 number densities at the end of the simulation
 
-For \code{finalNResource()}: A vector holding the resource number densities at
-the end of the simulation for all size classes
+For \code{finalNResource()}: A vector holding the resource number
+densities at the end of the simulation for all size classes
 }
 \description{
 Size spectra at end of simulation
+}
+\examples{
+str(finalN(NS_sim))
+
+# This could also be obtained using `N()` and `idxFinalT()`
+identical(N(NS_sim)[idxFinalT(NS_sim), , ], finalN(NS_sim))
+str(finalNResource(NS_sim))
+}
+\seealso{
+\code{\link[=idxFinalT]{idxFinalT()}}
 }

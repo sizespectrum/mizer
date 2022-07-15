@@ -45,7 +45,7 @@ used.
 }
 \examples{
 \dontrun{
-params <- newMultispeciesParams(NS_species_params_gears, inter)
+params <-NS_params
 # Get the fishing mortality when effort is constant
 # for all gears and time:
 getFMortGear(params, effort = 1)

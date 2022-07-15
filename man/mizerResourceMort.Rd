@@ -42,8 +42,10 @@ function unless an alternative function has been registered, see below.
 By default \code{\link[=getResourceMort]{getResourceMort()}} calls \code{\link[=mizerResourceMort]{mizerResourceMort()}}. However you can
 replace this with your own alternative resource mortality function. If
 your function is called \code{"myResourceMort"} then you register it in a MizerParams
-object \code{params} with\preformatted{params <- setRateFunction(params, "ResourceMort", "myResourceMort")
-}
+object \code{params} with
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{params <- setRateFunction(params, "ResourceMort", "myResourceMort")
+}\if{html}{\out{</div>}}
 
 Your function will then be called instead of \code{\link[=mizerResourceMort]{mizerResourceMort()}}, with the
 same arguments.

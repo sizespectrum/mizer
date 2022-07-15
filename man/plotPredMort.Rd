@@ -42,7 +42,8 @@ used for the plot is returned instead of the plot itself. Default value is FALSE
 \item{...}{Other arguments (currently unused)}
 }
 \value{
-A ggplot2 object
+A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
+frame with the three variables 'w', 'value', 'Species' is returned.
 }
 \description{
 After running a projection, plot the predation mortality rate of each species
@@ -51,7 +52,7 @@ single value for the time range can be used to plot a single time step).
 }
 \examples{
 \donttest{
-params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
+params <-  NS_params
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotPredMort(sim)
 plotPredMort(sim, time_range = 10:20)

@@ -10,8 +10,8 @@ setParams(params, interaction = NULL, ...)
 \item{params}{A \linkS4class{MizerParams} object}
 
 \item{interaction}{Optional interaction matrix of the species (predator
-species x prey species). Entries should be numbers between 0 and 1. By
-default all entries are 1. See "Setting interactions" section below.}
+species x prey species). By default all entries are 1. See "Setting
+interaction matrix" section below.}
 
 \item{...}{
   Arguments passed on to \code{\link[=setPredKernel]{setPredKernel}}, \code{\link[=setSearchVolume]{setSearchVolume}}, \code{\link[=setMaxIntakeRate]{setMaxIntakeRate}}, \code{\link[=setMetabolicRate]{setMetabolicRate}}, \code{\link[=setExtMort]{setExtMort}}, \code{\link[=setReproduction]{setReproduction}}, \code{\link[=setFishing]{setFishing}}, \code{\link[=setResource]{setResource}}
@@ -20,61 +20,35 @@ default all entries are 1. See "Setting interactions" section below.}
 that holds the predation coefficient of each predator at size on each prey
 size. If not supplied, a default is set as described in section "Setting
 predation kernel".}
-    \item{\code{comment_pred_kernel}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'pred_kernel' was obtained. This is
-ignored if 'pred_kernel' is not supplied or already has a comment
-attribute.}
     \item{\code{search_vol}}{Optional. An array (species x size) holding the search volume
 for each species at size. If not supplied, a default is set as described in
 the section "Setting search volume".}
-    \item{\code{comment_search_vol}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'search_vol' was obtained. This is
-ignored if 'search_vol' is not supplied or already has a comment
-attribute.}
     \item{\code{intake_max}}{Optional. An array (species x size) holding the maximum
 intake rate for each species at size. If not supplied, a default is set as
 described in the section "Setting maximum intake rate".}
-    \item{\code{comment_intake_max}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'intake_max' was obtained. This is
-ignored if 'intake_max' is not supplied or already has a comment
-attribute.}
     \item{\code{metab}}{Optional. An array (species x size) holding the metabolic rate
 for each species at size. If not supplied, a default is set as described in
 the section "Setting metabolic rate".}
     \item{\code{p}}{The allometric metabolic exponent. This is only used if \code{metab}
 is not given explicitly and if the exponent is not specified in a \code{p}
 column in the \code{species_params}.}
-    \item{\code{comment_metab}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'metab' was obtained. This is
-ignored if 'metab' is not supplied or already has a comment
-attribute.}
-    \item{\code{z0}}{Optional. An array (species x size) holding the external
+    \item{\code{ext_mort}}{Optional. An array (species x size) holding the external
 mortality rate.}
-    \item{\code{comment_z0}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'z0' was obtained. This is
-ignored if 'z0' is not supplied or already has a comment
-attribute.}
     \item{\code{z0pre}}{If \code{z0}, the mortality from other sources, is not a column
 in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 Default value is 0.6.}
     \item{\code{z0exp}}{If \code{z0}, the mortality from other sources, is not a column
 in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
 Default value is \code{n-1}.}
+    \item{\code{z0}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{ext_mort} instead. Not to
+be confused with the species_parameter \code{z0}.}
     \item{\code{maturity}}{Optional. An array (species x size) that holds the proportion
 of individuals of each species at size that are mature. If not supplied, a
 default is set as described in the section "Setting reproduction".}
-    \item{\code{comment_maturity}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'maturity' was obtained. This is
-ignored if 'maturity' is not supplied or already has a comment
-attribute.}
     \item{\code{repro_prop}}{Optional. An array (species x size) that holds the
 proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".}
-    \item{\code{comment_repro_prop}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'repro_prop' was obtained. This is
-ignored if 'repro_prop' is not supplied or already has a comment
-attribute.}
     \item{\code{RDD}}{The name of the function calculating the density-dependent
 reproduction rate from the density-independent rate. Defaults to
 "\code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}".}
@@ -85,30 +59,15 @@ each species by each gear, \eqn{Q_{g,i}}.}
     \item{\code{initial_effort}}{Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.}
-    \item{\code{comment_selectivity}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'selectivity' was obtained. This is
-ignored if 'selectivity' is not supplied or already has a comment
-attribute.}
-    \item{\code{comment_catchability}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'catchability' was obtained. This is
-ignored if 'catchability' is not supplied or already has a comment
-attribute.}
     \item{\code{resource_rate}}{Optional. Vector of resource intrinsic birth rates}
-    \item{\code{comment_rate}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'resource_rate' was obtained. This is
-ignored if 'resource_rate' is not supplied or already has a comment
-attribute.}
     \item{\code{resource_capacity}}{Optional. Vector of resource intrinsic carrying
 capacity}
-    \item{\code{comment_capacity}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'resource_capacity' was obtained. This is
-ignored if 'resource_capacity' is not supplied or already has a comment
-attribute.}
     \item{\code{r_pp}}{Coefficient of the intrinsic resource birth rate}
     \item{\code{n}}{Allometric growth exponent for resource}
     \item{\code{kappa}}{Coefficient of the intrinsic resource carrying capacity}
     \item{\code{lambda}}{Scaling exponent of the intrinsic resource carrying capacity}
-    \item{\code{w_pp_cutoff}}{The upper cut off size of the resource spectrum.
+    \item{\code{w_pp_cutoff}}{The upper cut off size of the resource spectrum.  The
+carrying capacity will be set to 0 above this size.
 Default is 10 g.}
     \item{\code{resource_dynamics}}{Optional. Name of the function that determines the
 resource dynamics by calculating the resource spectrum at the next time
@@ -153,31 +112,17 @@ species parameters, you would make those changes in the \code{species_params} da
 frame contained in the \code{params} object using \code{\link[=species_params<-]{species_params<-()}}.
 Here is an example which assumes that
 you have have a MizerParams object \code{params} in which you just want to change
-the \code{gamma} parameter of the third species:\preformatted{species_params(params)$gamma[[3]] <- 1000
-}
+the \code{gamma} parameter of the third species:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{species_params(params)$gamma[[3]] <- 1000
+}\if{html}{\out{</div>}}
 
 Internally that will actually call \code{setParams()} to recalculate any of the
 other parameters that are affected by the change in the species parameter.
 
-\code{setParams()} will use the species parameters in the \code{params} object to recalculate
-the values of all the model functions that you do not specify explicitly when
-calling this function, unless you have protected the corresponding slots with
-a comment. If you have changed any of the model functions in the
-\code{params} object previously and now want to make changes to a different slot,
-you will want to call the appropriate change function individually. So in the
-above example you would have used \code{params <- setSearchVolume(params)}
-instead of \code{params <- setParams(params)}.
-
-If you have added a comment to a slot of the params object, then setParams()
-and its subfunctions will not recalculate the value for that slot from the
-species parameters. For example\preformatted{comment(params@search_vol) <- "This should not change"
-species_params(params)$gamma <- 10
-}
-
-will just issue a warning "The search volume has been commented and therefore
-will not be recalculated from the species parameters". You can remove the
-comment, and therefore allow recalculation of the slot, with
-\code{comment(params@search_vol) <- NULL}.
+\code{setParams()} will use the species parameters in the \code{params} object to
+recalculate the values of all the model functions except those for which you have set custom
+values.
 }
 \section{Units in mizer}{
 
@@ -197,55 +142,57 @@ for area or volume. Your choice will then determine the units for some of
 the parameters. This will be mentioned when the parameters are discussed in
 the sections below.
 
-You choice will also affect the units of the quantities you may want to
+Your choice will also affect the units of the quantities you may want to
 calculate with the model. For example, the yield will be in grams/year/m^2 in
 case 1 if you choose m^2 as your measure of area, in grams/year/m^3 in case 2
 if you choose m^3 as your unit of volume, or simply grams/year in case 3. The
 same comment applies for other measures, like total biomass, which will be
 grams/area in case 1, grams/volume in case 2 or simply grams in case 3. When
-mizer puts units on axes, for example in \code{plotBiomass}, it will simply
-put grams, as appropriate for case 3.
+mizer puts units on axes in plots, it will choose the units appropriate for
+case 3. So for example in \code{\link[=plotBiomass]{plotBiomass()}} it gives the unit as grams.
 
 You can convert between these choices. For example, if you use case 1, you
 need to multiply with the area of the ecosystem to get the total quantity.
 If you work with case 2, you need to multiply by both area and the thickness
-of the productive layer. In that respect, case 2 is a bit cumbersome.
+of the productive layer. In that respect, case 2 is a bit cumbersome. The
+function \code{\link[=scaleModel]{scaleModel()}} is useful to change the units you are using.
 }
 
-\section{Setting interactions}{
+\section{Setting interaction matrix}{
 
+
+You do not need to specify an interaction matrix. If you do not, then the
+predator-prey interactions are purely determined by the size of predator
+and prey and totally independent of the species of predator and prey.
 
 The interaction matrix \eqn{\theta_{ij}} describes the interaction of each
 pair of species in the model. This can be viewed as a proxy for spatial
 interaction e.g. to model predator-prey interaction that is not size based.
 The values in the interaction matrix are used to scale the encountered food
-and predation mortality (see on the website
-\href{https://sizespectrum.org/mizer/articles/model_description.html#sec:pref}{the section on predator-prey encounter rate}
+and predation mortality (see on the website \href{https://sizespectrum.org/mizer/articles/model_description.html#sec:pref}{the section on predator-prey encounter rate}
 and on \href{https://sizespectrum.org/mizer/articles/model_description.html#mortality}{predation mortality}).
 The first index refers to the predator species and the second to the prey
 species.
 
 It is used when calculating the food encounter rate in \code{\link[=getEncounter]{getEncounter()}} and
 the predation mortality rate in \code{\link[=getPredMort]{getPredMort()}}. Its entries are
-dimensionless numbers.The values are between 0 (species do not overlap and
-therefore do not interact with each other) to 1 (species overlap perfectly).
-If all the values in the interaction matrix are set to 1 then predator-prey
-interactions are determined entirely by size-preference.
+dimensionless numbers. If all the values in the interaction matrix are
+equal then predator-prey interactions are determined entirely by
+size-preference.
 
 This function checks that the supplied interaction matrix is valid and then
-stores it in the \code{interaction} slot of the params object before returning
-that object.
+stores it in the \code{interaction} slot of the \code{params} object.
 
-The order of the columns and rows of the \code{interaction} argument should be the
-same as the order in the species params data frame in the \code{params} object. If
-you supply a named array then the function will check the order and warn if
-it is different. One way of creating your own interaction matrix is to enter
-the data using a spreadsheet program and saving it as a .csv file. The data
-can be read into R using the command \code{read.csv()}.
+The order of the columns and rows of the \code{interaction} argument should be
+the same as the order in the species params data frame in the \code{params}
+object. If you supply a named array then the function will check the order
+and warn if it is different. One way of creating your own interaction
+matrix is to enter the data using a spreadsheet program and saving it as a
+.csv file. The data can be read into R using the command \code{read.csv()}.
 
 The interaction of the species with the resource are set via a column
-\code{interaction_resource} in the \code{species_params} data frame. Again the entries have to
-be numbers between 0 and 1. By default this column is set to all 1s.
+\code{interaction_resource} in the \code{species_params} data frame. By default this
+column is set to all 1s.
 }
 
 \section{Setting predation kernel}{
@@ -257,7 +204,7 @@ predation kernel that depends only on the ratio of predator mass to prey
 mass, not on the two masses independently. The shape of that kernel is then
 determined by the \code{pred_kernel_type} column in species_params.
 
-The default pred_kernel_type is "lognormal". This will call the function
+The default for \code{pred_kernel_type} is "lognormal". This will call the function
 \code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}} to calculate the predation kernel.
 An alternative pred_kernel type is "box", implemented by the function
 \code{\link[=box_pred_kernel]{box_pred_kernel()}}, and "power_law", implemented by the function
@@ -269,9 +216,9 @@ functions. Except for \code{beta} and \code{sigma}, no defaults are set for
 these parameters. If they are missing from the species_params data frame then
 mizer will issue an error message.
 
-You can use any other string as the type. If for example you choose "my" then
-you need to define a function \code{my_pred_kernel} that you can model on the
-existing functions like \code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}}.
+You can use any other string for \code{pred_kernel_type}. If for example you
+choose "my" then you need to define a function \code{my_pred_kernel} that you can
+model on the existing functions like \code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}}.
 
 When using a kernel that depends on the predator/prey size ratio only, mizer
 does not need to store the entire three dimensional array in the MizerParams
@@ -309,7 +256,7 @@ predation rate in \code{\link[=getPredRate]{getPredRate()}}.
 The name "search volume" is a bit misleading, because \eqn{\gamma_i(w)} does
 not have units of volume. It is simply a parameter that determines the rate
 of predation. Its units depend on your choice, see section "Units in mizer".
-If you have chose to work with total abundances, then it is a rate with units
+If you have chosen to work with total abundances, then it is a rate with units
 1/year. If you have chosen to work with abundances per m^2 then it has units
 of m^2/year. If you have chosen to work with abundances per m^3 then it has
 units of m^3/year.
@@ -338,10 +285,10 @@ The values of \eqn{h_i} (the maximum intake rate of an individual of size 1
 gram) and \eqn{n_i} (the allometric exponent for the intake rate) are taken
 from the \code{h} and \code{n} columns in the species parameter dataframe. If
 the \code{h} column is not supplied in the species parameter dataframe, it is
-calculated by the \code{\link[=get_h_default]{get_h_default()}} function, using \code{f0} and
+calculated by the \code{\link[=get_h_default]{get_h_default()}} function, using the \code{f0} and
 the \code{k_vb} column, if they are supplied.
 
-If \eqn{h_i} is set to \code{Inf}, fish will consume all encountered food.
+If \eqn{h_i} is set to \code{Inf}, fish of species i will consume all encountered food.
 }
 
 \section{Setting metabolic rate}{
@@ -352,13 +299,13 @@ the rate at which energy is available for growth and reproduction, see
 
 If the \code{metab} argument is not supplied, then for each species the
 metabolic rate \eqn{k(w)} for an individual of size \eqn{w} is set to
-\deqn{k(w) = ks w^p + k w,}
-where \eqn{ks w^p} represents the rate of standard metabolism and \eqn{k w}
+\deqn{k(w) = k_s w^p + k w,}
+where \eqn{k_s w^p} represents the rate of standard metabolism and \eqn{k w}
 is the rate at which energy is expended on activity and movement. The values
-of \eqn{ks}, \eqn{p} and \eqn{k} are taken from the \code{ks}, \code{p} and
+of \eqn{k_s}, \eqn{p} and \eqn{k} are taken from the \code{ks}, \code{p} and
 \code{k} columns in the species parameter dataframe. If any of these
 parameters are not supplied, the defaults are \eqn{k = 0}, \eqn{p = n} and
-\deqn{ks = f_c h \alpha w_{mat}^{n-p},}{ks = f_c * h * alpha * w_mat^(n - p),}
+\deqn{k_s = f_c h \alpha w_{mat}^{n-p},}{k_s = f_c * h * alpha * w_mat^(n - p),}
 where \eqn{f_c} is the critical feeding level taken from the \code{fc} column
 in the species parameter data frame. If the critical feeding level is not
 specified, a default of \eqn{f_c = 0.2} is used.
@@ -372,15 +319,15 @@ due to predation by predators that are not explicitly included in the model
 (e.g. mammals or seabirds) or due to other causes like illness. It is a rate
 with units 1/year.
 
-The \code{z0} argument allows you to specify an external mortality rate
+The \code{ext_mort} argument allows you to specify an external mortality rate
 that depends on species and body size. You can see an example of this in
 the Examples section of the help page for \code{\link[=setExtMort]{setExtMort()}}.
 
-If the \code{z0} argument is not supplied, then the external mortality
+If the \code{ext_mort} argument is not supplied, then the external mortality
 is assumed to depend only on the species, not on the
-size of the individual: \eqn{\mu_{b.i}(w) = z_{0.i}}. The value of the
+size of the individual: \eqn{\mu_{ext.i}(w) = z_{0.i}}. The value of the
 constant \eqn{z_0} for each species is taken from the \code{z0} column of the
-species_params data frame, if that column exists. Otherwise it is calculated
+species parameter data frame, if that column exists. Otherwise it is calculated
 as
 \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
 }
@@ -416,7 +363,7 @@ specifies the weight at which 25\% of individuals are mature, which sets
 The sigmoidal function given above would strictly reach 1 only asymptotically.
 Mizer instead sets the function equal to 1 already at the species'
 maximum size, taken from the compulsory \code{w_inf} column in the
-\code{species_params} data frame. Also, for computational simplicity, any
+species parameter data frame. Also, for computational simplicity, any
 proportion smaller than \code{1e-8} is set to \code{0}.
 }
 
@@ -432,10 +379,11 @@ reproduction for mature individuals. By default it is chosen to be
 \eqn{m = 1} so that the rate at which energy is invested into reproduction
 scales linearly with the size. This default can be overridden by including a
 column \code{m} in the species parameter dataframe. The asymptotic sizes
-are taken from the compulsory \code{w_inf} column in the species_params
+are taken from the compulsory \code{w_inf} column in the species parameter
 data frame.
 
-So finally we have
+The total proportion of energy invested into reproduction of an individual
+of size \eqn{w} is then
 \deqn{\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)}{psi(w) = maturity(w) * repro_prop(w)}
 }
 

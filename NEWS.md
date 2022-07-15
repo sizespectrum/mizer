@@ -1,9 +1,156 @@
-# mizer 2.2.0.9000 (development version)
+# mizer (development version)
+
+* Improved defaults can now be implemented while keeping backwards compatibility
+  via `defaults_edition()`. #186
+* New defaults edition 2: catchability = 0.3 instead of 1, initial effort = 1
+  instead of 0. #243
+* In defaults edition 2, `get_gamma_default()` ensures a feeding level of `f0`
+  for larvae also if `interaction_resource` is not equal to 1. #238
+* If an effort vector or effort array contains NA's, these are now replaced by
+  the default effort value. #230
+* The entries of the interaction matrix and of interaction_resource are not
+  longer restricted to be less or equal to 1. #232
+* If user supplies no row names in the interaction matrix but give column names
+  then the column names are also used as row names. #247
+
+
+# mizer 2.3.1
+
+* Resolved conflict in `mizerPredRate()` between the argument `t` and the 
+  function `base::t()`.
+* Assert that upgradeParams() must be called with a MizerParams object and 
+  `upgradeSim()` with a MizerSim object.
+* Errors changed to warnings in `getRequiredRDD()`
+* `renameSpecies()` no longer fails when linecolour and linetype are of
+  different lengths.
+* matchYields() now also works for a model with only a single species.
+* `setInitialValues()` can now average over a time_range.
+* `getSSB()`, `getBiomass()`, `getN()`, `getYieldGear()` and `getYield()`
+  can now be called with a MizerParams object as well as with a MizerSim 
+  object. (#200)
+* Updated the shiny app in inst/shiny/selectivity_effects to current mizer
+  version.
+
+# mizer 2.3.0
+
+## New features
+
+* New plots `plotBiomassObservedVsModel()` and `plotYieldObservedVsModel()`
+  contributed by @SamikDatta., together with their plotly counterparts.
+* New `calibrateBiomass()`, `calibrateYield()` to set the model scale to agree
+  with total observed biomass or total observed yield. Uses the new
+  `scaleModel()`.
+* New `matchBiomasses()` and `matchYields()` will try to adjust the abundances
+  of the species to produce the observed biomasses or yields.
+  See blog post at https://bit.ly/2YqXESV .
+* There are now accessor and replacement functions for rates. So for example
+  instead of `params <- setReproduction(params, maturity = my_maturity)` one
+  can simply use `maturity(params) <- my_maturity`. These are documented
+  together with the setter functions. #213
+* New `setMetadata()` to add information to a MizerParams object describing
+  the model, for example a title, a description, the author or list of
+  authors, a url and a doi. This will be particularly useful for sharing your
+  models with others
+* New `saveParams()` for saving a MizerParams object to a file and
+  `readParams()` for reading it back in. The resulting files can be shared
+  with others who want to run your model.
+* A MizerParams object now registers the mizer version under which the model was
+  last saved. Should the model not be working as expected in the current version
+  of mizer, you can go back to the older version under which presumably it was
+  working. This helps with the reproducibility of your research.
+* A MizerParams object registers the time when it was created and the time it
+  was last modified. See `getMetadata()`. This helps you keep track of 
+  different versions of your model.
+* `steady()` now has a `preserve` argument with possible values `erepro`,
+  `R_max` or `reproduction_level` to specify which quantity to preserve.
+  This means that one can continue to use `steady()` also
+  once one has started to tune the density dependence in reproduction. #208
+* Our website is now using the nice new mizer logo designed by Kira Askaroff
+  (www.kiraaskaroff.com)
+* There is a new mizer extension package 
+  [mizerMR](https://sizespectrum.org/mizerMR/)
+  allowing you to include multiple resource spectra in your model.
+
+## Small improvements
+
+* The rownames of `gear_params` are now set to "species, gear", so that one
+  can access individual entries with for example
+  `gear_params(NS_params)["Cod, Otter", "catchability"]`. #212
+* The `z0` argument of `setExtMort()` has been deprecated in favour of
+  `ext_mort` in order to avoid confusion with the species parameter `z0`.
+* `setColours()` and `setLinetypes()` now issue warnings when invalid values
+  are given and ignores NAs.
+* The experimental `comment` arguments to the setter functions have been
+  removed. #214
+* The setter functions have a new `reset` argument which, when set to `TRUE`
+  will recalculate the rates from the species_, gear_ and resource_params even
+  when custom values had been set. #214
+* The `species` argument to various functions, which is checked with 
+  `valid_species_arg()`, now does not throw an error even when there is no
+  valid species included. Only a warning is issued. That means that for
+  example `plotSpectra(NS_params, species = list(), total = TRUE)` is now
+  allowed.
+* `getComponent()` from the mizer extension mechanism now returns NULL when
+  asked for a non-existent component instead of giving an error. This gives
+  an easy way to check for the existence of a component.
+* The example interaction matrix `inter` for the North Sea model now has the
+  alternative name `NS_interaction`, with the old name deprecated.
+* Species added with `addSpecies()` are now by default given a reproduction
+  level of 1/4 instead of 0, because at the low densities at which they are
+  introduced there would otherwise not be enough density dependence to 
+  stabilise them.
+* The size range arguments `min_w`, `max_w`, `min_l` and `max_l` used in some 
+  summary functions and processed by `get_size_range_array()` accept vector
+  values setting different limits for different species.
+* The resource dynamics function is now also passed the `resource_rate` and the
+  `resource_capacity` as arguments, which makes it easier to use them in 
+  extension packages.
+* Species names are now always coerced to strings, even if the user gives them
+  as numbers. #202
+* There is a new system for informing the user about how defaults were set by
+  `newMultispeciesParams()`, #199
+* Many improvements in the documentation.
+* Many small improvements to code quality and testing.
+* Better social media cards, especially for twitter.
+* mizer can be run on binder, https://mybinder.org/v2/gh/sizespectrum/mizer/HEAD?urlpath=rstudio
+
+## Bug fixes
+
+* Changing `linecolour` or `linetype` in the species parameters now actually
+  changes the linecolours and linetypes as intended.
+* Growth curves calculated with `getGrowthCurves()` and plotted with
+  `plotGrowthCurves()` are now correct, and no longer extend above the
+  asymptotic size.
+* `plotGrowthCurves()` with `species_panel = TRUE` now respects the `species`
+  argument to only show growth curves for selected species, it works with
+  a MizerParams object as well as a MizerSim object, and it shows the panels
+  in the correct order. #201
+* Reinstated the example .csv files that were missing from the package because
+  the vignettes are no longer included.
+
+
+# mizer 2.2.1
+
+## New functionality
+
+* The `setBevertonHolt()` function has been expanded with more arguments. It
+  allows you to change the density dependence in reproduction without changing
+  the steady state of your model.
+* The new `getReproductionLevel()` function tells you at what proportion of 
+  their maximum reproduction rate the species are operating in your model.
+* The package now comes with an example MizerSim object `NS_sim` which holds
+  a simulation of the North Sea model.
+* New function `plotDataFrame()` allows easier creation of plots.
+
 
 ## Bug fixes
 
 * `setInitialValues()` correctly preserves the gear names on the
   initial effort. Thanks to Axel Rossberg.
+* `getFMort()` correctly passes the `t` argument on to any custom fishing
+  mortality function you may have written.
+* The legends in the plots now only show the species that are actually 
+  included in the plot.
   
 ## Other improvements
 
@@ -12,9 +159,23 @@
   actually contained in the plot.
 * Updated tests of plots to use new version of vdiffr package.
 * Some improvements to the examples on the help pages.
+* Some functions do more thorough tests of their arguments to give more
+  useful error messages.
+* `initialNOther()` also works with MizerSim object.
+* When `projectToSteady()` is called with `effort`, this effort is now also
+  stored in the `initial_effort` slot.
+* Improvement to `summary()` which is now using `sprintf()` for better
+  formatting and also gives the initial_effort.
+* Improved documentation of size grid and bins.
+* The arguments to `project_simple()` have been given convenient defaults.
+* The tooltips in the plotly plots have been cleaned up a bit.
+* Species names are now always coerced to strings, even if the user supplies
+  numeric names.
+* Update to the "A Multi-Species Model of the North Sea" tutorial to use
+  `projectToSteady()`.
 
 
-# mizer 2.2
+# mizer 2.2.0
 
 ## New functionality
 

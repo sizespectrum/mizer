@@ -85,8 +85,7 @@ NULL
 #' @export
 #' @examples
 #' \dontrun{
-#' # Data set with different fishing gears
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
+#' params <-  NS_params
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # With constant fishing effort which is different for each gear
@@ -110,6 +109,7 @@ project <- function(object, effort,
                     progress_bar = TRUE, ...) {
     
     # Set and check initial values ----
+    assert_that(t_max > 0)
     if (is(object, "MizerSim")) {
         validObject(object)
         params <- object@params
@@ -305,9 +305,16 @@ project <- function(object, effort,
 #' 
 #' @export
 #' @concept helper
-project_simple <- function(params, n, n_pp, n_other, t, dt, steps, 
-                           effort, resource_dynamics_fn, other_dynamics_fns,
-                           rates_fns, ...) {    
+project_simple <- 
+    function(params, 
+             n = params@initial_n,
+             n_pp = params@initial_n_pp,
+             n_other = params@initial_n_other,
+             effort = params@initial_effort,
+             t = 0, dt = 0.1, steps,
+             resource_dynamics_fn = get(params@resource_dynamics),
+             other_dynamics_fns = lapply(params@other_dynamics, get),
+             rates_fns = lapply(params@rates_funcs, get), ...) {    
     # Handy things ----
     no_sp <- nrow(params@species_params) # number of species
     no_w <- length(params@w) # number of fish size bins
@@ -348,7 +355,9 @@ project_simple <- function(params, n, n_pp, n_other, t, dt, steps,
         # * Update resource ----
         n_pp <- resource_dynamics_fn(params, n = n, n_pp = n_pp,
                                      n_other = n_other_current, rates = r,
-                                     t = t, dt = dt, ...)
+                                     t = t, dt = dt,
+                                     resource_rate = params@rr_pp,
+                                     resource_capacity = params@cc_pp, ...)
         
         # * Update species ----
         # a_{ij} = - g_i(w_{j-1}) / dw_j dt
@@ -409,6 +418,11 @@ validEffortArray <- function(effort, params) {
     if (is.unsorted(time_effort)) {
         stop("The time dimname of the effort argument should be increasing.")
     }
+    
+    # Replace any NA's with default value
+    effort_default <- ifelse(defaults_edition() < 2, 0, 1)
+    effort[is.na(effort)] <- effort_default
+    
     names(dimnames(effort)) <- c("time", "gear")
     effort
 }

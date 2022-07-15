@@ -27,7 +27,25 @@ species. For the details see \code{\link[=setFishing]{setFishing()}}.
 
 If you change a gear parameter, this will be used to recalculate the
 \code{selectivity} and \code{catchability} arrays by calling \code{\link[=setFishing]{setFishing()}},
-unless you have protected these with comments.
+unless you have previously set these by hand.
+}
+\examples{
+params <- NS_params
+# gears set up in example
+gear_params(params)
+# setting totally different gears
+gear_params(params) <- data.frame(
+    gear = c("gear1", "gear2", "gear1"),
+    species = c("Cod", "Cod", "Haddock"),
+    catchability = c(0.5, 2, 1),
+    sel_fun = c("sigmoid_weight", "knife_edge", "sigmoid_weight"),
+    sigmoidal_weight = c(1000, NA, 800),
+    sigmoidal_sigma = c(100, NA, 100),
+    knife_edge_size = c(NA, 1000, NA)
+    )
+gear_params(params)
+# changing an individual entry
+gear_params(params)["Cod, gear1", "catchability"] <- 0.8
 }
 \seealso{
 \code{\link[=validGearParams]{validGearParams()}}

@@ -42,7 +42,8 @@ used.
 }
 \description{
 Calculates the total fishing mortality  (in units 1/year) from all gears by
-species and size and possibly time.
+species and size and possibly time. See \code{setFishing()} for details of
+how fishing gears are set up.
 }
 \details{
 The total fishing mortality is just the sum of the fishing mortalities
@@ -55,8 +56,10 @@ selectivity x effort.
 By default \code{\link[=getFMort]{getFMort()}} calls \code{\link[=mizerFMort]{mizerFMort()}}. However you can
 replace this with your own alternative fishing mortality function. If
 your function is called \code{"myFMort"} then you register it in a MizerParams
-object \code{params} with\preformatted{params <- setRateFunction(params, "FMort", "myFMort")
-}
+object \code{params} with
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{params <- setRateFunction(params, "FMort", "myFMort")
+}\if{html}{\out{</div>}}
 
 Your function will then be called instead of \code{\link[=mizerFMort]{mizerFMort()}}, with the
 same arguments.
@@ -64,7 +67,7 @@ same arguments.
 
 \examples{
 \dontrun{
-params <- newMultispeciesParams(NS_species_params_gears, inter)
+params <- NS_params
 # Get the total fishing mortality when effort is constant for all 
 # gears and time:
 getFMort(params, effort = 1)

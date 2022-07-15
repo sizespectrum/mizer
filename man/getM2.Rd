@@ -42,8 +42,10 @@ An alias provided for backward compatibility with mizer version <= 1.0
 By default \code{\link[=getPredMort]{getPredMort()}} calls \code{\link[=mizerPredMort]{mizerPredMort()}}. However you can
 replace this with your own alternative predation mortality function. If
 your function is called \code{"myPredMort"} then you register it in a MizerParams
-object \code{params} with\preformatted{params <- setRateFunction(params, "PredMort", "myPredMort")
-}
+object \code{params} with
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{params <- setRateFunction(params, "PredMort", "myPredMort")
+}\if{html}{\out{</div>}}
 
 Your function will then be called instead of \code{\link[=mizerPredMort]{mizerPredMort()}}, with the
 same arguments.
@@ -51,7 +53,7 @@ same arguments.
 
 \examples{
 \dontrun{
-params <- newMultispeciesParams(NS_species_params_gears, inter)
+params <- NS_params
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get predation mortality at one time step

@@ -9,13 +9,13 @@
 #' 
 #' If the `metab` argument is not supplied, then for each species the
 #' metabolic rate \eqn{k(w)} for an individual of size \eqn{w} is set to
-#' \deqn{k(w) = ks w^p + k w,}
-#' where \eqn{ks w^p} represents the rate of standard metabolism and \eqn{k w}
+#' \deqn{k(w) = k_s w^p + k w,}
+#' where \eqn{k_s w^p} represents the rate of standard metabolism and \eqn{k w}
 #' is the rate at which energy is expended on activity and movement. The values
-#' of \eqn{ks}, \eqn{p} and \eqn{k} are taken from the `ks`, `p` and
+#' of \eqn{k_s}, \eqn{p} and \eqn{k} are taken from the `ks`, `p` and
 #' `k` columns in the species parameter dataframe. If any of these
 #' parameters are not supplied, the defaults are \eqn{k = 0}, \eqn{p = n} and
-#' \deqn{ks = f_c h \alpha w_{mat}^{n-p},}{ks = f_c * h * alpha * w_mat^(n - p),}
+#' \deqn{k_s = f_c h \alpha w_{mat}^{n-p},}{k_s = f_c * h * alpha * w_mat^(n - p),}
 #' where \eqn{f_c} is the critical feeding level taken from the `fc` column
 #' in the species parameter data frame. If the critical feeding level is not
 #' specified, a default of \eqn{f_c = 0.2} is used.
@@ -27,31 +27,44 @@
 #' @param p The allometric metabolic exponent. This is only used if `metab`
 #'   is not given explicitly and if the exponent is not specified in a `p`
 #'   column in the `species_params`.
-#' @param comment_metab `r lifecycle::badge("experimental")`
-#'   A string describing how the value for 'metab' was obtained. This is
-#'   ignored if 'metab' is not supplied or already has a comment
-#'   attribute.
+#' @param reset `r lifecycle::badge("experimental")`
+#'   If set to TRUE, then the metabolic rate will be reset to the
+#'   value calculated from the species parameters, even if it was previously
+#'   overwritten with a custom value. If set to FALSE (default) then a
+#'   recalculation from the species parameters will take place only if no
+#'   custom value has been set.
 #' @param ... Unused
 #' 
-#' @return MizerParams object with updated metabolic rate. Because of the way
-#'   the R language works, `setMetabolicRate()` does not make the changes to the
-#'   params object that you pass to it but instead returns a new params object.
-#'   So to affect the change you call the function in the form
-#'   `params <- setMetabolicRate(params, ...)`.
+#' @return `setMetabolicRate()`: A MizerParams object with updated metabolic rate.
 #' @export
 #' @family functions for setting parameters
-setMetabolicRate <- function(params, 
-                             metab = NULL, p = NULL, 
-                             comment_metab = "set manually", ...) {
-    assert_that(is(params, "MizerParams"))
+setMetabolicRate <- function(params, metab = NULL, p = NULL, 
+                             reset = FALSE, ...) {
+    assert_that(is(params, "MizerParams"),
+                is.flag(reset))
     if (!is.null(p)) {
         assert_that(is.numeric(p))
         params <- set_species_param_default(params, "p", p)
     }
     species_params <- params@species_params
+    
+    if (reset) {
+        if (!is.null(metab)) {
+            warning("Because you set `reset = TRUE`, the value you provided ", 
+                    "for `metab` will be ignored and a value will be ",
+                    "calculated from the species parameters.")
+            metab <- NULL
+        }
+        comment(params@metab) <- NULL
+    }
+    
     if (!is.null(metab)) {
         if (is.null(comment(metab))) {
-            comment(metab) <- comment_metab
+            if (is.null(comment(params@metab))) {
+                comment(metab) <- "set manually"
+            } else {
+                comment(metab) <- comment(params@metab)
+            }
         }
         assert_that(is.array(metab),
                     identical(dim(metab), dim(params@metab)))
@@ -63,6 +76,8 @@ setMetabolicRate <- function(params,
         assert_that(all(metab >= 0))
         params@metab[] <- metab
         comment(params@metab) <- comment(metab)
+        
+        params@time_modified <- lubridate::now()
         return(params)
     }
     
@@ -84,11 +99,28 @@ setMetabolicRate <- function(params,
         return(params)
     }
     params@metab[] <- metab
+    
+    params@time_modified <- lubridate::now()
     return(params)
 }
 
 #' @rdname setMetabolicRate
+#' @return `getMetabolicRate()` or equivalently `metab()`: An array
+#'   (species x size) with the metabolic rate.
 #' @export
 getMetabolicRate <- function(params) {
     params@metab
+}
+
+#' @rdname setMetabolicRate
+#' @export
+metab <- function(params) {
+    params@metab
+}
+
+#' @rdname setMetabolicRate
+#' @param value metab
+#' @export
+`metab<-` <- function(params, value) {
+    setMetabolicRate(params, metab = value)
 }

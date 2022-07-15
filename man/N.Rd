@@ -21,3 +21,7 @@ For \code{NResource()}: An array (time x size) with the number density of resour
 \description{
 Fetch the simulation results for the size spectra over time.
 }
+\examples{
+str(N(NS_sim))
+str(NResource(NS_sim))
+}

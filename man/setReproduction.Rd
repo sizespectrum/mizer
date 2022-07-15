@@ -3,22 +3,33 @@
 \name{setReproduction}
 \alias{setReproduction}
 \alias{getMaturityProportion}
+\alias{maturity}
+\alias{maturity<-}
 \alias{getReproductionProportion}
+\alias{repro_prop}
+\alias{repro_prop<-}
 \title{Set reproduction parameters}
 \usage{
 setReproduction(
   params,
   maturity = NULL,
-  comment_maturity = "set manually",
   repro_prop = NULL,
-  comment_repro_prop = "set manually",
+  reset = FALSE,
   RDD = NULL,
   ...
 )
 
 getMaturityProportion(params)
 
+maturity(params)
+
+maturity(params) <- value
+
 getReproductionProportion(params)
+
+repro_prop(params)
+
+repro_prop(params) <- value
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -27,40 +38,35 @@ getReproductionProportion(params)
 of individuals of each species at size that are mature. If not supplied, a
 default is set as described in the section "Setting reproduction".}
 
-\item{comment_maturity}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'maturity' was obtained. This is
-ignored if 'maturity' is not supplied or already has a comment
-attribute.}
-
 \item{repro_prop}{Optional. An array (species x size) that holds the
 proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".}
 
-\item{comment_repro_prop}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'repro_prop' was obtained. This is
-ignored if 'repro_prop' is not supplied or already has a comment
-attribute.}
+\item{reset}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If set to TRUE, then both \code{maturity} and \code{repro_prop} will be
+reset to the value calculated from the species parameters, even if they
+were previously overwritten with custom values. If set to FALSE (default)
+then a recalculation from the species parameters will take place only if no
+custom values have been set.}
 
 \item{RDD}{The name of the function calculating the density-dependent
 reproduction rate from the density-independent rate. Defaults to
 "\code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}".}
 
 \item{...}{Unused}
+
+\item{value}{.}
 }
 \value{
-For \code{setReproduction()}:
-The updated MizerParams object. Because of the way the R language
-works, \code{setReproduction()} does not make the changes to the params object
-that you pass to it but instead returns a new params object. So to affect
-the change you call the function in the form
-\code{params <- setReproduction(params, ...)}.
+\code{setReproduction()}: A MizerParams object with updated reproduction
+parameters.
 
-For \code{getMaturityProportion()}:
+\code{getMaturityProportion()} or equivalently `maturity():
 An array (species x size) that holds the proportion
 of individuals of each species at size that are mature.
 
-For \code{getReproductionProportion}:
+\code{getReproductionProportion()} or equivalently \code{repro_prop()}:
 An array (species x size) that holds the
 proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. For sizes where the maturity
@@ -102,7 +108,7 @@ specifies the weight at which 25\% of individuals are mature, which sets
 The sigmoidal function given above would strictly reach 1 only asymptotically.
 Mizer instead sets the function equal to 1 already at the species'
 maximum size, taken from the compulsory \code{w_inf} column in the
-\code{species_params} data frame. Also, for computational simplicity, any
+species parameter data frame. Also, for computational simplicity, any
 proportion smaller than \code{1e-8} is set to \code{0}.
 }
 
@@ -118,10 +124,11 @@ reproduction for mature individuals. By default it is chosen to be
 \eqn{m = 1} so that the rate at which energy is invested into reproduction
 scales linearly with the size. This default can be overridden by including a
 column \code{m} in the species parameter dataframe. The asymptotic sizes
-are taken from the compulsory \code{w_inf} column in the species_params
+are taken from the compulsory \code{w_inf} column in the species parameter
 data frame.
 
-So finally we have
+The total proportion of energy invested into reproduction of an individual
+of size \eqn{w} is then
 \deqn{\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)}{psi(w) = maturity(w) * repro_prop(w)}
 }
 

@@ -20,6 +20,7 @@
 #'   Used to get at the length-weight parameters `a` and `b`
 #' @param ... Unused
 #' @export
+#' @family selectivity functions
 sigmoid_length <- function(w, l25, l50, species_params, ...) {
     assert_that(is.numeric(w) && is.numeric(l25) && is.numeric(l50))
     assert_that(l25 > 0 && l25 < l50)
@@ -64,6 +65,7 @@ sigmoid_length <- function(w, l25, l50, species_params, ...) {
 #'   Used to get at the length-weight parameters `a` and `b`
 #' @param ... Unused
 #' @export
+#' @family selectivity functions
 double_sigmoid_length <- function(w, l25, l50, l50_right, l25_right,
                                   species_params, ...) {
     assert_that(is.numeric(w) && 
@@ -100,6 +102,7 @@ double_sigmoid_length <- function(w, l25, l50, l50_right, l25_right,
 #' @param knife_edge_size The weight at which the knife-edge operates.
 #' @param ... Unused
 #' @export
+#' @family selectivity functions
 knife_edge <- function(w, knife_edge_size, ...) {
     sel <- rep(0, length(w))
     sel[w >= knife_edge_size] <- 1
@@ -116,6 +119,7 @@ knife_edge <- function(w, knife_edge_size, ...) {
 #' @param sigmoidal_sigma The width of the selection function
 #' @param ... Unused
 #' @export
+#' @family selectivity functions
 sigmoid_weight <- function(w, sigmoidal_weight, sigmoidal_sigma, ...) {
   return((1 + (w / sigmoidal_weight) ^ (-sigmoidal_sigma)) ^ (-1) )
 } 

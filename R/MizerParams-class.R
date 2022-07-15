@@ -266,6 +266,15 @@ validMizerParams <- function(object) {
 #' abundances or harvest effort through time. These are held in
 #' \linkS4class{MizerSim} objects.
 #' 
+#' @slot metadata A list with metadata information. See [setMetadata()].
+#' @slot mizer_version The package version of mizer (as returned by
+#'   `packageVersion("mizer")`) that created or last saved the model.
+#' @slot extensions A named vector of strings where each name is the name of
+#'    and extension package needed to run the model and each value is a string 
+#'    giving the information that the remotes package needs to install the 
+#'    correct version of the extension package, see https://remotes.r-lib.org/.
+#' @slot time_created A POSIXct date-time object with the creation time.
+#' @slot time_modified A POSIXct date-time object with the last modified time.
 #' @slot w The size grid for the fish part of the spectrum. An increasing
 #'   vector of weights (in grams) running from the smallest egg size to the
 #'   largest asymptotic size.
@@ -292,7 +301,7 @@ validMizerParams <- function(object) {
 #' @slot metab An array (species x size) that holds the metabolism
 #'   for each species at size. Changed with [setMetabolicRate()].
 #' @slot mu_b An array (species x size) that holds the external mortality rate
-#'   \eqn{\mu_{b.i}(w)}. Changed with [setExtMort()].
+#'   \eqn{\mu_{ext.i}(w)}. Changed with [setExtMort()].
 #' @slot pred_kernel An array (species x predator size x prey size) that holds
 #'   the predation coefficient of each predator at size on each prey size. If
 #'   this is NA then the following two slots will be used. Changed with 
@@ -371,6 +380,11 @@ validMizerParams <- function(object) {
 setClass(
     "MizerParams",
     slots = c(
+        metadata = "list",
+        mizer_version = "ANY",
+        extensions = "character",
+        time_created = "POSIXct",
+        time_modified = "POSIXct",
         w = "numeric",
         dw = "numeric",
         w_full = "numeric",
@@ -430,7 +444,8 @@ remove(validMizerParams)
 #' A size grid is created so that
 #' the log-sizes are equally spaced. The spacing is chosen so that there will be
 #' `no_w` fish size bins, with the smallest starting at `min_w` and the largest
-#' starting at `max_w`. For `w_full` additional size bins are added below
+#' starting at `max_w`. For the resource spectrum there is a larger set of
+#' bins containing additional bins below
 #' `min_w`, with the same log size. The number of extra bins is such that
 #' `min_w_pp` comes to lie within the smallest bin. 
 #' 
@@ -558,7 +573,8 @@ emptyParams <- function(species_params,
                                          w = signif(w, 3)))
     catchability <- array(0, dim = c(length(gear_names), no_sp), 
                           dimnames = list(gear = gear_names, sp = species_names))
-    initial_effort <- rep(0, length(gear_names))
+    default_effort <- ifelse(defaults_edition() < 2, 0, 1)
+    initial_effort <- rep(default_effort, length(gear_names))
     names(initial_effort) <- gear_names
     
     interaction <- array(1, dim = c(no_sp, no_sp),
@@ -622,7 +638,7 @@ emptyParams <- function(species_params,
         linecolour <- rep(colour_palette, length.out = no_sp)
     }
     names(linecolour) <- as.character(species_names)
-    linecolour <- c(linecolour, "Total" = "black", "Resource" = "green",
+    linecolour <- c(linecolour, "Resource" = "green", "Total" = "black",
                     "Background" = "grey", "Fishing" = "red")
     
     if ("linetype" %in% names(species_params)) {
@@ -632,13 +648,18 @@ emptyParams <- function(species_params,
         linetype <- rep(type_palette, length.out = no_sp)
     }
     names(linetype) <- as.character(species_names)
-    linetype <- c(linetype, "Total" = "solid", "Resource" = "solid",
+    linetype <- c(linetype, "Resource" = "solid", "Total" = "solid",
                   "Background" = "solid", "Fishing" = "solid")
     
     # Make object ----
     # Should Z0, rrPP and ccPP have names (species names etc)?
     params <- new(
         "MizerParams",
+        metadata = list(),
+        mizer_version = packageVersion("mizer"),
+        extensions = vector(mode = "character"),
+        time_created = lubridate::now(),
+        time_modified = lubridate::now(),
         w = w,
         dw = dw,
         w_full = w_full,
@@ -693,80 +714,64 @@ emptyParams <- function(species_params,
     return(params)
 }
 
-
-
-
-
-#' Set line colours to be used in mizer plots
-#' 
-#' @param params A MizerParams object
-#' @param colours A named list or named vector of line colours.
-#' 
-#' @return The MizerParams object with updated line colours
-#' @export
-#' @examples
-#' params <- NS_params
-#' params <- setColours(params, list("Cod" = "red", "Haddock" = "#00ff00"))
-#' plotSpectra(params)
-#' getColours(params)
-setColours <- function(params, colours) {
-    assert_that(is(params, "MizerParams"),
-                all(validColour(colours)))
-    params@linecolour <- unlist(
-        modifyList(as.list(params@linecolour), as.list(colours)))
-    params
-}
-
-#' @rdname setColours
-#' @export
-getColours <- function(params) {
-    params@linecolour
-}
-
-validColour <- function(colour) {
-    sapply(colour, function(X) {
-        tryCatch(is.matrix(col2rgb(X)), 
-                 error = function(e) FALSE)
-    })
-}
-
-#' Set linetypes to be used in mizer plots
-#' 
-#' @param params A MizerParams object
-#' @param linetypes A named list or named vector of linetypes.
-#' 
-#' @return The MizerParams object with updated linetypes
-#' @export
-#' @examples
-#' params <- NS_params
-#' params <- setLinetypes(params, list("Cod" = "solid"))
-#' plotSpectra(params)
-#' getLinetypes(params)
-setLinetypes <- function(params, linetypes) {
-    assert_that(is(params, "MizerParams"))
-    params@linetype <- unlist(
-        modifyList(as.list(params@linetype), as.list(linetypes)))
-    params
-}
-
-#' @rdname setLinetypes
-#' @export
-getLinetypes <- function(params) {
-    as.list(params@linetype)
-}
-
-
 #' Size bins
 #' 
 #' Functions to fetch information about the size bins used in the model
 #' described by `params`. 
 #' 
-#' TODO: Give more details about how mizer discretises the size
+#' To represent the continuous size spectrum in the computer, the size
+#' variable is discretized into a vector `w` of discrete weights,
+#' providing a grid of sizes spanning the range from the smallest egg size
+#' to the largest asymptotic size. These grid values divide the full size
+#' range into a finite number of size bins. The size bins should be chosen
+#' small enough to avoid the discretisation errors from becoming too big.
+#' You can fetch this vector with `w()` and the vector of bin widths with
+#' `dw()`.
+#' 
+#' The weight grid is set up to be logarithmically spaced, so that
+#' `w[j]=w[1]*10^(j*dx)` for some fixed `dx`. This means that the bin widths
+#' increase with size: `dw[j] = w[j] * (10^dx - 1)`.
+#' This grid is set up automatically when creating a MizerParams object.
+#' 
+#' Because the resource spectrum spans a larger range of sizes, these sizes
+#' are discretized into a different vector of weights `w_full`. This usually
+#' starts at a much smaller size than `w`, but also runs up to the same
+#' largest size, so that the last entries of `w_full` have to coincide with the
+#' entries of `w`. The logarithmic spacing for `w_full` is the same as that for
+#' `w`, so that again `w_full[j]=w_full[1]*10^(j*dx)`. The function `w_full()`
+#' gives the vector of sizes and `dw_full()` gives the vector of bin widths.
+#' 
+#' You will need these vectors when converting number densities to numbers.
+#' For example the size spectrum of a species is stored as a vector of
+#' values that represent the *density* of fish in each size bin rather than
+#' the *number* of fish. The number of fish in the size bin between `w[j]` and
+#' `w[j+1]=w[j]+dw[j]` is obtained as `N[j]*dw[j]`.
+#' 
+#' The vector `w` can be used for example to convert the number of individuals
+#' in a size bin into the biomass in the size bin. The biomass in the
+#' `j`th bin is `biomass[j] = N[j] * dw[j] * w[j]`. 
+#' 
+#' Of course all these calculations with discrete sizes and size bins are
+#' only giving approximations to the continuous values, and these approximations
+#' get better the smaller the size bins are, i.e., the more size bins are
+#' used. However using more size bins also slows down the calculations, so
+#' there is a trade-off. This is why the functions setting up MizerParams 
+#' objects allow you to choose the number of size bins `no_w`.
 #' 
 #' @param params A MizerParams object
 #' @return `w()` returns a vector with the sizes at the start of each size bin
-#'   of the community spectrum.
+#'   of the consumer spectrum.
 #' @export
+#' @examples 
+#' str(w(NS_params))
+#' str(dw(NS_params))
+#' str(w_full(NS_params))
+#' str(dw_full(NS_params))
+#' 
+#' # Calculating the biomass of Cod in each bin in the North Sea model
+#' biomass <- initialN(NS_params)["Cod", ] * dw(NS_params) * w(NS_params)
+#' # Summing to get total biomass
+#' sum(biomass)
 w <- function(params) {
     params@w
 }
@@ -774,7 +779,7 @@ w <- function(params) {
 #' @rdname w
 #' @return `w_full()` returns a vector with the sizes at the start of each size bin
 #'   of the resource spectrum, which typically starts at smaller sizes than
-#'   the community spectrum.
+#'   the consumer spectrum.
 #' @export
 w_full <- function(params) {
     params@w_full
@@ -782,7 +787,7 @@ w_full <- function(params) {
 
 #' @rdname w
 #' @return `dw()` returns a vector with the widths of the size bins of the
-#'   community spectrum.
+#'   consumer spectrum.
 #' @export
 dw <- function(params) {
     params@dw
@@ -808,9 +813,7 @@ validParams <- function(params) {
     # because `slotnames()` just looks at the class definition. 
     has_slot <- sapply(slotNames(mizer::NS_params),
                       function(name) .hasSlot(params, name))
-    if (!all(has_slot) ||
-        "interaction_p" %in% names(params@species_params) ||
-        "r_max" %in% names(params@species_params)) {
+    if (!.hasSlot(params, "metadata")) {
         params <- upgradeParams(params)
         warning("You need to upgrade your MizerParams object with `upgradeParams()`.")
     }

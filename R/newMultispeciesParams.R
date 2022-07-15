@@ -2,10 +2,9 @@
 #'
 #' Sets up a multi-species size spectrum model by filling all slots in the
 #' \linkS4class{MizerParams} object based on user-provided or default
-#' parameters. It does this by creating an empty MizerParams object with
-#' [emptyParams()] and then filling the slots by passing its arguments
-#' to [setParams()]. There is a long list of arguments, but almost
-#' all of them have sensible default values. All arguments are described in more
+#' parameters. There is a long list of arguments, but almost
+#' all of them have sensible default values. The only required argument is
+#' the `species_params` data frame. All arguments are described in more
 #' details in the sections below the list.
 #' 
 #' @inheritParams emptyParams
@@ -36,7 +35,8 @@
 #' There are two essential columns that must be included in the species
 #' parameter data.frame and that do not have default values: the 
 #' `species` column that should hold strings with the names of the
-#' species and the `w_inf` column with the asymptotic sizes of the species. 
+#' species and the `w_inf` column with the asymptotic sizes of the species
+#' in grams. 
 #' 
 #' The species_params dataframe also needs to contain the parameters needed
 #' by any predation kernel function or size selectivity function. This will
@@ -47,15 +47,17 @@
 #' automatically added when the `MizerParams` object is created. For these
 #' parameters you can also specify values for only some species and leave the
 #' other entries as NA and the missing values will be set to the defaults.
+#' So the `species_params` data frame saved in the returned MizerParams object
+#' will differ from the one you supply because it will have the missing 
+#' species parameters filled in with default values.
 #' 
 #' If you are not happy with any of the species parameter values used you can
 #' always change them later with [species_params<-()].
 #' 
 #' All the parameters will be mentioned in the following sections.
-#' @inheritSection emptyParams Changes to species params
 #' @inheritSection emptyParams Size grid
 #' @inheritSection setParams Units in mizer
-#' @inheritSection setInteraction Setting interactions
+#' @inheritSection setInteraction Setting interaction matrix
 #' @inheritSection setPredKernel Setting predation kernel
 #' @inheritSection setSearchVolume Setting search volume
 #' @inheritSection setMaxIntakeRate Setting maximum intake rate
@@ -68,9 +70,7 @@
 #' @export
 #' @family functions for setting up models
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' }
+#' params <- newMultispeciesParams(NS_species_params)
 newMultispeciesParams <- function(
     species_params,
     interaction = NULL,
@@ -88,7 +88,7 @@ newMultispeciesParams <- function(
     metab = NULL,
     p = 0.7,
     # setExtMort
-    z0 = NULL,
+    ext_mort = NULL,
     z0pre = 0.6,
     z0exp = n - 1,
     # setReproduction
@@ -109,7 +109,12 @@ newMultispeciesParams <- function(
     selectivity = NULL,
     catchability = NULL,
     initial_effort = NULL,
-    info_level = 3) {
+    info_level = 3,
+    z0 = deprecated()) {
+    if (lifecycle::is_present(z0)) {
+        lifecycle::deprecate_warn("2.2.3", "newMultispeciesParams(z0)", "newMultispeciesParams(ext_mort)")
+        ext_mort <- z0
+    }
     
     # Define a signal handler that collects the information signals
     # into the `infos` list.
@@ -156,7 +161,7 @@ newMultispeciesParams <- function(
                   # setMetabolicRate()
                   metab = metab,
                   # setExtMort
-                  z0 = z0,
+                  ext_mort = ext_mort,
                   z0pre = z0pre,
                   z0exp = z0exp,
                   # setReproduction
@@ -207,14 +212,14 @@ newMultispeciesParams <- function(
 #' 
 #' @param params A \linkS4class{MizerParams} object
 #' @inheritParams setInteraction
-#' @inheritDotParams setPredKernel
-#' @inheritDotParams setSearchVolume
-#' @inheritDotParams setMaxIntakeRate
-#' @inheritDotParams setMetabolicRate
-#' @inheritDotParams setExtMort
-#' @inheritDotParams setReproduction
-#' @inheritDotParams setFishing
-#' @inheritDotParams setResource
+#' @inheritDotParams setPredKernel -reset
+#' @inheritDotParams setSearchVolume -reset
+#' @inheritDotParams setMaxIntakeRate -reset
+#' @inheritDotParams setMetabolicRate -reset
+#' @inheritDotParams setExtMort -reset
+#' @inheritDotParams setReproduction -reset
+#' @inheritDotParams setFishing -reset
+#' @inheritDotParams setResource -reset
 #' 
 #' @return A \linkS4class{MizerParams} object
 #' 
@@ -243,26 +248,9 @@ newMultispeciesParams <- function(
 #' Internally that will actually call `setParams()` to recalculate any of the
 #' other parameters that are affected by the change in the species parameter.
 #' 
-#' `setParams()` will use the species parameters in the `params` object to recalculate
-#' the values of all the model functions that you do not specify explicitly when
-#' calling this function, unless you have protected the corresponding slots with
-#' a comment. If you have changed any of the model functions in the
-#' `params` object previously and now want to make changes to a different slot,
-#' you will want to call the appropriate change function individually. So in the
-#' above example you would have used `params <- setSearchVolume(params)`
-#' instead of `params <- setParams(params)`. 
-#' 
-#' If you have added a comment to a slot of the params object, then setParams()
-#' and its subfunctions will not recalculate the value for that slot from the
-#' species parameters. For example
-#' ```
-#' comment(params@search_vol) <- "This should not change"
-#' species_params(params)$gamma <- 10
-#' ```
-#' will just issue a warning "The search volume has been commented and therefore
-#' will not be recalculated from the species parameters". You can remove the
-#' comment, and therefore allow recalculation of the slot, with
-#' `comment(params@search_vol) <- NULL`.
+#' `setParams()` will use the species parameters in the `params` object to
+#' recalculate the values of all the model functions except those for which you have set custom
+#' values.
 #' 
 #' @section Units in mizer:
 #' Mizer uses grams to measure weight, centimetres to measure lengths, and
@@ -279,21 +267,22 @@ newMultispeciesParams <- function(
 #' the parameters. This will be mentioned when the parameters are discussed in
 #' the sections below.
 #' 
-#' You choice will also affect the units of the quantities you may want to
+#' Your choice will also affect the units of the quantities you may want to
 #' calculate with the model. For example, the yield will be in grams/year/m^2 in
 #' case 1 if you choose m^2 as your measure of area, in grams/year/m^3 in case 2
 #' if you choose m^3 as your unit of volume, or simply grams/year in case 3. The
 #' same comment applies for other measures, like total biomass, which will be
 #' grams/area in case 1, grams/volume in case 2 or simply grams in case 3. When
-#' mizer puts units on axes, for example in `plotBiomass`, it will simply
-#' put grams, as appropriate for case 3.
+#' mizer puts units on axes in plots, it will choose the units appropriate for
+#' case 3. So for example in [plotBiomass()] it gives the unit as grams.
 #' 
 #' You can convert between these choices. For example, if you use case 1, you
 #' need to multiply with the area of the ecosystem to get the total quantity. 
 #' If you work with case 2, you need to multiply by both area and the thickness 
-#' of the productive layer. In that respect, case 2 is a bit cumbersome.
+#' of the productive layer. In that respect, case 2 is a bit cumbersome. The
+#' function [scaleModel()] is useful to change the units you are using.
 #' 
-#' @inheritSection setInteraction Setting interactions
+#' @inheritSection setInteraction Setting interaction matrix
 #' @inheritSection setPredKernel Setting predation kernel
 #' @inheritSection setSearchVolume Setting search volume
 #' @inheritSection setMaxIntakeRate Setting maximum intake rate
@@ -304,6 +293,8 @@ newMultispeciesParams <- function(
 #' @inheritSection setResource Setting resource dynamics
 #' @export
 #' @family functions for setting parameters
+# The reason we list `interaction` explicitly rather than including it in
+# the `...` is for backwards compatibitlity. It used to be the second argument.
 setParams <- function(params, interaction = NULL, ...) {
     params <- suppressWarnings(validParams(params))
     params <- setResource(params, ...)
@@ -317,6 +308,18 @@ setParams <- function(params, interaction = NULL, ...) {
     params <- setSearchVolume(params, ...)
     params <- setReproduction(params, ...)
     params <- setFishing(params, ...)
+    
+    colours <- params@species_params$linecolour
+    if (!is.null(colours)) {
+        names(colours) <- params@species_params$species
+        params <- setColours(params, colours)
+    }
+    linetypes <- params@species_params$linetype
+    if (!is.null(linetypes)) {
+        names(linetypes) <- params@species_params$species
+        params <- setLinetypes(params, linetypes)
+    }
+    
     validObject(params)
     params
 }

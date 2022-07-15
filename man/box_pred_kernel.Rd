@@ -28,3 +28,10 @@ feeding kernel is 1 if \eqn{w/w_p} is between \code{ppmr_min} and
 species parameter dataframe in the columns \code{ppmr_min} and
 \code{ppmr_max}.
 }
+\seealso{
+Other predation kernel: 
+\code{\link{lognormal_pred_kernel}()},
+\code{\link{power_law_pred_kernel}()},
+\code{\link{truncated_lognormal_pred_kernel}()}
+}
+\concept{predation kernel}

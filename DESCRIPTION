@@ -18,14 +18,16 @@ Authors@R: c(person("Gustav", "Delius", email="gustav.delius@york.ac.uk",
                     comment = c(ORCID = "0000-0002-8478-3430")),
              person("Richard", "Southwell", email="richard.southwell@york.ac.uk",
                     role=c("ctb", "cph")))
-Version: 2.2.0.9000
+Version: 2.3.1.9000
 License: GPL-3
 Imports:
     assertthat,
     deSolve,
     dplyr,
     ggplot2,
+    ggrepel,
     grid,
+    lubridate,
     methods,
     plotly,
     plyr,
@@ -52,12 +54,15 @@ Collate:
     'MizerParams-class.R'
     'MizerSim-class.R'
     'reproduction.R'
+    'saveParams.R'
     'species_params.R'
+    'setColours.R'
     'setInteraction.R'
     'setPredKernel.R'
     'setSearchVolume.R'
     'setMaxIntakeRate.R'
     'setMetabolicRate.R'
+    'setMetadata.R'
     'setExtMort.R'
     'setReproduction.R'
     'setResource.R'
@@ -74,11 +79,14 @@ Collate:
     'rate_functions.R'
     'summary_methods.R'
     'plots.R'
+    'plotBiomassObservedVsModel.R'
+    'plotYieldObservedVsModel.R'
     'animateSpectra.R'
     'newMultispeciesParams.R'
     'wrapper_functions.R'
     'newSingleSpeciesParams.R'
     'steady.R'
+    'test-helpers.R'
     'extension.R'
     'data.R'
     'RcppExports.R'
@@ -87,7 +95,10 @@ Collate:
     'compareParams.R'
     'customFunction.R'
     'manipulate_species.R'
-RoxygenNote: 7.1.1
+    'calibrate.R'
+    'match.R'
+    'defaults_edition.R'
+RoxygenNote: 7.2.0
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
 LazyData: true
@@ -95,4 +106,3 @@ URL: https://sizespectrum.org/mizer/, https://github.com/sizespectrum/mizer
 BugReports: https://github.com/sizespectrum/mizer/issues
 Language: en-GB
 RdMacros: lifecycle
-VignetteBuilder: knitr

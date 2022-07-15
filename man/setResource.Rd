@@ -3,16 +3,21 @@
 \name{setResource}
 \alias{setResource}
 \alias{getResourceRate}
+\alias{resource_rate}
+\alias{resource_rate<-}
 \alias{getResourceCapacity}
+\alias{resource_capacity}
+\alias{resource_capacity<-}
 \alias{getResourceDynamics}
+\alias{resource_dynamics}
+\alias{resource_dynamics<-}
 \title{Set up resource}
 \usage{
 setResource(
   params,
   resource_rate = NULL,
-  comment_rate = "set manually",
   resource_capacity = NULL,
-  comment_capacity = "set manually",
+  reset = FALSE,
   r_pp = resource_params(params)[["r_pp"]],
   kappa = resource_params(params)[["kappa"]],
   lambda = resource_params(params)[["lambda"]],
@@ -24,27 +29,36 @@ setResource(
 
 getResourceRate(params)
 
+resource_rate(params)
+
+resource_rate(params) <- value
+
 getResourceCapacity(params)
 
+resource_capacity(params)
+
+resource_capacity(params) <- value
+
 getResourceDynamics(params)
+
+resource_dynamics(params)
+
+resource_dynamics(params) <- value
 }
 \arguments{
 \item{params}{A MizerParams object}
 
 \item{resource_rate}{Optional. Vector of resource intrinsic birth rates}
 
-\item{comment_rate}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'resource_rate' was obtained. This is
-ignored if 'resource_rate' is not supplied or already has a comment
-attribute.}
-
 \item{resource_capacity}{Optional. Vector of resource intrinsic carrying
 capacity}
 
-\item{comment_capacity}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'resource_capacity' was obtained. This is
-ignored if 'resource_capacity' is not supplied or already has a comment
-attribute.}
+\item{reset}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If set to TRUE, then both \code{resource_rate} and
+\code{resource_capacity} will be reset to the value calculated from the resource
+parameters, even if they were previously overwritten with custom values. If
+set to FALSE (default) then a recalculation from the resource parameters
+will take place only if no custom values have been set.}
 
 \item{r_pp}{Coefficient of the intrinsic resource birth rate}
 
@@ -54,7 +68,8 @@ attribute.}
 
 \item{n}{Allometric growth exponent for resource}
 
-\item{w_pp_cutoff}{The upper cut off size of the resource spectrum.
+\item{w_pp_cutoff}{The upper cut off size of the resource spectrum.  The
+carrying capacity will be set to 0 above this size.
 Default is 10 g.}
 
 \item{resource_dynamics}{Optional. Name of the function that determines the
@@ -63,13 +78,11 @@ step from the current state. You only need to specify this if you do not
 want to use the default \code{\link[=resource_semichemostat]{resource_semichemostat()}}.}
 
 \item{...}{Unused}
+
+\item{value}{.}
 }
 \value{
-A MizerParams object with updated resource parameters. Because of the
-way the R language works, \code{setResource()} does not make the changes to the
-params object that you pass to it but instead returns a new params object.
-So to affect the change you call the function in the form
-\code{params <- setResource(params, ...)}.
+\code{setResource}: A MizerParams object with updated resource parameters
 }
 \description{
 Sets the intrinsic resource growth rate and the intrinsic resource carrying

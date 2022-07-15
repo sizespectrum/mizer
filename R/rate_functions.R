@@ -26,6 +26,10 @@
 #' @inheritParams mizerRates
 #' @export
 #' @family rate functions
+#' @examples
+#' rates <- getRates(NS_params)
+#' names(rates)
+#' identical(rates$encounter, getEncounter(NS_params))
 getRates <- function(params, n = initialN(params), 
                      n_pp = initialNResource(params),
                      n_other = initialNOther(params),
@@ -51,12 +55,8 @@ getRates <- function(params, n = initialN(params),
 #' @export
 #' @family rate functions
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' # Run simulation with constant fishing effort for all gears for 20 years
-#' sim <- project(params, t_max = 20, effort = 0.5)
-#' getEncounter(params, n = finalN(sim), n_pp = finalNResource(sim), t = 20)
-#' }
+#' encounter <- getEncounter(NS_params)
+#' str(encounter)
 getEncounter <- function(params, n = initialN(params), 
                          n_pp = initialNResource(params),
                          n_other = initialNOther(params),
@@ -104,7 +104,7 @@ getEncounter <- function(params, n = initialN(params),
 #' @family rate functions
 #' @examples
 #' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
+#' params <- NS_params
 #' # Get initial feeding level
 #' fl <- getFeedingLevel(params)
 #' # Project with constant fishing effort for all gears for 20 time steps
@@ -191,7 +191,7 @@ getCriticalFeedingLevel <- function(params) {
 #' @family rate functions
 #' @examples
 #' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
+#' params <- NS_params
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the energy at a particular time step
@@ -232,7 +232,7 @@ getEReproAndGrowth <- function(params, n = initialN(params),
 #' @family rate functions
 #' @examples
 #' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
+#' params <- NS_params
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the feeding level at one time step
@@ -278,7 +278,7 @@ getPredRate <- function(params, n = initialN(params),
 #' @export
 #' @examples
 #' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
+#' params <- NS_params
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get predation mortality at one time step
@@ -351,7 +351,7 @@ getM2 <- getPredMort
 #' @export
 #' @examples
 #' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
+#' params <- NS_params
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get resource mortality at one time step
@@ -418,7 +418,7 @@ getM2Background <- getResourceMort
 #' @family rate functions
 #' @examples
 #' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
+#' params <-NS_params
 #' # Get the fishing mortality when effort is constant
 #' # for all gears and time:
 #' getFMortGear(params, effort = 1)
@@ -492,7 +492,8 @@ getFMortGear <- function(object, effort, time_range) {
 #' and size.
 #' 
 #' Calculates the total fishing mortality  (in units 1/year) from all gears by
-#' species and size and possibly time.
+#' species and size and possibly time. See `setFishing()` for details of
+#' how fishing gears are set up.
 #' 
 #' The total fishing mortality is just the sum of the fishing mortalities
 #' imposed by each gear, \eqn{\mu_{f.i}(w)=\sum_g F_{g,i,w}}.
@@ -533,7 +534,7 @@ getFMortGear <- function(object, effort, time_range) {
 #' @family rate functions
 #' @examples
 #' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
+#' params <- NS_params
 #' # Get the total fishing mortality when effort is constant for all 
 #' # gears and time:
 #' getFMort(params, effort = 1)
@@ -577,7 +578,7 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
             for (i in 1:dim(effort)[1]) {
                 f_mort[i, , ] <- 
                     f(params, n = n, n_pp = n_pp, n_other = n_other,
-                      effort = effort[i, ],
+                      effort = effort[i, ], t = times[i],
                       e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
                                             n_other = n_other, t = times[i]), 
                       pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
@@ -587,7 +588,7 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
             return(f_mort)
         } else if (length(effort) <= 1) {
             fmort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
-                       effort = rep(effort, no_gears),
+                       effort = rep(effort, no_gears), t = t,
                        e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
                                              n_other = n_other, t = t), 
                        pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
@@ -597,7 +598,7 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
             return(fmort)
         } else if (length(effort) == no_gears) {
             fmort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
-                       effort = effort,
+                       effort = effort, t = t,
                        e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
                                              n_other = n_other, t = t), 
                        pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
@@ -630,7 +631,7 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
         for (i in 1:dim(effort)[1]) {
             f_mort[i, , ] <- 
                 f(params, n = n[i, , ], n_pp = n_pp[i, ], 
-                  n_other = n_other[i, ], effort = effort[i, ],
+                  n_other = n_other[i, ], effort = effort[i, ], t = times[i],
                   e_growth = getEGrowth(params, n = n[i, , ], n_pp = n_pp[i, ],
                                         n_other = n_other[i, ], t = times[i]), 
                   pred_mort = getPredMort(params, n = n[i, , ], 
@@ -663,7 +664,7 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
 #' @family rate functions
 #' @examples
 #' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
+#' params <- NS_params
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the total mortality at a particular time step
@@ -717,7 +718,7 @@ getZ <- getMort
 #' @family rate functions
 #' @examples
 #' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
+#' params <- NS_params
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the energy at a particular time step
@@ -761,7 +762,7 @@ getESpawning <- getERepro
 #' @family rate functions
 #' @examples
 #' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
+#' params <- NS_params
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the energy at a particular time step
@@ -797,7 +798,7 @@ getEGrowth <- function(params, n = initialN(params),
 #' @family rate functions
 #' @examples
 #' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
+#' params <- NS_params
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the density-independent reproduction rate at a particular time step
@@ -841,7 +842,7 @@ getRDI <- function(params, n = initialN(params),
 #' @family rate functions
 #' @examples
 #' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
+#' params <- NS_params
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the rate at a particular time step

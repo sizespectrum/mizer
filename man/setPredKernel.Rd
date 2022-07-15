@@ -2,14 +2,18 @@
 % Please edit documentation in R/setPredKernel.R
 \name{setPredKernel}
 \alias{setPredKernel}
+\alias{getPredKernel}
+\alias{pred_kernel}
+\alias{pred_kernel<-}
 \title{Set predation kernel}
 \usage{
-setPredKernel(
-  params,
-  pred_kernel = NULL,
-  comment_pred_kernel = "set manually",
-  ...
-)
+setPredKernel(params, pred_kernel = NULL, reset = FALSE, ...)
+
+getPredKernel(params)
+
+pred_kernel(params)
+
+pred_kernel(params) <- value
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -19,19 +23,22 @@ that holds the predation coefficient of each predator at size on each prey
 size. If not supplied, a default is set as described in section "Setting
 predation kernel".}
 
-\item{comment_pred_kernel}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'pred_kernel' was obtained. This is
-ignored if 'pred_kernel' is not supplied or already has a comment
-attribute.}
+\item{reset}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If set to TRUE, then the predation kernel will be reset to the
+value calculated from the species parameters, even if it was previously
+overwritten with a custom value. If set to FALSE (default) then a
+recalculation from the species parameters will take place only if no custom
+value has been set.}
 
 \item{...}{Unused}
+
+\item{value}{pred_kernel}
 }
 \value{
-A MizerParams object with updated predation kernel. Because of the
-way the R language works, \code{setPredKernel()} does not make the changes
-to the params object that you pass to it but instead returns a new params
-object. So to affect the change you call the function in the form
-\code{params <- setPredKernel(params, ...)}.
+\code{setPredKernel()}: A MizerParams object with updated predation kernel.
+
+\code{getPredKernel()} or equivalently \code{pred_kernel()}: An array (predator
+species x predator_size x prey_size)
 }
 \description{
 The predation kernel determines the distribution of prey sizes that a
@@ -51,7 +58,7 @@ predation kernel that depends only on the ratio of predator mass to prey
 mass, not on the two masses independently. The shape of that kernel is then
 determined by the \code{pred_kernel_type} column in species_params.
 
-The default pred_kernel_type is "lognormal". This will call the function
+The default for \code{pred_kernel_type} is "lognormal". This will call the function
 \code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}} to calculate the predation kernel.
 An alternative pred_kernel type is "box", implemented by the function
 \code{\link[=box_pred_kernel]{box_pred_kernel()}}, and "power_law", implemented by the function
@@ -63,9 +70,9 @@ functions. Except for \code{beta} and \code{sigma}, no defaults are set for
 these parameters. If they are missing from the species_params data frame then
 mizer will issue an error message.
 
-You can use any other string as the type. If for example you choose "my" then
-you need to define a function \code{my_pred_kernel} that you can model on the
-existing functions like \code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}}.
+You can use any other string for \code{pred_kernel_type}. If for example you
+choose "my" then you need to define a function \code{my_pred_kernel} that you can
+model on the existing functions like \code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}}.
 
 When using a kernel that depends on the predator/prey size ratio only, mizer
 does not need to store the entire three dimensional array in the MizerParams
@@ -96,7 +103,7 @@ different.
 \examples{
 \dontrun{
 ## Set up a MizerParams object
-params <- newMultispeciesParams(NS_species_params_gears, inter)
+params <-  NS_params
 
 ## If you change predation kernel parameters after setting up a model, 
 #  this will be used to recalculate the kernel

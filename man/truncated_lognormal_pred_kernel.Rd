@@ -37,3 +37,10 @@ the columns \code{beta} and \code{sigma}.
 This function is called from \code{\link[=setPredKernel]{setPredKernel()}} to set up the
 predation kernel slots in a MizerParams object.
 }
+\seealso{
+Other predation kernel: 
+\code{\link{box_pred_kernel}()},
+\code{\link{lognormal_pred_kernel}()},
+\code{\link{power_law_pred_kernel}()}
+}
+\concept{predation kernel}

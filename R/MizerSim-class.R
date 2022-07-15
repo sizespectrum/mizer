@@ -246,6 +246,8 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
 #' @return For `N()`: A three-dimensional array (time x species x size) with the
 #'   number density of consumers
 #' @export
+#' @examples
+#' str(N(NS_sim))
 N <- function(sim) {
     sim@n
 }
@@ -253,6 +255,8 @@ N <- function(sim) {
 #' @rdname N
 #' @return For `NResource()`: An array (time x size) with the number density of resource
 #' @export
+#' @examples
+#' str(NResource(NS_sim))
 NResource <- function(sim) {
     sim@n_pp
 }
@@ -263,7 +267,13 @@ NResource <- function(sim) {
 #' @param sim A MizerSim object
 #' @return For `finalN()`: An array (species x size) holding the consumer
 #'   number densities at the end of the simulation
+#' @seealso [idxFinalT()]
 #' @export
+#' @examples
+#' str(finalN(NS_sim))
+#' 
+#' # This could also be obtained using `N()` and `idxFinalT()`
+#' identical(N(NS_sim)[idxFinalT(NS_sim), , ], finalN(NS_sim))
 finalN <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     n <- sim@params@initial_n  # Needed to get the right dimnames
@@ -272,9 +282,11 @@ finalN <- function(sim) {
 }
 
 #' @rdname finalN
-#' @return For `finalNResource()`: A vector holding the resource number densities at
-#'   the end of the simulation for all size classes
+#' @return For `finalNResource()`: A vector holding the resource number
+#'   densities at the end of the simulation for all size classes
 #' @export
+#' @examples
+#' str(finalNResource(NS_sim))
 finalNResource <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     sim@n_pp[dim(sim@n_pp)[[1]], ]
@@ -287,18 +299,15 @@ finalNResource <- function(sim) {
 #'   results for the final time step
 #' @export
 #' @examples
-#' \dontrun{
-#' sim <- project(NS_params, t_max = 12, t_save = 0.5)
-#' idx <- idxFinalT(sim)
+#' idx <- idxFinalT(NS_sim)
 #' idx
 #' # This coincides with
-#' length(getTimes(sim))
+#' length(getTimes(NS_sim))
 #' # and corresponds to the final time
-#' getTimes(sim)[idx]
+#' getTimes(NS_sim)[idx]
 #' # We can use this index to extract the result at the final time
-#' identical(N(sim)[idx, , ], finalN(sim))
-#' identical(NResource(sim)[idx, ], finalNResource(sim))
-#' }
+#' identical(N(NS_sim)[idx, , ], finalN(NS_sim))
+#' identical(NResource(NS_sim)[idx, ], finalNResource(NS_sim))
 idxFinalT <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     dim(sim@n_pp)[[1]]
@@ -311,6 +320,8 @@ idxFinalT <- function(sim) {
 #' @return A numeric vectors of the times (in years) at which simulation results
 #'   have been stored in the MizerSim object.
 #' @export
+#' @examples 
+#' getTimes(NS_sim)
 getTimes <- function(sim) {
     as.numeric(dimnames(sim@n)$t)
 }
@@ -323,9 +334,11 @@ getTimes <- function(sim) {
 #' `t_save`).
 #' 
 #' @param sim A MizerSim object
-#' @return An array (time x gear) that stores the fishing effort by time and 
+#' @return An array (time x gear) that contains the fishing effort by time and 
 #'   gear.
 #' @export
+#' @examples
+#' str(getEffort(NS_sim))
 getEffort <- function(sim) {
     sim@effort
 }
@@ -335,6 +348,11 @@ getEffort <- function(sim) {
 #' @param sim A MizerSim object
 #' @return The MizerParams object that was used to run the simulation
 #' @export
+#' @examples 
+#' # This will be identical to the params object that was used to create the
+#' # simulation
+#' sim <- project(NS_params, t_max = 1)
+#' identical(getParams(sim), NS_params)
 getParams <- function(sim) {
     sim@params
 }

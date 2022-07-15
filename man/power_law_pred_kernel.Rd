@@ -47,3 +47,10 @@ ppmr^kernel_exp /
 The parameters need to be given as columns in the species parameter
 dataframe.
 }
+\seealso{
+Other predation kernel: 
+\code{\link{box_pred_kernel}()},
+\code{\link{lognormal_pred_kernel}()},
+\code{\link{truncated_lognormal_pred_kernel}()}
+}
+\concept{predation kernel}

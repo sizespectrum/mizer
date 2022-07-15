@@ -27,8 +27,7 @@
 #' @family plotting functions
 #' @examples
 #' \donttest{
-#' sim <- project(NS_params, t_max = 15, effort = 1, progress_bar = FALSE)
-#' animateSpectra(sim)
+#' animateSpectra(NS_sim, power = 2, wlim = c(0.1, NA), time_range = 1997:2007)
 #' }
 animateSpectra <- function(sim,
                            species = NULL,
@@ -38,12 +37,17 @@ animateSpectra <- function(sim,
                            power = 1,
                            total = FALSE,
                            resource = TRUE) {
+    assert_that(is.flag(total), is.flag(resource),
+                is.number(power), 
+                length(wlim) == 2,
+                length(ylim) == 2)
 
     species <- valid_species_arg(sim, species)
     if (missing(time_range)) {
         time_range  <- as.numeric(dimnames(sim@n)$time)
     }
     time_elements <- get_time_elements(sim, time_range)
+    
     nf <- melt(sim@n[time_elements,
                      as.character(dimnames(sim@n)$sp) %in% species,
                                , drop = FALSE])

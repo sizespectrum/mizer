@@ -4,22 +4,129 @@
 \alias{setBevertonHolt}
 \title{Set Beverton-Holt density dependence}
 \usage{
-setBevertonHolt(params, R_factor)
+setBevertonHolt(
+  params,
+  R_factor = deprecated(),
+  erepro,
+  R_max,
+  reproduction_level
+)
 }
 \arguments{
 \item{params}{A MizerParams object}
 
-\item{R_factor}{The factor by which the maximum reproduction rate should be
-higher than the initial-state reproduction rate}
+\item{R_factor}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use
+\code{reproduction_level = 1 / R_factor} instead.}
+
+\item{erepro}{Reproductive efficiency for each species. See details.}
+
+\item{R_max}{Maximum reproduction rate. See details.}
+
+\item{reproduction_level}{Sets \code{R_max} so that the reproduction rate at
+the initial state is \code{R_max * reproduction_level}.}
 }
 \value{
 A MizerParams object
 }
 \description{
-Takes a MizerParams object (with arbitrary density dependence) and sets a
-Beverton-Holt density-dependence with a maximum reproduction rate that is a
-chosen factor \code{R_factor} higher than the initial-state reproduction rate. At
-the same time it adjusts the reproductive efficiency \code{erepro} so that the
-actual reproduction rate in the initial state does not change. Setting
-\code{R_factor = Inf} switches off all density dependence.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+Takes a MizerParams object \code{params} with arbitrary density dependence and
+returns a MizerParams object with Beverton-Holt density-dependence in such a
+way that the energy invested into reproduction by the mature individuals
+leads to the reproduction rate that is required to maintain the given egg
+abundance. Hence if you have tuned your \code{params} object to describe a
+particular steady state, then setting the Beverton-Holt density dependence
+with this function will leave you with the exact same steady state. By
+specifying one of the parameters \code{erepro}, \code{R_max} or \code{reproduction_level}
+you pick the desired reproduction curve. More details of these parameters are
+provided below.
+}
+\details{
+With Beverton-Holt density dependence the relation between the energy
+invested into reproduction and the number of eggs hatched is determined
+by two parameters: the reproductive efficiency \code{erepro} and the maximum
+reproduction rate \code{R_max}.
+
+If no maximum is imposed on the reproduction rate
+(\eqn{R_{max} = \infty}{R_max = Inf}) then the resulting density-independent
+reproduction rate \eqn{R_{di}}{R_di} is proportional
+to the total rate \eqn{E_R} at which energy is invested into reproduction,
+\deqn{R_{di} = \frac{\rm{erepro}}{2 w_{min}} E_R,}{R_di = (erepro/(2 w_min)) E_R,}
+where the proportionality factor is given by the reproductive efficiency
+\code{erepro} divided by the egg size \code{w_min} to convert energy to egg number and
+divided by 2 to account for the two sexes.
+
+Imposing a finite maximum reproduction rate \eqn{R_{max}}{R_max} leads to a
+non-linear relationship between energy invested and eggs hatched. This
+density-dependent reproduction rate \eqn{R_{dd}}{R_dd} is given as
+\deqn{R_{dd} = R_{di}
+\frac{R_{max}}{R_{di} + R_{max}}.}{R_dd = R_di R_max/(R_di + R_max).}
+
+(All quantities in the above equations are species-specific but we dropped
+the species index for simplicity.)
+
+The following plot illustrates the Beverton-Holt density dependence in the
+reproduction rate for two different choices of parameters.
+\figure{Beverton-Holt-plot-1.png}
+
+This plot shows that a given energy \eqn{E_R} invested into reproduction can
+lead to the same reproduction rate \eqn{R_{dd}}{R_dd} with different choices
+of the parameters \code{R_max} and \code{erepro}. \code{R_max} determines the asymptote of
+the curve and \code{erepro} its initial slope. A higher \code{R_max} coupled with a
+lower \code{erepro} (black curves) can give the same value as a lower \code{R_max}
+coupled with a higher \code{erepro} (blue curves).
+
+For the given initial state in the MizerParams object \code{params} one can
+calculate the energy \eqn{E_R} that is invested into reproduction by the
+mature individuals and the reproduction rate \eqn{R_{dd}}{R_dd} that is
+required to keep the egg abundance constant. These two values determine the
+location of the black dot in the above graph. You then only need one
+parameter to select one curve from the family of Beverton-Holt curves going
+through that point. This parameter can be \code{erepro} or \code{R_max}. Instead of
+\code{R_max} you can alternatively specify the \code{reproduction_level} which is the
+ratio between the density-dependent reproduction rate \eqn{R_{dd}}{R_dd} and
+the maximal reproduction rate  \eqn{R_{max}}{R_max}.
+
+If you do not provide a value for any of the reproduction parameter
+arguments, then \code{erepro} will be set to the value it has in the current
+species parameter data frame. If you do provide one of the reproduction
+parameters, this can be either a vector with one value for each
+species, or a named vector where the names determine which species are
+affected, or a single unnamed value that is then used for all species. Any
+species for which the given value is \code{NA} will remain unaffected.
+
+The values for \code{R_max} must be larger than \eqn{R_{dd}}{R_dd} and can range
+up to \code{Inf}. If a smaller value is requested a warning is issued and the
+value is increased to the value required for a reproduction level of 0.99.
+
+The values for the \code{reproduction_level} must be positive and
+less than 1. The values for \code{erepro} must be large enough to allow the
+required reproduction rate. If a smaller value is requested a warning is
+issued and the value is increased to the smallest possible value. The values
+for \code{erepro} should also be smaller than 1 to be physiologically sensible,
+but this is not enforced by the function.
+
+As can be seen in the graph above, choosing a lower value for \code{R_max} or a
+higher value for \code{erepro} means that near the steady state the reproduction
+will be less sensitive to a change in the energy invested into reproduction
+and hence less sensitive to changes in the spawning stock biomass or its
+energy income. As a result the species will also be less sensitive to
+fishing, leading to a higher F_MSY.
+}
+\examples{
+params <- NS_params
+species_params(params)$erepro
+# Attempting to set the same erepro for all species
+params <- setBevertonHolt(params, erepro = 0.1)
+t(species_params(params)[, c("erepro", "R_max")])
+# Setting erepro for some species
+params <- setBevertonHolt(params, erepro = c("Gurnard" = 0.6, "Plaice" = 0.95))
+t(species_params(params)[, c("erepro", "R_max")])
+# Setting R_max
+R_max <- 1e17 * species_params(params)$w_inf^-1
+params <- setBevertonHolt(NS_params, R_max = R_max)
+t(species_params(params)[, c("erepro", "R_max")])
+# Setting reproduction_level
+params <- setBevertonHolt(params, reproduction_level = 0.3)
+t(species_params(params)[, c("erepro", "R_max")])
 }

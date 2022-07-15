@@ -17,3 +17,10 @@ knife_edge(w, knife_edge_size, ...)
 A knife-edge selectivity function where weights greater or equal to
 \code{knife_edge_size} are selected.
 }
+\seealso{
+Other selectivity functions: 
+\code{\link{double_sigmoid_length}()},
+\code{\link{sigmoid_length}()},
+\code{\link{sigmoid_weight}()}
+}
+\concept{selectivity functions}

@@ -30,10 +30,13 @@
 #' @importFrom plotly ggplotly plotlyOutput renderPlotly
 #' @importFrom stats fft mvfft lm pnorm runif complete.cases
 #' @importFrom grDevices col2rgb
-#' @importFrom utils modifyList
+#' @importFrom utils modifyList packageVersion globalVariables
 #' @importFrom rlang signal cnd_muffle
+#' @importFrom lifecycle deprecated
 "_PACKAGE"
 
 #' @importFrom reshape2 melt
 #' @export
 reshape2::melt
+
+globalVariables(c("expect_equal", "observed", "model", "is_observed"))

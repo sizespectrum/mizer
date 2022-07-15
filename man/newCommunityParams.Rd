@@ -105,8 +105,8 @@ through time after the projection.
 }
 \examples{
 \dontrun{
-params <- newCommunityParams(f0=0.7, z0=0.2, reproduction=3e7)
-sim <- project(params, effort = 0, t_max = 100, dt=0.1)
+params <- newCommunityParams(f0 = 0.7, z0 = 0.2)
+sim <- project(params, t_max = 10)
 plotBiomass(sim)
 plotSpectra(sim)
 }

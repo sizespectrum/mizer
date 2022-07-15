@@ -51,8 +51,7 @@ A plotly object
 }
 \examples{
 \donttest{
-sim <- project(NS_params, t_max = 15, effort = 1, progress_bar = FALSE)
-animateSpectra(sim)
+animateSpectra(NS_sim, power = 2, wlim = c(0.1, NA), time_range = 1997:2007)
 }
 }
 \seealso{

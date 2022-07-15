@@ -3,16 +3,17 @@
 \name{setSearchVolume}
 \alias{setSearchVolume}
 \alias{getSearchVolume}
+\alias{search_vol}
+\alias{search_vol<-}
 \title{Set search volume}
 \usage{
-setSearchVolume(
-  params,
-  search_vol = NULL,
-  comment_search_vol = "set manually",
-  ...
-)
+setSearchVolume(params, search_vol = NULL, reset = FALSE, ...)
 
 getSearchVolume(params)
+
+search_vol(params)
+
+search_vol(params) <- value
 }
 \arguments{
 \item{params}{MizerParams}
@@ -21,19 +22,22 @@ getSearchVolume(params)
 for each species at size. If not supplied, a default is set as described in
 the section "Setting search volume".}
 
-\item{comment_search_vol}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'search_vol' was obtained. This is
-ignored if 'search_vol' is not supplied or already has a comment
-attribute.}
+\item{reset}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If set to TRUE, then the search volume will be reset to the
+value calculated from the species parameters, even if it was previously
+overwritten with a custom value. If set to FALSE (default) then a
+recalculation from the species parameters will take place only if no custom
+value has been set.}
 
 \item{...}{Unused}
+
+\item{value}{search_vol}
 }
 \value{
-MizerParams with updated search volume. Because of the way the R
-language works, \code{setSearchVolume()} does not make the changes to the params
-object that you pass to it but instead returns a new params object. So to
-affect the change you call the function in the form
-\code{params <- setSearchVolume(params, ...)}.
+\code{setSearchVolume()}: A MizerParams object with updated search volume.
+
+\code{getSearchVolume()} or equivalently \code{search_vol()}: An array (species
+x size) holding the search volume
 }
 \description{
 Set search volume
@@ -48,7 +52,7 @@ predation rate in \code{\link[=getPredRate]{getPredRate()}}.
 The name "search volume" is a bit misleading, because \eqn{\gamma_i(w)} does
 not have units of volume. It is simply a parameter that determines the rate
 of predation. Its units depend on your choice, see section "Units in mizer".
-If you have chose to work with total abundances, then it is a rate with units
+If you have chosen to work with total abundances, then it is a rate with units
 1/year. If you have chosen to work with abundances per m^2 then it has units
 of m^2/year. If you have chosen to work with abundances per m^3 then it has
 units of m^3/year.

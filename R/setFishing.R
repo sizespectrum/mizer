@@ -92,29 +92,24 @@
 #' @param initial_effort Optional. A number or a named numeric vector specifying
 #'   the fishing effort. If a number, the same effort is used for all gears. If
 #'   a vector, must be named by gear.
-#' @param comment_selectivity `r lifecycle::badge("experimental")`
-#'   A string describing how the value for 'selectivity' was obtained. This is
-#'   ignored if 'selectivity' is not supplied or already has a comment
-#'   attribute.
-#' @param comment_catchability `r lifecycle::badge("experimental")`
-#'   A string describing how the value for 'catchability' was obtained. This is
-#'   ignored if 'catchability' is not supplied or already has a comment
-#'   attribute.
+#' @param reset `r lifecycle::badge("experimental")`
+#'   If set to TRUE, then both `catchability` and `selectivity` will
+#'   be reset to the values calculated from the gear parameters, even if it was
+#'   previously overwritten with a custom value. If set to FALSE (default) then
+#'   a recalculation from the gear parameters will take place only if no custom
+#'   value has been set.
 #' @param ... Unused
 #'   
-#' @return MizerParams object with updated catchability and selectivity. Because
-#'   of the way the R language works, `setFishing()` does not make the changes
-#'   to the params object that you pass to it but instead returns a new params
-#'   object. So to affect the change you call the function in the form
-#'   `params <- setFishing(params, ...)`.
+#' @return `setFishing()`: A MizerParams object with updated fishing
+#'   parameters.
 #' @export
 #' @seealso [gear_params()]
 #' @family functions for setting parameters
-setFishing <- function(params, selectivity = NULL, catchability = NULL, 
-                       comment_selectivity = "set manually", 
-                       comment_catchability = "set manually", 
+setFishing <- function(params, selectivity = NULL, catchability = NULL,
+                       reset = FALSE,
                        initial_effort = NULL, ...) {
-    assert_that(is(params, "MizerParams"))
+    assert_that(is(params, "MizerParams"),
+                is.flag(reset))
     species_params <- params@species_params
     gear_params <- params@gear_params
     sp_names <- as.character(species_params$species)
@@ -123,6 +118,39 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
     no_w <- length(params@w)
     gear_names <- as.character(unique(gear_params$gear))
     no_gears <- length(gear_names)
+    
+    if (reset) {
+        if (!is.null(selectivity)) {
+            warning("Because you set `reset = TRUE`, the value you provided ", 
+                    "for `selectivity` will be ignored and a value will be ",
+                    "calculated from the gear parameters.")
+            selectivity <- NULL
+        }
+        comment(params@selectivity) <- NULL
+        if (!is.null(catchability)) {
+            warning("Because you set `reset = TRUE`, the value you provided ", 
+                    "for `catchability` will be ignored and a value will be ",
+                    "calculated from the gear parameters.")
+            catchability <- NULL
+        }
+        comment(params@catchability) <- NULL
+    }
+    
+    if (!is.null(selectivity) && is.null(comment(selectivity))) {
+        if (is.null(comment(params@selectivity))) {
+            comment(selectivity) <- "set manually"
+        } else {
+            comment(selectivity) <- comment(params@selectivity)
+        }
+    }
+    if (!is.null(catchability) && is.null(comment(catchability))) {
+        if (is.null(comment(params@catchability))) {
+            comment(catchability) <- "set manually"
+        } else {
+            comment(catchability) <- comment(params@catchability)
+        }
+    }
+    
     # The number of gears could be set by the catchability array
     if (!is.null(catchability) && (dim(catchability)[[1]] != no_gears)) {
         if (is.null(selectivity)) {
@@ -143,9 +171,6 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
     }
     
     if (!is.null(selectivity)) {
-        if (is.null(comment(selectivity))) {
-            comment(selectivity) <- comment_selectivity
-        }
         assert_that(length(dim(selectivity)) == 3,
                     dim(selectivity)[[1]] == no_gears,
                     dim(selectivity)[[2]] == no_sp,
@@ -202,18 +227,15 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
             selectivity[gear, species, ] <- sel
         }
         if (!is.null(comment(params@selectivity)) &&
-            !identical(selectivity, params@selectivity)) {
+            different(selectivity, params@selectivity)) {
             message("The selectivity has been commented and therefore will ",
-                    "not be recalculated from the species parameters.")
+                    "not be recalculated from the gear parameters.")
         } else {
             params@selectivity <- selectivity
         }
     }
     
     if (!is.null(catchability)) {
-        if (is.null(comment(catchability))) {
-            comment(catchability) <- comment_catchability
-        }
         assert_that(length(dim(catchability)) == 2,
                     dim(catchability)[[2]] == no_sp)
         # Check dimnames if they were provided, otherwise set them
@@ -245,9 +267,9 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
                 gear_params$catchability[[g]]
         }
         if (!is.null(comment(params@catchability)) &&
-            !identical(catchability, params@catchability)) {
+            different(catchability, params@catchability)) {
             message("The catchability has been commented and therefore will ",
-                    "not be updated from the species parameters.")
+                    "not be updated from the gear parameters.")
         } else {
             params@catchability <- catchability
         }
@@ -263,7 +285,7 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
     existing <- names(params@initial_effort) %in% gear_names
     params@initial_effort <- validEffortVector(params@initial_effort[existing], 
                                                params)
-    
+    params@time_modified <- lubridate::now()
     return(params)
 }
 
@@ -280,10 +302,27 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
 #' 
 #' If you change a gear parameter, this will be used to recalculate the
 #' `selectivity` and `catchability` arrays by calling [setFishing()],
-#' unless you have protected these with comments.
+#' unless you have previously set these by hand.
 #' @param params A MizerParams object
 #' @export
 #' @family functions for setting parameters
+#' @examples 
+#' params <- NS_params
+#' # gears set up in example
+#' gear_params(params)
+#' # setting totally different gears
+#' gear_params(params) <- data.frame(
+#'     gear = c("gear1", "gear2", "gear1"),
+#'     species = c("Cod", "Cod", "Haddock"),
+#'     catchability = c(0.5, 2, 1),
+#'     sel_fun = c("sigmoid_weight", "knife_edge", "sigmoid_weight"),
+#'     sigmoidal_weight = c(1000, NA, 800),
+#'     sigmoidal_sigma = c(100, NA, 100),
+#'     knife_edge_size = c(NA, 1000, NA)
+#'     )
+#' gear_params(params)
+#' # changing an individual entry
+#' gear_params(params)["Cod, gear1", "catchability"] <- 0.8
 gear_params <- function(params) {
     params@gear_params
 }
@@ -299,21 +338,84 @@ gear_params <- function(params) {
 }
 
 #' @rdname setFishing
+#' @return `getCatchability()` or equivalently `catchability()`: An array (gear x species) that holds the catchability of
+#'   each species by each gear, \eqn{Q_{g,i}}.
+#'   The names of the dimensions are "gear, "sp".
 #' @export
+#' @examples
+#' str(getCatchability(NS_params))
 getCatchability <- function(params) {
     params@catchability
 }
 
 #' @rdname setFishing
 #' @export
+catchability <- function(params) {
+    params@catchability
+}
+
+#' @rdname setFishing
+#' @param value .
+#' @export
+`catchability<-` <- function(params, value) {
+    setFishing(params, catchability = value)
+}
+
+#' @rdname setFishing
+#' @return `getSelectivity()` or equivalently `selectivity()`: An array (gear x species x size) that holds
+#'   the selectivity of each gear for species and size, \eqn{S_{g,i,w}}.
+#'   The names of the dimensions are "gear, "sp", "w".
+#' @export
+#' @examples
+#' str(getSelectivity(NS_params))
 getSelectivity <- function(params) {
     params@selectivity
 }
 
 #' @rdname setFishing
 #' @export
+selectivity <- function(params) {
+    params@selectivity
+}
+
+#' @rdname setFishing
+#' @export
+`selectivity<-` <- function(params, value) {
+    setFishing(params, selectivity = value)
+}
+
+#' @rdname setFishing
+#' @return `getInitialEffort()` or equivalently `initial_effort()`: A named vector with the initial fishing
+#'   effort for each gear.
+#' @export
+#' @examples
+#' str(getInitialEffort(NS_params))
 getInitialEffort <- function(params) {
     params@initial_effort
+}
+
+#' Initial fishing effort
+#' 
+#' The fishing effort is a named vector, specifying for each fishing gear the
+#' effort invested into fishing with that gear. The effort value for each gear
+#' is multiplied by the catchability and the selectivity to determine the
+#' fishing mortality imposed by that gear, see [setFishing()] for more details.
+#' 
+#' The initial effort you have set can be overruled when running a simulation
+#' by providing an `effort` argument to [project()] which allows you to
+#' specify a time-varying effort.
+#' 
+#' @param params A MizerParams object
+#' @export
+initial_effort <- function(params) {
+    params@initial_effort
+}
+
+#' @rdname initial_effort
+#' @param value The initial fishing effort
+#' @export
+`initial_effort<-` <- function(params, value) {
+    setFishing(params, initial_effort = value)
 }
 
 #' Check validity of gear parameters and set defaults
@@ -342,11 +444,14 @@ getInitialEffort <- function(params) {
 #' * If there is no `catchability` column or it is NA then this is set to 1.
 #' * If the selectivity function is `knife_edge` and no `knife_edge_size` is
 #'   provided, it is set to `w_mat`.
-#'   
-#' For backwards compatibility, when `gear_params` is `NULL` and there is no
-#' gear information in the `species_params`, then a gear called `knife_edge_gear`
-#' is set up with a `knife_edge` selectivity for each species and a
-#' `knive_edge_size` equal to `w_mat`. Catchability is set to 1 for all species.
+#' 
+#' The row names of the returned data frame are of the form
+#' "species, gear".
+#' 
+#' When `gear_params` is `NULL` and there is no gear information in
+#' `species_params`, then a gear called `knife_edge_gear` is set up with a
+#' `knife_edge` selectivity for each species and a `knive_edge_size` equal to
+#' `w_mat`. Catchability is set to 0.3 for all species.
 #' 
 #' @param gear_params Gear parameter data frame
 #' @param species_params Species parameter data frame
@@ -356,7 +461,9 @@ getInitialEffort <- function(params) {
 #' @export
 validGearParams <- function(gear_params, species_params) {
     
-    # This is to agree with old defaults
+    catchability_default <- ifelse(defaults_edition() < 2, 1, 0.3)
+    
+    # if no gear parameters are given, set up knife-edge gear
     if (is.null(gear_params) && 
         !("gear" %in% names(species_params) || 
             "sel_func" %in% names(species_params))) {
@@ -365,7 +472,7 @@ validGearParams <- function(gear_params, species_params) {
                        gear = "knife_edge_gear",
                        sel_func = "knife_edge",
                        knife_edge_size = species_params$w_mat,
-                       catchability = 1,
+                       catchability = catchability_default,
                        stringsAsFactors = FALSE) # for old versions of R
     }
     
@@ -397,9 +504,10 @@ validGearParams <- function(gear_params, species_params) {
         }
         if ("catchability" %in% names(species_params)) {
             gear_params$catchability <- species_params$catchability
-            gear_params$catchability[is.na(gear_params$catchability)] <- 1
+            gear_params$catchability[is.na(gear_params$catchability)] <-
+                catchability_default
         } else {
-            gear_params$catchability <- 1
+            gear_params$catchability <- catchability_default
         }
         # copy over any selectivity function parameters
         for (g in seq_len(no_sp)) {
@@ -450,7 +558,7 @@ validGearParams <- function(gear_params, species_params) {
     sel <- is.na(gear_params$gear)
     gear_params$gear[sel] <- gear_params$species[sel]
     
-    # Ensure there is knife_edge_size columng if any knife_edge selectivity function
+    # Ensure there is knife_edge_size column if any knife_edge selectivity function
     if (any(gear_params$sel_func == "knife_edge") &&
         !("knife_edge_size" %in% names(gear_params))) {
         gear_params$knife_edge_size <- NA
@@ -477,17 +585,18 @@ validGearParams <- function(gear_params, species_params) {
         }
     }
     if (!("catchability" %in% names(gear_params))) {
-        gear_params$catchability <- 1
+        gear_params$catchability <- catchability_default
     }
-    gear_params$catchability[is.na(gear_params$catchability)] <- 1
+    gear_params$catchability[is.na(gear_params$catchability)] <- 
+        catchability_default
+    
+    rownames(gear_params) <- paste(gear_params$species, gear_params$gear,
+                                       sep = ", ")
 
     gear_params
 }
 
 #' Return valid effort vector
-#' 
-#' A valid effort vector is a named vector with one entry for each gear,
-#' with the gear names in the same order as in the params object. 
 #' 
 #' The function also accepts an `effort` that is not yet valid:
 #' 
@@ -504,13 +613,11 @@ validGearParams <- function(gear_params, species_params) {
 #' * named but where some names do not match any of the gears
 #' * not numeric
 #' 
-#' @param params A MizerParams object
-#' @param effort An vector or scalar.
+#' @param effort A vector or scalar.
 #' 
-#' @return A valid effort vector with one entry for each gear, named by gear,
-#'   in the same order as in the params object.
 #' @export
 #' @concept helper
+#' @rdname initial_effort
 validEffortVector <- function(effort, params) {
     assert_that(is(params, "MizerParams"),
                 (is.null(effort) || is.numeric(effort)))
@@ -536,11 +643,15 @@ validEffortVector <- function(effort, params) {
         stop("The effort vector is invalid as it has names that are not among the gear names")
     }
 
-    # Set any missing efforts to zero
+    # Set any missing efforts to default
+    effort_default <- ifelse(defaults_edition() < 2, 0, 1)
     missing <- setdiff(gear_names, names(effort))
-    new <- rep(0, length(missing))
+    new <- rep(effort_default, length(missing))
     names(new) <- missing
     effort <- c(effort, new)
+    
+    # Set any NAs to default
+    effort[is.na(effort)] <- effort_default
     
     # Sort vector
     effort <- effort[gear_names]

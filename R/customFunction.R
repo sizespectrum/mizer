@@ -1,5 +1,6 @@
 #' Replace a mizer function with a custom version
 #'
+#' `r lifecycle::badge("experimental")`
 #' This function allows you to make arbitrary changes to how mizer works by
 #' allowing you to replace any mizer function with your own version. You
 #' should do this only as a last resort, when you find that you can not use

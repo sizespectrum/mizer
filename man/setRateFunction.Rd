@@ -50,7 +50,7 @@ following components:
 \item \code{feeding_level} from \code{\link[=mizerFeedingLevel]{mizerFeedingLevel()}}
 \item \code{pred_rate} from \code{\link[=mizerPredRate]{mizerPredRate()}}
 \item \code{pred_mort} from \code{\link[=mizerPredMort]{mizerPredMort()}}
-\item \code{fishing_mort} from \code{\link[=mizerFMort]{mizerFMort()}}
+\item \code{f_mort} from \code{\link[=mizerFMort]{mizerFMort()}}
 \item \code{mort} from \code{\link[=mizerMort]{mizerMort()}}
 \item \code{resource_mort} from \code{\link[=mizerResourceMort]{mizerResourceMort()}}
 \item \code{e} from \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGrowth()}}
@@ -64,20 +64,28 @@ For each of these you can substitute your own function. So for example if
 you have written your own function for calculating the total mortality
 rate and have called it \code{myMort} and have a mizer model stored in a
 MizerParams object called \code{params} that you want to run with your new
-mortality rate, then you would call\preformatted{params <- setRateFunction(params, "Mort", "myMort")
-}
+mortality rate, then you would call
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{params <- setRateFunction(params, "Mort", "myMort")
+}\if{html}{\out{</div>}}
 
 In general if you want to replace a function \code{mizerSomeRateFunc()} with
-a function \code{myVersionOfThis()} you would call\preformatted{params <- setRateFunction(params, "SomeRateFunc", "myVersionOfThis")
-}
+a function \code{myVersionOfThis()} you would call
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{params <- setRateFunction(params, "SomeRateFunc", "myVersionOfThis")
+}\if{html}{\out{</div>}}
 
 In some extreme cases you may need to swap out the entire \code{mizerRates()}
-function for your own function called \code{myRates()}. That you can do with\preformatted{params <- setRateFunction(params, "Rates", "myRates")
-}
+function for your own function called \code{myRates()}. That you can do with
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{params <- setRateFunction(params, "Rates", "myRates")
+}\if{html}{\out{</div>}}
 
 Your new rate functions may need their own model parameters. These you
-can store in \code{other_params(params)}. For example\preformatted{other_params(params)$my_param <- 42
-}
+can store in \code{other_params(params)}. For example
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{other_params(params)$my_param <- 42
+}\if{html}{\out{</div>}}
 
 Note that your own rate functions need to be defined in the global
 environment or in a package. If they are defined within a function then

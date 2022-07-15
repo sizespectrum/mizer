@@ -16,7 +16,7 @@
 #' mass, not on the two masses independently. The shape of that kernel is then
 #' determined by the `pred_kernel_type` column in species_params.
 #'
-#' The default pred_kernel_type is "lognormal". This will call the function
+#' The default for `pred_kernel_type` is "lognormal". This will call the function
 #' [lognormal_pred_kernel()] to calculate the predation kernel.
 #' An alternative pred_kernel type is "box", implemented by the function
 #' [box_pred_kernel()], and "power_law", implemented by the function
@@ -28,9 +28,9 @@
 #' these parameters. If they are missing from the species_params data frame then
 #' mizer will issue an error message.
 #'
-#' You can use any other string as the type. If for example you choose "my" then
-#' you need to define a function `my_pred_kernel` that you can model on the
-#' existing functions like [lognormal_pred_kernel()].
+#' You can use any other string for `pred_kernel_type`. If for example you
+#' choose "my" then you need to define a function `my_pred_kernel` that you can
+#' model on the existing functions like [lognormal_pred_kernel()].
 #' 
 #' When using a kernel that depends on the predator/prey size ratio only, mizer
 #' does not need to store the entire three dimensional array in the MizerParams
@@ -62,23 +62,21 @@
 #'   that holds the predation coefficient of each predator at size on each prey
 #'   size. If not supplied, a default is set as described in section "Setting
 #'   predation kernel".
-#' @param comment_pred_kernel `r lifecycle::badge("experimental")`
-#'   A string describing how the value for 'pred_kernel' was obtained. This is
-#'   ignored if 'pred_kernel' is not supplied or already has a comment
-#'   attribute.
+#' @param reset `r lifecycle::badge("experimental")`
+#'   If set to TRUE, then the predation kernel will be reset to the
+#'   value calculated from the species parameters, even if it was previously
+#'   overwritten with a custom value. If set to FALSE (default) then a
+#'   recalculation from the species parameters will take place only if no custom
+#'   value has been set.
 #' @param ... Unused
 #' 
-#' @return A MizerParams object with updated predation kernel. Because of the
-#'   way the R language works, `setPredKernel()` does not make the changes
-#'   to the params object that you pass to it but instead returns a new params
-#'   object. So to affect the change you call the function in the form
-#'   `params <- setPredKernel(params, ...)`.
+#' @return `setPredKernel()`: A MizerParams object with updated predation kernel.
 #' @export
 #' @family functions for setting parameters
 #' @examples
 #' \dontrun{
 #' ## Set up a MizerParams object
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
+#' params <-  NS_params
 #' 
 #' ## If you change predation kernel parameters after setting up a model, 
 #' #  this will be used to recalculate the kernel
@@ -99,11 +97,27 @@
 #' }
 setPredKernel <- function(params,
                           pred_kernel = NULL,
-                          comment_pred_kernel = "set manually",...) {
-    assert_that(is(params, "MizerParams"))
+                          reset = FALSE, ...) {
+    assert_that(is(params, "MizerParams"),
+                is.flag(reset))
+    
+    if (reset) {
+        if (!is.null(pred_kernel)) {
+            warning("Because you set `reset = TRUE`, the value you provided ", 
+                    "for `pred_kernel` will be ignored and a value will be ",
+                    "calculated from the species parameters.")
+            pred_kernel <- NULL
+        }
+        comment(params@pred_kernel) <- NULL
+    }
+    
     if (!is.null(pred_kernel)) {
         if (is.null(comment(pred_kernel))) {
-            comment(pred_kernel) <- comment_pred_kernel
+            if (is.null(comment(params@pred_kernel))) {
+                comment(pred_kernel) <- "set manually"
+            } else {
+                comment(pred_kernel) <- comment(params@pred_kernel)
+            }
         }
         # A pred kernel was supplied, so check it and store it
         assert_that(is.array(pred_kernel))
@@ -121,19 +135,11 @@ setPredKernel <- function(params,
                  w_pred = signif(params@w, 3),
                  w_prey = signif(params@w_full, 3))
         params@pred_kernel <- pred_kernel
-        # Empty the Fourier transforms of kernel, to ensure that the FFT is not
-        # used by model
-        params@ft_pred_kernel_e <- array()
-        params@ft_pred_kernel_p <- array()
+        params@time_modified <- lubridate::now()
         return(params)
     }
     
     ## Set a pred kernel dependent on predator/prey size ratio only
-    
-    # But not if full kernel has not already been set.
-    if (length(dim(params@pred_kernel)) > 1) {
-        return(params)
-    }
     
     # If pred_kernel_type is not supplied use "lognormal"
     params <- default_pred_kernel_params(params)
@@ -143,39 +149,55 @@ setPredKernel <- function(params,
     no_sp <- nrow(species_params)
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
+    ft_pred_kernel_e <-
+        array(NA, dim = c(no_sp, no_w_full),
+              dimnames = list(sp = species_params$species, k = 1:no_w_full))
+    ft_pred_kernel_p <- ft_pred_kernel_e
     # Vector of predator/prey mass ratios
     # The smallest predator/prey mass ratio is 1
     ppmr <- params@w_full / params@w_full[1]
     phis <- get_phi(species_params, ppmr)
     # Do not allow feeding at own size
     phis[, 1] <- 0
+    fte <- 
     for (i in 1:no_sp) {
         phi <- phis[i, ]
         # Fourier transform of feeding kernel for evaluating available energy
-        params@ft_pred_kernel_e[i, ] <- fft(phi)
+        ft_pred_kernel_e[i, ] <- fft(phi)
         # Fourier transform of feeding kernel for evaluating predation rate
         ri <- min(max(which(phi > 0)), no_w_full - 1)  # index of largest ppmr
         phi_p <- rep(0, no_w_full)
         phi_p[(no_w_full - ri + 1):no_w_full] <- phi[(ri + 1):2]
-        params@ft_pred_kernel_p[i, ] <- fft(phi_p)
+        ft_pred_kernel_p[i, ] <- fft(phi_p)
     }
     
+    # Prevent resetting if full slot has been commented
+    if (!is.null(comment(params@pred_kernel))) {
+        # Issue warning but only if a change was actually requested
+        if (different(ft_pred_kernel_e, params@ft_pred_kernel_e) ||
+            different(ft_pred_kernel_p, params@ft_pred_kernel_p)) {
+            message("You have set a custom predation kernel and so it ",
+                    "will not be recalculated from the species parameters ",
+                    "unless you set `reset = TRUE`.")
+        }
+        return(params)
+    }
+    params@ft_pred_kernel_e[] <- ft_pred_kernel_e
+    params@ft_pred_kernel_p[] <- ft_pred_kernel_p
+    
+    params@time_modified <- lubridate::now()
     return(params)
 }
 
-
-#' Get predation kernel
-#' 
-#' If no explicit predation kernel \eqn{\phi_i(w, w_p)} is stored in the params
-#' object, then this function calculates it from the information in the species
-#' parameter data frame in the params object.
-#' 
-#' For more detail about the predation kernel see [setPredKernel()].
-#' 
-#' @param params A MizerParams object
-#' @return An array (predator species x predator_size x prey_size)
+#' @rdname setPredKernel
+#' @return `getPredKernel()` or equivalently `pred_kernel()`: An array (predator
+#'   species x predator_size x prey_size)
 #' @export
 getPredKernel <- function(params) {
+    # This function is more complicated than you might have thought because
+    # usually the predation kernel is not stored in the MizerParams object,
+    # but rather only the Fourier coefficients needed for fast calculation of
+    # the convolution integrals. 
     assert_that(is(params, "MizerParams"))
     if (length(dim(params@pred_kernel)) > 1) {
         return(params@pred_kernel)
@@ -205,6 +227,19 @@ getPredKernel <- function(params) {
         }
     }
     return(pred_kernel)
+}
+
+#' @rdname setPredKernel
+#' @export
+pred_kernel <- function(params) {
+    getPredKernel(params)
+}
+
+#' @rdname setPredKernel
+#' @param value pred_kernel
+#' @export
+`pred_kernel<-` <- function(params, value) {
+    setPredKernel(params, pred_kernel = value)
 }
 
 #' Set defaults for predation kernel parameters

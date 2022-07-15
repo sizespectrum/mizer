@@ -16,7 +16,7 @@ newMultispeciesParams(
   intake_max = NULL,
   metab = NULL,
   p = 0.7,
-  z0 = NULL,
+  ext_mort = NULL,
   z0pre = 0.6,
   z0exp = n - 1,
   maturity = NULL,
@@ -34,15 +34,16 @@ newMultispeciesParams(
   selectivity = NULL,
   catchability = NULL,
   initial_effort = NULL,
-  info_level = 3
+  info_level = 3,
+  z0 = deprecated()
 )
 }
 \arguments{
 \item{species_params}{A data frame of species-specific parameter values.}
 
 \item{interaction}{Optional interaction matrix of the species (predator
-species x prey species). Entries should be numbers between 0 and 1. By
-default all entries are 1. See "Setting interactions" section below.}
+species x prey species). By default all entries are 1. See "Setting
+interaction matrix" section below.}
 
 \item{no_w}{The number of size bins in the consumer spectrum.}
 
@@ -77,7 +78,7 @@ the section "Setting metabolic rate".}
 is not given explicitly and if the exponent is not specified in a \code{p}
 column in the \code{species_params}.}
 
-\item{z0}{Optional. An array (species x size) holding the external
+\item{ext_mort}{Optional. An array (species x size) holding the external
 mortality rate.}
 
 \item{z0pre}{If \code{z0}, the mortality from other sources, is not a column
@@ -115,7 +116,8 @@ species by including a \code{n} column in the \code{species_params}.}
 
 \item{lambda}{Scaling exponent of the intrinsic resource carrying capacity}
 
-\item{w_pp_cutoff}{The upper cut off size of the resource spectrum.
+\item{w_pp_cutoff}{The upper cut off size of the resource spectrum.  The
+carrying capacity will be set to 0 above this size.
 Default is 10 g.}
 
 \item{resource_dynamics}{Optional. Name of the function that determines the
@@ -137,6 +139,9 @@ a vector, must be named by gear.}
 
 \item{info_level}{Controls the amount of information messages that are shown
 when the function sets default values for parameters.}
+
+\item{z0}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{ext_mort} instead. Not to
+be confused with the species_parameter \code{z0}.}
 }
 \value{
 An object of type \linkS4class{MizerParams}
@@ -144,10 +149,9 @@ An object of type \linkS4class{MizerParams}
 \description{
 Sets up a multi-species size spectrum model by filling all slots in the
 \linkS4class{MizerParams} object based on user-provided or default
-parameters. It does this by creating an empty MizerParams object with
-\code{\link[=emptyParams]{emptyParams()}} and then filling the slots by passing its arguments
-to \code{\link[=setParams]{setParams()}}. There is a long list of arguments, but almost
-all of them have sensible default values. All arguments are described in more
+parameters. There is a long list of arguments, but almost
+all of them have sensible default values. The only required argument is
+the \code{species_params} data frame. All arguments are described in more
 details in the sections below the list.
 }
 \section{Species parameters}{
@@ -160,7 +164,8 @@ parameters for one of the species in the model.
 There are two essential columns that must be included in the species
 parameter data.frame and that do not have default values: the
 \code{species} column that should hold strings with the names of the
-species and the \code{w_inf} column with the asymptotic sizes of the species.
+species and the \code{w_inf} column with the asymptotic sizes of the species
+in grams.
 
 The species_params dataframe also needs to contain the parameters needed
 by any predation kernel function or size selectivity function. This will
@@ -171,6 +176,9 @@ are not included in the species parameter data frame. They will be
 automatically added when the \code{MizerParams} object is created. For these
 parameters you can also specify values for only some species and leave the
 other entries as NA and the missing values will be set to the defaults.
+So the \code{species_params} data frame saved in the returned MizerParams object
+will differ from the one you supply because it will have the missing
+species parameters filled in with default values.
 
 If you are not happy with any of the species parameter values used you can
 always change them later with \code{\link[=species_params<-]{species_params<-()}}.
@@ -178,19 +186,13 @@ always change them later with \code{\link[=species_params<-]{species_params<-()}
 All the parameters will be mentioned in the following sections.
 }
 
-\section{Changes to species params}{
-
-The \code{species_params} slot of the returned MizerParams object may differ
-from the data frame supplied as argument to this function because
-default values are set for missing parameters.
-}
-
 \section{Size grid}{
 
 A size grid is created so that
 the log-sizes are equally spaced. The spacing is chosen so that there will be
 \code{no_w} fish size bins, with the smallest starting at \code{min_w} and the largest
-starting at \code{max_w}. For \code{w_full} additional size bins are added below
+starting at \code{max_w}. For the resource spectrum there is a larger set of
+bins containing additional bins below
 \code{min_w}, with the same log size. The number of extra bins is such that
 \code{min_w_pp} comes to lie within the smallest bin.
 }
@@ -213,55 +215,57 @@ for area or volume. Your choice will then determine the units for some of
 the parameters. This will be mentioned when the parameters are discussed in
 the sections below.
 
-You choice will also affect the units of the quantities you may want to
+Your choice will also affect the units of the quantities you may want to
 calculate with the model. For example, the yield will be in grams/year/m^2 in
 case 1 if you choose m^2 as your measure of area, in grams/year/m^3 in case 2
 if you choose m^3 as your unit of volume, or simply grams/year in case 3. The
 same comment applies for other measures, like total biomass, which will be
 grams/area in case 1, grams/volume in case 2 or simply grams in case 3. When
-mizer puts units on axes, for example in \code{plotBiomass}, it will simply
-put grams, as appropriate for case 3.
+mizer puts units on axes in plots, it will choose the units appropriate for
+case 3. So for example in \code{\link[=plotBiomass]{plotBiomass()}} it gives the unit as grams.
 
 You can convert between these choices. For example, if you use case 1, you
 need to multiply with the area of the ecosystem to get the total quantity.
 If you work with case 2, you need to multiply by both area and the thickness
-of the productive layer. In that respect, case 2 is a bit cumbersome.
+of the productive layer. In that respect, case 2 is a bit cumbersome. The
+function \code{\link[=scaleModel]{scaleModel()}} is useful to change the units you are using.
 }
 
-\section{Setting interactions}{
+\section{Setting interaction matrix}{
 
+
+You do not need to specify an interaction matrix. If you do not, then the
+predator-prey interactions are purely determined by the size of predator
+and prey and totally independent of the species of predator and prey.
 
 The interaction matrix \eqn{\theta_{ij}} describes the interaction of each
 pair of species in the model. This can be viewed as a proxy for spatial
 interaction e.g. to model predator-prey interaction that is not size based.
 The values in the interaction matrix are used to scale the encountered food
-and predation mortality (see on the website
-\href{https://sizespectrum.org/mizer/articles/model_description.html#sec:pref}{the section on predator-prey encounter rate}
+and predation mortality (see on the website \href{https://sizespectrum.org/mizer/articles/model_description.html#sec:pref}{the section on predator-prey encounter rate}
 and on \href{https://sizespectrum.org/mizer/articles/model_description.html#mortality}{predation mortality}).
 The first index refers to the predator species and the second to the prey
 species.
 
 It is used when calculating the food encounter rate in \code{\link[=getEncounter]{getEncounter()}} and
 the predation mortality rate in \code{\link[=getPredMort]{getPredMort()}}. Its entries are
-dimensionless numbers.The values are between 0 (species do not overlap and
-therefore do not interact with each other) to 1 (species overlap perfectly).
-If all the values in the interaction matrix are set to 1 then predator-prey
-interactions are determined entirely by size-preference.
+dimensionless numbers. If all the values in the interaction matrix are
+equal then predator-prey interactions are determined entirely by
+size-preference.
 
 This function checks that the supplied interaction matrix is valid and then
-stores it in the \code{interaction} slot of the params object before returning
-that object.
+stores it in the \code{interaction} slot of the \code{params} object.
 
-The order of the columns and rows of the \code{interaction} argument should be the
-same as the order in the species params data frame in the \code{params} object. If
-you supply a named array then the function will check the order and warn if
-it is different. One way of creating your own interaction matrix is to enter
-the data using a spreadsheet program and saving it as a .csv file. The data
-can be read into R using the command \code{read.csv()}.
+The order of the columns and rows of the \code{interaction} argument should be
+the same as the order in the species params data frame in the \code{params}
+object. If you supply a named array then the function will check the order
+and warn if it is different. One way of creating your own interaction
+matrix is to enter the data using a spreadsheet program and saving it as a
+.csv file. The data can be read into R using the command \code{read.csv()}.
 
 The interaction of the species with the resource are set via a column
-\code{interaction_resource} in the \code{species_params} data frame. Again the entries have to
-be numbers between 0 and 1. By default this column is set to all 1s.
+\code{interaction_resource} in the \code{species_params} data frame. By default this
+column is set to all 1s.
 }
 
 \section{Setting predation kernel}{
@@ -273,7 +277,7 @@ predation kernel that depends only on the ratio of predator mass to prey
 mass, not on the two masses independently. The shape of that kernel is then
 determined by the \code{pred_kernel_type} column in species_params.
 
-The default pred_kernel_type is "lognormal". This will call the function
+The default for \code{pred_kernel_type} is "lognormal". This will call the function
 \code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}} to calculate the predation kernel.
 An alternative pred_kernel type is "box", implemented by the function
 \code{\link[=box_pred_kernel]{box_pred_kernel()}}, and "power_law", implemented by the function
@@ -285,9 +289,9 @@ functions. Except for \code{beta} and \code{sigma}, no defaults are set for
 these parameters. If they are missing from the species_params data frame then
 mizer will issue an error message.
 
-You can use any other string as the type. If for example you choose "my" then
-you need to define a function \code{my_pred_kernel} that you can model on the
-existing functions like \code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}}.
+You can use any other string for \code{pred_kernel_type}. If for example you
+choose "my" then you need to define a function \code{my_pred_kernel} that you can
+model on the existing functions like \code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}}.
 
 When using a kernel that depends on the predator/prey size ratio only, mizer
 does not need to store the entire three dimensional array in the MizerParams
@@ -325,7 +329,7 @@ predation rate in \code{\link[=getPredRate]{getPredRate()}}.
 The name "search volume" is a bit misleading, because \eqn{\gamma_i(w)} does
 not have units of volume. It is simply a parameter that determines the rate
 of predation. Its units depend on your choice, see section "Units in mizer".
-If you have chose to work with total abundances, then it is a rate with units
+If you have chosen to work with total abundances, then it is a rate with units
 1/year. If you have chosen to work with abundances per m^2 then it has units
 of m^2/year. If you have chosen to work with abundances per m^3 then it has
 units of m^3/year.
@@ -354,10 +358,10 @@ The values of \eqn{h_i} (the maximum intake rate of an individual of size 1
 gram) and \eqn{n_i} (the allometric exponent for the intake rate) are taken
 from the \code{h} and \code{n} columns in the species parameter dataframe. If
 the \code{h} column is not supplied in the species parameter dataframe, it is
-calculated by the \code{\link[=get_h_default]{get_h_default()}} function, using \code{f0} and
+calculated by the \code{\link[=get_h_default]{get_h_default()}} function, using the \code{f0} and
 the \code{k_vb} column, if they are supplied.
 
-If \eqn{h_i} is set to \code{Inf}, fish will consume all encountered food.
+If \eqn{h_i} is set to \code{Inf}, fish of species i will consume all encountered food.
 }
 
 \section{Setting metabolic rate}{
@@ -368,13 +372,13 @@ the rate at which energy is available for growth and reproduction, see
 
 If the \code{metab} argument is not supplied, then for each species the
 metabolic rate \eqn{k(w)} for an individual of size \eqn{w} is set to
-\deqn{k(w) = ks w^p + k w,}
-where \eqn{ks w^p} represents the rate of standard metabolism and \eqn{k w}
+\deqn{k(w) = k_s w^p + k w,}
+where \eqn{k_s w^p} represents the rate of standard metabolism and \eqn{k w}
 is the rate at which energy is expended on activity and movement. The values
-of \eqn{ks}, \eqn{p} and \eqn{k} are taken from the \code{ks}, \code{p} and
+of \eqn{k_s}, \eqn{p} and \eqn{k} are taken from the \code{ks}, \code{p} and
 \code{k} columns in the species parameter dataframe. If any of these
 parameters are not supplied, the defaults are \eqn{k = 0}, \eqn{p = n} and
-\deqn{ks = f_c h \alpha w_{mat}^{n-p},}{ks = f_c * h * alpha * w_mat^(n - p),}
+\deqn{k_s = f_c h \alpha w_{mat}^{n-p},}{k_s = f_c * h * alpha * w_mat^(n - p),}
 where \eqn{f_c} is the critical feeding level taken from the \code{fc} column
 in the species parameter data frame. If the critical feeding level is not
 specified, a default of \eqn{f_c = 0.2} is used.
@@ -388,15 +392,15 @@ due to predation by predators that are not explicitly included in the model
 (e.g. mammals or seabirds) or due to other causes like illness. It is a rate
 with units 1/year.
 
-The \code{z0} argument allows you to specify an external mortality rate
+The \code{ext_mort} argument allows you to specify an external mortality rate
 that depends on species and body size. You can see an example of this in
 the Examples section of the help page for \code{\link[=setExtMort]{setExtMort()}}.
 
-If the \code{z0} argument is not supplied, then the external mortality
+If the \code{ext_mort} argument is not supplied, then the external mortality
 is assumed to depend only on the species, not on the
-size of the individual: \eqn{\mu_{b.i}(w) = z_{0.i}}. The value of the
+size of the individual: \eqn{\mu_{ext.i}(w) = z_{0.i}}. The value of the
 constant \eqn{z_0} for each species is taken from the \code{z0} column of the
-species_params data frame, if that column exists. Otherwise it is calculated
+species parameter data frame, if that column exists. Otherwise it is calculated
 as
 \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
 }
@@ -432,7 +436,7 @@ specifies the weight at which 25\% of individuals are mature, which sets
 The sigmoidal function given above would strictly reach 1 only asymptotically.
 Mizer instead sets the function equal to 1 already at the species'
 maximum size, taken from the compulsory \code{w_inf} column in the
-\code{species_params} data frame. Also, for computational simplicity, any
+species parameter data frame. Also, for computational simplicity, any
 proportion smaller than \code{1e-8} is set to \code{0}.
 }
 
@@ -448,10 +452,11 @@ reproduction for mature individuals. By default it is chosen to be
 \eqn{m = 1} so that the rate at which energy is invested into reproduction
 scales linearly with the size. This default can be overridden by including a
 column \code{m} in the species parameter dataframe. The asymptotic sizes
-are taken from the compulsory \code{w_inf} column in the species_params
+are taken from the compulsory \code{w_inf} column in the species parameter
 data frame.
 
-So finally we have
+The total proportion of energy invested into reproduction of an individual
+of size \eqn{w} is then
 \deqn{\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)}{psi(w) = maturity(w) * repro_prop(w)}
 }
 
@@ -601,9 +606,7 @@ and \code{lambda} arguments.
 }
 
 \examples{
-\dontrun{
-params <- newMultispeciesParams(NS_species_params_gears, inter)
-}
+params <- newMultispeciesParams(NS_species_params)
 }
 \seealso{
 Other functions for setting up models: 

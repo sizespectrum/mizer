@@ -53,7 +53,10 @@ used for the plot is returned instead of the plot itself. Default value is FALSE
 \item{...}{Other arguments (currently unused)}
 }
 \value{
-A ggplot2 object
+A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
+frame with the variables 'w', 'value' and 'Species' is returned. If also
+\code{include_critical = TRUE} then the data frame contains a fourth variable
+'Type' that distinguishes between 'actual' and 'critical' feeding level.
 }
 \description{
 After running a projection, plot the feeding level of each species by size.
@@ -74,7 +77,7 @@ where the feeding level drops to the critical feeding level.
 }
 \examples{
 \donttest{
-params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
+params <-  NS_params
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotFeedingLevel(sim)
 plotFeedingLevel(sim, time_range = 10:20, species = c("Cod", "Herring"),

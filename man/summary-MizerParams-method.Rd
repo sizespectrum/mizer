@@ -15,9 +15,6 @@
 Outputs a general summary of the structure and content of the object
 }
 \examples{
-\dontrun{
-params <- newMultispeciesParams(NS_species_params_gears,inter)
-summary(params)
-}
+summary(NS_params)
 }
 \concept{summary_function}

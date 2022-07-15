@@ -102,9 +102,8 @@ getDiet <- function(params,
     # object@w_full[idx_sp] = object@w
     idx_sp <- (no_w_full - no_w + 1):no_w_full
     
-    # If the feeding kernel does not have a fixed predator/prey mass ratio
-    # then the integral is not a convolution integral and we can not use fft.
-    if (length(params@ft_pred_kernel_e) == 1) {
+    # If the user has set a custom kernel we can not use fft.
+    if (!is.null(comment(params@pred_kernel))) {
         # pred_kernel is predator species x predator size x prey size
         # We want to multiply this by the prey abundance, which is
         # prey species by prey size, sum over prey size. We use matrix
@@ -170,24 +169,30 @@ getDiet <- function(params,
 #' the `MizerSim` class. SSB is calculated as the total mass of all mature
 #' individuals.
 #' 
-#' @param sim An object of class `MizerSim`.
-#'   
-#' @return An array (time x species) containing the SSB in grams.
+#' @param object An object of class `MizerParams` or MizerSim`.
+#'
+#' @return If called with a MizerParams object, a vector with the SSB in
+#'   grams for each species in the model. If called with a MizerSim object, an
+#'   array (time x species) containing the SSB in grams at each time step
+#'   for all species.
 #' @export
 #' @family summary functions
 #' @concept summary_function
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' # With constant fishing effort for all gears for 20 time steps
-#' sim <- project(params, t_max = 20, effort = 0.5)
-#' getSSB(sim)
-#' }
-getSSB <- function(sim) {
-    assert_that(is(sim, "MizerSim"))
-    ssb <- apply(sweep(sweep(sim@n, c(2, 3), sim@params@maturity, "*"), 3, 
-                       sim@params@w * sim@params@dw, "*"), c(1, 2), sum) 
-    return(ssb)
+#' ssb <- getSSB(NS_sim)
+#' ssb[c("1972", "2010"), c("Herring", "Cod")]
+getSSB <- function(object) {
+    if (is(object, "MizerSim")) {
+        sim <- object
+        return(apply(sweep(sweep(sim@n, c(2, 3), sim@params@maturity, "*"), 3, 
+                           sim@params@w * sim@params@dw, "*"), c(1, 2), sum) )
+    }
+    if (is(object, "MizerParams")) {
+        params <- object
+        return(((params@initial_n * params@maturity) %*% 
+                    (params@w * params@dw))[, , drop = TRUE])
+    }
+    stop("'object' should be a MizerParams or a MizerSim object")
 }
 
 
@@ -200,116 +205,178 @@ getSSB <- function(sim) {
 #' over weights (i.e. if both min_l and min_w are supplied, only min_l will be
 #' used).
 #' 
-#' @param sim An object of class `MizerSim`.
+#' @param object An object of class `MizerParams` or `MizerSim`.
 #' @inheritDotParams get_size_range_array -params
 #'
-#' @return An array (time x species) containing the biomass in grams.
+#' @return If called with a MizerParams object, a vector with the biomass in
+#'   grams for each species in the model. If called with a MizerSim object, an
+#'   array (time x species) containing the biomass in grams at each time step
+#'   for all species.
 #' @export
 #' @family summary functions
 #' @concept summary_function
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' # With constant fishing effort for all gears for 20 time steps
-#' sim <- project(params, t_max = 20, effort = 0.5)
-#' getBiomass(sim)
-#' getBiomass(sim, min_w = 10, max_w = 1000)
-#' }
-getBiomass <- function(sim, ...) {
-    assert_that(is(sim, "MizerSim"))
-    size_range <- get_size_range_array(sim@params, ...)
-    biomass <- apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
-                           sim@params@w * sim@params@dw, "*"), c(1, 2), sum)
-    return(biomass)
+#' biomass <- getBiomass(NS_sim)
+#' biomass["1972", "Herring"]
+#' biomass <- getBiomass(NS_sim, min_w = 10, max_w = 1000)
+#' biomass["1972", "Herring"]
+getBiomass <- function(object, ...) {
+    if (is(object, "MizerSim")) {
+        sim <- object
+        size_range <- get_size_range_array(sim@params, ...)
+        return(apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
+                           sim@params@w * sim@params@dw, "*"), c(1, 2), sum))
+    }
+    if (is(object, "MizerParams")) {
+        params <- object
+        size_range <- get_size_range_array(params, ...)
+        return(((params@initial_n * size_range) %*% 
+                    (params@w * params@dw))[, , drop = TRUE])
+    }
+    stop("'object' should be a MizerParams or a MizerSim object")
 }
 
 
 #' Calculate the number of individuals within a size range
 #'
-#' Calculates the number of individuals within user-defined size limits, for
-#' each time and each species in the `MizerSim` object. The default option
-#' is to use the whole size range. You can specify minimum and maximum weight or
-#' lengths for the species. Lengths take precedence over weights (i.e. if both
-#' min_l and min_w are supplied, only min_l will be used)
+#' Calculates the number of individuals within user-defined size limits. The
+#' default option is to use the whole size range. You can specify minimum and
+#' maximum weight or lengths for the species. Lengths take precedence over
+#' weights (i.e. if both min_l and min_w are supplied, only min_l will be used)
 #' 
-#' @param sim An object of class `MizerSim`.
+#' @param object An object of class `MizerParams` or `MizerSim`.
 #' @inheritDotParams get_size_range_array -params
 #'
-#' @return An array (time x species) containing the total numbers.
+#' @return If called with a MizerParams object, a vector with the numbers for
+#'   each species in the model. If called with a MizerSim object, an array (time
+#'   x species) containing the numbers at each time step for all species.
 #' @export
 #' @family summary functions
 #' @concept summary_function
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' # With constant fishing effort for all gears for 20 time steps
-#' sim <- project(params, t_max = 20, effort = 0.5)
-#' getN(sim)
-#' getN(sim, min_w = 10, max_w = 1000)
-#' }
-getN <- function(sim, ...) {
-    assert_that(is(sim, "MizerSim"))
-    size_range <- get_size_range_array(sim@params, ...)
-    n <- apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
-                     sim@params@dw, "*"), c(1, 2), sum)
-    return(n)
+#' numbers <- getN(NS_sim)
+#' numbers["1972", "Herring"]
+#' # The above gave a huge number, because that included all the larvae.
+#' # The number of Herrings between 10g and 1kg is much smaller.
+#' numbers <- getN(NS_sim, min_w = 10, max_w = 1000)
+#' numbers["1972", "Herring"]
+getN <- function(object, ...) {
+    if (is(object, "MizerSim")) {
+        sim <- object
+        size_range <- get_size_range_array(sim@params, ...)
+        return(apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
+                           sim@params@dw, "*"), c(1, 2), sum))
+    }
+    if (is(object, "MizerParams")) {
+        params <- object
+        size_range <- get_size_range_array(params, ...)
+        return(((params@initial_n * size_range) %*% params@dw)[, , drop = TRUE])
+    }
+    stop("'object' should be a MizerParams or a MizerSim object")
 }
 
 
-#' Calculate the yearly yield per gear and species
+#' Calculate the rate at which biomass of each species is fished by each gear
 #'
-#' Calculates the yearly yield (biomass fished per year) per gear and species at
-#' each simulation time step.
+#' This yield rate is given in grams per year. It is calculated at each time
+#' step saved in the MizerSim object. 
+#' 
+#' For details of how the yield rate is defined see the help page of
+#' [getYield()].
 #'
-#' @param sim An object of class `MizerSim`.
+#' @param object An object of class `MizerParams` or `MizerSim`.
 #'
-#' @return An array (time x gear x species) containing the yearly yield in
-#'   grams.
+#' @return If called with a MizerParams object, an array (gear x species) with
+#'   the yield rate in grams per year from each gear for each species in the
+#'   model. If called with a MizerSim object, an array (time x gear x species)
+#'   containing the yield rate at each time step.
 #' @export
 #' @family summary functions
 #' @concept summary_function
 #' @seealso [getYield()]
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' # With constant fishing effort for all gears for 20 time steps
-#' sim <- project(params, t_max = 20, effort = 0.5)
-#' getYieldGear(sim)
-#' }
-getYieldGear <- function(sim) {
-    biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
-    f_gear <- getFMortGear(sim)
-    yield_species_gear <- apply(sweep(f_gear, c(1, 3, 4), biomass, "*"),
-                                c(1, 2, 3), sum)
-    return(yield_species_gear)
+#' yield <- getYieldGear(NS_sim)
+#' yield["1972", "Herring", "Herring"]
+#' # (In this example MizerSim object each species was set up with its own gear)
+getYieldGear <- function(object) {
+    if (is(object, "MizerSim")) {
+        sim <- object
+        biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
+        f_gear <- getFMortGear(sim)
+        return(apply(sweep(f_gear, c(1, 3, 4), biomass, "*"), c(1, 2, 3), sum))
+    }
+    if (is(object, "MizerParams")) {
+        params <- object
+        biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
+        f_gear <- getFMortGear(params)
+        return(apply(sweep(f_gear, c(2, 3), biomass, "*"), c(1, 2), sum))
+    }
+    stop("'object' should be a MizerParams or a MizerSim object")
 }
 
 
-#' Calculate the yearly yield for each species
+#' Calculate the rate at which biomass of each species is fished
 #'
-#' Calculates the yearly yield (biomass fished per year) for each species
-#' across all gears at each simulation time step.
+#' This yield rate is given in grams per year. It is calculated at each time
+#' step saved in the MizerSim object.
+#' 
+#' @details
+#' The yield rate \eqn{y_i(t)} for species \eqn{i} at time \eqn{t} is defined as
+#' \deqn{y_i(t)=\int\mu_{f.i}(w, t)N_i(w, t)w dw}
+#' where \eqn{\mu_{f.i}(w, t)} is the fishing mortality of an individual of
+#' species \eqn{i} and weight \eqn{w} at time \eqn{t} and \eqn{N_i(w, t)} is the
+#' abundance density of such individuals.  The factor of \eqn{w} converts the
+#' abundance density into a biomass density and the integral aggregates the
+#' contribution from all sizes.
+#' 
+#' The total catch in a time period from \eqn{t_1} to  \eqn{t_2} is the integral
+#' of the yield rate over that period:
+#' \deqn{C = \int_{t_1}^{t2}y_i(t)dt}
+#' In practice, as the yield rate is only available
+#' at the saved times, one can only approximate this integral by averaging over
+#' the available yield rates during the time period and multiplying by the time
+#' period. The less the yield changes between the saved values, the more
+#' accurate this approximation is. So the approximation can be improved by
+#' saving simulation results at smaller intervals, using the `t_save` argument
+#' to [project()]. But this is only a concern if abundances change quickly
+#' during the time period of interest.
 #'
-#' @param sim An object of class `MizerSim`.
+#' @param object An object of class `MizerParams` or `MizerSim`.
 #'
-#' @return An array (time x species) containing the total yearly yield in 
-#' grams.
+#' @return If called with a MizerParams object, a vector with the yield rate in
+#'   grams per year for each species in the model. If called with a MizerSim
+#'   object, an array (time x species) containing the yield rate at each time
+#'   step for all species.
 #' @export
 #' @family summary functions
 #' @concept summary_function
 #' @seealso [getYieldGear()]
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' sim <- project(params, effort=1, t_max=10)
-#' y <- getYield(sim)
-#' }
-getYield <- function(sim) {
-    biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
-    f <- getFMort(sim, drop = FALSE)
-    yield <- apply(f * biomass,
-                   c(1, 2), sum)
-    return(yield)
+#' yield <- getYield(NS_sim)
+#' yield[c("1972", "2010"), c("Herring", "Cod")]
+#' 
+#' # Running simulation for another year, saving intermediate time steps
+#' params <- setInitialValues(getParams(NS_sim), NS_sim)
+#' sim <- project(params, t_save = 0.1, t_max = 1, 
+#'                t_start = 2010, progress_bar = FALSE)
+#' # The yield rate for Herring decreases during the year
+#' getYield(sim)[, "Herring"]
+#' # We get the total catch in the year by averaging over the year
+#' sum(getYield(sim)[1:10, "Herring"] / 10)
+getYield <- function(object) {
+    if (is(object, "MizerSim")) {
+        sim <- object
+        biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
+        f <- getFMort(sim, drop = FALSE)
+        return(apply(f * biomass, c(1, 2), sum))
+    }
+    if (is(object, "MizerParams")) {
+        params <- object
+        biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
+        f <- getFMort(params, drop = FALSE)
+        return(apply(f * biomass, 1, sum))
+    }
+    stop("'object' should be a MizerParams or a MizerSim object")
 }
 
 
@@ -328,38 +395,39 @@ getYield <- function(sim) {
 #' @export
 #' @family summary functions
 #' @examples
-#' \dontrun{
-#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
-#' getGrowthCurves(params)
-#' sim <- project(params, effort=1, t_max = 20, t_save = 2, progress_bar = FALSE)
-#' getGrowthCurves(sim, max_age = 24)
-#' }
-
+#' growth_curves <- getGrowthCurves(NS_params, species = c("Cod", "Haddock"))
+#' str(growth_curves)
+#' 
+#' library(ggplot2)
+#' ggplot(melt(growth_curves)) +
+#'   geom_line(aes(Age, value)) +
+#'   facet_wrap(~ Species, scales = "free") +
+#'   ylab("Size[g]") + xlab("Age[years]")
 getGrowthCurves <- function(object, 
                             species = NULL,
                             max_age = 20,
                             percentage = FALSE) {
     if (is(object, "MizerSim")) {
         params <- object@params
-        t <- dim(object@n)[1]
-        n <- object@n[t, , ]
-        n_pp <- object@n_pp[t, ]
+        params <- setInitialValues(params, object)
     } else if (is(object, "MizerParams")) {
         params <- validParams(object)
-        n <- object@initial_n
-        n_pp <- object@initial_n_pp
+    } else {
+        stop("The first argument to `getGrowthCurves()` must be a ",
+             "MizerParams or a MizerSim object.")
     }
     species <- valid_species_arg(params, species)
     # reorder list of species to coincide with order in params
-    idx <- which(dimnames(n)$sp %in% species)
-    species <- dimnames(n)$sp[idx]
+    idx <- which(params@species_params$species %in% species)
+    species <- params@species_params$species[idx]
     age <- seq(0, max_age, length.out = 50)
     ws <- array(dim = c(length(species), length(age)),
                 dimnames = list(Species = species, Age = age))
-    g <- getEGrowth(params, n, n_pp)
+    g <- getEGrowth(params)
     for (j in seq_along(species)) {
         i <- idx[j]
-        g_fn <- stats::approxfun(params@w, g[i, ])
+        g_fn <- stats::approxfun(c(params@w, params@species_params$w_inf[[i]]),
+                                 c(g[i, ], 0))
         myodefun <- function(t, state, parameters) {
             return(list(g_fn(state)))
         }
@@ -376,7 +444,8 @@ getGrowthCurves <- function(object,
 #' 
 #' Helper function that returns an array (species x size) of boolean values
 #' indicating whether that size bin is within the size limits specified by the
-#' arguments.
+#' arguments. Either the size limits can be the same for all species or they
+#' can be specified as vectors with one value for each species in the model.
 #' 
 #' @param params MizerParams object
 #' @param min_w Smallest weight in size range. Defaults to smallest weight in
@@ -399,8 +468,9 @@ getGrowthCurves <- function(object,
 #' \deqn{w = a l^b.}
 #' 
 #' It is possible to mix length and weight constraints, e.g. by supplying a
-#' minimum weight and a maximum length. The default values are the minimum and
-#' maximum weights of the spectrum, i.e. the full range of the size spectrum is
+#' minimum weight and a maximum length, but this must be done the same for
+#' all species. The default values are the minimum and
+#' maximum weights of the spectrum, i.e., the full range of the size spectrum is
 #' used.
 #' @export
 #' @concept helper
@@ -408,30 +478,50 @@ get_size_range_array <- function(params, min_w = min(params@w),
                                  max_w = max(params@w), 
                                  min_l = NULL, max_l = NULL, ...) {
     no_sp <- nrow(params@species_params)
-    if (!is.null(min_l) | !is.null(max_l))
-        if (any(!c("a", "b") %in% names(params@species_params)))
+    if (!is.null(min_l) | !is.null(max_l)) {
+        if (any(!c("a", "b") %in% names(params@species_params))) {
             stop("species_params slot must have columns 'a' and 'b' for ",
                  "length-weight conversion")
-    if (!is.null(min_l))
+        }
+        if (anyNA(params@species_params[["a"]]) ||
+            anyNA(params@species_params[["a"]])) {
+            stop("There must be no NAs in the species_params columns 'a' and 'b'.")
+        }
+    }
+    if (!is.null(min_l)) {
+        if (length(min_l) != 1 && length(min_l) != no_sp) {
+            stop("min_l must be a single number or a vector with one value for each species.")
+        }
         min_w <- params@species_params[["a"]] * 
             min_l ^ params@species_params[["b"]]
-    else min_w <- rep(min_w, no_sp)
-    if (!is.null(max_l))
+    }
+    if (!is.null(max_l)) {
+        if (length(max_l) != 1 && length(max_l) != no_sp) {
+            stop("max_l must be a single number or a vector with one value for each species.")
+        }
         max_w <- params@species_params[["a"]] *
             max_l ^ params@species_params[["b"]]
-    else max_w <- rep(max_w, no_sp)
-    if (!all(min_w < max_w))
-        stop("min_w must be less than max_w")
+    }
+    if (length(min_w) == 1) {
+        min_w <- rep(min_w, no_sp)
+    }
+    if (length(max_w) == 1) {
+        max_w <- rep(max_w, no_sp)
+    }
+    if (length(min_w) != no_sp || length(max_w) != no_sp) {
+        stop("min_w and max_w must be a single number of a vector with one
+             value for each species.")
+    }
+    if (!all(min_w < max_w)) stop("min_w must be less than max_w")
     min_n <- plyr::aaply(min_w, 1, function(x) params@w >= x, .drop = FALSE)
     max_n <- plyr::aaply(max_w, 1, function(x) params@w <= x, .drop = FALSE)
     size_n <- min_n & max_n
-    # Add dimnames?
     dimnames(size_n) <- list(sp = params@species_params$species, 
                              w = signif(params@w, 3)) 
     return(size_n)
 }
 
-# TODO: Check documentation for summary
+
 #### summary for MizerParams ####
 #' Summarize MizerParams object 
 #'
@@ -442,10 +532,7 @@ get_size_range_array <- function(params, min_w = min(params@w),
 #' @export
 #' @concept summary_function
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears,inter)
-#' summary(params)
-#' }
+#' summary(NS_params)
 setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
     params <- validParams(object)
     cat("An object of class \"", as.character(class(params)), "\" \n", sep = "")
@@ -467,12 +554,15 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
     sp <- params@species_params[, sel_params]
     rownames(sp) <- NULL
     print(sp)
-    cat("Fishing gear details:\n")
-    cat("\tGear\t\t\tTarget species\n")
-    for (i in 1:dim(params@catchability)[1]){
-        cat("\t",dimnames(params@catchability)$gear[i], "\t\t",
-            dimnames(params@catchability)$sp[params@catchability[i,]>0], 
-            "\n", sep=" ") 
+    cat("\nFishing gear details:\n")
+    cat(sprintf("%-13s %s %s", "Gear", "Effort", " Target species"), "\n",
+        "----------------------------------\n")
+    gears <- dimnames(params@catchability)$gear
+    for (i in 1:dim(params@catchability)[1]) {
+        splist <- dimnames(params@catchability)$sp[params@catchability[i, ] > 0]
+        cat(sprintf("%-14s %1.2f   %s",
+                gears[i], params@initial_effort[[gears[i]]],
+                toString(splist)), "\n")
     }
     invisible(params)
 })
@@ -487,11 +577,7 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
 #' @export
 #' @concept summary_function
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears,inter)
-#' sim <- project(params, effort=1, t_max=5)
-#' summary(sim)
-#' }
+#' summary(NS_sim)
 setMethod("summary", signature(object = "MizerSim"), function(object, ...){
     cat("An object of class \"", as.character(class(object)), "\" \n", sep = "")
     cat("Parameters:\n")
@@ -499,11 +585,13 @@ setMethod("summary", signature(object = "MizerSim"), function(object, ...){
     cat("Simulation parameters:\n")
     # Need to store t_max and dt in a description slot? Or just in simulation 
     # time parameters? Like a list?
-    cat("\tFinal time step: ", max(as.numeric(dimnames(object@n)$time)), 
+    cat("\tTime period: ", 
+        min(as.numeric(dimnames(object@n)$time)), " to ",
+        max(as.numeric(dimnames(object@n)$time)), 
         "\n", sep = "")
     cat("\tOutput stored every ", 
         as.numeric(dimnames(object@n)$time)[2] - 
-            as.numeric(dimnames(object@n)$time)[1], " time units\n", sep = "")
+            as.numeric(dimnames(object@n)$time)[1], " years\n", sep = "")
     invisible(object)
 })
 
@@ -552,34 +640,50 @@ NULL
 #' @family functions for calculating indicators
 #' @concept summary_function
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' sim <- project(params, effort=1, t_max=10)
-#' getProportionOfLargeFish(sim)
-#' getProportionOfLargeFish(sim, species=c("Herring","Sprat","N.pout"))
-#' getProportionOfLargeFish(sim, min_w = 10, max_w = 5000)
-#' getProportionOfLargeFish(sim, min_w = 10, max_w = 5000, threshold_w = 500)
-#' getProportionOfLargeFish(sim, min_w = 10, max_w = 5000,
-#'     threshold_w = 500, biomass_proportion=FALSE)
-#' }
+#' lfi <- getProportionOfLargeFish(NS_sim, min_w = 10, max_w = 5000, 
+#'                                 threshold_w = 500)
+#' years <- c("1972", "2010")
+#' lfi[years]
+#' getProportionOfLargeFish(NS_sim)[years]
+#' getProportionOfLargeFish(NS_sim, species=c("Herring","Sprat","N.pout"))[years]
+#' getProportionOfLargeFish(NS_sim, min_w = 10, max_w = 5000)[years]
+#' getProportionOfLargeFish(NS_sim, min_w = 10, max_w = 5000,
+#'     threshold_w = 500, biomass_proportion = FALSE)[years]
 getProportionOfLargeFish <- function(sim, 
                                      species = NULL, 
                                      threshold_w = 100, threshold_l = NULL, 
-                                     biomass_proportion=TRUE, ...) {
+                                     biomass_proportion = TRUE, ...) {
+    assert_that(is(sim, "MizerSim"))
     species <- valid_species_arg(sim, species)
+    
+    total_size_range <- get_size_range_array(sim@params, ...)
     # This args stuff is pretty ugly - couldn't work out another way of using ...
     args <- list(...)
     args[["params"]] <- sim@params
-    total_size_range <- do.call("get_size_range_array", args = args)
     args[["max_w"]] <- threshold_w
     args[["max_l"]] <- threshold_l
     large_size_range <- do.call("get_size_range_array", args = args)
+    
+    total_size_range <- total_size_range[species, , drop = FALSE]
+    large_size_range <- large_size_range[species, , drop = FALSE]
+    
     w <- sim@params@w
-    if (!biomass_proportion) # based on abundance numbers
+    if (!biomass_proportion) { # based on abundance numbers
         w[] <- 1
-    total_measure <- apply(sweep(sweep(sim@n[,species,,drop=FALSE],c(2,3),total_size_range[species,,drop=FALSE],"*"),3,w * sim@params@dw, "*"),1,sum)
-    upto_threshold_measure <- apply(sweep(sweep(sim@n[,species,,drop=FALSE],c(2,3),large_size_range[species,,drop=FALSE],"*"),3,w * sim@params@dw, "*"),1,sum)
-    #lfi = data.frame(time = as.numeric(dimnames(sim@n)$time), proportion = 1-(upto_threshold_measure / total_measure))
+    }
+    
+    n <- sim@n[, species, , drop = FALSE]
+    total_measure <- 
+        apply(sweep(sweep(n, c(2, 3), total_size_range, "*"),
+                    3, w * sim@params@dw, "*"),
+              1, sum)
+    upto_threshold_measure <- 
+        apply(sweep(sweep(n, c(2, 3), large_size_range, "*"),
+                    3, w * sim@params@dw, "*"),
+              1, sum)
+
+    #lfi = data.frame(time = as.numeric(dimnames(sim@n)$time), 
+    #                 proportion = 1 - (upto_threshold_measure / total_measure))
     #return(lfi)
     return(1 - (upto_threshold_measure / total_measure))
 }
@@ -603,14 +707,13 @@ getProportionOfLargeFish <- function(sim,
 #' @family functions for calculating indicators
 #' @concept summary_function
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' sim <- project(params, effort=1, t_max=10)
-#' getMeanWeight(sim)
-#' getMeanWeight(sim, species=c("Herring","Sprat","N.pout"))
-#' getMeanWeight(sim, min_w = 10, max_w = 5000)
-#' }
+#' mean_weight <- getMeanWeight(NS_sim)
+#' years <- c("1967", "2010")
+#' mean_weight[years]
+#' getMeanWeight(NS_sim, species = c("Herring", "Sprat", "N.pout"))[years]
+#' getMeanWeight(NS_sim, min_w = 10, max_w = 5000)[years]
 getMeanWeight <- function(sim, species = NULL, ...){
+    assert_that(is(sim, "MizerSim"))
     species <- valid_species_arg(sim, species)
     n_species <- getN(sim, ...)
     biomass_species <- getBiomass(sim, ...)
@@ -643,16 +746,15 @@ getMeanWeight <- function(sim, species = NULL, ...){
 #' @family functions for calculating indicators
 #' @concept summary_function
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' sim <- project(params, effort=1, t_max=10)
-#' getMeanMaxWeight(sim)
-#' getMeanMaxWeight(sim, species=c("Herring","Sprat","N.pout"))
-#' getMeanMaxWeight(sim, min_w = 10, max_w = 5000)
-#' }
+#' mmw <- getMeanMaxWeight(NS_sim)
+#' years <- c("1967", "2010")
+#' mmw[years, ]
+#' getMeanMaxWeight(NS_sim, species=c("Herring","Sprat","N.pout"))[years, ]
+#' getMeanMaxWeight(NS_sim, min_w = 10, max_w = 5000)[years, ]
 getMeanMaxWeight <- function(sim, species = NULL, 
                              measure = "both", ...) {
-    if (!(measure %in% c("both","numbers","biomass"))) {
+    assert_that(is(sim, "MizerSim"))
+    if (!(measure %in% c("both", "numbers", "biomass"))) {
         stop("measure must be one of 'both', 'numbers' or 'biomass'")
     }
     species <- valid_species_arg(sim, species)
@@ -692,21 +794,29 @@ getMeanMaxWeight <- function(sim, species = NULL,
 #' @family functions for calculating indicators
 #' @concept summary_function
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, inter)
-#' sim <- project(params, effort=1, t_max=40, dt = 1, t_save = 1)
 #' # Slope based on biomass, using all species and sizes
-#' slope_biomass <- getCommunitySlope(sim)
+#' slope_biomass <- getCommunitySlope(NS_sim)
+#' slope_biomass[1, ] # in 1976
+#' slope_biomass[idxFinalT(NS_sim), ] # in 2010
+#' 
 #' # Slope based on numbers, using all species and sizes
-#' slope_numbers <- getCommunitySlope(sim, biomass=FALSE)
+#' slope_numbers <- getCommunitySlope(NS_sim, biomass = FALSE)
+#' slope_numbers[1, ] # in 1976
+#' 
 #' # Slope based on biomass, using all species and sizes between 10g and 1000g
-#' slope_biomass <- getCommunitySlope(sim, min_w = 10, max_w = 1000)
-#' # Slope based on biomass, using only demersal species and sizes between 10g and 1000g
-#' dem_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock", "Cod","Saithe")
-#' slope_biomass <- getCommunitySlope(sim, species = dem_species, min_w = 10, max_w = 1000)
-#' }
+#' slope_biomass <- getCommunitySlope(NS_sim, min_w = 10, max_w = 1000)
+#' slope_biomass[1, ] # in 1976
+#' 
+#' # Slope based on biomass, using only demersal species and 
+#' # sizes between 10g and 1000g
+#' dem_species <- c("Dab","Whiting", "Sole", "Gurnard", "Plaice",
+#'                  "Haddock", "Cod", "Saithe")
+#' slope_biomass <- getCommunitySlope(NS_sim, species = dem_species, 
+#'                                    min_w = 10, max_w = 1000)
+#' slope_biomass[1, ] # in 1976
 getCommunitySlope <- function(sim, species = NULL,
                               biomass = TRUE, ...) {
+    assert_that(is(sim, "MizerSim"))
     species <- valid_species_arg(sim, species)
     size_range <- get_size_range_array(sim@params, ...)
     # set entries for unwanted sizes to zero and sum over wanted species, giving

@@ -60,8 +60,10 @@ for.
 By default \code{\link[=getEReproAndGrowth]{getEReproAndGrowth()}} calls \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGrowth()}}. However you
 can replace this with your own alternative energy rate function. If
 your function is called \code{"myEReproAndGrowth"} then you register it in a
-MizerParams object \code{params} with\preformatted{params <- setRateFunction(params, "EReproAndGrowth", "myEReproAndGrowth")
-}
+MizerParams object \code{params} with
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{params <- setRateFunction(params, "EReproAndGrowth", "myEReproAndGrowth")
+}\if{html}{\out{</div>}}
 
 Your function will then be called instead of \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGrowth()}}, with
 the same arguments.
@@ -69,7 +71,7 @@ the same arguments.
 
 \examples{
 \dontrun{
-params <- newMultispeciesParams(NS_species_params_gears, inter)
+params <- NS_params
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the energy at a particular time step

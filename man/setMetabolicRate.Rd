@@ -3,17 +3,17 @@
 \name{setMetabolicRate}
 \alias{setMetabolicRate}
 \alias{getMetabolicRate}
+\alias{metab}
+\alias{metab<-}
 \title{Set metabolic rate}
 \usage{
-setMetabolicRate(
-  params,
-  metab = NULL,
-  p = NULL,
-  comment_metab = "set manually",
-  ...
-)
+setMetabolicRate(params, metab = NULL, p = NULL, reset = FALSE, ...)
 
 getMetabolicRate(params)
+
+metab(params)
+
+metab(params) <- value
 }
 \arguments{
 \item{params}{MizerParams}
@@ -26,19 +26,22 @@ the section "Setting metabolic rate".}
 is not given explicitly and if the exponent is not specified in a \code{p}
 column in the \code{species_params}.}
 
-\item{comment_metab}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A string describing how the value for 'metab' was obtained. This is
-ignored if 'metab' is not supplied or already has a comment
-attribute.}
+\item{reset}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If set to TRUE, then the metabolic rate will be reset to the
+value calculated from the species parameters, even if it was previously
+overwritten with a custom value. If set to FALSE (default) then a
+recalculation from the species parameters will take place only if no
+custom value has been set.}
 
 \item{...}{Unused}
+
+\item{value}{metab}
 }
 \value{
-MizerParams object with updated metabolic rate. Because of the way
-the R language works, \code{setMetabolicRate()} does not make the changes to the
-params object that you pass to it but instead returns a new params object.
-So to affect the change you call the function in the form
-\code{params <- setMetabolicRate(params, ...)}.
+\code{setMetabolicRate()}: A MizerParams object with updated metabolic rate.
+
+\code{getMetabolicRate()} or equivalently \code{metab()}: An array
+(species x size) with the metabolic rate.
 }
 \description{
 Sets the rate at which energy is used for metabolism and activity
@@ -51,13 +54,13 @@ the rate at which energy is available for growth and reproduction, see
 
 If the \code{metab} argument is not supplied, then for each species the
 metabolic rate \eqn{k(w)} for an individual of size \eqn{w} is set to
-\deqn{k(w) = ks w^p + k w,}
-where \eqn{ks w^p} represents the rate of standard metabolism and \eqn{k w}
+\deqn{k(w) = k_s w^p + k w,}
+where \eqn{k_s w^p} represents the rate of standard metabolism and \eqn{k w}
 is the rate at which energy is expended on activity and movement. The values
-of \eqn{ks}, \eqn{p} and \eqn{k} are taken from the \code{ks}, \code{p} and
+of \eqn{k_s}, \eqn{p} and \eqn{k} are taken from the \code{ks}, \code{p} and
 \code{k} columns in the species parameter dataframe. If any of these
 parameters are not supplied, the defaults are \eqn{k = 0}, \eqn{p = n} and
-\deqn{ks = f_c h \alpha w_{mat}^{n-p},}{ks = f_c * h * alpha * w_mat^(n - p),}
+\deqn{k_s = f_c h \alpha w_{mat}^{n-p},}{k_s = f_c * h * alpha * w_mat^(n - p),}
 where \eqn{f_c} is the critical feeding level taken from the \code{fc} column
 in the species parameter data frame. If the critical feeding level is not
 specified, a default of \eqn{f_c = 0.2} is used.

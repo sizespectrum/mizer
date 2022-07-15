@@ -64,7 +64,8 @@ You can fetch this vector with `w()` and the vector of bin sizes with
 `dw()`.
 
 The weight grid is set up to be logarithmically spaced, so that
-`w[j]=w[1]*exp(j*dx)` for some fixed `dx`. 
+`w[j]=w[1]*10^(j*dx)` for some fixed `dx`. This means that the bin widths
+increase with size: `dw[j] = w[j+1] - w[j] = w[j] * (10^dx - 1)`.
 This grid is set up automatically when creating a MizerParams object.
 
 In the code the size spectrum is stored as an array `N` such that `N[i, a]`
@@ -78,6 +79,12 @@ but the *density* at a grid point.
 The number of individuals in the size bin between `w[a]` and
 `w[a+1]=w[a]+dw[a]` is only approximately given as `N[i, a]*dw[a]`,
 where `dw[a]= w[a+1]-w[a]`.
+
+Of course all these calculations with discrete sizes and size bins are
+only giving approximations to the continuous values, and these approximations
+get better the smaller the size bins are, i.e., the more size bins are
+used. This is why the functions setting up MizerParams objects allow you to
+choose the number of size bins `no_w`.
 
 </details>
 
@@ -112,8 +119,11 @@ mortality:
   = -\mu_i(w) N_i(w),
 \end{equation}
 
-where individual growth $g_i(w)$ and mortality $\mu_i(w)$ will be described
-below. There is no need for you to understand the mathematical notation used in
+where individual growth $g_i(w)$ is described below in the [Growth](#growth)
+section and mortality $\mu_i(w)$ is described in the [Mortality](#mortality)
+section.
+
+There is no need for you to understand the mathematical notation used in
 this equation to understand its origin: it just says that the rate at which the
 number of fish in a size bracket changes is the rate at which fish grow into the
 size bracket from a smaller size minus the rate at which fish grow out of it to
@@ -135,7 +145,9 @@ Of course there also needs to be reproduction into the smallest size class,
 otherwise there would be no small fish any more after a while. So for the
 smallest size class instead of a rate of growth into the size class there is
 a rate of reproduction of new individuals into that size class. This
-reproduction will be described further below.
+reproduction will be described below in the [Reproduction](#reproduction)
+section.
+
 
 ## Resource density
 
@@ -164,11 +176,10 @@ described in the help page for `setResource()`. The mortality $\mu_R(w)$ is
 due to predation by consumers and is described in the subsection 
 [Resource mortality].
 
-Because the resource spectrum spans a different range of sizes these sizes
+Because the resource spectrum spans a larger range of sizes these sizes
+Because the resource spectrum spans a larger range of sizes these sizes
+Because the resource spectrum spans a larger range of sizes these sizes
 are discretized into a different vector of weights
-`w_full`. The last entries of `w_full` have to coincide with the entries
-of `w`. The function `w_full()` gives the vector of sizes and `dw_full()`
-gives the vector of bin sizes.
 
 The resource spectrum is then represented by a vector `NResource` such that
 `NResource[c]` =$N_R($`w_full[c]`$)$.
@@ -180,9 +191,9 @@ The resource spectrum is then represented by a vector `NResource` such that
 
 Consumers can grow only by consuming prey. In the next few subsections we will
 build towards determining the growth rate resulting from predation.
-We will discuss how we model the predator-prey encounter rate, the resulting rate
-of consumption, the rate of loss due to metabolism, and the partitioning of the
-remaining energy into reproduction and growth.
+We will discuss how we model the [predator-prey encounter rate], the resulting rate
+of [consumption], the rate of [metabolic losses], and the partitioning of the
+remaining energy into [reproduction](#sec:repro) and [growth](#resulting-growth).
 
 ## Predator-prey encounter rate {#sec:pref}
 
@@ -241,7 +252,7 @@ a convolution sum and can be evaluated efficiently via fast Fourier transform.
 
 ## Consumption
 
-The encountered food is consumed subjected to a standard Holling functional 
+The encountered food is consumed subject to a standard Holling functional 
 response type II to represent satiation. This determines the 
 *feeding level* $f_i(w)$, which is a dimensionless number between 0 
 (no food) and 1 (fully satiated) so that $1-f_i(w)$ is the proportion of the
@@ -303,12 +314,14 @@ It is calculated by the `getEGrowth()` function.
 When food supply does not cover the requirements of metabolism and activity, 
 growth and reproduction stops, i.e. there is no negative growth.
 The individual should then be subjected to a starvation mortality, but starvation
-mortality is not implemented in mizer at the moment.
+mortality is not implemented in core mizer but is provided
+by the [mizerStarvation](https://sizespectrum.org/mizerStarvation)
+extension package.
 
 
 # Mortality
 The mortality rate of an individual $\mu_i(w)$ has three sources: 
-predation mortality $\mu_{p.i}(w)$, background mortality $\mu_{b.i}(w)$ and 
+predation mortality $\mu_{p.i}(w)$, background mortality $\mu_{ext.i}(w)$ and 
 fishing mortality $\mu_{f.i}(w)$. 
 
 Predation mortality is calculated such that all that is eaten translates into 
@@ -340,10 +353,12 @@ The mortality rate due to predation is then obtained as
 \end{equation}
 This predation mortality rate is calculated by the function `getPredMort()`.
 
-External mortality $z0_i(w)$ is independent of the abundances and is
-changed with `setExtMort()`. By default mizer assumes an allometric form
-\[z0_i(w) = z0_{pre} w_{\infty.i}^{1-n},\]
-where $w_{\infty.i}$ is the asymptotic size of species $i$.
+External mortality $\mu_{ext.i}(w)$ is independent of the abundances and is
+changed with `setExtMort()`. By default mizer assumes that the external
+mortality for each species is a constant $z0_i$ independent of size. The value
+of $z0_i$ is either specified as a species parameter or it is assumed to
+depend allometrically on the asymptotic size:
+\[z0_i = z0_{pre} w_{\infty.i}^{1-n}.\]
 
 
 ## Fishing mortality
@@ -354,7 +369,7 @@ Fishing mortality $\mu_{f.i}(w)$ is calculated with the function `getFMort()`.
 
 ## Total mortality
 The total mortality rate
-\[\mu_i(w)=\mu_{p.i}(w)+z0_i(w)+\mu_{f.i}(w)\]
+\[\mu_i(w)=\mu_{p.i}(w)+\mu_{ext,u}(w)+\mu_{f.i}(w)\]
 is calculated with the function `getMort()`.
 
 

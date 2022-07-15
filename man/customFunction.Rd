@@ -12,6 +12,7 @@ customFunction(name, fun)
 \item{fun}{The custom function to use as replacement}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 This function allows you to make arbitrary changes to how mizer works by
 allowing you to replace any mizer function with your own version. You
 should do this only as a last resort, when you find that you can not use
@@ -37,9 +38,11 @@ will become clear when you run the code in the Examples section.
 
 This function does not in any way check that your replacement function is
 compatible with mizer. Calling this function can totally break mizer.
-However you can always undo the effect by reloading mizer with\preformatted{detach(package:mizer, unload = TRUE)
+However you can always undo the effect by reloading mizer with
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{detach(package:mizer, unload = TRUE)
 library(mizer)
-}
+}\if{html}{\out{</div>}}
 }
 \examples{
 \dontrun{

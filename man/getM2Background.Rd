@@ -41,8 +41,10 @@ An alias provided for backward compatibility with mizer version <= 1.0
 By default \code{\link[=getResourceMort]{getResourceMort()}} calls \code{\link[=mizerResourceMort]{mizerResourceMort()}}. However you can
 replace this with your own alternative resource mortality function. If
 your function is called \code{"myResourceMort"} then you register it in a MizerParams
-object \code{params} with\preformatted{params <- setRateFunction(params, "ResourceMort", "myResourceMort")
-}
+object \code{params} with
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{params <- setRateFunction(params, "ResourceMort", "myResourceMort")
+}\if{html}{\out{</div>}}
 
 Your function will then be called instead of \code{\link[=mizerResourceMort]{mizerResourceMort()}}, with the
 same arguments.
@@ -50,7 +52,7 @@ same arguments.
 
 \examples{
 \dontrun{
-params <- newMultispeciesParams(NS_species_params_gears, inter)
+params <- NS_params
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get resource mortality at one time step

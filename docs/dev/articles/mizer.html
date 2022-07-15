@@ -4,262 +4,423 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="mizer">
 <title>Getting started with mizer • mizer</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
-<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
+<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><!-- docsearch --><script src="../docsearch.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.3/docsearch.min.css" integrity="sha256-QOSRU/ra9ActyXkIBbiIB144aDBdtvXBcNc3OTNuX/Q=" crossorigin="anonymous">
-<link href="../docsearch.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script><meta property="og:title" content="Getting started with mizer">
+<!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Getting started with mizer">
 <meta property="og:description" content="mizer">
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png">
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@mizer_model">
+<meta name="twitter:site" content="@mizer_model">
 <meta name="robots" content="noindex">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
-<body data-spy="scroll" data-target="#toc">
+<body>
+    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <div class="container template-article">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.2.0.9000</span>
-      </span>
-    </div>
+    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary"><div class="container">
+    
+    <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-<li>
-  <a href="../articles/mizer.html">Get started</a>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">2.3.1.9000</small>
+
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar" class="collapse navbar-collapse ms-3">
+      <ul class="navbar-nav me-auto">
+<li class="active nav-item">
+  <a class="nav-link" href="../articles/mizer.html">Get started</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Tutorials
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
-    </li>
-    <li>
-      <a href="../articles/community_model.html">The Community Model</a>
-    </li>
-    <li>
-      <a href="../articles/trait_model.html">The Trait-Based Model</a>
-    </li>
-    <li>
-      <a href="../articles/multispecies_model.html">The Multi Species Model</a>
-    </li>
-    <li>
-      <a href="../articles/running_a_simulation.html">Running a Simulation</a>
-    </li>
-    <li>
-      <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
-    </li>
-    <li>
-      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
-    </li>
-    <li>
-      <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
-    </li>
-    <li class="divider">
-    <li class="dropdown-header">For developers</li>
-    <li>
-      <a href="../articles/developer_vignette.html">Developer Guide</a>
-    </li>
-    <li>
-      <a href="../articles/working_with_git.html">Working with git and GitHub</a>
-    </li>
-    <li>
-      <a href="../articles/developer_FAQ.html">Developer FAQ</a>
-    </li>
-    <li>
-      <a href="../articles/editing_website.html">Editing the Mizer Website</a>
-    </li>
-  </ul>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li>
-  <a href="../articles/publications.html">Publications</a>
-</li>
-<li>
-  <a href="../news/index.html">Changelog</a>
-</li>
-      </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="https://github.com/sizespectrum/mizer/" class="external-link">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
-      </ul>
-<form class="navbar-form navbar-right hidden-xs hidden-sm" role="search">
-        <div class="form-group">
-          <input type="search" class="form-control" name="search-input" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
-</div>
-      </form>
-      
-    </div>
-<!--/.nav-collapse -->
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Tutorials</h6>
+    <a class="dropdown-item" href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    <a class="dropdown-item" href="../articles/community_model.html">The Community Model</a>
+    <a class="dropdown-item" href="../articles/trait_model.html">The Trait-Based Model</a>
+    <a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a>
+    <a class="dropdown-item" href="../articles/running_a_simulation.html">Running a Simulation</a>
+    <a class="dropdown-item" href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
+    <a class="dropdown-item" href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
+    <a class="dropdown-item" href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Publications</h6>
+    <a class="dropdown-item" href="../articles/publications.html">Publications</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>For developers</h6>
+    <a class="dropdown-item" href="../articles/developer_vignette.html">Developer Guide</a>
+    <a class="dropdown-item" href="../articles/working_with_git.html">Working with git and GitHub</a>
+    <a class="dropdown-item" href="../articles/developer_FAQ.html">Developer FAQ</a>
+    <a class="dropdown-item" href="../articles/editing_website.html">Editing the Mizer Website</a>
   </div>
-<!--/.container -->
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../reference/index.html">Reference</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../news/index.html">Changelog</a>
+</li>
+      </ul>
+<form class="form-inline my-2 my-lg-0" role="search">
+        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
+</form>
+
+      <ul class="navbar-nav">
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://blog.mizer.sizespectrum.org">Blog</a>
+</li>
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://twitter.com/mizer_model" aria-label="Twitter">
+    <span class="fab fa fab fa-twitter fa-lg"></span>
+     
+  </a>
+</li>
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/sizespectrum/mizer/" aria-label="github">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
-<!--/.navbar -->
 
-      
+    
+  </div>
+</nav><div class="container template-article">
 
-      </header><script src="mizer_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
-  <div class="col-md-9 contents">
-    <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Getting started with mizer</h1>
+
+
+
+<div class="row">
+  <main id="main" class="col-md-9"><div class="page-header">
+      <img src="../logo.png" class="logo" alt=""><h1>Getting started with mizer</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/master/vignettes/mizer.Rmd" class="external-link"><code>vignettes/mizer.Rmd</code></a></small>
-      <div class="hidden name"><code>mizer.Rmd</code></div>
-
+      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/HEAD/vignettes/mizer.Rmd" class="external-link"><code>vignettes/mizer.Rmd</code></a></small>
+      <div class="d-none name"><code>mizer.Rmd</code></div>
     </div>
 
     
     
-<div id="overview" class="section level2">
-<h2 class="hasAnchor">
-<a href="#overview" class="anchor" aria-hidden="true"></a>Overview</h2>
-<p>The mizer package implements multi-species size-spectrum models in R. It has been designed for modelling marine ecosystems. The general model is described in the section <a href="#size-spectrum-models">Size-spectrum models</a>.</p>
-<p>Using mizer is relatively simple. There are four main stages, each described in more detail in sections below.</p>
+<div class="section level2">
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h2>
+<p>The mizer package implements multi-species dynamic <a href="#size-spectrum-models">Size-spectrum models</a> in R. It has been
+designed for modelling aquatic ecosystems.</p>
+<p>Using mizer is relatively simple. There are four main stages, each
+described in more detail in sections below.</p>
 <ol style="list-style-type: decimal">
 <li><p><a href="#installing-mizer">Installing mizer</a>.</p></li>
-<li><p><a href="#setting-the-model-parameters">Setting the model parameters</a>.</p></li>
-<li><p><a href="#running-a-simulation">Running a simulation</a>.</p></li>
-<li><p><a href="#exploring-the-results">Exploring the results</a>.</p></li>
+<li><p><a href="#setting-the-model-parameters">Setting the model
+parameters</a>.</p></li>
+<li><p><a href="#running-a-simulation">Running a
+simulation</a>.</p></li>
+<li><p><a href="#exploring-the-results">Exploring the
+results</a>.</p></li>
 </ol>
-<p>If you run into any difficulties or have any questions or suggestions, let us know about it by posting about it on our <a href="https://github.com/sizespectrum/mizer/issues/new" class="external-link">issue tracker</a>. We love to hear from you.</p>
-<p>There is a <a href="https://www.youtube.com/watch?v=zh0PDyTUssw&amp;list=PLCTMeyjMKRkqR7uohI3p-61P7ZJj8sd5B" class="external-link">series of YouTube videos</a> explaining how to use and install mizer.</p>
+<p>If you run into any difficulties or have any questions or
+suggestions, let us know about it by posting about it on our <a href="https://github.com/sizespectrum/mizer/issues/new" class="external-link">issue
+tracker</a>. You can also twitter to @<a href="https://twitter.com/mizer_model" class="external-link">mizer_model</a>. We love to hear
+from you.</p>
+<p>Click on this preview to open a mizer cheat sheet. <a href="https://sizespectrum.org/mizer/articles/images/cheat_sheet.pdf"><img src="images/cheat_sheet_preview.png" alt="Cheat Sheet"></a></p>
+<p>There is a <a href="https://www.youtube.com/watch?v=zh0PDyTUssw&amp;list=PLCTMeyjMKRkqR7uohI3p-61P7ZJj8sd5B" class="external-link">series
+of YouTube videos</a> by Richard Southwell about mizer which are however
+no longer entirely up-to-date.</p>
 </div>
-<div id="installing-mizer" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installing-mizer" class="anchor" aria-hidden="true"></a>Installing mizer</h2>
-<p>If you already have R installed on your computer, then installation of the mizer package is very simple (assuming you have an active internet connection). Just start an R session and then type:</p>
+<div class="section level2">
+<h2 id="installing-mizer">Installing mizer<a class="anchor" aria-label="anchor" href="#installing-mizer"></a>
+</h2>
+<p>If you already have R installed on your computer, then installation
+of the mizer package is very simple (assuming you have an active
+internet connection). Just start an R session and then type:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"mizer"</span><span class="op">)</span></code></pre></div>
-<p>After installing mizer, to actually use it, you need to load the package using the <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> function. Note that whilst you only need to install the package once, it will need to be loaded every time you start a new R session.</p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"mizer"</span><span class="op">)</span></span></code></pre></div>
+<p>After installing mizer, to actually use it, you need to load the
+package using the <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> function. Note that whilst you
+only need to install the package once, it will need to be loaded every
+time you start a new R session.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sizespectrum.org/mizer/">mizer</a></span><span class="op">)</span></code></pre></div>
-If you still need to install R or RStudio as well, or if you are interested in installing a development version of mizer, click on the triangle below to reveal further details:
-<details><p>Mizer is compatible with R versions 3.1 and later. You can install R on your computer by following the instructions at <a href="https://cran.r-project.org/" class="external-link uri">https://cran.r-project.org/</a> for your particular platform.</p>
-<p>Alternatively, if you can not or do not want to install R on your computer, you can also work with R and RStudio in your internet browser by creating yourself a free account at <a href="https://rstudio.cloud" class="external-link uri">https://rstudio.cloud</a>. There you can then install mizer as described above. Running mizer in the RStudio Cloud may be slightly slower than running it locally on your machine, but the speed is usually quite acceptable.</p>
-<p>This guide assumes that you will be using RStudio to work with R. There is really no reason not to use RStudio and it makes a lot of things much easier. RStudio develops rapidly and adds useful features all the time and so it pays to upgrade to the <a href="https://www.rstudio.com/products/rstudio/download/preview/" class="external-link">latest version</a> frequently. This guide was written with version 1.3.820.</p>
-<p>The source code for mizer is hosted on <a href="https://github.com/sizespectrum/mizer" class="external-link">GitHub</a>. If you are feeling brave and wish to try out a development version of mizer you can install the package from here using the R package devtools (which was used extensively in putting together mizer). If you have not yet installed devtools, do</p>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sizespectrum.org/mizer/">mizer</a></span><span class="op">)</span></span></code></pre></div>
+If you still need to install R or RStudio as well, or if you are
+interested in installing a development version of mizer, click on the
+triangle below to reveal further details:
+<details><p>Mizer is compatible with R versions 3.1 and later. You can install R
+on your computer by following the instructions at <a href="https://cran.r-project.org/" class="external-link uri">https://cran.r-project.org/</a> for your particular
+platform.</p>
+<p>Alternatively, if you can not or do not want to install R on your
+computer, you can also work with R and RStudio in your internet browser
+by creating yourself a free account at <a href="https://rstudio.cloud" class="external-link uri">https://rstudio.cloud</a>. There you can then install mizer
+as described above. Running mizer in the RStudio Cloud may be slightly
+slower than running it locally on your machine, but the speed is usually
+quite acceptable.</p>
+<p>This guide assumes that you will be using RStudio to work with R.
+There is really no reason not to use RStudio and it makes a lot of
+things much easier. RStudio develops rapidly and adds useful features
+all the time and so it pays to upgrade to the <a href="https://www.rstudio.com/products/rstudio/download/preview/" class="external-link">latest
+version</a> frequently. This guide was written with version 1.3.820.</p>
+<p>The source code for mizer is hosted on <a href="https://github.com/sizespectrum/mizer" class="external-link">GitHub</a>. If you are
+feeling brave and wish to try out a development version of mizer you can
+install the package from here using the R package devtools (which was
+used extensively in putting together mizer). If you have not yet
+installed devtools, do</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"devtools"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"devtools"</span><span class="op">)</span></span></code></pre></div>
 <p>Then you can install the latest version from GitHub using</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"sizespectrum/mizer"</span><span class="op">)</span></code></pre></div>
-Using the same <code><a href="https://devtools.r-lib.org//reference/remote-reexports.html" class="external-link">devtools::install_github()</a></code> function you can also install code from forked mizer repositories or from other branches on the official repository.
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"sizespectrum/mizer"</span><span class="op">)</span></span></code></pre></div>
+Using the same <code><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">devtools::install_github()</a></code> function you can
+also install code from forked mizer repositories or from other branches
+on the official repository.
 </details>
 </div>
-<div id="setting-the-model-parameters" class="section level2">
-<h2 class="hasAnchor">
-<a href="#setting-the-model-parameters" class="anchor" aria-hidden="true"></a>Setting the model parameters</h2>
-<p>With mizer it is possible to implement many different types of size-spectrum models using the same basic tools and methods.</p>
-<p>Setting the model parameters is done by creating an object of <code><a href="../reference/MizerParams-class.html">class ? MizerParams</a></code>. This includes model parameters such as the life history parameters of each species, and the fishing gears. It is possible to create a MizerParams object directly using the class constructor, but most likely you will want to use one of the convenient wrapper functions provided in the package: <code><a href="../reference/newCommunityParams.html">newCommunityParams()</a></code>, <code><a href="../reference/newTraitParams.html">newTraitParams()</a></code> and <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>.</p>
-<p>These wrapper functions make reasonable default choices for many of the model parameters that you do not want to specify explicitly. For example to set up a simple model (described more in the <a href="https://sizespectrum.org/mizer/articles/community_model.html">Community Model</a> section) you can even let mizer choose all the parameters for you.</p>
+<div class="section level2">
+<h2 id="setting-the-model-parameters">Setting the model parameters<a class="anchor" aria-label="anchor" href="#setting-the-model-parameters"></a>
+</h2>
+<p>With mizer it is possible to implement many different types of
+size-spectrum models using the same basic tools and methods.</p>
+<p>Setting the model parameters is done by creating an object of
+<code><a href="../reference/MizerParams-class.html">class ? MizerParams</a></code>. This includes model parameters such as
+the life history parameters of each species, and the fishing gears. For
+each type of sizespectrum model there is a function for creating a new
+MizerParams object, <code><a href="../reference/newSingleSpeciesParams.html">newSingleSpeciesParams()</a></code>,
+<code><a href="../reference/newCommunityParams.html">newCommunityParams()</a></code>, <code><a href="../reference/newTraitParams.html">newTraitParams()</a></code> and
+<code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>.</p>
+<p>These functions make reasonable default choices for many of the model
+parameters that you do not want to specify explicitly. For example to
+set up a simple model (described more in the <a href="https://sizespectrum.org/mizer/articles/community_model.html">Community
+Model</a> section) you can even let mizer choose all the parameters for
+you.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newCommunityParams.html">newCommunityParams</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<pre><code>## Note: Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</code></pre>
-<p>For a more complicated multi-species model you need to provide a data frame with some species parameters and an interaction matrix specifying which species predate on each other. An example of a North Sea model is included with the package.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">NS_species_params</span>, <span class="va">inter</span><span class="op">)</span></code></pre></div>
-<pre><code>## Note: No h provided for some species, so using f0 and k_vb to calculate it.</code></pre>
-<pre><code>## Note: Because you have n != p, the default value is not very good.</code></pre>
-<pre><code>## Note: No ks column so calculating from critical feeding level.</code></pre>
-<pre><code>## Note: Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</code></pre>
-<pre><code>## Note: Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</code></pre>
-<p>The notes printed out by the function show us that mizer calculated default values for many parameters that were not provided.</p>
+<code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newCommunityParams.html">newCommunityParams</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>For a more complicated multi-species model you need to provide a data
+frame with some species parameters. An example of a North Sea model is
+included with the package. Here we also use a species interaction matrix
+for the North Sea species.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">NS_species_params</span>, <span class="va">NS_interaction</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## No h provided for some species, so using f0 and k_vb to calculate it.</span></span>
+<span><span class="co">## No ks column so calculating from critical feeding level.</span></span>
+<span><span class="co">## Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</span></span></code></pre>
+<p>The notes printed out by the function show us that mizer calculated
+default values for many parameters that were not provided.</p>
 </div>
-<div id="running-a-simulation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#running-a-simulation" class="anchor" aria-hidden="true"></a>Running a simulation</h2>
-<p>This is done by calling the <code><a href="../reference/project.html">project()</a></code> function (as in “project forward in time”) with the model parameters.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">10</span>, effort <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></code></pre></div>
-<p>This produces an object of class <code>MizerSim</code> which contains the results of the simulation. In this example we chose to set some parameters of the <code><a href="../reference/project.html">project()</a></code> function to specify that we want to project 10 years into the future, under the assumption of zero fishing effort. You can see the help page for <code><a href="../reference/project.html">project()</a></code> for more details and it is described fully in <a href="https://sizespectrum.org/mizer/articles/running_a_simulation.html">the section on running a simulation.</a></p>
+<div class="section level2">
+<h2 id="running-a-simulation">Running a simulation<a class="anchor" aria-label="anchor" href="#running-a-simulation"></a>
+</h2>
+<p>This is done by calling the <code><a href="../reference/project.html">project()</a></code> function (as in
+“project forward in time”) with the model parameters.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">10</span>, effort <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<p>This produces an object of class <code>MizerSim</code> which contains
+the results of the simulation. In this example we chose to set some
+parameters of the <code><a href="../reference/project.html">project()</a></code> function to specify that we
+want to project 10 years into the future, under the assumption of unit
+fishing effort. You can see the help page for <code><a href="../reference/project.html">project()</a></code> for
+more details and it is described fully in <a href="https://sizespectrum.org/mizer/articles/running_a_simulation.html">the
+section on running a simulation.</a></p>
 </div>
-<div id="exploring-the-results" class="section level2">
-<h2 class="hasAnchor">
-<a href="#exploring-the-results" class="anchor" aria-hidden="true"></a>Exploring the results</h2>
-<p>After a simulation has been run, the results can be examined using a range of <code><a href="../reference/plotting_functions.html">?plotting_functions</a></code>, <code><a href="../reference/summary_functions.html">?summary_functions</a></code> and <code><a href="../reference/indicator_functions.html">?indicator_functions</a></code>. The <code><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot()</a></code> function combines several of these plots into one:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
+<div class="section level2">
+<h2 id="exploring-the-results">Exploring the results<a class="anchor" aria-label="anchor" href="#exploring-the-results"></a>
+</h2>
+<p>After a simulation has been run, the results can be examined using a
+range of <code><a href="../reference/plotting_functions.html">?plotting_functions</a></code>,
+<code><a href="../reference/summary_functions.html">?summary_functions</a></code> and <code><a href="../reference/indicator_functions.html">?indicator_functions</a></code>.
+The <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> function combines several of these plots into
+one:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span></code></pre></div>
 <p><img src="mizer_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
-<p>Just as an example: we might be interested in how the proportion of large fish varies over time. We can get the proportion of Herrings in terms of biomass that have a weight above 50g in each of the 10 years:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/getProportionOfLargeFish.html">getProportionOfLargeFish</a></span><span class="op">(</span><span class="va">sim</span>, 
-                         species <span class="op">=</span> <span class="st">"Herring"</span>, 
-                         threshold_w <span class="op">=</span> <span class="fl">50</span>, 
-                         biomass_proportion <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
-<pre><code>##         0         1         2         3         4         5         6         7 
-## 0.8241807 0.1925192 0.8375384 0.8584900 0.2749221 0.1290072 0.2977719 0.3272015 
-##         8         9        10 
-## 0.3774455 0.4222030 0.4543841</code></pre>
+<p>Just as an example: we might be interested in how the proportion of
+large fish varies over time. We can get the proportion of Herrings in
+terms of biomass that have a weight above 50g in each of the 10
+years:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/getProportionOfLargeFish.html">getProportionOfLargeFish</a></span><span class="op">(</span><span class="va">sim</span>, </span>
+<span>                         species <span class="op">=</span> <span class="st">"Herring"</span>, </span>
+<span>                         threshold_w <span class="op">=</span> <span class="fl">50</span>, </span>
+<span>                         biomass_proportion <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##         0         1         2         3         4         5         6         7 </span></span>
+<span><span class="co">## 0.8241807 0.1858698 0.7586884 0.6780193 0.3325129 0.3036110 0.4717033 0.6379461 </span></span>
+<span><span class="co">##         8         9        10 </span></span>
+<span><span class="co">## 0.5976582 0.5539731 0.5763835</span></span></code></pre>
 <p>We can then use the full power of R to work with these results.</p>
-<p>The functionality provided by mizer to explore the simulation results is more fully described in <a href="https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.html">the section on exploring the simulation results.</a></p>
+<p>The functionality provided by mizer to explore the simulation results
+is more fully described in <a href="https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.html">the
+section on exploring the simulation results.</a></p>
 </div>
-<div id="size-spectrum-models" class="section level2">
-<h2 class="hasAnchor">
-<a href="#size-spectrum-models" class="anchor" aria-hidden="true"></a>Size-spectrum models</h2>
-<p>Size spectrum models have emerged as a conceptually simple way to model a large community of individuals which grow and change trophic level during life. There is now a growing literature describing different types of size spectrum models <span class="citation">(e.g. <a href="#ref-benoit_continuous_2004" role="doc-biblioref">Benoît and Rochet 2004</a>; <a href="#ref-andersen_asymptotic_2006" role="doc-biblioref">K. H. Andersen and Beyer 2006</a>; <a href="#ref-andersen_life-history_2008" role="doc-biblioref">K. H. Andersen et al. 2008</a>; <a href="#ref-law_size-spectra_2009" role="doc-biblioref">Law et al. 2009</a>; <a href="#ref-hartvig_food_2011" role="doc-biblioref">Hartvig 2011</a>; <a href="#ref-hartvig_food_2011-1" role="doc-biblioref">Hartvig, Andersen, and Beyer 2011</a>)</span>. The models can be used to understand how marine communities are organised <span class="citation">(<a href="#ref-andersen_asymptotic_2006" role="doc-biblioref">K. H. Andersen and Beyer 2006</a>; <a href="#ref-andersen_trophic_2009" role="doc-biblioref">K. H. Andersen, Beyer, and Lundberg 2009</a>; <a href="#ref-blanchard_how_2009" role="doc-biblioref">Blanchard et al. 2009</a>)</span> and how they respond to fishing <span class="citation">(<a href="#ref-andersen_direct_2010" role="doc-biblioref">K. H. Andersen and Rice 2010</a>; <a href="#ref-andersen_damped_2010" role="doc-biblioref">K. H. Andersen and Pedersen 2010</a>)</span>. This section introduces the central assumptions, concepts, processes, equations and parameters of size spectrum models.</p>
-<p>Roughly speaking there are three versions of the size spectrum modelling framework of increasing complexity: The <a href="#community-model">community model</a> <span class="citation">(<a href="#ref-benoit_continuous_2004" role="doc-biblioref">Benoît and Rochet 2004</a>; <a href="#ref-maury_modeling_2007" role="doc-biblioref">Maury et al. 2007</a>; <a href="#ref-blanchard_how_2009" role="doc-biblioref">Blanchard et al. 2009</a>; <a href="#ref-law_size-spectra_2009" role="doc-biblioref">Law et al. 2009</a>)</span>, the <a href="#trait-based-model">trait-based model</a> <span class="citation">(<a href="#ref-andersen_asymptotic_2006" role="doc-biblioref">K. H. Andersen and Beyer 2006</a>; <a href="#ref-andersen_damped_2010" role="doc-biblioref">K. H. Andersen and Pedersen 2010</a>)</span>, and the <a href="#multispecies-model">multispecies model</a> <span class="citation">(<a href="#ref-hartvig_food_2011-1" role="doc-biblioref">Hartvig, Andersen, and Beyer 2011</a>)</span>. The community and trait-based models can be considered as simplifications of the multispecies model. This section focuses on the multispecies model but is also applicable to the community and trait-based models. Mizer is able to implement all three types of model using similar commands.</p>
-<p>Size spectrum models are a subset of physiologically structured models <span class="citation">(<a href="#ref-metz_dynamics_1986" role="doc-biblioref">Metz and Diekmann 1986</a>; <a href="#ref-de_roos_physiologically_2001" role="doc-biblioref">De Roos and Persson 2001</a>)</span> as growth (and thus maturation) is food dependent, and processes are formulated in terms of individual level processes. All parameters in the size spectrum models are related to individual weight which makes it possible to formulate the model with a small set of general parameters, which has prompted the label ``charmingly simple’’ to the model framework [<span class="citation"><a href="#ref-pope_modelling_2006" role="doc-biblioref">Pope et al.</a> (<a href="#ref-pope_modelling_2006" role="doc-biblioref">2006</a>)</span>}.</p>
-<p>The model framework builds on the central assumption that an individual can be characterized by its weight <span class="math inline">\(w\)</span> and its species number <span class="math inline">\(i\)</span> only. The aim of the model is to calculate the size- and trait-spectrum <span class="math inline">\({\cal N}_i(w)\)</span> which is the density of individuals such that <span class="math inline">\({\cal N}_i(w)dw\)</span> is the number of individuals in the interval <span class="math inline">\([w:w+dw]\)</span>. Scaling from individual-level processes of growth and mortality to the size spectrum of each trait group is achieved by means of the McKendrick-von Foerster equation, which is simply a continuity equation that describes the flow of biomass up the size spectrum, <span class="math display">\[\begin{equation}
-  \frac{\partial N_i(w)}{\partial t} + \frac{\partial g_i(w) N_i(w)}{\partial w} = -\mu_i(w) N_i(w)
-\end{equation}\]</span> where individual growth <span class="math inline">\(g_i(w)\)</span> and mortality <span class="math inline">\(\mu_i(w)\)</span> are coupled, because growth of one individual is due to predation on another, who consequently dies.</p>
-<p>The continuity equation is supplemented by a boundary condition at the egg weight <span class="math inline">\(w_0\)</span> where the flux of individuals (numbers per time) <span class="math inline">\(g_i(w_0) N_i(w_0)\)</span> is determined by the reproduction of offspring by mature individuals in the population <span class="math inline">\(R_i\)</span>: <span class="math display">\[\begin{equation}
+<div class="section level2">
+<h2 id="size-spectrum-models">Size-spectrum models<a class="anchor" aria-label="anchor" href="#size-spectrum-models"></a>
+</h2>
+<p>Size spectrum models have emerged as a conceptually simple way to
+model a large community of individuals which grow and change trophic
+level during life. There is now a growing literature describing
+different types of size spectrum models <span class="citation">(e.g. <a href="#ref-benoit_continuous_2004" role="doc-biblioref">Benoît and
+Rochet 2004</a>; <a href="#ref-andersen_asymptotic_2006" role="doc-biblioref">K. H. Andersen and Beyer 2006</a>; <a href="#ref-andersen_life-history_2008" role="doc-biblioref">K. H.
+Andersen et al. 2008</a>; <a href="#ref-law_size-spectra_2009" role="doc-biblioref">Law et al. 2009</a>; <a href="#ref-hartvig_food_2011" role="doc-biblioref">Hartvig 2011</a>; <a href="#ref-hartvig_food_2011-1" role="doc-biblioref">Hartvig, Andersen,
+and Beyer 2011</a>)</span>. The models can be used to understand how
+marine communities are organised <span class="citation">(<a href="#ref-andersen_asymptotic_2006" role="doc-biblioref">K. H. Andersen
+and Beyer 2006</a>; <a href="#ref-andersen_trophic_2009" role="doc-biblioref">K. H. Andersen, Beyer, and Lundberg 2009</a>; <a href="#ref-blanchard_how_2009" role="doc-biblioref">Blanchard et al.
+2009</a>)</span> and how they respond to fishing <span class="citation">(<a href="#ref-andersen_direct_2010" role="doc-biblioref">K. H. Andersen and Rice 2010</a>; <a href="#ref-andersen_damped_2010" role="doc-biblioref">K. H. Andersen and
+Pedersen 2010</a>)</span>. This section introduces the central
+assumptions, concepts, processes, equations and parameters of size
+spectrum models.</p>
+<p>Roughly speaking there are four versions of the size spectrum
+modelling framework of increasing complexity: The <a href="https://sizespectrum.org/mizer/dev/articles/single_species_size-spectrum_dynamics.html">single-species
+model</a>, the <a href="#community-model">community model</a> <span class="citation">(<a href="#ref-benoit_continuous_2004" role="doc-biblioref">Benoît and Rochet 2004</a>; <a href="#ref-maury_modeling_2007" role="doc-biblioref">Maury et al.
+2007</a>; <a href="#ref-blanchard_how_2009" role="doc-biblioref">Blanchard et al. 2009</a>; <a href="#ref-law_size-spectra_2009" role="doc-biblioref">Law et al.
+2009</a>)</span>, the <a href="#trait-based-model">trait-based model</a>
+<span class="citation">(<a href="#ref-andersen_asymptotic_2006" role="doc-biblioref">K. H. Andersen and Beyer 2006</a>; <a href="#ref-andersen_damped_2010" role="doc-biblioref">K. H. Andersen and
+Pedersen 2010</a>)</span>, and the <a href="#multispecies-model">multispecies model</a> <span class="citation">(<a href="#ref-hartvig_food_2011-1" role="doc-biblioref">Hartvig, Andersen, and Beyer 2011</a>)</span>. The
+single-species, community and trait-based models can be considered as
+simplifications of the multispecies model. This section focuses on the
+multispecies model but is also applicable to the other types of models.
+Mizer is able to implement all types of model using similar
+commands.</p>
+<p>Size spectrum models are a subset of physiologically structured
+models <span class="citation">(<a href="#ref-metz_dynamics_1986" role="doc-biblioref">Metz and Diekmann 1986</a>; <a href="#ref-de_roos_physiologically_2001" role="doc-biblioref">De Roos
+and Persson 2001</a>)</span> as growth (and thus maturation) is food
+dependent, and processes are formulated in terms of individual level
+processes. All parameters in the size spectrum models are related to
+individual weight which makes it possible to formulate the model with a
+small set of general parameters, which has prompted the label
+``charmingly simple’’ to the model framework [<span class="citation">Pope et al. (<a href="#ref-pope_modelling_2006" role="doc-biblioref">2006</a>)</span>}.</p>
+<p>The model framework builds on the central assumption that an
+individual can be characterized by its weight <span class="math inline">\(w\)</span> and its species number <span class="math inline">\(i\)</span> only. The aim of the model is to
+calculate the size- and trait-spectrum <span class="math inline">\({\cal
+N}_i(w)\)</span> which is the density of individuals such that <span class="math inline">\({\cal N}_i(w)dw\)</span> is the number of
+individuals in the interval <span class="math inline">\([w:w+dw]\)</span>. Scaling from individual-level
+processes of growth and mortality to the size spectrum of each trait
+group is achieved by means of the McKendrick-von Foerster equation,
+which is simply a continuity equation that describes the flow of biomass
+up the size spectrum, <span class="math display">\[\begin{equation}
+  \frac{\partial N_i(w)}{\partial t} + \frac{\partial g_i(w)
+N_i(w)}{\partial w} = -\mu_i(w) N_i(w)
+\end{equation}\]</span> where individual growth <span class="math inline">\(g_i(w)\)</span> and mortality <span class="math inline">\(\mu_i(w)\)</span> are coupled, because growth of
+one individual is due to predation on another, who consequently
+dies.</p>
+<p>The continuity equation is supplemented by a boundary condition at
+the egg weight <span class="math inline">\(w_0\)</span> where the flux
+of individuals (numbers per time) <span class="math inline">\(g_i(w_0)
+N_i(w_0)\)</span> is determined by the reproduction of offspring by
+mature individuals in the population <span class="math inline">\(R_i\)</span>: <span class="math display">\[\begin{equation}
   g_i(w_0)N_i(w_0) = R_i.
 \end{equation}\]</span></p>
-<p>The rest of the formulation of the model rests on a number of ``standard’’ assumptions from ecology and fisheries science about how encounters between predators and prey leads to growth <span class="math inline">\(g_i(w)\)</span> and reproduction <span class="math inline">\(R_i\)</span> of the predators, and mortality of the prey <span class="math inline">\(\mu_i(w)\)</span>.</p>
+<p>The rest of the formulation of the model rests on a number of
+``standard’’ assumptions from ecology and fisheries science about how
+encounters between predators and prey leads to growth <span class="math inline">\(g_i(w)\)</span> and reproduction <span class="math inline">\(R_i\)</span> of the predators, and mortality of
+the prey <span class="math inline">\(\mu_i(w)\)</span>.</p>
 <p>For a more detailed exposition of the model see the section <a href="model_description.html">The mizer size-spectrum model</a>.</p>
-<p>It is easiest to learn the basics of mizer through examples. We do this by looking at three set-ups of the framework, of increasing complexity. For each one there is a section that describes how to set up the model, run it in different scenarios, and explore the results. We recommend that you explore these in the following order:</p>
-<div id="community-model" class="section level3">
-<h3 class="hasAnchor">
-<a href="#community-model" class="anchor" aria-hidden="true"></a>Community model</h3>
-<p>In the <a href="https://sizespectrum.org/mizer/articles/community_model.html">community model</a>, individuals are only characterized by their size and are represented by a single group representing an across-species average. Community size spectrum models have been used to investigate how abundance size spectra emerge solely from the individual-level process of size-based predation and how fishing impacts metrics of community-level size spectra. Since few parameters are required it has been used for investigating large-scale community-level questions where detailed trait- and species-level parameterisations are not tractable.</p>
+<p>It is easiest to learn the basics of mizer through examples. We do
+this by looking at four set-ups of the framework, of increasing
+complexity. For each one there is an article that describes how to set
+up the model, run it in different scenarios, and explore the results. We
+recommend that you explore these in the following order:</p>
+<div class="section level3">
+<h3 id="single-species-model">Single-species model<a class="anchor" aria-label="anchor" href="#single-species-model"></a>
+</h3>
+<p>The <a href="#single-species-model">single-species model</a>(<a href="https://sizespectrum.org/mizer/dev/articles/single_species_size-spectrum_dynamics.html" class="uri">https://sizespectrum.org/mizer/dev/articles/single_species_size-spectrum_dynamics.html</a>
+is a good starting point because it allows one to understand the main
+features of size-spectrum modelling without the complexities of
+multi-species interactions. The model describes a single species in a
+fixed background community. It allows exploration of how the shape of
+the species size spectrum is determined by the growth and death rates of
+individuals of that species. The article gives you a first glimpse of
+how to work with mizer, but in a simplified setting.</p>
 </div>
-<div id="trait-based-model" class="section level3">
-<h3 class="hasAnchor">
-<a href="#trait-based-model" class="anchor" aria-hidden="true"></a>Trait-based model</h3>
-<p>The <a href="https://sizespectrum.org/mizer/articles/trait_model.html">trait-based model</a> resolves a continuum of species with varying asymptotic sizes. The asymptotic size is considered to be the most important trait that characterizes a species’ life history. The continuum is represented by a discrete number of species spread evenly over the range of asymptotic sizes. The number of species is not important and does not affect the general dynamics of the model. Many of the parameters, such as the preferred predator-prey mass ratio, are the same for all species. Other model parameters are determined by the asymptotic size. For example, the weight at maturation of each species is a set fraction of the asymptotic size. In the trait-based model, species-level complexity is captured through different life histories, and both intra- and inter-specific size spectra emerge. This approach is powerful for examining the generic population and whole community level responses to both size and species selective fishing without the requirement for detailed species-specific parameters.</p>
+<div class="section level3">
+<h3 id="community-model">Community model<a class="anchor" aria-label="anchor" href="#community-model"></a>
+</h3>
+<p>In the <a href="https://sizespectrum.org/mizer/articles/community_model.html">community
+model</a>, individuals are only characterized by their size and are
+represented by a single group representing an across-species average.
+Community size spectrum models have been used to investigate how
+abundance size spectra emerge solely from the individual-level process
+of size-based predation and how fishing impacts metrics of
+community-level size spectra. Since few parameters are required it has
+been used for investigating large-scale community-level questions where
+detailed trait- and species-level parameterisations are not
+tractable.</p>
 </div>
-<div id="multispecies-model" class="section level3">
-<h3 class="hasAnchor">
-<a href="#multispecies-model" class="anchor" aria-hidden="true"></a>Multispecies model</h3>
-<p>In the <a href="https://sizespectrum.org/mizer/articles/multispecies_model.html">multispecies model</a> individual species are resolved in detail and each has distinct life history, feeding and reproduction parameters. More detailed information is required to parameterise the multispecies model but the approach can be used to address management strategies for a realistic community in a specific region or subset of interacting species.</p>
+<div class="section level3">
+<h3 id="trait-based-model">Trait-based model<a class="anchor" aria-label="anchor" href="#trait-based-model"></a>
+</h3>
+<p>The <a href="https://sizespectrum.org/mizer/articles/trait_model.html">trait-based
+model</a> resolves a continuum of species with varying asymptotic sizes.
+The asymptotic size is considered to be the most important trait that
+characterizes a species’ life history. The continuum is represented by a
+discrete number of species spread evenly over the range of asymptotic
+sizes. The number of species is not important and does not affect the
+general dynamics of the model. Many of the parameters, such as the
+preferred predator-prey mass ratio, are the same for all species. Other
+model parameters are determined by the asymptotic size. For example, the
+weight at maturation of each species is a set fraction of the asymptotic
+size. In the trait-based model, species-level complexity is captured
+through different life histories, and both intra- and inter-specific
+size spectra emerge. This approach is powerful for examining the generic
+population and whole community level responses to both size and species
+selective fishing without the requirement for detailed species-specific
+parameters.</p>
 </div>
-<div id="which-model-to-use" class="section level3">
-<h3 class="hasAnchor">
-<a href="#which-model-to-use" class="anchor" aria-hidden="true"></a>Which model to use</h3>
-<p>All three models predict abundance, biomass and yield as well as predation and mortality rates at size. They are useful for establishing baselines of abundance of unexploited communities, for understanding how fishing impacts aquatic communities and for testing indicators that are being developed to support an ecosystem approach to fisheries management.</p>
-<p>Which model to use in a specific case depends on needs and on the amount of information available to calibrate the model. The multi-species model could be set up for most systems where calibration parameters can be estimated. This requires a lot of insight and data. If the parameters are just guesstimates the results of the multi-species model will be no more accurate than the results from the trait-based model. In such situations we therefore recommend the use of the trait-based model, even though it only provides general information about the asymptotic size distribution and not about specific species.</p>
-<p>The community model is useful for large-scale community-level questions where only the average spectrum is needed. Care should be taken when the community model is used to infer the dynamical properties of marine ecosystems, since it is prone to unrealistically strong oscillations due to the lack of dampening effects provided by the life-history diversity in the trait-based and multi-species models.</p>
+<div class="section level3">
+<h3 id="multispecies-model">Multispecies model<a class="anchor" aria-label="anchor" href="#multispecies-model"></a>
+</h3>
+<p>In the <a href="https://sizespectrum.org/mizer/articles/multispecies_model.html">multispecies
+model</a> individual species are resolved in detail and each has
+distinct life history, feeding and reproduction parameters. More
+detailed information is required to parameterise the multispecies model
+but the approach can be used to address management strategies for a
+realistic community in a specific region or subset of interacting
+species.</p>
+</div>
+<div class="section level3">
+<h3 id="which-model-to-use">Which model to use<a class="anchor" aria-label="anchor" href="#which-model-to-use"></a>
+</h3>
+<p>All models predict abundance, biomass and yield as well as predation
+and mortality rates at size. They are useful for establishing baselines
+of abundance of unexploited communities, for understanding how fishing
+impacts aquatic communities and for testing indicators that are being
+developed to support an ecosystem approach to fisheries management.</p>
+<p>Which model to use in a specific case depends on needs and on the
+amount of information available to calibrate the model. The
+multi-species model could be set up for most systems where calibration
+parameters can be estimated. This requires a lot of insight and data. If
+the parameters are just guesstimates the results of the multi-species
+model will be no more accurate than the results from the trait-based
+model. In such situations we therefore recommend the use of the
+trait-based model, even though it only provides general information
+about the asymptotic size distribution and not about specific
+species.</p>
+<p>The community model is useful for large-scale community-level
+questions where only the average spectrum is needed. Care should be
+taken when the community model is used to infer the dynamical properties
+of marine ecosystems, since it is prone to unrealistically strong
+oscillations due to the lack of dampening effects provided by the
+life-history diversity in the trait-based and multi-species models.</p>
+<p>The single-species model is mainly of pedagogical use and for
+comparison to other single-species fisheries models. But an important
+aim of size-spectrum modelling is to get away from single-species
+thinking.</p>
 <!-- ## Online apps -->
 <!-- Perhaps the easiest way for newcomers to get into using mizer is via -->
 <!-- online apps. We are in the process to develop a variety of apps for setting -->
@@ -267,94 +428,110 @@ Using the same <code><a href="https://devtools.r-lib.org//reference/remote-reexp
 <!-- [explore the effect of increased gear selectivity](https://mizer.shinyapps.io/selectivity/).  -->
 </div>
 </div>
-<div id="references" class="section level2 unnumbered">
-<h2 class="hasAnchor">
-<a href="#references" class="anchor" aria-hidden="true"></a>References</h2>
+<div class="section level2 unnumbered">
+<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
 <div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-andersen_asymptotic_2006" class="csl-entry">
-Andersen, K. H., and J. E. Beyer. 2006. <span>“Asymptotic Size Determines Species Abundance in the Marine Size Spectrum.”</span> <em>The American Naturalist</em> 168 (1): 54–61. <a href="https://doi.org/10.1086/504849" class="external-link">https://doi.org/10.1086/504849</a>.
+Andersen, K. H., and J. E. Beyer. 2006. <span>“Asymptotic Size
+Determines Species Abundance in the Marine Size Spectrum.”</span>
+<em>The American Naturalist</em> 168 (1): 54–61. <a href="https://doi.org/10.1086/504849" class="external-link">https://doi.org/10.1086/504849</a>.
 </div>
 <div id="ref-andersen_trophic_2009" class="csl-entry">
-Andersen, K. H., J. E. Beyer, and P. Lundberg. 2009. <span>“Trophic and Individual Efficiencies of Size-Structured Communities.”</span> <em>Proceedings of the Royal Society B: Biological Sciences</em> 276 (1654): 109–14. <a href="https://doi.org/10.1098/rspb.2008.0951" class="external-link">https://doi.org/10.1098/rspb.2008.0951</a>.
-</div>
-<div id="ref-andersen_life-history_2008" class="csl-entry">
-Andersen, K.H., J.E. Beyer, M. Pedersen, N.G. Andersen, and H. Gislason. 2008. <span>“Life-History Constraints on the Success of the Many Small Eggs Reproductive Strategy.”</span> <em>Theoretical Population Biology</em> 73 (4): 490–97. <a href="https://doi.org/10.1016/j.tpb.2008.02.001" class="external-link">https://doi.org/10.1016/j.tpb.2008.02.001</a>.
+Andersen, K. H., J. E. Beyer, and P. Lundberg. 2009. <span>“Trophic and
+Individual Efficiencies of Size-Structured Communities.”</span>
+<em>Proceedings of the Royal Society B: Biological Sciences</em> 276
+(1654): 109–14. <a href="https://doi.org/10.1098/rspb.2008.0951" class="external-link">https://doi.org/10.1098/rspb.2008.0951</a>.
 </div>
 <div id="ref-andersen_damped_2010" class="csl-entry">
-Andersen, K. H., and M. Pedersen. 2010. <span>“Damped Trophic Cascades Driven by Fishing in Model Marine Ecosystems.”</span> <em>Proceedings of the Royal Society B-Biological Sciences</em> 277 (1682): 795–802. <a href="https://doi.org/10.1098/rspb.2009.1512" class="external-link">https://doi.org/10.1098/rspb.2009.1512</a>.
+Andersen, K. H., and M. Pedersen. 2010. <span>“Damped Trophic Cascades
+Driven by Fishing in Model Marine Ecosystems.”</span> <em>Proceedings of
+the Royal Society B-Biological Sciences</em> 277 (1682): 795–802. <a href="https://doi.org/10.1098/rspb.2009.1512" class="external-link">https://doi.org/10.1098/rspb.2009.1512</a>.
 </div>
 <div id="ref-andersen_direct_2010" class="csl-entry">
-Andersen, K. H., and Jake C. Rice. 2010. <span>“Direct and Indirect Community Effects of Rebuilding Plans.”</span> <em><span>ICES</span> Journal of Marine Science: Journal Du Conseil</em> 67 (9): 1980–88. <a href="https://doi.org/10.1093/icesjms/fsq035" class="external-link">https://doi.org/10.1093/icesjms/fsq035</a>.
+Andersen, K. H., and Jake C. Rice. 2010. <span>“Direct and Indirect
+Community Effects of Rebuilding Plans.”</span> <em><span>ICES</span>
+Journal of Marine Science: Journal Du Conseil</em> 67 (9): 1980–88. <a href="https://doi.org/10.1093/icesjms/fsq035" class="external-link">https://doi.org/10.1093/icesjms/fsq035</a>.
+</div>
+<div id="ref-andersen_life-history_2008" class="csl-entry">
+Andersen, K.H., J.E. Beyer, M. Pedersen, N.G. Andersen, and H. Gislason.
+2008. <span>“Life-History Constraints on the Success of the Many Small
+Eggs Reproductive Strategy.”</span> <em>Theoretical Population
+Biology</em> 73 (4): 490–97. <a href="https://doi.org/10.1016/j.tpb.2008.02.001" class="external-link">https://doi.org/10.1016/j.tpb.2008.02.001</a>.
 </div>
 <div id="ref-benoit_continuous_2004" class="csl-entry">
-Benoît, Eric, and Marie-Joëlle Rochet. 2004. <span>“A Continuous Model of Biomass Size Spectra Governed by Predation and the Effects of Fishing on Them.”</span> <em>Journal of Theoretical Biology</em> 226 (1): 9–21. <a href="https://doi.org/10.1016/S0022-5193(03)00290-X" class="external-link">https://doi.org/10.1016/S0022-5193(03)00290-X</a>.
+Benoît, Eric, and Marie-Joëlle Rochet. 2004. <span>“A Continuous Model
+of Biomass Size Spectra Governed by Predation and the Effects of Fishing
+on Them.”</span> <em>Journal of Theoretical Biology</em> 226 (1): 9–21.
+<a href="https://doi.org/10.1016/S0022-5193(03)00290-X" class="external-link">https://doi.org/10.1016/S0022-5193(03)00290-X</a>.
 </div>
 <div id="ref-blanchard_how_2009" class="csl-entry">
-Blanchard, Julia L., Simon Jennings, Richard Law, Matthew D. Castle, Paul McCloghrie, Marie-Joëlle Rochet, and Eric Benoît. 2009. <span>“How Does Abundance Scale with Body Size in Coupled Size-Structured Food Webs?”</span> <em>Journal of Animal Ecology</em> 78 (1): 270–80. <a href="https://doi.org/10.1111/j.1365-2656.2008.01466.x" class="external-link">https://doi.org/10.1111/j.1365-2656.2008.01466.x</a>.
+Blanchard, Julia L., Simon Jennings, Richard Law, Matthew D. Castle,
+Paul McCloghrie, Marie-Joëlle Rochet, and Eric Benoît. 2009. <span>“How
+Does Abundance Scale with Body Size in Coupled Size-Structured Food
+Webs?”</span> <em>Journal of Animal Ecology</em> 78 (1): 270–80. <a href="https://doi.org/10.1111/j.1365-2656.2008.01466.x" class="external-link">https://doi.org/10.1111/j.1365-2656.2008.01466.x</a>.
 </div>
 <div id="ref-de_roos_physiologically_2001" class="csl-entry">
-De Roos, André M., and Lennart Persson. 2001. <span>“Physiologically Structured Models – from Versatile Technique to Ecological Theory.”</span> <em>Oikos</em> 94 (1): 51–71. <a href="https://doi.org/10.1034/j.1600-0706.2001.11313.x" class="external-link">https://doi.org/10.1034/j.1600-0706.2001.11313.x</a>.
+De Roos, André M., and Lennart Persson. 2001. <span>“Physiologically
+Structured Models – from Versatile Technique to Ecological
+Theory.”</span> <em>Oikos</em> 94 (1): 51–71. <a href="https://doi.org/10.1034/j.1600-0706.2001.11313.x" class="external-link">https://doi.org/10.1034/j.1600-0706.2001.11313.x</a>.
 </div>
 <div id="ref-hartvig_food_2011" class="csl-entry">
-Hartvig, Martin. 2011. <span>“Food Web Ecology.”</span> {Ph.D.}, Lund University.
+Hartvig, Martin. 2011. <span>“Food Web Ecology.”</span> {Ph.D.}, Lund
+University.
 </div>
 <div id="ref-hartvig_food_2011-1" class="csl-entry">
-Hartvig, Martin, K. H. Andersen, and Jan E. Beyer. 2011. <span>“Food Web Framework for Size-Structured Populations <span>RID</span> c-4303-2011.”</span> <em>Journal of Theoretical Biology</em> 272 (1): 113–22. <a href="https://doi.org/10.1016/j.jtbi.2010.12.006" class="external-link">https://doi.org/10.1016/j.jtbi.2010.12.006</a>.
+Hartvig, Martin, K. H. Andersen, and Jan E. Beyer. 2011. <span>“Food Web
+Framework for Size-Structured Populations <span>RID</span>
+c-4303-2011.”</span> <em>Journal of Theoretical Biology</em> 272 (1):
+113–22. <a href="https://doi.org/10.1016/j.jtbi.2010.12.006" class="external-link">https://doi.org/10.1016/j.jtbi.2010.12.006</a>.
 </div>
 <div id="ref-law_size-spectra_2009" class="csl-entry">
-Law, Richard, Michael J. Plank, Alex James, and Julia L. Blanchard. 2009. <span>“Size-Spectra Dynamics from Stochastic Predation and Growth of Individuals.”</span> <em>Ecology</em> 90 (3): 802–11. <a href="https://doi.org/10.1890/07-1900.1" class="external-link">https://doi.org/10.1890/07-1900.1</a>.
+Law, Richard, Michael J. Plank, Alex James, and Julia L. Blanchard.
+2009. <span>“Size-Spectra Dynamics from Stochastic Predation and Growth
+of Individuals.”</span> <em>Ecology</em> 90 (3): 802–11. <a href="https://doi.org/10.1890/07-1900.1" class="external-link">https://doi.org/10.1890/07-1900.1</a>.
 </div>
 <div id="ref-maury_modeling_2007" class="csl-entry">
-Maury, Olivier, Blaise Faugeras, Yunne-Jai Shin, Jean-Christophe Poggiale, Tamara Ben Ari, and Francis Marsac. 2007. <span>“Modeling Environmental Effects on the Size-Structured Energy Flow Through Marine Ecosystems. Part 1: The Model.”</span> <em>Progress in Oceanography</em> 74 (4): 479–99. <a href="https://doi.org/10.1016/j.pocean.2007.05.002" class="external-link">https://doi.org/10.1016/j.pocean.2007.05.002</a>.
+Maury, Olivier, Blaise Faugeras, Yunne-Jai Shin, Jean-Christophe
+Poggiale, Tamara Ben Ari, and Francis Marsac. 2007. <span>“Modeling
+Environmental Effects on the Size-Structured Energy Flow Through Marine
+Ecosystems. Part 1: The Model.”</span> <em>Progress in Oceanography</em>
+74 (4): 479–99. <a href="https://doi.org/10.1016/j.pocean.2007.05.002" class="external-link">https://doi.org/10.1016/j.pocean.2007.05.002</a>.
 </div>
 <div id="ref-metz_dynamics_1986" class="csl-entry">
-Metz, Johan A. J., and O. Diekmann. 1986. <em>The Dynamics of Physiologically Structured Populations</em>. Springer-Verlag.
+Metz, Johan A. J., and O. Diekmann. 1986. <em>The Dynamics of
+Physiologically Structured Populations</em>. Springer-Verlag.
 </div>
 <div id="ref-pope_modelling_2006" class="csl-entry">
-Pope, John G., Jake C. Rice, Niels Daan, Simon Jennings, and Henrik Gislason. 2006. <span>“Modelling an Exploited Marine Fish Community with 15 Parameters - Results from a Simple Size-Based Model.”</span> <em>Ices Journal of Marine Science</em> 63 (6): 1029–44. <a href="https://doi.org/10.1016/j.icesjms.2006.04.015" class="external-link">https://doi.org/10.1016/j.icesjms.2006.04.015</a>.
+Pope, John G., Jake C. Rice, Niels Daan, Simon Jennings, and Henrik
+Gislason. 2006. <span>“Modelling an Exploited Marine Fish Community with
+15 Parameters - Results from a Simple Size-Based Model.”</span> <em>Ices
+Journal of Marine Science</em> 63 (6): 1029–44. <a href="https://doi.org/10.1016/j.icesjms.2006.04.015" class="external-link">https://doi.org/10.1016/j.icesjms.2006.04.015</a>.
 </div>
 </div>
 </div>
-  </div>
-
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
-
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
 
-      <footer><div class="copyright">
+    <footer><div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link external-link">Ken Andersen</a>.</p>
+<p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
-<div class="pkgdown">
+<div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
-      </footer>
+    </footer>
 </div>
 
   
-<script src="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.1/docsearch.min.js" integrity="sha256-GKvGqXDznoRYHCwKXGnuchvKSwmx9SRMrZOTh2g4Sb0=" crossorigin="anonymous"></script><script>
-  docsearch({
-    
-    
-    apiKey: '96e9641255d3fff35a4fd16d1a1bf70c',
-    indexName: 'sizespectrum_mizer',
-    inputSelector: 'input#search-input.form-control',
-    transformData: function(hits) {
-      return hits.map(function (hit) {
-        hit.url = updateHitURL(hit);
-        return hit;
-      });
-    }
-  });
-</script>
-</body>
+
+  
+
+  </body>
 </html>

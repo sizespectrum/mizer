@@ -4,7 +4,18 @@
 \alias{resource_semichemostat}
 \title{Project resource using semichemostat model}
 \usage{
-resource_semichemostat(params, n, n_pp, n_other, rates, t, dt, ...)
+resource_semichemostat(
+  params,
+  n,
+  n_pp,
+  n_other,
+  rates,
+  t,
+  dt,
+  resource_rate,
+  resource_capacity,
+  ...
+)
 }
 \arguments{
 \item{params}{A \link{MizerParams} object}
@@ -20,6 +31,10 @@ resource_semichemostat(params, n, n_pp, n_other, rates, t, dt, ...)
 \item{t}{The current time}
 
 \item{dt}{Time step}
+
+\item{resource_rate}{Resource replenishment rate}
+
+\item{resource_capacity}{Resource carrying capacity}
 
 \item{...}{Unused}
 }
@@ -48,7 +63,12 @@ described in the help page for \code{\link[=setResource]{setResource()}}.
 }
 \examples{
 \dontrun{
-params <- newMultispeciesParams(NS_species_params_gears, inter,
+params <- newMultispeciesParams(NS_species_params_gears, NS_interaction,
                                 resource_dynamics = "resource_semichemostat")
 }
 }
+\seealso{
+Other resource dynamics: 
+\code{\link{resource_constant}()}
+}
+\concept{resource dynamics}

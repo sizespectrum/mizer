@@ -42,6 +42,7 @@
 #' @export
 #' @seealso [validParams()]
 upgradeParams <- function(params) {
+    assert_that(is(params, "MizerParams"))
     
     if ("interaction_p" %in% names(params@species_params)) {
         params@species_params$interaction_resource <- 
@@ -159,6 +160,9 @@ upgradeParams <- function(params) {
     if (.hasSlot(params, "f0")) {
         params@species_params[["f0"]] <- params@f0
     }
+    
+    params@species_params$species <- as.character(params@species_params$species)
+    
     pnew <- newMultispeciesParams(
         params@species_params,
         interaction = params@interaction,
@@ -173,7 +177,7 @@ upgradeParams <- function(params) {
         search_vol = params@search_vol,
         intake_max = params@intake_max,
         metab = metab,
-        z0 = mu_b,
+        ext_mort = mu_b,
         maturity = maturity,
         repro_prop = repro_prop,
         RDD = RDD,
@@ -260,6 +264,19 @@ upgradeParams <- function(params) {
         pnew@A <- params@A
     }
     
+    if (.hasSlot(params, "metadata")) {
+        pnew@metadata <- params@metadata
+        pnew@time_created <- params@time_created
+        pnew@extensions <- params@extensions
+        pnew@mizer_version <- params@mizer_version
+    }
+    
+    # renaming catch_observed to yield_observed in mizer 2.3
+    if ("catch_observed" %in% names(pnew@species_params)) {
+        pnew@species_params$yield_observed <- pnew@species_params$catch_observed
+        pnew@species_params$catch_observed <- NULL
+    }
+    
     # Copy over all comments
     comment(pnew) <- comment(params)
     for (slot in slotNames(pnew)) {
@@ -267,6 +284,7 @@ upgradeParams <- function(params) {
             comment(slot(pnew, slot)) <- comment(slot(params, slot))
         }
     }
+    
     validObject(pnew)
     pnew
 }
@@ -294,6 +312,7 @@ upgradeParams <- function(params) {
 #' @return The upgraded MizerSim object
 #' @export
 upgradeSim <- function(sim) {
+    assert_that(is(sim, "MizerSim"))
     t_dimnames <- dimnames(sim@n_pp)[[1]]
     no_gears <- dim(sim@effort)[[2]]
     new_sim <- MizerSim(upgradeParams(sim@params),

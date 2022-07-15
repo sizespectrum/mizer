@@ -20,14 +20,14 @@ dw_full(params)
 }
 \value{
 \code{w()} returns a vector with the sizes at the start of each size bin
-of the community spectrum.
+of the consumer spectrum.
 
 \code{w_full()} returns a vector with the sizes at the start of each size bin
 of the resource spectrum, which typically starts at smaller sizes than
-the community spectrum.
+the consumer spectrum.
 
 \code{dw()} returns a vector with the widths of the size bins of the
-community spectrum.
+consumer spectrum.
 
 \code{dw_full()} returns a vector with the widths of the size bins of the
 resource spectrum.
@@ -37,5 +37,53 @@ Functions to fetch information about the size bins used in the model
 described by \code{params}.
 }
 \details{
-TODO: Give more details about how mizer discretises the size
+To represent the continuous size spectrum in the computer, the size
+variable is discretized into a vector \code{w} of discrete weights,
+providing a grid of sizes spanning the range from the smallest egg size
+to the largest asymptotic size. These grid values divide the full size
+range into a finite number of size bins. The size bins should be chosen
+small enough to avoid the discretisation errors from becoming too big.
+You can fetch this vector with \code{w()} and the vector of bin widths with
+\code{dw()}.
+
+The weight grid is set up to be logarithmically spaced, so that
+\code{w[j]=w[1]*10^(j*dx)} for some fixed \code{dx}. This means that the bin widths
+increase with size: \code{dw[j] = w[j] * (10^dx - 1)}.
+This grid is set up automatically when creating a MizerParams object.
+
+Because the resource spectrum spans a larger range of sizes, these sizes
+are discretized into a different vector of weights \code{w_full}. This usually
+starts at a much smaller size than \code{w}, but also runs up to the same
+largest size, so that the last entries of \code{w_full} have to coincide with the
+entries of \code{w}. The logarithmic spacing for \code{w_full} is the same as that for
+\code{w}, so that again \code{w_full[j]=w_full[1]*10^(j*dx)}. The function \code{w_full()}
+gives the vector of sizes and \code{dw_full()} gives the vector of bin widths.
+
+You will need these vectors when converting number densities to numbers.
+For example the size spectrum of a species is stored as a vector of
+values that represent the \emph{density} of fish in each size bin rather than
+the \emph{number} of fish. The number of fish in the size bin between \code{w[j]} and
+\code{w[j+1]=w[j]+dw[j]} is obtained as \code{N[j]*dw[j]}.
+
+The vector \code{w} can be used for example to convert the number of individuals
+in a size bin into the biomass in the size bin. The biomass in the
+\code{j}th bin is \code{biomass[j] = N[j] * dw[j] * w[j]}.
+
+Of course all these calculations with discrete sizes and size bins are
+only giving approximations to the continuous values, and these approximations
+get better the smaller the size bins are, i.e., the more size bins are
+used. However using more size bins also slows down the calculations, so
+there is a trade-off. This is why the functions setting up MizerParams
+objects allow you to choose the number of size bins \code{no_w}.
+}
+\examples{
+str(w(NS_params))
+str(dw(NS_params))
+str(w_full(NS_params))
+str(dw_full(NS_params))
+
+# Calculating the biomass of Cod in each bin in the North Sea model
+biomass <- initialN(NS_params)["Cod", ] * dw(NS_params) * w(NS_params)
+# Summing to get total biomass
+sum(biomass)
 }

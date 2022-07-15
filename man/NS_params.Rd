@@ -10,6 +10,9 @@ A MizerParams object
 \source{
 {Blanchard et al.}
 }
+\usage{
+NS_params
+}
 \description{
 A MizerParams object created from the \code{NS_species_params_gears} species
 parameters and the \code{inter} interaction matrix together with an initial
@@ -24,4 +27,9 @@ sim = project(NS_params, effort = c(Industrial = 0, Pelagic = 1,
 plot(sim)
 }
 }
+\seealso{
+Other example parameter objects: 
+\code{\link{NS_sim}}
+}
 \concept{example parameter objects}
+\keyword{datasets}

@@ -101,8 +101,7 @@ be ignored.
 }
 \examples{
 \dontrun{
-# Data set with different fishing gears
-params <- newMultispeciesParams(NS_species_params_gears, inter)
+params <-  NS_params
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # With constant fishing effort which is different for each gear

@@ -150,17 +150,13 @@ mentioned above, one way of doing this is to use a spreadsheet and save it as a
 included in the package. This contains the species parameters for a multispecies
 North Sea model. The location of the file can be found by running
 ```{r label = get_location_for_ns_params}
-params_location <- system.file("doc/NS_species_params.csv", package = "mizer")
+params_location <- system.file("extdata", "NS_species_params.csv", package = "mizer")
 ```
 
 This file can be opened with most spreadsheets or a text editor for you to
 inspect. This can be loaded into R with
-```{r eval=FALSE}
+```{r}
 species_params <- read.csv(params_location)
-```
-```{r echo=FALSE}
-# This one works also when the vignettes have not been built
-species_params <- NS_species_params
 ```
 
 This reads the .csv file into R in the form of a data.frame.
@@ -296,18 +292,15 @@ An example interaction matrix for the North Sea has been included in `mizer` as
 a .csv file.  The location of the file can be found by running:
 
 ```{r}
-inter_location <- system.file("doc/inter.csv", package = "mizer")
+inter_location <- system.file("extdata", "NS_interaction.csv", package = "mizer")
 ```
 
 Take a look at it in a spreadsheet if you want.  As mentioned above, to read
 this file into R we can make use of the `read.csv()` function. However, this
 time we want the first column of the .csv file to be the row names. We therefore
 use an additional argument to the `read.csv()` function: `row.names`.
-```{r eval=FALSE}
+```{r}
 inter <- read.csv(inter_location, row.names = 1)
-inter
-```
-```{r echo=FALSE}
 inter
 ```
 
@@ -327,11 +320,6 @@ params_new <- newMultispeciesParams(species_params, interaction = inter)
 Note that the first argument must be the species parameters data.frame.
 The remaining arguments can be in any order but should be named.
 We are using the default values for all other parameters.
-
-Both methods lead to identical MizerParams objects
-```{r}
-identical(params, params_new)
-```
 
 We now have all we need to start running projections. Before we get to that
 though, we'll take a quick look at how different fishing gears can be set up.

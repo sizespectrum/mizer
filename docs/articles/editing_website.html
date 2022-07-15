@@ -4,157 +4,154 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="mizer">
 <title>Editing the Mizer Website • mizer</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
-<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
+<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><!-- docsearch --><script src="../docsearch.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.3/docsearch.min.css" integrity="sha256-QOSRU/ra9ActyXkIBbiIB144aDBdtvXBcNc3OTNuX/Q=" crossorigin="anonymous">
-<link href="../docsearch.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script><meta property="og:title" content="Editing the Mizer Website">
+<!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Editing the Mizer Website">
 <meta property="og:description" content="mizer">
+<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png">
+<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@mizer_model">
+<meta name="twitter:site" content="@mizer_model">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
-<body data-spy="scroll" data-target="#toc">
+<body>
+    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <div class="container template-article">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.0</span>
-      </span>
-    </div>
+    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary"><div class="container">
+    
+    <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-<li>
-  <a href="../articles/mizer.html">Get started</a>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.3.1</small>
+
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar" class="collapse navbar-collapse ms-3">
+      <ul class="navbar-nav me-auto">
+<li class="nav-item">
+  <a class="nav-link" href="../articles/mizer.html">Get started</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Tutorials
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
-    </li>
-    <li>
-      <a href="../articles/community_model.html">The Community Model</a>
-    </li>
-    <li>
-      <a href="../articles/trait_model.html">The Trait-Based Model</a>
-    </li>
-    <li>
-      <a href="../articles/multispecies_model.html">The Multi Species Model</a>
-    </li>
-    <li>
-      <a href="../articles/running_a_simulation.html">Running a Simulation</a>
-    </li>
-    <li>
-      <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
-    </li>
-    <li>
-      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
-    </li>
-    <li>
-      <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
-    </li>
-    <li class="divider">
-    <li class="dropdown-header">For developers</li>
-    <li>
-      <a href="../articles/developer_vignette.html">Developer Guide</a>
-    </li>
-    <li>
-      <a href="../articles/working_with_git.html">Working with git and GitHub</a>
-    </li>
-    <li>
-      <a href="../articles/developer_FAQ.html">Developer FAQ</a>
-    </li>
-    <li>
-      <a href="../articles/editing_website.html">Editing the Mizer Website</a>
-    </li>
-  </ul>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li>
-  <a href="../articles/publications.html">Publications</a>
-</li>
-<li>
-  <a href="../news/index.html">Changelog</a>
-</li>
-      </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="https://github.com/sizespectrum/mizer/" class="external-link">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
-      </ul>
-<form class="navbar-form navbar-right hidden-xs hidden-sm" role="search">
-        <div class="form-group">
-          <input type="search" class="form-control" name="search-input" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
-</div>
-      </form>
-      
-    </div>
-<!--/.nav-collapse -->
+<li class="active nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Tutorials</h6>
+    <a class="dropdown-item" href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    <a class="dropdown-item" href="../articles/community_model.html">The Community Model</a>
+    <a class="dropdown-item" href="../articles/trait_model.html">The Trait-Based Model</a>
+    <a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a>
+    <a class="dropdown-item" href="../articles/running_a_simulation.html">Running a Simulation</a>
+    <a class="dropdown-item" href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
+    <a class="dropdown-item" href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
+    <a class="dropdown-item" href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Publications</h6>
+    <a class="dropdown-item" href="../articles/publications.html">Publications</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>For developers</h6>
+    <a class="dropdown-item" href="../articles/developer_vignette.html">Developer Guide</a>
+    <a class="dropdown-item" href="../articles/working_with_git.html">Working with git and GitHub</a>
+    <a class="dropdown-item" href="../articles/developer_FAQ.html">Developer FAQ</a>
+    <a class="dropdown-item" href="../articles/editing_website.html">Editing the Mizer Website</a>
   </div>
-<!--/.container -->
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../reference/index.html">Reference</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../news/index.html">Changelog</a>
+</li>
+      </ul>
+<form class="form-inline my-2 my-lg-0" role="search">
+        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
+</form>
+
+      <ul class="navbar-nav">
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://blog.mizer.sizespectrum.org">Blog</a>
+</li>
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://twitter.com/mizer_model">
+    <span class="fab fa fab fa-twitter fa-lg"></span>
+     
+  </a>
+</li>
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/sizespectrum/mizer/" aria-label="github">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
-<!--/.navbar -->
 
-      
+    
+  </div>
+</nav><div class="container template-article">
 
-      </header><script src="editing_website_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
-  <div class="col-md-9 contents">
-    <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Editing the Mizer Website</h1>
+
+
+
+<div class="row">
+  <main id="main" class="col-md-9"><div class="page-header">
+      <img src="../logo.png" class="logo" alt=""><h1>Editing the Mizer Website</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/master/vignettes/editing_website.Rmd" class="external-link"><code>vignettes/editing_website.Rmd</code></a></small>
-      <div class="hidden name"><code>editing_website.Rmd</code></div>
-
+      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/HEAD/vignettes/editing_website.Rmd" class="external-link"><code>vignettes/editing_website.Rmd</code></a></small>
+      <div class="d-none name"><code>editing_website.Rmd</code></div>
     </div>
 
     
     
-<div id="website-built-from-package-documentation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#website-built-from-package-documentation" class="anchor" aria-hidden="true"></a>Website built from package documentation</h2>
-<p>The mizer website at [<a href="https://sizespectrum.org/mizer/" class="uri">https://sizespectrum.org/mizer/</a>] is created programmatically from the documentation included in the mizer GitHub repository. Thus to edit the website just means editing this documentation. The website creation is performed by a slight modification of the <a href="https://pkgdown.r-lib.org/index.html" class="external-link"><code>pkgdown</code></a> package. You can trigger a build in your local repository by issuing the commands</p>
+<div class="section level2">
+<h2 id="website-built-from-package-documentation">Website built from package documentation<a class="anchor" aria-label="anchor" href="#website-built-from-package-documentation"></a>
+</h2>
+<p>The mizer website at [<a href="https://sizespectrum.org/mizer/" class="uri">https://sizespectrum.org/mizer/</a>] is created
+programmatically from the documentation included in the mizer GitHub
+repository. Thus to edit the website just means editing this
+documentation. The website creation is performed by a slight
+modification of the <a href="https://pkgdown.r-lib.org/index.html" class="external-link"><code>pkgdown</code></a>
+package. You can trigger a build in your local repository by issuing the
+commands</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"gustavdelius/pkgdown"</span>, ref <span class="op">=</span> <span class="st">"mizer"</span><span class="op">)</span>
-<span class="fu">pkgdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_site.html" class="external-link">build_site</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<p>This will convert all existing documentation into html files and put these into the <code>docs</code> subdirectory of your mizer directory. In detail:</p>
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"gustavdelius/pkgdown"</span>, ref <span class="op">=</span> <span class="st">"mizer"</span><span class="op">)</span></span>
+<span><span class="fu">pkgdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_site.html" class="external-link">build_site</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>This will convert all existing documentation into html files and put
+these into the <code>docs</code> subdirectory of your mizer directory.
+In detail:</p>
 <ol style="list-style-type: decimal">
-<li><p>All .Rmd files in the <code>vignettes</code> subdirectory (and its subdirectories, if any) will produce html files of the same name in <code>docs/articles</code>.</p></li>
-<li><p>All .Rd documentation files in <code>man</code> will produce html files of the same name in <code>docs/reference</code>.</p></li>
-<li><p>The <code>NEWS</code> file will be converted to <code>docs/news/index.html</code></p></li>
-<li><p>The README.md file will be converted to <code>docs/index.html</code>.</p></li>
+<li><p>All .Rmd files in the <code>vignettes</code> subdirectory (and
+its subdirectories, if any) will produce html files of the same name in
+<code>docs/articles</code>.</p></li>
+<li><p>All .Rd documentation files in <code>man</code> will produce html
+files of the same name in <code>docs/reference</code>.</p></li>
+<li><p>The <code>NEWS</code> file will be converted to
+<code>docs/news/index.html</code></p></li>
+<li><p>The README.md file will be converted to
+<code>docs/index.html</code>.</p></li>
 </ol>
-<p>Then the package will use the information in the <code>_pkgdown.yml</code> file to create a navbar and index pages. The navbar is configured with</p>
+<p>Then the package will use the information in the
+<code>_pkgdown.yml</code> file to create a navbar and index pages. The
+navbar is configured with</p>
 <pre><code>navbar:
   title: "mizer"
   left:
@@ -173,8 +170,15 @@
   right:
     - icon: fa-github fa-lg
       href: https://github.com/sizespectrum/mizer</code></pre>
-<p>This is quite self-explanatory, specifying the order of the navbar entries, their text and link destination, and whether they are on the left or right side. It is clearly easy to add additional navbar entries. It would be possible to also include drop-down items in navbar. See the <a href="https://pkgdown.r-lib.org/articles/pkgdown.html#navigation-bar" class="external-link">pkgdown documentation</a> for more details.</p>
-<p>The file <code>docs/articles/index.html</code> is created according to the article: section in the <code>_pkgdown_yml</code> file. At an early stage it looked as follows:</p>
+<p>This is quite self-explanatory, specifying the order of the navbar
+entries, their text and link destination, and whether they are on the
+left or right side. It is clearly easy to add additional navbar entries.
+It would be possible to also include drop-down items in navbar. See the
+<a href="https://pkgdown.r-lib.org/articles/pkgdown.html#navigation-bar" class="external-link">pkgdown
+documentation</a> for more details.</p>
+<p>The file <code>docs/articles/index.html</code> is created according
+to the article: section in the <code>_pkgdown_yml</code> file. At an
+early stage it looked as follows:</p>
 <pre><code>articles:
 - title: User Guides
   contents:
@@ -183,83 +187,93 @@
   contents:
   - developer_vignette
   - mathematical_details</code></pre>
-<p>By now it has more entries to link to more vignettes. It is not necessary to use this index file. The menu entry could just as well point to a more elaborate file created from an .Rmd file in the vignette subdirectory, which might become useful in the future.</p>
-<p>The file <code>docs/reference/index.html</code> is created according to the reference: section in the <code>_pkgdown_yml</code> file, with a similar syntax as the article: section.</p>
+<p>By now it has more entries to link to more vignettes. It is not
+necessary to use this index file. The menu entry could just as well
+point to a more elaborate file created from an .Rmd file in the vignette
+subdirectory, which might become useful in the future.</p>
+<p>The file <code>docs/reference/index.html</code> is created according
+to the reference: section in the <code>_pkgdown_yml</code> file, with a
+similar syntax as the article: section.</p>
 </div>
-<div id="changing-page-content" class="section level2">
-<h2 class="hasAnchor">
-<a href="#changing-page-content" class="anchor" aria-hidden="true"></a>Changing page content</h2>
-<p>At the top of every page on the website, except the homepage, there is a link to the page source. So it is easy to know which file to edit to make changes to a page. If you want to rebuild the website after making a change to a single page you may not want to re-build everything. You can rebuild just a single vignette. For example to rebuild this page after editing the vignette <code>vignette/editing_website.Rmd</code> you can call</p>
+<div class="section level2">
+<h2 id="changing-page-content">Changing page content<a class="anchor" aria-label="anchor" href="#changing-page-content"></a>
+</h2>
+<p>At the top of every page on the website, except the homepage, there
+is a link to the page source. So it is easy to know which file to edit
+to make changes to a page. If you want to rebuild the website after
+making a change to a single page you may not want to re-build
+everything. You can rebuild just a single vignette. For example to
+rebuild this page after editing the vignette
+<code>vignette/editing_website.Rmd</code> you can call</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">pkgdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_articles.html" class="external-link">build_article</a></span><span class="op">(</span><span class="st">"editing_website"</span><span class="op">)</span></code></pre></div>
-<p>To rebuild the reference pages after changing the roxygen code doc you can run</p>
+<code class="sourceCode R"><span><span class="fu">pkgdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_articles.html" class="external-link">build_article</a></span><span class="op">(</span><span class="st">"editing_website"</span><span class="op">)</span></span></code></pre></div>
+<p>To rebuild the reference pages after changing the roxygen code doc
+you can run</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">pkgdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_reference.html" class="external-link">build_reference</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<p>To change the homepage you edit index.md. This file is very similar to README.md that is used on the mizer homepage on GitHub, but can contain extra content like embedded videos that the GitHub homepage does not support. After changes to index.md you can update your local copy of the website with</p>
+<code class="sourceCode R"><span><span class="fu">pkgdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_reference.html" class="external-link">build_reference</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>To change the homepage you edit index.md. This file is very similar
+to README.md that is used on the mizer homepage on GitHub, but can
+contain extra content like embedded videos that the GitHub homepage does
+not support. After changes to index.md you can update your local copy of
+the website with</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">pkgdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_home.html" class="external-link">build_home</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<p>Of course these changes will affect only your local copy of the website. To get those changes reflected on the online site you will need to make a pull request for your changed files against the master branch of the upstream repository.</p>
+<code class="sourceCode R"><span><span class="fu">pkgdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_home.html" class="external-link">build_home</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>Of course these changes will affect only your local copy of the
+website. To get those changes reflected on the online site you will need
+to make a pull request for your changed files against the master branch
+of the upstream repository.</p>
 </div>
-<div id="github-pages" class="section level2">
-<h2 class="hasAnchor">
-<a href="#github-pages" class="anchor" aria-hidden="true"></a>GitHub pages</h2>
-<p>The website is hosted with <a href="https://pages.github.com/" class="external-link">GitHubPages</a>. In the settings pages of the mizer repository on GitHub the source is set to “master branch/docs folder”. This means that only the master branch controls the website.</p>
+<div class="section level2">
+<h2 id="github-pages">GitHub pages<a class="anchor" aria-label="anchor" href="#github-pages"></a>
+</h2>
+<p>The website is hosted with <a href="https://pages.github.com/" class="external-link">GitHubPages</a>. In the settings pages
+of the mizer repository on GitHub the source is set to “master
+branch/docs folder”. This means that only the master branch controls the
+website.</p>
 </div>
-<div id="search-bar" class="section level2">
-<h2 class="hasAnchor">
-<a href="#search-bar" class="anchor" aria-hidden="true"></a>Search bar</h2>
-<p>The search bar on the website is powered by Docsearch from Algolia. This is a free service for open-source projects. The set-up is explained in the <a href="https://pkgdown.r-lib.org/articles/pkgdown.html#search" class="external-link">pkgdown documentation</a>.</p>
+<div class="section level2">
+<h2 id="search-bar">Search bar<a class="anchor" aria-label="anchor" href="#search-bar"></a>
+</h2>
+<p>The search bar on the website is powered by Docsearch from Algolia.
+This is a free service for open-source projects. The set-up is explained
+in the <a href="https://pkgdown.r-lib.org/articles/pkgdown.html#search" class="external-link">pkgdown
+documentation</a>.</p>
 </div>
-<div id="embedding-videos" class="section level2">
-<h2 class="hasAnchor">
-<a href="#embedding-videos" class="anchor" aria-hidden="true"></a>Embedding videos</h2>
-<p>It is easy to embed videos into a webpage by putting an iframe into the R Markdown source file. For example putting the line</p>
+<div class="section level2">
+<h2 id="embedding-videos">Embedding videos<a class="anchor" aria-label="anchor" href="#embedding-videos"></a>
+</h2>
+<p>It is easy to embed videos into a webpage by putting an iframe into
+the R Markdown source file. For example putting the line</p>
 <pre><code>&lt;iframe width="560" height="315" src="https://www.youtube.com/embed/0RlXqLbFbWc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen&gt;&lt;/iframe&gt;</code></pre>
-<p>into the source of this page produced the following embedded video:</p>
+<p>into the source of this page produced the following embedded
+video:</p>
 <iframe width="560" height="315" src="https://www.youtube.com/embed/0RlXqLbFbWc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
 </iframe>
-<p>The GitHub site itself (as opposed to GitHub Pages) does not support embedded videos.</p>
+<p>The GitHub site itself (as opposed to GitHub Pages) does not support
+embedded videos.</p>
 </div>
-  </div>
-
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
-
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
 
-      <footer><div class="copyright">
+    <footer><div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link external-link">Ken Andersen</a>.</p>
+<p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
-<div class="pkgdown">
+<div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
-      </footer>
+    </footer>
 </div>
 
   
-<script src="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.1/docsearch.min.js" integrity="sha256-GKvGqXDznoRYHCwKXGnuchvKSwmx9SRMrZOTh2g4Sb0=" crossorigin="anonymous"></script><script>
-  docsearch({
-    
-    
-    apiKey: '96e9641255d3fff35a4fd16d1a1bf70c',
-    indexName: 'sizespectrum_mizer',
-    inputSelector: 'input#search-input.form-control',
-    transformData: function(hits) {
-      return hits.map(function (hit) {
-        hit.url = updateHitURL(hit);
-        return hit;
-      });
-    }
-  });
-</script>
-</body>
+
+  
+
+  </body>
 </html>

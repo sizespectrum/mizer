@@ -20,6 +20,9 @@ A data frame with 12 rows and 8 columns. Each row is a species.
 \source{
 {Blanchard et al.}
 }
+\usage{
+NS_species_params_gears
+}
 \description{
 This data set is based on species in the North Sea (Blanchard et al.).
 It is similar to the data set \code{NS_species_params} except that
@@ -34,3 +37,4 @@ sim = project(params, effort = c(Industrial = 0, Pelagic = 1,
 plot(sim)
 }
 }
+\keyword{datasets}
