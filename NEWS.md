@@ -1,5 +1,7 @@
 # mizer (development version)
 
+* The entries of the interaction matrix and of interaction_resource are not
+  longer restricted to be less or equal to 1. #232
 * If user supplies no row names in the interaction matrix but give column names
   then the column names are also used as row names. #247
 
