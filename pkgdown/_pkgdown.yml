@@ -90,6 +90,7 @@ reference:
   - newTraitParams
   - newMultispeciesParams
   - mizer-package
+  - defaults_edition
 - title: Changing model parameters
   description: Even after you have created a model, you can still make changes
     with the following functions. This is useful while tuning the model and for
