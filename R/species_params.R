@@ -247,9 +247,9 @@ get_h_default <- function(params) {
 
 #' Get default value for gamma
 #' 
-#' Fills in any missing values for gamma so that if the prey abundance was
-#' described by the power law \eqn{\kappa w^{-\lambda}} then the encounter rate
-#' would lead to the feeding level \eqn{f_0}. Only for internal use.
+#' Fills in any missing values for gamma so that fish feeding on a resource
+#' spectrum described by the power law \eqn{\kappa w^{-\lambda}} achieve a
+#' feeding level \eqn{f_0}. Only for internal use.
 #' 
 #' @param params A MizerParams object
 #' @return A vector with the values of gamma for all species
@@ -280,7 +280,10 @@ get_gamma_default <- function(params) {
         params <- setSearchVolume(params)
         # and setting a power-law prey spectrum
         params@initial_n[] <- 0
-        params@species_params$interaction_resource <- 1
+        if (defaults_edition() < 2) {
+            # See issue #238
+            params@species_params$interaction_resource <- 1
+        }
         params@initial_n_pp[] <- params@resource_params$kappa * 
             params@w_full^(-params@resource_params$lambda)
         avail_energy <- getEncounter(params)[, length(params@w)] /

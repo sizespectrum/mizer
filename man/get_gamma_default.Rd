@@ -13,9 +13,9 @@ get_gamma_default(params)
 A vector with the values of gamma for all species
 }
 \description{
-Fills in any missing values for gamma so that if the prey abundance was
-described by the power law \eqn{\kappa w^{-\lambda}} then the encounter rate
-would lead to the feeding level \eqn{f_0}. Only for internal use.
+Fills in any missing values for gamma so that fish feeding on a resource
+spectrum described by the power law \eqn{\kappa w^{-\lambda}} achieve a
+feeding level \eqn{f_0}. Only for internal use.
 }
 \seealso{
 Other functions calculating defaults: 

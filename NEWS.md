@@ -2,6 +2,10 @@
 
 * Improved defaults can now be implemented while keeping backwards compatibility
   via `defaults_edition()`.
+* New defaults edition 2: catchability = 0.3 instead of 1, initial effort = 1
+  instead of 0.
+* In defaults edition 2, `get_gamma_default()` ensures a feeding level of `f0`
+  for larvae also if `interaction_resource` is not equal to 1.
 * The entries of the interaction matrix and of interaction_resource are not
   longer restricted to be less or equal to 1. #232
 * If user supplies no row names in the interaction matrix but give column names
