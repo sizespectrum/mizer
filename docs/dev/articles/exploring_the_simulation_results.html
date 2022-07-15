@@ -4,7 +4,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="mizer">
 <title>Exploring the Simulation Results • mizer</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
@@ -12,14 +13,11 @@
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
-<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><!-- docsearch --><script src="../docsearch.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.3/docsearch.min.css" integrity="sha256-QOSRU/ra9ActyXkIBbiIB144aDBdtvXBcNc3OTNuX/Q=" crossorigin="anonymous">
-<link href="../docsearch.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script><meta property="og:title" content="Exploring the Simulation Results">
+<!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Exploring the Simulation Results">
 <meta property="og:description" content="mizer">
 <meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png">
 <meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R">
@@ -32,138 +30,95 @@
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
-<body data-spy="scroll" data-target="#toc">
+<body>
+    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <div class="container template-article">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.3.0.9000</span>
-      </span>
-    </div>
+    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary"><div class="container">
+    
+    <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-<li>
-  <a href="../articles/mizer.html">Get started</a>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">2.3.1.9000</small>
+
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar" class="collapse navbar-collapse ms-3">
+      <ul class="navbar-nav me-auto">
+<li class="nav-item">
+  <a class="nav-link" href="../articles/mizer.html">Get started</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
-    </li>
-    <li class="divider">
-    </li>
-<li class="dropdown-header">Tutorials</li>
-    <li>
-      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/community_model.html">The Community Model</a>
-    </li>
-    <li>
-      <a href="../articles/trait_model.html">The Trait-Based Model</a>
-    </li>
-    <li>
-      <a href="../articles/multispecies_model.html">The Multi Species Model</a>
-    </li>
-    <li>
-      <a href="../articles/running_a_simulation.html">Running a Simulation</a>
-    </li>
-    <li>
-      <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
-    </li>
-    <li>
-      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
-    </li>
-    <li>
-      <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
-    </li>
-    <li class="divider">
-    </li>
-<li class="dropdown-header">Publications</li>
-    <li>
-      <a href="../articles/publications.html">Publications</a>
-    </li>
-    <li class="divider">
-    </li>
-<li class="dropdown-header">For developers</li>
-    <li>
-      <a href="../articles/developer_vignette.html">Developer Guide</a>
-    </li>
-    <li>
-      <a href="../articles/working_with_git.html">Working with git and GitHub</a>
-    </li>
-    <li>
-      <a href="../articles/developer_FAQ.html">Developer FAQ</a>
-    </li>
-    <li>
-      <a href="../articles/editing_website.html">Editing the Mizer Website</a>
-    </li>
-  </ul>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li>
-  <a href="../news/index.html">Changelog</a>
-</li>
-      </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="https://blog.mizer.sizespectrum.org" class="external-link">Blog</a>
-</li>
-<li>
-  <a href="https://twitter.com/mizer_model" class="external-link">
-    <span class="fab fa-twitter fa-lg"></span>
-     
-  </a>
-</li>
-<li>
-  <a href="https://github.com/sizespectrum/mizer/" class="external-link">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
-      </ul>
-<form class="navbar-form navbar-right hidden-xs hidden-sm" role="search">
-        <div class="form-group">
-          <input type="search" class="form-control" name="search-input" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
-</div>
-      </form>
-      
-    </div>
-<!--/.nav-collapse -->
+<li class="active nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Tutorials</h6>
+    <a class="dropdown-item" href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    <a class="dropdown-item" href="../articles/community_model.html">The Community Model</a>
+    <a class="dropdown-item" href="../articles/trait_model.html">The Trait-Based Model</a>
+    <a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a>
+    <a class="dropdown-item" href="../articles/running_a_simulation.html">Running a Simulation</a>
+    <a class="dropdown-item" href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
+    <a class="dropdown-item" href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
+    <a class="dropdown-item" href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Publications</h6>
+    <a class="dropdown-item" href="../articles/publications.html">Publications</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>For developers</h6>
+    <a class="dropdown-item" href="../articles/developer_vignette.html">Developer Guide</a>
+    <a class="dropdown-item" href="../articles/working_with_git.html">Working with git and GitHub</a>
+    <a class="dropdown-item" href="../articles/developer_FAQ.html">Developer FAQ</a>
+    <a class="dropdown-item" href="../articles/editing_website.html">Editing the Mizer Website</a>
   </div>
-<!--/.container -->
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../reference/index.html">Reference</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../news/index.html">Changelog</a>
+</li>
+      </ul>
+<form class="form-inline my-2 my-lg-0" role="search">
+        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
+</form>
+
+      <ul class="navbar-nav">
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://blog.mizer.sizespectrum.org">Blog</a>
+</li>
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://twitter.com/mizer_model" aria-label="Twitter">
+    <span class="fab fa fab fa-twitter fa-lg"></span>
+     
+  </a>
+</li>
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/sizespectrum/mizer/" aria-label="github">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
-<!--/.navbar -->
 
-      
+    
+  </div>
+</nav><div class="container template-article">
 
-      </header><div class="row">
-  <div class="col-md-9 contents">
-    <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Exploring the Simulation Results</h1>
+
+
+
+<div class="row">
+  <main id="main" class="col-md-9"><div class="page-header">
+      <img src="../logo.png" class="logo" alt=""><h1>Exploring the Simulation Results</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/HEAD/vignettes/exploring_the_simulation_results.Rmd" class="external-link"><code>vignettes/exploring_the_simulation_results.Rmd</code></a></small>
-      <div class="hidden name"><code>exploring_the_simulation_results.Rmd</code></div>
-
+      <div class="d-none name"><code>exploring_the_simulation_results.Rmd</code></div>
     </div>
 
     
@@ -183,7 +138,7 @@ produced using functions included in mizer.</p>
 examples, where the effort array is the one we created in the <a href="running_a_simulation.html">previous section on running a
 simulation</a>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">NS_params</span>, effort <span class="op">=</span> <span class="va">effort_array</span>, dt <span class="op">=</span> <span class="fl">0.1</span>, t_save <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">NS_params</span>, effort <span class="op">=</span> <span class="va">effort_array</span>, dt <span class="op">=</span> <span class="fl">0.1</span>, t_save <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="accessing-the-simulation-results">Accessing the simulation results<a class="anchor" aria-label="anchor" href="#accessing-the-simulation-results"></a>
@@ -197,13 +152,13 @@ one for each of the saved time steps). There are also 12 species each
 with 100 sizes. We can check this by running the <code><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim()</a></code>
 function and looking at the dimensions of the <code>n</code> array:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="fu"><a href="../reference/N.html">N</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1]  10  12 100</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="fu"><a href="../reference/N.html">N</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1]  10  12 100</span></span></code></pre>
 <p>To pull out the abundances of a particular species through time at
 size you can subset the array. For example to look at Cod through time
 you can use:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/N.html">N</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">[</span>, <span class="st">"Cod"</span>, <span class="op">]</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/N.html">N</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">[</span>, <span class="st">"Cod"</span>, <span class="op">]</span></span></code></pre></div>
 <p>This returns a two-dimensional array: time x size, containing the cod
 abundances. The time dimension depends on the value of the argument
 <code>t_save</code> when <code><a href="../reference/project.html">project()</a></code> was run. You can see
@@ -213,15 +168,15 @@ that the output is only saved every year.</p>
 <p>Often we are particularly interested in the results at the final
 time-step. These we can access with</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/finalN.html">finalN</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/finalN.html">finalN</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span></code></pre></div>
 <p>which is a two dimensional array (species x size).</p>
 <p>The projected resource abundances can be accesses similarly with</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/N.html">NResource</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/N.html">NResource</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span></code></pre></div>
 <p>This returns a two-dimensional array (time x size). And if we are
 only interested in the final time step</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/finalN.html">finalNResource</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/finalN.html">finalNResource</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span></code></pre></div>
 <p>returns a vector with one entry for each size class.</p>
 </div>
 <div class="section level2">
@@ -263,67 +218,67 @@ the <code>sim</code> object we created earlier. Here, we use
 (note the use of the <code><a href="https://rdrr.io/r/utils/head.html" class="external-link">head()</a></code> function to only display the
 first few rows).</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">ssb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getSSB.html">getSSB</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">ssb</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1] 10 12</span></code></pre>
+<code class="sourceCode R"><span><span class="va">ssb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getSSB.html">getSSB</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">ssb</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] 10 12</span></span></code></pre>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ssb</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">##     sp</span>
-<span class="co">## time        Sprat      Sandeel       N.pout      Herring        Dab</span>
-<span class="co">##    1 210810187886 5.378411e+12 183159668755 442644004208 6885675636</span>
-<span class="co">##    2 157421300798 3.498137e+12 153386837865 499200353502 5278650740</span>
-<span class="co">##    3 138701220818 2.510551e+12 135619248024 603931625682 5065030019</span>
-<span class="co">##    4 118875574040 1.997337e+12 110306292341 569167018628 4877123531</span>
-<span class="co">##    5 114060666493 1.790051e+12 112246876589 420615452917 5224602753</span>
-<span class="co">##    6 125640651552 1.736155e+12 124869964868 351468531499 6147959412</span>
-<span class="co">##     sp</span>
-<span class="co">## time      Whiting        Sole    Gurnard       Plaice      Haddock          Cod</span>
-<span class="co">##    1 113572753243 63630241776 9102232924 303365911438 151965178029 531536722956</span>
-<span class="co">##    2  87964359889 46775076902 7385280731 232689238362 117830523964 345850203280</span>
-<span class="co">##    3  91749455062 45443905458 7528148453 240988454909 135946957263 290183064993</span>
-<span class="co">##    4  85038348880 49465062866 6855105119 264670808435 158905104522 308445205952</span>
-<span class="co">##    5  77139941423 53555703121 5600934574 279557468426 145778058562 335438386336</span>
-<span class="co">##    6  82462061701 56441766035 5398238488 278206590917 123593721267 351386199474</span>
-<span class="co">##     sp</span>
-<span class="co">## time       Saithe</span>
-<span class="co">##    1 327578246185</span>
-<span class="co">##    2 218500695506</span>
-<span class="co">##    3 197610219846</span>
-<span class="co">##    4 228220656964</span>
-<span class="co">##    5 271860341040</span>
-<span class="co">##    6 287805766571</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ssb</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##     sp</span></span>
+<span><span class="co">## time        Sprat      Sandeel       N.pout      Herring        Dab</span></span>
+<span><span class="co">##    1 210810187886 5.378411e+12 183159668755 442644004208 6885675636</span></span>
+<span><span class="co">##    2 157421300798 3.498137e+12 153386837865 499200353502 5278650740</span></span>
+<span><span class="co">##    3 138701220818 2.510551e+12 135619248024 603931625682 5065030019</span></span>
+<span><span class="co">##    4 118875574040 1.997337e+12 110306292341 569167018628 4877123531</span></span>
+<span><span class="co">##    5 114060666493 1.790051e+12 112246876589 420615452917 5224602753</span></span>
+<span><span class="co">##    6 125640651552 1.736155e+12 124869964868 351468531499 6147959412</span></span>
+<span><span class="co">##     sp</span></span>
+<span><span class="co">## time      Whiting        Sole    Gurnard       Plaice      Haddock          Cod</span></span>
+<span><span class="co">##    1 113572753243 63630241776 9102232924 303365911438 151965178029 531536722956</span></span>
+<span><span class="co">##    2  87964359889 46775076902 7385280731 232689238362 117830523964 345850203280</span></span>
+<span><span class="co">##    3  91749455062 45443905458 7528148453 240988454909 135946957263 290183064993</span></span>
+<span><span class="co">##    4  85038348880 49465062866 6855105119 264670808435 158905104522 308445205952</span></span>
+<span><span class="co">##    5  77139941423 53555703121 5600934574 279557468426 145778058562 335438386336</span></span>
+<span><span class="co">##    6  82462061701 56441766035 5398238488 278206590917 123593721267 351386199474</span></span>
+<span><span class="co">##     sp</span></span>
+<span><span class="co">## time       Saithe</span></span>
+<span><span class="co">##    1 327578246185</span></span>
+<span><span class="co">##    2 218500695506</span></span>
+<span><span class="co">##    3 197610219846</span></span>
+<span><span class="co">##    4 228220656964</span></span>
+<span><span class="co">##    5 271860341040</span></span>
+<span><span class="co">##    6 287805766571</span></span></code></pre>
 <p>As mentioned above, we can specify the size range for the
 <code>getsummaryBiomass()</code> and <code><a href="../reference/getN.html">getN()</a></code> functions. For
 example, here we calculate the total biomass of each species but only
 include individuals that are larger than 10 g and smaller than 1000
 g.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">biomass</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span>, min_w <span class="op">=</span> <span class="fl">10</span>, max_w <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">biomass</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">##     sp</span>
-<span class="co">## time        Sprat      Sandeel       N.pout      Herring        Dab</span>
-<span class="co">##    1 244119195586 4.589606e+12 238847649463 1.273446e+12 8373096367</span>
-<span class="co">##    2 189464604834 2.888858e+12 214678099536 1.413601e+12 6837801607</span>
-<span class="co">##    3 169593586308 1.931520e+12 185655249238 1.536104e+12 6536986610</span>
-<span class="co">##    4 146468867085 1.409300e+12 166879189209 1.360238e+12 6286073743</span>
-<span class="co">##    5 144115814704 1.171670e+12 178630603519 1.175016e+12 6849215327</span>
-<span class="co">##    6 159924185834 1.102235e+12 192414189537 1.177930e+12 7904848054</span>
-<span class="co">##     sp</span>
-<span class="co">## time      Whiting         Sole     Gurnard       Plaice      Haddock</span>
-<span class="co">##    1 161515844306 127400523235 24759887586 766087469917 333172493301</span>
-<span class="co">##    2 140923805330 112319321368 24087806247 722705573485 335440217763</span>
-<span class="co">##    3 139784785126 114244854064 23828541236 743105121821 372682335506</span>
-<span class="co">##    4 127051769924 115827036011 20324716177 711903001258 356182595515</span>
-<span class="co">##    5 126548669345 116366841999 19072116393 661973266258 323469227911</span>
-<span class="co">##    6 137220141191 121684387886 21334281004 668659838352 325245994096</span>
-<span class="co">##     sp</span>
-<span class="co">## time         Cod       Saithe</span>
-<span class="co">##    1 45159646196 158969500338</span>
-<span class="co">##    2 52110333051 183496280557</span>
-<span class="co">##    3 62885974091 216448253249</span>
-<span class="co">##    4 59073484678 214031942473</span>
-<span class="co">##    5 51993520691 174593364166</span>
-<span class="co">##    6 49544506290 138713867303</span></code></pre>
+<code class="sourceCode R"><span><span class="va">biomass</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span>, min_w <span class="op">=</span> <span class="fl">10</span>, max_w <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">biomass</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##     sp</span></span>
+<span><span class="co">## time        Sprat      Sandeel       N.pout      Herring        Dab</span></span>
+<span><span class="co">##    1 244119195586 4.589606e+12 238847649463 1.273446e+12 8373096367</span></span>
+<span><span class="co">##    2 189464604834 2.888858e+12 214678099536 1.413601e+12 6837801607</span></span>
+<span><span class="co">##    3 169593586308 1.931520e+12 185655249238 1.536104e+12 6536986610</span></span>
+<span><span class="co">##    4 146468867085 1.409300e+12 166879189209 1.360238e+12 6286073743</span></span>
+<span><span class="co">##    5 144115814704 1.171670e+12 178630603519 1.175016e+12 6849215327</span></span>
+<span><span class="co">##    6 159924185834 1.102235e+12 192414189537 1.177930e+12 7904848054</span></span>
+<span><span class="co">##     sp</span></span>
+<span><span class="co">## time      Whiting         Sole     Gurnard       Plaice      Haddock</span></span>
+<span><span class="co">##    1 161515844306 127400523235 24759887586 766087469917 333172493301</span></span>
+<span><span class="co">##    2 140923805330 112319321368 24087806247 722705573485 335440217763</span></span>
+<span><span class="co">##    3 139784785126 114244854064 23828541236 743105121821 372682335506</span></span>
+<span><span class="co">##    4 127051769924 115827036011 20324716177 711903001258 356182595515</span></span>
+<span><span class="co">##    5 126548669345 116366841999 19072116393 661973266258 323469227911</span></span>
+<span><span class="co">##    6 137220141191 121684387886 21334281004 668659838352 325245994096</span></span>
+<span><span class="co">##     sp</span></span>
+<span><span class="co">## time         Cod       Saithe</span></span>
+<span><span class="co">##    1 45159646196 158969500338</span></span>
+<span><span class="co">##    2 52110333051 183496280557</span></span>
+<span><span class="co">##    3 62885974091 216448253249</span></span>
+<span><span class="co">##    4 59073484678 214031942473</span></span>
+<span><span class="co">##    5 51993520691 174593364166</span></span>
+<span><span class="co">##    6 49544506290 138713867303</span></span></code></pre>
 </div>
 </div>
 <div class="section level2">
@@ -352,15 +307,15 @@ earlier.</p>
 species and all sizes in the calculation (only the first five rows are
 shown):</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">slope</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getCommunitySlope.html">getCommunitySlope</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">slope</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">##        slope intercept        r2</span>
-<span class="co">## 1 -0.7822250  25.40779 0.8722251</span>
-<span class="co">## 2 -0.7970084  25.24922 0.8666363</span>
-<span class="co">## 3 -0.8066332  25.21573 0.8665750</span>
-<span class="co">## 4 -0.8151679  25.23791 0.8678893</span>
-<span class="co">## 5 -0.8229285  25.24489 0.8686275</span>
-<span class="co">## 6 -0.8272602  25.23104 0.8673588</span></code></pre>
+<code class="sourceCode R"><span><span class="va">slope</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getCommunitySlope.html">getCommunitySlope</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">slope</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##        slope intercept        r2</span></span>
+<span><span class="co">## 1 -0.7822250  25.40779 0.8722251</span></span>
+<span><span class="co">## 2 -0.7970084  25.24922 0.8666363</span></span>
+<span><span class="co">## 3 -0.8066332  25.21573 0.8665750</span></span>
+<span><span class="co">## 4 -0.8151679  25.23791 0.8678893</span></span>
+<span><span class="co">## 5 -0.8229285  25.24489 0.8686275</span></span>
+<span><span class="co">## 6 -0.8272602  25.23104 0.8673588</span></span></code></pre>
 <p>This gives the slope, intercept and <span class="math inline">\(R^2\)</span> value through time (see the help file
 for <code>getCommunitySlope</code> for more details).</p>
 <p>We can include only the species we want with the <code>species</code>
@@ -370,18 +325,18 @@ size range of the community that is used in the calculation to between
 of the names of the species that we want to include in the
 calculation.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">dem_species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Dab"</span>, <span class="st">"Whiting"</span>, <span class="st">"Sole"</span>, <span class="st">"Gurnard"</span>, <span class="st">"Plaice"</span>, <span class="st">"Haddock"</span>,
-    <span class="st">"Cod"</span>, <span class="st">"Saithe"</span><span class="op">)</span>
-<span class="va">slope</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getCommunitySlope.html">getCommunitySlope</a></span><span class="op">(</span><span class="va">sim</span>, min_w <span class="op">=</span> <span class="fl">10</span>, max_w <span class="op">=</span> <span class="fl">5000</span>, 
-    species <span class="op">=</span> <span class="va">dem_species</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">slope</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">##       slope intercept        r2</span>
-<span class="co">## 1 -1.096584  26.88942 0.9749307</span>
-<span class="co">## 2 -1.177678  27.21999 0.9796408</span>
-<span class="co">## 3 -1.148456  27.13231 0.9754412</span>
-<span class="co">## 4 -1.060903  26.70050 0.9748899</span>
-<span class="co">## 5 -1.026889  26.50463 0.9820432</span>
-<span class="co">## 6 -1.061542  26.68677 0.9807863</span></code></pre>
+<code class="sourceCode R"><span><span class="va">dem_species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Dab"</span>, <span class="st">"Whiting"</span>, <span class="st">"Sole"</span>, <span class="st">"Gurnard"</span>, <span class="st">"Plaice"</span>, <span class="st">"Haddock"</span>,</span>
+<span>    <span class="st">"Cod"</span>, <span class="st">"Saithe"</span><span class="op">)</span></span>
+<span><span class="va">slope</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getCommunitySlope.html">getCommunitySlope</a></span><span class="op">(</span><span class="va">sim</span>, min_w <span class="op">=</span> <span class="fl">10</span>, max_w <span class="op">=</span> <span class="fl">5000</span>, </span>
+<span>    species <span class="op">=</span> <span class="va">dem_species</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">slope</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##       slope intercept        r2</span></span>
+<span><span class="co">## 1 -1.096584  26.88942 0.9749307</span></span>
+<span><span class="co">## 2 -1.177678  27.21999 0.9796408</span></span>
+<span><span class="co">## 3 -1.148456  27.13231 0.9754412</span></span>
+<span><span class="co">## 4 -1.060903  26.70050 0.9748899</span></span>
+<span><span class="co">## 5 -1.026889  26.50463 0.9820432</span></span>
+<span><span class="co">## 6 -1.061542  26.68677 0.9807863</span></span></code></pre>
 </div>
 </div>
 <div class="section level2">
@@ -420,7 +375,7 @@ before plotting.</p>
 the total biomass of each species against time you use the
 <code><a href="../reference/plotBiomass.html">plotBiomass()</a></code> function:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotBiomass.html">plotBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotBiomass.html">plotBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span></code></pre></div>
 <p><img src="exploring_the_simulation_results_files/figure-html/plotBiomass-1.png" width="700"></p>
 <p>As mentioned above, some of the plot functions plot values against
 size at a point in time (or averaged over a time period). For these
@@ -429,7 +384,7 @@ period to average the values over. The default is to use the final time
 step. Here we plot the abundance spectra (biomass), averaged over time =
 5 to 10:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">sim</span>, time_range <span class="op">=</span> <span class="fl">5</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">sim</span>, time_range <span class="op">=</span> <span class="fl">5</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span></code></pre></div>
 <p><img src="exploring_the_simulation_results_files/figure-html/plotSpectra_example-1.png" width="700"></p>
 <p>As mentioned above, and as we have seen several times in this guide,
 the generic <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method has also been overloaded. This
@@ -440,52 +395,34 @@ to pass in the same arguments that these individual plots use,
 e.g. arguments to change the time period over which the data is
 averaged.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span></code></pre></div>
 <p><img src="exploring_the_simulation_results_files/figure-html/demo_summary_plot-1.png" width="700"></p>
 <p>The next section describes how to use what we have learned to <a href="a_multispecies_model_of_the_north_sea.html">model the North
 Sea.</a></p>
 </div>
 </div>
-  </div>
-
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
-
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
 
-      <footer><div class="copyright">
+    <footer><div class="pkgdown-footer-left">
   <p></p>
 <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
-<div class="pkgdown">
+<div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
-      </footer>
+    </footer>
 </div>
 
   
-<script src="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.1/docsearch.min.js" integrity="sha256-GKvGqXDznoRYHCwKXGnuchvKSwmx9SRMrZOTh2g4Sb0=" crossorigin="anonymous"></script><script>
-  docsearch({
-    
-    
-    apiKey: '96e9641255d3fff35a4fd16d1a1bf70c',
-    indexName: 'sizespectrum_mizer',
-    inputSelector: 'input#search-input.form-control',
-    transformData: function(hits) {
-      return hits.map(function (hit) {
-        hit.url = updateHitURL(hit);
-        return hit;
-      });
-    }
-  });
-</script>
-</body>
+
+  
+
+  </body>
 </html>

@@ -24,8 +24,8 @@ MizerParams(
 \item{species_params}{A data frame of species-specific parameter values.}
 
 \item{interaction}{Optional interaction matrix of the species (predator
-species x prey species). Entries should be numbers between 0 and 1. By
-default all entries are 1. See "Setting interaction matrix" section below.}
+species x prey species). By default all entries are 1. See "Setting
+interaction matrix" section below.}
 
 \item{min_w_pp}{The smallest size of the resource spectrum. By default this
 is set to the smallest value at which any of the consumers can feed.}

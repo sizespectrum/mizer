@@ -4,7 +4,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="mizer">
 <title>The Multi Species Model • mizer</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
@@ -12,14 +13,11 @@
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
-<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><!-- docsearch --><script src="../docsearch.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.3/docsearch.min.css" integrity="sha256-QOSRU/ra9ActyXkIBbiIB144aDBdtvXBcNc3OTNuX/Q=" crossorigin="anonymous">
-<link href="../docsearch.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script><meta property="og:title" content="The Multi Species Model">
+<!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="The Multi Species Model">
 <meta property="og:description" content="mizer">
 <meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png">
 <meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R">
@@ -32,138 +30,95 @@
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
-<body data-spy="scroll" data-target="#toc">
+<body>
+    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <div class="container template-article">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.3.0.9000</span>
-      </span>
-    </div>
+    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary"><div class="container">
+    
+    <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-<li>
-  <a href="../articles/mizer.html">Get started</a>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">2.3.1.9000</small>
+
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar" class="collapse navbar-collapse ms-3">
+      <ul class="navbar-nav me-auto">
+<li class="nav-item">
+  <a class="nav-link" href="../articles/mizer.html">Get started</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
-    </li>
-    <li class="divider">
-    </li>
-<li class="dropdown-header">Tutorials</li>
-    <li>
-      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/community_model.html">The Community Model</a>
-    </li>
-    <li>
-      <a href="../articles/trait_model.html">The Trait-Based Model</a>
-    </li>
-    <li>
-      <a href="../articles/multispecies_model.html">The Multi Species Model</a>
-    </li>
-    <li>
-      <a href="../articles/running_a_simulation.html">Running a Simulation</a>
-    </li>
-    <li>
-      <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
-    </li>
-    <li>
-      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
-    </li>
-    <li>
-      <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
-    </li>
-    <li class="divider">
-    </li>
-<li class="dropdown-header">Publications</li>
-    <li>
-      <a href="../articles/publications.html">Publications</a>
-    </li>
-    <li class="divider">
-    </li>
-<li class="dropdown-header">For developers</li>
-    <li>
-      <a href="../articles/developer_vignette.html">Developer Guide</a>
-    </li>
-    <li>
-      <a href="../articles/working_with_git.html">Working with git and GitHub</a>
-    </li>
-    <li>
-      <a href="../articles/developer_FAQ.html">Developer FAQ</a>
-    </li>
-    <li>
-      <a href="../articles/editing_website.html">Editing the Mizer Website</a>
-    </li>
-  </ul>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li>
-  <a href="../news/index.html">Changelog</a>
-</li>
-      </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="https://blog.mizer.sizespectrum.org" class="external-link">Blog</a>
-</li>
-<li>
-  <a href="https://twitter.com/mizer_model" class="external-link">
-    <span class="fab fa-twitter fa-lg"></span>
-     
-  </a>
-</li>
-<li>
-  <a href="https://github.com/sizespectrum/mizer/" class="external-link">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
-      </ul>
-<form class="navbar-form navbar-right hidden-xs hidden-sm" role="search">
-        <div class="form-group">
-          <input type="search" class="form-control" name="search-input" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
-</div>
-      </form>
-      
-    </div>
-<!--/.nav-collapse -->
+<li class="active nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Tutorials</h6>
+    <a class="dropdown-item" href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    <a class="dropdown-item" href="../articles/community_model.html">The Community Model</a>
+    <a class="dropdown-item" href="../articles/trait_model.html">The Trait-Based Model</a>
+    <a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a>
+    <a class="dropdown-item" href="../articles/running_a_simulation.html">Running a Simulation</a>
+    <a class="dropdown-item" href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
+    <a class="dropdown-item" href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
+    <a class="dropdown-item" href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Publications</h6>
+    <a class="dropdown-item" href="../articles/publications.html">Publications</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>For developers</h6>
+    <a class="dropdown-item" href="../articles/developer_vignette.html">Developer Guide</a>
+    <a class="dropdown-item" href="../articles/working_with_git.html">Working with git and GitHub</a>
+    <a class="dropdown-item" href="../articles/developer_FAQ.html">Developer FAQ</a>
+    <a class="dropdown-item" href="../articles/editing_website.html">Editing the Mizer Website</a>
   </div>
-<!--/.container -->
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../reference/index.html">Reference</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../news/index.html">Changelog</a>
+</li>
+      </ul>
+<form class="form-inline my-2 my-lg-0" role="search">
+        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
+</form>
+
+      <ul class="navbar-nav">
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://blog.mizer.sizespectrum.org">Blog</a>
+</li>
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://twitter.com/mizer_model" aria-label="Twitter">
+    <span class="fab fa fab fa-twitter fa-lg"></span>
+     
+  </a>
+</li>
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/sizespectrum/mizer/" aria-label="github">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
-<!--/.navbar -->
 
-      
+    
+  </div>
+</nav><div class="container template-article">
 
-      </header><div class="row">
-  <div class="col-md-9 contents">
-    <div class="page-header toc-ignore">
-      <h1 data-toc-skip>The Multi Species Model</h1>
+
+
+
+<div class="row">
+  <main id="main" class="col-md-9"><div class="page-header">
+      <img src="../logo.png" class="logo" alt=""><h1>The Multi Species Model</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/HEAD/vignettes/multispecies_model.Rmd" class="external-link"><code>vignettes/multispecies_model.Rmd</code></a></small>
-      <div class="hidden name"><code>multispecies_model.Rmd</code></div>
-
+      <div class="d-none name"><code>multispecies_model.Rmd</code></div>
     </div>
 
     
@@ -315,32 +270,32 @@ An example .csv file has been included in the package. This contains the
 species parameters for a multispecies North Sea model. The location of
 the file can be found by running</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">params_location</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"NS_species_params.csv"</span>, package <span class="op">=</span> <span class="st">"mizer"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">params_location</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"NS_species_params.csv"</span>, package <span class="op">=</span> <span class="st">"mizer"</span><span class="op">)</span></span></code></pre></div>
 <p>This file can be opened with most spreadsheets or a text editor for
 you to inspect. This can be loaded into R with</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">species_params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="va">params_location</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">species_params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="va">params_location</span><span class="op">)</span></span></code></pre></div>
 <p>This reads the .csv file into R in the form of a data.frame. You can
 check this with the <code>class</code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">species_params</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1] "data.frame"</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">species_params</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] "data.frame"</span></span></code></pre>
 <p>Let’s have a look at the data frame:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">species_params</span></code></pre></div>
-<pre><code><span class="co">##    species w_inf w_mat   beta sigma    R_max  k_vb</span>
-<span class="co">## 1    Sprat    33    13  51076   0.8 7.38e+11 0.681</span>
-<span class="co">## 2  Sandeel    36     4 398849   1.9 4.10e+11 1.000</span>
-<span class="co">## 3   N.pout   100    23     22   1.5 1.05e+13 0.849</span>
-<span class="co">## 4  Herring   334    99 280540   3.2 1.11e+12 0.606</span>
-<span class="co">## 5      Dab   324    21    191   1.9 1.12e+10 0.536</span>
-<span class="co">## 6  Whiting  1192    75     22   1.5 5.48e+11 0.323</span>
-<span class="co">## 7     Sole   866    78    381   1.9 3.87e+10 0.284</span>
-<span class="co">## 8  Gurnard   668    39    283   1.8 1.65e+12 0.266</span>
-<span class="co">## 9   Plaice  2976   105    113   1.6 4.08e+14 0.122</span>
-<span class="co">## 10 Haddock  3485   165    558   2.1 1.84e+12 0.271</span>
-<span class="co">## 11     Cod 40044  1606     66   1.3 8.26e+09 0.216</span>
-<span class="co">## 12  Saithe 16856  1076     40   1.1 1.12e+11 0.175</span></code></pre>
+<code class="sourceCode R"><span><span class="va">species_params</span></span></code></pre></div>
+<pre><code><span><span class="co">##    species w_inf w_mat   beta sigma    R_max  k_vb</span></span>
+<span><span class="co">## 1    Sprat    33    13  51076   0.8 7.38e+11 0.681</span></span>
+<span><span class="co">## 2  Sandeel    36     4 398849   1.9 4.10e+11 1.000</span></span>
+<span><span class="co">## 3   N.pout   100    23     22   1.5 1.05e+13 0.849</span></span>
+<span><span class="co">## 4  Herring   334    99 280540   3.2 1.11e+12 0.606</span></span>
+<span><span class="co">## 5      Dab   324    21    191   1.9 1.12e+10 0.536</span></span>
+<span><span class="co">## 6  Whiting  1192    75     22   1.5 5.48e+11 0.323</span></span>
+<span><span class="co">## 7     Sole   866    78    381   1.9 3.87e+10 0.284</span></span>
+<span><span class="co">## 8  Gurnard   668    39    283   1.8 1.65e+12 0.266</span></span>
+<span><span class="co">## 9   Plaice  2976   105    113   1.6 4.08e+14 0.122</span></span>
+<span><span class="co">## 10 Haddock  3485   165    558   2.1 1.84e+12 0.271</span></span>
+<span><span class="co">## 11     Cod 40044  1606     66   1.3 8.26e+09 0.216</span></span>
+<span><span class="co">## 12  Saithe 16856  1076     40   1.1 1.12e+11 0.175</span></span></code></pre>
 <p>You can see that there are <span class="math inline">\(12\)</span>
 species and <span class="math inline">\(7\)</span> columns of
 parameters: <code>species</code>,
@@ -382,60 +337,60 @@ species.</p>
 parameter data.frame into the <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>
 constructor method:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">species_params</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## No h provided for some species, so using f0 and k_vb to calculate it.</span>
-<span class="co">## No ks column so calculating from critical feeding level.</span>
-<span class="co">## Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</span></code></pre>
+<code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">species_params</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## No h provided for some species, so using f0 and k_vb to calculate it.</span></span>
+<span><span class="co">## No ks column so calculating from critical feeding level.</span></span>
+<span><span class="co">## Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</span></span></code></pre>
 <p>We have just created a <code>MizerParams</code> object:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1] "MizerParams"</span>
-<span class="co">## attr(,"package")</span>
-<span class="co">## [1] "mizer"</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] "MizerParams"</span></span>
+<span><span class="co">## attr(,"package")</span></span>
+<span><span class="co">## [1] "mizer"</span></span></code></pre>
 <p>The MizerParams object also stores a copy of the species parameter
 data frame that we provided. We can look at it with
 <code><a href="../reference/species_params.html">species_params()</a></code>:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">##         species w_inf w_mat   beta sigma    R_max  k_vb w_min alpha</span>
-<span class="co">## Sprat     Sprat    33    13  51076   0.8 7.38e+11 0.681 0.001   0.6</span>
-<span class="co">## Sandeel Sandeel    36     4 398849   1.9 4.10e+11 1.000 0.001   0.6</span>
-<span class="co">## N.pout   N.pout   100    23     22   1.5 1.05e+13 0.849 0.001   0.6</span>
-<span class="co">## Herring Herring   334    99 280540   3.2 1.11e+12 0.606 0.001   0.6</span>
-<span class="co">## Dab         Dab   324    21    191   1.9 1.12e+10 0.536 0.001   0.6</span>
-<span class="co">## Whiting Whiting  1192    75     22   1.5 5.48e+11 0.323 0.001   0.6</span>
-<span class="co">## Sole       Sole   866    78    381   1.9 3.87e+10 0.284 0.001   0.6</span>
-<span class="co">## Gurnard Gurnard   668    39    283   1.8 1.65e+12 0.266 0.001   0.6</span>
-<span class="co">## Plaice   Plaice  2976   105    113   1.6 4.08e+14 0.122 0.001   0.6</span>
-<span class="co">## Haddock Haddock  3485   165    558   2.1 1.84e+12 0.271 0.001   0.6</span>
-<span class="co">## Cod         Cod 40044  1606     66   1.3 8.26e+09 0.216 0.001   0.6</span>
-<span class="co">## Saithe   Saithe 16856  1076     40   1.1 1.12e+11 0.175 0.001   0.6</span>
-<span class="co">##         interaction_resource         n   p         q pred_kernel_type        h</span>
-<span class="co">## Sprat                      1 0.6666667 0.7 0.7166667        lognormal 14.51026</span>
-<span class="co">## Sandeel                    1 0.6666667 0.7 0.7166667        lognormal 28.36951</span>
-<span class="co">## N.pout                     1 0.6666667 0.7 0.7166667        lognormal 30.69918</span>
-<span class="co">## Herring                    1 0.6666667 0.7 0.7166667        lognormal 31.20041</span>
-<span class="co">## Dab                        1 0.6666667 0.7 0.7166667        lognormal 34.68295</span>
-<span class="co">## Whiting                    1 0.6666667 0.7 0.7166667        lognormal 32.78322</span>
-<span class="co">## Sole                       1 0.6666667 0.7 0.7166667        lognormal 24.90951</span>
-<span class="co">## Gurnard                    1 0.6666667 0.7 0.7166667        lognormal 22.29126</span>
-<span class="co">## Plaice                     1 0.6666667 0.7 0.7166667        lognormal 17.71691</span>
-<span class="co">## Haddock                    1 0.6666667 0.7 0.7166667        lognormal 40.62144</span>
-<span class="co">## Cod                        1 0.6666667 0.7 0.7166667        lognormal 74.81794</span>
-<span class="co">## Saithe                     1 0.6666667 0.7 0.7166667        lognormal 43.50194</span>
-<span class="co">##         k       ks         z0        gamma     w_mat25 m erepro</span>
-<span class="co">## Sprat   0 1.598545 0.18705957 5.765885e-11   11.647460 1      1</span>
-<span class="co">## Sandeel 0 3.250607 0.18171206 4.267142e-11    3.583834 1      1</span>
-<span class="co">## N.pout  0 3.318311 0.12926608 9.749884e-11   20.607045 1      1</span>
-<span class="co">## Herring 0 3.212332 0.08647736 2.812559e-11   88.699888 1      1</span>
-<span class="co">## Dab     0 3.760307 0.08735805 7.663981e-11   18.815128 1      1</span>
-<span class="co">## Whiting 0 3.406676 0.05658819 1.041177e-10   67.196884 1      1</span>
-<span class="co">## Sole    0 2.585095 0.06294752 5.308445e-11   69.884760 1      1</span>
-<span class="co">## Gurnard 0 2.367448 0.06863713 5.091838e-11   34.942380 1      1</span>
-<span class="co">## Plaice  0 1.820523 0.04171321 4.774060e-11   94.075638 1      1</span>
-<span class="co">## Haddock 0 4.111691 0.03957464 7.679024e-11  147.833146 1      1</span>
-<span class="co">## Cod     0 7.019866 0.01753768 2.549664e-10 1438.909287 1      1</span>
-<span class="co">## Saithe  0 4.136466 0.02340093 1.797143e-10  964.051303 1      1</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##         species w_inf w_mat   beta sigma    R_max  k_vb w_min alpha</span></span>
+<span><span class="co">## Sprat     Sprat    33    13  51076   0.8 7.38e+11 0.681 0.001   0.6</span></span>
+<span><span class="co">## Sandeel Sandeel    36     4 398849   1.9 4.10e+11 1.000 0.001   0.6</span></span>
+<span><span class="co">## N.pout   N.pout   100    23     22   1.5 1.05e+13 0.849 0.001   0.6</span></span>
+<span><span class="co">## Herring Herring   334    99 280540   3.2 1.11e+12 0.606 0.001   0.6</span></span>
+<span><span class="co">## Dab         Dab   324    21    191   1.9 1.12e+10 0.536 0.001   0.6</span></span>
+<span><span class="co">## Whiting Whiting  1192    75     22   1.5 5.48e+11 0.323 0.001   0.6</span></span>
+<span><span class="co">## Sole       Sole   866    78    381   1.9 3.87e+10 0.284 0.001   0.6</span></span>
+<span><span class="co">## Gurnard Gurnard   668    39    283   1.8 1.65e+12 0.266 0.001   0.6</span></span>
+<span><span class="co">## Plaice   Plaice  2976   105    113   1.6 4.08e+14 0.122 0.001   0.6</span></span>
+<span><span class="co">## Haddock Haddock  3485   165    558   2.1 1.84e+12 0.271 0.001   0.6</span></span>
+<span><span class="co">## Cod         Cod 40044  1606     66   1.3 8.26e+09 0.216 0.001   0.6</span></span>
+<span><span class="co">## Saithe   Saithe 16856  1076     40   1.1 1.12e+11 0.175 0.001   0.6</span></span>
+<span><span class="co">##         interaction_resource         n   p         q pred_kernel_type        h</span></span>
+<span><span class="co">## Sprat                      1 0.6666667 0.7 0.7166667        lognormal 14.51026</span></span>
+<span><span class="co">## Sandeel                    1 0.6666667 0.7 0.7166667        lognormal 28.36951</span></span>
+<span><span class="co">## N.pout                     1 0.6666667 0.7 0.7166667        lognormal 30.69918</span></span>
+<span><span class="co">## Herring                    1 0.6666667 0.7 0.7166667        lognormal 31.20041</span></span>
+<span><span class="co">## Dab                        1 0.6666667 0.7 0.7166667        lognormal 34.68295</span></span>
+<span><span class="co">## Whiting                    1 0.6666667 0.7 0.7166667        lognormal 32.78322</span></span>
+<span><span class="co">## Sole                       1 0.6666667 0.7 0.7166667        lognormal 24.90951</span></span>
+<span><span class="co">## Gurnard                    1 0.6666667 0.7 0.7166667        lognormal 22.29126</span></span>
+<span><span class="co">## Plaice                     1 0.6666667 0.7 0.7166667        lognormal 17.71691</span></span>
+<span><span class="co">## Haddock                    1 0.6666667 0.7 0.7166667        lognormal 40.62144</span></span>
+<span><span class="co">## Cod                        1 0.6666667 0.7 0.7166667        lognormal 74.81794</span></span>
+<span><span class="co">## Saithe                     1 0.6666667 0.7 0.7166667        lognormal 43.50194</span></span>
+<span><span class="co">##         k       ks         z0        gamma     w_mat25 m erepro</span></span>
+<span><span class="co">## Sprat   0 1.598545 0.18705957 5.765885e-11   11.647460 1      1</span></span>
+<span><span class="co">## Sandeel 0 3.250607 0.18171206 4.267142e-11    3.583834 1      1</span></span>
+<span><span class="co">## N.pout  0 3.318311 0.12926608 9.749884e-11   20.607045 1      1</span></span>
+<span><span class="co">## Herring 0 3.212332 0.08647736 2.812559e-11   88.699888 1      1</span></span>
+<span><span class="co">## Dab     0 3.760307 0.08735805 7.663981e-11   18.815128 1      1</span></span>
+<span><span class="co">## Whiting 0 3.406676 0.05658819 1.041177e-10   67.196884 1      1</span></span>
+<span><span class="co">## Sole    0 2.585095 0.06294752 5.308445e-11   69.884760 1      1</span></span>
+<span><span class="co">## Gurnard 0 2.367448 0.06863713 5.091838e-11   34.942380 1      1</span></span>
+<span><span class="co">## Plaice  0 1.820523 0.04171321 4.774060e-11   94.075638 1      1</span></span>
+<span><span class="co">## Haddock 0 4.111691 0.03957464 7.679024e-11  147.833146 1      1</span></span>
+<span><span class="co">## Cod     0 7.019866 0.01753768 2.549664e-10 1438.909287 1      1</span></span>
+<span><span class="co">## Saithe  0 4.136466 0.02340093 1.797143e-10  964.051303 1      1</span></span></code></pre>
 <p>We can see that this returns the original species data.frame (with
 <code>w_inf</code> and so on), plus any default values that may not have
 been included in the original data.frame. For example, we can see that
@@ -445,33 +400,33 @@ there are now columns for <code>alpha</code> and <code>h</code> and
 we did not provide a gear parameter data frame, the MizerParams object
 has one that we can access with</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">##                          species            gear   sel_func knife_edge_size</span>
-<span class="co">## Sprat, knife_edge_gear     Sprat knife_edge_gear knife_edge              13</span>
-<span class="co">## Sandeel, knife_edge_gear Sandeel knife_edge_gear knife_edge               4</span>
-<span class="co">## N.pout, knife_edge_gear   N.pout knife_edge_gear knife_edge              23</span>
-<span class="co">## Herring, knife_edge_gear Herring knife_edge_gear knife_edge              99</span>
-<span class="co">## Dab, knife_edge_gear         Dab knife_edge_gear knife_edge              21</span>
-<span class="co">## Whiting, knife_edge_gear Whiting knife_edge_gear knife_edge              75</span>
-<span class="co">## Sole, knife_edge_gear       Sole knife_edge_gear knife_edge              78</span>
-<span class="co">## Gurnard, knife_edge_gear Gurnard knife_edge_gear knife_edge              39</span>
-<span class="co">## Plaice, knife_edge_gear   Plaice knife_edge_gear knife_edge             105</span>
-<span class="co">## Haddock, knife_edge_gear Haddock knife_edge_gear knife_edge             165</span>
-<span class="co">## Cod, knife_edge_gear         Cod knife_edge_gear knife_edge            1606</span>
-<span class="co">## Saithe, knife_edge_gear   Saithe knife_edge_gear knife_edge            1076</span>
-<span class="co">##                          catchability</span>
-<span class="co">## Sprat, knife_edge_gear              1</span>
-<span class="co">## Sandeel, knife_edge_gear            1</span>
-<span class="co">## N.pout, knife_edge_gear             1</span>
-<span class="co">## Herring, knife_edge_gear            1</span>
-<span class="co">## Dab, knife_edge_gear                1</span>
-<span class="co">## Whiting, knife_edge_gear            1</span>
-<span class="co">## Sole, knife_edge_gear               1</span>
-<span class="co">## Gurnard, knife_edge_gear            1</span>
-<span class="co">## Plaice, knife_edge_gear             1</span>
-<span class="co">## Haddock, knife_edge_gear            1</span>
-<span class="co">## Cod, knife_edge_gear                1</span>
-<span class="co">## Saithe, knife_edge_gear             1</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##                          species            gear   sel_func knife_edge_size</span></span>
+<span><span class="co">## Sprat, knife_edge_gear     Sprat knife_edge_gear knife_edge              13</span></span>
+<span><span class="co">## Sandeel, knife_edge_gear Sandeel knife_edge_gear knife_edge               4</span></span>
+<span><span class="co">## N.pout, knife_edge_gear   N.pout knife_edge_gear knife_edge              23</span></span>
+<span><span class="co">## Herring, knife_edge_gear Herring knife_edge_gear knife_edge              99</span></span>
+<span><span class="co">## Dab, knife_edge_gear         Dab knife_edge_gear knife_edge              21</span></span>
+<span><span class="co">## Whiting, knife_edge_gear Whiting knife_edge_gear knife_edge              75</span></span>
+<span><span class="co">## Sole, knife_edge_gear       Sole knife_edge_gear knife_edge              78</span></span>
+<span><span class="co">## Gurnard, knife_edge_gear Gurnard knife_edge_gear knife_edge              39</span></span>
+<span><span class="co">## Plaice, knife_edge_gear   Plaice knife_edge_gear knife_edge             105</span></span>
+<span><span class="co">## Haddock, knife_edge_gear Haddock knife_edge_gear knife_edge             165</span></span>
+<span><span class="co">## Cod, knife_edge_gear         Cod knife_edge_gear knife_edge            1606</span></span>
+<span><span class="co">## Saithe, knife_edge_gear   Saithe knife_edge_gear knife_edge            1076</span></span>
+<span><span class="co">##                          catchability</span></span>
+<span><span class="co">## Sprat, knife_edge_gear              1</span></span>
+<span><span class="co">## Sandeel, knife_edge_gear            1</span></span>
+<span><span class="co">## N.pout, knife_edge_gear             1</span></span>
+<span><span class="co">## Herring, knife_edge_gear            1</span></span>
+<span><span class="co">## Dab, knife_edge_gear                1</span></span>
+<span><span class="co">## Whiting, knife_edge_gear            1</span></span>
+<span><span class="co">## Sole, knife_edge_gear               1</span></span>
+<span><span class="co">## Gurnard, knife_edge_gear            1</span></span>
+<span><span class="co">## Plaice, knife_edge_gear             1</span></span>
+<span><span class="co">## Haddock, knife_edge_gear            1</span></span>
+<span><span class="co">## Cod, knife_edge_gear                1</span></span>
+<span><span class="co">## Saithe, knife_edge_gear             1</span></span></code></pre>
 <p>All species are caught by a gear called “knife_edge_gear”. The
 selectivity function for each fishing gear has been set in the
 <code>sel_func</code> column to the default function,
@@ -483,35 +438,35 @@ North Sea.</a></p>
 <p>There is a <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> method for <code>MizerParams</code>
 objects which prints a useful summary of the model parameters:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## An object of class "MizerParams" </span>
-<span class="co">## Consumer size spectrum:</span>
-<span class="co">##  minimum size:   0.001</span>
-<span class="co">##  maximum size:   40044</span>
-<span class="co">##  no. size bins:  100</span>
-<span class="co">## Resource size spectrum:</span>
-<span class="co">##  minimum size:   8.6774e-13</span>
-<span class="co">##  maximum size:   9.84582</span>
-<span class="co">##  no. size bins:  171 (218 size bins in total)</span>
-<span class="co">## Species details:</span>
-<span class="co">##    species w_inf w_mat w_min  k_vb   beta sigma</span>
-<span class="co">## 1    Sprat    33    13 0.001 0.681  51076   0.8</span>
-<span class="co">## 2  Sandeel    36     4 0.001 1.000 398849   1.9</span>
-<span class="co">## 3   N.pout   100    23 0.001 0.849     22   1.5</span>
-<span class="co">## 4  Herring   334    99 0.001 0.606 280540   3.2</span>
-<span class="co">## 5      Dab   324    21 0.001 0.536    191   1.9</span>
-<span class="co">## 6  Whiting  1192    75 0.001 0.323     22   1.5</span>
-<span class="co">## 7     Sole   866    78 0.001 0.284    381   1.9</span>
-<span class="co">## 8  Gurnard   668    39 0.001 0.266    283   1.8</span>
-<span class="co">## 9   Plaice  2976   105 0.001 0.122    113   1.6</span>
-<span class="co">## 10 Haddock  3485   165 0.001 0.271    558   2.1</span>
-<span class="co">## 11     Cod 40044  1606 0.001 0.216     66   1.3</span>
-<span class="co">## 12  Saithe 16856  1076 0.001 0.175     40   1.1</span>
-<span class="co">## </span>
-<span class="co">## Fishing gear details:</span>
-<span class="co">## Gear          Effort  Target species </span>
-<span class="co">##  ----------------------------------</span>
-<span class="co">## knife_edge_gear 0.00   Sprat, Sandeel, N.pout, Herring, Dab, Whiting, Sole, Gurnard, Plaice, Haddock, Cod, Saithe</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## An object of class "MizerParams" </span></span>
+<span><span class="co">## Consumer size spectrum:</span></span>
+<span><span class="co">##  minimum size:   0.001</span></span>
+<span><span class="co">##  maximum size:   40044</span></span>
+<span><span class="co">##  no. size bins:  100</span></span>
+<span><span class="co">## Resource size spectrum:</span></span>
+<span><span class="co">##  minimum size:   8.6774e-13</span></span>
+<span><span class="co">##  maximum size:   9.84582</span></span>
+<span><span class="co">##  no. size bins:  171 (218 size bins in total)</span></span>
+<span><span class="co">## Species details:</span></span>
+<span><span class="co">##    species w_inf w_mat w_min  k_vb   beta sigma</span></span>
+<span><span class="co">## 1    Sprat    33    13 0.001 0.681  51076   0.8</span></span>
+<span><span class="co">## 2  Sandeel    36     4 0.001 1.000 398849   1.9</span></span>
+<span><span class="co">## 3   N.pout   100    23 0.001 0.849     22   1.5</span></span>
+<span><span class="co">## 4  Herring   334    99 0.001 0.606 280540   3.2</span></span>
+<span><span class="co">## 5      Dab   324    21 0.001 0.536    191   1.9</span></span>
+<span><span class="co">## 6  Whiting  1192    75 0.001 0.323     22   1.5</span></span>
+<span><span class="co">## 7     Sole   866    78 0.001 0.284    381   1.9</span></span>
+<span><span class="co">## 8  Gurnard   668    39 0.001 0.266    283   1.8</span></span>
+<span><span class="co">## 9   Plaice  2976   105 0.001 0.122    113   1.6</span></span>
+<span><span class="co">## 10 Haddock  3485   165 0.001 0.271    558   2.1</span></span>
+<span><span class="co">## 11     Cod 40044  1606 0.001 0.216     66   1.3</span></span>
+<span><span class="co">## 12  Saithe 16856  1076 0.001 0.175     40   1.1</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Fishing gear details:</span></span>
+<span><span class="co">## Gear          Effort  Target species </span></span>
+<span><span class="co">##  ----------------------------------</span></span>
+<span><span class="co">## knife_edge_gear 0.00   Sprat, Sandeel, N.pout, Herring, Dab, Whiting, Sole, Gurnard, Plaice, Haddock, Cod, Saithe</span></span></code></pre>
 <p>As well as giving a summary of the species in the model and what gear
 is fishing what species, it gives a summary of the size structure of the
 community. For example there are <span class="math inline">\(100\)</span> size classes in the community,
@@ -520,8 +475,8 @@ controlled by the arguments <code>no_w</code>, <code>min_w</code> and
 <code>max_w</code> respectively. For example, if we wanted 200 size
 classes in the model we would use:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">params200</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">species_params</span>, no_w <span class="op">=</span> <span class="fl">200</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">params200</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">params200</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">species_params</span>, no_w <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">params200</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="setting-the-interaction-matrix">Setting the interaction matrix<a class="anchor" aria-label="anchor" href="#setting-the-interaction-matrix"></a>
@@ -542,35 +497,35 @@ mizer sets all values to 1, implying that all species fully interact
 with each other, i.e. the species are spread homogeneously across the
 model area.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/setInteraction.html">getInteraction</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">##          prey</span>
-<span class="co">## predator  Sprat Sandeel N.pout Herring Dab Whiting Sole Gurnard Plaice Haddock</span>
-<span class="co">##   Sprat       1       1      1       1   1       1    1       1      1       1</span>
-<span class="co">##   Sandeel     1       1      1       1   1       1    1       1      1       1</span>
-<span class="co">##   N.pout      1       1      1       1   1       1    1       1      1       1</span>
-<span class="co">##   Herring     1       1      1       1   1       1    1       1      1       1</span>
-<span class="co">##   Dab         1       1      1       1   1       1    1       1      1       1</span>
-<span class="co">##   Whiting     1       1      1       1   1       1    1       1      1       1</span>
-<span class="co">##   Sole        1       1      1       1   1       1    1       1      1       1</span>
-<span class="co">##   Gurnard     1       1      1       1   1       1    1       1      1       1</span>
-<span class="co">##   Plaice      1       1      1       1   1       1    1       1      1       1</span>
-<span class="co">##   Haddock     1       1      1       1   1       1    1       1      1       1</span>
-<span class="co">##   Cod         1       1      1       1   1       1    1       1      1       1</span>
-<span class="co">##   Saithe      1       1      1       1   1       1    1       1      1       1</span>
-<span class="co">##          prey</span>
-<span class="co">## predator  Cod Saithe</span>
-<span class="co">##   Sprat     1      1</span>
-<span class="co">##   Sandeel   1      1</span>
-<span class="co">##   N.pout    1      1</span>
-<span class="co">##   Herring   1      1</span>
-<span class="co">##   Dab       1      1</span>
-<span class="co">##   Whiting   1      1</span>
-<span class="co">##   Sole      1      1</span>
-<span class="co">##   Gurnard   1      1</span>
-<span class="co">##   Plaice    1      1</span>
-<span class="co">##   Haddock   1      1</span>
-<span class="co">##   Cod       1      1</span>
-<span class="co">##   Saithe    1      1</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/setInteraction.html">getInteraction</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##          prey</span></span>
+<span><span class="co">## predator  Sprat Sandeel N.pout Herring Dab Whiting Sole Gurnard Plaice Haddock</span></span>
+<span><span class="co">##   Sprat       1       1      1       1   1       1    1       1      1       1</span></span>
+<span><span class="co">##   Sandeel     1       1      1       1   1       1    1       1      1       1</span></span>
+<span><span class="co">##   N.pout      1       1      1       1   1       1    1       1      1       1</span></span>
+<span><span class="co">##   Herring     1       1      1       1   1       1    1       1      1       1</span></span>
+<span><span class="co">##   Dab         1       1      1       1   1       1    1       1      1       1</span></span>
+<span><span class="co">##   Whiting     1       1      1       1   1       1    1       1      1       1</span></span>
+<span><span class="co">##   Sole        1       1      1       1   1       1    1       1      1       1</span></span>
+<span><span class="co">##   Gurnard     1       1      1       1   1       1    1       1      1       1</span></span>
+<span><span class="co">##   Plaice      1       1      1       1   1       1    1       1      1       1</span></span>
+<span><span class="co">##   Haddock     1       1      1       1   1       1    1       1      1       1</span></span>
+<span><span class="co">##   Cod         1       1      1       1   1       1    1       1      1       1</span></span>
+<span><span class="co">##   Saithe      1       1      1       1   1       1    1       1      1       1</span></span>
+<span><span class="co">##          prey</span></span>
+<span><span class="co">## predator  Cod Saithe</span></span>
+<span><span class="co">##   Sprat     1      1</span></span>
+<span><span class="co">##   Sandeel   1      1</span></span>
+<span><span class="co">##   N.pout    1      1</span></span>
+<span><span class="co">##   Herring   1      1</span></span>
+<span><span class="co">##   Dab       1      1</span></span>
+<span><span class="co">##   Whiting   1      1</span></span>
+<span><span class="co">##   Sole      1      1</span></span>
+<span><span class="co">##   Gurnard   1      1</span></span>
+<span><span class="co">##   Plaice    1      1</span></span>
+<span><span class="co">##   Haddock   1      1</span></span>
+<span><span class="co">##   Cod       1      1</span></span>
+<span><span class="co">##   Saithe    1      1</span></span></code></pre>
 <p>For the North Sea this is not the case and so the model would be
 improved by also including an interaction matrix which describes the
 spatial overlap between species.</p>
@@ -578,54 +533,54 @@ spatial overlap between species.</p>
 <code>mizer</code> as a .csv file. The location of the file can be found
 by running:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">inter_location</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"NS_interaction.csv"</span>, package <span class="op">=</span> <span class="st">"mizer"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">inter_location</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"NS_interaction.csv"</span>, package <span class="op">=</span> <span class="st">"mizer"</span><span class="op">)</span></span></code></pre></div>
 <p>Take a look at it in a spreadsheet if you want. As mentioned above,
 to read this file into R we can make use of the <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv()</a></code>
 function. However, this time we want the first column of the .csv file
 to be the row names. We therefore use an additional argument to the
 <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv()</a></code> function: <code>row.names</code>.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="va">inter_location</span>, row.names <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
-<span class="va">inter</span></code></pre></div>
-<pre><code><span class="co">##              Sprat    Sandeel     N.pout    Herring        Dab    Whiting</span>
-<span class="co">## Sprat   0.72912919 0.03408440 0.06354517 0.27416982 0.36241552 0.26525924</span>
-<span class="co">## Sandeel 0.03408440 0.68119882 0.04892432 0.05888214 0.09736663 0.07510011</span>
-<span class="co">## N.pout  0.06354517 0.04892432 0.79660429 0.29755069 0.09088798 0.29989886</span>
-<span class="co">## Herring 0.27416982 0.05888214 0.29755069 0.65890104 0.28963957 0.37373927</span>
-<span class="co">## Dab     0.36241552 0.09736663 0.09088798 0.28963957 0.80817768 0.33389727</span>
-<span class="co">## Whiting 0.26525924 0.07510011 0.29989886 0.37373927 0.33389727 0.70928230</span>
-<span class="co">## Sole    0.29795558 0.06020860 0.01679020 0.20014139 0.38047464 0.19227455</span>
-<span class="co">## Gurnard 0.17515576 0.05992649 0.30624141 0.27510627 0.22041200 0.37109904</span>
-<span class="co">## Plaice  0.37065975 0.07801855 0.07855818 0.27791867 0.56492206 0.29503807</span>
-<span class="co">## Haddock 0.08135547 0.09395730 0.54917554 0.34835469 0.13168065 0.39164787</span>
-<span class="co">## Cod     0.33757969 0.09943453 0.32502256 0.40477930 0.41647801 0.44060879</span>
-<span class="co">## Saithe  0.01681321 0.01609022 0.29498937 0.12620591 0.03138197 0.10228168</span>
-<span class="co">##               Sole    Gurnard     Plaice    Haddock        Cod     Saithe</span>
-<span class="co">## Sprat   0.29795558 0.17515576 0.37065975 0.08135547 0.33757969 0.01681321</span>
-<span class="co">## Sandeel 0.06020860 0.05992649 0.07801855 0.09395730 0.09943453 0.01609022</span>
-<span class="co">## N.pout  0.01679020 0.30624141 0.07855818 0.54917554 0.32502256 0.29498937</span>
-<span class="co">## Herring 0.20014139 0.27510627 0.27791867 0.34835469 0.40477930 0.12620591</span>
-<span class="co">## Dab     0.38047464 0.22041200 0.56492206 0.13168065 0.41647801 0.03138197</span>
-<span class="co">## Whiting 0.19227455 0.37109904 0.29503807 0.39164787 0.44060879 0.10228168</span>
-<span class="co">## Sole    0.71558049 0.10677895 0.39137317 0.03447799 0.25761229 0.01242055</span>
-<span class="co">## Gurnard 0.10677895 0.88010500 0.16492120 0.35735444 0.35183282 0.12351994</span>
-<span class="co">## Plaice  0.39137317 0.16492120 0.71922391 0.11248513 0.35043671 0.03294939</span>
-<span class="co">## Haddock 0.03447799 0.35735444 0.11248513 0.85830725 0.39577341 0.26167470</span>
-<span class="co">## Cod     0.25761229 0.35183282 0.35043671 0.39577341 0.78654705 0.20894496</span>
-<span class="co">## Saithe  0.01242055 0.12351994 0.03294939 0.26167470 0.20894496 0.66383553</span></code></pre>
+<code class="sourceCode R"><span><span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="va">inter_location</span>, row.names <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">inter</span></span></code></pre></div>
+<pre><code><span><span class="co">##              Sprat    Sandeel     N.pout    Herring        Dab    Whiting</span></span>
+<span><span class="co">## Sprat   0.72912919 0.03408440 0.06354517 0.27416982 0.36241552 0.26525924</span></span>
+<span><span class="co">## Sandeel 0.03408440 0.68119882 0.04892432 0.05888214 0.09736663 0.07510011</span></span>
+<span><span class="co">## N.pout  0.06354517 0.04892432 0.79660429 0.29755069 0.09088798 0.29989886</span></span>
+<span><span class="co">## Herring 0.27416982 0.05888214 0.29755069 0.65890104 0.28963957 0.37373927</span></span>
+<span><span class="co">## Dab     0.36241552 0.09736663 0.09088798 0.28963957 0.80817768 0.33389727</span></span>
+<span><span class="co">## Whiting 0.26525924 0.07510011 0.29989886 0.37373927 0.33389727 0.70928230</span></span>
+<span><span class="co">## Sole    0.29795558 0.06020860 0.01679020 0.20014139 0.38047464 0.19227455</span></span>
+<span><span class="co">## Gurnard 0.17515576 0.05992649 0.30624141 0.27510627 0.22041200 0.37109904</span></span>
+<span><span class="co">## Plaice  0.37065975 0.07801855 0.07855818 0.27791867 0.56492206 0.29503807</span></span>
+<span><span class="co">## Haddock 0.08135547 0.09395730 0.54917554 0.34835469 0.13168065 0.39164787</span></span>
+<span><span class="co">## Cod     0.33757969 0.09943453 0.32502256 0.40477930 0.41647801 0.44060879</span></span>
+<span><span class="co">## Saithe  0.01681321 0.01609022 0.29498937 0.12620591 0.03138197 0.10228168</span></span>
+<span><span class="co">##               Sole    Gurnard     Plaice    Haddock        Cod     Saithe</span></span>
+<span><span class="co">## Sprat   0.29795558 0.17515576 0.37065975 0.08135547 0.33757969 0.01681321</span></span>
+<span><span class="co">## Sandeel 0.06020860 0.05992649 0.07801855 0.09395730 0.09943453 0.01609022</span></span>
+<span><span class="co">## N.pout  0.01679020 0.30624141 0.07855818 0.54917554 0.32502256 0.29498937</span></span>
+<span><span class="co">## Herring 0.20014139 0.27510627 0.27791867 0.34835469 0.40477930 0.12620591</span></span>
+<span><span class="co">## Dab     0.38047464 0.22041200 0.56492206 0.13168065 0.41647801 0.03138197</span></span>
+<span><span class="co">## Whiting 0.19227455 0.37109904 0.29503807 0.39164787 0.44060879 0.10228168</span></span>
+<span><span class="co">## Sole    0.71558049 0.10677895 0.39137317 0.03447799 0.25761229 0.01242055</span></span>
+<span><span class="co">## Gurnard 0.10677895 0.88010500 0.16492120 0.35735444 0.35183282 0.12351994</span></span>
+<span><span class="co">## Plaice  0.39137317 0.16492120 0.71922391 0.11248513 0.35043671 0.03294939</span></span>
+<span><span class="co">## Haddock 0.03447799 0.35735444 0.11248513 0.85830725 0.39577341 0.26167470</span></span>
+<span><span class="co">## Cod     0.25761229 0.35183282 0.35043671 0.39577341 0.78654705 0.20894496</span></span>
+<span><span class="co">## Saithe  0.01242055 0.12351994 0.03294939 0.26167470 0.20894496 0.66383553</span></span></code></pre>
 <p>We can set the interaction matrix in our existing MizerParams object
 <code>params</code> with the <code><a href="../reference/setInteraction.html">setInteraction()</a></code> function:</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setInteraction.html">setInteraction</a></span><span class="op">(</span><span class="va">params</span>, interaction <span class="op">=</span> <span class="va">inter</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setInteraction.html">setInteraction</a></span><span class="op">(</span><span class="va">params</span>, interaction <span class="op">=</span> <span class="va">inter</span><span class="op">)</span></span></code></pre></div>
 <p>Alternatively, instead of changing the interaction matrix in the
 existing MizerParams object, we could have created a new object from
 scratch with our interaction matrix by passing it to
 <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">params_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">species_params</span>, interaction <span class="op">=</span> <span class="va">inter</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## No h provided for some species, so using f0 and k_vb to calculate it.</span>
-<span class="co">## No ks column so calculating from critical feeding level.</span>
-<span class="co">## Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</span></code></pre>
+<code class="sourceCode R"><span><span class="va">params_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">species_params</span>, interaction <span class="op">=</span> <span class="va">inter</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## No h provided for some species, so using f0 and k_vb to calculate it.</span></span>
+<span><span class="co">## No ks column so calculating from critical feeding level.</span></span>
+<span><span class="co">## Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</span></span></code></pre>
 <p>Note that the first argument must be the species parameters
 data.frame. The remaining arguments can be in any order but should be
 named. We are using the default values for all other parameters.</p>
@@ -640,77 +595,77 @@ can be set up.</p>
 “knife_edge_gear”). This is the default when no gear information is
 provided.</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">##                          species            gear   sel_func knife_edge_size</span>
-<span class="co">## Sprat, knife_edge_gear     Sprat knife_edge_gear knife_edge              13</span>
-<span class="co">## Sandeel, knife_edge_gear Sandeel knife_edge_gear knife_edge               4</span>
-<span class="co">## N.pout, knife_edge_gear   N.pout knife_edge_gear knife_edge              23</span>
-<span class="co">## Herring, knife_edge_gear Herring knife_edge_gear knife_edge              99</span>
-<span class="co">## Dab, knife_edge_gear         Dab knife_edge_gear knife_edge              21</span>
-<span class="co">## Whiting, knife_edge_gear Whiting knife_edge_gear knife_edge              75</span>
-<span class="co">## Sole, knife_edge_gear       Sole knife_edge_gear knife_edge              78</span>
-<span class="co">## Gurnard, knife_edge_gear Gurnard knife_edge_gear knife_edge              39</span>
-<span class="co">## Plaice, knife_edge_gear   Plaice knife_edge_gear knife_edge             105</span>
-<span class="co">## Haddock, knife_edge_gear Haddock knife_edge_gear knife_edge             165</span>
-<span class="co">## Cod, knife_edge_gear         Cod knife_edge_gear knife_edge            1606</span>
-<span class="co">## Saithe, knife_edge_gear   Saithe knife_edge_gear knife_edge            1076</span>
-<span class="co">##                          catchability</span>
-<span class="co">## Sprat, knife_edge_gear              1</span>
-<span class="co">## Sandeel, knife_edge_gear            1</span>
-<span class="co">## N.pout, knife_edge_gear             1</span>
-<span class="co">## Herring, knife_edge_gear            1</span>
-<span class="co">## Dab, knife_edge_gear                1</span>
-<span class="co">## Whiting, knife_edge_gear            1</span>
-<span class="co">## Sole, knife_edge_gear               1</span>
-<span class="co">## Gurnard, knife_edge_gear            1</span>
-<span class="co">## Plaice, knife_edge_gear             1</span>
-<span class="co">## Haddock, knife_edge_gear            1</span>
-<span class="co">## Cod, knife_edge_gear                1</span>
-<span class="co">## Saithe, knife_edge_gear             1</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##                          species            gear   sel_func knife_edge_size</span></span>
+<span><span class="co">## Sprat, knife_edge_gear     Sprat knife_edge_gear knife_edge              13</span></span>
+<span><span class="co">## Sandeel, knife_edge_gear Sandeel knife_edge_gear knife_edge               4</span></span>
+<span><span class="co">## N.pout, knife_edge_gear   N.pout knife_edge_gear knife_edge              23</span></span>
+<span><span class="co">## Herring, knife_edge_gear Herring knife_edge_gear knife_edge              99</span></span>
+<span><span class="co">## Dab, knife_edge_gear         Dab knife_edge_gear knife_edge              21</span></span>
+<span><span class="co">## Whiting, knife_edge_gear Whiting knife_edge_gear knife_edge              75</span></span>
+<span><span class="co">## Sole, knife_edge_gear       Sole knife_edge_gear knife_edge              78</span></span>
+<span><span class="co">## Gurnard, knife_edge_gear Gurnard knife_edge_gear knife_edge              39</span></span>
+<span><span class="co">## Plaice, knife_edge_gear   Plaice knife_edge_gear knife_edge             105</span></span>
+<span><span class="co">## Haddock, knife_edge_gear Haddock knife_edge_gear knife_edge             165</span></span>
+<span><span class="co">## Cod, knife_edge_gear         Cod knife_edge_gear knife_edge            1606</span></span>
+<span><span class="co">## Saithe, knife_edge_gear   Saithe knife_edge_gear knife_edge            1076</span></span>
+<span><span class="co">##                          catchability</span></span>
+<span><span class="co">## Sprat, knife_edge_gear              1</span></span>
+<span><span class="co">## Sandeel, knife_edge_gear            1</span></span>
+<span><span class="co">## N.pout, knife_edge_gear             1</span></span>
+<span><span class="co">## Herring, knife_edge_gear            1</span></span>
+<span><span class="co">## Dab, knife_edge_gear                1</span></span>
+<span><span class="co">## Whiting, knife_edge_gear            1</span></span>
+<span><span class="co">## Sole, knife_edge_gear               1</span></span>
+<span><span class="co">## Gurnard, knife_edge_gear            1</span></span>
+<span><span class="co">## Plaice, knife_edge_gear             1</span></span>
+<span><span class="co">## Haddock, knife_edge_gear            1</span></span>
+<span><span class="co">## Cod, knife_edge_gear                1</span></span>
+<span><span class="co">## Saithe, knife_edge_gear             1</span></span></code></pre>
 <p>Here, we look at an example where we set up four different gears:
 Industrial, Pelagic, Beam and Otter trawl, that catch different
 combinations of species. We can achieve that by only changing the
 <code>gear</code> column in the <code>gear_params</code> data frame.</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Industrial"</span>,<span class="st">"Industrial"</span>,<span class="st">"Industrial"</span>,
-                              <span class="st">"Pelagic"</span>,<span class="st">"Beam"</span>,<span class="st">"Otter"</span>,
-                              <span class="st">"Beam"</span>,<span class="st">"Otter"</span>,<span class="st">"Beam"</span>,
-                              <span class="st">"Otter"</span>,<span class="st">"Otter"</span>,<span class="st">"Otter"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Industrial"</span>,<span class="st">"Industrial"</span>,<span class="st">"Industrial"</span>,</span>
+<span>                              <span class="st">"Pelagic"</span>,<span class="st">"Beam"</span>,<span class="st">"Otter"</span>,</span>
+<span>                              <span class="st">"Beam"</span>,<span class="st">"Otter"</span>,<span class="st">"Beam"</span>,</span>
+<span>                              <span class="st">"Otter"</span>,<span class="st">"Otter"</span>,<span class="st">"Otter"</span><span class="op">)</span></span></code></pre></div>
 <p>You can see the result by calling <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> on the
 <code>params</code> object.</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## An object of class "MizerParams" </span>
-<span class="co">## Consumer size spectrum:</span>
-<span class="co">##  minimum size:   0.001</span>
-<span class="co">##  maximum size:   40044</span>
-<span class="co">##  no. size bins:  100</span>
-<span class="co">## Resource size spectrum:</span>
-<span class="co">##  minimum size:   8.6774e-13</span>
-<span class="co">##  maximum size:   9.84582</span>
-<span class="co">##  no. size bins:  171 (218 size bins in total)</span>
-<span class="co">## Species details:</span>
-<span class="co">##    species w_inf w_mat w_min  k_vb   beta sigma</span>
-<span class="co">## 1    Sprat    33    13 0.001 0.681  51076   0.8</span>
-<span class="co">## 2  Sandeel    36     4 0.001 1.000 398849   1.9</span>
-<span class="co">## 3   N.pout   100    23 0.001 0.849     22   1.5</span>
-<span class="co">## 4  Herring   334    99 0.001 0.606 280540   3.2</span>
-<span class="co">## 5      Dab   324    21 0.001 0.536    191   1.9</span>
-<span class="co">## 6  Whiting  1192    75 0.001 0.323     22   1.5</span>
-<span class="co">## 7     Sole   866    78 0.001 0.284    381   1.9</span>
-<span class="co">## 8  Gurnard   668    39 0.001 0.266    283   1.8</span>
-<span class="co">## 9   Plaice  2976   105 0.001 0.122    113   1.6</span>
-<span class="co">## 10 Haddock  3485   165 0.001 0.271    558   2.1</span>
-<span class="co">## 11     Cod 40044  1606 0.001 0.216     66   1.3</span>
-<span class="co">## 12  Saithe 16856  1076 0.001 0.175     40   1.1</span>
-<span class="co">## </span>
-<span class="co">## Fishing gear details:</span>
-<span class="co">## Gear          Effort  Target species </span>
-<span class="co">##  ----------------------------------</span>
-<span class="co">## Industrial     0.00   Sprat, Sandeel, N.pout </span>
-<span class="co">## Pelagic        0.00   Herring </span>
-<span class="co">## Beam           0.00   Dab, Sole, Plaice </span>
-<span class="co">## Otter          0.00   Whiting, Gurnard, Haddock, Cod, Saithe</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## An object of class "MizerParams" </span></span>
+<span><span class="co">## Consumer size spectrum:</span></span>
+<span><span class="co">##  minimum size:   0.001</span></span>
+<span><span class="co">##  maximum size:   40044</span></span>
+<span><span class="co">##  no. size bins:  100</span></span>
+<span><span class="co">## Resource size spectrum:</span></span>
+<span><span class="co">##  minimum size:   8.6774e-13</span></span>
+<span><span class="co">##  maximum size:   9.84582</span></span>
+<span><span class="co">##  no. size bins:  171 (218 size bins in total)</span></span>
+<span><span class="co">## Species details:</span></span>
+<span><span class="co">##    species w_inf w_mat w_min  k_vb   beta sigma</span></span>
+<span><span class="co">## 1    Sprat    33    13 0.001 0.681  51076   0.8</span></span>
+<span><span class="co">## 2  Sandeel    36     4 0.001 1.000 398849   1.9</span></span>
+<span><span class="co">## 3   N.pout   100    23 0.001 0.849     22   1.5</span></span>
+<span><span class="co">## 4  Herring   334    99 0.001 0.606 280540   3.2</span></span>
+<span><span class="co">## 5      Dab   324    21 0.001 0.536    191   1.9</span></span>
+<span><span class="co">## 6  Whiting  1192    75 0.001 0.323     22   1.5</span></span>
+<span><span class="co">## 7     Sole   866    78 0.001 0.284    381   1.9</span></span>
+<span><span class="co">## 8  Gurnard   668    39 0.001 0.266    283   1.8</span></span>
+<span><span class="co">## 9   Plaice  2976   105 0.001 0.122    113   1.6</span></span>
+<span><span class="co">## 10 Haddock  3485   165 0.001 0.271    558   2.1</span></span>
+<span><span class="co">## 11     Cod 40044  1606 0.001 0.216     66   1.3</span></span>
+<span><span class="co">## 12  Saithe 16856  1076 0.001 0.175     40   1.1</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Fishing gear details:</span></span>
+<span><span class="co">## Gear          Effort  Target species </span></span>
+<span><span class="co">##  ----------------------------------</span></span>
+<span><span class="co">## Industrial     0.00   Sprat, Sandeel, N.pout </span></span>
+<span><span class="co">## Pelagic        0.00   Herring </span></span>
+<span><span class="co">## Beam           0.00   Dab, Sole, Plaice </span></span>
+<span><span class="co">## Otter          0.00   Whiting, Gurnard, Haddock, Cod, Saithe</span></span></code></pre>
 <p>In this example the same gear now catches multiple stocks. For
 example, the <em>Industrial</em> gear catches Sprat, Sandeel and Norway
 Pout. Why would we want to set up the gears like this? In the next
@@ -750,46 +705,28 @@ how to <a href="running_a_simulation.html">run a multispecies
 model.</a></p>
 </div>
 </div>
-  </div>
-
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
-
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
 
-      <footer><div class="copyright">
+    <footer><div class="pkgdown-footer-left">
   <p></p>
 <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
-<div class="pkgdown">
+<div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
-      </footer>
+    </footer>
 </div>
 
   
-<script src="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.1/docsearch.min.js" integrity="sha256-GKvGqXDznoRYHCwKXGnuchvKSwmx9SRMrZOTh2g4Sb0=" crossorigin="anonymous"></script><script>
-  docsearch({
-    
-    
-    apiKey: '96e9641255d3fff35a4fd16d1a1bf70c',
-    indexName: 'sizespectrum_mizer',
-    inputSelector: 'input#search-input.form-control',
-    transformData: function(hits) {
-      return hits.map(function (hit) {
-        hit.url = updateHitURL(hit);
-        return hit;
-      });
-    }
-  });
-</script>
-</body>
+
+  
+
+  </body>
 </html>

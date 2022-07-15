@@ -4,7 +4,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="mizer">
 <title>The Trait-Based Model • mizer</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
@@ -12,14 +13,11 @@
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
-<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><!-- docsearch --><script src="../docsearch.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.3/docsearch.min.css" integrity="sha256-QOSRU/ra9ActyXkIBbiIB144aDBdtvXBcNc3OTNuX/Q=" crossorigin="anonymous">
-<link href="../docsearch.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script><meta property="og:title" content="The Trait-Based Model">
+<!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="The Trait-Based Model">
 <meta property="og:description" content="mizer">
 <meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png">
 <meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R">
@@ -32,138 +30,95 @@
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
-<body data-spy="scroll" data-target="#toc">
+<body>
+    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <div class="container template-article">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.3.0.9000</span>
-      </span>
-    </div>
+    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary"><div class="container">
+    
+    <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-<li>
-  <a href="../articles/mizer.html">Get started</a>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">2.3.1.9000</small>
+
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar" class="collapse navbar-collapse ms-3">
+      <ul class="navbar-nav me-auto">
+<li class="nav-item">
+  <a class="nav-link" href="../articles/mizer.html">Get started</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
-    </li>
-    <li class="divider">
-    </li>
-<li class="dropdown-header">Tutorials</li>
-    <li>
-      <a href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    </li>
-    <li>
-      <a href="../articles/community_model.html">The Community Model</a>
-    </li>
-    <li>
-      <a href="../articles/trait_model.html">The Trait-Based Model</a>
-    </li>
-    <li>
-      <a href="../articles/multispecies_model.html">The Multi Species Model</a>
-    </li>
-    <li>
-      <a href="../articles/running_a_simulation.html">Running a Simulation</a>
-    </li>
-    <li>
-      <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
-    </li>
-    <li>
-      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
-    </li>
-    <li>
-      <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
-    </li>
-    <li class="divider">
-    </li>
-<li class="dropdown-header">Publications</li>
-    <li>
-      <a href="../articles/publications.html">Publications</a>
-    </li>
-    <li class="divider">
-    </li>
-<li class="dropdown-header">For developers</li>
-    <li>
-      <a href="../articles/developer_vignette.html">Developer Guide</a>
-    </li>
-    <li>
-      <a href="../articles/working_with_git.html">Working with git and GitHub</a>
-    </li>
-    <li>
-      <a href="../articles/developer_FAQ.html">Developer FAQ</a>
-    </li>
-    <li>
-      <a href="../articles/editing_website.html">Editing the Mizer Website</a>
-    </li>
-  </ul>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li>
-  <a href="../news/index.html">Changelog</a>
-</li>
-      </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="https://blog.mizer.sizespectrum.org" class="external-link">Blog</a>
-</li>
-<li>
-  <a href="https://twitter.com/mizer_model" class="external-link">
-    <span class="fab fa-twitter fa-lg"></span>
-     
-  </a>
-</li>
-<li>
-  <a href="https://github.com/sizespectrum/mizer/" class="external-link">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
-      </ul>
-<form class="navbar-form navbar-right hidden-xs hidden-sm" role="search">
-        <div class="form-group">
-          <input type="search" class="form-control" name="search-input" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
-</div>
-      </form>
-      
-    </div>
-<!--/.nav-collapse -->
+<li class="active nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Tutorials</h6>
+    <a class="dropdown-item" href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
+    <a class="dropdown-item" href="../articles/community_model.html">The Community Model</a>
+    <a class="dropdown-item" href="../articles/trait_model.html">The Trait-Based Model</a>
+    <a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a>
+    <a class="dropdown-item" href="../articles/running_a_simulation.html">Running a Simulation</a>
+    <a class="dropdown-item" href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
+    <a class="dropdown-item" href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
+    <a class="dropdown-item" href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Publications</h6>
+    <a class="dropdown-item" href="../articles/publications.html">Publications</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>For developers</h6>
+    <a class="dropdown-item" href="../articles/developer_vignette.html">Developer Guide</a>
+    <a class="dropdown-item" href="../articles/working_with_git.html">Working with git and GitHub</a>
+    <a class="dropdown-item" href="../articles/developer_FAQ.html">Developer FAQ</a>
+    <a class="dropdown-item" href="../articles/editing_website.html">Editing the Mizer Website</a>
   </div>
-<!--/.container -->
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../reference/index.html">Reference</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../news/index.html">Changelog</a>
+</li>
+      </ul>
+<form class="form-inline my-2 my-lg-0" role="search">
+        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
+</form>
+
+      <ul class="navbar-nav">
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://blog.mizer.sizespectrum.org">Blog</a>
+</li>
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://twitter.com/mizer_model" aria-label="Twitter">
+    <span class="fab fa fab fa-twitter fa-lg"></span>
+     
+  </a>
+</li>
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/sizespectrum/mizer/" aria-label="github">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
-<!--/.navbar -->
 
-      
+    
+  </div>
+</nav><div class="container template-article">
 
-      </header><div class="row">
-  <div class="col-md-9 contents">
-    <div class="page-header toc-ignore">
-      <h1 data-toc-skip>The Trait-Based Model</h1>
+
+
+
+<div class="row">
+  <main id="main" class="col-md-9"><div class="page-header">
+      <img src="../logo.png" class="logo" alt=""><h1>The Trait-Based Model</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/HEAD/vignettes/trait_model.Rmd" class="external-link"><code>vignettes/trait_model.Rmd</code></a></small>
-      <div class="hidden name"><code>trait_model.Rmd</code></div>
-
+      <div class="d-none name"><code>trait_model.Rmd</code></div>
     </div>
 
     
@@ -213,40 +168,40 @@ maximum as the energy invested increases.</p>
 ranging from 10 g to 100 kg. All the other parameters have default
 values.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newTraitParams.html">newTraitParams</a></span><span class="op">(</span>no_sp <span class="op">=</span> <span class="fl">10</span>, min_w_inf <span class="op">=</span> <span class="fl">10</span>, max_w_inf <span class="op">=</span> <span class="fl">1e5</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newTraitParams.html">newTraitParams</a></span><span class="op">(</span>no_sp <span class="op">=</span> <span class="fl">10</span>, min_w_inf <span class="op">=</span> <span class="fl">10</span>, max_w_inf <span class="op">=</span> <span class="fl">1e5</span><span class="op">)</span></span></code></pre></div>
 <p>The output reminds the user that <span class="math inline">\(\gamma\)</span> was not specified, and so will be
 calculated using other parameters.</p>
 <p>This function returns an object of type <code>MizerParams</code> that
 holds all the model information, including species parameters. This
 object can therefore be interrogated in the same way as described in <a href="community_model.html">the section on the community model</a>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## An object of class "MizerParams" </span>
-<span class="co">## Consumer size spectrum:</span>
-<span class="co">##  minimum size:   0.001</span>
-<span class="co">##  maximum size:   1e+05</span>
-<span class="co">##  no. size bins:  161</span>
-<span class="co">## Resource size spectrum:</span>
-<span class="co">##  minimum size:   1e-10</span>
-<span class="co">##  maximum size:   2.23872</span>
-<span class="co">##  no. size bins:  208 (301 size bins in total)</span>
-<span class="co">## Species details:</span>
-<span class="co">##    species        w_inf        w_mat w_min  f0   fc beta sigma</span>
-<span class="co">## 1        1 8.912509e+00     2.511886 0.001 0.6 0.25  100   1.3</span>
-<span class="co">## 2        2 2.511886e+01     7.079458 0.001 0.6 0.25  100   1.3</span>
-<span class="co">## 3        3 7.079458e+01    19.952623 0.001 0.6 0.25  100   1.3</span>
-<span class="co">## 4        4 1.995262e+02    56.234133 0.001 0.6 0.25  100   1.3</span>
-<span class="co">## 5        5 5.623413e+02   158.489319 0.001 0.6 0.25  100   1.3</span>
-<span class="co">## 6        6 1.584893e+03   446.683592 0.001 0.6 0.25  100   1.3</span>
-<span class="co">## 7        7 4.466836e+03  1258.925412 0.001 0.6 0.25  100   1.3</span>
-<span class="co">## 8        8 1.258925e+04  3548.133892 0.001 0.6 0.25  100   1.3</span>
-<span class="co">## 9        9 3.548134e+04 10000.000000 0.001 0.6 0.25  100   1.3</span>
-<span class="co">## 10      10 1.000000e+05 28183.829313 0.001 0.6 0.25  100   1.3</span>
-<span class="co">## </span>
-<span class="co">## Fishing gear details:</span>
-<span class="co">## Gear          Effort  Target species </span>
-<span class="co">##  ----------------------------------</span>
-<span class="co">## knife_edge_gear 0.00   1, 2, 3, 4, 5, 6, 7, 8, 9, 10</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## An object of class "MizerParams" </span></span>
+<span><span class="co">## Consumer size spectrum:</span></span>
+<span><span class="co">##  minimum size:   0.001</span></span>
+<span><span class="co">##  maximum size:   1e+05</span></span>
+<span><span class="co">##  no. size bins:  161</span></span>
+<span><span class="co">## Resource size spectrum:</span></span>
+<span><span class="co">##  minimum size:   1e-10</span></span>
+<span><span class="co">##  maximum size:   2.23872</span></span>
+<span><span class="co">##  no. size bins:  208 (301 size bins in total)</span></span>
+<span><span class="co">## Species details:</span></span>
+<span><span class="co">##    species        w_inf        w_mat w_min  f0   fc beta sigma</span></span>
+<span><span class="co">## 1        1 8.912509e+00     2.511886 0.001 0.6 0.25  100   1.3</span></span>
+<span><span class="co">## 2        2 2.511886e+01     7.079458 0.001 0.6 0.25  100   1.3</span></span>
+<span><span class="co">## 3        3 7.079458e+01    19.952623 0.001 0.6 0.25  100   1.3</span></span>
+<span><span class="co">## 4        4 1.995262e+02    56.234133 0.001 0.6 0.25  100   1.3</span></span>
+<span><span class="co">## 5        5 5.623413e+02   158.489319 0.001 0.6 0.25  100   1.3</span></span>
+<span><span class="co">## 6        6 1.584893e+03   446.683592 0.001 0.6 0.25  100   1.3</span></span>
+<span><span class="co">## 7        7 4.466836e+03  1258.925412 0.001 0.6 0.25  100   1.3</span></span>
+<span><span class="co">## 8        8 1.258925e+04  3548.133892 0.001 0.6 0.25  100   1.3</span></span>
+<span><span class="co">## 9        9 3.548134e+04 10000.000000 0.001 0.6 0.25  100   1.3</span></span>
+<span><span class="co">## 10      10 1.000000e+05 28183.829313 0.001 0.6 0.25  100   1.3</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Fishing gear details:</span></span>
+<span><span class="co">## Gear          Effort  Target species </span></span>
+<span><span class="co">##  ----------------------------------</span></span>
+<span><span class="co">## knife_edge_gear 0.00   1, 2, 3, 4, 5, 6, 7, 8, 9, 10</span></span></code></pre>
 <p>The summary shows us that now we have 10 species in the model, with
 asymptotic sizes ranging from <span class="math inline">\(8.9125094\)</span> to <span class="math inline">\(`r max(species_params(params)\)</span>w_inf)`$.
 The rather strange-looking values for the sizes is due to the fact that
@@ -270,14 +225,14 @@ use the default initial population abundances so there is no need to
 pass in any initial population values (see <a href="running_a_simulation.html#sec:setting_initial_abundances">the
 section on setting the initial abundances</a>).</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">75</span>, effort <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">75</span>, effort <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
 <p>This results in a <code>MizerSim</code> object that contains the
 abundances of the community and resource spectra through time, as well
 as the original <code>MizerParams</code> object. As with the community
 model, we can get a quick overview of the results of the simulation by
 calling the <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span></code></pre></div>
 <p><img src="trait_model_files/figure-html/plot_comm_sim_2-1.png" width="700"></p>
 <p>The summary plot has the same panels as the one generated by the
 community model, but here you can see that all the species in the
@@ -317,12 +272,12 @@ when we introduce an industrial fishery to the trait-based model.</p>
 but here the <code>knife_edge_size</code> argument is explicitly passed
 in for clarity:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">params_knife</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newTraitParams.html">newTraitParams</a></span><span class="op">(</span>no_sp <span class="op">=</span> <span class="fl">10</span>, min_w_inf <span class="op">=</span> <span class="fl">10</span>, max_w_inf <span class="op">=</span> <span class="fl">1e5</span>,
-    knife_edge_size <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">params_knife</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newTraitParams.html">newTraitParams</a></span><span class="op">(</span>no_sp <span class="op">=</span> <span class="fl">10</span>, min_w_inf <span class="op">=</span> <span class="fl">10</span>, max_w_inf <span class="op">=</span> <span class="fl">1e5</span>,</span>
+<span>    knife_edge_size <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span></code></pre></div>
 <p>First we perform a simulation without fishing in the same way we did
 above by setting the <code>effort</code> argument to 0:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">sim0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params_knife</span>, effort <span class="op">=</span> <span class="fl">0</span>, t_max <span class="op">=</span> <span class="fl">75</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">sim0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params_knife</span>, effort <span class="op">=</span> <span class="fl">0</span>, t_max <span class="op">=</span> <span class="fl">75</span><span class="op">)</span></span></code></pre></div>
 <p>Now we simulate with fishing. Here, we use an effort of 0.75. As
 mentioned in <a href="community_model.html#sec:trophic_cascade_comm_model">the section
 on trophic cascades in the community model</a>, the fishing mortality on
@@ -335,12 +290,12 @@ of a fully selected individual is simply equal to the effort. This
 effort is constant throughout the duration of the simulation (however,
 mizer does allow variable effort).</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">sim1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params_knife</span>, effort <span class="op">=</span> <span class="fl">0.75</span>, t_max <span class="op">=</span> <span class="fl">75</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">sim1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params_knife</span>, effort <span class="op">=</span> <span class="fl">0.75</span>, t_max <span class="op">=</span> <span class="fl">75</span><span class="op">)</span></span></code></pre></div>
 <p>Again, we can plot the summary of the fished community using the
 default <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> function. The knife-edge selectivity at 1000
 g can be clearly seen in the fishing mortality panel:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim1</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim1</span><span class="op">)</span></span></code></pre></div>
 <p><img src="trait_model_files/figure-html/plot_trait_fmort-1.png" width="700"></p>
 <p>The trophic cascade can be explored by comparing the total abundances
 of all species at size when the community is fished and unfished. As
@@ -349,26 +304,26 @@ which returns a three dimensional array with dimensions time x species x
 size. Here we have 76 time steps (75 from the simulation plus one which
 stores the initial population), 10 species and 100 sizes:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="fu"><a href="../reference/N.html">N</a></span><span class="op">(</span><span class="va">sim0</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1]  76  10 161</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="fu"><a href="../reference/N.html">N</a></span><span class="op">(</span><span class="va">sim0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1]  76  10 161</span></span></code></pre>
 <p>As with the community model, we are interested in the relative total
 abundances by size in the final time step so we use the
 <code><a href="../reference/finalN.html">finalN()</a></code> function. This gives us a matrix with one row per
 species and one column per size bin. We sum in each column to get a
 vector with the total abundance per size bin:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">total_abund0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="fu"><a href="../reference/finalN.html">finalN</a></span><span class="op">(</span><span class="va">sim0</span><span class="op">)</span><span class="op">)</span>
-<span class="va">total_abund1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="fu"><a href="../reference/finalN.html">finalN</a></span><span class="op">(</span><span class="va">sim1</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">total_abund0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="fu"><a href="../reference/finalN.html">finalN</a></span><span class="op">(</span><span class="va">sim0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">total_abund1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="fu"><a href="../reference/finalN.html">finalN</a></span><span class="op">(</span><span class="va">sim1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>We can then use these vectors to calculate the relative
 abundances:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">relative_abundance</span> <span class="op">&lt;-</span> <span class="va">total_abund1</span> <span class="op">/</span> <span class="va">total_abund0</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">relative_abundance</span> <span class="op">&lt;-</span> <span class="va">total_abund1</span> <span class="op">/</span> <span class="va">total_abund0</span></span></code></pre></div>
 <p>This can be plotted using the commands below:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">relative_abundance</span>, log <span class="op">=</span> <span class="st">"xy"</span>, type <span class="op">=</span> <span class="st">"n"</span>, 
-     xlab <span class="op">=</span> <span class="st">"Size (g)"</span>, ylab <span class="op">=</span> <span class="st">"Relative abundance"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">relative_abundance</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">relative_abundance</span>, log <span class="op">=</span> <span class="st">"xy"</span>, type <span class="op">=</span> <span class="st">"n"</span>, </span>
+<span>     xlab <span class="op">=</span> <span class="st">"Size (g)"</span>, ylab <span class="op">=</span> <span class="st">"Relative abundance"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">relative_abundance</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="trait_model_files/figure-html/plot_relative_comm_abund2-1.png" width="700"></p>
 <p>The impact of fishing on species larger than 1000 g can be clearly
 seen. The fishing pressure lowers the abundance of large fish (<span class="math inline">\(&gt; 1000\)</span> g). This then relieves the
@@ -384,14 +339,14 @@ based model the predation mortality by size is the same for each
 species. Therefore we only look at the predation mortality of the first
 species.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">m2_no_fishing</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getPredMort.html">getPredMort</a></span><span class="op">(</span><span class="va">params</span>, <span class="fu"><a href="../reference/finalN.html">finalN</a></span><span class="op">(</span><span class="va">sim0</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span>
-<span class="va">m2_with_fishing</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getPredMort.html">getPredMort</a></span><span class="op">(</span><span class="va">params</span>, <span class="fu"><a href="../reference/finalN.html">finalN</a></span><span class="op">(</span><span class="va">sim1</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">m2_no_fishing</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getPredMort.html">getPredMort</a></span><span class="op">(</span><span class="va">params</span>, <span class="fu"><a href="../reference/finalN.html">finalN</a></span><span class="op">(</span><span class="va">sim0</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span></span>
+<span><span class="va">m2_with_fishing</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getPredMort.html">getPredMort</a></span><span class="op">(</span><span class="va">params</span>, <span class="fu"><a href="../reference/finalN.html">finalN</a></span><span class="op">(</span><span class="va">sim1</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span></span></code></pre></div>
 <p>The predation mortalities can then be plotted.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">m2_with_fishing</span>, log <span class="op">=</span> <span class="st">"x"</span>, type <span class="op">=</span> <span class="st">"n"</span>, 
-     xlab <span class="op">=</span> <span class="st">"Size [g]"</span>, ylab <span class="op">=</span> <span class="st">"Predation Mortality [1/year]"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">m2_no_fishing</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">m2_with_fishing</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">m2_with_fishing</span>, log <span class="op">=</span> <span class="st">"x"</span>, type <span class="op">=</span> <span class="st">"n"</span>, </span>
+<span>     xlab <span class="op">=</span> <span class="st">"Size [g]"</span>, ylab <span class="op">=</span> <span class="st">"Predation Mortality [1/year]"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">m2_no_fishing</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">m2_with_fishing</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <img src="trait_model_files/figure-html/plot_relative_trait_m2-1.png" alt="Predation mortalities from the unfished (dashed line) and fished (solid line) trait-based model." width="700"><p class="caption">
 Predation mortalities from the unfished (dashed line) and fished (solid
@@ -410,29 +365,29 @@ targeted all the species in the community. This gear had a knife-edge
 selectivity that only selected species larger than 1 kg. We can see that
 when we look at the gear parameters</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">##                                gear species   sel_func knife_edge_size</span>
-<span class="co">## 1, knife_edge_gear  knife_edge_gear       1 knife_edge            1000</span>
-<span class="co">## 2, knife_edge_gear  knife_edge_gear       2 knife_edge            1000</span>
-<span class="co">## 3, knife_edge_gear  knife_edge_gear       3 knife_edge            1000</span>
-<span class="co">## 4, knife_edge_gear  knife_edge_gear       4 knife_edge            1000</span>
-<span class="co">## 5, knife_edge_gear  knife_edge_gear       5 knife_edge            1000</span>
-<span class="co">## 6, knife_edge_gear  knife_edge_gear       6 knife_edge            1000</span>
-<span class="co">## 7, knife_edge_gear  knife_edge_gear       7 knife_edge            1000</span>
-<span class="co">## 8, knife_edge_gear  knife_edge_gear       8 knife_edge            1000</span>
-<span class="co">## 9, knife_edge_gear  knife_edge_gear       9 knife_edge            1000</span>
-<span class="co">## 10, knife_edge_gear knife_edge_gear      10 knife_edge            1000</span>
-<span class="co">##                     catchability</span>
-<span class="co">## 1, knife_edge_gear             1</span>
-<span class="co">## 2, knife_edge_gear             1</span>
-<span class="co">## 3, knife_edge_gear             1</span>
-<span class="co">## 4, knife_edge_gear             1</span>
-<span class="co">## 5, knife_edge_gear             1</span>
-<span class="co">## 6, knife_edge_gear             1</span>
-<span class="co">## 7, knife_edge_gear             1</span>
-<span class="co">## 8, knife_edge_gear             1</span>
-<span class="co">## 9, knife_edge_gear             1</span>
-<span class="co">## 10, knife_edge_gear            1</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##                                gear species   sel_func knife_edge_size</span></span>
+<span><span class="co">## 1, knife_edge_gear  knife_edge_gear       1 knife_edge            1000</span></span>
+<span><span class="co">## 2, knife_edge_gear  knife_edge_gear       2 knife_edge            1000</span></span>
+<span><span class="co">## 3, knife_edge_gear  knife_edge_gear       3 knife_edge            1000</span></span>
+<span><span class="co">## 4, knife_edge_gear  knife_edge_gear       4 knife_edge            1000</span></span>
+<span><span class="co">## 5, knife_edge_gear  knife_edge_gear       5 knife_edge            1000</span></span>
+<span><span class="co">## 6, knife_edge_gear  knife_edge_gear       6 knife_edge            1000</span></span>
+<span><span class="co">## 7, knife_edge_gear  knife_edge_gear       7 knife_edge            1000</span></span>
+<span><span class="co">## 8, knife_edge_gear  knife_edge_gear       8 knife_edge            1000</span></span>
+<span><span class="co">## 9, knife_edge_gear  knife_edge_gear       9 knife_edge            1000</span></span>
+<span><span class="co">## 10, knife_edge_gear knife_edge_gear      10 knife_edge            1000</span></span>
+<span><span class="co">##                     catchability</span></span>
+<span><span class="co">## 1, knife_edge_gear             1</span></span>
+<span><span class="co">## 2, knife_edge_gear             1</span></span>
+<span><span class="co">## 3, knife_edge_gear             1</span></span>
+<span><span class="co">## 4, knife_edge_gear             1</span></span>
+<span><span class="co">## 5, knife_edge_gear             1</span></span>
+<span><span class="co">## 6, knife_edge_gear             1</span></span>
+<span><span class="co">## 7, knife_edge_gear             1</span></span>
+<span><span class="co">## 8, knife_edge_gear             1</span></span>
+<span><span class="co">## 9, knife_edge_gear             1</span></span>
+<span><span class="co">## 10, knife_edge_gear            1</span></span></code></pre>
 <p>We will expand the model to include multiple fishing gears. This
 requires us to look more closely at how fishing gears are handled in
 <code>mizer</code>. In <code>mizer</code> it is possible for a fishing
@@ -451,7 +406,7 @@ will depend on the asymptotic size.</p>
 frame. If we want to keep the original model, we should first make a
 copy before making modifications.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">params_multi_gear</span> <span class="op">&lt;-</span> <span class="va">params</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">params_multi_gear</span> <span class="op">&lt;-</span> <span class="va">params</span></span></code></pre></div>
 <p>To start with we need to know what the asymptotic sizes of the
 species in the model are so we can determine the knife-edge positions
 for each species. These are stored in the <code>w_inf</code> column of
@@ -460,30 +415,30 @@ the <code>species_params</code> data frame inside the
 set a vector of knife edge sizes that are 0.05 times the asymptotic
 size:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params_multi_gear</span><span class="op">)</span><span class="op">$</span><span class="va">knife_edge_size</span> <span class="op">&lt;-</span> 
-  <span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">w_inf</span> <span class="op">*</span> <span class="fl">0.05</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params_multi_gear</span><span class="op">)</span><span class="op">$</span><span class="va">knife_edge_size</span> <span class="op">&lt;-</span> </span>
+<span>  <span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">w_inf</span> <span class="op">*</span> <span class="fl">0.05</span></span></code></pre></div>
 <p>Now we want to assign each species to either the <em>industrial</em>
 or <em>other</em> gear.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">no_sp</span> <span class="op">&lt;-</span> <span class="fl">10</span>
-<span class="va">gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Industrial"</span>, <span class="va">no_sp</span><span class="op">)</span>
-<span class="va">gear</span><span class="op">[</span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">w_inf</span> <span class="op">&gt;</span> <span class="fl">500</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Other"</span>
-<span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params_multi_gear</span><span class="op">)</span><span class="op">$</span><span class="va">gear</span> <span class="op">&lt;-</span> <span class="va">gear</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">no_sp</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
+<span><span class="va">gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Industrial"</span>, <span class="va">no_sp</span><span class="op">)</span></span>
+<span><span class="va">gear</span><span class="op">[</span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">w_inf</span> <span class="op">&gt;</span> <span class="fl">500</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Other"</span></span>
+<span><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params_multi_gear</span><span class="op">)</span><span class="op">$</span><span class="va">gear</span> <span class="op">&lt;-</span> <span class="va">gear</span></span></code></pre></div>
 <p>To check what has just happened let us look at the new gear parameter
 data frame:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params_multi_gear</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">##                     gear species   sel_func knife_edge_size catchability</span>
-<span class="co">## 1, Industrial Industrial       1 knife_edge       0.4456255            1</span>
-<span class="co">## 2, Industrial Industrial       2 knife_edge       1.2559432            1</span>
-<span class="co">## 3, Industrial Industrial       3 knife_edge       3.5397289            1</span>
-<span class="co">## 4, Industrial Industrial       4 knife_edge       9.9763116            1</span>
-<span class="co">## 5, Other           Other       5 knife_edge      28.1170663            1</span>
-<span class="co">## 6, Other           Other       6 knife_edge      79.2446596            1</span>
-<span class="co">## 7, Other           Other       7 knife_edge     223.3417961            1</span>
-<span class="co">## 8, Other           Other       8 knife_edge     629.4627059            1</span>
-<span class="co">## 9, Other           Other       9 knife_edge    1774.0669462            1</span>
-<span class="co">## 10, Other          Other      10 knife_edge    5000.0000000            1</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params_multi_gear</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##                     gear species   sel_func knife_edge_size catchability</span></span>
+<span><span class="co">## 1, Industrial Industrial       1 knife_edge       0.4456255            1</span></span>
+<span><span class="co">## 2, Industrial Industrial       2 knife_edge       1.2559432            1</span></span>
+<span><span class="co">## 3, Industrial Industrial       3 knife_edge       3.5397289            1</span></span>
+<span><span class="co">## 4, Industrial Industrial       4 knife_edge       9.9763116            1</span></span>
+<span><span class="co">## 5, Other           Other       5 knife_edge      28.1170663            1</span></span>
+<span><span class="co">## 6, Other           Other       6 knife_edge      79.2446596            1</span></span>
+<span><span class="co">## 7, Other           Other       7 knife_edge     223.3417961            1</span></span>
+<span><span class="co">## 8, Other           Other       8 knife_edge     629.4627059            1</span></span>
+<span><span class="co">## 9, Other           Other       9 knife_edge    1774.0669462            1</span></span>
+<span><span class="co">## 10, Other          Other      10 knife_edge    5000.0000000            1</span></span></code></pre>
 <p>Having created our <code>MizerParams</code> object with multiple
 gears, we can now turn our attention to running a projection with
 multiple gears. In our previous examples of calling
@@ -492,13 +447,13 @@ multiple gears. In our previous examples of calling
 fishing effort for all gears in the model, for all time steps. We can do
 this with our multi-gear parameter object:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">sim_multi_gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params_multi_gear</span>, t_max <span class="op">=</span> <span class="fl">75</span>, effort <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">sim_multi_gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params_multi_gear</span>, t_max <span class="op">=</span> <span class="fl">75</span>, effort <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
 <p>By plotting this you can see that the fishing mortality for each
 species now has a different selectivity pattern, and that the position
 of the selectivity knife-edge is given by the asymptotic size of the
 species.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim_multi_gear</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim_multi_gear</span><span class="op">)</span></span></code></pre></div>
 <p><img src="trait_model_files/figure-html/plot_multi_gear_trait_single_effort-1.png" width="700"></p>
 <p>For the industrial fishery we said that we only wanted species with
 an asymptotic size of 500 g or less to be fished. There are several ways
@@ -510,12 +465,12 @@ do this we pass in effort as a named vector. Here we set the effort for
 the <em>Industrial</em> gear to 0.75, and the effort of the
 <em>Other</em> gear to 0 (effectively turning it off).</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">sim_multi_gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params_multi_gear</span>, t_max <span class="op">=</span> <span class="fl">75</span>,
-    effort <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Industrial <span class="op">=</span> <span class="fl">0.75</span>, Other <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">sim_multi_gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params_multi_gear</span>, t_max <span class="op">=</span> <span class="fl">75</span>,</span>
+<span>    effort <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Industrial <span class="op">=</span> <span class="fl">0.75</span>, Other <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Now you can see that the <em>Industrial</em> gear has been operating
 and that fishing mortality for species larger than 500 g is 0.</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim_multi_gear</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim_multi_gear</span><span class="op">)</span></span></code></pre></div>
 <p><img src="trait_model_files/figure-html/plot_multi_gear_trait-1.png" width="700"></p>
 </div>
 <div class="section level2">
@@ -528,18 +483,18 @@ can again compare abundances of the fished
 (<code>sim_industrial1</code>) and unfished
 (<code>sim_industrial0</code>) cases:</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">sim_industrial0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params_multi_gear</span>, t_max <span class="op">=</span> <span class="fl">75</span>, effort <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>
-<span class="va">sim_industrial1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params_multi_gear</span>, t_max <span class="op">=</span> <span class="fl">75</span>,
-    effort <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Industrial <span class="op">=</span> <span class="fl">0.75</span>, Other <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span>
-<span class="va">total_abund0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="../reference/finalN.html">finalN</a></span><span class="op">(</span><span class="va">sim_industrial0</span><span class="op">)</span>, <span class="fl">2</span>, <span class="va">sum</span><span class="op">)</span>
-<span class="va">total_abund1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="../reference/finalN.html">finalN</a></span><span class="op">(</span><span class="va">sim_industrial1</span><span class="op">)</span>, <span class="fl">2</span>, <span class="va">sum</span><span class="op">)</span>
-<span class="va">relative_abundance</span> <span class="op">&lt;-</span> <span class="va">total_abund1</span> <span class="op">/</span> <span class="va">total_abund0</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">sim_industrial0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params_multi_gear</span>, t_max <span class="op">=</span> <span class="fl">75</span>, effort <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">sim_industrial1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params_multi_gear</span>, t_max <span class="op">=</span> <span class="fl">75</span>,</span>
+<span>    effort <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Industrial <span class="op">=</span> <span class="fl">0.75</span>, Other <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">total_abund0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="../reference/finalN.html">finalN</a></span><span class="op">(</span><span class="va">sim_industrial0</span><span class="op">)</span>, <span class="fl">2</span>, <span class="va">sum</span><span class="op">)</span></span>
+<span><span class="va">total_abund1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="../reference/finalN.html">finalN</a></span><span class="op">(</span><span class="va">sim_industrial1</span><span class="op">)</span>, <span class="fl">2</span>, <span class="va">sum</span><span class="op">)</span></span>
+<span><span class="va">relative_abundance</span> <span class="op">&lt;-</span> <span class="va">total_abund1</span> <span class="op">/</span> <span class="va">total_abund0</span></span></code></pre></div>
 <p>And plot the relative abundances:</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">relative_abundance</span>, log <span class="op">=</span> <span class="st">"xy"</span>, type <span class="op">=</span> <span class="st">"n"</span>, 
-     xlab <span class="op">=</span> <span class="st">"Size [g]"</span>, ylab<span class="op">=</span><span class="st">"Relative abundance"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">relative_abundance</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">relative_abundance</span>, log <span class="op">=</span> <span class="st">"xy"</span>, type <span class="op">=</span> <span class="st">"n"</span>, </span>
+<span>     xlab <span class="op">=</span> <span class="st">"Size [g]"</span>, ylab<span class="op">=</span><span class="st">"Relative abundance"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">relative_abundance</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="trait_model_files/figure-html/plot_relative_comm_abund_industrial-1.png" width="700"></p>
 <p>This shows another trophic cascade, although this time one driven by
 fishing the species at the midrange part of the spectrum, not the
@@ -550,46 +505,28 @@ downwards has the same mechanism as fishing on large fish, a combination
 of predation mortality and food limitation.</p>
 <p>The next section explains how to setup the more general <a href="multispecies_model.html">multispecies model.</a></p>
 </div>
-  </div>
-
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
-
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
 
-      <footer><div class="copyright">
+    <footer><div class="pkgdown-footer-left">
   <p></p>
 <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
-<div class="pkgdown">
+<div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
-      </footer>
+    </footer>
 </div>
 
   
-<script src="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.1/docsearch.min.js" integrity="sha256-GKvGqXDznoRYHCwKXGnuchvKSwmx9SRMrZOTh2g4Sb0=" crossorigin="anonymous"></script><script>
-  docsearch({
-    
-    
-    apiKey: '96e9641255d3fff35a4fd16d1a1bf70c',
-    indexName: 'sizespectrum_mizer',
-    inputSelector: 'input#search-input.form-control',
-    transformData: function(hits) {
-      return hits.map(function (hit) {
-        hit.url = updateHitURL(hit);
-        return hit;
-      });
-    }
-  });
-</script>
-</body>
+
+  
+
+  </body>
 </html>

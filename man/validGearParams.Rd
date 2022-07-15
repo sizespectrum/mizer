@@ -48,10 +48,10 @@ provided, it is set to \code{w_mat}.
 The row names of the returned data frame are of the form
 "species, gear".
 
-For backwards compatibility, when \code{gear_params} is \code{NULL} and there is no
-gear information in \code{species_params}, then a gear called \code{knife_edge_gear}
-is set up with a \code{knife_edge} selectivity for each species and a
-\code{knive_edge_size} equal to \code{w_mat}. Catchability is set to 1 for all species.
+When \code{gear_params} is \code{NULL} and there is no gear information in
+\code{species_params}, then a gear called \code{knife_edge_gear} is set up with a
+\code{knife_edge} selectivity for each species and a \code{knive_edge_size} equal to
+\code{w_mat}. Catchability is set to 0.3 for all species.
 }
 \seealso{
 \code{\link[=gear_params]{gear_params()}}
