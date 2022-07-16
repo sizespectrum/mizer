@@ -24,23 +24,49 @@ get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
     no_w <- length(params@w)
     initial_n <- array(NA, dim = c(no_sp, no_w))
     dimnames(initial_n) <- dimnames(params@intake_max)
-    # N = N0 * Winf^(2*n-q-2+a) * w^(-n-a)
-    # Reverse calc n and q from intake_max and search_vol slots (could add get_n function)
-    n <- params@species_params$n[[1]]
-    q <- params@species_params$q[[1]]
-    # Guessing at a suitable n0 value based on kappa - this was figured out 
-    # using trial and error and should be updated
-    if (is.null(n0_mult)) {
-        lambda <- 2 + q - n
-        kappa <- params@cc_pp[1] / (params@w_full[1]^(-lambda))
-        n0_mult <- kappa / 1000
+    
+    if (defaults_edition() < 2) {
+        # N = N0 * Winf^(2*n-q-2+a) * w^(-n-a)
+        # Reverse calc n and q from intake_max and search_vol slots (could add get_n function)
+        n <- params@species_params$n[[1]]
+        q <- params@species_params$q[[1]]
+        # Guessing at a suitable n0 value based on kappa - this was figured out 
+        # using trial and error and should be updated
+        if (is.null(n0_mult)) {
+            lambda <- 2 + q - n
+            kappa <- params@cc_pp[1] / (params@w_full[1]^(-lambda))
+            n0_mult <- kappa / 1000
+        }
+        initial_n[] <- unlist(tapply(params@w, 1:no_w, function(wx,n0_mult,w_inf,a,n,q)
+            n0_mult * w_inf^(2 * n - q - 2 + a) * wx^(-n - a),
+            n0_mult = n0_mult, w_inf = params@species_params$w_inf, a=a, n=n, q=q))
+        #set densities at w > w_inf to 0
+        initial_n[unlist(tapply(params@w,1:no_w,function(wx,w_inf) w_inf<wx, w_inf=params@species_params$w_inf))] <- 0
+        # Also any densities at w < w_min set to 0
+        initial_n[unlist(tapply(params@w,1:no_w,function(wx,w_min)w_min>wx, w_min=params@species_params$w_min))] <- 0    
+        return(initial_n)
     }
-    initial_n[] <- unlist(tapply(params@w, 1:no_w, function(wx,n0_mult,w_inf,a,n,q)
-        n0_mult * w_inf^(2 * n - q - 2 + a) * wx^(-n - a),
-        n0_mult = n0_mult, w_inf = params@species_params$w_inf, a=a, n=n, q=q))
-    #set densities at w > w_inf to 0
-    initial_n[unlist(tapply(params@w,1:no_w,function(wx,w_inf) w_inf<wx, w_inf=params@species_params$w_inf))] <- 0
-    # Also any densities at w < w_min set to 0
-    initial_n[unlist(tapply(params@w,1:no_w,function(wx,w_min)w_min>wx, w_min=params@species_params$w_min))] <- 0    
-    return(initial_n)
+    
+    p <- params
+    p@initial_n_pp <- p@resource_params$kappa * 
+        p@w_full ^ (-p@resource_params$lambda)
+    p@interaction[] <- 0
+    income <- getEReproAndGrowth(p) + p@metab
+    for (i in seq_len(no_sp)) {
+        # At small sizes the income should be A w^n. Determine A
+        # Use w_min_idx + 1 in case user has implemented reduced growth
+        # for the smallest size class (see e.g. #241)
+        iw <- p@w_min_idx[i] + 1
+        A <- income[i, iw] / (p@w[iw] ^ p@species_params$n[i])
+        
+        mort <- 0.4 * A * p@w ^ (p@species_params$n[i] - 1)
+        growth <- getEGrowth(p)[i, ]
+        
+        idxs <- p@w_min_idx[i]:(min(which(c(growth, 0) <= 0)) - 1)
+        idx <- idxs[1:(length(idxs) - 1)]
+        # Steady state solution of the upwind-difference scheme used in project
+        initial_n[i, idxs] <- 
+            c(1, cumprod(growth[idx] / ((growth + mort * p@dw)[idx + 1])))
+    }
+    
 }
