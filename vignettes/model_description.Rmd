@@ -440,3 +440,10 @@ This default *Beverton-Holt* type is implemented by `BervertonHoldRDD()` but
 mizer also provides alternatives `RickerRDD()`, `SheperdRDD()`, `constantRDD()`
 and `noRDD()`. Also, users are able to write their own functions, e.g.
 *hockey-stick*. See `setReproduction()` for details.
+
+## Abundance at egg size
+
+The reproduction rate $R_i$ determines the abundance density of species $i$
+at egg size. Intuitively, the rate at which individuals of size $w_0$ is produced
+must equal the rate at which they grow away from size $w_0$, which gives
+$$N_i(w_0) = \frac{R_i}{g_i(w_0)}.$$
