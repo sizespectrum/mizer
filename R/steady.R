@@ -190,9 +190,12 @@ projectToSteady <- function(params,
 #'
 #' The steady state is found by running the dynamics while keeping reproduction
 #' and other components constant until the size spectra no longer change much (or
-#' until time `t_max` is reached, if earlier). Then the reproduction parameters
+#' until time `t_max` is reached, if earlier). 
+#' 
+#' If the model use Beverton-Holt reproduction then the reproduction parameters
 #' are set to values that give the level of reproduction observed in that
-#' steady state.
+#' steady state. The `preserve` argument can be used to specify which of the 
+#' reproduction parameters should be preserved,
 #'
 #' @param params A \linkS4class{MizerParams} object
 #' @param t_max The maximum number of years to run the simulation. Default is 100.
@@ -227,10 +230,12 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
                    progress_bar = TRUE) {
     params <- validParams(params)
     
-    preserve <- match.arg(preserve)
-    old_reproduction_level <- getReproductionLevel(params)
-    old_R_max <- params@species_params$R_max
-    old_erepro <- params@species_params$erepro
+    if (params@rates_funcs$RDD == "BevertonHoltRDD") {
+        preserve <- match.arg(preserve)
+        old_reproduction_level <- getReproductionLevel(params)
+        old_R_max <- params@species_params$R_max
+        old_erepro <- params@species_params$erepro
+    }
     
     # Force the reproduction to stay at the current level
     params@species_params$constant_reproduction <- getRDD(params)
@@ -261,14 +266,16 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
     params@other_dynamics <- old_other_dynamics
     params@species_params$constant_reproduction <- NULL
     
-    if (preserve == "reproduction_level") {
-        params <- setBevertonHolt(params, 
-                                  reproduction_level = old_reproduction_level)
-    } else if (preserve == "R_max") {
-        params <- setBevertonHolt(params, 
-                                  R_max = old_R_max)
-    } else {
-        params <- setBevertonHolt(params, erepro = old_erepro)
+    if (params@rates_funcs$RDD == "BevertonHoltRDD") {
+        if (preserve == "reproduction_level") {
+            params <- setBevertonHolt(params, 
+                                      reproduction_level = old_reproduction_level)
+        } else if (preserve == "R_max") {
+            params <- setBevertonHolt(params, 
+                                      R_max = old_R_max)
+        } else {
+            params <- setBevertonHolt(params, erepro = old_erepro)
+        }
     }
     
     if (return_sim) {

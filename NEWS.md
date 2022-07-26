@@ -8,12 +8,14 @@
   for larvae also if `interaction_resource` is not equal to 1. #238
 * If an effort vector or effort array contains NA's, these are now replaced by
   the default effort value. #230
-* The entries of the interaction matrix and of interaction_resource are not
+* The entries of the interaction matrix and of interaction_resource are no
   longer restricted to be less or equal to 1. #232
 * If user supplies no row names in the interaction matrix but give column names
   then the column names are also used as row names. #247
 * `project()` now also works when called with a MizerSim object with additional
   components.
+* `steady()` now preserves the RDD function in the MizerParams object rather
+  than always setting it to "BevertonHoltRDD".
 
 
 # mizer 2.3.1
