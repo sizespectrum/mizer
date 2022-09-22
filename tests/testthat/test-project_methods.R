@@ -1,12 +1,8 @@
-context("Functions used in project")
-
-
 # Initialise --------------------------------------------------------------
 
 # North sea
-data(NS_species_params_gears)
-data(inter)
-params <- set_multispecies_model(NS_species_params_gears, inter)
+params <- newMultispeciesParams(NS_species_params_gears, inter,
+                                n = 2/3, p = 0.7, lambda = 2.8 - 2/3)
 no_gear <- dim(params@catchability)[1]
 no_sp <- dim(params@catchability)[2]
 no_w <- length(params@w)
@@ -18,20 +14,56 @@ params_r <- params
 volume <- 1e-13
 params_r@initial_n <- params@initial_n * volume
 params_r@initial_n_pp <- params@initial_n_pp * volume
-params_r@initial_B <- params@initial_B * volume
+for (res in names(params@initial_n_other)) {
+    params_r@initial_n_other[[res]] <- params@initial_n_other[[res]] * volume
+}
+
 params_r@species_params$gamma <- params@species_params$gamma / volume
 params_r <- setSearchVolume(params_r)
-params_r@species_params$r_max <- params_r@species_params$r_max * volume
+params_r@species_params$R_max <- params_r@species_params$R_max * volume
 
 # Random abundances
 set.seed(0)
-n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
-n_full <- abs(rnorm(no_w_full))
+n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w))) * 1e9
+n_full <- abs(rnorm(no_w_full)) * 1e9
 
+params2 <- params
+params2@initial_n <- params2@initial_n / 2
+params2@initial_n_pp <- params2@initial_n_pp / 2
+params2@initial_n_other <- list(test = 1)
+params2@initial_effort <- params2@initial_effort / 2
+
+# getRates ----
+test_that("getRates works", {
+    r <- getRates(params)
+    expect_identical(names(r), 
+                     c("encounter", "feeding_level", "e", "e_repro", 
+                       "e_growth", "pred_rate", "pred_mort", "f_mort",
+                       "mort", "rdi", "rdd", "resource_mort"))
+    # test that the optional parameters take the correct defaults
+    expect_identical(r, 
+                     getRates(params, n = params@initial_n,
+                              n_pp = params@initial_n_pp,
+                              n_other  = params@initial_n_other, 
+                              effort = params@initial_effort,
+                              t = 0))
+    # test that getRates actually uses its optional arguments
+    expect_identical(getRates(params2), 
+                     getRates(params, n = params2@initial_n,
+                              n_pp = params2@initial_n_pp,
+                              n_other  = params2@initial_n_other, 
+                              effort = params2@initial_effort,
+                              t = 0))
+})
 
 # getEncounter --------------------------------------------------------------
 
-test_that("getEncounter is independent of volume", {
+test_that("getEncounter returns with correct dimnames", {
+    enc <- getEncounter(params)
+    expect_identical(dimnames(enc), 
+                     dimnames(params@initial_n))
+})
+test_that("mizerEncounter is independent of volume", {
     enc <- getEncounter(params)
     enc_r <- getEncounter(params_r)
     expect_equal(enc, enc_r)
@@ -49,16 +81,8 @@ test_that("getFeedingLevel for MizerParams", {
     encounter <- getEncounter(params, n = n, n_pp = n_full)
     f <- encounter / (encounter + params@intake_max)
     expect_identical(fl, f)
-    # passing in encounter gives the same as not
-    fl2 <- getFeedingLevel(params, n, n_full, encounter = encounter)
-    expect_identical(fl, fl2)
     # test value
     expect_known_value(fl, "values/getFeedingLevel")
-    # calling with encounter of wrong dimension gives error
-    encounter = matrix(rnorm(10 * (no_sp - 1)), ncol = 10, nrow = no_sp - 1)
-    expect_error(getFeedingLevel(params, n, n_full, encounter = encounter),
-                 'encounter argument must have dimensions: no\\. species \\(12\\) x no. size bins \\(100\\)'
-    )
 })
 
 test_that("getFeedingLevel for MizerSim", {
@@ -78,6 +102,25 @@ test_that("getFeedingLevel for MizerSim", {
     )
 })
 
+test_that("getFeedingLevel passes correct time", {
+    # Here we will check that when getFeedingLevel() is called with
+    # a sim object, it passes the correct values of t and n at each time step.
+    # To do this we replace mizerFeedingLevel() with a simpler function that
+    # just returns t * n
+    time_range <- 15:20
+    time_elements <- get_time_elements(sim, time_range)
+    times <- as.numeric(dimnames(sim@effort)$time[time_elements])
+    e <- globalenv() # We need to define the following functions in the
+    # global environment so that mizer can find them
+    e$testFeedingLevel <- function(params, n, t, ...) {
+        n * t
+    }
+    sim@params <- setRateFunction(sim@params, "FeedingLevel", 
+                                  "testFeedingLevel")
+    expect_identical(getFeedingLevel(sim, time_range = time_range),
+                     sweep(sim@n[time_elements, , ], 1, times, "*"))
+})
+
 test_that("getFeedingLevel is independent of volume", {
     fl <- getFeedingLevel(params)
     fl_r <- getFeedingLevel(params_r)
@@ -90,10 +133,8 @@ test_that("getPredRate for MizerParams", {
     pr <- getPredRate(params, n, n_full)
     # test dim
     expect_identical(dim(pr), c(no_sp, no_w_full))
-    # passing in feeding level gives the same as not
-    fl <- getFeedingLevel(params, n, n_full)
-    pr2 <- getPredRate(params, n, n_full, feeding_level = fl)
-    expect_identical(pr, pr2)
+    expect_identical(dimnames(pr)$sp, dimnames(params@initial_n)$sp)
+    expect_identical(dimnames(pr)$w_prey, as.character(signif(params@w_full, 3)))
     # test value
     expect_known_value(pr, "values/getPredRate")
 })
@@ -114,30 +155,18 @@ test_that("getPredMort for MizerParams", {
         runif(prod(dim(params@catchability)), min = 0, max = 1)
     params@selectivity[] <-
         runif(prod(dim(params@selectivity)), min = 0, max = 1)
-    # Two methods:
-    # Params + pred_rate
-    # Params + n + n_pp
-    
-    pred_rate <- getPredRate(params, n, n_full)
-    m21 <- getPredMort(params, pred_rate = pred_rate)
-    m22 <- getPredMort(params, n, n_full)
-    # Test dims
-    expect_identical(dim(m21), c(no_sp, no_w))
-    expect_identical(dim(m21), c(no_sp, no_w))
-    expect_equal(m22[1, ], m21[1, ])
-    # test value
-    expect_known_value(m21, "values/getPredMort")
+    m <- getPredMort(params, n, n_full)
+    expect_known_value(m, "values/getPredMort")
     
     # Look at numbers in a single prey
     w_offset <- no_w_full - no_w
-    ##@@ With the new fft based definition of pred_rate, we can just set pred_total equal to pred_rate
-    pred_total <- pred_rate
     m2temp <- rep(NA, no_w)
+    pred_rate <- getPredRate(params, n, n_full)
     sp <- runif(1, min = 1, max = no_sp)
     for (i in 1:no_w) {
-        m2temp[i] <- sum(params@interaction[, sp] * pred_total[, w_offset + i])
+        m2temp[i] <- sum(params@interaction[, sp] * pred_rate[, w_offset + i])
     }
-    expect_equal(m2temp, m21[sp, ], check.names = FALSE)
+    expect_equal(m2temp, m[sp, ], check.names = FALSE)
 })
 
 test_that("getPredMort for MizerSim", {
@@ -158,9 +187,26 @@ test_that("getPredMort for MizerSim", {
     expect_equal(ttot, 0)
 })
 
+test_that("getPredMort passes correct time", {
+    # Here we will check that when getPredMort() is called with
+    # a sim object, it passes the correct values of t and n at each time step.
+    # To do this we replace mizerFeedingLevel() with a simpler function that
+    # just returns t * n
+    times <- as.numeric(dimnames(sim@effort)$time)
+    e <- globalenv() # We need to define the following functions in the
+    # global environment so that mizer can find them
+    e$testPredMort <- function(params, n, n_pp, t, ...) {
+        n * t
+    }
+    sim@params <- setRateFunction(sim@params, "PredMort", 
+                                  "testPredMort")
+    expect_identical(unname(getPredMort(sim)),
+                     unname(sweep(sim@n, 1, times, "*")))
+})
+
 test_that("interaction is right way round in getPredMort function", {
     inter[, "Dab"] <- 0  # Dab not eaten by anything
-    params <- set_multispecies_model(NS_species_params_gears, inter)
+    params <- newMultispeciesParams(NS_species_params_gears, inter)
     m2 <- getPredMort(params, get_initial_n(params), params@cc_pp)
     expect_true(all(m2["Dab", ] == 0))
 })
@@ -172,27 +218,23 @@ test_that("getPredMort is independent of volume", {
 })
 
 
-# getPlanktonMort ---------------------------------------------------------
+# getResourceMort ---------------------------------------------------------
 
-test_that("getPlanktonMort", {
-    m2 <- getPlanktonMort(params, n, n_full)
+test_that("getResourceMort", {
+    m2 <- getResourceMort(params, n, n_full)
     # test dim
     expect_length(m2, no_w_full)
     # Check number in final prey size group
     m22 <- colSums(getPredRate(params, n, n_full))
-    expect_equal(m22, m2)
-    # Passing in pred_rate gives the same
-    pr <- getPredRate(params, n, n_full)
-    m2b1 <- getPlanktonMort(params, n, n_full)
-    m2b2 <- getPlanktonMort(params, n, n_full, pred_rate = pr)
-    expect_identical(m2b1, m2b2)
+    expect_equal(m22, m2, check.attributes = FALSE)
+    m2b1 <- getResourceMort(params, n, n_full)
     # test value
-    expect_known_value(m2b1, "values/getPlanktonMort")
+    expect_known_value(m2b1, "values/getResourceMort")
 })
 
-test_that("getPlanktonMort is independent of volume", {
-    pm <- getPlanktonMort(params)
-    pm_r <- getPlanktonMort(params_r)
+test_that("getResourceMort is independent of volume", {
+    pm <- getResourceMort(params)
+    pm_r <- getResourceMort(params_r)
     expect_equal(pm, pm_r)
 })
 
@@ -245,6 +287,9 @@ test_that("getFmortGear", {
                      effort_mat[, gear] * params@catchability[gear, sp] * 
                          params@selectivity[gear, sp, widx])
     expect_known_value(f3, "values/getFMortGear")
+    
+    expect_equal(getFMortGear(sim)[1, 1, 1, ], 
+                 getFMortGear(sim@params, effort = sim@effort[1, ])[1, 1, ])
 })
 
 
@@ -283,6 +328,54 @@ test_that("getFMort", {
     expect_known_value(f1, "values/getFMort")
 })
 
+test_that("getFMort passes correct time", {
+    # Here we will check that when getFMort() calls mizerFMort().
+    # it passes the correct time. To implement the test we write simple
+    # replacement for mizerFMort() that puts the time
+    # argument into the returned array.
+    times <- as.numeric(dimnames(sim@effort)$time)
+    e <- globalenv() # We need to define the following functions in the
+    # global environment so that mizer can find them
+    e$testFMort <- function(params, n, t, ...) {
+        n * t
+    }
+    sim@params <- setRateFunction(sim@params, "FMort", "testFMort")
+    expect_identical(getFMort(sim),
+                     sweep(sim@n, 1, times, "*"))
+})
+
+test_that("getFMort passes correct time", {
+    # Here we will check that when getFMort() calls getEGrowth().
+    # it passes the correct time. To implement the test we write simple
+    # replacements for mizerFMort() and mizerEGrowth that put the time
+    # argument into the returned array.
+    times <- as.numeric(dimnames(sim@effort)$time)
+    e <- globalenv() # We need to define the following functions in the
+    # global environment so that mizer can find them
+    e$testEGrowth <- function(params, n, t, ...) {
+        n * t
+    }
+    e$testFMort <- function(params, e_growth, pred_mort, t, ...) {
+        e_growth
+    }
+    sim@params <- setRateFunction(sim@params, "EGrowth", "testEGrowth")
+    sim@params <- setRateFunction(sim@params, "FMort", "testFMort")
+    expect_identical(getFMort(sim),
+                     sweep(sim@n, 1, times, "*"))
+    
+    # Now we do the same for when getFMort() calls getPredMort()
+    e$testPredMort <- function(params, n, t, ...) {
+        n * t
+    }
+    e$testFMort <- function(params, e_growth, pred_mort, t, ...) {
+        pred_mort
+    }
+    sim@params <- setRateFunction(sim@params, "PredMort", "testPredMort")
+    sim@params <- setRateFunction(sim@params, "FMort", "testFMort")
+    expect_identical(getFMort(sim),
+                     sweep(sim@n, 1, times, "*"))
+})
+
 
 # getMort --------------------------------------------------------------------
 
@@ -293,15 +386,13 @@ test_that("getMort", {
     z <- getMort(params, n, n_full, effort = effort2)
     # test dim
     expect_identical(dim(z), c(no_sp, no_w))
+    expect_identical(dimnames(z)$prey, dimnames(params@initial_n)$sp)
+    expect_identical(dimnames(z)$w_prey, dimnames(params@initial_n)$w)
     # Look at numbers in species 1
     f <- getFMort(params, effort2)
     m2 <- getPredMort(params, n, n_full)
     z1 <- f[1, ] + m2[1, ] + params@species_params$z0[1]
     expect_equal(z1, z[1, ], check.names = FALSE)
-    # Passing in M2 gives the same
-    m2 <- getPredMort(params, n, n_full)
-    z2 <- getMort(params, n, n_full, effort = effort2, m2 = m2)
-    expect_identical(z, z2)
     expect_known_value(z, "values/getMort")
 })
 
@@ -316,27 +407,19 @@ test_that("getMort is independent of volume", {
 
 test_that("getEReproAndGrowth", {
     erg <- getEReproAndGrowth(params, n, n_full)
-    expect_true(all(erg >= 0))
     # test dim
     expect_identical(dim(erg), c(no_sp, no_w))
+    expect_identical(dimnames(erg), dimnames(params@initial_n))
     # Check number in final prey size group
     f <- getFeedingLevel(params, n = n, n_pp = n_full)
     e <-  (f[1, ] * params@intake_max[1, ]) * params@species_params$alpha[1]
     e <- e - params@metab[1, ]
-    e[e < 0] <- 0 # Do not allow negative growth
-    expect_identical(e, erg[1, ])
-    # Adding feeding level gives the same result
-    f <- getFeedingLevel(params, n = n, n_pp = n_full)
-    erg2 <- getEReproAndGrowth(params, n, n_full, feeding_level = f)
-    expect_identical(erg, erg2)
-    # Adding encounter gives the same result
-    e <- getEncounter(params, n = n, n_pp = n_full)
-    erg3 <- getEReproAndGrowth(params, n, n_full, encounter = e)
-    expect_identical(erg, erg3)
+    expect_equal(e, erg[1, ])
     # Can be used with infinite intake_max
     params@intake_max[] <- Inf
-    expect_true(!anyNA(getEReproAndGrowth(params, n = n, n_pp = n_full)))
+    expect_true(!any(is.na(getEReproAndGrowth(params, n = n, n_pp = n_full))))
     
+    erg[erg <= 0] <- 0
     expect_known_value(erg, "values/getEReproAndGrowth")
 })
 
@@ -353,15 +436,16 @@ test_that("getERepro", {
     es <- getERepro(params, n, n_full)
     # test dim
     expect_identical(dim(es), c(no_sp, no_w))
+    expect_identical(dimnames(es), dimnames(params@initial_n))
+    
     e <- getEReproAndGrowth(params, n = n, n_pp = n_full)
     e_repro <- params@psi * e
+    e_repro[e_repro <= 0] <- 0
     expect_identical(es, e_repro)
     e_growth <- getEGrowth(params, n, n_full)
-    expect_identical(e_growth, e - es)
-    # Including ESpawningAndGrowth gives the same
-    e <- getEReproAndGrowth(params, n = n, n_pp = n_full)
-    es2 <- getERepro(params, n, n_full, e = e)
-    expect_identical(es, es2)
+    e_growth_man <- e - es
+    e_growth_man[e_growth_man <= 0] <- 0
+    expect_identical(e_growth, e_growth_man)
     expect_known_value(es, "values/getERepro")
 })
 
@@ -369,21 +453,17 @@ test_that("getERepro", {
 # getRDI ------------------------------------------------------------------
 
 test_that("getRDI", {
-    sex_ratio <- 0.4
-    rdi <- getRDI(params, n, n_full, sex_ratio = sex_ratio)
+    sex_ratio <- 0.5
+    rdi <- getRDI(params, n, n_full)
     # test dim
     expect_length(rdi, no_sp)
+    expect_named(rdi, as.character(params@species_params$species))
     # test values
     e_repro <- getERepro(params, n = n, n_pp = n_full)
     e_repro_pop <- apply(sweep(e_repro * n, 2, params@dw, "*"), 1, sum)
     rdix <- sex_ratio * (e_repro_pop * params@species_params$erepro) / 
         params@w[params@w_min_idx]
     expect_equal(rdix, rdi, tolerance = 1e-15, check.names = FALSE)
-    # Including ESpawning is the same
-    e_repro <- getERepro(params, n = n, n_pp = n_full)
-    rdi2 <- getRDI(params, n, n_full, sex_ratio = sex_ratio, 
-                   e_repro = e_repro)
-    expect_identical(rdi, rdi2)
     expect_known_value(rdi, "values/getRDI")
 })
 
@@ -399,10 +479,12 @@ test_that("getRDI is proportional to volume", {
 test_that("getRDD", {
     rdd <- getRDD(params, n, n_full)
     expect_length(rdd, no_sp)
+    expect_named(rdd, as.character(params@species_params$species))
     rdi <- getRDI(params, n, n_full)
     rdd2 <- getRDD(params, n, n_full, rdi = rdi)
     expect_identical(rdd, rdd2)
-    rdd2 <- params@srr(rdi = rdi, species_params = params@species_params)
+    rdd2 <- do.call(params@rates_funcs$RDD,
+                    list(rdi = rdi, species_params = params@species_params))
     expect_identical(rdd, rdd2)
     expect_known_value(rdd, "values/getRDD")
 })
@@ -417,29 +499,11 @@ test_that("getRDD is proportional to volume", {
 # getEGrowth --------------------------------------------------------------
 
 test_that("getEGrowth is working", {
-    e_repro <- getERepro(params, n = n, n_pp = n_full)
-    e <- getEReproAndGrowth(params, n = n, n_pp = n_full)
     eg1 <- getEGrowth(params, n = n, n_pp = n_full)
-    eg2 <- getEGrowth(params, n = n, n_pp = n_full, e = e, 
-                      e_repro = e_repro)
-    expect_identical(eg1, eg2)
-    expect_identical(e - e_repro, eg1)
+    # test dim
+    expect_identical(dim(eg1), c(no_sp, no_w))
+    expect_identical(dimnames(eg1), dimnames(params@initial_n))
     expect_known_value(eg1, "values/getEGrowth")
-})
-
-# getRates with resources ----
-test_that("getRates works with resources", {
-    data("NS_species_params")
-    sp_res <- NS_species_params
-    resource_dynamics <-
-        list("detritus" = function(params, n, n_pp, B, rates, dt, ...) B["detritus"],
-             "carrion" = function(params, n, n_pp, B, rates, dt, ...) B["carrion"])
-    sp_res$rho_detritus <- no_sp:1
-    sp_res$rho_carrion <- 1:no_sp
-    params_res <- MizerParams(sp_res, inter,
-                              resource_dynamics = resource_dynamics)
-    params_res@initial_B[] <- c(1, 1)
-    rates <- getRates(params_res)
 })
 
 
@@ -447,11 +511,13 @@ test_that("getRates works with resources", {
 test_that("Test that fft based integrator gives similar result as old code", {
     # Make it harder by working with kernels that need a lot of cutoff
     species_params <- NS_species_params_gears
+    species_params$pred_kernel_type <- "truncated_lognormal"
     species_params$sigma[3] <- 3
-    species_params$beta <- species_params$beta / 100
+    species_params$beta[4] <- species_params$beta[4] * 100
+    species_params$beta[5] <- species_params$beta[5] / 1000
     # and use different egg sizes
     species_params$w_min <- seq(0.001, 1, length.out = no_sp)
-    params <- set_multispecies_model(species_params, inter, no_w = 30)
+    params <- newMultispeciesParams(species_params, inter, no_w = 30, min_w_pp = 1e-12)
     # create a second params object that does not use fft
     params2 <- setPredKernel(params, pred_kernel = getPredKernel(params))
     # Test encounter rate integral
@@ -467,8 +533,8 @@ test_that("Test that fft based integrator gives similar result as old code", {
 })
 
 # One species only ----
-test_that("project function returns objects of correct dimension when community only has one species",{
-    params <- set_community_model(z0 = 0.2, f0 = 0.7, alpha = 0.2, recruitment = 4e7)
+test_that("project function returns objects of correct dimension when community only has one species", {
+    params <- newCommunityParams(z0 = 0.2, f0 = 0.7, alpha = 0.2)
     t_max <- 50
     sim <- project(params, t_max = t_max, effort = 0)
     n <- array(sim@n[t_max + 1, , ], dim = dim(sim@n)[2:3])
@@ -481,7 +547,7 @@ test_that("project function returns objects of correct dimension when community 
     expect_equal(dim(getFeedingLevel(params, n, n_pp)), c(1, no_w))
     expect_equal(dim(getPredRate(params, n, n_pp)), c(1, no_w_full))
     expect_equal(dim(getPredMort(params, n, n_pp)), c(1, no_w))
-    expect_length(getPlanktonMort(params, n, n_pp), no_w_full)
+    expect_length(getResourceMort(params, n, n_pp), no_w_full)
     expect_equal(dim(getFMortGear(params, 0)), c(1, 1, no_w)) # 3D time x species x size
     expect_equal(dim(getFMortGear(params, matrix(c(0, 0), nrow = 2))), 
                      c(2, 1, 1, no_w)) # 4D time x gear x species x size

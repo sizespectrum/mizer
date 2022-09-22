@@ -2,19 +2,43 @@
 % Please edit documentation in R/plots.R
 \name{plotBiomass}
 \alias{plotBiomass}
+\alias{plotlyBiomass}
 \title{Plot the biomass of species through time}
 \usage{
-plotBiomass(sim, species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
-  start_time = as.numeric(dimnames(sim@n)[[1]][1]),
-  end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
-  y_ticks = 6, ylim = c(NA, NA), total = FALSE, background = TRUE,
-  highlight = NULL, ...)
+plotBiomass(
+  sim,
+  species = NULL,
+  start_time,
+  end_time,
+  y_ticks = 6,
+  ylim = c(NA, NA),
+  total = FALSE,
+  background = TRUE,
+  highlight = NULL,
+  return_data = FALSE,
+  ...
+)
+
+plotlyBiomass(
+  sim,
+  species = NULL,
+  start_time,
+  end_time,
+  y_ticks = 6,
+  ylim = c(NA, NA),
+  total = FALSE,
+  background = TRUE,
+  highlight = NULL,
+  ...
+)
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}}
 
-\item{species}{Name or vector of names of the species to be plotted. By
-default all species are plotted.}
+\item{species}{The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.}
 
 \item{start_time}{The first time to be plotted. Default is the beginning
 of the time series.}
@@ -37,56 +61,57 @@ Default is TRUE.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 
-\item{...}{Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
-\describe{
-  \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
+\item{return_data}{A boolean value that determines whether the formatted data
+used for the plot is returned instead of the plot itself. Default value is FALSE}
+
+\item{...}{
+  Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
+  \describe{
+    \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
 the model.}
-  \item{\code{max_w}}{Largest weight in size range. Defaults to largest weight in the
+    \item{\code{max_w}}{Largest weight in size range. Defaults to largest weight in the
 model.}
-  \item{\code{min_l}}{Smallest length in size range. If supplied, this takes
+    \item{\code{min_l}}{Smallest length in size range. If supplied, this takes
 precedence over \code{min_w}.}
-  \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
+    \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
 over \code{max_w}.}
-}}
+  }}
 }
 \value{
-A ggplot2 object
+A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
+frame with the four variables 'Year', 'Biomass', 'Species', 'Legend' is
+returned.
 }
 \description{
 After running a projection, the biomass of each species can be plotted
-against time. The biomass is calculated within user defined size limits 
-(min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}).
+against time. The biomass is calculated within user defined size limits
+(min_w, max_w, min_l, max_l, see \code{\link[=getBiomass]{getBiomass()}}).
 }
 \examples{
-# Set up example MizerParams and MizerSim objects
-data(NS_species_params_gears)
-data(inter)
-params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
-sim <- project(params, effort = 1, t_max = 20, t_save = 0.2, progress_bar = FALSE)
+\donttest{
+plotBiomass(NS_sim)
+plotBiomass(NS_sim, species = c("Sandeel", "Herring"), total = TRUE)
+plotBiomass(NS_sim, start_time = 1980, end_time = 1990)
 
-plotBiomass(sim)
-plotBiomass(sim, species = c("Cod", "Haddock"), total = TRUE)
-plotBiomass(sim, min_w = 10, max_w = 1000)
-plotBiomass(sim, start_time = 10, end_time = 15)
-plotBiomass(sim, y_ticks = 3)
-
+# Returning the data frame
+fr <- plotBiomass(NS_sim, return_data = TRUE)
+str(fr)
+}
 }
 \seealso{
-\code{\link{plotting_functions}}, \code{\link{getBiomass}}
+\link{plotting_functions}, \code{\link[=getBiomass]{getBiomass()}}
 
-Other plotting functions: \code{\link{displayFrames}},
-  \code{\link{plot,MizerSim,missing-method}},
-  \code{\link{plotDiet}}, \code{\link{plotFMort}},
-  \code{\link{plotFeedingLevel}},
-  \code{\link{plotGrowthCurves}},
-  \code{\link{plotPredMort}}, \code{\link{plotSpectra}},
-  \code{\link{plotYieldGear}}, \code{\link{plotYield}},
-  \code{\link{plotlyBiomass}}, \code{\link{plotlyFMort}},
-  \code{\link{plotlyFeedingLevel}},
-  \code{\link{plotlyGrowthCurves}},
-  \code{\link{plotlyPredMort}},
-  \code{\link{plotlySpectra}},
-  \code{\link{plotlyYieldGear}}, \code{\link{plotlyYield}},
-  \code{\link{plotting_functions}}
+Other plotting functions: 
+\code{\link{animateSpectra}()},
+\code{\link{plot,MizerSim,missing-method}},
+\code{\link{plotDiet}()},
+\code{\link{plotFMort}()},
+\code{\link{plotFeedingLevel}()},
+\code{\link{plotGrowthCurves}()},
+\code{\link{plotPredMort}()},
+\code{\link{plotSpectra}()},
+\code{\link{plotYieldGear}()},
+\code{\link{plotYield}()},
+\code{\link{plotting_functions}}
 }
 \concept{plotting functions}

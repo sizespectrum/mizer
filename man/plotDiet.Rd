@@ -2,36 +2,56 @@
 % Please edit documentation in R/plots.R
 \name{plotDiet}
 \alias{plotDiet}
-\title{Plot diet}
+\title{Plot diet, resolved by prey species, as function of predator at size.}
 \usage{
-plotDiet(object, species)
+plotDiet(object, species = NULL, return_data = FALSE)
 }
 \arguments{
-\item{object}{An object of class \linkS4class{MizerSim} or \linkS4class{MizerParams}.}
+\item{object}{An object of class \linkS4class{MizerSim} or
+\linkS4class{MizerParams}.}
 
-\item{species}{Name or vector of names of the species to be plotted. By
-default all species are plotted.}
+\item{species}{The name of the predator species for which to plot the diet.}
+
+\item{return_data}{A boolean value that determines whether the formatted data
+used for the plot is returned instead of the plot itself. Default value is FALSE}
 }
 \value{
-A ggplot2 object
+A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
+frame with the three variables 'w', 'Proportion', 'Prey' is returned.
 }
 \description{
-Plot diet
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+Plots the proportions with which each prey species contributes to the total
+biomass consumed by the specified predator species, as a function of the
+predator's size. These proportions are obtained with \code{getDiet()}.
+}
+\details{
+Prey species that contribute less than 1 permille to the diet are suppressed
+in the plot.
+}
+\examples{
+\donttest{
+plotDiet(NS_params, species = "Cod")
+
+# Returning the data frame
+fr <- plotDiet(NS_params, species = "Cod", return_data = TRUE)
+str(fr)
+}
 }
 \seealso{
-Other plotting functions: \code{\link{displayFrames}},
-  \code{\link{plot,MizerSim,missing-method}},
-  \code{\link{plotBiomass}}, \code{\link{plotFMort}},
-  \code{\link{plotFeedingLevel}},
-  \code{\link{plotGrowthCurves}},
-  \code{\link{plotPredMort}}, \code{\link{plotSpectra}},
-  \code{\link{plotYieldGear}}, \code{\link{plotYield}},
-  \code{\link{plotlyBiomass}}, \code{\link{plotlyFMort}},
-  \code{\link{plotlyFeedingLevel}},
-  \code{\link{plotlyGrowthCurves}},
-  \code{\link{plotlyPredMort}},
-  \code{\link{plotlySpectra}},
-  \code{\link{plotlyYieldGear}}, \code{\link{plotlyYield}},
-  \code{\link{plotting_functions}}
+\code{\link[=getDiet]{getDiet()}}
+
+Other plotting functions: 
+\code{\link{animateSpectra}()},
+\code{\link{plot,MizerSim,missing-method}},
+\code{\link{plotBiomass}()},
+\code{\link{plotFMort}()},
+\code{\link{plotFeedingLevel}()},
+\code{\link{plotGrowthCurves}()},
+\code{\link{plotPredMort}()},
+\code{\link{plotSpectra}()},
+\code{\link{plotYieldGear}()},
+\code{\link{plotYield}()},
+\code{\link{plotting_functions}}
 }
 \concept{plotting functions}

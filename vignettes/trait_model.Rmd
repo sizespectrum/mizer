@@ -2,7 +2,6 @@
 title: "The Trait-Based Model"
 output:
   html_document:
-    number_sections: yes
     toc: yes
     fig_width: 5
     fig_height: 5
@@ -18,148 +17,186 @@ The trait-based size spectrum model can be derived as a simplification of the
 general model outline in the [model description](model_description.html)
 section. It is more complicated than a [community model](community_model.html)
 and the most significant difference between the two is that while the community
-model only resolves a single *species*, the trait-based model resolves many
-species. In a trait-based model the asymptotic size is considered to be the most
-important *trait* characterizing a species. All of the species-specific
+model aggregates all species into a single spectrum, the trait-based model resolves many
+species. 
+
+In a trait-based model the asymptotic size is considered to be the most
+important *trait* characterizing a species. Most of the species-specific
 parameters, such as $\beta$ and $\sigma$, are the same for all species. Other
 model parameters are determined by the asymptotic size. For example, the weight
-at maturation, $w_{m.i} = \eta w_{\infty.i}$, where $\eta = 0.25$.  The number
-of species is not important and does not affect the general dynamics of the
-model. The asymptotic sizes of the species are spread evenly over the size range
-of the community.
+at maturation is a fixed fraction of the asymptotic size. The asymptotic sizes
+of the species are spread evenly on a logarithmic scale. The number of species
+is not important and does not affect the general dynamics of the model.
 
 ## Setting up a trait-based model {#sec:set_up_trait_model}
 
 To help set up a trait-based model, there is a wrapper function,
-`set_trait_model()`. Like the `set_community_model()` function described in the
+`newTraitParams()`. Like the `newCommunityParams()` function described in the
 section on the [community model](community_model.html), this function can take
 many arguments. Most of them have default values so you don't need to worry
-about them for the moment. See the help page for more details.
-
-```{r label=help_set_trait_model, eval=FALSE}
-?set_trait_model
-```
-
-The main parameters of interest are the number of the species in the model
-(`no_sp`) and the minimum and maximum asymptotic sizes (`min_w_inf` and
-`max_w_inf` respectively); the asymptotic sizes are spread evenly on a
-logarithmic scale between these values.
+about them for the moment. See the help page for `newCommunityParams()` for more
+details.
 
 One of the key differences between the community type model and
 the trait-based model is that reproduction and egg production are considered. In
-the community model, recruitment is constant and there is no relationship
+the community model, reproduction is constant and there is no relationship
 between the abundance in the community and egg production. In the trait-based
-model, the egg production is modeled using a *Beverton-Holt* type function (the
-default in `mizer`, see [the section on stock-recruitment
-relationships](model_description.html#recruitment)) where the recruitment
-flux $R_i$ (numbers per time) approaches a maximum recruitment as the egg
-production increases. The maximum recruitment flux is calculated using
-equilibrium theory and a recruitment multiplier $k_0$, which can be passed in as
-an argument (`k0`) to the `set_trait_model()` function. `k0` has a default value
-of 50.
+model, the egg production is dependent on mature individuals investing part
+of their energy income into reproduction. The relationship between the energy
+invested into reproduction and the actual rate of egg production is modelled 
+using a *Beverton-Holt* type function (the
+default in `mizer`, see [the section on density-dependence in reproduction](model_description.html#recruitment)) where the reproduction rate $R_i$ (numbers per time) approaches a maximum as the energy invested increases.
 
-Here we set up the model to have 10 species, with asymptotic sizes ranging from 10 g to 100 kg. All the other parameters have default values. 
+Here we set up the model to have 10 species, with asymptotic sizes ranging from 
+10 g to 100 kg. All the other parameters have default values. 
 
 ```{r label=demo_trait_model_params}
-params <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e5)
+params <- newTraitParams(no_sp = 10, min_w_inf = 10, max_w_inf = 1e5)
 ```
 
-The output reminds the user that $\gamma$ was not specified, and so will be calculated using other parameters.
+The output reminds the user that $\gamma$ was not specified, and so will be
+calculated using other parameters.
 
-This function returns an object of type `MizerParams`, which holds all the model information, including species parameters.
-
-```{r label=class_trait_params}
-class(params)
-```
-
-This object can therefore be interrogated in the same way as described in [the section on the community model](community_model.html), either by inspecting the individual slots or by using the `summary()` function.
+This function returns an object of type `MizerParams` that holds all the model
+information, including species parameters. This object can therefore be
+interrogated in the same way as described in 
+[the section on the community model](community_model.html).
 
 ```{r label=summary_comm_params2}
 summary(params)
 ```
 
 
-The summary shows us that now we have 10 species in the model, with asymptotic sizes ranging from  
-$`r min(params@species_params$w_inf)`$
-to $`r max(params@species_params$w_inf)`$. The size at maturity (`w_mat`) is linearly related to the asymptotic size. Each species has the same preferred predator-prey mass ratio parameter values (`beta` and `sigma`, see [the section on predator/prey mass ratio](model_description.html#sec:ppmr)). There are $`r length(params@w)`$ size bins in the community and $`r length(params@w_full)`$ size bins including the plankton spectrum.
-Ignore the summary section on fishing gear for the moment. This is explained later.
+The summary shows us that now we have 10 species in the model, with asymptotic
+sizes ranging from $`r min(species_params(params)$w_inf)`$ to $`r
+max(species_params(params)$w_inf)`$. The rather strange-looking values for the
+sizes is due to the fact that the size classes are equally spaced on a
+logarithmic scale.
+
+The size at maturity (`w_mat`) is linearly related to the asymptotic size. Each
+species has the same preferred predator-prey mass ratio parameter values (`beta`
+and `sigma`, see 
+[the section on predator/prey mass ratio](model_description.html#sec:ppmr)). 
+There are $`r length(w(params))`$ size
+bins in the community and $`r length(w_full(params))`$ size bins including the
+resource spectrum. Ignore the summary section on fishing gear for the moment.
+This is explained later.
 
 ## Running the trait-based model {#sec:running_trait_model}
 
-As with the community model described above, we can project the model through time using the `project()` function.
-Here we project the model for 75 time steps without any fishing (the `effort` argument is set to 0).
-We use the default initial population abundances given by the `get_initial_n()` function so there is no need to pass in any initial population values (see [the section on setting the initial abundances](running_a_simulation.html#sec:setting_initial_abundances)).
-
-
-
-
+As with the [community model](community_model.html), we can project the
+trait-based model through time using the `project()` function. Here we project
+the model for 75 years without any fishing (the `effort` argument is set to 0).
+We use the default initial population abundances so there is no need to pass in
+any initial population values (see 
+[the section on setting the initial abundances](running_a_simulation.html#sec:setting_initial_abundances)).
 
 
 ```{r label=trait_project_no_fishing}
-sim <- project(params, t_max=75, effort = 0)
+sim <- project(params, t_max = 75, effort = 0)
 ```
 
-This results in a `MizerSim` object which contains the abundances of the community and plankton spectra through time, as well as the original `MizerParams` object.
-As with the community model, we can get a quick overview of the results of the simulation by calling the generic `plot()` method:
+This results in a `MizerSim` object that contains the abundances of the
+community and resource spectra through time, as well as the original
+`MizerParams` object. As with the community model, we can get a quick overview
+of the results of the simulation by calling the `plot()` method:
 
-```{r plot_comm_sim_2, fig.cap="Example plot of the trait-based model with no fishing."}
+```{r plot_comm_sim_2}
 plot(sim)
 ```
 
 
-The summary plot has the same panels as the one generated by the community model, but here you can see that all the species in the community are plotted. The panels show the situation in the final time step of the simulation, apart from the biomass through time plot.
-As this is a trait-based model where all species fully interact with each other, the predation mortality (M2) and feeding level by size is the same for each species.
-The biomasses quickly settle down to equilibria. In this simulation we turned fishing off so the fishing mortality is 0.
-The size-spectra show the abundances at size to be evenly spaced by asymptotic size.
+The summary plot has the same panels as the one generated by the community
+model, but here you can see that all the species in the community are plotted.
+The panels show the situation in the final time step of the simulation, apart
+from the biomass through time plot. As this is a trait-based model where all
+species fully interact with each other, the predation mortality and feeding
+level by size is the same for each species. In this simulation we turned fishing
+off so the fishing mortality is 0. The size-spectra show the abundances at size
+to be evenly spaced by log of asymptotic size.
 
 ## Example of a trophic cascade with the trait-based model {#sec:trophic_cascade_trait_model}
 
-As with the community model, it is possible to use the trait-based model to simulate a trophic cascade.
-Again, we perform two simulations, one with fishing and one without. We therefore need to consider how fishing gears and selectivity have been set up by the `set_trait_model()` function. 
+As with the community model, it is possible to use the trait-based model to
+simulate a trophic cascade. Again, we perform two simulations, one with fishing
+and one without. We therefore need to consider how fishing gears and selectivity
+have been set up by the `newTraitParams()` function.
 
-The default fishing selectivity function is a knife-edge function, which only selects individuals larger than 1000 g. There is also only one fishing gear in operation, and this selects all of the species. You can see this if you call the `summary()` method on the `params` argument we set up above. At the bottom of the summary there is a section on *Fishing gear details*. You can see that there is only one gear, called ``knife_edge_gear'' and that it selects species 1 to 10.
-To control the size at which individuals are selected there is a `knife_edge_size` argument to the `set_trait_model()` function. This has a default value of 1000 g.
+The default fishing selectivity function is a knife-edge function, which only
+selects individuals larger than 1000 g. There is also only one fishing gear in
+operation, and this selects all of the species. You can see this if you call the
+`summary()` method on the `params` argument we set up above. At the bottom of
+the summary there is a section on *Fishing gear details*. You can see that there
+is only one gear, called `knife_edge_gear` and that it selects species 1 to 10.
+To control the size at which individuals are selected there is a
+`knife_edge_size` argument to the `newTraitParams()` function. This has a
+default value of 1000 g.
 
-In `mizer` it is possible to include more than one fishing gear in the model and for different species to be caught by different gears. We will ignore this for now, but will explore it further below when we introduce an industrial fishery to the trait-based model. 
+In `mizer` it is possible to include more than one fishing gear in the model and
+for different species to be caught by different gears. We will ignore this for
+now, but will explore it further below when we introduce an industrial fishery
+to the trait-based model.
 
-To set up the trait-based model to have fishing we set up the `MizerParams` object in exactly the same way as we did before but here the `knife_edge_size` argument is explicitly passed in for clarity:
+To set up the trait-based model to have fishing we set up the `MizerParams`
+object in exactly the same way as we did before but here the `knife_edge_size`
+argument is explicitly passed in for clarity:
 
 ```{r label=set_trait_fishing}
-params_knife <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e5,
+params_knife <- newTraitParams(no_sp = 10, min_w_inf = 10, max_w_inf = 1e5,
     knife_edge_size = 1000)
 ```
 
-First we perform a simulation without fishing in the same way we did above by setting the `effort` argument to 0:
+First we perform a simulation without fishing in the same way we did above by
+setting the `effort` argument to 0:
 
 ```{r label=sim_trait_no_fish}
 sim0 <- project(params_knife, effort = 0, t_max = 75)
 ```
 
-Now we simulate with fishing. Here, we use an effort of 0.75. As mentioned in [the section on trophic cascades in the community model](community_model.html#sec:trophic_cascade_comm_model), the fishing mortality on a species is calculated as the product of effort, catchability and selectivity (see [the section on fishing gears](multispecies_model.html#sec:fishing_gear) for more details). Selectivity ranges between 0 (not selected) and 1 (fully selected). The default value of catchability is 1. Therefore, in this simulation the fishing mortality of a fully selected individual is simply equal to the effort. This effort is constant throughout the duration of the simulation (however, this is does not necessarily have to be the case).
+Now we simulate with fishing. Here, we use an effort of 0.75. As mentioned in
+[the section on trophic cascades in the community model](community_model.html#sec:trophic_cascade_comm_model), 
+the fishing
+mortality on a species is calculated as the product of effort, catchability and
+selectivity (see 
+[the section on fishing gears](multispecies_model.html#sec:fishing_gear) 
+for more details). Selectivity
+ranges between 0 (not selected) and 1 (fully selected). The default value of
+catchability is 1. Therefore, in this simulation the fishing mortality of a
+fully selected individual is simply equal to the effort. This effort is constant
+throughout the duration of the simulation (however, mizer does allow variable
+effort).
 
 ```{r label=sim_trait_with_fish}
 sim1 <- project(params_knife, effort = 0.75, t_max = 75)
 ```
 
-Again, we can plot the summary of the fished community using the default `plot()` function. The knife-edge selectivity at 1000 g can be clearly seen in the fishing mortality panel:
+Again, we can plot the summary of the fished community using the default
+`plot()` function. The knife-edge selectivity at 1000 g can be clearly seen in
+the fishing mortality panel:
 
-```{r label=plot_trait_fmort, fig.cap="Summary plot for the trait-based model when fishing with knife-edge selectivity at size = 1000 g."}
+```{r label=plot_trait_fmort}
 plot(sim1)
 ```
 
-The trophic cascade can be explored by comparing the total abundances of all species at size when the community is fished and unfished.
-As mentioned above, the abundances are stored in the `n` slot of the `MizerSim` object. The `n` slot returns a three dimensional array with dimensions time x species x size. Here we have 76 time steps (75 from the simulation plus one which stores the initial population), 10 species and 100 sizes:
+The trophic cascade can be explored by comparing the total abundances of all
+species at size when the community is fished and unfished. As mentioned above,
+we obtain the abundances with  `N(sim)`, which returns a three dimensional array
+with dimensions time x species x size. Here we have 76 time steps (75 from the
+simulation plus one which stores the initial population), 10 species and 100
+sizes:
 
 ```{r label=trait_dim_n}
-dim(sim0@n)
+dim(N(sim0))
 ```
 
-As with the community model, we are interested in the relative total abundances by size in the final time step  so we want to pull out the 76th time step from the abundances and sum over the species.
-We can use the `apply()` function to help us:
+As with the community model, we are interested in the relative total abundances
+by size in the final time step so we use the `finalN()` function. This gives us
+a matrix with one row per species and one column per size bin. We sum in each
+column to get a vector with the total abundance per size bin:
 
 ```{r label = total_abund_trait}
-total_abund0 <- apply(sim0@n[76,,],2,sum)
-total_abund1 <- apply(sim1@n[76,,],2,sum)
+total_abund0 <- colSums(finalN(sim0))
+total_abund1 <- colSums(finalN(sim1))
 ```
 
 We can then use these vectors to calculate the relative abundances:
@@ -168,97 +205,110 @@ We can then use these vectors to calculate the relative abundances:
 relative_abundance <- total_abund1 / total_abund0
 ```
 
-Which can be plotted using the commands below:
+This can be plotted using the commands below:
 
-```{r label=plot_relative_comm_abund2, fig.cap="Relative abundances from the unfished (dashed line) and fished (solid line) trait based model."}
-plot(x=sim0@params@w, y=relative_abundance, log="xy", type="n", xlab = "Size (g)",
-    ylab="Relative abundance", ylim = c(0.1,10))
-lines(x=sim0@params@w, y=relative_abundance)
-lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
+```{r label=plot_relative_comm_abund2}
+plot(x = w(params), y = relative_abundance, log = "xy", type = "n", 
+     xlab = "Size (g)", ylab = "Relative abundance", ylim = c(0.1, 10))
+lines(x = w(params), y = relative_abundance)
+lines(x = c(min(w(params)), max(w(params))), y = c(1, 1), lty = 2)
 ```
 
+The impact of fishing on species larger than 1000 g can be clearly seen. The
+fishing pressure lowers the abundance of large fish ($> 1000$ g). This then
+relieves the predation pressure on their smaller prey (the preferred
+predator-prey size ratio is given by the $\beta$ parameter, which is set to 100
+by default), leading to an increase in their abundance. This in turn increases
+the predation mortality on their smaller prey, which reduces their abundance and
+so on.
 
-The impact of fishing on species larger than 1000 g can be clearly seen.
-The fishing pressure lowers the abundance of large fish ($> 1000$ g). This then relieves the predation pressure on their smaller prey (the preferred predator-prey size ratio is given by the $\beta$ parameter, which is set to 100 by default), leading to an increase in their abundance. This in turn increases the predation mortality on their smaller prey, which reduces their abundance and so on.  
-
-This impact can also be seen by looking at the predation mortality by size. 
-The predation mortalities are retrieved using the `getM2()` function for `MizerSim` objects. This returns a three dimensional array of predation mortalities by time x species x size (see the help page for `getM2()` for more details). As mentioned above, for the trait based model the predation mortality by size is the same for each species. Therefore we only look at the predation mortality of the first species. 
+This impact can also be seen by looking at the predation mortality by size. The
+predation mortalities are retrieved using the `getPredMort()` function. As
+mentioned above, for the trait based model the predation mortality by size is
+the same for each species. Therefore we only look at the predation mortality of
+the first species.
 
 ```{r label='get_M2_trait'}
-m2_no_fishing <- getM2(sim0)[76,1,]
-m2_with_fishing <- getM2(sim1)[76,1,]
+m2_no_fishing <- getPredMort(params, finalN(sim0))[1, ]
+m2_with_fishing <- getPredMort(params, finalN(sim1))[1, ]
 ```
 
 The predation mortalities can then be plotted.
 
 ```{r label=plot_relative_trait_m2, fig.cap="Predation mortalities from the unfished (dashed line) and fished (solid line) trait-based model."}
-plot(x = sim0@params@w, y = m2_no_fishing, log="x", type="n", xlab = "Size (g)",
-    ylab = "M2")
-lines(x = sim0@params@w, y = m2_no_fishing, lty=2)
-lines(x = sim0@params@w, y = m2_with_fishing)
+plot(x = w(params), y = m2_with_fishing, log = "x", type = "n", 
+     xlab = "Size [g]", ylab = "Predation Mortality [1/year]")
+lines(x = w(params), y = m2_no_fishing, lty = 2)
+lines(x = w(params), y = m2_with_fishing)
 ```
 
 
 ## Setting up an industrial fishing gear {#sec:trait_additional_gear}
 
-In this section we only want to operate an *industrial* fishery. Industrial fishing targets the small zooplanktivorous species that are typically used for fishmeal production.
+In this section we want to operate an *industrial* fishery. Industrial
+fishing targets the small zooplanktivorous species that are typically used for
+fishmeal production.
 
-In the previous simulations we had only one fishing gear and it targeted all the species in the community. This gear had a knife-edge selectivity that only selected species larger than 1 kg. Here we expand the model to include multiple fishing gears.
-This requires us to look more closely at how fishing gears are handled in `mizer`.
-In `mizer` it is possible for a fishing gear to catch only a subset of the species in the model. This is useful because when running a simulation with `project()` you can specify the effort per gear and so you can turn gears on or off as you want. The shape of the selectivity function of each gear will be the same for all of the species it catches but the selectivity parameter values for each species may be different. For example, we can set up an *industrial* gear to catch only a subset of species. Each species it catches will be caught with knife-edge selectivity but they may have a different knife-edge positions.
-
-Using the trait-based model wrapper function it is only possible to have a knife-edge selectivity.
-Each species in the model must be given the position of the knife edge and the name of the fishing gear. This is done using the `knife_edge_size` argument and the `gear_names` argument of the `set_trait_model()` function.
-In the previous examples, we passed in the `knife_edge_size` argument as a single value which was used for all the species. This effectively set up a single gear, that caught all species using the same selectivity pattern. The `gear_names` argument was not used.
-Now we are going to pass the `knife_edge_size` argument as a vector with the same length as the number of species in the model. The values in the vector will be the positions of the knife-edge for each species.
-We are also going to pass in a new argument, `gear_names` which is a vector of the names of the gears. The vector must have the same length as the number of species in the model.
-
-We will set up the model to include two fishing gears: an *industrial* gear that only catches species with an asymptotic size less than or equal to 500g, and a second gear, ``other'', that catches everything else.
-The position of the knife-edge for both gears will occur at 0.05 x the asymptotic size i.e. the selectivity parameters will be different for each species and will depend on the asymptotic size.
-
-To start with we need to know what the asymptotic sizes of the species in the model are so we can determine the knife-edge positions for each species.
-As mentioned above, the `set_trait_model()` function spaces the asymptotic sizes equally on a logarithmic scale. This means we can calculate them by hand.
-
-```{r label=calc_trait_winf}
-no_sp <- 10
-min_w_inf <- 10
-max_w_inf <- 1e5
-w_inf <- 10^seq(from=log10(min_w_inf), to = log10(max_w_inf), length=no_sp)
+In the previous simulations we had only one fishing gear and it targeted all the
+species in the community. This gear had a knife-edge selectivity that only
+selected species larger than 1 kg. We can see that when we look at the gear
+parameters
+```{r}
+gear_params(params)
 ```
 
-We can then use these asymptotic sizes to set a vector of knife-edges that are 0.05 times the asymptotic size:
+We will expand the model to include multiple fishing gears.
+This requires us to look more closely at how fishing gears are handled in
+`mizer`. In `mizer` it is possible for a fishing gear to catch only a subset of
+the species in the model. This is useful because when running a simulation with
+`project()` you can specify the effort per gear and so you can turn gears on or
+off as you want. Each gear has a selectivity curve for each species. 
+
+We will set up the model to include two fishing gears: an `industrial` gear that
+only catches species with an asymptotic size less than or equal to 500g, and a
+second gear, `other`, that catches everything else. The position of the
+knife-edge for both gears will occur at 0.05 x the asymptotic size i.e. the
+selectivity parameters will be different for each species and will depend on the
+asymptotic size.
+
+For this we will need to change the `gear_params` data frame. If we want to
+keep the original model, we should first make a copy before making 
+modifications.
+```{r}
+params_multi_gear <- params
+```
+
+To start with we need to know what the asymptotic sizes of the species in the
+model are so we can determine the knife-edge positions for each species. These
+are stored in the `w_inf` column of the `species_params` data frame inside the
+`params` object. We can then use these asymptotic sizes to set a vector of
+knife edge sizes that are 0.05 times the asymptotic size:
 
 ```{r label=calc_knife_edge_trait}
-knife_edges <- w_inf * 0.05
+gear_params(params_multi_gear)$knife_edge_size <- 
+  species_params(params)$w_inf * 0.05
 ```
 
-Now we want to assign each species to either the *industrial* or *other* gear,
-We want to create a vector of gear names. This vector must be the same length as the number of species in the model.
+Now we want to assign each species to either the *industrial* or *other* gear.
 
 ```{r label=trait_industrial_gear_names}
-other_gears <- w_inf > 500
-gear_names <- rep("Industrial", no_sp)
-gear_names[other_gears] <- "Other"
+no_sp <- 10
+gear <- rep("Industrial", no_sp)
+gear[species_params(params)$w_inf > 500] <- "Other"
+gear_params(params_multi_gear)$gear <- gear
+```
+To check what has just happened let us look at the new gear parameter data
+frame:
+```{r label=looking_at_trait_species_params}
+gear_params(params_multi_gear)
 ```
 
-Finally, we can create our `MizerParams` object by passing in the `knife_edge_sizes` and `gear_names` argument. All the other arguments are the same as before:
-
-```{r label=set_trait_multiple_gears}
-params_multi_gear <- set_trait_model(no_sp = no_sp, min_w_inf = min_w_inf,
-    max_w_inf = max_w_inf, knife_edge_size = knife_edges, gear_names = gear_names)
-```
-
-To check what has just happened we can take a look inside the `MizerParams` object. There is a slot in the object called `species_params`. This is a `data.frame` that contains the life-history parameters of the species in the model (the results of running this command are not shown):
-
-```{r label=looking_at_trait_species_params, results='hide'}
-params_multi_gear@species_params
-```
-
-This `data.frame` is pretty interesting as it allows you to investigate the parameters for each species. For example, you can see that the predator-prey mass ratio parameters, `beta` and `sigma`, are indeed the same for each species.
-The columns of the `species_params` `data.frame` that we are interested in here are `species` (the name of the species, here just numerical identifiers), `w_inf` (the asymptotic size), `sel_func` (the name of the selectivity function for that species), `knife_edge_size` (the position of the knife-edge of the selectivity) and `gear` (the name of the fishing gear). You can see that two gears have been set up, *Industrial* and *Other* and that they catch different species depending on their asymptotic size.
-
-Having created our `MizerParams` object with multiple gears, we can now turn our attention to running a projection with multiple gears.
-In our previous examples of calling `project()` we have specified the fishing effort with the `effort` argument using a single value. This fixes the fishing effort for all gears in the model, for all time steps. We can do this with our multi-gear parameter object:
+Having created our `MizerParams` object with multiple gears, we can now turn our
+attention to running a projection with multiple gears. In our previous examples
+of calling `project()` we have specified the fishing effort with the `effort`
+argument using a single value. This fixes the fishing effort for all gears in
+the model, for all time steps. We can do this with our multi-gear parameter
+object:
 
 ```{r label=project_multi_gear_trait_single_effort}
 sim_multi_gear <- project(params_multi_gear, t_max = 75, effort = 0.5)
@@ -266,53 +316,63 @@ sim_multi_gear <- project(params_multi_gear, t_max = 75, effort = 0.5)
 
 By plotting this you can see that the fishing mortality for each species now has a different selectivity pattern, and that the position of the selectivity knife-edge is given by the asymptotic size of the species.
 
-```{r label=plot_multi_gear_trait_single_effort, fig.cap="Summary plot for the trait-based model with multiple gears when all gears are operational."}
+```{r label=plot_multi_gear_trait_single_effort}
 plot(sim_multi_gear)
 ```
 
-
-For the industrial fishery we said that we only wanted species with an asymptotic size of 500 g or less to be fished.
-There are several ways of specifying the `effort` argument for `project()` .
-Above we specified a single value that was used for all gears, for all time steps. It is also possible to specify a separate effort for each gear that will be used for all time steps.
-To do this we pass in effort as a named vector. Here we set the effort for the *Industrial* gear to 0.75, and the effort of the *Other* gear to 0 (effectively turning it off).
+For the industrial fishery we said that we only wanted species with an
+asymptotic size of 500 g or less to be fished. There are several ways of
+specifying the `effort` argument for `project()` . Above we specified a single
+value that was used for all gears, for all time steps. It is also possible to
+specify a separate effort for each gear that will be used for all time steps. To
+do this we pass in effort as a named vector. Here we set the effort for the
+*Industrial* gear to 0.75, and the effort of the *Other* gear to 0 (effectively
+turning it off).
 
 ```{r label=project_trait_multigear}
 sim_multi_gear <- project(params_multi_gear, t_max = 75,
     effort = c(Industrial = 0.75, Other = 0))
 ```
 
-Now you can see that the *Industrial* gear has been operating and that fishing mortality for species larger than 500 g is 0.
+Now you can see that the *Industrial* gear has been operating and that fishing
+mortality for species larger than 500 g is 0.
 
-```{r label=plot_multi_gear_trait, fig.cap="Summary plot for the trait-based model with multiple gears when only the industrial gear that fishes on species with asymptotic size of 500 g or less is operational."}
+```{r label=plot_multi_gear_trait}
 plot(sim_multi_gear)
 ```
 
 
 ## The impact of industrial fishing
 
-In the previous section we set up and ran a model in which an industrial fishery was operating that only selected smaller species.
-We can now answer the question: what is the impact of such a fishery?
-We can again compare abundances of the fished (`sim_industrial1`) and unfished (`sim_industrial0`) cases:
+In the previous section we set up and ran a model in which an industrial fishery
+was operating that only selected smaller species. We can now answer the
+question: what is the impact of such a fishery? We can again compare abundances
+of the fished (`sim_industrial1`) and unfished (`sim_industrial0`) cases:
 
 ```{r label = industrial_fishery_simulation}
 sim_industrial0 <- project(params_multi_gear, t_max = 75, effort = 0)
 sim_industrial1 <- project(params_multi_gear, t_max = 75,
     effort = c(Industrial = 0.75, Other = 0))
-total_abund0 <- apply(sim_industrial0@n[76,,],2,sum)
-total_abund1 <- apply(sim_industrial1@n[76,,],2,sum)
+total_abund0 <- apply(finalN(sim_industrial0), 2, sum)
+total_abund1 <- apply(finalN(sim_industrial1), 2, sum)
 relative_abundance <- total_abund1 / total_abund0
 ```
 
 And plot the relative abundances:
 
-```{r label=plot_relative_comm_abund_industrial, fig.cap="Relative abundances from the unfished (dashed line) and fished (solid line) trait based model with an industrial fishery that targets species with an asymptotic size of 500 g or less."}
-plot(x=sim0@params@w, y=relative_abundance, log="xy", type="n", xlab = "Size (g)",
-    ylab="Relative abundance", ylim = c(0.1,10))
-lines(x=sim0@params@w, y=relative_abundance)
-lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
+```{r label=plot_relative_comm_abund_industrial}
+plot(x = w(params), y = relative_abundance, log = "xy", type = "n", 
+     xlab = "Size [g]", ylab="Relative abundance", ylim = c(0.1, 10))
+lines(x = w(params), y = relative_abundance)
+lines(x = c(min(w(params)),max(w(params))), y = c(1, 1), lty = 2)
 ```
 
+This shows another trophic cascade, although this time one driven by fishing the
+species at the midrange part of the spectrum, not the largest individuals as
+before. This trophic cascade acts in both directions. The cascade upwards is
+driven by the lack of food for predators leading to smaller realised maximum
+sizes. The cascade downwards has the same mechanism as fishing on large fish, a
+combination of predation mortality and food limitation.
 
-This shows another trophic cascade, although this time one driven by fishing the species at the midrange part of the spectrum, not the largest individuals as before. This trophic cascade acts in both directions. The cascade upwards is driven by the lack of food for predators leading to smaller realised maximum sizes. The cascade downwards has the same mechanism as fishing on large fish, a combination of predation mortality and food limitation.
-
-The next section explains how to setup the more general [multispecies model.](multispecies_model.html)
+The next section explains how to setup the more general 
+[multispecies model.](multispecies_model.html)

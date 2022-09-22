@@ -27,13 +27,19 @@ the feeding kernel is given as
 \deqn{\phi_i(w, w_p) = 
 \exp \left[ \frac{-(\ln(w / w_p / \beta_i))^2}{2\sigma_i^2} \right]
 }{\phi_i(w/w_p) = exp(-(ln(w/w_p/\beta_i))^2/(2\sigma_i^2))}
-if \eqn{w/w_p} is between 1 and \eqn{\beta_i\exp(3\sigma_i)}{\beta_i exp(3\sigma_i)}
-and zero otherwise.
+if \eqn{w/w_p} is larger than 1 and zero otherwise.
 Here \eqn{\beta_i} is the preferred predator-prey mass ratio and \eqn{\sigma_i}
 determines the width of the kernel.
 These two parameters need to be given in the species parameter dataframe in
 the columns \code{beta} and \code{sigma}.
 
-This function is called from \code{\link{setPredKernel}} to set up the
-predation kernel slots in a \code{MizerParams} object.
+This function is called from \code{\link[=setPredKernel]{setPredKernel()}} to set up the
+predation kernel slots in a MizerParams object.
 }
+\seealso{
+Other predation kernel: 
+\code{\link{box_pred_kernel}()},
+\code{\link{power_law_pred_kernel}()},
+\code{\link{truncated_lognormal_pred_kernel}()}
+}
+\concept{predation kernel}

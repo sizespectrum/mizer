@@ -4,59 +4,72 @@
 \alias{getCommunitySlope}
 \title{Calculate the slope of the community abundance}
 \usage{
-getCommunitySlope(sim, species = 1:nrow(sim@params@species_params),
-  biomass = TRUE, ...)
+getCommunitySlope(sim, species = NULL, biomass = TRUE, ...)
 }
 \arguments{
 \item{sim}{A \linkS4class{MizerSim} object}
 
-\item{species}{Numeric or character vector of species to include in the
-calculation.}
+\item{species}{The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.}
 
 \item{biomass}{Boolean. If TRUE (default), the abundance is based on biomass,
 if FALSE the abundance is based on numbers.}
 
-\item{...}{Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
-\describe{
-  \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
+\item{...}{
+  Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
+  \describe{
+    \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
 the model.}
-  \item{\code{max_w}}{Largest weight in size range. Defaults to largest weight in the
+    \item{\code{max_w}}{Largest weight in size range. Defaults to largest weight in the
 model.}
-  \item{\code{min_l}}{Smallest length in size range. If supplied, this takes
+    \item{\code{min_l}}{Smallest length in size range. If supplied, this takes
 precedence over \code{min_w}.}
-  \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
+    \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
 over \code{max_w}.}
-}}
+  }}
 }
 \value{
-A data frame with slope, intercept and R2 values.
+A data.frame with four columns: time step, slope, intercept and the
+coefficient of determination R^2.
 }
 \description{
-Calculates the slope of the community abundance through time by performing a linear regression on the logged total numerical abundance at weight and logged weights (natural logs, not log to base 10, are used).
-You can specify minimum and maximum weight or length range for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
-You can also specify the species to be used in the calculation.
+Calculates the slope of the community abundance through time by performing a
+linear regression on the logged total numerical abundance at weight and
+logged weights (natural logs, not log to base 10, are used). You can specify
+minimum and maximum weight or length range for the species. Lengths take
+precedence over weights (i.e. if both min_l and min_w are supplied, only
+min_l will be used). You can also specify the species to be used in the
+calculation.
 }
 \examples{
-\dontrun{
-data(NS_species_params_gears)
-data(inter)
-params <- set_multispecies_model(NS_species_params_gears, inter)
-sim <- project(params, effort=1, t_max=40, dt = 1, t_save = 1)
 # Slope based on biomass, using all species and sizes
-slope_biomass <- getCommunitySlope(sim)
+slope_biomass <- getCommunitySlope(NS_sim)
+slope_biomass[1, ] # in 1976
+slope_biomass[idxFinalT(NS_sim), ] # in 2010
+
 # Slope based on numbers, using all species and sizes
-slope_numbers <- getCommunitySlope(sim, biomass=FALSE)
+slope_numbers <- getCommunitySlope(NS_sim, biomass = FALSE)
+slope_numbers[1, ] # in 1976
+
 # Slope based on biomass, using all species and sizes between 10g and 1000g
-slope_biomass <- getCommunitySlope(sim, min_w = 10, max_w = 1000)
-# Slope based on biomass, using only demersal species and sizes between 10g and 1000g
-dem_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock", "Cod","Saithe")
-slope_biomass <- getCommunitySlope(sim, species = dem_species, min_w = 10, max_w = 1000)
-}
+slope_biomass <- getCommunitySlope(NS_sim, min_w = 10, max_w = 1000)
+slope_biomass[1, ] # in 1976
+
+# Slope based on biomass, using only demersal species and 
+# sizes between 10g and 1000g
+dem_species <- c("Dab","Whiting", "Sole", "Gurnard", "Plaice",
+                 "Haddock", "Cod", "Saithe")
+slope_biomass <- getCommunitySlope(NS_sim, species = dem_species, 
+                                   min_w = 10, max_w = 1000)
+slope_biomass[1, ] # in 1976
 }
 \seealso{
-Other functions for calculating indicators: \code{\link{getMeanMaxWeight}},
-  \code{\link{getMeanWeight}},
-  \code{\link{getProportionOfLargeFish}}
+Other functions for calculating indicators: 
+\code{\link{getMeanMaxWeight}()},
+\code{\link{getMeanWeight}()},
+\code{\link{getProportionOfLargeFish}()}
 }
 \concept{functions for calculating indicators}
 \concept{summary_function}

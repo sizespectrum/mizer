@@ -4,34 +4,24 @@
 \alias{summary_functions}
 \title{Description of summary functions}
 \description{
-Mizer provides a range of functions to extract information about a simulation
-from a MizerSim object.
+Mizer provides a range of functions to summarise the results of a simulation.
 }
 \details{
 A list of available summary functions is given in the table below.
 \tabular{lll}{
-  Function \tab Returns \tab Description \cr
-  \code{\link{getDiet}} \tab Three dimensional array (predator x size x prey) \tab Diet of predator at size, resolved by prey species \cr
-  \code{\link{getSSB}} \tab Two dimensional array (time x species) \tab Total Spawning Stock Biomass (SSB) of each species through time where SSB is calculated as the sum of weight of all mature individuals. \cr
-  \code{\link{getBiomass}} \tab Two dimensional array (time x species) \tab Total biomass of each species through time. \cr
-  \code{\link{getN}} \tab Two dimensional array (time x species) \tab Total abundance of each species through time. \cr
-  \code{\link{getFeedingLevel}} \tab Three dimensional array (time x species x size) \tab Feeding level of each species by size through time. \cr
-  \code{\link{getM2}} \tab Three dimensional array (time x species x size) \tab The predation mortality imposed on each species by size through time. \cr
-  \code{\link{getFMort}} \tab Three dimensional array (time x species x size) \tab Total fishing mortality on each species by size through time. \cr
-  \code{\link{getFMortGear}} \tab Four dimensional array (time x gear x species x size) \tab Fishing mortality on each species by each gear at size through time. \cr
-  \code{\link{getYieldGear}} \tab Three dimensional array (time x gear x species) \tab Total yield by gear and species through time. \cr
-  \code{\link{getYield}} \tab Two dimensional array (time x species) \tab Total yield of each species across all gears through time. \cr
-}
-
-A list of available indicator functions for MizerSim objects is given in the table below
-\tabular{lll}{
-  Function \tab Returns \tab Description \cr
-  \code{\link{getProportionOfLargeFish}} \tab A vector with values at each time step. \tab Calculates the proportion of large fish through time. The threshold value can be specified. It is possible to calculation the proportion of large fish based on either length or weight. \cr
-  \code{\link{getMeanWeight}} \tab A vector with values at each saved time step. \tab The mean weight of the community through time. This is calculated as the total biomass of the community divided by the total abundance. \cr
-  \code{\link{getMeanMaxWeight}} \tab Depends on the measure argument. If measure = “both” then you get a matrix with two columns, one with values by numbers, the other with values by biomass at each saved time step. If measure = “numbers” or “biomass” you get a vector of the respective values at each saved time step \tab The mean maximum weight of the community through time. This can be calculated by numbers or by biomass. See the help file for more details. \cr
-  \code{\link{getCommunitySlope}} \tab A data.frame with four columns: time step, slope, intercept and the coefficient of determination. \tab Calculates the slope of the community abundance spectrum through time by performing a linear regression on the logged total numerical abundance and logged body size. \cr
+Function \tab Returns \tab Description \cr
+\code{\link[=getDiet]{getDiet()}} \tab Three dimensional array (predator x size x prey) \tab Diet of predator at size, resolved by prey species \cr
+\code{\link[=getSSB]{getSSB()}} \tab Two dimensional array (time x species) \tab Total Spawning Stock Biomass (SSB) of each species through time where SSB is calculated as the sum of weight of all mature individuals. \cr
+\code{\link[=getBiomass]{getBiomass()}} \tab Two dimensional array (time x species) \tab Total biomass of each species through time. \cr
+\code{\link[=getN]{getN()}} \tab Two dimensional array (time x species) \tab Total abundance of each species through time. \cr
+\code{\link[=getFeedingLevel]{getFeedingLevel()}} \tab Three dimensional array (time x species x size) \tab Feeding level of each species by size through time. \cr
+\code{\link{getM2}} \tab Three dimensional array (time x species x size) \tab The predation mortality imposed on each species by size through time. \cr
+\code{\link[=getFMort]{getFMort()}} \tab Three dimensional array (time x species x size) \tab Total fishing mortality on each species by size through time. \cr
+\code{\link[=getFMortGear]{getFMortGear()}} \tab Four dimensional array (time x gear x species x size) \tab Fishing mortality on each species by each gear at size through time. \cr
+\code{\link[=getYieldGear]{getYieldGear()}} \tab Three dimensional array (time x gear x species) \tab Total yield by gear and species through time. \cr
+\code{\link[=getYield]{getYield()}} \tab Two dimensional array (time x species) \tab Total yield of each species across all gears through time. \cr
 }
 }
 \seealso{
-\code{\link{plotting_functions}}
+\link{indicator_functions}, \link{plotting_functions}
 }

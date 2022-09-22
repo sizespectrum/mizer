@@ -1,120 +1,82 @@
-#' Detritus dynamics
+#' Project resource using semichemostat model
 #' 
-#' Calculates the detritus biomass at the next timestep from the current
-#' detritus biomass.
+#' This function calculates the resource abundance at time `t + dt` from all
+#' abundances and rates at time `t`. 
 #' 
-#' The equation for the time evolution of the detritus biomass \eqn{B} is
-#' assumed to be of the form
-#' \deqn{dB/dt = inflow - consumption * B + external} 
-#' where 
-#' * `inflow` comes from feces, calculated as a proportion 
-#'   `detritus_proportion` of the biomass consumed by all consumers.
-#' * `consumption` is by detritivorous species, where the encounter rate is 
-#'   specified by `params@rho[, "detritus", ]`.
-#' * `external` is an influx from external sources. It can be negative in which
-#'   case it represents a loss to external sources.
+#' The time evolution of the resource spectrum is described by a 
+#' semi-chemostat equation
+#' \deqn{\frac{\partial N_R(w,t)}{\partial t} = r_R(w) \Big[ c_R (w) - N_R(w,t) \Big] - \mu_R(w, t) N_R(w,t)}{dN_R(w,t)/d t  = r_R(w) ( c_R (w) - N_R(w,t) ) - \mu_R(w,t ) N_R(w,t)}
 #' 
-#' This equation is solved analytically to
-#' \deqn{B(t+dt) = B(t)\exp(-consumption \cdot dt)
-#'   +\frac{inflow + external}{consumption}
-#'   (1-\exp(-consumption \cdot dt)).}{B(t+dt) 
-#'   = B(t) exp(-consumption * dt)
-#'   +(inflow + external)/(consumption) * (1 - exp(-consumption * dt)).}
-#' This avoids the stability problems that would arise if we used the Euler
-#' method to solve the equation numerically.
+#' Here \eqn{r_R(w)} is the resource regeneration rate and \eqn{c_R(w)} is the
+#' carrying capacity in the absence of predation. These parameters are changed
+#' with [setResource()]. The mortality \eqn{\mu_R(w, t)} is
+#' due to predation by consumers and is calculate with [getResourceMort()].
+#' 
+#' This function uses the analytic solution of the above equation, keeping the
+#' mortality fixed during the timestep.
+#' 
+#' It is also possible to implement other resource dynamics, as
+#' described in the help page for [setResource()].
 #' 
 #' @param params A [MizerParams] object
-#' @param n A matrix of current species abundances (species x size)
-#' @param n_pp A vector of current plankton abundance by size
-#' @param B A vector of current resource biomasses
-#' @param rates A list of rates as returned by [getRates()]
+#' @param n A matrix of species abundances (species x size)
+#' @param n_pp A vector of the resource abundance by size
+#' @param n_other A list with the abundances of other components
+#' @param rates A list of rates as returned by [mizerRates()]
+#' @param t The current time
 #' @param dt Time step
-#' @param detritus_external Rate of change from external sources
-#' @param detritus_proportion Proportion of consumption by fish that flows into
-#'   the detritus component.
+#' @param resource_rate Resource replenishment rate
+#' @param resource_capacity Resource carrying capacity
 #' @param ... Unused
 #'   
-#' @return A single number giving the biomass of detritus at next time step
+#' @return Vector containing resource spectrum at next timestep
 #' @export
-#' @family resource dynamics functions
-#' @md
-detritus_dynamics <- 
-    function(params, n, n_pp, B, rates, dt,
-             detritus_external = params@resource_params$detritus_external,
-             detritus_proportion = params@resource_params$detritus_proportion,
-             ...) {
+#' @family resource dynamics
+#' @examples
+#' \dontrun{
+#' params <- newMultispeciesParams(NS_species_params_gears, NS_interaction,
+#'                                 resource_dynamics = "resource_semichemostat")
+#' }
+resource_semichemostat <- function(params, n, n_pp, n_other, rates, t, dt,
+                                   resource_rate, resource_capacity, ...) {
+    # We use the exact solution under the assumption of constant mortality 
+    # during timestep
+    mur <- resource_rate + rates$resource_mort
+    n_steady <- resource_rate * resource_capacity / mur
+    n_pp_new <- n_steady + (n_pp - n_steady) * exp(-mur * dt)
     
-    # Total consumption is obtained by multiplying the encounter rate per
-    # consumer by the number density of consumers and their feeding rate
-    # and then integrating over all consumer weights and summing over all
-    # consumer species. This should not be changed because it needs to be in
-    # agreement with the calculation of consumption in getEGrowth().
-    consumption <- sum((params@rho[, "detritus",] * n *
-                            (1 - rates$feeding_level)) %*% params@dw)
-    inflow <-
-        detritus_proportion *
-          sum((rates$feeding_level * params@intake_max * n) %*% params@dw)
+    # Here is an alternative expression that looks as if it might be more
+    # precise when the sum of the rates is small due to the use of expm1.
+    # However the above has the advantage of preserving the steady state
+    # n_steady exactly.
+    # n_pp_new <- n_pp * exp(-mur * dt) + n_steady * expm1(-mur * dt)
     
-    et <- exp(consumption * dt)
-    return(B["detritus"] * et + 
-               (inflow  + detritus_external) / consumption  * (1 - et))
-    }
-
-
-#' Carrion dynamics
-#' 
-#' Calculates the biomass of carrion (dead animals) at the next timestep from
-#' the current biomass.
-#' 
-#' The equation for the time evolution of the carrion biomass \eqn{B} is
-#' assumed to be of the form
-#' \deqn{dB/dt = inflow - consumption * B + external} 
-#' where 
-#' * `inflow` comes from
-#'     + Discards from fishing.
-#'     + Animals killed by fishing gear.
-#'     + Animals that have died by causes other than predation. 
-#'   `detritus_proportion` of the biomass consumed by all consumers.
-#' * `consumption` is by scavenger species, where the encounter rate is 
-#'   specified by `params@rho[, "carrion", ]`.
-#' * `external` is an influx from external sources. It can be negative in which
-#'   case it represents a loss to external sources.
-#' 
-#' This equation is solved analytically to
-#' \deqn{B(t+dt) = B(t)\exp(-consumption \cdot dt)
-#'   +\frac{inflow + external}{consumption}
-#'   (1-\exp(-consumption \cdot dt)).}{B(t+dt) 
-#'   = B(t) exp(-consumption * dt)
-#'   +(inflow + external)/(consumption) * (1 - exp(-consumption * dt)).}
-#' This avoids the stability problems that would arise if we used the Euler
-#' method to solve the equation numerically.
-#' 
-#' @param params A [MizerParams] object
-#' @param n A matrix of current species abundances (species x size)
-#' @param n_pp A vector of current plankton abundance by size
-#' @param B A vector of current resource biomasses
-#' @param rates A list of rates as returned by [getRates()]
-#' @param dt Time step
-#' @param carrion_external External inflow rate of carrion biomass
-#' @param ... Unused
-#'   
-#' @return A single number giving the biomass of carrion at next time step
-#' @export
-#' @family resource dynamics functions
-#' @md
-carrion_dynamics <- 
-    function(params, n, n_pp, B, rates, dt,
-             carrion_external = params@resource_params$carrion_external,
-             ...) {
-        
-        consumption <- sum((params@rho[, "carrion", ] * n *
-                                (1 - rates$feeding_level)) %*% params@dw)
-        inflow <- 
-            # still need to be written
-            0
-        
-        et <- exp(consumption * dt)
-        return(B["carrion"] * et + 
-                   (inflow  + carrion_external) / consumption  * (1 - et))
+    # if growth rate and death rate are zero then the above would give NaN
+    # whereas the value should simply not change
+    sel <- mur == 0
+    n_pp_new[sel] <- n_pp[sel]
+    
+    n_pp_new
 }
 
+
+#' Keep resource abundance constant
+#' 
+#' This function can be used instead of the standard 
+#' [resource_semichemostat()] in order to keep the resource
+#' spectrum constant over time.
+#' 
+#' @inheritParams resource_semichemostat
+#' @param ... Unused
+#'   
+#' @return Vector containing resource spectrum at next timestep
+#' @export
+#' @family resource dynamics
+#' @examples
+#' \dontrun{
+#' params <- newMultispeciesParams(NS_species_params_gears, NS_interaction,
+#'                                 resource_dynamics = "resource_constant")
+#' }
+resource_constant <- function(params, n_pp, ...) {
+    return(n_pp)
+}

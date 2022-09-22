@@ -2,36 +2,67 @@
 % Please edit documentation in R/summary_methods.R
 \name{getYield}
 \alias{getYield}
-\title{Calculate the total yield of each species}
+\title{Calculate the rate at which biomass of each species is fished}
 \usage{
-getYield(sim)
+getYield(object)
 }
 \arguments{
-\item{sim}{An object of class \code{MizerSim}.}
+\item{object}{An object of class \code{MizerParams} or \code{MizerSim}.}
 }
 \value{
-An array containing the total yield (time x species)
+If called with a MizerParams object, a vector with the yield rate in
+grams per year for each species in the model. If called with a MizerSim
+object, an array (time x species) containing the yield rate at each time
+step for all species.
 }
 \description{
-Calculates the total yield of each species across all gears at each
-simulation time step.
+This yield rate is given in grams per year. It is calculated at each time
+step saved in the MizerSim object.
+}
+\details{
+The yield rate \eqn{y_i(t)} for species \eqn{i} at time \eqn{t} is defined as
+\deqn{y_i(t)=\int\mu_{f.i}(w, t)N_i(w, t)w dw}
+where \eqn{\mu_{f.i}(w, t)} is the fishing mortality of an individual of
+species \eqn{i} and weight \eqn{w} at time \eqn{t} and \eqn{N_i(w, t)} is the
+abundance density of such individuals.  The factor of \eqn{w} converts the
+abundance density into a biomass density and the integral aggregates the
+contribution from all sizes.
+
+The total catch in a time period from \eqn{t_1} to  \eqn{t_2} is the integral
+of the yield rate over that period:
+\deqn{C = \int_{t_1}^{t2}y_i(t)dt}
+In practice, as the yield rate is only available
+at the saved times, one can only approximate this integral by averaging over
+the available yield rates during the time period and multiplying by the time
+period. The less the yield changes between the saved values, the more
+accurate this approximation is. So the approximation can be improved by
+saving simulation results at smaller intervals, using the \code{t_save} argument
+to \code{\link[=project]{project()}}. But this is only a concern if abundances change quickly
+during the time period of interest.
 }
 \examples{
-\dontrun{
-data(NS_species_params_gears)
-data(inter)
-params <- set_multispecies_model(NS_species_params_gears, inter)
-sim <- project(params, effort=1, t_max=10)
-y <- getYield(sim)
-}
+yield <- getYield(NS_sim)
+yield[c("1972", "2010"), c("Herring", "Cod")]
+
+# Running simulation for another year, saving intermediate time steps
+params <- setInitialValues(getParams(NS_sim), NS_sim)
+sim <- project(params, t_save = 0.1, t_max = 1, 
+               t_start = 2010, progress_bar = FALSE)
+# The yield rate for Herring decreases during the year
+getYield(sim)[, "Herring"]
+# We get the total catch in the year by averaging over the year
+sum(getYield(sim)[1:10, "Herring"] / 10)
 }
 \seealso{
-\code{\link{getYieldGear}}
+\code{\link[=getYieldGear]{getYieldGear()}}
 
-Other summary functions: \code{\link{getBiomass}},
-  \code{\link{getDiet}}, \code{\link{getGrowthCurves}},
-  \code{\link{getN}}, \code{\link{getSSB}},
-  \code{\link{getYieldGear}}
+Other summary functions: 
+\code{\link{getBiomass}()},
+\code{\link{getDiet}()},
+\code{\link{getGrowthCurves}()},
+\code{\link{getN}()},
+\code{\link{getSSB}()},
+\code{\link{getYieldGear}()}
 }
 \concept{summary functions}
 \concept{summary_function}

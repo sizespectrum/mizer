@@ -3,11 +3,19 @@
 \docType{data}
 \name{inter}
 \alias{inter}
-\title{Example interaction matrix for the North Sea example}
-\format{A 12 x 12 matrix.}
+\title{Alias for \code{NS_interaction}}
+\format{
+A 12 x 12 matrix.
+}
 \source{
 {Blanchard et al.}
 }
-\description{
-The interaction coefficient between predators and preys in the North Sea.
+\usage{
+inter
 }
+\description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+An alias provided for backward compatibility with mizer version <= 2.3
+}
+\concept{deprecated}
+\keyword{datasets}

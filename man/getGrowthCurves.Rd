@@ -4,13 +4,18 @@
 \alias{getGrowthCurves}
 \title{Get growth curves giving weight as a function of age}
 \usage{
-getGrowthCurves(object, species, max_age = 20, percentage = FALSE)
+getGrowthCurves(object, species = NULL, max_age = 20, percentage = FALSE)
 }
 \arguments{
-\item{object}{MizerSim or MizerParams object}
+\item{object}{MizerSim or MizerParams object. If given a
+\linkS4class{MizerSim} object, uses the growth rates at the final time of a
+simulation to calculate the size at age. If given a
+\linkS4class{MizerParams} object, uses the initial growth rates instead.}
 
-\item{species}{Name or vector of names of the species to be included. By
-default all species are included.}
+\item{species}{The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.}
 
 \item{max_age}{The age up to which to run the growth curve. Default is 20.}
 
@@ -21,24 +26,25 @@ of the maximal size.}
 An array (species x age) containing the weight in grams.
 }
 \description{
-If given a \linkS4class{MizerSim} object, uses the growth rates at the final
-time of a simulation to calculate the size at age. If given a
-\linkS4class{MizerParams} object, uses the initial growth rates instead.
+Get growth curves giving weight as a function of age
 }
 \examples{
-\dontrun{
-data(NS_species_params_gears)
-data(inter)
-params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
-getGrowthCurves(params)
-sim <- project(params, effort=1, t_max = 20, t_save = 2, progress_bar = FALSE)
-getGrowthCurves(sim, max_age = 24)
-}
+growth_curves <- getGrowthCurves(NS_params, species = c("Cod", "Haddock"))
+str(growth_curves)
+
+library(ggplot2)
+ggplot(melt(growth_curves)) +
+  geom_line(aes(Age, value)) +
+  facet_wrap(~ Species, scales = "free") +
+  ylab("Size[g]") + xlab("Age[years]")
 }
 \seealso{
-Other summary functions: \code{\link{getBiomass}},
-  \code{\link{getDiet}}, \code{\link{getN}},
-  \code{\link{getSSB}}, \code{\link{getYieldGear}},
-  \code{\link{getYield}}
+Other summary functions: 
+\code{\link{getBiomass}()},
+\code{\link{getDiet}()},
+\code{\link{getN}()},
+\code{\link{getSSB}()},
+\code{\link{getYieldGear}()},
+\code{\link{getYield}()}
 }
 \concept{summary functions}

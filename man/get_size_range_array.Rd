@@ -4,8 +4,14 @@
 \alias{get_size_range_array}
 \title{Get size range array}
 \usage{
-get_size_range_array(params, min_w = min(params@w),
-  max_w = max(params@w), min_l = NULL, max_l = NULL, ...)
+get_size_range_array(
+  params,
+  min_w = min(params@w),
+  max_w = max(params@w),
+  min_l = NULL,
+  max_l = NULL,
+  ...
+)
 }
 \arguments{
 \item{params}{MizerParams object}
@@ -30,21 +36,22 @@ Boolean array (species x size)
 \description{
 Helper function that returns an array (species x size) of boolean values
 indicating whether that size bin is within the size limits specified by the
-arguments.
+arguments. Either the size limits can be the same for all species or they
+can be specified as vectors with one value for each species in the model.
 }
 \section{Length to weight conversion}{
 
-If `min_l` is specified there is no need to specify `min_w` and so on.
+If \code{min_l} is specified there is no need to specify \code{min_w} and so on.
 However, if a length is specified (minimum or maximum) then it is necessary
-for the species parameter data.frame to include the parameters `a` and `b`
+for the species parameter data.frame to include the parameters \code{a} and \code{b}
 that determine the relation between length \eqn{l} and weight \eqn{w} by
 \deqn{w = a l^b.}
 
 It is possible to mix length and weight constraints, e.g. by supplying a
-minimum weight and a maximum length. The default values are the minimum and
-maximum weights of the spectrum, i.e. the full range of the size spectrum is
+minimum weight and a maximum length, but this must be done the same for
+all species. The default values are the minimum and
+maximum weights of the spectrum, i.e., the full range of the size spectrum is
 used.
 }
 
 \concept{helper}
-\keyword{internal}

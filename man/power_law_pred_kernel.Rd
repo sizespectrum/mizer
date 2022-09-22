@@ -4,8 +4,14 @@
 \alias{power_law_pred_kernel}
 \title{Power-law predation kernel}
 \usage{
-power_law_pred_kernel(ppmr, kernel_exp, kernel_l_l, kernel_u_l, kernel_l_r,
-  kernel_u_r)
+power_law_pred_kernel(
+  ppmr,
+  kernel_exp,
+  kernel_l_l,
+  kernel_u_l,
+  kernel_l_r,
+  kernel_u_r
+)
 }
 \arguments{
 \item{ppmr}{A vector of predator/prey size ratios at which to evaluate the
@@ -23,7 +29,7 @@ predation kernel.}
 }
 \value{
 A vector giving the value of the predation kernel at each of the
-  predator/prey mass ratios in the \code{ppmr} argument.
+predator/prey mass ratios in the \code{ppmr} argument.
 }
 \description{
 This predation kernel is a power-law, with sigmoidal cut-offs at large and
@@ -41,3 +47,10 @@ ppmr^kernel_exp /
 The parameters need to be given as columns in the species parameter
 dataframe.
 }
+\seealso{
+Other predation kernel: 
+\code{\link{box_pred_kernel}()},
+\code{\link{lognormal_pred_kernel}()},
+\code{\link{truncated_lognormal_pred_kernel}()}
+}
+\concept{predation kernel}

@@ -4,49 +4,51 @@
 \alias{getN}
 \title{Calculate the number of individuals within a size range}
 \usage{
-getN(sim, ...)
+getN(object, ...)
 }
 \arguments{
-\item{sim}{An object of class \code{MizerSim}.}
+\item{object}{An object of class \code{MizerParams} or \code{MizerSim}.}
 
-\item{...}{Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
-\describe{
-  \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
+\item{...}{
+  Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
+  \describe{
+    \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
 the model.}
-  \item{\code{max_w}}{Largest weight in size range. Defaults to largest weight in the
+    \item{\code{max_w}}{Largest weight in size range. Defaults to largest weight in the
 model.}
-  \item{\code{min_l}}{Smallest length in size range. If supplied, this takes
+    \item{\code{min_l}}{Smallest length in size range. If supplied, this takes
 precedence over \code{min_w}.}
-  \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
+    \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
 over \code{max_w}.}
-}}
+  }}
 }
 \value{
-An array containing the total numbers (time x species)
+If called with a MizerParams object, a vector with the numbers for
+each species in the model. If called with a MizerSim object, an array (time
+x species) containing the numbers at each time step for all species.
 }
 \description{
-Calculates the number of individuals within user-defined size limits, for
-each time and each species in the \code{MizerSim} object. The default option
-is to use the whole size range. You can specify minimum and maximum weight or
-lengths for the species. Lengths take precedence over weights (i.e. if both
-min_l and min_w are supplied, only min_l will be used)
+Calculates the number of individuals within user-defined size limits. The
+default option is to use the whole size range. You can specify minimum and
+maximum weight or lengths for the species. Lengths take precedence over
+weights (i.e. if both min_l and min_w are supplied, only min_l will be used)
 }
 \examples{
-\dontrun{
-data(NS_species_params_gears)
-data(inter)
-params <- set_multispecies_model(NS_species_params_gears, inter)
-# With constant fishing effort for all gears for 20 time steps
-sim <- project(params, t_max = 20, effort = 0.5)
-getN(sim)
-getN(sim, min_w = 10, max_w = 1000)
-}
+numbers <- getN(NS_sim)
+numbers["1972", "Herring"]
+# The above gave a huge number, because that included all the larvae.
+# The number of Herrings between 10g and 1kg is much smaller.
+numbers <- getN(NS_sim, min_w = 10, max_w = 1000)
+numbers["1972", "Herring"]
 }
 \seealso{
-Other summary functions: \code{\link{getBiomass}},
-  \code{\link{getDiet}}, \code{\link{getGrowthCurves}},
-  \code{\link{getSSB}}, \code{\link{getYieldGear}},
-  \code{\link{getYield}}
+Other summary functions: 
+\code{\link{getBiomass}()},
+\code{\link{getDiet}()},
+\code{\link{getGrowthCurves}()},
+\code{\link{getSSB}()},
+\code{\link{getYieldGear}()},
+\code{\link{getYield}()}
 }
 \concept{summary functions}
 \concept{summary_function}

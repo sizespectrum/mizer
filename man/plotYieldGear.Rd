@@ -2,26 +2,44 @@
 % Please edit documentation in R/plots.R
 \name{plotYieldGear}
 \alias{plotYieldGear}
+\alias{plotlyYieldGear}
 \title{Plot the total yield of each species by gear through time}
 \usage{
-plotYieldGear(sim, species = dimnames(sim@n)$sp, total = FALSE,
-  highlight = NULL, ...)
+plotYieldGear(
+  sim,
+  species = NULL,
+  total = FALSE,
+  highlight = NULL,
+  return_data = FALSE,
+  ...
+)
+
+plotlyYieldGear(sim, species = NULL, total = FALSE, highlight = NULL, ...)
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}}
 
-\item{species}{Name or vector of names of the species to be plotted. By
-default all species are plotted.}
+\item{species}{The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.}
 
 \item{total}{A boolean value that determines whether the total over all
-species in the system is plotted as well. Default is FALSE}
+species in the system is plotted as well. Note that even if the plot
+only shows a selection of species, the total is including all species.
+Default is FALSE.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
+
+\item{return_data}{A boolean value that determines whether the formatted data
+used for the plot is returned instead of the plot itself. Default value is FALSE}
 
 \item{...}{Other arguments (currently unused)}
 }
 \value{
-A ggplot2 object
+A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
+frame with the four variables 'Year', 'Yield', 'Species' and 'Gear' is
+returned.
 }
 \description{
 After running a projection, the total yield of each species by fishing gear
@@ -29,36 +47,36 @@ can be plotted against time.
 }
 \details{
 This plot is pretty easy to do by hand. It just
-gets the biomass using the \code{\link{getYieldGear}} method and plots using
+gets the biomass using the \code{\link[=getYieldGear]{getYieldGear()}} method and plots using
 the ggplot2 package. You can then fiddle about with colours and linetypes
 etc. Just look at the source code for details.
 }
 \examples{
-
-data(NS_species_params_gears)
-data(inter)
-params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+\donttest{
+params <-  NS_params
 sim <- project(params, effort=1, t_max=20, t_save = 0.2, progress_bar = FALSE)
 plotYieldGear(sim)
 plotYieldGear(sim, species = c("Cod", "Herring"), total = TRUE)
 
+# Returning the data frame
+fr <- plotYieldGear(sim, return_data = TRUE)
+str(fr)
+}
 }
 \seealso{
-\code{\link{plotting_functions}},  \code{\link{getYieldGear}}
+\link{plotting_functions},  \code{\link[=getYieldGear]{getYieldGear()}}
 
-Other plotting functions: \code{\link{displayFrames}},
-  \code{\link{plot,MizerSim,missing-method}},
-  \code{\link{plotBiomass}}, \code{\link{plotDiet}},
-  \code{\link{plotFMort}}, \code{\link{plotFeedingLevel}},
-  \code{\link{plotGrowthCurves}},
-  \code{\link{plotPredMort}}, \code{\link{plotSpectra}},
-  \code{\link{plotYield}}, \code{\link{plotlyBiomass}},
-  \code{\link{plotlyFMort}},
-  \code{\link{plotlyFeedingLevel}},
-  \code{\link{plotlyGrowthCurves}},
-  \code{\link{plotlyPredMort}},
-  \code{\link{plotlySpectra}},
-  \code{\link{plotlyYieldGear}}, \code{\link{plotlyYield}},
-  \code{\link{plotting_functions}}
+Other plotting functions: 
+\code{\link{animateSpectra}()},
+\code{\link{plot,MizerSim,missing-method}},
+\code{\link{plotBiomass}()},
+\code{\link{plotDiet}()},
+\code{\link{plotFMort}()},
+\code{\link{plotFeedingLevel}()},
+\code{\link{plotGrowthCurves}()},
+\code{\link{plotPredMort}()},
+\code{\link{plotSpectra}()},
+\code{\link{plotYield}()},
+\code{\link{plotting_functions}}
 }
 \concept{plotting functions}

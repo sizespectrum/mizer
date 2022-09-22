@@ -25,56 +25,52 @@ valid_MizerSim <- function(object) {
 	msg <- "n_pp slot must have two dimensions"
 	errors <- c(errors, msg)
     }
-    if (length(dim(object@B)) != 2) {
-        msg <- "B slot must have two dimensions"
-        errors <- c(errors, msg)
-    }
     # Check time dimension is good - size, dim name, and names
-    if (!all(c(dim(object@n)[1], 
-               dim(object@n_pp)[1],
-               dim(object@B)[1]) == dim(object@effort)[1])) {
-	msg <- "First dimension of effort, n, n_pp and B slots must be the same length"
+    if (!all(c(dim(object@n)[[1]], 
+               dim(object@n_pp)[[1]],
+               dim(object@n_other)[[1]]) == dim(object@effort)[[1]])) {
+	msg <- "First dimension of effort, n, n_pp and n_other slots must be the same length."
 	errors <- c(errors, msg)
     }
-    if (!all(c(names(dimnames(object@n))[1],
-               names(dimnames(object@n_pp))[1],
-               names(dimnames(object@B))[1],
-               names(dimnames(object@effort))[1]) == "time")) {
-	msg <- "First dimension of effort, n, n_pp and B slots must be called 'time'"
+    if (!all(c(names(dimnames(object@n))[[1]],
+               names(dimnames(object@n_pp))[[1]],
+               names(dimnames(object@n_other))[[1]],
+               names(dimnames(object@effort))[[1]]) == "time")) {
+	msg <- "First dimension of effort, n, n_pp and n_other slots must be called 'time'."
 	errors <- c(errors, msg)
     }
     # species dimension of n
-    if (dim(object@n)[2] != dim(object@params@psi)[1]) {
+    if (dim(object@n)[[2]] != dim(object@params@psi)[[1]]) {
 	msg <- "Second dimension of n slot must have same length as the species names in the params slot"
 	errors <- c(errors, msg)
     }
-    if (names(dimnames(object@n))[2] != "sp") {
+    if (names(dimnames(object@n))[[2]] != "sp") {
 	msg <- "Second dimension of n slot must be called 'sp'"
 	errors <- c(errors, msg)
     }
-    if (!all(names(dimnames(object@n))[2] == names(dimnames(object@params@psi))[1])) {
+    if (!all(names(dimnames(object@n))[[2]] == names(dimnames(object@params@psi))[[1]])) {
 	msg <- "Second dimension of n slot must have same species names as in the params slot"
 	errors <- c(errors, msg)
     }
     # w dimension of n
-    if (dim(object@n)[3] != length(object@params@w)) {
+    if (dim(object@n)[[3]] != length(object@params@w)) {
 	msg <- "Third dimension of n slot must have same length as w in the params slot"
 	errors <- c(errors, msg)
     }
-    if (names(dimnames(object@n))[3] != "w") {
+    if (names(dimnames(object@n))[[3]] != "w") {
 	msg <- "Third dimension of n slot must be called 'w'"
 	errors <- c(errors, msg)
     }
-    if (!all(names(dimnames(object@n))[3] == names(dimnames(object@params@psi))[2])) {
+    if (!all(names(dimnames(object@n))[[3]] == names(dimnames(object@params@psi))[[2]])) {
 	msg <- "Third dimension of n slot must have same size names as in the params slot"
 	errors <- c(errors, msg)
     }
     # w dimension of n_pp
-    if (dim(object@n_pp)[2] != length(object@params@w_full)) {
+    if (dim(object@n_pp)[[2]] != length(object@params@w_full)) {
 	msg <- "Second dimension of n_pp slot must have same length as w_full in the params slot"
 	errors <- c(errors, msg)
     }
-    if (names(dimnames(object@n_pp))[2] != "w") {
+    if (names(dimnames(object@n_pp))[[2]] != "w") {
 	msg <- "Second dimension of n_pp slot must be called 'w'"
 	errors <- c(errors, msg)
     }
@@ -82,29 +78,30 @@ valid_MizerSim <- function(object) {
 	msg <- "Second dimension of n_pp slot must have same size names as rr_pp in the params slot"
 	errors <- c(errors, msg)
     }
-    # resource dimension of B
-    if (dim(object@B)[2] != length(object@params@resource_dynamics)) {
-        msg <- "Second dimension of B slot must have same length as resource_dynamics in the params slot"
+    # component dimension of n_other
+    if (dim(object@n_other)[[2]] != length(object@params@other_dynamics)) {
+        msg <- "Second dimension of n_other slot must have same length as other_dynamics in the params slot"
         errors <- c(errors, msg)
     }
-    if (names(dimnames(object@B))[2] != "res") {
-        msg <- "Second dimension of B slot must be called 'res'"
+    if (names(dimnames(object@n_other))[[2]] != "component") {
+        msg <- "Second dimension of n_other slot must be called 'component'"
         errors <- c(errors, msg)
     }
-    if (!all(dimnames(object@B)$w == names(object@params@resource_dynamics))) {
-        msg <- "Second dimension of B slot must have same size names as resource_dynamics in the params slot"
+    if (!all(dimnames(object@n_pp)$component == names(object@params@other_dynamics))) {
+        msg <- "Second dimension of n_other slot must have same component names as other_dynamics in the params slot"
         errors <- c(errors, msg)
     }
+    
     # gear dimension of effort
-    if (dim(object@effort)[2] != dim(object@params@catchability)[1]) {
+    if (dim(object@effort)[[2]] != dim(object@params@catchability)[[1]]) {
 	msg <- "Second dimension of effort slot must have same number of gears as in the params slot"
 	errors <- c(errors, msg)
     }
-    if (names(dimnames(object@effort))[2] != "gear") {
+    if (names(dimnames(object@effort))[[2]] != "gear") {
 	msg <- "Second dimension of effort slot must be called 'gear'"
 	errors <- c(errors, msg)
     }
-    if (!all(names(dimnames(object@effort))[2] == names(dimnames(object@params@catchability)[1]))) {
+    if (!all(names(dimnames(object@effort))[[2]] == names(dimnames(object@params@catchability)[[1]]))) {
 	msg <- "Second dimension of effort slot must have same gear names as in the params slot"
 	errors <- c(errors, msg)
     }
@@ -116,32 +113,49 @@ valid_MizerSim <- function(object) {
 #' A class to hold the results of a simulation
 #' 
 #' A class that holds the results of projecting a \linkS4class{MizerParams}
-#' object through time using the \code{\link{project}} function.
+#' object through time using [project()].
 #' 
-#' A new \code{MizerSim} object can be created with the \code{\link{MizerSim}}
+#' A new `MizerSim` object can be created with the [MizerSim()]
 #' constructor, but you will never have to do that because the object is
-#' created automatically by the \code{\link{project}} function when needed.
+#' created automatically by [project()] when needed.
 #' 
-#' The arrays all have named dimensions. The names of the "time" dimension are
-#' numeric and denote the time in years. The names of the "sp" dimension are
-#' the same as the species name in the order specified in the species_params
-#' data frame. The names of the "gear" and "res" dimension are the names of the 
-#' gears and resources respectively, in the same order as specified when setting
-#' up the \code{MizerParams} object.
+#' As a user you should never have to access the slots of a MizerSim object
+#' directly. Instead there are a range of functions to extract the information.
+#' [N()] and [NResource()] return arrays with the saved abundances of
+#' the species and the resource population at size respectively. [getEffort()]
+#' returns the fishing effort of each gear through time. 
+#' [getTimes()] returns the vector of times at which simulation results
+#' were stored and [idxFinalT()] returns the index with which to access
+#' specifically the value at the final time in the arrays returned by the other
+#' functions. [getParams()] returns the `MizerParams` object that was
+#' passed to `project()`. There are also several
+#' [summary_functions] and [plotting_functions]
+#' available to explore the contents of a `MizerSim` object.
 #' 
-#' There are several \code{link{summary_functions}} and
-#' \code{\link{plotting_functions}} available to explore the contents of a
-#' \code{MizerSim} object.
+#' The arrays all have named dimensions. The names of the `time` dimension
+#' denote the time in years. The names of the `w` dimension are weights in grams
+#' rounded to three significant figures. The names of the `sp` dimension are the
+#' same as the species name in the order specified in the species_params data
+#' frame. The names of the `gear` dimension are the names of the gears, in the
+#' same order as specified when setting up the `MizerParams` object.
+#' 
+#' Extensions of mizer can use the `n_other` slot to store the abundances of
+#' other ecosystem components and these extensions should provide their own
+#' functions for accessing that information.
+#' 
+#' The `MizerSim` class has changed since previous versions of mizer. To use
+#' a `MizerSim` object created by a previous version, you need to upgrade it
+#' with [upgradeSim()].
 #' 
 #' @slot params An object of type \linkS4class{MizerParams}.
-#' @slot n Array that stores the projected community population abundances by
-#'   time, species and size
-#' @slot n_pp Array that stores the projected plankton abundance by time and
-#'   size
-#' @slot B Array that stores biomasses of unstructured resources by time and
-#'   resource. Second dimension has length 0 if there are no unstructured
-#'   resources.
-#' @slot effort Array that stores the fishing effort by time and gear
+#' @slot n Three-dimensional array (time x species x size) that stores the 
+#'   projected community number densities.
+#' @slot n_pp An array (time x size) that stores the projected resource number
+#'   densities.
+#' @slot n_other A list array (time x component) that stores the projected
+#'   values for other ecosystem components.
+#' @slot effort An array (time x gear) that stores the fishing effort by time and 
+#'   gear.
 #' 
 #' @export
 setClass(
@@ -151,7 +165,7 @@ setClass(
         n = "array",
         effort = "array",
         n_pp = "array",
-        B = "array"
+        n_other = "array"
     )
 )
 
@@ -159,10 +173,10 @@ setValidity("MizerSim", valid_MizerSim)
 remove(valid_MizerSim)
 
 
-#' Constructor for the \code{MizerSim} class
+#' Constructor for the `MizerSim` class
 #' 
-#' A constructor for the \code{MizerSim} class. This is used by the
-#' \code{project} function to create \code{MizerSim} objects of the right
+#' A constructor for the `MizerSim` class. This is used by 
+#' [project()] to create `MizerSim` objects of the right
 #' dimensions. It is not necessary for users to use this constructor.
 #' 
 #' @param params a \linkS4class{MizerParams} object
@@ -191,8 +205,6 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
     species_names <- dimnames(params@psi)$sp
     no_w <- length(params@w)
     w_names <- dimnames(params@psi)$w
-    resource_names <- dimnames(params@rho)$res
-    no_res <- length(resource_names)
     no_t <- length(t_dimnames)
     array_n <- array(NA, dim = c(no_t, no_sp, no_w), 
                      dimnames = list(time = t_dimnames, 
@@ -209,17 +221,138 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
     array_n_pp <- array(NA, dim = c(no_t, no_w_full), 
                         dimnames = list(time = t_dimnames, 
                                         w = w_full_names))
-    array_B <- array(NA, dim = c(no_t, no_res), 
-                        dimnames = list(time = t_dimnames, 
-                                        res = resource_names))
+    
+    component_names <- names(params@other_dynamics)
+    no_components <- length(component_names)
+    list_n_other <- rep(list(NA), no_t * no_components)
+    dim(list_n_other) <- c(no_t, no_components)
+    dimnames(list_n_other) <- list(time = t_dimnames,
+                                   component = component_names)
     
     sim <- new('MizerSim',
                params = params,
                n = array_n,
                n_pp = array_n_pp,
-               B = array_B,
+               n_other = list_n_other,
                effort = array_effort)
     return(sim)
 }
 
+#' Time series of size spectra
+#' 
+#' Fetch the simulation results for the size spectra over time.
+#' 
+#' @param sim A MizerSim object
+#' @return For `N()`: A three-dimensional array (time x species x size) with the
+#'   number density of consumers
+#' @export
+#' @examples
+#' str(N(NS_sim))
+N <- function(sim) {
+    sim@n
+}
 
+#' @rdname N
+#' @return For `NResource()`: An array (time x size) with the number density of resource
+#' @export
+#' @examples
+#' str(NResource(NS_sim))
+NResource <- function(sim) {
+    sim@n_pp
+}
+
+
+#' Size spectra at end of simulation
+#' 
+#' @param sim A MizerSim object
+#' @return For `finalN()`: An array (species x size) holding the consumer
+#'   number densities at the end of the simulation
+#' @seealso [idxFinalT()]
+#' @export
+#' @examples
+#' str(finalN(NS_sim))
+#' 
+#' # This could also be obtained using `N()` and `idxFinalT()`
+#' identical(N(NS_sim)[idxFinalT(NS_sim), , ], finalN(NS_sim))
+finalN <- function(sim) {
+    assert_that(is(sim, "MizerSim"))
+    n <- sim@params@initial_n  # Needed to get the right dimnames
+    n[] <- sim@n[dim(sim@n)[[1]], , ]
+    n
+}
+
+#' @rdname finalN
+#' @return For `finalNResource()`: A vector holding the resource number
+#'   densities at the end of the simulation for all size classes
+#' @export
+#' @examples
+#' str(finalNResource(NS_sim))
+finalNResource <- function(sim) {
+    assert_that(is(sim, "MizerSim"))
+    sim@n_pp[dim(sim@n_pp)[[1]], ]
+}
+
+#' Time index at end of simulation
+#' 
+#' @param sim A MizerSim object
+#' @return An integer giving the index for extracting the
+#'   results for the final time step
+#' @export
+#' @examples
+#' idx <- idxFinalT(NS_sim)
+#' idx
+#' # This coincides with
+#' length(getTimes(NS_sim))
+#' # and corresponds to the final time
+#' getTimes(NS_sim)[idx]
+#' # We can use this index to extract the result at the final time
+#' identical(N(NS_sim)[idx, , ], finalN(NS_sim))
+#' identical(NResource(NS_sim)[idx, ], finalNResource(NS_sim))
+idxFinalT <- function(sim) {
+    assert_that(is(sim, "MizerSim"))
+    dim(sim@n_pp)[[1]]
+}
+
+
+#' Times for which simulation results are available
+#' 
+#' @param sim A MizerSim object
+#' @return A numeric vectors of the times (in years) at which simulation results
+#'   have been stored in the MizerSim object.
+#' @export
+#' @examples 
+#' getTimes(NS_sim)
+getTimes <- function(sim) {
+    as.numeric(dimnames(sim@n)$t)
+}
+
+#' Fishing effort used in simulation
+#' 
+#' Note that the array returned may not be exactly the same as the `effort`
+#' argument that was passed in to `project()`. This is because only the saved
+#' effort is stored (the frequency of saving is determined by the argument
+#' `t_save`).
+#' 
+#' @param sim A MizerSim object
+#' @return An array (time x gear) that contains the fishing effort by time and 
+#'   gear.
+#' @export
+#' @examples
+#' str(getEffort(NS_sim))
+getEffort <- function(sim) {
+    sim@effort
+}
+
+#' Extract the parameter object underlying a simulation
+#' 
+#' @param sim A MizerSim object
+#' @return The MizerParams object that was used to run the simulation
+#' @export
+#' @examples 
+#' # This will be identical to the params object that was used to create the
+#' # simulation
+#' sim <- project(NS_params, t_max = 1)
+#' identical(getParams(sim), NS_params)
+getParams <- function(sim) {
+    sim@params
+}

@@ -2,16 +2,37 @@
 % Please edit documentation in R/plots.R
 \name{plotFeedingLevel}
 \alias{plotFeedingLevel}
+\alias{plotlyFeedingLevel}
 \title{Plot the feeding level of species by size}
 \usage{
-plotFeedingLevel(object, species = NULL, time_range, highlight = NULL,
-  all.sizes = FALSE, ...)
+plotFeedingLevel(
+  object,
+  species = NULL,
+  time_range,
+  highlight = NULL,
+  all.sizes = FALSE,
+  include_critical = FALSE,
+  return_data = FALSE,
+  ...
+)
+
+plotlyFeedingLevel(
+  object,
+  species = NULL,
+  time_range,
+  highlight = NULL,
+  include_critical,
+  ...
+)
 }
 \arguments{
-\item{object}{An object of class \linkS4class{MizerSim} or \linkS4class{MizerParams}.}
+\item{object}{An object of class \linkS4class{MizerSim} or
+\linkS4class{MizerParams}.}
 
-\item{species}{Name or vector of names of the species to be plotted. By
-default all species are plotted.}
+\item{species}{The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.}
 
 \item{time_range}{The time range (either a vector of values, a vector of min
 and max time, or a single value) to average the abundances over. Default is
@@ -23,13 +44,22 @@ object.}
 \item{all.sizes}{If TRUE, then feeding level is plotted also for sizes
 outside a species' size range. Default FALSE.}
 
+\item{include_critical}{If TRUE, then the critical feeding level is also
+plotted. Default FALSE.}
+
+\item{return_data}{A boolean value that determines whether the formatted data
+used for the plot is returned instead of the plot itself. Default value is FALSE}
+
 \item{...}{Other arguments (currently unused)}
 }
 \value{
-A ggplot2 object
+A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
+frame with the variables 'w', 'value' and 'Species' is returned. If also
+\code{include_critical = TRUE} then the data frame contains a fourth variable
+'Type' that distinguishes between 'actual' and 'critical' feeding level.
 }
 \description{
-After running a projection, plot the feeding level of each species by size. 
+After running a projection, plot the feeding level of each species by size.
 The feeding level is averaged over the specified time range (a single value
 for the time range can be used).
 }
@@ -38,32 +68,40 @@ When called with a \linkS4class{MizerSim} object, the feeding level is averaged
 over the specified time range (a single value for the time range can be used
 to plot a single time step). When called with a \linkS4class{MizerParams}
 object the initial feeding level is plotted.
+
+If \code{include_critical = TRUE} then the critical feeding level (the feeding
+level at which the intake just covers the metabolic cost) is also plotted,
+with a thinner line. This line should always stay below the line of the
+actual feeding level, because the species would stop growing at any point
+where the feeding level drops to the critical feeding level.
 }
 \examples{
-
-data(NS_species_params_gears)
-data(inter)
-params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+\donttest{
+params <-  NS_params
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotFeedingLevel(sim)
-plotFeedingLevel(sim, time_range = 10:20, species = c("Cod", "Herring"))
+plotFeedingLevel(sim, time_range = 10:20, species = c("Cod", "Herring"),
+                 include_critical = TRUE)
 
+# Returning the data frame
+fr <- plotFeedingLevel(sim, return_data = TRUE)
+str(fr)
+}
 }
 \seealso{
-\code{\link{plotting_functions}}, \code{\link{getFeedingLevel}}
+\link{plotting_functions}, \code{\link[=getFeedingLevel]{getFeedingLevel()}}
 
-Other plotting functions: \code{\link{displayFrames}},
-  \code{\link{plot,MizerSim,missing-method}},
-  \code{\link{plotBiomass}}, \code{\link{plotDiet}},
-  \code{\link{plotFMort}}, \code{\link{plotGrowthCurves}},
-  \code{\link{plotPredMort}}, \code{\link{plotSpectra}},
-  \code{\link{plotYieldGear}}, \code{\link{plotYield}},
-  \code{\link{plotlyBiomass}}, \code{\link{plotlyFMort}},
-  \code{\link{plotlyFeedingLevel}},
-  \code{\link{plotlyGrowthCurves}},
-  \code{\link{plotlyPredMort}},
-  \code{\link{plotlySpectra}},
-  \code{\link{plotlyYieldGear}}, \code{\link{plotlyYield}},
-  \code{\link{plotting_functions}}
+Other plotting functions: 
+\code{\link{animateSpectra}()},
+\code{\link{plot,MizerSim,missing-method}},
+\code{\link{plotBiomass}()},
+\code{\link{plotDiet}()},
+\code{\link{plotFMort}()},
+\code{\link{plotGrowthCurves}()},
+\code{\link{plotPredMort}()},
+\code{\link{plotSpectra}()},
+\code{\link{plotYieldGear}()},
+\code{\link{plotYield}()},
+\code{\link{plotting_functions}}
 }
 \concept{plotting functions}

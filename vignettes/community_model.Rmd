@@ -2,7 +2,6 @@
 title: "The Community Model"
 output:
   html_document:
-    number_sections: yes
     toc: yes
     fig_width: 5
     fig_height: 5
@@ -13,14 +12,14 @@ library(mizer)
 ```
 The simplest version of the size spectrum model is the community model. In the
 community model, individuals are only characterized by their size and are
-represented by a single group representing an across species average.
-Reproduction is not considered and the recruitment flux $R$ is
+represented by a single group representing an across-species aggregate.
+Reproduction is not considered; the reproduction rate $R$ is
 set to be constant. The resource spectrum only extends to the start of the
-community spectrum. Standard metabolism is turned off.
+community spectrum. Metabolism is turned off.
 
 In this section we describe how a community model can be set up and projected
 through time. We then use a community model to illustrate the idea of a trophic
-cascade. Due to the relative simplicity of this type of model they are useful
+cascade. Due to the relative simplicity of this type of model, it is useful
 for gently introducing some of the concepts behind the mizer package.
 Consequently, this section should hopefully serve as an introduction to using
 mizer.
@@ -29,45 +28,37 @@ mizer.
 
 The first stage in implementing a model using `mizer` is to create an object of
 class `MizerParams`. This class contains the model parameters including the
-life-history parameters of the species in the model, the stock-recruitment
-relationships, the fishing selectivity functions and the parameters of the
-plankton spectrum.
+life-history parameters of the species in the model, the fishing selectivity
+functions and the parameters of the resource spectrum.
 
 To avoid having to make a `MizerParams` object directly, the
-`set_community_model()` wrapper function, has been provided that conveniently
+`newCommunityParams()` wrapper function, has been provided that conveniently
 creates a `MizerParams` object specifically for a community model. The
-documentation for the function can be seen by entering:
-```{r label=help_set_community_model, eval=FALSE}
-?set_community_model
-```
+documentation for the function can be seen by clicking on the function 
+name anywhere it appears on this page: `newCommunityParams()`.
 
 As can be seen in the help page, the function can take many arguments. We can
 ignore most of these for the moment as they almost all come with
 default values.
 
-The arguments that you should pay attention to are: `z0` (the level of
-background mortality), `alpha` (the assimilation efficiency of the community),
-`f0` (the average feeding level of the community which is used to calculate
-$\gamma,$ as described in [the equation for
-gamma](model_description.html#eq:gamma) and `recruitment` (the level of constant
-recruitment).
+The arguments that you should pay attention to are: `z0` (the external 
+mortality rate), `alpha` (the assimilation efficiency of the community),
+`f0` (the average feeding level of the community, which is used to calculate
+$\gamma$) and `h` (the coefficient of the maximum intake rate).
 
 Although default values for these parameters are provided, you are encouraged to
 explore how changing the values affects the simulated community. For example,
-the default value of `z0` is 0.1. Increasing this value effectively 'shortens'
-the length of the community spectrum. The value of the constant recruitment
-should be set so that the community spectrum is a continuation of the plankton
-spectrum. This can be done with trial and error.  A reasonable value for `alpha`
-is 0.2.
+the default value of `z0` is \(`r species_params(newCommunityParams())$z0`\). 
+Increasing this value effectively 'shortens' the length of the community 
+spectrum. 
 
-The `set_community_model()` function is called by passing in the arguments by
+The `newCommunityParams()` function is called by passing in the arguments by
 name. Any parameter that is not passed in is set to the default value. For
-example, the following line sets up the parameters with `z0` = 0.1, `f0` = 0.7,
-`alpha` = 0.2 and `recruitment` = 4e7. All other parameters will have their
-default value:
+example, the following line sets up the parameters with `z0` = 0.05, `f0` = 0.5. 
+All other parameters will have their default value:
 
 ```{r label=demo_comm_model_params}
-params <- set_community_model(z0 = 0.1, f0 = 0.7, alpha = 0.2, recruitment = 4e7)
+params <- newCommunityParams(z0 = 0.05, f0 = 0.5)
 ```
 
 Calling the function creates and returns an object of type `MizerParams`. We can
@@ -76,44 +67,30 @@ check this using the `class()` function.
 class(params)
 ```
 
-If you are going through this vignette for the first time, it is likely that you
-have no idea what a `MizerParams` object actually is. In R-speak it is an *S4*
-object, which means it is an object made up of *slots*. Slots are essentially
-containers that store the object data. The names of these slots can be seen by
-calling the `slotNames()` method on the object:
-```{r label=slots_MP}
-slotNames(params)
-```
+To work with mizer you do not have to worry about how this object is realised
+internally. All you need to know is that it contains all the information needed
+to run model simulations and that mizer provides you with functions to access,
+use and modify this information.
 
-As you can see, the `params` object is made up of lots of slots. A quick
-description can be found in the [`MizerParams` help
-page](../reference/MizerParams-class.html) (run `class ? MizerParams`. The slots
-of an object are accessed by using the `@` operator. For example, to access the
-`w` slot (which contains a vector of the size bins in the model) you would use
-```{r label=demo_slot_accessor, results='hide'}
-params@w
-```
-
-Rather than picking through the slots to find out what is in a particular `MizerParams` object, a summary of the object can be seen by calling the `summary()` method on it:
+A very brief description of the model contained in the MizerParams object can 
+be seen by calling the `summary()` method on it:
 
 ```{r label=summary_comm_params}
 summary(params)
 ```
 
 In the summary you can see that the size range of the community spectrum has
-been set from $`r min(params@w)`$ to $`r max(params@w)`$ and these are spread
-over $`r length(params@w)`$ size bins. Similar information is available for the
-plankton spectrum. Additionally, the community is made up of only one species,
+been set from $`r min(w(params))`$ to $`r max(w(params))`$ and this is divided
+into $`r length(w(params))`$ size bins. Similar information is available for the
+resource spectrum. Additionally, the community is made up of only one species,
 called *Community*, which has an asymptotic size of 
-$`r params@species_params$w_inf[1]`$ and a preferred predator prey mass ratio of 
-$`r params@species_params$beta[1]`$. The `w_mat` parameter has been set to `NA` as
+$`r species_params(params)$w_inf[1]`$ and a preferred predator prey mass ratio of 
+$`r species_params(params)$beta[1]`$. The `w_mat` parameter has been set to `NA` as
 it is not used when running a community model. These values have all been set by
-default using the `set_community_model()` function. If you want to set different
-values for these, you will need to call the `set_community_model()` function and
-pass in the desired argument values.
+default using the `newCommunityParams()` function. 
 
 ## Running the community model {#sec:running_comm_model}
-By using the `set_community_model()` function we now have a `MizerParams` object
+By using the `newCommunityParams()` function we now have a `MizerParams` object
 that contains all the information we need about the model community. We can use
 this to perform a simulation and project the community through time. In the
 `mizer` package, projections are performed using the `project()` function. You can
@@ -122,31 +99,36 @@ see the help page for `project()` for more details and it is described fully in
 the details for the moment and just use `project()` to run some simple
 projections. The arguments for `project()` that we need to be concerned with are
 `effort`, which determines the fishing effort (and therefore fishing mortality)
-through time, and `t_max`, which is the length of the simulation. Initial
+through time, and `t_max`, which is the number of years we want to project into the future. Initial
 population abundances are set automatically by the `get_initial_n()` function.
 It is possible to set your own initial abundances but we will not do this here.
 
-To run a projection for 50 time steps, with no fishing effort (i.e. we want to
+To run a projection for 50 years, with no fishing effort (i.e. we want to
 model an unexploited community) we run:
 ```{r label=demo_comm_run}
 sim <- project(params, t_max = 50, effort = 0)
 ```
 
-The resulting object, `sim`, is of type `MizerSim`. This class holds the results
-of the simulation, including the community and plankton abundances at size
+The resulting object, `sim`, is of type `MizerSim`. 
+```{r}
+class(sim)
+```
+
+This class holds the results
+of the simulation, including the community and resource abundances at size
 through time, as well as the original model parameters. It is explained in
 detail in [the section on running a simulation.](running_a_simulation.html)
 
 After running the projection, it is possible to explore the results using a
-range of plots and analyses. These are described fully in [the section on
-exploring the simulation results.](exploring_the_simulation_results.html)
+range of plots and analyses. These are described fully in 
+[the section on exploring the simulation results.](exploring_the_simulation_results.html)
 
-To quickly look at the results of the projection you can call the generic
-`plot()` method. This plots the feeding level, predation mortality, fishing
-mortality and abundance by size in the last time step of the simulation, and the
-biomass through time. Each of the plots can be show individually if desired.
+To quickly look at the results of the projection you can call the `plot()`
+method. This plots the feeding level, predation mortality, fishing mortality and
+abundance by size in the last time step of the simulation, and the total
+biomass through time. Each of the plots can be shown individually if desired.
 
-```{r label=print_plot_comm_sim, fig.cap="Example plot of the community model."}
+```{r label=print_plot_comm_sim}
 plot(sim)
 ```
 
@@ -160,19 +142,21 @@ is clearly a function of size, with the smallest sizes experiencing the
 highest levels of predation. The feeding level describes how satiated an
 individual is, with 0 being unfed, and 1 being full satiated. The feeding level
 at size will be strongly affected by the values of the `f0` and `alpha`
-arguments passed to the `set_community_model()` function. The plankton and
+arguments passed to the `newCommunityParams()` function. 
+
+The resource and
 community spectra are shown in the bottom panel of the plot (the plotted
-plankton spectrum has been truncated to make for a better plot, but really
-extends all the way back to $`r signif(params@w_full[1],3)`$ g). You can see
-that the community spectrum forms a continuum with the plankton spectrum. This
-is strongly affected by the level of fixed recruitment (the `recruitment`
-argument passed to `set_community_model()`).
+resource spectrum has been truncated to make for a better plot, but really
+extends all the way back to $`r signif(w_full(params)[1], 3)`$ g). You can see
+that the community spectrum forms a continuum with the resource spectrum. This
+is strongly affected by the level of fixed reproduction rate (the `reproduction`
+argument passed to `newCommunityParams()`)
 
 Note the hump in the biomass at the largest end of the community spectrum. This
 is because the size spectrum model can be broadly described as 'big things
 eating little things'. Given this, what is eating the very biggest things?
 Without fishing pressure, the mortality of the largest individuals is only from
-the background mortality (determined by the `z0` argument) and the mortality
+the external mortality (determined by the `z0` argument) and the mortality
 from predation is almost 0. This is difficult to see in the plot due to the
 predation mortality being so high for the smaller individuals.
 
@@ -181,31 +165,50 @@ from the `MizerSim` object, `sim`, that we created above. This is easily done by
 using the `getPredMort()` function (see the help page for more details). There are
 several functions that can be used for extracting information from a `MizerSim`
 object, e.g. `getFeedingLevel()` and `getFMort()`. For more information see 
-[the section on exploring the simulation results](exploring_the_simulation_results.html). Here we just call
-`getPredMort()` using the `sim` object:
+[the section on exploring the simulation results](exploring_the_simulation_results.html). 
+Here we just call `getPredMort()` using the `sim` object:
 
 ```{r label=get_m2_comm}
-m2 <- getPredMort(sim)
+pred_mort <- getPredMort(sim)
 ```
 
-The resulting `m2` object is an array that contains the predation mortality at
+The resulting `pred_mort` object is an array that contains the predation mortality at
 time by species by size. Here we only have one species so the species dimension
 is dropped, leaving us with a two dimensional array of time by size. We
-projected the model for $`r dim(m2)[1]-1`$ time steps but the length of the time
-dimension is $`r dim(m2)[1]`$ as the initial population is also included as a
-time step.
+projected the model for $`r dim(pred_mort)[1]-1`$ time steps but the length of the time
+dimension is $`r dim(pred_mort)[1]`$ as the initial population is also included as a
+time step. We can get the index of the final time with
+```{r}
+idxFinalT(sim)
+```
 
 To pull out the predation mortality at size in the final time step we use:
 ```{r label=m2_comm_final_time_step, results='hide'}
-m2[51,]
+pred_mort_final <- pred_mort[idxFinalT(sim), ]
 ```
 
 If you plot this predation mortality on a log-log scale you can see how the
 predation mortality declines to almost zero for the largest sizes.
 
-```{r label=print_plot_comm_m2, warning=FALSE, fig.cap="Predation mortality without fishing in the community model (note the log scales for both axes)."}
-plot(x = sim@params@w, y = m2[51,], log = "xy", type = "l", 
-     xlab = "Size", ylab = "Predation mortality")
+```{r label=print_plot_comm_m2, warning=FALSE}
+plot(x = w(params), y = pred_mort_final, log = "xy", type = "l", 
+     xlab = "Size [g]", ylab = "Predation mortality [1/year]")
+```
+
+Note how we used `w(sim)` to get the vector of sizes to plot along the x-axis and
+how we specified that we wanted to have logarithmic axes.
+
+In the long run it is worthwhile to use the ggplot2 package for creating plots,
+so we show also how you would create the above graph with `ggplot()`. For
+more detail see the section on 
+[using ggplot2 and plotly with mizer](plotting.html).
+```{r}
+library(ggplot2)
+sd <- data.frame(x = w(params), y = pred_mort_final)
+ggplot(sd, aes(x = x, y = y)) +
+  geom_line() +
+  scale_x_log10() + scale_y_log10() +
+  xlab("Size [g]") + ylab("Predation mortality [1/year]")
 ```
  
 
@@ -214,16 +217,14 @@ It is possible to use the community model to simulate a trophic cascade.
 To do this we need to perform two simulations, one with fishing and one without.
 
 This means we need to consider how fishing is handled in `mizer`. The
-`set_community_model()` function automatically sets the fishing selectivity to
+`newCommunityParams()` function automatically sets the fishing selectivity to
 have a knife-edge shape, with only individuals larger than 1 kg selected (the
 size at the knife-edge can be changed by setting the `knife_edge_size`
 argument). Although it is possible to change the selectivity function, here we
 will use the default knife-edge selectivity. We set up the parameter object
-exactly as before, but now we are explicitly setting the size at which
-individuals are selected by the fishing gear.
+with default parameters:
 ```{r label=set_comm_fishing}
-params_knife <- set_community_model(z0 = 0.1, recruitment = 4e7,
-    alpha = 0.2, f0 = 0.7, knife_edge_size = 1000)
+params_knife <- newCommunityParams()
 ```
 
 First we perform a simulation without fishing in the same way we did above by
@@ -234,77 +235,127 @@ sim0 <- project(params_knife, effort = 0, t_max = 50)
 
 Now we want to simulate again, this time with fishing. In the simulations,
 fishing mortality is calculated as the product of the fishing selectivity,
-effort and catchability (see [the section on fishing
-gears](multispecies_model.html#sec:fishing_gear) for more details). By default
+effort and catchability (see 
+[the section on fishing gears](multispecies_model.html#sec:fishing_gear) 
+for more details). By default
 catchability is set to 1. This means that a fishing effort of 1 will result in a
-fishing mortality of 1 for fully selected sizes. Here we run a simulation with
+fishing mortality of 1/year for fully selected sizes. Here we run a simulation with
 fishing effort set to 1 for the duration of the simulation:
 
 ```{r label=sim_comm_with_fish}
 sim1 <- project(params_knife, effort = 1, t_max = 50)
 ```
 
-You can compare the difference between these scenarios by using the `plot()` method as before. Of particular interest is the fishing mortality at size. The knife-edge selectivity at 1000 g can be clearly seen and an effort of 1 has resulted in a fishing mortality of 1 for the fully selected sizes.
+You can compare the difference between these scenarios by using the `plot()`
+method as before. Of particular interest is the fishing mortality at size. The
+knife-edge selectivity at 1000 g can be clearly seen and an effort of 1 has
+resulted in a fishing mortality of 1 for the fully selected sizes.
 
-```{r label=print_plot_comm_fmort, fig.cap="Summary plot for the community model when fishing with knife-edge selectivity at size = 1000 g."}
-plot(sim1)
+```{r label=print_plot_comm_fmort}
+plot(sim1, power = 2)
 ```
  
-To explore the presence of a trophic cascade, we are interested in looking at the relative change in abundance when the community is fished compared to when it is not fished. To do this we need to get the abundances at size from the simulation objects. The abundances are stored in the `n` slot of the `MizerSim` objects. The `n` slot contains a three dimensional array with dimensions time x species x size. Here we have 51 time steps (50 from the simulation plus one which stores the initial population), 1 species and 100 sizes:
+To explore the presence of a trophic cascade, we are interested in looking at
+the relative change in abundance when the community is fished compared to when
+it is not fished. To do this we need to get the abundances at size from the
+simulation objects. This is done with the `N()` function, which returns a three
+dimensional array with dimensions time x species x size. Here we have 51 time
+steps (50 from the simulation plus one which stores the initial population), 1
+species and 100 sizes:
 
 ```{r label='dim_n'}
-dim(sim0@n)
+dim(N(sim0))
 ```
 
-We want the abundances in the final time step, and we can use these to calculate the relative abundances:
+We want the abundances in the final time step, and we can use these to calculate
+the relative abundances:
 
 ```{r label='relative_comm_abundance'}
-relative_abundance <- sim1@n[51,,] / sim0@n[51,,]
+relative_abundance <- N(sim1)[51, , ] / N(sim0)[51, , ]
+```
+For convenience, to save you from having to determine the index of the final 
+time, mizer provides the function `finalN()`, so we could have done
+```{r label='relative_comm_abundance_simple'}
+relative_abundance <- finalN(sim1) / finalN(sim0)
 ```
 
 This can then be plotted using basic R plotting commands.
-The sizes are stored in the `params@w` slot (a slot of a slot!).
 
 
-```{r label=plot_relative_comm_abund, fig.cap="Relative abundances from the unfished (dashed line) and fished (solid line) community model."}
-plot(x = sim0@params@w, y = relative_abundance, log = "x", type = "n",
+```{r label=plot_relative_comm_abund}
+plot(x = w(params), y = relative_abundance, log = "x", type = "n",
     xlab = "Size (g)", ylab = "Relative abundance")
-lines(x = sim0@params@w, y = relative_abundance)
-lines(x = c(min(sim0@params@w), max(sim0@params@w)), y = c(1,1), lty = 2)
+lines(x = w(params), y = relative_abundance)
+lines(x = c(min(w(params)), max(w(params))), y = c(1, 1), lty = 2)
 ```
 
-
-The impact of fishing on species larger than 1000g can be clearly seen.
-The fishing pressure lowers the abundance of large fish (the decrease in relative abundance at 1000 g). This then relieves the predation pressure on their smaller prey (the preferred predator-prey size ratio is given by the $\beta$ parameter, which is set to 100 by default), leading to an increase in their abundance. This in turn increases the predation mortality on their smaller prey, which reduces their abundance and so on.  
+The impact of fishing on species larger than 1000g can be clearly seen. The
+fishing pressure lowers the abundance of large fish (the decrease in relative
+abundance at 1000 g). This then relieves the predation pressure on their smaller
+prey (the preferred predator-prey size ratio is given by the $\beta$ parameter,
+which is set to 100 by default), leading to an increase in their abundance. This
+in turn increases the predation mortality on their smaller prey, which reduces
+their abundance and so on.
 
 ## The impact of changing $\sigma$ {#sec:comm_model_change_sigma}
 
-As described above, the $\sigma$ parameter determines the width of the predator prey size preference. Here we take a look at how changing the value of $\sigma$ can affect the dynamics of the community.
-In the examples above, $\sigma$ is set in the `set_community_model()` function by default to a value of $`r params_knife@species_params$sigma[1]`$.
-When projected through time, the community abundances converge to a stable equilibrium.
-What happens if we reduce the value of $\sigma$, for example by setting it to 1.0? We can do this by passing in the new value of $\sigma$ into `set_community_model()`.
+As described above, the $\sigma$ parameter determines the width of the predator
+prey size preference. Here we take a look at how changing the value of $\sigma$
+can affect the dynamics of the community.
+
+In the examples above, \(\sigma\) is set in the `newCommunityParams()` function 
+by default to a value of \(`r species_params(params_knife)$sigma[1]`\).
+We can see this by looking at the `sigma` column of the species_params data
+frame that is contained in the MizerParams object:
+```{r}
+species_params(params)$sigma
+```
+
+When projected through time, the community abundances converge to a stable 
+equilibrium. What happens if we reduce the value of $\sigma$, for example by 
+setting it to 1.0? We can do this by passing in the new value of $\sigma$ into 
+`newCommunityParams()`.
 
 ```{r label=comm_params_sigma1}
-params_sigma1 <- set_community_model(z0 = 0.1,
-     f0 = 0.7, alpha = 0.2, recruitment = 4e7, sigma = 1)
+params_sigma1 <- newCommunityParams(sigma = 1)
 ```
 
-We want to project this new model through time using the `project()` function. Note that we have introduced a new argument: $dt$. This is the step size of the solver. It does not have anything to do with the biology in the model. It only affects the internal engine of `project()` that performs the projection. 
-
-As you can see in the underlying model equations in [the model description section](model_description.html), the model runs in continuous time. Therefore, to project it forward, `project()` must solve the system of equations using numerical methods. The quality of these methods is strongly affected by $dt$. 
-The default value of $dt$ is 0.1, which will be fine for most of the projections we run in this Vignette. Here it is necessary to reduce the value to 0.01 to avoid introducing any artefacts into the projected values. Decreasing $dt$ increases the time it takes to run a projection.
-Here we project the new parameters object for 50 time steps without fishing:
+We want to project this new model through time using the `project()` function.
+Here we project the new parameter object for 50 time steps without fishing and
+save at intervals of 0.1 years (`t_save = 0.1`):
 
 ```{r label=comm_project_sigma1}
-sim_sigma1 <- project(params_sigma1, effort = 0, t_max = 50, dt=0.01)
+sim_sigma1 <- project(params_sigma1, effort = 0, t_max = 50, 
+                      dt = 0.01, t_save = 0.1)
 ```
+Note that we have introduced a new argument: $dt$. This is the step size of the
+solver. It does not have anything to do with the biology in the model. It only
+affects the internal engine of `project()` that performs the projection.
+As you can see in the underlying model equations in 
+[the model description section](model_description.html), 
+the model is formulated in continuous time. Therefore,
+to project it forward, `project()` must solve the system of equations using
+numerical methods. The quality of these methods is strongly affected by $dt$.
+The default value of $dt$ is 0.1, which will be fine for most of the projections
+we run in this document. Here it is necessary to reduce the value to 0.01 to
+avoid introducing any artefacts into the projected values. Decreasing $dt$
+increases the time it takes to run a projection.
 
-Let's take a look at how the abundances change through time. We can do this with the `plotBiomass()` function:
+Let's take a look at how the abundances change through time. We can do this with
+the `plotBiomass()` function:
 
-```{r label=plot_comm_biomass_sigma1, fig.keep='last', fig.cap="Biomass of the community model when sigma is reduced to a value of 1.0."}
+```{r label=plot_comm_biomass_sigma1}
 plotBiomass(sim_sigma1)
 ```
 
-The plot above shows that abundances of the community no longer converge to a stable equilibrium and the dynamics appear to be chaotic. The ecological significance of the change in dynamics, and of the ability of simple community models to show chaotic behaviour, is still being debated. It can be argued that the size of the oscillations are too large to be 'true'. Additionally, when a trait-based model is implemented, the magnitude of the oscillations are much smaller. The next section is about [the trait based model.](trait_model.html)
+The plot above shows that abundances of the community no longer converge to a
+stable equilibrium and the dynamics appear to be chaotic. The ecological
+significance of the change in dynamics, and of the ability of simple community
+models to show chaotic behaviour, is still being debated. It can be argued that
+the size of the oscillations are too large to be 'true'. Additionally, when a
+trait-based model is implemented, the magnitude of the oscillations are much
+smaller.
+
+The next section is about [the trait based model.](trait_model.html)
 
 

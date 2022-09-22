@@ -18,81 +18,74 @@ NULL
 #' Runs the size spectrum model simulation.
 #' The function returns an object of type
 #' \linkS4class{MizerSim} that can then be explored with a range of
-#' \code{\link{summary_functions}} and \code{\link{plotting_functions}}.
+#' [summary_functions], [indicator_functions] and 
+#' [plotting_functions].
 #' 
 #' @param object Either a \linkS4class{MizerParams} object or a 
-#'   \linkS4class{MizerSim} object (which contains a \code{MizerParams} object).
+#'   \linkS4class{MizerSim} object (which contains a `MizerParams` object).
 #' @param effort The effort of each fishing gear through time. See notes below.
 #' @param t_max The number of years the projection runs for. The default value is
-#'   100. However, this argument is ignored if an array is used for the
-#'   \code{effort} argument. See notes below.
+#'   100. This argument is ignored if an array is used for the
+#'   `effort` argument. See notes below.
 #' @param dt Time step of the solver. The default value is 0.1.
 #' @param t_save The frequency with which the output is stored. The default
-#'   value is 1. Must be an integer multiple of dt.
+#'   value is 1. This argument is ignored if an array is used for the `effort`
+#'   argument. See notes below.
 #' @param t_start The the year of the start of the simulation. The simulation
-#'   will cover the period from \code{t_start} to \code{t_start + t_max}.
-#'   Defaults to 0. Ignored if an array is used for the \code{effort}
-#'   argument or a \code{MizerSim} for the \code{object} argument.
-#' @param initial_n The initial abundances of species. A matrix with dimensions 
-#'   species x size. The order of species must be the same as in the 
-#'   \code{MizerParams} argument. Ignored if the \code{object} argument is a 
-#'   MizerSim object, but overrules the \code{initial_n} slot if \code{object} 
-#'   is a \code{MizerParams} object.
-#' @param initial_n_pp The initial abundances of plankton. A numeric vector.
-#'   Ignored if the \code{object} argument is a MizerSim object, but overrules
-#'   the \code{initial_n_pp} slot if \code{object} is a \code{MizerParams}
-#'   object.
-#' @param initial_B The initial biomasses of the unstructured resources. It
-#'   should be a named vector with one entry for each resource. Ignored if the
-#'   \code{object} argument is a MizerSim object, but overrules the
-#'   \code{initial_B} slot if \code{object} is a \code{MizerParams} object.
+#'   will cover the period from `t_start` to \code{t_start + t_max}.
+#'   Defaults to 0. Ignored if an array is used for the `effort`
+#'   argument or a `MizerSim` for the `object` argument.
+#' @param initial_n `r lifecycle::badge("deprecated")` The initial abundances of species. Instead of
+#'   using this argument you should set `initialN(params)` to the desired value.
+#' @param initial_n_pp `r lifecycle::badge("deprecated")` The initial abundances of resource. Instead
+#'   of using this argument you should set `initialNResource(params)` to the
+#'   desired value.
 #' @param append A boolean that determines whether the new simulation results
-#'   are appended to the previous ones. Only relevant if \code{object} is a
-#'   \code{MizerSim} object. Default = TRUE.
+#'   are appended to the previous ones. Only relevant if `object` is a
+#'   `MizerSim` object. Default = TRUE.
 #' @param progress_bar Either a boolean value to determine whether a progress
-#'   bar should be shown in the console of a shiny progress object to implement 
-#'   a progress bar in a shiny app
-#' @param ... Currently unused.
+#'   bar should be shown in the console, or a shiny Progress object to implement 
+#'   a progress bar in a shiny app.
+#' @param ... Other arguments will be passed to rate functions.
 #' 
-#' @note The \code{effort} argument specifies the level of fishing effort during
-#' the simulation. It can be specified in three different ways: \itemize{ \item
-#' A single numeric value. This specifies the effort of all fishing gears which
-#' is constant through time (i.e. all the gears have the same constant effort). 
+#' @note The `effort` argument specifies the level of fishing effort during
+#' the simulation. If it is not supplied, the initial effort stored in the params
+#' object is used. The effort can be specified in three different ways: 
+#' \itemize{ 
+#' \item A single numeric value. This specifies the effort of all fishing gears
+#' which is constant through time (i.e. all the gears have the same constant
+#' effort).
 #' \item A numerical vector which has the same length as the number of fishing
 #' gears. The vector must be named and the names must correspond to the gear
-#' names in the \code{MizerParams} object. The values in the vector specify the
+#' names in the `MizerParams` object. The values in the vector specify the
 #' constant fishing effort of each of the fishing gears, i.e. the effort is
 #' constant through time but each gear may have a different fishing effort. 
 #' \item A numerical array with dimensions time x gear. This specifies the
 #' fishing effort of each gear at each time step.  The first dimension, time,
-#' must be named numerically and contiguously. The second dimension of the array
+#' must be named numerically and increasing. The second dimension of the array
 #' must be named and the names must correspond to the gear names in the
-#' \code{MizerParams} argument. The value for the effort for a particular time
-#' is used during the interval from that time to the next time in the array.}
+#' `MizerParams` argument. The value for the effort for a particular time
+#' is used during the interval from that time to the next time in the array.
+#' }
 #' 
 #' If effort is specified as an array then the smallest time in the array is 
 #' used as the initial time for the simulation. Otherwise the initial time is
-#' set to the final time of the previous simulation if \code{object} is a 
-#' \code{MizerSim} object or to \code{t_start} otherwise. Also, if the effort is
-#' an array then the \code{t_max} argument is ignored and the maximum simulation
-#' time is the largest time of the effort array.
+#' set to the final time of the previous simulation if `object` is a 
+#' `MizerSim` object or to `t_start` otherwise. Also, if the effort is
+#' an array then the `t_max` and `t_save` arguments are ignored and the
+#' simulation times will be taken from the effort array.
 #' 
-#' If the \code{object} argument is of class \code{MizerSim} then the initial
+#' If the `object` argument is of class `MizerSim` then the initial
 #' values for the simulation are taken from the final values in the 
-#' \code{MizerSim} object and the corresponding arguments to this function will
+#' `MizerSim` object and the corresponding arguments to this function will
 #' be ignored.
 #' 
 #' @return An object of class \linkS4class{MizerSim}.
 #' 
 #' @export
-#' @seealso \code{\link{MizerParams}}, \code{\link{summary_functions}} and 
-#'   \code{\link{plotting_functions}}
 #' @examples
 #' \dontrun{
-#' # Data set with different fishing gears
-#' data(NS_species_params_gears)
-#' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <-  NS_params
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # With constant fishing effort which is different for each gear
@@ -109,97 +102,305 @@ NULL
 #' effort_array[,"Otter"] <- seq(from = 1, to = 0.5, length = length(times))
 #' sim <- project(params, effort = effort_array)
 #' }
-project <- function(object, effort = 0,
+project <- function(object, effort,
                     t_max = 100, dt = 0.1, t_save = 1, t_start = 0,
-                    initial_n = params@initial_n,
-                    initial_n_pp = params@initial_n_pp,
-                    initial_B = params@initial_B,
+                    initial_n, initial_n_pp,
                     append = TRUE,
                     progress_bar = TRUE, ...) {
-    validObject(object)
+    
+    # Set and check initial values ----
+    assert_that(t_max > 0)
     if (is(object, "MizerSim")) {
-        params <- object@params
-        no_t <- dim(object@B)[1]
-        initial_n <- params@initial_n # Needed to get the right dimensions
-        initial_n[] <- object@n[no_t, , ]
-        initial_n_pp <- params@initial_n_pp # Needed to get the right dimensions
-        initial_n_pp[] <- object@n_pp[no_t, ]
-        initial_B <- params@initial_B # Needed to get the right dimensions
-        initial_B[] <- object@B[no_t, ]
-        t_start <- as.numeric(dimnames(object@n)[[1]][no_t])
+        validObject(object)
+        params <- setInitialValues(object@params, object)
+        t_start <- getTimes(object)[idxFinalT(object)]
+    } else if (is(object, "MizerParams")) {
+        params <- validParams(object)
+        if (!missing(initial_n)) params@initial_n[] <- initial_n
+        if (!missing(initial_n_pp)) params@initial_n_pp[] <- initial_n_pp
     } else {
-        params <- object
-        if (missing(initial_n))       initial_n <- params@initial_n
-        if (missing(initial_n_pp)) initial_n_pp <- params@initial_n_pp
-        if (missing(initial_B))       initial_B <- params@initial_B
-        t_start <- 0
+        stop("The `object` argument must be either a MizerParams or a MizerSim object.")
     }
-    params@initial_n[] <- initial_n
-    params@initial_n_pp[] <- initial_n_pp
-    params@initial_B[] <- initial_B
+    initial_n <- params@initial_n
+    initial_n_pp <- params@initial_n_pp
+    initial_n_other <- params@initial_n_other
     
     no_sp <- length(params@w_min_idx)
     assert_that(is.array(initial_n),
+                is.numeric(initial_n),
                 are_equal(dim(initial_n), c(no_sp, length(params@w))))
-    assert_that(is.vector(initial_n_pp),
+    assert_that(is.numeric(initial_n_pp),
                 length(initial_n_pp) == length(params@w_full))
-    if (length(params@resource_dynamics) > 0) {
-        if (!is.character(names(initial_B))) {
-            stop("The initial_B needs to be a named vector")
+    
+    assert_that(is.null(initial_n_other) || is.list(initial_n_other))
+    other_names <- names(params@other_dynamics)
+    if (length(other_names) > 0) {
+        if (is.null(names(initial_n_other))) {
+            stop("The initial_n_other needs to be a named list")
         }
-        if (!setequal(names(initial_B), names(params@resource_dynamics))) {
-            stop("The names of the entries in initial_B do not match the names of the unstructured resource components of the model.")
+        if (!setequal(names(initial_n_other), other_names)) {
+            stop("The names of the entries in initial_n_other do not match ",
+                 "the names of the other components of the model.")
         }
     }
     
-    # Create effort array ----
-    # Do we need to create an effort array?
-    if (is.vector(effort)) {
-        no_gears <- dim(params@catchability)[1]
-        if ((length(effort) > 1) & (length(effort) != no_gears)) {
-            stop("Effort vector must be the same length as the number of fishing gears\n")
-        }
-        # If more than 1 gear need to check that gear names match
-        gear_names <- dimnames(params@catchability)[[1]]
-        effort_gear_names <- names(effort)
-        if (length(effort) == 1 & is.null(effort_gear_names)) {
-            effort_gear_names <- gear_names
-        }
-        if (!all(gear_names %in% effort_gear_names)) {
-            stop(paste0("Gear names in the MizerParams object (", 
-                        paste(gear_names, collapse = ", "), 
-                        ") do not match those in the effort vector."))
-        }
+    # Set effort array ----
+    if (missing(effort)) effort <- params@initial_effort
+    if (is.null(dim(effort))) { # effort is a vector or scalar
         # Set up the effort array transposed so we can use the recycling rules
-        time_dimnames <- signif(seq(from = t_start, 
-                                    to = t_start + t_max, 
-                                    by = dt), 3)
-        effort <- t(array(effort, dim = c(no_gears, length(time_dimnames)), 
-                          dimnames = list(gear = effort_gear_names, 
-                                          time = time_dimnames)))
+        # no point running a simulation with no saved results
+        if (t_max < t_save) {
+            t_save <- t_max
+        }
+        times <- seq(t_start, t_start + t_max, by = t_save)
+        effort <- validEffortVector(effort, params)
+        effort <- t(array(effort, 
+                          dim = c(length(effort), length(times)), 
+                          dimnames = list(gear = names(effort), 
+                                          time = times)))
+    } else {
+        effort <- validEffortArray(effort, params)
     }
     
+    times <- as.numeric(dimnames(effort)[[1]])
+    
+    # Make the MizerSim object with the right size ----
+    # We only save every t_save years
+    sim <- MizerSim(params, t_dimnames = times)
+    # Set initial population and effort
+    sim@n[1, , ] <- initial_n 
+    sim@n_pp[1, ] <- initial_n_pp
+    sim@n_other[1, ] <- initial_n_other
+    sim@effort <- effort
+    
+    ## Initialise ----
+    # get functions
+    resource_dynamics_fn <- get(params@resource_dynamics)
+    other_dynamics_fns <- lapply(params@other_dynamics, get)
+    rates_fns <- lapply(params@rates_funcs, get)
+    
+    # Set up progress bar
+    if (is(progress_bar, "Progress")) {
+        # We have been passed a shiny progress object
+        progress_bar$set(message = "Running simulation", value = 0)
+        proginc <- 1/length(times)
+    } else if (progress_bar == TRUE) {
+        pb <- progress::progress_bar$new(
+            format = "[:bar] :percent ETA: :eta",
+            total = length(times), width = 60)
+        pb$tick(0)
+    }
+    
+    n_list <- list(n = initial_n, n_pp = initial_n_pp, n_other = initial_n_other)
+    t <- times[[1]]
+    
+    ## Loop over time ----
+    for (i in 2:length(times)) {
+        # number of time steps between saved times
+        steps <- round((times[[i]] - t) / dt)
+        # advance to next saved time
+        n_list <- project_simple(
+            params, n = n_list$n, n_pp = n_list$n_pp, n_other = n_list$n_other,
+            t = t, dt = dt, steps = steps, 
+            effort = effort[i - 1, ],
+            resource_dynamics_fn = resource_dynamics_fn,
+            other_dynamics_fns = other_dynamics_fns,
+            rates_fns = rates_fns, ...)
+        # Calculate start time for next iteration
+        # The reason we don't simply use the next entry in `times` is that
+        # those entries may not be separated by exact multiples of dt.
+        t <- t + steps * dt
+        # Advance progress bar
+        if (is(progress_bar, "Progress")) {
+            progress_bar$inc(amount = proginc)
+        } else if (progress_bar == TRUE) {
+            pb$tick()
+        }
+        
+        # Store result
+        sim@n[i, , ] <- n_list$n
+        sim@n_pp[i, ] <- n_list$n_pp
+        sim@n_other[i, ] <- n_list$n_other
+    }
+    
+    # append to previous simulation ----
+    if (is(object, "MizerSim") && append) {
+        no_t_old <- dim(object@n)[1]
+        no_t <- length(times)
+        new_t_dimnames <- c(as.numeric(dimnames(object@n)[[1]]),
+                            times[2:no_t])
+        new_sim <- MizerSim(params, t_dimnames = new_t_dimnames)
+        old_indices <- 1:no_t_old
+        new_indices <- seq(from = no_t_old + 1, length.out = no_t - 1)
+        new_sim@n[old_indices, , ]  <- object@n
+        new_sim@n[new_indices, , ]  <- sim@n[2:no_t, , ]
+        new_sim@n_pp[old_indices, ] <- object@n_pp
+        new_sim@n_pp[new_indices, ] <- sim@n_pp[2:no_t, ]
+        new_sim@n_other[old_indices, ]  <- object@n_other
+        new_sim@n_other[new_indices, ]  <- sim@n_other[2:no_t, ]
+        new_sim@effort[old_indices, ] <- object@effort
+        new_sim@effort[new_indices, ] <- sim@effort[2:no_t, ]
+        return(new_sim)
+    }
+    return(sim)
+}
+
+#' Project abundances by a given number of time steps into the future
+#' 
+#' This is an internal function used by the user-facing `project()` function.
+#' It is of potential interest only to mizer extension authors.
+#' 
+#' The function does not check its arguments because it is meant to be as fast
+#' as possible to allow it to be used in a loop. For example, it is called in
+#' `project()` once for every saved value. The function also does not save its
+#' intermediate results but only returns the result at time `t + dt * steps`.
+#' During this time it uses the constant fishing effort `effort`.
+#' 
+#' The functional arguments can be calculated from slots in the `params` object
+#' with
+#' ```
+#' resource_dynamics_fn <- get(params@resource_dynamics)
+#' other_dynamics_fns <- lapply(params@other_dynamics, get)
+#' rates_fns <- lapply(params@rates_funcs, get)
+#' ```
+#' The reason the function does not do that itself is to shave 20 microseconds
+#' of its running time, which pays when the function is called hundreds of
+#' times in a row.
+#' 
+#' This function is also used in `steady()`. In between calls to 
+#' `project_simple()` the `steady()` function checks whether the values are
+#' still changing significantly, so that it can stop when a steady state has
+#' been approached. Mizer extension packages might have a similar need to run
+#' a simulation repeatedly for short periods to run some other code in
+#' between. Because this code may want to use the values of the rates at the
+#' final time step, these too are included in the returned list.
+#' 
+#' @param params A MizerParams object.
+#' @param n An array (species x size) with the number density at start of
+#'   simulation.
+#' @param n_pp A vector (size) with the resource number density at start of
+#'   simulation.
+#' @param n_other A named list with the abundances of other components at start
+#'   of simulation.
+#' @param t Time at the start of the simulation.
+#' @param dt Size of time step.
+#' @param steps The number of time steps by which to project.
+#' @param effort The fishing effort to be used throughout the simulation. This
+#'   must be a vector or list with one named entry per fishing gear.
+#' @param resource_dynamics_fn The function for the resource
+#'   dynamics. See Details.
+#' @param other_dynamics_fns List with the functions for the
+#'   dynamics of the other components. See Details.
+#' @param rates_fns List with the functions for calculating
+#'   the rates. See Details.
+#' @param ... Other arguments that are passed on to the rate functions.
+#' @return List with the final values of `n`, `n_pp` and `n_other`, `rates`.
+#' 
+#' @export
+#' @concept helper
+project_simple <- 
+    function(params, 
+             n = params@initial_n,
+             n_pp = params@initial_n_pp,
+             n_other = params@initial_n_other,
+             effort = params@initial_effort,
+             t = 0, dt = 0.1, steps,
+             resource_dynamics_fn = get(params@resource_dynamics),
+             other_dynamics_fns = lapply(params@other_dynamics, get),
+             rates_fns = lapply(params@rates_funcs, get), ...) {    
+    # Handy things ----
+    no_sp <- nrow(params@species_params) # number of species
+    no_w <- length(params@w) # number of fish size bins
+    idx <- 2:no_w
+    # Hacky shortcut to access the correct element of a 2D array using 1D notation
+    # This references the egg size bracket for all species, so for example
+    # n[w_min_idx_array_ref] = n[,w_min_idx]
+    w_min_idx_array_ref <- (params@w_min_idx - 1) * no_sp + (1:no_sp)
+    # Matrices for solver
+    a <- matrix(0, nrow = no_sp, ncol = no_w)
+    b <- matrix(0, nrow = no_sp, ncol = no_w)
+    S <- matrix(0, nrow = no_sp, ncol = no_w)
+
+    # Loop over time steps ----
+    for (i_time in 1:steps) {
+        r <- rates_fns$Rates(
+            params, n = n, n_pp = n_pp, n_other = n_other,
+            t = t, effort = effort, rates_fns = rates_fns, ...)
+        
+        # * Update other components ----
+        n_other_current <- n_other  # So that the resource dynamics can still 
+        # use the current value
+        for (component in names(params@other_dynamics)) {
+            n_other[[component]] <-
+                other_dynamics_fns[[component]](
+                    params,
+                    n = n,
+                    n_pp = n_pp,
+                    n_other = n_other_current,
+                    rates = r,
+                    t = t,
+                    dt = dt,
+                    component = component,
+                    ...
+                )
+        }
+        
+        # * Update resource ----
+        n_pp <- resource_dynamics_fn(params, n = n, n_pp = n_pp,
+                                     n_other = n_other_current, rates = r,
+                                     t = t, dt = dt,
+                                     resource_rate = params@rr_pp,
+                                     resource_capacity = params@cc_pp, ...)
+        
+        # * Update species ----
+        # a_{ij} = - g_i(w_{j-1}) / dw_j dt
+        a[, idx] <- sweep(-r$e_growth[, idx - 1, drop = FALSE] * dt, 2,
+                          params@dw[idx], "/")
+        # b_{ij} = 1 + g_i(w_j) / dw_j dt + \mu_i(w_j) dt
+        b[] <- 1 + sweep(r$e_growth * dt, 2, params@dw, "/") + r$mort * dt
+        # S_{ij} <- N_i(w_j)
+        S[,idx] <- n[, idx, drop = FALSE]
+        # Update first size group of n
+        n[w_min_idx_array_ref] <-
+            (n[w_min_idx_array_ref] + r$rdd * dt / 
+                 params@dw[params@w_min_idx]) /
+            b[w_min_idx_array_ref]
+        # Update n
+        # for (i in 1:no_sp) # number of species assumed small, so no need to 
+        #                      vectorize this loop over species
+        #     for (j in (params@w_min_idx[i]+1):no_w)
+        #         n[i,j] <- (S[i,j] - A[i,j]*n[i,j-1]) / B[i,j]
+        # This is implemented via Rcpp
+        n <- inner_project_loop(no_sp = no_sp, no_w = no_w, n = n,
+                                A = a, B = b, S = S,
+                                w_min_idx = params@w_min_idx)
+        
+        # * Update time ----
+        t <- t + dt
+    }
+    
+    return(list(n = n, n_pp = n_pp, n_other = n_other, rates = r))
+}
+
+validEffortArray <- function(effort, params) {
     # Check that number and names of gears in effort array is same as in 
     # MizerParams object
     no_gears <- dim(params@catchability)[1]
     if (dim(effort)[2] != no_gears) {
-        stop(paste0("The number of gears in the effort array (length of the second dimension = ", 
-                   dim(effort)[2], 
-                   ") does not equal the number of gears in the MizerParams object (", 
-                   no_gears, ")."))
+        stop("The number of gears in the effort array (length of the second dimension = ", 
+             dim(effort)[2], 
+             ") does not equal the number of gears in the MizerParams object (", 
+             no_gears, ").")
     }
     gear_names <- dimnames(params@catchability)[[1]]
     if (!all(gear_names %in% dimnames(effort)[[2]])) {
-        stop(paste0("Gear names in the MizerParams object (", 
-                    paste(gear_names, collapse = ", "), 
-                    ") do not match those in the effort array."))
+        stop("Gear names in the MizerParams object (", 
+             paste(gear_names, collapse = ", "), 
+             ") do not match those in the effort array.")
     }
     # Sort effort array to match order in MizerParams
     effort <- effort[, gear_names, drop = FALSE]
     
-    # Blow up time dimension of effort array
-    # i.e. effort might have been passed in using time steps of 1, but actual 
-    # dt = 0.1, so need to blow up
     if (is.null(dimnames(effort)[[1]])) {
         stop("The time dimname of the effort argument must be numeric.")
     }
@@ -210,214 +411,11 @@ project <- function(object, effort = 0,
     if (is.unsorted(time_effort)) {
         stop("The time dimname of the effort argument should be increasing.")
     }
-    t_end <- time_effort[length(time_effort)]
-    # Blow up effort so that rows are dt spaced
-    time_effort_dt <- seq(from = time_effort[1], to = t_end, by = dt)
-    effort_dt <- t(array(NA, dim = c(length(time_effort_dt), dim(effort)[2]), 
-                         dimnames = list(time = time_effort_dt,
-                                         dimnames(effort)[[2]])))
-    for (i in 1:(length(time_effort) - 1)) {
-        effort_dt[,time_effort_dt >= time_effort[i]] <- effort[i,]
-    }
-    effort_dt <- t(effort_dt)
     
-    # Make the MizerSim object with the right size ----
-    # We only save every t_save steps
-    # Divisibility test needs to be careful about machine rounding errors,
-    # see https://github.com/sizespectrum/mizer/pull/2
-    if ((t_save < dt) || !isTRUE(all.equal((t_save - round(t_save / dt) * dt), 0)))
-        stop("t_save must be a positive multiple of dt")
-    t_skip <- round(t_save/dt)
-    t_dimnames_index <- seq(1, to = length(time_effort_dt), by = t_skip)
-    t_dimnames <- time_effort_dt[t_dimnames_index]
-    sim <- MizerSim(params, t_dimnames = t_dimnames) 
-    # Fill up the effort array
-    sim@effort[] <- effort_dt[t_dimnames_index,]
+    # Replace any NA's with default value
+    effort_default <- ifelse(defaults_edition() < 2, 0, 1)
+    effort[is.na(effort)] <- effort_default
     
-    ## Initialise ----
-    # Set initial population
-    sim@n[1, , ] <- initial_n 
-    sim@n_pp[1, ] <- initial_n_pp
-    sim@B[1, ] <- initial_B
-    
-    # Handy things
-    no_sp <- nrow(sim@params@species_params) # number of species
-    no_w <- length(sim@params@w) # number of fish size bins
-    idx <- 2:no_w
-    # Hacky shortcut to access the correct element of a 2D array using 1D notation
-    # This references the egg size bracket for all species, so for example
-    # n[w_minidx_array_ref] = n[,w_min_idx]
-    w_min_idx_array_ref <- (sim@params@w_min_idx - 1) * no_sp + (1:no_sp)
-    
-    # sex ratio - DO SOMETHING LATER WITH THIS
-    sex_ratio <- 0.5
-    
-    # Matrices for solver
-    a <- matrix(0, nrow = no_sp, ncol = no_w)
-    b <- matrix(0, nrow = no_sp, ncol = no_w)
-    S <- matrix(0, nrow = no_sp, ncol = no_w)
-    
-    # initialise n n_pp and B
-    # We want the first time step only but cannot use drop as there may only 
-    # be a single species
-    n <- array(sim@n[1, , ], dim = dim(sim@n)[2:3])
-    dimnames(n) <- dimnames(sim@n)[2:3]
-    n_pp <- sim@n_pp[1, ]
-    B <- initial_B
-    
-    # Set up progress bar
-    if (progress_bar == TRUE) {
-        pb <- progress::progress_bar$new(
-            format = "[:bar] :percent ETA: :eta",
-            total = length(t_dimnames_index), width = 60)
-    }
-    if (is(progress_bar, "Progress")) {
-        # We have been passed a shiny progress object
-        progress_bar$set(message = "Running simulation", value = 0)
-        proginc <- 1/length(t_dimnames_index)
-    }
-    
-    ## Loop over time ----
-    t <- 0  # keep track of time
-    t_steps <- dim(effort_dt)[1] - 1
-    for (i_time in 1:t_steps) {
-        r <- getRates(params, n = n, n_pp = n_pp, B = B,
-                      effort = effort_dt[i_time,])
-        
-        # Update unstructured resource biomasses
-        B_current <- B  # So that the plankton dynamics can still use the 
-                        # current value
-        if (length(params@resource_dynamics) > 0) {
-            for (res in names(params@resource_dynamics)) {
-                B[res] <-
-                    params@resource_dynamics[[res]](
-                        params,
-                        n = n,
-                        n_pp = n_pp,
-                        B = B_current,
-                        rates = r,
-                        dt = dt
-                    )
-            }
-        }
-        
-        # Update plankton
-        n_pp <- params@plankton_dynamics(params, n = n, n_pp = n_pp, 
-                                         B = B_current, rates = r, dt = dt)
-        
-        # Iterate species one time step forward:
-        # See Ken's PDF
-        # a_{ij} = - g_i(w_{j-1}) / dw_j dt
-        a[, idx] <- sweep(-r$e_growth[, idx - 1, drop = FALSE] * dt, 2,
-                          sim@params@dw[idx], "/")
-        # b_{ij} = 1 + g_i(w_j) / dw_j dt + \mu_i(w_j) dt
-        b[, idx] <- 1 + sweep(r$e_growth[, idx, drop = FALSE] * dt, 2, 
-                              sim@params@dw[idx], "/") +
-                        r$mort[, idx, drop = FALSE] * dt
-        # S_{ij} <- N_i(w_j)
-        S[,idx] <- n[, idx, drop = FALSE]
-        # Boundary condition upstream end (recruitment)
-        b[w_min_idx_array_ref] <- 1 + r$e_growth[w_min_idx_array_ref] * dt /
-                                        sim@params@dw[sim@params@w_min_idx] +
-                                    r$mort[w_min_idx_array_ref] * dt
-        # Update first size group of n
-        n[w_min_idx_array_ref] <-
-            (n[w_min_idx_array_ref] + r$rdd * dt / 
-                 sim@params@dw[sim@params@w_min_idx]) /
-            b[w_min_idx_array_ref]
-        # Update n
-        # for (i in 1:no_sp) # number of species assumed small, so no need to 
-        #                      vectorize this loop over species
-        #     for (j in (sim@params@w_min_idx[i]+1):no_w)
-        #         n[i,j] <- (S[i,j] - A[i,j]*n[i,j-1]) / B[i,j]
-        # This is implemented via Rcpp
-        n <- inner_project_loop(no_sp = no_sp, no_w = no_w, n = n,
-                                A = a, B = b, S = S,
-                                w_min_idx = sim@params@w_min_idx)
-        
-        # Update time
-        t <- t + dt
-        # Store results only every t_step steps.
-        store <- t_dimnames_index %in% (i_time + 1)
-        if (any(store)) {
-            # Advance progress bar
-            if (is(progress_bar, "Progress")) {
-                progress_bar$inc(amount = proginc)
-            }
-            if (progress_bar == TRUE) {
-                pb$tick()
-            }
-            # Store result
-            sim@n[which(store), , ] <- n
-            sim@n_pp[which(store), ] <- n_pp
-            sim@B[which(store), ] <- B
-        }
-    }
-    if (is(object, "MizerSim") && append) {
-        # append to previous simulation ----
-        no_t_old <- dim(object@n)[1]
-        no_t <- length(t_dimnames)
-        new_t_dimnames <- c(as.numeric(dimnames(object@n)[[1]]),
-                            t_dimnames[2:length(t_dimnames)])
-        new_sim <- MizerSim(params, t_dimnames = new_t_dimnames)
-        old_indices <- 1:no_t_old
-        new_indices <- seq(from = no_t_old + 1, length.out = no_t - 1)
-        new_sim@n[old_indices, , ]  <- object@n
-        new_sim@n[new_indices, , ]  <- sim@n[2:no_t, , ]
-        new_sim@n_pp[old_indices, ] <- object@n_pp
-        new_sim@n_pp[new_indices, ] <- sim@n_pp[2:no_t, ]
-        new_sim@B[old_indices, ]    <- object@B
-        new_sim@B[new_indices, ]    <- sim@B[2:no_t, ]
-        new_sim@effort[old_indices, ] <- object@effort
-        new_sim@effort[new_indices, ] <- sim@effort[2:no_t, ]
-        return(new_sim)
-    }
-    return(sim)
-}
-
-
-#' Calculate initial population abundances for the community populations
-#' 
-#' This function uses the model parameters and other parameters to calculate 
-#' initial population abundances for the community populations. These initial 
-#' abundances should be reasonable guesses at the equilibrium values. The 
-#' returned population can be passed to the \code{project} function.
-#' 
-#' @param params The model parameters. An object of type \linkS4class{MizerParams}.
-#' @param a A parameter with a default value of 0.35.
-#' @param n0_mult Multiplier for the abundance at size 0. Default value is
-#'   kappa/1000.
-#' @export
-#' @return A matrix (species x size) of population abundances.
-#' @examples
-#' \dontrun{
-#' data(NS_species_params_gears)
-#' params <- set_multispecies_model(NS_species_params_gears)
-#' init_n <- get_initial_n(params)
-#' }
-get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
-    if (!is(params,"MizerParams"))
-        stop("params argument must of type MizerParams")
-    no_sp <- nrow(params@species_params)
-    no_w <- length(params@w)
-    initial_n <- array(NA, dim = c(no_sp, no_w))
-    dimnames(initial_n) <- dimnames(params@intake_max)
-    # N = N0 * Winf^(2*n-q-2+a) * w^(-n-a)
-    # Reverse calc n and q from intake_max and search_vol slots (could add get_n function)
-    n <- (log(params@intake_max[,1] / params@species_params$h) / log(params@w[1]))[1]
-    q <- (log(params@search_vol[,1] / params@species_params$gamma) / log(params@w[1]))[1]
-    # Guessing at a suitable n0 value based on kappa - this was figured out using trial and error and should be updated
-    if (is.null(n0_mult)) {
-        lambda <- 2 + q - n
-        kappa <- params@cc_pp[1] / (params@w_full[1]^(-lambda))
-        n0_mult <- kappa / 1000
-    }
-    initial_n[] <- unlist(tapply(params@w, 1:no_w, function(wx,n0_mult,w_inf,a,n,q)
-        n0_mult * w_inf^(2 * n - q - 2 + a) * wx^(-n - a),
-        n0_mult = n0_mult, w_inf = params@species_params$w_inf, a=a, n=n, q=q))
-    #set densities at w > w_inf to 0
-    initial_n[unlist(tapply(params@w,1:no_w,function(wx,w_inf) w_inf<wx, w_inf=params@species_params$w_inf))] <- 0
-    # Also any densities at w < w_min set to 0
-    initial_n[unlist(tapply(params@w,1:no_w,function(wx,w_min)w_min>wx, w_min=params@species_params$w_min))] <- 0    
-    return(initial_n)
+    names(dimnames(effort)) <- c("time", "gear")
+    effort
 }

@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' class='svglite' data-engine-version='2.0' width='720.00pt' height='576.00pt' viewBox='0 0 720.00 576.00'>
+<defs>
+  <style type='text/css'><![CDATA[
+    .svglite line, .svglite polyline, .svglite polygon, .svglite path, .svglite rect, .svglite circle {
+      fill: none;
+      stroke: #000000;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-miterlimit: 10.00;
+    }
+  ]]></style>
+</defs>
+<rect width='100%' height='100%' style='stroke: none; fill: #FFFFFF;'/>
+<defs>
+  <clipPath id='cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA='>
+    <rect x='0.00' y='0.00' width='720.00' height='576.00' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
+<rect x='0.00' y='0.00' width='720.00' height='576.00' style='stroke-width: 1.07; stroke: #FFFFFF; fill: #FFFFFF;' />
+</g>
+<defs>
+  <clipPath id='cpMzIuNzl8NjY2Ljg1fDIyLjc4fDU0NS4xMQ=='>
+    <rect x='32.79' y='22.78' width='634.06' height='522.33' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpMzIuNzl8NjY2Ljg1fDIyLjc4fDU0NS4xMQ==)'>
+<rect x='32.79' y='22.78' width='634.06' height='522.33' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
+<polyline points='61.61,455.00 81.49,442.92 101.37,426.26 121.24,404.52 141.12,377.73 161.00,346.66 180.87,313.24 200.75,280.31 220.63,251.34 240.50,229.99 260.38,219.50 280.26,221.88 300.13,236.89 320.01,261.75 339.88,291.84 359.76,322.79 379.64,352.83 399.51,383.48 419.39,414.25 439.27,444.58 459.14,471.68 479.02,492.99 498.90,507.16 518.77,515.20 538.65,519.07 558.53,520.64 578.40,521.18 598.28,521.33 618.16,521.37 638.03,521.37 ' style='stroke-width: 1.71; stroke: #B42979; stroke-linecap: butt;' />
+<polyline points='61.61,442.06 81.49,418.73 101.37,387.85 121.24,348.77 141.12,301.81 161.00,248.54 180.87,192.44 200.75,138.39 220.63,92.19 240.50,59.83 260.38,46.53 280.26,55.46 300.13,86.14 320.01,133.80 339.88,190.29 359.76,247.31 379.64,300.12 399.51,349.30 419.39,393.27 439.27,432.41 459.14,465.32 479.02,490.34 498.90,506.42 518.77,515.19 538.65,519.20 558.53,520.73 578.40,521.22 598.28,521.34 618.16,521.37 638.03,521.37 ' style='stroke-width: 1.71; stroke: #142300; stroke-linecap: butt;' />
+<rect x='32.79' y='22.78' width='634.06' height='522.33' style='stroke-width: 1.07; stroke: #333333;' />
+</g>
+<g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
+<text x='27.86' y='524.40' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='4.89px' lengthAdjust='spacingAndGlyphs'>0</text>
+<text x='27.86' y='422.97' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='4.89px' lengthAdjust='spacingAndGlyphs'>5</text>
+<text x='27.86' y='321.55' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='9.79px' lengthAdjust='spacingAndGlyphs'>10</text>
+<text x='27.86' y='220.13' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='9.79px' lengthAdjust='spacingAndGlyphs'>15</text>
+<text x='27.86' y='118.70' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='9.79px' lengthAdjust='spacingAndGlyphs'>20</text>
+<polyline points='30.05,521.37 32.79,521.37 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='30.05,419.95 32.79,419.95 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='30.05,318.52 32.79,318.52 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='30.05,217.10 32.79,217.10 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='30.05,115.67 32.79,115.67 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='137.45,547.85 137.45,545.11 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='289.13,547.85 289.13,545.11 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='440.81,547.85 440.81,545.11 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='592.49,547.85 592.49,545.11 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
+<text x='137.45' y='556.10' text-anchor='middle' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='22.51px' lengthAdjust='spacingAndGlyphs'>1e-02</text>
+<text x='289.13' y='556.10' text-anchor='middle' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='24.72px' lengthAdjust='spacingAndGlyphs'>1e+00</text>
+<text x='440.81' y='556.10' text-anchor='middle' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='24.72px' lengthAdjust='spacingAndGlyphs'>1e+02</text>
+<text x='592.49' y='556.10' text-anchor='middle' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='24.72px' lengthAdjust='spacingAndGlyphs'>1e+04</text>
+<text x='349.82' y='568.24' text-anchor='middle' style='font-size: 11.00px; font-family: sans;' textLength='36.69px' lengthAdjust='spacingAndGlyphs'>Size [g]</text>
+<text transform='translate(13.05,283.95) rotate(-90)' text-anchor='middle' style='font-size: 11.00px; font-family: sans;' textLength='131.46px' lengthAdjust='spacingAndGlyphs'>Predation mortality [1/year]</text>
+<rect x='677.81' y='259.00' width='36.71' height='49.89' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
+<text x='677.81' y='267.71' style='font-size: 11.00px; font-family: sans;' textLength='36.71px' lengthAdjust='spacingAndGlyphs'>Legend</text>
+<rect x='677.81' y='274.33' width='17.28' height='17.28' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
+<line x1='679.54' y1='282.97' x2='693.36' y2='282.97' style='stroke-width: 1.71; stroke: #B42979; stroke-linecap: butt;' />
+<rect x='677.81' y='291.61' width='17.28' height='17.28' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
+<line x1='679.54' y1='300.25' x2='693.36' y2='300.25' style='stroke-width: 1.71; stroke: #142300; stroke-linecap: butt;' />
+<text x='700.57' y='286.00' style='font-size: 8.80px; font-family: sans;' textLength='9.79px' lengthAdjust='spacingAndGlyphs'>10</text>
+<text x='700.57' y='303.28' style='font-size: 8.80px; font-family: sans;' textLength='9.79px' lengthAdjust='spacingAndGlyphs'>11</text>
+<text x='32.79' y='14.56' style='font-size: 13.20px; font-family: sans;' textLength='132.80px' lengthAdjust='spacingAndGlyphs'>PlotPredation Mortality</text>
+</g>
+</svg>

@@ -2,37 +2,42 @@
 % Please edit documentation in R/summary_methods.R
 \name{getYieldGear}
 \alias{getYieldGear}
-\title{Calculate the total yield per gear and species}
+\title{Calculate the rate at which biomass of each species is fished by each gear}
 \usage{
-getYieldGear(sim)
+getYieldGear(object)
 }
 \arguments{
-\item{sim}{An object of class \code{MizerSim}.}
+\item{object}{An object of class \code{MizerParams} or \code{MizerSim}.}
 }
 \value{
-An array containing the total yield (time x gear x species)
+If called with a MizerParams object, an array (gear x species) with
+the yield rate in grams per year from each gear for each species in the
+model. If called with a MizerSim object, an array (time x gear x species)
+containing the yield rate at each time step.
 }
 \description{
-Calculates the total yield per gear and species at each simulation
-time step.
+This yield rate is given in grams per year. It is calculated at each time
+step saved in the MizerSim object.
+}
+\details{
+For details of how the yield rate is defined see the help page of
+\code{\link[=getYield]{getYield()}}.
 }
 \examples{
-\dontrun{
-data(NS_species_params_gears)
-data(inter)
-params <- set_multispecies_model(NS_species_params_gears, inter)
-# With constant fishing effort for all gears for 20 time steps
-sim <- project(params, t_max = 20, effort = 0.5)
-getYieldGear(sim)
-}
+yield <- getYieldGear(NS_sim)
+yield["1972", "Herring", "Herring"]
+# (In this example MizerSim object each species was set up with its own gear)
 }
 \seealso{
-\code{\link{getYield}}
+\code{\link[=getYield]{getYield()}}
 
-Other summary functions: \code{\link{getBiomass}},
-  \code{\link{getDiet}}, \code{\link{getGrowthCurves}},
-  \code{\link{getN}}, \code{\link{getSSB}},
-  \code{\link{getYield}}
+Other summary functions: 
+\code{\link{getBiomass}()},
+\code{\link{getDiet}()},
+\code{\link{getGrowthCurves}()},
+\code{\link{getN}()},
+\code{\link{getSSB}()},
+\code{\link{getYield}()}
 }
 \concept{summary functions}
 \concept{summary_function}

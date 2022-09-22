@@ -1,8 +1,9 @@
-#' Example parameter set based on the North Sea
+# NS_species_params ----
+#' Example species parameter set based on the North Sea
 #' 
 #' This data set is based on species in the North Sea (Blanchard et al.).
 #' It is a data.frame that contains all the necessary information to be used by the
-#' \code{\link{MizerParams}} constructor.
+#' [MizerParams()] constructor.
 #' As there is no gear column, each species is assumed to be fished by a
 #' separate gear.
 #' 
@@ -13,19 +14,25 @@
 #' \item{w_mat}{Size at maturity}
 #' \item{beta}{Size preference ratio}
 #' \item{sigma}{Width of the size-preference}
-#' \item{r_max}{Maximum recruitment}
+#' \item{R_max}{Maximum reproduction rate}
 #' \item{k_vb}{The von Bertalanffy k parameter}
 #' }
 #' @source{Blanchard et al.}
 #' @docType data
 #' @name NS_species_params
-NULL
-# "NS_species_params"
+#' @examples 
+#' \dontrun{
+#' params <- MizerParams(NS_species_params)
+#' sim = project(params)
+#' plot(sim)
+#' }
+"NS_species_params"
 
-#' Example parameter set based on the North Sea with different gears
+# NS_species_params_gears ----
+#' Example species parameter set based on the North Sea with different gears
 #'
 #' This data set is based on species in the North Sea (Blanchard et al.).
-#' It is similar to the data set \code{NS_species_params} except that
+#' It is similar to the data set `NS_species_params` except that
 #' this one has an additional column specifying the fishing gear that
 #' operates on each species. 
 #' @format A data frame with 12 rows and 8 columns. Each row is a species.
@@ -35,30 +42,56 @@ NULL
 #' \item{w_mat}{Size at maturity}
 #' \item{beta}{Size preference ratio}
 #' \item{sigma}{Width of the size-preference}
-#' \item{r_max}{Maximum recruitment}
+#' \item{R_max}{Maximum reproduction rate}
 #' \item{k_vb}{The von Bertalanffy k parameter}
 #' \item{gear}{Name of the fishing gear}
 #' }
 #' @source{Blanchard et al.}
 #' @docType data
 #' @name NS_species_params_gears
-NULL
-# "NS_species_params_gears"
+#' @examples 
+#' \dontrun{
+#' params <- MizerParams(NS_species_params_gears)
+#' sim = project(params, effort = c(Industrial = 0, Pelagic = 1, 
+#'                                  Beam = 0.5, Otter = 0.5))
+#' plot(sim)
+#' }
+"NS_species_params_gears"
 
+# NS_interaction ----
 #' Example interaction matrix for the North Sea example
 #'
-#' The interaction coefficient between predators and preys in the North Sea.
+#' The interaction coefficient between predator and prey species
+#' in the North Sea.
 #' @format A 12 x 12 matrix.
 #' @source{Blanchard et al.}
 #' @docType data
-#' @name inter
-NULL
-# "inter"
+#' @name NS_interaction
+#' @examples 
+#' \dontrun{
+#' params <- MizerParams(NS_species_params_gears,
+#'                       interaction = NS_inter)
+#' sim = project(params, effort = c(Industrial = 0, Pelagic = 1, 
+#'                                  Beam = 0.5, Otter = 0.5))
+#' plot(sim)
+#' }
+"NS_interaction"
 
+#' Alias for `NS_interaction`
+#' 
+#' `r lifecycle::badge("deprecated")`
+#' An alias provided for backward compatibility with mizer version <= 2.3
+#' @format A 12 x 12 matrix.
+#' @source{Blanchard et al.}
+#' @docType data
+#' @concept deprecated
+"inter"
+
+# NS_params ----
 #' Example MizerParams object for the North Sea example
 #'
-#' A MizerParams object created from the \code{NS_species_params_gears} species
-#' parameters and the \code{inter} interaction matrix together with an initial
+#' A MizerParams object created from the `NS_species_params_gears` species
+#' parameters and the `inter` interaction matrix together with an initial
 #' condition corresponding to the steady state obtained from fishing with an
 #' effort 
 #' \code{effort = c(Industrial = 0, Pelagic = 1, Beam = 0.5, Otter = 0.5)}.
@@ -66,49 +99,28 @@ NULL
 #' @source{Blanchard et al.}
 #' @docType data
 #' @name NS_params
-NULL
-# "NS_params"
-
-#' Example MizerParams object for the Benguela current
-#' 
-#' Created with purely size-based predation, i.e., no species-specific interactions. 
-#' Set up with three fishing gears targeting small, medium and large species. 
-#' Vulnerabilities are represented by changing the clearance rate constant (gamma) between species.
-#' Calibrated to efforts
-#' \code{effort = c(small=0.13, medium=0.05, large=0.45)}.
+#' @family example parameter objects
 #' @examples 
-#' \dontrun{ 
-#' data("Benguela_params")
-#' sim = project(Benguela_params, effort=c(small=0.13, medium=0.05, large=0.45))
+#' \dontrun{
+#' sim = project(NS_params, effort = c(Industrial = 0, Pelagic = 1, 
+#'                                     Beam = 0.5, Otter = 0.5))
 #' plot(sim)
 #' }
-#' @format A MizerParams object
-#' @source{N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): 
-#' Efficiency of fisheries is increasing at the ecosystem level. 
-#' Fish and Fisheries 18(2) 199- 211. doi:10.1111/faf.12171.}
-#' @docType data
-#' @name Benguela_params
-NULL
-# "Benguela_params"
+"NS_params"
 
-#' Example MizerParams object for the Central Baltic Sea
-#' 
-#' Created with purely size-based predation, i.e., no species-specific interactions. 
-#' Set up with three fishing gears targeting small, medium and large species. 
-#' Vulnerabilities are represented by changing the clearance rate constant (gamma) between species.
-#' Calibrated to efforts
-#' \code{effort = c(small=0.3, medium=0.3, large=0.7)}.
-#' @examples 
-#' \dontrun{ 
-#' data("Baltic_params")
-#' sim = project(Baltic_params, effort = c(small=0.3, medium=0.3, large=0.7))
-#' plot(sim)
-#' }
-#' @format A MizerParams object
-#' @source{N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): 
-#' Efficiency of fisheries is increasing at the ecosystem level. 
-#' Fish and Fisheries 18(2) 199- 211. doi:10.1111/faf.12171.}
+# NS_sim ----
+#' Example MizerSim object for the North Sea example
+#'
+#' A MizerSim object containing a simulation with historical fishing
+#' mortalities from the North Sea, as created in the tutorial
+#' "A Multi-Species Model of the North Sea".
+#' @format A MizerSim object
+#' @source \url{https://sizespectrum.org/mizer/articles/a_multispecies_model_of_the_north_sea.html}
 #' @docType data
-#' @name Baltic_params
-NULL
-# "Baltic_params"
+#' @name NS_sim
+#' @family example parameter objects
+#' @examples 
+#' \dontrun{
+#' plotBiomass(NS_sim)
+#' }
+"NS_sim"

@@ -2,7 +2,6 @@
 title: "Editing the Mizer Website"
 output:
   html_document:
-    number_sections: yes
     toc: yes
     fig_width: 5
     fig_height: 5
@@ -20,10 +19,11 @@ knitr::opts_chunk$set(
 The mizer website at [https://sizespectrum.org/mizer/] is created
 programmatically from the documentation included in the mizer GitHub
 repository. Thus to edit the website just means editing this documentation.
-The website creation is performed by the 
+The website creation is performed by a slight modification of the 
 [`pkgdown`](https://pkgdown.r-lib.org/index.html) package. You can trigger
-a build in your local repository by issuing the command
+a build in your local repository by issuing the commands
 ```{r eval=FALSE}
+devtools::install_github("gustavdelius/pkgdown", ref = "mizer")
 pkgdown::build_site()
 ```
 This will convert all existing documentation into html files and put these
@@ -136,7 +136,7 @@ explained in the
 
 ## Embedding videos
 It is easy to embed videos into a webpage by putting an iframe into the
-Rmarkdown source file. For example putting the line
+R Markdown source file. For example putting the line
 ```
 <iframe width="560" height="315" src="https://www.youtube.com/embed/0RlXqLbFbWc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 ```

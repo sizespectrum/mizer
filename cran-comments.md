@@ -1,21 +1,26 @@
 ## Test environments
-* ubuntu 18.04 bionic, R 3.5.2
-* win-builder (devel and release)
-* R-hub
-
-## Errors
-None.
-
-## Warnings
-* r-hub Fedora Linux, R-devel, clang, gfortra: re-building the
-  vignette with knitr fails with message "there is no package called codetools".
-  I think this must be a bug with how knitr is set up on r-hub with Fedora.
   
-## Notes
-* r-hub Windows Server 2008 R2 SP1, R-devel, 32/64 bit: can not check the
-  sizes of PDF files because GhostScript executables were missing.
+* local Windows 10, R 4.2.1
+
+  0 errors ✓ | 0 warnings ✓ | 0 notes ✓
   
-* r-hub Ubuntu Linux 16.04 LTS, R-release, GCC: flags a
-  misspelling which is however intentional
 
+* rhub::check_for_cran(platforms = "macos-highsierra-release-cran")
+  
+  SUCCESS
 
+* RStudio Cloud with x86_64-pc-linux-gnu (64-bit), R 4.2.1
+* Win builder devel
+
+  0 errors ✔ | 0 warnings ✔ | 1 note ✖
+  
+  checking CRAN incoming feasibility ... NOTE
+  Maintainer: ‘Gustav Delius <gustav.delius@york.ac.uk>’
+  
+  Found the following (possibly) invalid DOIs:
+    DOI: 10.1111/2041-210X.12256
+      From: inst/CITATION
+      Status: Service Unavailable
+      Message: 503
+      
+  I have checked the DOI at https://www.doi.org/ and it is correct

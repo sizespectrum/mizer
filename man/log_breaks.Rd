@@ -11,7 +11,7 @@ log_breaks(n = 6)
 }
 \value{
 A function that can be used as the break argument in calls to
-  scale_y_continuous() or scale_x_continuous()
+scale_y_continuous() or scale_x_continuous()
 }
 \description{
 This is needed when the logarithmic y-axis spans less than one order of

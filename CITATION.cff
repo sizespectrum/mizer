@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Delius
+    given-names: Gustav
+    orcid: https://orcid.org/0000-0003-4092-8228
+  - family-names: Scott
+    given-names: Finlay
+  - family-names: Blanchard
+    given-names: Julia
+    orcid: https://orcid.org/0000-0003-0532-4824
+  - family-names: Andersen
+    given-names: Ken
+    orcid: https://orcid.org/0000-0002-8478-3430
+title: "mizer: Multi-Species Size Spectrum Modelling in R"
+version: 2.2.1
+date-released: 2021-08-03
+url: "https://sizespectrum.org/mizer/"

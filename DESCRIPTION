@@ -5,7 +5,10 @@ Description: A set of classes and methods to set up and run multi-species, trait
     based and community size spectrum ecological models, focused on the marine
     environment.
 Maintainer: Gustav Delius <gustav.delius@york.ac.uk>
-Authors@R: c(person("Finlay", "Scott", email="drfinlayscott@gmail.com", 
+Authors@R: c(person("Gustav", "Delius", email="gustav.delius@york.ac.uk",
+                    role=c("cre", "aut", "cph"),
+                    comment = c(ORCID = "0000-0003-4092-8228")),
+             person("Finlay", "Scott", email="drfinlayscott@gmail.com", 
                     role=c("aut", "cph")),
              person("Julia", "Blanchard", email="julia.blanchard@utas.edu.au",
                     role=c("aut", "cph"),
@@ -13,34 +16,32 @@ Authors@R: c(person("Finlay", "Scott", email="drfinlayscott@gmail.com",
              person("Ken", "Andersen", email="kha@aqua.dtu.dk",
                     role=c("aut", "cph"),
                     comment = c(ORCID = "0000-0002-8478-3430")),
-             person("Gustav", "Delius", email="gustav.delius@york.ac.uk",
-                    role=c("ctb", "cre"),
-                    comment = c(ORCID = "0000-0003-4092-8228")),
              person("Richard", "Southwell", email="richard.southwell@york.ac.uk",
-                    role=c("ctb")))
-Version: 1.0.1.9000
+                    role=c("ctb", "cph")))
+Version: 2.3.1.9000
 License: GPL-3
 Imports:
     assertthat,
     deSolve,
     dplyr,
     ggplot2,
+    ggrepel,
     grid,
+    lubridate,
     methods,
     plotly,
     plyr,
     progress,
     Rcpp,
     reshape2,
-    shiny,
-    shinyjs,
-    tibble,
-    tidyr
+    rlang,
+    lifecycle
 LinkingTo: Rcpp
 Depends:
     R (>= 3.1)
 Suggests:
-    testthat,
+    testthat (>= 2.1.0),
+    vdiffr,
     roxygen2,
     knitr,
     shinyBS,
@@ -49,25 +50,59 @@ Suggests:
     covr,
     spelling
 Collate:
+    'helpers.R'
     'MizerParams-class.R'
     'MizerSim-class.R'
+    'reproduction.R'
+    'saveParams.R'
+    'species_params.R'
+    'setColours.R'
+    'setInteraction.R'
+    'setPredKernel.R'
+    'setSearchVolume.R'
+    'setMaxIntakeRate.R'
+    'setMetabolicRate.R'
+    'setMetadata.R'
+    'setExtMort.R'
+    'setReproduction.R'
+    'setResource.R'
+    'setFishing.R'
+    'setInitialValues.R'
+    'setBevertonHolt.R'
+    'upgrade.R'
     'selectivity_funcs.R'
     'pred_kernel_funcs.R'
     'resource_dynamics.R'
-    'plankton_dynamics.R'
     'project.R'
-    'help.R'
+    'mizer-package.R'
     'project_methods.R'
+    'rate_functions.R'
     'summary_methods.R'
     'plots.R'
+    'plotBiomassObservedVsModel.R'
+    'plotYieldObservedVsModel.R'
+    'animateSpectra.R'
+    'newMultispeciesParams.R'
     'wrapper_functions.R'
+    'newSingleSpeciesParams.R'
+    'steady.R'
+    'test-helpers.R'
+    'extension.R'
     'data.R'
     'RcppExports.R'
-    'gadgets.R'
-VignetteBuilder: knitr
-RoxygenNote: 6.1.1.9000
+    'deprecated.R'
+    'get_initial_n.R'
+    'compareParams.R'
+    'customFunction.R'
+    'manipulate_species.R'
+    'calibrate.R'
+    'match.R'
+    'defaults_edition.R'
+RoxygenNote: 7.2.0
+Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
 LazyData: true
-URL: https://sizespectrum.org/mizer, https://github.com/sizespectrum/mizer
+URL: https://sizespectrum.org/mizer/, https://github.com/sizespectrum/mizer
 BugReports: https://github.com/sizespectrum/mizer/issues
 Language: en-GB
+RdMacros: lifecycle

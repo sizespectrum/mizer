@@ -1,6 +1,22 @@
-context("Wrapper functions for trait and community models")
-
-# Multiple gears work correctly in trait-based model ----
+# Trait based ----
+test_that("Providing gamma overrules f0 in newTraitParams()", {
+    gamma <- 2000
+    params <- newTraitParams(f0 = 0.4, gamma = gamma)
+    expect_identical(params@species_params$gamma,
+                     rep(gamma, nrow(params@species_params)))
+})
+# * check a few messages ----
+test_that("newTraitParams produces errors and messages", {
+    expect_error(newTraitParams(ext_mort_prop = 2),
+                 "ext_mort_prop must be a number between 0 and 1")
+    expect_error(newTraitParams(reproduction_level = 1),
+                   "The reproduction level must be smaller than 1 and non-negative.")
+    expect_error(newTraitParams(min_w = -1),
+                 "The smallest egg size min_w must be greater than zero.")
+    expect_error(newTraitParams(min_w_inf = 10^4),
+                 "The asymptotic size of the smallest species min_w_inf must be smaller than")
+})
+# * Multiple gears work correctly in trait-based model ----
 test_that("Multiple gears work correctly in trait-based model", {
     # Check multiple gears are working properly
     min_w_inf <- 10
@@ -10,11 +26,11 @@ test_that("Multiple gears work correctly in trait-based model", {
                     to = log10(max_w_inf), 
                     length = no_sp)
     knife_edges <- w_inf * 0.05
-    params <- set_trait_model(no_sp = no_sp, 
-                              min_w_inf = min_w_inf, 
-                              max_w_inf = max_w_inf, 
-                              knife_edge_size = knife_edges)
-    expect_identical(params@species_params$knife_edge_size, 
+    params <- newTraitParams(no_sp = no_sp, 
+                             min_w_inf = min_w_inf, 
+                             max_w_inf = max_w_inf, 
+                             knife_edge_size = knife_edges)
+    expect_identical(params@gear_params$knife_edge_size, 
                      knife_edges)
     # All gears fire
     sim1 <- project(params, t_max = 10, effort = 1)
@@ -24,13 +40,13 @@ test_that("Multiple gears work correctly in trait-based model", {
         expect_true(all(fmg[10,1,i,params@w >= knife_edges[i]] == 1))
     }
     # Only the 4th gear fires
-    params <- set_trait_model(no_sp = no_sp, 
-                              min_w_inf = min_w_inf, 
-                              max_w_inf = max_w_inf, 
-                              knife_edge_size = knife_edges, 
-                              gear_names = 1:no_sp)
+    params <- newTraitParams(no_sp = no_sp, 
+                             min_w_inf = min_w_inf, 
+                             max_w_inf = max_w_inf, 
+                             knife_edge_size = knife_edges, 
+                             gear_names = 1:no_sp)
     effort <- c(0,0,0,1,0,0,0,0,0,0)
-    names(effort) = 1:no_sp
+    names(effort) <- 1:no_sp
     sim2 <- project(params, t_max = 10, effort = effort)
     fmg <- getFMortGear(sim2)
     expect_true(all(fmg[10, c(1:3,5:10),c(1:3,5:10),] == 0))
@@ -39,9 +55,10 @@ test_that("Multiple gears work correctly in trait-based model", {
     
 })
 
-# Scaling model is set up correctly ----
+# * Scaling model is set up correctly ----
 test_that("Scaling model is set up correctly", {
-    p <- set_scaling_model(perfect = TRUE, sigma = 1)
+    p <- newTraitParams(perfect_scaling = TRUE, sigma = 1,
+                        n = 2/3, lambda = 2 + 3/4 - 2/3)
     sim <- project(p, t_max = 5)
     
     # Check some dimensions
@@ -50,19 +67,23 @@ test_that("Scaling model is set up correctly", {
     
     # Check against analytic results
     sp <- 6  # check middle species
-    gamma <- p@species_params$gamma[sp]
-    sigma <- p@species_params$sigma[sp]
-    beta <- p@species_params$beta[sp]
-    alpha <- p@species_params$alpha[sp]
-    h <- p@species_params$h[sp]
-    ks <- p@species_params$ks[sp]
-    mu0 <- (1 - p@f0) * sqrt(2 * pi) * p@kappa * gamma * sigma *
-        (beta ^ (p@n - 1)) * exp(sigma ^ 2 * (p@n - 1) ^ 2 / 2)
-    hbar <- alpha * h * p@f0 - ks
+    gamma <- p@species_params$gamma[[sp]]
+    sigma <- p@species_params$sigma[[sp]]
+    beta <- p@species_params$beta[[sp]]
+    alpha <- p@species_params$alpha[[sp]]
+    h <- p@species_params$h[[sp]]
+    ks <- p@species_params$ks[[sp]]
+    f0 <- 0.6
+    n <- p@species_params$n[[sp]]
+    mu0 <- (1 - f0) * sqrt(2 * pi) * 
+        p@resource_params$kappa * gamma * sigma *
+        (beta ^ (n - 1)) * exp(sigma ^ 2 * (n - 1) ^ 2 / 2)
+    hbar <- alpha * h * f0 - ks
     # Check encounter rate
-    lm2 <- p@lambda - 2
-    e <- getEncounter(p, p@initial_n, p@initial_n_pp)[sp, ] * p@w^(lm2 - p@q)
-    ae <- gamma * p@kappa * exp(lm2^2 * sigma^2 / 2) *
+    lm2 <- p@resource_params$lambda - 2
+    q <- p@species_params$q[[sp]]
+    e <- getEncounter(p, p@initial_n, p@initial_n_pp)[sp, ] * p@w^(lm2 - q)
+    ae <- gamma * p@resource_params$kappa * exp(lm2^2 * sigma^2 / 2) *
         beta^lm2 * sqrt(2 * pi) * sigma * 
         # The following factor takes into account the cutoff in the integral
         (pnorm(3 - lm2 * sigma) + pnorm(log(beta)/sigma + lm2 * sigma) - 1)
@@ -75,22 +96,22 @@ test_that("Scaling model is set up correctly", {
     # Death rate
     mu <- getMort(p, p@initial_n, p@initial_n_pp, effort = 0)[sp, ]
     mumu <- mu  # To set the right names
-    mumu[] <- mu0 * p@w^(p@n - 1)
-    expect_equal(mu, mumu, tolerance = 1e-15)
+    mumu[] <- mu0 * p@w^(p@species_params$n[[sp]] - 1)
+    expect_equal(mu, mumu, tolerance = 0.2)
     # Growth rate
     g <- getEGrowth(p, p@initial_n, p@initial_n_pp)[sp, ]
     gg <- g  # To set the right names
-    gg[] <- hbar * p@w^p@n * (1 - p@psi[sp, ])
+    gg[] <- hbar * p@w^p@species_params$n[[sp]] * (1 - p@psi[sp, ])
     # TODO: not precise enough yet
-    # expect_equal(g, gg, tolerance = 1e-4)
+    expect_equal(g, gg, tolerance = 1e-4)
     
     # Check that community is perfect power law
     expect_identical(p@sc, colSums(p@initial_n))
     total <- p@initial_n_pp
     fish_idx <- (length(p@w_full) - length(p@w) + 1):length(p@w_full)
     total[fish_idx] <- total[fish_idx] + p@sc
-    total <- total * p@w_full^p@lambda
-    expected <- rep(p@kappa, length(p@w_full))
+    total <- total * p@w_full^p@resource_params$lambda
+    expected <- rep(p@resource_params$kappa, length(p@w_full))
     expect_equivalent(total, expected, tolerance = 1e-15, check.names = FALSE)
     
     # All erepros should be equal
@@ -98,134 +119,5 @@ test_that("Scaling model is set up correctly", {
     
     # Check that total biomass changes little (relatively)
     bm <- getBiomass(sim)
-    expect_lt(max(abs(bm[1, ] - bm[6, ])), 4*10^(-5))
-})
-
-# removeSpecies ----
-test_that("removeSpecies works", {
-    data("NS_species_params")
-    remove <- NS_species_params$species[2:11]
-    reduced <- NS_species_params[!(NS_species_params$species %in% remove), ]
-    params <- MizerParams(NS_species_params, no_w = 20, 
-                          max_w = 39900, min_w_pp = 9e-14)
-    p1 <- removeSpecies(params, species = remove)
-    expect_equal(nrow(p1@species_params), nrow(params@species_params) - 10)
-    p2 <- MizerParams(reduced, no_w = 20, 
-                      max_w = 39900, min_w_pp = 9e-14)
-    expect_equivalent(p1, p2)
-    sim1 <- project(p1, t_max = 0.4, t_save = 0.4)
-    sim2 <- project(p2, t_max = 0.4, t_save = 0.4)
-    expect_identical(sim1@n[2, 2, ], sim2@n[2, 2, ])
-})
-
-# retuneBackground() reproduces scaling model ----
-test_that("retuneBackground() reproduces scaling model", {
-    # This numeric test failed on Solaris and without long doubles. So for now
-    # skipping it on CRAN
-    skip_on_cran()
-    p <- set_scaling_model()
-    initial_n <- p@initial_n
-    # We multiply one of the species by a factor of 5 and expect
-    # retuneBackground() to tune it back down to the original value.
-    p@initial_n[5, ] <- 5 * p@initial_n[5, ]
-    pr <- p %>% 
-        markBackground() %>% 
-        retuneBackground()
-    expect_lt(max(abs(initial_n - pr@initial_n)), 2e-11)
-})
-
-# pruneSpecies() removes low-abundance species ----
-test_that("pruneSpecies() removes low-abundance species", {
-    params <- set_scaling_model()
-    p <- params
-    # We multiply one of the species by a factor of 10^-3 and expect
-    # pruneSpecies() to remove it.
-    p@initial_n[5, ] <- p@initial_n[5, ] * 10^-4
-    p <- pruneSpecies(p, 10^-2)
-    expect_is(p, "MizerParams")
-    expect_equal(nrow(params@species_params) - 1, nrow(p@species_params))
-    expect_equal(p@initial_n[5, ], params@initial_n[6, ])
-})
-
-# addSpecies ----
-test_that("addSpecies works when adding a second identical species", {
-    p <- set_scaling_model()
-    no_sp <- length(p@A)
-    p <- markBackground(p)
-    species_params <- p@species_params[5,]
-    species_params$species = "new"
-    # Adding species 5 again should lead two copies of the species with the
-    # same combined abundance
-    pa <- addSpecies(p, species_params)
-    # TODO: think about what to check now
-})
-test_that("addSpecies does not allow duplicate species", {
-    p <- NS_params
-    species_params <- p@species_params[5, ]
-    expect_error(addSpecies(p, species_params),
-                 "You can not add species that are already there.")
-})
-
-# retuneReproductiveEfficiency ----
-test_that("retuneReproductiveEfficiency works", {
-    p <- set_scaling_model()
-    no_sp <- nrow(p@species_params)
-    erepro <- p@species_params$erepro
-    p@species_params$erepro[5] <- 15
-    ps <- retuneReproductionEfficiency(p)
-    expect_equal(ps@species_params$erepro, erepro)
-    # can also select species in various ways
-    ps <- retuneReproductionEfficiency(p, species = p@species_params$species[5])
-    expect_equal(ps@species_params$erepro, erepro)
-    p@species_params$erepro[3] <- 15
-    species <- (1:no_sp) %in% c(3,5)
-    ps <- retuneReproductionEfficiency(p, species = species)
-    expect_equal(ps@species_params$erepro, erepro)
-})
-
-# renameSpecies ----
-test_that("renameSpecies works", {
-    sp <- NS_species_params
-    p <- set_multispecies_model(sp)
-    sp$species <- tolower(sp$species)
-    replace <- NS_species_params$species
-    names(replace) <- sp$species
-    p2 <- set_multispecies_model(sp)
-    p2 <- renameSpecies(p2, replace)
-    expect_identical(p, p2)
-})
-test_that("renameSpecies warns on wrong names", {
-    expect_error(renameSpecies(NS_params, c(Kod = "cod", Hadok = "haddock")),
-                 "Kod, Hadok do not exist")
-})
-
-# rescaleAbundance ----
-test_that("rescaleAbundance works", {
-    p <- retuneReproductionEfficiency(NS_params)
-    factor <- c(Cod = 2, Haddock = 3)
-    p2 <- rescaleAbundance(NS_params, factor)
-    expect_identical(p@initial_n["Cod"] * 2, p2@initial_n["Cod"])
-    expect_equal(p, rescaleAbundance(p2, 1/factor))
-})
-test_that("rescaleAbundance throws correct error",{
-    expect_error(rescaleAbundance(NS_params, c(2, 3)))
-    expect_error(rescaleAbundance(NS_params, "a"))
-})
-test_that("rescaleAbundance warns on wrong names", {
-    expect_error(rescaleAbundance(NS_params, c(Kod = 2, Hadok = 3)),
-                 "Kod, Hadok do not exist")
-})
-
-# steady ----
-test_that("steady works", {
-    expect_message(params <- set_scaling_model(no_sp = 4, no_w = 30),
-                   "Increased no_w to 36")
-    params@species_params$gamma[2] <- 2000
-    params <- setSearchVolume(params)
-    p <- steady(params, t_per = 2)
-    expect_known_value(getRDI(p), "values/steady")
-    # and works the same when returning sim
-    sim <- steady(params, t_per = 2, return_sim = TRUE)
-    expect_is(sim, "MizerSim")
-    expect_known_value(getRDI(sim@params), "values/steady")
+    expect_lt(max(abs(bm[1, ] - bm[6, ])), 1.3e-4)
 })

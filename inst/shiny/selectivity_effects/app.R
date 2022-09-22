@@ -3,6 +3,7 @@ library(shinyBS)
 library(ggplot2)
 library(mizer)
 library(progress)
+library(dplyr)
 
 #### Server ####
 server <- function(input, output, session) {
@@ -132,10 +133,10 @@ server <- function(input, output, session) {
         no_t <- dim(sim_old@n)[1]
         p@initial_n <- sim_old@n[no_t, , ]
         p@initial_n_pp <- sim_old@n_pp[no_t, ]
-        p@species_params$r_max <- Inf
+        p@species_params$R_max <- Inf
         
         # Retune the values of erepro so that we get the correct level of
-        # recruitment without stock-recruitment relationship
+        # reproduction without density dependence
         mumu <- getZ(p, p@initial_n, p@initial_n_pp, effort = fixed_effort)
         gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
         rdi <- getRDI(p, p@initial_n, p@initial_n_pp)
@@ -149,19 +150,17 @@ server <- function(input, output, session) {
         }
         
         # Set new gear for hake
-        a <- p@species_params["Hake", "a"]
-        b <- p@species_params["Hake", "b"]
         p@species_params["Hake", "l50"] <- input$l50_hake
         p@species_params["Hake", "l25"] <- input$l25_hake
         p@selectivity["sigmoid_gear", "Hake", ] <-
-            sigmoid_length(p@w, input$l25_hake, input$l50_hake, a, b)
+            sigmoid_length(p@w, input$l25_hake, input$l50_hake, 
+                           p@species_params["Hake", ])
         # Set new gear for mullet
-        a <- p@species_params["Mullet", "a"]
-        b <- p@species_params["Mullet", "b"]
         p@species_params["Mullet", "l50"] <- input$l50_mullet
         p@species_params["Mullet", "l50"] <- input$l25_mullet
         p@selectivity["sigmoid_gear", "Mullet", ] <-
-            sigmoid_length(p@w, input$l25_mullet, input$l50_mullet, a, b)
+            sigmoid_length(p@w, input$l25_mullet, input$l50_mullet, 
+                           p@species_params["Mullet", ])
         p
     })
     
@@ -187,7 +186,7 @@ server <- function(input, output, session) {
         ggplot(ym) + 
             geom_line(aes(x = Year, y = Yield, colour = Species, linetype = Gear)) +
             scale_y_continuous(name="Yield [tonnes/year]", limits = c(0, NA)) +
-            scale_colour_manual(values = params()@linecolour) +
+            scale_colour_manual(values = params()@linecolour[c("Mullet", "Hake")]) +
             scale_linetype_manual(values = c("Current" = "dotted", "Modified" = "solid")) +
             theme(text = element_text(size = 18))
     })
@@ -203,7 +202,7 @@ server <- function(input, output, session) {
         ggplot(bm) + 
             geom_line(aes(x = Year, y = SSB, colour = Species, linetype = Gear)) +
             scale_y_continuous(name="SSB [tonnes]", limits = c(0, NA)) +
-            scale_colour_manual(values = params()@linecolour) +
+            scale_colour_manual(values = params()@linecolour[c("Mullet", "Hake")]) +
             scale_linetype_manual(values = c("Current" = "dotted", "Modified" = "solid")) +
             theme(text = element_text(size = 18))
     })
@@ -240,14 +239,13 @@ server <- function(input, output, session) {
                          "Species" = p@species_params$species[11:12])
         
         ggplot(cf, aes(x = w, y = value)) +
-            geom_line(aes(colour = Species, linetype = Species, group = sp)) +
+            geom_line(aes(colour = Species, group = sp)) +
             geom_hline(yintercept = 0) +
             scale_x_log10(name = "Size [g]", labels = prettyNum,
                           breaks = 10^(-3:4)) +
             scale_y_continuous(name = "Percentage change", limits = c(-0.50, 0.60),
                                labels = scales::percent, breaks = (-7:9)/10) +
-            scale_colour_manual(values = p@linecolour) +
-            scale_linetype_manual(values = p@linetype) +
+            scale_colour_manual(values = p@linecolour[c("Mullet", "Hake", "Background")]) +
             theme(text = element_text(size = 14)) +
             geom_point(aes(x = w, y = y, colour = Species, shape = Points), 
                        data = sp, size=3)
@@ -275,7 +273,7 @@ server <- function(input, output, session) {
                 scale_x_continuous(name = "Size [g]", labels = prettyNum) +
                 scale_y_continuous(name = "Selectivity",
                                    labels = scales::percent) +
-                scale_colour_manual(values = p@linecolour) +
+                scale_colour_manual(values = p@linecolour[c("Mullet", "Hake")]) +
                 theme(text = element_text(size = 18))
         } else {
             a <- p@species_params$a
@@ -287,7 +285,7 @@ server <- function(input, output, session) {
                 scale_x_continuous(name = "Length [cm]", labels = prettyNum) +
                 scale_y_continuous(name = "Selectivity",
                                    labels = scales::percent) +
-                scale_colour_manual(values = p@linecolour) +
+                scale_colour_manual(values = p@linecolour[c("Mullet", "Hake")]) +
                 theme(text = element_text(size = 18))
         }
     })
@@ -297,8 +295,8 @@ server <- function(input, output, session) {
         year <- input$catch_year - 2018
         s2 <- sim()
         p <- params()
-        w_min_idx <- sum(p@w < 4)
-        w_max_idx <- which.min(p@w < 200)
+        w_min_idx <- sum(p@w < 0.01)
+        w_max_idx <- which.min(p@w < 1000)
         w_sel <- seq(w_min_idx, w_max_idx, by = 1)
         w <- p@w[w_sel]
         catch_old <- sim_old@params@selectivity[2, 11:12, w_sel] * 
@@ -315,8 +313,8 @@ server <- function(input, output, session) {
             ggplot(catchf, aes(x = w, y = value)) +
                 geom_line(aes(colour = Species, linetype = Gear)) +
                 scale_x_continuous(name = "Size [g]", labels = prettyNum) +
-                scale_y_continuous(name = "Yield distribution") +
-                scale_colour_manual(values = p@linecolour) +
+                scale_y_continuous(name = "Yield density [tonnes/year/g]") +
+                scale_colour_manual(values = p@linecolour[c("Mullet", "Hake")]) +
                 scale_linetype_manual(values = c("Current" = "dotted", 
                                                  "Modified" = "solid")) +
                 theme(text = element_text(size = 18))
@@ -325,11 +323,14 @@ server <- function(input, output, session) {
             names(a) <- p@species_params$species[11:12]
             b <- p@species_params$b[11:12]
             names(b) <- p@species_params$species[11:12]
-            ggplot(catchf, aes(x = (w/a[Species])^(1/b[Species]), y = value)) +
+            catchf <- mutate(catchf, 
+                             l = (w/a[Species])^(1/b[Species]),
+                             value = value * b[Species] * w / l)
+            ggplot(catchf, aes(x = l, y = value)) +
                 geom_line(aes(colour = Species, linetype = Gear)) +
                 scale_x_continuous(name = "Length [cm]", labels = prettyNum) +
-                scale_y_continuous(name = "Yield distribution") +
-                scale_colour_manual(values = p@linecolour) +
+                scale_y_continuous(name = "Yield density [tonnes/year/cm]") +
+                scale_colour_manual(values = p@linecolour[c("Mullet", "Hake")]) +
                 scale_linetype_manual(values = c("Current" = "dotted", 
                                                  "Modified" = "solid")) +
                 theme(text = element_text(size = 18))
@@ -415,14 +416,14 @@ ui <- fluidPage(
             #             value=0.4, min=0.3, max=0.5),
             # bsTooltip("effort", "Explanation of this slider", "right"),
             h4("Hake selectivity"),
-            sliderInput("l50_hake", "L50", post = "cm",
+            sliderInput("l50_hake", "L50 (originally 16.6cm)", post = "cm",
                         value=20.5, min=12, max=22, step = 0.01),
-            sliderInput("l25_hake", "L25", post = "cm",
+            sliderInput("l25_hake", "L25 (originally 16.1cm)", post = "cm",
                         value=20.1, min=12, max=22, step = 0.01),
             h4("Mullet selectivity"),
-            sliderInput("l50_mullet", "L50", post = "cm",
+            sliderInput("l50_mullet", "L50 (originally 15.5cm)", post = "cm",
                         value=15.8, min=12, max=22, step = 0.01),
-            sliderInput("l25_mullet", "L25", post = "cm",
+            sliderInput("l25_mullet", "L25 (originally 13.2cm)", post = "cm",
                         value=13.6, min=12, max=22, step = 0.01),
             img(src = "logo_minouw_blue.png", width = "200px"),
             actionButton("introBut", "View Introduction again")
@@ -471,7 +472,7 @@ ui <- fluidPage(
                     p("This unpacks a bit of the underlying mizer model of 
                       multispecies dynamics.  The grey lines are background 
                       species, each with its own dynamics;  the green line is a 
-                      plankton resource spectrum without which the whole fish 
+                      resource resource spectrum without which the whole fish 
                       assemblage would go to extinction.  The target species 
                       both eat, and are eaten by, the background species."),
                     p("In 2018, the system is at the steady state under 

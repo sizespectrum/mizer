@@ -4,42 +4,74 @@
 \alias{getDiet}
 \title{Get diet of predator at size, resolved by prey species}
 \usage{
-getDiet(params, n = params@initial_n, n_pp = params@initial_n_pp,
-  B = params@initial_B, proportion = TRUE)
+getDiet(
+  params,
+  n = initialN(params),
+  n_pp = initialNResource(params),
+  n_other = initialNOther(params),
+  proportion = TRUE
+)
 }
 \arguments{
-\item{params}{An \linkS4class{MizerParams} object}
+\item{params}{A \linkS4class{MizerParams} object}
 
-\item{n}{A matrix of species abundances (species x size)}
+\item{n}{A matrix of species abundances (species x size).}
 
-\item{n_pp}{A vector of the plankton abundance by size}
+\item{n_pp}{A vector of the resource abundance by size}
 
-\item{B}{A vector of biomasses of unstructured resource components}
+\item{n_other}{A list of abundances for other dynamical components of the
+ecosystem}
 
 \item{proportion}{If TRUE (default) the function returns the diet as a
-proportion of the total consumption rate. If FALSE it returns the 
-consumption rate in grams.}
+proportion of the total consumption rate. If FALSE it returns the
+consumption rate in grams per year.}
 }
 \value{
-An array (predator species  x predator size x 
-  (prey species + plankton + resources) )
+An array (predator species  x predator size x
+(prey species + resource + other components) )
 }
 \description{
 Calculates the rate at which a predator of a particular species and size
-consumes biomass of each prey species, plankton and resources.
+consumes biomass of each prey species and resource.
+The diet has units of grams/year.
 }
 \details{
+Returns the rates \eqn{D_{ij}(w)} at which a predator of species \eqn{i}
+and size \eqn{w} consumes biomass from prey species \eqn{j}. This is
+calculated from the predation kernel \eqn{\phi_i(w, w_p)},
+the search volume \eqn{\gamma_i(w)}, the feeding level \eqn{f_i(w)}, the
+species interaction matrix \eqn{\theta_{ij}} and the prey abundance density
+\eqn{N_j(w_p)}:
+\deqn{
+D_{ij}(w, w_p) = (1-f_i(w)) \gamma_i(w) \theta_{ij}
+\int N_j(w_p) \phi_i(w, w_p) w_p dw_p.
+}
+The prey index \eqn{j} runs over all species and the resource. It also runs
+over any extra ecosystem components in your model for which you have
+defined an encounter rate function. This encounter rate is multiplied by
+\eqn{1-f_i(w)} to give the rate of consumption of biomass from these extra
+components.
+
 This function performs the same integration as
-\code{\link{getEncounter}} but does not aggregate over prey species, and
-multiplies by (1-feeding_level) to get the consumed biomass rather than the
+\code{\link[=getEncounter]{getEncounter()}} but does not aggregate over prey species, and
+multiplies by \eqn{1-f_i(w)} to get the consumed biomass rather than the
 available biomass. Outside the range of sizes for a predator species the
 returned rate is zero.
 }
+\examples{
+diet <- getDiet(NS_params)
+str(diet)
+}
 \seealso{
-Other summary functions: \code{\link{getBiomass}},
-  \code{\link{getGrowthCurves}}, \code{\link{getN}},
-  \code{\link{getSSB}}, \code{\link{getYieldGear}},
-  \code{\link{getYield}}
+\code{\link[=plotDiet]{plotDiet()}}
+
+Other summary functions: 
+\code{\link{getBiomass}()},
+\code{\link{getGrowthCurves}()},
+\code{\link{getN}()},
+\code{\link{getSSB}()},
+\code{\link{getYieldGear}()},
+\code{\link{getYield}()}
 }
 \concept{summary functions}
 \concept{summary_function}

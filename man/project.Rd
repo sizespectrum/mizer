@@ -4,56 +4,57 @@
 \alias{project}
 \title{Project size spectrum forward in time}
 \usage{
-project(object, effort = 0, t_max = 100, dt = 0.1, t_save = 1,
-  t_start = 0, initial_n = params@initial_n,
-  initial_n_pp = params@initial_n_pp, initial_B = params@initial_B,
-  append = TRUE, progress_bar = TRUE, ...)
+project(
+  object,
+  effort,
+  t_max = 100,
+  dt = 0.1,
+  t_save = 1,
+  t_start = 0,
+  initial_n,
+  initial_n_pp,
+  append = TRUE,
+  progress_bar = TRUE,
+  ...
+)
 }
 \arguments{
-\item{object}{Either a \linkS4class{MizerParams} object or a 
+\item{object}{Either a \linkS4class{MizerParams} object or a
 \linkS4class{MizerSim} object (which contains a \code{MizerParams} object).}
 
 \item{effort}{The effort of each fishing gear through time. See notes below.}
 
 \item{t_max}{The number of years the projection runs for. The default value is
-100. However, this argument is ignored if an array is used for the
+100. This argument is ignored if an array is used for the
 \code{effort} argument. See notes below.}
 
 \item{dt}{Time step of the solver. The default value is 0.1.}
 
 \item{t_save}{The frequency with which the output is stored. The default
-value is 1. Must be an integer multiple of dt.}
+value is 1. This argument is ignored if an array is used for the \code{effort}
+argument. See notes below.}
 
 \item{t_start}{The the year of the start of the simulation. The simulation
 will cover the period from \code{t_start} to \code{t_start + t_max}.
 Defaults to 0. Ignored if an array is used for the \code{effort}
 argument or a \code{MizerSim} for the \code{object} argument.}
 
-\item{initial_n}{The initial abundances of species. A matrix with dimensions 
-species x size. The order of species must be the same as in the 
-\code{MizerParams} argument. Ignored if the \code{object} argument is a 
-MizerSim object, but overrules the \code{initial_n} slot if \code{object} 
-is a \code{MizerParams} object.}
+\item{initial_n}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The initial abundances of species. Instead of
+using this argument you should set \code{initialN(params)} to the desired value.}
 
-\item{initial_n_pp}{The initial abundances of plankton. A numeric vector.
-Ignored if the \code{object} argument is a MizerSim object, but overrules
-the \code{initial_n_pp} slot if \code{object} is a \code{MizerParams}
-object.}
-
-\item{initial_B}{The initial biomasses of the unstructured resources. It
-should be a named vector with one entry for each resource. Ignored if the
-\code{object} argument is a MizerSim object, but overrules the
-\code{initial_B} slot if \code{object} is a \code{MizerParams} object.}
+\item{initial_n_pp}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The initial abundances of resource. Instead
+of using this argument you should set \code{initialNResource(params)} to the
+desired value.}
 
 \item{append}{A boolean that determines whether the new simulation results
 are appended to the previous ones. Only relevant if \code{object} is a
 \code{MizerSim} object. Default = TRUE.}
 
 \item{progress_bar}{Either a boolean value to determine whether a progress
-bar should be shown in the console of a shiny progress object to implement 
-a progress bar in a shiny app}
+bar should be shown in the console, or a shiny Progress object to implement
+a progress bar in a shiny app.}
 
-\item{...}{Currently unused.}
+\item{...}{Other arguments will be passed to rate functions.}
 }
 \value{
 An object of class \linkS4class{MizerSim}.
@@ -62,43 +63,45 @@ An object of class \linkS4class{MizerSim}.
 Runs the size spectrum model simulation.
 The function returns an object of type
 \linkS4class{MizerSim} that can then be explored with a range of
-\code{\link{summary_functions}} and \code{\link{plotting_functions}}.
+\link{summary_functions}, \link{indicator_functions} and
+\link{plotting_functions}.
 }
 \note{
 The \code{effort} argument specifies the level of fishing effort during
-the simulation. It can be specified in three different ways: \itemize{ \item
-A single numeric value. This specifies the effort of all fishing gears which
-is constant through time (i.e. all the gears have the same constant effort). 
+the simulation. If it is not supplied, the initial effort stored in the params
+object is used. The effort can be specified in three different ways:
+\itemize{
+\item A single numeric value. This specifies the effort of all fishing gears
+which is constant through time (i.e. all the gears have the same constant
+effort).
 \item A numerical vector which has the same length as the number of fishing
 gears. The vector must be named and the names must correspond to the gear
 names in the \code{MizerParams} object. The values in the vector specify the
 constant fishing effort of each of the fishing gears, i.e. the effort is
-constant through time but each gear may have a different fishing effort. 
+constant through time but each gear may have a different fishing effort.
 \item A numerical array with dimensions time x gear. This specifies the
 fishing effort of each gear at each time step.  The first dimension, time,
-must be named numerically and contiguously. The second dimension of the array
+must be named numerically and increasing. The second dimension of the array
 must be named and the names must correspond to the gear names in the
 \code{MizerParams} argument. The value for the effort for a particular time
-is used during the interval from that time to the next time in the array.}
+is used during the interval from that time to the next time in the array.
+}
 
-If effort is specified as an array then the smallest time in the array is 
+If effort is specified as an array then the smallest time in the array is
 used as the initial time for the simulation. Otherwise the initial time is
-set to the final time of the previous simulation if \code{object} is a 
+set to the final time of the previous simulation if \code{object} is a
 \code{MizerSim} object or to \code{t_start} otherwise. Also, if the effort is
-an array then the \code{t_max} argument is ignored and the maximum simulation
-time is the largest time of the effort array.
+an array then the \code{t_max} and \code{t_save} arguments are ignored and the
+simulation times will be taken from the effort array.
 
 If the \code{object} argument is of class \code{MizerSim} then the initial
-values for the simulation are taken from the final values in the 
+values for the simulation are taken from the final values in the
 \code{MizerSim} object and the corresponding arguments to this function will
 be ignored.
 }
 \examples{
 \dontrun{
-# Data set with different fishing gears
-data(NS_species_params_gears)
-data(inter)
-params <- set_multispecies_model(NS_species_params_gears, inter)
+params <-  NS_params
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # With constant fishing effort which is different for each gear
@@ -115,8 +118,4 @@ effort_array[,"Beam"] <- seq(from = 1, to = 0, length = length(times))
 effort_array[,"Otter"] <- seq(from = 1, to = 0.5, length = length(times))
 sim <- project(params, effort = effort_array)
 }
-}
-\seealso{
-\code{\link{MizerParams}}, \code{\link{summary_functions}} and 
-  \code{\link{plotting_functions}}
 }

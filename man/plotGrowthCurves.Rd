@@ -2,64 +2,94 @@
 % Please edit documentation in R/plots.R
 \name{plotGrowthCurves}
 \alias{plotGrowthCurves}
+\alias{plotlyGrowthCurves}
 \title{Plot growth curves giving weight as a function of age}
 \usage{
-plotGrowthCurves(object, species, max_age = 20, percentage = FALSE,
-  highlight = NULL)
+plotGrowthCurves(
+  object,
+  species = NULL,
+  max_age = 20,
+  percentage = FALSE,
+  species_panel = FALSE,
+  highlight = NULL,
+  return_data = FALSE,
+  ...
+)
+
+plotlyGrowthCurves(
+  object,
+  species = NULL,
+  max_age = 20,
+  percentage = FALSE,
+  species_panel = FALSE,
+  highlight = NULL
+)
 }
 \arguments{
-\item{object}{MizerSim or MizerParams object}
+\item{object}{MizerSim or MizerParams object. If given a
+\linkS4class{MizerSim} object, uses the growth rates at the final time of a
+simulation to calculate the size at age. If given a
+\linkS4class{MizerParams} object, uses the initial growth rates instead.}
 
-\item{species}{Name or vector of names of the species to be included. By
-default all species are included.}
+\item{species}{The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.}
 
 \item{max_age}{The age up to which to run the growth curve. Default is 20.}
 
 \item{percentage}{Boolean value. If TRUE, the size is given as a percentage
 of the maximal size.}
 
+\item{species_panel}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If TRUE, display all species with their Von Bertalanffy curves as facets
+(need species and percentage to be set to default). Default FALSE.}
+
 \item{highlight}{Name or vector of names of the species to be highlighted.}
+
+\item{return_data}{A boolean value that determines whether the formatted data
+used for the plot is returned instead of the plot itself. Default value is FALSE}
+
+\item{...}{Other arguments (currently unused)}
 }
 \value{
 A ggplot2 object
 }
 \description{
-If given a \linkS4class{MizerSim} object, uses the growth rates at the final
-time of a simulation to calculate the size at age. If given a
-\linkS4class{MizerParams} object, uses the initial growth rates instead.
-}
-\details{
 When the growth curve for only a single species is plotted, horizontal
-lines are included that indicate the maturity size and the maximum size for 
+lines are included that indicate the maturity size and the maximum size for
 that species. If furthermore the species parameters contain the variables
 a and b for length to weight conversion and the von Bertalanffy parameter
-k_vb, then the von Bertalanffy growth curve is superimposed in black.
+k_vb (and optionally t0), then the von Bertalanffy growth curve is
+superimposed in black.
 }
 \examples{
-
-data(NS_species_params_gears)
-data(inter)
-params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+\donttest{
+params <-  NS_params
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotGrowthCurves(sim, percentage = TRUE)
 plotGrowthCurves(sim, species = "Cod", max_age = 24)
-
+plotGrowthCurves(sim, species_panel = TRUE)
+ 
+# Returning the data frame
+fr <- plotGrowthCurves(sim, return_data = TRUE)
+str(fr)
+}
 }
 \seealso{
-\code{\link{plotting_functions}}
+\link{plotting_functions}
 
-Other plotting functions: \code{\link{displayFrames}},
-  \code{\link{plot,MizerSim,missing-method}},
-  \code{\link{plotBiomass}}, \code{\link{plotDiet}},
-  \code{\link{plotFMort}}, \code{\link{plotFeedingLevel}},
-  \code{\link{plotPredMort}}, \code{\link{plotSpectra}},
-  \code{\link{plotYieldGear}}, \code{\link{plotYield}},
-  \code{\link{plotlyBiomass}}, \code{\link{plotlyFMort}},
-  \code{\link{plotlyFeedingLevel}},
-  \code{\link{plotlyGrowthCurves}},
-  \code{\link{plotlyPredMort}},
-  \code{\link{plotlySpectra}},
-  \code{\link{plotlyYieldGear}}, \code{\link{plotlyYield}},
-  \code{\link{plotting_functions}}
+Other plotting functions: 
+\code{\link{animateSpectra}()},
+\code{\link{plot,MizerSim,missing-method}},
+\code{\link{plotBiomass}()},
+\code{\link{plotDiet}()},
+\code{\link{plotFMort}()},
+\code{\link{plotFeedingLevel}()},
+\code{\link{plotPredMort}()},
+\code{\link{plotSpectra}()},
+\code{\link{plotYieldGear}()},
+\code{\link{plotYield}()},
+\code{\link{plotting_functions}}
 }
 \concept{plotting functions}

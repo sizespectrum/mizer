@@ -6,27 +6,29 @@
 \description{
 Mizer provides a range of plotting functions for visualising the results
 of running a simulation, stored in a MizerSim object, or the initial state
-stored in a MizerParams object. 
-Every plotting function exists in two versions, \code{plotSomething} and 
+stored in a MizerParams object.
+Every plotting function exists in two versions, \code{plotSomething} and
 \code{plotlySomething}. The plotly version is more interactive but not
 suitable for inclusion in documents.
 }
 \details{
 This table shows the available plotting functions.
 \tabular{ll}{
-  Plot \tab Description \cr
-  \code{\link{plotBiomass}} \tab Plots the total biomass of each species through time. A time range to be plotted can be specified. The size range of the community can be specified in the same way as for \code{\link{getBiomass}}. \cr
-  \code{\link{plotSpectra}} \tab Plots the abundance (biomass or numbers) spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot. \cr
-  \code{\link{plotFeedingLevel}} \tab Plots the feeding level of each species against size. \cr
-  \code{\link{plotPredMort}} \tab Plots the predation mortality of each species against size. \cr
-  \code{\link{plotFMort}} \tab Plots the total fishing mortality of each species against size. \cr
-  \code{\link{plotYield}} \tab Plots the total yield of each species across all fishing gears against time. \cr
-  \code{\link{plotYieldGear}} \tab Plots the total yield of each species by gear against time. \cr
-  \code{\link{plot}} \tab Produces 5 plots (\code{\link{plotFeedingLevel}}, \code{\link{plotBiomass}}, \code{\link{plotPredMort}}, \code{\link{plotFMort}} and \code{\link{plotSpectra}}) in the same window as a summary. \cr
+Plot \tab Description \cr
+\code{\link[=plotBiomass]{plotBiomass()}} \tab Plots the total biomass of each species through time. A time range to be plotted can be specified. The size range of the community can be specified in the same way as for \code{\link[=getBiomass]{getBiomass()}}. \cr
+\code{\link[=plotSpectra]{plotSpectra()}} \tab Plots the abundance (biomass or numbers) spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot. \cr
+\code{\link[=plotFeedingLevel]{plotFeedingLevel()}} \tab Plots the feeding level of each species against size. \cr
+\code{\link[=plotPredMort]{plotPredMort()}} \tab Plots the predation mortality of each species against size. \cr
+\code{\link[=plotFMort]{plotFMort()}} \tab Plots the total fishing mortality of each species against size. \cr
+\code{\link[=plotYield]{plotYield()}} \tab Plots the total yield of each species across all fishing gears against time. \cr
+\code{\link[=plotYieldGear]{plotYieldGear()}} \tab Plots the total yield of each species by gear against time. \cr
+\code{\link[=plotDiet]{plotDiet()}} \tab Plots the diet composition at size for a given predator species. \cr
+\code{\link[=plotGrowthCurves]{plotGrowthCurves()}} \tab Plots the size as a function of age. \cr
+\code{\link[=plot]{plot()}} \tab Produces 5 plots (\code{\link[=plotFeedingLevel]{plotFeedingLevel()}}, \code{\link[=plotBiomass]{plotBiomass()}}, \code{\link[=plotPredMort]{plotPredMort()}}, \code{\link[=plotFMort]{plotFMort()}} and \code{\link[=plotSpectra]{plotSpectra()}}) in the same window. \cr
 }
 
 These functions use the ggplot2 package and return the plot as a ggplot
-object. This means that you can manipulate the plot further after its 
+object. This means that you can manipulate the plot further after its
 creation using the ggplot grammar of graphics. The corresponding function
 names with \code{plot} replaced by \code{plotly} produce interactive plots
 with the help of the plotly package.
@@ -35,10 +37,10 @@ While most plot functions take their data from a MizerSim object, some of
 those that make plots representing data at a single time can also take their
 data from the initial values in a MizerParams object.
 
-Where plots show results for species, the line colour and line type for each 
+Where plots show results for species, the line colour and line type for each
 species are specified by the \code{linecolour} and \code{linetype} slots in
 the MizerParams object. These were either taken from a default palette
-hard-coded into \code{\link{emptyParams}} or they were specified by the user
+hard-coded into \code{\link[=emptyParams]{emptyParams()}} or they were specified by the user
 in the species parameters dataframe used to set up the MizerParams object.
 The \code{linecolour} and \code{linetype} slots hold named vectors, named by
 the species. They can be overwritten by the user at any time.
@@ -48,17 +50,10 @@ specified as a vector in the \code{species} argument to the plot function.
 
 The ordering of the species in the legend is the same as the ordering in
 the species parameter data frame.
-
-Sometimes one wants to show two plots side-by-side with the same axes and
-the same legend. This is made possible for some of the plots via the
-\code{\link{displayFrames}} function.
 }
 \examples{
-# Set up example MizerParams and MizerSim objects
-data(NS_species_params_gears)
-data(inter)
-params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
-sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
+\donttest{
+sim <- NS_sim
 
 # Some example plots
 plotFeedingLevel(sim)
@@ -67,7 +62,7 @@ plotFeedingLevel(sim)
 plotFeedingLevel(sim, species = c("Cod", "Herring"))
 
 # Specifying new colours and linetypes for some species
-sim@params@linetype["Cod"] <- "solid"
+sim@params@linetype["Cod"] <- "dashed"
 sim@params@linecolour["Cod"] <- "red"
 plotFeedingLevel(sim, species = c("Cod", "Herring"))
 
@@ -78,21 +73,21 @@ p <- p + geom_hline(aes(yintercept = 0.7))
 p <- p + theme_bw()
 p
 }
+}
 \seealso{
-\code{\link{summary_functions}}
+\link{summary_functions}, \link{indicator_functions}
 
-Other plotting functions: \code{\link{displayFrames}},
-  \code{\link{plot,MizerSim,missing-method}},
-  \code{\link{plotBiomass}}, \code{\link{plotDiet}},
-  \code{\link{plotFMort}}, \code{\link{plotFeedingLevel}},
-  \code{\link{plotGrowthCurves}},
-  \code{\link{plotPredMort}}, \code{\link{plotSpectra}},
-  \code{\link{plotYieldGear}}, \code{\link{plotYield}},
-  \code{\link{plotlyBiomass}}, \code{\link{plotlyFMort}},
-  \code{\link{plotlyFeedingLevel}},
-  \code{\link{plotlyGrowthCurves}},
-  \code{\link{plotlyPredMort}},
-  \code{\link{plotlySpectra}},
-  \code{\link{plotlyYieldGear}}, \code{\link{plotlyYield}}
+Other plotting functions: 
+\code{\link{animateSpectra}()},
+\code{\link{plot,MizerSim,missing-method}},
+\code{\link{plotBiomass}()},
+\code{\link{plotDiet}()},
+\code{\link{plotFMort}()},
+\code{\link{plotFeedingLevel}()},
+\code{\link{plotGrowthCurves}()},
+\code{\link{plotPredMort}()},
+\code{\link{plotSpectra}()},
+\code{\link{plotYieldGear}()},
+\code{\link{plotYield}()}
 }
 \concept{plotting functions}
