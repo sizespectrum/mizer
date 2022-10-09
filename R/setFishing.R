@@ -298,18 +298,38 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
 #' 
 #' The `gear_params` data has one row for each gear-species pair and one
 #' column for each parameter that determines how that gear interacts with that
-#' species. For the details see [setFishing()].
+#' species. The columns are:
+#' * `species` The name of the species
+#' * `gear` The name of the gear
+#' * `catchability` A number specifying how strongly this gear selects this
+#'   species.
+#' * `sel_func` The name of the function that calculates the selectivity curve.
+#' * One column for each selectivity parameter needed by the selectivity
+#'   functions.
+#' 
+#' For the details see [setFishing()]. 
+#' 
+#' The fishing effort, which is also needed to determine the fishing mortality
+#' excerted by a gear is not set via the `gear_params` data frame but is set
+#' with `initial_effort()` or is specified when calling `project()`.
 #' 
 #' If you change a gear parameter, this will be used to recalculate the
 #' `selectivity` and `catchability` arrays by calling [setFishing()],
 #' unless you have previously set these by hand.
+#' 
+#' `gear_params<-` automatically sets the row names to contain the species name
+#' and the gear name, separated by a comma and a space. The last example below
+#' illustrates how this facilitates changing an individual gear parameter.
+#' 
 #' @param params A MizerParams object
 #' @export
 #' @family functions for setting parameters
 #' @examples 
 #' params <- NS_params
+#' 
 #' # gears set up in example
 #' gear_params(params)
+#' 
 #' # setting totally different gears
 #' gear_params(params) <- data.frame(
 #'     gear = c("gear1", "gear2", "gear1"),
@@ -321,6 +341,7 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
 #'     knife_edge_size = c(NA, 1000, NA)
 #'     )
 #' gear_params(params)
+#' 
 #' # changing an individual entry
 #' gear_params(params)["Cod, gear1", "catchability"] <- 0.8
 gear_params <- function(params) {
