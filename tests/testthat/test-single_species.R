@@ -42,5 +42,5 @@ test_that("Can set up model with minimal information",{
     sp$w_inf <- 1000
     sp$k_vb <- 10
     params <- newMultispeciesParams(sp)
-    sim <- project(params, t_max = 1)
+    expect_error(project(params, t_max = 1), NA)
 })

@@ -86,7 +86,6 @@ Collate:
     'wrapper_functions.R'
     'newSingleSpeciesParams.R'
     'steady.R'
-    'test-helpers.R'
     'extension.R'
     'data.R'
     'RcppExports.R'
@@ -98,7 +97,7 @@ Collate:
     'calibrate.R'
     'match.R'
     'defaults_edition.R'
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
 LazyData: true
