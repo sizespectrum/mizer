@@ -1,3 +1,4 @@
+local_edition(3)
 test_that("We can set and get resource parameters", {
   params <- NS_params
   rp <- resource_params(params)
@@ -39,10 +40,9 @@ test_that("We can set and get resource parameters", {
   expect_identical(getResourceRate(params), resource_rate)
   expect_identical(getResourceCapacity(params), resource_capacity)
   # Check that comments protect
-  expect_message(params <- setResource(params, r_pp = r_pp, kappa = kappa,
+  expect_snapshot(params <- setResource(params, r_pp = r_pp, kappa = kappa,
                                        lambda = lambda, n = n,
-                                       w_pp_cutoff = w_pp_cutoff),
-                 "The resource carrying capacity has been commented")
+                                       w_pp_cutoff = w_pp_cutoff))
   comment(params@cc_pp) <- NULL
   expect_message(params <- setResource(params, r_pp = r_pp, kappa = kappa,
                                        lambda = lambda, n = n,
@@ -56,8 +56,8 @@ test_that("We can set and get resource parameters", {
                    r_pp * params@w_full^(n - 1))
   resource_capacity <- getResourceCapacity(params)
   cc_pp <- kappa*params@w_full^(-lambda)
-  expect_equivalent(cc_pp[params@w_full <= w_pp_cutoff],
-                   resource_capacity[params@w_full <= w_pp_cutoff])
+  expect_equal(cc_pp[params@w_full <= w_pp_cutoff],
+               unname(resource_capacity[params@w_full <= w_pp_cutoff]))
   # resource_params<- sets rates correctly
   resource_params(NS_params) <- resource_params(params)
   expect_unchanged(NS_params, params)
@@ -89,7 +89,7 @@ test_that("Comment works on resource_rate", {
   p <- setResource(params, reset = TRUE)
   expect_equal(p@rr_pp[1], 
                params@w_full[1] ^ (params@resource_params$n - 1),
-               check.attributes = FALSE)
+               ignore_attr = TRUE)
   expect_warning(setResource(params, resource_rate = resource_rate,
                                   reset = TRUE),
                  "Because you set `reset = TRUE`, the")
@@ -121,7 +121,7 @@ test_that("Comment works on resource_capacity", {
   p <- setResource(params, reset = TRUE)
   expect_equal(p@cc_pp[1], 
                params@w_full[1] ^ (-params@resource_params$lambda),
-               check.attributes = FALSE)
+               ignore_attr = TRUE)
   expect_warning(setResource(params, resource_capacity = resource_capacity,
                              reset = TRUE),
                  "Because you set `reset = TRUE`, the")

@@ -1,3 +1,4 @@
+local_edition(3)
 # calibrateBiomass ----
 test_that("calibrateBiomass works", {
     params <- NS_params
