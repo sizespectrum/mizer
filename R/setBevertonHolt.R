@@ -302,9 +302,8 @@ getRequiredRDD <- function(params) {
 #'           getReproductionLevel(params))
 getReproductionLevel <- function(params) {
     assert_that(is(params, "MizerParams"))
-    if (params@rates_funcs$RDD != "BevertonHoltRDD") {
-        stop("This function should only be used if the reproduction function ",
-             "is Beverton-Holt.")
+    if (!"R_max" %in% names(params@species_params)) {
+        stop("No `R_max` is included in the species parameters.")
     }
     getRDD(params) / params@species_params$R_max
 }
