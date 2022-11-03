@@ -86,6 +86,7 @@ Collate:
     'wrapper_functions.R'
     'newSingleSpeciesParams.R'
     'steady.R'
+    'steadyParams.R'
     'test-helpers.R'
     'extension.R'
     'data.R'
