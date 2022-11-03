@@ -313,6 +313,8 @@ constant_other <- function(params, n_other, component, ...) {
 #'   each species whether it is to be selected (TRUE) or not. 
 #' @param return.logical Whether the return value should be a logical vector.
 #'   Default FALSE.
+#' @param error_on_empty Whether to throw an error if there are zero valid
+#'   species. Default FALSE.
 #'   
 #' @return A vector of species names, in the same order as specified in the
 #'   'species' argument. If 'return.logical = TRUE' then a logical vector is
@@ -320,7 +322,8 @@ constant_other <- function(params, n_other, component, ...) {
 #'   TRUE entry for each selected species.
 #' @export
 #' @concept helper
-valid_species_arg <- function(object, species = NULL, return.logical = FALSE) {
+valid_species_arg <- function(object, species = NULL, return.logical = FALSE,
+                              error_on_empty = FALSE) {
     if (is(object, "MizerSim")) {
         params <- object@params
     } else if (is(object, "MizerParams")) {
@@ -328,23 +331,30 @@ valid_species_arg <- function(object, species = NULL, return.logical = FALSE) {
     } else {
         stop("The first argument must be a MizerSim or MizerParams object.")
     }
-    assert_that(is.flag(return.logical))
+    assert_that(is.flag(return.logical),
+                is.flag(error_on_empty))
     all_species <- dimnames(params@initial_n)$sp
     no_sp <- nrow(params@species_params)
     # Set species if missing to list of all non-background species
     if (is.null(species)) {
         species <- dimnames(params@initial_n)$sp[!is.na(params@A)]
         if (length(species) == 0) {  # There are no non-background species.
+            if (error_on_empty) {
+                stop("No species have been selected.")
+            }
             if (return.logical) {
                 return(rep(FALSE, no_sp))
             } else {
-                return(NULL)
+                vector("character")
             }
         }
     }
     if (is.logical(species)) {
         if (length(species) != no_sp) {
-            stop("The boolean `species` argument has the wrong length")
+            stop("The boolean `species` argument has the wrong length.")
+        }
+        if (!any(species) && error_on_empty) {
+            stop("No species have been selected.")
         }
         if (return.logical) {
             return(species)
@@ -354,9 +364,12 @@ valid_species_arg <- function(object, species = NULL, return.logical = FALSE) {
     if (is.numeric(species)) {
         if (!all(species %in% (1:no_sp))) {
             warning("A numeric 'species' argument should only contain the ",
-                    "integers 1 to ", no_sp)
+                    "integers 1 to ", no_sp, ".")
         }
         species.logical <- 1:no_sp %in% species
+        if (!any(species.logical) && error_on_empty) {
+            stop("No species have been selected.")
+        }
         if (return.logical) {
             return(species.logical)
         }
@@ -365,9 +378,12 @@ valid_species_arg <- function(object, species = NULL, return.logical = FALSE) {
     invalid <- setdiff(species, all_species)
     if (length(invalid) > 0) {
         warning("The following species do not exist: ", 
-                toString(invalid))
+                toString(invalid), ".")
     }
     species <- intersect(species, all_species)
+    if (length(species) == 0 && error_on_empty) {
+        stop("No species have been selected.")
+    }
     if (return.logical) {
         return(all_species %in% species)
     }

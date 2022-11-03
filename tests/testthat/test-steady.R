@@ -91,6 +91,7 @@ test_that("steady() preserves R_max", {
 
 # valid_species_arg ----
 test_that("valid_species_arg works", {
+    # character species argument
     expect_warning(s <- valid_species_arg(NS_params, c("non", "sense")),
                    "The following species do not exist: non, sense")
     expect_identical(s, vector(mode = "character"))
@@ -100,6 +101,10 @@ test_that("valid_species_arg works", {
     expect_identical(valid_species_arg(NS_params, c("Sprat", "Sandeel"),
                                        return.logical = TRUE),
                      c(TRUE, TRUE, rep(FALSE, 10)))
+    expect_error(
+        valid_species_arg(NS_params, c("non", "sense"), error_on_empty = TRUE) |>
+            suppressWarnings(),
+        "No species have been selected.")
     # numeric species argument
     expect_warning(s <- valid_species_arg(NS_params, c(2.5, 13)),
                  "A numeric 'species' argument should only contain the integers 1 to 12")
@@ -111,6 +116,10 @@ test_that("valid_species_arg works", {
     expect_identical(valid_species_arg(NS_params, c(3, 1),
                                        return.logical = TRUE),
                      c(TRUE, FALSE, TRUE, rep(FALSE, 9)))
+    expect_error(
+        valid_species_arg(NS_params, 13, error_on_empty = TRUE) |>
+            suppressWarnings(),
+        "No species have been selected.")
     # logical species argument
     expect_error(valid_species_arg(NS_params, c(TRUE, FALSE)),
                  "The boolean `species` argument has the wrong length")
@@ -121,6 +130,10 @@ test_that("valid_species_arg works", {
                                        c(TRUE, FALSE, TRUE, rep(FALSE, 9)),
                                        return.logical = TRUE),
                      c(TRUE, FALSE, TRUE, rep(FALSE, 9)))
+    expect_error(
+        valid_species_arg(NS_params, rep(FALSE, 12), error_on_empty = TRUE) |>
+            suppressWarnings(),
+        "No species have been selected.")
     # called with MizerSim object
     sim <- project(NS_params, t_max = 1, dt = 1)
     expect_identical(valid_species_arg(sim, "Cod"),

@@ -251,7 +251,7 @@ plotBiomass <- function(sim, species = NULL,
                 is.flag(return_data),
                 length(ylim) == 2)
     params <- sim@params
-    species <- valid_species_arg(sim, species)
+    species <- valid_species_arg(sim, species, error_on_empty = TRUE)
     if (missing(start_time)) start_time <- 
             as.numeric(dimnames(sim@n)[[1]][1])
     if (missing(end_time)) end_time <- 
@@ -364,7 +364,7 @@ plotYield <- function(sim, sim2,
                 is.flag(log),
                 is.flag(return_data))
     params <- sim@params
-    species <- valid_species_arg(sim, species)
+    species <- valid_species_arg(sim, species, error_on_empty = TRUE)
     if (missing(sim2)) {
         y <- getYield(sim, ...)
         y_total <- rowSums(y)
@@ -465,7 +465,7 @@ plotYieldGear <- function(sim,
                 is.flag(total),
                 is.flag(return_data))
     params <- sim@params
-    species <- valid_species_arg(sim, species)
+    species <- valid_species_arg(sim, species, error_on_empty = TRUE)
     
     y <- getYieldGear(sim, ...)
     y_total <- rowSums(y, dims = 2)
@@ -590,6 +590,9 @@ plotSpectra <- function(object, species = NULL,
                 length(wlim) == 2,
                 length(ylim) == 2)
     species <- valid_species_arg(object, species)
+    if (length(species) == 0 && !total && !resource) {
+        stop("There is nothing to plot as no valid species have been selected.")
+    }
     if (is(object, "MizerSim")) {
         if (missing(time_range)) {
             time_range  <- max(as.numeric(dimnames(object@n)$time))
@@ -787,7 +790,8 @@ plotFeedingLevel <- function(object, species = NULL,
     }
         
     # selector for desired species
-    sel_sp <- valid_species_arg(params, species, return.logical = TRUE)
+    sel_sp <- valid_species_arg(params, species, return.logical = TRUE,
+                                error_on_empty = TRUE)
     species <- dimnames(params@initial_n)$sp[sel_sp]
     feed <- feed[sel_sp, , drop = FALSE]
     
@@ -908,7 +912,7 @@ plotPredMort <- function(object, species = NULL,
         pred_mort <- apply(pred_mort, c(2, 3), mean)
     }
     
-    species <- valid_species_arg(params, species)
+    species <- valid_species_arg(params, species, error_on_empty = TRUE)
     pred_mort <- pred_mort[as.character(dimnames(pred_mort)[[1]]) %in% species, , drop = FALSE]
     plot_dat <- data.frame(
         w = rep(params@w, each = length(species)),
@@ -1000,7 +1004,7 @@ plotFMort <- function(object, species = NULL,
     if (length(dim(f)) == 3) {
         f <- apply(f, c(2, 3), mean)
     }
-    species <- valid_species_arg(params, species)
+    species <- valid_species_arg(params, species, error_on_empty = TRUE)
     f <- f[as.character(dimnames(f)[[1]]) %in% species, , drop = FALSE]
     plot_dat <- data.frame(w = rep(params@w, each = length(species)),
                            value = c(f),
@@ -1077,7 +1081,7 @@ plotGrowthCurves <- function(object, species = NULL,
     } else if (is(object, "MizerParams")) {
         params <- validParams(object)
     }
-    species <- valid_species_arg(params, species)
+    species <- valid_species_arg(params, species, error_on_empty = TRUE)
     sp_sel <- params@species_params$species %in% species
     ws <- getGrowthCurves(params, species, max_age, percentage)
     plot_dat <- reshape2::melt(ws)
@@ -1216,6 +1220,9 @@ plotDiet <- function(object, species = NULL, return_data = FALSE) {
     assert_that(is.flag(return_data))
     params <- validParams(object)
     species <- valid_species_arg(object, species, return.logical = TRUE)
+    if (sum(species) != 1) {
+        stop("You need to select a single species for which to plot the diet.")
+    }
     diet <- getDiet(params)[species, , ]
     prey <- dimnames(diet)$prey
     # the plot looks better upsided down

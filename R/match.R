@@ -45,6 +45,9 @@ matchBiomasses <- function(params, species = NULL) {
                                  return.logical = TRUE) &
         !is.na(params@species_params$biomass_observed) &
         params@species_params$biomass_observed > 0
+    if (length(species) == 0) {
+        return(params)
+    }
     for (sp in (1:nrow(params@species_params))[species]) {
         cutoff <- params@species_params$biomass_cutoff[[sp]]
         if (is.null(cutoff) || is.na(cutoff)) {
