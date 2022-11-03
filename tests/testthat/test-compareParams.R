@@ -3,7 +3,7 @@ local_edition(3)
 test_that("compareParams", {
   local_reproducible_output()
   params <- NS_params
-  expect_equal(compareParams(params, params), character())
+  expect_equal(compareParams(params, params), "No differences")
   # Change a species param
   params2 <- params
   params2@species_params$gamma[[1]] <- 1

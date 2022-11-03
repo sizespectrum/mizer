@@ -95,5 +95,8 @@ compareParams <- function(params1, params2) {
             result <- c(result, msg)
         }
     }
+    if (length(result) == 0) {
+        result <- "No differences"
+    }
     result
 }
