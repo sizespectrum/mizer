@@ -162,11 +162,11 @@ plotDataFrame <- function(frame, params, xlab = waiver(), ylab = waiver(),
         scale_x_continuous(trans = xtrans, name = xlab) +
         scale_colour_manual(values = linecolour) +
         scale_linetype_manual(values = linetype) +
-        scale_size_manual(values = linesize) +
+        scale_discrete_manual("linewidth", values = linesize) +
         geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
                       colour = .data[[legend_var]], 
                       linetype = .data[[legend_var]], 
-                      size = .data[[legend_var]]))
+                      linewidth = .data[[legend_var]]))
     if (!is.null(wrap_var)) {
         if (!(wrap_var %in% var_names)) {
             stop("The `wrap_var` argument must be the name of a variable ",
@@ -494,10 +494,10 @@ plotYieldGear <- function(sim,
     linesize[highlight] <- 1.6
     ggplot(ym) +
         geom_line(aes(x = Year, y = Yield, colour = Species,
-                      linetype = Gear, size = Species)) +
+                      linetype = Gear, linewidth = Species)) +
         scale_y_continuous(trans = "log10", name = "Yield [g]") +
         scale_colour_manual(values = params@linecolour[species_levels]) +
-        scale_size_manual(values = linesize)
+        scale_discrete_manual("linewidth", values = linesize)
 }
 
 #' @rdname plotYieldGear
@@ -846,12 +846,12 @@ plotFeedingLevel <- function(object, species = NULL,
         p <- ggplot(plot_dat, aes(group = Species))
     }
     p + geom_line(aes(x = w, y = value,
-                      colour = Legend, linetype = Legend, size = Legend)) +
+                      colour = Legend, linetype = Legend, linewidth = Legend)) +
         scale_x_continuous(name = "Size [g]", trans = "log10") +
         scale_y_continuous(name = "Feeding Level", limits = c(0, 1)) +
         scale_colour_manual(values = params@linecolour[legend_levels]) +
         scale_linetype_manual(values = params@linetype[legend_levels]) +
-        scale_size_manual(values = linesize)
+        scale_discrete_manual("linewidth", values = linesize)
 }
 
 #' @rdname plotFeedingLevel
@@ -1119,7 +1119,7 @@ plotGrowthCurves <- function(object, species = NULL,
     
     p <- ggplot(filter(plot_dat, Legend == "model")) + 
         geom_line(aes(x = Age, y = value, 
-                      colour = Species, linetype = Species, size = Species))
+                      colour = Species, linetype = Species, linewidth = Species))
     y_label <- if (percentage) 
         "Percent of maximum size"
     else "Size [g]"
@@ -1136,7 +1136,7 @@ plotGrowthCurves <- function(object, species = NULL,
         scale_y_continuous(name = y_label) + 
         scale_colour_manual(values = params@linecolour[legend_levels]) + 
         scale_linetype_manual(values = params@linetype[legend_levels]) + 
-        scale_size_manual(values = linesize)
+        scale_discrete_manual("linewidth", values = linesize)
     
     # starting cases now
     if (!percentage)  {

@@ -158,7 +158,7 @@ plotBiomassObservedVsModel = function(object, species = NULL, ratio = FALSE,
         gg <- ggplot(data = dummy, aes(x = observed, y = model,
                                        colour = species, shape = is_observed)) + 
             geom_abline(aes(intercept = 0, slope = 1), colour = 'purple',
-                        linetype = "dashed", size = 1.3) + # y = x line
+                        linetype = "dashed", linewidth = 1.3) + # y = x line
             geom_point(size = 3) +
             labs(y = 'model biomass [g]') +
             coord_cartesian(ylim = range(dummy$model, dummy$observed))
@@ -166,7 +166,7 @@ plotBiomassObservedVsModel = function(object, species = NULL, ratio = FALSE,
         gg <- ggplot(data = dummy, aes(x = observed, y = ratio,
                                        colour = species, shape = is_observed)) + 
             geom_hline(aes(yintercept = 1), linetype = "dashed",
-                       colour = 'purple', size = 1.3) +
+                       colour = 'purple', linewidth = 1.3) +
             geom_point(size = 3) +
             labs(y = 'model biomass / observed biomass') +
             coord_cartesian(ylim = range(dummy$ratio))
