@@ -159,7 +159,7 @@ plotYieldObservedVsModel = function(object, species = NULL, ratio = FALSE,
     }
     
     gg <- gg + labs(x = 'observed yield [g/year]', caption = caption) +
-        scale_colour_manual(values = getColours(params)[dummy$species]) +
+        scale_colour_manual(values = getColours(params)[as.character(dummy$species)]) +
         scale_shape_manual(values = c("TRUE" = 19, "FALSE" = 1)) +
         guides(shape = "none")
     
