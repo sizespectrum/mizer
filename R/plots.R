@@ -1240,7 +1240,9 @@ plotDiet <- function(object, species = NULL, return_data = FALSE) {
         geom_area(aes(x = w, y = Proportion, fill = Prey)) +
         scale_x_log10() +
         labs(x = "Size [g]") +
-        scale_fill_manual(values = params@linecolour[legend_levels])
+        scale_fill_manual(values = params@linecolour[legend_levels],
+                          # Keep the legend in the original order
+                          limits = names(params@linecolour[legend_levels]))
 }
 
 
