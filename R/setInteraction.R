@@ -93,8 +93,10 @@ setInteraction <- function(params,
             all(rownames(interaction) == as.character(1:nrow(interaction)))) {
             rownames(interaction) <- colnames(interaction)
         }
-        if (!identical(dimnames(params@interaction),
-                       dimnames(interaction))) {
+        if (!identical(dimnames(params@interaction)[[1]],
+                       dimnames(interaction)[[1]]) ||
+            !identical(make.names(dimnames(params@interaction)[[2]]),
+                       make.names(dimnames(interaction)[[2]]))) {
             message("Note: Dimnames of interaction matrix do not match the ",
                     "order of species names in the species data.frame. I am ",
                     "now ignoring your dimnames so your interaction matrix ",
