@@ -1191,27 +1191,30 @@ plotlyGrowthCurves <- function(object, species = NULL,
 
 
 #' Plot diet, resolved by prey species, as function of predator at size.
-#' 
-#' `r lifecycle::badge("experimental")`
-#' Plots the proportions with which each prey species contributes to the total
-#' biomass consumed by the specified predator species, as a function of the
-#' predator's size. These proportions are obtained with `getDiet()`.
-#' 
+#'
+#' `r lifecycle::badge("experimental")` Plots the proportions with which each
+#' prey species contributes to the total biomass consumed by the specified
+#' predator species, as a function of the predator's size. These proportions are
+#' obtained with `getDiet()`.
+#'
 #' Prey species that contribute less than 1 permille to the diet are suppressed
 #' in the plot.
-#' 
+#'
+#' If more than one predator species is selected, then the plot contains one
+#' facet for each species.
+#'
 #' @inheritParams plotSpectra
-#' @param species The name of the predator species for which to plot the diet.
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
-#'   frame with the three variables 'w', 'Proportion', 'Prey' is returned.
+#'   frame with the four variables 'Predator', 'w', 'Proportion', 'Prey' is returned.
 #' @export
 #' @seealso [getDiet()]
 #' @family plotting functions
-#' @examples 
+#' @examples
 #' \donttest{
 #' plotDiet(NS_params, species = "Cod")
-#' 
+#' plotDiet(NS_params, species = 5:9)
+#'
 #' # Returning the data frame
 #' fr <- plotDiet(NS_params, species = "Cod", return_data = TRUE)
 #' str(fr)
@@ -1220,29 +1223,28 @@ plotDiet <- function(object, species = NULL, return_data = FALSE) {
     assert_that(is.flag(return_data))
     params <- validParams(object)
     species <- valid_species_arg(object, species, return.logical = TRUE)
-    if (sum(species) != 1) {
-        stop("You need to select a single species for which to plot the diet.")
-    }
-    diet <- getDiet(params)[species, , ]
-    prey <- dimnames(diet)$prey
+    diet <- getDiet(params)[species, , , drop = FALSE]
+    names(dimnames(diet)) <- c("Predator", "w", "Prey")
+    plot_dat <- melt(diet, value.name = "Proportion")
+    prey <- dimnames(diet)$Prey
     # the plot looks better upsided down
-    prey <- factor(prey, levels = rev(prey))
-    plot_dat <- data.frame(
-        w = params@w,
-        Proportion = c(diet),
-        Prey = rep(prey, each = length(params@w)))
+    plot_dat$Prey <- factor(plot_dat$Prey, levels = rev(prey))
+    
     plot_dat <- plot_dat[plot_dat$Proportion > 0.001, ]
     if (return_data) return(plot_dat)
     
     legend_levels <- 
         intersect(names(params@linecolour), plot_dat$Prey)
-    ggplot(plot_dat) +
+    p <- ggplot(plot_dat) +
         geom_area(aes(x = w, y = Proportion, fill = Prey)) +
         scale_x_log10() +
-        labs(x = "Size [g]") +
+        labs(x = "Size [g]", y = "Proportion") +
         scale_fill_manual(values = params@linecolour[legend_levels],
-                          # Keep the legend in the original order
-                          limits = names(params@linecolour[legend_levels]))
+                          limits = legend_levels)
+    if (sum(species) > 1) {
+        p <- p + facet_wrap(vars(Predator))
+    }
+    p
 }
 
 
