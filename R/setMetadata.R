@@ -62,7 +62,7 @@ setMetadata <- function(params, title, description,
     }
     if (!missing(url)) {
         assert_that(is.character(url))
-        pmetadata$url <- url
+        metadata$url <- url
     }
     if (!missing(doi)) {
         assert_that(is.character(doi))
