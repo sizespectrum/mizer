@@ -1,5 +1,6 @@
 Package: mizer
 Title: Multi-Species sIZE Spectrum Modelling in R
+Date: 2022-07-06
 Type: Package
 Description: A set of classes and methods to set up and run multi-species, trait
     based and community size spectrum ecological models, focused on the marine

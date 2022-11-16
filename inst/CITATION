@@ -1,5 +1,8 @@
 citHeader("To cite the mizert package in publications, use:")
 
+## R package reference generated from DESCRIPTION metadata
+citation(auto = meta)
+
 citEntry(
   entry = "Article",
   author = personList(as.person("Finlay Scott"),
