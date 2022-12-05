@@ -513,8 +513,8 @@ get_size_range_array <- function(params, min_w = min(params@w),
              value for each species.")
     }
     if (!all(min_w < max_w)) stop("min_w must be less than max_w")
-    min_n <- plyr::aaply(min_w, 1, function(x) params@w >= x, .drop = FALSE)
-    max_n <- plyr::aaply(max_w, 1, function(x) params@w <= x, .drop = FALSE)
+    min_n <- t(sapply(min_w, function(x) params@w >= x))
+    max_n <- t(sapply(max_w, function(x) params@w <= x))
     size_n <- min_n & max_n
     dimnames(size_n) <- list(sp = params@species_params$species, 
                              w = signif(params@w, 3)) 

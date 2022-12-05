@@ -565,8 +565,7 @@ emptyParams <- function(species_params,
                   dimnames = list(sp = species_names, w = signif(w,3)))
     ft_pred_kernel <- array(NA, dim = c(no_sp, no_w_full),
                             dimnames = list(sp = species_names, k = 1:no_w_full))
-    ft_mask <- plyr::aaply(species_params$w_inf, 1,
-                           function(x) w_full < x, .drop = FALSE)
+    ft_mask <- t(sapply(species_params$w_inf, function(x) w_full < x))
     
     selectivity <- array(0, dim = c(length(gear_names), no_sp, no_w), 
                          dimnames = list(gear = gear_names, sp = species_names, 
