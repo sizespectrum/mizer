@@ -160,9 +160,7 @@ set_species_param_default <- function(object, parname, default,
             signal(message,
                     class = "info_about_default", var = parname, level = 3)
         }
-        species_params <- data.frame(species_params, default,
-                                     stringsAsFactors = FALSE)
-        colnames(species_params)[[ncol(species_params)]] <- parname
+        species_params[parname] <- default
     } else {
         # We do not like factors
         if (is.factor(species_params[[parname]])) {

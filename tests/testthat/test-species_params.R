@@ -38,11 +38,16 @@ test_that("validSpeciesParams() works", {
 
 ## set_species_param_default ----
 test_that("set_species_param_default sets default correctly", {
+    # Add comments to test that they are preserved
+    comment(params@species_params) <- "top"
+    comment(params@species_params$w_inf) <- "test"
     # creates new column correctly
     expect_condition(set_species_param_default(params, "hype", 2, "hi"),
                    "hi", class = "info_about_default")
     p2 <- set_species_param_default(params, "hype", 2, "hi")
     expect_identical(p2@species_params$hype, rep(2, no_sp))
+    expect_identical(comment(p2@species_params$w_inf), "test")
+    expect_identical(comment(p2@species_params), "top")
     expect_message(sp2 <- set_species_param_default(params@species_params, "hype", 3), NA)
     expect_identical(sp2$hype, rep(3, no_sp))
     # does not change existing colunn
