@@ -188,15 +188,15 @@ projectToSteady <- function(params,
 
 #' Set initial values to a steady state for the model
 #'
-#' The steady state is found by running the dynamics while keeping reproduction
-#' and other components constant until the size spectra no longer change much (or
-#' until time `t_max` is reached, if earlier). 
+#' The steady state is found by running the dynamics while keeping reproduction,
+#' resource and other components constant until the size spectra no longer
+#' change much (or until time `t_max` is reached, if earlier).
 #' 
 #' If the model use Beverton-Holt reproduction then the reproduction parameters
 #' are set to values that give the level of reproduction observed in that
 #' steady state. The `preserve` argument can be used to specify which of the 
-#' reproduction parameters should be preserved,
-#'
+#' reproduction parameters should be preserved.
+#' 
 #' @param params A \linkS4class{MizerParams} object
 #' @param t_max The maximum number of years to run the simulation. Default is 100.
 #' @param t_per The simulation is broken up into shorter runs of `t_per` years,
@@ -242,6 +242,10 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
     old_rdd_fun <- params@rates_funcs$RDD
     params@rates_funcs$RDD <- "constantRDD"
     
+    # Force resource to stay at current level
+    old_resource_dynamics <- params@resource_dynamics
+    params@resource_dynamics <- "resource_constant"
+    
     # Force other components to stay at current level
     old_other_dynamics <- params@other_dynamics
     for (res in names(params@other_dynamics)) {
@@ -261,10 +265,11 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
     } else {
         params <- object
     }
-    # Restore original RDD and other dynamics
+    # Restore original RDD and dynamics
     params@rates_funcs$RDD <- old_rdd_fun
     params@other_dynamics <- old_other_dynamics
     params@species_params$constant_reproduction <- NULL
+    params@resource_dynamics <- old_resource_dynamics
     
     if (params@rates_funcs$RDD == "BevertonHoltRDD") {
         if (preserve == "reproduction_level") {
@@ -277,6 +282,12 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
             params <- setBevertonHolt(params, erepro = old_erepro)
         }
     }
+    
+    # Set resource carrying capacity
+    rr <- resource_rate(params)
+    cc <- (getResourceMort(params) + rr) / rr * initialNResource(params)
+    cc[rr == 0] <- 0
+    resource_capacity(params) <- cc
     
     if (return_sim) {
         object@params <- params
