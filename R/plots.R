@@ -89,9 +89,9 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
                          "Proportion", "Prey", "Legend", "Type", "Gear"))
 
 #' Make a plot from a data frame
-#' 
+#'
 #' This is used internally by most plotting functions.
-#' 
+#'
 #' @param frame A data frame with at least three variables.
 #'   The first three variables are used, in that order, as:
 #'   1. Variable to be plotted on x-axis
@@ -99,11 +99,14 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #'   3. Grouping variable
 #' @param params A MizerParams object, which is used for the line colours and
 #'   line types.
+#' @param style The style of the plot. Availalble options are "line' for geom_line
+#' and "area" for geom_area. Default is "line".
 #' @param legend_var The name of the variable that should be used in the legend
 #'   and to determine the line style. If NULL then the grouping variable is
 #'   used for this purpose.
 #' @param wrap_var Optional. The name of the variable that should be used for
 #'  creating wrapped facets.
+#' @param wrap_scale Optional. Used to pass the scales argument to facet_wrap().
 #' @param xlab Label for the x-axis
 #' @param ylab Label for the y-axis
 #' @param xtrans Transformation for the x-axis. Often "log10" may be useful
@@ -113,10 +116,10 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #' @param highlight Name or vector of names of the species to be highlighted.
 #' @keywords internal
 #' @export
-plotDataFrame <- function(frame, params, xlab = waiver(), ylab = waiver(),
-                          xtrans = "identity", ytrans = "identity", 
-                          y_ticks = 6, highlight = NULL,
-                          legend_var = NULL, wrap_var = NULL) {
+plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
+                          ylab = waiver(), xtrans = "identity", ytrans = "identity",
+                          y_ticks = 6, highlight = NULL, legend_var = NULL,
+                          wrap_var = NULL, wrap_scale = NULL) {
     assert_that(is.data.frame(frame),
                 is(params, "MizerParams"))
     if (ncol(frame) < 3) {
@@ -138,15 +141,19 @@ plotDataFrame <- function(frame, params, xlab = waiver(), ylab = waiver(),
     }
     
     # Need to keep species in order for legend
-    legend_levels <- 
+    legend_levels <-
         intersect(names(params@linecolour), frame[[legend_var]])
     frame[[legend_var]] <- factor(frame[[legend_var]], levels = legend_levels)
+    
+    if (sum(is.na(frame$Legend))) {
+        warning("missing legend in params@linecolour, some groups won't be displayed")
+    }
     
     linecolour <- params@linecolour[legend_levels]
     linetype <- params@linetype[legend_levels]
     linesize <- rep_len(0.8, length(legend_levels))
     names(linesize) <- legend_levels
-    linesize[highlight] <- 1.6 
+    linesize[highlight] <- 1.6
     
     xbreaks <- waiver()
     if (xtrans == "log10") xbreaks <- log_breaks()
@@ -159,20 +166,32 @@ plotDataFrame <- function(frame, params, xlab = waiver(), ylab = waiver(),
     p <- ggplot(frame, aes(group = .data[[group_var]])) +
         scale_y_continuous(trans = ytrans, breaks = ybreaks,
                            labels = prettyNum, name = ylab) +
-        scale_x_continuous(trans = xtrans, name = xlab) +
-        scale_colour_manual(values = linecolour) +
-        scale_linetype_manual(values = linetype) +
-        scale_discrete_manual("linewidth", values = linesize) +
-        geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
-                      colour = .data[[legend_var]], 
-                      linetype = .data[[legend_var]], 
-                      linewidth = .data[[legend_var]]))
+        scale_x_continuous(trans = xtrans, name = xlab)
+    
+    switch(style,
+           "line" = {p <- p +
+               geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
+                             colour = .data[[legend_var]],
+                             linetype = .data[[legend_var]],
+                             linewidth = .data[[legend_var]])) +
+               scale_colour_manual(values = linecolour) +
+               scale_linetype_manual(values = linetype) +
+               scale_discrete_manual("linewidth", values = linesize)
+           },
+           "area" = {p <- p +
+               geom_area(aes(x = .data[[x_var]], y = .data[[y_var]],
+                             fill = .data[[legend_var]])) +
+               scale_fill_manual(values = linecolour)
+           },
+           {"unknown style selected"}
+    )
+    
     if (!is.null(wrap_var)) {
         if (!(wrap_var %in% var_names)) {
             stop("The `wrap_var` argument must be the name of a variable ",
                  "in the data frame.")
         }
-        p <- p + facet_wrap(wrap_var)
+        p <- p + facet_wrap(wrap_var, scales = wrap_scale)
     }
     
     p
