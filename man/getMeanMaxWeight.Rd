@@ -38,7 +38,7 @@ each saved time step.
 }
 \description{
 Calculates the mean maximum weight of the community through time. This can be
-calculated by numbers or biomass. The calculation is the sum of the w_inf *
+calculated by numbers or biomass. The calculation is the sum of the w_max *
 abundance of each species, divided by the total abundance community, where
 abundance is either in biomass or numbers. You can specify minimum and
 maximum weight or length range for the species. Lengths take precedence over

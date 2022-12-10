@@ -29,10 +29,10 @@
 #'   a recalculation from the species parameters will take place only if no
 #'   custom value has been set.
 #' @param z0pre If `z0`, the mortality from other sources, is not a column
-#'   in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
+#'   in the species data frame, it is calculated as z0pre * w_max ^ z0exp.
 #'   Default value is 0.6.
 #' @param z0exp If `z0`, the mortality from other sources, is not a column
-#'   in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
+#'   in the species data frame, it is calculated as \code{z0pre * w_max ^ z0exp}.
 #'   Default value is \code{n-1}.
 #' @param z0 `r lifecycle::badge("deprecated")` Use `ext_mort` instead. Not to
 #'   be confused with the species_parameter `z0`.
@@ -99,11 +99,11 @@ setExtMort <- function(params, ext_mort = NULL,
     assert_that(is.number(z0pre), z0pre >= 0,
                 is.number(z0exp))
     species_params <- params@species_params
-    assert_that(noNA(species_params$w_inf))
+    assert_that(noNA(species_params$w_max))
     # Sort out z0 (external mortality)
-    message <- ("Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.")
+    message <- ("Using z0 = z0pre * w_max ^ z0exp for missing z0 values.")
     params <- set_species_param_default(params, "z0",
-                                        z0pre * species_params$w_inf^z0exp,
+                                        z0pre * species_params$w_max^z0exp,
                                         message)
     mu_b <- params@mu_b
     mu_b[] <- params@species_params$z0

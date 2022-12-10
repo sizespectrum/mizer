@@ -37,11 +37,11 @@ get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
             kappa <- params@cc_pp[1] / (params@w_full[1]^(-lambda))
             n0_mult <- kappa / 1000
         }
-        initial_n[] <- unlist(tapply(params@w, 1:no_w, function(wx,n0_mult,w_inf,a,n,q)
-            n0_mult * w_inf^(2 * n - q - 2 + a) * wx^(-n - a),
-            n0_mult = n0_mult, w_inf = params@species_params$w_inf, a=a, n=n, q=q))
-        #set densities at w > w_inf to 0
-        initial_n[unlist(tapply(params@w,1:no_w,function(wx,w_inf) w_inf<wx, w_inf=params@species_params$w_inf))] <- 0
+        initial_n[] <- unlist(tapply(params@w, 1:no_w, function(wx,n0_mult,w_max,a,n,q)
+            n0_mult * w_max^(2 * n - q - 2 + a) * wx^(-n - a),
+            n0_mult = n0_mult, w_max = params@species_params$w_max, a=a, n=n, q=q))
+        #set densities at w > w_max to 0
+        initial_n[unlist(tapply(params@w,1:no_w,function(wx,w_max) w_max<wx, w_max=params@species_params$w_max))] <- 0
         # Also any densities at w < w_min set to 0
         initial_n[unlist(tapply(params@w,1:no_w,function(wx,w_min)w_min>wx, w_min=params@species_params$w_min))] <- 0    
         return(initial_n)

@@ -34,3 +34,4 @@ weight-based species parameter.
 If any \code{a} or \code{b} parameters are missing the default values \code{a = 0.01} and
 \code{b = 3} are used for the missing values.
 }
+\concept{helper}

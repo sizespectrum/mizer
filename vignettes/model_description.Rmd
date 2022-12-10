@@ -57,7 +57,7 @@ plotSpectra(params, resource = FALSE, power = 0)
 To represent this continuous size spectrum in the computer, the size
 variable $w$ is discretized into a vector `w` of discrete weights,
 providing a grid of sizes spanning the range from the smallest egg size
-to the largest asymptotic size. These grid values divide the full size
+to the largest maximum size. These grid values divide the full size
 range into a finite number of size bins. The size bins should be chosen
 small enough to avoid the discretisation errors from becoming too big.
 You can fetch this vector with `w()` and the vector of bin sizes with
@@ -295,7 +295,7 @@ This is calculated with the `getEReproAndGrowth()` function.
 ## Investment into reproduction  {#sec:repro}
 A proportion $\psi_i(w)$ of the energy available for growth and reproduction is
 used for reproduction. This proportion should change from zero below the weight
-$w_{m.i}$ of maturation to one at the asymptotic weight $w_{\infty.i}$, where
+$w_{m.i}$ of maturation to one at the maximum weight $w_{max.i}$, where
 all available energy is used for reproduction. This function is changed with
 `setReproduction()`. Mizer provides a default form for the function which you
 can however overrule.
@@ -357,7 +357,7 @@ External mortality $\mu_{ext.i}(w)$ is independent of the abundances and is
 changed with `setExtMort()`. By default mizer assumes that the external
 mortality for each species is a constant $z0_i$ independent of size. The value
 of $z0_i$ is either specified as a species parameter or it is assumed to
-depend allometrically on the asymptotic size:
+depend allometrically on the maximum size:
 \[z0_i = z0_{pre} w_{\infty.i}^{1-n}.\]
 
 

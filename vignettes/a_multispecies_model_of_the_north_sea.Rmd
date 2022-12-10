@@ -30,7 +30,7 @@ The species in the model are:
 which account for about 90% of the total biomass of all species sampled by
 research trawl surveys in the North Sea. The `NS_species_params` object that
 comes as an example with the mizer package is a
-data.frame with columns for `species`, `w_inf`, `w_mat`, `beta`, `sigma`,
+data.frame with columns for `species`, `w_max`, `w_mat`, `beta`, `sigma`,
 `k_vb` and `R_max`.
 ```{r}
 NS_species_params

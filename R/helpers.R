@@ -36,6 +36,7 @@ different <- function(a, b) {
 #' @return A vector with one entry for each species. `l2w()` returns a vector
 #' of weights in grams and `w2l()` returns a vector of lengths in cm.
 #' @export
+#' @concept helper
 l2w <- function(l, params) {
     assert_that(is.number(l))
     sp <- params

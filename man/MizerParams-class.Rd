@@ -27,7 +27,7 @@ abundances or harvest effort through time. These are held in
 \item{\code{metadata}}{A list with metadata information. See \code{\link[=setMetadata]{setMetadata()}}.}
 
 \item{\code{mizer_version}}{The package version of mizer (as returned by
-\code{packageVersion("mizer")}) that created or last saved the model.}
+\code{packageVersion("mizer")}) that created or upgraded the model.}
 
 \item{\code{extensions}}{A named vector of strings where each name is the name of
 and extension package needed to run the model and each value is a string
@@ -40,13 +40,13 @@ correct version of the extension package, see https://remotes.r-lib.org/.}
 
 \item{\code{w}}{The size grid for the fish part of the spectrum. An increasing
 vector of weights (in grams) running from the smallest egg size to the
-largest asymptotic size.}
+largest maximum size.}
 
 \item{\code{dw}}{The widths (in grams) of the size bins}
 
 \item{\code{w_full}}{The size grid for the full size range including the resource
 spectrum. An increasing vector of weights (in grams) running from the
-smallest resource size to the largest asymptotic size of fish. The
+smallest resource size to the largest maximum size of fish. The
 last entries of the vector have to be equal to the content of the w slot.}
 
 \item{\code{dw_full}}{The width of the size bins for the full spectrum. The last
@@ -168,7 +168,7 @@ Used to give consistent colours in plots.}
 Used to give consistent line types in plots.}
 
 \item{\code{ft_mask}}{An array (species x w_full) with zeros for weights larger than
-the asymptotic weight of each species. Used to efficiently minimize
+the maximum weight of each species. Used to efficiently minimize
 wrap-around errors in Fourier transform calculations.}
 }}
 

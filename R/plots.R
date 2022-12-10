@@ -834,7 +834,7 @@ plotFeedingLevel <- function(object, species = NULL,
         for (sp in species) {
             plot_dat$value[plot_dat$Species == sp &
                                (plot_dat$w < params@species_params[sp, "w_min"] |
-                                    plot_dat$w > params@species_params[sp, "w_inf"])] <- NA
+                                    plot_dat$w > params@species_params[sp, "w_max"])] <- NA
         }
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
@@ -943,7 +943,7 @@ plotPredMort <- function(object, species = NULL,
         for (sp in species) {
             plot_dat$value[plot_dat$Species == sp &
                                (plot_dat$w < params@species_params[sp, "w_min"] |
-                                    plot_dat$w > params@species_params[sp, "w_inf"])] <- NA
+                                    plot_dat$w > params@species_params[sp, "w_max"])] <- NA
         }
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
@@ -1034,7 +1034,7 @@ plotFMort <- function(object, species = NULL,
         for (sp in species) {
             plot_dat$value[plot_dat$Species == sp &
                                (plot_dat$w < params@species_params[sp, "w_min"] |
-                                    plot_dat$w > params@species_params[sp, "w_inf"])] <- NA
+                                    plot_dat$w > params@species_params[sp, "w_max"])] <- NA
         }
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
@@ -1115,12 +1115,12 @@ plotGrowthCurves <- function(object, species = NULL,
             t0 <- 0
         }
         VBdf <- data.frame("species" = params@species_params$species, 
-                           "w_inf" = params@species_params$w_inf, 
+                           "w_max" = params@species_params$w_max, 
                            "a" = params@species_params$a, 
                            "b" = params@species_params$b, 
                            "k_vb" = params@species_params$k_vb, 
                            "t0" = t0) 
-        VBdf$L_inf <- (VBdf$w_inf / VBdf$a) ^ (1 / VBdf$b)
+        VBdf$L_inf <- (VBdf$w_max / VBdf$a) ^ (1 / VBdf$b)
         plot_dat2 <- plot_dat
         plot_dat2$value <- 
             apply(plot_dat, 1,
@@ -1161,9 +1161,9 @@ plotGrowthCurves <- function(object, species = NULL,
     if (!percentage)  {
         if (length(species) == 1) {
             idx <- which(params@species_params$species == species)
-            w_inf <- params@species_params$w_inf[idx]
-            p <- p + geom_hline(yintercept = w_inf, colour = "grey") + 
-                annotate("text", 0, w_inf, vjust = -1, label = "Maximum")
+            w_max <- params@species_params$w_max[idx]
+            p <- p + geom_hline(yintercept = w_max, colour = "grey") + 
+                annotate("text", 0, w_max, vjust = -1, label = "Maximum")
             w_mat <- params@species_params$w_mat[idx]
             p <- p + geom_hline(yintercept = w_mat, linetype = "dashed", 
                                 colour = "grey") + 
@@ -1183,9 +1183,9 @@ plotGrowthCurves <- function(object, species = NULL,
                                          w_mat = params@species_params$w_mat[sp_sel]),
                            linetype = "dashed",
                            colour = "grey") +
-                geom_hline(aes(yintercept = w_inf),
+                geom_hline(aes(yintercept = w_max),
                            data = tibble(Species = factor(legend_levels),
-                                         w_inf = params@species_params$w_inf[sp_sel]),
+                                         w_max = params@species_params$w_max[sp_sel]),
                            linetype = "solid",
                            colour = "grey") +
                 facet_wrap(~Species, scales = "free_y")

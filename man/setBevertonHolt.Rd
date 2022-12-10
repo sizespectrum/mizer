@@ -123,7 +123,7 @@ t(species_params(params)[, c("erepro", "R_max")])
 params <- setBevertonHolt(params, erepro = c("Gurnard" = 0.6, "Plaice" = 0.95))
 t(species_params(params)[, c("erepro", "R_max")])
 # Setting R_max
-R_max <- 1e17 * species_params(params)$w_inf^-1
+R_max <- 1e17 * species_params(params)$w_max^-1
 params <- setBevertonHolt(NS_params, R_max = R_max)
 t(species_params(params)[, c("erepro", "R_max")])
 # Setting reproduction_level

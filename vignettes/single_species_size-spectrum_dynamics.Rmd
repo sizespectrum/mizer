@@ -612,7 +612,7 @@ There are four species parameters involved:
 -   the maturity size `w_mat` at which 50% of the individuals are
     mature.
 -   the size `w_mat25` at which 25% of the individuals are mature.
--   the asymptotic size `w_inf` at which an organism invests 100% of its
+-   the maximum size `w_max` at which the population invests 100% of its
     income into reproduction and thus growth is zero.
 -   an exponent `m` that determines how the proportion that an
     individual invests into reproduction scales with its size.
@@ -629,7 +629,7 @@ which we will talk about later. For now let's just select the 4
 parameters we are interested in.
 
 ```{r}
-select(species_params(params), w_mat, w_mat25, w_inf, m)
+select(species_params(params), w_mat, w_mat25, w_max, m)
 ```
 
 ## Effect of change in maturity curve
@@ -649,7 +649,7 @@ In this copy we now change the species parameters
 ```{r}
 species_params(params_changed_maturity)$w_mat <- 40
 species_params(params_changed_maturity)$w_mat25 <- 30
-select(params_changed_maturity@species_params, w_mat, w_mat25, w_inf, m)
+select(params_changed_maturity@species_params, w_mat, w_mat25, w_max, m)
 ```
 
 Now the maturity curve has changed, which we can verify by plotting it

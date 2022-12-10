@@ -68,7 +68,7 @@ changed with \code{\link[=setBevertonHolt]{setBevertonHolt()}}
 params <- newTraitParams()
 species_params <- data.frame(
     species = "Mullet",
-    w_inf = 173,
+    w_max = 173,
     w_mat = 15,
     beta = 283,
     sigma = 1.8,

@@ -19,16 +19,19 @@
 #'
 #' @param species_name A string with a name for the species. Will be used in
 #'   plot legends.
-#' @param w_inf Asymptotic size of species
+#' @param w_max Maximum size of species
 #' @param w_min Egg size of species
-#' @param eta Ratio between maturity size \code{w_mat} and asymptotic size
-#'   \code{w_inf}. Default is 10^(-0.6), approximately 1/4. Ignored if
+#' @param eta Ratio between maturity size \code{w_mat} and maximum size
+#'   \code{w_max}. Default is 10^(-0.6), approximately 1/4. Ignored if
 #'   \code{w_mat} is supplied explicitly.
 #' @param w_mat Maturity size of species. Default value is
-#'   \code{eta * w_inf}.
+#'   \code{eta * w_max}.
 #' @param k_vb The von Bertalanffy growth parameter.
+#' @param w_inf `r lifecycle::badge("deprecated")` The argument has been
+#'   renamed to `w_max`.
 #' @inheritParams newTraitParams
 #' @export
+#' @importFrom lifecycle deprecated
 #' @return An object of type \code{MizerParams}
 #' @family functions for setting up models
 #' @examples
@@ -37,11 +40,11 @@
 #' plotSpectra(sim)
 newSingleSpeciesParams <- 
     function(species_name = "Target species",
-             w_inf = 100,
+             w_max = 100,
              w_min = 0.001,
              eta = 10^(-0.6),
-             w_mat = w_inf * eta,
-             no_w = log10(w_inf / w_min) * 20 + 1,
+             w_mat = w_max * eta,
+             no_w = log10(w_max / w_min) * 20 + 1,
              n = 3/4,
              p = n,
              lambda = 2.05,
@@ -56,7 +59,18 @@ newSingleSpeciesParams <-
              gamma = NA,
              ext_mort_prop = 0,
              reproduction_level = 0,
-             R_factor = deprecated()) {
+             R_factor = deprecated(),
+             w_inf = deprecated()) {
+        if (lifecycle::is_present(w_inf)) {
+            lifecycle::deprecate_warn(
+                when = "2.4.0.0", 
+                what = "newSingleSpeciesParams(w_inf)",
+                with = "newSingleSpeciesParams(w_max)"
+            )
+            w_max <- w_inf
+            w_mat <- w_max * eta
+            no_w <- log10(w_max / w_min) * 20 + 1
+        }
     assert_that(is.string(species_name), length(species_name) == 1)
     no_sp <- 1
     ## Much of the following code is copied from newTraitParams
@@ -74,8 +88,8 @@ newSingleSpeciesParams <-
     if (no_w < 1) {
         stop("The number of size bins no_w must be a positive integer")
     }
-    if (no_w < log10(w_inf/w_min)*5) {
-        no_w <- round(log10(w_inf / w_min) * 5 + 1)
+    if (no_w < log10(w_max/w_min)*5) {
+        no_w <- round(log10(w_max / w_min) * 5 + 1)
         message(paste("Increased no_w to", no_w, "so that there are 5 bins ",
                       "for an interval from w and 10w."))
     }
@@ -87,9 +101,9 @@ newSingleSpeciesParams <-
         stop("The egg size w_min must be smaller than ",
              "the maturity size w_mat")
     }
-    if (w_mat >= w_inf) {
+    if (w_mat >= w_max) {
         stop("The maturity size w_mat must be ",
-             "smaller the maximum size w_inf")
+             "smaller the maximum size w_max")
     }
     if (!all(c(n, lambda, kappa, alpha, k_vb, beta, sigma, f0) > 0)) {
         stop("The parameters n, lambda, kappa, alpha, k_vb, beta, sigma ",
@@ -113,7 +127,7 @@ newSingleSpeciesParams <-
     species_params <- data.frame(
         species = species_name,
         w_min = w_min,
-        w_inf = w_inf,
+        w_max = w_max,
         w_mat = w_mat,
         w_min_idx = 1,
         k_vb =  k_vb,
@@ -133,8 +147,8 @@ newSingleSpeciesParams <-
             species_params,
             min_w = w_min,
             no_w = no_w,
-            max_w = w_inf,
-            w_pp_cutoff = w_inf,
+            max_w = w_max,
+            w_pp_cutoff = w_max,
             lambda = lambda,
             kappa = kappa,
             n = n,
@@ -172,7 +186,7 @@ newSingleSpeciesParams <-
     mumu <- mu0 * w^(n - 1)  # Death rate
     params@mu_b[] <- mumu
     comment(params@mu_b) <- "power-law"
-    i_inf <- sum(params@w <= w_inf)  # index of asymptotic size
+    i_inf <- sum(params@w <= w_max)  # index of maximum size
     idx <- 1:(i_inf - 1)
     idxs <- 1:i_inf
     gg <- hbar * w^n * (1 - params@psi[1, ])  # Growth rate

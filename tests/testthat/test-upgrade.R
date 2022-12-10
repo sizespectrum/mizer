@@ -38,6 +38,7 @@ test_that("Object from version 1.0 can be upgraded", {
 test_that("r_max is renamed", {
     params <- NS_params
     params@species_params$r_max <- params@species_params$R_max
+    params@mizer_version <- "1.1"
     expect_message(upgradeParams(params),
                    "The 'r_max' column has been renamed to 'R_max'.")
 })

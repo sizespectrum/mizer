@@ -24,7 +24,7 @@ test_that("addSpecies does not allow duplicate species", {
 test_that("addSpecies handles gear params correctly", {
     p <- newTraitParams(no_sp = 2)
     sp <- data.frame(species = c("new1", "new2"),
-                     w_inf = c(10, 100),
+                     w_max = c(10, 100),
                      k_vb = c(4, 1),
                      n = 2/3,
                      p = 2/3)
@@ -59,7 +59,7 @@ test_that("addSpecies handles interaction matrix correctly", {
     p <- newTraitParams(no_sp = 2)
     p <- setInteraction(p, interaction = matrix(1:4/8, ncol = 2))
     sp <- data.frame(species = c("new1", "new2"),
-                     w_inf = c(10, 100),
+                     w_max = c(10, 100),
                      k_vb = c(4, 1),
                      n = 2/3,
                      p = 2/3)
@@ -80,8 +80,8 @@ test_that("addSpecies handles interaction matrix correctly", {
                             interaction = matrix(1:9, ncol = 3)),
                  "Interaction matrix has invalid dimensions.")
 })
-test_that("addSpecies works when adding a species with a larger w_inf", {
-    sp <- data.frame(species = "Blue whale", w_inf = 5e4,
+test_that("addSpecies works when adding a species with a larger w_max", {
+    sp <- data.frame(species = "Blue whale", w_max = 5e4,
                      w_mat = 1e3, beta = 1000, sigma = 2,
                      k_vb = 0.6, gear = 'Whale hunter')
     params <- NS_params
@@ -98,7 +98,7 @@ test_that("addSpecies works when adding a species with a larger w_inf", {
                  check.attributes = FALSE)
 })
 test_that("addSpecies works when adding a species with a smaller w_min", {
-    sp <- data.frame(species = "Blue whale", w_inf = 5e4, w_min = 1e-5,
+    sp <- data.frame(species = "Blue whale", w_max = 5e4, w_min = 1e-5,
                      w_mat = 1e3, beta = 1000, sigma = 2,
                      k_vb = 0.6, gear = 'Whale hunter')
     params <- NS_params
@@ -117,7 +117,7 @@ test_that("addSpecies works when adding a species with a smaller w_min", {
 
 test_that("addSpecies has other documented properties", {
     sp <- data.frame(species = c("new1", "new2"),
-                     w_inf = c(10, 100),
+                     w_max = c(10, 100),
                      k_vb = c(4, 1),
                      n = 2/3,
                      p = 2/3)
@@ -138,7 +138,7 @@ test_that("Added species stay at low abundance", {
     params <- newTraitParams()
     species_params <- data.frame(
         species = "mullet",
-        w_inf = 173,
+        w_max = 173,
         w_mat = 15,
         beta = 283,
         sigma = 1.8,
@@ -195,7 +195,7 @@ test_that("adding and then removing species leaves params unaltered", {
     params@gear_params$gear <- as.character(params@gear_params$gear)
     # two arbitrary species
     sp <- data.frame(species = c("new1", "new2"),
-                     w_inf = c(10, 100),
+                     w_max = c(10, 100),
                      k_vb = c(4, 1),
                      stringsAsFactors = FALSE)
     # add comments to test that they will be preserved as well
