@@ -249,6 +249,7 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
 #' @examples
 #' str(N(NS_sim))
 N <- function(sim) {
+    assertthat(is(sim, "MizerSim"))
     sim@n
 }
 
@@ -258,6 +259,7 @@ N <- function(sim) {
 #' @examples
 #' str(NResource(NS_sim))
 NResource <- function(sim) {
+    assertthat(is(sim, "MizerSim"))
     sim@n_pp
 }
 
@@ -323,6 +325,7 @@ idxFinalT <- function(sim) {
 #' @examples 
 #' getTimes(NS_sim)
 getTimes <- function(sim) {
+    assert_that(is(sim, "MizerSim"))
     as.numeric(dimnames(sim@n)$t)
 }
 
@@ -340,6 +343,7 @@ getTimes <- function(sim) {
 #' @examples
 #' str(getEffort(NS_sim))
 getEffort <- function(sim) {
+    assert_that(is(sim, "MizerSim"))
     sim@effort
 }
 
@@ -354,5 +358,6 @@ getEffort <- function(sim) {
 #' sim <- project(NS_params, t_max = 1)
 #' identical(getParams(sim), NS_params)
 getParams <- function(sim) {
+    assert_that(is(sim, "MizerSim"))
     sim@params
 }
