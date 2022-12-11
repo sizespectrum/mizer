@@ -22,8 +22,7 @@ get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
         stop("params argument must of type MizerParams")
     no_sp <- nrow(params@species_params)
     no_w <- length(params@w)
-    initial_n <- array(NA, dim = c(no_sp, no_w))
-    dimnames(initial_n) <- dimnames(params@intake_max)
+    initial_n <- params@initial_n
     
     if (defaults_edition() < 2) {
         # N = N0 * Winf^(2*n-q-2+a) * w^(-n-a)
@@ -48,6 +47,7 @@ get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
     }
     
     p <- params
+    p@initial_n[] <- 0
     p@initial_n_pp <- p@resource_params$kappa * 
         p@w_full ^ (-p@resource_params$lambda)
     p@interaction[] <- 0
@@ -59,14 +59,15 @@ get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
         iw <- p@w_min_idx[i] + 1
         A <- income[i, iw] / (p@w[iw] ^ p@species_params$n[i])
         
-        mort <- 0.4 * A * p@w ^ (p@species_params$n[i] - 1)
+        mort <- 0.4 * A * p@w ^ (p@species_params$n[i] - 1) + getFMort(p)
         growth <- getEGrowth(p)[i, ]
         
         idxs <- p@w_min_idx[i]:(min(which(c(growth, 0) <= 0)) - 1)
         idx <- idxs[1:(length(idxs) - 1)]
         # Steady state solution of the upwind-difference scheme used in project
-        initial_n[i, idxs] <- 
+        p@initial_n[i, idxs] <- 
             c(1, cumprod(growth[idx] / ((growth + mort * p@dw)[idx + 1])))
     }
-    
+    p <- matchBiomasses(p)
+    return(p@initial_n)
 }
