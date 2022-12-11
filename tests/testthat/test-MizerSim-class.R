@@ -47,12 +47,3 @@ test_that("basic constructor sets dimensions properly",{
                  "The t_dimnames argument should be increasing")
 })
 
-# upgradeSim leaves upgraded sim unchanged ----
-test_that("upgradeSim leaves upgraded sim unchanged", {
-    sim <- project(params, t_max = 0.1, t_save = 0.1)
-    comment(sim) <- "sim"
-    comment(sim@params) <- "params"
-    comment(sim@params@intake_max) <- "intake_max"
-    comment(sim@n) <- "n"
-    expect_unchanged(sim, upgradeSim(sim))
-})
