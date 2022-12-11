@@ -249,7 +249,7 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
 #' @examples
 #' str(N(NS_sim))
 N <- function(sim) {
-    assertthat(is(sim, "MizerSim"))
+    assert_that(is(sim, "MizerSim"))
     sim@n
 }
 
@@ -259,7 +259,7 @@ N <- function(sim) {
 #' @examples
 #' str(NResource(NS_sim))
 NResource <- function(sim) {
-    assertthat(is(sim, "MizerSim"))
+    assert_that(is(sim, "MizerSim"))
     sim@n_pp
 }
 
