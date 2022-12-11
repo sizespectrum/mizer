@@ -227,8 +227,12 @@ get_h_default <- function(params) {
         species_params <- species_params %>% 
             set_species_param_default("fc", 0.2) %>% 
             set_species_param_default("n", 3/4) %>% 
-            set_species_param_default("age_mat", age_mat_vB(species_params),
-                                      "Because the age at maturity is not known, I need to fall back to using von Bertalanffy parameters where available and this is not reliable.")
+            set_species_param_default(
+                "age_mat", age_mat_vB(species_params),
+                strwrap("Because the age at maturity is not known, I need to 
+                        fall back to using von Bertalanffy parameters, where 
+                        available, and this is not reliable.")
+            )
         w_mat <- species_params$w_mat
         w_min <- species_params$w_min
         age_mat <- species_params$age_mat
@@ -269,7 +273,7 @@ get_gamma_default <- function(params) {
                     is.number(params@resource_params$kappa),
                     is.numeric(species_params$f0))
         signal("Using f0, h, lambda, kappa and the predation kernel to calculate gamma.",
-                class = "info_about_default", var = "h", level = 1)
+                class = "info_about_default", var = "gamma", level = 3)
         if (!"h" %in% names(params@species_params) || 
             any(is.na(species_params$h))) {
             species_params$h <- get_h_default(params)
