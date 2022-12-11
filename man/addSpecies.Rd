@@ -72,7 +72,7 @@ species_params <- data.frame(
     w_mat = 15,
     beta = 283,
     sigma = 1.8,
-    k_vb = 0.6,
+    h = 30,
     a = 0.0085,
     b = 3.11
 )

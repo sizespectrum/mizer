@@ -16,7 +16,7 @@ newSingleSpeciesParams(
   lambda = 2.05,
   kappa = 0.005,
   alpha = 0.4,
-  k_vb = 1,
+  h = 30,
   beta = 100,
   sigma = 1.3,
   f0 = 0.6,
@@ -25,7 +25,9 @@ newSingleSpeciesParams(
   gamma = NA,
   ext_mort_prop = 0,
   reproduction_level = 0,
-  R_factor = deprecated()
+  R_factor = deprecated(),
+  w_inf = deprecated(),
+  k_vb = deprecated()
 )
 }
 \arguments{
@@ -58,7 +60,7 @@ equal to the exponent \code{n}.}
 
 \item{alpha}{The assimilation efficiency.}
 
-\item{k_vb}{The von Bertalanffy growth parameter.}
+\item{h}{Maximum food intake rate.}
 
 \item{beta}{Preferred predator prey mass ratio.}
 
@@ -89,6 +91,9 @@ level of density dependence in reproduction, see \code{\link[=setBevertonHolt]{s
 
 \item{w_inf}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The argument has been
 renamed to \code{w_max}.}
+
+\item{k_vb}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The von Bertalanffy growth
+parameter.}
 }
 \value{
 An object of type \code{MizerParams}

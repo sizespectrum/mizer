@@ -549,7 +549,7 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
         "\t(", length(params@w_full)," size bins in total)\n", sep = "")
     cat("Species details:\n")
     sel_params <- intersect(c("species","w_max","w_mat", "w_min", "f0", "fc", 
-                              "k_vb", "beta", "sigma"),
+                              "age_mat", "beta", "sigma"),
                             names(params@species_params))
     sp <- params@species_params[, sel_params]
     rownames(sp) <- NULL

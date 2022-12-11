@@ -57,27 +57,32 @@
 #' * `a` and `b` are the parameters in the allometric weight-length
 #'   relationship \eqn{w = a l ^ b}.
 #'   
-#' Not all of species parameters have to be specified by the user. If they are
+#' If you have supplied these, then you can replace weight parameters
+#' like `w_max`, `w_mat`, `w_mat25` and `w_min` by their corresponding length
+#' parameters `l_max`, `l_mat`, `l_mat25` and `l_min`.
+#'   
+#' Not all species parameters have to be specified by the user. If they are
 #' missing, [newMultispeciesParams()] will give them default values, sometimes
 #' by using other species parameters. The parameters that are only used to
 #' calculate default values for other parameters are:
 #' 
-#' * `k_vb` and `t0` are the von Bertalanffy growth parameters and are used
-#'   together with the length-weight relationship exponent `b` and the egg
-#'   size `w_min` to
-#'   get a default value for the coefficient of the maximum intake rate `h`, 
-#'   see [get_h_default()].
 #' * `f0` is the feeding level and is used to get a default value for the
 #'   coefficient of the search volume `gamma`, see [get_gamma_default()].
 #' * `fc` is the critical feeding level below which the species can not 
 #'   maintain itself. This is used to get a default value for the coefficient
-#'   of the metabolic rate `ks`, see [get_ks_default()].
+#'   `ks` of the metabolic rate, see [get_ks_default()].
+#' * `age_mat` is the age at maturity and is used to get a default value for
+#'   the coefficient `h` of the maximum intake rate, see [get_h_default()].
 #'   
 #' Note that these parameters are ignored if the parameters for which they allow
 #' defaults to be calculated have instead been set explicitly. Also, these
 #' parameters will only be used when setting up a new model with 
 #' [newMultispeciesParams()]. Changing them later will have no effect 
 #' because the default for the other parameters will not be recalculated.
+#' 
+#' In the past mizer also used the von Bertalanffy parameters `k_vb`, `w_inf`
+#' and `t0` to determine a default for `h`. This is unreliable and is therefore
+#' now deprecated.
 #' 
 #' There are other species parameters that are used in tuning the model to
 #' observations:
@@ -183,56 +188,53 @@ set_species_param_default <- function(object, parname, default,
 
 #' Get default value for h
 #' 
-#' Sets `h` so that the species reaches maturity 
-#' size at the age predicted by the von Bertalanffy growth curve parameters
-#' `k_vb` and (optionally `t0`) taken from the species parameter
-#' data frame. Also needs the exponent `b` from the length-weight
-#' relationship \eqn{w = a l^b}. If this is not present in the species
-#' parameter data frame it is set to \code{b = 3}.
-#' @param params A MizerParams object
+#' Sets `h` so that the species reaches maturity size `w_mat` at the maturity
+#' age `age_mat` if it feeds at feeding level `f0`.
+#'
+#' If `age_mat` is missing in the species parameter data frame, then it is
+#' calculated from the von Bertalanffy growth curve parameters `k_vb` and
+#' (optionally `t0`) taken from the species parameter data frame. This is not
+#' reliable and a warning is issued.
+#' @param params A MizerParams object or a species parameter data frame
 #' @return A vector with the values of h for all species
 #' @export
 #' @keywords internal
 #' @concept helper
 #' @family functions calculating defaults
 get_h_default <- function(params) {
-    assert_that(is(params, "MizerParams"))
-    species_params <- params@species_params %>%
-        set_species_param_default("f0", 0.6)
+    if (is(params, "MizerParams")) {
+        species_params <- params@species_params
+    } else {
+        species_params <- validSpeciesParams(params)
+    }
+    species_params <- set_species_param_default(species_params, "f0", 0.6)
     if (!("h" %in% colnames(species_params))) {
         species_params$h <- rep(NA, nrow(species_params))
     }
     missing <- is.na(species_params$h)
     if (any(missing)) {
+        # The following should be assured by `validSpeciesParams()`
         assert_that(is.numeric(species_params$f0),
                     noNA(species_params$alpha),
                     "alpha" %in% names(species_params))
-        signal("No h provided for some species, so using f0 and k_vb to calculate it.",
-               class = "info_about_default", var = "h", level = 3)
-        if (!("k_vb" %in% colnames(species_params))) {
-            stop("Except I can't because there is no k_vb column in the species data frame")
-        }
-        if (any(is.na(species_params$k_vb[missing]))) {
-            stop("Can not calculate defaults for h because some k_vb values are NA.")
-        }
+        signal("No h provided for some species, so using age at maturity to calculate it.",
+                      class = "info_about_default", var = "h", level = 3)
         if (!isTRUE(all.equal(species_params$n[missing], species_params$p[missing],
                               check.attributes = FALSE))) {
             signal("Because you have n != p, the default value for `h` is not very good.",
                    class = "info_about_default", var = "h", level = 1)
         }
         species_params <- species_params %>% 
-            set_species_param_default("b", 3) %>% 
-            set_species_param_default("t0", 0) %>% 
-            set_species_param_default("fc", 0.2)
+            set_species_param_default("fc", 0.2) %>% 
+            set_species_param_default("n", 3/4) %>% 
+            set_species_param_default("age_mat", age_mat_vB(species_params),
+                                      "Because the age at maturity is not known, I need to fall back to using von Bertalanffy parameters where available and this is not reliable.")
         w_mat <- species_params$w_mat
-        w_max <- species_params$w_max
         w_min <- species_params$w_min
-        b <- species_params$b
-        k_vb <- species_params$k_vb
+        age_mat <- species_params$age_mat
         n <- species_params$n
-        age_mat <- -log(1 - (w_mat/w_max)^(1/b)) / k_vb + species_params$t0
         h <- (w_mat^(1 - n) - w_min^(1 - n)) / age_mat / (1 - n) / 
-            params@species_params$alpha / (species_params$f0 - species_params$fc)
+            species_params$alpha / (species_params$f0 - species_params$fc)
         
         if (any(is.na(h[missing])) || any(h[missing] <= 0)) {
             stop("Could not calculate h.")
@@ -386,7 +388,7 @@ get_ks_default <- function(params) {
 #' Validate species parameter data frame
 #' 
 #' Check validity of species parameters and set defaults for missing but
-#' required parameters
+#' required parameters.
 #' 
 #' @param species_params The user-supplied species parameter data frame
 #' @return A valid species parameter data frame
@@ -417,7 +419,7 @@ get_ks_default <- function(params) {
 #' The row names of the returned data frame will be the species names.
 #' If `species_params` was provided as a tibble it is converted back to an
 #' ordinary data frame.
-#' 
+#' @seealso species_params
 #' @concept helper
 #' @export
 validSpeciesParams <- function(species_params) {

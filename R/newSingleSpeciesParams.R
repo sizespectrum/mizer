@@ -26,7 +26,8 @@
 #'   \code{w_mat} is supplied explicitly.
 #' @param w_mat Maturity size of species. Default value is
 #'   \code{eta * w_max}.
-#' @param k_vb The von Bertalanffy growth parameter.
+#' @param k_vb `r lifecycle::badge("deprecated")` The von Bertalanffy growth
+#'   parameter.
 #' @param w_inf `r lifecycle::badge("deprecated")` The argument has been
 #'   renamed to `w_max`.
 #' @inheritParams newTraitParams
@@ -50,7 +51,7 @@ newSingleSpeciesParams <-
              lambda = 2.05,
              kappa = 0.005,
              alpha = 0.4,
-             k_vb = 1,
+             h = 30,
              beta = 100,
              sigma = 1.3,
              f0 = 0.6,
@@ -60,7 +61,8 @@ newSingleSpeciesParams <-
              ext_mort_prop = 0,
              reproduction_level = 0,
              R_factor = deprecated(),
-             w_inf = deprecated()) {
+             w_inf = deprecated(),
+             k_vb = deprecated()) {
         if (lifecycle::is_present(w_inf)) {
             lifecycle::deprecate_warn(
                 when = "2.4.0.0", 
@@ -70,6 +72,13 @@ newSingleSpeciesParams <-
             w_max <- w_inf
             w_mat <- w_max * eta
             no_w <- log10(w_max / w_min) * 20 + 1
+        }
+        if (lifecycle::is_present(k_vb)) {
+            lifecycle::deprecate_warn(
+                when = "2.4.0.0", 
+                what = "newSingleSpeciesParams(k_vb)",
+                details = "Specify 'h' instead."
+            )
         }
     assert_that(is.string(species_name), length(species_name) == 1)
     no_sp <- 1
@@ -105,8 +114,8 @@ newSingleSpeciesParams <-
         stop("The maturity size w_mat must be ",
              "smaller the maximum size w_max")
     }
-    if (!all(c(n, lambda, kappa, alpha, k_vb, beta, sigma, f0) > 0)) {
-        stop("The parameters n, lambda, kappa, alpha, k_vb, beta, sigma ",
+    if (!all(c(n, lambda, kappa, alpha, h, beta, sigma, f0) > 0)) {
+        stop("The parameters n, lambda, kappa, alpha, h, beta, sigma ",
              "and f0, if supplied, need to be positive.")
     }
     if (!is.na(fc) && (fc < 0 || fc > f0)) {
@@ -130,7 +139,7 @@ newSingleSpeciesParams <-
         w_max = w_max,
         w_mat = w_mat,
         w_min_idx = 1,
-        k_vb =  k_vb,
+        h = h,
         gamma = gamma,
         ks = ks,
         f0 = f0,

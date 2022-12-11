@@ -45,6 +45,9 @@ ordinary data frame.
 }
 \description{
 Check validity of species parameters and set defaults for missing but
-required parameters
+required parameters.
+}
+\seealso{
+species_params
 }
 \concept{helper}
