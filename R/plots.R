@@ -1089,6 +1089,7 @@ plotlyFMort <- function(object, species = NULL,
 plotGrowthCurves <- function(object, species = NULL, 
                              max_age = 20, percentage = FALSE, 
                              species_panel = FALSE, highlight = NULL,
+                             size_at_age = NULL,
                              return_data = FALSE, ...) {
     assert_that(is.flag(percentage),
                 is.flag(species_panel),
@@ -1100,27 +1101,51 @@ plotGrowthCurves <- function(object, species = NULL,
     } else if (is(object, "MizerParams")) {
         params <- validParams(object)
     }
-    species <- valid_species_arg(params, species, error_on_empty = TRUE)
-    sp_sel <- params@species_params$species %in% species
+    sp <- params@species_params
+    sp <- set_species_param_default(sp, "age_mat", age_mat_vB(params))
+    
+    # size at age
+    if (!is.null(size_at_age)) {
+        if (!"species" %in% names(size_at_age)) {
+            stop("The size at age data frame needs to have a 'species' column.")
+        }
+        if (!"age" %in% names(size_at_age)) {
+            stop("The size at age data frame needs to have an 'age' column.")
+        }
+        if (!any(c("weight", "length") %in% names(size_at_age))) {
+            stop("The size at age data frame needs to have either a 'length' or a 'weight' column.")
+        }
+        if (!"weight" %in% names(size_at_age)) {
+            sp <- set_species_param_default(sp, "a", 0.004, message = "Using a = 0.004 for missing weight-length conversion parameters.")
+            sp <- set_species_param_default(sp, "b", 3, message = "Using b = 3 for missing weight-length conversion parameters.")
+            size_at_age <- left_join(size_at_age, select(sp, species, a, b),
+                                     by = "species")
+            size_at_age$weight <- size_at_age$a * size_at_age$length ^ size_at_age$b
+        }
+    }
+    
+    species <- valid_species_arg(params, species)
+    selected_species <- species # needed later to not confuse variable and column name
+    sp_sel <- sp$species %in% species
     ws <- getGrowthCurves(params, species, max_age, percentage)
     plot_dat <- reshape2::melt(ws)
-    plot_dat$Species <- factor(plot_dat$Species, params@species_params$species)
+    plot_dat$Species <- factor(plot_dat$Species, sp$species)
     plot_dat$Legend <- "model"
     
     # creating some VB
-    if (all(c("a", "b", "k_vb") %in% names(params@species_params))) {
-        if ("t0" %in% names(params@species_params)) {
-            t0 <- params@species_params$t0
+    if (all(c("a", "b", "k_vb") %in% names(sp))) {
+        if ("t0" %in% names(sp)) {
+            t0 <- sp$t0
         } else {
             t0 <- 0
         }
-        VBdf <- data.frame("species" = params@species_params$species, 
-                           "w_max" = params@species_params$w_max, 
-                           "a" = params@species_params$a, 
-                           "b" = params@species_params$b, 
-                           "k_vb" = params@species_params$k_vb, 
+        VBdf <- data.frame("species" = sp$species, 
+                           "w_inf" = sp$w_inf, 
+                           "a" = sp$a, 
+                           "b" = sp$b, 
+                           "k_vb" = sp$k_vb, 
                            "t0" = t0) 
-        VBdf$L_inf <- (VBdf$w_max / VBdf$a) ^ (1 / VBdf$b)
+        VBdf$L_inf <- (VBdf$w_inf / VBdf$a) ^ (1 / VBdf$b)
         plot_dat2 <- plot_dat
         plot_dat2$value <- 
             apply(plot_dat, 1,
@@ -1160,37 +1185,52 @@ plotGrowthCurves <- function(object, species = NULL,
     # starting cases now
     if (!percentage)  {
         if (length(species) == 1) {
-            idx <- which(params@species_params$species == species)
-            w_max <- params@species_params$w_max[idx]
-            p <- p + geom_hline(yintercept = w_max, colour = "grey") + 
-                annotate("text", 0, w_max, vjust = -1, label = "Maximum")
-            w_mat <- params@species_params$w_mat[idx]
+            idx <- which(sp$species == species)
+            w_inf <- sp$w_inf[idx]
+            p <- p + geom_hline(yintercept = w_inf, colour = "grey") + 
+                annotate("text", 0, w_inf, vjust = -1, label = "Maximum")
+            w_mat <- sp$w_mat[idx]
+            age_mat <- sp$age_mat[idx]
             p <- p + geom_hline(yintercept = w_mat, linetype = "dashed", 
                                 colour = "grey") + 
+                geom_vline(xintercept = age_mat, linetype = "dashed", 
+                           colour = "grey") +
                 annotate("text", 0, w_mat, vjust = -1, label = "Maturity")
-            if ("von Bertalanffy" %in% plot_dat$Legend) 
+            if ("von Bertalanffy" %in% plot_dat$Legend) {
                 p <- p + geom_line(data = filter(plot_dat, Legend == "von Bertalanffy"), 
                                    aes(x = Age, y = value))
+            }
+            if (!is.null(size_at_age)) {
+                size_at_age <- filter(size_at_age, species == selected_species)
+                p <- p + geom_point(aes(x = age, y = weight), data = size_at_age,
+                                    alpha = 0.2)
+            }
             
         } else if (species_panel) { # need to add either no panel if no param 
-                                    # for VB or create a panel without VB
+            # for VB or create a panel without VB
             p <- ggplot(plot_dat) +
                 geom_line(aes(x = Age, y = value , colour = Legend)) +
                 scale_x_continuous(name = "Age [years]") +
                 scale_y_continuous(name = "Size [g]") +
                 geom_hline(aes(yintercept = w_mat),
                            data = tibble(Species = factor(legend_levels),
-                                         w_mat = params@species_params$w_mat[sp_sel]),
+                                         w_mat = sp$w_mat[sp_sel]),
                            linetype = "dashed",
                            colour = "grey") +
-                geom_hline(aes(yintercept = w_max),
+                geom_vline(aes(xintercept = age_mat),
                            data = tibble(Species = factor(legend_levels),
-                                         w_max = params@species_params$w_max[sp_sel]),
+                                         age_mat = sp$age_mat[sp_sel]),
+                           linetype = "dashed",
+                           colour = "grey") +
+                geom_hline(aes(yintercept = w_inf),
+                           data = tibble(Species = factor(legend_levels),
+                                         w_inf = sp$w_inf[sp_sel]),
                            linetype = "solid",
                            colour = "grey") +
                 facet_wrap(~Species, scales = "free_y")
             
         }
+        
     }
     return(p)
     
