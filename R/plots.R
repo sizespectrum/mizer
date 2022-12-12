@@ -1056,20 +1056,40 @@ plotlyFMort <- function(object, species = NULL,
 }
 
 
-#' Plot growth curves giving weight as a function of age
+#' Plot growth curves
+#'
+#' The growth curves represent the average age of all the living fish of a
+#' species as a function of their size. So it would be natural to plot size
+#' on the x-axis. But to follow the usual convention from age-based models, we
+#' plot size on the y-axis and age on the x-axis.
+#'
+#' When the growth curve for only a single species is plotted, horizontal lines
+#' are included that indicate the maturity size and the maximum size for that
+#' species, as well as a vertical line indicating the maturity age.
 #' 
-#' When the growth curve for only a single species is plotted, horizontal
-#' lines are included that indicate the maturity size and the maximum size for 
-#' that species. If furthermore the species parameters contain the variables
-#' a and b for length to weight conversion and the von Bertalanffy parameter
-#' k_vb (and optionally t0), then the von Bertalanffy growth curve is
-#' superimposed in black.
-#' 
+#' If size at age data is passed via the `size_at_age` argument, this is plotted
+#' on top of the growth curve. When comparing this to the growth curves, you
+#' need to remember that the growth curves should only represent the average 
+#' age at each size. So a scatter in the x-direction around the curve is to be
+#' expected.
+#'
+#' For legacy reasons, if the species parameters contain the variables `a` and
+#' `b` for length to weight conversion and the von Bertalanffy parameter `k_vb`,
+#' `w_inf` (and optionally `t0`), then the von Bertalanffy growth curve is
+#' superimposed in black. This was implemented before we understood that the von
+#' Bertalanffy curves (which approximates the average length at each age) should
+#' not be compared to the mizer growth curves (which approximate the average age
+#' at each length).
+#'
 #' @inheritParams getGrowthCurves
 #' @inheritParams plotSpectra
-#' @param species_panel `r lifecycle::badge("experimental")`
-#'   If TRUE, display all species with their Von Bertalanffy curves as facets 
-#'   (need species and percentage to be set to default). Default FALSE.
+#' @param species_panel If TRUE (default), and `percentage = FALSE`, display all
+#'   species as facets. Otherwise puts all species into a single panel.
+#' @param size_at_age A data frame with observed size at age data to be plotted
+#'   on top of growth curve graphs. Should contain columns `species` (species
+#'   name as used in the model), `age` (in years) and either `weight` (in grams)
+#'   or `length` (in cm). If both `weight` and `length` are provided, only
+#'   `weight` is used.
 #' @return A ggplot2 object
 #' @export
 #' @family plotting functions
@@ -1081,7 +1101,7 @@ plotlyFMort <- function(object, species = NULL,
 #' plotGrowthCurves(sim, percentage = TRUE)
 #' plotGrowthCurves(sim, species = "Cod", max_age = 24)
 #' plotGrowthCurves(sim, species_panel = TRUE)
-#'  
+#'
 #' # Returning the data frame
 #' fr <- plotGrowthCurves(sim, return_data = TRUE)
 #' str(fr)
@@ -1133,7 +1153,7 @@ plotGrowthCurves <- function(object, species = NULL,
     plot_dat$Legend <- "model"
     
     # creating some VB
-    if (all(c("a", "b", "k_vb") %in% names(sp))) {
+    if (all(c("a", "b", "k_vb", "w_inf") %in% names(sp))) {
         if ("t0" %in% names(sp)) {
             t0 <- sp$t0
         } else {
@@ -1186,9 +1206,9 @@ plotGrowthCurves <- function(object, species = NULL,
     if (!percentage)  {
         if (length(species) == 1) {
             idx <- which(sp$species == species)
-            w_inf <- sp$w_inf[idx]
-            p <- p + geom_hline(yintercept = w_inf, colour = "grey") + 
-                annotate("text", 0, w_inf, vjust = -1, label = "Maximum")
+            w_max <- sp$w_max[idx]
+            p <- p + geom_hline(yintercept = w_max, colour = "grey") + 
+                annotate("text", 0, w_max, vjust = -1, label = "Maximum")
             w_mat <- sp$w_mat[idx]
             age_mat <- sp$age_mat[idx]
             p <- p + geom_hline(yintercept = w_mat, linetype = "dashed", 
@@ -1222,9 +1242,9 @@ plotGrowthCurves <- function(object, species = NULL,
                                          age_mat = sp$age_mat[sp_sel]),
                            linetype = "dashed",
                            colour = "grey") +
-                geom_hline(aes(yintercept = w_inf),
+                geom_hline(aes(yintercept = w_max),
                            data = tibble(Species = factor(legend_levels),
-                                         w_inf = sp$w_inf[sp_sel]),
+                                         w_max = sp$w_max[sp_sel]),
                            linetype = "solid",
                            colour = "grey") +
                 facet_wrap(~Species, scales = "free_y")
