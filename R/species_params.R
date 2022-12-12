@@ -468,9 +468,9 @@ validSpeciesParams <- function(species_params) {
     
     # check w_max ----
     if (!("w_max" %in% names(sp))) {
-        # If old name `w_inf` is used, then just rename
+        # If old name `w_inf` is used, then copy over to `w_max`
         if ("w_inf" %in% names(sp)) {
-            names(sp)[names(sp) == "w_inf"] <- "w_max"
+            sp$w_max <- sp$w_inf
         } else {
             sp$w_max <- rep(NA, no_sp)
         }

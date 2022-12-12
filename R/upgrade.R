@@ -313,10 +313,10 @@ upgradeParams <- function(params) {
     
     # Before version 2.4
     if (params@mizer_version < "2.3.1.9001") {
-        # rename w_inf to w_max
+        # copy w_inf to w_max
         par_names <- names(params@species_params)
         if (!("w_max" %in% par_names)) {
-            names(params@species_params)[par_names = "w_inf"] <- "w_max"
+            params@species_params$w_max <- params@species_params$w_inf
         }
     }
     
