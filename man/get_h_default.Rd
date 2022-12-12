@@ -7,18 +7,20 @@
 get_h_default(params)
 }
 \arguments{
-\item{params}{A MizerParams object}
+\item{params}{A MizerParams object or a species parameter data frame}
 }
 \value{
 A vector with the values of h for all species
 }
 \description{
-Sets \code{h} so that the species reaches maturity
-size at the age predicted by the von Bertalanffy growth curve parameters
-\code{k_vb} and (optionally \code{t0}) taken from the species parameter
-data frame. Also needs the exponent \code{b} from the length-weight
-relationship \eqn{w = a l^b}. If this is not present in the species
-parameter data frame it is set to \code{b = 3}.
+Sets \code{h} so that the species reaches maturity size \code{w_mat} at the maturity
+age \code{age_mat} if it feeds at feeding level \code{f0}.
+}
+\details{
+If \code{age_mat} is missing in the species parameter data frame, then it is
+calculated from the von Bertalanffy growth curve parameters \code{k_vb} and
+(optionally \code{t0}) taken from the species parameter data frame. This is not
+reliable and a warning is issued.
 }
 \seealso{
 Other functions calculating defaults: 

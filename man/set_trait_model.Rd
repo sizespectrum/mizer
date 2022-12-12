@@ -118,7 +118,7 @@ be derived as a simplification of the general size-based model used in
 except for
 the asymptotic size, which is considered the most important trait
 characterizing a species. Other parameters are related to the asymptotic
-size. For example, the size at maturity is given by \code{w_inf * eta},
+size. For example, the size at maturity is given by \code{w_max * eta},
 where \code{eta} is
 the same for all species. For the trait-based model the number of species is
 not important. For applications of the trait-based model see Andersen &

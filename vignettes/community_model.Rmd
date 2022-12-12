@@ -83,8 +83,8 @@ In the summary you can see that the size range of the community spectrum has
 been set from $`r min(w(params))`$ to $`r max(w(params))`$ and this is divided
 into $`r length(w(params))`$ size bins. Similar information is available for the
 resource spectrum. Additionally, the community is made up of only one species,
-called *Community*, which has an asymptotic size of 
-$`r species_params(params)$w_inf[1]`$ and a preferred predator prey mass ratio of 
+called *Community*, which has an maximum size of 
+$`r species_params(params)$w_max[1]`$ and a preferred predator prey mass ratio of 
 $`r species_params(params)$beta[1]`$. The `w_mat` parameter has been set to `NA` as
 it is not used when running a community model. These values have all been set by
 default using the `newCommunityParams()` function. 

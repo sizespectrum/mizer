@@ -51,7 +51,7 @@ interaction matrix" section below.}
 given in the \code{w_min} column of the \code{species_params} dataframe.}
 
 \item{max_w}{The largest size of the consumer spectrum. By default this is
-set to the largest \code{w_inf} specified in the \code{species_params} data
+set to the largest \code{w_max} specified in the \code{species_params} data
 frame.}
 
 \item{min_w_pp}{The smallest size of the resource spectrum. By default this
@@ -82,11 +82,11 @@ column in the \code{species_params}.}
 mortality rate.}
 
 \item{z0pre}{If \code{z0}, the mortality from other sources, is not a column
-in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
+in the species data frame, it is calculated as z0pre * w_max ^ z0exp.
 Default value is 0.6.}
 
 \item{z0exp}{If \code{z0}, the mortality from other sources, is not a column
-in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
+in the species data frame, it is calculated as \code{z0pre * w_max ^ z0exp}.
 Default value is \code{n-1}.}
 
 \item{maturity}{Optional. An array (species x size) that holds the proportion
@@ -164,7 +164,7 @@ parameters for one of the species in the model.
 There are two essential columns that must be included in the species
 parameter data.frame and that do not have default values: the
 \code{species} column that should hold strings with the names of the
-species and the \code{w_inf} column with the asymptotic sizes of the species
+species and the \code{w_max} column with the maximum sizes of the species
 in grams.
 
 The species_params dataframe also needs to contain the parameters needed
@@ -358,8 +358,7 @@ The values of \eqn{h_i} (the maximum intake rate of an individual of size 1
 gram) and \eqn{n_i} (the allometric exponent for the intake rate) are taken
 from the \code{h} and \code{n} columns in the species parameter dataframe. If
 the \code{h} column is not supplied in the species parameter dataframe, it is
-calculated by the \code{\link[=get_h_default]{get_h_default()}} function, using the \code{f0} and
-the \code{k_vb} column, if they are supplied.
+calculated by the \code{\link[=get_h_default]{get_h_default()}} function.
 
 If \eqn{h_i} is set to \code{Inf}, fish of species i will consume all encountered food.
 }
@@ -425,7 +424,7 @@ maturity ogive that changes from 0 to 1 at around the maturity size:
 although each species has its own maturity ogive.)
 The maturity weights are taken from the \code{w_mat} column of the
 species_params data frame. Any missing maturity weights are set to 1/4 of the
-asymptotic weight in the \code{w_inf} column.
+maximum weight in the \code{w_max} column.
 
 The exponent \eqn{U} determines the steepness of the maturity ogive. By
 default it is chosen as \eqn{U = 10}, however this can be overridden by
@@ -435,7 +434,7 @@ specifies the weight at which 25\% of individuals are mature, which sets
 
 The sigmoidal function given above would strictly reach 1 only asymptotically.
 Mizer instead sets the function equal to 1 already at the species'
-maximum size, taken from the compulsory \code{w_inf} column in the
+maximum size, taken from the compulsory \code{w_max} column in the
 species parameter data frame. Also, for computational simplicity, any
 proportion smaller than \code{1e-8} is set to \code{0}.
 }
@@ -444,15 +443,15 @@ proportion smaller than \code{1e-8} is set to \code{0}.
 If the the energy available to a mature individual that is
 invested into reproduction is not supplied via the \code{repro_prop} argument,
 it is set to the allometric form
-\deqn{{\tt repro\_prop}(w) = \left(\frac{w}{w_{inf}}\right)^{m-n}.}{
-  repro_prop(w) = (w/w_inf)^(m - n).}
+\deqn{{\tt repro\_prop}(w) = \left(\frac{w}{w_{max}}\right)^{m-n}.}{
+  repro_prop(w) = (w/w_max)^(m - n).}
 Here \eqn{n} is the scaling exponent of the energy income rate. Hence
 the exponent \eqn{m} determines the scaling of the investment into
 reproduction for mature individuals. By default it is chosen to be
 \eqn{m = 1} so that the rate at which energy is invested into reproduction
 scales linearly with the size. This default can be overridden by including a
-column \code{m} in the species parameter dataframe. The asymptotic sizes
-are taken from the compulsory \code{w_inf} column in the species parameter
+column \code{m} in the species parameter dataframe. The maximum sizes
+are taken from the compulsory \code{w_max} column in the species parameter
 data frame.
 
 The total proportion of energy invested into reproduction of an individual

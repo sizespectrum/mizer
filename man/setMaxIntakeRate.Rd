@@ -55,8 +55,7 @@ The values of \eqn{h_i} (the maximum intake rate of an individual of size 1
 gram) and \eqn{n_i} (the allometric exponent for the intake rate) are taken
 from the \code{h} and \code{n} columns in the species parameter dataframe. If
 the \code{h} column is not supplied in the species parameter dataframe, it is
-calculated by the \code{\link[=get_h_default]{get_h_default()}} function, using the \code{f0} and
-the \code{k_vb} column, if they are supplied.
+calculated by the \code{\link[=get_h_default]{get_h_default()}} function.
 
 If \eqn{h_i} is set to \code{Inf}, fish of species i will consume all encountered food.
 }

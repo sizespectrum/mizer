@@ -23,7 +23,7 @@ The \code{species_params} data frame holds species-specific parameters. The data
 frame has one row for each species and one column for each species parameter.
 There are a lot of species parameters and we will list them all below, but
 most of them have sensible default values. The only required columns are
-\code{species} for the species name and \code{w_inf} for its asymptotic size. However
+\code{species} for the species name and \code{w_max} for its maximum size. However
 if you have information about the values of other parameters then you should
 include them in the \code{species_params} data frame.
 
@@ -35,7 +35,7 @@ size-dependent parameters that are used in the mizer model:
 \item \code{k}, \code{ks} and \code{p} are used to set activity and basic metabolic rate,
 see \code{\link[=setMetabolicRate]{setMetabolicRate()}}.
 \item \code{z0} is used to set the external mortality rate, see \code{\link[=setExtMort]{setExtMort()}}.
-\item \code{w_mat}, \code{w_mat25}, \code{w_inf} and \code{m} are used to set the allocation to
+\item \code{w_mat}, \code{w_mat25}, \code{w_max} and \code{m} are used to set the allocation to
 reproduction, see \code{\link[=setReproduction]{setReproduction()}}.
 \item \code{pred_kernel_type} specifies the shape of the predation kernel. The default
 is a "lognormal", for other options see the "Setting predation kernel"
@@ -76,21 +76,22 @@ weight and length:
 relationship \eqn{w = a l ^ b}.
 }
 
-Not all of species parameters have to be specified by the user. If they are
+If you have supplied these, then you can replace weight parameters
+like \code{w_max}, \code{w_mat}, \code{w_mat25} and \code{w_min} by their corresponding length
+parameters \code{l_max}, \code{l_mat}, \code{l_mat25} and \code{l_min}.
+
+Not all species parameters have to be specified by the user. If they are
 missing, \code{\link[=newMultispeciesParams]{newMultispeciesParams()}} will give them default values, sometimes
 by using other species parameters. The parameters that are only used to
 calculate default values for other parameters are:
 \itemize{
-\item \code{k_vb} and \code{t0} are the von Bertalanffy growth parameters and are used
-together with the length-weight relationship exponent \code{b} and the egg
-size \code{w_min} to
-get a default value for the coefficient of the maximum intake rate \code{h},
-see \code{\link[=get_h_default]{get_h_default()}}.
 \item \code{f0} is the feeding level and is used to get a default value for the
 coefficient of the search volume \code{gamma}, see \code{\link[=get_gamma_default]{get_gamma_default()}}.
 \item \code{fc} is the critical feeding level below which the species can not
 maintain itself. This is used to get a default value for the coefficient
-of the metabolic rate \code{ks}, see \code{\link[=get_ks_default]{get_ks_default()}}.
+\code{ks} of the metabolic rate, see \code{\link[=get_ks_default]{get_ks_default()}}.
+\item \code{age_mat} is the age at maturity and is used to get a default value for
+the coefficient \code{h} of the maximum intake rate, see \code{\link[=get_h_default]{get_h_default()}}.
 }
 
 Note that these parameters are ignored if the parameters for which they allow
@@ -98,6 +99,10 @@ defaults to be calculated have instead been set explicitly. Also, these
 parameters will only be used when setting up a new model with
 \code{\link[=newMultispeciesParams]{newMultispeciesParams()}}. Changing them later will have no effect
 because the default for the other parameters will not be recalculated.
+
+In the past mizer also used the von Bertalanffy parameters \code{k_vb}, \code{w_inf}
+and \code{t0} to determine a default for \code{h}. This is unreliable and is therefore
+now deprecated.
 
 There are other species parameters that are used in tuning the model to
 observations:

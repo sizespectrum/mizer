@@ -10,10 +10,11 @@
 #' that are set automatically by mizer:
 #' 
 #' * `mizer_version` The version string of the mizer version under which the
-#' model was last saved. Can be compared to the current version which is
-#' obtained with `packageVersion("mizer")`. The purpose of this field is that
-#' if the model is not working as expected in the current version of mizer,
-#' you can go back to the older version under which presumably it was working.
+#' model was created or last upgraded. Can be compared to the current version
+#' which is obtained with `packageVersion("mizer")`. The purpose of this field
+#' is that if the model is not working as expected in the current version of
+#' mizer, you can go back to the older version under which presumably it was
+#' working.
 #' * `extensions` A named vector of strings where each name is the name of and
 #' extension package needed to run the model and each value is a string giving
 #' the information that the remotes package needs to install the correct version

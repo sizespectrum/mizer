@@ -6,13 +6,13 @@
 \usage{
 newTraitParams(
   no_sp = 11,
-  min_w_inf = 10,
-  max_w_inf = 10^4,
+  min_w_max = 10,
+  max_w_max = 10^4,
   min_w = 10^(-3),
-  max_w = max_w_inf,
+  max_w = max_w_max,
   eta = 10^(-0.6),
-  min_w_mat = min_w_inf * eta,
-  no_w = round(log10(max_w_inf/min_w) * 20 + 1),
+  min_w_mat = min_w_max * eta,
+  no_w = round(log10(max_w_max/min_w) * 20 + 1),
   min_w_pp = 1e-10,
   w_pp_cutoff = min_w_mat,
   n = 2/3,
@@ -35,31 +35,33 @@ newTraitParams(
   knife_edge_size = 1000,
   egg_size_scaling = FALSE,
   resource_scaling = FALSE,
-  perfect_scaling = FALSE
+  perfect_scaling = FALSE,
+  min_w_inf = deprecated(),
+  max_w_inf = deprecated()
 )
 }
 \arguments{
 \item{no_sp}{The number of species in the model.}
 
-\item{min_w_inf}{The asymptotic size of the smallest species in the
+\item{min_w_max}{The maximum size of the smallest species in the
 community. This will be rounded to lie on a grid point.}
 
-\item{max_w_inf}{The asymptotic size of the largest species in the community.
+\item{max_w_max}{The maximum size of the largest species in the community.
 This will be rounded to lie on a grid point.}
 
 \item{min_w}{The size of the the egg of the smallest species. This also
 defines the start of the community size spectrum.}
 
 \item{max_w}{The largest size in the model. By default this is set to the
-largest asymptotic size \code{max_w_inf}. Setting it to something larger
+largest maximum size \code{max_w_max}. Setting it to something larger
 only makes sense if you plan to add larger species to the model later.}
 
-\item{eta}{Ratio between maturity size and asymptotic size of a species.
+\item{eta}{Ratio between maturity size and maximum size of a species.
 Ignored if \code{min_w_mat} is supplied. Default is 10^(-0.6),
 approximately 1/4.}
 
 \item{min_w_mat}{The maturity size of the smallest species. Default value is
-\code{eta * min_w_inf}. This will be rounded to lie on a grid point.}
+\code{eta * min_w_max}. This will be rounded to lie on a grid point.}
 
 \item{no_w}{The number of size bins in the community spectrum. These bins
 will be equally spaced on a logarithmic scale. Default value is such that
@@ -69,7 +71,7 @@ there are 20 bins for each factor of 10 in weight.}
 is set to the smallest value at which any of the consumers can feed.}
 
 \item{w_pp_cutoff}{The largest size of the resource spectrum. Default value
-is min_w_inf unless \code{perfect_scaling = TRUE} when it is Inf.}
+is min_w_max unless \code{perfect_scaling = TRUE} when it is Inf.}
 
 \item{n}{Scaling exponent of the maximum intake rate.}
 
@@ -122,7 +124,7 @@ gear.}
 
 \item{egg_size_scaling}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 If TRUE, the egg size is a constant fraction of the
-maximum size of each species. This fraction is \code{min_w / min_w_inf}. If
+maximum size of each species. This fraction is \code{min_w / min_w_max}. If
 FALSE, all species have the egg size \code{w_min}.}
 
 \item{resource_scaling}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -134,6 +136,13 @@ present in the same size range.}
 If TRUE then parameters are set so that the community
 abundance, growth before reproduction and death are perfect power laws. In
 particular all other scaling corrections are turned on.}
+
+\item{min_w_inf}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The argument has been
+renamed to \code{min_w_max} to make it clearer that it refers to the maximum
+size of a species not the von Bertalanffy asymptotic size parameter.}
+
+\item{max_w_inf}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The argument has been
+renamed to \code{max_w_max}.}
 }
 \value{
 An object of type \code{MizerParams}
@@ -142,9 +151,9 @@ An object of type \code{MizerParams}
 This functions creates a \code{MizerParams} object describing a trait-based
 model. This is a simplification of the general size-based model used in
 \code{mizer} in which the species-specific parameters are the same for all
-species, except for the asymptotic size, which is considered the most
+species, except for the maximum size, which is considered the most
 important trait characterizing a species. Other parameters are related to the
-asymptotic size. For example, the size at maturity is given by \code{w_inf *
+maximum size. For example, the size at maturity is given by \code{w_max *
 eta}, where \code{eta} is the same for all species. For the trait-based model
 the number of species is not important. For applications of the trait-based
 model see Andersen & Pedersen (2010). See the \code{mizer} website for more
@@ -153,18 +162,18 @@ details and examples of the trait-based model.
 \details{
 The function has many arguments, all of which have default values. Of
 particular interest to the user are the number of species in the model and
-the minimum and maximum asymptotic sizes.
+the minimum and maximum sizes.
 
 The characteristic weights of the smallest species are defined by
 \code{min_w} (egg size), \code{min_w_mat} (maturity size) and
-\code{min_w_inf} (asymptotic size). The asymptotic sizes of
+\code{min_w_max} (maximum size). The maximum sizes of
 the \code{no_sp} species
-are logarithmically evenly spaced, ranging from \code{min_w_inf} to
-\code{max_w_inf}.
+are logarithmically evenly spaced, ranging from \code{min_w_max} to
+\code{max_w_max}.
 Similarly the maturity sizes of the species are logarithmically evenly
-spaced, so that the ratio \code{eta} between maturity size and asymptotic
+spaced, so that the ratio \code{eta} between maturity size and maximum
 size is the same for all species. If \code{egg_size_scaling = TRUE} then also
-the ratio between asymptotic size and egg size is the same for all species.
+the ratio between maximum size and egg size is the same for all species.
 Otherwise all species have the same egg size.
 
 In addition to setting up the parameters, this function also sets up an
@@ -181,7 +190,7 @@ function with one parameter, \code{knife_edge_size}, which is the size at
 which species are selected. Each species can either be fished by the same
 gear (\code{knife_edge_size} has a length of 1) or by a different gear (the
 length of \code{knife_edge_size} has the same length as the number of species
-and the order of selectivity size is that of the asymptotic size).
+and the order of selectivity size is that of the maximum size).
 
 The resulting \code{MizerParams} object can be projected forward using
 \code{project()} like any other \code{MizerParams} object. When projecting

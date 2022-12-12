@@ -4,7 +4,7 @@ test_that("get_initial_n is working properly", {
     n <- get_initial_n(params)
     no_sp <- nrow(params@species_params)
     for (i in 1:no_sp) {
-        expect_true(all(n[i,params@w > params@species_params$w_inf[i]] == 0))
+        expect_true(all(n[i,params@w > params@species_params$w_max[i]] == 0))
         expect_true(all(n[i,params@w < params@species_params$w_min[i]] == 0))
     }
     # Check slope of all species is the same

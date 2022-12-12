@@ -121,18 +121,18 @@ test_that("w_min array reference is working OK", {
 test_that("Gear checking and sorting is OK", {
     # Set up trait based model for easy testing ground
     no_sp <- 10
-    min_w_inf <- 10
-    max_w_inf <- 1e5
-    w_inf <- 10^seq(from = log10(min_w_inf), to = log10(max_w_inf),
+    min_w_max <- 10
+    max_w_max <- 1e5
+    w_max <- 10^seq(from = log10(min_w_max), to = log10(max_w_max),
                     length = no_sp)
-    knife_edges <- w_inf * 0.05
-    industrial_gears <- w_inf <= 500
-    other_gears <- w_inf > 500
+    knife_edges <- w_max * 0.05
+    industrial_gears <- w_max <= 500
+    other_gears <- w_max > 500
     gear_names <- rep("Industrial", no_sp)
     gear_names[other_gears] <- "Other"
     params_gear <- newTraitParams(no_sp = no_sp, 
-                                  min_w_inf = min_w_inf, 
-                                  max_w_inf = max_w_inf, 
+                                  min_w_max = min_w_max, 
+                                  max_w_max = max_w_max, 
                                   knife_edge_size = knife_edges, 
                                   gear_names = gear_names)
 	  gear_names <- dimnames(params_gear@catchability)[[1]]

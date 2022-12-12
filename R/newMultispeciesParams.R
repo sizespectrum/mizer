@@ -35,7 +35,7 @@
 #' There are two essential columns that must be included in the species
 #' parameter data.frame and that do not have default values: the 
 #' `species` column that should hold strings with the names of the
-#' species and the `w_inf` column with the asymptotic sizes of the species
+#' species and the `w_max` column with the maximum sizes of the species
 #' in grams. 
 #' 
 #' The species_params dataframe also needs to contain the parameters needed

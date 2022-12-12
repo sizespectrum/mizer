@@ -25,7 +25,7 @@ newCommunityParams(
 )
 }
 \arguments{
-\item{max_w}{The maximum size of the community. The \code{w_inf} of the
+\item{max_w}{The maximum size of the community. The \code{w_max} of the
 species used to represent the community is set to this value.}
 
 \item{min_w}{The minimum size of the community.}

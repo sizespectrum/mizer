@@ -23,7 +23,7 @@
 #' although each species has its own maturity ogive.)
 #' The maturity weights are taken from the `w_mat` column of the 
 #' species_params data frame. Any missing maturity weights are set to 1/4 of the
-#' asymptotic weight in the `w_inf` column.
+#' maximum weight in the `w_max` column.
 #' 
 #' The exponent \eqn{U} determines the steepness of the maturity ogive. By
 #' default it is chosen as \eqn{U = 10}, however this can be overridden by
@@ -33,7 +33,7 @@
 #' 
 #' The sigmoidal function given above would strictly reach 1 only asymptotically.
 #' Mizer instead sets the function equal to 1 already at the species' 
-#' maximum size, taken from the compulsory `w_inf` column in the
+#' maximum size, taken from the compulsory `w_max` column in the
 #' species parameter data frame. Also, for computational simplicity, any 
 #' proportion smaller than `1e-8` is set to `0`.
 #' }
@@ -42,15 +42,15 @@
 #' If the the energy available to a mature individual that is 
 #' invested into reproduction is not supplied via the `repro_prop` argument,
 #' it is set to the allometric form
-#' \deqn{{\tt repro\_prop}(w) = \left(\frac{w}{w_{inf}}\right)^{m-n}.}{
-#'   repro_prop(w) = (w/w_inf)^(m - n).}
+#' \deqn{{\tt repro\_prop}(w) = \left(\frac{w}{w_{max}}\right)^{m-n}.}{
+#'   repro_prop(w) = (w/w_max)^(m - n).}
 #' Here \eqn{n} is the scaling exponent of the energy income rate. Hence
 #' the exponent \eqn{m} determines the scaling of the investment into
 #' reproduction for mature individuals. By default it is chosen to be 
 #' \eqn{m = 1} so that the rate at which energy is invested into reproduction 
 #' scales linearly with the size. This default can be overridden by including a 
-#' column `m` in the species parameter dataframe. The asymptotic sizes
-#' are taken from the compulsory `w_inf` column in the species parameter
+#' column `m` in the species parameter dataframe. The maximum sizes
+#' are taken from the compulsory `w_max` column in the species parameter
 #' data frame.
 #' 
 #' The total proportion of energy invested into reproduction of an individual
@@ -158,22 +158,22 @@ setReproduction <- function(params, maturity = NULL,
     }
     
     # Check maximum sizes
-    if (!("w_inf" %in% colnames(species_params))) {
-        stop("The maximum sizes of the species must be specified in the w_inf ",
+    if (!("w_max" %in% colnames(species_params))) {
+        stop("The maximum sizes of the species must be specified in the w_max ",
              "column of the species parameter data frame.")
     }
-    missing <- is.na(species_params$w_inf)
+    missing <- is.na(species_params$w_max)
     if (any(missing)) {
-        stop("The following species are missing data for their maximum size w_inf: ",
+        stop("The following species are missing data for their maximum size w_max: ",
              toString(species_params$species[missing]))
     }
-    if (any(species_params$w_inf <= species_params$w_min)) {
-        stop("Some of the asymptotic sizes are smaller than the egg sizes.")
+    if (any(species_params$w_max <= species_params$w_min)) {
+        stop("Some of the maximum sizes are smaller than the egg sizes.")
     }
     # # Round maximum sizes to nearest grid point
-    # for (i in seq_along(species_params$w_inf)) {
-    #     idx <- which.min(abs(species_params$w_inf[i] - params@w))
-    #     params@species_params$w_inf[i] < params@w[idx]
+    # for (i in seq_along(species_params$w_max)) {
+    #     idx <- which.min(abs(species_params$w_max[i] - params@w))
+    #     params@species_params$w_max[i] < params@w[idx]
     # }
     
     # set maturity proportion ----
@@ -202,11 +202,11 @@ setReproduction <- function(params, maturity = NULL,
             message("Note: The following species were missing data for ",
                     "their maturity size w_mat: ",
                     toString(species_params$species[missing]),
-                    ". These have been set to 1/4 w_inf.")
-            species_params$w_mat[missing] <- species_params$w_inf[missing] / 4
+                    ". These have been set to 1/4 w_max.")
+            species_params$w_mat[missing] <- species_params$w_max[missing] / 4
         }
         assert_that(all(species_params$w_mat > species_params$w_min))
-        assert_that(all(species_params$w_mat < species_params$w_inf))
+        assert_that(all(species_params$w_mat < species_params$w_max))
         params@species_params$w_mat <- species_params$w_mat
         
         # Set defaults for w_mat25
@@ -222,11 +222,11 @@ setReproduction <- function(params, maturity = NULL,
         maturity[] <- 
             unlist(
                 tapply(params@w, seq_along(params@w),
-                       function(wx, w_inf, w_mat, w_mat25) {
+                       function(wx, w_max, w_mat, w_mat25) {
                            U <- log(3) / log(w_mat / w_mat25)
                            return((1 + (wx / w_mat)^-U)^-1)
                        },
-                       w_inf = species_params$w_inf,
+                       w_max = species_params$w_max,
                        w_mat = species_params$w_mat,
                        w_mat25 = species_params$w_mat25
                 )
@@ -281,8 +281,8 @@ setReproduction <- function(params, maturity = NULL,
         repro_prop <- array(
             unlist(
                 tapply(params@w, seq_along(params@w),
-                       function(wx, w_inf, mn) (wx / w_inf)^(mn),
-                       w_inf = params@species_params$w_inf,
+                       function(wx, w_max, mn) (wx / w_max)^(mn),
+                       w_max = params@species_params$w_max,
                        mn = params@species_params$m - params@species_params$n
                 )
             ), dim = c(nrow(species_params), length(params@w)))
@@ -291,8 +291,8 @@ setReproduction <- function(params, maturity = NULL,
     psi <- params@maturity * repro_prop
     # psi should never be larger than 1
     psi[params@psi > 1] <- 1
-    # Set psi for all w > w_inf to 1
-    psi[outer(species_params$w_inf, params@w, "<")] <- 1
+    # Set psi for all w > w_max to 1
+    psi[outer(species_params$w_max, params@w, "<")] <- 1
     assert_that(all(psi >= 0 & psi <= 1))
     
     # if the slot is protected and the user did not supply a new repro_prop

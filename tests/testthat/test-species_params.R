@@ -11,11 +11,11 @@ test_that("validSpeciesParams() works", {
     sp <- species_params
     sp$w_mat[1] <- NA
     expect_message(sp <- validSpeciesParams(sp), NA)
-    expect_equal(sp$w_mat[1], sp$w_inf[1] / 4)
+    expect_equal(sp$w_mat[1], sp$w_max[1] / 4)
     sp$w_mat[2:4] <- 100
     expect_message(sp <- validSpeciesParams(sp),
                    "For the species Sandeel, N.pout the value")
-    expect_equal(sp$w_mat[2], sp$w_inf[2] / 4)
+    expect_equal(sp$w_mat[2], sp$w_max[2] / 4)
     
     # test w_mat25
     sp <- species_params
@@ -27,10 +27,10 @@ test_that("validSpeciesParams() works", {
     
     # minimal species_params
     sp <- data.frame(species = c(2, 1),
-                     w_inf = c(100, 1000),
+                     w_max = c(100, 1000),
                      stringsAsFactors = FALSE)
     expect_s3_class(sp <- validSpeciesParams(sp), "data.frame")
-    expect_equal(sp$w_mat, sp$w_inf / 4)
+    expect_equal(sp$w_mat, sp$w_max / 4)
     expect_equal(sp$alpha, c(0.6, 0.6))
     expect_equal(sp$interaction_resource, c(1, 1))
     expect_identical(rownames(sp), c("2", "1"))
@@ -40,13 +40,13 @@ test_that("validSpeciesParams() works", {
 test_that("set_species_param_default sets default correctly", {
     # Add comments to test that they are preserved
     comment(params@species_params) <- "top"
-    comment(params@species_params$w_inf) <- "test"
+    comment(params@species_params$w_max) <- "test"
     # creates new column correctly
     expect_condition(set_species_param_default(params, "hype", 2, "hi"),
                    "hi", class = "info_about_default")
     p2 <- set_species_param_default(params, "hype", 2, "hi")
     expect_identical(p2@species_params$hype, rep(2, no_sp))
-    expect_identical(comment(p2@species_params$w_inf), "test")
+    expect_identical(comment(p2@species_params$w_max), "test")
     expect_identical(comment(p2@species_params), "top")
     expect_message(sp2 <- set_species_param_default(params@species_params, "hype", 3), NA)
     expect_identical(sp2$hype, rep(3, no_sp))

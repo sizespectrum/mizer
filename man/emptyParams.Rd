@@ -24,7 +24,7 @@ emptyParams(
 given in the \code{w_min} column of the \code{species_params} dataframe.}
 
 \item{max_w}{The largest size of the consumer spectrum. By default this is
-set to the largest \code{w_inf} specified in the \code{species_params} data
+set to the largest \code{w_max} specified in the \code{species_params} data
 frame.}
 
 \item{min_w_pp}{The smallest size of the resource spectrum.}

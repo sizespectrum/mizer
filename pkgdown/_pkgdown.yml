@@ -157,7 +157,7 @@ reference:
   - -plotM2
   - setColours
   - setLinetypes
-- title: Manipulating species
+- title: Manipulating species list
   contents:
   - addSpecies
   - removeSpecies

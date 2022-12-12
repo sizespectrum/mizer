@@ -268,7 +268,7 @@ validMizerParams <- function(object) {
 #' 
 #' @slot metadata A list with metadata information. See [setMetadata()].
 #' @slot mizer_version The package version of mizer (as returned by
-#'   `packageVersion("mizer")`) that created or last saved the model.
+#'   `packageVersion("mizer")`) that created or upgraded the model.
 #' @slot extensions A named vector of strings where each name is the name of
 #'    and extension package needed to run the model and each value is a string 
 #'    giving the information that the remotes package needs to install the 
@@ -277,11 +277,11 @@ validMizerParams <- function(object) {
 #' @slot time_modified A POSIXct date-time object with the last modified time.
 #' @slot w The size grid for the fish part of the spectrum. An increasing
 #'   vector of weights (in grams) running from the smallest egg size to the
-#'   largest asymptotic size.
+#'   largest maximum size.
 #' @slot dw The widths (in grams) of the size bins
 #' @slot w_full The size grid for the full size range including the resource
 #'   spectrum. An increasing vector of weights (in grams) running from the
-#'   smallest resource size to the largest asymptotic size of fish. The
+#'   smallest resource size to the largest maximum size of fish. The
 #'   last entries of the vector have to be equal to the content of the w slot.
 #' @slot dw_full The width of the size bins for the full spectrum. The last
 #'   entries have to be equal to the content of the dw slot.
@@ -369,7 +369,7 @@ validMizerParams <- function(object) {
 #' @slot linetype A named vector of linetypes, named by species. 
 #'   Used to give consistent line types in plots.
 #' @slot ft_mask An array (species x w_full) with zeros for weights larger than
-#'   the asymptotic weight of each species. Used to efficiently minimize
+#'   the maximum weight of each species. Used to efficiently minimize
 #'   wrap-around errors in Fourier transform calculations.
 #' 
 #' @seealso [project()] [MizerSim()]
@@ -467,7 +467,7 @@ remove(validMizerParams)
 # #'   provided then size classes are set by the other arguments as described in
 # #'   the Details.
 #' @param max_w The largest size of the consumer spectrum. By default this is
-#'   set to the largest `w_inf` specified in the `species_params` data
+#'   set to the largest `w_max` specified in the `species_params` data
 #'   frame.
 #' @param min_w_pp The smallest size of the resource spectrum.
 # #'   Ignored if w_full is specified.
@@ -497,11 +497,11 @@ emptyParams <- function(species_params,
     gear_params <- validGearParams(gear_params, species_params)
     
     if (is.na(max_w)) {
-        max_w <- max(species_params$w_inf)
+        max_w <- max(species_params$w_max)
     } else {
-        if (max(species_params$w_inf) > max_w * (1 + 1e-6)) { # The fudge factor
+        if (max(species_params$w_max) > max_w * (1 + 1e-6)) { # The fudge factor
             # is there to avoid false alerts due to rounding errors.
-            too_large <- species_params$species[max_w < species_params$w_inf]
+            too_large <- species_params$species[max_w < species_params$w_max]
             stop("Some of your species have an maximum size larger than max_w: ",
                  toString(too_large))
         }
@@ -565,7 +565,7 @@ emptyParams <- function(species_params,
                   dimnames = list(sp = species_names, w = signif(w,3)))
     ft_pred_kernel <- array(NA, dim = c(no_sp, no_w_full),
                             dimnames = list(sp = species_names, k = 1:no_w_full))
-    ft_mask <- t(sapply(species_params$w_inf, function(x) w_full < x))
+    ft_mask <- t(sapply(species_params$w_max, function(x) w_full < x))
     
     selectivity <- array(0, dim = c(length(gear_names), no_sp, no_w), 
                          dimnames = list(gear = gear_names, sp = species_names, 
@@ -721,7 +721,7 @@ emptyParams <- function(species_params,
 #' To represent the continuous size spectrum in the computer, the size
 #' variable is discretized into a vector `w` of discrete weights,
 #' providing a grid of sizes spanning the range from the smallest egg size
-#' to the largest asymptotic size. These grid values divide the full size
+#' to the largest maximum size. These grid values divide the full size
 #' range into a finite number of size bins. The size bins should be chosen
 #' small enough to avoid the discretisation errors from becoming too big.
 #' You can fetch this vector with `w()` and the vector of bin widths with
@@ -807,15 +807,12 @@ dw_full <- function(params) {
 #' @export
 validParams <- function(params) {
     assert_that(is(params, "MizerParams"))
-    # Check that params has all the slots
-    # Can't use `slotnames(params)` to find out which slots params actually has
-    # because `slotnames()` just looks at the class definition. 
-    has_slot <- sapply(slotNames(mizer::NS_params),
-                      function(name) .hasSlot(params, name))
-    if (!.hasSlot(params, "metadata")) {
+    
+    if (needs_upgrading(params)) {
         params <- upgradeParams(params)
         warning("You need to upgrade your MizerParams object with `upgradeParams()`.")
     }
+    
     params@w_min_idx <- get_w_min_idx(params@species_params, params@w)
     validObject(params)
     params

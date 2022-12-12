@@ -10,28 +10,35 @@ plotDiet(object, species = NULL, return_data = FALSE)
 \item{object}{An object of class \linkS4class{MizerSim} or
 \linkS4class{MizerParams}.}
 
-\item{species}{The name of the predator species for which to plot the diet.}
+\item{species}{The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.}
 
 \item{return_data}{A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default value is FALSE}
 }
 \value{
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
-frame with the three variables 'w', 'Proportion', 'Prey' is returned.
+frame with the four variables 'Predator', 'w', 'Proportion', 'Prey' is returned.
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-Plots the proportions with which each prey species contributes to the total
-biomass consumed by the specified predator species, as a function of the
-predator's size. These proportions are obtained with \code{getDiet()}.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Plots the proportions with which each
+prey species contributes to the total biomass consumed by the specified
+predator species, as a function of the predator's size. These proportions are
+obtained with \code{getDiet()}.
 }
 \details{
 Prey species that contribute less than 1 permille to the diet are suppressed
 in the plot.
+
+If more than one predator species is selected, then the plot contains one
+facet for each species.
 }
 \examples{
 \donttest{
 plotDiet(NS_params, species = "Cod")
+plotDiet(NS_params, species = 5:9)
 
 # Returning the data frame
 fr <- plotDiet(NS_params, species = "Cod", return_data = TRUE)

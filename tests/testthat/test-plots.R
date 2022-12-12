@@ -12,7 +12,7 @@ species <- c(11, 10)
 params_bkgrd <- params
 params_bkgrd@A[1:3] <- NA
 # params object with single species
-sp_single <- data.frame(species = 1, w_inf = 1000, h = 30)
+sp_single <- data.frame(species = 1, w_max = 1000, h = 30)
 params_single <- newMultispeciesParams(sp_single, no_w = 30)
 
 # Need to use vdiffr conditionally

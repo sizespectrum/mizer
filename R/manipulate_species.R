@@ -50,11 +50,11 @@
 #' params <- newTraitParams()
 #' species_params <- data.frame(
 #'     species = "Mullet",
-#'     w_inf = 173,
+#'     w_max = 173,
 #'     w_mat = 15,
 #'     beta = 283,
 #'     sigma = 1.8,
-#'     k_vb = 0.6,
+#'     h = 30,
 #'     a = 0.0085,
 #'     b = 3.11
 #' )
@@ -154,8 +154,8 @@ addSpecies <- function(params, species_params,
     new_min_w <- min_w
     new_no_w <- no_w
     extra_no_w <- 0  # extra bins added for smaller egg size
-    if (max(species_params$w_inf) > max(params@w) + .Machine$double.eps) {
-        new_max_w <- max(species_params$w_inf)
+    if (max(species_params$w_max) > max(params@w) + .Machine$double.eps) {
+        new_max_w <- max(species_params$w_max)
         dx <- log10(max_w / min_w) / (no_w - 1)
         new_no_w <- ceiling(log10(new_max_w / min_w) / dx) + 1
         new_max_w <- min_w * 10^(dx * (new_no_w - 1))
@@ -264,14 +264,14 @@ addSpecies <- function(params, species_params,
     for (i in new_sp) {
         g <- gg[i, ]
         mu <- mumu[i, ]
-        w_inf_idx <- sum(p@w < p@species_params$w_inf[i])
-        idx <- p@w_min_idx[i]:(w_inf_idx - 1)
+        w_max_idx <- sum(p@w < p@species_params$w_max[i])
+        idx <- p@w_min_idx[i]:(w_max_idx - 1)
         if (any(g[idx] == 0)) {
             stop("Can not compute steady state due to zero growth rates for ",
                  p@species_params$species[i])
         }
         p@initial_n[i, ] <- 0
-        p@initial_n[i, p@w_min_idx[i]:w_inf_idx] <-
+        p@initial_n[i, p@w_min_idx[i]:w_max_idx] <-
             c(1, cumprod(g[idx] / ((g + mu * p@dw)[idx + 1])))
         
         # set low abundance ----
