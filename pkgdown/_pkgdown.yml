@@ -103,10 +103,11 @@ reference:
   - initialNResource
   - initial_effort
   - setBevertonHolt
-- title: Tuning model to observations
-  desc: Some functions to make your model match observed biomasses or yields,
-    as explained in this [blog post](https://bit.ly/2YqXESV).
+- title: Steady state tuning
   contents:
+  - steady
+  - steadySingleSpecies
+  - matchGrowth
   - plotBiomassObservedVsModel
   - calibrateBiomass
   - matchBiomasses
@@ -123,7 +124,6 @@ reference:
   - project
   - projectToSteady
   - setInitialValues
-  - steady
 - title: Accessing results
   contents:
   - "N"

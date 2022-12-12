@@ -98,6 +98,8 @@ Collate:
     'manipulate_species.R'
     'calibrate.R'
     'match.R'
+    'matchGrowth.R'
+    'steadySingleSpecies.R'
     'defaults_edition.R'
 RoxygenNote: 7.2.2
 Roxygen: list(markdown = TRUE)
