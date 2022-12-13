@@ -36,6 +36,14 @@ test_that("validSpeciesParams() works", {
     expect_identical(rownames(sp), c("2", "1"))
 })
 
+test_that("validSpeciesParams converts from length to weight", {
+    sp <- data.frame(species = 1:2,
+                     l_max = 1:2,
+                     a = 0.01, b = 3)
+    sp2 <- validSpeciesParams(sp)
+    expect_identical(sp2$w_max, c(0.01, 0.08))
+})
+
 ## set_species_param_default ----
 test_that("set_species_param_default sets default correctly", {
     # Add comments to test that they are preserved
@@ -128,4 +136,24 @@ test_that("Setting species params works", {
     species_params(params)$w_min[[1]] <- 1
     expect_identical(params@w_min_idx[[1]], 40)
     
+})
+
+## set_species_params_from_length ----
+test_that("set_species_params_from_length works", {
+    sp <- data.frame(species = 1:2, a = 0.01, b = 3)
+    # Does nothing if no length
+    expect_identical(set_species_param_from_length(sp, "w_mat", "l_mat"),
+                     sp)
+    # Converts as expected
+    sp$l_mat <- c(1, 2)
+    sp2 <- set_species_param_from_length(sp, "w_mat", "l_mat")
+    expect_identical(sp2$w_mat, c(0.01, 0.08))
+    # Detects inconsistency
+    sp2$w_mat[2] <- 3
+    expect_warning(set_species_param_from_length(sp2, "w_mat", "l_mat"),
+                   "not consistent: 2")
+    # Can deal with NAs
+    sp2$w_mat[2] <- NA
+    sp2 <- set_species_param_from_length(sp2, "w_mat", "l_mat")
+    expect_identical(sp2$w_mat, c(0.01, 0.08))
 })

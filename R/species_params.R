@@ -403,7 +403,9 @@ get_ks_default <- function(params) {
 #' 
 #' If a weight-based parameter is missing but the corresponding length-based
 #' parameter is given, as well as the `a` and `b` parameters for length-weight
-#' conversion, then the weight-based parameters are added.
+#' conversion, then the weight-based parameters are added. If both length and
+#' weight are given, then weight is used and a warning is issued if the two are
+#' inconsistent.
 #' 
 #' If a `w_inf` column is given but no `w_max` then the value from `w_inf` is
 #' used. This is for backwards compatibility.
@@ -452,18 +454,11 @@ validSpeciesParams <- function(species_params) {
     
     ## Convert lengths to weights
     if (all(c("a", "b") %in% names(sp))) {
-        if ("l_mat" %in% names(sp)) {
-            sp <- set_species_param_default(sp, "w_mat", l2w(sp$l_mat, sp))
-        }
-        if ("l_mat25" %in% names(sp)) {
-            sp <- set_species_param_default(sp, "w_mat25", l2w(sp$l_mat25, sp))
-        }
-        if ("l_max" %in% names(sp)) {
-            sp <- set_species_param_default(sp, "w_max", l2w(sp$l_max, sp))
-        }
-        if ("l_min" %in% names(sp)) {
-            sp <- set_species_param_default(sp, "w_min", l2w(sp$l_min, sp))
-        }
+        sp <- sp %>%
+            set_species_param_from_length("w_mat", "l_mat") %>%
+            set_species_param_from_length("w_mat25", "l_mat25") %>%
+            set_species_param_from_length("w_max", "l_max") %>%
+            set_species_param_from_length("w_min", "l_min")
     }
     
     # check w_max ----
@@ -512,5 +507,21 @@ validSpeciesParams <- function(species_params) {
         sp$w_mat25[wrong] <- sp$w_mat[wrong]/(3^(1/10))
     }
     
+    sp
+}
+
+# Set weight-based parameter from length-based parameter
+set_species_param_from_length <- function(sp, pw, pl) {
+    if (pl %in% names(sp)) {
+        vw <- l2w(sp[[pl]], sp)
+        sp <- set_species_param_default(sp, pw, vw)
+        incons <- !is.na(sp[[pw]]) & !is.na(sp[[pl]]) &
+            sp[[pw]] != vw
+        if (any(incons)) {
+            warning("For the following species your value for ", pw,
+                    " and your value for ", pl, " are not consistent: ",
+                    paste(sp$species[incons], collapse = ", "))
+        }
+    }
     sp
 }
