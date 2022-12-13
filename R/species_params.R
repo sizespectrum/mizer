@@ -416,15 +416,24 @@ get_ks_default <- function(params) {
 #' * `alpha` is set to `0.6`
 #' * `interaction_resource` is set to `1`
 #' 
-#' Any `w_mat` that is given that is not smaller than `w_max` is set to
-#' `w_max / 4`.
-#' 
-#' Any `w_mat25` that is given that is not smaller than `w_mat` is set to
-#' `w_mat * 3^(-0.1)`.
+#' Some inconsistencies in the size parameters are resolved as follows:
+#' * Any `w_mat` that is not smaller than `w_max` is set to `w_max / 4`.
+#' * Any `w_mat25` that is not smaller than `w_mat` is set to NA.
+#' * Any `w_min` that is not smaller than `w_mat` is set to `0.001` or 
+#'   `w_mat /10`, whichever is smaller.
 #' 
 #' The row names of the returned data frame will be the species names.
 #' If `species_params` was provided as a tibble it is converted back to an
 #' ordinary data frame.
+#' 
+#' The function tests for some typical misspellings of parameter names, like
+#' wrong capitalisation or missing underscores and issues a warning if it 
+#' detects such a name.
+#' 
+#' Note that the species parameters returned by this function are not guaranteed
+#' to produce a viable model. More checks of the parameters are performed by the
+#' individual rate-setting functions (see [setParams()] for the list of these
+#' functions).
 #' @seealso species_params
 #' @concept helper
 #' @export
@@ -433,6 +442,18 @@ validSpeciesParams <- function(species_params) {
     # Convert a tibble back to an ordinary data frame
     sp <- as.data.frame(species_params,
                         stringsAsFactors = FALSE) # for old versions of R
+    
+    # Check for misspellings ----
+    misspellings <- c("wmin", "wmax", "wmat", "wmat25", "w_mat_25", "Rmax",
+                      "Species", "Gamma", "Beta", "Sigma", "Alpha",
+                      "W_min", "W_max", "W_mat", "e_repro", "Age_mat")
+    query <- intersect(misspellings, names(sp))
+    if (length(query) > 0) {
+        warning("Some column names in your species parameter data ",
+                "frame are very close to standard parameter names: ",
+                paste(query, collapse = ", "),
+                ". Did you perhaps mis-spell the names?")
+    }
     
     # check species ----
     if (!("species" %in% colnames(sp))) {
@@ -452,7 +473,7 @@ validSpeciesParams <- function(species_params) {
         names(sp)[names(sp) == "r_max"] <- "R_max"
     }
     
-    ## Convert lengths to weights
+    # Convert lengths to weights ----
     if (all(c("a", "b") %in% names(sp))) {
         sp <- sp %>%
             set_species_param_from_length("w_mat", "l_mat") %>%
@@ -503,8 +524,18 @@ validSpeciesParams <- function(species_params) {
         message("For the species ", 
                 paste(sp$species[wrong], collapse = ", "),
                 " the value for `w_mat25` is not smaller than that of `w_mat`.",
-                " I have corrected that by setting it to about 90% of `w_mat.")
-        sp$w_mat25[wrong] <- sp$w_mat[wrong]/(3^(1/10))
+                " I have corrected that by setting it to NA.")
+        sp$w_mat25[wrong] <- NA
+    }
+    
+    # check w_min ----
+    wrong <- sp$w_min >= sp$w_mat
+    if (any(wrong)) {
+        sp$w_min[wrong] <- pmin(0.001, sp$w_mat[wrong] / 10)
+        message("For the species ", 
+                paste(sp$species[wrong], collapse = ", "),
+                " the value for `w_min` is not smaller than that of `w_mat`.",
+                " I have reduced the values.")
     }
     
     sp

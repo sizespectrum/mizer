@@ -19,11 +19,28 @@ test_that("validSpeciesParams() works", {
     
     # test w_mat25
     sp <- species_params
-    species_params$w_mat25 <- c(NA, 1:11)
-    expect_message(sp <- validSpeciesParams(species_params), NA)
-    species_params$w_mat25[2:5] <- 21
-    expect_message(validSpeciesParams(species_params),
+    sp$w_mat25 <- c(NA, 1:11)
+    expect_message(validSpeciesParams(sp), NA)
+    sp$w_mat25[2:5] <- 21
+    expect_message(sp <- validSpeciesParams(sp),
                    "For the species Sandeel, Dab the value")
+    expect_true(is.na(sp$w_mat25[[2]]))
+    expect_identical(sp$w_mat25[[3]], 21)
+    
+    # test w_min
+    sp <- species_params
+    sp$w_min <- c(NA, 1:11)
+    expect_message(validSpeciesParams(sp), NA)
+    sp$w_min[2:5] <- 21
+    expect_message(sp <- validSpeciesParams(sp),
+                   "For the species Sandeel, Dab the value")
+    expect_identical(sp$w_min[[2]], 0.001)
+    expect_identical(sp$w_min[[3]], 21)
+    
+    # test misspelling detection
+    sp$wmat <- 1
+    expect_warning(validSpeciesParams(sp),
+                   "very close to standard parameter names")
     
     # minimal species_params
     sp <- data.frame(species = c(2, 1),
