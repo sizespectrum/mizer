@@ -3,7 +3,7 @@
 \name{plotGrowthCurves}
 \alias{plotGrowthCurves}
 \alias{plotlyGrowthCurves}
-\title{Plot growth curves giving weight as a function of age}
+\title{Plot growth curves}
 \usage{
 plotGrowthCurves(
   object,
@@ -12,6 +12,7 @@ plotGrowthCurves(
   percentage = FALSE,
   species_panel = FALSE,
   highlight = NULL,
+  size_at_age = NULL,
   return_data = FALSE,
   ...
 )
@@ -41,11 +42,16 @@ each species whether it is to be selected (TRUE) or not.}
 \item{percentage}{Boolean value. If TRUE, the size is given as a percentage
 of the maximal size.}
 
-\item{species_panel}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-If TRUE, display all species with their Von Bertalanffy curves as facets
-(need species and percentage to be set to default). Default FALSE.}
+\item{species_panel}{If TRUE (default), and \code{percentage = FALSE}, display all
+species as facets. Otherwise puts all species into a single panel.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
+
+\item{size_at_age}{A data frame with observed size at age data to be plotted
+on top of growth curve graphs. Should contain columns \code{species} (species
+name as used in the model), \code{age} (in years) and either \code{weight} (in grams)
+or \code{length} (in cm). If both \code{weight} and \code{length} are provided, only
+\code{weight} is used.}
 
 \item{return_data}{A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default value is FALSE}
@@ -56,12 +62,29 @@ used for the plot is returned instead of the plot itself. Default value is FALSE
 A ggplot2 object
 }
 \description{
-When the growth curve for only a single species is plotted, horizontal
-lines are included that indicate the maturity size and the maximum size for
-that species. If furthermore the species parameters contain the variables
-a and b for length to weight conversion and the von Bertalanffy parameter
-k_vb (and optionally t0), then the von Bertalanffy growth curve is
-superimposed in black.
+The growth curves represent the average age of all the living fish of a
+species as a function of their size. So it would be natural to plot size
+on the x-axis. But to follow the usual convention from age-based models, we
+plot size on the y-axis and age on the x-axis.
+}
+\details{
+When the growth curve for only a single species is plotted, horizontal lines
+are included that indicate the maturity size and the maximum size for that
+species, as well as a vertical line indicating the maturity age.
+
+If size at age data is passed via the \code{size_at_age} argument, this is plotted
+on top of the growth curve. When comparing this to the growth curves, you
+need to remember that the growth curves should only represent the average
+age at each size. So a scatter in the x-direction around the curve is to be
+expected.
+
+For legacy reasons, if the species parameters contain the variables \code{a} and
+\code{b} for length to weight conversion and the von Bertalanffy parameter \code{k_vb},
+\code{w_inf} (and optionally \code{t0}), then the von Bertalanffy growth curve is
+superimposed in black. This was implemented before we understood that the von
+Bertalanffy curves (which approximates the average length at each age) should
+not be compared to the mizer growth curves (which approximate the average age
+at each length).
 }
 \examples{
 \donttest{
@@ -70,7 +93,7 @@ sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotGrowthCurves(sim, percentage = TRUE)
 plotGrowthCurves(sim, species = "Cod", max_age = 24)
 plotGrowthCurves(sim, species_panel = TRUE)
- 
+
 # Returning the data frame
 fr <- plotGrowthCurves(sim, return_data = TRUE)
 str(fr)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_initial_n.R
 \name{get_initial_n}
 \alias{get_initial_n}
-\title{Calculate initial population abundances for the community populations}
+\title{Calculate initial population abundances}
 \usage{
 get_initial_n(params, n0_mult = NULL, a = 0.35)
 }
@@ -19,9 +19,9 @@ A matrix (species x size) of population abundances.
 }
 \description{
 This function uses the model parameters and other parameters to calculate
-initial population abundances for the community populations. These initial
-abundances should be reasonable guesses at the equilibrium values. The
-returned population can be passed to the \code{project} function.
+initial values for the species number densities. These initial
+abundances are currently quite arbitrary and not close to the steady state.
+We intend to improve this in the future.
 }
 \examples{
 \dontrun{

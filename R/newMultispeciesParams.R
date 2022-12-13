@@ -36,10 +36,11 @@
 #' parameter data.frame and that do not have default values: the 
 #' `species` column that should hold strings with the names of the
 #' species and the `w_max` column with the maximum sizes of the species
-#' in grams. 
+#' in grams. (You could alternatively specify the maximum length in cm in an
+#' `l_max` column.)
 #' 
-#' The species_params dataframe also needs to contain the parameters needed
-#' by any predation kernel function or size selectivity function. This will
+#' The `species_params dataframe` also needs to contain the parameters needed
+#' by any predation kernel function (size selectivity function). This will
 #' be mentioned in the appropriate sections below.
 #' 
 #' For all other species parameters, mizer will calculate default values if they
@@ -66,6 +67,13 @@
 #' @inheritSection setReproduction Setting reproduction
 #' @inheritSection setFishing Setting fishing
 #' @inheritSection setResource Setting resource dynamics
+#' 
+#' @section Setting initial values:
+#' The initial values for the species number densities are set using the 
+#' function `get_initial_n()`. These are quite arbitrary and not very close to
+#' the steady state abundances. We intend to improve this in the future. The
+#' initial resource number density is set equal to the resource carrying
+#' capacity.
 #' 
 #' @export
 #' @family functions for setting up models

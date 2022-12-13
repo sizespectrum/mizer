@@ -1,9 +1,9 @@
-#' Calculate initial population abundances for the community populations
+#' Calculate initial population abundances
 #' 
 #' This function uses the model parameters and other parameters to calculate 
-#' initial population abundances for the community populations. These initial 
-#' abundances should be reasonable guesses at the equilibrium values. The 
-#' returned population can be passed to the `project` function.
+#' initial values for the species number densities. These initial 
+#' abundances are currently quite arbitrary and not close to the steady state.
+#' We intend to improve this in the future.
 #' 
 #' @param params The model parameters. An object of type \linkS4class{MizerParams}.
 #' @param a A parameter with a default value of 0.35.

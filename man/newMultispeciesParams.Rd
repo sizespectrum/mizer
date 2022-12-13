@@ -79,7 +79,8 @@ is not given explicitly and if the exponent is not specified in a \code{p}
 column in the \code{species_params}.}
 
 \item{ext_mort}{Optional. An array (species x size) holding the external
-mortality rate.}
+mortality rate.  If not supplied, a default is set as described in the
+section "Setting external mortality rate".}
 
 \item{z0pre}{If \code{z0}, the mortality from other sources, is not a column
 in the species data frame, it is calculated as z0pre * w_max ^ z0exp.
@@ -165,10 +166,11 @@ There are two essential columns that must be included in the species
 parameter data.frame and that do not have default values: the
 \code{species} column that should hold strings with the names of the
 species and the \code{w_max} column with the maximum sizes of the species
-in grams.
+in grams. (You could alternatively specify the maximum length in cm in an
+\code{l_max} column.)
 
-The species_params dataframe also needs to contain the parameters needed
-by any predation kernel function or size selectivity function. This will
+The \verb{species_params dataframe} also needs to contain the parameters needed
+by any predation kernel function (size selectivity function). This will
 be mentioned in the appropriate sections below.
 
 For all other species parameters, mizer will calculate default values if they
@@ -184,6 +186,15 @@ If you are not happy with any of the species parameter values used you can
 always change them later with \code{\link[=species_params<-]{species_params<-()}}.
 
 All the parameters will be mentioned in the following sections.
+}
+
+\section{Setting initial values}{
+
+The initial values for the species number densities are set using the
+function \code{get_initial_n()}. These are quite arbitrary and not very close to
+the steady state abundances. We intend to improve this in the future. The
+initial resource number density is set equal to the resource carrying
+capacity.
 }
 
 \section{Size grid}{
@@ -238,19 +249,19 @@ You do not need to specify an interaction matrix. If you do not, then the
 predator-prey interactions are purely determined by the size of predator
 and prey and totally independent of the species of predator and prey.
 
-The interaction matrix \eqn{\theta_{ij}} describes the interaction of each
-pair of species in the model. This can be viewed as a proxy for spatial
-interaction e.g. to model predator-prey interaction that is not size based.
+The interaction matrix \eqn{\theta_{ij}} modifies the interaction of each
+pair of species in the model. This can be used for example to allow for
+different spatial overlap among the species.
 The values in the interaction matrix are used to scale the encountered food
 and predation mortality (see on the website \href{https://sizespectrum.org/mizer/articles/model_description.html#sec:pref}{the section on predator-prey encounter rate}
 and on \href{https://sizespectrum.org/mizer/articles/model_description.html#mortality}{predation mortality}).
 The first index refers to the predator species and the second to the prey
 species.
 
-It is used when calculating the food encounter rate in \code{\link[=getEncounter]{getEncounter()}} and
-the predation mortality rate in \code{\link[=getPredMort]{getPredMort()}}. Its entries are
-dimensionless numbers. If all the values in the interaction matrix are
-equal then predator-prey interactions are determined entirely by
+The interaction matrix is used when calculating the food encounter rate in
+\code{\link[=getEncounter]{getEncounter()}} and the predation mortality rate in \code{\link[=getPredMort]{getPredMort()}}. Its
+entries are dimensionless numbers. If all the values in the interaction
+matrix are equal then predator-prey interactions are determined entirely by
 size-preference.
 
 This function checks that the supplied interaction matrix is valid and then
@@ -261,7 +272,7 @@ the same as the order in the species params data frame in the \code{params}
 object. If you supply a named array then the function will check the order
 and warn if it is different. One way of creating your own interaction
 matrix is to enter the data using a spreadsheet program and saving it as a
-.csv file. The data can be read into R using the command \code{read.csv()}.
+.csv file. The data can then be read into R using the command \code{read.csv()}.
 
 The interaction of the species with the resource are set via a column
 \code{interaction_resource} in the \code{species_params} data frame. By default this

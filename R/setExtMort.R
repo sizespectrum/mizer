@@ -21,7 +21,8 @@
 #' 
 #' @param params MizerParams
 #' @param ext_mort Optional. An array (species x size) holding the external
-#'   mortality rate.
+#'   mortality rate.  If not supplied, a default is set as described in the 
+#'   section "Setting external mortality rate".
 #' @param reset `r lifecycle::badge("experimental")`
 #'   If set to TRUE, then the external mortality rate will be reset
 #'   to the value calculated from the `z0` parameters, even if it was

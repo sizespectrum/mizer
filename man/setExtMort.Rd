@@ -27,7 +27,8 @@ ext_mort(params) <- value
 \item{params}{MizerParams}
 
 \item{ext_mort}{Optional. An array (species x size) holding the external
-mortality rate.}
+mortality rate.  If not supplied, a default is set as described in the
+section "Setting external mortality rate".}
 
 \item{z0pre}{If \code{z0}, the mortality from other sources, is not a column
 in the species data frame, it is calculated as z0pre * w_max ^ z0exp.
