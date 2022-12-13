@@ -38,7 +38,7 @@ different <- function(a, b) {
 #' @export
 #' @concept helper
 l2w <- function(l, params) {
-    assert_that(is.number(l))
+    assert_that(is.numeric(l))
     sp <- params
     if (is(params, "MizerParams")) {
         sp <- params@species_params
@@ -46,6 +46,9 @@ l2w <- function(l, params) {
     if (!is.data.frame(sp)) {
         stop("The second argument must be either a MizerParams object or a
              species paramter data frame.")
+    }
+    if (length(l) != 1 && length(l) != nrow(sp)) {
+        stop("The length of 'l' should be one or equal to the number of species.")
     }
     sp <- sp %>%
         set_species_param_default("a", 0.01, "Using default values for 'a' parameter.") %>%
@@ -57,7 +60,7 @@ l2w <- function(l, params) {
 #' @rdname l2w
 #' @export
 w2l <- function(w, params) {
-    assert_that(is.number(w))
+    assert_that(is.numeric(w))
     sp <- params
     if (is(params, "MizerParams")) {
         sp <- params@species_params
@@ -65,6 +68,9 @@ w2l <- function(w, params) {
     if (!is.data.frame(sp)) {
         stop("The second argument must be either a MizerParams object or a
              species paramter data frame.")
+    }
+    if (length(w) != 1 && length(w) != nrow(sp)) {
+        stop("The length of 'w' should be one or equal to the number of species.")
     }
     sp <- sp %>%
         set_species_param_default("a", 0.01, "Using default values for 'a' parameter.") %>%
