@@ -466,7 +466,8 @@ newTraitParams <- function(no_sp = 11,
             n = n,
             p = p,
             min_w_pp = min_w_pp,
-            r_pp = r_pp
+            r_pp = r_pp,
+            info_level = 0
         )
     
     w <- params@w
