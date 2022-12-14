@@ -22,7 +22,8 @@
 #' @param n The allometric growth exponent. This can be overruled for individual
 #'   species by including a `n` column in the `species_params`. 
 #' @param info_level Controls the amount of information messages that are shown
-#'   when the function sets default values for parameters. 
+#'   when the function sets default values for parameters. Higher levels lead
+#'   to more messages.
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' 
@@ -128,7 +129,7 @@ newMultispeciesParams <- function(
     # into the `infos` list.
     infos <- list()
     collect_info <- function(cnd) {
-        if (cnd$level >= info_level) {
+        if (cnd$level <= info_level) {
             infos[[cnd$var]] <<- cnd$message
         }
     }
