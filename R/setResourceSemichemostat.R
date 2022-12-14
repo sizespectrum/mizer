@@ -1,25 +1,22 @@
-#' Tune the density dependence in reproduction
+#' Set the parameters for the resource dynamics without changing the steady state
 #'
 #' `r lifecycle::badge("experimental")`
-#' Takes a MizerParams object `params` with arbitrary density dependence in
-#' the resource dynamics and
-#' returns a MizerParams object with the resource parameters chosen in such a
-#' way that the 
-#' Hence if you have tuned your `params` object to describe a
-#' particular steady state, then setting the resource parameters
-#' with this function will leave you with the exact same steady state.
+#' Takes a MizerParams object `params` with arbitrary density dependence in the
+#' resource dynamics and returns a MizerParams object with the resource
+#' parameters chosen in such a way that the Hence if you have tuned your
+#' `params` object to describe a particular steady state, then setting the
+#' resource parameters with this function will leave you with the exact same
+#' steady state.
 #'
-#' If you do not provide a value for any of the resource parameter
-#' arguments, then the resource rate will be kept at its current value. 
-#' If you do provide one of the reproduction
-#' parameters, this can be either a vector with the same length as 
-#' `w_full(params)`, giving a
-#' value for every size class, or it can be a single value that is taken as the
-#' value at 1g with the values at other sizes calculated according to a 
-#' power-law.
+#' If you do not provide a value for any of the resource arguments, then the
+#' resource rate will be kept at its current value. If you do provide one of the
+#' resource arguments, this can be either a vector with the same length as
+#' `w_full(params)`, giving a value for every size class, or it can be a single
+#' value that is taken as the value at 1g with the values at other sizes
+#' calculated according to a power-law.
 #'
-#' The values for `resource_capacity` must be larger than the current resource number
-#' density. If a smaller value is requested a warning is issued and the
+#' The values for `resource_capacity` must be larger than the current resource
+#' number density. If a smaller value is requested a warning is issued and the
 #' value is increased to twice the current resource number density.
 #' 
 #' The values for the `resource_level` must be positive and less than 1. 
@@ -29,17 +26,12 @@
 #' resource production rate. If a smaller value is requested a warning is issued
 #' and the value is increased to the smallest possible value.
 #'
-#' As can be seen in the graph above, choosing a lower value for
-#' `resource_capacity` or a higher value for `resource_rate` means that near the
-#' steady state the resource abundance will be less sensitive to a change in the
-#' predation mortality and hence less sensitive to changes in the fish
-#' abundances.
-#'
 #' @inheritParams setResource
 #' @param resource_level Sets `resource_capacity` to the current resource
 #'   number density divided by `resource_level`.
 #'
 #' @return A MizerParams object with updated resource parameters.
+#' @concept resource dynamics
 #' @export
 setResourceSemichemostat <- function(params, resource_rate, resource_capacity,
                                      resource_level) {
@@ -53,7 +45,7 @@ setResourceSemichemostat <- function(params, resource_rate, resource_capacity,
     }
     if (num_args == 0) {
         # no values given, so use previous resource_rate
-        resource_rate <- resource_rate(params)
+        resource_rate <- getResourceRate(params)
     }
 
     mu <- getResourceMort(params)
@@ -63,11 +55,9 @@ setResourceSemichemostat <- function(params, resource_rate, resource_capacity,
     w_full <- w_full(params)
     no_w_full <- length(w_full)
     
-    params@resource_dynamics <- "resource_semichemostat"
-    
     if (!missing(resource_level)) {
         assert_that(is.numeric(resource_level))
-        if (length(resource_level) != 1 || length(resource_level) != no_w_full) {
+        if (length(resource_level) != 1 && length(resource_level) != no_w_full) {
             stop("The 'resource_level' should have length 1 or length ",
                  no_w_full, ".")
         }
@@ -123,6 +113,8 @@ setResourceSemichemostat <- function(params, resource_rate, resource_capacity,
     
     params@rr_pp <- rate
     params@cc_pp <- capacity
+    
+    params@resource_dynamics <- "resource_semichemostat"
     params@time_modified <- lubridate::now()
     return(params)
 }
@@ -139,6 +131,7 @@ setResourceSemichemostat <- function(params, resource_rate, resource_capacity,
 #' @return A vector of the same length as `w_full(params)` with the resource
 #'   level in each size class.
 #' @export
+#' @concept resource dynamics
 #' @examples
 #' getResourceLevel(NS_params)
 #'

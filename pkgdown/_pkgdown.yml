@@ -103,6 +103,7 @@ reference:
   - initialNResource
   - initial_effort
   - setBevertonHolt
+  - setResourceSemichemostat
 - title: Steady state tuning
   contents:
   - steady
