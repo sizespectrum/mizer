@@ -156,8 +156,18 @@ newMultispeciesParams <- function(
     if (is.null(interaction)) {
         interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
     }
-    params <-
-        setParams(params,
+    params <- params %>%
+        setResource(
+            # setResource
+            resource_rate = resource_rate,
+            resource_capacity = resource_capacity,
+            r_pp = r_pp,
+            kappa = kappa,
+            lambda = lambda,
+            n = n,
+            w_pp_cutoff = w_pp_cutoff,
+            resource_dynamics = resource_dynamics) %>%
+        setParams(
                   # setInteraction
                   interaction = interaction,
                   # setPredKernel()
@@ -176,15 +186,6 @@ newMultispeciesParams <- function(
                   maturity = maturity,
                   repro_prop = repro_prop,
                   RDD = RDD,
-                  # setResource
-                  resource_rate = resource_rate,
-                  resource_capacity = resource_capacity,
-                  r_pp = r_pp,
-                  kappa = kappa,
-                  lambda = lambda,
-                  n = n,
-                  w_pp_cutoff = w_pp_cutoff,
-                  resource_dynamics = resource_dynamics,
                   # setFishing
                   gear_params = gear_params,
                   selectivity = selectivity,
@@ -227,7 +228,6 @@ newMultispeciesParams <- function(
 #' @inheritDotParams setExtMort -reset
 #' @inheritDotParams setReproduction -reset
 #' @inheritDotParams setFishing -reset
-#' @inheritDotParams setResource -reset
 #' 
 #' @return A \linkS4class{MizerParams} object
 #' 
@@ -298,14 +298,12 @@ newMultispeciesParams <- function(
 #' @inheritSection setExtMort Setting external mortality rate
 #' @inheritSection setReproduction Setting reproduction
 #' @inheritSection setFishing Setting fishing
-#' @inheritSection setResource Setting resource dynamics
 #' @export
 #' @family functions for setting parameters
 # The reason we list `interaction` explicitly rather than including it in
-# the `...` is for backwards compatibitlity. It used to be the second argument.
+# the `...` is for backwards compatibility. It used to be the second argument.
 setParams <- function(params, interaction = NULL, ...) {
     params <- suppressWarnings(validParams(params))
-    params <- setResource(params, ...)
     params <- setInteraction(params, interaction)
     params <- setPredKernel(params, ...)
     params <- setMaxIntakeRate(params, ...)
