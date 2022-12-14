@@ -1,8 +1,12 @@
 #' Set up resource
 #' 
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#' 
 #' Sets the intrinsic resource growth rate and the intrinsic resource carrying
 #' capacity as well as the name of the function used to simulate the resource
-#' dynamics
+#' dynamics. This is deprecated in favour of [setResourceSemichemostat()] which
+#' preserves the steady state.
 #' 
 #' @section Setting resource dynamics:
 #' By default, mizer uses a semichemostat model to describe the resource
@@ -53,7 +57,7 @@
 #' @return `setResource`: A MizerParams object with updated resource parameters
 #' @export
 #' @seealso [resource_params()]
-#' @family functions for setting parameters
+#' @keywords internal
 setResource <- function(params,
                         resource_rate = NULL,
                         resource_capacity = NULL,
@@ -154,125 +158,46 @@ setResource <- function(params,
     return(params)
 }
 
-#' @rdname setResource
+#' Deprecated way of directly setting resource rate
+#' 
+#' #' @description
+#' `r lifecycle::badge("deprecated")`
+#' 
+#' This is deprecated because it does not preserve the steady state. Use
+#' [setResourceSemichemostat()] instead.
+#' 
 #' @export
-getResourceRate <- function(params) {
-    params@rr_pp
-}
-
-#' @rdname setResource
-#' @export
+#' @keywords internal
 resource_rate <- function(params) {
     params@rr_pp
 }
 
-#' @rdname setResource
+#' @rdname resource_rate
 #' @param value .
 #' @export
+#' @keywords internal
 `resource_rate<-` <- function(params, value) {
     setResource(params, resource_rate = value)
 }
 
-#' @rdname setResource
+#' Deprecated way of directly setting resource capacity
+#' 
+#' #' @description
+#' `r lifecycle::badge("deprecated")`
+#' 
+#' This is deprecated because it does not preserve the steady state. Use
+#' [setResourceSemichemostat()] instead.
+#' 
 #' @export
-getResourceCapacity <- function(params) {
-    params@cc_pp
-}
-
-#' @rdname setResource
-#' @export
+#' @keywords internal
 resource_capacity <- function(params) {
     params@cc_pp
 }
 
-#' @rdname setResource
+#' @rdname resource_capacity
 #' @param value .
 #' @export
+#' @keywords internal
 `resource_capacity<-` <- function(params, value) {
     setResource(params, resource_capacity = value)
-}
-
-#' @rdname setResource
-#' @export
-getResourceDynamics <- function(params) {
-    params@resource_dynamics
-}
-
-#' @rdname setResource
-#' @export
-resource_dynamics <- function(params) {
-    params@resource_dynamics
-}
-
-#' @rdname setResource
-#' @param value .
-#' @export
-`resource_dynamics<-` <- function(params, value) {
-    setResource(params, resource_dynamics = value)
-}
-
-#' Resource parameters
-#' 
-#' These functions allow you to get or set the resource parameters stored in a
-#' MizerParams object. The resource parameters are stored as a named list with
-#' the slot names `r_pp`, `kappa`, `lambda`, `n`, `w_pp_cutoff`. For their
-#' meaning see Details below. If you change these parameters then this will
-#' recalculate the resource rate and the resource capacity, unless you have set
-#' custom values for these. If you have specified a different resource dynamics
-#' function that requires additional parameters, then these should also be added
-#' to the `resource_params` list.
-#' 
-#' The resource parameters `r_pp` and `n` are used to set the intrinsic
-#' replenishment rate \eqn{r_R(w)} for the resource at size \eqn{w} to 
-#' \deqn{r_R(w) = r_{pp}\, w^{n-1}.}{r_R(w) = r_pp w^{n-1}}
-#' 
-#' The resource parameters `kappa`, `lambda` and `w_pp_cutoff` are used to set
-#' the intrinsic resource carrying capacity capacity \eqn{c_R(w)} at size \eqn{w}
-#' is set to
-#' \deqn{c_R(w) = \kappa\, w^{-\lambda}}{c_R(w) = \kappa w^{-\lambda}}
-#' for all \eqn{w} less than `w_pp_cutoff` and zero for larger sizes.
-#' 
-#' If you use the default semichemostat dynamics for the resource then these
-#' rates enter the equation for the resource abundance density as
-#' \deqn{\frac{\partial N_R(w,t)}{\partial t} = r_R(w) \Big[ c_R (w) - N_R(w,t) \Big] - \mu_R(w, t) N_R(w,t)}{dN_R(w,t)/d t  = r_R(w) ( c_R (w) - N_R(w,t) ) - \mu_R(w,t ) N_R(w,t)}
-#' where the mortality \eqn{\mu_R(w, t)} is
-#' due to predation by consumers and is calculate with [getResourceMort()].
-#' 
-#' You can however set up different resource dynamics with
-#' [resource_dynamics<-()].
-#' 
-#' @param params A MizerParams object
-#' @export
-#' @family functions for setting parameters
-#' @examples 
-#' resource_params(NS_params)
-resource_params <- function(params) {
-    params@resource_params
-}
-
-#' @rdname resource_params
-#' @param value A named list of resource parameters.
-#' @export
-#' @examples
-#' # Doubling the replenishment rate
-#' params <- NS_params
-#' resource_params(params)$r_pp <- 2 * resource_params(params)$r_pp
-`resource_params<-` <- function(params, value) {
-    assert_that(
-        is(params, "MizerParams"),
-        setequal(names(value), names(params@resource_params)),
-        is.number(value$lambda),
-        value$lambda >= 0,
-        is.number(value$kappa),
-        value$kappa >= 0,
-        is.number(value$r_pp),
-        value$r_pp >= 0,
-        is.number(value$n),
-        value$n >= 0,
-        is.number(value$w_pp_cutoff),
-        value$w_pp_cutoff > min(params@w_full),
-        value$w_pp_cutoff < max(params@w_full)
-    )
-    params@resource_params <- value
-    setResource(params)
 }

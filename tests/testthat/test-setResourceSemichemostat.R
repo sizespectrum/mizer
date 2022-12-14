@@ -31,6 +31,10 @@ test_that("setResourceSemichemostat works", {
     p1 <- setResourceSemichemostat(params, resource_capacity = 3e11)
     expect_equal(getResourceCapacity(p1)[1],
                      3e11 * params@w_full[1] ^ (-p1@resource_params$lambda))
+    # make sure cutoff is implemented
+    sel <- params@w_full > params@resource_params$w_pp_cutoff
+    expect_equal(unname(getResourceCapacity(p1)[sel]),
+                 rep(0, sum(sel)))
     
     # setting level
     level <- getResourceLevel(params) / 5

@@ -60,3 +60,14 @@ test_that("resource_constant works", {
     # result should not be above carrying capacity
     expect_equal(x, params@initial_n_pp)
 })
+
+test_that("We can set and get resource parameters", {
+    params <- NS_params
+    # get
+    rp <- resource_params(params)
+    expect_identical(rp, params@resource_params)
+    # set
+    resource_params(params)$test <- "hi"
+    expect_identical(params@resource_params$test, "hi")
+})
+    

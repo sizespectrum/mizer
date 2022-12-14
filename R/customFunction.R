@@ -9,7 +9,7 @@
 #' @details
 #' If the function you need to overwrite is one of the mizer rate functions,
 #' then you should use `setRateFunction()` instead of this function. Similarly
-#' you should use `setResource()` to change the resource dynamics and
+#' you should use `resource_dynamics()<-` to change the resource dynamics and
 #' `setReproduction()` to change the density-dependence in reproduction.
 #' You should also investigate whether you can achieve your goal by introducing
 #' additional ecosystem components with `setComponent()`.

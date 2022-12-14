@@ -1,36 +1,58 @@
 #' Set the parameters for the resource dynamics without changing the steady state
 #'
+#' @description
 #' `r lifecycle::badge("experimental")`
-#' Takes a MizerParams object `params` with arbitrary density dependence in the
-#' resource dynamics and returns a MizerParams object with the resource
-#' parameters chosen in such a way that the Hence if you have tuned your
-#' `params` object to describe a particular steady state, then setting the
-#' resource parameters with this function will leave you with the exact same
-#' steady state.
-#'
-#' If you do not provide a value for any of the resource arguments, then the
-#' resource rate will be kept at its current value. If you do provide one of the
-#' resource arguments, this can be either a vector with the same length as
-#' `w_full(params)`, giving a value for every size class, or it can be a single
-#' value that is taken as the value at 1g with the values at other sizes
-#' calculated according to a power-law.
-#'
-#' The values for `resource_capacity` must be larger than the current resource
-#' number density. If a smaller value is requested a warning is issued and the
-#' value is increased to twice the current resource number density.
 #' 
-#' The values for the `resource_level` must be positive and less than 1. 
-#' Otherwise an error is raised.
+#' Sets the resource capacity and the resource rate in such a way that at the
+#' current abundances the resource replenishes as quickly as it is consumed.
+#' Hence if you have tuned your `params` object to describe a particular steady
+#' state, then setting the resource parameters with this function will leave you
+#' with the exact same steady state.
 #' 
-#' The values for `resource_rate` must be large enough to allow the required
-#' resource production rate. If a smaller value is requested a warning is issued
-#' and the value is increased to the smallest possible value.
+#' @details
+#' This function sets the resource dynamics to use `resource_semichemostat()`.
+#' This means that the resource rate \eqn{r_R} and the resource capacity 
+#' \eqn{c_R} enter the equation for the resource abundance density \eqn{N_R} as
+#' \deqn{\frac{\partial N_R(w,t)}{\partial t} = r_R(w) \Big[ c_R (w) - N_R(w,t) \Big] - \mu_R(w, t) N_R(w,t)}{dN_R(w,t)/d t  = r_R(w) ( c_R (w) - N_R(w,t) ) - \mu_R(w,t ) N_R(w,t)}
+#' where the mortality \eqn{\mu_R(w, t)} is
+#' due to predation by consumers and is calculate with [getResourceMort()].
+#' 
+#' Because of the requirement that the resource is replenished at the same rate
+#' at which it is consumed, there is only one free parameter left to be chosen.
+#' Therefore you should provide at most one of the three resource arguments
+#' `resource_rate`, `resource_capcacity` or `resource_level`. 
+#' 
+#' The argument be either a vector with the same length as `w_full(params)`,
+#' giving a value for every size class, or it can be a single value that is
+#' taken as the value at 1g. This is then completed to a vector of values for
+#' all sizes as follows:
+#' 
+#' * The `resource_rate` argument is completed to a power law with exponent 
+#'   `n-1` where `n` is taken from the [resource_params()] list.
+#' * The `resource_capacity` argument is completed to a power low with exponent
+#'   `-lambda`, with `lamba` taken from the [resource_params()] list. The 
+#'   resulting values must be larger than the current resource number density, 
+#'   otherwise an error is raised.
+#' * The `resource_level` argument is completed to the same value at all sizes. 
+#'   It must be a number strictly between 0 and 1.
+#' 
+#' You can change the exponents `n` and `lambda` using [resource_params()].
+#' 
+#' You can however set up different resource dynamics with
+#' [resource_dynamics<-()].
 #'
 #' @inheritParams setResource
-#' @param resource_level Sets `resource_capacity` to the current resource
-#'   number density divided by `resource_level`.
+#' @param resource_rate Optional. Vector of resource intrinsic birth rates.
+#'   Must be strictly positive.
+#' @param resource_capacity Optional. Vector of resource intrinsic carrying
+#'   capacities.
+#' @param resource_level Optional. Vector with the ratio between the current
+#'   resource number density and the resource capacity. Must be strictly
+#'   between 0 and 1, except at sizes where the resource is zero, where it can 
+#'   be `NaN`.
 #'
-#' @return A MizerParams object with updated resource parameters.
+#' @return A MizerParams object with updated resource rate and resource
+#'   capacity.
 #' @concept resource dynamics
 #' @export
 setResourceSemichemostat <- function(params, resource_rate, resource_capacity,
@@ -142,4 +164,3 @@ getResourceLevel <- function(params) {
     assert_that(is(params, "MizerParams"))
     initialNResource(params) / getResourceCapacity(params)
 }
-

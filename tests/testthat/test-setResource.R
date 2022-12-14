@@ -1,8 +1,7 @@
 local_edition(3)
 test_that("We can set and get resource parameters", {
   params <- NS_params
-  rp <- resource_params(params)
-  expect_identical(rp, params@resource_params)
+  rp <- params@resource_params
   # Check that when called without parameters it leaves the params untouched
   # using expect_equal instead of expect_identical because the latter failed
   # on win_builder
@@ -58,9 +57,6 @@ test_that("We can set and get resource parameters", {
   cc_pp <- kappa*params@w_full^(-lambda)
   expect_equal(cc_pp[params@w_full <= w_pp_cutoff],
                unname(resource_capacity[params@w_full <= w_pp_cutoff]))
-  # resource_params<- sets rates correctly
-  resource_params(NS_params) <- resource_params(params)
-  expect_unchanged(NS_params, params)
 })
 
 test_that("Comment works on resource_rate", {

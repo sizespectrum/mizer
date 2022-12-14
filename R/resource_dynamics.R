@@ -1,3 +1,35 @@
+
+#' Set resource dynamics function
+#' 
+#' @param A MizerParams object
+#' @export
+#' @family resource dynamics
+resource_dynamics <- function(params) {
+    params@resource_dynamics
+}
+
+#' @rdname resource_dynamics
+#' @param value A string with the name of the resource dynamics function.
+#' @export
+`resource_dynamics<-` <- function(params, value) {
+    assert_that(is(params, "MizerParams"),
+                is.character(value))
+    if (!is.function(get0(value))) {
+        stop('The resource dynamics function "', value, '" is not defined.')
+    }
+    params@resource_dynamics <- value
+    
+    params@time_modified <- lubridate::now()
+    return(params)
+    setResource(params, resource_dynamics = value)
+}
+
+#' @rdname resource_dynamics
+#' @export
+getResourceDynamics <- function(params) {
+    params@resource_dynamics
+}
+
 #' Project resource using semichemostat model
 #' 
 #' This function calculates the resource abundance at time `t + dt` from all
@@ -9,14 +41,14 @@
 #' 
 #' Here \eqn{r_R(w)} is the resource regeneration rate and \eqn{c_R(w)} is the
 #' carrying capacity in the absence of predation. These parameters are changed
-#' with [setResource()]. The mortality \eqn{\mu_R(w, t)} is
+#' with [setResourceSemichemostat()]. The mortality \eqn{\mu_R(w, t)} is
 #' due to predation by consumers and is calculate with [getResourceMort()].
 #' 
 #' This function uses the analytic solution of the above equation, keeping the
 #' mortality fixed during the timestep.
 #' 
 #' It is also possible to implement other resource dynamics, as
-#' described in the help page for [setResource()].
+#' described in the help page for [resource_dynamics()<-].
 #' 
 #' @param params A [MizerParams] object
 #' @param n A matrix of species abundances (species x size)
@@ -59,6 +91,18 @@ resource_semichemostat <- function(params, n, n_pp, n_other, rates, t, dt,
     n_pp_new
 }
 
+#' @rdname resource_semichemostat
+#' @export
+getResourceRate <- function(params) {
+    params@rr_pp
+}
+
+#' @rdname resource_semichemostat
+#' @export
+getResourceCapacity <- function(params) {
+    params@cc_pp
+}
+
 
 #' Keep resource abundance constant
 #' 
@@ -79,4 +123,58 @@ resource_semichemostat <- function(params, n, n_pp, n_other, rates, t, dt,
 #' }
 resource_constant <- function(params, n_pp, ...) {
     return(n_pp)
+}
+
+
+#' Resource parameters
+#' 
+#' These functions allow you to get or set the list of resource parameters
+#' stored in a MizerParams object. This list will at least contain the slot
+#' names `kappa`, `lambda`, `n`, `w_pp_cutoff`. For their meaning see Details
+#' below. If you have specified a different resource dynamics function that
+#' requires additional parameters, then these should also be added to the
+#' `resource_params` list.
+#' 
+#' The resource parameters `kappa` (\eqn{\kappa}), `lambda` (\eqn{\lambda}) and
+#' `w_pp_cutoff` are used to set the default initial resource number density
+#' \eqn{N_R(w)} at size \eqn{w} to
+#' \deqn{N_R(w) = \kappa\, w^{-\lambda}}{c_R(w) = \kappa w^{-\lambda}}
+#' for all \eqn{w} less than `w_pp_cutoff` and zero for larger sizes. Of course
+#' you can overrule this with [initialNResource()]. The exponent 
+#' \eqn{-\lambda} is also used in [setResourceSemichemostat()] for the power-law
+#' carrying capacity.
+#' 
+#' The resource parameter `n` is used in [setResourceSemichemostat()] for the 
+#' exponent for the power-law replenishment rate \eqn{r_R(w)}:
+#' \deqn{r_R(w) = r_R\, w^{n-1}.}{r_R(w) = r_R w^{n-1}.}
+#' 
+#' @param params A MizerParams object
+#' @export
+#' @family resource dynamics
+#' @examples 
+#' resource_params(NS_params)
+resource_params <- function(params) {
+    params@resource_params
+}
+
+#' @rdname resource_params
+#' @param value A named list of resource parameters.
+#' @export
+`resource_params<-` <- function(params, value) {
+    assert_that(
+        is(params, "MizerParams"),
+        is.number(value$lambda),
+        value$lambda >= 0,
+        is.number(value$kappa),
+        value$kappa >= 0,
+        is.number(value$r_pp),
+        value$r_pp >= 0,
+        is.number(value$n),
+        value$n >= 0,
+        is.number(value$w_pp_cutoff),
+        value$w_pp_cutoff > min(params@w_full),
+        value$w_pp_cutoff < max(params@w_full)
+    )
+    params@resource_params <- value
+    params
 }

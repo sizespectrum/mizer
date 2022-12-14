@@ -317,14 +317,13 @@ validMizerParams <- function(object) {
 #'   then the `pred_kernel` will be used to calculate the integral.
 #'   Changed with [setPredKernel()].
 #' @slot rr_pp A vector the same length as the w_full slot. The size specific
-#'   growth rate of the resource spectrum. Changed with [setResource()].
+#'   growth rate of the resource spectrum. Changed with [setResourceSemichemostat()].
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
 #'   carrying capacity of the resource spectrum. Changed with 
-#'   [setResource()].
-#' @slot resource_dynamics Name of the function for projecting the resource abundance
-#'   density by one timestep. The default is 
-#'   [resource_semichemostat()]. 
-#'   Changed with [setResource()].
+#'   [setResourceSemichemostat()].
+#' @slot resource_dynamics Name of the function for projecting the resource
+#'   abundance density by one timestep. The default is
+#'   [resource_semichemostat()].
 #' @slot other_dynamics A named list of functions for projecting the
 #'   values of other dynamical components of the ecosystem that may be modelled
 #'   by a mizer extensions you have installed. The names of the list entries

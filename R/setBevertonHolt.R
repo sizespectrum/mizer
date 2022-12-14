@@ -1,7 +1,8 @@
-#' Set Beverton-Holt density dependence
+#' Set Beverton-Holt reproduction without changing the steady state
 #'
 #' `r lifecycle::badge("experimental")`
-#' Takes a MizerParams object `params` with arbitrary density dependence and
+#' Takes a MizerParams object `params` with arbitrary density dependence in
+#' reproduction and
 #' returns a MizerParams object with Beverton-Holt density-dependence in such a
 #' way that the energy invested into reproduction by the mature individuals
 #' leads to the reproduction rate that is required to maintain the given egg
