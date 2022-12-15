@@ -238,7 +238,7 @@ run it in different scenarios, and explore the results. We
 recommend that you explore these in the following order:
 
 ### Single-species model
-The [single-species model](https://sizespectrum.org/mizer/dev/articles/single_species_size-spectrum_dynamics.html is a good starting point because it allows one to understand the
+The [single-species model](https://sizespectrum.org/mizer/dev/articles/single_species_size-spectrum_dynamics.html) is a good starting point because it allows one to understand the
 main features of size-spectrum modelling without the complexities of multi-species
 interactions. The model describes a single species in a fixed background community.
 It allows exploration of how the shape of the species size spectrum is determined by

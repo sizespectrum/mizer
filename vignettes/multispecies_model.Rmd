@@ -13,7 +13,7 @@ library(mizer)
 
 
 The previous sections have used wrapper functions to set up MizerParams
-objects that are appropriate for community and trait-based simulations. We now
+objects that are appropriate for single-species, community- and trait-based models. We now
 turn our attention to multispecies, or species-specific, models. These are
 potentially more complicated than the community and trait-based models and use
 the full power of the `mizer` package.

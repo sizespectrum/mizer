@@ -10,6 +10,7 @@
 #' 
 #' This functions creates a \code{\linkS4class{MizerParams}} object describing a
 #' community-type model. 
+#' The function has many arguments, all of which have default values.
 #' 
 #' A community model has several features that distinguish it from a multi-species
 #' model:
@@ -22,8 +23,6 @@
 #' * Standard metabolism is turned off (the parameter `ks` is set to 0).
 #'   Consequently, the growth rate is now determined solely by the assimilated
 #'   food 
-#' 
-#' The function has many arguments, all of which have default values.
 #' 
 #' Fishing selectivity is modelled as a knife-edge function with one parameter, 
 #' `knife_edge_size`, which determines the size at which species are 
@@ -65,12 +64,16 @@
 #'   Royal Society, 276, 109-114
 #' @family functions for setting up models
 #' @examples
-#' \dontrun{
-#' params <- newCommunityParams(f0 = 0.7, z0 = 0.2)
+#' params <- newCommunityParams()
 #' sim <- project(params, t_max = 10)
 #' plotBiomass(sim)
-#' plotSpectra(sim)
-#' }
+#' plotSpectra(sim, power = 2)
+#' 
+#' # More satiation. More mortality
+#' params <- newCommunityParams(f0 = 0.8, z0 = 0.4)
+#' sim <- project(params, t_max = 10)
+#' plotBiomass(sim)
+#' plotSpectra(sim, power = 2)
 newCommunityParams <- function(max_w = 1e6,
                                min_w = 1e-3,
                                no_w = 100,
@@ -115,7 +118,8 @@ newCommunityParams <- function(max_w = 1e6,
         newMultispeciesParams(species_params, no_w = no_w, min_w_pp = min_w_pp,
                               p = p, n = n, lambda = lambda, 
                               kappa = kappa, min_w = min_w,
-                              w_pp_cutoff = w_pp_cutoff, r_pp = r_pp)
+                              w_pp_cutoff = w_pp_cutoff, r_pp = r_pp,
+                              info_level = 0)
     
     initial_n <- array(kappa * params@w ^ (-lambda), 
                        dim = c(1, length(params@w)))

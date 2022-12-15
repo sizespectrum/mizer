@@ -322,12 +322,10 @@ addSpecies <- function(params, species_params,
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
 #' @examples
-#' \dontrun{
 #' params <- NS_params
 #' species_params(params)$species
 #' params <- removeSpecies(params, c("Cod", "Haddock"))
 #' species_params(params)$species
-#' }
 removeSpecies <- function(params, species) {
     params <- validParams(params)
     species <- valid_species_arg(params, species,

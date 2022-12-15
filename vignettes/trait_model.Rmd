@@ -34,7 +34,7 @@ To help set up a trait-based model, there is a wrapper function,
 `newTraitParams()`. Like the `newCommunityParams()` function described in the
 section on the [community model](community_model.html), this function can take
 many arguments. Most of them have default values so you don't need to worry
-about them for the moment. See the help page for `newCommunityParams()` for more
+about them for the moment. See the help page for `newTraitParams()` for more
 details.
 
 One of the key differences between the community type model and
@@ -45,7 +45,7 @@ model, the egg production is dependent on mature individuals investing part
 of their energy income into reproduction. The relationship between the energy
 invested into reproduction and the actual rate of egg production is modelled 
 using a *Beverton-Holt* type function (the
-default in `mizer`, see [the section on density-dependence in reproduction](model_description.html#recruitment)) where the reproduction rate $R_i$ (numbers per time) approaches a maximum as the energy invested increases.
+default in `mizer`, see [the section on density-dependence in reproduction](model_description.html#density-dependence-in-reproduction)) where the reproduction rate $R_i$ (numbers per time) approaches a maximum as the energy invested increases.
 
 Here we set up the model to have 10 species, with maximum sizes ranging from 
 10 g to 100 kg. All the other parameters have default values. 
@@ -53,9 +53,6 @@ Here we set up the model to have 10 species, with maximum sizes ranging from
 ```{r label=demo_trait_model_params}
 params <- newTraitParams(no_sp = 10, min_w_max = 10, max_w_max = 1e5)
 ```
-
-The output reminds the user that $\gamma$ was not specified, and so will be
-calculated using other parameters.
 
 This function returns an object of type `MizerParams` that holds all the model
 information, including species parameters. This object can therefore be
@@ -68,8 +65,8 @@ summary(params)
 
 
 The summary shows us that now we have 10 species in the model, with maximum
-sizes ranging from $`r min(species_params(params)$w_max)`$ to $`r
-max(species_params(params)$w_max)`$. The rather strange-looking values for the
+sizes ranging from $`r min(species_params(params)$w_max)`$ to 
+$`r max(species_params(params)$w_max)`$. The rather strange-looking values for the
 sizes is due to the fact that the size classes are equally spaced on a
 logarithmic scale.
 
