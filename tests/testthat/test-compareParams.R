@@ -26,17 +26,11 @@ test_that("compareParams", {
                   compareParams(params, params2))
 
   # Change size bins
-  params2@w[[1]] <- 1
-  expect_true("The community size bins differ." %in%
-                  compareParams(params, params2))
   params2@w_full[[1]] <- 1
   expect_true("The resource size bins differ." %in%
                   compareParams(params, params2))
-  # Add size bins
-  params2@w <- c(1, params2@w)
-  expect_true("The number of community size bins is different." %in%
-                  compareParams(params, params2))
-  params2@w_full <- c(1, params2@w_full)
-  expect_true("The number of resource size bins is different." %in%
+  params2@w[[length(params2@w)]] <- 1
+  params2@w_full[[length(params2@w_full)]] <- 1
+  expect_true("The community size bins differ." %in%
                   compareParams(params, params2))
 })
