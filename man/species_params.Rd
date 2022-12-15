@@ -140,7 +140,6 @@ MizerParams object, in case your own code makes use of them.
 
 Other functions for setting parameters: 
 \code{\link{gear_params}()},
-\code{\link{resource_params}()},
 \code{\link{setExtMort}()},
 \code{\link{setFishing}()},
 \code{\link{setInitialValues}()},
@@ -150,7 +149,6 @@ Other functions for setting parameters:
 \code{\link{setParams}()},
 \code{\link{setPredKernel}()},
 \code{\link{setReproduction}()},
-\code{\link{setResource}()},
 \code{\link{setSearchVolume}()}
 }
 \concept{functions for setting parameters}

@@ -94,16 +94,13 @@ then the \code{pred_kernel} will be used to calculate the integral.
 Changed with \code{\link[=setPredKernel]{setPredKernel()}}.}
 
 \item{\code{rr_pp}}{A vector the same length as the w_full slot. The size specific
-growth rate of the resource spectrum. Changed with \code{\link[=setResource]{setResource()}}.}
+growth rate of the resource spectrum.}
 
 \item{\code{cc_pp}}{A vector the same length as the w_full slot. The size specific
-carrying capacity of the resource spectrum. Changed with
-\code{\link[=setResource]{setResource()}}.}
+carrying capacity of the resource spectrum.}
 
-\item{\code{resource_dynamics}}{Name of the function for projecting the resource abundance
-density by one timestep. The default is
-\code{\link[=resource_semichemostat]{resource_semichemostat()}}.
-Changed with \code{\link[=setResource]{setResource()}}.}
+\item{\code{resource_dynamics}}{Name of the function for projecting the resource
+abundance density by one timestep.}
 
 \item{\code{other_dynamics}}{A named list of functions for projecting the
 values of other dynamical components of the ecosystem that may be modelled

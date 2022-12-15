@@ -23,12 +23,13 @@ spectrum constant over time.
 }
 \examples{
 \dontrun{
-params <- newMultispeciesParams(NS_species_params_gears, NS_interaction,
-                                resource_dynamics = "resource_constant")
+params <- NS_params
+resource_dynamics(params) <- "resource_constant"
 }
 }
 \seealso{
 Other resource dynamics: 
+\code{\link{resource_logistic}()},
 \code{\link{resource_semichemostat}()}
 }
 \concept{resource dynamics}

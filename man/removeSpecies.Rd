@@ -24,10 +24,8 @@ refer to the selected species. It does not recalculate the steady state for
 the remaining species or retune their reproductive efficiency.
 }
 \examples{
-\dontrun{
 params <- NS_params
 species_params(params)$species
 params <- removeSpecies(params, c("Cod", "Haddock"))
 species_params(params)$species
-}
 }

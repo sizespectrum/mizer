@@ -2,7 +2,7 @@
 % Please edit documentation in R/setBevertonHolt.R
 \name{setBevertonHolt}
 \alias{setBevertonHolt}
-\title{Set Beverton-Holt density dependence}
+\title{Set Beverton-Holt reproduction without changing the steady state}
 \usage{
 setBevertonHolt(
   params,
@@ -30,7 +30,8 @@ A MizerParams object
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-Takes a MizerParams object \code{params} with arbitrary density dependence and
+Takes a MizerParams object \code{params} with arbitrary density dependence in
+reproduction and
 returns a MizerParams object with Beverton-Holt density-dependence in such a
 way that the energy invested into reproduction by the mature individuals
 leads to the reproduction rate that is required to maintain the given egg

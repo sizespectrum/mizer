@@ -15,12 +15,8 @@ compareParams(params1, params2)
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 }
 \examples{
-\dontrun{
-sp1 <- NS_species_params
-params1 <- newMultispeciesParams(sp1)
-sp2 <- sp1
-sp2$w_mat[1] <- 10
-params2 <- newMultispeciesParams(sp2)
+params1 <- NS_params
+params2 <- params1
+species_params(params2)$w_mat[1] <- 10
 compareParams(params1, params2)
-}
 }

@@ -24,6 +24,10 @@ Takes the density-independent rates \eqn{R_{di}}{R_di} of egg production and ret
 reduced, density-dependent rates \eqn{R_{dd}}{R_dd} given as
 \deqn{R_{dd} = \frac{R_{di}}{1+(b\ R_{di})^c}}{R_dd = R_di / (1 + (b R_di)^c)}
 }
+\details{
+With \eqn{b = 1/R_{max}} and \eqn{c = 1} this reduces to the Beverton-Holt
+reproduction rate, see \code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}.
+}
 \seealso{
 Other functions calculating density-dependent reproduction rate: 
 \code{\link{BevertonHoltRDD}()},

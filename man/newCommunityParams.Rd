@@ -75,6 +75,7 @@ An object of type \code{\linkS4class{MizerParams}}
 \description{
 This functions creates a \code{\linkS4class{MizerParams}} object describing a
 community-type model.
+The function has many arguments, all of which have default values.
 }
 \details{
 A community model has several features that distinguish it from a multi-species
@@ -90,8 +91,6 @@ Consequently, the growth rate is now determined solely by the assimilated
 food
 }
 
-The function has many arguments, all of which have default values.
-
 Fishing selectivity is modelled as a knife-edge function with one parameter,
 \code{knife_edge_size}, which determines the size at which species are
 selected.
@@ -104,12 +103,16 @@ check for these numerical instabilities by plotting the biomass or abundance
 through time after the projection.
 }
 \examples{
-\dontrun{
-params <- newCommunityParams(f0 = 0.7, z0 = 0.2)
+params <- newCommunityParams()
 sim <- project(params, t_max = 10)
 plotBiomass(sim)
-plotSpectra(sim)
-}
+plotSpectra(sim, power = 2)
+
+# More satiation. More mortality
+params <- newCommunityParams(f0 = 0.8, z0 = 0.4)
+sim <- project(params, t_max = 10)
+plotBiomass(sim)
+plotSpectra(sim, power = 2)
 }
 \references{
 K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and

@@ -14,7 +14,7 @@ species x prey species). By default all entries are 1. See "Setting
 interaction matrix" section below.}
 
 \item{...}{
-  Arguments passed on to \code{\link[=setPredKernel]{setPredKernel}}, \code{\link[=setSearchVolume]{setSearchVolume}}, \code{\link[=setMaxIntakeRate]{setMaxIntakeRate}}, \code{\link[=setMetabolicRate]{setMetabolicRate}}, \code{\link[=setExtMort]{setExtMort}}, \code{\link[=setReproduction]{setReproduction}}, \code{\link[=setFishing]{setFishing}}, \code{\link[=setResource]{setResource}}
+  Arguments passed on to \code{\link[=setPredKernel]{setPredKernel}}, \code{\link[=setSearchVolume]{setSearchVolume}}, \code{\link[=setMaxIntakeRate]{setMaxIntakeRate}}, \code{\link[=setMetabolicRate]{setMetabolicRate}}, \code{\link[=setExtMort]{setExtMort}}, \code{\link[=setReproduction]{setReproduction}}, \code{\link[=setFishing]{setFishing}}
   \describe{
     \item{\code{pred_kernel}}{Optional. An array (species x predator size x prey size)
 that holds the predation coefficient of each predator at size on each prey
@@ -60,20 +60,6 @@ each species by each gear, \eqn{Q_{g,i}}.}
     \item{\code{initial_effort}}{Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.}
-    \item{\code{resource_rate}}{Optional. Vector of resource intrinsic birth rates}
-    \item{\code{resource_capacity}}{Optional. Vector of resource intrinsic carrying
-capacity}
-    \item{\code{r_pp}}{Coefficient of the intrinsic resource birth rate}
-    \item{\code{n}}{Allometric growth exponent for resource}
-    \item{\code{kappa}}{Coefficient of the intrinsic resource carrying capacity}
-    \item{\code{lambda}}{Scaling exponent of the intrinsic resource carrying capacity}
-    \item{\code{w_pp_cutoff}}{The upper cut off size of the resource spectrum.  The
-carrying capacity will be set to 0 above this size.
-Default is 10 g.}
-    \item{\code{resource_dynamics}}{Optional. Name of the function that determines the
-resource dynamics by calculating the resource spectrum at the next time
-step from the current state. You only need to specify this if you do not
-want to use the default \code{\link[=resource_semichemostat]{resource_semichemostat()}}.}
   }}
 }
 \value{
@@ -507,35 +493,9 @@ the simulation is run with \code{project()}, where it is also possible to specif
 an effort that varies through time.
 }
 
-\section{Setting resource dynamics}{
-
-By default, mizer uses a semichemostat model to describe the resource
-dynamics in each size class independently. This semichemostat dynamics is implemented
-by the function \code{\link[=resource_semichemostat]{resource_semichemostat()}}. You can change the
-resource dynamics by writing your own function, modelled on
-\code{\link[=resource_semichemostat]{resource_semichemostat()}}, and then passing the name of your
-function in the \code{resource_dynamics} argument.
-
-The \code{resource_rate} argument is a vector specifying the intrinsic resource
-growth rate for each size class. If it is not supplied, then the intrinsic growth
-rate \eqn{r(w)} at size \eqn{w}
-is set to \deqn{r(w) = r_{pp}\, w^{n-1}.}{r(w) = r_pp w^{n-1}}
-The values of \eqn{r_{pp}} and \eqn{n} are taken from the \code{r_pp}
-and \code{n} arguments.
-
-The \code{resource_capacity} argument is a vector specifying the intrinsic resource
-carrying capacity for each size class. If it is not supplied, then the
-intrinsic carrying capacity \eqn{c(w)} at size \eqn{w}
-is set to \deqn{c(w) = \kappa\, w^{-\lambda}}{c(w) = \kappa w^{-\lambda}}
-for all \eqn{w} less than \code{w_pp_cutoff} and zero for larger sizes.
-The values of \eqn{\kappa} and \eqn{\lambda} are taken from the \code{kappa}
-and \code{lambda} arguments.
-}
-
 \seealso{
 Other functions for setting parameters: 
 \code{\link{gear_params}()},
-\code{\link{resource_params}()},
 \code{\link{setExtMort}()},
 \code{\link{setFishing}()},
 \code{\link{setInitialValues}()},
@@ -544,7 +504,6 @@ Other functions for setting parameters:
 \code{\link{setMetabolicRate}()},
 \code{\link{setPredKernel}()},
 \code{\link{setReproduction}()},
-\code{\link{setResource}()},
 \code{\link{setSearchVolume}()},
 \code{\link{species_params}()}
 }

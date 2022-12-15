@@ -2,15 +2,6 @@
 % Please edit documentation in R/setResource.R
 \name{setResource}
 \alias{setResource}
-\alias{getResourceRate}
-\alias{resource_rate}
-\alias{resource_rate<-}
-\alias{getResourceCapacity}
-\alias{resource_capacity}
-\alias{resource_capacity<-}
-\alias{getResourceDynamics}
-\alias{resource_dynamics}
-\alias{resource_dynamics<-}
 \title{Set up resource}
 \usage{
 setResource(
@@ -26,24 +17,6 @@ setResource(
   resource_dynamics = NULL,
   ...
 )
-
-getResourceRate(params)
-
-resource_rate(params)
-
-resource_rate(params) <- value
-
-getResourceCapacity(params)
-
-resource_capacity(params)
-
-resource_capacity(params) <- value
-
-getResourceDynamics(params)
-
-resource_dynamics(params)
-
-resource_dynamics(params) <- value
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -78,21 +51,23 @@ step from the current state. You only need to specify this if you do not
 want to use the default \code{\link[=resource_semichemostat]{resource_semichemostat()}}.}
 
 \item{...}{Unused}
-
-\item{value}{.}
 }
 \value{
 \code{setResource}: A MizerParams object with updated resource parameters
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
 Sets the intrinsic resource growth rate and the intrinsic resource carrying
 capacity as well as the name of the function used to simulate the resource
-dynamics
+dynamics. This is deprecated in favour of \code{\link[=setResourceSemichemostat]{setResourceSemichemostat()}} or
+\code{\link[=setResourceLogistic]{setResourceLogistic()}} which preserve the steady state.
 }
 \section{Setting resource dynamics}{
 
 By default, mizer uses a semichemostat model to describe the resource
-dynamics in each size class independently. This semichemostat dynamics is implemented
+dynamics in each size class independently. This semichemostat dynamics is
+implemented
 by the function \code{\link[=resource_semichemostat]{resource_semichemostat()}}. You can change the
 resource dynamics by writing your own function, modelled on
 \code{\link[=resource_semichemostat]{resource_semichemostat()}}, and then passing the name of your
@@ -115,21 +90,6 @@ and \code{lambda} arguments.
 }
 
 \seealso{
-\code{\link[=resource_params]{resource_params()}}
-
-Other functions for setting parameters: 
-\code{\link{gear_params}()},
-\code{\link{resource_params}()},
-\code{\link{setExtMort}()},
-\code{\link{setFishing}()},
-\code{\link{setInitialValues}()},
-\code{\link{setInteraction}()},
-\code{\link{setMaxIntakeRate}()},
-\code{\link{setMetabolicRate}()},
-\code{\link{setParams}()},
-\code{\link{setPredKernel}()},
-\code{\link{setReproduction}()},
-\code{\link{setSearchVolume}()},
-\code{\link{species_params}()}
+\code{\link[=setResourceSemichemostat]{setResourceSemichemostat()}}, \code{\link[=setResourceLogistic]{setResourceLogistic()}}, \code{\link[=resource_params]{resource_params()}}
 }
-\concept{functions for setting parameters}
+\keyword{internal}

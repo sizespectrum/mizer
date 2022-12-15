@@ -139,7 +139,8 @@ the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.}
 
 \item{info_level}{Controls the amount of information messages that are shown
-when the function sets default values for parameters.}
+when the function sets default values for parameters. Higher levels lead
+to more messages.}
 
 \item{z0}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{ext_mort} instead. Not to
 be confused with the species_parameter \code{z0}.}
@@ -593,7 +594,8 @@ an effort that varies through time.
 \section{Setting resource dynamics}{
 
 By default, mizer uses a semichemostat model to describe the resource
-dynamics in each size class independently. This semichemostat dynamics is implemented
+dynamics in each size class independently. This semichemostat dynamics is
+implemented
 by the function \code{\link[=resource_semichemostat]{resource_semichemostat()}}. You can change the
 resource dynamics by writing your own function, modelled on
 \code{\link[=resource_semichemostat]{resource_semichemostat()}}, and then passing the name of your

@@ -21,7 +21,7 @@ the standard mizer extension mechanism to achieve your goal.
 \details{
 If the function you need to overwrite is one of the mizer rate functions,
 then you should use \code{setRateFunction()} instead of this function. Similarly
-you should use \code{setResource()} to change the resource dynamics and
+you should use \verb{resource_dynamics()<-} to change the resource dynamics and
 \code{setReproduction()} to change the density-dependence in reproduction.
 You should also investigate whether you can achieve your goal by introducing
 additional ecosystem components with \code{setComponent()}.
