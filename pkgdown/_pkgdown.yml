@@ -92,19 +92,18 @@ reference:
   - mizer-package
   - defaults_edition
 - title: Changing model parameters
-  description: Even after you have created a model, you can still make changes
-    with the following functions. This is useful while tuning the model and for
-    investigating the impact of changes in parameters.
+  description: After you have created a model, you will want to make changes to it
+    while tuning the model and for investigating the impact of changes in parameters.
   contents:
   - species_params
   - gear_params
-  - resource_params
   - initialN
   - initialNResource
   - initial_effort
-  - setBevertonHolt
-  - setResourceSemichemostat
 - title: Steady state tuning
+  description: The first task after creating a multi-species model is to tune
+    the model parameters so that in its steady state the model reproduces 
+    average observed growth rates, abundances and fisheries yields.
   contents:
   - steady
   - steadySingleSpecies
@@ -116,6 +115,14 @@ reference:
   - calibrateYield
   - matchYields
   - scaleModel
+- title: Dynamics tuning
+  description: After tuning the steady state, you need to tune the sensitivity
+    of the dynamics to perturbations away from the steady state. The following
+    functions allow you to change the model without destroying the steady state.
+  contents:
+  - setBevertonHolt
+  - setResourceSemichemostat
+  - setResourceLogistic
 - title: Sharing models
   contents:
   - setMetadata
@@ -164,8 +171,8 @@ reference:
   - removeSpecies
   - renameSpecies
 - title: Setting custom rates
-  desc: You can override the rates mizer calculates from the species parameters,
-    resource parameters and gear parameters with your own rate arrays.
+  desc: You can override the rates mizer calculates from the species parameters
+    and gear parameters with your own rate arrays.
   contents:
   - setParams
   - setPredKernel
@@ -177,7 +184,6 @@ reference:
   - setExtMort
   - setReproduction
   - setFishing
-  - setResource
 - title: Calculating rates
   contents:
   - getRates
@@ -213,6 +219,7 @@ reference:
 - title: Resource dynamics
   contents:
   - has_concept("resource dynamics")
+  - has_concept("resource parameters")
 - title: Reproduction functions
   contents:
   - has_concept("functions calculating density-dependent reproduction rate")
