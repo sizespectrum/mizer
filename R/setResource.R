@@ -5,12 +5,13 @@
 #' 
 #' Sets the intrinsic resource growth rate and the intrinsic resource carrying
 #' capacity as well as the name of the function used to simulate the resource
-#' dynamics. This is deprecated in favour of [setResourceSemichemostat()] which
-#' preserves the steady state.
+#' dynamics. This is deprecated in favour of [setResourceSemichemostat()] or
+#' [setResourceLogistic()] which preserve the steady state.
 #' 
 #' @section Setting resource dynamics:
 #' By default, mizer uses a semichemostat model to describe the resource
-#' dynamics in each size class independently. This semichemostat dynamics is implemented
+#' dynamics in each size class independently. This semichemostat dynamics is 
+#' implemented
 #' by the function [resource_semichemostat()]. You can change the
 #' resource dynamics by writing your own function, modelled on
 #' [resource_semichemostat()], and then passing the name of your
@@ -56,7 +57,7 @@
 #' 
 #' @return `setResource`: A MizerParams object with updated resource parameters
 #' @export
-#' @seealso [resource_params()]
+#' @seealso [setResourceSemichemostat()], [setResourceLogistic()], [resource_params()]
 #' @keywords internal
 setResource <- function(params,
                         resource_rate = NULL,

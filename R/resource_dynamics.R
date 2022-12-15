@@ -1,9 +1,16 @@
 
-#' Set resource dynamics function
+#' Set or get resource dynamics function
 #' 
-#' @param A MizerParams object
+#' Mizer can model the dynamics of the resource spectrum in different ways,
+#' depending on the choice of the resource dynamics function. This function is
+#' called at each time step to calculate the value of the resource spectrum at
+#' the next time step. Mizer has three built-in resource dynamics functions:
+#' [resource_semichemostat()], [resource_logistic()] and [resource_constant()].
+#' But you can write your own function. 
+#' 
+#' @param params A MizerParams object
 #' @export
-#' @family resource dynamics
+#' @family resource parameters
 resource_dynamics <- function(params) {
     params@resource_dynamics
 }
@@ -11,6 +18,10 @@ resource_dynamics <- function(params) {
 #' @rdname resource_dynamics
 #' @param value A string with the name of the resource dynamics function.
 #' @export
+#' @examples
+#' params <- NS_params
+#' resource_dynamics(params)
+#' resource_dynamics(params) <- "resource_constant"
 `resource_dynamics<-` <- function(params, value) {
     assert_that(is(params, "MizerParams"),
                 is.character(value))
@@ -30,79 +41,6 @@ getResourceDynamics <- function(params) {
     params@resource_dynamics
 }
 
-#' Project resource using semichemostat model
-#' 
-#' This function calculates the resource abundance at time `t + dt` from all
-#' abundances and rates at time `t`. 
-#' 
-#' The time evolution of the resource spectrum is described by a 
-#' semi-chemostat equation
-#' \deqn{\frac{\partial N_R(w,t)}{\partial t} = r_R(w) \Big[ c_R (w) - N_R(w,t) \Big] - \mu_R(w, t) N_R(w,t)}{dN_R(w,t)/d t  = r_R(w) ( c_R (w) - N_R(w,t) ) - \mu_R(w,t ) N_R(w,t)}
-#' 
-#' Here \eqn{r_R(w)} is the resource regeneration rate and \eqn{c_R(w)} is the
-#' carrying capacity in the absence of predation. These parameters are changed
-#' with [setResourceSemichemostat()]. The mortality \eqn{\mu_R(w, t)} is
-#' due to predation by consumers and is calculate with [getResourceMort()].
-#' 
-#' This function uses the analytic solution of the above equation, keeping the
-#' mortality fixed during the timestep.
-#' 
-#' It is also possible to implement other resource dynamics, as
-#' described in the help page for [resource_dynamics()<-].
-#' 
-#' @param params A [MizerParams] object
-#' @param n A matrix of species abundances (species x size)
-#' @param n_pp A vector of the resource abundance by size
-#' @param n_other A list with the abundances of other components
-#' @param rates A list of rates as returned by [mizerRates()]
-#' @param t The current time
-#' @param dt Time step
-#' @param resource_rate Resource replenishment rate
-#' @param resource_capacity Resource carrying capacity
-#' @param ... Unused
-#'   
-#' @return Vector containing resource spectrum at next timestep
-#' @export
-#' @family resource dynamics
-#' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, NS_interaction,
-#'                                 resource_dynamics = "resource_semichemostat")
-#' }
-resource_semichemostat <- function(params, n, n_pp, n_other, rates, t, dt,
-                                   resource_rate, resource_capacity, ...) {
-    # We use the exact solution under the assumption of constant mortality 
-    # during timestep
-    mur <- resource_rate + rates$resource_mort
-    n_steady <- resource_rate * resource_capacity / mur
-    n_pp_new <- n_steady + (n_pp - n_steady) * exp(-mur * dt)
-    
-    # Here is an alternative expression that looks as if it might be more
-    # precise when the sum of the rates is small due to the use of expm1.
-    # However the above has the advantage of preserving the steady state
-    # n_steady exactly.
-    # n_pp_new <- n_pp * exp(-mur * dt) + n_steady * expm1(-mur * dt)
-    
-    # if growth rate and death rate are zero then the above would give NaN
-    # whereas the value should simply not change
-    sel <- mur == 0
-    n_pp_new[sel] <- n_pp[sel]
-    
-    n_pp_new
-}
-
-#' @rdname resource_semichemostat
-#' @export
-getResourceRate <- function(params) {
-    params@rr_pp
-}
-
-#' @rdname resource_semichemostat
-#' @export
-getResourceCapacity <- function(params) {
-    params@cc_pp
-}
-
 
 #' Keep resource abundance constant
 #' 
@@ -118,8 +56,8 @@ getResourceCapacity <- function(params) {
 #' @family resource dynamics
 #' @examples
 #' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, NS_interaction,
-#'                                 resource_dynamics = "resource_constant")
+#' params <- NS_params
+#' resource_dynamics(params) <- "resource_constant"
 #' }
 resource_constant <- function(params, n_pp, ...) {
     return(n_pp)
@@ -128,29 +66,47 @@ resource_constant <- function(params, n_pp, ...) {
 
 #' Resource parameters
 #' 
-#' These functions allow you to get or set the list of resource parameters
-#' stored in a MizerParams object. This list will at least contain the slot
-#' names `kappa`, `lambda`, `n`, `w_pp_cutoff`. For their meaning see Details
-#' below. If you have specified a different resource dynamics function that
-#' requires additional parameters, then these should also be added to the
-#' `resource_params` list.
+#' Functions for working with the resource parameters.
 #' 
-#' The resource parameters `kappa` (\eqn{\kappa}), `lambda` (\eqn{\lambda}) and
-#' `w_pp_cutoff` are used to set the default initial resource number density
-#' \eqn{N_R(w)} at size \eqn{w} to
+#' Both the [resource_semichemostat()] and the [resource_logistic()] dynamics
+#' are parametrised in terms of a size-dependent rate \eqn{r_R(w)} and a 
+#' size-dependent capacity \eqn{c_R}. You can see their current values with
+#' [getResourceRate()] and [getResourceCapacity()].
+#' 
+#' Due to the predation mortality, the actual resource abundance \eqn{N_R} is
+#' always lower than the capacity \eqn{c_R}. The ratio \eqn{N_R / c_R} is
+#' denoted as the resource level. This can be NaN when both \eqn{N_R} and
+#' \eqn{c_R} are zero. You can see the current values with [getResourceLevel()].
+#' 
+#' The recommended way to change these paramters is with the functions
+#' [setResourceSemichemostat()] or [setResourceLogistic()] (dependent on your
+#' choice of dynamics). The `resource_params` list only contains values that are
+#' helpful in setting up the actual size-dependent parameters. Also If you have
+#' specified a different resource dynamics function that requires additional
+#' parameters, then these should also be added to the `resource_params` list.
+#' 
+#' The `resource_params` list will at least contain the slots
+#' `kappa`, `lambda`, `w_pp_cutoff` and `n`.
+#' 
+#' The resource parameter `n` is the 
+#' exponent for the power-law form for the replenishment rate \eqn{r_R(w)}:
+#' \deqn{r_R(w) = r_R\, w^{n-1}.}{r_R(w) = r_R w^{n-1}.}
+#' 
+#' The resource parameter `lambda` (\eqn{\lambda}) is the exponent for the
+#' power-law form for the carrying capacity \eqn{c_R(w)} and `w_pp_cutoff` is
+#' its cutoff value:
+#' \deqn{c_R(w) = c_R w^{-\lambda}}
+#' for all \eqn{w} less than `w_pp_cutoff` and zero for larger sizes.
+#' 
+#' The resource parameter `kappa` (\eqn{\kappa}) determines the initial 
+#' resource abundance:
 #' \deqn{N_R(w) = \kappa\, w^{-\lambda}}{c_R(w) = \kappa w^{-\lambda}}
 #' for all \eqn{w} less than `w_pp_cutoff` and zero for larger sizes. Of course
-#' you can overrule this with [initialNResource()]. The exponent 
-#' \eqn{-\lambda} is also used in [setResourceSemichemostat()] for the power-law
-#' carrying capacity.
-#' 
-#' The resource parameter `n` is used in [setResourceSemichemostat()] for the 
-#' exponent for the power-law replenishment rate \eqn{r_R(w)}:
-#' \deqn{r_R(w) = r_R\, w^{n-1}.}{r_R(w) = r_R w^{n-1}.}
+#' you can overrule this with [initialNResource()].
 #' 
 #' @param params A MizerParams object
 #' @export
-#' @family resource dynamics
+#' @family resource parameters
 #' @examples 
 #' resource_params(NS_params)
 resource_params <- function(params) {
@@ -167,8 +123,6 @@ resource_params <- function(params) {
         value$lambda >= 0,
         is.number(value$kappa),
         value$kappa >= 0,
-        is.number(value$r_pp),
-        value$r_pp >= 0,
         is.number(value$n),
         value$n >= 0,
         is.number(value$w_pp_cutoff),
@@ -177,4 +131,29 @@ resource_params <- function(params) {
     )
     params@resource_params <- value
     params
+}
+
+
+
+#' @rdname resource_params
+#' @param params A MizerParams object
+#'
+#' @return A vector of the same length as `w_full(params)` with the value of the
+#' resource dynamics parameter in each size class.
+#' @export
+getResourceLevel <- function(params) {
+    assert_that(is(params, "MizerParams"))
+    initialNResource(params) / getResourceCapacity(params)
+}
+
+#' @rdname resource_params
+#' @export
+getResourceRate <- function(params) {
+    params@rr_pp
+}
+
+#' @rdname resource_params
+#' @export
+getResourceCapacity <- function(params) {
+    params@cc_pp
 }

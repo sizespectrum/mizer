@@ -1,9 +1,9 @@
-#' Set semichemostat resource dynamics without changing the steady state
+#' Set logistic resource dynamics without changing the steady state
 #'
 #' @description
 #' `r lifecycle::badge("experimental")`
 #' 
-#' Turns on semichemostat dynamics for the resource and
+#' Turns on logistic resource dynamics and
 #' sets the resource capacity and the resource rate in such a way that at the
 #' current abundances the resource replenishes as quickly as it is consumed.
 #' Hence if you have tuned your `params` object to describe a particular steady
@@ -11,10 +11,10 @@
 #' with the exact same steady state.
 #' 
 #' @details
-#' This function sets the resource dynamics to use `resource_semichemostat()`.
+#' This function sets the resource dynamics to use `resource_logistic()`.
 #' This means that the resource rate \eqn{r_R} and the resource capacity 
 #' \eqn{c_R} enter the equation for the resource abundance density \eqn{N_R} as
-#' \deqn{\frac{\partial N_R(w,t)}{\partial t} = r_R(w) \Big[ c_R (w) - N_R(w,t) \Big] - \mu_R(w, t) N_R(w,t)}{dN_R(w,t)/d t  = r_R(w) ( c_R (w) - N_R(w,t) ) - \mu_R(w,t ) N_R(w,t)}
+#' \deqn{\frac{\partial N_R(w,t)}{\partial t} = r_R(w) N_R(w)\Big[ 1 - \frac{N_R(w,t)}{c_R (w)} \Big] - \mu_R(w, t) N_R(w,t)}{dN_R(w,t)/d t  = r_R(w) N_r(w)( 1 - N_R(w,t) / c_R (w)) - \mu_R(w,t ) N_R(w,t)}
 #' where the mortality \eqn{\mu_R(w, t)} is
 #' due to predation by consumers and is calculate with [getResourceMort()].
 #' 
@@ -56,7 +56,7 @@
 #'   capacity.
 #' @family resource parameters
 #' @export
-setResourceSemichemostat <- function(params, resource_rate, resource_capacity,
+setResourceLogistic <- function(params, resource_rate, resource_capacity,
                                      resource_level) {
     assert_that(is(params, "MizerParams"))
     
@@ -94,7 +94,7 @@ setResourceSemichemostat <- function(params, resource_rate, resource_capacity,
         }
         capacity <- NR / resource_level
         capacity[is.nan(resource_level)] <- 0
-        rate <- mu / (1 / resource_level - 1)
+        rate <- mu / (1 - resource_level)
         rate[is.nan(resource_level)] <- 0
     }
     
@@ -106,10 +106,10 @@ setResourceSemichemostat <- function(params, resource_rate, resource_capacity,
             stop("The 'resource_rate' should have length 1 or length ",
                  no_w_full, ".")
         }
-        if (any(resource_rate <= 0)) {
-            stop("The 'resource_rate' must always be strictly positive.")
+        if (any(resource_rate <= mu)) {
+            stop("The 'resource_rate' must always be larger than the resource mortality.")
         }
-        capacity <- NR * (resource_rate + mu) / resource_rate
+        capacity <- NR * resource_rate / (resource_rate - mu)
         rate <- resource_rate
     }
     
@@ -131,13 +131,13 @@ setResourceSemichemostat <- function(params, resource_rate, resource_capacity,
             stop("The 'resource_capacity' must always be greater than current resource number density.")
         }
         capacity <- resource_capacity
-        rate <- mu * NR / (resource_capacity - NR)
+        rate <- mu * resource_capacity / (resource_capacity - NR)
     }
     
     params@rr_pp <- rate
     params@cc_pp <- capacity
     
-    params@resource_dynamics <- "resource_semichemostat"
+    params@resource_dynamics <- "resource_logistic"
     params@time_modified <- lubridate::now()
     return(params)
 }
