@@ -16,7 +16,7 @@
 #' mortality fixed during the timestep.
 #' 
 #' It is also possible to implement other resource dynamics, as
-#' described in the help page for [resource_dynamics()<-].
+#' described in the help page for [setResource()].
 #' 
 #' @param params A [MizerParams] object
 #' @param n A matrix of species abundances (species x size)

@@ -4,6 +4,7 @@ Askaroff
 Benoit
 Bertalanffy
 Beverton
+BevertonHoltRDD
 Beyer
 Canales
 Catchability
@@ -43,6 +44,7 @@ MizerParams
 MizerSim
 Modeling
 MvF
+NA's
 ORCID
 Oceanologica
 PLoS
@@ -51,6 +53,7 @@ Pedersen
 Piet
 Proc
 R's
+RDD
 RDI
 RStudio
 RStudio's
@@ -171,6 +174,7 @@ semichemostat
 setFishing
 setParams
 setPredKernel
+setResource
 shinytest
 sigmoidal
 sizer
@@ -190,7 +194,6 @@ u
 unfished
 upgradeParams
 usethis
-vb
 vdiffr
 vol
 www

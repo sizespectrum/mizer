@@ -2,9 +2,9 @@
 #' 
 #' Sets the intrinsic resource growth rate and the intrinsic resource carrying
 #' capacity as well as the name of the function used to simulate the resource
-#' dynamics. By default changes both the rate and the capacity together in such
-#' a way that the resource replenishes at the same rate at which it is
-#' consumed. 
+#' dynamics. By default this function changes both the rate and the capacity
+#' together in such a way that the resource replenishes at the same rate at
+#' which it is consumed.
 #' 
 #' @section Setting resource dynamics:
 #' The `resource_dynamics` argument allows you to choose the resource dynamics
@@ -51,7 +51,7 @@
 #'   set so that the resource replenishes at the same rate at which it is 
 #'   consumed. In this case you should only specify either the resource rate
 #'   or the resource capacity (or resource level) because the other is then
-#'   determined automatically. Set tp FALSE if you do not want the balancing.
+#'   determined automatically. Set to FALSE if you do not want the balancing.
 #' @param n Used to set power-law exponent for resource rate if the
 #'   `resource_rate` argument is given as a single number.
 #' @param lambda Used to set power-law exponent for resource capacity if the

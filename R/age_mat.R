@@ -2,7 +2,7 @@
 #' 
 #' This is not a good way to determine the age at maturity because the von
 #' Bertalanffy growth curve is not reliable for larvae and juveniles. However
-#' this was used in previous versions fo mizer and is supplied for 
+#' this was used in previous versions of mizer and is supplied for 
 #' backwards compatibility.
 #'
 #' Uses the age at maturity that is implied by the von Bertalanffy growth curve
@@ -13,7 +13,7 @@
 #' species. Default values of `b = 3` and `t0 = 0` are used if these are
 #' missing. If `w_inf` is missing, `w_max` is used instead.
 #'
-#' @param params A MizerParams object or a species_params data frame
+#' @param object A MizerParams object or a species_params data frame
 #' @return A named vector. The names are the species names and the values are
 #'   the ages at maturity.
 #' @concept helper

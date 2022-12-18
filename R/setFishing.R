@@ -310,7 +310,7 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
 #' For the details see [setFishing()]. 
 #' 
 #' The fishing effort, which is also needed to determine the fishing mortality
-#' excerted by a gear is not set via the `gear_params` data frame but is set
+#' exerted by a gear is not set via the `gear_params` data frame but is set
 #' with `initial_effort()` or is specified when calling `project()`.
 #' 
 #' If you change a gear parameter, this will be used to recalculate the

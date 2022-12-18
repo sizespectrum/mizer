@@ -9,14 +9,14 @@
 #' 
 #' Here \eqn{r_R(w)} is the resource regeneration rate and \eqn{c_R(w)} is the
 #' carrying capacity in the absence of predation. These parameters are changed
-#' with [setResourceLogistic()]. The mortality \eqn{\mu_R(w, t)} is
+#' with [setResource()]. The mortality \eqn{\mu_R(w, t)} is
 #' due to predation by consumers and is calculate with [getResourceMort()].
 #' 
 #' This function uses the analytic solution of the above equation, keeping the
 #' mortality fixed during the timestep.
 #' 
 #' It is also possible to implement other resource dynamics, as
-#' described in the help page for [resource_dynamics()<-].
+#' described in the help page for [setResource()].
 #' 
 #' @param params A [MizerParams] object
 #' @param n A matrix of species abundances (species x size)
@@ -62,7 +62,7 @@ resource_logistic <- function(params, n, n_pp, n_other, rates, t, dt,
 #' Determine logistic resource parameters that balance replenishment and 
 #' consumption
 #' 
-#' This function is called by `setResource` to determine the values of the
+#' This function is called by [setResource()] to determine the values of the
 #' resource parameters that are needed to make the replenishment rate at each
 #' size equal the consumption rate at that size, as calculated by
 #' [getResourceMort()]. So one of `resource_rate` or `resource_capacity` should

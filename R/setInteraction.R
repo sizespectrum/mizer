@@ -120,10 +120,17 @@ setInteraction <- function(params,
     return(params)
 }
 
+#' Deprecated function to get interaction matrix
+#' 
+#' You should now use [interaction_matrix()] instead.
+#' 
+#' @param params A MizerParams object
 #' @export
 #' @keywords internal
 getInteraction <- function(params) {
-    params@interaction
+    lifecycle::deprecate_warn("2.4.0", "getInteraction()", 
+                              "interaction_matrix()")
+    interaction_matrix(params)
 }
 
 

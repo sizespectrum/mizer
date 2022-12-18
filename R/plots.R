@@ -86,7 +86,8 @@ NULL
 # Hackiness to get past the 'no visible binding ... ' warning when running check
 utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
                          "x", "y", "Year", "Yield", "Biomass", "Size",
-                         "Proportion", "Prey", "Legend", "Type", "Gear"))
+                         "Proportion", "Prey", "Legend", "Type", "Gear",
+                         "Predator", "weight", "a", "b", "age"))
 
 #' Make a plot from a data frame
 #'
@@ -99,7 +100,7 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #'   3. Grouping variable
 #' @param params A MizerParams object, which is used for the line colours and
 #'   line types.
-#' @param style The style of the plot. Availalble options are "line' for geom_line
+#' @param style The style of the plot. Available options are "line' for geom_line
 #' and "area" for geom_area. Default is "line".
 #' @param legend_var The name of the variable that should be used in the legend
 #'   and to determine the line style. If NULL then the grouping variable is

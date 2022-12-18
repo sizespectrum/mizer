@@ -62,17 +62,6 @@
 #'
 #' # Show the ratio instead
 #' plotBiomassObservedVsModel(params, ratio = TRUE)
-#'
-#' # Run a simulation
-#' params <- matchBiomasses(params)
-#' sim <- project(params, t_max = 10, progress_bar = FALSE)
-#' plotBiomass(sim)
-#'
-#' # Plot the biomass comparison at the final time
-#' plotBiomassObservedVsModel(sim)
-#'
-#' # The same with no log scaling of axes
-#' plotBiomassObservedVsModel(sim, log_scale = FALSE)
 plotBiomassObservedVsModel = function(object, species = NULL, ratio = FALSE,
                                       log_scale = TRUE, return_data = FALSE, 
                                       labels = TRUE, show_unobserved = FALSE) {

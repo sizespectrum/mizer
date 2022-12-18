@@ -35,7 +35,7 @@ resource_constant <- function(params, n_pp, ...) {
 #' denoted as the resource level. This can be NaN when both \eqn{N_R} and
 #' \eqn{c_R} are zero. You can see the current values with [getResourceLevel()].
 #' 
-#' The recommended way to change these paramters is with the functions
+#' The recommended way to change these parameters is to use
 #' [setResource()]. The `resource_params` list only contains values that are
 #' helpful in setting up the actual size-dependent parameters. Also If you have
 #' specified a different resource dynamics function that requires additional

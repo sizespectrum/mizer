@@ -56,17 +56,6 @@
 #'
 #' # Show the ratio instead
 #' plotYieldObservedVsModel(params, ratio = TRUE)
-#'
-#' # Run a simulation
-#' params <- matchYields(params)
-#' sim <- project(params, t_max = 10, progress_bar = FALSE)
-#' plotBiomass(sim)
-#'
-#' # Plot the yield comparison at the final time
-#' plotYieldObservedVsModel(sim)
-#'
-#' # The same with no log scaling of axes
-#' plotYieldObservedVsModel(sim, log_scale = FALSE)
 plotYieldObservedVsModel = function(object, species = NULL, ratio = FALSE,
                                       log_scale = TRUE, return_data = FALSE, 
                                       labels = TRUE, show_unobserved = FALSE) {
