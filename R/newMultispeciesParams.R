@@ -17,6 +17,7 @@
 #' @inheritParams setReproduction
 #' @inheritParams setFishing
 #' @inheritParams setResource
+#' @param kappa The coefficient of the initial resource abundance power-law.
 #' @param min_w_pp The smallest size of the resource spectrum. By default this
 #'   is set to the smallest value at which any of the consumers can feed.
 #' @param n The allometric growth exponent. This can be overruled for individual
@@ -105,11 +106,10 @@ newMultispeciesParams <- function(
     repro_prop = NULL,
     RDD = "BevertonHoltRDD",
     # setResource
-    resource_rate = NULL,
-    resource_capacity = NULL,
-    n = 2 / 3,
-    r_pp = 10,
     kappa = 1e11,
+    n = 2 / 3,
+    resource_rate = 10,
+    resource_capacity = kappa,
     lambda = 2.05,
     w_pp_cutoff = 10,
     resource_dynamics = "resource_semichemostat",
@@ -119,7 +119,14 @@ newMultispeciesParams <- function(
     catchability = NULL,
     initial_effort = NULL,
     info_level = 3,
-    z0 = deprecated()) {
+    z0 = deprecated(),
+    r_pp = deprecated()) {    
+    
+    if (lifecycle::is_present(r_pp)) {
+        lifecycle::deprecate_warn("1.0.0", "newMultispeciesParams(r_pp)", 
+                                  "newMultispeciesParams(resource_rate)")
+        resource_rate <- r_pp
+    }
     if (lifecycle::is_present(z0)) {
         lifecycle::deprecate_warn("2.2.3", "newMultispeciesParams(z0)", "newMultispeciesParams(ext_mort)")
         ext_mort <- z0
@@ -148,7 +155,7 @@ newMultispeciesParams <- function(
                           max_w = max_w, 
                           min_w_pp = min_w_pp)
     
-    ## Fill the slots ----
+    # Fill the slots ----
     params <- params %>% 
         set_species_param_default("n", n) %>% 
         set_species_param_default("p", p)
@@ -157,17 +164,14 @@ newMultispeciesParams <- function(
     if (is.null(interaction)) {
         interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
     }
-    params <- params %>%
-        setResource(
-            # setResource
-            resource_rate = resource_rate,
-            resource_capacity = resource_capacity,
-            r_pp = r_pp,
-            kappa = kappa,
-            lambda = lambda,
-            n = n,
-            w_pp_cutoff = w_pp_cutoff,
-            resource_dynamics = resource_dynamics) %>%
+    
+    params@initial_n_pp[] <- kappa * params@w_full ^ (-lambda)
+    params@initial_n_pp[params@w_full >= w_pp_cutoff] <- 0
+    params@resource_params$kappa <- kappa
+    params@resource_params$lambda <- lambda
+    params@resource_params$w_pp_cutoff <- w_pp_cutoff
+    
+    params <- params  %>%
         setParams(
                   # setInteraction
                   interaction = interaction,
@@ -191,10 +195,18 @@ newMultispeciesParams <- function(
                   gear_params = gear_params,
                   selectivity = selectivity,
                   catchability = catchability,
-                  initial_effort = initial_effort)
+                  initial_effort = initial_effort) %>%
+        setResource(
+            # setResource
+            resource_rate = resource_rate,
+            resource_capacity = resource_capacity,
+            resource_dynamics = resource_dynamics,
+            lambda = lambda,
+            n = n,
+            w_pp_cutoff = w_pp_cutoff,
+            balance = FALSE)
     
     params@initial_n <- get_initial_n(params)
-    params@initial_n_pp <- params@cc_pp
     params@A <- rep(1, nrow(species_params))
     })
     if (length(infos) > 0) {

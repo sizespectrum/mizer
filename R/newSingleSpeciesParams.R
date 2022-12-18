@@ -157,7 +157,7 @@ newSingleSpeciesParams <-
             min_w = w_min,
             no_w = no_w,
             max_w = w_max,
-            w_pp_cutoff = w_max,
+            w_pp_cutoff = Inf,
             lambda = lambda,
             kappa = kappa,
             n = n,

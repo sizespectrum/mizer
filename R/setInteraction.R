@@ -120,10 +120,24 @@ setInteraction <- function(params,
     return(params)
 }
 
-#' @rdname setInteraction
-#' @return `getInteraction()`: The interaction matrix (predator species x prey
-#'   species)
 #' @export
+#' @keywords internal
 getInteraction <- function(params) {
     params@interaction
+}
+
+
+#' @rdname setInteraction
+#' @return `interaction_matrix()`: The interaction matrix (predator species x prey
+#'   species)
+#' @export
+interaction_matrix <- function(params) {
+    params@interaction
+}
+
+#' @rdname setInteraction
+#' @param value An interaction matrix
+#' @export
+`interaction_matrix<-` <- function(params, value) {
+    setInteraction(params, interaction = value)
 }

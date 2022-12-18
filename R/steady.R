@@ -269,7 +269,9 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
     params@rates_funcs$RDD <- old_rdd_fun
     params@other_dynamics <- old_other_dynamics
     params@species_params$constant_reproduction <- NULL
-    params@resource_dynamics <- old_resource_dynamics
+    
+    # Set resource dynamics
+    params <- setResource(params, resource_dynamics = old_resource_dynamics)
     
     if (params@rates_funcs$RDD == "BevertonHoltRDD") {
         if (preserve == "reproduction_level") {
@@ -282,12 +284,6 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
             params <- setBevertonHolt(params, erepro = old_erepro)
         }
     }
-    
-    # Set resource carrying capacity
-    rr <- resource_rate(params)
-    cc <- (getResourceMort(params) + rr) / rr * initialNResource(params)
-    cc[rr == 0] <- 0
-    resource_capacity(params) <- cc
     
     if (return_sim) {
         object@params <- params

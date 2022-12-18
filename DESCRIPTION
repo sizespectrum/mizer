@@ -68,8 +68,6 @@ Collate:
     'setExtMort.R'
     'setReproduction.R'
     'setResource.R'
-    'setResourceSemichemostat.R'
-    'setResourceLogistic.R'
     'setFishing.R'
     'setInitialValues.R'
     'setBevertonHolt.R'
@@ -105,7 +103,7 @@ Collate:
     'matchGrowth.R'
     'steadySingleSpecies.R'
     'defaults_edition.R'
-RoxygenNote: 7.2.2
+RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
 LazyData: true

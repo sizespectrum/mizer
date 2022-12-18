@@ -121,8 +121,7 @@ reference:
     functions allow you to change the model without destroying the steady state.
   contents:
   - setBevertonHolt
-  - setResourceSemichemostat
-  - setResourceLogistic
+  - setResource
 - title: Sharing models
   contents:
   - setMetadata

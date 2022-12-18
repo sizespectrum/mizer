@@ -110,7 +110,7 @@ set_multispecies_model <-
                                  n = n,
                                  kappa = kappa,
                                  lambda = lambda,
-                                 r_pp = r_pp,
+                                 resource_rate = r_pp,
                                  max_w = max_w,
                                  min_w = min_w,
                                  min_w_pp = min_w_pp,

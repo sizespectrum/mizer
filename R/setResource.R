@@ -1,152 +1,107 @@
-#' Set up resource
-#' 
-#' @description
-#' `r lifecycle::badge("deprecated")`
+#' Set resource dynamics
 #' 
 #' Sets the intrinsic resource growth rate and the intrinsic resource carrying
 #' capacity as well as the name of the function used to simulate the resource
-#' dynamics. This is deprecated in favour of [setResourceSemichemostat()] or
-#' [setResourceLogistic()] which preserve the steady state.
+#' dynamics. By default changes both the rate and the capacity together in such
+#' a way that the resource replenishes at the same rate at which it is
+#' consumed. 
 #' 
 #' @section Setting resource dynamics:
-#' By default, mizer uses a semichemostat model to describe the resource
-#' dynamics in each size class independently. This semichemostat dynamics is 
-#' implemented
-#' by the function [resource_semichemostat()]. You can change the
-#' resource dynamics by writing your own function, modelled on
-#' [resource_semichemostat()], and then passing the name of your
-#' function in the `resource_dynamics` argument.
+#' The `resource_dynamics` argument allows you to choose the resource dynamics
+#' function. By default, mizer uses a semichemostat model to describe the
+#' resource dynamics in each size class independently. This semichemostat
+#' dynamics is implemented by the function [resource_semichemostat()]. You can
+#' change that to use a logistic model implemented by [resource_logistic()] or
+#' you can use [resource_constant()] which keeps the resource constant or you
+#' can write your own function.
 #' 
-#' The `resource_rate` argument is a vector specifying the intrinsic resource
-#' growth rate for each size class. If it is not supplied, then the intrinsic growth
-#' rate \eqn{r(w)} at size \eqn{w}
-#' is set to \deqn{r(w) = r_{pp}\, w^{n-1}.}{r(w) = r_pp w^{n-1}}
-#' The values of \eqn{r_{pp}} and \eqn{n} are taken from the `r_pp`
-#' and `n` arguments.
+#' The `resource_rate` argument can be a vector (with the same length as
+#' `w_full(params)`) specifying the intrinsic resource growth rate for each size
+#' class. Alternatively it can be a single number, which is then used as the
+#' coefficient in a power law: then the intrinsic growth rate \eqn{r_R(w)} at
+#' size \eqn{w} is set to
+#' \deqn{r_R(w) = r_R w^{n-1}.}
+#' The power-law exponent \eqn{n} is taken from the `n` argument.
 #' 
-#' The `resource_capacity` argument is a vector specifying the intrinsic resource
-#' carrying capacity for each size class. If it is not supplied, then the 
-#' intrinsic carrying capacity \eqn{c(w)} at size \eqn{w}
-#' is set to \deqn{c(w) = \kappa\, w^{-\lambda}}{c(w) = \kappa w^{-\lambda}}
+#' The `resource_capacity` argument can be a vector specifying the intrinsic
+#' resource carrying capacity for each size class. Alternatively it can be a
+#' single number, which is then used as the coefficient in a truncated power
+#' law: then the intrinsic growth rate \eqn{c_R(w)} at size \eqn{w} is set to
+#' \deqn{c(w) = \kappa\, w^{-\lambda}}{c(w) = \kappa w^{-\lambda}}
 #' for all \eqn{w} less than `w_pp_cutoff` and zero for larger sizes.
-#' The values of \eqn{\kappa} and \eqn{\lambda} are taken from the `kappa`
-#' and `lambda` arguments.
+#' The power-law exponent \eqn{\lambda} is taken from the `lambda` argument.
 #' 
 #' @param params A MizerParams object
-#' @param resource_rate Optional. Vector of resource intrinsic birth rates 
-#' @param resource_capacity Optional. Vector of resource intrinsic carrying 
-#'   capacity 
-#' @param reset `r lifecycle::badge("experimental")`
-#'   If set to TRUE, then both `resource_rate` and
-#'   `resource_capacity` will be reset to the value calculated from the resource
-#'   parameters, even if they were previously overwritten with custom values. If
-#'   set to FALSE (default) then a recalculation from the resource parameters
-#'   will take place only if no custom values have been set.
-#' @param r_pp Coefficient of the intrinsic resource birth rate
-#' @param n Allometric growth exponent for resource
-#' @param kappa Coefficient of the intrinsic resource carrying capacity
-#' @param lambda Scaling exponent of the intrinsic resource carrying capacity
-#' @param w_pp_cutoff The upper cut off size of the resource spectrum.  The
-#'   carrying capacity will be set to 0 above this size.
-#'   Default is 10 g.
+#' @param resource_rate Optional. Vector of resource intrinsic birth rates or
+#'   coefficient in the power-law for the birth rate, see Details. Must be
+#'   strictly positive.
+#' @param resource_capacity Optional. Vector of resource intrinsic carrying
+#'   capacities or coefficient in the power-law for the capacity, see Details.
+#'   The resource capacity must be larger than the resource abundance.
+#' @param resource_level Optional. The ratio between the current resource number
+#'   density and the resource capacity. Either a number used at all sizes or a
+#'   vector specifying a value for each size. Must be strictly between 0 and 1,
+#'   except at sizes where the resource is zero, where it can be `NaN`. This
+#'   determines the resource capacity, so do not specify both this and
+#'   `resrouce_capacity`.
 #' @param resource_dynamics Optional. Name of the function that determines the
 #'   resource dynamics by calculating the resource spectrum at the next time
-#'   step from the current state. You only need to specify this if you do not
-#'   want to use the default [resource_semichemostat()].
+#'   step from the current state.
+#' @param balance By default, if possible, the resource parameters are 
+#'   set so that the resource replenishes at the same rate at which it is 
+#'   consumed. In this case you should only specify either the resource rate
+#'   or the resource capacity (or resource level) because the other is then
+#'   determined automatically. Set tp FALSE if you do not want the balancing.
+#' @param n Used to set power-law exponent for resource rate if the
+#'   `resource_rate` argument is given as a single number.
+#' @param lambda Used to set power-law exponent for resource capacity if the
+#'   `resource_capacity` argument is given as a single number.
+#' @param w_pp_cutoff The upper cut off size of the resource spectrum power law
+#'   used only if `resource_capacity` is given as a single number.
+#' @param r_pp `r lifecycle::badge("deprecated")`. Use `resource_rate` argument
+#'   instead.
+#' @param kappa `r lifecycle::badge("deprecated")`. Use `resource_capacity`
+#'   argument instead.
 #' @param ... Unused
 #' 
 #' @return `setResource`: A MizerParams object with updated resource parameters
 #' @export
-#' @seealso [setResourceSemichemostat()], [setResourceLogistic()], [resource_params()]
-#' @keywords internal
 setResource <- function(params,
                         resource_rate = NULL,
                         resource_capacity = NULL,
-                        reset = FALSE,
-                        r_pp = resource_params(params)[["r_pp"]],
-                        kappa = resource_params(params)[["kappa"]],
+                        resource_level = NULL,
+                        resource_dynamics = NULL,
+                        balance = NULL,
                         lambda = resource_params(params)[["lambda"]],
                         n = resource_params(params)[["n"]],
                         w_pp_cutoff = resource_params(params)[["w_pp_cutoff"]],
-                        resource_dynamics = NULL,
+                        r_pp = deprecated(),
+                        kappa = deprecated(),
                         ...) {
+    
+    if (lifecycle::is_present(r_pp)) {
+        lifecycle::deprecate_warn("1.0.0", "setParams(r_pp)", 
+                                  "setParams(resource_rate)")
+        resource_rate <- r_pp
+    }
+    if (lifecycle::is_present(kappa)) {
+        lifecycle::deprecate_warn("1.0.0", "setParams(kappa)", 
+                                  "setParams(resource_capacity)")
+        resource_capacity <- kappa
+    } 
     assert_that(is(params, "MizerParams"),
-                is.flag(reset),
-                is.number(kappa), kappa > 0,
                 is.number(lambda),
-                is.number(r_pp), r_pp > 0,
                 is.number(w_pp_cutoff), w_pp_cutoff > 0,
                 is.number(n))
-    params@resource_params[["kappa"]] <- kappa
     params@resource_params[["lambda"]] <- lambda
-    params@resource_params[["r_pp"]] <- r_pp
     params@resource_params[["n"]] <- n
     params@resource_params[["w_pp_cutoff"]] <- w_pp_cutoff
     
-    if (reset) {
-        if (!is.null(resource_rate)) {
-            warning("Because you set `reset = TRUE`, the value you provided ", 
-                    "for `resource_rate` will be ignored and a value will be ",
-                    "calculated from the resource parameters.")
-            resource_rate <- NULL
-        }
-        comment(params@rr_pp) <- NULL
-        if (!is.null(resource_capacity)) {
-            warning("Because you set `reset = TRUE`, the value you provided ", 
-                    "for `resource_capacity` will be ignored and a value will be ",
-                    "calculated from the resource parameters.")
-            resource_capacity <- NULL
-        }
-        comment(params@cc_pp) <- NULL
+    if (!is.null(resource_capacity) && !is.null(resource_level)) {
+        stop("You should specify only either 'resource_level' or 'resource_capacity'.")
     }
     
-    # weight specific resource growth rate
-    if (!is.null(resource_rate)) {
-        if (is.null(comment(resource_rate))) {
-            if (is.null(comment(params@rr_pp))) {
-                comment(resource_rate) <- "set manually"
-            } else {
-                comment(resource_rate) <- comment(params@rr_pp)
-            }
-        }
-        assert_that(is.numeric(resource_rate),
-                    identical(length(resource_rate), length(params@rr_pp)))
-        params@rr_pp[] <- resource_rate
-        comment(params@rr_pp) <- comment(resource_rate)
-    } else {
-        rr_pp <- r_pp * params@w_full^(n - 1)
-        if (!is.null(comment(params@rr_pp)) &&
-            different(params@rr_pp, rr_pp)) {
-            message("The resource intrinsic growth rate has been commented and therefore will ",
-                    "not be recalculated from the resource parameters.")
-        } else {
-            params@rr_pp[] <- rr_pp
-        }
-    }
-    # the resource carrying capacity
-    if (!is.null(resource_capacity)) {
-        if (is.null(comment(resource_capacity))) {
-            if (is.null(comment(params@cc_pp))) {
-                comment(resource_capacity) <- "set manually"
-            } else {
-                comment(resource_capacity) <- comment(params@cc_pp)
-            }
-        }
-        assert_that(is.numeric(resource_capacity),
-                    identical(length(resource_capacity), length(params@cc_pp)))
-        params@cc_pp[] <- resource_capacity
-        comment(params@cc_pp) <- comment(resource_capacity)
-    } else {
-        cc_pp <- kappa*params@w_full^(-lambda)
-        cc_pp[params@w_full > w_pp_cutoff] <- 0
-        if (!is.null(comment(params@cc_pp)) &&
-            different(params@cc_pp, cc_pp)) {
-            message("The resource carrying capacity has been commented and therefore will ",
-                    "not be recalculated from the resource parameters.")
-        } else {
-            params@cc_pp[] <- cc_pp
-        }
-    }
+    # Check and set dynamics function ----
     if (!is.null(resource_dynamics)) {
         assert_that(is.character(resource_dynamics))
         if (!is.function(get0(resource_dynamics))) {
@@ -155,50 +110,167 @@ setResource <- function(params,
         params@resource_dynamics <- resource_dynamics
     }
     
+    w_full <- w_full(params)
+    no_w_full <- length(w_full)
+    mu <- getResourceMort(params)
+    NR <- initialNResource(params)
+    
+    # Check resource level ----
+    if (!is.null(resource_level)) {
+        assert_that(is.numeric(resource_level))
+        if (length(resource_level) != 1 && length(resource_level) != no_w_full) {
+            stop("The 'resource_level' should have length 1 or length ",
+                 no_w_full, ".")
+        }
+        # The resource level is allowed to be NaN only where the resource is 0
+        if (any(NR > 0 & is.nan(resource_level))) {
+            stop("The resource level must be defined everywhere where the current resource is non-vanishing.")
+        }
+        if (any(NR > 0 &
+                (resource_level <= 0 | resource_level >= 1))) {
+            stop("The 'resource_level' must always be strictly between 0 and 1.")
+        }
+        resource_capacity <- NR / resource_level
+        resource_capacity[is.nan(resource_level)] <- 0
+        comment(resource_capacity) <- comment(resource_level)
+    }
+    
+    # Check growth rate ----
+    if (!is.null(resource_rate)) {
+        assert_that(is.numeric(resource_rate))
+        if (length(resource_rate) == 1) {
+            co <- comment(resource_rate)
+            resource_rate <- resource_rate * w_full ^ (n - 1)
+            comment(resource_rate) <- co
+        } else if (length(resource_rate) != no_w_full) {
+            stop("The 'resource_rate' should have length 1 or length ",
+                 no_w_full, ".")
+        }
+        if (any(resource_rate < 0)) {
+            stop("The 'resource_rate' must always be non-negative.")
+        }
+    }
+    
+    # Check capacity ----
+    if (!is.null(resource_capacity)) {
+        assert_that(is.numeric(resource_capacity))
+        if (length(resource_capacity) == 1) {
+            co <- comment(resource_capacity)
+            resource_capacity <- resource_capacity * w_full ^ (-lambda)
+            resource_capacity[w_full >= params@resource_params$w_pp_cutoff] <- 0
+            comment(resource_capacity) <- co
+        } else if (length(resource_capacity) != no_w_full) {
+            stop("The 'resource_rate' should have length 1 or length ",
+                 no_w_full, ".")
+        }
+        if (any(resource_capacity < 0)) {
+            stop("The 'resource_capacity' must never be negative.")
+        }
+    }
+    
+    # Balance ----
+    balance_fn <- get0(paste0("balance_", params@resource_dynamics))
+    if (is.null(balance)) {
+        balance <- is.function(balance_fn)
+    }
+    if (balance) {
+        # check number of arguments
+        num_args <- (!is.null(resource_rate)) +
+            (!is.null(resource_capacity))
+        if (num_args > 1) {
+            stop("You should only provide either the `resource_rate` or `resource_capacity` (or `resource_level`) because the other is determined by the requirement that the resource replenishes at the same rate at which it is consumed.")
+        }
+        if (num_args == 0) {
+            # no values given, so use previous resource_rate
+            resource_rate <- params@rr_pp
+        }
+        
+        # For balancing the resource capacity must be above current abundance 
+        # except where both are zero
+        if (!is.null(resource_capacity) &&
+            any(resource_capacity <= NR & NR > 0)) {
+            stop("The 'resource_capacity' must always be greater than current resource number density.")
+        }
+        
+        balance_fn <- get0(paste0("balance_", params@resource_dynamics))
+        if (!is.function(balance_fn)) {
+            stop("There is no balancing function available for ",
+                 params@resource_dynamics, 
+                 ". You should not set `balance = TRUE`.")
+        }
+        balance <- balance_fn(params,
+                              resource_rate = resource_rate,
+                              resource_capacity = resource_capacity)
+        resource_rate <- balance$resource_rate
+        resource_capacity <- balance$resource_capacity
+    }
+    
+    # Set rates
+    if (!is.null(resource_rate)) {
+        params@rr_pp[] <- resource_rate
+        comment(params@rr_pp) <- comment(resource_rate)
+    }
+    if (!is.null(resource_capacity)) {
+        params@cc_pp[] <- resource_capacity
+        comment(params@cc_pp) <- comment(resource_capacity)
+    }
+    
     params@time_modified <- lubridate::now()
     return(params)
 }
 
-#' Deprecated way of directly setting resource rate
-#' 
-#' #' @description
-#' `r lifecycle::badge("deprecated")`
-#' 
-#' This is deprecated because it does not preserve the steady state. Use
-#' [setResourceSemichemostat()] instead.
-#' 
+#' @rdname setResource
 #' @export
-#' @keywords internal
 resource_rate <- function(params) {
     params@rr_pp
 }
 
-#' @rdname resource_rate
+#' @rdname setResource
 #' @param value .
 #' @export
-#' @keywords internal
 `resource_rate<-` <- function(params, value) {
     setResource(params, resource_rate = value)
 }
 
-#' Deprecated way of directly setting resource capacity
-#' 
-#' #' @description
-#' `r lifecycle::badge("deprecated")`
-#' 
-#' This is deprecated because it does not preserve the steady state. Use
-#' [setResourceSemichemostat()] instead.
-#' 
+#' @rdname setResource
 #' @export
-#' @keywords internal
 resource_capacity <- function(params) {
     params@cc_pp
 }
 
-#' @rdname resource_capacity
-#' @param value .
+#' @rdname setResource
 #' @export
-#' @keywords internal
 `resource_capacity<-` <- function(params, value) {
     setResource(params, resource_capacity = value)
+}
+
+
+#' @rdname setResource
+#' @export
+resource_level <- function(params) {
+    params@initial_n_pp / params@cc_pp
+}
+
+#' @rdname setResource
+#' @export
+`resource_level<-` <- function(params, value) {
+    setResource(params, resource_level = value)
+}
+
+
+#' @rdname setResource
+#' @export
+resource_dynamics <- function(params) {
+    params@resource_dynamics
+}
+
+
+#' @rdname setResource
+#' @export
+#' @examples
+#' params <- NS_params
+#' resource_dynamics(params)
+#' resource_dynamics(params) <- "resource_constant"
+`resource_dynamics<-` <- function(params, value) {
+    setResource(params, resource_dynamics = value)
 }

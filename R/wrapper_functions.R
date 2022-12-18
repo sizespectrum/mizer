@@ -116,9 +116,10 @@ newCommunityParams <- function(max_w = 1e6,
     )
     params <- 
         newMultispeciesParams(species_params, no_w = no_w, min_w_pp = min_w_pp,
-                              p = p, n = n, lambda = lambda, 
-                              kappa = kappa, min_w = min_w,
-                              w_pp_cutoff = w_pp_cutoff, r_pp = r_pp,
+                              p = p, n = n, lambda = lambda, min_w = min_w,
+                              resource_capacity = kappa,
+                              resource_rate = r_pp,
+                              w_pp_cutoff = w_pp_cutoff,
                               info_level = 0)
     
     initial_n <- array(kappa * params@w ^ (-lambda), 
@@ -264,11 +265,9 @@ newCommunityParams <- function(max_w = 1e6,
 #' @return An object of type `MizerParams`
 #' @family functions for setting up models
 #' @examples
-#' \dontrun{
 #' params <- newTraitParams()
 #' sim <- project(params, t_max = 5, effort = 0)
 #' plotSpectra(sim)
-#' }
 newTraitParams <- function(no_sp = 11,
                            min_w_max = 10,
                            max_w_max = 10 ^ 4,
@@ -470,7 +469,7 @@ newTraitParams <- function(no_sp = 11,
             n = n,
             p = p,
             min_w_pp = min_w_pp,
-            r_pp = r_pp,
+            resource_rate = r_pp,
             info_level = 0
         )
     

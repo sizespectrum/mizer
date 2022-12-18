@@ -1,10 +1,9 @@
-# resource_semichemostat ----
 test_that("resource_semichemostat preserves steady state", {
     # Set resource parameters so that we are at steady state
     params <- newTraitParams()
     params <- setResource(params,
                           resource_capacity = 2 * initialNResource(params),
-                          resource_rate = getResourceMort(params))
+                          resource_dynamics = "resource_semichemostat")
     x <- resource_semichemostat(params, 
                                 n = params@initial_n,
                                 n_pp = params@initial_n_pp,
@@ -32,7 +31,8 @@ test_that("resource_semichemostat evolves towards steady state", {
     # Set resource parameters so that we are at steady state
     params <- setResource(params,
                           resource_capacity = 2 * initialNResource(params),
-                          resource_rate = getResourceMort(params))
+                          resource_rate = getResourceMort(params),
+                          balance = FALSE)
     # Now perturb a bit away from steady state
     n_pp_pert <- params@initial_n_pp * (1 + 1e-10)
     # run the dynamics for one time step and check that the perturbation has
@@ -46,4 +46,33 @@ test_that("resource_semichemostat evolves towards steady state", {
                                 resource_capacity = params@cc_pp,
                                 resource_rate = params@rr_pp)
     expect_lte(max(abs(x - n_pp_pert)), 0)
+})
+
+
+test_that("balance_resource_semichemostat works", {
+    # semichemostat rate
+    sc <- function(params) {
+        r <- getResourceRate(params)
+        c <- getResourceCapacity(params)
+        N <- initialNResource(params)
+        mu <- getResourceMort(params)
+        N_steady <- r * c / (mu + r)
+        sel <- (mu + r) > 0
+        all.equal(N_steady[sel], N[sel])
+    }
+    
+    params <- NS_params
+    
+    # setting rate
+    rate <- getResourceMort(params)
+    params <- setResource(params, resource_rate = rate,
+                          resource_dynamics = "resource_semichemostat")
+    expect_identical(params@rr_pp, rate)
+    expect_true(sc(params))
+    
+    # setting capacity
+    capacity <- params@cc_pp * 2
+    p1 <- setResource(params, resource_capacity = capacity)
+    expect_identical(p1@cc_pp, capacity)
+    expect_true(sc(p1))
 })

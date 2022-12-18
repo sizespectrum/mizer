@@ -358,7 +358,7 @@ validMizerParams <- function(object) {
 #'   the initial resource abundance at each weight.
 #' @slot initial_n_other A list with the initial abundances of all other
 #'   ecosystem components. Has length zero if there are no other components.
-#' @slot resource_params List with parameters for resource. See [setResource()].
+#' @slot resource_params List with parameters for resource.
 #' @slot A `r lifecycle::badge("experimental")`
 #'   Abundance multipliers.
 #' @slot linecolour A named vector of colour values, named by species.

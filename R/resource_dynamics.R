@@ -1,47 +1,3 @@
-
-#' Set or get resource dynamics function
-#' 
-#' Mizer can model the dynamics of the resource spectrum in different ways,
-#' depending on the choice of the resource dynamics function. This function is
-#' called at each time step to calculate the value of the resource spectrum at
-#' the next time step. Mizer has three built-in resource dynamics functions:
-#' [resource_semichemostat()], [resource_logistic()] and [resource_constant()].
-#' But you can write your own function. 
-#' 
-#' @param params A MizerParams object
-#' @export
-#' @family resource parameters
-resource_dynamics <- function(params) {
-    params@resource_dynamics
-}
-
-#' @rdname resource_dynamics
-#' @param value A string with the name of the resource dynamics function.
-#' @export
-#' @examples
-#' params <- NS_params
-#' resource_dynamics(params)
-#' resource_dynamics(params) <- "resource_constant"
-`resource_dynamics<-` <- function(params, value) {
-    assert_that(is(params, "MizerParams"),
-                is.character(value))
-    if (!is.function(get0(value))) {
-        stop('The resource dynamics function "', value, '" is not defined.')
-    }
-    params@resource_dynamics <- value
-    
-    params@time_modified <- lubridate::now()
-    return(params)
-    setResource(params, resource_dynamics = value)
-}
-
-#' @rdname resource_dynamics
-#' @export
-getResourceDynamics <- function(params) {
-    params@resource_dynamics
-}
-
-
 #' Keep resource abundance constant
 #' 
 #' This function can be used instead of the standard 
@@ -64,6 +20,7 @@ resource_constant <- function(params, n_pp, ...) {
 }
 
 
+
 #' Resource parameters
 #' 
 #' Functions for working with the resource parameters.
@@ -79,8 +36,7 @@ resource_constant <- function(params, n_pp, ...) {
 #' \eqn{c_R} are zero. You can see the current values with [getResourceLevel()].
 #' 
 #' The recommended way to change these paramters is with the functions
-#' [setResourceSemichemostat()] or [setResourceLogistic()] (dependent on your
-#' choice of dynamics). The `resource_params` list only contains values that are
+#' [setResource()]. The `resource_params` list only contains values that are
 #' helpful in setting up the actual size-dependent parameters. Also If you have
 #' specified a different resource dynamics function that requires additional
 #' parameters, then these should also be added to the `resource_params` list.
@@ -135,25 +91,43 @@ resource_params <- function(params) {
 
 
 
-#' @rdname resource_params
+#' Deprecated functions for getting resource parameters
+#' 
+#' `r lifecycle::badge("deprecated")` Use [resource_dynamics()],
+#' [resource_level()], [resource_rate()] and [resource_capacity()] instead.
+#' 
 #' @param params A MizerParams object
-#'
-#' @return A vector of the same length as `w_full(params)` with the value of the
-#' resource dynamics parameter in each size class.
+#' @keywords internal
+#' @export
+getResourceDynamics <- function(params) {
+    lifecycle::deprecate_warn("2.4.0", "getResourceDynamics()", 
+                              "resource_dynamics()")
+    resource_dynamics(params)
+}
+
+#' @rdname getResourceDynamics
+#' @keywords internal
 #' @export
 getResourceLevel <- function(params) {
-    assert_that(is(params, "MizerParams"))
-    initialNResource(params) / getResourceCapacity(params)
+    lifecycle::deprecate_warn("2.4.0", "getResourceLevel()", 
+                              "resource_level()")
+    resource_level(params)
 }
 
-#' @rdname resource_params
+#' @rdname getResourceDynamics
+#' @keywords internal
 #' @export
 getResourceRate <- function(params) {
-    params@rr_pp
+    lifecycle::deprecate_warn("2.4.0", "getResourceRate()", 
+                              "resource_rate()")
+    resource_rate(params)
 }
 
-#' @rdname resource_params
+#' @rdname getResourceDynamics
+#' @keywords internal
 #' @export
 getResourceCapacity <- function(params) {
-    params@cc_pp
+    lifecycle::deprecate_warn("2.4.0", "getResourceCapacity()", 
+                              "resource_capacity()")
+    resource_capacity(params)
 }
