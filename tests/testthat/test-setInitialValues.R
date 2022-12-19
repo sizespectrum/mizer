@@ -68,3 +68,17 @@ test_that("Can set initial values in a model with a single other component", {
     p <- setInitialValues(params, sim)
     expect_identical(initialNOther(p), list(test = 111))
 })
+
+test_that("setInitialValues averages correctly over time range", {
+    time_sel <- c(24:33)
+    time_range <- getTimes(NS_sim)[time_sel]
+    # arithmetic mean
+    params <- setInitialValues(NS_sim@params, NS_sim, time_range = time_range)
+    expected_n <- mean(NS_sim@n[time_sel, 1, 50])
+    expect_equal(params@initial_n[1, 50], expected_n)
+    # geometric mean
+    params <- setInitialValues(NS_sim@params, NS_sim, time_range = time_range,
+                               geometric_mean = TRUE)
+    expected_n <- exp(mean(log(NS_sim@n[time_sel, 1, 50])))
+    expect_equal(params@initial_n[1, 50], expected_n)
+})
