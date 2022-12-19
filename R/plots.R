@@ -546,6 +546,9 @@ plotlyYieldGear <- function(sim, species = NULL,
 #'   and max time, or a single value) to average the abundances over. Default is
 #'   the final time step. Ignored when called with a \linkS4class{MizerParams}
 #'   object.
+#' @param geometric_mean `r lifecycle::badge("experimental")`
+#'   If TRUE then the average of the abundances over the
+#'   time range is a geometric mean instead of the default arithmetic mean.
 #' @param wlim A numeric vector of length two providing lower and upper limits
 #'   for the w axis. Use NA to refer to the existing minimum or maximum.
 #' @param ylim A numeric vector of length two providing lower and upper limits
@@ -595,6 +598,7 @@ plotlyYieldGear <- function(sim, species = NULL,
 #' }
 plotSpectra <- function(object, species = NULL,
                         time_range,
+                        geometric_mean = FALSE,
                         wlim = c(NA, NA), ylim = c(NA, NA),
                         power = 1, biomass = TRUE,
                         total = FALSE, resource = TRUE, 
@@ -618,8 +622,14 @@ plotSpectra <- function(object, species = NULL,
             time_range  <- max(as.numeric(dimnames(object@n)$time))
         }
         time_elements <- get_time_elements(object, time_range)
-        n <- apply(object@n[time_elements, , , drop = FALSE], c(2, 3), mean)
-        n_pp <- apply(object@n_pp[time_elements, , drop = FALSE], 2, mean)
+        mean_fn <- mean
+        if (geometric_mean) {
+            mean_fn <- function(x) {
+                exp(mean(log(x)))
+            }
+        }
+        n <- apply(object@n[time_elements, , , drop = FALSE], c(2, 3), mean_fn)
+        n_pp <- apply(object@n_pp[time_elements, , drop = FALSE], 2, mean_fn)
         ps <- plot_spectra(object@params, n = n, n_pp = n_pp,
                            species = species, wlim = wlim, ylim = ylim,
                            power = power, total = total, resource = resource,
@@ -734,7 +744,7 @@ plot_spectra <- function(params, n, n_pp,
 #' @rdname plotSpectra
 #' @export
 plotlySpectra <- function(object, species = NULL,
-                        time_range,
+                        time_range, geometric_mean = FALSE,
                         wlim = c(NA, NA), ylim = c(NA, NA),
                         power = 1, biomass = TRUE,
                         total = FALSE, resource = TRUE, 

@@ -134,3 +134,19 @@ test_that("Legends have correct entries", {
     p <- plotSpectra(params_single)
     expect_length(unique(p$data$Legend), 2)
 })
+
+test_that("plotSpectra averages over time range", {
+    time_sel <- c(24:33)
+    time_range <- getTimes(NS_sim)[time_sel]
+    # arithmetic mean
+    df <- plotSpectra(NS_sim, species = 1, time_range = time_range,
+                      power = 0, return_data = TRUE)
+    expected <- mean(NS_sim@n[time_sel, 1, 1])
+    expect_equal(df$value[1], expected)
+    # geometric mean
+    df <- plotSpectra(NS_sim, species = 1, time_range = time_range,
+                      geometric_mean = TRUE,
+                      power = 0, return_data = TRUE)
+    expected <- exp(mean(log(NS_sim@n[time_sel, 1, 1])))
+    expect_equal(df$value[1], expected)
+})
