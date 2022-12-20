@@ -160,7 +160,7 @@ newMultispeciesParams <- function(
         set_species_param_default("n", n) %>% 
         set_species_param_default("p", p)
     params <- set_species_param_default(params, "q", 
-                                        lambda - 2 + params@species_params$n)
+                                        lambda - 2 + params@species_params[["n"]])
     if (is.null(interaction)) {
         interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
     }

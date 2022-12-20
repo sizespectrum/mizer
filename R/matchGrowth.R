@@ -47,12 +47,12 @@ matchGrowth <- function(params, species = NULL,
     params@intake_max[sel, ] <- params@intake_max[sel, ] * factor
     params@metab[sel, ] <- params@metab[sel, ] * factor
     params@species_params$gamma[sel] <- sp$gamma[sel] * factor
-    params@species_params$h[sel] <- sp$h[sel] * factor
+    params@species_params[sel, "h"] <- sp[sel, "h"] * factor
     if ("ks" %in% names(sp)) {
         params@species_params$ks[sel] <- sp$ks[sel] * factor
     }
     if ("k" %in% names(sp)) {
-        params@species_params$k[sel] <- sp$k[sel] * factor
+        params@species_params[sel, "k"] <- sp[sel, "k"] * factor
     }
     
     params <- steadySingleSpecies(params, species = sel)

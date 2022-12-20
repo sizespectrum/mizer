@@ -597,7 +597,7 @@ get_power_law_mort <- function(params) {
     params@initial_n[1, ] <- params@resource_params$kappa * 
         params@w^(-params@resource_params$lambda)
     return(getPredMort(params)[1, 1] / 
-               params@w[[1]] ^ (1 + params@species_params$q[[1]] - 
+               params@w[[1]] ^ (1 + params@species_params[[1, "q"]] - 
                                     params@resource_params$lambda))
 }
 

@@ -79,7 +79,7 @@ resource_params <- function(params) {
         value$lambda >= 0,
         is.number(value$kappa),
         value$kappa >= 0,
-        is.number(value$n),
+        is.number(value[["n"]]),
         value$n >= 0,
         is.number(value$w_pp_cutoff),
         value$w_pp_cutoff > min(params@w_full),

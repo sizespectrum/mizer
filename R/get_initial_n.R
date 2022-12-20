@@ -27,8 +27,8 @@ get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
     if (defaults_edition() < 2) {
         # N = N0 * Winf^(2*n-q-2+a) * w^(-n-a)
         # Reverse calc n and q from intake_max and search_vol slots (could add get_n function)
-        n <- params@species_params$n[[1]]
-        q <- params@species_params$q[[1]]
+        n <- params@species_params[[1, "n"]]
+        q <- params@species_params[[1, "q"]]
         # Guessing at a suitable n0 value based on kappa - this was figured out 
         # using trial and error and should be updated
         if (is.null(n0_mult)) {
@@ -57,9 +57,9 @@ get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
         # Use w_min_idx + 1 in case user has implemented reduced growth
         # for the smallest size class (see e.g. #241)
         iw <- p@w_min_idx[i] + 1
-        A <- income[i, iw] / (p@w[iw] ^ p@species_params$n[i])
+        A <- income[i, iw] / (p@w[iw] ^ p@species_params[[i, "n"]])
         
-        mort <- 0.4 * A * p@w ^ (p@species_params$n[i] - 1) + getFMort(p)
+        mort <- 0.4 * A * p@w ^ (p@species_params[[i, "n"]] - 1) + getFMort(p)
         growth <- getEGrowth(p)[i, ]
         
         idxs <- p@w_min_idx[i]:(min(which(c(growth, 0) <= 0)) - 1)

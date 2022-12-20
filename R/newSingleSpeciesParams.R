@@ -169,7 +169,7 @@ newSingleSpeciesParams <-
 
     w <- params@w
     dw <- params@dw
-    h <- params@species_params$h
+    h <- params@species_params[["h"]]
     ks <- params@species_params$ks
     f0 <- get_f0_default(params)
 

@@ -188,7 +188,7 @@ addSpecies <- function(params, species_params,
         no_w = new_no_w,
         gear_params = combi_gear_params,
         kappa = params@resource_params$kappa,
-        n = params@resource_params$n,
+        n = params@resource_params[["n"]],
         lambda = params@resource_params$lambda,
         w_pp_cutoff = params@resource_params$w_pp_cutoff
     )

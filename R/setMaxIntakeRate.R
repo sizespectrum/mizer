@@ -72,7 +72,7 @@ setMaxIntakeRate <- function(params, intake_max = NULL, reset = FALSE, ...) {
     }
     
     # Else recalculate from species params
-    params@species_params$h <- get_h_default(params)
+    params@species_params[["h"]] <- get_h_default(params)
     
     intake_max <- sweep(outer(params@species_params[["n"]], 
                               params@w, function(x, y) y^x),

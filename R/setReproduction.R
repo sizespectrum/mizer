@@ -273,7 +273,7 @@ setReproduction <- function(params, maturity = NULL,
     } else {
         # Set defaults for m
         params <- set_species_param_default(params, "m", 1)
-        if (any(params@species_params$m < params@species_params$n)) {
+        if (any(params@species_params$m < params@species_params[["n"]])) {
             stop("The exponent `m` must not be smaller than the exponent `n`.")
         }
         
@@ -282,7 +282,8 @@ setReproduction <- function(params, maturity = NULL,
                 tapply(params@w, seq_along(params@w),
                        function(wx, w_max, mn) (wx / w_max)^(mn),
                        w_max = params@species_params$w_max,
-                       mn = params@species_params$m - params@species_params$n
+                       mn = params@species_params[["m"]] - 
+                           params@species_params[["n"]]
                 )
             ), dim = c(nrow(species_params), length(params@w)))
     }

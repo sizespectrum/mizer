@@ -209,9 +209,9 @@ get_h_default <- function(params) {
     }
     species_params <- set_species_param_default(species_params, "f0", 0.6)
     if (!("h" %in% colnames(species_params))) {
-        species_params$h <- rep(NA, nrow(species_params))
+        species_params[["h"]] <- rep(NA, nrow(species_params))
     }
-    missing <- is.na(species_params$h)
+    missing <- is.na(species_params[["h"]])
     if (any(missing)) {
         # The following should be assured by `validSpeciesParams()`
         assert_that(is.numeric(species_params$f0),
@@ -236,16 +236,16 @@ get_h_default <- function(params) {
         w_mat <- species_params$w_mat
         w_min <- species_params$w_min
         age_mat <- species_params$age_mat
-        n <- species_params$n
+        n <- species_params[["n"]]
         h <- (w_mat^(1 - n) - w_min^(1 - n)) / age_mat / (1 - n) / 
             species_params$alpha / (species_params$f0 - species_params$fc)
         
         if (any(is.na(h[missing])) || any(h[missing] <= 0)) {
             stop("Could not calculate h.")
         }
-        species_params$h[missing] <- h[missing]
+        species_params[missing, "h"] <- h[missing]
     }
-    return(species_params$h)
+    return(species_params[["h"]])
 }
 
 
@@ -275,8 +275,8 @@ get_gamma_default <- function(params) {
         signal("Using f0, h, lambda, kappa and the predation kernel to calculate gamma.",
                 class = "info_about_default", var = "gamma", level = 3)
         if (!"h" %in% names(params@species_params) || 
-            any(is.na(species_params$h))) {
-            species_params$h <- get_h_default(params)
+            any(is.na(species_params[["h"]]))) {
+            species_params[["h"]] <- get_h_default(params)
         }
         # Calculate available energy by setting search_volume
         # coefficient to 1
@@ -292,9 +292,9 @@ get_gamma_default <- function(params) {
             params@w_full^(-params@resource_params$lambda)
         avail_energy <- getEncounter(params)[, length(params@w)] /
             params@w[length(params@w)] ^ 
-            (2 + params@species_params$q - params@resource_params$lambda)
+            (2 + params@species_params[["q"]] - params@resource_params$lambda)
         # Now set gamma so that this available energy leads to f0
-        gamma_default <- (species_params$h / avail_energy) * 
+        gamma_default <- (species_params[["h"]] / avail_energy) * 
             (species_params$f0 / (1 - species_params$f0))
         # Only overwrite missing gammas with calculated values
         if (any(is.na(gamma_default[missing]))) {
@@ -335,8 +335,8 @@ get_f0_default <- function(params) {
                     is.number(params@resource_params$kappa),
                     is.numeric(species_params$gamma))
         if (!"h" %in% names(params@species_params) || 
-            any(is.na(species_params$h))) {
-            species_params$h <- get_h_default(params)
+            any(is.na(species_params[["h"]]))) {
+            species_params[["h"]] <- get_h_default(params)
         }
         # Calculate available energy by setting a power-law prey spectrum
         params@initial_n[] <- 0
@@ -345,9 +345,9 @@ get_f0_default <- function(params) {
             params@w_full^(-params@resource_params$lambda)
         avail_energy <- getEncounter(params)[, length(params@w)] /
             params@w[length(params@w)] ^ 
-            (2 + params@species_params$q - params@resource_params$lambda)
+            (2 + params@species_params[["q"]] - params@resource_params$lambda)
         # Now set f0 so that this available energy leads to f0
-        f0_default <- 1 / (species_params$h / avail_energy + 1)
+        f0_default <- 1 / (species_params[["h"]] / avail_energy + 1)
         if (any(is.na(f0_default[given]))) {
             stop("Could not calculate f0.")
         }
@@ -372,12 +372,12 @@ get_f0_default <- function(params) {
 get_ks_default <- function(params) {
     assert_that(is(params, "MizerParams"))
     if (!"h" %in% names(params@species_params) ||
-        any(is.na(params@species_params$h))) {
-        params@species_params$h <- get_h_default(params)
+        any(is.na(params@species_params[["h"]]))) {
+        params@species_params[["h"]] <- get_h_default(params)
     }
     params <- set_species_param_default(params, "fc", 0.2)
     sp <- params@species_params
-    ks_default <- sp$fc * sp$alpha * sp$h * sp$w_mat^(sp$n - sp$p)
+    ks_default <- sp$fc * sp$alpha * sp[["h"]] * sp$w_mat^(sp[["n"]] - sp[["p"]])
     
     message <- ("No ks column so calculating from critical feeding level.")
     params <- set_species_param_default(params, "ks", ks_default, message)
