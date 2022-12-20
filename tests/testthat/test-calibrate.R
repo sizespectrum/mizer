@@ -1,5 +1,5 @@
 local_edition(3)
-# calibrateBiomass ----
+
 test_that("calibrateBiomass works", {
     params <- NS_params
     # Does nothing when no observed biomass
@@ -23,7 +23,31 @@ test_that("calibrateBiomass works", {
     # `scaleModel()` which is unit-tested separately.
 })
 
-# calibrateYield ----
+
+test_that("calibrateNumber works", {
+    params <- NS_params
+    # Does nothing when no observed Number
+    expect_identical(calibrateNumber(params), params)
+    species_params(params)$number_observed <- NA
+    expect_identical(calibrateNumber(params), params)
+    # Does nothing if observed already equals model
+    species_params(params)$number_cutoff <- 1e-4
+    species_params(params)$number_observed <- 
+        rowSums(sweep(params@initial_n, 2, params@dw, "*"))
+    expect_unchanged(calibrateNumber(params), params)
+    # Even if only partially observed
+    species_params(params)$number_observed[1:5] <- NA
+    expect_unchanged(calibrateNumber(params), params)
+    # If we double the observations, we get twice the abundance
+    species_params(params)$number_observed <- 
+        species_params(params)$number_observed * 2
+    params2 <- calibrateNumber(params)
+    expect_equal(params2@initial_n, params@initial_n * 2)
+    # We don't need to check other slots because this function uses
+    # `scaleModel()` which is unit-tested separately.
+})
+
+
 test_that("calibrateYield works", {
     params <- NS_params
     # Does nothing when no observed yield
@@ -53,7 +77,6 @@ test_that("calibrateYield works", {
 })
 
 
-# scaleModel ----
 test_that("scaleModel does not change dynamics.", {
     factor <- 10
     sim <- project(NS_params, t_max = 1)

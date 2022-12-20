@@ -68,6 +68,9 @@ state, so you will need to also call `steady()` after matching the growth rates.
   of prey and predators could be kept constant at their current values.
 * `plotGrowthCurves()` can now superimpose a scatterplot of size-at-age data
   if you supply this via the new `size_at_age` argument.
+* New functions `calibrateNumber()` and `matchNumbers()` that are like
+  `calibrateBiomass()` and `matchBiomasses()` but work with observed numbers
+  instead of observed biomasses.
 * If an effort vector or effort array contains NA's, these are now replaced by
   the default effort value. #230
 * The entries of the interaction matrix and of interaction_resource are no
