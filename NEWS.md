@@ -111,6 +111,7 @@ state, so you will need to also call `steady()` after matching the growth rates.
   instead of 0. #243
 * In defaults edition 2, `get_gamma_default()` ensures a feeding level of `f0`
   for larvae also if `interaction_resource` is not equal to 1. #238
+* Set default linecolour and linetype for external mortality.
 
   
 ## Bug fixes

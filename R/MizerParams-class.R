@@ -635,7 +635,8 @@ emptyParams <- function(species_params,
     }
     names(linecolour) <- as.character(species_names)
     linecolour <- c(linecolour, "Resource" = "green", "Total" = "black",
-                    "Background" = "grey", "Fishing" = "red")
+                    "Background" = "grey", "Fishing" = "red", 
+                    "External" = "grey")
     
     if ("linetype" %in% names(species_params)) {
         linetype <- species_params$linetype
@@ -645,7 +646,8 @@ emptyParams <- function(species_params,
     }
     names(linetype) <- as.character(species_names)
     linetype <- c(linetype, "Resource" = "solid", "Total" = "solid",
-                  "Background" = "solid", "Fishing" = "solid")
+                  "Background" = "solid", "Fishing" = "solid", 
+                  "External" = "solid")
     
     # Make object ----
     # Should Z0, rrPP and ccPP have names (species names etc)?

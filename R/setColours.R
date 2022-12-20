@@ -2,7 +2,8 @@
 #'
 #' `r lifecycle::badge("experimental")`
 #' Used for setting the colour and type of lines representing "Total",
-#' "Resource", "Fishing", "Background" and possibly other categories in plots.
+#' "Resource", "Fishing", "Background", "External" and possibly other categories
+#' in plots.
 #'
 #' Colours for names that already had a colour set for them will be overwritten
 #' by the colour you specify. Colours for names that did not yet have a colour
