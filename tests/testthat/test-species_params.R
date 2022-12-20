@@ -1,9 +1,5 @@
+local_edition(3)
 
-## Initialise ----
-params <- NS_params
-no_sp <- nrow(params@species_params)
-
-## validSpeciesParams ----
 test_that("validSpeciesParams() works", {
     species_params <- NS_species_params
     
@@ -61,8 +57,11 @@ test_that("validSpeciesParams converts from length to weight", {
     expect_identical(sp2$w_max, c(0.01, 0.08))
 })
 
-## set_species_param_default ----
+
 test_that("set_species_param_default sets default correctly", {
+    params <- NS_params
+    no_sp <- nrow(params@species_params)
+    
     # Add comments to test that they are preserved
     comment(params@species_params) <- "top"
     comment(params@species_params$w_max) <- "test"
@@ -89,9 +88,10 @@ test_that("set_species_param_default sets default correctly", {
 })
 
 
-# Test default values ----
+
 test_that("default for gamma is correct", {
     params <- NS_params
+    # check that missing h is o.k.
     params@species_params$alpha <- 0.1
     species_params <- params@species_params
     gamma_default <- get_gamma_default(params)
@@ -111,14 +111,14 @@ test_that("default for gamma is correct", {
     gamma_analytic <- (species_params$h / (params@resource_params$kappa * ae)) * 
         (species_params$f0 / (1 - species_params$f0))
     # TODO: reduce the tolerance below
-    expect_equal(gamma_default/ gamma_analytic, 
+    expect_equal(gamma_default / gamma_analytic, 
                  rep(1, length(gamma_default)),
                  tolerance = 0.1)
 })
 
-# species_params<-() ----
+
 test_that("Setting species params works", {
-    params <- newMultispeciesParams(NS_species_params)
+    params <- newMultispeciesParams(NS_species_params, info_level = 0)
     # changing h changes intake_max
     h_old <- params@species_params$h[[1]]
     intake_max_old <- params@intake_max[1, 1]
@@ -155,7 +155,7 @@ test_that("Setting species params works", {
     
 })
 
-## set_species_params_from_length ----
+
 test_that("set_species_params_from_length works", {
     sp <- data.frame(species = 1:2, a = 0.01, b = 3)
     # Does nothing if no length

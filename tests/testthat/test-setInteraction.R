@@ -1,13 +1,13 @@
-params <- NS_params
-no_sp <- nrow(params@species_params)
-
-## setInteraction ----
+local_edition(3)
 test_that("setInteraction works", {
+    params <- NS_params
+    no_sp <- nrow(params@species_params)
+    
     expect_unchanged(setInteraction(params, interaction = params@interaction),
                      params)
     inter <- matrix(1/2, nrow = no_sp, ncol = no_sp)
     p2 <- setInteraction(params, inter)
-    expect_equivalent(p2@interaction, inter)
+    expect_equal(p2@interaction, inter, ignore_attr = TRUE)
     expect_error(setInteraction(params, inter[1:(no_sp - 1), ]),
                  "interaction matrix is not of the right dimensions")
     
@@ -40,8 +40,9 @@ test_that("setInteraction works", {
     
 })
 
-# getInteraction ----
+
 test_that("getInteraction works", {
-    p <- setInteraction(params, interaction = getInteraction(params))
+    params <- NS_params
+    p <- setInteraction(params, interaction = params@interaction)
     expect_unchanged(params, p)
 })

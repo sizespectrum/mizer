@@ -13,8 +13,8 @@ sp <- 1  # check first species
 sigma <- p@species_params$sigma[sp]
 beta <- p@species_params$beta[sp]
 gamma <- p@species_params$gamma[sp]
-q <- p@species_params$q[sp]
-n <- p@species_params$n[sp]
+q <- p@species_params[["q"]][sp]
+n <- p@species_params[["n"]][sp]
 lm2 <- p@resource_params$lambda - 2
 
 # getEncounter ----

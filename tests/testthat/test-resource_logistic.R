@@ -1,3 +1,5 @@
+local_edition(3)
+
 test_that("resource_logistic preserves steady state", {
     # Set resource parameters so that we are at steady state
     params <- newTraitParams()
@@ -16,7 +18,7 @@ test_that("resource_logistic preserves steady state", {
                            resource_rate = params@rr_pp)
     expect_equal(x, params@initial_n_pp,
                  tolerance = 1e-15,
-                 check.attributes = FALSE)
+                 ignore_attr = TRUE)
 })
 
 

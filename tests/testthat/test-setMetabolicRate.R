@@ -1,3 +1,4 @@
+local_edition(3)
 params <- NS_params
 
 # setMetabolicRate ----
@@ -43,7 +44,7 @@ test_that("Comment works on metab", {
     # Can reset
     p <- setMetabolicRate(params, reset = TRUE)
     expect_equal(p@metab[, 1], params@w[1]^params@species_params$p,
-                 check.attributes = FALSE)
+                 ignore_attr = TRUE)
     expect_warning(setMetabolicRate(params, metab = metab,
                                     reset = TRUE),
                    "Because you set `reset = TRUE`, the")

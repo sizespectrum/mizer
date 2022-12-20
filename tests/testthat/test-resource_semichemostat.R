@@ -1,3 +1,5 @@
+local_edition(3)
+
 test_that("resource_semichemostat preserves steady state", {
     # Set resource parameters so that we are at steady state
     params <- newTraitParams()
@@ -14,7 +16,7 @@ test_that("resource_semichemostat preserves steady state", {
                                 resource_rate = params@rr_pp)
     expect_equal(x, params@initial_n_pp,
                  tolerance = 1e-15,
-                 check.attributes = FALSE)
+                 ignore_attr = TRUE)
 })
 
 
@@ -52,9 +54,9 @@ test_that("resource_semichemostat evolves towards steady state", {
 test_that("balance_resource_semichemostat works", {
     # semichemostat rate
     sc <- function(params) {
-        r <- getResourceRate(params)
-        c <- getResourceCapacity(params)
-        N <- initialNResource(params)
+        r <- params@rr_pp
+        c <- params@cc_pp
+        N <- params@initial_n_pp
         mu <- getResourceMort(params)
         N_steady <- r * c / (mu + r)
         sel <- (mu + r) > 0

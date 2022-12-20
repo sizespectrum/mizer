@@ -1,4 +1,5 @@
 test_that("get_time_elements", {
+    params <- NS_params
     sim <- project(params, effort = 1, t_max = 10, dt = 0.5, t_save = 0.5)
     expect_identical(get_time_elements(sim, as.character(3:4)),
                      get_time_elements(sim, 3:4))
