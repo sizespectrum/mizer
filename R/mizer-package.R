@@ -10,6 +10,7 @@
 #' life history parameters of each species, and the range of the size spectrum.
 #' There are several setup functions that help to create a MizerParams objects
 #' for particular types of models:
+#'     * [newSingleSpeciesParams()]
 #'     * [newCommunityParams()]
 #'     * [newTraitParams()]
 #'     * [newMultispeciesParams()]

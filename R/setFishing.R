@@ -619,6 +619,8 @@ validGearParams <- function(gear_params, species_params) {
 
 #' Return valid effort vector
 #' 
+#' A valid effort vector is a named vector with one effort value for each gear.
+#' 
 #' The function also accepts an `effort` that is not yet valid:
 #' 
 #' * a scalar, which is then replicated for each gear

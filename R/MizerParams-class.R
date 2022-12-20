@@ -797,7 +797,7 @@ dw_full <- function(params) {
     params@dw_full
 }
 
-#' Validate MizerParams object and upgrade if necessary
+#' Validate MizerParams object and upgrade if necessary using [upgradeParams()].
 #' 
 #' @param params The MizerParams object to validate
 #' @return A valid MizerParams object

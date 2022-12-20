@@ -65,6 +65,7 @@
 #' @param ... Unused
 #' 
 #' @return `setResource`: A MizerParams object with updated resource parameters
+#' @family resource parameters
 #' @export
 setResource <- function(params,
                         resource_rate = NULL,

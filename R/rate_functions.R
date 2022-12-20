@@ -445,7 +445,7 @@ getFMortGear <- function(object, effort, time_range) {
         if (missing(time_range)) {
             time_range <- dimnames(sim@effort)$time
         }
-        time_elements <- get_time_elements(sim, time_range, slot_name = "effort")
+        time_elements <- get_time_elements(sim, time_range)
         f_mort_gear <- getFMortGear(sim@params, sim@effort)
         return(f_mort_gear[time_elements, , , , drop = FALSE])
     } else {

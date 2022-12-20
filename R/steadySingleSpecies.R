@@ -1,5 +1,6 @@
 #' Set initial abundances to single-species steady state abundances
 #'
+#' `r lifecycle::badge("experimental")`
 #' This first calculates growth and death rates that arise from the current
 #' initial abundances. Then it uses these growth and death rates to 
 #' determine the steady-state abundances of the selected species. 
