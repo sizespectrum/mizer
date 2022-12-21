@@ -71,6 +71,8 @@ state, so you will need to also call `steady()` after matching the growth rates.
 * New functions `calibrateNumber()` and `matchNumbers()` that are like
   `calibrateBiomass()` and `matchBiomasses()` but work with observed numbers
   instead of observed biomasses.
+* New function `age_mat()` to calculate the age at maturity from the growth
+  rate and the size at maturity.
 * If an effort vector or effort array contains NA's, these are now replaced by
   the default effort value. #230
 * The entries of the interaction matrix and of interaction_resource are no

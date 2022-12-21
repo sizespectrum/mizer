@@ -41,7 +41,7 @@ age_mat_vB <- function(object) {
 #' Uses the growth rate and the size at maturity to calculate the age at 
 #' maturity
 #' 
-#' Using that by definition of the growth rate $g(w) = dw/dt$ we have that
+#' Using that by definition of the growth rate \eqn{g(w) = dw/dt} we have that
 #' \deqn{\mathrm{age_{mat}} = \int_0^{w_{mat}.}\frac{dw}{g(w)}}{age_mat = \int_0^w_mat 1/g(w) dw.}
 #' 
 #' @param params A MizerParams object
