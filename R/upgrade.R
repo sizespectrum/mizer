@@ -305,23 +305,23 @@ upgradeParams <- function(params) {
         }
         
         if (!"Fishing" %in% names(getColours(params))) {
-            params <- setColours(params, c(Fishing = "red"))
+            params <- setColours(params, c("Fishing" = "red"))
         }
         if (!"Background" %in% names(getColours(params))) {
-            params <- setColours(params, c(Background = "grey"))
+            params <- setColours(params, c("Background" = "grey"))
         }
         if (!"Total" %in% names(getColours(params))) {
-            params <- setColours(params, c(Total = "black"))
+            params <- setColours(params, c("Total" = "black"))
         }
         
         if (!"Fishing" %in% names(getLinetypes(params))) {
-            params <- setLinetypes(params, c(Fishing = "solid"))
+            params <- setLinetypes(params, c("Fishing" = "solid"))
         }
         if (!"Background" %in% names(getLinetypes(params))) {
-            params <- setLinetypes(params, c(Background = "solid"))
+            params <- setLinetypes(params, c("Background" = "solid"))
         }
         if (!"Total" %in% names(getLinetypes(params))) {
-            params <- setLinetypes(params, c(Total = "solid"))
+            params <- setLinetypes(params, c("Total" = "solid"))
         }
         
         # Copy over all comments
@@ -342,12 +342,18 @@ upgradeParams <- function(params) {
         if (!("w_max" %in% par_names)) {
             params@species_params$w_max <- params@species_params$w_inf
         }
-        # Add linecolour and linetype for external mortality
+        # Add linecolour and linetype for fishing and external mortality
+        if (!"Fishing" %in% names(getColours(params))) {
+            params <- setColours(params, c("Fishing" = "red"))
+        }
+        if (!"Fishing" %in% names(getLinetypes(params))) {
+            params <- setLinetypes(params, c("Fishing" = "solid"))
+        }
         if (!"External" %in% names(getColours(params))) {
-            params <- setColours(params, c(External = "grey"))
+            params <- setColours(params, c("External" = "grey"))
         }
         if (!"External" %in% names(getLinetypes(params))) {
-            params <- setLinetypes(params, c(External = "solid"))
+            params <- setLinetypes(params, c("External" = "solid"))
         }
     }
     
