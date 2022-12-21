@@ -67,10 +67,14 @@ upgradeParams <- function(params) {
     # We'll use the version to decide which upgrades are needed. Copy it to
     # a variable because params@mizer_version might get changed during the 
     # upgrade
-    version <- params@mizer_version
+    if (!.hasSlot(params, "mizer_version")) {
+        version <- "2.2.1"
+    } else {
+        version <- params@mizer_version
+    }
     
     # Before version 2.3 ----
-    if (!.hasSlot(params, "mizer_version") || version < 2.3) {
+    if (version < 2.3) {
         
         if ("interaction_p" %in% names(params@species_params)) {
             params@species_params$interaction_resource <- 
@@ -304,26 +308,6 @@ upgradeParams <- function(params) {
             pnew@species_params$catch_observed <- NULL
         }
         
-        if (!"Fishing" %in% names(getColours(params))) {
-            params <- setColours(params, c("Fishing" = "red"))
-        }
-        if (!"Background" %in% names(getColours(params))) {
-            params <- setColours(params, c("Background" = "grey"))
-        }
-        if (!"Total" %in% names(getColours(params))) {
-            params <- setColours(params, c("Total" = "black"))
-        }
-        
-        if (!"Fishing" %in% names(getLinetypes(params))) {
-            params <- setLinetypes(params, c("Fishing" = "solid"))
-        }
-        if (!"Background" %in% names(getLinetypes(params))) {
-            params <- setLinetypes(params, c("Background" = "solid"))
-        }
-        if (!"Total" %in% names(getLinetypes(params))) {
-            params <- setLinetypes(params, c("Total" = "solid"))
-        }
-        
         # Copy over all comments
         comment(pnew) <- comment(params)
         for (slot in slotNames(pnew)) {
@@ -335,7 +319,7 @@ upgradeParams <- function(params) {
         params <- pnew
     }
     
-    # Before version 2.4
+    # Before version 2.4 ----
     if (version < "2.3.1.9001") {
         # copy w_inf to w_max
         par_names <- names(params@species_params)
