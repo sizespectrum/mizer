@@ -9,16 +9,19 @@
 #' with [setResource()]. The mortality \eqn{\mu_R(w, t)} is
 #' due to predation by consumers and is calculate with [getResourceMort()].
 #' 
-#' To set your model to use logistic dynamics for the resource you do
-#' ```
-#' resource_dynamics(params) <- "resource_logistic"
-#' ```
-#' where you should replace `params` with the name of the variable holding your
-#' MizerParams object.
-#' 
 #' This function uses the analytic solution of the above equation to calculate
 #' the resource abundance at time `t + dt` from all abundances and rates at time
 #' `t`, keeping the mortality fixed during the timestep.
+#' 
+#' To set your model to use logistic dynamics for the resource you do
+#' ```
+#' params <- setResource(params, 
+#'                       resource_dynamics = "resource_logistic", 
+#'                       resource_level = 0.5)
+#' ```
+#' where you should replace `params` with the name of the variable holding your
+#' MizerParams object. You can of course choose any value between 0 and 1 for
+#' the resource level.
 #' 
 #' @param params A [MizerParams] object
 #' @param n A matrix of species abundances (species x size)
@@ -34,9 +37,6 @@
 #' @return Vector containing resource spectrum at next timestep
 #' @export
 #' @family resource dynamics
-#' @examples
-#' params <- NS_params
-#' resource_dynamics(params) <- "resource_logistic"
 resource_logistic <- function(params, n, n_pp, n_other, rates, t, dt,
                               resource_rate, resource_capacity, ...) {
     # We use the exact solution under the assumption of constant mortality 

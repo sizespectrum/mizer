@@ -55,17 +55,20 @@ carrying capacity in the absence of predation. These parameters are changed
 with \code{\link[=setResource]{setResource()}}. The mortality \eqn{\mu_R(w, t)} is
 due to predation by consumers and is calculate with \code{\link[=getResourceMort]{getResourceMort()}}.
 
-To set your model to use semichemostat dynamics for the resource you do
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{resource_dynamics(params) <- "resource_semichemostat"
-}\if{html}{\out{</div>}}
-
-where you should replace \code{params} with the name of the variable holding your
-MizerParams object.
-
 This function uses the analytic solution of the above equation to calculate
 the resource abundance at time \code{t + dt} from all abundances and rates at time
 \code{t}, keeping the mortality fixed during the timestep.
+
+To set your model to use semichemostat dynamics for the resource you do
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{params <- setResource(params, 
+                      resource_dynamics = "resource_semichemostat", 
+                      resource_level = 0.5)
+}\if{html}{\out{</div>}}
+
+where you should replace \code{params} with the name of the variable holding your
+MizerParams object. You can of course choose any value between 0 and 1 for
+the resource level.
 
 The \code{\link[=balance_resource_semichemostat]{balance_resource_semichemostat()}} function is called by \code{\link[=setResource]{setResource()}}
 to determine the values of the resource parameters that are needed to make
@@ -73,10 +76,6 @@ the replenishment rate at each size equal the consumption rate at that size,
 as calculated by \code{\link[=getResourceMort]{getResourceMort()}}. It should be called with only one of
 \code{resource_rate} or \code{resource_capacity} should and will return a named list
 with the values for both.
-}
-\examples{
-params <- NS_params
-resource_dynamics(params) <- "resource_semichemostat"
 }
 \seealso{
 Other resource dynamics: 

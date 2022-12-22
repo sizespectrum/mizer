@@ -83,10 +83,10 @@ test_that("w, w_full, dw, dw_full work", {
 test_that("validParams works", {
     simc.0.4 <- readRDS("assets/simc.0.4.rds")
     expect_warning(p <- validParams(simc.0.4@params),
-                   "You need to upgrade your MizerParams object")
+                   "Your MizerParams object was created with an earlier")
     expect_true(validObject(p))
     simc.1.0 <- readRDS("assets/simc.1.0.rds")
     expect_warning(p <- validParams(simc.1.0@params),
-                   "You need to upgrade your MizerParams object")
+                   "Your MizerParams object was created with an earlier")
     expect_true(validObject(p))
 })

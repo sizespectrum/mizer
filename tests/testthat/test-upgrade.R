@@ -46,11 +46,11 @@ test_that("r_max is renamed", {
 test_that("Some functions work with params from earlier versions", {
     params.0.4 <- readRDS("assets/simc.0.4.rds")@params
     expect_warning(getEGrowth(params.0.4),
-                   "You need to upgrade your MizerParams object")
+                   "Your MizerParams object was created with an earlier")
     expect_warning(plotFeedingLevel(params.0.4),
-                   "You need to upgrade your MizerParams object")
+                   "Your MizerParams object was created with an earlier")
     expect_warning(project(params.0.4, t_max = 0.1),
-                   "You need to upgrade your MizerParams object")
+                   "Your MizerParams object was created with an earlier")
     # renaming of resource dynamics functions
     slot(params.0.4, "srr", check = FALSE) <- "srrNone"
     p4 <- upgradeParams(params.0.4)
