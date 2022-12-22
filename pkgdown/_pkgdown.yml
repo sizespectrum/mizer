@@ -110,7 +110,9 @@ reference:
   - matchGrowth
   - plotBiomassObservedVsModel
   - calibrateBiomass
+  - calibrateNumber
   - matchBiomasses
+  - matchNumbers
   - plotYieldObservedVsModel
   - calibrateYield
   - matchYields
