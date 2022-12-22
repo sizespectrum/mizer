@@ -1,10 +1,7 @@
 #' Project resource using logistic model
 #' 
-#' This function calculates the resource abundance at time `t + dt` from all
-#' abundances and rates at time `t`. 
-#' 
-#' The time evolution of the resource spectrum is described by a 
-#' logistic equation
+#' If you set your resource dynamics to use this function then the time
+#' evolution of the resource spectrum is described by a logistic equation
 #' \deqn{\frac{\partial N_R(w,t)}{\partial t} = r_R(w) N_R(w)\Big[ 1 - \frac{N_R(w,t)}{c_R (w)} \Big] - \mu_R(w, t) N_R(w,t)}{dN_R(w,t)/d t  = r_R(w) N_r(w)( 1 - N_R(w,t) / c_R (w)) - \mu_R(w,t ) N_R(w,t)}
 #' 
 #' Here \eqn{r_R(w)} is the resource regeneration rate and \eqn{c_R(w)} is the
@@ -12,11 +9,16 @@
 #' with [setResource()]. The mortality \eqn{\mu_R(w, t)} is
 #' due to predation by consumers and is calculate with [getResourceMort()].
 #' 
-#' This function uses the analytic solution of the above equation, keeping the
-#' mortality fixed during the timestep.
+#' To set your model to use logistic dynamics for the resource you do
+#' ```
+#' resource_dynamics(params) <- "resource_logistic"
+#' ```
+#' where you should replace `params` with the name of the variable holding your
+#' MizerParams object.
 #' 
-#' It is also possible to implement other resource dynamics, as
-#' described in the help page for [setResource()].
+#' This function uses the analytic solution of the above equation to calculate
+#' the resource abundance at time `t + dt` from all abundances and rates at time
+#' `t`, keeping the mortality fixed during the timestep.
 #' 
 #' @param params A [MizerParams] object
 #' @param n A matrix of species abundances (species x size)
@@ -33,10 +35,8 @@
 #' @export
 #' @family resource dynamics
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears, NS_interaction,
-#'                                 resource_dynamics = "resource_logistic")
-#' }
+#' params <- NS_params
+#' resource_dynamics(params) <- "resource_logistic"
 resource_logistic <- function(params, n, n_pp, n_other, rates, t, dt,
                               resource_rate, resource_capacity, ...) {
     # We use the exact solution under the assumption of constant mortality 
@@ -59,20 +59,16 @@ resource_logistic <- function(params, n, n_pp, n_other, rates, t, dt,
     n_pp_new
 }
 
-#' Determine logistic resource parameters that balance replenishment and 
-#' consumption
-#' 
-#' This function is called by [setResource()] to determine the values of the
-#' resource parameters that are needed to make the replenishment rate at each
-#' size equal the consumption rate at that size, as calculated by
-#' [getResourceMort()]. So one of `resource_rate` or `resource_capacity` should
-#' be NULL and will be determined by this function.
-#' 
-#' @param params A MizerParams object
-#' @param resource_rate A vector of resource rates or NULL
-#' @param resource_capacity A vector of resource capacities or NULL
-#' @return A list with named entries 'resource_rate' and 'resource_capacity'.
-#' @family resource dynamics
+
+#' @rdname resource_logistic
+#' @details 
+#' The [balance_resource_logistic()] function is called by [setResource()] to
+#' determine the values of the resource parameters that are needed to make the
+#' replenishment rate at each size equal the consumption rate at that size, as
+#' calculated by [getResourceMort()]. It should be called with only one of
+#' `resource_rate` or `resource_capacity` should and will return a named list
+#' with the values for both.
+#' @export
 balance_resource_logistic <- function(params,
                                       resource_rate, resource_capacity) {
     assert_that(is(params, "MizerParams"))

@@ -37,7 +37,7 @@ functions.
 For the details see \code{\link[=setFishing]{setFishing()}}.
 
 The fishing effort, which is also needed to determine the fishing mortality
-excerted by a gear is not set via the \code{gear_params} data frame but is set
+exerted by a gear is not set via the \code{gear_params} data frame but is set
 with \code{initial_effort()} or is specified when calling \code{project()}.
 
 If you change a gear parameter, this will be used to recalculate the

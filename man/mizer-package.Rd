@@ -18,6 +18,7 @@ life history parameters of each species, and the range of the size spectrum.
 There are several setup functions that help to create a MizerParams objects
 for particular types of models:
 \itemize{
+\item \code{\link[=newSingleSpeciesParams]{newSingleSpeciesParams()}}
 \item \code{\link[=newCommunityParams]{newCommunityParams()}}
 \item \code{\link[=newTraitParams]{newTraitParams()}}
 \item \code{\link[=newMultispeciesParams]{newMultispeciesParams()}}

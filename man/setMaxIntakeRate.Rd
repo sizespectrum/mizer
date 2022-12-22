@@ -57,7 +57,8 @@ from the \code{h} and \code{n} columns in the species parameter dataframe. If
 the \code{h} column is not supplied in the species parameter dataframe, it is
 calculated by the \code{\link[=get_h_default]{get_h_default()}} function.
 
-If \eqn{h_i} is set to \code{Inf}, fish of species i will consume all encountered food.
+If \eqn{h_i} is set to \code{Inf}, fish of species i will consume all encountered
+food.
 }
 
 \seealso{

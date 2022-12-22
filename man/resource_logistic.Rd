@@ -2,6 +2,7 @@
 % Please edit documentation in R/resource_logistic.R
 \name{resource_logistic}
 \alias{resource_logistic}
+\alias{balance_resource_logistic}
 \title{Project resource using logistic model}
 \usage{
 resource_logistic(
@@ -16,6 +17,8 @@ resource_logistic(
   resource_capacity,
   ...
 )
+
+balance_resource_logistic(params, resource_rate, resource_capacity)
 }
 \arguments{
 \item{params}{A \link{MizerParams} object}
@@ -42,30 +45,38 @@ resource_logistic(
 Vector containing resource spectrum at next timestep
 }
 \description{
-This function calculates the resource abundance at time \code{t + dt} from all
-abundances and rates at time \code{t}.
+If you set your resource dynamics to use this function then the time
+evolution of the resource spectrum is described by a logistic equation
+\deqn{\frac{\partial N_R(w,t)}{\partial t} = r_R(w) N_R(w)\Big[ 1 - \frac{N_R(w,t)}{c_R (w)} \Big] - \mu_R(w, t) N_R(w,t)}{dN_R(w,t)/d t  = r_R(w) N_r(w)( 1 - N_R(w,t) / c_R (w)) - \mu_R(w,t ) N_R(w,t)}
 }
 \details{
-The time evolution of the resource spectrum is described by a
-logistic equation
-\deqn{\frac{\partial N_R(w,t)}{\partial t} = r_R(w) N_R(w)\Big[ 1 - \frac{N_R(w,t)}{c_R (w)} \Big] - \mu_R(w, t) N_R(w,t)}{dN_R(w,t)/d t  = r_R(w) N_r(w)( 1 - N_R(w,t) / c_R (w)) - \mu_R(w,t ) N_R(w,t)}
-
 Here \eqn{r_R(w)} is the resource regeneration rate and \eqn{c_R(w)} is the
 carrying capacity in the absence of predation. These parameters are changed
-with \code{\link[=setResourceLogistic]{setResourceLogistic()}}. The mortality \eqn{\mu_R(w, t)} is
+with \code{\link[=setResource]{setResource()}}. The mortality \eqn{\mu_R(w, t)} is
 due to predation by consumers and is calculate with \code{\link[=getResourceMort]{getResourceMort()}}.
 
-This function uses the analytic solution of the above equation, keeping the
-mortality fixed during the timestep.
+To set your model to use logistic dynamics for the resource you do
 
-It is also possible to implement other resource dynamics, as
-described in the help page for \link{resource_dynamics()<-}.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{resource_dynamics(params) <- "resource_logistic"
+}\if{html}{\out{</div>}}
+
+where you should replace \code{params} with the name of the variable holding your
+MizerParams object.
+
+This function uses the analytic solution of the above equation to calculate
+the resource abundance at time \code{t + dt} from all abundances and rates at time
+\code{t}, keeping the mortality fixed during the timestep.
+
+The \code{\link[=balance_resource_logistic]{balance_resource_logistic()}} function is called by \code{\link[=setResource]{setResource()}} to
+determine the values of the resource parameters that are needed to make the
+replenishment rate at each size equal the consumption rate at that size, as
+calculated by \code{\link[=getResourceMort]{getResourceMort()}}. It should be called with only one of
+\code{resource_rate} or \code{resource_capacity} should and will return a named list
+with the values for both.
 }
 \examples{
-\dontrun{
-params <- newMultispeciesParams(NS_species_params_gears, NS_interaction,
-                                resource_dynamics = "resource_logistic")
-}
+params <- NS_params
+resource_dynamics(params) <- "resource_logistic"
 }
 \seealso{
 Other resource dynamics: 

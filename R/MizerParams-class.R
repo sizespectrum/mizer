@@ -809,7 +809,7 @@ validParams <- function(params) {
     
     if (needs_upgrading(params)) {
         params <- upgradeParams(params)
-        warning("You need to upgrade your MizerParams object with `upgradeParams()`.")
+        warning("Your MizerParams object was created with an earlier version of mizer. You can upgrade it with `params <- upgradeParams(params)` where you should replace `params` by the name of the variable that holds your MizerParams object.")
     }
     
     params@w_min_idx <- get_w_min_idx(params@species_params, params@w)

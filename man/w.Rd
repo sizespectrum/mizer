@@ -22,8 +22,8 @@ dw_full(params)
 \code{w()} returns a vector with the sizes at the start of each size bin
 of the consumer spectrum.
 
-\code{w_full()} returns a vector with the sizes at the start of each size bin
-of the resource spectrum, which typically starts at smaller sizes than
+\code{w_full()} returns a vector with the sizes at the start of each size
+bin of the resource spectrum, which typically starts at smaller sizes than
 the consumer spectrum.
 
 \code{dw()} returns a vector with the widths of the size bins of the

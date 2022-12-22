@@ -9,10 +9,11 @@ matchGrowth(params, species = NULL, keep = c("egg", "biomass", "number"))
 \arguments{
 \item{params}{A MizerParams object}
 
-\item{species}{The species to be affected. Optional. By default all species for
-which growth information is available will be affected. A vector of species
-names, or a numeric vector with the species indices, or a logical vector
-indicating for each species whether it is to be affected (TRUE) or not.}
+\item{species}{The species to be affected. Optional. By default all species
+for which growth information is available will be affected. A vector of
+species names, or a numeric vector with the species indices, or a logical
+vector indicating for each species whether it is to be affected (TRUE) or
+not.}
 
 \item{keep}{A string determining which quantity is to be kept constant. The
 choices are "egg" which keeps the egg density constant, "biomass" which

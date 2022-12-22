@@ -48,11 +48,13 @@ species by including a \code{n} column in the \code{species_params}.}
 coefficient in the search rate. Ignored if \code{gamma} is given
 explicitly.}
 
-\item{kappa}{Coefficient of the intrinsic resource carrying capacity}
+\item{kappa}{The coefficient of the initial resource abundance power-law.}
 
-\item{lambda}{Scaling exponent of the intrinsic resource carrying capacity}
+\item{lambda}{Used to set power-law exponent for resource capacity if the
+\code{resource_capacity} argument is given as a single number.}
 
-\item{r_pp}{Coefficient of the intrinsic resource birth rate}
+\item{r_pp}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}. Use \code{resource_rate} argument
+instead.}
 
 \item{...}{Unused}
 }

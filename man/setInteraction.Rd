@@ -2,12 +2,15 @@
 % Please edit documentation in R/setInteraction.R
 \name{setInteraction}
 \alias{setInteraction}
-\alias{getInteraction}
+\alias{interaction_matrix}
+\alias{interaction_matrix<-}
 \title{Set species interaction matrix}
 \usage{
 setInteraction(params, interaction = NULL)
 
-getInteraction(params)
+interaction_matrix(params)
+
+interaction_matrix(params) <- value
 }
 \arguments{
 \item{params}{MizerParams object}
@@ -15,13 +18,15 @@ getInteraction(params)
 \item{interaction}{Optional interaction matrix of the species (predator
 species x prey species). By default all entries are 1. See "Setting
 interaction matrix" section below.}
+
+\item{value}{An interaction matrix}
 }
 \value{
 \code{setInteraction}: A MizerParams object with updated interaction
 matrix
 
-\code{getInteraction()}: The interaction matrix (predator species x prey
-species)
+\code{interaction_matrix()}: The interaction matrix (predator species x
+prey species)
 }
 \description{
 Set species interaction matrix

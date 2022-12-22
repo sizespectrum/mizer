@@ -7,7 +7,7 @@
 age_mat_vB(object)
 }
 \arguments{
-\item{params}{A MizerParams object or a species_params data frame}
+\item{object}{A MizerParams object or a species_params data frame}
 }
 \value{
 A named vector. The names are the species names and the values are
@@ -16,7 +16,7 @@ the ages at maturity.
 \description{
 This is not a good way to determine the age at maturity because the von
 Bertalanffy growth curve is not reliable for larvae and juveniles. However
-this was used in previous versions fo mizer and is supplied for
+this was used in previous versions of mizer and is supplied for
 backwards compatibility.
 }
 \details{

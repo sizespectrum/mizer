@@ -104,7 +104,6 @@ matchBiomasses <- function(params, species = NULL) {
 #' species_params(params)$number_cutoff <- 10
 #' params <- calibrateNumber(params)
 #' params <- matchNumbers(params)
-#' plotNumberVsSpecies(params)
 matchNumbers <- function(params, species = NULL) {
     if (!("number_observed" %in% names(params@species_params))) {
         return(params)

@@ -153,7 +153,7 @@ the initial resource abundance at each weight.}
 \item{\code{initial_n_other}}{A list with the initial abundances of all other
 ecosystem components. Has length zero if there are no other components.}
 
-\item{\code{resource_params}}{List with parameters for resource. See \code{\link[=setResource]{setResource()}}.}
+\item{\code{resource_params}}{List with parameters for resource.}
 
 \item{\code{A}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Abundance multipliers.}

@@ -184,13 +184,13 @@ feeding level, \code{f0}.
 
 The option of including fishing is given, but the steady state may loose its
 natural stability if too much fishing is included. In such a case the user
-may wish to include stabilising effects (like \code{reproduction_level}) to ensure the
-steady state is stable. Fishing selectivity is modelled as a knife-edge
-function with one parameter, \code{knife_edge_size}, which is the size at
-which species are selected. Each species can either be fished by the same
-gear (\code{knife_edge_size} has a length of 1) or by a different gear (the
-length of \code{knife_edge_size} has the same length as the number of species
-and the order of selectivity size is that of the maximum size).
+may wish to include stabilising effects (like \code{reproduction_level}) to ensure
+the steady state is stable. Fishing selectivity is modelled as a knife-edge
+function with one parameter, \code{knife_edge_size}, which is the size at which
+species are selected. Each species can either be fished by the same gear
+(\code{knife_edge_size} has a length of 1) or by a different gear (the length of
+\code{knife_edge_size} has the same length as the number of species and the order
+of selectivity size is that of the maximum size).
 
 The resulting \code{MizerParams} object can be projected forward using
 \code{project()} like any other \code{MizerParams} object. When projecting
@@ -199,11 +199,9 @@ instabilities with the solver. You can check this by plotting the biomass or
 abundance through time after the projection.
 }
 \examples{
-\dontrun{
 params <- newTraitParams()
 sim <- project(params, t_max = 5, effort = 0)
 plotSpectra(sim)
-}
 }
 \seealso{
 Other functions for setting up models: 

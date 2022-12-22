@@ -17,15 +17,21 @@ resource_constant(params, n_pp, ...)
 Vector containing resource spectrum at next timestep
 }
 \description{
-This function can be used instead of the standard
-\code{\link[=resource_semichemostat]{resource_semichemostat()}} in order to keep the resource
-spectrum constant over time.
+If you set your resource dynamics to use this function then the resource
+abundances are kept constant over time.
+}
+\details{
+To set your model to keep the resource constant over time you do
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{resource_dynamics(params) <- "resource_constant"
+}\if{html}{\out{</div>}}
+
+where you should replace \code{params} with the name of the variable holding your
+MizerParams object.
 }
 \examples{
-\dontrun{
 params <- NS_params
 resource_dynamics(params) <- "resource_constant"
-}
 }
 \seealso{
 Other resource dynamics: 

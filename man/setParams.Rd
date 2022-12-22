@@ -38,8 +38,8 @@ section "Setting external mortality rate".}
     \item{\code{z0pre}}{If \code{z0}, the mortality from other sources, is not a column
 in the species data frame, it is calculated as z0pre * w_max ^ z0exp.
 Default value is 0.6.}
-    \item{\code{z0exp}}{If \code{z0}, the mortality from other sources, is not a column
-in the species data frame, it is calculated as \code{z0pre * w_max ^ z0exp}.
+    \item{\code{z0exp}}{If \code{z0}, the mortality from other sources, is not a column in
+the species data frame, it is calculated as \code{z0pre * w_max ^ z0exp}.
 Default value is \code{n-1}.}
     \item{\code{z0}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{ext_mort} instead. Not to
 be confused with the species_parameter \code{z0}.}
@@ -108,8 +108,8 @@ Internally that will actually call \code{setParams()} to recalculate any of the
 other parameters that are affected by the change in the species parameter.
 
 \code{setParams()} will use the species parameters in the \code{params} object to
-recalculate the values of all the model functions except those for which you have set custom
-values.
+recalculate the values of all the model functions except those for which you
+have set custom values.
 }
 \section{Units in mizer}{
 
@@ -274,7 +274,8 @@ from the \code{h} and \code{n} columns in the species parameter dataframe. If
 the \code{h} column is not supplied in the species parameter dataframe, it is
 calculated by the \code{\link[=get_h_default]{get_h_default()}} function.
 
-If \eqn{h_i} is set to \code{Inf}, fish of species i will consume all encountered food.
+If \eqn{h_i} is set to \code{Inf}, fish of species i will consume all encountered
+food.
 }
 
 \section{Setting metabolic rate}{
@@ -309,12 +310,11 @@ The \code{ext_mort} argument allows you to specify an external mortality rate
 that depends on species and body size. You can see an example of this in
 the Examples section of the help page for \code{\link[=setExtMort]{setExtMort()}}.
 
-If the \code{ext_mort} argument is not supplied, then the external mortality
-is assumed to depend only on the species, not on the
-size of the individual: \eqn{\mu_{ext.i}(w) = z_{0.i}}. The value of the
-constant \eqn{z_0} for each species is taken from the \code{z0} column of the
-species parameter data frame, if that column exists. Otherwise it is calculated
-as
+If the \code{ext_mort} argument is not supplied, then the external mortality is
+assumed to depend only on the species, not on the size of the individual:
+\eqn{\mu_{ext.i}(w) = z_{0.i}}. The value of the constant \eqn{z_0} for each
+species is taken from the \code{z0} column of the species parameter data frame, if
+that column exists. Otherwise it is calculated as
 \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
 }
 

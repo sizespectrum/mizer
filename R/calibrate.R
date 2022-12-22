@@ -92,7 +92,6 @@ calibrateBiomass <- function(params) {
 #'     c(0.8, 61, 12, 35, 1.6, 20, 10, 7.6, 135, 60, 30, 78)
 #' species_params(params)$number_cutoff <- 10
 #' params2 <- calibrateNumber(params)
-#' plotNumberVsSpecies(params2)
 calibrateNumber <- function(params) {
     if ((!("number_observed" %in% names(params@species_params))) ||
         all(is.na(params@species_params$number_observed))) {

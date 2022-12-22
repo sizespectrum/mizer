@@ -221,6 +221,7 @@ reference:
   contents:
   - has_concept("resource dynamics")
   - has_concept("resource parameters")
+  - resource_params
 - title: Reproduction functions
   contents:
   - has_concept("functions calculating density-dependent reproduction rate")

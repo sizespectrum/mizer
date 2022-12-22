@@ -39,8 +39,8 @@ one first calls \code{\link[=scaleModel]{scaleModel()}} and then runs a simulati
 \code{\link[=project]{project()}} or whether one first runs a simulation and then rescales the
 resulting abundances.
 
-Note that if you use non-standard resource dynamics or other components then you
-may need to rescale additional parameters that appear in those dynamics.
+Note that if you use non-standard resource dynamics or other components then
+you may need to rescale additional parameters that appear in those dynamics.
 
 In practice you will need to use some observations to set the scale for your
 model. If you have biomass observations you can use \code{\link[=calibrateBiomass]{calibrateBiomass()}},

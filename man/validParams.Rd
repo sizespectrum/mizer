@@ -2,7 +2,7 @@
 % Please edit documentation in R/MizerParams-class.R
 \name{validParams}
 \alias{validParams}
-\title{Validate MizerParams object and upgrade if necessary}
+\title{Validate MizerParams object and upgrade if necessary using \code{\link[=upgradeParams]{upgradeParams()}}.}
 \usage{
 validParams(params)
 }
@@ -13,5 +13,5 @@ validParams(params)
 A valid MizerParams object
 }
 \description{
-Validate MizerParams object and upgrade if necessary
+Validate MizerParams object and upgrade if necessary using \code{\link[=upgradeParams]{upgradeParams()}}.
 }

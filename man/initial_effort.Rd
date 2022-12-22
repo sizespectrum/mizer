@@ -25,13 +25,14 @@ effort invested into fishing with that gear. The effort value for each gear
 is multiplied by the catchability and the selectivity to determine the
 fishing mortality imposed by that gear, see \code{\link[=setFishing]{setFishing()}} for more details.
 
-The function also accepts an \code{effort} that is not yet valid:
+A valid effort vector is a named vector with one effort value for each gear.
 }
 \details{
 The initial effort you have set can be overruled when running a simulation
 by providing an \code{effort} argument to \code{\link[=project]{project()}} which allows you to
 specify a time-varying effort.
 
+The function also accepts an \code{effort} that is not yet valid:
 \itemize{
 \item a scalar, which is then replicated for each gear
 \item an unnamed vector, which is then assumed to be in the same order as the

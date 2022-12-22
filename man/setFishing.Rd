@@ -62,16 +62,16 @@ a vector, must be named by gear.}
 \code{setFishing()}: A MizerParams object with updated fishing
 parameters.
 
-\code{getCatchability()} or equivalently \code{catchability()}: An array (gear x species) that holds the catchability of
-each species by each gear, \eqn{Q_{g,i}}.
-The names of the dimensions are "gear, "sp".
+\code{getCatchability()} or equivalently \code{catchability()}: An array (gear
+x species) that holds the catchability of each species by each gear,
+\eqn{Q_{g,i}}. The names of the dimensions are "gear, "sp".
 
-\code{getSelectivity()} or equivalently \code{selectivity()}: An array (gear x species x size) that holds
-the selectivity of each gear for species and size, \eqn{S_{g,i,w}}.
-The names of the dimensions are "gear, "sp", "w".
+\code{getSelectivity()} or equivalently \code{selectivity()}: An array (gear x
+species x size) that holds the selectivity of each gear for species and
+size, \eqn{S_{g,i,w}}. The names of the dimensions are "gear, "sp", "w".
 
-\code{getInitialEffort()} or equivalently \code{initial_effort()}: A named vector with the initial fishing
-effort for each gear.
+\code{getInitialEffort()} or equivalently \code{initial_effort()}: A named
+vector with the initial fishing effort for each gear.
 }
 \description{
 Set fishing parameters

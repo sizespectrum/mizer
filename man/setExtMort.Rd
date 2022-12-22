@@ -34,8 +34,8 @@ section "Setting external mortality rate".}
 in the species data frame, it is calculated as z0pre * w_max ^ z0exp.
 Default value is 0.6.}
 
-\item{z0exp}{If \code{z0}, the mortality from other sources, is not a column
-in the species data frame, it is calculated as \code{z0pre * w_max ^ z0exp}.
+\item{z0exp}{If \code{z0}, the mortality from other sources, is not a column in
+the species data frame, it is calculated as \code{z0pre * w_max ^ z0exp}.
 Default value is \code{n-1}.}
 
 \item{reset}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -74,12 +74,11 @@ The \code{ext_mort} argument allows you to specify an external mortality rate
 that depends on species and body size. You can see an example of this in
 the Examples section of the help page for \code{\link[=setExtMort]{setExtMort()}}.
 
-If the \code{ext_mort} argument is not supplied, then the external mortality
-is assumed to depend only on the species, not on the
-size of the individual: \eqn{\mu_{ext.i}(w) = z_{0.i}}. The value of the
-constant \eqn{z_0} for each species is taken from the \code{z0} column of the
-species parameter data frame, if that column exists. Otherwise it is calculated
-as
+If the \code{ext_mort} argument is not supplied, then the external mortality is
+assumed to depend only on the species, not on the size of the individual:
+\eqn{\mu_{ext.i}(w) = z_{0.i}}. The value of the constant \eqn{z_0} for each
+species is taken from the \code{z0} column of the species parameter data frame, if
+that column exists. Otherwise it is calculated as
 \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
 }
 

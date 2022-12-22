@@ -64,9 +64,10 @@ and the resource interaction vector \eqn{\theta_{ip}} is taken from the
 
 \section{Details}{
 
-The encounter rate is multiplied by \eqn{1-f_0} to obtain the consumption rate,
-where \eqn{f_0} is the feeding level calculated with \code{\link[=getFeedingLevel]{getFeedingLevel()}}.
-This is used by the \code{\link[=project]{project()}} function for performing simulations.
+The encounter rate is multiplied by \eqn{1-f_0} to obtain the consumption
+rate, where \eqn{f_0} is the feeding level calculated with
+\code{\link[=getFeedingLevel]{getFeedingLevel()}}. This is used by the \code{\link[=project]{project()}} function for performing
+simulations.
 
 The function returns values also for sizes outside the size-range of the
 species. These values should not be used, as they are meaningless.

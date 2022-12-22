@@ -67,7 +67,19 @@
     <loc>https://sizespectrum.org/mizer/reference/addSpecies.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/age_mat.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/age_mat_vB.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/animateSpectra.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/balance_resource_logistic.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/balance_resource_semichemostat.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/BevertonHoltRDD.html</loc>
@@ -77,6 +89,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/calibrateBiomass.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/calibrateNumber.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/calibrateYield.html</loc>
@@ -95,6 +110,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/customFunction.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/defaults_edition.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/default_pred_kernel_params.html</loc>
@@ -169,6 +187,9 @@
     <loc>https://sizespectrum.org/mizer/reference/getGrowthCurves.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/getInteraction.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/getM2.html</loc>
   </url>
   <url>
@@ -212,6 +233,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getReproductionLevel.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/getResourceDynamics.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getResourceMort.html</loc>
@@ -286,6 +310,9 @@
     <loc>https://sizespectrum.org/mizer/reference/knife_edge.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/l2w.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/lognormal_pred_kernel.html</loc>
   </url>
   <url>
@@ -293,6 +320,12 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/matchBiomasses.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/matchGrowth.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/matchNumbers.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/matchYields.html</loc>
@@ -353,6 +386,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/N.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/needs_upgrading.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/newCommunityParams.html</loc>
@@ -457,6 +493,9 @@
     <loc>https://sizespectrum.org/mizer/reference/resource_constant.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/resource_logistic.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/resource_params.html</loc>
   </url>
   <url>
@@ -548,6 +587,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/steady.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/steadySingleSpecies.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/summary-MizerParams-method.html</loc>

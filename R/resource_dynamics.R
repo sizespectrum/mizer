@@ -1,8 +1,15 @@
 #' Keep resource abundance constant
 #' 
-#' This function can be used instead of the standard 
-#' [resource_semichemostat()] in order to keep the resource
-#' spectrum constant over time.
+#' If you set your resource dynamics to use this function then the resource
+#' abundances are kept constant over time.
+#' 
+#' 
+#' To set your model to keep the resource constant over time you do
+#' ```
+#' resource_dynamics(params) <- "resource_constant"
+#' ```
+#' where you should replace `params` with the name of the variable holding your
+#' MizerParams object.
 #' 
 #' @inheritParams resource_semichemostat
 #' @param ... Unused
@@ -11,10 +18,8 @@
 #' @export
 #' @family resource dynamics
 #' @examples
-#' \dontrun{
 #' params <- NS_params
 #' resource_dynamics(params) <- "resource_constant"
-#' }
 resource_constant <- function(params, n_pp, ...) {
     return(n_pp)
 }
@@ -23,48 +28,32 @@ resource_constant <- function(params, n_pp, ...) {
 
 #' Resource parameters
 #' 
-#' Functions for working with the resource parameters.
+#' The recommended way to change the resource dynamics parameters is to use
+#' [setResource()]. The `resource_params` list contains values that are helpful
+#' in setting up the actual size-dependent parameters with [setResource()]. If
+#' you have specified a custom resource dynamics function that requires
+#' additional parameters, then these should also be added to the
+#' `resource_params` list.
 #' 
-#' Both the [resource_semichemostat()] and the [resource_logistic()] dynamics
-#' are parametrised in terms of a size-dependent rate \eqn{r_R(w)} and a 
-#' size-dependent capacity \eqn{c_R}. You can see their current values with
-#' [getResourceRate()] and [getResourceCapacity()].
+#' The `resource_params` list will at least contain the slots `kappa`, `lambda`,
+#' `w_pp_cutoff` and `n`.
 #' 
-#' Due to the predation mortality, the actual resource abundance \eqn{N_R} is
-#' always lower than the capacity \eqn{c_R}. The ratio \eqn{N_R / c_R} is
-#' denoted as the resource level. This can be NaN when both \eqn{N_R} and
-#' \eqn{c_R} are zero. You can see the current values with [getResourceLevel()].
-#' 
-#' The recommended way to change these parameters is to use
-#' [setResource()]. The `resource_params` list only contains values that are
-#' helpful in setting up the actual size-dependent parameters. Also If you have
-#' specified a different resource dynamics function that requires additional
-#' parameters, then these should also be added to the `resource_params` list.
-#' 
-#' The `resource_params` list will at least contain the slots
-#' `kappa`, `lambda`, `w_pp_cutoff` and `n`.
-#' 
-#' The resource parameter `n` is the 
-#' exponent for the power-law form for the replenishment rate \eqn{r_R(w)}:
-#' \deqn{r_R(w) = r_R\, w^{n-1}.}{r_R(w) = r_R w^{n-1}.}
-#' 
+#' The resource parameter `n` is the exponent for the power-law form for the
+#' replenishment rate \eqn{r_R(w)}: \deqn{r_R(w) = r_R\, w^{n-1}.}{r_R(w) = r_R
+#' w^{n-1}.}
+#'
 #' The resource parameter `lambda` (\eqn{\lambda}) is the exponent for the
 #' power-law form for the carrying capacity \eqn{c_R(w)} and `w_pp_cutoff` is
-#' its cutoff value:
-#' \deqn{c_R(w) = c_R w^{-\lambda}}
-#' for all \eqn{w} less than `w_pp_cutoff` and zero for larger sizes.
-#' 
-#' The resource parameter `kappa` (\eqn{\kappa}) determines the initial 
-#' resource abundance:
-#' \deqn{N_R(w) = \kappa\, w^{-\lambda}}{c_R(w) = \kappa w^{-\lambda}}
-#' for all \eqn{w} less than `w_pp_cutoff` and zero for larger sizes. Of course
-#' you can overrule this with [initialNResource()].
+#' its cutoff value: \deqn{c_R(w) = c_R w^{-\lambda}} for all \eqn{w} less than
+#' `w_pp_cutoff` and zero for larger sizes.
+#'
+#' The resource parameter `kappa` (\eqn{\kappa}) determines the initial resource
+#' abundance: \deqn{N_R(w) = \kappa\, w^{-\lambda}}{c_R(w) = \kappa
+#' w^{-\lambda}} for all \eqn{w} less than `w_pp_cutoff` and zero for larger
+#' sizes.
 #' 
 #' @param params A MizerParams object
 #' @export
-#' @family resource parameters
-#' @examples 
-#' resource_params(NS_params)
 resource_params <- function(params) {
     params@resource_params
 }

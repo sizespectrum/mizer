@@ -51,7 +51,7 @@ data frame. This is then used by mizer to calculate a default for the
 maximum intake rate parameter `h` if you do not supply this.
 
 In the past, whenever you changed any model parameters, you needed to re-tune
-other parameters to keet the growth rates in line with observations. There is
+other parameters to keep the growth rates in line with observations. There is
 now a new function `matchGrowth()` that automatically scales the search volume,
 the maximum consumption rate and the metabolic rate all by the same factor in
 order to achieve a growth rate that allows individuals to reach their maturity
@@ -100,7 +100,7 @@ state, so you will need to also call `steady()` after matching the growth rates.
 * Add `style` argument to `plotDataFrame()` to facilitate producing area plots.
 * Add `wrap_scale` argument to `plotDataFrame()` to control scaling of axes in
   faceted plots.
-* `plotDiet()` can now show diets of several predator species in a facetted
+* `plotDiet()` can now show diets of several predator species in a faceted
   plot. #267
 * Change from `size` to `linewidth` aesthetic to avoid warnings in new version
   of ggplot2.
@@ -124,7 +124,7 @@ state, so you will need to also call `steady()` after matching the growth rates.
 * Restored the line colours to `NS_params`
 * Comment field now preserved by `set_species_default()`. #268
 * Comment on `w_inf` no longer leads to error in `plyr::aaply()`. #269
-* Can now again set `url` field in metdata. 
+* Can now again set `url` field in metadata. 
 * Correct species now listed in the legend of `plotYieldObservedVsModel()` and
   `plotBiomassObservedVsModel()`. #266
 * Standard order for legend in `plotDiet()` restored after change to `ggplot2`

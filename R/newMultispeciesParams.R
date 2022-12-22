@@ -73,9 +73,12 @@
 #' @section Setting initial values:
 #' The initial values for the species number densities are set using the 
 #' function `get_initial_n()`. These are quite arbitrary and not very close to
-#' the steady state abundances. We intend to improve this in the future. The
-#' initial resource number density is set equal to the resource carrying
-#' capacity.
+#' the steady state abundances. We intend to improve this in the future. 
+#' 
+#' The initial resource number density \eqn{N_R(w)} is set to a power law with
+#' coefficient `kappa` (\eqn{\kappa}) and exponent `-lambda` (\eqn{-\lambda}):
+#' \deqn{N_R(w) = \kappa\, w^{-\lambda}}{c_R(w) = \kappa w^{-\lambda}}
+#' for all \eqn{w} less than `w_pp_cutoff` and zero for larger sizes.
 #' 
 #' @export
 #' @family functions for setting up models

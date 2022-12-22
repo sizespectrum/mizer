@@ -3,77 +3,40 @@
 \name{resource_params}
 \alias{resource_params}
 \alias{resource_params<-}
-\alias{getResourceLevel}
-\alias{getResourceRate}
-\alias{getResourceCapacity}
 \title{Resource parameters}
 \usage{
 resource_params(params)
 
 resource_params(params) <- value
-
-getResourceLevel(params)
-
-getResourceRate(params)
-
-getResourceCapacity(params)
 }
 \arguments{
 \item{params}{A MizerParams object}
 
 \item{value}{A named list of resource parameters.}
 }
-\value{
-A vector of the same length as \code{w_full(params)} with the value of the
-resource dynamics parameter in each size class.
-}
 \description{
-Functions for working with the resource parameters.
+The recommended way to change the resource dynamics parameters is to use
+\code{\link[=setResource]{setResource()}}. The \code{resource_params} list contains values that are helpful
+in setting up the actual size-dependent parameters with \code{\link[=setResource]{setResource()}}. If
+you have specified a custom resource dynamics function that requires
+additional parameters, then these should also be added to the
+\code{resource_params} list.
 }
 \details{
-Both the \code{\link[=resource_semichemostat]{resource_semichemostat()}} and the \code{\link[=resource_logistic]{resource_logistic()}} dynamics
-are parametrised in terms of a size-dependent rate \eqn{r_R(w)} and a
-size-dependent capacity \eqn{c_R}. You can see their current values with
-\code{\link[=getResourceRate]{getResourceRate()}} and \code{\link[=getResourceCapacity]{getResourceCapacity()}}.
+The \code{resource_params} list will at least contain the slots \code{kappa}, \code{lambda},
+\code{w_pp_cutoff} and \code{n}.
 
-Due to the predation mortality, the actual resource abundance \eqn{N_R} is
-always lower than the capacity \eqn{c_R}. The ratio \eqn{N_R / c_R} is
-denoted as the resource level. This can be NaN when both \eqn{N_R} and
-\eqn{c_R} are zero. You can see the current values with \code{\link[=getResourceLevel]{getResourceLevel()}}.
-
-The recommended way to change these paramters is with the functions
-\code{\link[=setResourceSemichemostat]{setResourceSemichemostat()}} or \code{\link[=setResourceLogistic]{setResourceLogistic()}} (dependent on your
-choice of dynamics). The \code{resource_params} list only contains values that are
-helpful in setting up the actual size-dependent parameters. Also If you have
-specified a different resource dynamics function that requires additional
-parameters, then these should also be added to the \code{resource_params} list.
-
-The \code{resource_params} list will at least contain the slots
-\code{kappa}, \code{lambda}, \code{w_pp_cutoff} and \code{n}.
-
-The resource parameter \code{n} is the
-exponent for the power-law form for the replenishment rate \eqn{r_R(w)}:
-\deqn{r_R(w) = r_R\, w^{n-1}.}{r_R(w) = r_R w^{n-1}.}
+The resource parameter \code{n} is the exponent for the power-law form for the
+replenishment rate \eqn{r_R(w)}: \deqn{r_R(w) = r_R\, w^{n-1}.}{r_R(w) = r_R
+w^{n-1}.}
 
 The resource parameter \code{lambda} (\eqn{\lambda}) is the exponent for the
 power-law form for the carrying capacity \eqn{c_R(w)} and \code{w_pp_cutoff} is
-its cutoff value:
-\deqn{c_R(w) = c_R w^{-\lambda}}
-for all \eqn{w} less than \code{w_pp_cutoff} and zero for larger sizes.
+its cutoff value: \deqn{c_R(w) = c_R w^{-\lambda}} for all \eqn{w} less than
+\code{w_pp_cutoff} and zero for larger sizes.
 
-The resource parameter \code{kappa} (\eqn{\kappa}) determines the initial
-resource abundance:
-\deqn{N_R(w) = \kappa\, w^{-\lambda}}{c_R(w) = \kappa w^{-\lambda}}
-for all \eqn{w} less than \code{w_pp_cutoff} and zero for larger sizes. Of course
-you can overrule this with \code{\link[=initialNResource]{initialNResource()}}.
+The resource parameter \code{kappa} (\eqn{\kappa}) determines the initial resource
+abundance: \deqn{N_R(w) = \kappa\, w^{-\lambda}}{c_R(w) = \kappa
+w^{-\lambda}} for all \eqn{w} less than \code{w_pp_cutoff} and zero for larger
+sizes.
 }
-\examples{
-resource_params(NS_params)
-}
-\seealso{
-Other resource parameters: 
-\code{\link{resource_dynamics}()},
-\code{\link{setResourceLogistic}()},
-\code{\link{setResourceSemichemostat}()}
-}
-\concept{resource parameters}

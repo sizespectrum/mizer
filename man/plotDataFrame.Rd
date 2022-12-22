@@ -31,7 +31,7 @@ The first three variables are used, in that order, as:
 \item{params}{A MizerParams object, which is used for the line colours and
 line types.}
 
-\item{style}{The style of the plot. Availalble options are "line' for geom_line
+\item{style}{The style of the plot. Available options are "line' for geom_line
 and "area" for geom_area. Default is "line".}
 
 \item{xlab}{Label for the x-axis}

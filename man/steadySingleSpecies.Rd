@@ -28,6 +28,7 @@ A MizerParams object in which the initial abundances of the selected
 species are changed to their single-species steady state abundances.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 This first calculates growth and death rates that arise from the current
 initial abundances. Then it uses these growth and death rates to
 determine the steady-state abundances of the selected species.

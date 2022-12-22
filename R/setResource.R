@@ -7,6 +7,14 @@
 #' which it is consumed.
 #' 
 #' @section Setting resource dynamics:
+#' You would usually set the resource dynamics only after having finished the 
+#' calibration of the steady state. Then setting the resource dynamics with
+#' this function will preserve that steady state, unless you explicitly 
+#' choose to set `balance = FALSE`. Your choice of the resource dynamics only
+#' affects the dynamics around the steady state. The higher the resource rate
+#' or the lower the resource capacity the less sensitive the model will be to
+#' changes in the competition for resource.
+#' 
 #' The `resource_dynamics` argument allows you to choose the resource dynamics
 #' function. By default, mizer uses a semichemostat model to describe the
 #' resource dynamics in each size class independently. This semichemostat
@@ -14,6 +22,11 @@
 #' change that to use a logistic model implemented by [resource_logistic()] or
 #' you can use [resource_constant()] which keeps the resource constant or you
 #' can write your own function.
+#' 
+#' Both the [resource_semichemostat()] and the [resource_logistic()] dynamics
+#' are parametrised in terms of a size-dependent rate \eqn{r_R(w)} and a 
+#' size-dependent capacity \eqn{c_R}. The help pages of these functions give
+#' the details.
 #' 
 #' The `resource_rate` argument can be a vector (with the same length as
 #' `w_full(params)`) specifying the intrinsic resource growth rate for each size
@@ -30,6 +43,12 @@
 #' \deqn{c(w) = \kappa\, w^{-\lambda}}{c(w) = \kappa w^{-\lambda}}
 #' for all \eqn{w} less than `w_pp_cutoff` and zero for larger sizes.
 #' The power-law exponent \eqn{\lambda} is taken from the `lambda` argument.
+#'
+#' The values for `lambda`, `n` and `w_pp_cutoff` are stored in a list in the
+#' `resource_params` slot of the MizerParams object so that they can be re-used
+#' automatically in the future. That list can be accessed with
+#' [resource_params()]. It also holds the coefficient `kappa` that describes the
+#' steady-state resource abundance.
 #' 
 #' @param params A MizerParams object
 #' @param resource_rate Optional. Vector of resource intrinsic birth rates or
@@ -43,7 +62,7 @@
 #'   vector specifying a value for each size. Must be strictly between 0 and 1,
 #'   except at sizes where the resource is zero, where it can be `NaN`. This
 #'   determines the resource capacity, so do not specify both this and
-#'   `resrouce_capacity`.
+#'   `resource_capacity`.
 #' @param resource_dynamics Optional. Name of the function that determines the
 #'   resource dynamics by calculating the resource spectrum at the next time
 #'   step from the current state.
@@ -227,7 +246,7 @@ resource_rate <- function(params) {
 }
 
 #' @rdname setResource
-#' @param value .
+#' @param value The desired new value for the respective parameter.
 #' @export
 `resource_rate<-` <- function(params, value) {
     setResource(params, resource_rate = value)

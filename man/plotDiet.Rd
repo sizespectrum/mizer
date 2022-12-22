@@ -20,7 +20,8 @@ used for the plot is returned instead of the plot itself. Default value is FALSE
 }
 \value{
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
-frame with the four variables 'Predator', 'w', 'Proportion', 'Prey' is returned.
+frame with the four variables 'Predator', 'w', 'Proportion', 'Prey' is
+returned.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Plots the proportions with which each
