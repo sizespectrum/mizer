@@ -487,6 +487,7 @@ validSpeciesParams <- function(species_params) {
         # If old name `w_inf` is used, then copy over to `w_max`
         if ("w_inf" %in% names(sp)) {
             sp$w_max <- sp$w_inf
+            warning("The species parameter data frame is missing a `w_max` column. I am copying over the values from the `w_inf` column. But note that `w_max` should be the maximum size of the largest individual, not the asymptotic size of an average indivdidual.")
         } else {
             sp$w_max <- rep(NA, no_sp)
         }
