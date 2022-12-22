@@ -1,3 +1,5 @@
+local_edition(3)
+
 test_that("matchGrowth only affects selected species", {
     params <- matchGrowth(NS_params, species = "Cod")
     # Haddock unaffected
