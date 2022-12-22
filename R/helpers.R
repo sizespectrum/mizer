@@ -51,8 +51,10 @@ l2w <- function(l, params) {
         stop("The length of 'l' should be one or equal to the number of species.")
     }
     sp <- sp %>%
-        set_species_param_default("a", 0.01, "Using default values for 'a' parameter.") %>%
-        set_species_param_default("b", 3, "Using default values for 'a' parameter.")
+        set_species_param_default("a", 0.01,
+                                  "Using default values for 'a' parameter.") %>%
+        set_species_param_default("b", 3,
+                                  "Using default values for 'a' parameter.")
     
     sp[["a"]] * l^sp[["b"]]
 }
@@ -73,8 +75,10 @@ w2l <- function(w, params) {
         stop("The length of 'w' should be one or equal to the number of species.")
     }
     sp <- sp %>%
-        set_species_param_default("a", 0.01, "Using default values for 'a' parameter.") %>%
-        set_species_param_default("b", 3, "Using default values for 'a' parameter.")
+        set_species_param_default("a", 0.01,
+                                  "Using default values for 'a' parameter.") %>%
+        set_species_param_default("b", 3,
+                                  "Using default values for 'a' parameter.")
     
-    (w / sp[["a"]])^(1/sp[["b"]])
+    (w / sp[["a"]])^(1 / sp[["b"]])
 }

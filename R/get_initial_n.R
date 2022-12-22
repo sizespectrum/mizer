@@ -5,7 +5,8 @@
 #' abundances are currently quite arbitrary and not close to the steady state.
 #' We intend to improve this in the future.
 #' 
-#' @param params The model parameters. An object of type \linkS4class{MizerParams}.
+#' @param params The model parameters. An object of type 
+#'   \linkS4class{MizerParams}.
 #' @param a A parameter with a default value of 0.35.
 #' @param n0_mult Multiplier for the abundance at size 0. Default value is
 #'   kappa/1000.
@@ -42,7 +43,11 @@ get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
         #set densities at w > w_max to 0
         initial_n[unlist(tapply(params@w,1:no_w,function(wx,w_max) w_max<wx, w_max=params@species_params$w_max))] <- 0
         # Also any densities at w < w_min set to 0
-        initial_n[unlist(tapply(params@w,1:no_w,function(wx,w_min)w_min>wx, w_min=params@species_params$w_min))] <- 0    
+        initial_n[unlist(tapply(params@w, 1:no_w,
+                                function(wx, w_min) w_min > wx, 
+                                w_min = params@species_params$w_min)
+                         )
+                  ] <- 0    
         return(initial_n)
     }
     

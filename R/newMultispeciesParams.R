@@ -128,7 +128,8 @@ newMultispeciesParams <- function(
         resource_rate <- r_pp
     }
     if (lifecycle::is_present(z0)) {
-        lifecycle::deprecate_warn("2.2.3", "newMultispeciesParams(z0)", "newMultispeciesParams(ext_mort)")
+        lifecycle::deprecate_warn("2.2.3", "newMultispeciesParams(z0)", 
+                                  "newMultispeciesParams(ext_mort)")
         ext_mort <- z0
     }
     
@@ -159,8 +160,8 @@ newMultispeciesParams <- function(
     params <- params %>% 
         set_species_param_default("n", n) %>% 
         set_species_param_default("p", p)
-    params <- set_species_param_default(params, "q", 
-                                        lambda - 2 + params@species_params[["n"]])
+    params <- set_species_param_default(
+        params, "q", lambda - 2 + params@species_params[["n"]])
     if (is.null(interaction)) {
         interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
     }
@@ -270,8 +271,8 @@ newMultispeciesParams <- function(
 #' other parameters that are affected by the change in the species parameter.
 #' 
 #' `setParams()` will use the species parameters in the `params` object to
-#' recalculate the values of all the model functions except those for which you have set custom
-#' values.
+#' recalculate the values of all the model functions except those for which you
+#' have set custom values.
 #' 
 #' @section Units in mizer:
 #' Mizer uses grams to measure weight, centimetres to measure lengths, and

@@ -1,8 +1,8 @@
 #' Match biomasses to observations
 #' 
 #' `r lifecycle::badge("experimental")`
-#' The function adjusts the abundances of the species in the model so that their biomasses
-#' match with observations. 
+#' The function adjusts the abundances of the species in the model so that their
+#' biomasses match with observations.
 #' 
 #' The function works by multiplying for each species the abundance density
 #' at all sizes by the same factor. This will of course not give a steady
@@ -48,7 +48,7 @@ matchBiomasses <- function(params, species = NULL) {
     if (length(species) == 0) {
         return(params)
     }
-    for (sp in (1:nrow(params@species_params))[species]) {
+    for (sp in seq_len(nrow(params@species_params))[species]) {
         cutoff <- params@species_params$biomass_cutoff[[sp]]
         if (is.null(cutoff) || is.na(cutoff)) {
             cutoff <- 0
@@ -69,8 +69,8 @@ matchBiomasses <- function(params, species = NULL) {
 #' Match numbers to observations
 #'
 #' `r lifecycle::badge("experimental")`
-#' The function adjusts the numbers of the species in the model so that their numbers
-#' match with observations.
+#' The function adjusts the numbers of the species in the model so that their
+#' numbers match with observations.
 #'
 #' The function works by multiplying for each species the number density
 #' at all sizes by the same factor. This will of course not give a steady
@@ -113,7 +113,7 @@ matchNumbers <- function(params, species = NULL) {
                                  return.logical = TRUE) &
         !is.na(params@species_params$number_observed) &
         params@species_params$number_observed > 0
-    for (sp in (1:nrow(params@species_params))[species]) {
+    for (sp in seq_len(nrow(params@species_params))[species]) {
         cutoff <- params@species_params$number_cutoff[[sp]]
         if (is.null(cutoff) || is.na(cutoff)) {
             cutoff <- 0

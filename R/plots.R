@@ -170,21 +170,23 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
         scale_x_continuous(trans = xtrans, name = xlab)
     
     switch(style,
-           "line" = {p <- p +
-               geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
-                             colour = .data[[legend_var]],
-                             linetype = .data[[legend_var]],
-                             linewidth = .data[[legend_var]])) +
-               scale_colour_manual(values = linecolour) +
-               scale_linetype_manual(values = linetype) +
-               scale_discrete_manual("linewidth", values = linesize)
+           "line" = {
+               p <- p +
+                   geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
+                                 colour = .data[[legend_var]],
+                                 linetype = .data[[legend_var]],
+                                 linewidth = .data[[legend_var]])) +
+                   scale_colour_manual(values = linecolour) +
+                   scale_linetype_manual(values = linetype) +
+                   scale_discrete_manual("linewidth", values = linesize)
            },
-           "area" = {p <- p +
-               geom_area(aes(x = .data[[x_var]], y = .data[[y_var]],
-                             fill = .data[[legend_var]])) +
-               scale_fill_manual(values = linecolour)
+           "area" = {
+               p <- p +
+                   geom_area(aes(x = .data[[x_var]], y = .data[[y_var]],
+                                 fill = .data[[legend_var]])) +
+                   scale_fill_manual(values = linecolour)
            },
-           {"unknown style selected"}
+           "unknown style selected"
     )
     
     if (!is.null(wrap_var)) {
@@ -1156,7 +1158,9 @@ plotGrowthCurves <- function(object, species = NULL,
     }
     
     species <- valid_species_arg(params, species)
-    selected_species <- species # needed later to not confuse variable and column name
+    # needed later to not confuse variable and column name
+    selected_species <- species
+    
     sp_sel <- sp$species %in% species
     ws <- getGrowthCurves(params, species, max_age, percentage)
     plot_dat <- reshape2::melt(ws)
@@ -1194,7 +1198,8 @@ plotGrowthCurves <- function(object, species = NULL,
     
     p <- ggplot(filter(plot_dat, Legend == "model")) + 
         geom_line(aes(x = Age, y = value, 
-                      colour = Species, linetype = Species, linewidth = Species))
+                      colour = Species, linetype = Species,
+                      linewidth = Species))
     y_label <- if (percentage) 
         "Percent of maximum size"
     else "Size [g]"
@@ -1228,19 +1233,21 @@ plotGrowthCurves <- function(object, species = NULL,
                            colour = "grey") +
                 annotate("text", 0, w_mat, vjust = -1, label = "Maturity")
             if ("von Bertalanffy" %in% plot_dat$Legend) {
-                p <- p + geom_line(data = filter(plot_dat, Legend == "von Bertalanffy"), 
+                p <- p + geom_line(data = filter(plot_dat,
+                                                 Legend == "von Bertalanffy"), 
                                    aes(x = Age, y = value))
             }
             if (!is.null(size_at_age)) {
                 size_at_age <- filter(size_at_age, species == selected_species)
-                p <- p + geom_point(aes(x = age, y = weight), data = size_at_age,
+                p <- p + geom_point(aes(x = age, y = weight), 
+                                    data = size_at_age,
                                     alpha = 0.2)
             }
             
         } else if (species_panel) { # need to add either no panel if no param 
             # for VB or create a panel without VB
             p <- ggplot(plot_dat) +
-                geom_line(aes(x = Age, y = value , colour = Legend)) +
+                geom_line(aes(x = Age, y = value, colour = Legend)) +
                 scale_x_continuous(name = "Age [years]") +
                 scale_y_continuous(name = "Size [g]") +
                 geom_hline(aes(yintercept = w_mat),
@@ -1296,7 +1303,8 @@ plotlyGrowthCurves <- function(object, species = NULL,
 #' @inheritParams plotSpectra
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
-#'   frame with the four variables 'Predator', 'w', 'Proportion', 'Prey' is returned.
+#'   frame with the four variables 'Predator', 'w', 'Proportion', 'Prey' is
+#'   returned.
 #' @export
 #' @seealso [getDiet()]
 #' @family plotting functions
@@ -1376,8 +1384,9 @@ setMethod("plot", signature(x = "MizerSim", y = "missing"),
               glayout <- grid::grid.layout(3, 2) # widths and heights arguments
               vp <- grid::viewport(layout = glayout)
               grid::pushViewport(vp)
-              vplayout <- function(x, y)
+              vplayout <- function(x, y) {
                   grid::viewport(layout.pos.row = x, layout.pos.col = y)
+              }
               print(p1 + theme(legend.position = "none"), vp = vplayout(1, 1))
               print(p3 + theme(legend.position = "none"), vp = vplayout(1, 2))
               print(p4 + theme(legend.position = "none"), vp = vplayout(2, 1))
@@ -1415,8 +1424,9 @@ setMethod("plot", signature(x = "MizerParams", y = "missing"),
               glayout <- grid::grid.layout(2, 2) # widths and heights arguments
               vp <- grid::viewport(layout = glayout)
               grid::pushViewport(vp)
-              vplayout <- function(x, y)
+              vplayout <- function(x, y) {
                   grid::viewport(layout.pos.row = x, layout.pos.col = y)
+              }
               print(p11 + theme(legend.position = "none"), vp = vplayout(1, 1))
               print(p12 + theme(legend.position = "none"), vp = vplayout(1, 2))
               print(p2 + theme(legend.position = "right",

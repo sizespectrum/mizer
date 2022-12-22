@@ -139,7 +139,9 @@ upgradeParams <- function(params) {
         if (.hasSlot(params, "pred_kernel") && 
             length(dim(params@pred_kernel)) == 3) {
             pred_kernel <- params@pred_kernel
-        } else pred_kernel <- NULL
+        } else {
+            pred_kernel <- NULL
+        }
         
         if (.hasSlot(params, "maturity")) {
             maturity <- params@maturity
@@ -304,7 +306,8 @@ upgradeParams <- function(params) {
         
         # renaming catch_observed to yield_observed in mizer 2.3
         if ("catch_observed" %in% names(pnew@species_params)) {
-            pnew@species_params$yield_observed <- pnew@species_params$catch_observed
+            pnew@species_params$yield_observed <- 
+                pnew@species_params$catch_observed
             pnew@species_params$catch_observed <- NULL
         }
         

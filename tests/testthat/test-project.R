@@ -9,9 +9,10 @@ test_that("time dimension is dealt with properly", {
     t_max <- 5
     t_save <- 1
     dt <- 0.1
-    sim <- project(params,t_max = t_max, t_save = t_save, dt = dt, effort = 1)
+    sim <- project(params, t_max = t_max, t_save = t_save, dt = dt, effort = 1)
     expect_identical(names(dimnames(sim@effort)), c("time", "gear"))
-    expect_equal(dim(sim@effort)[1], length(seq(from = 0, to = t_max, by = t_save)))
+    expect_equal(dim(sim@effort)[1], 
+                 length(seq(from = 0, to = t_max, by = t_save)))
     expect_equal(dim(sim@n)[1], length(seq(from = 0, to = t_max, by = t_save)))
     expect_identical(dimnames(sim@effort)[[1]], 
                      as.character(seq(from = 0, to = t_max, by = t_save)))
@@ -19,7 +20,7 @@ test_that("time dimension is dealt with properly", {
                      as.character(seq(from = 0, to = t_max, by = t_save)))
     dt <- 0.5
     t_save <- 2
-    sim <- project(params,t_max = t_max, t_save = t_save, dt = dt, effort = 1)
+    sim <- project(params, t_max = t_max, t_save = t_save, dt = dt, effort = 1)
     expect_equal(dim(sim@effort)[1],
                  length(seq(from = 0, to = t_max, by = t_save)))
     expect_equal(dim(sim@n)[1],
@@ -31,8 +32,8 @@ test_that("time dimension is dealt with properly", {
     t_save <- 0.5
     dt <- 0.5
     sim <- project(params, t_max = t_max, t_save = t_save, dt = dt, effort = 1)
-    expect_equal(dim(sim@effort)[1], t_max/t_save + 1)
-    expect_equal(dim(sim@n)[1], t_max/t_save + 1)
+    expect_equal(dim(sim@effort)[1], t_max / t_save + 1)
+    expect_equal(dim(sim@n)[1], t_max / t_save + 1)
     expect_identical(dimnames(sim@effort)[[1]],
                      as.character(seq(from = 0, to = t_max, by = t_save)))
     expect_identical(dimnames(sim@n)[[1]],
@@ -87,8 +88,8 @@ test_that("Can pass in initial species", {
     no_gear <- dim(params@catchability)[1]
     no_sp <- dim(params@catchability)[2]
     max_t_effort <- 10
-    effort <- array(abs(rnorm(max_t_effort*no_gear)),
-                    dim = c(max_t_effort,no_gear))
+    effort <- array(abs(rnorm(max_t_effort * no_gear)),
+                    dim = c(max_t_effort, no_gear))
 
     # No time dimnames - fail
     t_max <- 5
@@ -97,7 +98,10 @@ test_that("Can pass in initial species", {
     end_year <- start_year + t_max - 1
     time <- seq(from = start_year, to = end_year, by = time_step)
     effort <- array(NA, dim = c(length(time), 4), 
-                    dimnames=list(NULL, gear = c("industrial","pelagic","otter_trawl","beam_trawl")))
+                    dimnames = list(NULL, gear = c("industrial", "pelagic",
+                                                   "otter_trawl", "beam_trawl")
+                                    )
+                    )
     effort[,1] <- seq(from = 0, to = 1, length = nrow(effort))
     effort[,2] <- 0.5
     effort[,3] <- seq(from = 1, to = 0.5, length = nrow(effort))
@@ -135,7 +139,7 @@ test_that("Gear checking and sorting is OK", {
                                   max_w_max = max_w_max, 
                                   knife_edge_size = knife_edges, 
                                   gear_names = gear_names)
-	  gear_names <- dimnames(params_gear@catchability)[[1]]
+    gear_names <- dimnames(params_gear@catchability)[[1]]
     # Single vector of effort
   	sim <- project(params_gear, effort = 0.3, t_max = 10)
   	expect_true(all(sim@effort == 0.3))
@@ -147,10 +151,10 @@ test_that("Gear checking and sorting is OK", {
     effort_vec2 <- c(Industrial = 0, Other = 1)
     sim <- project(params_gear, effort = effort_vec, t_max = 10)
     sim2 <- project(params_gear, effort = effort_vec2, t_max = 10)
-    expect_true(all(sim@effort[,"Industrial"] == 0))
-    expect_true(all(sim@effort[,"Other"] == 1))
-    expect_true(all(sim2@effort[,"Industrial"] == 0))
-    expect_true(all(sim2@effort[,"Other"] == 1))
+    expect_true(all(sim@effort[, "Industrial"] == 0))
+    expect_true(all(sim@effort[, "Other"] == 1))
+    expect_true(all(sim2@effort[, "Industrial"] == 0))
+    expect_true(all(sim2@effort[, "Other"] == 1))
     expect_true(all(dimnames(sim@effort)$gear == gear_names)) 
     expect_true(all(dimnames(sim2@effort)$gear == gear_names)) 
     # Should fail - number of gears wrong

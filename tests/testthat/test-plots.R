@@ -1,10 +1,10 @@
 # Initialisation ----------------
 species_params <- NS_species_params_gears
 # Make species names numeric because that created problems in the past
-species_params$species <- 1:(nrow(species_params))
+species_params$species <- seq_len(nrow(species_params))
 species_params$pred_kernel_type <- "truncated_lognormal"
 params <- newMultispeciesParams(species_params, inter, no_w = 30,
-                                n = 2/3, p = 0.7, lambda = 2.8 - 2/3)
+                                n = 2 / 3, p = 0.7, lambda = 2.8 - 2 / 3)
 sim <- project(params, effort = 1, t_max = 3, dt = 1, t_save = 1)
 sim0 <- project(params, effort = 0, t_max = 3, dt = 1, t_save = 1)
 species <- c(11, 10)
@@ -75,8 +75,10 @@ expect_doppelganger("Plot Diet", p)
 })
 
 test_that("plot function do not throw error", {
-    expect_error(plot(sim, species = species, wlim = c(10, 100), w_min = 10), NA)
-    expect_error(plot(params, species = species, wlim = c(10, 100), w_min = 10), NA)
+    expect_error(plot(sim, species = species, wlim = c(10, 100),
+                      w_min = 10), NA)
+    expect_error(plot(params, species = species, wlim = c(10, 100),
+                      w_min = 10), NA)
 })
 
 # plotly functions do not throw error
@@ -103,19 +105,25 @@ test_that("return_data is identical",{
     
     expect_equal(dim(plotYieldGear(sim, species = species, return_data = TRUE)), c(8,4))
     
-    expect_equal(dim(plotSpectra(sim, species = species, wlim = c(1,NA), return_data = TRUE)), c(37, 4))
+    expect_equal(dim(plotSpectra(sim, species = species, wlim = c(1,NA),
+                                 return_data = TRUE)), c(37, 4))
     
-    expect_equal(dim(plotFeedingLevel(sim, species = species, return_data = TRUE)), c(56,3))
+    expect_equal(dim(plotFeedingLevel(sim, species = species,
+                                      return_data = TRUE)), c(56, 3))
     
-    expect_equal(dim(plotPredMort(sim, species = species, return_data = TRUE)), c(56,3))
+    expect_equal(dim(plotPredMort(sim, species = species, 
+                                  return_data = TRUE)), c(56 ,3))
     
-    expect_equal(dim(plotFMort(sim, species = species, return_data = TRUE)), c(56,3))
+    expect_equal(dim(plotFMort(sim, species = species, 
+                               return_data = TRUE)), c(56, 3))
     
-    expect_equal(dim(plotGrowthCurves(sim, species = species, return_data = TRUE)), c(100,4))
+    expect_equal(dim(plotGrowthCurves(sim, species = species, 
+                                      return_data = TRUE)), c(100,4))
     # the following is not a good test because the size of the returned data
     # frame is machine dependent due to the selection of only results above a
     # certain threshold.
-    # expect_equal(dim(plotDiet(sim@params, species = species, return_data = TRUE)), c(717,3))
+    # expect_equal(dim(plotDiet(sim@params, species = species, 
+    #                           return_data = TRUE)), c(717,3))
 }
 )
 

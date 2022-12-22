@@ -92,7 +92,7 @@ projectToSteady <- function(params,
     if (is(progress_bar, "Progress")) {
         # We have been passed a shiny progress object
         progress_bar$set(message = "Finding steady state", value = 0)
-        proginc <- 1/ceiling(t_max/t_per)
+        proginc <- 1 / ceiling(t_max/t_per)
     }
     
     if (return_sim) {

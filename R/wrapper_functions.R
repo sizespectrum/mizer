@@ -12,8 +12,8 @@
 #' community-type model. 
 #' The function has many arguments, all of which have default values.
 #' 
-#' A community model has several features that distinguish it from a multi-species
-#' model:
+#' A community model has several features that distinguish it from a
+#' multi-species model:
 #' 
 #' * Species identities of individuals are ignored. All are aggregated into a
 #'   single community.
@@ -51,9 +51,9 @@
 #' @param sigma The width of the prey preference.
 #' @param gamma Volumetric search rate. Estimated using `h`, `f0` and 
 #'   `kappa` if not supplied.
-#' @param reproduction The constant reproduction in the smallest size class of the
-#'   community spectrum. By default this is set so that the community spectrum 
-#'   is continuous with the resource spectrum.
+#' @param reproduction The constant reproduction in the smallest size class of
+#'   the community spectrum. By default this is set so that the community
+#'   spectrum is continuous with the resource spectrum.
 #' @param knife_edge_size The size at the edge of the knife-edge-selectivity
 #'   function.
 #' @inheritParams newMultispeciesParams
@@ -85,7 +85,7 @@ newCommunityParams <- function(max_w = 1e6,
                                gamma = NA,
                                beta = 100,
                                sigma = 2.0,
-                               n = 2/3,
+                               n = 2 / 3,
                                kappa = 1000,
                                lambda = 2.05,
                                r_pp = 10,
@@ -176,13 +176,13 @@ newCommunityParams <- function(max_w = 1e6,
 #'
 #' The option of including fishing is given, but the steady state may loose its
 #' natural stability if too much fishing is included. In such a case the user
-#' may wish to include stabilising effects (like `reproduction_level`) to ensure the
-#' steady state is stable. Fishing selectivity is modelled as a knife-edge
-#' function with one parameter, `knife_edge_size`, which is the size at
-#' which species are selected. Each species can either be fished by the same
-#' gear (`knife_edge_size` has a length of 1) or by a different gear (the
-#' length of `knife_edge_size` has the same length as the number of species
-#' and the order of selectivity size is that of the maximum size).
+#' may wish to include stabilising effects (like `reproduction_level`) to ensure
+#' the steady state is stable. Fishing selectivity is modelled as a knife-edge
+#' function with one parameter, `knife_edge_size`, which is the size at which
+#' species are selected. Each species can either be fished by the same gear
+#' (`knife_edge_size` has a length of 1) or by a different gear (the length of
+#' `knife_edge_size` has the same length as the number of species and the order
+#' of selectivity size is that of the maximum size).
 #'
 #' The resulting `MizerParams` object can be projected forward using
 #' \code{project()} like any other `MizerParams` object. When projecting
@@ -292,7 +292,7 @@ newTraitParams <- function(no_sp = 11,
                            ks = NA,
                            gamma = NA,
                            ext_mort_prop = 0,
-                           reproduction_level = 1/4,
+                           reproduction_level = 1 / 4,
                            R_factor = deprecated(),
                            gear_names = "knife_edge_gear",
                            knife_edge_size = 1000,
@@ -332,7 +332,7 @@ newTraitParams <- function(no_sp = 11,
         stop("The smallest egg size min_w must be greater than zero.")
     }
     no_w <- round(no_w)
-    if (no_w < log10(max_w_max/min_w)*5) {
+    if (no_w < log10(max_w_max / min_w)*5) {
         no_w <- round(log10(max_w_max / min_w) * 5 + 1)
         message(paste("Increased no_w to", no_w, "so that there are 5 bins ",
                       "for an interval from w and 10w."))
@@ -371,17 +371,17 @@ newTraitParams <- function(no_sp = 11,
     if (length(knife_edge_size) > no_sp) {
         stop("knife_edge_size needs to be no longer than the number of species in the model")
     }
-    if ((length(knife_edge_size) > 1) & (length(knife_edge_size) != no_sp)) {
+    if ((length(knife_edge_size) > 1) && (length(knife_edge_size) != no_sp)) {
         warning("Length of knife_edge_size is less than number of species so gear information is being recycled. Is this what you want?")
     }
-    if ((length(gear_names) != 1) & (length(gear_names) != no_sp)) {
+    if ((length(gear_names) != 1) && (length(gear_names) != no_sp)) {
         stop("Length of gear_names argument must equal the number of species.")
     }
     if (lifecycle::is_present(R_factor)) {
         lifecycle::deprecate_soft("2.3.0", "newTraitParams(R_factor)",
                                   "newTraitParams(reproduction_level)",
                                   "Set `reproduction_level = 1 / R_factor`.")
-        reproduction_level = 1 / R_factor
+        reproduction_level <- 1 / R_factor
     }
     
     if (perfect_scaling) {
@@ -510,9 +510,9 @@ newTraitParams <- function(no_sp = 11,
         if (i == 1) {
             dist_sp <- bins_per_sp * dx
             mult <- kappa / 
-                sum(n_exact * (w^(lambda - 1) * dw)[1:(min_i_inf - 1)]) *
-                (10^(dist_sp*(1-lambda)/2) - 10^(-dist_sp*(1-lambda)/2)) / 
-                (1-lambda)
+                sum(n_exact * (w ^ (lambda - 1) * dw)[1:(min_i_inf - 1)]) *
+                (10 ^ (dist_sp * (1 - lambda) / 2) - 10^(-dist_sp * (1 - lambda) / 2)) / 
+                (1 - lambda)
         }
         if (!egg_size_scaling) {
             n_exact <- n_exact / n_exact[i_min]

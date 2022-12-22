@@ -24,7 +24,7 @@
 #' @return `setColours`: The MizerParams object with updated line colours
 #' @export
 #' @examples
-#' params <- setColours(NS_params, list("Resource" = "red", "Total" = "#0000ff"))
+#' params <- setColours(NS_params, list("Resource" = "red","Total" = "#0000ff"))
 #' params <- setLinetypes(NS_params, list("Total" = "dotted"))
 #' # Set colours and linetypes for species
 #' species_params(params)["Cod", "linecolour"] <- "black"

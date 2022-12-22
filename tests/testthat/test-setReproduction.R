@@ -133,7 +133,7 @@ test_that("Can get and set repro_prop", {
     new <- repro_prop(params) ^ 2 
     comment(new) <- "test"
     repro_prop(params) <- new
-    expect_equal(repro_prop(params)[2,50], new[2, 50])
+    expect_equal(repro_prop(params)[2, 50], new[2, 50])
 })
 test_that("Can get and set maturity", {
     params <- NS_params

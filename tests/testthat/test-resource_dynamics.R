@@ -22,4 +22,3 @@ test_that("We can set and get resource parameters", {
     resource_params(params)$test <- "hi"
     expect_identical(params@resource_params$test, "hi")
 })
-    

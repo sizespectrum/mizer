@@ -146,8 +146,8 @@ addSpecies <- function(params, species_params,
     # in case the new species need a bigger range of w
     # We need to make sure that the new grid that newMultispeciesParams()
     # will create contains the old grid as a subgrid.
-    no_w = length(params@w)
-    no_w_full = length(params@w_full)
+    no_w <- length(params@w)
+    no_w_full <- length(params@w_full)
     max_w <- max(params@w)
     min_w <- min(params@w)
     new_max_w <- max_w
@@ -296,7 +296,7 @@ addSpecies <- function(params, species_params,
     p@interaction[new_sp, new_sp] <- inter[new_sp, new_sp]
     
     # Retune reproductive efficiencies of new species
-    repro_level <- rep(1/4, length(new_sp))
+    repro_level <- rep(1 / 4, length(new_sp))
     names(repro_level) <- p@species_params$species[new_sp]
     p <- setBevertonHolt(p, reproduction_level = repro_level)
     
@@ -345,10 +345,12 @@ removeSpecies <- function(params, species) {
     }
     
     # Select only the parts corresponding the species we keep
-    p@linecolour <- params@linecolour[!(names(params@linecolour) %in%
-                                            params@species_params$species[species])]
-    p@linetype <- params@linetype[!(names(params@linetype) %in%
-                                        params@species_params$species[species])]
+    p@linecolour <-
+        params@linecolour[!(names(params@linecolour) %in%
+                                params@species_params$species[species])]
+    p@linetype <-
+        params@linetype[!(names(params@linetype) %in%
+                              params@species_params$species[species])]
     p@psi <- params@psi[keep, , drop = FALSE]
     p@maturity <- params@maturity[keep, , drop = FALSE]
     p@initial_n <- params@initial_n[keep, , drop = FALSE]

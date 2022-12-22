@@ -13,10 +13,11 @@
 #' not be changed.
 #'
 #' @param params A MizerParams object
-#' @param species The species to be affected. Optional. By default all species for
-#'   which growth information is available will be affected. A vector of species
-#'   names, or a numeric vector with the species indices, or a logical vector
-#'   indicating for each species whether it is to be affected (TRUE) or not.
+#' @param species The species to be affected. Optional. By default all species
+#'   for which growth information is available will be affected. A vector of
+#'   species names, or a numeric vector with the species indices, or a logical
+#'   vector indicating for each species whether it is to be affected (TRUE) or
+#'   not.
 #' @param keep A string determining which quantity is to be kept constant. The
 #'   choices are "egg" which keeps the egg density constant, "biomass" which 
 #'   keeps the total biomass of the species constant and "number" which keeps

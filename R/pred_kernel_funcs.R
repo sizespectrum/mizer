@@ -8,11 +8,10 @@
 #' \deqn{\phi_i(w, w_p) = 
 #' \exp \left[ \frac{-(\ln(w / w_p / \beta_i))^2}{2\sigma_i^2} \right]
 #' }{\phi_i(w/w_p) = exp(-(ln(w/w_p/\beta_i))^2/(2\sigma_i^2))}
-#' if \eqn{w/w_p} is larger than 1 and zero otherwise.
-#' Here \eqn{\beta_i} is the preferred predator-prey mass ratio and \eqn{\sigma_i}
-#' determines the width of the kernel.
-#' These two parameters need to be given in the species parameter dataframe in
-#' the columns \code{beta} and \code{sigma}.
+#' if \eqn{w/w_p} is larger than 1 and zero otherwise. Here \eqn{\beta_i} is the
+#' preferred predator-prey mass ratio and \eqn{\sigma_i} determines the width of
+#' the kernel. These two parameters need to be given in the species parameter
+#' dataframe in the columns \code{beta} and \code{sigma}.
 #' 
 #' This function is called from [setPredKernel()] to set up the
 #' predation kernel slots in a MizerParams object. 
@@ -33,20 +32,20 @@ lognormal_pred_kernel <- function(ppmr, beta, sigma) {
 
 #' Truncated lognormal predation kernel
 #' 
-#' This is like the [lognormal_pred_kernel()] but with an imposed
-#' maximum predator/prey mass ratio
+#' This is like the [lognormal_pred_kernel()] but with an imposed maximum
+#' predator/prey mass ratio
 #' 
 #' Writing the predator mass as \eqn{w} and the prey mass as \eqn{w_p},
 #' the feeding kernel is given as
 #' \deqn{\phi_i(w, w_p) = 
 #' \exp \left[ \frac{-(\ln(w / w_p / \beta_i))^2}{2\sigma_i^2} \right]
 #' }{\phi_i(w/w_p) = exp(-(ln(w/w_p/\beta_i))^2/(2\sigma_i^2))}
-#' if \eqn{w/w_p} is between 1 and \eqn{\beta_i\exp(3\sigma_i)}{\beta_i exp(3\sigma_i)}
-#' and zero otherwise.
-#' Here \eqn{\beta_i} is the preferred predator-prey mass ratio and \eqn{\sigma_i}
-#' determines the width of the kernel.
-#' These two parameters need to be given in the species parameter dataframe in
-#' the columns `beta` and `sigma`.
+#' if \eqn{w/w_p} is between 1 and 
+#' \eqn{\beta_i\exp(3\sigma_i)}{\beta_i exp(3\sigma_i)}
+#' and zero otherwise. Here \eqn{\beta_i} is the preferred predator-prey mass
+#' ratio and \eqn{\sigma_i} determines the width of the kernel. These two
+#' parameters need to be given in the species parameter dataframe in the columns
+#' `beta` and `sigma`.
 #' 
 #' This function is called from [setPredKernel()] to set up the
 #' predation kernel slots in a MizerParams object. 

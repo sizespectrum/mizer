@@ -34,7 +34,7 @@ test_that("basic constructor sets dimensions properly", {
     # Dimensions of array slots
     expect_equal(dim(test_params@psi), c(no_sp, no_w))
     expect_equal(dim(test_params@intake_max), c(no_sp, no_w))
-    expect_equal(dim(test_params@search_vol), c(no_sp,no_w))
+    expect_equal(dim(test_params@search_vol), c(no_sp, no_w))
     expect_equal(dim(test_params@metab), c(no_sp, no_w))
     expect_equal(dim(test_params@ft_pred_kernel_e), c(no_sp, no_w_full))
     expect_equal(dim(test_params@catchability), c(0, no_sp))
@@ -50,9 +50,9 @@ test_that("basic constructor sets dimensions properly", {
         emptyParams(species_params, min_w = min_w, max_w = max_w,
                     no_w = no_w, min_w_pp = min_w_pp)
     expect_equal(dim(test_params_gears@catchability), 
-                 c(length(gear_names),no_sp))
+                 c(length(gear_names), no_sp))
     expect_equal(dim(test_params_gears@selectivity), 
-                 c(length(gear_names),no_sp, no_w))
+                 c(length(gear_names), no_sp, no_w))
     # dimnames of species and gears - just do a couple because the validity 
     # check should ensure the consistency of the others
     expect_equal(dimnames(test_params_gears@psi)$sp, species_names)

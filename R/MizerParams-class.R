@@ -559,7 +559,7 @@ emptyParams <- function(species_params,
     species_names <- as.character(species_params$species)
     gear_names <- unique(gear_params$gear)
     mat1 <- array(0, dim = c(no_sp, no_w), 
-                  dimnames = list(sp = species_names, w = signif(w,3)))
+                  dimnames = list(sp = species_names, w = signif(w, 3)))
     ft_pred_kernel <- array(NA, dim = c(no_sp, no_w_full),
                             dimnames = list(sp = species_names, k = 1:no_w_full))
     ft_mask <- t(sapply(species_params$w_max, function(x) w_full < x))
@@ -775,8 +775,8 @@ w <- function(params) {
 }
 
 #' @rdname w
-#' @return `w_full()` returns a vector with the sizes at the start of each size bin
-#'   of the resource spectrum, which typically starts at smaller sizes than
+#' @return `w_full()` returns a vector with the sizes at the start of each size
+#'   bin of the resource spectrum, which typically starts at smaller sizes than
 #'   the consumer spectrum.
 #' @export
 w_full <- function(params) {

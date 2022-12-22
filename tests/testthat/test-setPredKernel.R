@@ -56,7 +56,7 @@ test_that("Comment works on pred_kernel", {
 })
 
 # getPredKernel ----
-test_that("getPredKernel has correct dimnames",{
+test_that("getPredKernel has correct dimnames", {
     pred_kernel <- getPredKernel(params)
     expect_identical(dimnames(pred_kernel)$sp, 
                      dimnames(params@initial_n)$sp)
@@ -65,7 +65,7 @@ test_that("getPredKernel has correct dimnames",{
     expect_identical(dimnames(pred_kernel)$w_prey, 
                      as.character(signif(params@w_full, 3)))
 })
-test_that("getting and setting pred kernel leads to same dynamics" ,{
+test_that("getting and setting pred kernel leads to same dynamics", {
     params <- NS_params
     params <- setPredKernel(params, pred_kernel = getPredKernel(params))
     sim1 <- project(NS_params, t_max = 0.1)

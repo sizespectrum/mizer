@@ -30,7 +30,7 @@ test_that("resource_logistic evolves towards steady state", {
     # so as to keep the income of the fish constant.
     s <- 1e10
     params <- newTraitParams()
-    species_params(params)$gamma = species_params(params)$gamma / s
+    species_params(params)$gamma <- species_params(params)$gamma / s
     initialNResource(params) <- initialNResource(params) * s
     # Set resource parameters so that we are at steady state
     params <- setResource(params,

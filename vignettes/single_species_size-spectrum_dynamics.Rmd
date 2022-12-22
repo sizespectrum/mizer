@@ -471,7 +471,7 @@ lm(log(g_small_fish$value) ~ log(g_small_fish$w))
 
 ```{r include=FALSE}
 gm <- lm(log(g_small_fish$value) ~ log(g_small_fish$w))
-g0 <- round(gm$coefficients[[1]], digits=3)
+g0 <- round(gm$coefficients[[1]], digits = 3)
 ```
 
 The slope of the line is indeed $0.75 = 3/4$. In fact, the above shows
@@ -576,7 +576,7 @@ claimed that the exponent should be $-\mu_0 / g_0 - p$. We have already
 observed that $\mu_0 = `r m0`$ and $g_0 = `r g0`$ so we get
 
 ```{r}
--m0 / g0 - 3/4
+-m0 / g0 - 3 / 4
 ```
 
 That is not quite the result of the linear model fit, but that is the
@@ -651,8 +651,9 @@ species_params(params_changed_maturity)$w_mat <- 40
 Now the maturity curve has changed, which we can verify by plotting it
 
 ```{r}
-psi_changed_maturity <- melt(getMaturityProportion(params_changed_maturity) * 
-                               getReproductionProportion(params_changed_maturity))
+psi_changed_maturity <- 
+    melt(getMaturityProportion(params_changed_maturity) *
+             getReproductionProportion(params_changed_maturity))
 ggplot(psi_changed_maturity) +
   geom_line(aes(x = w, y = value)) +
   labs(x = "Weight [g]",
@@ -665,8 +666,8 @@ maturity curve in the same plot? First we add an extra column to each
 dataframe describing it
 
 ```{r}
-psi$type = "original"
-psi_changed_maturity$type = "changed"
+psi$type <- "original"
+psi_changed_maturity$type <- "changed"
 ```
 
 Then we bind the two data frames together

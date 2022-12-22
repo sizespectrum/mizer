@@ -386,9 +386,9 @@ Comparison will be easier if we combine these two plots.
 For that we add an extra variable to the data frames that allow us to 
 distinguish them and then we merge them together.
 ```{r warning=FALSE}
-yield1$effort = as.factor(2)
-yield2$effort = as.factor(4)
-yield = rbind(yield1, yield2)
+yield1$effort <- as.factor(2)
+yield2$effort <- as.factor(4)
+yield <- rbind(yield1, yield2)
 ```
 
 In ggplot we can now use `facet_grid()` to put the plot for each value of

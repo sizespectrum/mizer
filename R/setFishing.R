@@ -181,7 +181,7 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
                 stop("The gear dimnames in the selectivity array do ",
                      "not match the gear names.")
             }
-            if (!identical(dnames[[2]],sp_names)) {
+            if (!identical(dnames[[2]], sp_names)) {
                 stop("The species dimnames in the selectivity array do ",
                      "not match the species names.")
             }
@@ -204,9 +204,9 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
             )
         for (g in seq_len(nrow(gear_params))) {
             # These as.characters are annoying - but factors everywhere
-            species <- as.character(gear_params[g, 'species'])
-            gear <- as.character(gear_params[g, 'gear'])
-            sel_func <- as.character(gear_params[g, 'sel_func'])
+            species <- as.character(gear_params[g, "species"])
+            gear <- as.character(gear_params[g, "gear"])
+            sel_func <- as.character(gear_params[g, "sel_func"])
             # get args
             arg <- names(formals(sel_func))
             # lop off the arguments that we will supply
@@ -359,9 +359,9 @@ gear_params <- function(params) {
 }
 
 #' @rdname setFishing
-#' @return `getCatchability()` or equivalently `catchability()`: An array (gear x species) that holds the catchability of
-#'   each species by each gear, \eqn{Q_{g,i}}.
-#'   The names of the dimensions are "gear, "sp".
+#' @return `getCatchability()` or equivalently `catchability()`: An array (gear
+#'   x species) that holds the catchability of each species by each gear,
+#'   \eqn{Q_{g,i}}. The names of the dimensions are "gear, "sp".
 #' @export
 #' @examples
 #' str(getCatchability(NS_params))
@@ -383,9 +383,9 @@ catchability <- function(params) {
 }
 
 #' @rdname setFishing
-#' @return `getSelectivity()` or equivalently `selectivity()`: An array (gear x species x size) that holds
-#'   the selectivity of each gear for species and size, \eqn{S_{g,i,w}}.
-#'   The names of the dimensions are "gear, "sp", "w".
+#' @return `getSelectivity()` or equivalently `selectivity()`: An array (gear x
+#'   species x size) that holds the selectivity of each gear for species and
+#'   size, \eqn{S_{g,i,w}}. The names of the dimensions are "gear, "sp", "w".
 #' @export
 #' @examples
 #' str(getSelectivity(NS_params))
@@ -406,8 +406,8 @@ selectivity <- function(params) {
 }
 
 #' @rdname setFishing
-#' @return `getInitialEffort()` or equivalently `initial_effort()`: A named vector with the initial fishing
-#'   effort for each gear.
+#' @return `getInitialEffort()` or equivalently `initial_effort()`: A named
+#'   vector with the initial fishing effort for each gear.
 #' @export
 #' @examples
 #' str(getInitialEffort(NS_params))
@@ -532,7 +532,7 @@ validGearParams <- function(gear_params, species_params) {
         }
         # copy over any selectivity function parameters
         for (g in seq_len(no_sp)) {
-            args <- names(formals(as.character(gear_params[g, 'sel_func'])))
+            args <- names(formals(as.character(gear_params[g, "sel_func"])))
             args <- args[!(args %in% c("w", "species_params", "..."))]
             for (arg in args) {
                 if (!arg %in% names(gear_params)) {
@@ -594,7 +594,7 @@ validGearParams <- function(gear_params, species_params) {
         }
         # get args
         # These as.characters are annoying - but factors everywhere
-        arg <- names(formals(as.character(gear_params[g, 'sel_func'])))
+        arg <- names(formals(as.character(gear_params[g, "sel_func"])))
         arg <- arg[!(arg %in% c("w", "species_params", "..."))]
         if (!all(arg %in% colnames(gear_params))) {
             stop("Some arguments needed for the selectivity function are ",

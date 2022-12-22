@@ -150,7 +150,8 @@ mentioned above, one way of doing this is to use a spreadsheet and save it as a
 included in the package. This contains the species parameters for a multispecies
 North Sea model. The location of the file can be found by running
 ```{r label = get_location_for_ns_params}
-params_location <- system.file("extdata", "NS_species_params.csv", package = "mizer")
+params_location <- system.file("extdata", "NS_species_params.csv",
+                               package = "mizer")
 ```
 
 This file can be opened with most spreadsheets or a text editor for you to
@@ -292,7 +293,8 @@ An example interaction matrix for the North Sea has been included in `mizer` as
 a .csv file.  The location of the file can be found by running:
 
 ```{r}
-inter_location <- system.file("extdata", "NS_interaction.csv", package = "mizer")
+inter_location <- system.file("extdata", "NS_interaction.csv",
+                              package = "mizer")
 ```
 
 Take a look at it in a spreadsheet if you want.  As mentioned above, to read
@@ -341,10 +343,10 @@ Pelagic, Beam and Otter trawl, that catch different combinations of species.
 We can achieve that by only changing the `gear` column in the `gear_params`
 data frame.
 ```{r }
-gear_params(params)$gear <- c("Industrial","Industrial","Industrial",
-                              "Pelagic","Beam","Otter",
-                              "Beam","Otter","Beam",
-                              "Otter","Otter","Otter")
+gear_params(params)$gear <- c("Industrial", "Industrial", "Industrial",
+                              "Pelagic", "Beam", "Otter",
+                              "Beam", "Otter", "Beam",
+                              "Otter", "Otter", "Otter")
 ```
 You can see the result by calling `summary()` on the `params` object.
 ```{r}

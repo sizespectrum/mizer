@@ -121,7 +121,5 @@ knife_edge <- function(w, knife_edge_size, ...) {
 #' @export
 #' @family selectivity functions
 sigmoid_weight <- function(w, sigmoidal_weight, sigmoidal_sigma, ...) {
-  return((1 + (w / sigmoidal_weight) ^ (-sigmoidal_sigma)) ^ (-1) )
+  return((1 + (w / sigmoidal_weight) ^ (-sigmoidal_sigma)) ^ (-1))
 } 
-
-

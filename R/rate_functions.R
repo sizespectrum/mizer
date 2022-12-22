@@ -39,7 +39,7 @@ getRates <- function(params, n = initialN(params),
         effort <- params@initial_effort
     }
     
-    r <- get(params@rates_funcs$Rates)(
+    get(params@rates_funcs$Rates)(
         params, n = n, n_pp = n_pp, n_other = n_other,
         t = t, effort = effort, 
         rates_fns = lapply(params@rates_funcs, get), ...)
@@ -170,7 +170,7 @@ getFeedingLevel <- function(object, n, n_pp, n_other,
 #' @export
 getCriticalFeedingLevel <- function(params) {
     params <- validParams(params)
-    params@metab/params@intake_max/params@species_params$alpha
+    params@metab / params@intake_max / params@species_params$alpha
 }
 
 
@@ -243,9 +243,6 @@ getPredRate <- function(params, n = initialN(params),
                         n_other = initialNOther(params),
                         t = 0, ...) {
     params <- validParams(params)
-    no_sp <- dim(params@interaction)[1]
-    no_w <- length(params@w)
-    no_w_full <- length(params@w_full)
     f <- get(params@rates_funcs$PredRate)
     pred_rate <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
                    feeding_level = getFeedingLevel(params, n = n, n_pp = n_pp,  
@@ -555,7 +552,7 @@ getFMortGear <- function(object, effort, time_range) {
 #' getFMort(sim)
 #' getFMort(sim, time_range = c(10, 20))
 #' }
-getFMort <- function(object, effort, time_range, drop = TRUE){
+getFMort <- function(object, effort, time_range, drop = TRUE) {
     if (is(object, "MizerParams")) {
         params <- validParams(object)
         if (missing(effort)) {
@@ -575,7 +572,7 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
                             dimnames = c(list(time = times),
                                          dimnames(params@initial_n)))
             times <- as.numeric(times)
-            for (i in 1:dim(effort)[1]) {
+            for (i in seq_len(dim(effort)[1])) {
                 f_mort[i, , ] <- 
                     f(params, n = n, n_pp = n_pp, n_other = n_other,
                       effort = effort[i, ], t = times[i],
@@ -628,7 +625,7 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
                         dimnames = c(list(time = times),
                                      dimnames(params@initial_n)))
         times <- as.numeric(times)
-        for (i in 1:dim(effort)[1]) {
+        for (i in seq_len(dim(effort)[1])) {
             f_mort[i, , ] <- 
                 f(params, n = n[i, , ], n_pp = n_pp[i, ], 
                   n_other = n_other[i, ], effort = effort[i, ], t = times[i],
@@ -786,8 +783,8 @@ getEGrowth <- function(params, n = initialN(params),
 
 #' Get density independent rate of egg production
 #' 
-#' Calculates the density-independent rate of total egg production \eqn{R_{di}}{R_di}
-#' (units 1/year) before density dependence, by species. 
+#' Calculates the density-independent rate of total egg production 
+#' \eqn{R_{di}}{R_di} (units 1/year) before density dependence, by species. 
 #'
 #' @inherit mizerRDI
 #' @inheritParams mizerRates
@@ -880,15 +877,16 @@ getRDD <- function(params, n = initialN(params),
 #'   in the range or not.
 #' @export
 #' @concept helper
-get_time_elements <- function(sim, time_range, slot_name = "n"){
+get_time_elements <- function(sim, time_range, slot_name = "n") {
     assert_that(is(sim, "MizerSim"))
     time_range <- range(as.numeric(time_range))
     # Check that time range is even in object
     sim_times <- as.numeric(dimnames(slot(sim, slot_name))$time)
     sim_time_range <- range(sim_times)
-    if ( (time_range[1] < sim_time_range[1]) |
-         (time_range[2] > sim_time_range[2]))
+    if ((time_range[1] < sim_time_range[1]) ||
+        (time_range[2] > sim_time_range[2])) {
         stop("Time range is outside the time range of the model")
+    }
     time_elements <- (sim_times >= time_range[1]) & (sim_times <= time_range[2])
     names(time_elements) <- dimnames(sim@effort)$time
     return(time_elements)

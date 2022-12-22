@@ -82,9 +82,9 @@ setMetadata <- function(params, title, description,
 #'   `mizer_version`, `extensions`, `time_created` and `time_modified`.
 getMetadata <- function(params) {
     list <- params@metadata
-    list$mizer_version = params@mizer_version
-    list$extensions = params@extensions
-    list$time_created = params@time_created
-    list$time_modified = params@time_modified
+    list$mizer_version <- params@mizer_version
+    list$extensions <- params@extensions
+    list$time_created <- params@time_created
+    list$time_modified <- params@time_modified
     list
 }

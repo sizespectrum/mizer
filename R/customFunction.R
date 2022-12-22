@@ -52,6 +52,6 @@ customFunction <- function(name, fun) {
                 mode = "function")) {
         stop("There is no mizer function called ", name)
     }
-    environment(fun) <- asNamespace('mizer')
+    environment(fun) <- asNamespace("mizer")
     utils::assignInNamespace(name, fun, ns = "mizer")
 }

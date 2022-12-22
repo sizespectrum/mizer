@@ -3,8 +3,8 @@
 test_that("addSpecies works when adding a second identical species", {
     p <- newTraitParams()
     no_sp <- nrow(p@species_params)
-    species_params <- p@species_params[5,]
-    species_params$species = "new"
+    species_params <- p@species_params[5, ]
+    species_params$species <- "new"
     # Adding species 5 again should lead two copies of the species
     pa <- addSpecies(p, species_params)
     expect_identical(pa@metab[5, ], pa@metab[no_sp + 1, ])
@@ -26,8 +26,8 @@ test_that("addSpecies handles gear params correctly", {
     sp <- data.frame(species = c("new1", "new2"),
                      w_max = c(10, 100),
                      k_vb = c(4, 1),
-                     n = 2/3,
-                     p = 2/3)
+                     n = 2 / 3,
+                     p = 2 / 3)
     gp <- data.frame(gear = c("gear1", "gear2", "gear1"),
                      species = c("new1", "new2", "new2"),
                      sel_func = "knife_edge",
@@ -42,15 +42,15 @@ test_that("addSpecies handles gear params correctly", {
     expect_identical(nrow(pa@gear_params), 5L)
     
     # effort for existing gear is not changed
-    extra_effort = c(gear1 = 2, gear2 = 3)
+    extra_effort <- c(gear1 = 2, gear2 = 3)
     expect_warning(pa <- addSpecies(p, sp, gp, initial_effort = extra_effort))
     expect_identical(pa@initial_effort, c(knife_edge_gear = 0, extra_effort))
     
-    effort = 2
+    effort <- 2
     expect_error(addSpecies(p, sp, gp, initial_effort = effort),
                  "The `initial_effort` must be a named list or vector")
     
-    effort = c(knife_edge_gear = 1)
+    effort <- c(knife_edge_gear = 1)
     expect_error(addSpecies(p, sp, gp, initial_effort = effort),
                  "The names of the `initial_effort` do not match the names of the new gears.")
 })
@@ -64,15 +64,15 @@ test_that("addSpecies handles interaction matrix correctly", {
                      n = 2/3,
                      p = 2/3)
     
-    interaction = matrix(1:4/4, ncol = 2)
-    ones = matrix(rep(1, 4), ncol = 2)
+    interaction <- matrix(1:4/4, ncol = 2)
+    ones <- matrix(rep(1, 4), ncol = 2)
     expect_warning(pa <- addSpecies(p, sp, interaction = interaction))
     expect_equivalent(pa@interaction[3:4, 3:4], interaction)
     expect_equivalent(pa@interaction[1:2, 3:4], ones)
     expect_equivalent(pa@interaction[3:4, 1:2], ones)
     expect_equivalent(pa@interaction[1:2, 1:2], p@interaction)
     
-    interaction = matrix(1:16/16, ncol = 4)
+    interaction <- matrix(1:16/16, ncol = 4)
     expect_warning(pa <- addSpecies(p, sp, interaction = interaction))
     expect_equivalent(pa@interaction, interaction)
     
@@ -90,7 +90,7 @@ test_that("addSpecies works when adding a species with a larger w_max", {
     
     p <- addSpecies(params, sp)
     expect_identical(p@w[1:100], params@w)
-    expect_identical(p@w_full[1:length(params@w_full)], params@w_full)
+    expect_identical(p@w_full[seq_along(params@w_full)], params@w_full)
     expect_lte(5e4, max(p@w))
     # changed rates are preserved
     expect_equal(getMaxIntakeRate(p)[1:12, 1:100],
@@ -107,7 +107,7 @@ test_that("addSpecies works when adding a species with a smaller w_min", {
     
     p <- addSpecies(params, sp)
     expect_equal(p@w[28:127], params@w)
-    expect_equal(p@w_full[1:length(params@w_full)], params@w_full)
+    expect_equal(p@w_full[seq_along(params@w_full)], params@w_full)
     expect_gte(1e-5, min(p@w))
     # changed rates are preserved
     expect_equal(getMaxIntakeRate(p)[1:12, 28:127],
@@ -119,18 +119,18 @@ test_that("addSpecies has other documented properties", {
     sp <- data.frame(species = c("new1", "new2"),
                      w_max = c(10, 100),
                      k_vb = c(4, 1),
-                     n = 2/3,
-                     p = 2/3)
+                     n = 2 / 3,
+                     p = 2 / 3)
     p <- addSpecies(NS_params, sp)
     
     # New species have 0 reproduction level
     expect_equal(getReproductionLevel(p)[13:14],
-                 c(new1 = 1/4, new2 = 1/4))
+                 c(new1 = 1 / 4, new2 = 1 / 4))
     
     # Maximum of ratio between new species density and Sheldon density is 1/100 
     fraction <- p@initial_n[13, ] / 
         (p@resource_params$kappa * p@w ^ -p@resource_params$lambda)
-    expect_equal(max(fraction), 1/100)
+    expect_equal(max(fraction), 1 / 100)
 })
 
 test_that("Added species stay at low abundance", {

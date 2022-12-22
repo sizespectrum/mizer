@@ -90,7 +90,8 @@ setInteraction <- function(params,
         # put the rows in the same order as the columns, so copy over 
         # the colnames
         if (is.null(rownames(interaction)) || 
-            all(rownames(interaction) == as.character(1:nrow(interaction)))) {
+            all(rownames(interaction) == 
+                as.character(seq_len(nrow(interaction))))) {
             rownames(interaction) <- colnames(interaction)
         }
         if (!identical(dimnames(params@interaction)[[1]],
@@ -135,8 +136,8 @@ getInteraction <- function(params) {
 
 
 #' @rdname setInteraction
-#' @return `interaction_matrix()`: The interaction matrix (predator species x prey
-#'   species)
+#' @return `interaction_matrix()`: The interaction matrix (predator species x
+#'   prey species)
 #' @export
 interaction_matrix <- function(params) {
     params@interaction

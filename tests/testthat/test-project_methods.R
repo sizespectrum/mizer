@@ -180,7 +180,7 @@ test_that("getPredMort for MizerSim", {
                  sim@n_pp[as.character(time_range), ])
     
     ttot <- 0
-    for (i in (1:dim(aq1)[1])) {
+    for (i in seq_len(dim(aq1)[1])) {
         ttot <- ttot + sum(aq1[i, ] != aq2[i, ])
     }
     
@@ -539,7 +539,7 @@ test_that("project function returns objects of correct dimension when community 
     sim <- project(params, t_max = t_max, effort = 0)
     n <- array(sim@n[t_max + 1, , ], dim = dim(sim@n)[2:3])
     dimnames(n) <- dimnames(sim@n)[2:3]
-	n_pp <- sim@n_pp[1, ]
+    n_pp <- sim@n_pp[1, ]
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
     # MizerParams functions
@@ -562,11 +562,17 @@ test_that("project function returns objects of correct dimension when community 
     expect_length(getRDD(params, n, n_pp), 1)
 
     # MizerSim functions
-    expect_equal(dim(getFeedingLevel(sim)), c(t_max + 1, 1, no_w)) # time x species x size
-    expect_equal(dim(getPredMort(sim)), c(t_max + 1, no_w)) # time x species x size - default drop is TRUE, if called from plots drop = FALSE
-    expect_equal(dim(getPredMort(sim, drop = FALSE)), c(t_max + 1, 1, no_w)) # time x species x size 
-    expect_equal(dim(getFMortGear(sim)), c(t_max + 1, 1, 1, no_w)) # time x gear x species x size
-    expect_equal(dim(getFMort(sim)), c(t_max + 1, no_w)) # time x species x size - note drop = TRUE
-    expect_equal(dim(getFMort(sim, drop = FALSE)), c(t_max + 1, 1, no_w)) # time x species x size 
-
+    # time x species x size
+    expect_equal(dim(getFeedingLevel(sim)), c(t_max + 1, 1, no_w))
+    # time x species x size - default drop is TRUE, if called from 
+    # plots drop = FALSE
+    expect_equal(dim(getPredMort(sim)), c(t_max + 1, no_w))
+    # time x species x size
+    expect_equal(dim(getPredMort(sim, drop = FALSE)), c(t_max + 1, 1, no_w))
+    # time x gear x species x size
+    expect_equal(dim(getFMortGear(sim)), c(t_max + 1, 1, 1, no_w))
+    # time x species x size - note drop = TRUE
+    expect_equal(dim(getFMort(sim)), c(t_max + 1, no_w))
+    # time x species x size 
+    expect_equal(dim(getFMort(sim, drop = FALSE)), c(t_max + 1, 1, no_w))
 })

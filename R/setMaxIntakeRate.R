@@ -13,7 +13,8 @@
 #' the `h` column is not supplied in the species parameter dataframe, it is
 #' calculated by the [get_h_default()] function.
 #' 
-#' If \eqn{h_i} is set to `Inf`, fish of species i will consume all encountered food.
+#' If \eqn{h_i} is set to `Inf`, fish of species i will consume all encountered
+#' food.
 #'
 #' @param params MizerParams
 #' @param intake_max Optional. An array (species x size) holding the maximum

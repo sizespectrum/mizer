@@ -145,12 +145,11 @@ calibrateNumber <- function(params) {
 #'     c(1.3, 0.065, 0.31, 0.18, 0.98, 0.24, 0.37, 0.46, 0.18, 0.30, 0.27, 0.39)
 #' params2 <- calibrateYield(params)
 #' plotYieldObservedVsModel(params2)
-calibrateYield<- function(params) {
+calibrateYield <- function(params) {
     if ((!("yield_observed" %in% names(params@species_params))) ||
         all(is.na(params@species_params$yield_observed))) {
         return(params)
     }
-    no_sp <- nrow(params@species_params)
     observed <- params@species_params$yield_observed
     observed_total <- sum(observed, na.rm = TRUE)
     sp_observed <- which(!is.na(observed))
@@ -188,8 +187,8 @@ calibrateYield<- function(params) {
 #' [project()] or whether one first runs a simulation and then rescales the
 #' resulting abundances.
 #'
-#' Note that if you use non-standard resource dynamics or other components then you
-#' may need to rescale additional parameters that appear in those dynamics.
+#' Note that if you use non-standard resource dynamics or other components then
+#' you may need to rescale additional parameters that appear in those dynamics.
 #' 
 #' In practice you will need to use some observations to set the scale for your
 #' model. If you have biomass observations you can use [calibrateBiomass()],
@@ -221,7 +220,7 @@ scaleModel <- function(params, factor) {
     }
     
     # Search volume
-    params@search_vol = params@search_vol / factor
+    params@search_vol <- params@search_vol / factor
     if ("gamma" %in% names(params@species_params)) {
         params@species_params$gamma <- params@species_params$gamma / factor
     }
@@ -233,7 +232,7 @@ scaleModel <- function(params, factor) {
     }
     initialN(params) <- params@initial_n * factor
     initialNResource(params) <- params@initial_n_pp * factor
-    initialNOther(params) = initial_n_other
+    initialNOther(params) <- initial_n_other
     
     # community
     params@sc <- params@sc * factor

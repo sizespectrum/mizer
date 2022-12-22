@@ -359,9 +359,9 @@ And plot the relative abundances:
 
 ```{r label=plot_relative_comm_abund_industrial}
 plot(x = w(params), y = relative_abundance, log = "xy", type = "n", 
-     xlab = "Size [g]", ylab="Relative abundance", ylim = c(0.1, 10))
+     xlab = "Size [g]", ylab = "Relative abundance", ylim = c(0.1, 10))
 lines(x = w(params), y = relative_abundance)
-lines(x = c(min(w(params)),max(w(params))), y = c(1, 1), lty = 2)
+lines(x = c(min(w(params)), max(w(params))), y = c(1, 1), lty = 2)
 ```
 
 This shows another trophic cascade, although this time one driven by fishing the

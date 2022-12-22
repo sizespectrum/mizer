@@ -226,7 +226,7 @@ get_h_default <- function(params) {
         }
         species_params <- species_params %>% 
             set_species_param_default("fc", 0.2) %>% 
-            set_species_param_default("n", 3/4) %>% 
+            set_species_param_default("n", 3 / 4) %>% 
             set_species_param_default(
                 "age_mat", age_mat_vB(species_params),
                 strwrap("Because the age at maturity is not known, I need to 

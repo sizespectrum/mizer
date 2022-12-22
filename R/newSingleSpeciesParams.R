@@ -46,7 +46,7 @@ newSingleSpeciesParams <-
              eta = 10^(-0.6),
              w_mat = w_max * eta,
              no_w = log10(w_max / w_min) * 20 + 1,
-             n = 3/4,
+             n = 3 / 4,
              p = n,
              lambda = 2.05,
              kappa = 0.005,
@@ -81,7 +81,7 @@ newSingleSpeciesParams <-
             )
         }
     assert_that(is.string(species_name), length(species_name) == 1)
-    no_sp <- 1
+
     ## Much of the following code is copied from newTraitParams
 
     ## Check validity of parameters ----
@@ -128,7 +128,7 @@ newSingleSpeciesParams <-
         lifecycle::deprecate_soft("2.3.0", "newTraitParams(R_factor)",
                                   "newTraitParams(reproduction_level)",
                                   "Set `reproduction_level = 1 / R_factor`.")
-        reproduction_level = 1 / R_factor
+        reproduction_level <- 1 / R_factor
     }
 
     ## Build Params Object ----
@@ -208,8 +208,10 @@ newSingleSpeciesParams <-
     # Normalise abundance so that the maximum ratio between the species
     # abundance and community abundance is 1/2
     fish <- (length(params@w_full) - length(params@w) + 1):length(params@w_full)
-    imax <- which.max(initial_n[1, ] / initial_n_pp[fish]) # index in fish spectrum
-    pmax <- imax + length(params@w_full) - length(params@w) # corresponding resource index
+    # index in fish spectrum
+    imax <- which.max(initial_n[1, ] / initial_n_pp[fish])
+    # corresponding resource index
+    pmax <- imax + length(params@w_full) - length(params@w)
     initial_n <- initial_n / initial_n[1, imax] * initial_n_pp[pmax] / 2
     params@initial_n <- initial_n
 
