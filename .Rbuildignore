@@ -38,3 +38,5 @@
 ^vignettes/Growth_curve.pdf$
 ^vignettes/publications.Rmd$
 ^vignettes/*.pdf$
+^CRAN-SUBMISSION$
+^\.github$
