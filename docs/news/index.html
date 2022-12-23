@@ -82,7 +82,7 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.4.0" id="mizer-240">mizer 2.4.0<a class="anchor" aria-label="anchor" href="#mizer-240"></a></h2>
+<h2 class="pkg-version" data-toc-text="2.4.0" id="mizer-240">mizer 2.4.0<a class="anchor" aria-label="anchor" href="#mizer-240"></a></h2><p class="text-muted">CRAN release: 2022-12-23</p>
 <p>This release introduces a change that requires you to upgrade your old MizerParams and MizerSim objects with <code><a href="../reference/upgradeParams.html">upgradeParams()</a></code> or <code><a href="../reference/upgradeSim.html">upgradeSim()</a></code>:</p>
 <div class="section level3">
 <h3 id="avoid-confusion-between-maximum-size-and-von-bertalanffy-asymptotic-size-2-4-0">Avoid confusion between maximum size and von Bertalanffy asymptotic size<a class="anchor" aria-label="anchor" href="#avoid-confusion-between-maximum-size-and-von-bertalanffy-asymptotic-size-2-4-0"></a></h3>
@@ -99,7 +99,7 @@
 <div class="section level3">
 <h3 id="automatically-match-growth-rates-2-4-0">Automatically match growth rates<a class="anchor" aria-label="anchor" href="#automatically-match-growth-rates-2-4-0"></a></h3>
 <p>As explained in the blog post at <a href="https://blog.mizer.sizespectrum.org/posts/2022-11-30-dont-use-von-bertalanffy-growth-parameters/" class="external-link uri">https://blog.mizer.sizespectrum.org/posts/2022-11-30-dont-use-von-bertalanffy-growth-parameters/</a>, the von Bertalanffy curves fitted to size-at-age data are not suitable for estimating the size-dependent growth rates in mizer. It is therefore now recommended that instead of von Bertalanffy parameters you supply the age at maturity in the <code>age_mat</code> column of the species parameter data frame. This is then used by mizer to calculate a default for the maximum intake rate parameter <code>h</code> if you do not supply this.</p>
-<p>In the past, whenever you changed any model parameters, you needed to re-tune other parameters to keet the growth rates in line with observations. There is now a new function <code><a href="../reference/matchGrowth.html">matchGrowth()</a></code> that automatically scales the search volume, the maximum consumption rate and the metabolic rate all by the same factor in order to achieve a growth rate that allows individuals to reach their maturity size by their maturity age while keeping the feeding level and the critical feeding level unchanged. This function does not however preserve the steady state, so you will need to also call <code><a href="../reference/steady.html">steady()</a></code> after matching the growth rates.</p>
+<p>In the past, whenever you changed any model parameters, you needed to re-tune other parameters to keep the growth rates in line with observations. There is now a new function <code><a href="../reference/matchGrowth.html">matchGrowth()</a></code> that automatically scales the search volume, the maximum consumption rate and the metabolic rate all by the same factor in order to achieve a growth rate that allows individuals to reach their maturity size by their maturity age while keeping the feeding level and the critical feeding level unchanged. This function does not however preserve the steady state, so you will need to also call <code><a href="../reference/steady.html">steady()</a></code> after matching the growth rates.</p>
 </div>
 <div class="section level3">
 <h3 id="other-improvements-2-4-0">Other improvements<a class="anchor" aria-label="anchor" href="#other-improvements-2-4-0"></a></h3>
@@ -120,14 +120,14 @@
 <li>
 <code><a href="../reference/compareParams.html">compareParams()</a></code> now also checks the validity of its second argument.</li>
 <li>Hide the printing of messages about chosen defaults in <code><a href="../reference/newTraitParams.html">newTraitParams()</a></code>.</li>
-<li>Higher values for the <code>info_level</code> argument in `newMultispeciesParams now leads to more messages.</li>
+<li>Higher values for the <code>info_level</code> argument in <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code> now leads to more messages.</li>
 <li>Giving more helpful messages in <code><a href="../reference/validSpeciesParams.html">validSpeciesParams()</a></code>. <a href="https://github.com/sizespectrum/mizer/issues/136" class="external-link">#136</a></li>
 <li>New helper functions <code><a href="../reference/l2w.html">l2w()</a></code> and <code><a href="../reference/l2w.html">w2l()</a></code> for converting between length-based and weight-based species parameters. <a href="https://github.com/sizespectrum/mizer/issues/258" class="external-link">#258</a></li>
 <li>Check that assessor functions for MizerSim slots are called with a MizerSim object.</li>
 <li>Add <code>style</code> argument to <code><a href="../reference/plotDataFrame.html">plotDataFrame()</a></code> to facilitate producing area plots.</li>
 <li>Add <code>wrap_scale</code> argument to <code><a href="../reference/plotDataFrame.html">plotDataFrame()</a></code> to control scaling of axes in faceted plots.</li>
 <li>
-<code><a href="../reference/plotDiet.html">plotDiet()</a></code> can now show diets of several predator species in a facetted plot. <a href="https://github.com/sizespectrum/mizer/issues/267" class="external-link">#267</a></li>
+<code><a href="../reference/plotDiet.html">plotDiet()</a></code> can now show diets of several predator species in a faceted plot. <a href="https://github.com/sizespectrum/mizer/issues/267" class="external-link">#267</a></li>
 <li>Change from <code>size</code> to <code>linewidth</code> aesthetic to avoid warnings in new version of ggplot2.</li>
 <li>Better error message when functions are called with no valid species selected. <a href="https://github.com/sizespectrum/mizer/issues/251" class="external-link">#251</a></li>
 <li>If there are no differences then <code><a href="../reference/compareParams.html">compareParams()</a></code> says so clearly.</li>
@@ -146,7 +146,7 @@
 </li>
 <li>Comment field now preserved by <code>set_species_default()</code>. <a href="https://github.com/sizespectrum/mizer/issues/268" class="external-link">#268</a></li>
 <li>Comment on <code>w_inf</code> no longer leads to error in <code><a href="https://rdrr.io/pkg/plyr/man/aaply.html" class="external-link">plyr::aaply()</a></code>. <a href="https://github.com/sizespectrum/mizer/issues/269" class="external-link">#269</a></li>
-<li>Can now again set <code>url</code> field in metdata.</li>
+<li>Can now again set <code>url</code> field in metadata.</li>
 <li>Correct species now listed in the legend of <code><a href="../reference/plotYieldObservedVsModel.html">plotYieldObservedVsModel()</a></code> and <code><a href="../reference/plotBiomassObservedVsModel.html">plotBiomassObservedVsModel()</a></code>. <a href="https://github.com/sizespectrum/mizer/issues/266" class="external-link">#266</a></li>
 <li>Standard order for legend in <code><a href="../reference/plotDiet.html">plotDiet()</a></code> restored after change to <code>ggplot2</code> package. <a href="https://github.com/sizespectrum/mizer/issues/265" class="external-link">#265</a></li>
 <li>Fix handling of column names when interaction matrix is read from .csv file. <a href="https://github.com/sizespectrum/mizer/issues/263" class="external-link">#263</a></li>

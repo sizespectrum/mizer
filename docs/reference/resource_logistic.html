@@ -164,13 +164,16 @@ $$\frac{\partial N_R(w,t)}{\partial t} = r_R(w) N_R(w)\Big[ 1 - \frac{N_R(w,t)}{
 carrying capacity in the absence of predation. These parameters are changed
 with <code><a href="setResource.html">setResource()</a></code>. The mortality \(\mu_R(w, t)\) is
 due to predation by consumers and is calculate with <code><a href="getResourceMort.html">getResourceMort()</a></code>.</p>
-<p>To set your model to use logistic dynamics for the resource you do</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">resource_dynamics</span>(params) <span class="ot">&lt;-</span> <span class="st">"resource_logistic"</span></span></code></pre><p></p></div>
-<p>where you should replace <code>params</code> with the name of the variable holding your
-MizerParams object.</p>
 <p>This function uses the analytic solution of the above equation to calculate
 the resource abundance at time <code>t + dt</code> from all abundances and rates at time
 <code>t</code>, keeping the mortality fixed during the timestep.</p>
+<p>To set your model to use logistic dynamics for the resource you do</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>params <span class="ot">&lt;-</span> <span class="fu">setResource</span>(params, </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">resource_dynamics =</span> <span class="st">"resource_logistic"</span>, </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">resource_level =</span> <span class="fl">0.5</span>)</span></code></pre><p></p></div>
+<p>where you should replace <code>params</code> with the name of the variable holding your
+MizerParams object. You can of course choose any value between 0 and 1 for
+the resource level.</p>
 <p>The <code>balance_resource_logistic()</code> function is called by <code><a href="setResource.html">setResource()</a></code> to
 determine the values of the resource parameters that are needed to make the
 replenishment rate at each size equal the consumption rate at that size, as
@@ -185,13 +188,6 @@ with the values for both.</p>
 <code><a href="resource_semichemostat.html">resource_semichemostat</a>()</code></p></div>
     </div>
 
-    <div class="section level2">
-    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="va">NS_params</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="setResource.html">resource_dynamics</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"resource_logistic"</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in balance_fn(params, resource_rate = resource_rate, resource_capacity = resource_capacity):</span> I can't balance the resource if the resource rate is less than the mortality rate.</span>
-</code></pre></div>
-    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 
