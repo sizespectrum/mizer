@@ -90,7 +90,7 @@ state, so you will need to also call `steady()` after matching the growth rates.
   `w_mat25` at the same time.
 * `compareParams()` now also checks the validity of its second argument.
 * Hide the printing of messages about chosen defaults in `newTraitParams()`.
-* Higher values for the `info_level` argument in `newMultispeciesParams now
+* Higher values for the `info_level` argument in `newMultispeciesParams()` now
   leads to more messages.
 * Giving more helpful messages in `validSpeciesParams()`. #136
 * New helper functions `l2w()` and `w2l()` for converting between length-based
