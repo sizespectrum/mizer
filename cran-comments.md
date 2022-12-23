@@ -12,6 +12,10 @@ OK
 
 OK
 
+### GitHub actions R-CMD-check
+
+OK on all 5 platforms
+
 ### RHub builder: Ubuntu Linux 20.04.1 LTS, R-release, GCC
   
 NOTES
