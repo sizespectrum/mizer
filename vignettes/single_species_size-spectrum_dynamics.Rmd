@@ -132,7 +132,7 @@ First, load some required packages with the following commands:
 
 ```{r message=FALSE}
 library(mizer)
-library(tidyverse)
+library(dplyr)
 library(plotly)
 library(ggplot2)
 ```
