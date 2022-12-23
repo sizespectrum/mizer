@@ -73,6 +73,12 @@
     <loc>https://sizespectrum.org/mizer/dev/reference/animateSpectra.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/dev/reference/balance_resource_logistic.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/dev/reference/balance_resource_semichemostat.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/dev/reference/BevertonHoltRDD.html</loc>
   </url>
   <url>
@@ -80,6 +86,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/dev/reference/calibrateBiomass.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/dev/reference/calibrateNumber.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/dev/reference/calibrateYield.html</loc>
@@ -175,6 +184,9 @@
     <loc>https://sizespectrum.org/mizer/dev/reference/getGrowthCurves.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/dev/reference/getInteraction.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/dev/reference/getM2.html</loc>
   </url>
   <url>
@@ -218,6 +230,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/dev/reference/getReproductionLevel.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/dev/reference/getResourceDynamics.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/dev/reference/getResourceMort.html</loc>
@@ -305,6 +320,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/dev/reference/matchGrowth.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/dev/reference/matchNumbers.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/dev/reference/matchYields.html</loc>
