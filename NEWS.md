@@ -1,3 +1,5 @@
+# mizer (development version)
+
 # mizer 2.4.0
 
 This release introduces a change that requires you to upgrade your old 
