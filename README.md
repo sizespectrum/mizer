@@ -18,14 +18,17 @@ Mizer is an R package to run [dynamic multi-species size-spectrum
 models](#dynamic-multi-species-size-spectrum-models) of fish
 communities. The package has been developed to model marine ecosystems
 that are subject to fishing. However, it may also be appropriate for
-other aquatic ecosystems.
+other aquatic ecosystems. By providing a framework for multi-species
+fisheries modelling as an R package, mizer enhances the accessibility,
+usability, and reproducibility of models, and thus aims to facilitate
+collaboration and innovation.
 
-The package contains functions to allow users to set up an ecosystem
-model, and then project it through time under different fishing
+The package contains functions that allow you to set up an ecosystem
+model and then project it through time under different fishing
 strategies. Methods are included to explore the results, including plots
-and calculation of community indicators such as the slope of the size
-spectrum. Size-based models can be complicated so mizer contains many
-default options that can be easily changed by the user.
+and calculations of community indicators such as the slope of the size
+spectrum. Size-based models can be complicated, so mizer contains many
+default options that you can however change when needed.
 
 <!-- Mizer can also be used to create web apps that allow users to explore models -->
 <!-- without the need to install R. An [example of such an -->
@@ -93,13 +96,47 @@ See the accompanying [Get
 started](https://sizespectrum.org/mizer/articles/mizer.html) page for
 more details on how the package works, including detailed examples.
 
-## Dynamic multi-species size-spectrum models
+## Dynamic multi-species size-spectrum model
 
-A mizer model captures the interactions between multiple species. The
-growth rates of fish are determined by the availability of prey and the
-death rates are influenced by the abundance of predators, as well as
-fishing. The model starts with the individual-level physiological rates
-for each species, as well as the predation preferences, and deduces the
+Size-based multi-species models are important for fisheries science
+because they provide a more realistic and accurate representation of the
+dynamics of fish populations and the ecosystems in which they live. In
+contrast to traditional single-species models, which consider a single
+fish stock as an isolated unit, size-based multi-species models account
+for the fact that fish populations are part of a larger ecosystem and
+interact with other species through predation, competition, and other
+ecological processes.
+
+One of the key advantages of size-based multi-species models is that
+they provide a more comprehensive understanding of the impacts of
+fishing on fish populations and ecosystems. By considering the size
+distribution of different fish species, these models can capture the
+effects of fishing on both target and non-target species, and on
+different life stages of a species. This is particularly important for
+species that are caught as bycatch or that are indirectly affected by
+fishing through changes in their food web.
+
+Another advantage of size-based multi-species models is that they can be
+used to investigate the effects of environmental changes and other
+perturbations on fish populations and ecosystems. For example, these
+models can be used to explore the impacts of climate change on the
+distribution and abundance of fish populations, or the effects of
+habitat loss or pollution on fish communities. Because mizer is a
+mechanistic model, it can deduce the complex population-level changes
+that we are interested in from the simpler changes in the physiological
+rates and feeding interactions of individual fish species.
+
+Overall, size-based multi-species models provide a more comprehensive
+and realistic framework for understanding the dynamics of fish
+populations and ecosystems, and for developing effective fisheries
+management strategies that account for the complex interactions among
+species and their environment.
+
+A mizer model captures the interactions between species. The growth
+rates of fish are determined by the availability of prey and the death
+rates are influenced by the abundance of predators, as well as fishing.
+The model starts with the individual-level physiological rates for each
+species, as well as the predation preferences, and deduces the
 population-level dynamics from these. Thus quantities like fish diets
 and fisheries yields emerge dynamically and can be projected into the
 future.
@@ -122,15 +159,13 @@ additional parameters that determine the dynamics away from the steady
 state (as in Ecosim). This model can then be used to investigate future
 effects of changes in fishing policy or of environmental stressors.
 
-## Modelling environmental change
+## A strong theoretical basis
 
-A mizer model is a good tool for studying the effect of environmental
-changes, like climate change, because it is a mechanistic model that can
-deduce the complex population-level changes that one is interested in
-from the simpler changes in the physiological rates and feeding
-interactions of individual fish species.
-
-## Smooth traffic on the biomass highway
+One big advantage of a mizer model is that it is based on a strong
+mathematical foundation. This allows a degree of a priori understanding
+of the behaviour of the model that is absent in many other multi-species
+models. This theoretical foundation is well presented in the book “Fish
+Ecology, Evolution, and Exploitation” by Ken Andersen.
 
 It is interesting to think of the marine ecosystem as a transport system
 that moves biomass from the size of primary producers (mostly
@@ -159,20 +194,12 @@ the growth of those predators slows down, leading to a pile-up which
 leads to further depletion of prey, leading to further slow-down, in a
 potentially vicious cycle.
 
-Luckily the natural ecosystem has evolved to facilitate very smooth
-traffic on the biomass highway with resultant high productivity. This
+Luckily, the natural ecosystem has evolved to facilitate very smooth
+traffic on this biomass highway, with resultant high productivity. This
 state is characterised by an approximate power-law shape of the biomass
 size spectrum. The purpose of mizer is to allow us to understand how
 various stressors, like fishing or climate change, affect the size
-spectrum and hence flow of biomass and the productivity and resilience
-of the marine ecosystem. Mizer allows us to investigate how size-based
-fisheries management strategies can be used to keep the ecosystem close
-to its natural productive state.
-
-## A model one can understand
-
-One big advantage of a mizer model is that it is based on a strong
-mathematical foundation. This allows a degree of a priori understanding
-of the behaviour of the model that is absent in many other multi-species
-models. This theoretical foundation is well presented in the book “Fish
-Ecology, Evolution, and Exploitation” by Ken Andersen.
+spectrum and hence the flow of biomass and the productivity and
+resilience of the marine ecosystem. Mizer allows us to investigate how
+size-based fisheries management strategies can be used to keep the
+ecosystem close to its natural productive state.
