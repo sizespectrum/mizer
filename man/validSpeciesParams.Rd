@@ -15,29 +15,52 @@ A valid species parameter data frame
 This function throws an error if
 \itemize{
 \item the \code{species} column does not exist or contains duplicates
-\item the \code{w_inf} column does not exist or contains NAs or is not numeric
+\item the maximum size is not specified for all species
 }
 
-It sets default values if any of the following are missing or NA
+If a weight-based parameter is missing but the corresponding length-based
+parameter is given, as well as the \code{a} and \code{b} parameters for length-weight
+conversion, then the weight-based parameters are added. If both length and
+weight are given, then weight is used and a warning is issued if the two are
+inconsistent.
+
+If a \code{w_inf} column is given but no \code{w_max} then the value from \code{w_inf} is
+used. This is for backwards compatibility.
+
+The function sets default values if any of the following are missing or NA
 \itemize{
-\item \code{w_mat} is set to \code{w_inf/4}
+\item \code{w_mat} is set to \code{w_max/4}
 \item \code{w_min} is set to \code{0.001}
 \item \code{alpha} is set to \code{0.6}
 \item \code{interaction_resource} is set to \code{1}
 }
 
-Any \code{w_mat} that is given that is not smaller than \code{w_inf} is set to
-\code{w_inf / 4}.
-
-Any \code{w_mat25} that is given that is not smaller than \code{w_mat} is set to
-\code{w_mat * 3^(-0.1)}.
+Some inconsistencies in the size parameters are resolved as follows:
+\itemize{
+\item Any \code{w_mat} that is not smaller than \code{w_max} is set to \code{w_max / 4}.
+\item Any \code{w_mat25} that is not smaller than \code{w_mat} is set to NA.
+\item Any \code{w_min} that is not smaller than \code{w_mat} is set to \code{0.001} or
+\code{w_mat /10}, whichever is smaller.
+}
 
 The row names of the returned data frame will be the species names.
 If \code{species_params} was provided as a tibble it is converted back to an
 ordinary data frame.
+
+The function tests for some typical misspellings of parameter names, like
+wrong capitalisation or missing underscores and issues a warning if it
+detects such a name.
+
+Note that the species parameters returned by this function are not guaranteed
+to produce a viable model. More checks of the parameters are performed by the
+individual rate-setting functions (see \code{\link[=setParams]{setParams()}} for the list of these
+functions).
 }
 \description{
 Check validity of species parameters and set defaults for missing but
-required parameters
+required parameters.
+}
+\seealso{
+species_params
 }
 \concept{helper}

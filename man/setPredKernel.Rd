@@ -126,7 +126,6 @@ params<- setPredKernel(params, pred_kernel = pred_kernel)
 \seealso{
 Other functions for setting parameters: 
 \code{\link{gear_params}()},
-\code{\link{resource_params}()},
 \code{\link{setExtMort}()},
 \code{\link{setFishing}()},
 \code{\link{setInitialValues}()},
@@ -135,7 +134,6 @@ Other functions for setting parameters:
 \code{\link{setMetabolicRate}()},
 \code{\link{setParams}()},
 \code{\link{setReproduction}()},
-\code{\link{setResource}()},
 \code{\link{setSearchVolume}()},
 \code{\link{species_params}()}
 }

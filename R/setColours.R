@@ -2,7 +2,8 @@
 #'
 #' `r lifecycle::badge("experimental")`
 #' Used for setting the colour and type of lines representing "Total",
-#' "Resource", "Fishing", "Background" and possibly other categories in plots.
+#' "Resource", "Fishing", "Background", "External" and possibly other categories
+#' in plots.
 #'
 #' Colours for names that already had a colour set for them will be overwritten
 #' by the colour you specify. Colours for names that did not yet have a colour
@@ -23,7 +24,7 @@
 #' @return `setColours`: The MizerParams object with updated line colours
 #' @export
 #' @examples
-#' params <- setColours(NS_params, list("Resource" = "red", "Total" = "#0000ff"))
+#' params <- setColours(NS_params, list("Resource" = "red","Total" = "#0000ff"))
 #' params <- setLinetypes(NS_params, list("Total" = "dotted"))
 #' # Set colours and linetypes for species
 #' species_params(params)["Cod", "linecolour"] <- "black"

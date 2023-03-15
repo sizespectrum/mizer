@@ -17,12 +17,14 @@
 #' @inheritParams setReproduction
 #' @inheritParams setFishing
 #' @inheritParams setResource
+#' @param kappa The coefficient of the initial resource abundance power-law.
 #' @param min_w_pp The smallest size of the resource spectrum. By default this
 #'   is set to the smallest value at which any of the consumers can feed.
 #' @param n The allometric growth exponent. This can be overruled for individual
 #'   species by including a `n` column in the `species_params`. 
 #' @param info_level Controls the amount of information messages that are shown
-#'   when the function sets default values for parameters. 
+#'   when the function sets default values for parameters. Higher levels lead
+#'   to more messages.
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' 
@@ -35,11 +37,12 @@
 #' There are two essential columns that must be included in the species
 #' parameter data.frame and that do not have default values: the 
 #' `species` column that should hold strings with the names of the
-#' species and the `w_inf` column with the asymptotic sizes of the species
-#' in grams. 
+#' species and the `w_max` column with the maximum sizes of the species
+#' in grams. (You could alternatively specify the maximum length in cm in an
+#' `l_max` column.)
 #' 
-#' The species_params dataframe also needs to contain the parameters needed
-#' by any predation kernel function or size selectivity function. This will
+#' The `species_params dataframe` also needs to contain the parameters needed
+#' by any predation kernel function (size selectivity function). This will
 #' be mentioned in the appropriate sections below.
 #' 
 #' For all other species parameters, mizer will calculate default values if they
@@ -66,6 +69,16 @@
 #' @inheritSection setReproduction Setting reproduction
 #' @inheritSection setFishing Setting fishing
 #' @inheritSection setResource Setting resource dynamics
+#' 
+#' @section Setting initial values:
+#' The initial values for the species number densities are set using the 
+#' function `get_initial_n()`. These are quite arbitrary and not very close to
+#' the steady state abundances. We intend to improve this in the future. 
+#' 
+#' The initial resource number density \eqn{N_R(w)} is set to a power law with
+#' coefficient `kappa` (\eqn{\kappa}) and exponent `-lambda` (\eqn{-\lambda}):
+#' \deqn{N_R(w) = \kappa\, w^{-\lambda}}{c_R(w) = \kappa w^{-\lambda}}
+#' for all \eqn{w} less than `w_pp_cutoff` and zero for larger sizes.
 #' 
 #' @export
 #' @family functions for setting up models
@@ -96,11 +109,10 @@ newMultispeciesParams <- function(
     repro_prop = NULL,
     RDD = "BevertonHoltRDD",
     # setResource
-    resource_rate = NULL,
-    resource_capacity = NULL,
-    n = 2 / 3,
-    r_pp = 10,
     kappa = 1e11,
+    n = 2 / 3,
+    resource_rate = 10,
+    resource_capacity = kappa,
     lambda = 2.05,
     w_pp_cutoff = 10,
     resource_dynamics = "resource_semichemostat",
@@ -110,9 +122,17 @@ newMultispeciesParams <- function(
     catchability = NULL,
     initial_effort = NULL,
     info_level = 3,
-    z0 = deprecated()) {
+    z0 = deprecated(),
+    r_pp = deprecated()) {    
+    
+    if (lifecycle::is_present(r_pp)) {
+        lifecycle::deprecate_warn("1.0.0", "newMultispeciesParams(r_pp)", 
+                                  "newMultispeciesParams(resource_rate)")
+        resource_rate <- r_pp
+    }
     if (lifecycle::is_present(z0)) {
-        lifecycle::deprecate_warn("2.2.3", "newMultispeciesParams(z0)", "newMultispeciesParams(ext_mort)")
+        lifecycle::deprecate_warn("2.2.3", "newMultispeciesParams(z0)", 
+                                  "newMultispeciesParams(ext_mort)")
         ext_mort <- z0
     }
     
@@ -120,7 +140,7 @@ newMultispeciesParams <- function(
     # into the `infos` list.
     infos <- list()
     collect_info <- function(cnd) {
-        if (cnd$level >= info_level) {
+        if (cnd$level <= info_level) {
             infos[[cnd$var]] <<- cnd$message
         }
     }
@@ -139,17 +159,24 @@ newMultispeciesParams <- function(
                           max_w = max_w, 
                           min_w_pp = min_w_pp)
     
-    ## Fill the slots ----
+    # Fill the slots ----
     params <- params %>% 
         set_species_param_default("n", n) %>% 
         set_species_param_default("p", p)
-    params <- set_species_param_default(params, "q", 
-                                        lambda - 2 + params@species_params$n)
+    params <- set_species_param_default(
+        params, "q", lambda - 2 + params@species_params[["n"]])
     if (is.null(interaction)) {
         interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
     }
-    params <-
-        setParams(params,
+    
+    params@initial_n_pp[] <- kappa * params@w_full ^ (-lambda)
+    params@initial_n_pp[params@w_full >= w_pp_cutoff] <- 0
+    params@resource_params$kappa <- kappa
+    params@resource_params$lambda <- lambda
+    params@resource_params$w_pp_cutoff <- w_pp_cutoff
+    
+    params <- params  %>%
+        setParams(
                   # setInteraction
                   interaction = interaction,
                   # setPredKernel()
@@ -168,23 +195,22 @@ newMultispeciesParams <- function(
                   maturity = maturity,
                   repro_prop = repro_prop,
                   RDD = RDD,
-                  # setResource
-                  resource_rate = resource_rate,
-                  resource_capacity = resource_capacity,
-                  r_pp = r_pp,
-                  kappa = kappa,
-                  lambda = lambda,
-                  n = n,
-                  w_pp_cutoff = w_pp_cutoff,
-                  resource_dynamics = resource_dynamics,
                   # setFishing
                   gear_params = gear_params,
                   selectivity = selectivity,
                   catchability = catchability,
-                  initial_effort = initial_effort)
+                  initial_effort = initial_effort) %>%
+        setResource(
+            # setResource
+            resource_rate = resource_rate,
+            resource_capacity = resource_capacity,
+            resource_dynamics = resource_dynamics,
+            lambda = lambda,
+            n = n,
+            w_pp_cutoff = w_pp_cutoff,
+            balance = FALSE)
     
     params@initial_n <- get_initial_n(params)
-    params@initial_n_pp <- params@cc_pp
     params@A <- rep(1, nrow(species_params))
     })
     if (length(infos) > 0) {
@@ -219,7 +245,6 @@ newMultispeciesParams <- function(
 #' @inheritDotParams setExtMort -reset
 #' @inheritDotParams setReproduction -reset
 #' @inheritDotParams setFishing -reset
-#' @inheritDotParams setResource -reset
 #' 
 #' @return A \linkS4class{MizerParams} object
 #' 
@@ -249,8 +274,8 @@ newMultispeciesParams <- function(
 #' other parameters that are affected by the change in the species parameter.
 #' 
 #' `setParams()` will use the species parameters in the `params` object to
-#' recalculate the values of all the model functions except those for which you have set custom
-#' values.
+#' recalculate the values of all the model functions except those for which you
+#' have set custom values.
 #' 
 #' @section Units in mizer:
 #' Mizer uses grams to measure weight, centimetres to measure lengths, and
@@ -290,14 +315,12 @@ newMultispeciesParams <- function(
 #' @inheritSection setExtMort Setting external mortality rate
 #' @inheritSection setReproduction Setting reproduction
 #' @inheritSection setFishing Setting fishing
-#' @inheritSection setResource Setting resource dynamics
 #' @export
 #' @family functions for setting parameters
 # The reason we list `interaction` explicitly rather than including it in
-# the `...` is for backwards compatibitlity. It used to be the second argument.
+# the `...` is for backwards compatibility. It used to be the second argument.
 setParams <- function(params, interaction = NULL, ...) {
     params <- suppressWarnings(validParams(params))
-    params <- setResource(params, ...)
     params <- setInteraction(params, interaction)
     params <- setPredKernel(params, ...)
     params <- setMaxIntakeRate(params, ...)

@@ -31,15 +31,15 @@ test_that("setReproduction works", {
 })
 test_that("setReproduction checks arguments", {
     params <- NS_params
-    params@species_params$w_inf[[2]] <- NA
+    params@species_params$w_max[[2]] <- NA
     expect_error(setReproduction(params),
-                 "The following species are missing data for their maximum size w_inf: Sandeel")
-    params@species_params$w_inf[[2]] <- 1e-5
+                 "The following species are missing data for their maximum size w_max: Sandeel")
+    params@species_params$w_max[[2]] <- 1e-5
     expect_error(setReproduction(params),
-                 "Some of the asymptotic sizes are smaller than the egg sizes.")
-    params@species_params$w_inf <- NULL
+                 "Some of the maximum sizes are smaller than the egg sizes.")
+    params@species_params$w_max <- NULL
     expect_error(setReproduction(params),
-                 "The maximum sizes of the species must be specified in the w_inf column of the species parameter data frame.")
+                 "The maximum sizes of the species must be specified in the w_max column of the species parameter data frame.")
 
     params <- NS_params
     params@species_params$w_mat[[2]] <- NA
@@ -99,11 +99,11 @@ test_that("Comment works on psi", {
     # no message when nothing changes
     expect_message(setReproduction(params), NA)
     # but message when a change is not stored due to comment
-    params@species_params$w_inf <- params@species_params$w_inf * 1.1
+    params@species_params$w_max <- params@species_params$w_max * 1.1
     expect_message(setReproduction(params),  "has been commented")
     # Can reset
     p <- setReproduction(params, reset = TRUE)
-    # The increase in w_inf should lower the psi curve
+    # The increase in w_max should lower the psi curve
     expect_gt(max(params@psi - p@psi), 0)
     expect_warning(setReproduction(params, repro_prop = repro_prop,
                                     reset = TRUE),
@@ -133,7 +133,7 @@ test_that("Can get and set repro_prop", {
     new <- repro_prop(params) ^ 2 
     comment(new) <- "test"
     repro_prop(params) <- new
-    expect_equal(repro_prop(params)[2,50], new[2, 50])
+    expect_equal(repro_prop(params)[2, 50], new[2, 50])
 })
 test_that("Can get and set maturity", {
     params <- NS_params

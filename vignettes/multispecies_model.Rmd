@@ -13,7 +13,7 @@ library(mizer)
 
 
 The previous sections have used wrapper functions to set up MizerParams
-objects that are appropriate for community and trait-based simulations. We now
+objects that are appropriate for single-species, community- and trait-based models. We now
 turn our attention to multispecies, or species-specific, models. These are
 potentially more complicated than the community and trait-based models and use
 the full power of the `mizer` package.
@@ -53,8 +53,8 @@ package, so we will take it slowly.
 
 A `MizerParams` object stores the:
 
-* life-history parameters of the species in the community, such as asymptotic
-  size $w_{\infty}$;
+* life-history parameters of the species in the community, such as maximum
+  size $w_{max}$;
 * size-based biological parameters for the species, such as the search volume;
 * density-dependent reproduction functions and parameters of each species;
 * an interaction matrix to describe the spatial overlap of pairs of species;
@@ -99,8 +99,8 @@ calculated internally using default relationships if not explicitly provided.
 These defaults are used if the parameters are not found in the data.frame.
 
 The essential columns of the species parameters data.frame that have no default 
-values are: `species`, the names of the species in the community and `w_inf`, 
-the asymptotic mass of the species.
+values are: `species`, the names of the species in the community and `w_max`, 
+the maximum mass of the species.
 
 
 ## The gear parameters {#sec:fishing_gear}
@@ -150,7 +150,8 @@ mentioned above, one way of doing this is to use a spreadsheet and save it as a
 included in the package. This contains the species parameters for a multispecies
 North Sea model. The location of the file can be found by running
 ```{r label = get_location_for_ns_params}
-params_location <- system.file("extdata", "NS_species_params.csv", package = "mizer")
+params_location <- system.file("extdata", "NS_species_params.csv",
+                               package = "mizer")
 ```
 
 This file can be opened with most spreadsheets or a text editor for you to
@@ -173,13 +174,13 @@ species_params
 
 You can see that there are $`r nrow(species_params)`$ species and 
 $`r ncol(species_params)`$ columns of parameters: `species`,
-`w_inf`,`w_mat`,`beta`,`sigma`,`R_max` and `k_vb`.
+`w_max`,`w_mat`,`beta`,`sigma`,`R_max` and `k_vb`.
 
-Of these parameters, `species` and `w_inf` are essential and have no default
+Of these parameters, `species` and `w_max` are essential and have no default
 values (as described in 
 [the section on species parameters](multispecies_model.html#sec:species_parameters_dataframe)). 
-`w_inf`
-is the asymptotic size of the species, `w_mat` is its maturity size, and `beta`
+`w_max`
+is the maximum size of the species, `w_mat` is its maturity size, and `beta`
 and `sigma` are parameters of the predation kernel (by default mizer uses a
 log-normal predation kernel). `R_max` is a parameter introducing additional
 density dependence into reproduction parameter using a Beverton-Holt type
@@ -225,7 +226,7 @@ that we provided. We can look at it with `species_params()`:
 species_params(params)
 ```
 
-We can see that this returns the original species data.frame (with `w_inf` and
+We can see that this returns the original species data.frame (with `w_max` and
 so on), plus any default values that may not have been included in the original
 data.frame. For example, we can see that there are now columns for `alpha` and
 `h` and `gamma` etc.
@@ -292,7 +293,8 @@ An example interaction matrix for the North Sea has been included in `mizer` as
 a .csv file.  The location of the file can be found by running:
 
 ```{r}
-inter_location <- system.file("extdata", "NS_interaction.csv", package = "mizer")
+inter_location <- system.file("extdata", "NS_interaction.csv",
+                              package = "mizer")
 ```
 
 Take a look at it in a spreadsheet if you want.  As mentioned above, to read
@@ -341,10 +343,10 @@ Pelagic, Beam and Otter trawl, that catch different combinations of species.
 We can achieve that by only changing the `gear` column in the `gear_params`
 data frame.
 ```{r }
-gear_params(params)$gear <- c("Industrial","Industrial","Industrial",
-                              "Pelagic","Beam","Otter",
-                              "Beam","Otter","Beam",
-                              "Otter","Otter","Otter")
+gear_params(params)$gear <- c("Industrial", "Industrial", "Industrial",
+                              "Pelagic", "Beam", "Otter",
+                              "Beam", "Otter", "Beam",
+                              "Otter", "Otter", "Otter")
 ```
 You can see the result by calling `summary()` on the `params` object.
 ```{r}

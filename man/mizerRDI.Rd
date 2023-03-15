@@ -45,10 +45,10 @@ function unless an alternative function has been registered, see below.
 \details{
 This rate is obtained by taking the per capita rate \eqn{E_r(w)\psi(w)} at
 which energy is invested in reproduction, as calculated by \code{\link[=getERepro]{getERepro()}},
-multiplying it by the number of individuals\eqn{N(w)} and integrating over all sizes
-\eqn{w} and then multiplying by the reproductive efficiency \eqn{\epsilon}
-and dividing by the egg size \code{w_min}, and by a factor of two to account for
-the two sexes:
+multiplying it by the number of individuals\eqn{N(w)} and integrating over
+all sizes \eqn{w} and then multiplying by the reproductive efficiency
+\eqn{\epsilon} and dividing by the egg size \code{w_min}, and by a factor of two
+to account for the two sexes:
 \deqn{R_{di} = \frac{\epsilon}{2 w_{min}} \int N(w)  E_r(w) \psi(w) \, dw}{R_di = (\epsilon/(2 w_min)) \int N(w)  E_r(w) \psi(w) dw}
 
 Used by \code{\link[=getRDD]{getRDD()}} to calculate the actual, density dependent rate.

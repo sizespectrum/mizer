@@ -7,7 +7,7 @@ data(NS_species_params_gears)
 data(inter)
 
 test_that("MizerParams() works as in version 1", {
-    params <- MizerParams(NS_species_params_gears, inter)
+    expect_warning(params <- MizerParams(NS_species_params_gears, inter), "deprecated")
     expect_known_value(params@search_vol, "values/set_multispecies_model_search_vol")
     expect_known_value(params@intake_max, "values/set_multispecies_model_intake_max")
     expect_known_value(params@psi,        "values/set_multispecies_model_psi")
@@ -32,8 +32,10 @@ test_that("MizerParams() works as in version 1", {
     #     scale_x_log10() +
     #     scale_y_log10()
     # max(abs(old - new))
-    expect_known_value(getPhiPrey(params, n = initialN(params), n_pp = initialNResource(params)), 
-                       "values/set_multispecies_model_phi_prey",
+    expect_warning(gpp <- getPhiPrey(params, n = initialN(params), 
+                                     n_pp = initialNResource(params)),
+                   "deprecated")
+    expect_known_value(gpp, "values/set_multispecies_model_phi_prey",
                        check.attributes = FALSE,
                        tolerance = 0.0005)
     # The discrepancy is small, see the following graph:
@@ -52,7 +54,7 @@ test_that("MizerParams() works as in version 1", {
 })
 
 test_that("set_trait_model() works as in version 1", {
-    params <- set_trait_model()
+    expect_warning(params <- set_trait_model(), "deprecated")
     expect_known_value(params@search_vol, "values/set_trait_model_search_vol")
     expect_known_value(params@intake_max, "values/set_trait_model_intake_max")
     expect_known_value(params@psi,        "values/set_trait_model_psi")
@@ -96,7 +98,7 @@ test_that("set_trait_model() works as in version 1", {
 })
 
 test_that("set_community_model() works as in version 1", {
-    params <- set_community_model()
+    expect_warning(params <- set_community_model(), "deprecated")
     expect_known_value(params@search_vol, "values/set_community_model_search_vol")
     expect_known_value(params@intake_max, "values/set_community_model_intake_max")
     expect_known_value(params@psi,        "values/set_community_model_psi")

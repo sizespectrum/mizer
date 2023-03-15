@@ -86,12 +86,13 @@ NULL
 # Hackiness to get past the 'no visible binding ... ' warning when running check
 utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
                          "x", "y", "Year", "Yield", "Biomass", "Size",
-                         "Proportion", "Prey", "Legend", "Type", "Gear"))
+                         "Proportion", "Prey", "Legend", "Type", "Gear",
+                         "Predator", "weight", "a", "b", "age"))
 
 #' Make a plot from a data frame
-#' 
+#'
 #' This is used internally by most plotting functions.
-#' 
+#'
 #' @param frame A data frame with at least three variables.
 #'   The first three variables are used, in that order, as:
 #'   1. Variable to be plotted on x-axis
@@ -99,11 +100,14 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #'   3. Grouping variable
 #' @param params A MizerParams object, which is used for the line colours and
 #'   line types.
+#' @param style The style of the plot. Available options are "line' for geom_line
+#' and "area" for geom_area. Default is "line".
 #' @param legend_var The name of the variable that should be used in the legend
 #'   and to determine the line style. If NULL then the grouping variable is
 #'   used for this purpose.
 #' @param wrap_var Optional. The name of the variable that should be used for
 #'  creating wrapped facets.
+#' @param wrap_scale Optional. Used to pass the scales argument to facet_wrap().
 #' @param xlab Label for the x-axis
 #' @param ylab Label for the y-axis
 #' @param xtrans Transformation for the x-axis. Often "log10" may be useful
@@ -113,10 +117,10 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #' @param highlight Name or vector of names of the species to be highlighted.
 #' @keywords internal
 #' @export
-plotDataFrame <- function(frame, params, xlab = waiver(), ylab = waiver(),
-                          xtrans = "identity", ytrans = "identity", 
-                          y_ticks = 6, highlight = NULL,
-                          legend_var = NULL, wrap_var = NULL) {
+plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
+                          ylab = waiver(), xtrans = "identity", ytrans = "identity",
+                          y_ticks = 6, highlight = NULL, legend_var = NULL,
+                          wrap_var = NULL, wrap_scale = NULL) {
     assert_that(is.data.frame(frame),
                 is(params, "MizerParams"))
     if (ncol(frame) < 3) {
@@ -138,15 +142,19 @@ plotDataFrame <- function(frame, params, xlab = waiver(), ylab = waiver(),
     }
     
     # Need to keep species in order for legend
-    legend_levels <- 
+    legend_levels <-
         intersect(names(params@linecolour), frame[[legend_var]])
     frame[[legend_var]] <- factor(frame[[legend_var]], levels = legend_levels)
+    
+    if (sum(is.na(frame$Legend))) {
+        warning("missing legend in params@linecolour, some groups won't be displayed")
+    }
     
     linecolour <- params@linecolour[legend_levels]
     linetype <- params@linetype[legend_levels]
     linesize <- rep_len(0.8, length(legend_levels))
     names(linesize) <- legend_levels
-    linesize[highlight] <- 1.6 
+    linesize[highlight] <- 1.6
     
     xbreaks <- waiver()
     if (xtrans == "log10") xbreaks <- log_breaks()
@@ -159,20 +167,34 @@ plotDataFrame <- function(frame, params, xlab = waiver(), ylab = waiver(),
     p <- ggplot(frame, aes(group = .data[[group_var]])) +
         scale_y_continuous(trans = ytrans, breaks = ybreaks,
                            labels = prettyNum, name = ylab) +
-        scale_x_continuous(trans = xtrans, name = xlab) +
-        scale_colour_manual(values = linecolour) +
-        scale_linetype_manual(values = linetype) +
-        scale_size_manual(values = linesize) +
-        geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
-                      colour = .data[[legend_var]], 
-                      linetype = .data[[legend_var]], 
-                      size = .data[[legend_var]]))
+        scale_x_continuous(trans = xtrans, name = xlab)
+    
+    switch(style,
+           "line" = {
+               p <- p +
+                   geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
+                                 colour = .data[[legend_var]],
+                                 linetype = .data[[legend_var]],
+                                 linewidth = .data[[legend_var]])) +
+                   scale_colour_manual(values = linecolour) +
+                   scale_linetype_manual(values = linetype) +
+                   scale_discrete_manual("linewidth", values = linesize)
+           },
+           "area" = {
+               p <- p +
+                   geom_area(aes(x = .data[[x_var]], y = .data[[y_var]],
+                                 fill = .data[[legend_var]])) +
+                   scale_fill_manual(values = linecolour)
+           },
+           "unknown style selected"
+    )
+    
     if (!is.null(wrap_var)) {
         if (!(wrap_var %in% var_names)) {
             stop("The `wrap_var` argument must be the name of a variable ",
                  "in the data frame.")
         }
-        p <- p + facet_wrap(wrap_var)
+        p <- p + facet_wrap(wrap_var, scales = wrap_scale)
     }
     
     p
@@ -251,7 +273,7 @@ plotBiomass <- function(sim, species = NULL,
                 is.flag(return_data),
                 length(ylim) == 2)
     params <- sim@params
-    species <- valid_species_arg(sim, species)
+    species <- valid_species_arg(sim, species, error_on_empty = TRUE)
     if (missing(start_time)) start_time <- 
             as.numeric(dimnames(sim@n)[[1]][1])
     if (missing(end_time)) end_time <- 
@@ -364,7 +386,7 @@ plotYield <- function(sim, sim2,
                 is.flag(log),
                 is.flag(return_data))
     params <- sim@params
-    species <- valid_species_arg(sim, species)
+    species <- valid_species_arg(sim, species, error_on_empty = TRUE)
     if (missing(sim2)) {
         y <- getYield(sim, ...)
         y_total <- rowSums(y)
@@ -465,7 +487,7 @@ plotYieldGear <- function(sim,
                 is.flag(total),
                 is.flag(return_data))
     params <- sim@params
-    species <- valid_species_arg(sim, species)
+    species <- valid_species_arg(sim, species, error_on_empty = TRUE)
     
     y <- getYieldGear(sim, ...)
     y_total <- rowSums(y, dims = 2)
@@ -494,10 +516,10 @@ plotYieldGear <- function(sim,
     linesize[highlight] <- 1.6
     ggplot(ym) +
         geom_line(aes(x = Year, y = Yield, colour = Species,
-                      linetype = Gear, size = Species)) +
+                      linetype = Gear, linewidth = Species)) +
         scale_y_continuous(trans = "log10", name = "Yield [g]") +
         scale_colour_manual(values = params@linecolour[species_levels]) +
-        scale_size_manual(values = linesize)
+        scale_discrete_manual("linewidth", values = linesize)
 }
 
 #' @rdname plotYieldGear
@@ -526,6 +548,9 @@ plotlyYieldGear <- function(sim, species = NULL,
 #'   and max time, or a single value) to average the abundances over. Default is
 #'   the final time step. Ignored when called with a \linkS4class{MizerParams}
 #'   object.
+#' @param geometric_mean `r lifecycle::badge("experimental")`
+#'   If TRUE then the average of the abundances over the
+#'   time range is a geometric mean instead of the default arithmetic mean.
 #' @param wlim A numeric vector of length two providing lower and upper limits
 #'   for the w axis. Use NA to refer to the existing minimum or maximum.
 #' @param ylim A numeric vector of length two providing lower and upper limits
@@ -575,6 +600,7 @@ plotlyYieldGear <- function(sim, species = NULL,
 #' }
 plotSpectra <- function(object, species = NULL,
                         time_range,
+                        geometric_mean = FALSE,
                         wlim = c(NA, NA), ylim = c(NA, NA),
                         power = 1, biomass = TRUE,
                         total = FALSE, resource = TRUE, 
@@ -590,13 +616,22 @@ plotSpectra <- function(object, species = NULL,
                 length(wlim) == 2,
                 length(ylim) == 2)
     species <- valid_species_arg(object, species)
+    if (length(species) == 0 && !total && !resource) {
+        stop("There is nothing to plot as no valid species have been selected.")
+    }
     if (is(object, "MizerSim")) {
         if (missing(time_range)) {
             time_range  <- max(as.numeric(dimnames(object@n)$time))
         }
         time_elements <- get_time_elements(object, time_range)
-        n <- apply(object@n[time_elements, , , drop = FALSE], c(2, 3), mean)
-        n_pp <- apply(object@n_pp[time_elements, , drop = FALSE], 2, mean)
+        mean_fn <- mean
+        if (geometric_mean) {
+            mean_fn <- function(x) {
+                exp(mean(log(x)))
+            }
+        }
+        n <- apply(object@n[time_elements, , , drop = FALSE], c(2, 3), mean_fn)
+        n_pp <- apply(object@n_pp[time_elements, , drop = FALSE], 2, mean_fn)
         ps <- plot_spectra(object@params, n = n, n_pp = n_pp,
                            species = species, wlim = wlim, ylim = ylim,
                            power = power, total = total, resource = resource,
@@ -711,7 +746,7 @@ plot_spectra <- function(params, n, n_pp,
 #' @rdname plotSpectra
 #' @export
 plotlySpectra <- function(object, species = NULL,
-                        time_range,
+                        time_range, geometric_mean = FALSE,
                         wlim = c(NA, NA), ylim = c(NA, NA),
                         power = 1, biomass = TRUE,
                         total = FALSE, resource = TRUE, 
@@ -787,7 +822,8 @@ plotFeedingLevel <- function(object, species = NULL,
     }
         
     # selector for desired species
-    sel_sp <- valid_species_arg(params, species, return.logical = TRUE)
+    sel_sp <- valid_species_arg(params, species, return.logical = TRUE,
+                                error_on_empty = TRUE)
     species <- dimnames(params@initial_n)$sp[sel_sp]
     feed <- feed[sel_sp, , drop = FALSE]
     
@@ -811,7 +847,7 @@ plotFeedingLevel <- function(object, species = NULL,
         for (sp in species) {
             plot_dat$value[plot_dat$Species == sp &
                                (plot_dat$w < params@species_params[sp, "w_min"] |
-                                    plot_dat$w > params@species_params[sp, "w_inf"])] <- NA
+                                    plot_dat$w > params@species_params[sp, "w_max"])] <- NA
         }
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
@@ -842,12 +878,12 @@ plotFeedingLevel <- function(object, species = NULL,
         p <- ggplot(plot_dat, aes(group = Species))
     }
     p + geom_line(aes(x = w, y = value,
-                      colour = Legend, linetype = Legend, size = Legend)) +
+                      colour = Legend, linetype = Legend, linewidth = Legend)) +
         scale_x_continuous(name = "Size [g]", trans = "log10") +
         scale_y_continuous(name = "Feeding Level", limits = c(0, 1)) +
         scale_colour_manual(values = params@linecolour[legend_levels]) +
         scale_linetype_manual(values = params@linetype[legend_levels]) +
-        scale_size_manual(values = linesize)
+        scale_discrete_manual("linewidth", values = linesize)
 }
 
 #' @rdname plotFeedingLevel
@@ -908,7 +944,7 @@ plotPredMort <- function(object, species = NULL,
         pred_mort <- apply(pred_mort, c(2, 3), mean)
     }
     
-    species <- valid_species_arg(params, species)
+    species <- valid_species_arg(params, species, error_on_empty = TRUE)
     pred_mort <- pred_mort[as.character(dimnames(pred_mort)[[1]]) %in% species, , drop = FALSE]
     plot_dat <- data.frame(
         w = rep(params@w, each = length(species)),
@@ -920,7 +956,7 @@ plotPredMort <- function(object, species = NULL,
         for (sp in species) {
             plot_dat$value[plot_dat$Species == sp &
                                (plot_dat$w < params@species_params[sp, "w_min"] |
-                                    plot_dat$w > params@species_params[sp, "w_inf"])] <- NA
+                                    plot_dat$w > params@species_params[sp, "w_max"])] <- NA
         }
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
@@ -1000,7 +1036,7 @@ plotFMort <- function(object, species = NULL,
     if (length(dim(f)) == 3) {
         f <- apply(f, c(2, 3), mean)
     }
-    species <- valid_species_arg(params, species)
+    species <- valid_species_arg(params, species, error_on_empty = TRUE)
     f <- f[as.character(dimnames(f)[[1]]) %in% species, , drop = FALSE]
     plot_dat <- data.frame(w = rep(params@w, each = length(species)),
                            value = c(f),
@@ -1011,7 +1047,7 @@ plotFMort <- function(object, species = NULL,
         for (sp in species) {
             plot_dat$value[plot_dat$Species == sp &
                                (plot_dat$w < params@species_params[sp, "w_min"] |
-                                    plot_dat$w > params@species_params[sp, "w_inf"])] <- NA
+                                    plot_dat$w > params@species_params[sp, "w_max"])] <- NA
         }
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
@@ -1033,20 +1069,40 @@ plotlyFMort <- function(object, species = NULL,
 }
 
 
-#' Plot growth curves giving weight as a function of age
+#' Plot growth curves
+#'
+#' The growth curves represent the average age of all the living fish of a
+#' species as a function of their size. So it would be natural to plot size
+#' on the x-axis. But to follow the usual convention from age-based models, we
+#' plot size on the y-axis and age on the x-axis.
+#'
+#' When the growth curve for only a single species is plotted, horizontal lines
+#' are included that indicate the maturity size and the maximum size for that
+#' species, as well as a vertical line indicating the maturity age.
 #' 
-#' When the growth curve for only a single species is plotted, horizontal
-#' lines are included that indicate the maturity size and the maximum size for 
-#' that species. If furthermore the species parameters contain the variables
-#' a and b for length to weight conversion and the von Bertalanffy parameter
-#' k_vb (and optionally t0), then the von Bertalanffy growth curve is
-#' superimposed in black.
-#' 
+#' If size at age data is passed via the `size_at_age` argument, this is plotted
+#' on top of the growth curve. When comparing this to the growth curves, you
+#' need to remember that the growth curves should only represent the average 
+#' age at each size. So a scatter in the x-direction around the curve is to be
+#' expected.
+#'
+#' For legacy reasons, if the species parameters contain the variables `a` and
+#' `b` for length to weight conversion and the von Bertalanffy parameter `k_vb`,
+#' `w_inf` (and optionally `t0`), then the von Bertalanffy growth curve is
+#' superimposed in black. This was implemented before we understood that the von
+#' Bertalanffy curves (which approximates the average length at each age) should
+#' not be compared to the mizer growth curves (which approximate the average age
+#' at each length).
+#'
 #' @inheritParams getGrowthCurves
 #' @inheritParams plotSpectra
-#' @param species_panel `r lifecycle::badge("experimental")`
-#'   If TRUE, display all species with their Von Bertalanffy curves as facets 
-#'   (need species and percentage to be set to default). Default FALSE.
+#' @param species_panel If TRUE (default), and `percentage = FALSE`, display all
+#'   species as facets. Otherwise puts all species into a single panel.
+#' @param size_at_age A data frame with observed size at age data to be plotted
+#'   on top of growth curve graphs. Should contain columns `species` (species
+#'   name as used in the model), `age` (in years) and either `weight` (in grams)
+#'   or `length` (in cm). If both `weight` and `length` are provided, only
+#'   `weight` is used.
 #' @return A ggplot2 object
 #' @export
 #' @family plotting functions
@@ -1058,7 +1114,7 @@ plotlyFMort <- function(object, species = NULL,
 #' plotGrowthCurves(sim, percentage = TRUE)
 #' plotGrowthCurves(sim, species = "Cod", max_age = 24)
 #' plotGrowthCurves(sim, species_panel = TRUE)
-#'  
+#'
 #' # Returning the data frame
 #' fr <- plotGrowthCurves(sim, return_data = TRUE)
 #' str(fr)
@@ -1066,6 +1122,7 @@ plotlyFMort <- function(object, species = NULL,
 plotGrowthCurves <- function(object, species = NULL, 
                              max_age = 20, percentage = FALSE, 
                              species_panel = FALSE, highlight = NULL,
+                             size_at_age = NULL,
                              return_data = FALSE, ...) {
     assert_that(is.flag(percentage),
                 is.flag(species_panel),
@@ -1077,25 +1134,51 @@ plotGrowthCurves <- function(object, species = NULL,
     } else if (is(object, "MizerParams")) {
         params <- validParams(object)
     }
+    sp <- params@species_params
+    sp <- set_species_param_default(sp, "age_mat", age_mat_vB(params))
+    
+    # size at age
+    if (!is.null(size_at_age)) {
+        if (!"species" %in% names(size_at_age)) {
+            stop("The size at age data frame needs to have a 'species' column.")
+        }
+        if (!"age" %in% names(size_at_age)) {
+            stop("The size at age data frame needs to have an 'age' column.")
+        }
+        if (!any(c("weight", "length") %in% names(size_at_age))) {
+            stop("The size at age data frame needs to have either a 'length' or a 'weight' column.")
+        }
+        if (!"weight" %in% names(size_at_age)) {
+            sp <- set_species_param_default(sp, "a", 0.004, message = "Using a = 0.004 for missing weight-length conversion parameters.")
+            sp <- set_species_param_default(sp, "b", 3, message = "Using b = 3 for missing weight-length conversion parameters.")
+            size_at_age <- left_join(size_at_age, select(sp, species, a, b),
+                                     by = "species")
+            size_at_age$weight <- size_at_age$a * size_at_age$length ^ size_at_age$b
+        }
+    }
+    
     species <- valid_species_arg(params, species)
-    sp_sel <- params@species_params$species %in% species
+    # needed later to not confuse variable and column name
+    selected_species <- species
+    
+    sp_sel <- sp$species %in% species
     ws <- getGrowthCurves(params, species, max_age, percentage)
     plot_dat <- reshape2::melt(ws)
-    plot_dat$Species <- factor(plot_dat$Species, params@species_params$species)
+    plot_dat$Species <- factor(plot_dat$Species, sp$species)
     plot_dat$Legend <- "model"
     
     # creating some VB
-    if (all(c("a", "b", "k_vb") %in% names(params@species_params))) {
-        if ("t0" %in% names(params@species_params)) {
-            t0 <- params@species_params$t0
+    if (all(c("a", "b", "k_vb", "w_inf") %in% names(sp))) {
+        if ("t0" %in% names(sp)) {
+            t0 <- sp$t0
         } else {
             t0 <- 0
         }
-        VBdf <- data.frame("species" = params@species_params$species, 
-                           "w_inf" = params@species_params$w_inf, 
-                           "a" = params@species_params$a, 
-                           "b" = params@species_params$b, 
-                           "k_vb" = params@species_params$k_vb, 
+        VBdf <- data.frame("species" = sp$species, 
+                           "w_inf" = sp$w_inf, 
+                           "a" = sp$a, 
+                           "b" = sp$b, 
+                           "k_vb" = sp$k_vb, 
                            "t0" = t0) 
         VBdf$L_inf <- (VBdf$w_inf / VBdf$a) ^ (1 / VBdf$b)
         plot_dat2 <- plot_dat
@@ -1115,7 +1198,8 @@ plotGrowthCurves <- function(object, species = NULL,
     
     p <- ggplot(filter(plot_dat, Legend == "model")) + 
         geom_line(aes(x = Age, y = value, 
-                      colour = Species, linetype = Species, size = Species))
+                      colour = Species, linetype = Species,
+                      linewidth = Species))
     y_label <- if (percentage) 
         "Percent of maximum size"
     else "Size [g]"
@@ -1132,42 +1216,59 @@ plotGrowthCurves <- function(object, species = NULL,
         scale_y_continuous(name = y_label) + 
         scale_colour_manual(values = params@linecolour[legend_levels]) + 
         scale_linetype_manual(values = params@linetype[legend_levels]) + 
-        scale_size_manual(values = linesize)
+        scale_discrete_manual("linewidth", values = linesize)
     
     # starting cases now
     if (!percentage)  {
         if (length(species) == 1) {
-            idx <- which(params@species_params$species == species)
-            w_inf <- params@species_params$w_inf[idx]
-            p <- p + geom_hline(yintercept = w_inf, colour = "grey") + 
-                annotate("text", 0, w_inf, vjust = -1, label = "Maximum")
-            w_mat <- params@species_params$w_mat[idx]
+            idx <- which(sp$species == species)
+            w_max <- sp$w_max[idx]
+            p <- p + geom_hline(yintercept = w_max, colour = "grey") + 
+                annotate("text", 0, w_max, vjust = -1, label = "Maximum")
+            w_mat <- sp$w_mat[idx]
+            age_mat <- sp$age_mat[idx]
             p <- p + geom_hline(yintercept = w_mat, linetype = "dashed", 
                                 colour = "grey") + 
+                geom_vline(xintercept = age_mat, linetype = "dashed", 
+                           colour = "grey") +
                 annotate("text", 0, w_mat, vjust = -1, label = "Maturity")
-            if ("von Bertalanffy" %in% plot_dat$Legend) 
-                p <- p + geom_line(data = filter(plot_dat, Legend == "von Bertalanffy"), 
+            if ("von Bertalanffy" %in% plot_dat$Legend) {
+                p <- p + geom_line(data = filter(plot_dat,
+                                                 Legend == "von Bertalanffy"), 
                                    aes(x = Age, y = value))
+            }
+            if (!is.null(size_at_age)) {
+                size_at_age <- filter(size_at_age, species == selected_species)
+                p <- p + geom_point(aes(x = age, y = weight), 
+                                    data = size_at_age,
+                                    alpha = 0.2)
+            }
             
         } else if (species_panel) { # need to add either no panel if no param 
-                                    # for VB or create a panel without VB
+            # for VB or create a panel without VB
             p <- ggplot(plot_dat) +
-                geom_line(aes(x = Age, y = value , colour = Legend)) +
+                geom_line(aes(x = Age, y = value, colour = Legend)) +
                 scale_x_continuous(name = "Age [years]") +
                 scale_y_continuous(name = "Size [g]") +
                 geom_hline(aes(yintercept = w_mat),
                            data = tibble(Species = factor(legend_levels),
-                                         w_mat = params@species_params$w_mat[sp_sel]),
+                                         w_mat = sp$w_mat[sp_sel]),
                            linetype = "dashed",
                            colour = "grey") +
-                geom_hline(aes(yintercept = w_inf),
+                geom_vline(aes(xintercept = age_mat),
                            data = tibble(Species = factor(legend_levels),
-                                         w_inf = params@species_params$w_inf[sp_sel]),
+                                         age_mat = sp$age_mat[sp_sel]),
+                           linetype = "dashed",
+                           colour = "grey") +
+                geom_hline(aes(yintercept = w_max),
+                           data = tibble(Species = factor(legend_levels),
+                                         w_max = sp$w_max[sp_sel]),
                            linetype = "solid",
                            colour = "grey") +
                 facet_wrap(~Species, scales = "free_y")
             
         }
+        
     }
     return(p)
     
@@ -1187,27 +1288,31 @@ plotlyGrowthCurves <- function(object, species = NULL,
 
 
 #' Plot diet, resolved by prey species, as function of predator at size.
-#' 
-#' `r lifecycle::badge("experimental")`
-#' Plots the proportions with which each prey species contributes to the total
-#' biomass consumed by the specified predator species, as a function of the
-#' predator's size. These proportions are obtained with `getDiet()`.
-#' 
+#'
+#' `r lifecycle::badge("experimental")` Plots the proportions with which each
+#' prey species contributes to the total biomass consumed by the specified
+#' predator species, as a function of the predator's size. These proportions are
+#' obtained with `getDiet()`.
+#'
 #' Prey species that contribute less than 1 permille to the diet are suppressed
 #' in the plot.
-#' 
+#'
+#' If more than one predator species is selected, then the plot contains one
+#' facet for each species.
+#'
 #' @inheritParams plotSpectra
-#' @param species The name of the predator species for which to plot the diet.
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
-#'   frame with the three variables 'w', 'Proportion', 'Prey' is returned.
+#'   frame with the four variables 'Predator', 'w', 'Proportion', 'Prey' is
+#'   returned.
 #' @export
 #' @seealso [getDiet()]
 #' @family plotting functions
-#' @examples 
+#' @examples
 #' \donttest{
 #' plotDiet(NS_params, species = "Cod")
-#' 
+#' plotDiet(NS_params, species = 5:9)
+#'
 #' # Returning the data frame
 #' fr <- plotDiet(NS_params, species = "Cod", return_data = TRUE)
 #' str(fr)
@@ -1216,24 +1321,28 @@ plotDiet <- function(object, species = NULL, return_data = FALSE) {
     assert_that(is.flag(return_data))
     params <- validParams(object)
     species <- valid_species_arg(object, species, return.logical = TRUE)
-    diet <- getDiet(params)[species, , ]
-    prey <- dimnames(diet)$prey
+    diet <- getDiet(params)[species, , , drop = FALSE]
+    names(dimnames(diet)) <- c("Predator", "w", "Prey")
+    plot_dat <- melt(diet, value.name = "Proportion")
+    prey <- dimnames(diet)$Prey
     # the plot looks better upsided down
-    prey <- factor(prey, levels = rev(prey))
-    plot_dat <- data.frame(
-        w = params@w,
-        Proportion = c(diet),
-        Prey = rep(prey, each = length(params@w)))
+    plot_dat$Prey <- factor(plot_dat$Prey, levels = rev(prey))
+    
     plot_dat <- plot_dat[plot_dat$Proportion > 0.001, ]
     if (return_data) return(plot_dat)
     
     legend_levels <- 
         intersect(names(params@linecolour), plot_dat$Prey)
-    ggplot(plot_dat) +
+    p <- ggplot(plot_dat) +
         geom_area(aes(x = w, y = Proportion, fill = Prey)) +
         scale_x_log10() +
-        labs(x = "Size [g]") +
-        scale_fill_manual(values = params@linecolour[legend_levels])
+        labs(x = "Size [g]", y = "Proportion") +
+        scale_fill_manual(values = params@linecolour[legend_levels],
+                          limits = legend_levels)
+    if (sum(species) > 1) {
+        p <- p + facet_wrap(vars(Predator))
+    }
+    p
 }
 
 
@@ -1275,8 +1384,9 @@ setMethod("plot", signature(x = "MizerSim", y = "missing"),
               glayout <- grid::grid.layout(3, 2) # widths and heights arguments
               vp <- grid::viewport(layout = glayout)
               grid::pushViewport(vp)
-              vplayout <- function(x, y)
+              vplayout <- function(x, y) {
                   grid::viewport(layout.pos.row = x, layout.pos.col = y)
+              }
               print(p1 + theme(legend.position = "none"), vp = vplayout(1, 1))
               print(p3 + theme(legend.position = "none"), vp = vplayout(1, 2))
               print(p4 + theme(legend.position = "none"), vp = vplayout(2, 1))
@@ -1314,8 +1424,9 @@ setMethod("plot", signature(x = "MizerParams", y = "missing"),
               glayout <- grid::grid.layout(2, 2) # widths and heights arguments
               vp <- grid::viewport(layout = glayout)
               grid::pushViewport(vp)
-              vplayout <- function(x, y)
+              vplayout <- function(x, y) {
                   grid::viewport(layout.pos.row = x, layout.pos.col = y)
+              }
               print(p11 + theme(legend.position = "none"), vp = vplayout(1, 1))
               print(p12 + theme(legend.position = "none"), vp = vplayout(1, 2))
               print(p2 + theme(legend.position = "right",

@@ -34,7 +34,8 @@ getLinetypes(params)
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Used for setting the colour and type of lines representing "Total",
-"Resource", "Fishing", "Background" and possibly other categories in plots.
+"Resource", "Fishing", "Background", "External" and possibly other categories
+in plots.
 }
 \details{
 Colours for names that already had a colour set for them will be overwritten
@@ -51,7 +52,7 @@ you can use the linetypes with
 \code{scale_linetype_manual(values = getLinetypes(params))}.
 }
 \examples{
-params <- setColours(NS_params, list("Resource" = "red", "Total" = "#0000ff"))
+params <- setColours(NS_params, list("Resource" = "red","Total" = "#0000ff"))
 params <- setLinetypes(NS_params, list("Total" = "dotted"))
 # Set colours and linetypes for species
 species_params(params)["Cod", "linecolour"] <- "black"

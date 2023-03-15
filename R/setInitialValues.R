@@ -10,12 +10,26 @@
 #' of times.
 #' When no time range is specified, the initial values are taken from the final
 #' time step of the simulation.
+#' 
+#' If the model described by `sim` and `params` has additional components
+#' created with [setComponent()] then the values of these components are also
+#' averaged and copied to `params`.
+#' 
+#' The MizerSim object must come from a model with the same set of species and
+#' gears and other components and the same size bins as the MizerParams object.
+#' Otherwise an error is raised.
 #'
-#' @param params A [MizerParams()] object
-#' @param sim A `MizerSim` object.
-#' @param time_range The time range (either a vector of values, a vector of min
-#'   and max time, or a single value) to average the abundances over. Default is
-#'   the final time step.
+#' @param params A `MizerParams` object in which to set the initial values
+#' @param sim A `MizerSim` object from which to take the values.
+#' @param time_range The time range to average the abundances over. Can be a
+#'   vector of values, a vector of min and max time, or a single value. Only the
+#'   range of times is relevant, i.e., all times between the smallest and
+#'   largest will be selected.  Default is the final time step.
+#' @param geometric_mean `r lifecycle::badge("experimental")`
+#'   If TRUE then the average of the abundances over the
+#'   time range is a geometric mean instead of the default arithmetic mean. This
+#'   does not affect the average of the effort or of other components, which is
+#'   always arithmetic.
 #'   
 #' @return The `params` object with updated initial values and initial effort. 
 #'   Because of the way the
@@ -31,13 +45,18 @@
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' params <- setInitialValues(params, sim)
 #' }
-setInitialValues <- function(params, sim, time_range) {
+setInitialValues <- function(params, sim, time_range, geometric_mean = FALSE) {
     assert_that(is(params, "MizerParams"),
-                is(sim, "MizerSim"))
+                is(sim, "MizerSim"),
+                is.flag(geometric_mean))
     no_t <- dim(sim@n)[1]
     if (!identical(dim(sim@n)[2:3], dim(params@initial_n))) {
         stop("The consumer size spectrum of the simulation in `sim` has a ",
              "different size from that in `params`.")
+    }
+    if (!identical(params@species_params$species, 
+                   sim@params@species_params$species)) {
+        stop("The species in `sim` have different names from those in `params`.")
     }
     if (!identical(length(sim@n_pp[no_t, ]), length(params@initial_n_pp))) {
         stop("The resource size spectrum of the simulation in `sim` has a ",
@@ -59,10 +78,16 @@ setInitialValues <- function(params, sim, time_range) {
         time_range  <- max(as.numeric(dimnames(sim@n)$time))
     }
     time_elements <- get_time_elements(sim, time_range)
+    mean_fn <- mean
+    if (geometric_mean) {
+        mean_fn <- function(x) {
+            exp(mean(log(x)))
+        }
+    }
     params@initial_n[] <-
-        apply(sim@n[time_elements, , , drop = FALSE], c(2, 3), mean)
+        apply(sim@n[time_elements, , , drop = FALSE], c(2, 3), mean_fn)
     params@initial_n_pp[] <-
-        apply(sim@n_pp[time_elements, , drop = FALSE], 2, mean)
+        apply(sim@n_pp[time_elements, , drop = FALSE], 2, mean_fn)
     # Below we have to work around the fact that "+" does not do
     # componentwise addition of lists
     mizer_add <- function(l1, l2) {

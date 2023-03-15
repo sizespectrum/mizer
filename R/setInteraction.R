@@ -6,9 +6,9 @@
 #'   predator-prey interactions are purely determined by the size of predator
 #'   and prey and totally independent of the species of predator and prey.
 #'
-#'   The interaction matrix \eqn{\theta_{ij}} describes the interaction of each
-#'   pair of species in the model. This can be viewed as a proxy for spatial
-#'   interaction e.g. to model predator-prey interaction that is not size based.
+#'   The interaction matrix \eqn{\theta_{ij}} modifies the interaction of each
+#'   pair of species in the model. This can be used for example to allow for
+#'   different spatial overlap among the species.
 #'   The values in the interaction matrix are used to scale the encountered food
 #'   and predation mortality (see on the website [the section on predator-prey
 #'   encounter
@@ -18,10 +18,10 @@
 #'    The first index refers to the predator species and the second to the prey
 #'   species.
 #'
-#'   It is used when calculating the food encounter rate in [getEncounter()] and
-#'   the predation mortality rate in [getPredMort()]. Its entries are
-#'   dimensionless numbers. If all the values in the interaction matrix are
-#'   equal then predator-prey interactions are determined entirely by
+#'   The interaction matrix is used when calculating the food encounter rate in
+#'   [getEncounter()] and the predation mortality rate in [getPredMort()]. Its
+#'   entries are dimensionless numbers. If all the values in the interaction
+#'   matrix are equal then predator-prey interactions are determined entirely by
 #'   size-preference.
 #'
 #'   This function checks that the supplied interaction matrix is valid and then
@@ -32,7 +32,7 @@
 #'   object. If you supply a named array then the function will check the order
 #'   and warn if it is different. One way of creating your own interaction
 #'   matrix is to enter the data using a spreadsheet program and saving it as a
-#'   .csv file. The data can be read into R using the command `read.csv()`.
+#'   .csv file. The data can then be read into R using the command `read.csv()`.
 #'
 #'   The interaction of the species with the resource are set via a column
 #'   `interaction_resource` in the `species_params` data frame. By default this
@@ -90,11 +90,14 @@ setInteraction <- function(params,
         # put the rows in the same order as the columns, so copy over 
         # the colnames
         if (is.null(rownames(interaction)) || 
-            all(rownames(interaction) == as.character(1:nrow(interaction)))) {
+            all(rownames(interaction) == 
+                as.character(seq_len(nrow(interaction))))) {
             rownames(interaction) <- colnames(interaction)
         }
-        if (!identical(dimnames(params@interaction),
-                       dimnames(interaction))) {
+        if (!identical(dimnames(params@interaction)[[1]],
+                       dimnames(interaction)[[1]]) ||
+            !identical(make.names(dimnames(params@interaction)[[2]]),
+                       make.names(dimnames(interaction)[[2]]))) {
             message("Note: Dimnames of interaction matrix do not match the ",
                     "order of species names in the species data.frame. I am ",
                     "now ignoring your dimnames so your interaction matrix ",
@@ -118,10 +121,31 @@ setInteraction <- function(params,
     return(params)
 }
 
-#' @rdname setInteraction
-#' @return `getInteraction()`: The interaction matrix (predator species x prey
-#'   species)
+#' Deprecated function to get interaction matrix
+#' 
+#' You should now use [interaction_matrix()] instead.
+#' 
+#' @param params A MizerParams object
 #' @export
+#' @keywords internal
 getInteraction <- function(params) {
+    lifecycle::deprecate_warn("2.4.0", "getInteraction()", 
+                              "interaction_matrix()")
+    interaction_matrix(params)
+}
+
+
+#' @rdname setInteraction
+#' @return `interaction_matrix()`: The interaction matrix (predator species x
+#'   prey species)
+#' @export
+interaction_matrix <- function(params) {
     params@interaction
+}
+
+#' @rdname setInteraction
+#' @param value An interaction matrix
+#' @export
+`interaction_matrix<-` <- function(params, value) {
+    setInteraction(params, interaction = value)
 }

@@ -19,8 +19,8 @@ A MizerParams object
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-The function adjusts the abundances of the species in the model so that their biomasses
-match with observations.
+The function adjusts the abundances of the species in the model so that their
+biomasses match with observations.
 }
 \details{
 The function works by multiplying for each species the abundance density

@@ -11,10 +11,10 @@
 #' gram) and \eqn{n_i} (the allometric exponent for the intake rate) are taken
 #' from the `h` and `n` columns in the species parameter dataframe. If
 #' the `h` column is not supplied in the species parameter dataframe, it is
-#' calculated by the [get_h_default()] function, using the `f0` and
-#' the `k_vb` column, if they are supplied.
+#' calculated by the [get_h_default()] function.
 #' 
-#' If \eqn{h_i} is set to `Inf`, fish of species i will consume all encountered food.
+#' If \eqn{h_i} is set to `Inf`, fish of species i will consume all encountered
+#' food.
 #'
 #' @param params MizerParams
 #' @param intake_max Optional. An array (species x size) holding the maximum
@@ -73,7 +73,7 @@ setMaxIntakeRate <- function(params, intake_max = NULL, reset = FALSE, ...) {
     }
     
     # Else recalculate from species params
-    params@species_params$h <- get_h_default(params)
+    params@species_params[["h"]] <- get_h_default(params)
     
     intake_max <- sweep(outer(params@species_params[["n"]], 
                               params@w, function(x, y) y^x),

@@ -6,17 +6,13 @@
 #' @param params2 Second MizerParams object
 #' @export
 #' @examples
-#' \dontrun{
-#' sp1 <- NS_species_params
-#' params1 <- newMultispeciesParams(sp1)
-#' sp2 <- sp1
-#' sp2$w_mat[1] <- 10
-#' params2 <- newMultispeciesParams(sp2)
+#' params1 <- NS_params
+#' params2 <- params1
+#' species_params(params2)$w_mat[1] <- 10
 #' compareParams(params1, params2)
-#' }
 compareParams <- function(params1, params2) {
     validObject(params1)
-    validObject(params1)
+    validObject(params2)
     assert_that(is(params1, "MizerParams"))
     assert_that(is(params2, "MizerParams"))
 
@@ -94,6 +90,9 @@ compareParams <- function(params1, params2) {
                          toString(eq))
             result <- c(result, msg)
         }
+    }
+    if (length(result) == 0) {
+        result <- "No differences"
     }
     result
 }

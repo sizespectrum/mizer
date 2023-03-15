@@ -4,7 +4,7 @@ params <- NS_params
 test_that("validGearParams works", {
     sp <- validSpeciesParams(
         data.frame(species = c("species1", "species2"),
-                   w_inf = c(100, 1000),
+                   w_max = c(100, 1000),
                    stringsAsFactors = FALSE))
     # gear_params is allowed to have zero rows
     gp <- validGearParams(data.frame(), sp)

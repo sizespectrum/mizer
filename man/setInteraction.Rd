@@ -2,12 +2,15 @@
 % Please edit documentation in R/setInteraction.R
 \name{setInteraction}
 \alias{setInteraction}
-\alias{getInteraction}
+\alias{interaction_matrix}
+\alias{interaction_matrix<-}
 \title{Set species interaction matrix}
 \usage{
 setInteraction(params, interaction = NULL)
 
-getInteraction(params)
+interaction_matrix(params)
+
+interaction_matrix(params) <- value
 }
 \arguments{
 \item{params}{MizerParams object}
@@ -15,13 +18,15 @@ getInteraction(params)
 \item{interaction}{Optional interaction matrix of the species (predator
 species x prey species). By default all entries are 1. See "Setting
 interaction matrix" section below.}
+
+\item{value}{An interaction matrix}
 }
 \value{
 \code{setInteraction}: A MizerParams object with updated interaction
 matrix
 
-\code{getInteraction()}: The interaction matrix (predator species x prey
-species)
+\code{interaction_matrix()}: The interaction matrix (predator species x
+prey species)
 }
 \description{
 Set species interaction matrix
@@ -33,19 +38,19 @@ You do not need to specify an interaction matrix. If you do not, then the
 predator-prey interactions are purely determined by the size of predator
 and prey and totally independent of the species of predator and prey.
 
-The interaction matrix \eqn{\theta_{ij}} describes the interaction of each
-pair of species in the model. This can be viewed as a proxy for spatial
-interaction e.g. to model predator-prey interaction that is not size based.
+The interaction matrix \eqn{\theta_{ij}} modifies the interaction of each
+pair of species in the model. This can be used for example to allow for
+different spatial overlap among the species.
 The values in the interaction matrix are used to scale the encountered food
 and predation mortality (see on the website \href{https://sizespectrum.org/mizer/articles/model_description.html#sec:pref}{the section on predator-prey encounter rate}
 and on \href{https://sizespectrum.org/mizer/articles/model_description.html#mortality}{predation mortality}).
 The first index refers to the predator species and the second to the prey
 species.
 
-It is used when calculating the food encounter rate in \code{\link[=getEncounter]{getEncounter()}} and
-the predation mortality rate in \code{\link[=getPredMort]{getPredMort()}}. Its entries are
-dimensionless numbers. If all the values in the interaction matrix are
-equal then predator-prey interactions are determined entirely by
+The interaction matrix is used when calculating the food encounter rate in
+\code{\link[=getEncounter]{getEncounter()}} and the predation mortality rate in \code{\link[=getPredMort]{getPredMort()}}. Its
+entries are dimensionless numbers. If all the values in the interaction
+matrix are equal then predator-prey interactions are determined entirely by
 size-preference.
 
 This function checks that the supplied interaction matrix is valid and then
@@ -56,7 +61,7 @@ the same as the order in the species params data frame in the \code{params}
 object. If you supply a named array then the function will check the order
 and warn if it is different. One way of creating your own interaction
 matrix is to enter the data using a spreadsheet program and saving it as a
-.csv file. The data can be read into R using the command \code{read.csv()}.
+.csv file. The data can then be read into R using the command \code{read.csv()}.
 
 The interaction of the species with the resource are set via a column
 \code{interaction_resource} in the \code{species_params} data frame. By default this
@@ -73,7 +78,6 @@ getInteraction(params)
 \seealso{
 Other functions for setting parameters: 
 \code{\link{gear_params}()},
-\code{\link{resource_params}()},
 \code{\link{setExtMort}()},
 \code{\link{setFishing}()},
 \code{\link{setInitialValues}()},
@@ -82,7 +86,6 @@ Other functions for setting parameters:
 \code{\link{setParams}()},
 \code{\link{setPredKernel}()},
 \code{\link{setReproduction}()},
-\code{\link{setResource}()},
 \code{\link{setSearchVolume}()},
 \code{\link{species_params}()}
 }

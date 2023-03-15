@@ -50,11 +50,11 @@
 #' params <- newTraitParams()
 #' species_params <- data.frame(
 #'     species = "Mullet",
-#'     w_inf = 173,
+#'     w_max = 173,
 #'     w_mat = 15,
 #'     beta = 283,
 #'     sigma = 1.8,
-#'     k_vb = 0.6,
+#'     h = 30,
 #'     a = 0.0085,
 #'     b = 3.11
 #' )
@@ -146,16 +146,16 @@ addSpecies <- function(params, species_params,
     # in case the new species need a bigger range of w
     # We need to make sure that the new grid that newMultispeciesParams()
     # will create contains the old grid as a subgrid.
-    no_w = length(params@w)
-    no_w_full = length(params@w_full)
+    no_w <- length(params@w)
+    no_w_full <- length(params@w_full)
     max_w <- max(params@w)
     min_w <- min(params@w)
     new_max_w <- max_w
     new_min_w <- min_w
     new_no_w <- no_w
     extra_no_w <- 0  # extra bins added for smaller egg size
-    if (max(species_params$w_inf) > max(params@w) + .Machine$double.eps) {
-        new_max_w <- max(species_params$w_inf)
+    if (max(species_params$w_max) > max(params@w) + .Machine$double.eps) {
+        new_max_w <- max(species_params$w_max)
         dx <- log10(max_w / min_w) / (no_w - 1)
         new_no_w <- ceiling(log10(new_max_w / min_w) / dx) + 1
         new_max_w <- min_w * 10^(dx * (new_no_w - 1))
@@ -187,9 +187,8 @@ addSpecies <- function(params, species_params,
         min_w_pp = (params@w_full[[1]] + params@w_full[[2]]) / 2,
         no_w = new_no_w,
         gear_params = combi_gear_params,
-        n = params@resource_params$n,
-        r_pp = params@resource_params$r_pp,
         kappa = params@resource_params$kappa,
+        n = params@resource_params[["n"]],
         lambda = params@resource_params$lambda,
         w_pp_cutoff = params@resource_params$w_pp_cutoff
     )
@@ -264,14 +263,14 @@ addSpecies <- function(params, species_params,
     for (i in new_sp) {
         g <- gg[i, ]
         mu <- mumu[i, ]
-        w_inf_idx <- sum(p@w < p@species_params$w_inf[i])
-        idx <- p@w_min_idx[i]:(w_inf_idx - 1)
+        w_max_idx <- sum(p@w < p@species_params$w_max[i])
+        idx <- p@w_min_idx[i]:(w_max_idx - 1)
         if (any(g[idx] == 0)) {
             stop("Can not compute steady state due to zero growth rates for ",
                  p@species_params$species[i])
         }
         p@initial_n[i, ] <- 0
-        p@initial_n[i, p@w_min_idx[i]:w_inf_idx] <-
+        p@initial_n[i, p@w_min_idx[i]:w_max_idx] <-
             c(1, cumprod(g[idx] / ((g + mu * p@dw)[idx + 1])))
         
         # set low abundance ----
@@ -297,7 +296,7 @@ addSpecies <- function(params, species_params,
     p@interaction[new_sp, new_sp] <- inter[new_sp, new_sp]
     
     # Retune reproductive efficiencies of new species
-    repro_level <- rep(1/4, length(new_sp))
+    repro_level <- rep(1 / 4, length(new_sp))
     names(repro_level) <- p@species_params$species[new_sp]
     p <- setBevertonHolt(p, reproduction_level = repro_level)
     
@@ -322,12 +321,10 @@ addSpecies <- function(params, species_params,
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
 #' @examples
-#' \dontrun{
 #' params <- NS_params
 #' species_params(params)$species
 #' params <- removeSpecies(params, c("Cod", "Haddock"))
 #' species_params(params)$species
-#' }
 removeSpecies <- function(params, species) {
     params <- validParams(params)
     species <- valid_species_arg(params, species,
@@ -348,10 +345,12 @@ removeSpecies <- function(params, species) {
     }
     
     # Select only the parts corresponding the species we keep
-    p@linecolour <- params@linecolour[!(names(params@linecolour) %in%
-                                            params@species_params$species[species])]
-    p@linetype <- params@linetype[!(names(params@linetype) %in%
-                                        params@species_params$species[species])]
+    p@linecolour <-
+        params@linecolour[!(names(params@linecolour) %in%
+                                params@species_params$species[species])]
+    p@linetype <-
+        params@linetype[!(names(params@linetype) %in%
+                              params@species_params$species[species])]
     p@psi <- params@psi[keep, , drop = FALSE]
     p@maturity <- params@maturity[keep, , drop = FALSE]
     p@initial_n <- params@initial_n[keep, , drop = FALSE]

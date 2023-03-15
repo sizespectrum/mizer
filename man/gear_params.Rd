@@ -23,16 +23,37 @@ determine the fishing mortality.
 \details{
 The \code{gear_params} data has one row for each gear-species pair and one
 column for each parameter that determines how that gear interacts with that
-species. For the details see \code{\link[=setFishing]{setFishing()}}.
+species. The columns are:
+\itemize{
+\item \code{species} The name of the species
+\item \code{gear} The name of the gear
+\item \code{catchability} A number specifying how strongly this gear selects this
+species.
+\item \code{sel_func} The name of the function that calculates the selectivity curve.
+\item One column for each selectivity parameter needed by the selectivity
+functions.
+}
+
+For the details see \code{\link[=setFishing]{setFishing()}}.
+
+The fishing effort, which is also needed to determine the fishing mortality
+exerted by a gear is not set via the \code{gear_params} data frame but is set
+with \code{initial_effort()} or is specified when calling \code{project()}.
 
 If you change a gear parameter, this will be used to recalculate the
 \code{selectivity} and \code{catchability} arrays by calling \code{\link[=setFishing]{setFishing()}},
 unless you have previously set these by hand.
+
+\verb{gear_params<-} automatically sets the row names to contain the species name
+and the gear name, separated by a comma and a space. The last example below
+illustrates how this facilitates changing an individual gear parameter.
 }
 \examples{
 params <- NS_params
+
 # gears set up in example
 gear_params(params)
+
 # setting totally different gears
 gear_params(params) <- data.frame(
     gear = c("gear1", "gear2", "gear1"),
@@ -44,6 +65,7 @@ gear_params(params) <- data.frame(
     knife_edge_size = c(NA, 1000, NA)
     )
 gear_params(params)
+
 # changing an individual entry
 gear_params(params)["Cod, gear1", "catchability"] <- 0.8
 }
@@ -51,7 +73,6 @@ gear_params(params)["Cod, gear1", "catchability"] <- 0.8
 \code{\link[=validGearParams]{validGearParams()}}
 
 Other functions for setting parameters: 
-\code{\link{resource_params}()},
 \code{\link{setExtMort}()},
 \code{\link{setFishing}()},
 \code{\link{setInitialValues}()},
@@ -61,7 +82,6 @@ Other functions for setting parameters:
 \code{\link{setParams}()},
 \code{\link{setPredKernel}()},
 \code{\link{setReproduction}()},
-\code{\link{setResource}()},
 \code{\link{setSearchVolume}()},
 \code{\link{species_params}()}
 }

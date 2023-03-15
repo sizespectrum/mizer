@@ -11,7 +11,8 @@ BevertonHoltRDD(rdi, species_params, ...)
 \eqn{R_{di}}{R_di} for all species.}
 
 \item{species_params}{A species parameter dataframe. Must contain a column
-R_max holding the maximum reproduction rate \eqn{R_{max}}{R_max} for each species.}
+\code{R_max} holding the maximum reproduction rate \eqn{R_{max}}{R_max} for each
+species.}
 
 \item{...}{Unused}
 }

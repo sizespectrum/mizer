@@ -1,16 +1,16 @@
 # NS_species_params ----
 #' Example species parameter set based on the North Sea
 #' 
-#' This data set is based on species in the North Sea (Blanchard et al.).
-#' It is a data.frame that contains all the necessary information to be used by the
-#' [MizerParams()] constructor.
-#' As there is no gear column, each species is assumed to be fished by a
-#' separate gear.
+#' This data set is based on species in the North Sea (Blanchard et al.). It is
+#' a data.frame that contains all the necessary information to be used by the
+#' [MizerParams()] constructor. As there is no gear column, each species is
+#' assumed to be fished by a separate gear.
 #' 
 #' @format A data frame with 12 rows and 7 columns. Each row is a species.
 #' \describe{
 #' \item{species}{Name of the species}
-#' \item{w_inf}{The von Bertalanffy W_infinity parameter}
+#' \item{w_max}{The size at which the population invests 100% of its income into
+#'   reproduction so that all growth stops.}
 #' \item{w_mat}{Size at maturity}
 #' \item{beta}{Size preference ratio}
 #' \item{sigma}{Width of the size-preference}
@@ -38,7 +38,8 @@
 #' @format A data frame with 12 rows and 8 columns. Each row is a species.
 #' \describe{
 #' \item{species}{Name of the species}
-#' \item{w_inf}{The von Bertalanffy W_infinity parameter}
+#' \item{w_max}{The size at which the population invests 100% of its income into
+#'   reproduction so that all growth stops.}
 #' \item{w_mat}{Size at maturity}
 #' \item{beta}{Size preference ratio}
 #' \item{sigma}{Width of the size-preference}

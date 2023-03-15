@@ -1,3 +1,5 @@
+local_edition(3)
+
 # setMaxIntakeRate ----
 test_that("setMaxIntakeRate works", {
     params <- NS_params
@@ -33,8 +35,8 @@ test_that("Comment works on intake_max", {
     expect_message(setMaxIntakeRate(params),  "has been commented")
     # Can reset
     p <- setMaxIntakeRate(params, reset = TRUE)
-    expect_equal(p@intake_max[, 1], params@w[1]^params@species_params$n,
-                 check.attributes = FALSE)
+    expect_equal(p@intake_max[, 1], params@w[1]^params@species_params[["n"]],
+                 ignore_attr = TRUE)
     expect_warning(setMaxIntakeRate(params, intake_max = intake_max,
                                     reset = TRUE),
                    "Because you set `reset = TRUE`, the")

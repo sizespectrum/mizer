@@ -56,17 +56,6 @@
 #'
 #' # Show the ratio instead
 #' plotYieldObservedVsModel(params, ratio = TRUE)
-#'
-#' # Run a simulation
-#' params <- matchYields(params)
-#' sim <- project(params, t_max = 10, progress_bar = FALSE)
-#' plotBiomass(sim)
-#'
-#' # Plot the yield comparison at the final time
-#' plotYieldObservedVsModel(sim)
-#'
-#' # The same with no log scaling of axes
-#' plotYieldObservedVsModel(sim, log_scale = FALSE)
 plotYieldObservedVsModel = function(object, species = NULL, ratio = FALSE,
                                       log_scale = TRUE, return_data = FALSE, 
                                       labels = TRUE, show_unobserved = FALSE) {
@@ -144,7 +133,7 @@ plotYieldObservedVsModel = function(object, species = NULL, ratio = FALSE,
         gg <- ggplot(data = dummy, aes(x = observed, y = model,
                                        colour = species, shape = is_observed)) + 
             geom_abline(aes(intercept = 0, slope = 1), colour = 'purple',
-                        linetype = "dashed", size = 1.3) + # y = x line
+                        linetype = "dashed", linewidth = 1.3) + # y = x line
             geom_point(size = 3) +
             labs(y = 'model yield [g/year]') +
             coord_cartesian(ylim = range(dummy$model, dummy$observed))
@@ -152,14 +141,14 @@ plotYieldObservedVsModel = function(object, species = NULL, ratio = FALSE,
         gg <- ggplot(data = dummy, aes(x = observed, y = ratio,
                                        colour = species, shape = is_observed)) + 
             geom_hline(aes(yintercept = 1), linetype = "dashed",
-                       colour = 'purple', size = 1.3) +
+                       colour = 'purple', linewidth = 1.3) +
             geom_point(size = 3) +
             labs(y = 'model yield / observed yield') +
             coord_cartesian(ylim = range(dummy$ratio))
     }
     
     gg <- gg + labs(x = 'observed yield [g/year]', caption = caption) +
-        scale_colour_manual(values = getColours(params)[dummy$species]) +
+        scale_colour_manual(values = getColours(params)[as.character(dummy$species)]) +
         scale_shape_manual(values = c("TRUE" = 19, "FALSE" = 1)) +
         guides(shape = "none")
     

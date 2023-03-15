@@ -9,6 +9,7 @@ plotSpectra(
   object,
   species = NULL,
   time_range,
+  geometric_mean = FALSE,
   wlim = c(NA, NA),
   ylim = c(NA, NA),
   power = 1,
@@ -25,6 +26,7 @@ plotlySpectra(
   object,
   species = NULL,
   time_range,
+  geometric_mean = FALSE,
   wlim = c(NA, NA),
   ylim = c(NA, NA),
   power = 1,
@@ -49,6 +51,10 @@ each species whether it is to be selected (TRUE) or not.}
 and max time, or a single value) to average the abundances over. Default is
 the final time step. Ignored when called with a \linkS4class{MizerParams}
 object.}
+
+\item{geometric_mean}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If TRUE then the average of the abundances over the
+time range is a geometric mean instead of the default arithmetic mean.}
 
 \item{wlim}{A numeric vector of length two providing lower and upper limits
 for the w axis. Use NA to refer to the existing minimum or maximum.}

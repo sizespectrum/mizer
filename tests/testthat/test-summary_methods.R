@@ -16,7 +16,7 @@ n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
 n_pp <- abs(rnorm(length(params@w_full)))
 
 ## get_size_range_array ----
-test_that("get_size_range_array works",{
+test_that("get_size_range_array works", {
     params@species_params[["a"]] <- 
         c(0.007, 0.001, 0.009, 0.002, 0.010, 0.006, 0.008, 0.004,
             0.007, 0.005, 0.005, 0.007)
@@ -44,21 +44,21 @@ test_that("get_size_range_array works",{
     min_l <- 2
     size_n <- get_size_range_array(params, min_l = min_l)
     min_w <- params@species_params$a * min_l ^ params@species_params$b
-    for (sp in 1:nrow(params@species_params)) { 
+    for (sp in seq_len(nrow(params@species_params))) { 
         expect_true(all(size_n[sp, which(params@w >= min_w[sp])]))
         expect_true(!all(size_n[sp, which(params@w < min_w[sp])]))
     }
     max_l <- 100
     size_n <- get_size_range_array(params, max_l = max_l)
     max_w <- params@species_params$a * max_l ^ params@species_params$b
-    for (sp in 1:nrow(params@species_params)) { 
+    for (sp in seq_len(nrow(params@species_params))) { 
         expect_true(all(size_n[sp, which(params@w <= max_w[sp])]))
         expect_true(!all(size_n[sp, which(params@w > max_w[sp])]))
     }
     size_n <- get_size_range_array(params, min_l = min_l, max_l = max_l)
     min_w <- params@species_params$a * min_l ^ params@species_params$b
     max_w <- params@species_params$a * max_l ^ params@species_params$b
-    for (sp in 1:nrow(params@species_params)) { 
+    for (sp in seq_len(nrow(params@species_params))) { 
         expect_true(all(size_n[sp, which((params@w <= max_w[sp]) & 
                                              (params@w >= min_w[sp]))]))
         expect_true(!all(size_n[sp, which(params@w < min_w[sp])]))
@@ -68,15 +68,15 @@ test_that("get_size_range_array works",{
     # mixed weights and lengths
     size_n <- get_size_range_array(params, min_w = 1, max_l = max_l)
     min_w <- rep(1, nrow(params@species_params))
-    for (sp in 1:nrow(params@species_params)) { 
+    for (sp in seq_len(nrow(params@species_params))) { 
         expect_true(all(size_n[sp, which((params@w <= max_w[sp]) & 
                                              (params@w >= min_w[sp]))]))
         expect_true(!all(size_n[sp, which(params@w < min_w[sp])]))
         expect_true(!all(size_n[sp, which(params@w > max_w[sp])]))
     }
     size_n <- get_size_range_array(params, min_l = min_l, max_w = 100)
-    max_w <- rep(100,nrow(params@species_params))
-    for (sp in 1:nrow(params@species_params)) { 
+    max_w <- rep(100, nrow(params@species_params))
+    for (sp in seq_len(nrow(params@species_params))) { 
         expect_true(all(size_n[sp, which((params@w <= max_w[sp]) & 
                                              (params@w >= min_w[sp]))]))
         expect_true(!all(size_n[sp, which(params@w < min_w[sp])]))
@@ -104,46 +104,30 @@ test_that("get_size_range_array works",{
     expect_error(get_size_range_array(no_ab_params, min_l = 1, max_w = 100),
                  "There must be no NAs in the species_params columns 'a' and 'b'")
     no_ab_params@species_params <- 
-        params@species_params[,!(names(params@species_params) %in% c("a","b"))]
+        params@species_params[, !(names(params@species_params) %in% c("a", "b"))]
     expect_error(get_size_range_array(no_ab_params, min_l = 1, max_w = 100),
                  "pecies_params slot must have columns 'a' and 'b'")
 })
 
-# get_time_elements ----
-test_that("get_time_elements", {
-    sim <- project(params, effort = 1, t_max = 10, dt = 0.5, t_save = 0.5)
-    expect_identical(get_time_elements(sim, as.character(3:4)),
-                     get_time_elements(sim, 3:4))
-    expect_identical(length(get_time_elements(sim, 3:4)),
-                     dim(sim@n)[1])
-    expect_identical(sum(get_time_elements(sim, 3:4)), 3L)
-    expect_error(get_time_elements(sim, 3:50), 
-                 "Time range is outside the time range of the model")
-    expect_equivalent(which(get_time_elements(sim, seq(3, 4, by = 0.1))), 
-                      c(7,8,9))
-    # What if real years are used
-    effort <- array(1, dim = c(19, 4),
-                    dimnames = list(year = seq(1960, 1969, by = 0.5), 
-                                    gear = c("Industrial","Pelagic","Otter","Beam")))
-    sim <- project(params, effort = effort, t_save = 0.5)
-    expect_equivalent(which(get_time_elements(sim, 1965)), 11)
-    expect_equivalent(which(get_time_elements(sim,"1965")), 11)
-    expect_equivalent(which(get_time_elements(sim, 1965:1969)), 11:19)
-})
-
 
 # getProportionOfLargeFish ----
-test_that("getProportionOfLargeFish works",{
+test_that("getProportionOfLargeFish works", {
     sim <- project(params, effort = 1, t_max = 20, dt = 0.5, t_save = 0.5)
     # noddy test - using full range of sizes
     prop <- getProportionOfLargeFish(sim, threshold_w = 500)
     time_idx <- 40
     threshold_w <- sim@params@w > 500
-    total_biomass <- sum(sweep(sim@n[time_idx,,],2, sim@params@w * sim@params@dw, "*"))
-    larger_biomass <- sum(sweep(sim@n[time_idx,,],2, threshold_w * sim@params@w * sim@params@dw, "*"))
-    expect_that(prop[time_idx] , is_equivalent_to(larger_biomass / total_biomass))
+    total_biomass <- sum(sweep(sim@n[time_idx, , ], 2,
+                               sim@params@w * sim@params@dw, "*")
+                         )
+    larger_biomass <- sum(sweep(sim@n[time_idx, , ], 2,
+                                threshold_w * sim@params@w * sim@params@dw, "*")
+                          )
+    expect_that(prop[time_idx], 
+                is_equivalent_to(larger_biomass / total_biomass))
     # using a size range
-    prop <- getProportionOfLargeFish(sim, min_w = 10, max_w = 5000, threshold_w = 500)
+    prop <- getProportionOfLargeFish(sim, min_w = 10, max_w = 5000,
+                                     threshold_w = 500)
     range_w <- (sim@params@w >= 10) & (sim@params@w <= 5000)
     threshold_w <- sim@params@w > 500
     total_biomass <- sum(sweep(sim@n[time_idx,,],2, range_w * sim@params@w * sim@params@dw, "*"))

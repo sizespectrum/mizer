@@ -14,69 +14,71 @@ valid_MizerSim <- function(object) {
     validObject(object@params)
     # array dimensions
     if (length(dim(object@n)) != 3) {
-	msg <- "n slot must have three dimensions"
-	errors <- c(errors, msg)
+        msg <- "n slot must have three dimensions"
+        errors <- c(errors, msg)
     }
     if (length(dim(object@effort)) != 2) {
-	msg <- "effort slot must have two dimensions"
-	errors <- c(errors, msg)
+        msg <- "effort slot must have two dimensions"
+        errors <- c(errors, msg)
     }
     if (length(dim(object@n_pp)) != 2) {
-	msg <- "n_pp slot must have two dimensions"
-	errors <- c(errors, msg)
+        msg <- "n_pp slot must have two dimensions"
+        errors <- c(errors, msg)
     }
     # Check time dimension is good - size, dim name, and names
     if (!all(c(dim(object@n)[[1]], 
                dim(object@n_pp)[[1]],
                dim(object@n_other)[[1]]) == dim(object@effort)[[1]])) {
-	msg <- "First dimension of effort, n, n_pp and n_other slots must be the same length."
-	errors <- c(errors, msg)
+        msg <- "First dimension of effort, n, n_pp and n_other slots must be the same length."
+        errors <- c(errors, msg)
     }
     if (!all(c(names(dimnames(object@n))[[1]],
                names(dimnames(object@n_pp))[[1]],
                names(dimnames(object@n_other))[[1]],
                names(dimnames(object@effort))[[1]]) == "time")) {
-	msg <- "First dimension of effort, n, n_pp and n_other slots must be called 'time'."
-	errors <- c(errors, msg)
+        msg <- "First dimension of effort, n, n_pp and n_other slots must be called 'time'."
+        errors <- c(errors, msg)
     }
     # species dimension of n
     if (dim(object@n)[[2]] != dim(object@params@psi)[[1]]) {
-	msg <- "Second dimension of n slot must have same length as the species names in the params slot"
-	errors <- c(errors, msg)
+        msg <- "Second dimension of n slot must have same length as the species names in the params slot"
+        errors <- c(errors, msg)
     }
     if (names(dimnames(object@n))[[2]] != "sp") {
-	msg <- "Second dimension of n slot must be called 'sp'"
-	errors <- c(errors, msg)
+        msg <- "Second dimension of n slot must be called 'sp'"
+        errors <- c(errors, msg)
     }
-    if (!all(names(dimnames(object@n))[[2]] == names(dimnames(object@params@psi))[[1]])) {
-	msg <- "Second dimension of n slot must have same species names as in the params slot"
-	errors <- c(errors, msg)
+    if (!all(names(dimnames(object@n))[[2]] ==
+             names(dimnames(object@params@psi))[[1]])) {
+        msg <- "Second dimension of n slot must have same species names as in the params slot"
+        errors <- c(errors, msg)
     }
     # w dimension of n
     if (dim(object@n)[[3]] != length(object@params@w)) {
-	msg <- "Third dimension of n slot must have same length as w in the params slot"
-	errors <- c(errors, msg)
+        msg <- "Third dimension of n slot must have same length as w in the params slot"
+        errors <- c(errors, msg)
     }
     if (names(dimnames(object@n))[[3]] != "w") {
-	msg <- "Third dimension of n slot must be called 'w'"
-	errors <- c(errors, msg)
+        msg <- "Third dimension of n slot must be called 'w'"
+        errors <- c(errors, msg)
     }
-    if (!all(names(dimnames(object@n))[[3]] == names(dimnames(object@params@psi))[[2]])) {
-	msg <- "Third dimension of n slot must have same size names as in the params slot"
-	errors <- c(errors, msg)
+    if (!all(names(dimnames(object@n))[[3]] ==
+             names(dimnames(object@params@psi))[[2]])) {
+        msg <- "Third dimension of n slot must have same size names as in the params slot"
+        errors <- c(errors, msg)
     }
     # w dimension of n_pp
     if (dim(object@n_pp)[[2]] != length(object@params@w_full)) {
-	msg <- "Second dimension of n_pp slot must have same length as w_full in the params slot"
-	errors <- c(errors, msg)
+        msg <- "Second dimension of n_pp slot must have same length as w_full in the params slot"
+        errors <- c(errors, msg)
     }
     if (names(dimnames(object@n_pp))[[2]] != "w") {
-	msg <- "Second dimension of n_pp slot must be called 'w'"
-	errors <- c(errors, msg)
+        msg <- "Second dimension of n_pp slot must be called 'w'"
+        errors <- c(errors, msg)
     }
     if (!all(dimnames(object@n_pp)$w == names(object@params@rr_pp))) {
-	msg <- "Second dimension of n_pp slot must have same size names as rr_pp in the params slot"
-	errors <- c(errors, msg)
+        msg <- "Second dimension of n_pp slot must have same size names as rr_pp in the params slot"
+        errors <- c(errors, msg)
     }
     # component dimension of n_other
     if (dim(object@n_other)[[2]] != length(object@params@other_dynamics)) {
@@ -94,16 +96,17 @@ valid_MizerSim <- function(object) {
     
     # gear dimension of effort
     if (dim(object@effort)[[2]] != dim(object@params@catchability)[[1]]) {
-	msg <- "Second dimension of effort slot must have same number of gears as in the params slot"
-	errors <- c(errors, msg)
+        msg <- "Second dimension of effort slot must have same number of gears as in the params slot"
+        errors <- c(errors, msg)
     }
     if (names(dimnames(object@effort))[[2]] != "gear") {
-	msg <- "Second dimension of effort slot must be called 'gear'"
-	errors <- c(errors, msg)
+        msg <- "Second dimension of effort slot must be called 'gear'"
+        errors <- c(errors, msg)
     }
-    if (!all(names(dimnames(object@effort))[[2]] == names(dimnames(object@params@catchability)[[1]]))) {
-	msg <- "Second dimension of effort slot must have same gear names as in the params slot"
-	errors <- c(errors, msg)
+    if (!all(names(dimnames(object@effort))[[2]] ==
+             names(dimnames(object@params@catchability)[[1]]))) {
+        msg <- "Second dimension of effort slot must have same gear names as in the params slot."
+        errors <- c(errors, msg)
     }
     if (length(errors) == 0) TRUE else errors
 }
@@ -154,8 +157,8 @@ valid_MizerSim <- function(object) {
 #'   densities.
 #' @slot n_other A list array (time x component) that stores the projected
 #'   values for other ecosystem components.
-#' @slot effort An array (time x gear) that stores the fishing effort by time and 
-#'   gear.
+#' @slot effort An array (time x gear) that stores the fishing effort by time
+#'   and gear.
 #' 
 #' @export
 setClass(
@@ -229,7 +232,7 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
     dimnames(list_n_other) <- list(time = t_dimnames,
                                    component = component_names)
     
-    sim <- new('MizerSim',
+    sim <- new("MizerSim",
                params = params,
                n = array_n,
                n_pp = array_n_pp,
@@ -249,6 +252,7 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
 #' @examples
 #' str(N(NS_sim))
 N <- function(sim) {
+    assert_that(is(sim, "MizerSim"))
     sim@n
 }
 
@@ -258,6 +262,7 @@ N <- function(sim) {
 #' @examples
 #' str(NResource(NS_sim))
 NResource <- function(sim) {
+    assert_that(is(sim, "MizerSim"))
     sim@n_pp
 }
 
@@ -323,6 +328,7 @@ idxFinalT <- function(sim) {
 #' @examples 
 #' getTimes(NS_sim)
 getTimes <- function(sim) {
+    assert_that(is(sim, "MizerSim"))
     as.numeric(dimnames(sim@n)$t)
 }
 
@@ -340,6 +346,7 @@ getTimes <- function(sim) {
 #' @examples
 #' str(getEffort(NS_sim))
 getEffort <- function(sim) {
+    assert_that(is(sim, "MizerSim"))
     sim@effort
 }
 
@@ -354,5 +361,6 @@ getEffort <- function(sim) {
 #' sim <- project(NS_params, t_max = 1)
 #' identical(getParams(sim), NS_params)
 getParams <- function(sim) {
+    assert_that(is(sim, "MizerSim"))
     sim@params
 }

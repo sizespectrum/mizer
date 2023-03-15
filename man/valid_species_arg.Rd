@@ -4,7 +4,12 @@
 \alias{valid_species_arg}
 \title{Helper function to assure validity of species argument}
 \usage{
-valid_species_arg(object, species = NULL, return.logical = FALSE)
+valid_species_arg(
+  object,
+  species = NULL,
+  return.logical = FALSE,
+  error_on_empty = FALSE
+)
 }
 \arguments{
 \item{object}{A MizerSim or MizerParams object from which the species
@@ -17,6 +22,9 @@ each species whether it is to be selected (TRUE) or not.}
 
 \item{return.logical}{Whether the return value should be a logical vector.
 Default FALSE.}
+
+\item{error_on_empty}{Whether to throw an error if there are zero valid
+species. Default FALSE.}
 }
 \value{
 A vector of species names, in the same order as specified in the

@@ -20,7 +20,7 @@ set_multispecies_model <-
                              ncol = nrow(species_params)),
         min_w_pp = 1e-10,
         min_w = 0.001,
-        max_w = max(species_params$w_inf)*1.1,
+        max_w = NULL,
         no_w = 100,
         n = 2 / 3,
         q = 0.8,
@@ -32,6 +32,13 @@ set_multispecies_model <-
     lifecycle::deprecate_soft("2.0.0", "set_multispecies_model()", "newMultispeciesParams()")
     if (exists("no_w_pp")) {
         warning("New mizer code does not support the parameter no_w_pp")
+    }
+    # w_inf was renamed to w_max
+    if ("w_inf" %in% names(species_params)) {
+        species_params$w_max <- species_params$w_inf
+    }
+    if (is.null(max_w)) {
+        max_w <- max(species_params$w_max) * 1.1
     }
     
     # Need to correct for the fact that new mizer extends w_full to BELOW
@@ -78,7 +85,7 @@ set_multispecies_model <-
         if (!("k_vb" %in% colnames(object))) {
             stop("Except I can't because there is no k_vb column in the species data frame")
         }
-        object$h <- ((3 * object$k_vb) / (object$alpha * f0)) * (object$w_inf ^ (1/3))
+        object$h <- ((3 * object$k_vb) / (object$alpha * f0)) * (object$w_max ^ (1/3))
     }
     # Sorting out gamma column
     if (!("gamma" %in% colnames(object))) {
@@ -103,7 +110,7 @@ set_multispecies_model <-
                                  n = n,
                                  kappa = kappa,
                                  lambda = lambda,
-                                 r_pp = r_pp,
+                                 resource_rate = r_pp,
                                  max_w = max_w,
                                  min_w = min_w,
                                  min_w_pp = min_w_pp,
@@ -138,7 +145,7 @@ MizerParams <- set_multispecies_model
 #' except for
 #' the asymptotic size, which is considered the most important trait
 #' characterizing a species. Other parameters are related to the asymptotic
-#' size. For example, the size at maturity is given by \code{w_inf * eta}, 
+#' size. For example, the size at maturity is given by \code{w_max * eta}, 
 #' where `eta` is
 #' the same for all species. For the trait-based model the number of species is
 #' not important. For applications of the trait-based model see Andersen &

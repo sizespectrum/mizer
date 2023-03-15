@@ -8,9 +8,12 @@
 ^README\.Rmd$
 ^dev_scripts\.R$
 ^.github$
+^\.github$
+^\.lintr
 ^runtime\.txt$
 ^CITATION.cff
 ^CRAN-RELEASE$
+^CRAN-SUBMISSION$
 
 ^vignettes/_estimating_feeding_kernel_params.Rmd$
 ^vignettes/a_multispecies_model_of_the_north_sea.Rmd$

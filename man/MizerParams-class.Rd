@@ -27,7 +27,7 @@ abundances or harvest effort through time. These are held in
 \item{\code{metadata}}{A list with metadata information. See \code{\link[=setMetadata]{setMetadata()}}.}
 
 \item{\code{mizer_version}}{The package version of mizer (as returned by
-\code{packageVersion("mizer")}) that created or last saved the model.}
+\code{packageVersion("mizer")}) that created or upgraded the model.}
 
 \item{\code{extensions}}{A named vector of strings where each name is the name of
 and extension package needed to run the model and each value is a string
@@ -40,13 +40,13 @@ correct version of the extension package, see https://remotes.r-lib.org/.}
 
 \item{\code{w}}{The size grid for the fish part of the spectrum. An increasing
 vector of weights (in grams) running from the smallest egg size to the
-largest asymptotic size.}
+largest maximum size.}
 
 \item{\code{dw}}{The widths (in grams) of the size bins}
 
 \item{\code{w_full}}{The size grid for the full size range including the resource
 spectrum. An increasing vector of weights (in grams) running from the
-smallest resource size to the largest asymptotic size of fish. The
+smallest resource size to the largest maximum size of fish. The
 last entries of the vector have to be equal to the content of the w slot.}
 
 \item{\code{dw_full}}{The width of the size bins for the full spectrum. The last
@@ -94,16 +94,13 @@ then the \code{pred_kernel} will be used to calculate the integral.
 Changed with \code{\link[=setPredKernel]{setPredKernel()}}.}
 
 \item{\code{rr_pp}}{A vector the same length as the w_full slot. The size specific
-growth rate of the resource spectrum. Changed with \code{\link[=setResource]{setResource()}}.}
+growth rate of the resource spectrum.}
 
 \item{\code{cc_pp}}{A vector the same length as the w_full slot. The size specific
-carrying capacity of the resource spectrum. Changed with
-\code{\link[=setResource]{setResource()}}.}
+carrying capacity of the resource spectrum.}
 
-\item{\code{resource_dynamics}}{Name of the function for projecting the resource abundance
-density by one timestep. The default is
-\code{\link[=resource_semichemostat]{resource_semichemostat()}}.
-Changed with \code{\link[=setResource]{setResource()}}.}
+\item{\code{resource_dynamics}}{Name of the function for projecting the resource
+abundance density by one timestep.}
 
 \item{\code{other_dynamics}}{A named list of functions for projecting the
 values of other dynamical components of the ecosystem that may be modelled
@@ -156,7 +153,7 @@ the initial resource abundance at each weight.}
 \item{\code{initial_n_other}}{A list with the initial abundances of all other
 ecosystem components. Has length zero if there are no other components.}
 
-\item{\code{resource_params}}{List with parameters for resource. See \code{\link[=setResource]{setResource()}}.}
+\item{\code{resource_params}}{List with parameters for resource.}
 
 \item{\code{A}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Abundance multipliers.}
@@ -168,7 +165,7 @@ Used to give consistent colours in plots.}
 Used to give consistent line types in plots.}
 
 \item{\code{ft_mask}}{An array (species x w_full) with zeros for weights larger than
-the asymptotic weight of each species. Used to efficiently minimize
+the maximum weight of each species. Used to efficiently minimize
 wrap-around errors in Fourier transform calculations.}
 }}
 

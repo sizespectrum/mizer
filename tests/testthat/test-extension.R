@@ -43,7 +43,7 @@ test_that("Time is passed correctly to rate functions", {
     expect_identical(getFeedingLevel(params, time_range = 2), nt(params, 2))
     
     gears <- unique(as.character(gear_params(params)$gear))
-    effort <- array(0, dim = c(3 , 4), 
+    effort <- array(0, dim = c(3, 4), 
                     dimnames = list(time = 2020:2022,
                                     gear = gears))
     sim <- project(params, effort = effort, dt = 1)
@@ -57,7 +57,7 @@ test_that("getRateFunction works", {
     expect_error(getRateFunction(params, "test"),
         "The `rate` argument must be one of")
     all <- getRateFunction(params)
-    expect_type(all , "list")
+    expect_type(all, "list")
     expect_named(all)
     expect_identical(all$Rates, "mizerRates")
     expect_identical(getRateFunction(params, rate = "Mort"), "mizerMort")

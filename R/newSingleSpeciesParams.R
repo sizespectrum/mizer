@@ -19,16 +19,20 @@
 #'
 #' @param species_name A string with a name for the species. Will be used in
 #'   plot legends.
-#' @param w_inf Asymptotic size of species
+#' @param w_max Maximum size of species
 #' @param w_min Egg size of species
-#' @param eta Ratio between maturity size \code{w_mat} and asymptotic size
-#'   \code{w_inf}. Default is 10^(-0.6), approximately 1/4. Ignored if
+#' @param eta Ratio between maturity size \code{w_mat} and maximum size
+#'   \code{w_max}. Default is 10^(-0.6), approximately 1/4. Ignored if
 #'   \code{w_mat} is supplied explicitly.
 #' @param w_mat Maturity size of species. Default value is
-#'   \code{eta * w_inf}.
-#' @param k_vb The von Bertalanffy growth parameter.
+#'   \code{eta * w_max}.
+#' @param k_vb `r lifecycle::badge("deprecated")` The von Bertalanffy growth
+#'   parameter.
+#' @param w_inf `r lifecycle::badge("deprecated")` The argument has been
+#'   renamed to `w_max`.
 #' @inheritParams newTraitParams
 #' @export
+#' @importFrom lifecycle deprecated
 #' @return An object of type \code{MizerParams}
 #' @family functions for setting up models
 #' @examples
@@ -37,17 +41,17 @@
 #' plotSpectra(sim)
 newSingleSpeciesParams <- 
     function(species_name = "Target species",
-             w_inf = 100,
+             w_max = 100,
              w_min = 0.001,
              eta = 10^(-0.6),
-             w_mat = w_inf * eta,
-             no_w = log10(w_inf / w_min) * 20 + 1,
-             n = 3/4,
+             w_mat = w_max * eta,
+             no_w = log10(w_max / w_min) * 20 + 1,
+             n = 3 / 4,
              p = n,
              lambda = 2.05,
              kappa = 0.005,
              alpha = 0.4,
-             k_vb = 1,
+             h = 30,
              beta = 100,
              sigma = 1.3,
              f0 = 0.6,
@@ -56,9 +60,28 @@ newSingleSpeciesParams <-
              gamma = NA,
              ext_mort_prop = 0,
              reproduction_level = 0,
-             R_factor = deprecated()) {
+             R_factor = deprecated(),
+             w_inf = deprecated(),
+             k_vb = deprecated()) {
+        if (lifecycle::is_present(w_inf)) {
+            lifecycle::deprecate_warn(
+                when = "2.4.0.0", 
+                what = "newSingleSpeciesParams(w_inf)",
+                with = "newSingleSpeciesParams(w_max)"
+            )
+            w_max <- w_inf
+            w_mat <- w_max * eta
+            no_w <- log10(w_max / w_min) * 20 + 1
+        }
+        if (lifecycle::is_present(k_vb)) {
+            lifecycle::deprecate_warn(
+                when = "2.4.0.0", 
+                what = "newSingleSpeciesParams(k_vb)",
+                details = "Specify 'h' instead."
+            )
+        }
     assert_that(is.string(species_name), length(species_name) == 1)
-    no_sp <- 1
+
     ## Much of the following code is copied from newTraitParams
 
     ## Check validity of parameters ----
@@ -74,8 +97,8 @@ newSingleSpeciesParams <-
     if (no_w < 1) {
         stop("The number of size bins no_w must be a positive integer")
     }
-    if (no_w < log10(w_inf/w_min)*5) {
-        no_w <- round(log10(w_inf / w_min) * 5 + 1)
+    if (no_w < log10(w_max/w_min)*5) {
+        no_w <- round(log10(w_max / w_min) * 5 + 1)
         message(paste("Increased no_w to", no_w, "so that there are 5 bins ",
                       "for an interval from w and 10w."))
     }
@@ -87,12 +110,12 @@ newSingleSpeciesParams <-
         stop("The egg size w_min must be smaller than ",
              "the maturity size w_mat")
     }
-    if (w_mat >= w_inf) {
+    if (w_mat >= w_max) {
         stop("The maturity size w_mat must be ",
-             "smaller the maximum size w_inf")
+             "smaller the maximum size w_max")
     }
-    if (!all(c(n, lambda, kappa, alpha, k_vb, beta, sigma, f0) > 0)) {
-        stop("The parameters n, lambda, kappa, alpha, k_vb, beta, sigma ",
+    if (!all(c(n, lambda, kappa, alpha, h, beta, sigma, f0) > 0)) {
+        stop("The parameters n, lambda, kappa, alpha, h, beta, sigma ",
              "and f0, if supplied, need to be positive.")
     }
     if (!is.na(fc) && (fc < 0 || fc > f0)) {
@@ -105,7 +128,7 @@ newSingleSpeciesParams <-
         lifecycle::deprecate_soft("2.3.0", "newTraitParams(R_factor)",
                                   "newTraitParams(reproduction_level)",
                                   "Set `reproduction_level = 1 / R_factor`.")
-        reproduction_level = 1 / R_factor
+        reproduction_level <- 1 / R_factor
     }
 
     ## Build Params Object ----
@@ -113,10 +136,10 @@ newSingleSpeciesParams <-
     species_params <- data.frame(
         species = species_name,
         w_min = w_min,
-        w_inf = w_inf,
+        w_max = w_max,
         w_mat = w_mat,
         w_min_idx = 1,
-        k_vb =  k_vb,
+        h = h,
         gamma = gamma,
         ks = ks,
         f0 = f0,
@@ -133,8 +156,8 @@ newSingleSpeciesParams <-
             species_params,
             min_w = w_min,
             no_w = no_w,
-            max_w = w_inf,
-            w_pp_cutoff = w_inf,
+            max_w = w_max,
+            w_pp_cutoff = Inf,
             lambda = lambda,
             kappa = kappa,
             n = n,
@@ -146,7 +169,7 @@ newSingleSpeciesParams <-
 
     w <- params@w
     dw <- params@dw
-    h <- params@species_params$h
+    h <- params@species_params[["h"]]
     ks <- params@species_params$ks
     f0 <- get_f0_default(params)
 
@@ -172,7 +195,7 @@ newSingleSpeciesParams <-
     mumu <- mu0 * w^(n - 1)  # Death rate
     params@mu_b[] <- mumu
     comment(params@mu_b) <- "power-law"
-    i_inf <- sum(params@w <= w_inf)  # index of asymptotic size
+    i_inf <- sum(params@w <= w_max)  # index of maximum size
     idx <- 1:(i_inf - 1)
     idxs <- 1:i_inf
     gg <- hbar * w^n * (1 - params@psi[1, ])  # Growth rate
@@ -185,8 +208,10 @@ newSingleSpeciesParams <-
     # Normalise abundance so that the maximum ratio between the species
     # abundance and community abundance is 1/2
     fish <- (length(params@w_full) - length(params@w) + 1):length(params@w_full)
-    imax <- which.max(initial_n[1, ] / initial_n_pp[fish]) # index in fish spectrum
-    pmax <- imax + length(params@w_full) - length(params@w) # corresponding resource index
+    # index in fish spectrum
+    imax <- which.max(initial_n[1, ] / initial_n_pp[fish])
+    # corresponding resource index
+    pmax <- imax + length(params@w_full) - length(params@w)
     initial_n <- initial_n / initial_n[1, imax] * initial_n_pp[pmax] / 2
     params@initial_n <- initial_n
 

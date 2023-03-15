@@ -9,10 +9,10 @@
 #' 
 #' This rate is obtained by taking the per capita rate \eqn{E_r(w)\psi(w)} at
 #' which energy is invested in reproduction, as calculated by [getERepro()],
-#' multiplying it by the number of individuals\eqn{N(w)} and integrating over all sizes
-#' \eqn{w} and then multiplying by the reproductive efficiency \eqn{\epsilon}
-#' and dividing by the egg size `w_min`, and by a factor of two to account for
-#' the two sexes:
+#' multiplying it by the number of individuals\eqn{N(w)} and integrating over
+#' all sizes \eqn{w} and then multiplying by the reproductive efficiency
+#' \eqn{\epsilon} and dividing by the egg size `w_min`, and by a factor of two
+#' to account for the two sexes:
 #' \deqn{R_{di} = \frac{\epsilon}{2 w_{min}} \int N(w)  E_r(w) \psi(w) \, dw}{R_di = (\epsilon/(2 w_min)) \int N(w)  E_r(w) \psi(w) dw}
 #' 
 #' Used by [getRDD()] to calculate the actual, density dependent rate.
@@ -88,7 +88,8 @@ mizerRDI <- function(params, n, n_pp, n_other, t,
 #' }
 constantEggRDI <- function(params, n, e_growth, mort, ...) {
     no_sp <- nrow(params@species_params) # number of species
-    # Hacky shortcut to access the correct element of a 2D array using 1D notation
+    # Hacky shortcut to access the correct element of a 2D array
+    # using 1D notation
     idx <- (params@w_min_idx - 1) * no_sp + (1:no_sp)
     rdi <- n[idx] * (e_growth[idx] + mort[idx] * params@dw[params@w_min_idx])
     rdi
@@ -116,7 +117,8 @@ constantEggRDI <- function(params, n, e_growth, mort, ...) {
 #' @param rdi Vector of density-independent reproduction rates 
 #'   \eqn{R_{di}}{R_di} for all species.
 #' @param species_params A species parameter dataframe. Must contain a column
-#'   R_max holding the maximum reproduction rate \eqn{R_{max}}{R_max} for each species.
+#'   `R_max` holding the maximum reproduction rate \eqn{R_{max}}{R_max} for each
+#'   species.
 #' @param ... Unused
 #'
 #' @return Vector of density-dependent reproduction rates.
@@ -126,7 +128,7 @@ BevertonHoltRDD <- function(rdi, species_params, ...) {
     if (!("R_max" %in% names(species_params))) {
         stop("The R_max column is missing in species_params.")
     }
-    return(rdi / (1 + rdi/species_params$R_max))
+    return(rdi / (1 + rdi / species_params$R_max))
 }
 
 #' Ricker function to calculate density-dependent reproduction rate
@@ -158,6 +160,9 @@ RickerRDD <- function(rdi, species_params, ...) {
 #' Takes the density-independent rates \eqn{R_{di}}{R_di} of egg production and returns
 #' reduced, density-dependent rates \eqn{R_{dd}}{R_dd} given as
 #' \deqn{R_{dd} = \frac{R_{di}}{1+(b\ R_{di})^c}}{R_dd = R_di / (1 + (b R_di)^c)}
+#' 
+#' With \eqn{b = 1/R_{max}} and \eqn{c = 1} this reduces to the Beverton-Holt
+#' reproduction rate, see [BevertonHoltRDD()].
 #' 
 #' @param rdi Vector of density-independent reproduction rates 
 #'   \eqn{R_{di}}{R_di} for all species.
@@ -204,6 +209,6 @@ noRDD <- function(rdi, ...) {
 #' @return Vector `species_params$constant_reproduction`
 #' @export
 #' @family functions calculating density-dependent reproduction rate
-constantRDD <- function(rdi, species_params, ...){
+constantRDD <- function(rdi, species_params, ...) {
     return(species_params$constant_reproduction)
 }

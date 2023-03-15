@@ -24,9 +24,9 @@ project(
 
 \item{effort}{The effort of each fishing gear through time. See notes below.}
 
-\item{t_max}{The number of years the projection runs for. The default value is
-100. This argument is ignored if an array is used for the
-\code{effort} argument. See notes below.}
+\item{t_max}{The number of years the projection runs for. The default value
+is 100. This argument is ignored if an array is used for the \code{effort}
+argument. See notes below.}
 
 \item{dt}{Time step of the solver. The default value is 0.1.}
 
@@ -39,12 +39,13 @@ will cover the period from \code{t_start} to \code{t_start + t_max}.
 Defaults to 0. Ignored if an array is used for the \code{effort}
 argument or a \code{MizerSim} for the \code{object} argument.}
 
-\item{initial_n}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The initial abundances of species. Instead of
-using this argument you should set \code{initialN(params)} to the desired value.}
+\item{initial_n}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The initial abundances of
+species. Instead of using this argument you should set \code{initialN(params)}
+to the desired value.}
 
-\item{initial_n_pp}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The initial abundances of resource. Instead
-of using this argument you should set \code{initialNResource(params)} to the
-desired value.}
+\item{initial_n_pp}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The initial abundances
+of resource. Instead of using this argument you should set
+\code{initialNResource(params)} to the desired value.}
 
 \item{append}{A boolean that determines whether the new simulation results
 are appended to the previous ones. Only relevant if \code{object} is a
@@ -67,8 +68,8 @@ The function returns an object of type
 \link{plotting_functions}.
 }
 \note{
-The \code{effort} argument specifies the level of fishing effort during
-the simulation. If it is not supplied, the initial effort stored in the params
+The \code{effort} argument specifies the level of fishing effort during the
+simulation. If it is not supplied, the initial effort stored in the params
 object is used. The effort can be specified in three different ways:
 \itemize{
 \item A single numeric value. This specifies the effort of all fishing gears

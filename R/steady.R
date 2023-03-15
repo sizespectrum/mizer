@@ -92,7 +92,7 @@ projectToSteady <- function(params,
     if (is(progress_bar, "Progress")) {
         # We have been passed a shiny progress object
         progress_bar$set(message = "Finding steady state", value = 0)
-        proginc <- 1/ceiling(t_max/t_per)
+        proginc <- 1 / ceiling(t_max/t_per)
     }
     
     if (return_sim) {
@@ -188,15 +188,15 @@ projectToSteady <- function(params,
 
 #' Set initial values to a steady state for the model
 #'
-#' The steady state is found by running the dynamics while keeping reproduction
-#' and other components constant until the size spectra no longer change much (or
-#' until time `t_max` is reached, if earlier). 
+#' The steady state is found by running the dynamics while keeping reproduction,
+#' resource and other components constant until the size spectra no longer
+#' change much (or until time `t_max` is reached, if earlier).
 #' 
 #' If the model use Beverton-Holt reproduction then the reproduction parameters
 #' are set to values that give the level of reproduction observed in that
 #' steady state. The `preserve` argument can be used to specify which of the 
-#' reproduction parameters should be preserved,
-#'
+#' reproduction parameters should be preserved.
+#' 
 #' @param params A \linkS4class{MizerParams} object
 #' @param t_max The maximum number of years to run the simulation. Default is 100.
 #' @param t_per The simulation is broken up into shorter runs of `t_per` years,
@@ -242,6 +242,10 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
     old_rdd_fun <- params@rates_funcs$RDD
     params@rates_funcs$RDD <- "constantRDD"
     
+    # Force resource to stay at current level
+    old_resource_dynamics <- params@resource_dynamics
+    params@resource_dynamics <- "resource_constant"
+    
     # Force other components to stay at current level
     old_other_dynamics <- params@other_dynamics
     for (res in names(params@other_dynamics)) {
@@ -261,10 +265,13 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
     } else {
         params <- object
     }
-    # Restore original RDD and other dynamics
+    # Restore original RDD and dynamics
     params@rates_funcs$RDD <- old_rdd_fun
     params@other_dynamics <- old_other_dynamics
     params@species_params$constant_reproduction <- NULL
+    
+    # Set resource dynamics
+    params <- setResource(params, resource_dynamics = old_resource_dynamics)
     
     if (params@rates_funcs$RDD == "BevertonHoltRDD") {
         if (preserve == "reproduction_level") {
@@ -313,6 +320,8 @@ constant_other <- function(params, n_other, component, ...) {
 #'   each species whether it is to be selected (TRUE) or not. 
 #' @param return.logical Whether the return value should be a logical vector.
 #'   Default FALSE.
+#' @param error_on_empty Whether to throw an error if there are zero valid
+#'   species. Default FALSE.
 #'   
 #' @return A vector of species names, in the same order as specified in the
 #'   'species' argument. If 'return.logical = TRUE' then a logical vector is
@@ -320,7 +329,8 @@ constant_other <- function(params, n_other, component, ...) {
 #'   TRUE entry for each selected species.
 #' @export
 #' @concept helper
-valid_species_arg <- function(object, species = NULL, return.logical = FALSE) {
+valid_species_arg <- function(object, species = NULL, return.logical = FALSE,
+                              error_on_empty = FALSE) {
     if (is(object, "MizerSim")) {
         params <- object@params
     } else if (is(object, "MizerParams")) {
@@ -328,23 +338,30 @@ valid_species_arg <- function(object, species = NULL, return.logical = FALSE) {
     } else {
         stop("The first argument must be a MizerSim or MizerParams object.")
     }
-    assert_that(is.flag(return.logical))
+    assert_that(is.flag(return.logical),
+                is.flag(error_on_empty))
     all_species <- dimnames(params@initial_n)$sp
     no_sp <- nrow(params@species_params)
     # Set species if missing to list of all non-background species
     if (is.null(species)) {
         species <- dimnames(params@initial_n)$sp[!is.na(params@A)]
         if (length(species) == 0) {  # There are no non-background species.
+            if (error_on_empty) {
+                stop("No species have been selected.")
+            }
             if (return.logical) {
                 return(rep(FALSE, no_sp))
             } else {
-                return(NULL)
+                vector("character")
             }
         }
     }
     if (is.logical(species)) {
         if (length(species) != no_sp) {
-            stop("The boolean `species` argument has the wrong length")
+            stop("The boolean `species` argument has the wrong length.")
+        }
+        if (!any(species) && error_on_empty) {
+            stop("No species have been selected.")
         }
         if (return.logical) {
             return(species)
@@ -354,9 +371,12 @@ valid_species_arg <- function(object, species = NULL, return.logical = FALSE) {
     if (is.numeric(species)) {
         if (!all(species %in% (1:no_sp))) {
             warning("A numeric 'species' argument should only contain the ",
-                    "integers 1 to ", no_sp)
+                    "integers 1 to ", no_sp, ".")
         }
         species.logical <- 1:no_sp %in% species
+        if (!any(species.logical) && error_on_empty) {
+            stop("No species have been selected.")
+        }
         if (return.logical) {
             return(species.logical)
         }
@@ -365,9 +385,12 @@ valid_species_arg <- function(object, species = NULL, return.logical = FALSE) {
     invalid <- setdiff(species, all_species)
     if (length(invalid) > 0) {
         warning("The following species do not exist: ", 
-                toString(invalid))
+                toString(invalid), ".")
     }
     species <- intersect(species, all_species)
+    if (length(species) == 0 && error_on_empty) {
+        stop("No species have been selected.")
+    }
     if (return.logical) {
         return(all_species %in% species)
     }

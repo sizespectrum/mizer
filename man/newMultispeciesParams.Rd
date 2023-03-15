@@ -22,11 +22,10 @@ newMultispeciesParams(
   maturity = NULL,
   repro_prop = NULL,
   RDD = "BevertonHoltRDD",
-  resource_rate = NULL,
-  resource_capacity = NULL,
-  n = 2/3,
-  r_pp = 10,
   kappa = 1e+11,
+  n = 2/3,
+  resource_rate = 10,
+  resource_capacity = kappa,
   lambda = 2.05,
   w_pp_cutoff = 10,
   resource_dynamics = "resource_semichemostat",
@@ -35,7 +34,8 @@ newMultispeciesParams(
   catchability = NULL,
   initial_effort = NULL,
   info_level = 3,
-  z0 = deprecated()
+  z0 = deprecated(),
+  r_pp = deprecated()
 )
 }
 \arguments{
@@ -51,7 +51,7 @@ interaction matrix" section below.}
 given in the \code{w_min} column of the \code{species_params} dataframe.}
 
 \item{max_w}{The largest size of the consumer spectrum. By default this is
-set to the largest \code{w_inf} specified in the \code{species_params} data
+set to the largest \code{w_max} specified in the \code{species_params} data
 frame.}
 
 \item{min_w_pp}{The smallest size of the resource spectrum. By default this
@@ -79,14 +79,15 @@ is not given explicitly and if the exponent is not specified in a \code{p}
 column in the \code{species_params}.}
 
 \item{ext_mort}{Optional. An array (species x size) holding the external
-mortality rate.}
+mortality rate.  If not supplied, a default is set as described in the
+section "Setting external mortality rate".}
 
 \item{z0pre}{If \code{z0}, the mortality from other sources, is not a column
-in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
+in the species data frame, it is calculated as z0pre * w_max ^ z0exp.
 Default value is 0.6.}
 
-\item{z0exp}{If \code{z0}, the mortality from other sources, is not a column
-in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
+\item{z0exp}{If \code{z0}, the mortality from other sources, is not a column in
+the species data frame, it is calculated as \code{z0pre * w_max ^ z0exp}.
 Default value is \code{n-1}.}
 
 \item{maturity}{Optional. An array (species x size) that holds the proportion
@@ -102,28 +103,28 @@ described in the section "Setting reproduction".}
 reproduction rate from the density-independent rate. Defaults to
 "\code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}".}
 
-\item{resource_rate}{Optional. Vector of resource intrinsic birth rates}
-
-\item{resource_capacity}{Optional. Vector of resource intrinsic carrying
-capacity}
+\item{kappa}{The coefficient of the initial resource abundance power-law.}
 
 \item{n}{The allometric growth exponent. This can be overruled for individual
 species by including a \code{n} column in the \code{species_params}.}
 
-\item{r_pp}{Coefficient of the intrinsic resource birth rate}
+\item{resource_rate}{Optional. Vector of resource intrinsic birth rates or
+coefficient in the power-law for the birth rate, see Details. Must be
+strictly positive.}
 
-\item{kappa}{Coefficient of the intrinsic resource carrying capacity}
+\item{resource_capacity}{Optional. Vector of resource intrinsic carrying
+capacities or coefficient in the power-law for the capacity, see Details.
+The resource capacity must be larger than the resource abundance.}
 
-\item{lambda}{Scaling exponent of the intrinsic resource carrying capacity}
+\item{lambda}{Used to set power-law exponent for resource capacity if the
+\code{resource_capacity} argument is given as a single number.}
 
-\item{w_pp_cutoff}{The upper cut off size of the resource spectrum.  The
-carrying capacity will be set to 0 above this size.
-Default is 10 g.}
+\item{w_pp_cutoff}{The upper cut off size of the resource spectrum power law
+used only if \code{resource_capacity} is given as a single number.}
 
 \item{resource_dynamics}{Optional. Name of the function that determines the
 resource dynamics by calculating the resource spectrum at the next time
-step from the current state. You only need to specify this if you do not
-want to use the default \code{\link[=resource_semichemostat]{resource_semichemostat()}}.}
+step from the current state.}
 
 \item{gear_params}{A data frame with gear-specific parameter values.}
 
@@ -138,10 +139,14 @@ the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.}
 
 \item{info_level}{Controls the amount of information messages that are shown
-when the function sets default values for parameters.}
+when the function sets default values for parameters. Higher levels lead
+to more messages.}
 
 \item{z0}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{ext_mort} instead. Not to
 be confused with the species_parameter \code{z0}.}
+
+\item{r_pp}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}. Use \code{resource_rate} argument
+instead.}
 }
 \value{
 An object of type \linkS4class{MizerParams}
@@ -164,11 +169,12 @@ parameters for one of the species in the model.
 There are two essential columns that must be included in the species
 parameter data.frame and that do not have default values: the
 \code{species} column that should hold strings with the names of the
-species and the \code{w_inf} column with the asymptotic sizes of the species
-in grams.
+species and the \code{w_max} column with the maximum sizes of the species
+in grams. (You could alternatively specify the maximum length in cm in an
+\code{l_max} column.)
 
-The species_params dataframe also needs to contain the parameters needed
-by any predation kernel function or size selectivity function. This will
+The \verb{species_params dataframe} also needs to contain the parameters needed
+by any predation kernel function (size selectivity function). This will
 be mentioned in the appropriate sections below.
 
 For all other species parameters, mizer will calculate default values if they
@@ -184,6 +190,18 @@ If you are not happy with any of the species parameter values used you can
 always change them later with \code{\link[=species_params<-]{species_params<-()}}.
 
 All the parameters will be mentioned in the following sections.
+}
+
+\section{Setting initial values}{
+
+The initial values for the species number densities are set using the
+function \code{get_initial_n()}. These are quite arbitrary and not very close to
+the steady state abundances. We intend to improve this in the future.
+
+The initial resource number density \eqn{N_R(w)} is set to a power law with
+coefficient \code{kappa} (\eqn{\kappa}) and exponent \code{-lambda} (\eqn{-\lambda}):
+\deqn{N_R(w) = \kappa\, w^{-\lambda}}{c_R(w) = \kappa w^{-\lambda}}
+for all \eqn{w} less than \code{w_pp_cutoff} and zero for larger sizes.
 }
 
 \section{Size grid}{
@@ -238,19 +256,19 @@ You do not need to specify an interaction matrix. If you do not, then the
 predator-prey interactions are purely determined by the size of predator
 and prey and totally independent of the species of predator and prey.
 
-The interaction matrix \eqn{\theta_{ij}} describes the interaction of each
-pair of species in the model. This can be viewed as a proxy for spatial
-interaction e.g. to model predator-prey interaction that is not size based.
+The interaction matrix \eqn{\theta_{ij}} modifies the interaction of each
+pair of species in the model. This can be used for example to allow for
+different spatial overlap among the species.
 The values in the interaction matrix are used to scale the encountered food
 and predation mortality (see on the website \href{https://sizespectrum.org/mizer/articles/model_description.html#sec:pref}{the section on predator-prey encounter rate}
 and on \href{https://sizespectrum.org/mizer/articles/model_description.html#mortality}{predation mortality}).
 The first index refers to the predator species and the second to the prey
 species.
 
-It is used when calculating the food encounter rate in \code{\link[=getEncounter]{getEncounter()}} and
-the predation mortality rate in \code{\link[=getPredMort]{getPredMort()}}. Its entries are
-dimensionless numbers. If all the values in the interaction matrix are
-equal then predator-prey interactions are determined entirely by
+The interaction matrix is used when calculating the food encounter rate in
+\code{\link[=getEncounter]{getEncounter()}} and the predation mortality rate in \code{\link[=getPredMort]{getPredMort()}}. Its
+entries are dimensionless numbers. If all the values in the interaction
+matrix are equal then predator-prey interactions are determined entirely by
 size-preference.
 
 This function checks that the supplied interaction matrix is valid and then
@@ -261,7 +279,7 @@ the same as the order in the species params data frame in the \code{params}
 object. If you supply a named array then the function will check the order
 and warn if it is different. One way of creating your own interaction
 matrix is to enter the data using a spreadsheet program and saving it as a
-.csv file. The data can be read into R using the command \code{read.csv()}.
+.csv file. The data can then be read into R using the command \code{read.csv()}.
 
 The interaction of the species with the resource are set via a column
 \code{interaction_resource} in the \code{species_params} data frame. By default this
@@ -358,10 +376,10 @@ The values of \eqn{h_i} (the maximum intake rate of an individual of size 1
 gram) and \eqn{n_i} (the allometric exponent for the intake rate) are taken
 from the \code{h} and \code{n} columns in the species parameter dataframe. If
 the \code{h} column is not supplied in the species parameter dataframe, it is
-calculated by the \code{\link[=get_h_default]{get_h_default()}} function, using the \code{f0} and
-the \code{k_vb} column, if they are supplied.
+calculated by the \code{\link[=get_h_default]{get_h_default()}} function.
 
-If \eqn{h_i} is set to \code{Inf}, fish of species i will consume all encountered food.
+If \eqn{h_i} is set to \code{Inf}, fish of species i will consume all encountered
+food.
 }
 
 \section{Setting metabolic rate}{
@@ -396,12 +414,11 @@ The \code{ext_mort} argument allows you to specify an external mortality rate
 that depends on species and body size. You can see an example of this in
 the Examples section of the help page for \code{\link[=setExtMort]{setExtMort()}}.
 
-If the \code{ext_mort} argument is not supplied, then the external mortality
-is assumed to depend only on the species, not on the
-size of the individual: \eqn{\mu_{ext.i}(w) = z_{0.i}}. The value of the
-constant \eqn{z_0} for each species is taken from the \code{z0} column of the
-species parameter data frame, if that column exists. Otherwise it is calculated
-as
+If the \code{ext_mort} argument is not supplied, then the external mortality is
+assumed to depend only on the species, not on the size of the individual:
+\eqn{\mu_{ext.i}(w) = z_{0.i}}. The value of the constant \eqn{z_0} for each
+species is taken from the \code{z0} column of the species parameter data frame, if
+that column exists. Otherwise it is calculated as
 \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
 }
 
@@ -425,7 +442,7 @@ maturity ogive that changes from 0 to 1 at around the maturity size:
 although each species has its own maturity ogive.)
 The maturity weights are taken from the \code{w_mat} column of the
 species_params data frame. Any missing maturity weights are set to 1/4 of the
-asymptotic weight in the \code{w_inf} column.
+maximum weight in the \code{w_max} column.
 
 The exponent \eqn{U} determines the steepness of the maturity ogive. By
 default it is chosen as \eqn{U = 10}, however this can be overridden by
@@ -435,7 +452,7 @@ specifies the weight at which 25\% of individuals are mature, which sets
 
 The sigmoidal function given above would strictly reach 1 only asymptotically.
 Mizer instead sets the function equal to 1 already at the species'
-maximum size, taken from the compulsory \code{w_inf} column in the
+maximum size, taken from the compulsory \code{w_max} column in the
 species parameter data frame. Also, for computational simplicity, any
 proportion smaller than \code{1e-8} is set to \code{0}.
 }
@@ -444,15 +461,15 @@ proportion smaller than \code{1e-8} is set to \code{0}.
 If the the energy available to a mature individual that is
 invested into reproduction is not supplied via the \code{repro_prop} argument,
 it is set to the allometric form
-\deqn{{\tt repro\_prop}(w) = \left(\frac{w}{w_{inf}}\right)^{m-n}.}{
-  repro_prop(w) = (w/w_inf)^(m - n).}
+\deqn{{\tt repro\_prop}(w) = \left(\frac{w}{w_{max}}\right)^{m-n}.}{
+  repro_prop(w) = (w/w_max)^(m - n).}
 Here \eqn{n} is the scaling exponent of the energy income rate. Hence
 the exponent \eqn{m} determines the scaling of the investment into
 reproduction for mature individuals. By default it is chosen to be
 \eqn{m = 1} so that the rate at which energy is invested into reproduction
 scales linearly with the size. This default can be overridden by including a
-column \code{m} in the species parameter dataframe. The asymptotic sizes
-are taken from the compulsory \code{w_inf} column in the species parameter
+column \code{m} in the species parameter dataframe. The maximum sizes
+are taken from the compulsory \code{w_max} column in the species parameter
 data frame.
 
 The total proportion of energy invested into reproduction of an individual
@@ -582,27 +599,48 @@ an effort that varies through time.
 
 \section{Setting resource dynamics}{
 
-By default, mizer uses a semichemostat model to describe the resource
-dynamics in each size class independently. This semichemostat dynamics is implemented
-by the function \code{\link[=resource_semichemostat]{resource_semichemostat()}}. You can change the
-resource dynamics by writing your own function, modelled on
-\code{\link[=resource_semichemostat]{resource_semichemostat()}}, and then passing the name of your
-function in the \code{resource_dynamics} argument.
+You would usually set the resource dynamics only after having finished the
+calibration of the steady state. Then setting the resource dynamics with
+this function will preserve that steady state, unless you explicitly
+choose to set \code{balance = FALSE}. Your choice of the resource dynamics only
+affects the dynamics around the steady state. The higher the resource rate
+or the lower the resource capacity the less sensitive the model will be to
+changes in the competition for resource.
 
-The \code{resource_rate} argument is a vector specifying the intrinsic resource
-growth rate for each size class. If it is not supplied, then the intrinsic growth
-rate \eqn{r(w)} at size \eqn{w}
-is set to \deqn{r(w) = r_{pp}\, w^{n-1}.}{r(w) = r_pp w^{n-1}}
-The values of \eqn{r_{pp}} and \eqn{n} are taken from the \code{r_pp}
-and \code{n} arguments.
+The \code{resource_dynamics} argument allows you to choose the resource dynamics
+function. By default, mizer uses a semichemostat model to describe the
+resource dynamics in each size class independently. This semichemostat
+dynamics is implemented by the function \code{\link[=resource_semichemostat]{resource_semichemostat()}}. You can
+change that to use a logistic model implemented by \code{\link[=resource_logistic]{resource_logistic()}} or
+you can use \code{\link[=resource_constant]{resource_constant()}} which keeps the resource constant or you
+can write your own function.
 
-The \code{resource_capacity} argument is a vector specifying the intrinsic resource
-carrying capacity for each size class. If it is not supplied, then the
-intrinsic carrying capacity \eqn{c(w)} at size \eqn{w}
-is set to \deqn{c(w) = \kappa\, w^{-\lambda}}{c(w) = \kappa w^{-\lambda}}
+Both the \code{\link[=resource_semichemostat]{resource_semichemostat()}} and the \code{\link[=resource_logistic]{resource_logistic()}} dynamics
+are parametrised in terms of a size-dependent rate \eqn{r_R(w)} and a
+size-dependent capacity \eqn{c_R}. The help pages of these functions give
+the details.
+
+The \code{resource_rate} argument can be a vector (with the same length as
+\code{w_full(params)}) specifying the intrinsic resource growth rate for each size
+class. Alternatively it can be a single number, which is then used as the
+coefficient in a power law: then the intrinsic growth rate \eqn{r_R(w)} at
+size \eqn{w} is set to
+\deqn{r_R(w) = r_R w^{n-1}.}
+The power-law exponent \eqn{n} is taken from the \code{n} argument.
+
+The \code{resource_capacity} argument can be a vector specifying the intrinsic
+resource carrying capacity for each size class. Alternatively it can be a
+single number, which is then used as the coefficient in a truncated power
+law: then the intrinsic growth rate \eqn{c_R(w)} at size \eqn{w} is set to
+\deqn{c(w) = \kappa\, w^{-\lambda}}{c(w) = \kappa w^{-\lambda}}
 for all \eqn{w} less than \code{w_pp_cutoff} and zero for larger sizes.
-The values of \eqn{\kappa} and \eqn{\lambda} are taken from the \code{kappa}
-and \code{lambda} arguments.
+The power-law exponent \eqn{\lambda} is taken from the \code{lambda} argument.
+
+The values for \code{lambda}, \code{n} and \code{w_pp_cutoff} are stored in a list in the
+\code{resource_params} slot of the MizerParams object so that they can be re-used
+automatically in the future. That list can be accessed with
+\code{\link[=resource_params]{resource_params()}}. It also holds the coefficient \code{kappa} that describes the
+steady-state resource abundance.
 }
 
 \examples{

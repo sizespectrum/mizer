@@ -97,7 +97,7 @@ maturity ogive that changes from 0 to 1 at around the maturity size:
 although each species has its own maturity ogive.)
 The maturity weights are taken from the \code{w_mat} column of the
 species_params data frame. Any missing maturity weights are set to 1/4 of the
-asymptotic weight in the \code{w_inf} column.
+maximum weight in the \code{w_max} column.
 
 The exponent \eqn{U} determines the steepness of the maturity ogive. By
 default it is chosen as \eqn{U = 10}, however this can be overridden by
@@ -107,7 +107,7 @@ specifies the weight at which 25\% of individuals are mature, which sets
 
 The sigmoidal function given above would strictly reach 1 only asymptotically.
 Mizer instead sets the function equal to 1 already at the species'
-maximum size, taken from the compulsory \code{w_inf} column in the
+maximum size, taken from the compulsory \code{w_max} column in the
 species parameter data frame. Also, for computational simplicity, any
 proportion smaller than \code{1e-8} is set to \code{0}.
 }
@@ -116,15 +116,15 @@ proportion smaller than \code{1e-8} is set to \code{0}.
 If the the energy available to a mature individual that is
 invested into reproduction is not supplied via the \code{repro_prop} argument,
 it is set to the allometric form
-\deqn{{\tt repro\_prop}(w) = \left(\frac{w}{w_{inf}}\right)^{m-n}.}{
-  repro_prop(w) = (w/w_inf)^(m - n).}
+\deqn{{\tt repro\_prop}(w) = \left(\frac{w}{w_{max}}\right)^{m-n}.}{
+  repro_prop(w) = (w/w_max)^(m - n).}
 Here \eqn{n} is the scaling exponent of the energy income rate. Hence
 the exponent \eqn{m} determines the scaling of the investment into
 reproduction for mature individuals. By default it is chosen to be
 \eqn{m = 1} so that the rate at which energy is invested into reproduction
 scales linearly with the size. This default can be overridden by including a
-column \code{m} in the species parameter dataframe. The asymptotic sizes
-are taken from the compulsory \code{w_inf} column in the species parameter
+column \code{m} in the species parameter dataframe. The maximum sizes
+are taken from the compulsory \code{w_max} column in the species parameter
 data frame.
 
 The total proportion of energy invested into reproduction of an individual
@@ -185,7 +185,6 @@ ggplot(dff) + geom_line(aes(x = Size, y = Proportion, colour = Type))
 \seealso{
 Other functions for setting parameters: 
 \code{\link{gear_params}()},
-\code{\link{resource_params}()},
 \code{\link{setExtMort}()},
 \code{\link{setFishing}()},
 \code{\link{setInitialValues}()},
@@ -194,7 +193,6 @@ Other functions for setting parameters:
 \code{\link{setMetabolicRate}()},
 \code{\link{setParams}()},
 \code{\link{setPredKernel}()},
-\code{\link{setResource}()},
 \code{\link{setSearchVolume}()},
 \code{\link{species_params}()}
 }

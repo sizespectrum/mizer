@@ -1,7 +1,7 @@
 params <- newMultispeciesParams(NS_species_params_gears, inter)
 
 # basic constructor sets dimensions properly ----
-test_that("basic constructor sets dimensions properly",{
+test_that("basic constructor sets dimensions properly", {
     # check dimension against t input arguments
     # Make MizerSims with t_max and t_save
     t_max <- 5
@@ -39,7 +39,7 @@ test_that("basic constructor sets dimensions properly",{
     expect_identical(dimnames(sim@n)[[1]], as.character(t_dimnames))
 
     # Check error if t_dimnames is not numeric or not sorted
-    expect_error(MizerSim(params, t_dimnames = c("x","y","z")),
+    expect_error(MizerSim(params, t_dimnames = c("x", "y", "z")),
                  "The t_dimnames argument must be numeric")
     expect_error(MizerSim(params, t_dimnames = as.character(1:3)),
                  "The t_dimnames argument must be numeric")
@@ -47,12 +47,3 @@ test_that("basic constructor sets dimensions properly",{
                  "The t_dimnames argument should be increasing")
 })
 
-# upgradeSim leaves upgraded sim unchanged ----
-test_that("upgradeSim leaves upgraded sim unchanged", {
-    sim <- project(params, t_max = 0.1, t_save = 0.1)
-    comment(sim) <- "sim"
-    comment(sim@params) <- "params"
-    comment(sim@params@intake_max) <- "intake_max"
-    comment(sim@n) <- "n"
-    expect_unchanged(sim, upgradeSim(sim))
-})

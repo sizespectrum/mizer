@@ -72,7 +72,6 @@ for predators of size \eqn{w = 1} gram is the value of the species parameter
 \seealso{
 Other functions for setting parameters: 
 \code{\link{gear_params}()},
-\code{\link{resource_params}()},
 \code{\link{setExtMort}()},
 \code{\link{setFishing}()},
 \code{\link{setInitialValues}()},
@@ -82,7 +81,6 @@ Other functions for setting parameters:
 \code{\link{setParams}()},
 \code{\link{setPredKernel}()},
 \code{\link{setReproduction}()},
-\code{\link{setResource}()},
 \code{\link{species_params}()}
 }
 \concept{functions for setting parameters}

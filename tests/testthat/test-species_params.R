@@ -1,9 +1,5 @@
+local_edition(3)
 
-## Initialise ----
-params <- NS_params
-no_sp <- nrow(params@species_params)
-
-## validSpeciesParams ----
 test_that("validSpeciesParams() works", {
     species_params <- NS_species_params
     
@@ -11,38 +7,71 @@ test_that("validSpeciesParams() works", {
     sp <- species_params
     sp$w_mat[1] <- NA
     expect_message(sp <- validSpeciesParams(sp), NA)
-    expect_equal(sp$w_mat[1], sp$w_inf[1] / 4)
+    expect_equal(sp$w_mat[1], sp$w_max[1] / 4)
     sp$w_mat[2:4] <- 100
     expect_message(sp <- validSpeciesParams(sp),
                    "For the species Sandeel, N.pout the value")
-    expect_equal(sp$w_mat[2], sp$w_inf[2] / 4)
+    expect_equal(sp$w_mat[2], sp$w_max[2] / 4)
     
     # test w_mat25
     sp <- species_params
-    species_params$w_mat25 <- c(NA, 1:11)
-    expect_message(sp <- validSpeciesParams(species_params), NA)
-    species_params$w_mat25[2:5] <- 21
-    expect_message(validSpeciesParams(species_params),
+    sp$w_mat25 <- c(NA, 1:11)
+    expect_message(validSpeciesParams(sp), NA)
+    sp$w_mat25[2:5] <- 21
+    expect_message(sp <- validSpeciesParams(sp),
                    "For the species Sandeel, Dab the value")
+    expect_true(is.na(sp$w_mat25[[2]]))
+    expect_identical(sp$w_mat25[[3]], 21)
+    
+    # test w_min
+    sp <- species_params
+    sp$w_min <- c(NA, 1:11)
+    expect_message(validSpeciesParams(sp), NA)
+    sp$w_min[2:5] <- 21
+    expect_message(sp <- validSpeciesParams(sp),
+                   "For the species Sandeel, Dab the value")
+    expect_identical(sp$w_min[[2]], 0.001)
+    expect_identical(sp$w_min[[3]], 21)
+    
+    # test misspelling detection
+    sp$wmat <- 1
+    expect_warning(validSpeciesParams(sp),
+                   "very close to standard parameter names")
     
     # minimal species_params
     sp <- data.frame(species = c(2, 1),
-                     w_inf = c(100, 1000),
+                     w_max = c(100, 1000),
                      stringsAsFactors = FALSE)
     expect_s3_class(sp <- validSpeciesParams(sp), "data.frame")
-    expect_equal(sp$w_mat, sp$w_inf / 4)
+    expect_equal(sp$w_mat, sp$w_max / 4)
     expect_equal(sp$alpha, c(0.6, 0.6))
     expect_equal(sp$interaction_resource, c(1, 1))
     expect_identical(rownames(sp), c("2", "1"))
 })
 
-## set_species_param_default ----
+test_that("validSpeciesParams converts from length to weight", {
+    sp <- data.frame(species = 1:2,
+                     l_max = 1:2,
+                     a = 0.01, b = 3)
+    sp2 <- validSpeciesParams(sp)
+    expect_identical(sp2$w_max, c(0.01, 0.08))
+})
+
+
 test_that("set_species_param_default sets default correctly", {
+    params <- NS_params
+    no_sp <- nrow(params@species_params)
+    
+    # Add comments to test that they are preserved
+    comment(params@species_params) <- "top"
+    comment(params@species_params$w_max) <- "test"
     # creates new column correctly
     expect_condition(set_species_param_default(params, "hype", 2, "hi"),
                    "hi", class = "info_about_default")
     p2 <- set_species_param_default(params, "hype", 2, "hi")
     expect_identical(p2@species_params$hype, rep(2, no_sp))
+    expect_identical(comment(p2@species_params$w_max), "test")
+    expect_identical(comment(p2@species_params), "top")
     expect_message(sp2 <- set_species_param_default(params@species_params, "hype", 3), NA)
     expect_identical(sp2$hype, rep(3, no_sp))
     # does not change existing colunn
@@ -59,9 +88,10 @@ test_that("set_species_param_default sets default correctly", {
 })
 
 
-# Test default values ----
+
 test_that("default for gamma is correct", {
     params <- NS_params
+    # check that missing h is o.k.
     params@species_params$alpha <- 0.1
     species_params <- params@species_params
     gamma_default <- get_gamma_default(params)
@@ -81,14 +111,14 @@ test_that("default for gamma is correct", {
     gamma_analytic <- (species_params$h / (params@resource_params$kappa * ae)) * 
         (species_params$f0 / (1 - species_params$f0))
     # TODO: reduce the tolerance below
-    expect_equal(gamma_default/ gamma_analytic, 
+    expect_equal(gamma_default / gamma_analytic, 
                  rep(1, length(gamma_default)),
                  tolerance = 0.1)
 })
 
-# species_params<-() ----
+
 test_that("Setting species params works", {
-    params <- newMultispeciesParams(NS_species_params)
+    params <- newMultispeciesParams(NS_species_params, info_level = 0)
     # changing h changes intake_max
     h_old <- params@species_params$h[[1]]
     intake_max_old <- params@intake_max[1, 1]
@@ -123,4 +153,24 @@ test_that("Setting species params works", {
     species_params(params)$w_min[[1]] <- 1
     expect_identical(params@w_min_idx[[1]], 40)
     
+})
+
+
+test_that("set_species_params_from_length works", {
+    sp <- data.frame(species = 1:2, a = 0.01, b = 3)
+    # Does nothing if no length
+    expect_identical(set_species_param_from_length(sp, "w_mat", "l_mat"),
+                     sp)
+    # Converts as expected
+    sp$l_mat <- c(1, 2)
+    sp2 <- set_species_param_from_length(sp, "w_mat", "l_mat")
+    expect_identical(sp2$w_mat, c(0.01, 0.08))
+    # Detects inconsistency
+    sp2$w_mat[2] <- 3
+    expect_warning(set_species_param_from_length(sp2, "w_mat", "l_mat"),
+                   "not consistent: 2")
+    # Can deal with NAs
+    sp2$w_mat[2] <- NA
+    sp2 <- set_species_param_from_length(sp2, "w_mat", "l_mat")
+    expect_identical(sp2$w_mat, c(0.01, 0.08))
 })

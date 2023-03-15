@@ -132,7 +132,7 @@ First, load some required packages with the following commands:
 
 ```{r message=FALSE}
 library(mizer)
-library(tidyverse)
+library(dplyr)
 library(plotly)
 library(ggplot2)
 ```
@@ -471,7 +471,7 @@ lm(log(g_small_fish$value) ~ log(g_small_fish$w))
 
 ```{r include=FALSE}
 gm <- lm(log(g_small_fish$value) ~ log(g_small_fish$w))
-g0 <- round(gm$coefficients[[1]], digits=3)
+g0 <- round(gm$coefficients[[1]], digits = 3)
 ```
 
 The slope of the line is indeed $0.75 = 3/4$. In fact, the above shows
@@ -576,7 +576,7 @@ claimed that the exponent should be $-\mu_0 / g_0 - p$. We have already
 observed that $\mu_0 = `r m0`$ and $g_0 = `r g0`$ so we get
 
 ```{r}
--m0 / g0 - 3/4
+-m0 / g0 - 3 / 4
 ```
 
 That is not quite the result of the linear model fit, but that is the
@@ -607,12 +607,11 @@ ggplot(psi) +
 How was this maturity curve specified? You can find the details in the
 [mizer
 documentation](https://sizespectrum.org/mizer/reference/setReproduction.html#investment).
-There are four species parameters involved:
+We look at three species parameters that are involved:
 
 -   the maturity size `w_mat` at which 50% of the individuals are
     mature.
--   the size `w_mat25` at which 25% of the individuals are mature.
--   the asymptotic size `w_inf` at which an organism invests 100% of its
+-   the maximum size `w_max` at which the population invests 100% of its
     income into reproduction and thus growth is zero.
 -   an exponent `m` that determines how the proportion that an
     individual invests into reproduction scales with its size.
@@ -625,18 +624,17 @@ species_params(params)
 ```
 
 As you can see, there are a lot of other species parameters, some of
-which we will talk about later. For now let's just select the 4
+which we will talk about later. For now let's just select the three
 parameters we are interested in.
 
 ```{r}
-select(species_params(params), w_mat, w_mat25, w_inf, m)
+select(species_params(params), w_mat, w_max, m)
 ```
 
 ## Effect of change in maturity curve
 
 Let us investigate what happens when we change the maturity curve. Let's
-assume the maturity size is actually 40 grams and the size at which 25%
-of individuals is mature is 30 grams. Let us change the values in the
+assume the maturity size is actually 40 grams. Let us change the value in the
 `species_params` data frame. But first we make a copy of the params
 object so that we can keep the old version around unchanged.
 
@@ -648,15 +646,14 @@ In this copy we now change the species parameters
 
 ```{r}
 species_params(params_changed_maturity)$w_mat <- 40
-species_params(params_changed_maturity)$w_mat25 <- 30
-select(params_changed_maturity@species_params, w_mat, w_mat25, w_inf, m)
 ```
 
 Now the maturity curve has changed, which we can verify by plotting it
 
 ```{r}
-psi_changed_maturity <- melt(getMaturityProportion(params_changed_maturity) * 
-                               getReproductionProportion(params_changed_maturity))
+psi_changed_maturity <- 
+    melt(getMaturityProportion(params_changed_maturity) *
+             getReproductionProportion(params_changed_maturity))
 ggplot(psi_changed_maturity) +
   geom_line(aes(x = w, y = value)) +
   labs(x = "Weight [g]",
@@ -669,8 +666,8 @@ maturity curve in the same plot? First we add an extra column to each
 dataframe describing it
 
 ```{r}
-psi$type = "original"
-psi_changed_maturity$type = "changed"
+psi$type <- "original"
+psi_changed_maturity$type <- "changed"
 ```
 
 Then we bind the two data frames together

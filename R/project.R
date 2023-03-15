@@ -24,9 +24,9 @@ NULL
 #' @param object Either a \linkS4class{MizerParams} object or a 
 #'   \linkS4class{MizerSim} object (which contains a `MizerParams` object).
 #' @param effort The effort of each fishing gear through time. See notes below.
-#' @param t_max The number of years the projection runs for. The default value is
-#'   100. This argument is ignored if an array is used for the
-#'   `effort` argument. See notes below.
+#' @param t_max The number of years the projection runs for. The default value
+#'   is 100. This argument is ignored if an array is used for the `effort`
+#'   argument. See notes below.
 #' @param dt Time step of the solver. The default value is 0.1.
 #' @param t_save The frequency with which the output is stored. The default
 #'   value is 1. This argument is ignored if an array is used for the `effort`
@@ -35,22 +35,23 @@ NULL
 #'   will cover the period from `t_start` to \code{t_start + t_max}.
 #'   Defaults to 0. Ignored if an array is used for the `effort`
 #'   argument or a `MizerSim` for the `object` argument.
-#' @param initial_n `r lifecycle::badge("deprecated")` The initial abundances of species. Instead of
-#'   using this argument you should set `initialN(params)` to the desired value.
-#' @param initial_n_pp `r lifecycle::badge("deprecated")` The initial abundances of resource. Instead
-#'   of using this argument you should set `initialNResource(params)` to the
-#'   desired value.
+#' @param initial_n `r lifecycle::badge("deprecated")` The initial abundances of
+#'   species. Instead of using this argument you should set `initialN(params)`
+#'   to the desired value.
+#' @param initial_n_pp `r lifecycle::badge("deprecated")` The initial abundances
+#'   of resource. Instead of using this argument you should set
+#'   `initialNResource(params)` to the desired value.
 #' @param append A boolean that determines whether the new simulation results
 #'   are appended to the previous ones. Only relevant if `object` is a
 #'   `MizerSim` object. Default = TRUE.
 #' @param progress_bar Either a boolean value to determine whether a progress
-#'   bar should be shown in the console, or a shiny Progress object to implement 
+#'   bar should be shown in the console, or a shiny Progress object to implement
 #'   a progress bar in a shiny app.
 #' @param ... Other arguments will be passed to rate functions.
 #' 
-#' @note The `effort` argument specifies the level of fishing effort during
-#' the simulation. If it is not supplied, the initial effort stored in the params
-#' object is used. The effort can be specified in three different ways: 
+#' @note The `effort` argument specifies the level of fishing effort during the
+#'   simulation. If it is not supplied, the initial effort stored in the params
+#'   object is used. The effort can be specified in three different ways:
 #' \itemize{ 
 #' \item A single numeric value. This specifies the effort of all fishing gears
 #' which is constant through time (i.e. all the gears have the same constant
@@ -183,7 +184,7 @@ project <- function(object, effort,
     if (is(progress_bar, "Progress")) {
         # We have been passed a shiny progress object
         progress_bar$set(message = "Running simulation", value = 0)
-        proginc <- 1/length(times)
+        proginc <- 1 / length(times)
     } else if (progress_bar == TRUE) {
         pb <- progress::progress_bar$new(
             format = "[:bar] :percent ETA: :eta",
@@ -191,7 +192,8 @@ project <- function(object, effort,
         pb$tick(0)
     }
     
-    n_list <- list(n = initial_n, n_pp = initial_n_pp, n_other = initial_n_other)
+    n_list <- list(n = initial_n, n_pp = initial_n_pp,
+                   n_other = initial_n_other)
     t <- times[[1]]
     
     ## Loop over time ----
@@ -312,7 +314,8 @@ project_simple <-
     no_sp <- nrow(params@species_params) # number of species
     no_w <- length(params@w) # number of fish size bins
     idx <- 2:no_w
-    # Hacky shortcut to access the correct element of a 2D array using 1D notation
+    # Hacky shortcut to access the correct element of a 2D array using 1D 
+    # notation
     # This references the egg size bracket for all species, so for example
     # n[w_min_idx_array_ref] = n[,w_min_idx]
     w_min_idx_array_ref <- (params@w_min_idx - 1) * no_sp + (1:no_sp)
@@ -359,7 +362,7 @@ project_simple <-
         # b_{ij} = 1 + g_i(w_j) / dw_j dt + \mu_i(w_j) dt
         b[] <- 1 + sweep(r$e_growth * dt, 2, params@dw, "/") + r$mort * dt
         # S_{ij} <- N_i(w_j)
-        S[,idx] <- n[, idx, drop = FALSE]
+        S[, idx] <- n[, idx, drop = FALSE]
         # Update first size group of n
         n[w_min_idx_array_ref] <-
             (n[w_min_idx_array_ref] + r$rdd * dt / 
@@ -389,7 +392,7 @@ validEffortArray <- function(effort, params) {
     if (dim(effort)[2] != no_gears) {
         stop("The number of gears in the effort array (length of the second dimension = ", 
              dim(effort)[2], 
-             ") does not equal the number of gears in the MizerParams object (", 
+             ") does not equal the number of gears in the MizerParams object (",
              no_gears, ").")
     }
     gear_names <- dimnames(params@catchability)[[1]]

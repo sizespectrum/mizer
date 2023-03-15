@@ -4,7 +4,7 @@ species_params <- NS_species_params
 w <- NS_params@w
 
 # knife-edge ----
-test_that("knife-edge selectivity function is working properly",{
+test_that("knife-edge selectivity function is working properly", {
     expect_length(knife_edge(w, 20, species_params = species_params[1, ]),
                   length(w))
     

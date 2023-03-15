@@ -7,6 +7,7 @@
 plotDataFrame(
   frame,
   params,
+  style = "line",
   xlab = waiver(),
   ylab = waiver(),
   xtrans = "identity",
@@ -14,7 +15,8 @@ plotDataFrame(
   y_ticks = 6,
   highlight = NULL,
   legend_var = NULL,
-  wrap_var = NULL
+  wrap_var = NULL,
+  wrap_scale = NULL
 )
 }
 \arguments{
@@ -28,6 +30,9 @@ The first three variables are used, in that order, as:
 
 \item{params}{A MizerParams object, which is used for the line colours and
 line types.}
+
+\item{style}{The style of the plot. Available options are "line' for geom_line
+and "area" for geom_area. Default is "line".}
 
 \item{xlab}{Label for the x-axis}
 
@@ -48,6 +53,8 @@ used for this purpose.}
 
 \item{wrap_var}{Optional. The name of the variable that should be used for
 creating wrapped facets.}
+
+\item{wrap_scale}{Optional. Used to pass the scales argument to facet_wrap().}
 }
 \description{
 This is used internally by most plotting functions.

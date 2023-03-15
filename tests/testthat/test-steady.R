@@ -1,3 +1,4 @@
+local_edition(3)
 # projectToSteady ----
 test_that("projectToSteady() works", {
     params <- NS_params
@@ -35,56 +36,63 @@ test_that("projectToSteady() works", {
     
     # Check extinction
     params@psi[5:6, ] <- 0
-    expect_warning(projectToSteady(params),
+    expect_warning(projectToSteady(params) |> suppressMessages(),
                    "Dab, Whiting are going extinct.")
 })
 
 # steady ----
 test_that("steady works", {
-    expect_message(params <- newTraitParams(no_sp = 4, no_w = 30,
-                                            n = 2/3, lambda = 2 + 3/4 - 2/3,
-                                            max_w_inf = 1e3, min_w = 1e-4,
-                                            w_pp_cutoff = 10, ks = 4,
-                                            reproduction_level = 0),
-                   "Increased no_w to 36")
+    expect_message(
+        params <- newTraitParams(no_sp = 4, no_w = 30,
+                                 n = 2/3, lambda = 2 + 3/4 - 2/3,
+                                 max_w_max = 1e3, min_w = 1e-4,
+                                 w_pp_cutoff = 10, ks = 4,
+                                 reproduction_level = 0),
+        "Increased no_w to 36")
     params@species_params$gamma[2] <- 2000
     params <- setSearchVolume(params)
-    p <- steady(params, t_per = 2)
-    expect_known_value(getRDD(p), "values/steady")
+    p <- steady(params, t_per = 2) |>
+        suppressMessages()
+    expect_snapshot_value(getRDD(p), style = "deparse")
     # and works the same when returning sim
-    sim <- steady(params, t_per = 2, return_sim = TRUE)
-    expect_is(sim, "MizerSim")
-    expect_known_value(getRDD(sim@params), "values/steady")
+    sim <- steady(params, t_per = 2, return_sim = TRUE) |>
+        suppressMessages()
+    expect_s4_class(sim, "MizerSim")
+    expect_snapshot_value(getRDD(sim@params), style = "deparse")
 })
 
-test_that("steady() preserves erepro", {
+test_that("steady() preserves reproduction function", {
     params <- NS_params
     params@rates_funcs$RDD <- "noRDD"
-    p2 <- steady(params, t_per = 1)
+    p2 <- steady(params, t_per = 1, t_max = 1) |> suppressMessages()
     expect_equal(params@rates_funcs$RDD, "noRDD")
 })
 test_that("steady() preserves erepro", {
     params <- NS_params
     species_params(params)$R_max <- 1.01 * species_params(params)$R_max
-    p2 <- steady(params, t_per = 1, preserve = "erepro")
+    p2 <- steady(params, t_per = 1, preserve = "erepro") |>
+        suppressMessages()
     expect_equal(p2@species_params$erepro, params@species_params$erepro)
 })
 test_that("steady() preserves reproduction level", {
     params <- NS_params
     species_params(params)$R_max <- 1.01 * species_params(params)$R_max
-    p2 <- steady(params, t_per = 1, preserve = "reproduction_level")
+    p2 <- steady(params, t_per = 1, preserve = "reproduction_level") |>
+        suppressMessages()
     expect_equal(getReproductionLevel(p2), getReproductionLevel(params))
 })
 test_that("steady() preserves R_max", {
     params <- NS_params
     species_params(params)$erepro <- 1.01 * species_params(params)$erepro
-    expect_warning(p2 <- steady(params, t_per = 1, preserve = "R_max"),
+    expect_warning(p2 <- steady(params, t_per = 1, preserve = "R_max") |>
+                       suppressMessages(),
                    "The following species require an unrealistic reproductive")
     expect_equal(p2@species_params$R_max, params@species_params$R_max)
 })
 
 # valid_species_arg ----
 test_that("valid_species_arg works", {
+    # character species argument
     expect_warning(s <- valid_species_arg(NS_params, c("non", "sense")),
                    "The following species do not exist: non, sense")
     expect_identical(s, vector(mode = "character"))
@@ -94,6 +102,10 @@ test_that("valid_species_arg works", {
     expect_identical(valid_species_arg(NS_params, c("Sprat", "Sandeel"),
                                        return.logical = TRUE),
                      c(TRUE, TRUE, rep(FALSE, 10)))
+    expect_error(
+        valid_species_arg(NS_params, c("non", "sense"), error_on_empty = TRUE) |>
+            suppressWarnings(),
+        "No species have been selected.")
     # numeric species argument
     expect_warning(s <- valid_species_arg(NS_params, c(2.5, 13)),
                  "A numeric 'species' argument should only contain the integers 1 to 12")
@@ -105,6 +117,10 @@ test_that("valid_species_arg works", {
     expect_identical(valid_species_arg(NS_params, c(3, 1),
                                        return.logical = TRUE),
                      c(TRUE, FALSE, TRUE, rep(FALSE, 9)))
+    expect_error(
+        valid_species_arg(NS_params, 13, error_on_empty = TRUE) |>
+            suppressWarnings(),
+        "No species have been selected.")
     # logical species argument
     expect_error(valid_species_arg(NS_params, c(TRUE, FALSE)),
                  "The boolean `species` argument has the wrong length")
@@ -115,6 +131,10 @@ test_that("valid_species_arg works", {
                                        c(TRUE, FALSE, TRUE, rep(FALSE, 9)),
                                        return.logical = TRUE),
                      c(TRUE, FALSE, TRUE, rep(FALSE, 9)))
+    expect_error(
+        valid_species_arg(NS_params, rep(FALSE, 12), error_on_empty = TRUE) |>
+            suppressWarnings(),
+        "No species have been selected.")
     # called with MizerSim object
     sim <- project(NS_params, t_max = 1, dt = 1)
     expect_identical(valid_species_arg(sim, "Cod"),

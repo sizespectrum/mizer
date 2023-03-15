@@ -9,7 +9,7 @@ set_multispecies_model(
   interaction = matrix(1, nrow = nrow(species_params), ncol = nrow(species_params)),
   min_w_pp = 1e-10,
   min_w = 0.001,
-  max_w = max(species_params$w_inf) * 1.1,
+  max_w = NULL,
   no_w = 100,
   n = 2/3,
   q = 0.8,
@@ -34,7 +34,7 @@ is set to the smallest value at which any of the consumers can feed.}
 given in the \code{w_min} column of the \code{species_params} dataframe.}
 
 \item{max_w}{The largest size of the consumer spectrum. By default this is
-set to the largest \code{w_inf} specified in the \code{species_params} data
+set to the largest \code{w_max} specified in the \code{species_params} data
 frame.}
 
 \item{no_w}{The number of size bins in the consumer spectrum.}
@@ -48,11 +48,13 @@ species by including a \code{n} column in the \code{species_params}.}
 coefficient in the search rate. Ignored if \code{gamma} is given
 explicitly.}
 
-\item{kappa}{Coefficient of the intrinsic resource carrying capacity}
+\item{kappa}{The coefficient of the initial resource abundance power-law.}
 
-\item{lambda}{Scaling exponent of the intrinsic resource carrying capacity}
+\item{lambda}{Used to set power-law exponent for resource capacity if the
+\code{resource_capacity} argument is given as a single number.}
 
-\item{r_pp}{Coefficient of the intrinsic resource birth rate}
+\item{r_pp}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}. Use \code{resource_rate} argument
+instead.}
 
 \item{...}{Unused}
 }

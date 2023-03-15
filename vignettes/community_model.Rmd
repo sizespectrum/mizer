@@ -83,15 +83,15 @@ In the summary you can see that the size range of the community spectrum has
 been set from $`r min(w(params))`$ to $`r max(w(params))`$ and this is divided
 into $`r length(w(params))`$ size bins. Similar information is available for the
 resource spectrum. Additionally, the community is made up of only one species,
-called *Community*, which has an asymptotic size of 
-$`r species_params(params)$w_inf[1]`$ and a preferred predator prey mass ratio of 
+called *Community*, which has an maximum size of 
+$`r species_params(params)$w_max[1]`$ and a preferred predator prey mass ratio of 
 $`r species_params(params)$beta[1]`$. The `w_mat` parameter has been set to `NA` as
 it is not used when running a community model. These values have all been set by
 default using the `newCommunityParams()` function. 
 
 ## Running the community model {#sec:running_comm_model}
-By using the `newCommunityParams()` function we now have a `MizerParams` object
-that contains all the information we need about the model community. We can use
+The `newCommunityParams()` function has given us a `MizerParams` object
+that contains all the information mizer needs about the model community. We can use
 this to perform a simulation and project the community through time. In the
 `mizer` package, projections are performed using the `project()` function. You can
 see the help page for `project()` for more details and it is described fully in
@@ -100,7 +100,7 @@ the details for the moment and just use `project()` to run some simple
 projections. The arguments for `project()` that we need to be concerned with are
 `effort`, which determines the fishing effort (and therefore fishing mortality)
 through time, and `t_max`, which is the number of years we want to project into the future. Initial
-population abundances are set automatically by the `get_initial_n()` function.
+population abundances have been set automatically (by the `get_initial_n()` function).
 It is possible to set your own initial abundances but we will not do this here.
 
 To run a projection for 50 years, with no fishing effort (i.e. we want to

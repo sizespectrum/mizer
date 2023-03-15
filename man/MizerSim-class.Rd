@@ -55,7 +55,7 @@ densities.}
 \item{\code{n_other}}{A list array (time x component) that stores the projected
 values for other ecosystem components.}
 
-\item{\code{effort}}{An array (time x gear) that stores the fishing effort by time and
-gear.}
+\item{\code{effort}}{An array (time x gear) that stores the fishing effort by time
+and gear.}
 }}
 

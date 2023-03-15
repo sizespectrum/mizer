@@ -30,7 +30,7 @@ The species in the model are:
 which account for about 90% of the total biomass of all species sampled by
 research trawl surveys in the North Sea. The `NS_species_params` object that
 comes as an example with the mizer package is a
-data.frame with columns for `species`, `w_inf`, `w_mat`, `beta`, `sigma`,
+data.frame with columns for `species`, `w_max`, `w_mat`, `beta`, `sigma`,
 `k_vb` and `R_max`.
 ```{r}
 NS_species_params
@@ -142,7 +142,7 @@ was in 1990. The effort in the other years will be relative to the effort in
 1990.
 
 ```{r label=set_catchability}
-gear_params$catchability <- as.numeric(f_history["1990",])
+gear_params$catchability <- as.numeric(f_history["1990", ])
 ```
 
 Considering the other model parameters, we will use default values for all of
@@ -171,8 +171,8 @@ using R function `sweep()`. We then check a few rows of the effort matrix to
 check this has happened:
 
 ```{r label=rescale_effort}
-relative_effort <- sweep(f_history,2,f_history["1990",],"/")
-relative_effort[as.character(1988:1992),]
+relative_effort <- sweep(f_history, 2, f_history["1990", ], "/")
+relative_effort[as.character(1988:1992), ]
 ```
 
 We could just project forward with these relative efforts. However, the
@@ -240,7 +240,7 @@ lfi0 <- getProportionOfLargeFish(sim0, species = demersal_species,
                                  min_w = 10, max_w = 100e3, 
                                  threshold_l = 40)[[final]]
 mw0 <- getMeanWeight(sim0, species = demersal_species,
-                     min_w = 10,max_w = 100e3)[[final]]
+                     min_w = 10, max_w = 100e3)[[final]]
 mmw0 <- getMeanMaxWeight(sim0, species = demersal_species,
                          min_w = 10, max_w = 100e3)[final, "mmw_biomass"]
 slope0 <- getCommunitySlope(sim0, species = demersal_species,
@@ -290,7 +290,7 @@ ggplot(community_plot_data) +
     facet_wrap(~measure, scales = "free") + 
     geom_line(aes(x = year, y = data), linetype = "dashed",
               data = community_unfished_data) +
-    geom_line(aes(x=year,y=data), linetype = "dotted",
+    geom_line(aes(x = year, y = data), linetype = "dotted",
               data = community_reference_level)
 ```
 

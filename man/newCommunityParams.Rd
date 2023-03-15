@@ -25,7 +25,7 @@ newCommunityParams(
 )
 }
 \arguments{
-\item{max_w}{The maximum size of the community. The \code{w_inf} of the
+\item{max_w}{The maximum size of the community. The \code{w_max} of the
 species used to represent the community is set to this value.}
 
 \item{min_w}{The minimum size of the community.}
@@ -56,18 +56,20 @@ spectrum. This value is used to calculate the search rate parameter
 the maximum intake rate of the community as well as the intrinsic growth
 rate of the resource.}
 
-\item{kappa}{Coefficient of the intrinsic resource carrying capacity}
+\item{kappa}{The coefficient of the initial resource abundance power-law.}
 
-\item{lambda}{Scaling exponent of the intrinsic resource carrying capacity}
+\item{lambda}{Used to set power-law exponent for resource capacity if the
+\code{resource_capacity} argument is given as a single number.}
 
-\item{r_pp}{Coefficient of the intrinsic resource birth rate}
+\item{r_pp}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}. Use \code{resource_rate} argument
+instead.}
 
 \item{knife_edge_size}{The size at the edge of the knife-edge-selectivity
 function.}
 
-\item{reproduction}{The constant reproduction in the smallest size class of the
-community spectrum. By default this is set so that the community spectrum
-is continuous with the resource spectrum.}
+\item{reproduction}{The constant reproduction in the smallest size class of
+the community spectrum. By default this is set so that the community
+spectrum is continuous with the resource spectrum.}
 }
 \value{
 An object of type \code{\linkS4class{MizerParams}}
@@ -75,10 +77,11 @@ An object of type \code{\linkS4class{MizerParams}}
 \description{
 This functions creates a \code{\linkS4class{MizerParams}} object describing a
 community-type model.
+The function has many arguments, all of which have default values.
 }
 \details{
-A community model has several features that distinguish it from a multi-species
-model:
+A community model has several features that distinguish it from a
+multi-species model:
 \itemize{
 \item Species identities of individuals are ignored. All are aggregated into a
 single community.
@@ -89,8 +92,6 @@ reproduction, which is set to 0.
 Consequently, the growth rate is now determined solely by the assimilated
 food
 }
-
-The function has many arguments, all of which have default values.
 
 Fishing selectivity is modelled as a knife-edge function with one parameter,
 \code{knife_edge_size}, which determines the size at which species are
@@ -104,12 +105,16 @@ check for these numerical instabilities by plotting the biomass or abundance
 through time after the projection.
 }
 \examples{
-\dontrun{
-params <- newCommunityParams(f0 = 0.7, z0 = 0.2)
+params <- newCommunityParams()
 sim <- project(params, t_max = 10)
 plotBiomass(sim)
-plotSpectra(sim)
-}
+plotSpectra(sim, power = 2)
+
+# More satiation. More mortality
+params <- newCommunityParams(f0 = 0.8, z0 = 0.4)
+sim <- project(params, t_max = 10)
+plotBiomass(sim)
+plotSpectra(sim, power = 2)
 }
 \references{
 K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and

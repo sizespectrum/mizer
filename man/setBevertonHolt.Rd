@@ -2,7 +2,7 @@
 % Please edit documentation in R/setBevertonHolt.R
 \name{setBevertonHolt}
 \alias{setBevertonHolt}
-\title{Set Beverton-Holt density dependence}
+\title{Set Beverton-Holt reproduction without changing the steady state}
 \usage{
 setBevertonHolt(
   params,
@@ -30,7 +30,8 @@ A MizerParams object
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-Takes a MizerParams object \code{params} with arbitrary density dependence and
+Takes a MizerParams object \code{params} with arbitrary density dependence in
+reproduction and
 returns a MizerParams object with Beverton-Holt density-dependence in such a
 way that the energy invested into reproduction by the mature individuals
 leads to the reproduction rate that is required to maintain the given egg
@@ -123,7 +124,7 @@ t(species_params(params)[, c("erepro", "R_max")])
 params <- setBevertonHolt(params, erepro = c("Gurnard" = 0.6, "Plaice" = 0.95))
 t(species_params(params)[, c("erepro", "R_max")])
 # Setting R_max
-R_max <- 1e17 * species_params(params)$w_inf^-1
+R_max <- 1e17 * species_params(params)$w_max^-1
 params <- setBevertonHolt(NS_params, R_max = R_max)
 t(species_params(params)[, c("erepro", "R_max")])
 # Setting reproduction_level

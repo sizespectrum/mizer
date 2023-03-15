@@ -426,7 +426,7 @@ getGrowthCurves <- function(object,
     g <- getEGrowth(params)
     for (j in seq_along(species)) {
         i <- idx[j]
-        g_fn <- stats::approxfun(c(params@w, params@species_params$w_inf[[i]]),
+        g_fn <- stats::approxfun(c(params@w, params@species_params$w_max[[i]]),
                                  c(g[i, ], 0))
         myodefun <- function(t, state, parameters) {
             return(list(g_fn(state)))
@@ -434,7 +434,7 @@ getGrowthCurves <- function(object,
         ws[j, ] <- deSolve::ode(y = params@w[params@w_min_idx[i]], 
                                 times = age, func = myodefun)[, 2]
         if (percentage) {
-            ws[j, ] <- ws[j, ] / params@species_params$w_inf[i] * 100
+            ws[j, ] <- ws[j, ] / params@species_params$w_max[i] * 100
         }
     }
     return(ws)
@@ -478,7 +478,7 @@ get_size_range_array <- function(params, min_w = min(params@w),
                                  max_w = max(params@w), 
                                  min_l = NULL, max_l = NULL, ...) {
     no_sp <- nrow(params@species_params)
-    if (!is.null(min_l) | !is.null(max_l)) {
+    if (!is.null(min_l) || !is.null(max_l)) {
         if (any(!c("a", "b") %in% names(params@species_params))) {
             stop("species_params slot must have columns 'a' and 'b' for ",
                  "length-weight conversion")
@@ -513,8 +513,8 @@ get_size_range_array <- function(params, min_w = min(params@w),
              value for each species.")
     }
     if (!all(min_w < max_w)) stop("min_w must be less than max_w")
-    min_n <- plyr::aaply(min_w, 1, function(x) params@w >= x, .drop = FALSE)
-    max_n <- plyr::aaply(max_w, 1, function(x) params@w <= x, .drop = FALSE)
+    min_n <- t(sapply(min_w, function(x) params@w >= x))
+    max_n <- t(sapply(max_w, function(x) params@w <= x))
     size_n <- min_n & max_n
     dimnames(size_n) <- list(sp = params@species_params$species, 
                              w = signif(params@w, 3)) 
@@ -546,10 +546,10 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
     cat("\tmaximum size:\t", signif(max(params@w_full[params@initial_n_pp > 0])), 
         "\n", sep = "")
     cat("\tno. size bins:\t", length(params@w_full[params@initial_n_pp > 0]), 
-        "\t(", length(params@w_full)," size bins in total)\n", sep = "")
+        "\t(", length(params@w_full), " size bins in total)\n", sep = "")
     cat("Species details:\n")
-    sel_params <- intersect(c("species","w_inf","w_mat", "w_min", "f0", "fc", 
-                              "k_vb", "beta", "sigma"),
+    sel_params <- intersect(c("species", "w_max", "w_mat", "w_min", "f0", "fc", 
+                              "age_mat", "beta", "sigma"),
                             names(params@species_params))
     sp <- params@species_params[, sel_params]
     rownames(sp) <- NULL
@@ -558,7 +558,7 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
     cat(sprintf("%-13s %s %s", "Gear", "Effort", " Target species"), "\n",
         "----------------------------------\n")
     gears <- dimnames(params@catchability)$gear
-    for (i in 1:dim(params@catchability)[1]) {
+    for (i in seq_len(dim(params@catchability)[1])) {
         splist <- dimnames(params@catchability)$sp[params@catchability[i, ] > 0]
         cat(sprintf("%-14s %1.2f   %s",
                 gears[i], params@initial_effort[[gears[i]]],
@@ -578,7 +578,7 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
 #' @concept summary_function
 #' @examples
 #' summary(NS_sim)
-setMethod("summary", signature(object = "MizerSim"), function(object, ...){
+setMethod("summary", signature(object = "MizerSim"), function(object, ...) {
     cat("An object of class \"", as.character(class(object)), "\" \n", sep = "")
     cat("Parameters:\n")
     summary(object@params)
@@ -712,7 +712,7 @@ getProportionOfLargeFish <- function(sim,
 #' mean_weight[years]
 #' getMeanWeight(NS_sim, species = c("Herring", "Sprat", "N.pout"))[years]
 #' getMeanWeight(NS_sim, min_w = 10, max_w = 5000)[years]
-getMeanWeight <- function(sim, species = NULL, ...){
+getMeanWeight <- function(sim, species = NULL, ...) {
     assert_that(is(sim, "MizerSim"))
     species <- valid_species_arg(sim, species)
     n_species <- getN(sim, ...)
@@ -726,7 +726,7 @@ getMeanWeight <- function(sim, species = NULL, ...){
 #' Calculate the mean maximum weight of the community
 #'
 #' Calculates the mean maximum weight of the community through time. This can be
-#' calculated by numbers or biomass. The calculation is the sum of the w_inf *
+#' calculated by numbers or biomass. The calculation is the sum of the w_max *
 #' abundance of each species, divided by the total abundance community, where
 #' abundance is either in biomass or numbers. You can specify minimum and
 #' maximum weight or length range for the species. Lengths take precedence over
@@ -760,8 +760,8 @@ getMeanMaxWeight <- function(sim, species = NULL,
     species <- valid_species_arg(sim, species)
     n_species <- getN(sim, ...)
     biomass_species <- getBiomass(sim, ...)
-    n_winf <- apply(sweep(n_species, 2, sim@params@species_params$w_inf,"*")[,species,drop=FALSE], 1, sum)
-    biomass_winf <- apply(sweep(biomass_species, 2, sim@params@species_params$w_inf,"*")[,species,drop=FALSE], 1, sum)
+    n_winf <- apply(sweep(n_species, 2, sim@params@species_params$w_max, "*")[,species, drop = FALSE], 1, sum)
+    biomass_winf <- apply(sweep(biomass_species, 2, sim@params@species_params$w_max,"*")[, species, drop = FALSE], 1, sum)
     mmw_numbers <- n_winf / apply(n_species, 1, sum)
     mmw_biomass <- biomass_winf / apply(biomass_species, 1, sum)
     if (measure == "numbers")
@@ -833,7 +833,7 @@ getCommunitySlope <- function(sim, species = NULL,
     # fit linear model at every time and put result in data frame
     slope <- plyr::adply(total_n, 1, function(x, w) {
         summary_fit <- summary(lm(log(x) ~ log(w)))
-        out_df <- data.frame(
+        data.frame(
             slope = summary_fit$coefficients[2, 1],
             intercept = summary_fit$coefficients[1, 1],
             r2 = summary_fit$r.squared

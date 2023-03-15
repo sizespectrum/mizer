@@ -138,9 +138,10 @@ mizerRates <- function(params, n, n_pp, n_other,
 #' `interaction_resource` column in `params@species_params`.
 #' 
 #' @section Details:
-#' The encounter rate is multiplied by \eqn{1-f_0} to obtain the consumption rate,
-#' where \eqn{f_0} is the feeding level calculated with [getFeedingLevel()].
-#' This is used by the [project()] function for performing simulations.
+#' The encounter rate is multiplied by \eqn{1-f_0} to obtain the consumption
+#' rate, where \eqn{f_0} is the feeding level calculated with
+#' [getFeedingLevel()]. This is used by the [project()] function for performing
+#' simulations.
 #' 
 #' The function returns values also for sizes outside the size-range of the
 #' species. These values should not be used, as they are meaningless.
@@ -460,7 +461,7 @@ mizerPredRate <- function(params, n, n_pp, n_other, t, feeding_level, ...) {
     if (!is.null(comment(params@pred_kernel))) {
         n_total_in_size_bins <- sweep(n, 2, params@dw, '*', check.margin = FALSE)
         # The next line is a bottle neck
-        pred_rate <- sweep(params@pred_kernel, c(1,2),
+        pred_rate <- sweep(params@pred_kernel, c(1, 2),
                            (1 - feeding_level) * params@search_vol * 
                                n_total_in_size_bins,
                            "*", check.margin = FALSE)

@@ -62,16 +62,16 @@ a vector, must be named by gear.}
 \code{setFishing()}: A MizerParams object with updated fishing
 parameters.
 
-\code{getCatchability()} or equivalently \code{catchability()}: An array (gear x species) that holds the catchability of
-each species by each gear, \eqn{Q_{g,i}}.
-The names of the dimensions are "gear, "sp".
+\code{getCatchability()} or equivalently \code{catchability()}: An array (gear
+x species) that holds the catchability of each species by each gear,
+\eqn{Q_{g,i}}. The names of the dimensions are "gear, "sp".
 
-\code{getSelectivity()} or equivalently \code{selectivity()}: An array (gear x species x size) that holds
-the selectivity of each gear for species and size, \eqn{S_{g,i,w}}.
-The names of the dimensions are "gear, "sp", "w".
+\code{getSelectivity()} or equivalently \code{selectivity()}: An array (gear x
+species x size) that holds the selectivity of each gear for species and
+size, \eqn{S_{g,i,w}}. The names of the dimensions are "gear, "sp", "w".
 
-\code{getInitialEffort()} or equivalently \code{initial_effort()}: A named vector with the initial fishing
-effort for each gear.
+\code{getInitialEffort()} or equivalently \code{initial_effort()}: A named
+vector with the initial fishing effort for each gear.
 }
 \description{
 Set fishing parameters
@@ -172,7 +172,6 @@ str(getInitialEffort(NS_params))
 
 Other functions for setting parameters: 
 \code{\link{gear_params}()},
-\code{\link{resource_params}()},
 \code{\link{setExtMort}()},
 \code{\link{setInitialValues}()},
 \code{\link{setInteraction}()},
@@ -181,7 +180,6 @@ Other functions for setting parameters:
 \code{\link{setParams}()},
 \code{\link{setPredKernel}()},
 \code{\link{setReproduction}()},
-\code{\link{setResource}()},
 \code{\link{setSearchVolume}()},
 \code{\link{species_params}()}
 }

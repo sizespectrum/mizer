@@ -4,16 +4,23 @@
 \alias{setInitialValues}
 \title{Set initial values to values from a simulation}
 \usage{
-setInitialValues(params, sim, time_range)
+setInitialValues(params, sim, time_range, geometric_mean = FALSE)
 }
 \arguments{
-\item{params}{A \code{\link[=MizerParams]{MizerParams()}} object}
+\item{params}{A \code{MizerParams} object in which to set the initial values}
 
-\item{sim}{A \code{MizerSim} object.}
+\item{sim}{A \code{MizerSim} object from which to take the values.}
 
-\item{time_range}{The time range (either a vector of values, a vector of min
-and max time, or a single value) to average the abundances over. Default is
-the final time step.}
+\item{time_range}{The time range to average the abundances over. Can be a
+vector of values, a vector of min and max time, or a single value. Only the
+range of times is relevant, i.e., all times between the smallest and
+largest will be selected.  Default is the final time step.}
+
+\item{geometric_mean}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If TRUE then the average of the abundances over the
+time range is a geometric mean instead of the default arithmetic mean. This
+does not affect the average of the effort or of other components, which is
+always arithmetic.}
 }
 \value{
 The \code{params} object with updated initial values and initial effort.
@@ -35,6 +42,14 @@ set to the effort in the MizerSim object, again averaged over that range
 of times.
 When no time range is specified, the initial values are taken from the final
 time step of the simulation.
+
+If the model described by \code{sim} and \code{params} has additional components
+created with \code{\link[=setComponent]{setComponent()}} then the values of these components are also
+averaged and copied to \code{params}.
+
+The MizerSim object must come from a model with the same set of species and
+gears and other components and the same size bins as the MizerParams object.
+Otherwise an error is raised.
 }
 \examples{
 \dontrun{
@@ -46,7 +61,6 @@ params <- setInitialValues(params, sim)
 \seealso{
 Other functions for setting parameters: 
 \code{\link{gear_params}()},
-\code{\link{resource_params}()},
 \code{\link{setExtMort}()},
 \code{\link{setFishing}()},
 \code{\link{setInteraction}()},
@@ -55,7 +69,6 @@ Other functions for setting parameters:
 \code{\link{setParams}()},
 \code{\link{setPredKernel}()},
 \code{\link{setReproduction}()},
-\code{\link{setResource}()},
 \code{\link{setSearchVolume}()},
 \code{\link{species_params}()}
 }

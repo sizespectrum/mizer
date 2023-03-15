@@ -6,17 +6,17 @@
 \usage{
 newSingleSpeciesParams(
   species_name = "Target species",
-  w_inf = 100,
+  w_max = 100,
   w_min = 0.001,
   eta = 10^(-0.6),
-  w_mat = w_inf * eta,
-  no_w = log10(w_inf/w_min) * 20 + 1,
+  w_mat = w_max * eta,
+  no_w = log10(w_max/w_min) * 20 + 1,
   n = 3/4,
   p = n,
   lambda = 2.05,
   kappa = 0.005,
   alpha = 0.4,
-  k_vb = 1,
+  h = 30,
   beta = 100,
   sigma = 1.3,
   f0 = 0.6,
@@ -25,23 +25,25 @@ newSingleSpeciesParams(
   gamma = NA,
   ext_mort_prop = 0,
   reproduction_level = 0,
-  R_factor = deprecated()
+  R_factor = deprecated(),
+  w_inf = deprecated(),
+  k_vb = deprecated()
 )
 }
 \arguments{
 \item{species_name}{A string with a name for the species. Will be used in
 plot legends.}
 
-\item{w_inf}{Asymptotic size of species}
+\item{w_max}{Maximum size of species}
 
 \item{w_min}{Egg size of species}
 
-\item{eta}{Ratio between maturity size \code{w_mat} and asymptotic size
-\code{w_inf}. Default is 10^(-0.6), approximately 1/4. Ignored if
+\item{eta}{Ratio between maturity size \code{w_mat} and maximum size
+\code{w_max}. Default is 10^(-0.6), approximately 1/4. Ignored if
 \code{w_mat} is supplied explicitly.}
 
 \item{w_mat}{Maturity size of species. Default value is
-\code{eta * w_inf}.}
+\code{eta * w_max}.}
 
 \item{no_w}{The number of size bins in the community spectrum. These bins
 will be equally spaced on a logarithmic scale. Default value is such that
@@ -58,7 +60,7 @@ equal to the exponent \code{n}.}
 
 \item{alpha}{The assimilation efficiency.}
 
-\item{k_vb}{The von Bertalanffy growth parameter.}
+\item{h}{Maximum food intake rate.}
 
 \item{beta}{Preferred predator prey mass ratio.}
 
@@ -86,6 +88,12 @@ level of density dependence in reproduction, see \code{\link[=setBevertonHolt]{s
 
 \item{R_factor}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use
 \code{reproduction_level = 1 / R_factor} instead.}
+
+\item{w_inf}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The argument has been
+renamed to \code{w_max}.}
+
+\item{k_vb}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The von Bertalanffy growth
+parameter.}
 }
 \value{
 An object of type \code{MizerParams}

@@ -1,21 +1,140 @@
 # mizer (development version)
 
+# mizer 2.4.0
+
+This release introduces a change that requires you to upgrade your old 
+MizerParams and MizerSim objects with `upgradeParams()` or `upgradeSim()`.
+
+See [mizer 2.4.0 blog post](https://blog.mizer.sizespectrum.org/posts/2022-12-23-mizer-240/)
+
+## Avoid confusion between maximum size and von Bertalanffy asymptotic size
+
+For an explanation see blog post at
+https://blog.mizer.sizespectrum.org/posts/2022-11-30-dont-use-von-bertalanffy-growth-parameters/
+
+The species parameter that specifies the size at which also the largest fish stop
+growing is renamed from `w_inf` to `w_max`. The parameter `w_inf` is now 
+reserved for the von Bertalanffy asymptotic size parameter. If you upgrade
+your existing MizerParams object with `upgradeParams()` the `w_inf` column is
+copied over to the `w_max` column automatically, but you may want to change
+the values yourself if they do not currently reflect the maximum size of the
+species. Otherwise the size distributions predicted by mizer will not match
+observations.
+
+## Set resource abundance rather than carrying capacity
+
+The resource parameters `kappa` and `lambda` are now used to set the abundance
+of the resource in the steady state rather than the carrying capacity, because
+the latter is not observable.
+
+While tuning the steady state using the `steady()` function the resource
+abundance is now being kept fixed at the chosen value. Then the resource
+dynamics can be switched on later with `setResource()` without changing the
+steady state. At that stage you only choose either the resource intrinsic
+growth rate or the resource carrying capacity and the other is determined by
+`setResource()` in such a way that the resource replenishes at the same rate at 
+which it is consumed. If you want to keep the old behaviour and switch off this
+automatic balancing you have to add the `balance = FALSE` argument when calling
+`setResource()`.
+
+You can also choose between semichemostat dynamics `resource_semichemostat()`
+or logistic dynamics `resource_logistic()` or you can write your own function 
+implementing more sophisticated resource dynamics.
+
+The `setParams()` function no longer includes the arguments for setting the
+resource parameters. Instead you set these separately with `setResource()`.
+
+## Automatically match growth rates
+
+As explained in the blog post at https://blog.mizer.sizespectrum.org/posts/2022-11-30-dont-use-von-bertalanffy-growth-parameters/, 
+the von Bertalanffy curves fitted to size-at-age
+data are not suitable for estimating the size-dependent growth rates in mizer.
+It is therefore now recommended that instead of von Bertalanffy parameters you
+supply the age at maturity in the `age_mat` column of the species parameter
+data frame. This is then used by mizer to calculate a default for the 
+maximum intake rate parameter `h` if you do not supply this.
+
+In the past, whenever you changed any model parameters, you needed to re-tune
+other parameters to keep the growth rates in line with observations. There is
+now a new function `matchGrowth()` that automatically scales the search volume,
+the maximum consumption rate and the metabolic rate all by the same factor in
+order to achieve a growth rate that allows individuals to reach their maturity
+size by their maturity age while keeping the feeding level and the critical
+feeding level unchanged. This function does not however preserve the steady
+state, so you will need to also call `steady()` after matching the growth rates.
+
+
+## Other improvements
+
+* New function `steadySingleSpecies()` that only balances the size-spectrum
+  dynamics while ignoring multi-species effects. In other words, it calculates
+  the steady-state size spectrum of each species as it would be if the abundance
+  of prey and predators could be kept constant at their current values.
+* `plotGrowthCurves()` can now superimpose a scatterplot of size-at-age data
+  if you supply this via the new `size_at_age` argument.
+* New functions `calibrateNumber()` and `matchNumbers()` that are like
+  `calibrateBiomass()` and `matchBiomasses()` but work with observed numbers
+  instead of observed biomasses.
+* New function `age_mat()` to calculate the age at maturity from the growth
+  rate and the size at maturity.
+* If an effort vector or effort array contains NA's, these are now replaced by
+  the default effort value. #230
+* The entries of the interaction matrix and of interaction_resource are no
+  longer restricted to be less or equal to 1. #232
+* If user supplies no row names in the interaction matrix but gives column names
+  then the column names are also used as row names. #247
+* `project()` now also works when called with a MizerSim object with additional
+  components.
+* `steady()` now preserves the RDD function in the MizerParams object rather
+  than always setting it to "BevertonHoltRDD".
+* When averaging abundances over time in `plotSpectra()` or `setInitialValues()`
+  the user can now choose geometric averaging with `geometric_mean = TRUE`.
+* The `w_mat25` species parameter is no longer filled in automatically if it is
+  not supplied. This makes it easier to change `w_mat` without having to change
+  `w_mat25` at the same time.
+* `compareParams()` now also checks the validity of its second argument.
+* Hide the printing of messages about chosen defaults in `newTraitParams()`.
+* Higher values for the `info_level` argument in `newMultispeciesParams()` now
+  leads to more messages.
+* Giving more helpful messages in `validSpeciesParams()`. #136
+* New helper functions `l2w()` and `w2l()` for converting between length-based
+  and weight-based species parameters. #258
+* Check that assessor functions for MizerSim slots are called with a MizerSim
+  object.
+* Add `style` argument to `plotDataFrame()` to facilitate producing area plots.
+* Add `wrap_scale` argument to `plotDataFrame()` to control scaling of axes in
+  faceted plots.
+* `plotDiet()` can now show diets of several predator species in a faceted
+  plot. #267
+* Change from `size` to `linewidth` aesthetic to avoid warnings in new version
+  of ggplot2.
+* Better error message when functions are called with no valid species selected.
+  #251
+* If there are no differences then `compareParams()` says so clearly.
+* `getReproductionLevel()` works as long as `R_max` is set. #252
+* Converted several unit tests to edition 3 of testthat package.
+* Improved documentation for `gear_params()`.
 * Improved defaults can now be implemented while keeping backwards compatibility
   via `defaults_edition()`. #186
 * New defaults edition 2: catchability = 0.3 instead of 1, initial effort = 1
   instead of 0. #243
 * In defaults edition 2, `get_gamma_default()` ensures a feeding level of `f0`
   for larvae also if `interaction_resource` is not equal to 1. #238
-* If an effort vector or effort array contains NA's, these are now replaced by
-  the default effort value. #230
-* The entries of the interaction matrix and of interaction_resource are no
-  longer restricted to be less or equal to 1. #232
-* If user supplies no row names in the interaction matrix but give column names
-  then the column names are also used as row names. #247
-* `project()` now also works when called with a MizerSim object with additional
-  components.
-* `steady()` now preserves the RDD function in the MizerParams object rather
-  than always setting it to "BevertonHoltRDD".
+* Set default linecolour and linetype for external mortality.
+
+  
+## Bug fixes
+
+* Restored the line colours to `NS_params`
+* Comment field now preserved by `set_species_default()`. #268
+* Comment on `w_inf` no longer leads to error in `plyr::aaply()`. #269
+* Can now again set `url` field in metadata. 
+* Correct species now listed in the legend of `plotYieldObservedVsModel()` and
+  `plotBiomassObservedVsModel()`. #266
+* Standard order for legend in `plotDiet()` restored after change to `ggplot2`
+  package. #265
+* Fix handling of column names when interaction matrix is read from .csv file.
+  #263
 
 
 # mizer 2.3.1

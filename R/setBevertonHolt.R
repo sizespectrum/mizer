@@ -1,7 +1,8 @@
-#' Set Beverton-Holt density dependence
+#' Set Beverton-Holt reproduction without changing the steady state
 #'
 #' `r lifecycle::badge("experimental")`
-#' Takes a MizerParams object `params` with arbitrary density dependence and
+#' Takes a MizerParams object `params` with arbitrary density dependence in
+#' reproduction and
 #' returns a MizerParams object with Beverton-Holt density-dependence in such a
 #' way that the energy invested into reproduction by the mature individuals
 #' leads to the reproduction rate that is required to maintain the given egg
@@ -133,7 +134,7 @@
 #' params <- setBevertonHolt(params, erepro = c("Gurnard" = 0.6, "Plaice" = 0.95))
 #' t(species_params(params)[, c("erepro", "R_max")])
 #' # Setting R_max
-#' R_max <- 1e17 * species_params(params)$w_inf^-1
+#' R_max <- 1e17 * species_params(params)$w_max^-1
 #' params <- setBevertonHolt(NS_params, R_max = R_max)
 #' t(species_params(params)[, c("erepro", "R_max")])
 #' # Setting reproduction_level
@@ -302,9 +303,8 @@ getRequiredRDD <- function(params) {
 #'           getReproductionLevel(params))
 getReproductionLevel <- function(params) {
     assert_that(is(params, "MizerParams"))
-    if (params@rates_funcs$RDD != "BevertonHoltRDD") {
-        stop("This function should only be used if the reproduction function ",
-             "is Beverton-Holt.")
+    if (!"R_max" %in% names(params@species_params)) {
+        stop("No `R_max` is included in the species parameters.")
     }
     getRDD(params) / params@species_params$R_max
 }

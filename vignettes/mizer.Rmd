@@ -238,7 +238,7 @@ run it in different scenarios, and explore the results. We
 recommend that you explore these in the following order:
 
 ### Single-species model
-The [single-species model](https://sizespectrum.org/mizer/dev/articles/single_species_size-spectrum_dynamics.html is a good starting point because it allows one to understand the
+The [single-species model](https://sizespectrum.org/mizer/dev/articles/single_species_size-spectrum_dynamics.html) is a good starting point because it allows one to understand the
 main features of size-spectrum modelling without the complexities of multi-species
 interactions. The model describes a single species in a fixed background community.
 It allows exploration of how the shape of the species size spectrum is determined by
@@ -258,14 +258,14 @@ tractable.
 
 ### Trait-based model
 The [trait-based model](https://sizespectrum.org/mizer/articles/trait_model.html) resolves a continuum of species with
-varying asymptotic sizes. The asymptotic size is considered to be the most
+varying maximum sizes. The maximum size is considered to be the most
 important trait that characterizes a species' life history. The continuum is
 represented by a discrete number of species spread evenly over the range of
-asymptotic sizes. The number of species is not important and does not affect the
+maximum sizes. The number of species is not important and does not affect the
 general dynamics of the model. Many of the parameters, such as the preferred
 predator-prey mass ratio, are the same for all species. Other model parameters
-are determined by the asymptotic size. For example, the weight at maturation of
-each species is a set fraction of the asymptotic size. In the trait-based model,
+are determined by the maximum size. For example, the weight at maturation of
+each species is a set fraction of the maximum size. In the trait-based model,
 species-level complexity is captured through different life histories, and both
 intra- and inter-specific size spectra emerge. This approach is powerful for
 examining the generic population and whole community level responses to both
@@ -293,7 +293,7 @@ calibration parameters can be estimated.  This requires a lot of insight and
 data.  If the parameters are just guesstimates the results of the multi-species
 model will be no more accurate than the results from the trait-based model.
 In such situations we therefore recommend the use of the trait-based model, even
-though it only provides general information about the asymptotic size
+though it only provides general information about the maximum size
 distribution and not about specific species.  
 
 The community model is useful for

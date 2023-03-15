@@ -84,10 +84,10 @@ setMetabolicRate <- function(params, metab = NULL, p = NULL,
     params <- set_species_param_default(params, "k", 0)
     params@species_params$ks <- get_ks_default(params)
     metab <- 
-        sweep(outer(params@species_params$p, params@w,
+        sweep(outer(params@species_params[["p"]], params@w,
                     function(x, y) y ^ x),
               1, params@species_params$ks, "*") +
-        outer(params@species_params$k, params@w)
+        outer(params@species_params[["k"]], params@w)
     
     # Prevent overwriting slot if it has been commented
     if (!is.null(comment(params@metab))) {

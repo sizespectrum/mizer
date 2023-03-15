@@ -2,44 +2,42 @@
 % Please edit documentation in R/setResource.R
 \name{setResource}
 \alias{setResource}
-\alias{getResourceRate}
 \alias{resource_rate}
 \alias{resource_rate<-}
-\alias{getResourceCapacity}
 \alias{resource_capacity}
 \alias{resource_capacity<-}
-\alias{getResourceDynamics}
+\alias{resource_level}
+\alias{resource_level<-}
 \alias{resource_dynamics}
 \alias{resource_dynamics<-}
-\title{Set up resource}
+\title{Set resource dynamics}
 \usage{
 setResource(
   params,
   resource_rate = NULL,
   resource_capacity = NULL,
-  reset = FALSE,
-  r_pp = resource_params(params)[["r_pp"]],
-  kappa = resource_params(params)[["kappa"]],
+  resource_level = NULL,
+  resource_dynamics = NULL,
+  balance = NULL,
   lambda = resource_params(params)[["lambda"]],
   n = resource_params(params)[["n"]],
   w_pp_cutoff = resource_params(params)[["w_pp_cutoff"]],
-  resource_dynamics = NULL,
+  r_pp = deprecated(),
+  kappa = deprecated(),
   ...
 )
-
-getResourceRate(params)
 
 resource_rate(params)
 
 resource_rate(params) <- value
 
-getResourceCapacity(params)
-
 resource_capacity(params)
 
 resource_capacity(params) <- value
 
-getResourceDynamics(params)
+resource_level(params)
+
+resource_level(params) <- value
 
 resource_dynamics(params)
 
@@ -48,38 +46,49 @@ resource_dynamics(params) <- value
 \arguments{
 \item{params}{A MizerParams object}
 
-\item{resource_rate}{Optional. Vector of resource intrinsic birth rates}
+\item{resource_rate}{Optional. Vector of resource intrinsic birth rates or
+coefficient in the power-law for the birth rate, see Details. Must be
+strictly positive.}
 
 \item{resource_capacity}{Optional. Vector of resource intrinsic carrying
-capacity}
+capacities or coefficient in the power-law for the capacity, see Details.
+The resource capacity must be larger than the resource abundance.}
 
-\item{reset}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-If set to TRUE, then both \code{resource_rate} and
-\code{resource_capacity} will be reset to the value calculated from the resource
-parameters, even if they were previously overwritten with custom values. If
-set to FALSE (default) then a recalculation from the resource parameters
-will take place only if no custom values have been set.}
-
-\item{r_pp}{Coefficient of the intrinsic resource birth rate}
-
-\item{kappa}{Coefficient of the intrinsic resource carrying capacity}
-
-\item{lambda}{Scaling exponent of the intrinsic resource carrying capacity}
-
-\item{n}{Allometric growth exponent for resource}
-
-\item{w_pp_cutoff}{The upper cut off size of the resource spectrum.  The
-carrying capacity will be set to 0 above this size.
-Default is 10 g.}
+\item{resource_level}{Optional. The ratio between the current resource number
+density and the resource capacity. Either a number used at all sizes or a
+vector specifying a value for each size. Must be strictly between 0 and 1,
+except at sizes where the resource is zero, where it can be \code{NaN}. This
+determines the resource capacity, so do not specify both this and
+\code{resource_capacity}.}
 
 \item{resource_dynamics}{Optional. Name of the function that determines the
 resource dynamics by calculating the resource spectrum at the next time
-step from the current state. You only need to specify this if you do not
-want to use the default \code{\link[=resource_semichemostat]{resource_semichemostat()}}.}
+step from the current state.}
+
+\item{balance}{By default, if possible, the resource parameters are
+set so that the resource replenishes at the same rate at which it is
+consumed. In this case you should only specify either the resource rate
+or the resource capacity (or resource level) because the other is then
+determined automatically. Set to FALSE if you do not want the balancing.}
+
+\item{lambda}{Used to set power-law exponent for resource capacity if the
+\code{resource_capacity} argument is given as a single number.}
+
+\item{n}{Used to set power-law exponent for resource rate if the
+\code{resource_rate} argument is given as a single number.}
+
+\item{w_pp_cutoff}{The upper cut off size of the resource spectrum power law
+used only if \code{resource_capacity} is given as a single number.}
+
+\item{r_pp}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}. Use \code{resource_rate} argument
+instead.}
+
+\item{kappa}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}. Use \code{resource_capacity}
+argument instead.}
 
 \item{...}{Unused}
 
-\item{value}{.}
+\item{value}{The desired new value for the respective parameter.}
 }
 \value{
 \code{setResource}: A MizerParams object with updated resource parameters
@@ -87,49 +96,59 @@ want to use the default \code{\link[=resource_semichemostat]{resource_semichemos
 \description{
 Sets the intrinsic resource growth rate and the intrinsic resource carrying
 capacity as well as the name of the function used to simulate the resource
-dynamics
+dynamics. By default this function changes both the rate and the capacity
+together in such a way that the resource replenishes at the same rate at
+which it is consumed.
 }
 \section{Setting resource dynamics}{
 
-By default, mizer uses a semichemostat model to describe the resource
-dynamics in each size class independently. This semichemostat dynamics is implemented
-by the function \code{\link[=resource_semichemostat]{resource_semichemostat()}}. You can change the
-resource dynamics by writing your own function, modelled on
-\code{\link[=resource_semichemostat]{resource_semichemostat()}}, and then passing the name of your
-function in the \code{resource_dynamics} argument.
+You would usually set the resource dynamics only after having finished the
+calibration of the steady state. Then setting the resource dynamics with
+this function will preserve that steady state, unless you explicitly
+choose to set \code{balance = FALSE}. Your choice of the resource dynamics only
+affects the dynamics around the steady state. The higher the resource rate
+or the lower the resource capacity the less sensitive the model will be to
+changes in the competition for resource.
 
-The \code{resource_rate} argument is a vector specifying the intrinsic resource
-growth rate for each size class. If it is not supplied, then the intrinsic growth
-rate \eqn{r(w)} at size \eqn{w}
-is set to \deqn{r(w) = r_{pp}\, w^{n-1}.}{r(w) = r_pp w^{n-1}}
-The values of \eqn{r_{pp}} and \eqn{n} are taken from the \code{r_pp}
-and \code{n} arguments.
+The \code{resource_dynamics} argument allows you to choose the resource dynamics
+function. By default, mizer uses a semichemostat model to describe the
+resource dynamics in each size class independently. This semichemostat
+dynamics is implemented by the function \code{\link[=resource_semichemostat]{resource_semichemostat()}}. You can
+change that to use a logistic model implemented by \code{\link[=resource_logistic]{resource_logistic()}} or
+you can use \code{\link[=resource_constant]{resource_constant()}} which keeps the resource constant or you
+can write your own function.
 
-The \code{resource_capacity} argument is a vector specifying the intrinsic resource
-carrying capacity for each size class. If it is not supplied, then the
-intrinsic carrying capacity \eqn{c(w)} at size \eqn{w}
-is set to \deqn{c(w) = \kappa\, w^{-\lambda}}{c(w) = \kappa w^{-\lambda}}
+Both the \code{\link[=resource_semichemostat]{resource_semichemostat()}} and the \code{\link[=resource_logistic]{resource_logistic()}} dynamics
+are parametrised in terms of a size-dependent rate \eqn{r_R(w)} and a
+size-dependent capacity \eqn{c_R}. The help pages of these functions give
+the details.
+
+The \code{resource_rate} argument can be a vector (with the same length as
+\code{w_full(params)}) specifying the intrinsic resource growth rate for each size
+class. Alternatively it can be a single number, which is then used as the
+coefficient in a power law: then the intrinsic growth rate \eqn{r_R(w)} at
+size \eqn{w} is set to
+\deqn{r_R(w) = r_R w^{n-1}.}
+The power-law exponent \eqn{n} is taken from the \code{n} argument.
+
+The \code{resource_capacity} argument can be a vector specifying the intrinsic
+resource carrying capacity for each size class. Alternatively it can be a
+single number, which is then used as the coefficient in a truncated power
+law: then the intrinsic growth rate \eqn{c_R(w)} at size \eqn{w} is set to
+\deqn{c(w) = \kappa\, w^{-\lambda}}{c(w) = \kappa w^{-\lambda}}
 for all \eqn{w} less than \code{w_pp_cutoff} and zero for larger sizes.
-The values of \eqn{\kappa} and \eqn{\lambda} are taken from the \code{kappa}
-and \code{lambda} arguments.
+The power-law exponent \eqn{\lambda} is taken from the \code{lambda} argument.
+
+The values for \code{lambda}, \code{n} and \code{w_pp_cutoff} are stored in a list in the
+\code{resource_params} slot of the MizerParams object so that they can be re-used
+automatically in the future. That list can be accessed with
+\code{\link[=resource_params]{resource_params()}}. It also holds the coefficient \code{kappa} that describes the
+steady-state resource abundance.
 }
 
-\seealso{
-\code{\link[=resource_params]{resource_params()}}
-
-Other functions for setting parameters: 
-\code{\link{gear_params}()},
-\code{\link{resource_params}()},
-\code{\link{setExtMort}()},
-\code{\link{setFishing}()},
-\code{\link{setInitialValues}()},
-\code{\link{setInteraction}()},
-\code{\link{setMaxIntakeRate}()},
-\code{\link{setMetabolicRate}()},
-\code{\link{setParams}()},
-\code{\link{setPredKernel}()},
-\code{\link{setReproduction}()},
-\code{\link{setSearchVolume}()},
-\code{\link{species_params}()}
+\examples{
+params <- NS_params
+resource_dynamics(params)
+resource_dynamics(params) <- "resource_constant"
 }
-\concept{functions for setting parameters}
+\concept{resource parameters}

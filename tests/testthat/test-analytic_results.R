@@ -13,8 +13,8 @@ sp <- 1  # check first species
 sigma <- p@species_params$sigma[sp]
 beta <- p@species_params$beta[sp]
 gamma <- p@species_params$gamma[sp]
-q <- p@species_params$q[sp]
-n <- p@species_params$n[sp]
+q <- p@species_params[["q"]][sp]
+n <- p@species_params[["n"]][sp]
 lm2 <- p@resource_params$lambda - 2
 
 # getEncounter ----
@@ -155,16 +155,16 @@ test_that("getFeedingLevel approximates analytic result", {
 #     kappa <- 1e11
 #     
 #     w_min <- 1e-3
-#     w_inf <- 1e3
+#     w_max <- 1e3
 #     w_mat <- 1e2
 #     min_w_pp <- 1e-7  # Only have to make sure the smallest fish are perfectly fed
-#     # Chose number of gridpoints so that w_mat and w_inf lie on gridpoints
-#     no_w <- log10(w_inf / w_min) * 100 + 1  
+#     # Chose number of gridpoints so that w_mat and w_max lie on gridpoints
+#     no_w <- log10(w_max / w_min) * 100 + 1  
 #     
 #     species_params <- data.frame(
 #         species = "Single",
 #         w_min = w_min,
-#         w_inf = w_inf,
+#         w_max = w_max,
 #         w_mat = w_mat,
 #         f0 = f0,
 #         h = h,
@@ -180,8 +180,8 @@ test_that("getFeedingLevel approximates analytic result", {
 #     )
 #     
 #     params <- newMultispeciesParams(species_params, p = p, n = n, lambda = lambda,
-#                                     kappa = kappa, min_w = w_min, max_w = w_inf,
-#                                     no_w = no_w, min_w_pp = min_w_pp, w_pp_cutoff = w_inf,
+#                                     kappa = kappa, min_w = w_min, max_w = w_max,
+#                                     no_w = no_w, min_w_pp = min_w_pp, w_pp_cutoff = w_max,
 #                                     r_pp = r_pp)
 #     
 #     gamma <- params@species_params$gamma[1]
@@ -197,8 +197,8 @@ test_that("getFeedingLevel approximates analytic result", {
 #     hbar <- alpha * h * f0 - ks
 #     # n_exact is calculated using the analytic expression for the solution
 #     pow <- mu0 / hbar / (1 - n)
-#     n_mult <- (1 - (w / w_inf) ^ (1 - n)) ^ (pow - 1) *
-#         (1 - (w_mat / w_inf) ^ (1 - n)) ^ (-pow)
+#     n_mult <- (1 - (w / w_max) ^ (1 - n)) ^ (pow - 1) *
+#         (1 - (w_mat / w_max) ^ (1 - n)) ^ (-pow)
 #     n_mult[w < w_mat] <- 1
 #     n_exact <- params@psi  # Just to get array with correct dimensions and names
 #     n_exact[] <- R * (w_min/w)^(mu0/hbar) / (hbar * w^n) * n_mult
@@ -207,7 +207,7 @@ test_that("getFeedingLevel approximates analytic result", {
 #     params@rates_funcs$RDD <- "constantRDD"
 #     params@species_params$constant_reproduction <- R
 #     # We use a step function for the maturity function
-#     params@psi[1,] <- (params@w / w_inf) ^ (1 - n)
+#     params@psi[1,] <- (params@w / w_max) ^ (1 - n)
 #     params@psi[1, params@w < w_mat] <- 0
 #     # We switch off the self-interaction
 #     params@interaction[] <- 0

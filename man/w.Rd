@@ -22,8 +22,8 @@ dw_full(params)
 \code{w()} returns a vector with the sizes at the start of each size bin
 of the consumer spectrum.
 
-\code{w_full()} returns a vector with the sizes at the start of each size bin
-of the resource spectrum, which typically starts at smaller sizes than
+\code{w_full()} returns a vector with the sizes at the start of each size
+bin of the resource spectrum, which typically starts at smaller sizes than
 the consumer spectrum.
 
 \code{dw()} returns a vector with the widths of the size bins of the
@@ -40,7 +40,7 @@ described by \code{params}.
 To represent the continuous size spectrum in the computer, the size
 variable is discretized into a vector \code{w} of discrete weights,
 providing a grid of sizes spanning the range from the smallest egg size
-to the largest asymptotic size. These grid values divide the full size
+to the largest maximum size. These grid values divide the full size
 range into a finite number of size bins. The size bins should be chosen
 small enough to avoid the discretisation errors from becoming too big.
 You can fetch this vector with \code{w()} and the vector of bin widths with

@@ -81,7 +81,10 @@ readParams <- function(file) {
 
 is_custom <- function(name, packages) {
     !any(sapply(packages, 
-                function(x, fun) exists(fun, where = paste0("package:", x),
-                                        mode = "function"),
-                fun = name))
+                function(x, fun) {
+                    exists(fun, where = paste0("package:", x),
+                           mode = "function")
+                },
+                fun = name)
+         )
 }
