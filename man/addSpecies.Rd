@@ -21,10 +21,11 @@ species we want to add to the system.}
 \item{gear_params}{Data frame with the gear parameters for the new
 species. If not provided then the new species will not be fished.}
 
-\item{initial_effort}{A named vector with the effort for new fishing gear
-introduced in \code{gear_params}. New gear for which no effort is set via this
-vector will have an initial effort of 0. Should not include effort values
-for existing gear.}
+\item{initial_effort}{A named vector with the effort for any new fishing gear
+introduced in \code{gear_params}. Not needed if the added species are only
+fished by already existing gear. Should not include effort values
+for existing gear. New gear for which no effort is set via this
+vector will have an initial effort of 0.}
 
 \item{interaction}{Interaction matrix. A square matrix giving either the
 interaction coefficients between all species or only those between the new

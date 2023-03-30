@@ -21,10 +21,11 @@
 #'   involving a new species are set to 1.
 #' @param gear_params Data frame with the gear parameters for the new
 #'   species. If not provided then the new species will not be fished.
-#' @param initial_effort A named vector with the effort for new fishing gear
-#'   introduced in `gear_params`. New gear for which no effort is set via this
-#'   vector will have an initial effort of 0. Should not include effort values
-#'   for existing gear.
+#' @param initial_effort A named vector with the effort for any new fishing gear
+#'   introduced in `gear_params`. Not needed if the added species are only
+#'   fished by already existing gear. Should not include effort values
+#'   for existing gear. New gear for which no effort is set via this
+#'   vector will have an initial effort of 0. 
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #'
@@ -199,10 +200,10 @@ addSpecies <- function(params, species_params,
     p@initial_effort[names(params@initial_effort)] <- params@initial_effort
     if (!missing(initial_effort)) {
         if (is.null(names(initial_effort))) {
-            stop("The `initial_effort` must be a named list or vector.")
+            stop("The `initial_effort` must be a named list or vector, with one named entry for each new gear introduced in the `gear_params` argument. You should not provide an `initial_effort` argument if you did not introduce any new gear.")
         }
         if (!all(names(initial_effort) %in% new_gear)) {
-            stop("The names of the `initial_effort` do not match the names of the new gears.")
+            stop("The names of the `initial_effort` do not match the names of the new gears. You should not include effort values for existing gear. You should not provide an `initial_effort` argument if you did not introduce any new gear.")
         }
         p@initial_effort[names(initial_effort)] <- initial_effort
     }
