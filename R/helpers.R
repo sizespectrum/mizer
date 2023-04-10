@@ -13,7 +13,7 @@
 #' @concept helper
 different <- function(a, b) {
     !isTRUE(all.equal(a, b, check.attributes = FALSE, scale = 1, 
-                      tolerance = .Machine$double.eps))
+                      tolerance = 10 * .Machine$double.eps))
 }
 
 #' Length-weight conversion
