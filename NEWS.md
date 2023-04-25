@@ -1,4 +1,7 @@
-# mizer (development version)
+# mizer 2.4.1
+
+This minor release was made necessary to keep mizer on CRAN after a unit test
+failed on macOS 13.3 with version 14.3 of the CLT toolchain.
 
 # mizer 2.4.0
 
