@@ -16,6 +16,7 @@
 #' \item{sigma}{Width of the size-preference}
 #' \item{R_max}{Maximum reproduction rate}
 #' \item{k_vb}{The von Bertalanffy k parameter}
+#' \item{w_inf}{The von Bertalanffy asymptotic size}
 #' }
 #' @source{Blanchard et al.}
 #' @docType data
@@ -45,6 +46,7 @@
 #' \item{sigma}{Width of the size-preference}
 #' \item{R_max}{Maximum reproduction rate}
 #' \item{k_vb}{The von Bertalanffy k parameter}
+#' \item{w_inf}{The von Bertalanffy asymptotic size}
 #' \item{gear}{Name of the fishing gear}
 #' }
 #' @source{Blanchard et al.}
