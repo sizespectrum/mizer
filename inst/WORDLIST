@@ -6,6 +6,7 @@ Bertalanffy
 Beverton
 BevertonHoltRDD
 Beyer
+CLT
 Canales
 Catchability
 Chu
@@ -87,7 +88,6 @@ cjfas
 color
 colors
 com
-cran
 csv
 cutoff
 cutoffs
@@ -134,11 +134,11 @@ linetype
 linetypes
 longdash
 ly
+macOS
 matchYields
 md
 mesopp
 metab
-minouw
 mizerExamples
 mizerExperimental
 mizerMR
@@ -167,14 +167,8 @@ reexports
 repro
 rescalings
 roxygen
-rstudio
-sIZE
 selectivities
 semichemostat
-setFishing
-setParams
-setPredKernel
-setResource
 shinytest
 sigmoidal
 sizer
