@@ -22,7 +22,7 @@ setReproduction() for more details."><meta property="og:image" content="https://
     
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -179,13 +179,17 @@ species. If not specified, rdi is calculated internally using
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="va">NS_params</span></span></span>
 <span class="r-in"><span><span class="co"># Project with constant fishing effort for all gears for 20 time steps</span></span></span>
 <span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">20</span>, effort <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Get the rate at a particular time step</span></span></span>
 <span class="r-in"><span><span class="fu">getRDD</span><span class="op">(</span><span class="va">params</span>, n <span class="op">=</span> <span class="fu"><a href="N.html">N</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">[</span><span class="fl">15</span>, , <span class="op">]</span>, n_pp <span class="op">=</span> <span class="fu"><a href="N.html">NResource</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">[</span><span class="fl">15</span>, <span class="op">]</span>, t <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        Sprat      Sandeel       N.pout      Herring          Dab      Whiting </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7.273519e+11 4.098406e+11 9.405199e+12 1.103948e+12 1.115039e+10 5.394960e+11 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         Sole      Gurnard       Plaice      Haddock          Cod       Saithe </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3.855063e+10 7.536194e+11 2.654321e+13 1.733106e+12 8.259403e+09 1.117118e+11 </span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

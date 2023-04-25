@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -199,8 +199,13 @@ $$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">NS_species_params</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">NS_species_params</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Because you have n != p, the default value for `h` is not very good.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Because the age at maturity is not known, I need to fall back to using</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> von Bertalanffy parameters, where available, and this is not reliable.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> No ks column so calculating from critical feeding level.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using z0 = z0pre * w_max ^ z0exp for missing z0 values.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">#### Setting allometric death rate #######################</span></span></span>
 <span class="r-in"><span></span></span>
@@ -213,7 +218,6 @@ $$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Change the external mortality rate in the params object</span></span></span>
 <span class="r-in"><span><span class="fu">ext_mort</span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">allo_mort</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

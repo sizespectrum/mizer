@@ -37,7 +37,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -831,9 +831,9 @@ our species.</p>
 <div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_starved</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steady.html">steady</a></span><span class="op">(</span><span class="va">params_starved</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Convergence was achieved in 9 years.</span></span></code></pre>
-<pre><code><span><span class="co">## Warning in setBevertonHolt(params, reproduction_level = old_reproduction_level):</span></span>
-<span><span class="co">## The following species require an unrealistic reproductive efficiency greater</span></span>
-<span><span class="co">## than 1: Target species</span></span></code></pre>
+<pre><code><span><span class="co">## Warning in setBevertonHolt(params, reproduction_level =</span></span>
+<span><span class="co">## old_reproduction_level): The following species require an unrealistic</span></span>
+<span><span class="co">## reproductive efficiency greater than 1: Target species</span></span></code></pre>
 <div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">params_starved</span>, power <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-47-1.png" width="700"></p>
@@ -952,9 +952,9 @@ somewhere between 1g and 10g. Let’s check.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params_pk</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params_starved</span><span class="op">)</span></span>
 <span><span class="va">params_pk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steady.html">steady</a></span><span class="op">(</span><span class="va">params_pk</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Convergence was achieved in 7.5 years.</span></span></code></pre>
-<pre><code><span><span class="co">## Warning in setBevertonHolt(params, reproduction_level = old_reproduction_level):</span></span>
-<span><span class="co">## The following species require an unrealistic reproductive efficiency greater</span></span>
-<span><span class="co">## than 1: Target species</span></span></code></pre>
+<pre><code><span><span class="co">## Warning in setBevertonHolt(params, reproduction_level =</span></span>
+<span><span class="co">## old_reproduction_level): The following species require an unrealistic</span></span>
+<span><span class="co">## reproductive efficiency greater than 1: Target species</span></span></code></pre>
 <div class="sourceCode" id="cb79"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">params_pk</span>, power <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-55-1.png" width="700"></p>
@@ -1046,9 +1046,9 @@ Its current value in our model is</p>
 <code class="sourceCode R"><span><span class="va">params_new_gamma</span> <span class="op">&lt;-</span> <span class="va">params</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params_new_gamma</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span> <span class="op">&lt;-</span> <span class="fl">2000</span></span>
 <span><span class="va">params_new_gamma</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steady.html">steady</a></span><span class="op">(</span><span class="va">params_new_gamma</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning in setBevertonHolt(params, reproduction_level = old_reproduction_level):</span></span>
-<span><span class="co">## The following species require an unrealistic reproductive efficiency greater</span></span>
-<span><span class="co">## than 1: Target species</span></span></code></pre>
+<pre><code><span><span class="co">## Warning in setBevertonHolt(params, reproduction_level =</span></span>
+<span><span class="co">## old_reproduction_level): The following species require an unrealistic</span></span>
+<span><span class="co">## reproductive efficiency greater than 1: Target species</span></span></code></pre>
 <p>We can see the effect in the growth curve of our species. In the
 original model it looks as follows:</p>
 <div class="sourceCode" id="cb88"><pre class="downlit sourceCode r">

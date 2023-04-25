@@ -26,7 +26,7 @@ that low level."><meta property="og:image" content="https://sizespectrum.org/miz
     
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -138,10 +138,11 @@ species. If not provided then the new species will not be fished.</p></dd>
 
 
 <dt>initial_effort</dt>
-<dd><p>A named vector with the effort for new fishing gear
-introduced in <code>gear_params</code>. New gear for which no effort is set via this
-vector will have an initial effort of 0. Should not include effort values
-for existing gear.</p></dd>
+<dd><p>A named vector with the effort for any new fishing gear
+introduced in <code>gear_params</code>. Not needed if the added species are only
+fished by already existing gear. Should not include effort values
+for existing gear. New gear for which no effort is set via this
+vector will have an initial effort of 0.</p></dd>
 
 
 <dt>interaction</dt>

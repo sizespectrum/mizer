@@ -12,7 +12,7 @@ in the North Sea."><meta property="og:image" content="https://sizespectrum.org/m
     
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -105,13 +105,17 @@ in the North Sea.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="MizerParams.html">MizerParams</a></span><span class="op">(</span><span class="va">NS_species_params_gears</span>,</span></span>
-<span class="r-in"><span>                      interaction <span class="op">=</span> <span class="va">NS_inter</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">sim</span> <span class="op">=</span> <span class="fu"><a href="project.html">project</a></span><span class="op">(</span><span class="va">params</span>, effort <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Industrial <span class="op">=</span> <span class="fl">0</span>, Pelagic <span class="op">=</span> <span class="fl">1</span>, </span></span>
-<span class="r-in"><span>                                 Beam <span class="op">=</span> <span class="fl">0.5</span>, Otter <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="MizerParams.html">MizerParams</a></span><span class="op">(</span><span class="va">NS_species_params_gears</span>,</span></span>
+<span class="r-in"><span>                      interaction <span class="op">=</span> <span class="va">NS_interaction</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`set_multispecies_model()` was deprecated in mizer 2.0.0.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Please use `newMultispeciesParams()` instead.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Note: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Note: No knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Note: No h column in species data frame so using f0 and k_vb to calculate it.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Note: No gamma column in species data frame so using f0, h, beta, sigma, lambda and kappa to calculate it.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Note: No ks column in species data frame so using ks = h * 0.2.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Note: No m column in species data frame so using m = 1.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using z0 = z0pre * w_max ^ z0exp for missing z0 values.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

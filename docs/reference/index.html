@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -458,14 +458,14 @@ step.</dd>
         <dd>Plot diet, resolved by prey species, as function of predator at size.</dd>
       </dl><dl><dt>
           
-          <code><a href="plotFeedingLevel.html">plotFeedingLevel()</a></code> <code><a href="plotFeedingLevel.html">plotlyFeedingLevel()</a></code> 
-        </dt>
-        <dd>Plot the feeding level of species by size</dd>
-      </dl><dl><dt>
-          
           <code><a href="plotFMort.html">plotFMort()</a></code> <code><a href="plotFMort.html">plotlyFMort()</a></code> 
         </dt>
         <dd>Plot total fishing mortality of each species by size</dd>
+      </dl><dl><dt>
+          
+          <code><a href="plotFeedingLevel.html">plotFeedingLevel()</a></code> <code><a href="plotFeedingLevel.html">plotlyFeedingLevel()</a></code> 
+        </dt>
+        <dd>Plot the feeding level of species by size</dd>
       </dl><dl><dt>
           
           <code><a href="plotGrowthCurves.html">plotGrowthCurves()</a></code> <code><a href="plotGrowthCurves.html">plotlyGrowthCurves()</a></code> 
@@ -837,6 +837,16 @@ and size.</dd>
         <dd>Beverton Holt function to calculate density-dependent reproduction rate</dd>
       </dl><dl><dt>
           
+          <code><a href="RickerRDD.html">RickerRDD()</a></code> 
+        </dt>
+        <dd>Ricker function to calculate density-dependent reproduction rate</dd>
+      </dl><dl><dt>
+          
+          <code><a href="SheperdRDD.html">SheperdRDD()</a></code> 
+        </dt>
+        <dd>Sheperd function to calculate density-dependent reproduction rate</dd>
+      </dl><dl><dt>
+          
           <code><a href="constantEggRDI.html">constantEggRDI()</a></code> 
         </dt>
         <dd>Choose egg production to keep egg density constant</dd>
@@ -850,16 +860,6 @@ and size.</dd>
           <code><a href="noRDD.html">noRDD()</a></code> 
         </dt>
         <dd>Give density-independent reproduction rate</dd>
-      </dl><dl><dt>
-          
-          <code><a href="RickerRDD.html">RickerRDD()</a></code> 
-        </dt>
-        <dd>Ricker function to calculate density-dependent reproduction rate</dd>
-      </dl><dl><dt>
-          
-          <code><a href="SheperdRDD.html">SheperdRDD()</a></code> 
-        </dt>
-        <dd>Sheperd function to calculate density-dependent reproduction rate</dd>
       </dl><dl><dt>
           
           <code><a href="getReproductionLevel.html">getReproductionLevel()</a></code> 
@@ -888,11 +888,6 @@ and size.</dd>
         <dd>Get energy rate available for growth needed to project standard mizer model</dd>
       </dl><dl><dt>
           
-          <code><a href="mizerEncounter.html">mizerEncounter()</a></code> 
-        </dt>
-        <dd>Get encounter rate needed to project standard mizer model</dd>
-      </dl><dl><dt>
-          
           <code><a href="mizerERepro.html">mizerERepro()</a></code> 
         </dt>
         <dd>Get energy rate available for reproduction needed to project standard mizer
@@ -905,9 +900,9 @@ model</dd>
 standard mizer model</dd>
       </dl><dl><dt>
           
-          <code><a href="mizerFeedingLevel.html">mizerFeedingLevel()</a></code> 
+          <code><a href="mizerEncounter.html">mizerEncounter()</a></code> 
         </dt>
-        <dd>Get feeding level needed to project standard mizer model</dd>
+        <dd>Get encounter rate needed to project standard mizer model</dd>
       </dl><dl><dt>
           
           <code><a href="mizerFMort.html">mizerFMort()</a></code> 
@@ -919,6 +914,11 @@ standard mizer model</dd>
         </dt>
         <dd>Get the fishing mortality needed to project
 standard mizer model</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mizerFeedingLevel.html">mizerFeedingLevel()</a></code> 
+        </dt>
+        <dd>Get feeding level needed to project standard mizer model</dd>
       </dl><dl><dt>
           
           <code><a href="mizerMort.html">mizerMort()</a></code> 
@@ -1192,6 +1192,11 @@ model</dd>
 
       <dl><dt>
           
+          <code><a href="MizerParams.html">MizerParams()</a></code> 
+        </dt>
+        <dd>Alias for <code><a href="../reference/set_multispecies_model.html">set_multispecies_model()</a></code></dd>
+      </dl><dl><dt>
+          
           <code><a href="getESpawning.html">getESpawning()</a></code> 
         </dt>
         <dd>Alias for <code><a href="../reference/getERepro.html">getERepro()</a></code></dd>
@@ -1220,11 +1225,6 @@ model</dd>
           <code><a href="inter.html">inter</a></code> 
         </dt>
         <dd>Alias for <code>NS_interaction</code></dd>
-      </dl><dl><dt>
-          
-          <code><a href="MizerParams.html">MizerParams()</a></code> 
-        </dt>
-        <dd>Alias for <code><a href="../reference/set_multispecies_model.html">set_multispecies_model()</a></code></dd>
       </dl><dl><dt>
           
           <code><a href="plotM2.html">plotM2()</a></code> 

@@ -14,7 +14,7 @@ $$\frac{\partial N_R(w,t)}{\partial t} = r_R(w) \Big[ c_R (w) - N_R(w,t) \Big] -
     
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -168,8 +168,8 @@ due to predation by consumers and is calculate with <code><a href="getResourceMo
 the resource abundance at time <code>t + dt</code> from all abundances and rates at time
 <code>t</code>, keeping the mortality fixed during the timestep.</p>
 <p>To set your model to use semichemostat dynamics for the resource you do</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>params <span class="ot">&lt;-</span> <span class="fu">setResource</span>(params, </span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">resource_dynamics =</span> <span class="st">"resource_semichemostat"</span>, </span>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>params <span class="ot">&lt;-</span> <span class="fu">setResource</span>(params, </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">resource_dynamics =</span> <span class="st">"resource_semichemostat"</span>, </span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">resource_level =</span> <span class="fl">0.5</span>)</span></code></pre><p></p></div>
 <p>where you should replace <code>params</code> with the name of the variable holding your
 MizerParams object. You can of course choose any value between 0 and 1 for

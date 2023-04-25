@@ -37,7 +37,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -146,19 +146,19 @@ for <code>species</code>, <code>w_max</code>, <code>w_mat</code>,
 <code>R_max</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">NS_species_params</span></span></code></pre></div>
-<pre><code><span><span class="co">##    species   w_max w_mat   beta sigma  k_vb    R_max</span></span>
-<span><span class="co">## 1    Sprat    33.0    13  51076   0.8 0.681 7.38e+11</span></span>
-<span><span class="co">## 2  Sandeel    36.0     4 398849   1.9 1.000 4.10e+11</span></span>
-<span><span class="co">## 3   N.pout   100.0    23     22   1.5 0.849 1.05e+13</span></span>
-<span><span class="co">## 4  Herring   334.0    99 280540   3.2 0.606 1.11e+12</span></span>
-<span><span class="co">## 5      Dab   324.0    21    191   1.9 0.536 1.12e+10</span></span>
-<span><span class="co">## 6  Whiting  1192.0    75     22   1.5 0.323 5.48e+11</span></span>
-<span><span class="co">## 7     Sole   866.0    78    381   1.9 0.284 3.87e+10</span></span>
-<span><span class="co">## 8  Gurnard   668.0    39    283   1.8 0.266 1.65e+12</span></span>
-<span><span class="co">## 9   Plaice  2976.0   105    113   1.6 0.122 4.08e+14</span></span>
-<span><span class="co">## 10 Haddock  4316.5   165    558   2.1 0.271 1.84e+12</span></span>
-<span><span class="co">## 11     Cod 39851.3  1606     66   1.3 0.216 8.26e+09</span></span>
-<span><span class="co">## 12  Saithe 39658.6  1076     40   1.1 0.175 1.12e+11</span></span></code></pre>
+<pre><code><span><span class="co">##    species   w_max w_mat   beta sigma  k_vb    R_max   w_inf</span></span>
+<span><span class="co">## 1    Sprat    33.0    13  51076   0.8 0.681 7.38e+11    33.0</span></span>
+<span><span class="co">## 2  Sandeel    36.0     4 398849   1.9 1.000 4.10e+11    36.0</span></span>
+<span><span class="co">## 3   N.pout   100.0    23     22   1.5 0.849 1.05e+13   100.0</span></span>
+<span><span class="co">## 4  Herring   334.0    99 280540   3.2 0.606 1.11e+12   334.0</span></span>
+<span><span class="co">## 5      Dab   324.0    21    191   1.9 0.536 1.12e+10   324.0</span></span>
+<span><span class="co">## 6  Whiting  1192.0    75     22   1.5 0.323 5.48e+11  1192.0</span></span>
+<span><span class="co">## 7     Sole   866.0    78    381   1.9 0.284 3.87e+10   866.0</span></span>
+<span><span class="co">## 8  Gurnard   668.0    39    283   1.8 0.266 1.65e+12   668.0</span></span>
+<span><span class="co">## 9   Plaice  2976.0   105    113   1.6 0.122 4.08e+14  2976.0</span></span>
+<span><span class="co">## 10 Haddock  4316.5   165    558   2.1 0.271 1.84e+12  4316.5</span></span>
+<span><span class="co">## 11     Cod 39851.3  1606     66   1.3 0.216 8.26e+09 39851.3</span></span>
+<span><span class="co">## 12  Saithe 39658.6  1076     40   1.1 0.175 1.12e+11 39658.6</span></span></code></pre>
 <p>We have seen before that only having these columns in the species
 data.frame is sufficient to make a <code>MizerParams</code> object. Any
 missing columns will be filled with default values by the

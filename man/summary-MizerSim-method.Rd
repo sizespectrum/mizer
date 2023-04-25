@@ -11,6 +11,9 @@
 
 \item{...}{Other arguments (currently not used).}
 }
+\value{
+The MizerSim object, invisibly
+}
 \description{
 Outputs a general summary of the structure and content of the object
 }
