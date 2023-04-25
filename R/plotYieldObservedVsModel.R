@@ -110,8 +110,8 @@ plotYieldObservedVsModel = function(object, species = NULL, ratio = FALSE,
     
     # Check that at least one observed yield exists
     if (sum(dummy$is_observed) == 0) {
-        cat(paste("There are no observed yields to compare to model,", 
-                  "only plotting model yields.", sep = "\n"))
+        warning("There are no observed yields to compare to model, ", 
+                  "only plotting model yields.")
     }
     
     if (!show_unobserved) {

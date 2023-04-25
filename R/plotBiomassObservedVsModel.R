@@ -125,8 +125,8 @@ plotBiomassObservedVsModel <- function(object, species = NULL, ratio = FALSE,
     
     # Check that at least one observed biomass exists
     if (sum(dummy$is_observed) == 0) {
-        cat(paste("There are no observed biomasses to compare to model,", 
-                  "only plotting model biomasses.", sep = "\n"))
+       warning("There are no observed biomasses to compare to model, ", 
+                  "only plotting model biomasses.")
     }
     
     if (!show_unobserved) {
