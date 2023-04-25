@@ -37,8 +37,12 @@ matchGrowth <- function(params, species = NULL,
     biomass <- getBiomass(params)
     number <- getN(params)
     
-    # If age at maturity is not specified, calculate it from von Bertlanffy
-    sp <- set_species_param_default(sp, "age_mat", age_mat_vB(params))
+    sp <- set_species_param_default(sp, "age_mat", NA)
+    # If age at maturity is not specified, calculate it from von Bertalanffy
+    if (all(c("k_vb", "w_inf") %in% names(sp))) {
+        sp <- set_species_param_default(sp, "age_mat", age_mat_vB(params))
+    }
+    
     # Don't affect species where no age at maturity is available
     sel <- sel & !is.na(sp$age_mat)
     
