@@ -67,7 +67,7 @@ mizerRDI <- function(params, n, n_pp, n_other, t,
 #' @param mort A two dimensional array (species x size) holding the mortality
 #'   rate as calculated by [mizerMort()].
 #' @param ... Unused
-#'
+#' @return Vector with the value for each species
 #' @export
 #' @family functions calculating density-dependent reproduction rate
 #' @examples

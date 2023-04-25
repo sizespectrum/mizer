@@ -322,6 +322,7 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
 #' illustrates how this facilitates changing an individual gear parameter.
 #' 
 #' @param params A MizerParams object
+#' @return Data frame with gear parameters
 #' @export
 #' @family functions for setting parameters
 #' @examples 
@@ -427,6 +428,7 @@ getInitialEffort <- function(params) {
 #' specify a time-varying effort.
 #' 
 #' @param params A MizerParams object
+#' @return Effort vector
 #' @export
 initial_effort <- function(params) {
     params@initial_effort

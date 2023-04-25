@@ -15,6 +15,9 @@ readParams(file)
 \item{file}{The name of the file or a connection where the MizerParams object
 is saved to or read from.}
 }
+\value{
+NULL invisibly
+}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 \code{saveParams()} saves a MizerParams object to a file. This can then be

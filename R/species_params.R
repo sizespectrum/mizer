@@ -114,6 +114,7 @@
 #' MizerParams object, in case your own code makes use of them.
 #' 
 #' @param params A MizerParams object
+#' @return Data frame of species parameters
 #' @export
 #' @seealso [validSpeciesParams()]
 #' @family functions for setting parameters

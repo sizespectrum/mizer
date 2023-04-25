@@ -19,6 +19,9 @@ validEffortVector(effort, params)
 
 \item{effort}{A vector or scalar.}
 }
+\value{
+Effort vector
+}
 \description{
 The fishing effort is a named vector, specifying for each fishing gear the
 effort invested into fishing with that gear. The effort value for each gear

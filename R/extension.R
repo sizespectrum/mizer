@@ -255,6 +255,8 @@ getComponent <- function(params, component) {
 
 #' @param object An object of class MizerParams or MizerSim
 #' @rdname initialNOther-set
+#' @return A named list with the initial values of other ecosystem
+#'   components
 #' @export
 initialNOther <- function(object) {
     if (is(object, "MizerParams")) {

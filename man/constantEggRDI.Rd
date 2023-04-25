@@ -19,6 +19,9 @@ rate as calculated by \code{\link[=mizerMort]{mizerMort()}}.}
 
 \item{...}{Unused}
 }
+\value{
+Vector with the value for each species
+}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 The new egg production is set to compensate for the loss of individuals from

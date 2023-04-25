@@ -7,7 +7,7 @@
 double_sigmoid_length(w, l25, l50, l50_right, l25_right, species_params, ...)
 }
 \arguments{
-\item{w}{the size of the individual.}
+\item{w}{Vector of sizes.}
 
 \item{l25}{the length which gives a selectivity of 25\%.}
 
@@ -21,6 +21,9 @@ double_sigmoid_length(w, l25, l50, l50_right, l25_right, species_params, ...)
 Used to get at the length-weight parameters \code{a} and \code{b}}
 
 \item{...}{Unused}
+}
+\value{
+Vector of selectivities at the given sizes.
 }
 \description{
 A hump-shaped selectivity function with a sigmoidal rise and an independent

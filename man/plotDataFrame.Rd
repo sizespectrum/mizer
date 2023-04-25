@@ -56,6 +56,9 @@ creating wrapped facets.}
 
 \item{wrap_scale}{Optional. Used to pass the scales argument to facet_wrap().}
 }
+\value{
+A ggplot2 object
+}
 \description{
 This is used internally by most plotting functions.
 }

@@ -7,11 +7,14 @@
 knife_edge(w, knife_edge_size, ...)
 }
 \arguments{
-\item{w}{The size of the individual.}
+\item{w}{Vector of sizes.}
 
 \item{knife_edge_size}{The weight at which the knife-edge operates.}
 
 \item{...}{Unused}
+}
+\value{
+Vector of selectivities at the given sizes.
 }
 \description{
 A knife-edge selectivity function where weights greater or equal to

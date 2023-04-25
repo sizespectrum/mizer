@@ -14,6 +14,9 @@ resource_params(params) <- value
 
 \item{value}{A named list of resource parameters.}
 }
+\value{
+A named list of resource parameters.
+}
 \description{
 The recommended way to change the resource dynamics parameters is to use
 \code{\link[=setResource]{setResource()}}. The \code{resource_params} list contains values that are helpful

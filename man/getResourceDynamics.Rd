@@ -18,6 +18,9 @@ getResourceCapacity(params)
 \arguments{
 \item{params}{A MizerParams object}
 }
+\value{
+Name of the function that determines the resource dynamics
+}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{\link[=resource_dynamics]{resource_dynamics()}},
 \code{\link[=resource_level]{resource_level()}}, \code{\link[=resource_rate]{resource_rate()}} and \code{\link[=resource_capacity]{resource_capacity()}} instead.

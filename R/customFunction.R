@@ -34,6 +34,7 @@
 #'
 #' @param name Name of mizer function to replace
 #' @param fun The custom function to use as replacement
+#' @return No return value, called for side effects
 #' @export
 #' @examples
 #' \dontrun{
@@ -54,4 +55,5 @@ customFunction <- function(name, fun) {
     }
     environment(fun) <- asNamespace("mizer")
     utils::assignInNamespace(name, fun, ns = "mizer")
+    invisible()
 }

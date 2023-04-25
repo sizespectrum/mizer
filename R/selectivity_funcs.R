@@ -13,12 +13,13 @@
 #' selectivity function is length based, it uses the
 #' length-weight parameters `a` and `b` to convert between length and weight.
 #'
-#' @param w the size of the individual.
+#' @param w Vector of sizes.
 #' @param l25 the length which gives a selectivity of 25%.
 #' @param l50 the length which gives a selectivity of 50%.
 #' @param species_params A list with the species params for the current species.
-#'   Used to get at the length-weight parameters `a` and `b`
+#'   Used to get at the length-weight parameters `a` and `b`.
 #' @param ... Unused
+#' @return Vector of selectivities at the given sizes.
 #' @export
 #' @family selectivity functions
 sigmoid_length <- function(w, l25, l50, species_params, ...) {
@@ -56,7 +57,7 @@ sigmoid_length <- function(w, l25, l50, species_params, ...) {
 #' selectivity function is length based, it uses the
 #' length-weight parameters `a` and `b` to convert between length and weight.
 #'
-#' @param w the size of the individual.
+#' @param w Vector of sizes.
 #' @param l25 the length which gives a selectivity of 25%.
 #' @param l50 the length which gives a selectivity of 50%.
 #' @param l50_right the length which gives a selectivity of 50%.
@@ -64,6 +65,7 @@ sigmoid_length <- function(w, l25, l50, species_params, ...) {
 #' @param species_params A list with the species params for the current species.
 #'   Used to get at the length-weight parameters `a` and `b`
 #' @param ... Unused
+#' @return Vector of selectivities at the given sizes.
 #' @export
 #' @family selectivity functions
 double_sigmoid_length <- function(w, l25, l50, l50_right, l25_right,
@@ -98,9 +100,10 @@ double_sigmoid_length <- function(w, l25, l50, l50_right, l25_right,
 #' A knife-edge selectivity function where weights greater or equal to
 #' `knife_edge_size` are selected.
 #'
-#' @param w The size of the individual.
+#' @param w Vector of sizes.
 #' @param knife_edge_size The weight at which the knife-edge operates.
 #' @param ... Unused
+#' @return Vector of selectivities at the given sizes.
 #' @export
 #' @family selectivity functions
 knife_edge <- function(w, knife_edge_size, ...) {
@@ -114,10 +117,11 @@ knife_edge <- function(w, knife_edge_size, ...) {
 #' A sigmoidal selectivity function with 50% selectivity at
 #' weight `sigmoidal_weight` and width `sigmoidal_sigma`.
 #'
-#' @param w The size of the individual.
+#' @param w Vector of sizes.
 #' @param sigmoidal_weight The weight at which the knife-edge operates.
-#' @param sigmoidal_sigma The width of the selection function
+#' @param sigmoidal_sigma The width of the selection function.
 #' @param ... Unused
+#' @return Vector of selectivities at the given sizes.
 #' @export
 #' @family selectivity functions
 sigmoid_weight <- function(w, sigmoidal_weight, sigmoidal_sigma, ...) {

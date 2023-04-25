@@ -115,6 +115,7 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #' @param ytrans Transformation for the y-axis.
 #' @param y_ticks The approximate number of ticks desired on the y axis
 #' @param highlight Name or vector of names of the species to be highlighted.
+#' @return A ggplot2 object
 #' @keywords internal
 #' @export
 plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),

@@ -10,6 +10,7 @@
 #' @inheritParams newTraitParams
 #' @param q Allometric exponent of search volume
 #' @param ... Unused
+#' @return A MizerParams object
 #' @export
 #' @concept deprecated
 set_multispecies_model <- 

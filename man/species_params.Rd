@@ -14,6 +14,9 @@ species_params(params) <- value
 
 \item{value}{A data frame with the species parameters}
 }
+\value{
+Data frame of species parameters
+}
 \description{
 These functions allow you to get or set the species parameters stored in
 a MizerParams object.

@@ -41,6 +41,7 @@
 #' @param rates_fns Named list of the functions to call to calculate the rates.
 #'   Note that this list holds the functions themselves, not their names.
 #' @param ... Unused
+#' @return List of rates.
 #' @export
 #' @family mizer rate functions
 mizerRates <- function(params, n, n_pp, n_other,

@@ -14,6 +14,9 @@ gear_params(params) <- value
 
 \item{value}{A data frame with the gear parameters.}
 }
+\value{
+Data frame with gear parameters
+}
 \description{
 These functions allow you to get or set the gear parameters stored in
 a MizerParams object. These are used by \code{\link[=setFishing]{setFishing()}} to set up the

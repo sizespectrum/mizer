@@ -68,6 +68,8 @@ distanceSSLogN <- function(params, current, previous) {
 #'   this uses the function [distanceSSLogN()] that you can use as a model for your
 #'   own distance function.
 #' @param ... Further arguments will be passed on to your distance function.
+#' 
+#' @return A MizerParams or a MizerSim object
 #' @seealso [distanceSSLogN()], [distanceMaxRelRDI()]
 #' @export
 projectToSteady <- function(params,
@@ -216,6 +218,7 @@ projectToSteady <- function(params,
 #'   of the `reproduction_level`.
 #' @param progress_bar A shiny progress object to implement a progress bar in a
 #'   shiny app. Default FALSE.
+#' @return A MizerParams or a MizerSim object
 #' @export
 #' @examples
 #' \dontrun{
@@ -301,6 +304,7 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
 #' @param n_other Abundances of other components
 #' @param component Name of the component that is being updated
 #' @param ... Unused
+#' @return The current value of the component
 #' @export
 #' @concept helper
 constant_other <- function(params, n_other, component, ...) {

@@ -15,6 +15,9 @@ constant_other(params, n_other, component, ...)
 
 \item{...}{Unused}
 }
+\value{
+The current value of the component
+}
 \description{
 Helper function to keep other components constant
 }

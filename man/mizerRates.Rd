@@ -27,6 +27,9 @@ Note that this list holds the functions themselves, not their names.}
 
 \item{...}{Unused}
 }
+\value{
+List of rates.
+}
 \description{
 Calls other rate functions in sequence and collects the results in a list.
 }

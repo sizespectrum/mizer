@@ -50,6 +50,9 @@ shiny app. Default FALSE.}
 
 \item{...}{Further arguments will be passed on to your distance function.}
 }
+\value{
+A MizerParams or a MizerSim object
+}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 

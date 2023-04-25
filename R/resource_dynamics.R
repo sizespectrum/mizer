@@ -53,6 +53,7 @@ resource_constant <- function(params, n_pp, ...) {
 #' sizes.
 #' 
 #' @param params A MizerParams object
+#' @return A named list of resource parameters.
 #' @export
 resource_params <- function(params) {
     params@resource_params
@@ -86,6 +87,7 @@ resource_params <- function(params) {
 #' [resource_level()], [resource_rate()] and [resource_capacity()] instead.
 #' 
 #' @param params A MizerParams object
+#' @return Name of the function that determines the resource dynamics
 #' @keywords internal
 #' @export
 getResourceDynamics <- function(params) {
