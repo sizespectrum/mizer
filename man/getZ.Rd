@@ -61,7 +61,7 @@ same arguments.
 }
 
 \examples{
-\dontrun{
+\donttest{
 params <- NS_params
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)

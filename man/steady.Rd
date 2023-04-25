@@ -58,7 +58,7 @@ steady state. The \code{preserve} argument can be used to specify which of the
 reproduction parameters should be preserved.
 }
 \examples{
-\dontrun{
+\donttest{
 params <- newTraitParams()
 species_params(params)$gamma[5] <- 3000
 params <- steady(params)

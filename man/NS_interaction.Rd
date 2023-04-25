@@ -18,12 +18,7 @@ The interaction coefficient between predator and prey species
 in the North Sea.
 }
 \examples{
-\dontrun{
 params <- MizerParams(NS_species_params_gears,
-                      interaction = NS_inter)
-sim = project(params, effort = c(Industrial = 0, Pelagic = 1, 
-                                 Beam = 0.5, Otter = 0.5))
-plot(sim)
-}
+                      interaction = NS_interaction)
 }
 \keyword{datasets}

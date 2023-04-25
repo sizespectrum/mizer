@@ -120,7 +120,7 @@ check for these numerical instabilities by plotting the biomass or abundance
 through time after the projection.
 }
 \examples{
-\dontrun{
+\donttest{
 params <- set_community_model(f0=0.7, z0=0.2, recruitment=3e7)
 # This is now achieved with
 params <- newCommunityParams(f0 = 0.7, z0 = 0.2)

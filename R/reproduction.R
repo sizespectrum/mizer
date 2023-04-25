@@ -71,7 +71,7 @@ mizerRDI <- function(params, n, n_pp, n_other, t,
 #' @export
 #' @family functions calculating density-dependent reproduction rate
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # choose an example params object
 #' params <- NS_params
 #' # We set the reproduction rate functions

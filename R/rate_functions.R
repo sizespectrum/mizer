@@ -103,7 +103,7 @@ getEncounter <- function(params, n = initialN(params),
 #' @export
 #' @family rate functions
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' params <- NS_params
 #' # Get initial feeding level
 #' fl <- getFeedingLevel(params)
@@ -190,7 +190,7 @@ getCriticalFeedingLevel <- function(params) {
 #'   reproduction is calculated with [getERepro()].
 #' @family rate functions
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' params <- NS_params
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
@@ -231,7 +231,7 @@ getEReproAndGrowth <- function(params, n = initialN(params),
 #' @export
 #' @family rate functions
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' params <- NS_params
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
@@ -274,7 +274,7 @@ getPredRate <- function(params, n = initialN(params),
 #' @family rate functions
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' params <- NS_params
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
@@ -347,7 +347,7 @@ getM2 <- getPredMort
 #' @family rate functions
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' params <- NS_params
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
@@ -414,7 +414,7 @@ getM2Background <- getResourceMort
 #' @export
 #' @family rate functions
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' params <-NS_params
 #' # Get the fishing mortality when effort is constant
 #' # for all gears and time:
@@ -530,7 +530,7 @@ getFMortGear <- function(object, effort, time_range) {
 #' @export
 #' @family rate functions
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' params <- NS_params
 #' # Get the total fishing mortality when effort is constant for all 
 #' # gears and time:
@@ -660,7 +660,7 @@ getFMort <- function(object, effort, time_range, drop = TRUE) {
 #' @seealso [getPredMort()], [getFMort()]
 #' @family rate functions
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' params <- NS_params
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
@@ -714,7 +714,7 @@ getZ <- getMort
 #' @export
 #' @family rate functions
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' params <- NS_params
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
@@ -758,7 +758,7 @@ getESpawning <- getERepro
 #' @seealso [getERepro()], [getEReproAndGrowth()]
 #' @family rate functions
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' params <- NS_params
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
@@ -794,7 +794,7 @@ getEGrowth <- function(params, n = initialN(params),
 #' @seealso [getRDD()]
 #' @family rate functions
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' params <- NS_params
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
@@ -838,7 +838,7 @@ getRDI <- function(params, n = initialN(params),
 #' @seealso [getRDI()]
 #' @family rate functions
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' params <- NS_params
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)

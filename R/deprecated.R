@@ -416,7 +416,7 @@ set_trait_model <- function(no_sp = 10,
 #'   Royal Society, 276, 109-114
 #' @concept deprecated
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' params <- set_community_model(f0=0.7, z0=0.2, recruitment=3e7)
 #' # This is now achieved with
 #' params <- newCommunityParams(f0 = 0.7, z0 = 0.2)
@@ -505,7 +505,7 @@ set_community_model <- function(max_w = 1e6,
 #' @export
 #' @concept deprecated
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' params <-  NS_params
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' n <- sim@n[21,,]

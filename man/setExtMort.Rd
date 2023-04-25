@@ -83,7 +83,6 @@ that column exists. Otherwise it is calculated as
 }
 
 \examples{
-\dontrun{
 params <- newMultispeciesParams(NS_species_params)
 
 #### Setting allometric death rate #######################
@@ -97,7 +96,6 @@ allo_mort <- outer(z0pre, w(params)^(-1/4))
 
 # Change the external mortality rate in the params object
 ext_mort(params) <- allo_mort
-}
 }
 \seealso{
 Other functions for setting parameters: 

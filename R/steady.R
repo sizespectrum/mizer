@@ -221,7 +221,7 @@ projectToSteady <- function(params,
 #' @return A MizerParams or a MizerSim object
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' params <- newTraitParams()
 #' species_params(params)$gamma[5] <- 3000
 #' params <- steady(params)

@@ -21,7 +21,7 @@ effort
 \code{effort = c(Industrial = 0, Pelagic = 1, Beam = 0.5, Otter = 0.5)}.
 }
 \examples{
-\dontrun{
+\donttest{
 sim = project(NS_params, effort = c(Industrial = 0, Pelagic = 1, 
                                     Beam = 0.5, Otter = 0.5))
 plot(sim)

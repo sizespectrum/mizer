@@ -40,7 +40,7 @@
 #' @export
 #' @family functions for setting parameters
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' params <- NS_params
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' params <- setInitialValues(params, sim)

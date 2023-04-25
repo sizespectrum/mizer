@@ -74,7 +74,6 @@
 #' @export
 #' @family functions for setting parameters
 #' @examples
-#' \dontrun{
 #' ## Set up a MizerParams object
 #' params <-  NS_params
 #' 
@@ -94,7 +93,6 @@
 #' pred_kernel["Herring", , ] <- sweep(pred_kernel["Herring", , ], 2, 
 #'                                     params@w_full, "*")
 #' params<- setPredKernel(params, pred_kernel = pred_kernel)
-#' }
 setPredKernel <- function(params,
                           pred_kernel = NULL,
                           reset = FALSE, ...) {

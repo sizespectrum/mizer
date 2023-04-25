@@ -25,9 +25,6 @@ abundances are currently quite arbitrary and not close to the steady state.
 We intend to improve this in the future.
 }
 \examples{
-\dontrun{
-params <- newMultispeciesParams(NS_species_params_gears)
-init_n <- get_initial_n(params)
-}
+init_n <- get_initial_n(NS_params)
 }
 \concept{helper}

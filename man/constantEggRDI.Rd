@@ -30,7 +30,7 @@ be modified by density dependence, so this should be used together with
 the \code{noRDD()} function, see example.
 }
 \examples{
-\dontrun{
+\donttest{
 # choose an example params object
 params <- NS_params
 # We set the reproduction rate functions

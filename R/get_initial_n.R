@@ -14,10 +14,7 @@
 #' @concept helper
 #' @return A matrix (species x size) of population abundances.
 #' @examples
-#' \dontrun{
-#' params <- newMultispeciesParams(NS_species_params_gears)
-#' init_n <- get_initial_n(params)
-#' }
+#' init_n <- get_initial_n(NS_params)
 get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
     if (!is(params,"MizerParams"))
         stop("params argument must of type MizerParams")
