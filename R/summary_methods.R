@@ -528,7 +528,7 @@ get_size_range_array <- function(params, min_w = min(params@w),
 #' Outputs a general summary of the structure and content of the object
 #' @param object A `MizerParams` object.
 #' @param ... Other arguments (currently not used).
-#'
+#' @return The MizerParams object, invisibly
 #' @export
 #' @concept summary_function
 #' @examples
@@ -574,6 +574,7 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
 #' Outputs a general summary of the structure and content of the object
 #' @param object A `MizerSim` object.
 #' @param ... Other arguments (currently not used).
+#' @return The MizerSim object, invisibly
 #' @export
 #' @concept summary_function
 #' @examples
