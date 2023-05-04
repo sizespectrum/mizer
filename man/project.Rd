@@ -70,21 +70,24 @@ The function returns an object of type
 \note{
 The \code{effort} argument specifies the level of fishing effort during the
 simulation. If it is not supplied, the initial effort stored in the params
-object is used. The effort can be specified in three different ways:
+object is used. The effort can be specified in four different ways:
 \itemize{
 \item A single numeric value. This specifies the effort of all fishing gears
 which is constant through time (i.e. all the gears have the same constant
 effort).
+\item A named vector whose names match with existing gear names.
+The values in the vector specify the constant fishing effort for those
+fishing gears, i.e. the effort is constant through time. The
+effort for gears that are not included in the effort vector is set to 0.
 \item A numerical vector which has the same length as the number of fishing
-gears. The vector must be named and the names must correspond to the gear
-names in the \code{MizerParams} object. The values in the vector specify the
-constant fishing effort of each of the fishing gears, i.e. the effort is
-constant through time but each gear may have a different fishing effort.
+gears. The values in the vector specify the
+constant fishing effort of each of the fishing gears, with the ordering
+assumed to be the same as in the MizerParams object.
 \item A numerical array with dimensions time x gear. This specifies the
 fishing effort of each gear at each time step.  The first dimension, time,
 must be named numerically and increasing. The second dimension of the array
 must be named and the names must correspond to the gear names in the
-\code{MizerParams} argument. The value for the effort for a particular time
+\code{MizerParams} object. The value for the effort for a particular time
 is used during the interval from that time to the next time in the array.
 }
 
