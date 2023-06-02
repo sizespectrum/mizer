@@ -511,10 +511,10 @@ validSpeciesParams <- function(species_params) {
     # check w_mat ----
     wrong <- sp$w_mat >= sp$w_max
     if (any(wrong)) {
-        message("For the species ", 
+        warning("For the species ", 
                 paste(sp$species[wrong], collapse = ", "),
                 " the value for `w_mat` is not smaller than that of `w_max`.",
-                " I have corrected that by setting it to about 25% of `w_mat.")
+                " I have corrected that by setting it to 25% of `w_max.")
         sp$w_mat[wrong] <- sp$w_max[wrong] / 4
     }
     
@@ -523,7 +523,7 @@ validSpeciesParams <- function(species_params) {
     #  smaller than w_mat
     wrong <- !is.na(sp$w_mat25) & sp$w_mat25 >= sp$w_mat
     if (any(wrong)) {
-        message("For the species ", 
+        warning("For the species ", 
                 paste(sp$species[wrong], collapse = ", "),
                 " the value for `w_mat25` is not smaller than that of `w_mat`.",
                 " I have corrected that by setting it to NA.")
@@ -534,7 +534,7 @@ validSpeciesParams <- function(species_params) {
     wrong <- sp$w_min >= sp$w_mat
     if (any(wrong)) {
         sp$w_min[wrong] <- pmin(0.001, sp$w_mat[wrong] / 10)
-        message("For the species ", 
+        warning("For the species ", 
                 paste(sp$species[wrong], collapse = ", "),
                 " the value for `w_min` is not smaller than that of `w_mat`.",
                 " I have reduced the values.")
@@ -551,9 +551,10 @@ set_species_param_from_length <- function(sp, pw, pl) {
         incons <- !is.na(sp[[pw]]) & !is.na(sp[[pl]]) &
             sp[[pw]] != vw
         if (any(incons)) {
-            warning("For the following species your value for ", pw,
-                    " and your value for ", pl, " are not consistent: ",
-                    paste(sp$species[incons], collapse = ", "))
+            signal(paste0("For the following species I will ignore your value for ",
+                         pl, " because it is not consistent with your value for ",
+                         pw, ": ", paste(sp$species[incons], collapse = ", ")),
+                   class = "info_about_default", var = pl, level = 3)
         }
     }
     sp

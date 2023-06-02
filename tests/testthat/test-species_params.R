@@ -9,16 +9,16 @@ test_that("validSpeciesParams() works", {
     expect_message(sp <- validSpeciesParams(sp), NA)
     expect_equal(sp$w_mat[1], sp$w_max[1] / 4)
     sp$w_mat[2:4] <- 100
-    expect_message(sp <- validSpeciesParams(sp),
+    expect_warning(sp <- validSpeciesParams(sp),
                    "For the species Sandeel, N.pout the value")
     expect_equal(sp$w_mat[2], sp$w_max[2] / 4)
     
     # test w_mat25
     sp <- species_params
     sp$w_mat25 <- c(NA, 1:11)
-    expect_message(validSpeciesParams(sp), NA)
+    expect_warning(validSpeciesParams(sp), NA)
     sp$w_mat25[2:5] <- 21
-    expect_message(sp <- validSpeciesParams(sp),
+    expect_warning(sp <- validSpeciesParams(sp),
                    "For the species Sandeel, Dab the value")
     expect_true(is.na(sp$w_mat25[[2]]))
     expect_identical(sp$w_mat25[[3]], 21)
@@ -26,9 +26,9 @@ test_that("validSpeciesParams() works", {
     # test w_min
     sp <- species_params
     sp$w_min <- c(NA, 1:11)
-    expect_message(validSpeciesParams(sp), NA)
+    expect_warning(validSpeciesParams(sp), NA)
     sp$w_min[2:5] <- 21
-    expect_message(sp <- validSpeciesParams(sp),
+    expect_warning(sp <- validSpeciesParams(sp),
                    "For the species Sandeel, Dab the value")
     expect_identical(sp$w_min[[2]], 0.001)
     expect_identical(sp$w_min[[3]], 21)
@@ -165,10 +165,6 @@ test_that("set_species_params_from_length works", {
     sp$l_mat <- c(1, 2)
     sp2 <- set_species_param_from_length(sp, "w_mat", "l_mat")
     expect_identical(sp2$w_mat, c(0.01, 0.08))
-    # Detects inconsistency
-    sp2$w_mat[2] <- 3
-    expect_warning(set_species_param_from_length(sp2, "w_mat", "l_mat"),
-                   "not consistent: 2")
     # Can deal with NAs
     sp2$w_mat[2] <- NA
     sp2 <- set_species_param_from_length(sp2, "w_mat", "l_mat")

@@ -203,7 +203,7 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
                     "possible value: ",
                     paste0("erepro[", species[wrong], "] = ",
                            signif(erepro_new[wrong], 3),
-                           collapse = "; "))
+                           collapse = "; "), "\n")
         }
         r_max_new <- rdi_new * rdd_new / (rdi_new - rdd_new)
         r_max_new[is.nan(r_max_new)] <- Inf
@@ -234,7 +234,7 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
             warning("For the following species the requested `R_max` ",
                     "was too small and has been increased to give a ",
                     "reproduction level of 0.99: ",
-                    paste(species[wrong], collapse = ", "))
+                    paste(species[wrong], collapse = ", "), "\n")
             values[wrong] <- rdd_new[wrong] / 0.99
         }
         r_max_new <- values
@@ -251,7 +251,7 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
     if (any(wrong)) {
         warning("The following species require an unrealistic reproductive ",
                 "efficiency greater than 1: ",
-                paste(species[wrong], collapse = ", "))
+                paste(species[wrong], collapse = ", "), "\n")
     }
     
     params@time_modified <- lubridate::now()
