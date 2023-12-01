@@ -245,6 +245,8 @@ get_h_default <- function(params) {
         h <- (w_mat^(1 - n) - w_min^(1 - n)) / age_mat / (1 - n) / 
             species_params$alpha / (species_params$f0 - species_params$fc)
         
+        species_params[missing, "h"] <- h[missing]
+        
         # If no acceptable default could be calculated, set h=30
         missing <- is.na(species_params[["h"]]) | species_params[["h"]] <= 0
         if (any(missing)) {
