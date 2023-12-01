@@ -157,7 +157,6 @@ setPredKernel <- function(params,
     phis <- get_phi(species_params, ppmr)
     # Do not allow feeding at own size
     phis[, 1] <- 0
-    fte <- 
     for (i in 1:no_sp) {
         phi <- phis[i, ]
         # Fourier transform of feeding kernel for evaluating available energy
