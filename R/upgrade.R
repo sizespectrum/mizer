@@ -15,7 +15,7 @@ needs_upgrading <- function(object) {
         stop("The object you supplied is neither a MizerParams nor a MizerSim object.")
     }
     !.hasSlot(params, "mizer_version") ||
-        params@mizer_version < "2.3.1.9001"
+        params@mizer_version < "2.4.1.9001"
 }
 
 #' Upgrade MizerParams object from earlier mizer versions
@@ -74,7 +74,7 @@ upgradeParams <- function(params) {
     }
     
     # Before version 2.3 ----
-    if (version < 2.3) {
+    if (version < "2.4.1.9001") {
         
         if ("interaction_p" %in% names(params@species_params)) {
             params@species_params$interaction_resource <- 
@@ -159,6 +159,12 @@ upgradeParams <- function(params) {
             mu_b <- NULL
         }
         
+        if (.hasSlot(params, "ext_encounter")) {
+            ext_encounter <- params@ext_encounter
+        } else {
+            ext_encounter <- NULL
+        }
+        
         if ("r_max" %in% names(params@species_params)) {
             params@species_params$R_max <- params@species_params$r_max
             params@species_params$r_max <- NULL
@@ -212,6 +218,7 @@ upgradeParams <- function(params) {
             intake_max = params@intake_max,
             metab = metab,
             ext_mort = mu_b,
+            ext_encounter = ext_encounter,
             maturity = maturity,
             repro_prop = repro_prop,
             RDD = RDD,

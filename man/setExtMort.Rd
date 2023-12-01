@@ -100,6 +100,7 @@ ext_mort(params) <- allo_mort
 \seealso{
 Other functions for setting parameters: 
 \code{\link{gear_params}()},
+\code{\link{setExtEncounter}()},
 \code{\link{setFishing}()},
 \code{\link{setInitialValues}()},
 \code{\link{setInteraction}()},

@@ -66,6 +66,7 @@
 #' @inheritSection setMaxIntakeRate Setting maximum intake rate
 #' @inheritSection setMetabolicRate Setting metabolic rate
 #' @inheritSection setExtMort Setting external mortality rate
+#' @inheritSection setExtEncounter Setting external encounter rate
 #' @inheritSection setReproduction Setting reproduction
 #' @inheritSection setFishing Setting fishing
 #' @inheritSection setResource Setting resource dynamics
@@ -104,6 +105,8 @@ newMultispeciesParams <- function(
     ext_mort = NULL,
     z0pre = 0.6,
     z0exp = n - 1,
+    # setExtEncounter
+    ext_encounter = NULL,
     # setReproduction
     maturity = NULL,
     repro_prop = NULL,
@@ -191,6 +194,8 @@ newMultispeciesParams <- function(
                   ext_mort = ext_mort,
                   z0pre = z0pre,
                   z0exp = z0exp,
+                  # setExtEncounter
+                  ext_encounter = ext_encounter,
                   # setReproduction
                   maturity = maturity,
                   repro_prop = repro_prop,
@@ -313,6 +318,7 @@ newMultispeciesParams <- function(
 #' @inheritSection setMaxIntakeRate Setting maximum intake rate
 #' @inheritSection setMetabolicRate Setting metabolic rate
 #' @inheritSection setExtMort Setting external mortality rate
+#' @inheritSection setExtEncounter Setting external encounter rate
 #' @inheritSection setReproduction Setting reproduction
 #' @inheritSection setFishing Setting fishing
 #' @export
@@ -326,6 +332,7 @@ setParams <- function(params, interaction = NULL, ...) {
     params <- setMaxIntakeRate(params, ...)
     params <- setMetabolicRate(params, ...)
     params <- setExtMort(params, ...)
+    params <- setExtEncounter(params, ...)
     # setSearchVolume() should be called only after 
     # setMaxIntakeRate() and setPredKernel()
     params <- setSearchVolume(params, ...)

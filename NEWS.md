@@ -1,3 +1,10 @@
+# mizer 2.4.2 (in preparation)
+
+Now the model can include an external encounter rate that represents the
+rate at which a predator encounters food that is not explicitly modelled.
+This encounter rate is set with `setExtEncounter()` or `ext_encounter<-()`
+and can be read with `getExtEncounter()` or `ext_encounter()`.
+
 # mizer 2.4.1
 
 This minor release was made necessary to keep mizer on CRAN after a unit test

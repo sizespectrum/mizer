@@ -68,11 +68,12 @@ validMizerParams <- function(object) {
                length(dim(object@search_vol)),
                length(dim(object@metab)),
                length(dim(object@mu_b)),
+               length(dim(object@ext_encounter)),
                length(dim(object@interaction)),
                length(dim(object@maturity)),
                length(dim(object@ft_mask)),
                length(dim(object@catchability))) == 2)) {
-        msg <- "initial_n, psi, intake_max, search_vol, metab, mu_b, interaction, maturity, ft_mask and catchability must all be two dimensions"
+        msg <- "initial_n, psi, intake_max, search_vol, metab, mu_b, ext_encounter, interaction, maturity, ft_mask and catchability must all be two dimensions"
         errors <- c(errors, msg)
     }
     # 3D arrays
@@ -89,13 +90,14 @@ validMizerParams <- function(object) {
         dim(object@search_vol)[1],
         dim(object@metab)[1],
         dim(object@mu_b)[1],
+        dim(object@ext_encounter)[1],
         dim(object@selectivity)[2],
         dim(object@catchability)[2],
         dim(object@interaction)[1],
         dim(object@interaction)[2],
         dim(object@ft_mask)[1]) == 
         dim(object@species_params)[1])) {
-        msg <- "The number of species in the model must be consistent across the species_params, psi, intake_max, search_vol, mu_b, interaction (dim 1), selectivity, catchability and interaction (dim 2) slots"
+        msg <- "The number of species in the model must be consistent across the species_params, psi, intake_max, search_vol, mu_b, ext_encounter, interaction (dim 1), selectivity, catchability and interaction (dim 2) slots"
         errors <- c(errors, msg)
     }
     # Check number of size groups
@@ -104,12 +106,13 @@ validMizerParams <- function(object) {
         dim(object@maturity)[2],
         dim(object@psi)[2],
         dim(object@mu_b)[2],
+        dim(object@ext_encounter)[2],
         dim(object@intake_max)[2],
         dim(object@search_vol)[2],
         dim(object@metab)[2],
         dim(object@selectivity)[3]) ==
         no_w)) {
-        msg <- "The number of size bins in the model must be consistent across the w, initial_n, maturity, psi, mu_b, intake_max, search_vol, and selectivity (dim 3) slots"
+        msg <- "The number of size bins in the model must be consistent across the w, initial_n, maturity, psi, mu_b, ext_encounter, intake_max, search_vol, and selectivity (dim 3) slots"
         errors <- c(errors, msg)
     }
     # Check number of gears
@@ -127,9 +130,10 @@ validMizerParams <- function(object) {
         names(dimnames(object@search_vol))[1],
         names(dimnames(object@metab))[1],
         names(dimnames(object@mu_b))[1],
+        names(dimnames(object@ext_encounter))[1],
         names(dimnames(object@selectivity))[2],
         names(dimnames(object@catchability))[2]) == "sp")) {
-        msg <- "Name of first dimension of initial_n, maturity, psi, intake_max, search_vol, metab, mu_b, and the second dimension of selectivity and catchability must be 'sp'"
+        msg <- "Name of first dimension of initial_n, maturity, psi, intake_max, search_vol, metab, mu_b, ext_encounter and the second dimension of selectivity and catchability must be 'sp'"
         errors <- c(errors, msg)
     }
     #interaction dimension names
@@ -165,12 +169,13 @@ validMizerParams <- function(object) {
         dimnames(object@search_vol)[[1]],
         dimnames(object@metab)[[1]],
         dimnames(object@mu_b)[[1]],
+        dimnames(object@ext_encounter)[[1]],
         dimnames(object@selectivity)[[2]],
         dimnames(object@catchability)[[2]],
         dimnames(object@interaction)[[1]],
         dimnames(object@interaction)[[2]]) ==
         object@species_params$species)) {
-        msg <- "The species names of species_params, psi, intake_max, search_vol, metab, mu_b, selectivity, catchability and interaction must all be the same"
+        msg <- "The species names of species_params, psi, intake_max, search_vol, metab, mu_b, ext_encounter, selectivity, catchability and interaction must all be the same"
         errors <- c(errors, msg)
     }
     # Check dimnames of w
@@ -302,6 +307,8 @@ validMizerParams <- function(object) {
 #'   for each species at size. Changed with [setMetabolicRate()].
 #' @slot mu_b An array (species x size) that holds the external mortality rate
 #'   \eqn{\mu_{ext.i}(w)}. Changed with [setExtMort()].
+#' @slot ext_encounter An array (species x size) that holds the external encounter rate
+#'   \eqn{E_{ext.i}(w)}. Changed with [setExtEncounter()].
 #' @slot pred_kernel An array (species x predator size x prey size) that holds
 #'   the predation coefficient of each predator at size on each prey size. If
 #'   this is NA then the following two slots will be used. Changed with 
@@ -397,6 +404,7 @@ setClass(
         ft_pred_kernel_e = "array",
         ft_pred_kernel_p = "array",
         mu_b = "array",
+        ext_encounter = "array",
         rr_pp = "numeric",
         cc_pp = "numeric",
         resource_dynamics = "character",
@@ -670,6 +678,7 @@ emptyParams <- function(species_params,
         search_vol = mat1,
         metab = mat1,
         mu_b = mat1,
+        ext_encounter = mat1,
         ft_pred_kernel_e = ft_pred_kernel,
         ft_pred_kernel_p = ft_pred_kernel,
         pred_kernel = array(),

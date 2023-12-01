@@ -233,7 +233,9 @@ mizerEncounter <- function(params, n, n_pp, n_other, t, ...) {
                          n = n, n_pp = n_pp, n_other = n_other,
                          component = names(params@other_encounter)[[i]], ...))
     }
-    return(encounter)
+    
+    # Add external encounter
+    return(encounter + params@ext_encounter)
 }
 
 #' Get feeding level needed to project standard mizer model
