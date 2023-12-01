@@ -320,12 +320,19 @@ get_phi <- function(species_params, ppmr) {
         }
         pars <- c(ppmr = list(ppmr), as.list(species_params[i, args]))
         phi <- do.call(pred_kernel_func_name, args = pars)
-        if (any(is.na(phi)) && 
-            (species_params$interaction_resource[i] > 0 ||
-             any(interaction[i, ] > 0))) {
+        
+        if (any(is.na(phi))) {
             stop("The function ", pred_kernel_func_name,
                  " returned NA. Did you correctly specify all required",
                  " parameters in the species parameter dataframe?")
+        }
+        if (any(phi < 0)) {
+            stop("The function ", pred_kernel_func_name,
+                 " returned negative values.")
+        }
+        if (all(phi == 0)) {
+            stop("The function ", pred_kernel_func_name,
+                 " returned a zero predation kernel.")
         }
         phis[i, ] <- phi
     }
