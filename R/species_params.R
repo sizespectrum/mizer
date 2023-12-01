@@ -489,6 +489,11 @@ validSpeciesParams <- function(species_params) {
             set_species_param_from_length("w_max", "l_max") %>%
             set_species_param_from_length("w_min", "l_min")
     }
+    # Remove the length-based column, see #277
+    sp$l_mat <- NULL
+    sp$l_mat25 <- NULL
+    sp$l_max <- NULL
+    sp$l_min <- NULL
     
     # check w_max ----
     if (!("w_max" %in% names(sp))) {
