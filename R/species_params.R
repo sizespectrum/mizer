@@ -195,7 +195,11 @@ set_species_param_default <- function(object, parname, default,
 #' If `age_mat` is missing in the species parameter data frame, then it is
 #' calculated from the von Bertalanffy growth curve parameters `k_vb` and
 #' (optionally `t0`) taken from the species parameter data frame. This is not
-#' reliable and a warning is issued.
+#' reliable and a warning is issued. 
+#' 
+#' If no growth information is given at all for a species, the default is set
+#' to `h = 30`.
+#' 
 #' @param params A MizerParams object or a species parameter data frame
 #' @return A vector with the values of h for all species
 #' @export
@@ -241,10 +245,13 @@ get_h_default <- function(params) {
         h <- (w_mat^(1 - n) - w_min^(1 - n)) / age_mat / (1 - n) / 
             species_params$alpha / (species_params$f0 - species_params$fc)
         
-        if (any(is.na(h[missing])) || any(h[missing] <= 0)) {
-            stop("Could not calculate h.")
+        # If no acceptable default could be calculated, set h=30
+        missing <- is.na(species_params[["h"]]) | species_params[["h"]] <= 0
+        if (any(missing)) {
+            signal("For species where no growth information is available the parameter h has been set to h = 30.",
+                   class = "info_about_default", var = "h", level = 3)
+            species_params[missing, "h"] <- 30
         }
-        species_params[missing, "h"] <- h[missing]
     }
     return(species_params[["h"]])
 }
