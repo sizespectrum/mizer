@@ -829,3 +829,11 @@ get_w_min_idx <- function(species_params, w) {
     names(w_min_idx) <- as.character(species_params$species)
     w_min_idx
 }
+
+# helper function to calculate w_max_idx
+get_w_max_idx <- function(species_params, w) {
+    unlist(lapply(species_params$w_max,
+           function(w_max, wx) min(max(which(wx <= w_max)) + 1,
+                                   length(w)),
+           wx = w))
+}

@@ -317,6 +317,7 @@ project_simple <-
     no_sp <- nrow(params@species_params) # number of species
     no_w <- length(params@w) # number of fish size bins
     idx <- 2:no_w
+    w_max_idx <- params@other_params$w_max_idx
     # Hacky shortcut to access the correct element of a 2D array using 1D 
     # notation
     # This references the egg size bracket for all species, so for example
@@ -377,9 +378,10 @@ project_simple <-
         #     for (j in (params@w_min_idx[i]+1):no_w)
         #         n[i,j] <- (S[i,j] - A[i,j]*n[i,j-1]) / B[i,j]
         # This is implemented via Rcpp
-        n <- inner_project_loop(no_sp = no_sp, no_w = no_w, n = n,
+        n <- inner_project_loop(no_sp = no_sp, n = n,
                                 A = a, B = b, S = S,
-                                w_min_idx = params@w_min_idx)
+                                w_min_idx = params@w_min_idx,
+                                w_max_idx = w_max_idx)
         
         # * Update time ----
         t <- t + dt
