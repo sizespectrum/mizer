@@ -14,6 +14,7 @@
 #' @inheritParams setMaxIntakeRate
 #' @inheritParams setMetabolicRate
 #' @inheritParams setExtMort
+#' @inheritParams setExtEncounter
 #' @inheritParams setReproduction
 #' @inheritParams setFishing
 #' @inheritParams setResource
