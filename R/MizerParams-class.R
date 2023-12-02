@@ -346,7 +346,9 @@ validMizerParams <- function(object) {
 #' @slot sc `r lifecycle::badge("experimental")`
 #'   The community abundance of the scaling community
 #' @slot species_params A data.frame to hold the species specific parameters.
-#'   See [newMultispeciesParams()] for details.
+#'   See [species_params()] for details.
+#' @slot given_species_params A data.frame to hold the species parameters that
+#'   were given explicitly rather than obtained by default calculations.
 #' @slot gear_params Data frame with parameters for gear selectivity. See 
 #'   [setFishing()] for details.
 #' @slot interaction The species specific interaction matrix, \eqn{\theta_{ij}}.
@@ -418,6 +420,7 @@ setClass(
         initial_n_pp = "numeric",
         initial_n_other = "list",
         species_params = "data.frame",
+        given_species_params = "data.frame",
         interaction = "array",
         gear_params = "data.frame",
         selectivity = "array",
@@ -492,6 +495,8 @@ emptyParams <- function(species_params,
     assert_that(is.data.frame(species_params),
                 is.data.frame(gear_params),
                 no_w > 10)
+    
+    given_species_params <- species_params
     
     ## Set defaults ----
     if (is.na(min_w_pp)) min_w_pp <- 1e-12
@@ -691,6 +696,7 @@ emptyParams <- function(species_params,
         sc = w,
         initial_n_pp = vec1,
         species_params = species_params,
+        given_species_params = given_species_params,
         interaction = interaction,
         other_dynamics = list(),
         other_encounter = list(),

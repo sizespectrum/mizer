@@ -126,8 +126,8 @@ species_params <- function(params) {
 #' @param value A data frame with the species parameters
 #' @export
 `species_params<-` <- function(params, value) {
-    value <- validSpeciesParams(value)
-    params@species_params <- value
+    params@given_species_params <- value
+    params@species_params <- validSpeciesParams(params@given_species_params)
     suppressMessages(setParams(params))
 }
 

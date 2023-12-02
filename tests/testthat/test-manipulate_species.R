@@ -216,6 +216,8 @@ test_that("adding and then removing species leaves params unaltered", {
     params2@linetype <- params@linetype
     params2@species_params$linecolour <- NULL
     params2@species_params$linetype <- NULL
+    params2@given_species_params$linecolour <- NULL
+    params2@given_species_params$linetype <- NULL
     # comment on w_min_idx are not preserved
     comment(params@w_min_idx) <- NULL
     expect_unchanged(params, params2)

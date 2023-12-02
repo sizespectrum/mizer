@@ -15,7 +15,7 @@ needs_upgrading <- function(object) {
         stop("The object you supplied is neither a MizerParams nor a MizerSim object.")
     }
     !.hasSlot(params, "mizer_version") ||
-        params@mizer_version < "2.4.1.9001"
+        params@mizer_version < "2.4.1.9002"
 }
 
 #' Upgrade MizerParams object from earlier mizer versions
@@ -349,6 +349,12 @@ upgradeParams <- function(params) {
         if (!"External" %in% names(getLinetypes(params))) {
             params <- setLinetypes(params, c("External" = "solid"))
         }
+    }
+    
+    # For version 2.4.1.9002 ----
+    if (!.hasSlot(params, "given_species_params")) {
+        # Add the new slot with a default value or derived value
+        params@given_species_params <- params@species_params
     }
     
     params@mizer_version <- packageVersion("mizer")
