@@ -499,7 +499,7 @@ validGearParams <- function(gear_params, species_params) {
                        stringsAsFactors = FALSE) # for old versions of R
     }
     
-    species_params <- validSpeciesParams(species_params)
+    species_params <- completeSpeciesParams(species_params)
     no_sp <- nrow(species_params)
     
     # If no gear_params are supplied, but there is either a gear or sel_func

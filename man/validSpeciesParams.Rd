@@ -27,14 +27,6 @@ inconsistent.
 If a \code{w_inf} column is given but no \code{w_max} then the value from \code{w_inf} is
 used. This is for backwards compatibility.
 
-The function sets default values if any of the following are missing or NA
-\itemize{
-\item \code{w_mat} is set to \code{w_max/4}
-\item \code{w_min} is set to \code{0.001}
-\item \code{alpha} is set to \code{0.6}
-\item \code{interaction_resource} is set to \code{1}
-}
-
 Some inconsistencies in the size parameters are resolved as follows:
 \itemize{
 \item Any \code{w_mat} that is not smaller than \code{w_max} is set to \code{w_max / 4}.
@@ -57,10 +49,9 @@ individual rate-setting functions (see \code{\link[=setParams]{setParams()}} for
 functions).
 }
 \description{
-Check validity of species parameters and set defaults for missing but
-required parameters.
+Check validity of species parameters.
 }
 \seealso{
-species_params
+species_params()
 }
 \concept{helper}

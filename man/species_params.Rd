@@ -3,11 +3,17 @@
 \name{species_params}
 \alias{species_params}
 \alias{species_params<-}
+\alias{given_species_params}
+\alias{given_species_params<-}
 \title{Species parameters}
 \usage{
 species_params(params)
 
 species_params(params) <- value
+
+given_species_params(params)
+
+given_species_params(params) <- value
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -139,7 +145,7 @@ data frame. They will simply be ignored by mizer but will be stored in the
 MizerParams object, in case your own code makes use of them.
 }
 \seealso{
-\code{\link[=validSpeciesParams]{validSpeciesParams()}}
+\code{\link[=validSpeciesParams]{validSpeciesParams()}}, \code{\link[=completeSpeciesParams]{completeSpeciesParams()}}
 
 Other functions for setting parameters: 
 \code{\link{gear_params}()},

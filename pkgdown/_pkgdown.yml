@@ -183,6 +183,7 @@ reference:
   - setMaxIntakeRate
   - setMetabolicRate
   - setExtMort
+  - setExtEncounter
   - setReproduction
   - setFishing
 - title: Calculating rates

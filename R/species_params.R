@@ -116,7 +116,7 @@
 #' @param params A MizerParams object
 #' @return Data frame of species parameters
 #' @export
-#' @seealso [validSpeciesParams()]
+#' @seealso [validSpeciesParams()], [completeSpeciesParams()]
 #' @family functions for setting parameters
 species_params <- function(params) {
     params@species_params
@@ -126,8 +126,24 @@ species_params <- function(params) {
 #' @param value A data frame with the species parameters
 #' @export
 `species_params<-` <- function(params, value) {
+    value <- completeSpeciesParams(value)
+    params@species_params <- value
+    suppressMessages(setParams(params))
+}
+
+
+#' @rdname species_params
+#' @export
+given_species_params <- function(params) {
+    params@given_species_params
+}
+
+#' @rdname species_params
+#' @export
+`given_species_params<-` <- function(params, value) {
+    value <- validSpeciesParams(value)
     params@given_species_params <- value
-    params@species_params <- validSpeciesParams(params@given_species_params)
+    params@species_params <- completeSpeciesParams(value)
     suppressMessages(setParams(params))
 }
 
@@ -210,15 +226,16 @@ get_h_default <- function(params) {
     if (is(params, "MizerParams")) {
         species_params <- params@species_params
     } else {
-        species_params <- validSpeciesParams(params)
+        species_params <- completeSpeciesParams(params)
     }
+    assert_that("n" %in% names(species_params))
     species_params <- set_species_param_default(species_params, "f0", 0.6)
     if (!("h" %in% colnames(species_params))) {
         species_params[["h"]] <- rep(NA, nrow(species_params))
     }
     missing <- is.na(species_params[["h"]])
     if (any(missing)) {
-        # The following should be assured by `validSpeciesParams()`
+        # The following should be assured by `completeSpeciesParams()`
         assert_that(is.numeric(species_params$f0),
                     noNA(species_params$alpha),
                     "alpha" %in% names(species_params))
@@ -231,7 +248,6 @@ get_h_default <- function(params) {
         }
         species_params <- species_params %>% 
             set_species_param_default("fc", 0.2) %>% 
-            set_species_param_default("n", 3 / 4) %>% 
             set_species_param_default(
                 "age_mat", age_mat_vB(species_params),
                 strwrap("Because the age at maturity is not known, I need to 
@@ -380,7 +396,9 @@ get_f0_default <- function(params) {
 #' @concept helper
 #' @family functions calculating defaults
 get_ks_default <- function(params) {
-    assert_that(is(params, "MizerParams"))
+    assert_that(is(params, "MizerParams"),
+                "n" %in% names(params@species_params),
+                "p" %in% names(params@species_params))
     if (!"h" %in% names(params@species_params) ||
         any(is.na(params@species_params[["h"]]))) {
         params@species_params[["h"]] <- get_h_default(params)
@@ -390,19 +408,17 @@ get_ks_default <- function(params) {
     ks_default <- sp$fc * sp$alpha * sp[["h"]] * sp$w_mat^(sp[["n"]] - sp[["p"]])
     
     message <- ("No ks column so calculating from critical feeding level.")
-    params <- set_species_param_default(params, "ks", ks_default, message)
-    if (any(is.na(params@species_params$ks) | 
-            is.infinite(params@species_params$ks))) {
+    sp <- set_species_param_default(sp, "ks", ks_default, message)
+    if (any(is.na(sp$ks) |  is.infinite(sp$ks))) {
         stop("Could not calculate default values for the missing species ",
-             "parameter ks. Got: ", params@species_params$ks)
+             "parameter ks. Got: ", sp$ks)
     }
-    return(params@species_params$ks)
+    return(sp$ks)
 }
 
 #' Validate species parameter data frame
 #' 
-#' Check validity of species parameters and set defaults for missing but
-#' required parameters.
+#' Check validity of species parameters.
 #' 
 #' @param species_params The user-supplied species parameter data frame
 #' @return A valid species parameter data frame
@@ -419,12 +435,6 @@ get_ks_default <- function(params) {
 #' 
 #' If a `w_inf` column is given but no `w_max` then the value from `w_inf` is
 #' used. This is for backwards compatibility.
-#' 
-#' The function sets default values if any of the following are missing or NA
-#' * `w_mat` is set to `w_max/4`
-#' * `w_min` is set to `0.001`
-#' * `alpha` is set to `0.6`
-#' * `interaction_resource` is set to `1`
 #' 
 #' Some inconsistencies in the size parameters are resolved as follows:
 #' * Any `w_mat` that is not smaller than `w_max` is set to `w_max / 4`.
@@ -444,7 +454,7 @@ get_ks_default <- function(params) {
 #' to produce a viable model. More checks of the parameters are performed by the
 #' individual rate-setting functions (see [setParams()] for the list of these
 #' functions).
-#' @seealso species_params
+#' @seealso species_params()
 #' @concept helper
 #' @export
 validSpeciesParams <- function(species_params) {
@@ -515,46 +525,75 @@ validSpeciesParams <- function(species_params) {
         stop("`w_max` contains non-numeric values.")
     }
     
-    # Defaults ----
-    sp <- sp %>% 
-        set_species_param_default("w_mat", sp$w_max / 4) %>% 
-        set_species_param_default("w_min", 0.001) %>% 
-        set_species_param_default("alpha", 0.6) %>% 
-        set_species_param_default("interaction_resource", 1)
-    
     # check w_mat ----
-    wrong <- sp$w_mat >= sp$w_max
-    if (any(wrong)) {
-        warning("For the species ", 
-                paste(sp$species[wrong], collapse = ", "),
-                " the value for `w_mat` is not smaller than that of `w_max`.",
-                " I have corrected that by setting it to 25% of `w_max.")
-        sp$w_mat[wrong] <- sp$w_max[wrong] / 4
+    if ("w_mat" %in% names(sp)) {
+        wrong <- !is.na(sp$w_mat) & sp$w_mat >= sp$w_max
+        if (any(wrong)) {
+            warning("For the species ", 
+                    paste(sp$species[wrong], collapse = ", "),
+                    " the value for `w_mat` is not smaller than that of `w_max`.",
+                    " I have corrected that by setting it to 25% of `w_max.")
+            sp$w_mat[wrong] <- sp$w_max[wrong] / 4
+        }
+        
+        # check w_mat25 ----
+        if ("w_mat25" %in% names(sp)) {
+            wrong <- !is.na(sp$w_mat) & !is.na(sp$w_mat25) & sp$w_mat25 >= sp$w_mat
+            if (any(wrong)) {
+                warning("For the species ", 
+                        paste(sp$species[wrong], collapse = ", "),
+                        " the value for `w_mat25` is not smaller than that of `w_mat`.",
+                        " I have corrected that by setting it to NA.")
+                sp$w_mat25[wrong] <- NA
+            }
+        }
+        
+        # check w_min ----
+        if ("w_min" %in% names(sp)) {
+            wrong <- !is.na(sp$w_min) & !is.na(sp$w_mat) & sp$w_min >= sp$w_mat
+            if (any(wrong)) {
+                sp$w_min[wrong] <- pmin(0.001, sp$w_mat[wrong] / 10)
+                warning("For the species ", 
+                        paste(sp$species[wrong], collapse = ", "),
+                        " the value for `w_min` is not smaller than that of `w_mat`.",
+                        " I have reduced the values.")
+            }
+        }
     }
-    
-    # check w_mat25 ----
-    # For w_mat25 it is o.k. if it is NA, but if given it must be 
-    #  smaller than w_mat
-    wrong <- !is.na(sp$w_mat25) & sp$w_mat25 >= sp$w_mat
-    if (any(wrong)) {
-        warning("For the species ", 
-                paste(sp$species[wrong], collapse = ", "),
-                " the value for `w_mat25` is not smaller than that of `w_mat`.",
-                " I have corrected that by setting it to NA.")
-        sp$w_mat25[wrong] <- NA
-    }
-    
-    # check w_min ----
-    wrong <- sp$w_min >= sp$w_mat
-    if (any(wrong)) {
-        sp$w_min[wrong] <- pmin(0.001, sp$w_mat[wrong] / 10)
-        warning("For the species ", 
-                paste(sp$species[wrong], collapse = ", "),
-                " the value for `w_min` is not smaller than that of `w_mat`.",
-                " I have reduced the values.")
-    }
-    
     sp
+}
+
+#' Complete species parameter data frame with default values
+#' 
+#' Sets defaults for missing but required species parameters.
+#' 
+#' @param species_params The user-supplied species parameter data frame
+#' @return A completed species parameter data frame
+#' 
+#' The function sets default values if any of the following species parameters
+#' are missing or NA:
+#' * `w_mat` is set to `w_max/4`
+#' * `w_min` is set to `0.001`
+#' * `alpha` is set to `0.6`
+#' * `interaction_resource` is set to `1`
+#' * `n` is set to `3/4`
+#' 
+#' It calls `validSpeciesParams()` to check the validity of the species
+#' parameters. Nevertheless the species parameters returned by this function are not guaranteed
+#' to produce a viable model. More checks of the parameters are performed by the
+#' individual rate-setting functions (see [setParams()] for the list of these
+#' functions).
+#' @seealso species_params(), validSpeciesParams()
+#' @concept helper
+#' @export
+completeSpeciesParams <- function(species_params) {
+    sp <- validSpeciesParams(species_params)
+    sp <- set_species_param_default(sp, "w_mat", sp$w_max / 4)
+    sp <- set_species_param_default(sp, "w_min", 0.001)
+    sp <- set_species_param_default(sp, "alpha", 0.6)
+    sp <- set_species_param_default(sp, "interaction_resource", 1)
+    sp <- set_species_param_default(sp, "n", 3/4)
+    validSpeciesParams(sp)
 }
 
 # Set weight-based parameter from length-based parameter

@@ -216,6 +216,7 @@ setReproduction <- function(params, maturity = NULL,
         # Check w_mat25
         assert_that(all(species_params$w_mat25 > species_params$w_min))
         assert_that(all(species_params$w_mat25 < species_params$w_mat))
+        params@species_params$w_mat25 <- species_params$w_mat25
         
         maturity <- params@maturity  # To get the right dimensions
         maturity[] <- 

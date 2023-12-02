@@ -66,8 +66,8 @@ addSpecies <- function(params, species_params,
                        interaction) {
     # check validity of parameters ----
     params <- validParams(params)
-    given_species_params <- species_params
-    species_params <- validSpeciesParams(species_params)
+    given_species_params <- validSpeciesParams(species_params)
+    species_params <- completeSpeciesParams(species_params)
     gear_params <- validGearParams(gear_params, species_params)
     if (any(species_params$species %in% params@species_params$species)) {
         stop("You can not add species that are already there.")

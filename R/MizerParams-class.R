@@ -496,14 +496,14 @@ emptyParams <- function(species_params,
                 is.data.frame(gear_params),
                 no_w > 10)
     
-    given_species_params <- species_params
+    given_species_params <- validSpeciesParams(species_params)
     
     ## Set defaults ----
     if (is.na(min_w_pp)) min_w_pp <- 1e-12
     species_params <- set_species_param_default(species_params, "w_min", min_w)
     min_w <- min(species_params$w_min)
     
-    species_params <- validSpeciesParams(species_params)
+    species_params <- completeSpeciesParams(species_params)
     gear_params <- validGearParams(gear_params, species_params)
     
     if (is.na(max_w)) {
