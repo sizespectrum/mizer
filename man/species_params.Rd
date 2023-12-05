@@ -5,6 +5,7 @@
 \alias{species_params<-}
 \alias{given_species_params}
 \alias{given_species_params<-}
+\alias{calculated_species_params}
 \title{Species parameters}
 \usage{
 species_params(params)
@@ -14,6 +15,8 @@ species_params(params) <- value
 given_species_params(params)
 
 given_species_params(params) <- value
+
+calculated_species_params(params)
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -24,17 +27,38 @@ given_species_params(params) <- value
 Data frame of species parameters
 }
 \description{
-These functions allow you to get or set the species parameters stored in
-a MizerParams object.
+These functions allow you to get or set the species-specific parameters
+stored in a MizerParams object.
 }
 \details{
-The \code{species_params} data frame holds species-specific parameters. The data
-frame has one row for each species and one column for each species parameter.
+Not all species parameters have to be specified by the user. If they are
+missing, mizer will give them default values, sometimes by using other
+species parameters. So mizer distinguishes between the species parameters
+that you have given explicitly while setting up the mizer model and the
+species parameters that have been calculated by mizer or set to default
+values. You can retrieve the given species parameters with
+\code{given_species_params()} and the calculated ones with
+\code{calculated_species_params()}. You get all species_params with
+\code{species_params()}.
+
+Mizer stores the given parameters in a data frame \code{given_species_params} and
+both the calculated and the given parameters together in a data frame
+\code{species_params}. Both these data frames have one row for each species.
+\code{given_species_params} only has columns for the explicitly given species
+parameters while \code{species_params} has columns for all species parameters.
+
+If you change given species parameters with \verb{given_species_params<-()} this
+may trigger a re-calculation of some of the calculated species parameters.
+However if you change species parameters with \verb{species_params<-()} your new
+values will be stored in both species parameter data frames and no
+recalculation will take place. So in most use cases you will only want to use
+\verb{given_species_params<-()}.
+
 There are a lot of species parameters and we will list them all below, but
 most of them have sensible default values. The only required columns are
 \code{species} for the species name and \code{w_max} for its maximum size. However
 if you have information about the values of other parameters then you should
-include them in the \code{species_params} data frame.
+provide them.
 
 There are some species parameters that are used to set up the
 size-dependent parameters that are used in the mizer model:
@@ -54,8 +78,8 @@ section in the help for \code{\link[=setPredKernel]{setPredKernel()}}.
 using other predation kernel functions.
 }
 
-When you change one of the above species parameters in an already existing
-MizerParams object using \code{\link[=species_params<-]{species_params<-()}}, the new value will be
+When you change one of the above species parameters using
+\verb{given_species_params<-()} or \verb{species_params<-()}, the new value will be
 used to update the corresponding size-dependent rates automatically, unless
 you have set those size-dependent rates manually, in which case the
 corresponding species parameters will be ignored.
@@ -89,10 +113,8 @@ If you have supplied these, then you can replace weight parameters
 like \code{w_max}, \code{w_mat}, \code{w_mat25} and \code{w_min} by their corresponding length
 parameters \code{l_max}, \code{l_mat}, \code{l_mat25} and \code{l_min}.
 
-Not all species parameters have to be specified by the user. If they are
-missing, \code{\link[=newMultispeciesParams]{newMultispeciesParams()}} will give them default values, sometimes
-by using other species parameters. The parameters that are only used to
-calculate default values for other parameters are:
+The parameters that are only used to calculate default values for other
+parameters are:
 \itemize{
 \item \code{f0} is the feeding level and is used to get a default value for the
 coefficient of the search volume \code{gamma}, see \code{\link[=get_gamma_default]{get_gamma_default()}}.
@@ -103,11 +125,9 @@ maintain itself. This is used to get a default value for the coefficient
 the coefficient \code{h} of the maximum intake rate, see \code{\link[=get_h_default]{get_h_default()}}.
 }
 
-Note that these parameters are ignored if the parameters for which they allow
-defaults to be calculated have instead been set explicitly. Also, these
-parameters will only be used when setting up a new model with
-\code{\link[=newMultispeciesParams]{newMultispeciesParams()}}. Changing them later will have no effect
-because the default for the other parameters will not be recalculated.
+Note that setting these parameters with \verb{species_params<-()} will have no
+effect. You need to set them with \verb{given_species_params<-()} in order to
+trigger a re-calculation of the other species parameters.
 
 In the past mizer also used the von Bertalanffy parameters \code{k_vb}, \code{w_inf}
 and \code{t0} to determine a default for \code{h}. This is unreliable and is therefore
@@ -135,13 +155,13 @@ represented in plots:
 Other species-specific information that is related to how the species is
 fished is specified in a gear parameter data frame, see \code{\link[=gear_params]{gear_params()}}.
 However in the case where each species is caught by only a single gear,
-this information can also optionally be provided as columns in the
-\code{species_params} data frame and \code{\link[=newMultispeciesParams]{newMultispeciesParams()}} will transfer
-them to the \code{gear_params} data frame. However changing these parameters later
-in the species parameter data frame will have no effect.
+this information can also optionally be provided as species parameters and
+\code{\link[=newMultispeciesParams]{newMultispeciesParams()}} will transfer them to the \code{gear_params} data frame.
+However changing these parameters later in the species parameter data frames
+will have no effect.
 
-You are allowed to include additional columns in the \code{species_params}
-data frame. They will simply be ignored by mizer but will be stored in the
+You are allowed to include additional columns in the species parameter
+data frames. They will simply be ignored by mizer but will be stored in the
 MizerParams object, in case your own code makes use of them.
 }
 \seealso{

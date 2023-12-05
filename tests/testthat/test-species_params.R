@@ -170,4 +170,8 @@ test_that("set_species_params_from_length works", {
     sp2$w_mat[2] <- NA
     sp2 <- set_species_param_from_length(sp2, "w_mat", "l_mat")
     expect_identical(sp2$w_mat, c(0.01, 0.08))
+    # negative or zero lengths give error
+    sp2$l_mat[2] <- 0
+    expect_error(set_species_param_from_length(sp2, "w_mat", "l_mat"),
+                 "All lengths should be positive and non-zero.")
 })

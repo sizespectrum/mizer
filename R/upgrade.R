@@ -353,8 +353,11 @@ upgradeParams <- function(params) {
     
     # For version 2.4.1.9002 ----
     if (!.hasSlot(params, "given_species_params")) {
-        # Add the new slot with a default value or derived value
         params@given_species_params <- params@species_params
+    }
+    if (!("w_mat25" %in% names(params@species_params))) {
+        params <- set_species_param_default(params, "w_mat25",       
+            params@species_params$w_mat / (3 ^ (1 / 10)))
     }
     
     params@mizer_version <- packageVersion("mizer")

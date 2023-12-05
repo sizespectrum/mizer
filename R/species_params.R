@@ -1,15 +1,36 @@
 #' Species parameters
 #' 
-#' These functions allow you to get or set the species parameters stored in
-#' a MizerParams object.
+#' These functions allow you to get or set the species-specific parameters
+#' stored in a MizerParams object.
+#'
+#' Not all species parameters have to be specified by the user. If they are
+#' missing, mizer will give them default values, sometimes by using other
+#' species parameters. So mizer distinguishes between the species parameters
+#' that you have given explicitly while setting up the mizer model and the
+#' species parameters that have been calculated by mizer or set to default
+#' values. You can retrieve the given species parameters with
+#' `given_species_params()` and the calculated ones with
+#' `calculated_species_params()`. You get all species_params with
+#' `species_params()`.
 #' 
-#' The `species_params` data frame holds species-specific parameters. The data
-#' frame has one row for each species and one column for each species parameter.
+#' Mizer stores the given parameters in a data frame `given_species_params` and 
+#' both the calculated and the given parameters together in a data frame 
+#' `species_params`. Both these data frames have one row for each species.
+#' `given_species_params` only has columns for the explicitly given species 
+#' parameters while `species_params` has columns for all species parameters.
+#' 
+#' If you change given species parameters with `given_species_params<-()` this
+#' may trigger a re-calculation of some of the calculated species parameters.
+#' However if you change species parameters with `species_params<-()` your new
+#' values will be stored in both species parameter data frames and no
+#' recalculation will take place. So in most use cases you will only want to use
+#' `given_species_params<-()`.
+#' 
 #' There are a lot of species parameters and we will list them all below, but
 #' most of them have sensible default values. The only required columns are
 #' `species` for the species name and `w_max` for its maximum size. However
 #' if you have information about the values of other parameters then you should
-#' include them in the `species_params` data frame.
+#' provide them.
 #' 
 #' There are some species parameters that are used to set up the
 #' size-dependent parameters that are used in the mizer model:
@@ -28,8 +49,8 @@
 #'   [lognormal_pred_kernel()]. There will be other parameters if you are 
 #'   using other predation kernel functions.
 #'   
-#' When you change one of the above species parameters in an already existing
-#' MizerParams object using [species_params<-()], the new value will be
+#' When you change one of the above species parameters using 
+#' `given_species_params<-()` or `species_params<-()`, the new value will be
 #' used to update the corresponding size-dependent rates automatically, unless
 #' you have set those size-dependent rates manually, in which case the
 #' corresponding species parameters will be ignored.
@@ -61,10 +82,8 @@
 #' like `w_max`, `w_mat`, `w_mat25` and `w_min` by their corresponding length
 #' parameters `l_max`, `l_mat`, `l_mat25` and `l_min`.
 #'   
-#' Not all species parameters have to be specified by the user. If they are
-#' missing, [newMultispeciesParams()] will give them default values, sometimes
-#' by using other species parameters. The parameters that are only used to
-#' calculate default values for other parameters are:
+#' The parameters that are only used to calculate default values for other
+#' parameters are:
 #' 
 #' * `f0` is the feeding level and is used to get a default value for the
 #'   coefficient of the search volume `gamma`, see [get_gamma_default()].
@@ -74,11 +93,9 @@
 #' * `age_mat` is the age at maturity and is used to get a default value for
 #'   the coefficient `h` of the maximum intake rate, see [get_h_default()].
 #'   
-#' Note that these parameters are ignored if the parameters for which they allow
-#' defaults to be calculated have instead been set explicitly. Also, these
-#' parameters will only be used when setting up a new model with 
-#' [newMultispeciesParams()]. Changing them later will have no effect 
-#' because the default for the other parameters will not be recalculated.
+#' Note that setting these parameters with `species_params<-()` will have no
+#' effect. You need to set them with `given_species_params<-()` in order to
+#' trigger a re-calculation of the other species parameters.
 #' 
 #' In the past mizer also used the von Bertalanffy parameters `k_vb`, `w_inf`
 #' and `t0` to determine a default for `h`. This is unreliable and is therefore
@@ -104,13 +121,13 @@
 #' Other species-specific information that is related to how the species is
 #' fished is specified in a gear parameter data frame, see [gear_params()].
 #' However in the case where each species is caught by only a single gear, 
-#' this information can also optionally be provided as columns in the
-#' `species_params` data frame and [newMultispeciesParams()] will transfer
-#' them to the `gear_params` data frame. However changing these parameters later
-#' in the species parameter data frame will have no effect.
+#' this information can also optionally be provided as species parameters and
+#' [newMultispeciesParams()] will transfer them to the `gear_params` data frame.
+#' However changing these parameters later in the species parameter data frames
+#' will have no effect.
 #' 
-#' You are allowed to include additional columns in the `species_params`
-#' data frame. They will simply be ignored by mizer but will be stored in the
+#' You are allowed to include additional columns in the species parameter
+#' data frames. They will simply be ignored by mizer but will be stored in the
 #' MizerParams object, in case your own code makes use of them.
 #' 
 #' @param params A MizerParams object
@@ -119,6 +136,7 @@
 #' @seealso [validSpeciesParams()], [completeSpeciesParams()]
 #' @family functions for setting parameters
 species_params <- function(params) {
+    assert_that(is(params, "MizerParams"))
     params@species_params
 }
 
@@ -126,6 +144,7 @@ species_params <- function(params) {
 #' @param value A data frame with the species parameters
 #' @export
 `species_params<-` <- function(params, value) {
+    assert_that(is(params, "MizerParams"))
     value <- completeSpeciesParams(value)
     params@species_params <- value
     suppressMessages(setParams(params))
@@ -135,18 +154,45 @@ species_params <- function(params) {
 #' @rdname species_params
 #' @export
 given_species_params <- function(params) {
+    assert_that(is(params, "MizerParams"))
     params@given_species_params
 }
 
 #' @rdname species_params
 #' @export
 `given_species_params<-` <- function(params, value) {
+    assert_that(is(params, "MizerParams"))
     value <- validSpeciesParams(value)
     params@given_species_params <- value
     params@species_params <- completeSpeciesParams(value)
     suppressMessages(setParams(params))
 }
 
+#' @rdname species_params
+#' @export
+calculated_species_params <- function(params) {
+    assert_that(is(params, "MizerParams"))
+    # Identifying common columns
+    common_cols <- intersect(names(params@species_params), 
+                             names(params@given_species_params))
+    # Copy df1 to new_df
+    calculated <- params@species_params
+    # remove the entries that are also in given_species_params
+    for (col in common_cols) {
+        calculated[[col]] <- replace_with_na(calculated[[col]], 
+                                             params@given_species_params[[col]])
+    }
+    # Removing columns that only contain NAs
+    calculated <- calculated %>%
+        select(where(~ !all(is.na(.))))
+    
+    return(calculated)
+}
+
+# Function to replace overlapping entries with NA
+replace_with_na <- function(x, y) {
+    ifelse(is.na(y), x, NA)
+}
 
 #' Set a species parameter to a default value
 #'
@@ -501,11 +547,6 @@ validSpeciesParams <- function(species_params) {
             set_species_param_from_length("w_max", "l_max") %>%
             set_species_param_from_length("w_min", "l_min")
     }
-    # Remove the length-based column, see #277
-    sp$l_mat <- NULL
-    sp$l_mat25 <- NULL
-    sp$l_max <- NULL
-    sp$l_min <- NULL
     
     # check w_max ----
     if (!("w_max" %in% names(sp))) {
@@ -600,9 +641,14 @@ completeSpeciesParams <- function(species_params) {
 set_species_param_from_length <- function(sp, pw, pl) {
     if (pl %in% names(sp)) {
         vw <- l2w(sp[[pl]], sp)
+        if (any(vw <= 0, na.rm = TRUE)) {
+            stop("All lengths should be positive and non-zero.")
+        }
         sp <- set_species_param_default(sp, pw, vw)
+        # If both weight and length are given, check that they agree to
+        # within 10% at least.
         incons <- !is.na(sp[[pw]]) & !is.na(sp[[pl]]) &
-            sp[[pw]] != vw
+            (abs(sp[[pw]] - vw) / pmax(sp[[pw]], vw) > 0.1)
         if (any(incons)) {
             signal(paste0("For the following species I will ignore your value for ",
                          pl, " because it is not consistent with your value for ",
