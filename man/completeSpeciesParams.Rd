@@ -32,6 +32,6 @@ functions).
 Sets defaults for missing but required species parameters.
 }
 \seealso{
-species_params(), validSpeciesParams()
+\code{\link[=species_params]{species_params()}}, \code{\link[=validSpeciesParams]{validSpeciesParams()}}
 }
 \concept{helper}

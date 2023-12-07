@@ -9,7 +9,7 @@ Now the model can include an external encounter rate that represents the
 rate at which a predator encounters food that is not explicitly modelled.
 This encounter rate is set with `setExtEncounter()` or `ext_encounter<-()`
 and can be read with `getExtEncounter()` or `ext_encounter()`. So this is
-similar to how mortality from unmodelled sources is handled via `ext_mort()`.
+similar to how external mortality is handled.
 
 ## Given versus calculated species parameters
 

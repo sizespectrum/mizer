@@ -655,7 +655,7 @@ validSpeciesParams <- function(species_params) {
 #' to produce a viable model. More checks of the parameters are performed by the
 #' individual rate-setting functions (see [setParams()] for the list of these
 #' functions).
-#' @seealso species_params(), validSpeciesParams()
+#' @seealso [species_params()], [validSpeciesParams()]
 #' @concept helper
 #' @export
 completeSpeciesParams <- function(species_params) {
