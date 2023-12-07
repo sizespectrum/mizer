@@ -154,6 +154,10 @@ test_that("Setting species params works", {
     species_params(params)$w_min[[1]] <- 1
     expect_identical(params@w_min_idx[[1]], 40)
     
+    # given species params are not affected
+    beta <- params@given_species_params$beta
+    species_params(params)$beta <- 1
+    expect_identical(params@given_species_params$beta, beta)
 })
 
 
@@ -174,4 +178,37 @@ test_that("set_species_params_from_length works", {
     sp2$l_mat[2] <- 0
     expect_error(set_species_param_from_length(sp2, "w_mat", "l_mat"),
                  "All lengths should be positive and non-zero.")
+})
+
+test_that("`given_species_params<-()` gives correct warnings", {
+    params <- NS_params
+    
+    no_sp <- nrow(params@species_params)
+    expect_warning(given_species_params(params)$f0 <- 1)
+    expect_warning(given_species_params(params)$fc <- 1)
+    expect_warning(given_species_params(params)$age_mat <- 1)
+    expect_warning(given_species_params(params)$catchability <- 2)
+    expect_warning(given_species_params(params)$yield_observed <- 1)
+    
+    # No warning if NA
+    params@given_species_params$gamma[-1] <- NA
+    expect_warning(given_species_params(params)$f0 <- c(NA, rep(2, no_sp - 1)),
+                   NA)
+    
+})
+
+test_that("`given_species_params<-()` triggers recalculation", {
+    params <- NS_params
+    params@given_species_params$gamma <- NULL
+    gamma <- params@species_params$gamma
+    given_species_params(params)$f0 <- 0.1
+    expect_gt(sum(gamma - params@species_params$gamma), 0)
+})
+
+test_that("`given_species_params<-()` can remove columns", {
+    params <- NS_params
+    given_species_params(params)$gamma <- NULL
+    expect_false("gamma" %in% names(params@given_species_params))
+    expect_true("gamma" %in% names(params@species_params))
+    expect_error(given_species_params(params)$species <- NULL)
 })

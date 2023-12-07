@@ -3,34 +3,27 @@
 #' These functions allow you to get or set the species-specific parameters
 #' stored in a MizerParams object.
 #'
-#' Not all species parameters have to be specified by the user. If they are
-#' missing, mizer will give them default values, sometimes by using other
-#' species parameters. So mizer distinguishes between the species parameters
-#' that you have given explicitly while setting up the mizer model and the
-#' species parameters that have been calculated by mizer or set to default
-#' values. You can retrieve the given species parameters with
-#' `given_species_params()` and the calculated ones with
-#' `calculated_species_params()`. You get all species_params with
-#' `species_params()`.
-#' 
-#' Mizer stores the given parameters in a data frame `given_species_params` and 
-#' both the calculated and the given parameters together in a data frame 
-#' `species_params`. Both these data frames have one row for each species.
-#' `given_species_params` only has columns for the explicitly given species 
-#' parameters while `species_params` has columns for all species parameters.
-#' 
-#' If you change given species parameters with `given_species_params<-()` this
-#' may trigger a re-calculation of some of the calculated species parameters.
-#' However if you change species parameters with `species_params<-()` your new
-#' values will be stored in both species parameter data frames and no
-#' recalculation will take place. So in most use cases you will only want to use
-#' `given_species_params<-()`.
 #' 
 #' There are a lot of species parameters and we will list them all below, but
 #' most of them have sensible default values. The only required columns are
 #' `species` for the species name and `w_max` for its maximum size. However
 #' if you have information about the values of other parameters then you should
 #' provide them.
+#' 
+#' Mizer distinguishes between the species parameters that you have given
+#' explicitly and the species parameters that have been calculated by mizer or
+#' set to default values. You can retrieve the given species parameters with
+#' `given_species_params()` and the calculated ones with
+#' `calculated_species_params()`. You get all species_params with
+#' `species_params()`.
+#' 
+#' If you change given species parameters with `given_species_params<-()` this
+#' will trigger a re-calculation of the calculated species parameters, where
+#' necessary. However if you change species parameters with `species_params<-()`
+#' no recalculation will take place and furthermore your values could be
+#' overwritten by a future recalculation triggered by a call to
+#' `given_species_params<-()` . So in most use cases you will only want to use
+#' `given_species_params<-()`.
 #' 
 #' There are some species parameters that are used to set up the
 #' size-dependent parameters that are used in the mizer model:
@@ -78,9 +71,9 @@
 #' * `a` and `b` are the parameters in the allometric weight-length
 #'   relationship \eqn{w = a l ^ b}.
 #'   
-#' If you have supplied these, then you can replace weight parameters
-#' like `w_max`, `w_mat`, `w_mat25` and `w_min` by their corresponding length
-#' parameters `l_max`, `l_mat`, `l_mat25` and `l_min`.
+#' If you have supplied the `a` and `b` parameters, then you can replace weight
+#' parameters like `w_max`, `w_mat`, `w_mat25` and `w_min` by their
+#' corresponding length parameters `l_max`, `l_mat`, `l_mat25` and `l_min`.
 #'   
 #' The parameters that are only used to calculate default values for other
 #' parameters are:
@@ -163,6 +156,44 @@ given_species_params <- function(params) {
 `given_species_params<-` <- function(params, value) {
     assert_that(is(params, "MizerParams"))
     value <- validSpeciesParams(value)
+    old_value <- params@given_species_params
+    
+    # Create data frame which contains only the values that have changed 
+    common_columns <- intersect(names(value), names(params@given_species_params))
+    new_columns <- setdiff(names(value), names(params@given_species_params))
+    changes <- value[common_columns]
+    changes[changes == params@given_species_params[common_columns]] <- NA
+    # Remove columns that only contain NAs
+    changes <- changes %>% select(where(~ !all(is.na(.))))
+    # Add new columns
+    changes <- cbind(changes, value[new_columns])
+    
+    # Give warnings when values are changed that will have no impact
+    if ("gamma" %in% names(params@given_species_params) &
+        "f0" %in% names(changes) &
+        any(!is.na(params@given_species_params$gamma[!is.na(changes$f0)]))) {
+        warning("You have specified some values for `f0` that are going to be ignored because values for `gamma` have already been given.")
+    }
+    if ("ks" %in% names(params@given_species_params) &
+        "fc" %in% names(changes) &
+        any(!is.na(params@given_species_params$ks[!is.na(changes$fc)]))) {
+        warning("You have specified some values for `fc` that are going to be ignored because values for `ks` have already been given.")
+    }
+    if ("h" %in% names(params@given_species_params) &
+        "age_mat" %in% names(changes) &
+        any(!is.na(params@given_species_params$h[!is.na(changes$age_mat)]))) {
+        warning("You have specified some values for `age_mat` that are going to be ignored because values for `h` have already been given.")
+    }
+    
+    # Warn when user tries to change gear parameters
+    if (any(c("catchability", "selectivity", "l50", "l25", "sel_func") %in% 
+            names(changes))) {
+        warning("To make changes to gears you should use `gear_params()<-`, not `species_params()`.")
+    }
+    if ("yield_observed" %in% names(changes)) {
+        warning("To change the observed yield you should use `gear_params()<-`, not `species_params()`.")
+    }
+    
     params@given_species_params <- value
     params@species_params <- completeSpeciesParams(value)
     suppressMessages(setParams(params))
@@ -619,7 +650,7 @@ validSpeciesParams <- function(species_params) {
 #' * `interaction_resource` is set to `1`
 #' * `n` is set to `3/4`
 #' 
-#' It calls `validSpeciesParams()` to check the validity of the species
+#' It calls [validSpeciesParams()] to check the validity of the species
 #' parameters. Nevertheless the species parameters returned by this function are not guaranteed
 #' to produce a viable model. More checks of the parameters are performed by the
 #' individual rate-setting functions (see [setParams()] for the list of these

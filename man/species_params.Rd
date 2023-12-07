@@ -31,34 +31,26 @@ These functions allow you to get or set the species-specific parameters
 stored in a MizerParams object.
 }
 \details{
-Not all species parameters have to be specified by the user. If they are
-missing, mizer will give them default values, sometimes by using other
-species parameters. So mizer distinguishes between the species parameters
-that you have given explicitly while setting up the mizer model and the
-species parameters that have been calculated by mizer or set to default
-values. You can retrieve the given species parameters with
-\code{given_species_params()} and the calculated ones with
-\code{calculated_species_params()}. You get all species_params with
-\code{species_params()}.
-
-Mizer stores the given parameters in a data frame \code{given_species_params} and
-both the calculated and the given parameters together in a data frame
-\code{species_params}. Both these data frames have one row for each species.
-\code{given_species_params} only has columns for the explicitly given species
-parameters while \code{species_params} has columns for all species parameters.
-
-If you change given species parameters with \verb{given_species_params<-()} this
-may trigger a re-calculation of some of the calculated species parameters.
-However if you change species parameters with \verb{species_params<-()} your new
-values will be stored in both species parameter data frames and no
-recalculation will take place. So in most use cases you will only want to use
-\verb{given_species_params<-()}.
-
 There are a lot of species parameters and we will list them all below, but
 most of them have sensible default values. The only required columns are
 \code{species} for the species name and \code{w_max} for its maximum size. However
 if you have information about the values of other parameters then you should
 provide them.
+
+Mizer distinguishes between the species parameters that you have given
+explicitly and the species parameters that have been calculated by mizer or
+set to default values. You can retrieve the given species parameters with
+\code{given_species_params()} and the calculated ones with
+\code{calculated_species_params()}. You get all species_params with
+\code{species_params()}.
+
+If you change given species parameters with \verb{given_species_params<-()} this
+will trigger a re-calculation of the calculated species parameters, where
+necessary. However if you change species parameters with \verb{species_params<-()}
+no recalculation will take place and furthermore your values could be
+overwritten by a future recalculation triggered by a call to
+\verb{given_species_params<-()} . So in most use cases you will only want to use
+\verb{given_species_params<-()}.
 
 There are some species parameters that are used to set up the
 size-dependent parameters that are used in the mizer model:
@@ -109,9 +101,9 @@ weight and length:
 relationship \eqn{w = a l ^ b}.
 }
 
-If you have supplied these, then you can replace weight parameters
-like \code{w_max}, \code{w_mat}, \code{w_mat25} and \code{w_min} by their corresponding length
-parameters \code{l_max}, \code{l_mat}, \code{l_mat25} and \code{l_min}.
+If you have supplied the \code{a} and \code{b} parameters, then you can replace weight
+parameters like \code{w_max}, \code{w_mat}, \code{w_mat25} and \code{w_min} by their
+corresponding length parameters \code{l_max}, \code{l_mat}, \code{l_mat25} and \code{l_min}.
 
 The parameters that are only used to calculate default values for other
 parameters are:

@@ -22,7 +22,7 @@ are missing or NA:
 \item \code{n} is set to \code{3/4}
 }
 
-It calls \code{validSpeciesParams()} to check the validity of the species
+It calls \code{\link[=validSpeciesParams]{validSpeciesParams()}} to check the validity of the species
 parameters. Nevertheless the species parameters returned by this function are not guaranteed
 to produce a viable model. More checks of the parameters are performed by the
 individual rate-setting functions (see \code{\link[=setParams]{setParams()}} for the list of these
