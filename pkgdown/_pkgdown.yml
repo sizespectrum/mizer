@@ -36,10 +36,13 @@ toc:
 
 navbar:
   structure:
-    left: [intro, articles, reference, news]
+    left: [intro, course, articles, reference, news]
     right: [blog, twitter, github]
   components:
     home: ~
+    course:
+      text: Course
+      href: https://mizer.course.sizespectrum.org
     blog:
       text: Blog
       href: https://blog.mizer.sizespectrum.org
