@@ -14,8 +14,8 @@
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="The Multi Species Model">
 <meta property="og:description" content="mizer">
@@ -37,7 +37,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.5.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,6 +48,9 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item">
   <a class="nav-link" href="../articles/mizer.html">Get started</a>
+</li>
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://mizer.course.sizespectrum.org">Course</a>
 </li>
 <li class="active nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
@@ -341,6 +344,11 @@ constructor method:</p>
 <pre><code><span><span class="co">## Warning in validSpeciesParams(species_params): The species parameter data frame</span></span>
 <span><span class="co">## is missing a `w_max` column. I am copying over the values from the `w_inf`</span></span>
 <span><span class="co">## column. But note that `w_max` should be the maximum size of the largest</span></span>
+<span><span class="co">## individual, not the asymptotic size of an average indivdidual.</span></span>
+<span></span>
+<span><span class="co">## Warning in validSpeciesParams(species_params): The species parameter data frame</span></span>
+<span><span class="co">## is missing a `w_max` column. I am copying over the values from the `w_inf`</span></span>
+<span><span class="co">## column. But note that `w_max` should be the maximum size of the largest</span></span>
 <span><span class="co">## individual, not the asymptotic size of an average indivdidual.</span></span></code></pre>
 <pre><code><span><span class="co">## Because you have n != p, the default value for `h` is not very good.</span></span>
 <span><span class="co">## Because the age at maturity is not known, I need to fall back to using</span></span>
@@ -359,45 +367,45 @@ data frame that we provided. We can look at it with
 <code><a href="../reference/species_params.html">species_params()</a></code>:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##         species w_inf w_mat   beta sigma    R_max  k_vb w_max w_min alpha</span></span>
-<span><span class="co">## Sprat     Sprat    33    13  51076   0.8 7.38e+11 0.681    33 0.001   0.6</span></span>
-<span><span class="co">## Sandeel Sandeel    36     4 398849   1.9 4.10e+11 1.000    36 0.001   0.6</span></span>
-<span><span class="co">## N.pout   N.pout   100    23     22   1.5 1.05e+13 0.849   100 0.001   0.6</span></span>
-<span><span class="co">## Herring Herring   334    99 280540   3.2 1.11e+12 0.606   334 0.001   0.6</span></span>
-<span><span class="co">## Dab         Dab   324    21    191   1.9 1.12e+10 0.536   324 0.001   0.6</span></span>
-<span><span class="co">## Whiting Whiting  1192    75     22   1.5 5.48e+11 0.323  1192 0.001   0.6</span></span>
-<span><span class="co">## Sole       Sole   866    78    381   1.9 3.87e+10 0.284   866 0.001   0.6</span></span>
-<span><span class="co">## Gurnard Gurnard   668    39    283   1.8 1.65e+12 0.266   668 0.001   0.6</span></span>
-<span><span class="co">## Plaice   Plaice  2976   105    113   1.6 4.08e+14 0.122  2976 0.001   0.6</span></span>
-<span><span class="co">## Haddock Haddock  3485   165    558   2.1 1.84e+12 0.271  3485 0.001   0.6</span></span>
-<span><span class="co">## Cod         Cod 40044  1606     66   1.3 8.26e+09 0.216 40044 0.001   0.6</span></span>
-<span><span class="co">## Saithe   Saithe 16856  1076     40   1.1 1.12e+11 0.175 16856 0.001   0.6</span></span>
-<span><span class="co">##         interaction_resource         n   p         q pred_kernel_type        h</span></span>
-<span><span class="co">## Sprat                      1 0.6666667 0.7 0.7166667        lognormal 14.51026</span></span>
-<span><span class="co">## Sandeel                    1 0.6666667 0.7 0.7166667        lognormal 28.36951</span></span>
-<span><span class="co">## N.pout                     1 0.6666667 0.7 0.7166667        lognormal 30.69918</span></span>
-<span><span class="co">## Herring                    1 0.6666667 0.7 0.7166667        lognormal 31.20041</span></span>
-<span><span class="co">## Dab                        1 0.6666667 0.7 0.7166667        lognormal 34.68295</span></span>
-<span><span class="co">## Whiting                    1 0.6666667 0.7 0.7166667        lognormal 32.78322</span></span>
-<span><span class="co">## Sole                       1 0.6666667 0.7 0.7166667        lognormal 24.90951</span></span>
-<span><span class="co">## Gurnard                    1 0.6666667 0.7 0.7166667        lognormal 22.29126</span></span>
-<span><span class="co">## Plaice                     1 0.6666667 0.7 0.7166667        lognormal 17.71691</span></span>
-<span><span class="co">## Haddock                    1 0.6666667 0.7 0.7166667        lognormal 40.62144</span></span>
-<span><span class="co">## Cod                        1 0.6666667 0.7 0.7166667        lognormal 74.81794</span></span>
-<span><span class="co">## Saithe                     1 0.6666667 0.7 0.7166667        lognormal 43.50194</span></span>
-<span><span class="co">##         k       ks         z0        gamma m erepro</span></span>
-<span><span class="co">## Sprat   0 1.598545 0.18705957 5.765885e-11 1      1</span></span>
-<span><span class="co">## Sandeel 0 3.250607 0.18171206 4.267142e-11 1      1</span></span>
-<span><span class="co">## N.pout  0 3.318311 0.12926608 9.749884e-11 1      1</span></span>
-<span><span class="co">## Herring 0 3.212332 0.08647736 2.812559e-11 1      1</span></span>
-<span><span class="co">## Dab     0 3.760307 0.08735805 7.663981e-11 1      1</span></span>
-<span><span class="co">## Whiting 0 3.406676 0.05658819 1.041177e-10 1      1</span></span>
-<span><span class="co">## Sole    0 2.585095 0.06294752 5.308445e-11 1      1</span></span>
-<span><span class="co">## Gurnard 0 2.367448 0.06863713 5.091838e-11 1      1</span></span>
-<span><span class="co">## Plaice  0 1.820523 0.04171321 4.774060e-11 1      1</span></span>
-<span><span class="co">## Haddock 0 4.111691 0.03957464 7.679024e-11 1      1</span></span>
-<span><span class="co">## Cod     0 7.019866 0.01753768 2.549664e-10 1      1</span></span>
-<span><span class="co">## Saithe  0 4.136466 0.02340093 1.797143e-10 1      1</span></span></code></pre>
+<pre><code><span><span class="co">##         species w_inf w_mat   beta sigma    R_max  k_vb         n   p w_max</span></span>
+<span><span class="co">## Sprat     Sprat    33    13  51076   0.8 7.38e+11 0.681 0.6666667 0.7    33</span></span>
+<span><span class="co">## Sandeel Sandeel    36     4 398849   1.9 4.10e+11 1.000 0.6666667 0.7    36</span></span>
+<span><span class="co">## N.pout   N.pout   100    23     22   1.5 1.05e+13 0.849 0.6666667 0.7   100</span></span>
+<span><span class="co">## Herring Herring   334    99 280540   3.2 1.11e+12 0.606 0.6666667 0.7   334</span></span>
+<span><span class="co">## Dab         Dab   324    21    191   1.9 1.12e+10 0.536 0.6666667 0.7   324</span></span>
+<span><span class="co">## Whiting Whiting  1192    75     22   1.5 5.48e+11 0.323 0.6666667 0.7  1192</span></span>
+<span><span class="co">## Sole       Sole   866    78    381   1.9 3.87e+10 0.284 0.6666667 0.7   866</span></span>
+<span><span class="co">## Gurnard Gurnard   668    39    283   1.8 1.65e+12 0.266 0.6666667 0.7   668</span></span>
+<span><span class="co">## Plaice   Plaice  2976   105    113   1.6 4.08e+14 0.122 0.6666667 0.7  2976</span></span>
+<span><span class="co">## Haddock Haddock  3485   165    558   2.1 1.84e+12 0.271 0.6666667 0.7  3485</span></span>
+<span><span class="co">## Cod         Cod 40044  1606     66   1.3 8.26e+09 0.216 0.6666667 0.7 40044</span></span>
+<span><span class="co">## Saithe   Saithe 16856  1076     40   1.1 1.12e+11 0.175 0.6666667 0.7 16856</span></span>
+<span><span class="co">##         w_min alpha interaction_resource pred_kernel_type        h k       ks</span></span>
+<span><span class="co">## Sprat   0.001   0.6                    1        lognormal 14.51026 0 1.598545</span></span>
+<span><span class="co">## Sandeel 0.001   0.6                    1        lognormal 28.36951 0 3.250607</span></span>
+<span><span class="co">## N.pout  0.001   0.6                    1        lognormal 30.69918 0 3.318311</span></span>
+<span><span class="co">## Herring 0.001   0.6                    1        lognormal 31.20041 0 3.212332</span></span>
+<span><span class="co">## Dab     0.001   0.6                    1        lognormal 34.68295 0 3.760307</span></span>
+<span><span class="co">## Whiting 0.001   0.6                    1        lognormal 32.78322 0 3.406676</span></span>
+<span><span class="co">## Sole    0.001   0.6                    1        lognormal 24.90951 0 2.585095</span></span>
+<span><span class="co">## Gurnard 0.001   0.6                    1        lognormal 22.29126 0 2.367448</span></span>
+<span><span class="co">## Plaice  0.001   0.6                    1        lognormal 17.71691 0 1.820523</span></span>
+<span><span class="co">## Haddock 0.001   0.6                    1        lognormal 40.62144 0 4.111691</span></span>
+<span><span class="co">## Cod     0.001   0.6                    1        lognormal 74.81794 0 7.019866</span></span>
+<span><span class="co">## Saithe  0.001   0.6                    1        lognormal 43.50194 0 4.136466</span></span>
+<span><span class="co">##                 z0         q        gamma     w_mat25 m erepro</span></span>
+<span><span class="co">## Sprat   0.18705957 0.7166667 5.765885e-11   11.647460 1      1</span></span>
+<span><span class="co">## Sandeel 0.18171206 0.7166667 4.267142e-11    3.583834 1      1</span></span>
+<span><span class="co">## N.pout  0.12926608 0.7166667 9.749884e-11   20.607045 1      1</span></span>
+<span><span class="co">## Herring 0.08647736 0.7166667 2.812559e-11   88.699888 1      1</span></span>
+<span><span class="co">## Dab     0.08735805 0.7166667 7.663981e-11   18.815128 1      1</span></span>
+<span><span class="co">## Whiting 0.05658819 0.7166667 1.041177e-10   67.196884 1      1</span></span>
+<span><span class="co">## Sole    0.06294752 0.7166667 5.308445e-11   69.884760 1      1</span></span>
+<span><span class="co">## Gurnard 0.06863713 0.7166667 5.091838e-11   34.942380 1      1</span></span>
+<span><span class="co">## Plaice  0.04171321 0.7166667 4.774060e-11   94.075638 1      1</span></span>
+<span><span class="co">## Haddock 0.03957464 0.7166667 7.679024e-11  147.833146 1      1</span></span>
+<span><span class="co">## Cod     0.01753768 0.7166667 2.549664e-10 1438.909287 1      1</span></span>
+<span><span class="co">## Saithe  0.02340093 0.7166667 1.797143e-10  964.051303 1      1</span></span></code></pre>
 <p>We can see that this returns the original species data.frame (with
 <code>w_max</code> and so on), plus any default values that may not have
 been included in the original data.frame. For example, we can see that
@@ -592,6 +600,11 @@ scratch with our interaction matrix by passing it to
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">species_params</span>, interaction <span class="op">=</span> <span class="va">inter</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Warning in validSpeciesParams(species_params): The species parameter data frame</span></span>
+<span><span class="co">## is missing a `w_max` column. I am copying over the values from the `w_inf`</span></span>
+<span><span class="co">## column. But note that `w_max` should be the maximum size of the largest</span></span>
+<span><span class="co">## individual, not the asymptotic size of an average indivdidual.</span></span>
+<span></span>
+<span><span class="co">## Warning in validSpeciesParams(species_params): The species parameter data frame</span></span>
 <span><span class="co">## is missing a `w_max` column. I am copying over the values from the `w_inf`</span></span>
 <span><span class="co">## column. But note that `w_max` should be the maximum size of the largest</span></span>
 <span><span class="co">## individual, not the asymptotic size of an average indivdidual.</span></span></code></pre>

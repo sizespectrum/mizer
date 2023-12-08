@@ -139,6 +139,9 @@
     <loc>https://sizespectrum.org/mizer/reference/compareParams.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/completeSpeciesParams.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/constantEggRDI.html</loc>
   </url>
   <url>
@@ -521,6 +524,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/setComponent.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/setExtEncounter.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/setExtMort.html</loc>
