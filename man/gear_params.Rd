@@ -39,6 +39,10 @@ functions.
 
 For the details see \code{\link[=setFishing]{setFishing()}}.
 
+There can optionally also be a column \code{yield_observed} that allows you to
+specify for each gear and species the total annual fisheries yield. This is
+used by \code{\link[=calibrateYield]{calibrateYield()}} and \code{\link[=matchYields]{matchYields()}}.
+
 The fishing effort, which is also needed to determine the fishing mortality
 exerted by a gear is not set via the \code{gear_params} data frame but is set
 with \code{initial_effort()} or is specified when calling \code{project()}.
@@ -76,6 +80,7 @@ gear_params(params)["Cod, gear1", "catchability"] <- 0.8
 \code{\link[=validGearParams]{validGearParams()}}
 
 Other functions for setting parameters: 
+\code{\link{setExtEncounter}()},
 \code{\link{setExtMort}()},
 \code{\link{setFishing}()},
 \code{\link{setInitialValues}()},

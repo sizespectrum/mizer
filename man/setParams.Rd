@@ -318,6 +318,16 @@ that column exists. Otherwise it is calculated as
 \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
 }
 
+\section{Setting external encounter rate}{
+
+The external encounter rate is the rate at which a predator encounters
+food that is not explicitly modelled. It is a rate with units mass/year.
+
+The \code{ext_encounter} argument allows you to specify an external encounter rate
+that depends on species and body size. You can see an example of this in
+the Examples section of the help page for \code{\link[=setExtEncounter]{setExtEncounter()}}.
+}
+
 \section{Setting reproduction}{
 
 
@@ -496,6 +506,7 @@ an effort that varies through time.
 \seealso{
 Other functions for setting parameters: 
 \code{\link{gear_params}()},
+\code{\link{setExtEncounter}()},
 \code{\link{setExtMort}()},
 \code{\link{setFishing}()},
 \code{\link{setInitialValues}()},

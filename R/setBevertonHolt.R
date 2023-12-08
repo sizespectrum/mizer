@@ -154,7 +154,7 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
     }
     if (num_args == 0) {
         # no values given, so use previous erepro
-        erepro <- species_params(params)$erepro
+        erepro <- params@species_params$erepro
     }
     
     # No matter which argument is given, I want to manipulate the values

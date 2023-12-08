@@ -1,24 +1,24 @@
 local_edition(3)
 
-test_that("validSpeciesParams() works", {
+test_that("completeSpeciesParams() works", {
     species_params <- NS_species_params
     
     # test w_mat
     sp <- species_params
     sp$w_mat[1] <- NA
-    expect_message(sp <- validSpeciesParams(sp), NA)
+    expect_message(sp <- completeSpeciesParams(sp), NA)
     expect_equal(sp$w_mat[1], sp$w_max[1] / 4)
     sp$w_mat[2:4] <- 100
-    expect_warning(sp <- validSpeciesParams(sp),
+    expect_warning(sp <- completeSpeciesParams(sp),
                    "For the species Sandeel, N.pout the value")
     expect_equal(sp$w_mat[2], sp$w_max[2] / 4)
     
     # test w_mat25
     sp <- species_params
     sp$w_mat25 <- c(NA, 1:11)
-    expect_warning(validSpeciesParams(sp), NA)
+    expect_warning(completeSpeciesParams(sp), NA)
     sp$w_mat25[2:5] <- 21
-    expect_warning(sp <- validSpeciesParams(sp),
+    expect_warning(sp <- completeSpeciesParams(sp),
                    "For the species Sandeel, Dab the value")
     expect_true(is.na(sp$w_mat25[[2]]))
     expect_identical(sp$w_mat25[[3]], 21)
@@ -26,34 +26,35 @@ test_that("validSpeciesParams() works", {
     # test w_min
     sp <- species_params
     sp$w_min <- c(NA, 1:11)
-    expect_warning(validSpeciesParams(sp), NA)
+    expect_warning(completeSpeciesParams(sp), NA)
     sp$w_min[2:5] <- 21
-    expect_warning(sp <- validSpeciesParams(sp),
+    expect_warning(sp <- completeSpeciesParams(sp),
                    "For the species Sandeel, Dab the value")
     expect_identical(sp$w_min[[2]], 0.001)
     expect_identical(sp$w_min[[3]], 21)
     
     # test misspelling detection
     sp$wmat <- 1
-    expect_warning(validSpeciesParams(sp),
-                   "very close to standard parameter names")
+    expect_warning(completeSpeciesParams(sp),
+                   "very close to standard parameter names") %>%
+        suppressWarnings()
     
     # minimal species_params
     sp <- data.frame(species = c(2, 1),
                      w_max = c(100, 1000),
                      stringsAsFactors = FALSE)
-    expect_s3_class(sp <- validSpeciesParams(sp), "data.frame")
+    expect_s3_class(sp <- completeSpeciesParams(sp), "data.frame")
     expect_equal(sp$w_mat, sp$w_max / 4)
     expect_equal(sp$alpha, c(0.6, 0.6))
     expect_equal(sp$interaction_resource, c(1, 1))
     expect_identical(rownames(sp), c("2", "1"))
 })
 
-test_that("validSpeciesParams converts from length to weight", {
+test_that("completeSpeciesParams converts from length to weight", {
     sp <- data.frame(species = 1:2,
                      l_max = 1:2,
                      a = 0.01, b = 3)
-    sp2 <- validSpeciesParams(sp)
+    sp2 <- completeSpeciesParams(sp)
     expect_identical(sp2$w_max, c(0.01, 0.08))
 })
 
@@ -153,6 +154,10 @@ test_that("Setting species params works", {
     species_params(params)$w_min[[1]] <- 1
     expect_identical(params@w_min_idx[[1]], 40)
     
+    # given species params are not affected
+    beta <- params@given_species_params$beta
+    species_params(params)$beta <- 1
+    expect_identical(params@given_species_params$beta, beta)
 })
 
 
@@ -169,4 +174,41 @@ test_that("set_species_params_from_length works", {
     sp2$w_mat[2] <- NA
     sp2 <- set_species_param_from_length(sp2, "w_mat", "l_mat")
     expect_identical(sp2$w_mat, c(0.01, 0.08))
+    # negative or zero lengths give error
+    sp2$l_mat[2] <- 0
+    expect_error(set_species_param_from_length(sp2, "w_mat", "l_mat"),
+                 "All lengths should be positive and non-zero.")
+})
+
+test_that("`given_species_params<-()` gives correct warnings", {
+    params <- NS_params
+    
+    no_sp <- nrow(params@species_params)
+    expect_warning(given_species_params(params)$f0 <- 1)
+    expect_warning(given_species_params(params)$fc <- 1)
+    expect_warning(given_species_params(params)$age_mat <- 1)
+    expect_warning(given_species_params(params)$catchability <- 2)
+    expect_warning(given_species_params(params)$yield_observed <- 1)
+    
+    # No warning if NA
+    params@given_species_params$gamma[-1] <- NA
+    expect_warning(given_species_params(params)$f0 <- c(NA, rep(2, no_sp - 1)),
+                   NA)
+    
+})
+
+test_that("`given_species_params<-()` triggers recalculation", {
+    params <- NS_params
+    params@given_species_params$gamma <- NULL
+    gamma <- params@species_params$gamma
+    given_species_params(params)$f0 <- 0.1
+    expect_gt(sum(gamma - params@species_params$gamma), 0)
+})
+
+test_that("`given_species_params<-()` can remove columns", {
+    params <- NS_params
+    given_species_params(params)$gamma <- NULL
+    expect_false("gamma" %in% names(params@given_species_params))
+    expect_true("gamma" %in% names(params@species_params))
+    expect_error(given_species_params(params)$species <- NULL)
 })
