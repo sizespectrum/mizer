@@ -196,7 +196,7 @@ project <- function(object, effort,
     }
     
     n_list <- list(n = initial_n, n_pp = initial_n_pp,
-                   n_other = initial_n_other)
+                   n_other = unserialize(serialize(initial_n_other, NULL)))
     t <- times[[1]]
     
     ## Loop over time ----
@@ -225,7 +225,7 @@ project <- function(object, effort,
         # Store result
         sim@n[i, , ] <- n_list$n
         sim@n_pp[i, ] <- n_list$n_pp
-        sim@n_other[i, ] <- n_list$n_other
+        sim@n_other[i, ] <- unserialize(serialize(n_list$n_other, NULL))
     }
     
     # append to previous simulation ----
@@ -334,15 +334,15 @@ project_simple <-
             t = t, effort = effort, rates_fns = rates_fns, ...)
         
         # * Update other components ----
-        n_other_current <- n_other  # So that the resource dynamics can still 
+        n_other_new <- list()  # So that the resource dynamics can still 
         # use the current value
         for (component in names(params@other_dynamics)) {
-            n_other[[component]] <-
+            n_other_new[[component]] <-
                 other_dynamics_fns[[component]](
                     params,
                     n = n,
                     n_pp = n_pp,
-                    n_other = n_other_current,
+                    n_other = n_other,
                     rates = r,
                     t = t,
                     dt = dt,
@@ -353,7 +353,7 @@ project_simple <-
         
         # * Update resource ----
         n_pp <- resource_dynamics_fn(params, n = n, n_pp = n_pp,
-                                     n_other = n_other_current, rates = r,
+                                     n_other = n_other, rates = r,
                                      t = t, dt = dt,
                                      resource_rate = params@rr_pp,
                                      resource_capacity = params@cc_pp, ...)
@@ -385,7 +385,7 @@ project_simple <-
         t <- t + dt
     }
     
-    return(list(n = n, n_pp = n_pp, n_other = n_other, rates = r))
+    return(list(n = n, n_pp = n_pp, n_other = n_other_new, rates = r))
 }
 
 validEffortArray <- function(effort, params) {

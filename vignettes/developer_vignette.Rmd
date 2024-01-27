@@ -12,6 +12,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+library(mizer)
 ```
 
 # Introduction
@@ -307,6 +308,55 @@ already there for other similar slots.
 
 
 -->
+
+# Condition handling system
+
+Mizer should make good use of R's condition handling system, which is well described at https://adv-r.hadley.nz/conditions.html. Currently this is being only in a small number of places in the code. Search the code for `signal()` and `withCallingHandlers()` to find those places.
+
+## Framework for informing users about defaults
+
+Mizer's strength is that it can choose default values for most parameters, so that the user needs to supply only very limited information to create a viable MizerParams object. The downside of that is that the user may rely on this too much and may not have enough information about the quality of the defaults.
+
+Currently mizer issues some messages to the user when it calculates defaults. But this is minimal in order not to overload the user who does not need the extra information.
+
+I would like the functions that calculate defaults to issue information freely, and the wrapper functions around these to decide what of this information should be shown to the user. Functions like `newMultispeciesParams()` could get an extra `info_level` argument that allows the user to control the amount of information shown.
+
+There will be a function to signal information:
+
+```
+info_about_default <- function(message, var, level) {
+    signal(message, class = "info_about_default", var = var, level = level)
+}
+```
+and functions like `newMultispeciesParams()` will get extra code like the following:
+```
+# Define a signal handler that collects the information signals
+# into the `infos` list.
+infos <- list()
+collect_info <- function(cnd) {
+  if (cnd$level >= info_level) {
+    infos[[cnd$var]] <<- cnd$message
+  cnd_muffle(cnd) # So this info will not be repeated higher up
+  }
+}
+# Register this signal handler
+withCallingHandlers(
+  info_about_default = collect_info
+
+  # Here goes the existing code of the function
+
+)
+# Here goes some code to process the list `infos` to create
+# a useful narrative for the user.
+```
+
+# Defaults editions
+
+The mizer functions for creating new models make a lot of choices for default values for parameters that are not provided by the user. Sometimes we find better ways to choose the defaults and update mizer accordingly. When we do this, we will increase the edition number. The mechanism is described in the help page of `defaults_edition()`.
+
+We are currently on default edition `r defaults_edition()`.
+
+To find which defaults are different in different editions simply search for conditionals involving `defaults_edition()` in the code.
 
 # Specialised topics
 

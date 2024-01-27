@@ -885,9 +885,12 @@ get_time_elements <- function(sim, time_range, slot_name = "n") {
     sim_time_range <- range(sim_times)
     if ((time_range[1] < sim_time_range[1]) ||
         (time_range[2] > sim_time_range[2])) {
-        stop("Time range is outside the time range of the model")
+        stop("Time range is outside the time range of the model.")
     }
     time_elements <- (sim_times >= time_range[1]) & (sim_times <= time_range[2])
+    if (!any(time_elements)) {
+        stop("The time range does not contain any simulation results.")
+    }
     names(time_elements) <- dimnames(sim@effort)$time
     return(time_elements)
 }
