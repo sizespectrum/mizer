@@ -65,7 +65,7 @@ setRateFunction <- function(params, rate, fun) {
              toString(names(params@rates_funcs)), ".")
     }
     if (!exists(fun, mode = "function")) {
-        stop("`fun` should be a function.")
+        stop("There is no function called '", fun, "'.")
     }
     # TODO: put some code to test that the function has the right kind of
     # arguments

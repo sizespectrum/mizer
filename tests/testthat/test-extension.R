@@ -23,7 +23,7 @@ test_that("setRateFunction works", {
                "The `rate` argument must be one of")
     xxx <- "xx"
     expect_error(setRateFunction(params, rate = "Mort", fun = "xxx"),
-                 "`fun` should be a function")
+                 "There is no function ")
     p <- setRateFunction(params, "Mort", "mizerMort")
     expect_identical(params@rates_funcs, p@rates_funcs)
     p <- setRateFunction(params, rate = "EGrowth", fun = "test_dyn")
