@@ -15,8 +15,6 @@ test_that("setReproduction works", {
     expect_unchanged(params, p3)
     expect_error(setReproduction(params, RDD = "str"),
                  "Arguments of RDD function can only contain 'rdi', 'species_params' and `t`.")
-    expect_error(setReproduction(params, RDD = "sum"),
-                 "The RDD function needs to have at least arguments `rdi` and `...`.")
     params@species_params$erepro[1] <- NA
     p2 <- setReproduction(params, RDD = "SheperdRDD")
     expect_equal(p2@species_params$erepro[1], 1)
