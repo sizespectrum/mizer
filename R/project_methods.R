@@ -97,7 +97,8 @@ mizerRates <- function(params, n, n_pp, n_other,
         e_repro = r$e_repro, t = t, ...)
     # R_dd
     r$rdd <- rates_fns$RDD(
-        rdi = r$rdi, species_params = params@species_params, ...)
+        rdi = r$rdi, species_params = params@species_params,
+        params = params, t = t, ...)
     
     ## Resource ----
     # Calculate mortality on the resource spectrum
