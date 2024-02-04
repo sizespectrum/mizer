@@ -138,7 +138,7 @@ projectToSteady <- function(params,
             # Store result
             sim@n[i, , ] <- current$n
             sim@n_pp[i, ] <- current$n_pp
-            sim@n_other[i, ] <- current$n_other
+            sim@n_other[i, ] <- unserialize(serialize(current$n_other, NULL))
             sim@effort[i, ] <- params@initial_effort
         }
         
