@@ -8,7 +8,7 @@ output:
 bibliography: reflib.bib
 link-citations: true
 resource_files:
-  - images/cheat_sheet.pdf
+  - vignette_images/cheat_sheet.pdf
 vignette: >
   %\VignetteIndexEntry{Getting started with mizer}
   %\VignetteEngine{knitr::rmarkdown}
