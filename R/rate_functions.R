@@ -858,7 +858,8 @@ getRDD <- function(params, n = initialN(params),
              'dependent reproductive rate.')
     }
     f <- get(params@rates_funcs$RDD)
-    rdd <- f(rdi = rdi, species_params = params@species_params)
+    rdd <- f(rdi = rdi, species_params = params@species_params, 
+             params = params, t = t)
     names(rdd) <- as.character(params@species_params$species)
     rdd
 }

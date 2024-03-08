@@ -209,7 +209,7 @@ projectToSteady <- function(params,
 #' @param tol The simulation stops when the relative change in the egg
 #'   production RDI over `t_per` years is less than `tol` for every species.
 #' @param return_sim If TRUE, the function returns the MizerSim object holding
-#'   the result of the simulation run. If FALSE (default) the function returns
+#'   the result of the simulation run, saved at intervals of `t_per`. If FALSE (default) the function returns
 #'   a MizerParams object with the "initial" slots set to the steady state.
 #' @param preserve `r lifecycle::badge("experimental")`
 #'   Specifies whether the `reproduction_level` should be preserved (default)
