@@ -4,12 +4,8 @@
 
   0 errors ✓ | 0 warnings ✓ | 0 notes ✓
   
-  ─  using R version 4.3.2 (2023-10-31)
+  ─  using R version 4.3.3 (2024-02-29)
   ─  using platform: x86_64-pc-linux-gnu (64-bit)
-  ─  R was compiled by
-       gcc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0
-       GNU Fortran (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0
-  ─  running under: Linux Mint 20.2
   
 ### winbuilder results
 (release, oldrelease, and devel)
