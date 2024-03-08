@@ -60,7 +60,7 @@
 #' ggplot(rbind(df, df2)) +
 #'     geom_line(aes(x = E_R, y = value, linetype = variable,
 #'                   colour = dd, size = dd)) +
-#'     geom_point(aes(x = 5/4, y = 5/6), size = 2) +
+#'     annotate("point", x = 5/4, y = 5/6, size = 2) +
 #'     labs(linetype = "", size = "R_max", colour = "R_max") +
 #'     scale_y_continuous(name = "Reproduction rate [eggs/year]",
 #'                        breaks = c(5/6), labels = c("R_dd")) +
