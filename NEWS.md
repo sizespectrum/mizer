@@ -1,3 +1,13 @@
+# mizer 2.5.1
+
+This is a patch release made necessary by a change in CRAN's requirement
+regarding the vignettes. It also includes a bug fix:
+
+- `project()` and `projectToSteady(..., return_sim = TRUE)` now correctly 
+  returns also the other components of the MizerSim object stored in `n_other`.
+  #285
+
+
 # mizer 2.5.0
 
 This release introduces a change that requires you to upgrade your old 
