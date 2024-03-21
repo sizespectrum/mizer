@@ -7,13 +7,16 @@
 sigmoid_weight(w, sigmoidal_weight, sigmoidal_sigma, ...)
 }
 \arguments{
-\item{w}{The size of the individual.}
+\item{w}{Vector of sizes.}
 
 \item{sigmoidal_weight}{The weight at which the knife-edge operates.}
 
-\item{sigmoidal_sigma}{The width of the selection function}
+\item{sigmoidal_sigma}{The width of the selection function.}
 
 \item{...}{Unused}
+}
+\value{
+Vector of selectivities at the given sizes.
 }
 \description{
 A sigmoidal selectivity function with 50\% selectivity at

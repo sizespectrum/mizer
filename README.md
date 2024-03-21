@@ -12,7 +12,7 @@ Downloads](http://cranlogs.r-pkg.org/badges/grand-total/mizer)](https://cran.r-p
 [![CRAN
 Downloads](http://cranlogs.r-pkg.org/badges/mizer)](https://cran.r-project.org/package=mizer)
 [![Coverage
-status](https://codecov.io/gh/sizespectrum/mizer/branch/master/graph/badge.svg)](https://codecov.io/github/sizespectrum/mizer?branch=master)
+status](https://codecov.io/gh/sizespectrum/mizer/branch/master/graph/badge.svg)](https://app.codecov.io/github/sizespectrum/mizer?branch=master)
 
 Mizer is an R package to run [dynamic multi-species size-spectrum
 models](#dynamic-multi-species-size-spectrum-models) of fish

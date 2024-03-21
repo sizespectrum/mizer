@@ -51,21 +51,24 @@ NULL
 #' 
 #' @note The `effort` argument specifies the level of fishing effort during the
 #'   simulation. If it is not supplied, the initial effort stored in the params
-#'   object is used. The effort can be specified in three different ways:
+#'   object is used. The effort can be specified in four different ways:
 #' \itemize{ 
 #' \item A single numeric value. This specifies the effort of all fishing gears
 #' which is constant through time (i.e. all the gears have the same constant
 #' effort).
+#' \item A named vector whose names match with existing gear names.
+#'  The values in the vector specify the constant fishing effort for those
+#'  fishing gears, i.e. the effort is constant through time. The
+#'   effort for gears that are not included in the effort vector is set to 0.
 #' \item A numerical vector which has the same length as the number of fishing
-#' gears. The vector must be named and the names must correspond to the gear
-#' names in the `MizerParams` object. The values in the vector specify the
-#' constant fishing effort of each of the fishing gears, i.e. the effort is
-#' constant through time but each gear may have a different fishing effort. 
+#' gears. The values in the vector specify the
+#' constant fishing effort of each of the fishing gears, with the ordering
+#' assumed to be the same as in the MizerParams object. 
 #' \item A numerical array with dimensions time x gear. This specifies the
 #' fishing effort of each gear at each time step.  The first dimension, time,
 #' must be named numerically and increasing. The second dimension of the array
 #' must be named and the names must correspond to the gear names in the
-#' `MizerParams` argument. The value for the effort for a particular time
+#' `MizerParams` object. The value for the effort for a particular time
 #' is used during the interval from that time to the next time in the array.
 #' }
 #' 
@@ -85,7 +88,7 @@ NULL
 #' 
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' params <-  NS_params
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
@@ -193,7 +196,7 @@ project <- function(object, effort,
     }
     
     n_list <- list(n = initial_n, n_pp = initial_n_pp,
-                   n_other = initial_n_other)
+                   n_other = unserialize(serialize(initial_n_other, NULL)))
     t <- times[[1]]
     
     ## Loop over time ----
@@ -222,7 +225,7 @@ project <- function(object, effort,
         # Store result
         sim@n[i, , ] <- n_list$n
         sim@n_pp[i, ] <- n_list$n_pp
-        sim@n_other[i, ] <- n_list$n_other
+        sim@n_other[i, ] <- unserialize(serialize(n_list$n_other, NULL))
     }
     
     # append to previous simulation ----
@@ -331,15 +334,15 @@ project_simple <-
             t = t, effort = effort, rates_fns = rates_fns, ...)
         
         # * Update other components ----
-        n_other_current <- n_other  # So that the resource dynamics can still 
+        n_other_new <- list()  # So that the resource dynamics can still 
         # use the current value
         for (component in names(params@other_dynamics)) {
-            n_other[[component]] <-
+            n_other_new[[component]] <-
                 other_dynamics_fns[[component]](
                     params,
                     n = n,
                     n_pp = n_pp,
-                    n_other = n_other_current,
+                    n_other = n_other,
                     rates = r,
                     t = t,
                     dt = dt,
@@ -350,7 +353,7 @@ project_simple <-
         
         # * Update resource ----
         n_pp <- resource_dynamics_fn(params, n = n, n_pp = n_pp,
-                                     n_other = n_other_current, rates = r,
+                                     n_other = n_other, rates = r,
                                      t = t, dt = dt,
                                      resource_rate = params@rr_pp,
                                      resource_capacity = params@cc_pp, ...)
@@ -382,7 +385,7 @@ project_simple <-
         t <- t + dt
     }
     
-    return(list(n = n, n_pp = n_pp, n_other = n_other, rates = r))
+    return(list(n = n, n_pp = n_pp, n_other = n_other_new, rates = r))
 }
 
 validEffortArray <- function(effort, params) {

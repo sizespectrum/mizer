@@ -19,9 +19,7 @@ mortalities from the North Sea, as created in the tutorial
 "A Multi-Species Model of the North Sea".
 }
 \examples{
-\dontrun{
 plotBiomass(NS_sim)
-}
 }
 \seealso{
 Other example parameter objects: 

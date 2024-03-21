@@ -21,10 +21,11 @@
 #'   involving a new species are set to 1.
 #' @param gear_params Data frame with the gear parameters for the new
 #'   species. If not provided then the new species will not be fished.
-#' @param initial_effort A named vector with the effort for new fishing gear
-#'   introduced in `gear_params`. New gear for which no effort is set via this
-#'   vector will have an initial effort of 0. Should not include effort values
-#'   for existing gear.
+#' @param initial_effort A named vector with the effort for any new fishing gear
+#'   introduced in `gear_params`. Not needed if the added species are only
+#'   fished by already existing gear. Should not include effort values
+#'   for existing gear. New gear for which no effort is set via this
+#'   vector will have an initial effort of 0. 
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #'
@@ -65,7 +66,8 @@ addSpecies <- function(params, species_params,
                        interaction) {
     # check validity of parameters ----
     params <- validParams(params)
-    species_params <- validSpeciesParams(species_params)
+    given_species_params <- validSpeciesParams(species_params)
+    species_params <- completeSpeciesParams(species_params)
     gear_params <- validGearParams(gear_params, species_params)
     if (any(species_params$species %in% params@species_params$species)) {
         stop("You can not add species that are already there.")
@@ -110,20 +112,20 @@ addSpecies <- function(params, species_params,
     # combine species params ----
     
     # Move linecolour and linetype into species_params
-    params@species_params$linetype <-
+    params@given_species_params$linetype <-
         params@linetype[as.character(params@species_params$species)]
-    params@species_params$linecolour <-
+    params@given_species_params$linecolour <-
         params@linecolour[as.character(params@species_params$species)]
     
     # Make sure that all columns exist in both data frames
-    missing <- setdiff(names(params@species_params), names(species_params))
-    species_params[missing] <- NA
-    missing <- setdiff(names(species_params), names(params@species_params))
-    params@species_params[missing] <- NA
+    missing <- setdiff(names(params@given_species_params), names(given_species_params))
+    given_species_params[missing] <- NA
+    missing <- setdiff(names(given_species_params), names(params@given_species_params))
+    params@given_species_params[missing] <- NA
     
     # add the new species (with parameters described by species_params),
     # to make a larger species_params dataframe.
-    combi_species_params <- rbind(params@species_params, species_params,
+    combi_species_params <- rbind(params@given_species_params, given_species_params,
                                   stringsAsFactors = FALSE)
     
     # combine gear params ----
@@ -199,10 +201,10 @@ addSpecies <- function(params, species_params,
     p@initial_effort[names(params@initial_effort)] <- params@initial_effort
     if (!missing(initial_effort)) {
         if (is.null(names(initial_effort))) {
-            stop("The `initial_effort` must be a named list or vector.")
+            stop("The `initial_effort` must be a named list or vector, with one named entry for each new gear introduced in the `gear_params` argument. You should not provide an `initial_effort` argument if you did not introduce any new gear.")
         }
         if (!all(names(initial_effort) %in% new_gear)) {
-            stop("The names of the `initial_effort` do not match the names of the new gears.")
+            stop("The names of the `initial_effort` do not match the names of the new gears. You should not include effort values for existing gear. You should not provide an `initial_effort` argument if you did not introduce any new gear.")
         }
         p@initial_effort[names(initial_effort)] <- initial_effort
     }
@@ -228,6 +230,7 @@ addSpecies <- function(params, species_params,
     p@maturity[old_sp, old_w] <- params@maturity
     p@sc[old_w] <- params@sc
     p@mu_b[old_sp, old_w] <- params@mu_b
+    p@ext_encounter[old_sp, old_w] <- params@ext_encounter
     p@intake_max[old_sp, old_w] <- params@intake_max
     p@search_vol[old_sp, old_w] <- params@search_vol
     p@metab[old_sp, old_w] <- params@metab
@@ -337,6 +340,9 @@ removeSpecies <- function(params, species) {
     if (is.factor(p@species_params$species)) {
         p@species_params$species <- as.character(p@species_params$species)
     }
+    if (is.factor(p@given_species_params$species)) {
+        p@given_species_params$species <- as.character(p@species_params$species)
+    }
     if (is.factor(p@gear_params$species)) {
         p@gear_params$species <- as.character(p@gear_params$species)
     }
@@ -368,7 +374,9 @@ removeSpecies <- function(params, species) {
     }
     p@ft_mask <- params@ft_mask[keep, , drop = FALSE]
     p@mu_b <- params@mu_b[keep, , drop = FALSE]
+    p@ext_encounter <- params@ext_encounter[keep, , drop = FALSE]
     p@species_params <- p@species_params[keep, , drop = FALSE]
+    p@given_species_params <- p@given_species_params[keep, , drop = FALSE]
     p@interaction <- params@interaction[keep, keep, drop = FALSE]
     p@selectivity <- params@selectivity[, keep, , drop = FALSE]
     p@catchability <- params@catchability[, keep, drop = FALSE]
@@ -423,6 +431,8 @@ renameSpecies <- function(params, replace) {
     names(species) <- NULL
     rownames(params@species_params) <- species
     params@species_params$species <- species
+    rownames(params@given_species_params) <- species
+    params@given_species_params$species <- species
     params@gear_params$species <- as.character(params@gear_params$species)
     for (i in seq_len(nrow(params@gear_params))) {
         if (params@gear_params$species[[i]] %in% names(replace)) {
@@ -459,6 +469,7 @@ renameSpecies <- function(params, replace) {
         dimnames(params@pred_kernel)$sp <- species
     }
     dimnames(params@mu_b)$sp <- species
+    dimnames(params@ext_encounter)$sp <- species
     dimnames(params@interaction)$predator <- species
     dimnames(params@interaction)$prey <- species
     dimnames(params@selectivity)$sp <- species

@@ -4,6 +4,7 @@
 #'
 #' @param params1 First MizerParams object
 #' @param params2 Second MizerParams object
+#' @return String describing the differences
 #' @export
 #' @examples
 #' params1 <- NS_params

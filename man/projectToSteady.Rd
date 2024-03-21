@@ -42,13 +42,16 @@ able to detect period 2 cycles.}
 production RDI over \code{t_per} years is less than \code{tol} for every species.}
 
 \item{return_sim}{If TRUE, the function returns the MizerSim object holding
-the result of the simulation run. If FALSE (default) the function returns
+the result of the simulation run, saved at intervals of \code{t_per}. If FALSE (default) the function returns
 a MizerParams object with the "initial" slots set to the steady state.}
 
 \item{progress_bar}{A shiny progress object to implement a progress bar in a
 shiny app. Default FALSE.}
 
 \item{...}{Further arguments will be passed on to your distance function.}
+}
+\value{
+A MizerParams or a MizerSim object
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

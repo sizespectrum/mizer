@@ -43,7 +43,6 @@
 #' @export
 #' @family functions for setting parameters
 #' @examples
-#' \dontrun{
 #' params <- newMultispeciesParams(NS_species_params)
 #'
 #' #### Setting allometric death rate #######################
@@ -57,7 +56,6 @@
 #' 
 #' # Change the external mortality rate in the params object
 #' ext_mort(params) <- allo_mort
-#' }
 setExtMort <- function(params, ext_mort = NULL,
                        z0pre = 0.6, z0exp = -1 / 4,
                        reset = FALSE, z0 = deprecated(), ...) {

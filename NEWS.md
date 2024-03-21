@@ -1,4 +1,76 @@
-# mizer (development version)
+# mizer 2.5.1
+
+This is a patch release made necessary by a change in CRAN's requirement
+regarding the vignettes. It also includes a bug fix:
+
+- `project()` and `projectToSteady(..., return_sim = TRUE)` now correctly 
+  returns also the other components of the MizerSim object stored in `n_other`.
+  #285
+
+
+# mizer 2.5.0
+
+This release introduces a change that requires you to upgrade your old 
+MizerParams and MizerSim objects with `upgradeParams()` or `upgradeSim()`.
+
+## External encounter rate
+
+Now the model can include an external encounter rate that represents the
+rate at which a predator encounters food that is not explicitly modelled.
+This encounter rate is set with `setExtEncounter()` or `ext_encounter<-()`
+and can be read with `getExtEncounter()` or `ext_encounter()`. So this is
+similar to how external mortality is handled.
+
+## Given versus calculated species parameters
+
+You can now use `given_species_params()` to see the species parameter
+values that you have explicitly specified and `calculated_species_params()`
+to see the species parameter values that mizer has calculated automatically or
+set to defaults. You can continue to use `species_params()` to get all
+species parameters, irrespective of whether they were given or calculated.
+
+You can still set parameter values with `species_params<-()`, but you can also
+use the stronger `given_species_params<-()` which not only sets the values you
+give but also triggers a re-calculation of the calculated species parameters.
+Using `given_species_params<-()` is therefore usually the better option.
+
+## New mizer course
+
+There is now a three-part mizer course at https://mizer.course.sizespectrum.org
+with each part consisting of several tutorials, including code and exercises:
+
+-   **Part 1: Understand**\
+    You will gain an understanding of size spectra and their dynamics by exploring simple example systems hands-on with mizer.
+
+-   **Part 2: Build**\
+    You will build your own multi-species mizer model for the Celtic sea, following our example. You can also create a model for your own area of interest.
+
+-   **Part 3: Use**\
+    You will explore the effects of changes in fishing and changes in resource dynamics on the fish community and the fisheries yield. You will run your own model scenarios.
+
+
+## Other improvements
+
+- Warnings are given if user gives irrelevant species parameter values.
+- Some messages have been converted to warnings and some to signals that are not
+  shown as frequently.
+- Frequent warnings are avoided when length-based and weight-based parameters 
+  are both given and are inconsistent. #277
+- Documentation of `effort` argument in `project()` is improved.
+- An error message is given if a predation kernel returns negative values or
+  is everywhere zero. #283
+
+## Bug fixes
+
+- When the coefficient `h` of the maximum intake rate is not given, it is now
+  again given a default value. #282
+- `matchGrowth()` no longer gives an error when there is no `w_inf` column. #279
+
+
+# mizer 2.4.1
+
+This minor release was made necessary to keep mizer on CRAN after a unit test
+failed on macOS 13.3 with version 14.3 of the CLT toolchain.
 
 # mizer 2.4.0
 

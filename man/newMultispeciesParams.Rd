@@ -19,6 +19,7 @@ newMultispeciesParams(
   ext_mort = NULL,
   z0pre = 0.6,
   z0exp = n - 1,
+  ext_encounter = NULL,
   maturity = NULL,
   repro_prop = NULL,
   RDD = "BevertonHoltRDD",
@@ -89,6 +90,9 @@ Default value is 0.6.}
 \item{z0exp}{If \code{z0}, the mortality from other sources, is not a column in
 the species data frame, it is calculated as \code{z0pre * w_max ^ z0exp}.
 Default value is \code{n-1}.}
+
+\item{ext_encounter}{Optional. An array (species x size) holding the external
+encounter rate.  If not supplied, a default of 0 is used.}
 
 \item{maturity}{Optional. An array (species x size) that holds the proportion
 of individuals of each species at size that are mature. If not supplied, a
@@ -420,6 +424,16 @@ assumed to depend only on the species, not on the size of the individual:
 species is taken from the \code{z0} column of the species parameter data frame, if
 that column exists. Otherwise it is calculated as
 \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
+}
+
+\section{Setting external encounter rate}{
+
+The external encounter rate is the rate at which a predator encounters
+food that is not explicitly modelled. It is a rate with units mass/year.
+
+The \code{ext_encounter} argument allows you to specify an external encounter rate
+that depends on species and body size. You can see an example of this in
+the Examples section of the help page for \code{\link[=setExtEncounter]{setExtEncounter()}}.
 }
 
 \section{Setting reproduction}{

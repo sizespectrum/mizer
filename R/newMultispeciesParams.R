@@ -14,6 +14,7 @@
 #' @inheritParams setMaxIntakeRate
 #' @inheritParams setMetabolicRate
 #' @inheritParams setExtMort
+#' @inheritParams setExtEncounter
 #' @inheritParams setReproduction
 #' @inheritParams setFishing
 #' @inheritParams setResource
@@ -66,6 +67,7 @@
 #' @inheritSection setMaxIntakeRate Setting maximum intake rate
 #' @inheritSection setMetabolicRate Setting metabolic rate
 #' @inheritSection setExtMort Setting external mortality rate
+#' @inheritSection setExtEncounter Setting external encounter rate
 #' @inheritSection setReproduction Setting reproduction
 #' @inheritSection setFishing Setting fishing
 #' @inheritSection setResource Setting resource dynamics
@@ -104,6 +106,8 @@ newMultispeciesParams <- function(
     ext_mort = NULL,
     z0pre = 0.6,
     z0exp = n - 1,
+    # setExtEncounter
+    ext_encounter = NULL,
     # setReproduction
     maturity = NULL,
     repro_prop = NULL,
@@ -148,11 +152,16 @@ newMultispeciesParams <- function(
     withCallingHandlers(
         info_about_default = collect_info, {
     no_sp <- nrow(species_params)
-    species_params <- validSpeciesParams(species_params)
+    
+    species_params <- set_species_param_default(species_params, "n", n)
+    species_params <- set_species_param_default(species_params, "p", p)
+    given_species_params <- validSpeciesParams(species_params)
+    
+    species_params <- completeSpeciesParams(species_params)
     gear_params <- validGearParams(gear_params, species_params)
     
     ## Create MizerParams object ----
-    params <- emptyParams(species_params,
+    params <- emptyParams(given_species_params,
                           gear_params,
                           no_w = no_w, 
                           min_w = min_w,  
@@ -160,11 +169,6 @@ newMultispeciesParams <- function(
                           min_w_pp = min_w_pp)
     
     # Fill the slots ----
-    params <- params %>% 
-        set_species_param_default("n", n) %>% 
-        set_species_param_default("p", p)
-    params <- set_species_param_default(
-        params, "q", lambda - 2 + params@species_params[["n"]])
     if (is.null(interaction)) {
         interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
     }
@@ -191,6 +195,8 @@ newMultispeciesParams <- function(
                   ext_mort = ext_mort,
                   z0pre = z0pre,
                   z0exp = z0exp,
+                  # setExtEncounter
+                  ext_encounter = ext_encounter,
                   # setReproduction
                   maturity = maturity,
                   repro_prop = repro_prop,
@@ -313,6 +319,7 @@ newMultispeciesParams <- function(
 #' @inheritSection setMaxIntakeRate Setting maximum intake rate
 #' @inheritSection setMetabolicRate Setting metabolic rate
 #' @inheritSection setExtMort Setting external mortality rate
+#' @inheritSection setExtEncounter Setting external encounter rate
 #' @inheritSection setReproduction Setting reproduction
 #' @inheritSection setFishing Setting fishing
 #' @export
@@ -326,6 +333,7 @@ setParams <- function(params, interaction = NULL, ...) {
     params <- setMaxIntakeRate(params, ...)
     params <- setMetabolicRate(params, ...)
     params <- setExtMort(params, ...)
+    params <- setExtEncounter(params, ...)
     # setSearchVolume() should be called only after 
     # setMaxIntakeRate() and setPredKernel()
     params <- setSearchVolume(params, ...)

@@ -17,6 +17,10 @@ spectrum}
 
 \item{object}{An object of class MizerParams or MizerSim}
 }
+\value{
+A vector with the initial number densities for the resource
+spectrum
+}
 \description{
 Value used as starting value for simulations with \code{project()}.
 }

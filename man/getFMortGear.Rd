@@ -44,7 +44,7 @@ the \code{MizerSim} object is used and the \code{effort} argument is not
 used.
 }
 \examples{
-\dontrun{
+\donttest{
 params <-NS_params
 # Get the fishing mortality when effort is constant
 # for all gears and time:

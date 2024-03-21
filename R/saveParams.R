@@ -11,6 +11,7 @@
 #' @param params A MizerParams object
 #' @param file The name of the file or a connection where the MizerParams object
 #'   is saved to or read from.
+#' @return NULL invisibly
 #' @export
 saveParams <- function(params, file) {
     params <- validParams(params)

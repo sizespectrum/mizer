@@ -81,6 +81,9 @@ setSearchVolume <- function(params, search_vol = NULL, reset = FALSE, ...) {
     }
     
     # Calculate default for any missing gammas
+    q <- params@resource_params$lambda - 2 + params@species_params[["n"]]
+    params@species_params <- 
+        set_species_param_default(params@species_params, "q", q)
     params@species_params$gamma <- get_gamma_default(params)
     
     search_vol <- 

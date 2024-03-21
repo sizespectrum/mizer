@@ -60,7 +60,7 @@
 #' ggplot(rbind(df, df2)) +
 #'     geom_line(aes(x = E_R, y = value, linetype = variable,
 #'                   colour = dd, size = dd)) +
-#'     geom_point(aes(x = 5/4, y = 5/6), size = 2) +
+#'     annotate("point", x = 5/4, y = 5/6, size = 2) +
 #'     labs(linetype = "", size = "R_max", colour = "R_max") +
 #'     scale_y_continuous(name = "Reproduction rate [eggs/year]",
 #'                        breaks = c(5/6), labels = c("R_dd")) +
@@ -154,7 +154,7 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
     }
     if (num_args == 0) {
         # no values given, so use previous erepro
-        erepro <- species_params(params)$erepro
+        erepro <- params@species_params$erepro
     }
     
     # No matter which argument is given, I want to manipulate the values
@@ -203,7 +203,7 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
                     "possible value: ",
                     paste0("erepro[", species[wrong], "] = ",
                            signif(erepro_new[wrong], 3),
-                           collapse = "; "))
+                           collapse = "; "), "\n")
         }
         r_max_new <- rdi_new * rdd_new / (rdi_new - rdd_new)
         r_max_new[is.nan(r_max_new)] <- Inf
@@ -234,7 +234,7 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
             warning("For the following species the requested `R_max` ",
                     "was too small and has been increased to give a ",
                     "reproduction level of 0.99: ",
-                    paste(species[wrong], collapse = ", "))
+                    paste(species[wrong], collapse = ", "), "\n")
             values[wrong] <- rdd_new[wrong] / 0.99
         }
         r_max_new <- values
@@ -251,7 +251,7 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
     if (any(wrong)) {
         warning("The following species require an unrealistic reproductive ",
                 "efficiency greater than 1: ",
-                paste(species[wrong], collapse = ", "))
+                paste(species[wrong], collapse = ", "), "\n")
     }
     
     params@time_modified <- lubridate::now()

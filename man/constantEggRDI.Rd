@@ -19,6 +19,9 @@ rate as calculated by \code{\link[=mizerMort]{mizerMort()}}.}
 
 \item{...}{Unused}
 }
+\value{
+Vector with the value for each species
+}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 The new egg production is set to compensate for the loss of individuals from
@@ -27,7 +30,7 @@ be modified by density dependence, so this should be used together with
 the \code{noRDD()} function, see example.
 }
 \examples{
-\dontrun{
+\donttest{
 # choose an example params object
 params <- NS_params
 # We set the reproduction rate functions

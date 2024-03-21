@@ -176,7 +176,7 @@ ms_base <- (ms_sim0@params@w_full * ms_sim0@params@cc_pp)[cc_index]
 width <- 14
 height <- 7
 #postscript(file = "Figure1.eps", width = width/2.5, height = height/2.5, pointsize=8, horizontal = FALSE, onefile=FALSE, paper='special')
-png(filename="Figure1.png", width = width, height = height, units="cm",res=800, pointsize=8)
+#png(filename="Figure1.png", width = width, height = height, units="cm",res=800, pointsize=8)
 
 # Figure layput
 nf <- layout(matrix(1:6,2,3,byrow=TRUE), rep(width/3,3),c(3/6,3/6)*height,TRUE)
@@ -190,7 +190,7 @@ resource_colour <- "green"
 resource_lwd <- 1
 
 # Community
-par(mar=c(1,5,2,1))
+#par(mar=c(1,5,2,1))
 plot(x=comm_sim0@params@w, y= comm0_n / comm_base, log="xy", type="n", ylab="Biomass relative to carrying capacity", xlim=xlim, ylim=ylim, main = "(a)", xlab="")
 # Resource
 lines(x=comm_sim0@params@w_full, y= comm0_npp / comm_base, col=resource_colour, lwd=resource_lwd)
@@ -228,7 +228,7 @@ for (i in 1:12){
 
 # Cascades
 # Community
-par(mar=c(5,5,5,1))
+#par(mar=c(5,5,5,1))
 
 plot(x=comm_sim0@params@w, y=comm_relative_abundance, log="xy", type="n", ylab="Relative abundance", xlim=xlim, ylim=cascade_ylim, main = "", xlab="Body mass (g)", yaxt="n")
 axis(side = 2, at=c(0.2,1,5))
@@ -397,7 +397,7 @@ add_effort_lines <- function(){
 
 #postscript(file = "Figure2.eps", width = width/2.5, height = height/2.5, pointsize=8, horizontal = FALSE, onefile=FALSE, paper='special')
 #png(filename="Figure2.png", width = width, height = height, units="cm",res=800, pointsize=8)
-png(filename="Figure2.png", width = width, height = height, units="cm",res=1000, pointsize=8)
+#png(filename="Figure2.png", width = width, height = height, units="cm",res=1000, pointsize=8)
 
 # Figuring out figure panel heights - bit fiddly
 rel_heights <- c(0.7,rep(0.5,8),0.5,0.8,1) # rel heights of panels
@@ -413,7 +413,7 @@ leg_bty <- "n"
 leg_box_lwd <- 0
 
 # (a) Effort of gears
-par(mar=c(0,left_margin,0.5,right_margin))
+#par(mar=c(0,left_margin,0.5,right_margin))
 plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(0,max(fishing_effort)), xlab="", ylab=expression(Effort~(y^{-1})), xaxt="n")
 text(x=5,y=1.4,labels="(a)")
 
@@ -430,7 +430,7 @@ main_labels <- c("(b)","(c)","(d)","(e)")
 names(main_labels) <- gear_names
 for (gear in gear_names){
     species_in_gear <- NS_params@species_params$species[NS_params@species_params$gear==gear]
-    par(mar=c(0,left_margin,0,right_margin))
+    #par(mar=c(0,left_margin,0,right_margin))
     plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(rescale_yield_min, rescale_yield_max), ylab="", xlab="", xaxt="n", yaxt="n")
     axis(4)
     text(x=5,y=0.9,labels=main_labels[gear])
@@ -450,7 +450,7 @@ main_labels <- c("(f)","(g)","(h)","(i)")
 names(main_labels) <- gear_names
 for (gear in gear_names){
     species_in_gear <- NS_params@species_params$species[NS_params@species_params$gear==gear]
-    par(mar=c(0,left_margin,0,right_margin))
+    #par(mar=c(0,left_margin,0,right_margin))
     plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(min(rescale_ssb),max(rescale_ssb)), ylab="", xlab="", xaxt="n")
     if (gear == gear_names[2]){
         mtext("Relative SSB", side=2, line=3, cex=0.6, adj=-3)
@@ -464,7 +464,7 @@ for (gear in gear_names){
 }
 
 # (d) Slope
-par(mar=c(0,left_margin,0,right_margin))
+#par(mar=c(0,left_margin,0,right_margin))
 ylim <- range(slope)
 plot(x = 1:project_time, y=1:project_time, type="n", ylab="", xlab="Years", ylim=ylim, yaxt="n", xaxt="n")
 axis(4)
@@ -474,7 +474,7 @@ add_effort_lines()
 lines(x = 1:project_time, y = slope[2:(project_time+1)])
 
 # (e) LFI, MW, MMW,
-par(mar=c(4,left_margin,0,right_margin))
+#par(mar=c(4,left_margin,0,right_margin))
 ylim <- c(0,max(rescale_lfi,rescale_mw, rescale_mmw, slope))
 plot(x = 1:project_time, y=1:project_time, type="n", ylab="Relative metrics", xlab="Years", ylim=ylim)
 text(x=5,y=2.5,labels="(k)")
@@ -491,7 +491,7 @@ legend(x="bottomright", legend = c("LFI", "MW", "MMW"), lty=1, col=c(1,2,3), cex
 biomass_time <- sweep(apply(NS_sim@n[c(2,21,41,61,81),,],c(1,3),sum),2,NS_sim@params@w,"*")
 xlim <- c(1,5e4)
 ylim <- c(5e5,max(biomass_time))/1000
-par(mar=c(4,left_margin,1,right_margin))
+#par(mar=c(4,left_margin,1,right_margin))
 plot(x=NS_sim@params@w, y = NS_sim@params@w, type="n", ylab="Total biomass (kg)", xlab = "Size (g)", log="xy", ylim = ylim, xlim=xlim)
 text(x=2,y=1e9,labels="(l)")
 cols <- c(1,2,3,4,6)

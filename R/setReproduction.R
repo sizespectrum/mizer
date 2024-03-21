@@ -216,6 +216,7 @@ setReproduction <- function(params, maturity = NULL,
         # Check w_mat25
         assert_that(all(species_params$w_mat25 > species_params$w_min))
         assert_that(all(species_params$w_mat25 < species_params$w_mat))
+        params@species_params$w_mat25 <- species_params$w_mat25
         
         maturity <- params@maturity  # To get the right dimensions
         maturity[] <- 
@@ -316,11 +317,8 @@ setReproduction <- function(params, maturity = NULL,
     }
     
     # RDD function is currently called only with three arguments
-    if (!all(names(formals(RDD)) %in%  c("rdi", "species_params", "t", "..."))) {
+    if (!all(names(formals(RDD)) %in%  c("rdi", "species_params", "params", "t", "..."))) {
         stop("Arguments of RDD function can only contain 'rdi', 'species_params' and `t`.")
-    }
-    if (!all(c("rdi", "...") %in% names(formals(RDD)))) {
-        stop("The RDD function needs to have at least arguments `rdi` and `...`.")
     }
     params@rates_funcs$RDD <- RDD
     if (identical(params@rates_funcs$RDD, "BevertonHoltRDD")) {

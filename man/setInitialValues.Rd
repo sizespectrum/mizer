@@ -52,7 +52,7 @@ gears and other components and the same size bins as the MizerParams object.
 Otherwise an error is raised.
 }
 \examples{
-\dontrun{
+\donttest{
 params <- NS_params
 sim <- project(params, t_max = 20, effort = 0.5)
 params <- setInitialValues(params, sim)
@@ -61,6 +61,7 @@ params <- setInitialValues(params, sim)
 \seealso{
 Other functions for setting parameters: 
 \code{\link{gear_params}()},
+\code{\link{setExtEncounter}()},
 \code{\link{setExtMort}()},
 \code{\link{setFishing}()},
 \code{\link{setInteraction}()},

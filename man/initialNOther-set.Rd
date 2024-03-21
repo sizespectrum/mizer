@@ -17,6 +17,10 @@ components}
 
 \item{object}{An object of class MizerParams or MizerSim}
 }
+\value{
+A named list with the initial values of other ecosystem
+components
+}
 \description{
 Values used as starting values for simulations with \code{project()}.
 }

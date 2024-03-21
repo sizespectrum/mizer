@@ -45,6 +45,8 @@ setMetabolicRate <- function(params, metab = NULL, p = NULL,
     if (!is.null(p)) {
         assert_that(is.numeric(p))
         params <- set_species_param_default(params, "p", p)
+    } else {
+        params <- set_species_param_default(params, "p", 3/4)
     }
     species_params <- params@species_params
     

@@ -65,7 +65,7 @@ setRateFunction <- function(params, rate, fun) {
              toString(names(params@rates_funcs)), ".")
     }
     if (!exists(fun, mode = "function")) {
-        stop("`fun` should be a function.")
+        stop("There is no function called '", fun, "'.")
     }
     # TODO: put some code to test that the function has the right kind of
     # arguments
@@ -255,6 +255,8 @@ getComponent <- function(params, component) {
 
 #' @param object An object of class MizerParams or MizerSim
 #' @rdname initialNOther-set
+#' @return A named list with the initial values of other ecosystem
+#'   components
 #' @export
 initialNOther <- function(object) {
     if (is(object, "MizerParams")) {

@@ -68,7 +68,13 @@ test_that("mizerEncounter is independent of volume", {
     enc_r <- getEncounter(params_r)
     expect_equal(enc, enc_r)
 })
-
+test_that("External encounter is included", {
+    enc <- getEncounter(params)
+    # add something of the right dimension
+    extra_enc <- params@mu_b
+    ext_encounter(params) <- ext_encounter(params) + extra_enc
+    expect_identical(getEncounter(params), enc + extra_enc)
+})
 
 # getFeedingLevel -----------------------------------------
 

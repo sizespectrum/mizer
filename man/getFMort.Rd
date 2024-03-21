@@ -66,7 +66,7 @@ same arguments.
 }
 
 \examples{
-\dontrun{
+\donttest{
 params <- NS_params
 # Get the total fishing mortality when effort is constant for all 
 # gears and time:

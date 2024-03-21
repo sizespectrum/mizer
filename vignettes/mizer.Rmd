@@ -8,7 +8,7 @@ output:
 bibliography: reflib.bib
 link-citations: true
 resource_files:
-  - images/cheat_sheet.pdf
+  - vignette_images/cheat_sheet.pdf
 vignette: >
   %\VignetteIndexEntry{Getting started with mizer}
   %\VignetteEngine{knitr::rmarkdown}
@@ -35,8 +35,21 @@ know about it by posting about it on our [issue tracker](https://github.com/size
 to @[mizer_model](https://twitter.com/mizer_model). We love to hear from
 you.
 
+A good way to get into mizer is to follow the online [mizer course](https://mizer.course.sizespectrum.org).
+This course has three parts, each consisting of several tutorials with example code and exercises:
+
+-   **[Part 1: Understand](https://mizer.course.sizespectrum.org/understand/)**\
+    You will gain an understanding of size spectra and their dynamics by exploring simple example systems hands-on with mizer.
+
+-   **[Part 2: Build](https://mizer.course.sizespectrum.org/build/)**\
+    You will build your own multi-species mizer model for the Celtic sea, following our example. You can also create a model for your own area of interest.
+
+-   **[Part 3: Use]((https://mizer.course.sizespectrum.org/use/)**\
+    You will explore the effects of changes in fishing and changes in resource dynamics on the fish community and the fisheries yield. You will run your own model scenarios.
+
+
 Click on this preview to open a mizer cheat sheet.
-[![Cheat Sheet](images/cheat_sheet_preview.png)](https://sizespectrum.org/mizer/articles/images/cheat_sheet.pdf)
+[![Cheat Sheet](vignette_images/cheat_sheet_preview.png)](https://sizespectrum.org/mizer/articles/images/cheat_sheet.pdf)
 
 There is a [series of YouTube videos](https://www.youtube.com/watch?v=zh0PDyTUssw&list=PLCTMeyjMKRkqR7uohI3p-61P7ZJj8sd5B) 
 by Richard Southwell about mizer which are however no longer entirely up-to-date.
@@ -78,8 +91,8 @@ speed is usually quite acceptable.
 This guide assumes that you will be using RStudio to work with R. There is
 really no reason not to use RStudio and it makes a lot of things much easier.
 RStudio develops rapidly and adds useful features all the time and so it pays 
-to upgrade to the [latest version](https://www.rstudio.com/products/rstudio/download/preview/) 
-frequently. This guide was written with version 1.3.820.
+to upgrade to the [latest version](https://posit.co/download/rstudio-desktop/) 
+frequently. This guide was written with version 2023.12.1.
 
 The source code for mizer is hosted on
 [GitHub](https://github.com/sizespectrum/mizer). If you are feeling brave and
@@ -181,7 +194,7 @@ communities are organised [@andersen_asymptotic_2006; @andersen_trophic_2009;
 concepts, processes, equations and parameters of size spectrum models.
 
 Roughly speaking there are four versions of the size spectrum modelling
-framework of increasing complexity: The [single-species model](https://sizespectrum.org/mizer/dev/articles/single_species_size-spectrum_dynamics.html), the [community model]
+framework of increasing complexity: The [single-species model](https://sizespectrum.org/mizer/articles/single_species_size-spectrum_dynamics.html), the [community model]
 [@benoit_continuous_2004;
 @maury_modeling_2007; @blanchard_how_2009; @law_size-spectra_2009], the
 [trait-based model] [@andersen_asymptotic_2006;
@@ -229,7 +242,7 @@ predators and prey leads to growth $g_i(w)$ and reproduction $R_i$ of the
 predators, and mortality of the prey $\mu_i(w)$.
 
 For a more detailed exposition of the model see the section 
-[The mizer size-spectrum model](model_description.html).
+[The mizer size-spectrum model](https://sizespectrum.org/mizer/articles/model_description.html).
 
 It is easiest to learn the basics of mizer through examples. We do this by
 looking at four set-ups of the framework, of increasing complexity. For
@@ -238,7 +251,7 @@ run it in different scenarios, and explore the results. We
 recommend that you explore these in the following order:
 
 ### Single-species model
-The [single-species model](https://sizespectrum.org/mizer/dev/articles/single_species_size-spectrum_dynamics.html) is a good starting point because it allows one to understand the
+The [single-species model](https://sizespectrum.org/mizer/articles/single_species_size-spectrum_dynamics.html) is a good starting point because it allows one to understand the
 main features of size-spectrum modelling without the complexities of multi-species
 interactions. The model describes a single species in a fixed background community.
 It allows exploration of how the shape of the species size spectrum is determined by

@@ -91,4 +91,13 @@ test_that("get_phi works", {
     expect_identical(phi[1, 1], 0)
     expect_identical(phi[1, 2], 1)
     expect_identical(phi[1, 5], 0)
+    # call with invalid parameters
+    NS_species_params$ppmr_max <- 1
+    expect_error(get_phi(NS_species_params, 1:5),
+                 "ppmr_min not less than ppmr_max")
+    NS_species_params$pred_kernel_type <- "lognormal"
+    NS_species_params$sigma <- 0
+    expect_error(get_phi(NS_species_params, 1:5),
+                 "The function lognormal_pred_kernel returned a zero predation kernel")
 })
+

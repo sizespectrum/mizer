@@ -1,6 +1,8 @@
 test_that("get_time_elements", {
     params <- NS_params
     sim <- project(params, effort = 1, t_max = 10, dt = 0.5, t_save = 0.5)
+    expect_error(get_time_elements(sim, time_range = 0.1),
+                 "The time range does not contain any simulation results.")
     expect_identical(get_time_elements(sim, as.character(3:4)),
                      get_time_elements(sim, 3:4))
     expect_identical(length(get_time_elements(sim, 3:4)),

@@ -74,7 +74,6 @@
 #' @export
 #' @family functions for setting parameters
 #' @examples
-#' \dontrun{
 #' ## Set up a MizerParams object
 #' params <-  NS_params
 #' 
@@ -94,7 +93,6 @@
 #' pred_kernel["Herring", , ] <- sweep(pred_kernel["Herring", , ], 2, 
 #'                                     params@w_full, "*")
 #' params<- setPredKernel(params, pred_kernel = pred_kernel)
-#' }
 setPredKernel <- function(params,
                           pred_kernel = NULL,
                           reset = FALSE, ...) {
@@ -159,7 +157,6 @@ setPredKernel <- function(params,
     phis <- get_phi(species_params, ppmr)
     # Do not allow feeding at own size
     phis[, 1] <- 0
-    fte <- 
     for (i in 1:no_sp) {
         phi <- phis[i, ]
         # Fourier transform of feeding kernel for evaluating available energy
@@ -322,12 +319,19 @@ get_phi <- function(species_params, ppmr) {
         }
         pars <- c(ppmr = list(ppmr), as.list(species_params[i, args]))
         phi <- do.call(pred_kernel_func_name, args = pars)
-        if (any(is.na(phi)) && 
-            (species_params$interaction_resource[i] > 0 ||
-             any(interaction[i, ] > 0))) {
+        
+        if (any(is.na(phi))) {
             stop("The function ", pred_kernel_func_name,
                  " returned NA. Did you correctly specify all required",
                  " parameters in the species parameter dataframe?")
+        }
+        if (any(phi < 0)) {
+            stop("The function ", pred_kernel_func_name,
+                 " returned negative values.")
+        }
+        if (all(phi == 0)) {
+            stop("The function ", pred_kernel_func_name,
+                 " returned a zero predation kernel.")
         }
         phis[i, ] <- phi
     }

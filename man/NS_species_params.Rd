@@ -15,6 +15,7 @@ reproduction so that all growth stops.}
 \item{sigma}{Width of the size-preference}
 \item{R_max}{Maximum reproduction rate}
 \item{k_vb}{The von Bertalanffy k parameter}
+\item{w_inf}{The von Bertalanffy asymptotic size}
 }
 }
 \source{
@@ -30,10 +31,6 @@ a data.frame that contains all the necessary information to be used by the
 assumed to be fished by a separate gear.
 }
 \examples{
-\dontrun{
 params <- MizerParams(NS_species_params)
-sim = project(params)
-plot(sim)
-}
 }
 \keyword{datasets}

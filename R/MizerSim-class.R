@@ -89,7 +89,7 @@ valid_MizerSim <- function(object) {
         msg <- "Second dimension of n_other slot must be called 'component'"
         errors <- c(errors, msg)
     }
-    if (!all(dimnames(object@n_pp)$component == names(object@params@other_dynamics))) {
+    if (!all(dimnames(object@n_other)$component == names(object@params@other_dynamics))) {
         msg <- "Second dimension of n_other slot must have same component names as other_dynamics in the params slot"
         errors <- c(errors, msg)
     }

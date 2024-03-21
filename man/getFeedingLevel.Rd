@@ -71,7 +71,7 @@ same arguments.
 }
 
 \examples{
-\dontrun{
+\donttest{
 params <- NS_params
 # Get initial feeding level
 fl <- getFeedingLevel(params)

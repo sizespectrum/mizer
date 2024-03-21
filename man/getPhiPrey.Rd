@@ -26,7 +26,7 @@ Calculates the amount \eqn{E_{a,i}(w)} of food exposed to each predator as
 a function of predator size.
 }
 \examples{
-\dontrun{
+\donttest{
 params <-  NS_params
 sim <- project(params, t_max = 20, effort = 0.5)
 n <- sim@n[21,,]

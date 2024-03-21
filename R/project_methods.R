@@ -41,6 +41,7 @@
 #' @param rates_fns Named list of the functions to call to calculate the rates.
 #'   Note that this list holds the functions themselves, not their names.
 #' @param ... Unused
+#' @return List of rates.
 #' @export
 #' @family mizer rate functions
 mizerRates <- function(params, n, n_pp, n_other,
@@ -96,7 +97,8 @@ mizerRates <- function(params, n, n_pp, n_other,
         e_repro = r$e_repro, t = t, ...)
     # R_dd
     r$rdd <- rates_fns$RDD(
-        rdi = r$rdi, species_params = params@species_params, ...)
+        rdi = r$rdi, species_params = params@species_params,
+        params = params, t = t, ...)
     
     ## Resource ----
     # Calculate mortality on the resource spectrum
@@ -232,7 +234,9 @@ mizerEncounter <- function(params, n, n_pp, n_other, t, ...) {
                          n = n, n_pp = n_pp, n_other = n_other,
                          component = names(params@other_encounter)[[i]], ...))
     }
-    return(encounter)
+    
+    # Add external encounter
+    return(encounter + params@ext_encounter)
 }
 
 #' Get feeding level needed to project standard mizer model

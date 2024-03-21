@@ -16,16 +16,13 @@
 #' \item{sigma}{Width of the size-preference}
 #' \item{R_max}{Maximum reproduction rate}
 #' \item{k_vb}{The von Bertalanffy k parameter}
+#' \item{w_inf}{The von Bertalanffy asymptotic size}
 #' }
 #' @source{Blanchard et al.}
 #' @docType data
 #' @name NS_species_params
-#' @examples 
-#' \dontrun{
+#' @examples
 #' params <- MizerParams(NS_species_params)
-#' sim = project(params)
-#' plot(sim)
-#' }
 "NS_species_params"
 
 # NS_species_params_gears ----
@@ -45,18 +42,14 @@
 #' \item{sigma}{Width of the size-preference}
 #' \item{R_max}{Maximum reproduction rate}
 #' \item{k_vb}{The von Bertalanffy k parameter}
+#' \item{w_inf}{The von Bertalanffy asymptotic size}
 #' \item{gear}{Name of the fishing gear}
 #' }
 #' @source{Blanchard et al.}
 #' @docType data
 #' @name NS_species_params_gears
-#' @examples 
-#' \dontrun{
+#' @examples
 #' params <- MizerParams(NS_species_params_gears)
-#' sim = project(params, effort = c(Industrial = 0, Pelagic = 1, 
-#'                                  Beam = 0.5, Otter = 0.5))
-#' plot(sim)
-#' }
 "NS_species_params_gears"
 
 # NS_interaction ----
@@ -68,14 +61,9 @@
 #' @source{Blanchard et al.}
 #' @docType data
 #' @name NS_interaction
-#' @examples 
-#' \dontrun{
+#' @examples
 #' params <- MizerParams(NS_species_params_gears,
-#'                       interaction = NS_inter)
-#' sim = project(params, effort = c(Industrial = 0, Pelagic = 1, 
-#'                                  Beam = 0.5, Otter = 0.5))
-#' plot(sim)
-#' }
+#'                       interaction = NS_interaction)
 "NS_interaction"
 
 #' Alias for `NS_interaction`
@@ -102,7 +90,7 @@
 #' @name NS_params
 #' @family example parameter objects
 #' @examples 
-#' \dontrun{
+#' \donttest{
 #' sim = project(NS_params, effort = c(Industrial = 0, Pelagic = 1, 
 #'                                     Beam = 0.5, Otter = 0.5))
 #' plot(sim)
@@ -120,8 +108,6 @@
 #' @docType data
 #' @name NS_sim
 #' @family example parameter objects
-#' @examples 
-#' \dontrun{
+#' @examples
 #' plotBiomass(NS_sim)
-#' }
 "NS_sim"

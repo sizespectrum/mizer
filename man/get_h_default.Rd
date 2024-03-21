@@ -21,6 +21,9 @@ If \code{age_mat} is missing in the species parameter data frame, then it is
 calculated from the von Bertalanffy growth curve parameters \code{k_vb} and
 (optionally \code{t0}) taken from the species parameter data frame. This is not
 reliable and a warning is issued.
+
+If no growth information is given at all for a species, the default is set
+to \code{h = 30}.
 }
 \seealso{
 Other functions calculating defaults: 

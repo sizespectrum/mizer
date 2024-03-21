@@ -14,8 +14,8 @@
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Single-species size-spectrum dynamics">
 <meta property="og:description" content="In this tutorial you will gain an understanding of size-spectrum dynamics. To separate the size-spectrum effects from the multi-species effects, we will concentrate on a single species.">
@@ -37,7 +37,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.5.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,6 +48,9 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item">
   <a class="nav-link" href="../articles/mizer.html">Get started</a>
+</li>
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://mizer.course.sizespectrum.org">Course</a>
 </li>
 <li class="active nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
@@ -674,10 +677,10 @@ an individual invests into reproduction scales with its size.</li>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##                       species w_min w_max    w_mat w_min_idx  h    gamma ks  f0</span></span>
 <span><span class="co">## Target species Target species 0.001   100 25.11886         1 30 2066.004  3 0.6</span></span>
-<span><span class="co">##                  fc beta sigma z0 alpha   erepro interaction_resource    n    p</span></span>
-<span><span class="co">## Target species 0.25  100   1.3  0   0.4 0.899483                    1 0.75 0.75</span></span>
-<span><span class="co">##                  q pred_kernel_type k m R_max</span></span>
-<span><span class="co">## Target species 0.8        lognormal 0 1   Inf</span></span></code></pre>
+<span><span class="co">##                  fc beta sigma z0 alpha   erepro    n    p interaction_resource</span></span>
+<span><span class="co">## Target species 0.25  100   1.3  0   0.4 0.899483 0.75 0.75                    1</span></span>
+<span><span class="co">##                pred_kernel_type k   q  w_mat25 m R_max</span></span>
+<span><span class="co">## Target species        lognormal 0 0.8 22.50546 1   Inf</span></span></code></pre>
 <p>As you can see, there are a lot of other species parameters, some of
 which we will talk about later. For now let’s just select the three
 parameters we are interested in.</p>
@@ -751,10 +754,11 @@ Solution
 first need to run the changed model to steady state</p>
 <div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_changed_maturity</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steady.html">steady</a></span><span class="op">(</span><span class="va">params_changed_maturity</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Convergence was achieved in 9 years.</span></span></code></pre>
+<pre><code><span><span class="co">## Convergence was achieved in 7.5 years.</span></span></code></pre>
+<pre><code><span><span class="co">## Warning in setBevertonHolt(params, reproduction_level = old_reproduction_level): The following species require an unrealistic reproductive efficiency greater than 1: Target species</span></span></code></pre>
 <p>We use the same technique as above to plot the steady-state spectra
 of both models on top of each other.</p>
-<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html" class="external-link">melt</a></span><span class="op">(</span><span class="fu"><a href="../reference/initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">nf_changed_maturity</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html" class="external-link">melt</a></span><span class="op">(</span><span class="fu"><a href="../reference/initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">params_changed_maturity</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">nf</span><span class="op">$</span><span class="va">type</span> <span class="op">&lt;-</span> <span class="st">"original"</span></span>
@@ -787,15 +791,15 @@ decrease with time. The <code><a href="../reference/steady.html">steady()</a></c
 reproductive efficiency to just the right value to maintain the
 population level and has stored it in the species parameter called
 <code>erepro</code>.</p>
-<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">erepro</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] 0.899483</span></span></code></pre>
 <p>The model with the changed maturity curve leads to a different rate
 of investment into reproduction and thus needs a slightly different
 reproductive efficiency to remain at steady state:</p>
-<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params_changed_maturity</span><span class="op">)</span><span class="op">$</span><span class="va">erepro</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] 0.8772433</span></span></code></pre>
+<pre><code><span><span class="co">## [1] 1.016333</span></span></code></pre>
 <p>This is the reproductive efficiency at steady state. When the
 population deviates from the steady state, for example due to a change
 in fishing, the reproductive efficiency can be set to change according
@@ -820,7 +824,7 @@ prey.</p>
 <p>Below we decrease the community spectrum by a factor of 10 in the
 size range from 1mg to 10mg. We again create a new parameter object to
 be able to keep the old one around</p>
-<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_starved</span> <span class="op">&lt;-</span> <span class="va">params</span></span>
 <span><span class="va">size_range</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/w.html">w_full</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">10</span><span class="op">^</span><span class="op">-</span><span class="fl">3</span> <span class="op">&amp;</span> <span class="fu"><a href="../reference/w.html">w_full</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">10</span><span class="op">^</span><span class="op">-</span><span class="fl">2</span></span>
 <span><span class="fu"><a href="../reference/initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params_starved</span><span class="op">)</span><span class="op">[</span><span class="va">size_range</span><span class="op">]</span> <span class="op">&lt;-</span> </span>
@@ -828,13 +832,11 @@ be able to keep the old one around</p>
 <p>That is of course quite a dramatic intervention, and so should allow
 us to clearly see its effect on the steady-state size distribution of
 our species.</p>
-<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_starved</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steady.html">steady</a></span><span class="op">(</span><span class="va">params_starved</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Convergence was achieved in 9 years.</span></span></code></pre>
-<pre><code><span><span class="co">## Warning in setBevertonHolt(params, reproduction_level = old_reproduction_level):</span></span>
-<span><span class="co">## The following species require an unrealistic reproductive efficiency greater</span></span>
-<span><span class="co">## than 1: Target species</span></span></code></pre>
-<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
+<pre><code><span><span class="co">## Warning in setBevertonHolt(params, reproduction_level = old_reproduction_level): The following species require an unrealistic reproductive efficiency greater than 1: Target species</span></span></code></pre>
+<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">params_starved</span>, power <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-47-1.png" width="700"></p>
 <p>As expected, the lack of food and the resulting slow-down in growth
@@ -851,14 +853,14 @@ abundance is increased by a factor of 10 in the size range from 1mg to
 </blockquote>
 <details><summary>
 Solution
-</summary><div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
+</summary><div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_overfed</span> <span class="op">&lt;-</span> <span class="va">params</span></span>
 <span><span class="va">size_range</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/w.html">w_full</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">10</span><span class="op">^</span><span class="op">-</span><span class="fl">3</span> <span class="op">&amp;</span> <span class="fu"><a href="../reference/w.html">w_full</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">10</span><span class="op">^</span><span class="op">-</span><span class="fl">2</span></span>
 <span><span class="fu"><a href="../reference/initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params_overfed</span><span class="op">)</span><span class="op">[</span><span class="va">size_range</span><span class="op">]</span> <span class="op">&lt;-</span> </span>
 <span>  <span class="fu"><a href="../reference/initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="va">size_range</span><span class="op">]</span> <span class="op">*</span> <span class="fl">10</span></span>
 <span><span class="va">params_overfed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steady.html">steady</a></span><span class="op">(</span><span class="va">params_overfed</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Convergence was achieved in 7.5 years.</span></span></code></pre>
-<div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">params_overfed</span>, power <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-48-1.png" width="700"></details>
 </div>
@@ -905,16 +907,16 @@ of sizes, smaller than themselves. This is encoded in the size-spectrum
 model by the predation kernel. Let us take a look at the predation
 kernel in our model. We can obtain it with the function
 <code><a href="../reference/setPredKernel.html">getPredKernel()</a></code>.</p>
-<div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_kernel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setPredKernel.html">getPredKernel</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
 <p>This is a large three-dimensional array (predator species x predator
 size x prey size). We extract the kernel of a predator of size 10g
 (using that we remember that this is in size class 81)</p>
-<div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_kernel_10</span> <span class="op">&lt;-</span> <span class="va">pred_kernel</span><span class="op">[</span>, <span class="fl">81</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span></code></pre></div>
 <p>The <code>drop = FALSE</code> option is there to prevent R from
 dropping any of the array dimensions. We can now plot this as usual</p>
-<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html" class="external-link">melt</a></span><span class="op">(</span><span class="va">pred_kernel_10</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">w_prey</span>, y <span class="op">=</span> <span class="va">value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_log10</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -926,19 +928,19 @@ determined by the species parameter <code>beta</code> and the width of
 the feeding kernel, i.e., how fussy the predator is regarding their prey
 size, is determined by the species parameter <code>sigma</code>. In our
 model these have the values</p>
-<div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="va">beta</span>, <span class="va">sigma</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##                beta sigma</span></span>
 <span><span class="co">## Target species  100   1.3</span></span></code></pre>
 <p>Let us change the preferred predator/prey mass ratio from 100 to
 1000. As usual, we first create a copy of the parameter object, then we
 make the change in that copy.</p>
-<div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_pk</span> <span class="op">&lt;-</span> <span class="va">params</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params_pk</span><span class="op">)</span><span class="op">$</span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span></code></pre></div>
 <p>Let’s make a plot to see that the predation kernel has indeed
 changed.</p>
-<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/setPredKernel.html">getPredKernel</a></span><span class="op">(</span><span class="va">params_pk</span><span class="op">)</span><span class="op">[</span>, <span class="fl">81</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html" class="external-link">melt</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
@@ -948,14 +950,12 @@ changed.</p>
 <p>If we now again reduce the prey in the size range from 1mg to 10mg as
 before, we now expect this to produce a peak in the biomass spectrum
 somewhere between 1g and 10g. Let’s check.</p>
-<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params_pk</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params_starved</span><span class="op">)</span></span>
 <span><span class="va">params_pk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steady.html">steady</a></span><span class="op">(</span><span class="va">params_pk</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Convergence was achieved in 7.5 years.</span></span></code></pre>
-<pre><code><span><span class="co">## Warning in setBevertonHolt(params, reproduction_level = old_reproduction_level):</span></span>
-<span><span class="co">## The following species require an unrealistic reproductive efficiency greater</span></span>
-<span><span class="co">## than 1: Target species</span></span></code></pre>
-<div class="sourceCode" id="cb79"><pre class="downlit sourceCode r">
+<pre><code><span><span class="co">## Warning in setBevertonHolt(params, reproduction_level = old_reproduction_level): The following species require an unrealistic reproductive efficiency greater than 1: Target species</span></span></code></pre>
+<div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">params_pk</span>, power <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-55-1.png" width="700"></p>
 <p>Yes, as expected.</p>
@@ -981,7 +981,7 @@ themselves.</p>
 </blockquote>
 <details><summary>
 Solution
-</summary><div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
+</summary><div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params3</span> <span class="op">&lt;-</span> <span class="va">params</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params3</span><span class="op">)</span><span class="op">$</span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fl">50</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params3</span><span class="op">)</span><span class="op">$</span><span class="va">sigma</span> <span class="op">&lt;-</span> <span class="fl">2</span></span>
@@ -999,11 +999,11 @@ Are you surprised?</p>
 </blockquote>
 <details><summary>
 Solution
-</summary><div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
+</summary><div class="sourceCode" id="cb82"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params3</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params_starved</span><span class="op">)</span></span>
 <span><span class="va">params3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steady.html">steady</a></span><span class="op">(</span><span class="va">params3</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Convergence was achieved in 7.5 years.</span></span></code></pre>
-<div class="sourceCode" id="cb83"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb84"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">params3</span>, power <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-57-1.png" width="700">
 There is no pronounced bump created this time. This is because the
@@ -1038,24 +1038,22 @@ very different route to this than forage fish, but the result is the
 same.</p>
 <p>Let us see what effect changing the coefficient <span class="math inline">\(\gamma_0\)</span> in the search volume rate has.
 Its current value in our model is</p>
-<div class="sourceCode" id="cb84"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb85"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] 2066.004</span></span></code></pre>
 <p>We change that to 2000 and find the new steady state.</p>
-<div class="sourceCode" id="cb86"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb87"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_new_gamma</span> <span class="op">&lt;-</span> <span class="va">params</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params_new_gamma</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span> <span class="op">&lt;-</span> <span class="fl">2000</span></span>
 <span><span class="va">params_new_gamma</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steady.html">steady</a></span><span class="op">(</span><span class="va">params_new_gamma</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning in setBevertonHolt(params, reproduction_level = old_reproduction_level):</span></span>
-<span><span class="co">## The following species require an unrealistic reproductive efficiency greater</span></span>
-<span><span class="co">## than 1: Target species</span></span></code></pre>
+<pre><code><span><span class="co">## Warning in setBevertonHolt(params, reproduction_level = old_reproduction_level): The following species require an unrealistic reproductive efficiency greater than 1: Target species</span></span></code></pre>
 <p>We can see the effect in the growth curve of our species. In the
 original model it looks as follows:</p>
-<div class="sourceCode" id="cb88"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb89"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotGrowthCurves.html">plotGrowthCurves</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
 <p><img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-60-1.png" width="700"></p>
 <p>In the modified model it looks like</p>
-<div class="sourceCode" id="cb89"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb90"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotGrowthCurves.html">plotGrowthCurves</a></span><span class="op">(</span><span class="va">params_new_gamma</span><span class="op">)</span></span></code></pre></div>
 <p><img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-61-1.png" width="700"></p>
 <blockquote>
@@ -1069,7 +1067,7 @@ Solution
 </summary><p>The juvenile spectrum will be steeper because the slope is <span class="math inline">\(-\mu_0/g_0 - p\)</span> and for smaller growth
 rate coefficient <span class="math inline">\(g_0\)</span> this will be
 more negative.</p>
-<div class="sourceCode" id="cb90"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb91"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html" class="external-link">melt</a></span><span class="op">(</span><span class="fu"><a href="../reference/initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">nf_new_gamma</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html" class="external-link">melt</a></span><span class="op">(</span><span class="fu"><a href="../reference/initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">params_new_gamma</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">nf</span><span class="op">$</span><span class="va">type</span> <span class="op">&lt;-</span> <span class="st">"original"</span></span>
@@ -1094,19 +1092,19 @@ of limited availability of prey. We describe this by the <em>feeding
 level</em> which is the proportion of its maximum intake rate at which
 the predator is actually taking in prey.</p>
 <p>In our simple model this feeding level is constant.</p>
-<div class="sourceCode" id="cb91"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb92"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotFeedingLevel.html">plotFeedingLevel</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
 <p><img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-63-1.png" width="700"></p>
 <p>In the model with the reduced search volume the feeding level will be
 lower</p>
-<div class="sourceCode" id="cb92"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb93"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotFeedingLevel.html">plotFeedingLevel</a></span><span class="op">(</span><span class="va">params_new_gamma</span><span class="op">)</span></span></code></pre></div>
 <p><img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-64-1.png" width="700"></p>
 <p>Our model is taking an allometric form for the maximum intake rate
 <span class="math inline">\(h(w)\)</span> as a function of predator size
 <span class="math inline">\(w\)</span>: <span class="math inline">\(h(w)
 = h\ w^n\)</span>. The current value of the coefficient <span class="math inline">\(h\)</span> is</p>
-<div class="sourceCode" id="cb93"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb94"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">h</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] 30</span></span></code></pre>
 </div>
@@ -1146,13 +1144,13 @@ species only for fish above 30 grams. All fish greater than 30 grams
 will be exposed to the same fishing mortality. We call this kind of
 fishing selectivity “knife_edge” selectivity. Mizer can deal with more
 general selectivity curves, like sigmoidal or doubly sigmoidal.</p>
-<div class="sourceCode" id="cb95"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb96"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_fishing</span> <span class="op">&lt;-</span> <span class="va">params</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params_fishing</span><span class="op">)</span><span class="op">$</span><span class="va">sel_func</span> <span class="op">&lt;-</span> <span class="st">"knife_edge"</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params_fishing</span><span class="op">)</span><span class="op">$</span><span class="va">knife_edge_size</span> <span class="op">&lt;-</span> <span class="fl">30</span></span></code></pre></div>
 <p>We also need to specify the fishing effort and can then plot the
 resulting fishing mortality.</p>
-<div class="sourceCode" id="cb96"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb97"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_fishing</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setFishing.html">setFishing</a></span><span class="op">(</span><span class="va">params_fishing</span>, initial_effort <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plotFMort.html">plotFMort</a></span><span class="op">(</span><span class="va">params_fishing</span><span class="op">)</span></span></code></pre></div>
 <p><img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-67-1.png" width="700"></p>

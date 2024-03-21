@@ -68,6 +68,8 @@ distanceSSLogN <- function(params, current, previous) {
 #'   this uses the function [distanceSSLogN()] that you can use as a model for your
 #'   own distance function.
 #' @param ... Further arguments will be passed on to your distance function.
+#' 
+#' @return A MizerParams or a MizerSim object
 #' @seealso [distanceSSLogN()], [distanceMaxRelRDI()]
 #' @export
 projectToSteady <- function(params,
@@ -136,7 +138,7 @@ projectToSteady <- function(params,
             # Store result
             sim@n[i, , ] <- current$n
             sim@n_pp[i, ] <- current$n_pp
-            sim@n_other[i, ] <- current$n_other
+            sim@n_other[i, ] <- unserialize(serialize(current$n_other, NULL))
             sim@effort[i, ] <- params@initial_effort
         }
         
@@ -207,7 +209,7 @@ projectToSteady <- function(params,
 #' @param tol The simulation stops when the relative change in the egg
 #'   production RDI over `t_per` years is less than `tol` for every species.
 #' @param return_sim If TRUE, the function returns the MizerSim object holding
-#'   the result of the simulation run. If FALSE (default) the function returns
+#'   the result of the simulation run, saved at intervals of `t_per`. If FALSE (default) the function returns
 #'   a MizerParams object with the "initial" slots set to the steady state.
 #' @param preserve `r lifecycle::badge("experimental")`
 #'   Specifies whether the `reproduction_level` should be preserved (default)
@@ -216,9 +218,10 @@ projectToSteady <- function(params,
 #'   of the `reproduction_level`.
 #' @param progress_bar A shiny progress object to implement a progress bar in a
 #'   shiny app. Default FALSE.
+#' @return A MizerParams or a MizerSim object
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' params <- newTraitParams()
 #' species_params(params)$gamma[5] <- 3000
 #' params <- steady(params)
@@ -301,6 +304,7 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
 #' @param n_other Abundances of other components
 #' @param component Name of the component that is being updated
 #' @param ... Unused
+#' @return The current value of the component
 #' @export
 #' @concept helper
 constant_other <- function(params, n_other, component, ...) {
