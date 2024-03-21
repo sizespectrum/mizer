@@ -62,7 +62,7 @@
 #'
 #' # Show the ratio instead
 #' plotBiomassObservedVsModel(params, ratio = TRUE)
-plotBiomassObservedVsModel <- function(object, species = NULL, ratio = FALSE,
+plotBiomassObservedVsModel <- function(object, species = NULL, ratio = TRUE,
                                       log_scale = TRUE, return_data = FALSE, 
                                       labels = TRUE, show_unobserved = FALSE) {
     
