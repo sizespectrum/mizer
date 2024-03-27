@@ -70,8 +70,8 @@ getFMortGear(sim, time_range = c(10, 20))
 \seealso{
 Other rate functions: 
 \code{\link{getEGrowth}()},
-\code{\link{getEReproAndGrowth}()},
 \code{\link{getERepro}()},
+\code{\link{getEReproAndGrowth}()},
 \code{\link{getEncounter}()},
 \code{\link{getFMort}()},
 \code{\link{getFeedingLevel}()},

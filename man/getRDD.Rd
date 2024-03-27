@@ -60,11 +60,11 @@ getRDD(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], t = 15)
 
 Other rate functions: 
 \code{\link{getEGrowth}()},
-\code{\link{getEReproAndGrowth}()},
 \code{\link{getERepro}()},
+\code{\link{getEReproAndGrowth}()},
 \code{\link{getEncounter}()},
-\code{\link{getFMortGear}()},
 \code{\link{getFMort}()},
+\code{\link{getFMortGear}()},
 \code{\link{getFeedingLevel}()},
 \code{\link{getMort}()},
 \code{\link{getPredMort}()},

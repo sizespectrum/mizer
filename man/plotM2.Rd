@@ -70,8 +70,8 @@ Other plotting functions:
 \code{\link{plotFeedingLevel}()},
 \code{\link{plotGrowthCurves}()},
 \code{\link{plotSpectra}()},
-\code{\link{plotYieldGear}()},
 \code{\link{plotYield}()},
+\code{\link{plotYieldGear}()},
 \code{\link{plotting_functions}}
 }
 \concept{deprecated}

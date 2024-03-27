@@ -44,7 +44,7 @@ Other summary functions:
 \code{\link{getDiet}()},
 \code{\link{getN}()},
 \code{\link{getSSB}()},
-\code{\link{getYieldGear}()},
-\code{\link{getYield}()}
+\code{\link{getYield}()},
+\code{\link{getYieldGear}()}
 }
 \concept{summary functions}

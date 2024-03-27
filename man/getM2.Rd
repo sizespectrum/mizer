@@ -67,11 +67,11 @@ getPredMort(sim, time_range = c(15, 20))
 \seealso{
 Other rate functions: 
 \code{\link{getEGrowth}()},
-\code{\link{getEReproAndGrowth}()},
 \code{\link{getERepro}()},
+\code{\link{getEReproAndGrowth}()},
 \code{\link{getEncounter}()},
-\code{\link{getFMortGear}()},
 \code{\link{getFMort}()},
+\code{\link{getFMortGear}()},
 \code{\link{getFeedingLevel}()},
 \code{\link{getMort}()},
 \code{\link{getPredRate}()},

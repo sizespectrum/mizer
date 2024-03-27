@@ -41,7 +41,7 @@ LinkingTo: Rcpp
 Depends:
     R (>= 3.1)
 Suggests:
-    testthat (>= 2.1.0),
+    testthat (>= 3.0.0),
     vdiffr,
     roxygen2,
     knitr,
@@ -112,3 +112,4 @@ BugReports: https://github.com/sizespectrum/mizer/issues
 Language: en-GB
 RdMacros: lifecycle
 VignetteBuilder: knitr
+Config/testthat/edition: 3

@@ -62,8 +62,8 @@ Other plotting functions:
 \code{\link{plotGrowthCurves}()},
 \code{\link{plotPredMort}()},
 \code{\link{plotSpectra}()},
-\code{\link{plotYieldGear}()},
 \code{\link{plotYield}()},
+\code{\link{plotYieldGear}()},
 \code{\link{plotting_functions}}
 
 Other plotting functions: 
@@ -75,8 +75,8 @@ Other plotting functions:
 \code{\link{plotGrowthCurves}()},
 \code{\link{plotPredMort}()},
 \code{\link{plotSpectra}()},
-\code{\link{plotYieldGear}()},
 \code{\link{plotYield}()},
+\code{\link{plotYieldGear}()},
 \code{\link{plotting_functions}}
 }
 \concept{plotting functions}

@@ -70,11 +70,11 @@ The feeding level is used in \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGr
 
 Other mizer rate functions: 
 \code{\link{mizerEGrowth}()},
-\code{\link{mizerEReproAndGrowth}()},
 \code{\link{mizerERepro}()},
+\code{\link{mizerEReproAndGrowth}()},
 \code{\link{mizerEncounter}()},
-\code{\link{mizerFMortGear}()},
 \code{\link{mizerFMort}()},
+\code{\link{mizerFMortGear}()},
 \code{\link{mizerMort}()},
 \code{\link{mizerPredMort}()},
 \code{\link{mizerPredRate}()},

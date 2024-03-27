@@ -172,7 +172,7 @@ test_that("getPredMort for MizerParams", {
     for (i in 1:no_w) {
         m2temp[i] <- sum(params@interaction[, sp] * pred_rate[, w_offset + i])
     }
-    expect_equal(m2temp, m[sp, ], check.names = FALSE)
+    expect_equal(m2temp, as.numeric(m[sp, ]))
 })
 
 test_that("getPredMort for MizerSim", {

@@ -29,7 +29,7 @@
 #'   with the species indices, or a logical vector indicating for each species
 #'   whether it is to be included (TRUE) or not.
 #' @param ratio Whether to plot model biomass vs. observed biomass (FALSE) or
-#'   the ratio of model : observed biomass (TRUE). Default is FALSE.
+#'   the ratio of model : observed biomass (TRUE). Default is TRUE.
 #' @param log_scale Whether to plot on the log10 scale (TRUE) or not (FALSE).
 #'   For the non-ratio plot this applies for both axes, for the ratio plot only
 #'   the x-axis is on the log10 scale. Default is TRUE.
@@ -62,7 +62,7 @@
 #'
 #' # Show the ratio instead
 #' plotBiomassObservedVsModel(params, ratio = TRUE)
-plotBiomassObservedVsModel <- function(object, species = NULL, ratio = FALSE,
+plotBiomassObservedVsModel <- function(object, species = NULL, ratio = TRUE,
                                       log_scale = TRUE, return_data = FALSE, 
                                       labels = TRUE, show_unobserved = FALSE) {
     

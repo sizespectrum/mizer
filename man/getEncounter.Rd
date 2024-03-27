@@ -98,10 +98,10 @@ str(encounter)
 \seealso{
 Other rate functions: 
 \code{\link{getEGrowth}()},
-\code{\link{getEReproAndGrowth}()},
 \code{\link{getERepro}()},
-\code{\link{getFMortGear}()},
+\code{\link{getEReproAndGrowth}()},
 \code{\link{getFMort}()},
+\code{\link{getFMortGear}()},
 \code{\link{getFeedingLevel}()},
 \code{\link{getMort}()},
 \code{\link{getPredMort}()},
