@@ -2,7 +2,8 @@
 # * Dimensions are correct ----
 test_that("constructor with species_params and interaction signature gives the right dimensions", {
     params <- newMultispeciesParams(NS_species_params, inter)
-    expect_that(params, is_a("MizerParams"))
+    # expect_that(params, is_a("MizerParams")) # deprecated, trying to find alternative
+    expect_equal(class(params)[1], "MizerParams") # alternative?
     expect_equal(dim(params@psi)[1], nrow(NS_species_params))
     expect_equal(dimnames(params@psi)$sp, as.character(NS_species_params$species))
     params_gears <- newMultispeciesParams(NS_species_params_gears, inter)  
@@ -37,8 +38,7 @@ test_that("w_min_idx is being set correctly", {
     NS_species_params_gears$w_min[7] <- 10
     params <- newMultispeciesParams(NS_species_params_gears, inter)
     expect_true(all(params@w_min_idx[c(1:6, 8:12)] == 1))
-    expect_equal(params@w_min_idx[7], max(which(params@w <= 10)), 
-                 check.names = FALSE)
+    expect_equal(as.integer(params@w_min_idx[7]), max(which(params@w <= 10)))
 })
 
 test_that("Errors are reported", {

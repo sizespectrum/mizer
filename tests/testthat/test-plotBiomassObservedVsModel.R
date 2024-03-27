@@ -42,11 +42,17 @@ expect_equal(nrow(dummy), length(sp_select))
 expect_equal(dummy$observed, 
              species_params(params)$biomass_observed[sp_select])
 
-# Finally, look at plot
+# Finally, look at plot of ratio
 dummy <- plotBiomassObservedVsModel(params, return_data = TRUE)
 p <- plotBiomassObservedVsModel(params)
 expect_true(is.ggplot(p))
 expect_identical(p$labels$x, "observed biomass [g]")
+expect_identical(p$labels$y, "model biomass / observed biomass")
+expect_identical(p$data, dummy)
+
+# Look at plot as model biomass vs. observed biomass
+dummy <- plotBiomassObservedVsModel(params, ratio = F, return_data = TRUE)
+p <- plotBiomassObservedVsModel(params, ratio = F)
 expect_identical(p$labels$y, "model biomass [g]")
 expect_identical(p$data, dummy)
 
