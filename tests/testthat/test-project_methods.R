@@ -232,7 +232,7 @@ test_that("getResourceMort", {
     expect_length(m2, no_w_full)
     # Check number in final prey size group
     m22 <- colSums(getPredRate(params, n, n_full))
-    expect_equal(m22, m2, check.attributes = FALSE)
+    expect_equal(m22, m2, ignore_attr = FALSE)
     m2b1 <- getResourceMort(params, n, n_full)
     # test value
     expect_known_value(m2b1, "values/getResourceMort")
@@ -398,7 +398,7 @@ test_that("getMort", {
     f <- getFMort(params, effort2)
     m2 <- getPredMort(params, n, n_full)
     z1 <- f[1, ] + m2[1, ] + params@species_params$z0[1]
-    expect_equal(z1, z[1, ], check.names = FALSE)
+    expect_equal(z1, z[1, ])
     expect_known_value(z, "values/getMort")
 })
 
@@ -469,7 +469,7 @@ test_that("getRDI", {
     e_repro_pop <- apply(sweep(e_repro * n, 2, params@dw, "*"), 1, sum)
     rdix <- sex_ratio * (e_repro_pop * params@species_params$erepro) / 
         params@w[params@w_min_idx]
-    expect_equal(rdix, rdi, tolerance = 1e-15, check.names = FALSE)
+    expect_equal(rdix, rdi, tolerance = 1e-15)
     expect_known_value(rdi, "values/getRDI")
 })
 
@@ -531,11 +531,11 @@ test_that("Test that fft based integrator gives similar result as old code", {
     e <- getEncounter(params2, params@initial_n, params@initial_n_pp)
     # Only check values at fish sizes
     fish <- outer(1:no_sp, 1:no_w, function(i, a) a >= params@w_min_idx[i])
-    expect_equivalent(efft[fish], e[fish], tolerance = 3e-14)
+    expect_equal(efft[fish], e[fish], tolerance = 3e-14, ignore_attr = TRUE)
     # Test available energy integral
     prfft <- getPredRate(params, params@initial_n, params@initial_n_pp)
     pr <- getPredRate(params2, params@initial_n, params@initial_n_pp)
-    expect_equivalent(prfft, pr, tolerance = 1e-15)
+    expect_equal(prfft, pr, tolerance = 1e-15, ignore_attr = TRUE)
 })
 
 # One species only ----

@@ -1,5 +1,3 @@
-context("methods work for a single species data set")
-
 # We choose the largest species for our single-species
 params <- newMultispeciesParams(NS_species_params_gears[12, ])
 n <- params@initial_n

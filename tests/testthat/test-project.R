@@ -1,5 +1,3 @@
-context("project method")
-
 params <- newMultispeciesParams(NS_species_params_gears, inter)
 
 # time dimension ----
@@ -106,7 +104,7 @@ test_that("Can pass in initial species", {
     effort[,2] <- 0.5
     effort[,3] <- seq(from = 1, to = 0.5, length = nrow(effort))
     effort[,4] <- 0
-    expect_that(project(params, effort = effort), throws_error())
+    expect_error(project(params, effort = effort))
 })
 
 
@@ -116,8 +114,8 @@ test_that("w_min array reference is working OK", {
     NS_species_params_gears$w_min[1] <- 1
     params2 <- newMultispeciesParams(NS_species_params_gears, inter)
     sim <- project(params2, effort = 1, t_max = 5)
-    expect_equivalent(sim@n[6, 1, 1:(sim@params@w_min_idx[1] - 1)],
-                      rep(0, sim@params@w_min_idx[1] - 1))
+    expect_equal(sim@n[6, 1, 1:(sim@params@w_min_idx[1] - 1)],
+                      rep(0, sim@params@w_min_idx[1] - 1), ignore_attr = TRUE)
 })
 
 

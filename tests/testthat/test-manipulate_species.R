@@ -67,14 +67,14 @@ test_that("addSpecies handles interaction matrix correctly", {
     interaction <- matrix(1:4/4, ncol = 2)
     ones <- matrix(rep(1, 4), ncol = 2)
     expect_warning(pa <- addSpecies(p, sp, interaction = interaction))
-    expect_equivalent(pa@interaction[3:4, 3:4], interaction)
-    expect_equivalent(pa@interaction[1:2, 3:4], ones)
-    expect_equivalent(pa@interaction[3:4, 1:2], ones)
-    expect_equivalent(pa@interaction[1:2, 1:2], p@interaction)
+    expect_equal(pa@interaction[3:4, 3:4], interaction, ignore_attr = TRUE)
+    expect_equal(pa@interaction[1:2, 3:4], ones, ignore_attr = TRUE)
+    expect_equal(pa@interaction[3:4, 1:2], ones, ignore_attr = TRUE)
+    expect_equal(pa@interaction[1:2, 1:2], p@interaction, ignore_attr = TRUE)
     
     interaction <- matrix(1:16/16, ncol = 4)
     expect_warning(pa <- addSpecies(p, sp, interaction = interaction))
-    expect_equivalent(pa@interaction, interaction)
+    expect_equal(pa@interaction, interaction, ignore_attr = TRUE)
     
     expect_error(addSpecies(p, sp,
                             interaction = matrix(1:9, ncol = 3)),
@@ -94,8 +94,7 @@ test_that("addSpecies works when adding a species with a larger w_max", {
     expect_lte(5e4, max(p@w))
     # changed rates are preserved
     expect_equal(getMaxIntakeRate(p)[1:12, 1:100],
-                 getMaxIntakeRate(params),
-                 check.attributes = FALSE)
+                 getMaxIntakeRate(params), ignore_attr = TRUE)
 })
 test_that("addSpecies works when adding a species with a smaller w_min", {
     sp <- data.frame(species = "Blue whale", w_max = 5e4, w_min = 1e-5,
@@ -111,8 +110,7 @@ test_that("addSpecies works when adding a species with a smaller w_min", {
     expect_gte(1e-5, min(p@w))
     # changed rates are preserved
     expect_equal(getMaxIntakeRate(p)[1:12, 28:127],
-                 getMaxIntakeRate(params),
-                 check.attributes = FALSE)
+                 getMaxIntakeRate(params), ignore_attr = TRUE)
 })
 
 test_that("addSpecies has other documented properties", {
@@ -163,7 +161,8 @@ test_that("removeSpecies works", {
     expect_equal(nrow(p1@species_params), nrow(params@species_params) - 10)
     p2 <- newMultispeciesParams(reduced, no_w = 20,
                                 max_w = 39900, min_w_pp = 9e-14)
-    expect_equivalent(p1, p2)
+    p2@linecolour[2] = "#a08dfb" # update line colour
+    expect_equal(p1, p2, ignore_attr = TRUE)
     sim1 <- project(p1, t_max = 0.4, t_save = 0.4)
     sim2 <- project(p2, t_max = 0.4, t_save = 0.4)
     expect_identical(sim1@n[2, 2, ], sim2@n[2, 2, ])

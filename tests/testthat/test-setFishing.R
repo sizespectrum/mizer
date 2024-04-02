@@ -134,8 +134,7 @@ test_that("Comment works on selectivity", {
     expect_message(setFishing(params),  "has been commented")
     # Can reset
     p <- setFishing(params, reset = TRUE)
-    expect_equal(p@selectivity[1, 1, 1], 1,
-                 check.attributes = FALSE)
+    expect_equal(p@selectivity[1, 1, 1], 1, ignore_attr = TRUE)
     expect_warning(setFishing(params, selectivity = selectivity,
                                     reset = TRUE),
                    "Because you set `reset = TRUE`, the")
@@ -165,8 +164,7 @@ test_that("Comment works on catchability", {
     expect_message(setFishing(params),  "has been commented")
     # Can reset
     p <- setFishing(params, reset = TRUE)
-    expect_equal(p@catchability[1, 1], 2,
-                 check.attributes = FALSE)
+    expect_equal(p@catchability[1, 1], 2, ignore_attr = TRUE)
     expect_warning(setFishing(params, catchability = catchability,
                                     reset = TRUE),
                    "Because you set `reset = TRUE`, the")

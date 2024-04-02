@@ -1,5 +1,3 @@
-context("Backwards compatibility")
-
 # The known values below were calculated with mizer version 1.0.1
 
 # In version 1.0.1 it was still necessary to use data()

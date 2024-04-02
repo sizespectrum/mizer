@@ -123,8 +123,7 @@ test_that("getProportionOfLargeFish works", {
     larger_biomass <- sum(sweep(sim@n[time_idx, , ], 2,
                                 threshold_w * sim@params@w * sim@params@dw, "*")
                           )
-    expect_that(prop[time_idx], 
-                is_equivalent_to(larger_biomass / total_biomass))
+    expect_equal(prop[time_idx], larger_biomass / total_biomass, ignore_attr = TRUE)
     # using a size range
     prop <- getProportionOfLargeFish(sim, min_w = 10, max_w = 5000,
                                      threshold_w = 500)
@@ -132,7 +131,7 @@ test_that("getProportionOfLargeFish works", {
     threshold_w <- sim@params@w > 500
     total_biomass <- sum(sweep(sim@n[time_idx,,],2, range_w * sim@params@w * sim@params@dw, "*"))
     larger_biomass <- sum(sweep(sim@n[time_idx,,],2, threshold_w * range_w * sim@params@w * sim@params@dw, "*"))
-    expect_that(prop[time_idx] , is_equivalent_to(larger_biomass / total_biomass))
+    expect_equal(prop[time_idx] , larger_biomass / total_biomass, ignore_attr = TRUE)
     # numeric test
     expect_known_value(prop, "values/getProportionOfLargeFish")
 })
@@ -145,14 +144,14 @@ test_that("getMeanWeight works",{
     total_n  <- apply(sweep(sim@n, 3, sim@params@dw, "*"),1,sum)
     mw1 <- total_biomass / total_n
     mw <- getMeanWeight(sim)
-    expect_that(mw, equals(mw1))
+    expect_equal(mw, mw1, ignore_attr = TRUE)
     # select species
     species <- c("Cod","Haddock")
     total_biomass <- apply(sweep(sim@n[,species,], 3, sim@params@w * sim@params@dw, "*"),1,sum)
     total_n  <- apply(sweep(sim@n[,species,], 3, sim@params@dw, "*"),1,sum)
     mw2 <- total_biomass / total_n
     mw <- getMeanWeight(sim, species = species)
-    expect_that(mw, equals(mw2))
+    expect_equal(mw, mw2, ignore_attr = TRUE)
     # select size range
     min_w <- 10
     max_w <- 10000
@@ -161,13 +160,13 @@ test_that("getMeanWeight works",{
     total_n <- apply(sweep(sweep(sim@n, c(2,3), size_n, "*"), 3, sim@params@dw, "*"),1,sum)
     mw3 <- total_biomass / total_n
     mw <- getMeanWeight(sim, min_w = min_w, max_w=max_w)
-    expect_that(mw, equals(mw3))
+    expect_equal(mw, mw3, ignore_attr = TRUE)
     # select size range and species
     total_biomass <- apply(sweep(sweep(sim@n, c(2,3), size_n, "*")[,species,], 3, sim@params@w * sim@params@dw, "*"),1,sum)
     total_n <- apply(sweep(sweep(sim@n, c(2,3), size_n, "*")[,species,], 3, sim@params@dw, "*"),1,sum)
     mw4 <- total_biomass / total_n
     mw <- getMeanWeight(sim, species=species, min_w = min_w, max_w=max_w)
-    expect_that(mw, equals(mw4))
+    expect_equal(mw, mw4, ignore_attr = TRUE)
     # numeric test
     expect_known_value(mw, "values/getMeanWeight")
 })
@@ -185,11 +184,11 @@ test_that("getMeanMaxWeight works", {
 test_that("getYieldGear works",{
     y <- getYieldGear(sim)
     # check dims
-    expect_that(dim(y),equals(c(11,dim(params@catchability)[1],dim(params@catchability)[2])))
+    expect_equal(dim(y), c(11,dim(params@catchability)[1],dim(params@catchability)[2]), ignore_attr = TRUE)
     # check a value and assume the others are right
     biomass <- sweep(sim@n,3,sim@params@w * sim@params@dw, "*")
     f_gear <- getFMortGear(sim)
-    expect_that(sum((biomass*f_gear[,1,,])[1,1,]),equals(y[1,1,1]))
+    expect_equal(sum((biomass*f_gear[,1,,])[1,1,]), y[1,1,1], ignore_attr = TRUE)
     # numeric test
     expect_known_value(y, "values/getYieldGear")
     expect_equal(getYieldGear(sim)[1, , ], 
@@ -201,11 +200,11 @@ test_that("getYieldGear works",{
 test_that("getYield works",{
     y <- getYield(sim)
     # check dims
-    expect_that(dim(y),equals(c(11,dim(params@catchability)[2])))
+    expect_equal(dim(y), c(11,dim(params@catchability)[2]), ignore_attr = TRUE)
     # check a value and assume the others are right
     biomass <- sweep(sim@n,3,sim@params@w * sim@params@dw, "*")
     f <- getFMort(sim)
-    expect_that(sum((f*biomass)[1,1,]),equals(y[1,1]))
+    expect_equal(sum((f*biomass)[1,1,]), y[1,1], ignore_attr = TRUE)
     # numeric test
     expect_known_value(y, "values/getYield")
     expect_equal(getYield(sim)[1, ], getYield(sim@params))
@@ -216,42 +215,42 @@ test_that("getYield works",{
 test_that("getCommunitySlope works",{
     slope_b <- getCommunitySlope(sim)
     # dims
-    expect_that(dim(slope_b), equals(c(dim(sim@n)[1],3)))
+    expect_equal(dim(slope_b), c(dim(sim@n)[1],3), ignore_attr = TRUE)
     # sum biomasses
     biomass <- apply(sweep(sim@n,3,sim@params@w,"*"),c(1,3),sum)
     # r2, slope and intercept at last time step
     lm_res <- lm(log(biomass[dim(sim@n)[1],]) ~ log(sim@params@w))
-    expect_that(slope_b[dim(sim@n)[1],"r2"],equals(summary(lm_res)$r.squared))
-    expect_that(slope_b[dim(sim@n)[1],"slope"],equals(summary(lm_res)$coefficients[2,1]))
-    expect_that(slope_b[dim(sim@n)[1],"intercept"],equals(summary(lm_res)$coefficients[1,1]))
+    expect_equal(slope_b[dim(sim@n)[1],"r2"], summary(lm_res)$r.squared, ignore_attr = TRUE)
+    expect_equal(slope_b[dim(sim@n)[1],"slope"], summary(lm_res)$coefficients[2,1], ignore_attr = TRUE)
+    expect_equal(slope_b[dim(sim@n)[1],"intercept"], summary(lm_res)$coefficients[1,1], ignore_attr = TRUE)
     # Test just numbers not biomass
     slope_n <- getCommunitySlope(sim, biomass=FALSE)
-    expect_that(dim(slope_n), equals(c(dim(sim@n)[1],3)))
+    expect_equal(dim(slope_n),  c(dim(sim@n)[1],3), ignore_attr = TRUE)
     # sum numbers
     numbers <- apply(sim@n,c(1,3),sum)
     # r2, slope and intercept at last time step
     lm_res <- lm(log(numbers[dim(sim@n)[1],]) ~ log(sim@params@w))
-    expect_that(slope_n[dim(sim@n)[1],"r2"],equals(summary(lm_res)$r.squared))
-    expect_that(slope_n[dim(sim@n)[1],"slope"],equals(summary(lm_res)$coefficients[2,1]))
-    expect_that(slope_n[dim(sim@n)[1],"intercept"],equals(summary(lm_res)$coefficients[1,1]))
+    expect_equal(slope_n[dim(sim@n)[1],"r2"], summary(lm_res)$r.squared, ignore_attr = TRUE)
+    expect_equal(slope_n[dim(sim@n)[1],"slope"], summary(lm_res)$coefficients[2,1], ignore_attr = TRUE)
+    expect_equal(slope_n[dim(sim@n)[1],"intercept"], summary(lm_res)$coefficients[1,1], ignore_attr = TRUE)
     # Check the sizes
     slope_b2 <- slope_biomass <- getCommunitySlope(sim, min_w = 10, max_w = 10000)
     sizes <- (sim@params@w >= 10) & (sim@params@w <= 10000)
     biomass <- apply(sweep(sim@n,3,sim@params@w,"*"),c(1,3),sum)
     # r2, slope and intercept at last time step
     lm_res <- lm(log(biomass[dim(sim@n)[1],sizes]) ~ log(sim@params@w[sizes]))
-    expect_that(slope_b2[dim(sim@n)[1],"r2"],equals(summary(lm_res)$r.squared))
-    expect_that(slope_b2[dim(sim@n)[1],"slope"],equals(summary(lm_res)$coefficients[2,1]))
-    expect_that(slope_b2[dim(sim@n)[1],"intercept"],equals(summary(lm_res)$coefficients[1,1]))
+    expect_equal(slope_b2[dim(sim@n)[1],"r2"], summary(lm_res)$r.squared, ignore_attr = TRUE)
+    expect_equal(slope_b2[dim(sim@n)[1],"slope"], summary(lm_res)$coefficients[2,1], ignore_attr = TRUE)
+    expect_equal(slope_b2[dim(sim@n)[1],"intercept"], summary(lm_res)$coefficients[1,1], ignore_attr = TRUE)
     # Check the species
     dem_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock", "Cod","Saithe")
     slope_b3 <- getCommunitySlope(sim, species = dem_species)
     biomass <- apply(sweep(sim@n[,dem_species,],3,sim@params@w,"*"),c(1,3),sum)
     # r2, slope and intercept at last time step
     lm_res <- lm(log(biomass[dim(sim@n)[1],]) ~ log(sim@params@w))
-    expect_that(slope_b3[dim(sim@n)[1],"r2"],equals(summary(lm_res)$r.squared))
-    expect_that(slope_b3[dim(sim@n)[1],"slope"],equals(summary(lm_res)$coefficients[2,1]))
-    expect_that(slope_b3[dim(sim@n)[1],"intercept"],equals(summary(lm_res)$coefficients[1,1]))
+    expect_equal(slope_b3[dim(sim@n)[1],"r2"], summary(lm_res)$r.squared, ignore_attr = TRUE)
+    expect_equal(slope_b3[dim(sim@n)[1],"slope"], summary(lm_res)$coefficients[2,1], ignore_attr = TRUE)
+    expect_equal(slope_b3[dim(sim@n)[1],"intercept"], summary(lm_res)$coefficients[1,1], ignore_attr = TRUE)
     # numeric test
     expect_known_value(slope_b3, "values/getCommunitySlope")
 })
@@ -266,7 +265,7 @@ test_that("getDiet works with proportion = FALSE", {
     consumption <- rowSums(diet, dims = 2)
     encounter <- getEncounter(params, n, n_pp)
     feeding_level <- getFeedingLevel(params, n, n_pp)
-    expect_equivalent(consumption, encounter * (1 - feeding_level))
+    expect_equal(consumption, encounter * (1 - feeding_level), ignore_attr = TRUE)
     # Check that using pred kernel instead of FFT gives the same result
     params <- setPredKernel(params, pred_kernel = getPredKernel(params))
     expect_equal(diet, getDiet(params, n, n_pp, proportion = FALSE))

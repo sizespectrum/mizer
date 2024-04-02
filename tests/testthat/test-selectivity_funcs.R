@@ -1,5 +1,3 @@
-context("Selectivity functions")
-
 species_params <- NS_species_params
 w <- NS_params@w
 
