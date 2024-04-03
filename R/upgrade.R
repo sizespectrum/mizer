@@ -15,7 +15,7 @@ needs_upgrading <- function(object) {
         stop("The object you supplied is neither a MizerParams nor a MizerSim object.")
     }
     !.hasSlot(params, "mizer_version") ||
-        params@mizer_version < "2.4.1.9002"
+        params@mizer_version < "2.5.1.9010"
 }
 
 #' Upgrade MizerParams object from earlier mizer versions
@@ -359,6 +359,7 @@ upgradeParams <- function(params) {
         params <- set_species_param_default(params, "w_mat25",       
             params@species_params$w_mat / (3 ^ (1 / 10)))
     }
+    params@species_params <- completeSpeciesParams(params@species_params)
     
     params@mizer_version <- packageVersion("mizer")
     params@time_modified <- lubridate::now()

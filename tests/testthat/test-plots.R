@@ -1,5 +1,7 @@
 # Initialisation ----------------
 species_params <- NS_species_params_gears
+species_params$a <- 0.004
+species_params$w_inf <- NULL
 # Make species names numeric because that created problems in the past
 species_params$species <- seq_len(nrow(species_params))
 species_params$pred_kernel_type <- "truncated_lognormal"
@@ -70,6 +72,7 @@ expect_doppelganger("PlotFMort truncated", p)
 
 sim@params@species_params[["a"]] <- 0.0058
 sim@params@species_params[["b"]] <- 3.13
+sim@params@species_params[["w_inf"]] <- sim@params@species_params[["w_max"]]
 p <- plotGrowthCurves(sim, species = "10", max_age = 50)
 expect_doppelganger("Plot Single Growth Curve", p)
 

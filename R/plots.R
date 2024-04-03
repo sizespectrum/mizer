@@ -1104,7 +1104,8 @@ plotlyFMort <- function(object, species = NULL,
 #'   name as used in the model), `age` (in years) and either `weight` (in grams)
 #'   or `length` (in cm). If both `weight` and `length` are provided, only
 #'   `weight` is used.
-#' @return A ggplot2 object
+#' @return A ggplot2 object unless `return_data = TRUE`, in which case a data
+#'  frame with the variables 'Species', 'Age', 'value' and 'Legend' is returned.
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions]

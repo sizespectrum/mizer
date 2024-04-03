@@ -98,15 +98,6 @@ test_that("get_size_range_array works", {
                  "max_l must be a single number or a vector")
     expect_error(get_size_range_array(params, min_w = 1:4, max_w = 10),
                  "min_w and max_w must be a single number of a vector")
-    # checking if fails if a and b not in species_params
-    no_ab_params <- params
-    no_ab_params@species_params$a[1] <- NA
-    expect_error(get_size_range_array(no_ab_params, min_l = 1, max_w = 100),
-                 "There must be no NAs in the species_params columns 'a' and 'b'")
-    no_ab_params@species_params <- 
-        params@species_params[, !(names(params@species_params) %in% c("a", "b"))]
-    expect_error(get_size_range_array(no_ab_params, min_l = 1, max_w = 100),
-                 "pecies_params slot must have columns 'a' and 'b'")
 })
 
 

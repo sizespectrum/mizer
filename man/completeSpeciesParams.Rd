@@ -15,11 +15,13 @@ A completed species parameter data frame
 The function sets default values if any of the following species parameters
 are missing or NA:
 \itemize{
-\item \code{w_mat} is set to \code{w_max/4}
-\item \code{w_min} is set to \code{0.001}
-\item \code{alpha} is set to \code{0.6}
+\item The maturity size \code{w_mat} is set to \code{w_max/4}
+\item The minimum size \code{w_min} is set to \code{0.001}g
+\item The conversion efficiency \code{alpha} is set to \code{0.6}
 \item \code{interaction_resource} is set to \code{1}
-\item \code{n} is set to \code{3/4}
+\item The allometric exponent for the rate of income \code{n} is set to \code{3/4}
+\item The paramters \code{a} and \code{b} from the weight-length relationship
+\eqn{w = a l^b} are set to \code{0.01} and \code{3}.
 }
 
 It calls \code{\link[=validSpeciesParams]{validSpeciesParams()}} to check the validity of the species

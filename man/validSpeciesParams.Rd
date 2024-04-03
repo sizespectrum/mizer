@@ -10,8 +10,14 @@ validSpeciesParams(species_params)
 \item{species_params}{The user-supplied species parameter data frame}
 }
 \value{
-A valid species parameter data frame
-
+A valid version of the user-supplied species parameter data frame
+}
+\description{
+This function takes a user-supplied species parameter data frame and makes
+sure it is in a valid format for use in mizer. It either returns a valid
+species parameter data frame or throws an error.
+}
+\details{
 This function throws an error if
 \itemize{
 \item the \code{species} column does not exist or contains duplicates
@@ -46,12 +52,10 @@ detects such a name.
 Note that the species parameters returned by this function are not guaranteed
 to produce a viable model. More checks of the parameters are performed by the
 individual rate-setting functions (see \code{\link[=setParams]{setParams()}} for the list of these
-functions).
-}
-\description{
-Check validity of species parameters.
+functions). Also it does not add all required parameters that the user did
+not supply. This is done by the function \code{\link[=completeSpeciesParams]{completeSpeciesParams()}}.
 }
 \seealso{
-species_params()
+\code{\link[=species_params]{species_params()}}
 }
 \concept{helper}

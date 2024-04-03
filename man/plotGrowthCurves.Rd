@@ -59,7 +59,8 @@ used for the plot is returned instead of the plot itself. Default value is FALSE
 \item{...}{Other arguments (currently unused)}
 }
 \value{
-A ggplot2 object
+A ggplot2 object unless \code{return_data = TRUE}, in which case a data
+frame with the variables 'Species', 'Age', 'value' and 'Legend' is returned.
 }
 \description{
 The growth curves represent the average age of all the living fish of a
@@ -111,8 +112,8 @@ Other plotting functions:
 \code{\link{plotFeedingLevel}()},
 \code{\link{plotPredMort}()},
 \code{\link{plotSpectra}()},
-\code{\link{plotYieldGear}()},
 \code{\link{plotYield}()},
+\code{\link{plotYieldGear}()},
 \code{\link{plotting_functions}}
 }
 \concept{plotting functions}

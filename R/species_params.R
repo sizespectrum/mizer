@@ -495,10 +495,9 @@ get_ks_default <- function(params) {
 
 #' Validate species parameter data frame
 #' 
-#' Check validity of species parameters.
-#' 
-#' @param species_params The user-supplied species parameter data frame
-#' @return A valid species parameter data frame
+#' This function takes a user-supplied species parameter data frame and makes
+#' sure it is in a valid format for use in mizer. It either returns a valid
+#' species parameter data frame or throws an error.
 #' 
 #' This function throws an error if 
 #' * the `species` column does not exist or contains duplicates
@@ -530,8 +529,12 @@ get_ks_default <- function(params) {
 #' Note that the species parameters returned by this function are not guaranteed
 #' to produce a viable model. More checks of the parameters are performed by the
 #' individual rate-setting functions (see [setParams()] for the list of these
-#' functions).
-#' @seealso species_params()
+#' functions). Also it does not add all required parameters that the user did
+#' not supply. This is done by the function [completeSpeciesParams()].
+#' 
+#' @param species_params The user-supplied species parameter data frame
+#' @return A valid version of the user-supplied species parameter data frame
+#' @seealso [species_params()]
 #' @concept helper
 #' @export
 validSpeciesParams <- function(species_params) {
@@ -644,11 +647,13 @@ validSpeciesParams <- function(species_params) {
 #' 
 #' The function sets default values if any of the following species parameters
 #' are missing or NA:
-#' * `w_mat` is set to `w_max/4`
-#' * `w_min` is set to `0.001`
-#' * `alpha` is set to `0.6`
+#' * The maturity size `w_mat` is set to `w_max/4`
+#' * The minimum size `w_min` is set to `0.001`g
+#' * The conversion efficiency `alpha` is set to `0.6`
 #' * `interaction_resource` is set to `1`
-#' * `n` is set to `3/4`
+#' * The allometric exponent for the rate of income `n` is set to `3/4`
+#' * The paramters `a` and `b` from the weight-length relationship 
+#'   \eqn{w = a l^b} are set to `0.01` and `3`.
 #' 
 #' It calls [validSpeciesParams()] to check the validity of the species
 #' parameters. Nevertheless the species parameters returned by this function are not guaranteed
@@ -659,7 +664,12 @@ validSpeciesParams <- function(species_params) {
 #' @concept helper
 #' @export
 completeSpeciesParams <- function(species_params) {
-    sp <- validSpeciesParams(species_params)
+    sp <- species_params
+    sp <- set_species_param_default(sp, "a", 0.01)
+    sp <- set_species_param_default(sp, "b", 3)
+    # Call validSpeciesParams to possibly convert from length-based to 
+    # weight-based parameters
+    sp <- validSpeciesParams(sp)
     sp <- set_species_param_default(sp, "w_mat", sp$w_max / 4)
     sp <- set_species_param_default(sp, "w_min", 0.001)
     sp <- set_species_param_default(sp, "alpha", 0.6)

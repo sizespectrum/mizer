@@ -220,6 +220,10 @@ test_that("adding and then removing species leaves params unaltered", {
     params2@given_species_params$linetype <- NULL
     # comment on w_min_idx are not preserved
     comment(params@w_min_idx) <- NULL
+    expect_identical(comment(params@species_params), 
+                     comment(params2@species_params))
+    comment(params@species_params) <- NULL
+    params2@species_params <- params2@species_params[names(params@species_params)]
     expect_unchanged(params, params2)
 })
 

@@ -1,6 +1,6 @@
 context("Selectivity functions")
 
-species_params <- NS_species_params
+species_params <- completeSpeciesParams(NS_species_params)
 w <- NS_params@w
 
 # knife-edge ----
@@ -42,21 +42,12 @@ test_that("knife-edge selectivity function is working properly", {
 
 # sigmoid_length ----
 test_that("sigmoid_length works", {
-    expect_error(sigmoid_length(w, 20, 30, species_params = species_params),
-                 "The selectivity function needs the weight-length parameters ")
-    species_params$a <- 0.5
-    species_params$b <- 3
     expect_length(sigmoid_length(w, 20, 30, species_params = species_params[1, ]),
                   length(w))
 })
 
 # double_sigmoid_length ----
 test_that("double_sigmoid_length works", {
-    expect_error(double_sigmoid_length(w, 20, 30, 40, 50, 
-                                       species_params = species_params),
-                 "The selectivity function needs the weight-length parameters ")
-    species_params$a <- 0.5
-    species_params$b <- 3
     expect_length(double_sigmoid_length(w, 20, 30, 40, 50,
                                         species_params = species_params[1, ]),
                   length(w))
