@@ -21,6 +21,7 @@ Vector of selectivities at the given sizes.
 \description{
 A sigmoidal selectivity function with 50\% selectivity at
 weight \code{sigmoidal_weight} and width \code{sigmoidal_sigma}.
+\deqn{S(w) = \left(1 + \left(\frac{w}{\text{sigmoidal_weight}}\right)^{-\text{sigmoidal_sigma}}\right)^{-1}}{S(w) = (1 + (w/sigmoidal_weight)^{-sigmoidal_sigma})^{-1}}
 }
 \seealso{
 Other selectivity functions: 
