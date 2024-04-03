@@ -24,7 +24,11 @@ Vector of selectivities at the given sizes.
 \description{
 A sigmoid shaped selectivity function. Based on two parameters \code{l25} and
 \code{l50} which determine the length at which 25\% and 50\% of the stock is
-selected respectively. As the size-based model is weight based, and this
+selected respectively.
+\deqn{S(l) = \frac{1}{1 + \exp\left(\log(3)\frac{l50 -l}{l50 - l25}\right)}}{S(l) = 1/(1 + exp(log(3)*(l50 -l) / (l50 - l25)))}
+}
+\details{
+As the size-based model is weight based, and this
 selectivity function is length based, it uses the
 length-weight parameters \code{a} and \code{b} to convert between length and weight.
 }

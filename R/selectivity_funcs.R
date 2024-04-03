@@ -9,7 +9,10 @@
 #'
 #' A sigmoid shaped selectivity function. Based on two parameters \code{l25} and
 #' \code{l50} which determine the length at which 25% and 50% of the stock is
-#' selected respectively. As the size-based model is weight based, and this
+#' selected respectively. 
+#' \deqn{S(l) = \frac{1}{1 + \exp\left(\log(3)\frac{l50 -l}{l50 - l25}\right)}}{S(l) = 1/(1 + exp(log(3)*(l50 -l) / (l50 - l25)))}
+#' 
+#' As the size-based model is weight based, and this
 #' selectivity function is length based, it uses the
 #' length-weight parameters `a` and `b` to convert between length and weight.
 #'
@@ -98,7 +101,8 @@ double_sigmoid_length <- function(w, l25, l50, l50_right, l25_right,
 #' Weight based knife-edge selectivity function
 #'
 #' A knife-edge selectivity function where weights greater or equal to
-#' `knife_edge_size` are selected.
+#' `knife_edge_size` are fully selected and no fish smaller than this size
+#' are selected.
 #'
 #' @param w Vector of sizes.
 #' @param knife_edge_size The weight at which the knife-edge operates.
@@ -116,6 +120,7 @@ knife_edge <- function(w, knife_edge_size, ...) {
 #'
 #' A sigmoidal selectivity function with 50% selectivity at
 #' weight `sigmoidal_weight` and width `sigmoidal_sigma`.
+#' \deqn{S(w) = \left(1 + \left(\frac{w}{\text{sigmoidal_weight}}\right)^{-\text{sigmoidal_sigma}}\right)^{-1}}{S(w) = (1 + (w/sigmoidal_weight)^{-sigmoidal_sigma})^{-1}}
 #'
 #' @param w Vector of sizes.
 #' @param sigmoidal_weight The weight at which the knife-edge operates.
