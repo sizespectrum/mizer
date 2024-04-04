@@ -1,6 +1,6 @@
 # get_initial_n ----
 test_that("get_initial_n is working properly", {
-    params <- newMultispeciesParams(NS_species_params_gears, inter)
+    params <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
     n <- get_initial_n(params)
     no_sp <- nrow(params@species_params)
     for (i in 1:no_sp) {

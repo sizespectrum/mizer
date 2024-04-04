@@ -1,5 +1,5 @@
 # We choose the largest species for our single-species
-params <- newMultispeciesParams(NS_species_params_gears[12, ])
+params <- newMultispeciesParams(NS_species_params_gears[12, ], info_level = 0)
 n <- params@initial_n
 npp <- params@initial_n_pp
 effort <- array(abs(rnorm(10)), dim = c(10, 1))
@@ -39,6 +39,6 @@ test_that("Can set up model with minimal information", {
                      stringsAsFactors = FALSE)
     sp$w_max <- 1000
     sp$k_vb <- 10
-    params <- newMultispeciesParams(sp)
+    params <- newMultispeciesParams(sp, info_level = 0)
     expect_error(project(params, t_max = 1), NA)
 })

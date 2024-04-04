@@ -2,7 +2,8 @@
 
 # North sea
 params <- newMultispeciesParams(NS_species_params_gears, inter,
-                                n = 2/3, p = 0.7, lambda = 2.8 - 2/3)
+                                n = 2/3, p = 0.7, lambda = 2.8 - 2/3,
+                                info_level = 0)
 no_gear <- dim(params@catchability)[1]
 no_sp <- dim(params@catchability)[2]
 no_w <- length(params@w)
@@ -215,7 +216,7 @@ test_that("getPredMort passes correct time", {
 
 test_that("interaction is right way round in getPredMort function", {
     inter[, "Dab"] <- 0  # Dab not eaten by anything
-    params <- newMultispeciesParams(NS_species_params_gears, inter)
+    params <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
     m2 <- getPredMort(params, get_initial_n(params), params@cc_pp)
     expect_true(all(m2["Dab", ] == 0))
 })
@@ -535,7 +536,9 @@ test_that("Test that fft based integrator gives similar result as old code", {
     species_params$beta[5] <- species_params$beta[5] / 1000
     # and use different egg sizes
     species_params$w_min <- seq(0.001, 1, length.out = no_sp)
-    params <- newMultispeciesParams(species_params, inter, no_w = 30, min_w_pp = 1e-12)
+    params <- newMultispeciesParams(species_params, inter, 
+                                        no_w = 30, min_w_pp = 1e-12,
+                                        info_level = 0)
     # create a second params object that does not use fft
     params2 <- setPredKernel(params, pred_kernel = getPredKernel(params))
     # Test encounter rate integral

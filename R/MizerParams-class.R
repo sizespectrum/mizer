@@ -823,7 +823,7 @@ validParams <- function(params) {
     assert_that(is(params, "MizerParams"))
     
     if (needs_upgrading(params)) {
-        params <- upgradeParams(params)
+        params <- suppressWarnings(upgradeParams(params))
         warning("Your MizerParams object was created with an earlier version of mizer. You can upgrade it with `params <- upgradeParams(params)` where you should replace `params` by the name of the variable that holds your MizerParams object.")
     }
     

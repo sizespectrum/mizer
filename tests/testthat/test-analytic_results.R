@@ -1,7 +1,9 @@
 # Initialise power law ----
 no_w <- 100
 no_sp <- 2
-p <- newTraitParams(no_sp = no_sp, perfect_scaling = TRUE, no_w = no_w)
+expect_message(p <- newTraitParams(no_sp = no_sp, perfect_scaling = TRUE, 
+                                   no_w = no_w),
+               "Note: Negative resource abundances")
 p@species_params$pred_kernel_type <- "truncated_lognormal"
 n0 <- p@initial_n
 n0[] <- 0
