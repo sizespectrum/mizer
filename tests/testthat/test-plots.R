@@ -3,8 +3,10 @@ species_params <- NS_species_params_gears
 # Make species names numeric because that created problems in the past
 species_params$species <- seq_len(nrow(species_params))
 species_params$pred_kernel_type <- "truncated_lognormal"
-params <- newMultispeciesParams(species_params, inter, no_w = 30,
-                                n = 2 / 3, p = 0.7, lambda = 2.8 - 2 / 3)
+(params <- newMultispeciesParams(species_params, inter, no_w = 30,
+                                n = 2 / 3, p = 0.7, lambda = 2.8 - 2 / 3, 
+                                info_level = 0)) |>
+    expect_message("Note: Dimnames of interaction matrix do not match")
 sim <- project(params, effort = 1, t_max = 3, dt = 1, t_save = 1)
 sim0 <- project(params, effort = 0, t_max = 3, dt = 1, t_save = 1)
 species <- c(11, 10)
@@ -13,7 +15,7 @@ params_bkgrd <- params
 params_bkgrd@A[1:3] <- NA
 # params object with single species
 sp_single <- data.frame(species = 1, w_max = 1000, h = 30)
-params_single <- newMultispeciesParams(sp_single, no_w = 30)
+params_single <- newMultispeciesParams(sp_single, no_w = 30, info_level = 0)
 
 # Need to use vdiffr conditionally
 expect_doppelganger <- function(title, fig, ...) {

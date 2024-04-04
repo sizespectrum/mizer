@@ -7,7 +7,7 @@ data(inter)
 test_that("MizerParams() works as in version 2.5.1", {
   # expect_warning(params <- MizerParams(NS_species_params_gears, inter), "deprecated") 
   # warning no longer thrown - NS_species_params_gears is now 2.5.1 (see `params@mizer_version`)
-  params <- newMultispeciesParams(NS_species_params_gears, inter)
+  params <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
   # expect_known_value(params@search_vol, "values/set_multispecies_model_search_vol")
   # expect_known_value(params@intake_max, "values/set_multispecies_model_intake_max")
   # expect_known_value(params@psi,        "values/set_multispecies_model_psi")

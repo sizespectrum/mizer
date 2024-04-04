@@ -76,7 +76,7 @@ test_that("validEffort works", {
 })
 test_that("validEffortParams works when no gears are set up", {
     params <- newMultispeciesParams(NS_species_params,
-                                    gear_params = data.frame())
+                                    gear_params = data.frame(), info_level = 0)
     expect_length(validEffortVector(1, params), 0)
     expect_length(validEffortVector(NULL, params), 0)
 })

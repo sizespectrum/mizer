@@ -24,14 +24,14 @@ test_that("We can set and get initial values from sim object", {
 })
 
 test_that("setInitialValues gives correct errors", {
-    params1 <- newMultispeciesParams(NS_species_params, no_w = 20)
+    params1 <- newMultispeciesParams(NS_species_params, no_w = 20, info_level = 0)
     sim <- project(params1, t_max = 2, dt = 1)
-    params2 <- newMultispeciesParams(NS_species_params, no_w = 30)
+    params2 <- newMultispeciesParams(NS_species_params, no_w = 30, info_level = 0)
     expect_error(setInitialValues(params2, sim),
                  "The consumer size spectrum of the simulation in `sim` has a different size from that in `params`")
     
     params3 <- newMultispeciesParams(NS_species_params, no_w = 20,
-                                     min_w_pp = 1e-4)
+                                     min_w_pp = 1e-4, info_level = 0)
     expect_error(setInitialValues(params3, sim),
                  "The resource size spectrum of the simulation in `sim` has a different size from that in `params`.")
     params4 <- setComponent(params1, "test",
@@ -49,7 +49,7 @@ test_that("setInitialValues gives correct errors", {
 
 test_that("Can set initial values in a model with a single species", {
     species_params <- NS_species_params[1, ]
-    params <- newMultispeciesParams(species_params)
+    params <- newMultispeciesParams(species_params, info_level = 0)
     sim <- project(params, t_max = 0.1, t_save = 0.1)
     p <- setInitialValues(params, sim)
     expect_identical(finalN(sim), initialN(p))
