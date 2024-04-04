@@ -221,8 +221,11 @@ test_that("Simulation gives same numerical results as previously",{
   params <- newMultispeciesParams(NS_species_params_gears, inter,
                                   n = 2/3, p = 0.7, lambda = 2.8 - 2/3)
   sim <- project(params, t_max = 1)
-  expect_known_value(sim@n[2, 3, ], "values/projectn")
-  expect_known_value(sim@n_pp[2, ], "values/projectp")
+  # expect_known_value(sim@n[2, 3, ], "values/projectn")
+  # expect_known_value(sim@n_pp[2, ], "values/projectp")
+  expect_snapshot(sim@n[2, 3, ])
+  expect_snapshot(sim@n_pp[2, ])
+  
 })
 
 test_that("Final result the same when called with sim or params", {

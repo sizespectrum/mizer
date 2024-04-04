@@ -1,4 +1,3 @@
-local_edition(3)
 # projectToSteady ----
 test_that("projectToSteady() works", {
     params <- NS_params

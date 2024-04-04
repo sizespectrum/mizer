@@ -1,5 +1,3 @@
-context("Summary methods")
-
 ## Initialisation ----
 species_params <- NS_species_params_gears
 species_params$pred_kernel_type <- "truncated_lognormal"
@@ -133,7 +131,8 @@ test_that("getProportionOfLargeFish works", {
     larger_biomass <- sum(sweep(sim@n[time_idx,,],2, threshold_w * range_w * sim@params@w * sim@params@dw, "*"))
     expect_equal(prop[time_idx] , larger_biomass / total_biomass, ignore_attr = TRUE)
     # numeric test
-    expect_known_value(prop, "values/getProportionOfLargeFish")
+    # expect_known_value(prop, "values/getProportionOfLargeFish")
+    expect_snapshot(prop)
 })
 
 # getMeanWeight ----
@@ -168,15 +167,18 @@ test_that("getMeanWeight works",{
     mw <- getMeanWeight(sim, species=species, min_w = min_w, max_w=max_w)
     expect_equal(mw, mw4, ignore_attr = TRUE)
     # numeric test
-    expect_known_value(mw, "values/getMeanWeight")
+    # expect_known_value(mw, "values/getMeanWeight")
+    expect_snapshot(mw)
 })
 
 # getMeanMaxWeight ----
 test_that("getMeanMaxWeight works", {
     expect_error(getMeanMaxWeight(sim, measure = NA),
                  "measure must be one of")
-    expect_known_value(getMeanMaxWeight(sim, measure = "both"),
-                       "values/getMeanMaxWeight")
+    # expect_known_value(getMeanMaxWeight(sim, measure = "both"),
+    #                    "values/getMeanMaxWeight")
+    expect_snapshot(getMeanMaxWeight(sim, measure = "both"))
+    
 })
 
 
@@ -190,7 +192,8 @@ test_that("getYieldGear works",{
     f_gear <- getFMortGear(sim)
     expect_equal(sum((biomass*f_gear[,1,,])[1,1,]), y[1,1,1], ignore_attr = TRUE)
     # numeric test
-    expect_known_value(y, "values/getYieldGear")
+    # expect_known_value(y, "values/getYieldGear")
+    expect_snapshot(y)
     expect_equal(getYieldGear(sim)[1, , ], 
                  getYieldGear(sim@params))
 })
@@ -206,7 +209,8 @@ test_that("getYield works",{
     f <- getFMort(sim)
     expect_equal(sum((f*biomass)[1,1,]), y[1,1], ignore_attr = TRUE)
     # numeric test
-    expect_known_value(y, "values/getYield")
+    # expect_known_value(y, "values/getYield")
+    expect_snapshot(y)
     expect_equal(getYield(sim)[1, ], getYield(sim@params))
 })
 
@@ -252,14 +256,16 @@ test_that("getCommunitySlope works",{
     expect_equal(slope_b3[dim(sim@n)[1],"slope"], summary(lm_res)$coefficients[2,1], ignore_attr = TRUE)
     expect_equal(slope_b3[dim(sim@n)[1],"intercept"], summary(lm_res)$coefficients[1,1], ignore_attr = TRUE)
     # numeric test
-    expect_known_value(slope_b3, "values/getCommunitySlope")
+    # expect_known_value(slope_b3, "values/getCommunitySlope")
+    expect_snapshot(slope_b3)
 })
 
 
 # getDiet ----
 test_that("getDiet works with proportion = FALSE", {
     diet <- getDiet(params, n, n_pp, proportion = FALSE)
-    expect_known_value(diet, "values/getDiet")
+    # expect_known_value(diet, "values/getDiet")
+    expect_snapshot(diet)
     # Check that summing over all species and resource gives 
     # total consumption
     consumption <- rowSums(diet, dims = 2)
@@ -301,21 +307,24 @@ test_that("getDiet works with additional components", {
 # getSSB ----
 test_that("getSSB works", {
     ssb <- getSSB(sim)
-    expect_known_value(ssb, "values/getSSB")
+    # expect_known_value(ssb, "values/getSSB")
+    expect_snapshot(ssb)
     expect_equal(getSSB(sim)[1, ], getSSB(sim@params))
 })
 
 # getBiomass ----
 test_that("getBiomass works", {
     biomass <- getBiomass(sim)
-    expect_known_value(biomass, "values/getBiomass")
+    # expect_known_value(biomass, "values/getBiomass")
+    expect_snapshot(biomass)
     expect_equal(getBiomass(sim)[1, ], getBiomass(sim@params))
 })
 
 # getN ----
 test_that("getN works", {
     N <- getN(sim)
-    expect_known_value(N, "values/getN")
+    # expect_known_value(N, "values/getN")
+    expect_snapshot(N)
     expect_equal(getN(sim)[1, ], getN(sim@params))
 })
 

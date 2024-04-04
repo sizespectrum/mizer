@@ -1,5 +1,3 @@
-local_edition(3)
-
 test_that("steadySingleSpecies only affects selected species", {
     params <- steadySingleSpecies(NS_params, species = "Cod")
     # Haddock unaffected

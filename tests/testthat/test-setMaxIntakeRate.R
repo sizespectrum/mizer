@@ -1,5 +1,3 @@
-local_edition(3)
-
 # setMaxIntakeRate ----
 test_that("setMaxIntakeRate works", {
     params <- NS_params

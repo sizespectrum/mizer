@@ -1,5 +1,3 @@
-local_edition(3)
-
 test_that("compareParams", {
   local_reproducible_output()
   params <- NS_params

@@ -1,5 +1,4 @@
 test_that("plotBiomassObservedVsModel works", {
-    local_edition(3)
 # Set up parameters
 params <- NS_params
 
@@ -57,6 +56,7 @@ expect_identical(p$labels$y, "model biomass [g]")
 expect_identical(p$data, dummy)
 
 vdiffr::expect_doppelganger("plotBiomassObservedVsModel", p)
+
 })
 
 

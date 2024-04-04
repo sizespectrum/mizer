@@ -1,5 +1,3 @@
-local_edition(3)
-
 test_that("resource_semichemostat preserves steady state", {
     # Set resource parameters so that we are at steady state
     params <- newTraitParams()

@@ -1,4 +1,3 @@
-local_edition(3)
 test_that("setInteraction works", {
     params <- NS_params
     no_sp <- nrow(params@species_params)
