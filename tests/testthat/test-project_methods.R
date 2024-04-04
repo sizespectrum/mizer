@@ -89,7 +89,7 @@ test_that("getFeedingLevel for MizerParams", {
     expect_identical(fl, f)
     # test value
     # expect_known_value(fl, "values/getFeedingLevel")
-    expect_snapshot(fl)
+    expect_snapshot(round(fl, 5)) # round to take into account different rounding errors depending on OS
 })
 
 test_that("getFeedingLevel for MizerSim", {
