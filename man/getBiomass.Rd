@@ -48,8 +48,8 @@ Other summary functions:
 \code{\link{getGrowthCurves}()},
 \code{\link{getN}()},
 \code{\link{getSSB}()},
-\code{\link{getYieldGear}()},
-\code{\link{getYield}()}
+\code{\link{getYield}()},
+\code{\link{getYieldGear}()}
 }
 \concept{summary functions}
 \concept{summary_function}
