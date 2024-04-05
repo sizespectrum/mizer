@@ -303,12 +303,14 @@ getYieldGear <- function(object) {
         sim <- object
         biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
         f_gear <- getFMortGear(sim)
+        retain_prob <- getRetainProbGear(sim@params)
+        f_gear <- sweep(f_gear, c(2, 3, 4), retain_prob, "*")
         return(apply(sweep(f_gear, c(1, 3, 4), biomass, "*"), c(1, 2, 3), sum))
     }
     if (is(object, "MizerParams")) {
         params <- object
         biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
-        f_gear <- getFMortGear(params)
+        f_gear <- getFMortGear(params) * getRetainProbGear(params)
         return(apply(sweep(f_gear, c(2, 3), biomass, "*"), c(1, 2), sum))
     }
     stop("'object' should be a MizerParams or a MizerSim object")
@@ -850,14 +852,23 @@ getCommunitySlope <- function(sim, species = NULL,
 #' Calculate the proportion of fish retained instead of discarded
 #' 
 #' This function calculates the proportion of fish retained instead of discarded
-#' by a fishing gear. The retention probability is given by a sigmoidal function.
-#' The parameters of the sigmoid are `retain_l50` and `retain_l25`. The sigmoid
-#' is defined as
-#' \deqn{p(w) = \frac{1}{1 + \exp(-\frac{w - l_{50}}{l_{25}})}}
-#' where \eqn{w} is the weight of the fish and \eqn{l_{50}} and \eqn{l_{25}} are
-#' the parameters of the sigmoid. The sigmoid is defined such that 50% of the
-#' fish are retained at \eqn{l_{50}} and 25% of the fish are retained at
-#' \eqn{l_{50} + l_{25}}.
+#' by a fishing gear. The retention probability is given by a sigmoidal
+#' function.
+#'
+#' The probability that a fish of length \eqn{l} is retained is given by the
+#' logistic function \deqn{p(l) = \frac{1}{1 + \exp\left(\log(3)\frac{l50
+#' -l}{l50 - l25}\right)}}{p(l) = 1/(1 + exp(log(3)*(l50 -l) / (l50 - l25)))}
+#' where \eqn{l_{50}} and \eqn{l_{25}} are the parameters of the sigmoid. The
+#' sigmoid is defined such that 50% of the fish are retained at length
+#' \eqn{l_{50}} and 25% of the fish are retained at length \eqn{l_{25}}. For
+#' each species-gear pair, these parameters are stored in the `gear_params` data
+#' frame in the `retain_l50` and `retain_l25` columns. If the `retain_l25` value
+#' is missing, it is assumed to be 1.5 times the `retain_l50` value. If the
+#' `retain_l50` value is also missing, the retain probability is set to zero.
+#'
+#' As the mizer model is weight based, and this selectivity function is length
+#' based, it uses the length-weight parameters `a` and `b` to convert between
+#' length and weight \deqn{l = \left(\frac{w}{a}\right)^{1/b}}{l = (w/a)^(1/b)}
 #' 
 #' @param params A `MizerParams` object
 #' 
@@ -867,19 +878,20 @@ getCommunitySlope <- function(sim, species = NULL,
 #' @examples
 #' retain_prob <- getRetainProb(NS_params)
 #' retain_prob["Pelagic", "Herring", 100]
-calc_retain_prob <- function(params) {
+getRetainProbGear <- function(params) {
     assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
     gear_params <- params@gear_params
     sp_names <- as.character(species_params$species)
     no_sp <- length(sp_names)
     w_names <- dimnames(params@selectivity)[[3]]
-    no_w <- length(params@w)
+    w <- params@w
+    no_w <- length(w)
     gear_names <- as.character(unique(gear_params$gear))
     no_gears <- length(gear_names)
     
     retain_prob <- 
-        array(0, dim = c(no_gears, no_sp, no_w),
+        array(1, dim = c(no_gears, no_sp, no_w),
               dimnames = list(gear = gear_names, 
                               sp = sp_names,
                               w = w_names
@@ -889,35 +901,43 @@ calc_retain_prob <- function(params) {
         return(retain_prob)
     }
     retain_l50 <- gear_params$retain_l50
-    retain_l50[is.na(retain_l50)] <- 0
+    retain_l50[is.na(retain_l50)] <- Inf
     if (!("retain_l25" %in% names(gear_params))) {
         retain_l25 <- 1.5 * retain_l50
     } else {
         retain_l25 <- gear_params$retain_l25
     }
-    retain_l25[is.na(retain_l25)] <- 0
-
+    retain_l25[is.na(retain_l25)] <- 1.5 * retain_l50[is.na(retain_l25)]
     for (g in seq_len(nrow(gear_params))) {
         species <- as.character(gear_params[g, "species"])
         gear <- as.character(gear_params[g, "gear"])
         retain_prob[gear, species, ] <- 
-            retain_sigmoid(params@w, retain_l50[g], retain_l25[g], species_params)
+            retain_sigmoid(w, retain_l25[g], retain_l50[g],
+                           species_params = as.list(species_params[species, ]))
     }
     return(retain_prob)
 }
 
 # helper function used by calc_retain_prob
-# Evaluates a sigmoid function for a given weight
-retain_sigmoid <- function(params, l25, l50) {
-    assert_that(is(params, "MizerParams") && is.numeric(l25) && is.numeric(l50))
-    assert_that(l25 > 0 && l25 >= l50)
-    a <- params@species_params[["a"]]
-    b <- params@species_params[["b"]]
+# Evaluates a sigmoid function at the given weights
+retain_sigmoid <- function(w, l25, l50, species_params) {
+    assert_that(is.numeric(l25) && is.numeric(l50))
+    if (l50 == Inf) {
+        return(rep(1, length(w)))
+    }
+    if (l50 >= l25) {
+        stop("Error in your gear parameters: The value for `retain_l25` must always be larger than that for `retain_l50`")
+    }
+    if (l50 < 0) {
+        stop("Error in your gear parameters: The value for `retain_l50` must be non-negative")
+    }
+    a <- species_params[["a"]]
+    b <- species_params[["b"]]
     if (is.null(a) || is.null(b)) {
         stop("The weight-length parameters `a` and `b` need ",
              "to be provided in the species_params data frame.")
     }
-    l <- (params@w / a)^(1 / b)
+    l <- (w / a)^(1 / b)
     sr <- l50 - l25
     s1 <- l50 * log(3) / sr
     s2 <- s1 / l50
