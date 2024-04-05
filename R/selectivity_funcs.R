@@ -10,11 +10,13 @@
 #' A sigmoid shaped selectivity function. Based on two parameters \code{l25} and
 #' \code{l50} which determine the length at which 25% and 50% of the stock is
 #' selected respectively. 
-#' \deqn{S(l) = \frac{1}{1 + \exp\left(\log(3)\frac{l50 -l}{l50 - l25}\right)}}{S(l) = 1/(1 + exp(log(3)*(l50 -l) / (l50 - l25)))}
 #' 
-#' As the size-based model is weight based, and this
+#' The selectivity is given by the logistic function
+#' \deqn{S(l) = \frac{1}{1 + \exp\left(\log(3)\frac{l50 -l}{l50 - l25}\right)}}{S(l) = 1/(1 + exp(log(3)*(l50 -l) / (l50 - l25)))}
+#' As the mizer model is weight based, and this
 #' selectivity function is length based, it uses the
-#' length-weight parameters `a` and `b` to convert between length and weight.
+#' length-weight parameters `a` and `b` to convert between length and weight
+#' \deqn{l = \left(\frac{w}{a}\right)^{1/b}}{l = (w/a)^(1/b)}
 #'
 #' @param w Vector of sizes.
 #' @param l25 the length which gives a selectivity of 25%.
@@ -24,6 +26,7 @@
 #' @param ... Unused
 #' @return Vector of selectivities at the given sizes.
 #' @export
+#' @seealso [gear_params()] for setting the selectivity parameters.
 #' @family selectivity functions
 sigmoid_length <- function(w, l25, l50, species_params, ...) {
     assert_that(is.numeric(w) && is.numeric(l25) && is.numeric(l50))
@@ -45,21 +48,26 @@ sigmoid_length <- function(w, l25, l50, species_params, ...) {
 #'
 #' A hump-shaped selectivity function with a sigmoidal rise and an independent
 #' sigmoidal drop-off. This drop-off is what distinguishes this from the
-#' function [sigmoid_length()] and it is intended to model the escape
-#' of large individuals from the fishing gear. 
-#' 
+#' function [sigmoid_length()] and it is intended to model the escape of large
+#' individuals from the fishing gear.
+#'
 #' The selectivity is obtained as the product of two sigmoidal curves, one
 #' rising and one dropping. The sigmoidal rise is based on the two parameters
-#' \code{l25} and \code{l50} which determine the length at which 25% and 50%
-#' of the stock is selected respectively. The sigmoidal drop-off is based on the
+#' \code{l25} and \code{l50} which determine the length at which 25% and 50% of
+#' the stock is selected respectively. The sigmoidal drop-off is based on the
 #' two parameters \code{l50_right} and \code{l25_right} which determine the
 #' length at which the selectivity curve has dropped back to 50% and 25%
-#' respectively.
-#' 
-#' As the size-based model is weight based, and this
-#' selectivity function is length based, it uses the
-#' length-weight parameters `a` and `b` to convert between length and weight.
+#' respectively. The selectivity is given by the function \deqn{S(l) =
+#' \frac{1}{1 + \exp\left(\log(3)\frac{l50 -l}{l50 - l25}\right)}\frac{1}{1 +
+#' \exp\left(\log(3)\frac{l50_{right} -l}{l50_{right} -
+#' l25_{right}}\right)}}{S(l) = 1/(1 + exp(log(3)*(l50 -l) / (l50 - l25)))/(1
+#' + exp(log(3)*(l50 -l) / (l50 - l25)))}
 #'
+#' As the size-based model is weight based, and this selectivity function is
+#' length based, it uses the length-weight parameters `a` and `b` to convert
+#' between length and weight. \deqn{l = \left(\frac{w}{a}\right)^{1/b}}{l =
+#' (w/a)^(1/b)}
+#' 
 #' @param w Vector of sizes.
 #' @param l25 the length which gives a selectivity of 25%.
 #' @param l50 the length which gives a selectivity of 50%.
@@ -70,6 +78,7 @@ sigmoid_length <- function(w, l25, l50, species_params, ...) {
 #' @param ... Unused
 #' @return Vector of selectivities at the given sizes.
 #' @export
+#' @seealso [gear_params()] for setting the selectivity parameters.
 #' @family selectivity functions
 double_sigmoid_length <- function(w, l25, l50, l50_right, l25_right,
                                   species_params, ...) {
@@ -109,6 +118,7 @@ double_sigmoid_length <- function(w, l25, l50, l50_right, l25_right,
 #' @param ... Unused
 #' @return Vector of selectivities at the given sizes.
 #' @export
+#' @seealso [gear_params()] for setting the `knife_edge_size` parameter.
 #' @family selectivity functions
 knife_edge <- function(w, knife_edge_size, ...) {
     sel <- rep(0, length(w))
@@ -128,6 +138,7 @@ knife_edge <- function(w, knife_edge_size, ...) {
 #' @param ... Unused
 #' @return Vector of selectivities at the given sizes.
 #' @export
+#' @seealso [gear_params()] for setting the selectivity parameters.
 #' @family selectivity functions
 sigmoid_weight <- function(w, sigmoidal_weight, sigmoidal_sigma, ...) {
   return((1 + (w / sigmoidal_weight) ^ (-sigmoidal_sigma)) ^ (-1))

@@ -24,6 +24,8 @@ weight \code{sigmoidal_weight} and width \code{sigmoidal_sigma}.
 \deqn{S(w) = \left(1 + \left(\frac{w}{\text{sigmoidal_weight}}\right)^{-\text{sigmoidal_sigma}}\right)^{-1}}{S(w) = (1 + (w/sigmoidal_weight)^{-sigmoidal_sigma})^{-1}}
 }
 \seealso{
+\code{\link[=gear_params]{gear_params()}} for setting the selectivity parameters.
+
 Other selectivity functions: 
 \code{\link{double_sigmoid_length}()},
 \code{\link{knife_edge}()},

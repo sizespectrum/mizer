@@ -18,9 +18,12 @@ Vector of selectivities at the given sizes.
 }
 \description{
 A knife-edge selectivity function where weights greater or equal to
-\code{knife_edge_size} are selected.
+\code{knife_edge_size} are fully selected and no fish smaller than this size
+are selected.
 }
 \seealso{
+\code{\link[=gear_params]{gear_params()}} for setting the \code{knife_edge_size} parameter.
+
 Other selectivity functions: 
 \code{\link{double_sigmoid_length}()},
 \code{\link{sigmoid_length}()},

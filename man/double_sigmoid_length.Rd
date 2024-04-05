@@ -39,12 +39,17 @@ of the stock is selected respectively. The sigmoidal drop-off is based on the
 two parameters \code{l50_right} and \code{l25_right} which determine the
 length at which the selectivity curve has dropped back to 50\% and 25\%
 respectively.
+The selectivity is given by the function
+\deqn{S(l) = \frac{1}{1 + \exp\left(\log(3)\frac{l50 -l}{l50 - l25}\right)}\frac{1}{1 + \exp\left(\log(3)\frac{l50_{right} -l}{l50_{right} - l25_{right}}\right)}}{S(l) = 1/(1 + exp(log(3)*(l50 -l) / (l50 - l25)))*1/(1 + exp(log(3)*(l50 -l) / (l50 - l25)))}
 
 As the size-based model is weight based, and this
 selectivity function is length based, it uses the
 length-weight parameters \code{a} and \code{b} to convert between length and weight.
+\deqn{l = \left(\frac{w}{a}\right)^{1/b}}{l = (w/a)^(1/b)}
 }
 \seealso{
+\code{\link[=gear_params]{gear_params()}} for setting the selectivity parameters.
+
 Other selectivity functions: 
 \code{\link{knife_edge}()},
 \code{\link{sigmoid_length}()},
