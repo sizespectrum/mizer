@@ -51,6 +51,13 @@
 #' is the default selectivity function, the `knife_edge_size` argument has a
 #' default value = `w_mat`.
 #' 
+#' The most commonly-used selectivity function is `sigmoid_length()`. It has a
+#' smooth transition from 0 to 1 at a certain size. The `sigmoid_length()`
+#' function has the two parameters `l50` and `l25` that are the lengths in cm at
+#' which 50% or 25% of the fish are selected by the gear. If you choose this
+#' selectivity function then the `l50` and `l25` columns must be included in the
+#' gear parameters data.frame.
+#' 
 #' In case each species is only selected by one gear, the columns of the
 #' `gear_params` data frame can alternatively be provided as columns of the
 #' `species_params` data frame, if this is more convenient for the user to set
@@ -660,9 +667,9 @@ validEffortVector <- function(effort, params) {
 
 #' Calculate selectivity from gear parameters
 #' 
-#' This function calculates the selectivity for each gear, species and size
-#' from the gear parameters. It is called by [setFishing()] when the `selectivity`
-#' is not set by the user.
+#' This function calculates the selectivity for each gear, species and size from
+#' the gear parameters. It is called by [setFishing()] when the `selectivity` is
+#' not set by the user.
 #' 
 #' @param params A MizerParams object
 #' @return An array (gear x species x size) with the selectivity values
