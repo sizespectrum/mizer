@@ -316,6 +316,42 @@ getYieldGear <- function(object) {
     stop("'object' should be a MizerParams or a MizerSim object")
 }
 
+#' Calculate the rate at which biomass of each species is discarded by each gear
+#' 
+#' For details of how the discard rate is defined see the help page of
+#' [getDiscards()].
+#'
+#' @param object An object of class `MizerParams` or `MizerSim`.
+#'
+#' @return If called with a MizerParams object, an array (gear x species) with
+#'   the discard rate in grams per year from each gear for each species in the
+#'   model. If called with a MizerSim object, an array (time x gear x species)
+#'   containing the discard rate at each time step.
+#' @export
+#' @family summary functions
+#' @concept summary_function
+#' @seealso [getDiscards()]
+#' @examples
+#' discards <- getDiscardsByGear(NS_sim)
+#' discards["1972", "Herring", "Herring"]
+#' # (In this example MizerSim object each species was set up with its own gear)
+getDiscardsByGear <- function(object) {
+    if (is(object, "MizerSim")) {
+        sim <- object
+        biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
+        f_gear <- getFMortGear(sim)
+        discard_prob <- 1 - getRetainProbGear(sim@params)
+        f_gear <- sweep(f_gear, c(2, 3, 4), discard_prob, "*")
+        return(apply(sweep(f_gear, c(1, 3, 4), biomass, "*"), c(1, 2, 3), sum))
+    }
+    if (is(object, "MizerParams")) {
+        params <- object
+        biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
+        f_gear <- getFMortGear(params) * (1 - getRetainProbGear(params))
+        return(apply(sweep(f_gear, c(2, 3), biomass, "*"), c(1, 2), sum))
+    }
+    stop("'object' should be a MizerParams or a MizerSim object")
+}
 
 #' Calculate the rate at which biomass of each species is fished
 #'

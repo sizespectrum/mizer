@@ -244,6 +244,22 @@ test_that("getYieldGear works",{
                  getYieldGear(sim@params))
 })
 
+# getDiscardsByGear ----
+test_that("getDiscardsByGear works", {
+    params <- sim@params
+    gear_params(params)$retain_l50 <- NA
+    # Set retain_l50 for Sprat, Industrial trawl
+    gear_params(params)["Sprat, Industrial", "retain_l50"] <- 10
+    sim@params <- params
+    d <- getDiscardsByGear(sim)
+    # check dims
+    expect_that(dim(d),equals(c(11,dim(params@catchability)[1],dim(params@catchability)[2])))
+    # TODO: add a check of the values
+    
+    # Works also with params object
+    expect_equal(getDiscardsByGear(sim)[1, , ], 
+                 getDiscardsByGear(sim@params))
+})
 
 # getYield ----
 test_that("getYield works",{

@@ -153,6 +153,7 @@ reference:
   - getSSB
   - getYield
   - getYieldGear
+  - getDiscardsByGear
   - getGrowthCurves
 - title: Calculating indicators
   contents:
