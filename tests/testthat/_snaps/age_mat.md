@@ -1,8 +1,10 @@
 # age_mat works
 
-    c(Sprat = 2.55608636891529, Sandeel = 0.983277569888719, N.pout = 1.79628841621729, 
-    Herring = 3.03826300486079, Dab = 1.96126891583178, Whiting = 2.71228761574475, 
-    Sole = 4.49408292678909, Gurnard = 4.13845576251475, Plaice = 6.26081502753589, 
-    Haddock = 3.43911469661352, Cod = 2.85834342214781, Saithe = 4.63155353497843
-    )
+    Code
+      age_mat(NS_params)
+    Output
+          Sprat   Sandeel    N.pout   Herring       Dab   Whiting      Sole   Gurnard 
+      2.5560864 0.9832776 1.7962884 3.0382630 1.9612689 2.7122876 4.4940829 4.1384558 
+         Plaice   Haddock       Cod    Saithe 
+      6.2608150 3.4391147 2.8583434 4.6315535 
 

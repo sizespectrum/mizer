@@ -2,7 +2,8 @@
 
 # North sea
 params <- newMultispeciesParams(NS_species_params_gears, inter,
-                                n = 2/3, p = 0.7, lambda = 2.8 - 2/3)
+                                n = 2/3, p = 0.7, lambda = 2.8 - 2/3,
+                                info_level = 0)
 no_gear <- dim(params@catchability)[1]
 no_sp <- dim(params@catchability)[2]
 no_w <- length(params@w)
@@ -88,7 +89,9 @@ test_that("getFeedingLevel for MizerParams", {
     f <- encounter / (encounter + params@intake_max)
     expect_identical(fl, f)
     # test value
-    expect_known_value(fl, "values/getFeedingLevel")
+    # expect_known_value(fl, "values/getFeedingLevel")
+    # expect_snapshot(round(fl, 5)) # round to take into account different rounding errors depending on OS
+    expect_snapshot_value(fl, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 test_that("getFeedingLevel for MizerSim", {
@@ -142,7 +145,9 @@ test_that("getPredRate for MizerParams", {
     expect_identical(dimnames(pr)$sp, dimnames(params@initial_n)$sp)
     expect_identical(dimnames(pr)$w_prey, as.character(signif(params@w_full, 3)))
     # test value
-    expect_known_value(pr, "values/getPredRate")
+    # expect_known_value(pr, "values/getPredRate")
+    # expect_snapshot(pr)
+    expect_snapshot_value(pr, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 test_that("getPredRate is independent of volume", {
@@ -162,7 +167,9 @@ test_that("getPredMort for MizerParams", {
     params@selectivity[] <-
         runif(prod(dim(params@selectivity)), min = 0, max = 1)
     m <- getPredMort(params, n, n_full)
-    expect_known_value(m, "values/getPredMort")
+    # expect_known_value(m, "values/getPredMort")
+    # expect_snapshot(m)
+    expect_snapshot_value(m, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
     
     # Look at numbers in a single prey
     w_offset <- no_w_full - no_w
@@ -172,7 +179,7 @@ test_that("getPredMort for MizerParams", {
     for (i in 1:no_w) {
         m2temp[i] <- sum(params@interaction[, sp] * pred_rate[, w_offset + i])
     }
-    expect_equal(m2temp, m[sp, ], check.names = FALSE)
+    expect_equal(m2temp, as.numeric(m[sp, ]))
 })
 
 test_that("getPredMort for MizerSim", {
@@ -212,7 +219,7 @@ test_that("getPredMort passes correct time", {
 
 test_that("interaction is right way round in getPredMort function", {
     inter[, "Dab"] <- 0  # Dab not eaten by anything
-    params <- newMultispeciesParams(NS_species_params_gears, inter)
+    params <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
     m2 <- getPredMort(params, get_initial_n(params), params@cc_pp)
     expect_true(all(m2["Dab", ] == 0))
 })
@@ -232,10 +239,12 @@ test_that("getResourceMort", {
     expect_length(m2, no_w_full)
     # Check number in final prey size group
     m22 <- colSums(getPredRate(params, n, n_full))
-    expect_equal(m22, m2, check.attributes = FALSE)
+    expect_equal(m22, m2, ignore_attr = FALSE)
     m2b1 <- getResourceMort(params, n, n_full)
     # test value
-    expect_known_value(m2b1, "values/getResourceMort")
+    # expect_known_value(m2b1, "values/getResourceMort")
+    # expect_snapshot(m2b1)
+    expect_snapshot_value(m2b1, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 test_that("getResourceMort is independent of volume", {
@@ -292,7 +301,9 @@ test_that("getFmortGear", {
     expect_identical(f3[, gear, sp, widx],
                      effort_mat[, gear] * params@catchability[gear, sp] * 
                          params@selectivity[gear, sp, widx])
-    expect_known_value(f3, "values/getFMortGear")
+    # expect_known_value(f3, "values/getFMortGear")
+    # expect_snapshot(f3)
+    expect_snapshot_value(f3, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
     
     expect_equal(getFMortGear(sim)[1, 1, 1, ], 
                  getFMortGear(sim@params, effort = sim@effort[1, ])[1, 1, ])
@@ -331,7 +342,9 @@ test_that("getFMort", {
     expect_equal(f1, fmg11)
     expect_equal(f2, fmg22)
     expect_equal(f3, fmg33)
-    expect_known_value(f1, "values/getFMort")
+    # expect_known_value(f1, "values/getFMort")
+    # expect_snapshot(f1)
+    expect_snapshot_value(f1, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 test_that("getFMort passes correct time", {
@@ -398,8 +411,10 @@ test_that("getMort", {
     f <- getFMort(params, effort2)
     m2 <- getPredMort(params, n, n_full)
     z1 <- f[1, ] + m2[1, ] + params@species_params$z0[1]
-    expect_equal(z1, z[1, ], check.names = FALSE)
-    expect_known_value(z, "values/getMort")
+    expect_equal(z1, z[1, ])
+    # expect_known_value(z, "values/getMort")
+    # expect_snapshot(z)
+    expect_snapshot_value(z, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 test_that("getMort is independent of volume", {
@@ -426,7 +441,9 @@ test_that("getEReproAndGrowth", {
     expect_true(!any(is.na(getEReproAndGrowth(params, n = n, n_pp = n_full))))
     
     erg[erg <= 0] <- 0
-    expect_known_value(erg, "values/getEReproAndGrowth")
+    # expect_known_value(erg, "values/getEReproAndGrowth")
+    # expect_snapshot(erg)
+    expect_snapshot_value(erg, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 test_that("getEReproAndGrowth is independent of volume", {
@@ -452,7 +469,9 @@ test_that("getERepro", {
     e_growth_man <- e - es
     e_growth_man[e_growth_man <= 0] <- 0
     expect_identical(e_growth, e_growth_man)
-    expect_known_value(es, "values/getERepro")
+    # expect_known_value(es, "values/getERepro")
+    # expect_snapshot(es)
+    expect_snapshot_value(es, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 
@@ -469,8 +488,10 @@ test_that("getRDI", {
     e_repro_pop <- apply(sweep(e_repro * n, 2, params@dw, "*"), 1, sum)
     rdix <- sex_ratio * (e_repro_pop * params@species_params$erepro) / 
         params@w[params@w_min_idx]
-    expect_equal(rdix, rdi, tolerance = 1e-15, check.names = FALSE)
-    expect_known_value(rdi, "values/getRDI")
+    expect_equal(rdix, rdi, tolerance = 1e-15)
+    # expect_known_value(rdi, "values/getRDI")
+    # expect_snapshot(rdi)
+    expect_snapshot_value(rdi, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 test_that("getRDI is proportional to volume", {
@@ -492,7 +513,9 @@ test_that("getRDD", {
     rdd2 <- do.call(params@rates_funcs$RDD,
                     list(rdi = rdi, species_params = params@species_params))
     expect_identical(rdd, rdd2)
-    expect_known_value(rdd, "values/getRDD")
+    # expect_known_value(rdd, "values/getRDD")
+    # expect_snapshot(rdd)
+    expect_snapshot_value(rdd, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 test_that("getRDD is proportional to volume", {
@@ -509,7 +532,9 @@ test_that("getEGrowth is working", {
     # test dim
     expect_identical(dim(eg1), c(no_sp, no_w))
     expect_identical(dimnames(eg1), dimnames(params@initial_n))
-    expect_known_value(eg1, "values/getEGrowth")
+    # expect_known_value(eg1, "values/getEGrowth")
+    # expect_snapshot(eg1)
+    expect_snapshot_value(eg1, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 
@@ -523,7 +548,9 @@ test_that("Test that fft based integrator gives similar result as old code", {
     species_params$beta[5] <- species_params$beta[5] / 1000
     # and use different egg sizes
     species_params$w_min <- seq(0.001, 1, length.out = no_sp)
-    params <- newMultispeciesParams(species_params, inter, no_w = 30, min_w_pp = 1e-12)
+    params <- newMultispeciesParams(species_params, inter, 
+                                        no_w = 30, min_w_pp = 1e-12,
+                                        info_level = 0)
     # create a second params object that does not use fft
     params2 <- setPredKernel(params, pred_kernel = getPredKernel(params))
     # Test encounter rate integral
@@ -531,11 +558,11 @@ test_that("Test that fft based integrator gives similar result as old code", {
     e <- getEncounter(params2, params@initial_n, params@initial_n_pp)
     # Only check values at fish sizes
     fish <- outer(1:no_sp, 1:no_w, function(i, a) a >= params@w_min_idx[i])
-    expect_equivalent(efft[fish], e[fish], tolerance = 3e-14)
+    expect_equal(efft[fish], e[fish], tolerance = 3e-14, ignore_attr = TRUE)
     # Test available energy integral
     prfft <- getPredRate(params, params@initial_n, params@initial_n_pp)
     pr <- getPredRate(params2, params@initial_n, params@initial_n_pp)
-    expect_equivalent(prfft, pr, tolerance = 1e-15)
+    expect_equal(prfft, pr, tolerance = 1e-15, ignore_attr = TRUE)
 })
 
 # One species only ----

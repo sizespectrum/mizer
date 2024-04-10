@@ -1,4 +1,4 @@
-params <- newMultispeciesParams(NS_species_params_gears, inter)
+params <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
 
 # basic constructor sets dimensions properly ----
 test_that("basic constructor sets dimensions properly", {

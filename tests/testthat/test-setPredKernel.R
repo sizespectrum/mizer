@@ -18,7 +18,7 @@ test_that("setPredKernel works", {
     expect_error(setPredKernel(params, pred_kernel - 1),
                  "pred_kernel >= 0 are not true")
     p2 <- setPredKernel(params, pred_kernel)
-    expect_equivalent(p2@pred_kernel, pred_kernel)
+    expect_equal(p2@pred_kernel, pred_kernel, ignore_attr = TRUE)
     expect_identical(p2@pred_kernel, getPredKernel(p2))
 })
 

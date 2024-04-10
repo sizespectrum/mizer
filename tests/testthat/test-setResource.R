@@ -1,4 +1,3 @@
-local_edition(3)
 test_that("We can set and get resource parameters", {
   params <- NS_params
   rp <- params@resource_params

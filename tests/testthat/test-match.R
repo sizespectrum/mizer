@@ -1,5 +1,3 @@
-local_edition(3)
-
 test_that("matchBiomasses works", {
     params <- setBevertonHolt(NS_params)
     

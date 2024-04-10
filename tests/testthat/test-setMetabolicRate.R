@@ -1,4 +1,3 @@
-local_edition(3)
 params <- NS_params
 
 # setMetabolicRate ----

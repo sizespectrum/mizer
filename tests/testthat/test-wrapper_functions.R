@@ -57,8 +57,9 @@ test_that("Multiple gears work correctly in trait-based model", {
 
 # * Scaling model is set up correctly ----
 test_that("Scaling model is set up correctly", {
-    p <- newTraitParams(perfect_scaling = TRUE, sigma = 1,
-                        n = 2/3, lambda = 2 + 3/4 - 2/3)
+    (p <- newTraitParams(perfect_scaling = TRUE, sigma = 1,
+                         n = 2/3, lambda = 2 + 3/4 - 2/3)) |>
+        expect_message("Note: Negative resource abundances")
     sim <- project(p, t_max = 5)
     
     # Check some dimensions
@@ -88,7 +89,7 @@ test_that("Scaling model is set up correctly", {
         # The following factor takes into account the cutoff in the integral
         (pnorm(3 - lm2 * sigma) + pnorm(log(beta)/sigma + lm2 * sigma) - 1)
     # TODO: not precise enough yet
-    expect_equivalent(e, rep(ae, length(e)), tolerance = 1e-1)
+    expect_equal(e, rep(ae, length(e)), tolerance = 1e-1, ignore_attr = TRUE)
     # Check feeding level
     f <- getFeedingLevel(p, p@initial_n, p@initial_n_pp)[sp, ]
     names(f) <- NULL
@@ -112,7 +113,7 @@ test_that("Scaling model is set up correctly", {
     total[fish_idx] <- total[fish_idx] + p@sc
     total <- total * p@w_full^p@resource_params$lambda
     expected <- rep(p@resource_params$kappa, length(p@w_full))
-    expect_equivalent(total, expected, tolerance = 1e-15, check.names = FALSE)
+    expect_equal(total, expected, tolerance = 1e-15, ignore_attr = TRUE)
     
     # All erepros should be equal
     expect_equal(p@species_params$erepro, rep(p@species_params$erepro[1], no_sp))

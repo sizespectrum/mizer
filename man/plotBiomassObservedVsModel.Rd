@@ -8,7 +8,7 @@
 plotBiomassObservedVsModel(
   object,
   species = NULL,
-  ratio = FALSE,
+  ratio = TRUE,
   log_scale = TRUE,
   return_data = FALSE,
   labels = TRUE,
@@ -34,7 +34,7 @@ with the species indices, or a logical vector indicating for each species
 whether it is to be included (TRUE) or not.}
 
 \item{ratio}{Whether to plot model biomass vs. observed biomass (FALSE) or
-the ratio of model : observed biomass (TRUE). Default is FALSE.}
+the ratio of model : observed biomass (TRUE). Default is TRUE.}
 
 \item{log_scale}{Whether to plot on the log10 scale (TRUE) or not (FALSE).
 For the non-ratio plot this applies for both axes, for the ratio plot only

@@ -32,8 +32,7 @@ test_that("Comment works on search volume", {
     expect_message(setSearchVolume(params),  "has been commented")
     # Can reset
     p <- setSearchVolume(params, reset = TRUE)
-    expect_equal(p@search_vol[, 1], params@w[1]^params@species_params$q,
-                 check.attributes = FALSE)
+    expect_equal(p@search_vol[, 1], params@w[1]^params@species_params$q, ignore_attr = TRUE)
     expect_warning(setSearchVolume(params, search_vol = search_vol,
                                     reset = TRUE),
                    "Because you set `reset = TRUE`, the")

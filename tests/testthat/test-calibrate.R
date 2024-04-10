@@ -1,5 +1,3 @@
-local_edition(3)
-
 test_that("calibrateBiomass works", {
     params <- NS_params
     # Does nothing when no observed biomass

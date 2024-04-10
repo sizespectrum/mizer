@@ -1,9 +1,9 @@
-context("Analytic results")
-
 # Initialise power law ----
 no_w <- 100
 no_sp <- 2
-p <- newTraitParams(no_sp = no_sp, perfect_scaling = TRUE, no_w = no_w)
+expect_message(p <- newTraitParams(no_sp = no_sp, perfect_scaling = TRUE, 
+                                   no_w = no_w),
+               "Note: Negative resource abundances")
 p@species_params$pred_kernel_type <- "truncated_lognormal"
 n0 <- p@initial_n
 n0[] <- 0
@@ -21,7 +21,7 @@ lm2 <- p@resource_params$lambda - 2
 test_that("getEncounter approximates analytic result when feeding on resource only", {
     e <- getEncounter(p, n0, n_pp)[sp, ] * p@w^(lm2 - q)
     # Check that this is constant
-    expect_equivalent(e, rep(e[1], length(e)))
+    expect_equal(e, rep(e[1], length(e)), ignore_attr = TRUE)
     # Check that it agrees with analytic result
     Dx <- p@w[2] / p@w[1] - 1
     dx <- log(p@w[2] / p@w[1])
@@ -32,7 +32,7 @@ test_that("getEncounter approximates analytic result when feeding on resource on
         # The following factor takes into account the cutoff in the integral
         # (pnorm(3 - lm2 * sigma) + pnorm(log(beta)/sigma + lm2 * sigma) - 1)
     # The Riemann sum is not precise enough
-    expect_equivalent(e[1], encounter_analytic, tolerance = 1e-3)
+    expect_equal(e[1], encounter_analytic, tolerance = 1e-3, ignore_attr = TRUE)
     
     # Check that it agrees with left Riemann sum from w-Beta-3*sigma to w 
     Beta <- log(beta)
@@ -47,7 +47,7 @@ test_that("getEncounter approximates analytic result when feeding on resource on
             exp(-(x_full[i] - x_full[j] - Beta)^2 / (2 * sigma^2))
     }
     ear <- ear * p@resource_params$kappa * p@w_full[i]^(p@resource_params$lambda - 2) * dx * gamma
-    expect_equivalent(e[1], ear * Dx / dx)
+    expect_equal(e[1], ear * Dx / dx, ignore_attr = TRUE)
 })
 
 # getDiet ----
@@ -64,21 +64,20 @@ test_that("getDiet approximates analytic result when feeding on resource only", 
     expect_true(all(diet[, 1:2] == 0))
     # Check that diet from resource is power law
     diet_coeff <- diet[, 3] * p@w^(lm2 - q)
-    expect_equivalent(diet_coeff, rep(diet_coeff[1], no_w))
+    expect_equal(diet_coeff, rep(diet_coeff[1], no_w), ignore_attr = TRUE)
     # and agrees with result from getEncounter
     feeding_level <- getFeedingLevel(p0, n0, n_pp)[sp, ]
     encounter <- getEncounter(p0, n0, n_pp)[sp, ]
-    expect_equivalent(diet[, 3], encounter * (1 - feeding_level))
+    expect_equal(diet[, 3], encounter * (1 - feeding_level), ignore_attr = TRUE)
 })
 
 
 test_that("getFeedingLevel approximates analytic result", {
     f <- getFeedingLevel(p)[sp, ]
     # Check that this is constant
-    expect_equivalent(f, rep(f[1], length(f)), 
-                      tolerance = 1e-12, check.names = FALSE)
+    expect_equal(f, rep(f[1], length(f)), tolerance = 1e-12, ignore_attr = TRUE)
     # Still to imprecise
-    expect_equivalent(f[1], 0.6, tolerance = 2e-2, check.names = FALSE)
+    expect_equal(f[1], 0.6, tolerance = 2e-2, ignore_attr = TRUE)
 })
 
 

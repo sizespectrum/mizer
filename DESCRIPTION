@@ -19,7 +19,7 @@ Authors@R: c(person("Gustav", "Delius", email="gustav.delius@york.ac.uk",
                     comment = c(ORCID = "0000-0002-8478-3430")),
              person("Richard", "Southwell", email="richard.southwell@york.ac.uk",
                     role=c("ctb", "cph")))
-Version: 2.5.1
+Version: 2.5.1.9000
 License: GPL-3
 Imports:
     assertthat,
@@ -41,7 +41,7 @@ LinkingTo: Rcpp
 Depends:
     R (>= 3.1)
 Suggests:
-    testthat (>= 2.1.0),
+    testthat (>= 3.0.0),
     vdiffr,
     roxygen2,
     knitr,
@@ -112,3 +112,4 @@ BugReports: https://github.com/sizespectrum/mizer/issues
 Language: en-GB
 RdMacros: lifecycle
 VignetteBuilder: knitr
+Config/testthat/edition: 3

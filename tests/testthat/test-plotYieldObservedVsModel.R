@@ -1,6 +1,6 @@
 test_that("plotYieldObservedVsModel works", {
-    local_edition(3)
-    # Set up parameters
+    
+  # Set up parameters
     params <- NS_params
     
     # check you get error without yield_observed column

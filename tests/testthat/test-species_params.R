@@ -1,5 +1,3 @@
-local_edition(3)
-
 test_that("completeSpeciesParams() works", {
     species_params <- NS_species_params
     
