@@ -90,7 +90,8 @@ test_that("getFeedingLevel for MizerParams", {
     expect_identical(fl, f)
     # test value
     # expect_known_value(fl, "values/getFeedingLevel")
-    expect_snapshot(round(fl, 5)) # round to take into account different rounding errors depending on OS
+    # expect_snapshot(round(fl, 5)) # round to take into account different rounding errors depending on OS
+    expect_snapshot_value(fl, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 test_that("getFeedingLevel for MizerSim", {
@@ -145,7 +146,8 @@ test_that("getPredRate for MizerParams", {
     expect_identical(dimnames(pr)$w_prey, as.character(signif(params@w_full, 3)))
     # test value
     # expect_known_value(pr, "values/getPredRate")
-    expect_snapshot(pr)
+    # expect_snapshot(pr)
+    expect_snapshot_value(pr, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 test_that("getPredRate is independent of volume", {
@@ -166,7 +168,8 @@ test_that("getPredMort for MizerParams", {
         runif(prod(dim(params@selectivity)), min = 0, max = 1)
     m <- getPredMort(params, n, n_full)
     # expect_known_value(m, "values/getPredMort")
-    expect_snapshot(m)
+    # expect_snapshot(m)
+    expect_snapshot_value(m, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
     
     # Look at numbers in a single prey
     w_offset <- no_w_full - no_w
@@ -240,7 +243,8 @@ test_that("getResourceMort", {
     m2b1 <- getResourceMort(params, n, n_full)
     # test value
     # expect_known_value(m2b1, "values/getResourceMort")
-    expect_snapshot(m2b1)
+    # expect_snapshot(m2b1)
+    expect_snapshot_value(m2b1, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 test_that("getResourceMort is independent of volume", {
@@ -298,7 +302,8 @@ test_that("getFmortGear", {
                      effort_mat[, gear] * params@catchability[gear, sp] * 
                          params@selectivity[gear, sp, widx])
     # expect_known_value(f3, "values/getFMortGear")
-    expect_snapshot(f3)
+    # expect_snapshot(f3)
+    expect_snapshot_value(f3, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
     
     expect_equal(getFMortGear(sim)[1, 1, 1, ], 
                  getFMortGear(sim@params, effort = sim@effort[1, ])[1, 1, ])
@@ -338,7 +343,8 @@ test_that("getFMort", {
     expect_equal(f2, fmg22)
     expect_equal(f3, fmg33)
     # expect_known_value(f1, "values/getFMort")
-    expect_snapshot(f1)
+    # expect_snapshot(f1)
+    expect_snapshot_value(f1, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 test_that("getFMort passes correct time", {
@@ -407,7 +413,8 @@ test_that("getMort", {
     z1 <- f[1, ] + m2[1, ] + params@species_params$z0[1]
     expect_equal(z1, z[1, ])
     # expect_known_value(z, "values/getMort")
-    expect_snapshot(z)
+    # expect_snapshot(z)
+    expect_snapshot_value(z, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 test_that("getMort is independent of volume", {
@@ -435,7 +442,8 @@ test_that("getEReproAndGrowth", {
     
     erg[erg <= 0] <- 0
     # expect_known_value(erg, "values/getEReproAndGrowth")
-    expect_snapshot(erg)
+    # expect_snapshot(erg)
+    expect_snapshot_value(erg, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 test_that("getEReproAndGrowth is independent of volume", {
@@ -462,7 +470,8 @@ test_that("getERepro", {
     e_growth_man[e_growth_man <= 0] <- 0
     expect_identical(e_growth, e_growth_man)
     # expect_known_value(es, "values/getERepro")
-    expect_snapshot(es)
+    # expect_snapshot(es)
+    expect_snapshot_value(es, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 
@@ -481,7 +490,8 @@ test_that("getRDI", {
         params@w[params@w_min_idx]
     expect_equal(rdix, rdi, tolerance = 1e-15)
     # expect_known_value(rdi, "values/getRDI")
-    expect_snapshot(rdi)
+    # expect_snapshot(rdi)
+    expect_snapshot_value(rdi, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 test_that("getRDI is proportional to volume", {
@@ -504,7 +514,8 @@ test_that("getRDD", {
                     list(rdi = rdi, species_params = params@species_params))
     expect_identical(rdd, rdd2)
     # expect_known_value(rdd, "values/getRDD")
-    expect_snapshot(rdd)
+    # expect_snapshot(rdd)
+    expect_snapshot_value(rdd, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 test_that("getRDD is proportional to volume", {
@@ -522,7 +533,8 @@ test_that("getEGrowth is working", {
     expect_identical(dim(eg1), c(no_sp, no_w))
     expect_identical(dimnames(eg1), dimnames(params@initial_n))
     # expect_known_value(eg1, "values/getEGrowth")
-    expect_snapshot(eg1)
+    # expect_snapshot(eg1)
+    expect_snapshot_value(eg1, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 
