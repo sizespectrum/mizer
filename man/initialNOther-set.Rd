@@ -24,3 +24,6 @@ components
 \description{
 Values used as starting values for simulations with \code{project()}.
 }
+\seealso{
+\code{\link[=initialNResource]{initialNResource()}}, \code{\link[=initialN]{initialN()}}
+}

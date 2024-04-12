@@ -235,6 +235,7 @@ getComponent <- function(params, component) {
 #' @param value A named list with the initial values of other ecosystem
 #'   components
 #' @export
+#' @seealso [initialNResource()], [initialN()]
 `initialNOther<-` <- function(params, value) {
     assert_that(is(params, "MizerParams"),
                 is.list(value))

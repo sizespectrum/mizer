@@ -31,3 +31,6 @@ initialNResource(params) <- 2 * initialNResource(params)
 # Of course this initial state will no longer be a steady state
 params <- steady(params)
 }
+\seealso{
+\code{\link[=initialN]{initialN()}}, \code{\link[=initialNOther]{initialNOther()}}
+}

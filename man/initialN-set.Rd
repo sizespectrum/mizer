@@ -33,3 +33,6 @@ biomass <- initialN(params)["Cod", ] * dw(NS_params) * w(NS_params)
 # Of course this initial state will no longer be a steady state
 params <- steady(params)
 }
+\seealso{
+\code{\link[=initialNResource]{initialNResource()}}, \code{\link[=initialNOther]{initialNOther()}}
+}

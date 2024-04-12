@@ -135,6 +135,7 @@ setInitialValues <- function(params, sim, time_range, geometric_mean = FALSE) {
 #' @return A matrix with dimensions species x size holding the initial number
 #'   densities for the fish spectra.
 #' @export
+#' @seealso [initialNResource()], [initialNOther()]
 #' @examples 
 #' # Doubling abundance of Cod in the initial state of the North Sea model
 #' params <- NS_params
@@ -161,6 +162,7 @@ initialN <- function(object) {
 #' @param value A vector with the initial number densities for the resource
 #'   spectrum
 #' @export
+#' @seealso [initialN()], [initialNOther()]
 #' @examples
 #' # Doubling resource abundance in the initial state of the North Sea model
 #' params <- NS_params
