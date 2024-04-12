@@ -13,9 +13,9 @@ calc_selectivity(params)
 An array (gear x species x size) with the selectivity values
 }
 \description{
-This function calculates the selectivity for each gear, species and size
-from the gear parameters. It is called by \code{\link[=setFishing]{setFishing()}} when the \code{selectivity}
-is not set by the user.
+This function calculates the selectivity for each gear, species and size from
+the gear parameters. It is called by \code{\link[=setFishing]{setFishing()}} when the \code{selectivity} is
+not set by the user.
 }
 \examples{
 params <- NS_params

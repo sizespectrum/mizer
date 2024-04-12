@@ -469,6 +469,13 @@ function there should be a \code{knife_edge_size} column. Because \code{knife_ed
 is the default selectivity function, the \code{knife_edge_size} argument has a
 default value = \code{w_mat}.
 
+The most commonly-used selectivity function is \code{sigmoid_length()}. It has a
+smooth transition from 0 to 1 at a certain size. The \code{sigmoid_length()}
+function has the two parameters \code{l50} and \code{l25} that are the lengths in cm at
+which 50\% or 25\% of the fish are selected by the gear. If you choose this
+selectivity function then the \code{l50} and \code{l25} columns must be included in the
+gear parameters data.frame.
+
 In case each species is only selected by one gear, the columns of the
 \code{gear_params} data frame can alternatively be provided as columns of the
 \code{species_params} data frame, if this is more convenient for the user to set
