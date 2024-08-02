@@ -1,6 +1,7 @@
 #' Adjust model to produce observed growth
 #'
-#' Scales the search volume, the maximum consumption rate and the metabolic rate
+#' Scales the search volume, the maximum consumption rate, the metabolic rate
+#' and the external encounter rate
 #' all by the same factor in order to achieve a growth rate that allows
 #' individuals to reach their maturity size by their maturity age while keeping
 #' the feeding level and the critical feeding level unchanged. Then recalculates
@@ -51,6 +52,7 @@ matchGrowth <- function(params, species = NULL,
     params@search_vol[sel, ] <- params@search_vol[sel, ] * factor
     params@intake_max[sel, ] <- params@intake_max[sel, ] * factor
     params@metab[sel, ] <- params@metab[sel, ] * factor
+    params@ext_encounter[sel] <- params@ext_encounter[sel] * factor
     params@species_params$gamma[sel] <- sp$gamma[sel] * factor
     params@species_params[sel, "h"] <- sp[sel, "h"] * factor
     if ("ks" %in% names(sp)) {
