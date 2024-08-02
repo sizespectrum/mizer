@@ -19,7 +19,8 @@ ext_encounter(params) <- value
 \item{params}{MizerParams}
 
 \item{ext_encounter}{Optional. An array (species x size) holding the external
-encounter rate.  If not supplied, a default of 0 is used.}
+encounter rate.  If not supplied, the external encounter rate is left
+unchanged. Initially is is set to 0.}
 
 \item{...}{Unused}
 

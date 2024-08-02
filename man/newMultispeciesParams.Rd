@@ -92,7 +92,8 @@ the species data frame, it is calculated as \code{z0pre * w_max ^ z0exp}.
 Default value is \code{n-1}.}
 
 \item{ext_encounter}{Optional. An array (species x size) holding the external
-encounter rate.  If not supplied, a default of 0 is used.}
+encounter rate.  If not supplied, the external encounter rate is left
+unchanged. Initially is is set to 0.}
 
 \item{maturity}{Optional. An array (species x size) that holds the proportion
 of individuals of each species at size that are mature. If not supplied, a

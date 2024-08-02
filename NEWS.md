@@ -1,6 +1,9 @@
-## Updating default values for plotBiomassObservedVsModel
+# Development version
 
-The function `plotBiomassObservedVsModel` now plots the ratio of modelled
+- `setExtEncounter()` no longer resets the external encounter rate to zero when
+  called without the `ext_encounter` argument.
+
+- The function `plotBiomassObservedVsModel()` now plots the ratio of modelled
 to observed biomass as default (`ratio = T`), as this is more useful visually to 
 see how far off modelled biomass is from observed biomass.
 

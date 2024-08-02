@@ -75,6 +75,7 @@ functions
 \item \code{\link[=setMaxIntakeRate]{setMaxIntakeRate()}}
 \item \code{\link[=setMetabolicRate]{setMetabolicRate()}}
 \item \code{\link[=setExtMort]{setExtMort()}}
+\item \code{\link[=setExtEncounter]{setExtEncounter()}}
 \item \code{\link[=setReproduction]{setReproduction()}}
 \item \code{\link[=setFishing]{setFishing()}}
 \item \code{\link[=setResource]{setResource()}}

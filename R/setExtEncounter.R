@@ -10,7 +10,8 @@
 #' 
 #' @param params MizerParams
 #' @param ext_encounter Optional. An array (species x size) holding the external
-#'   encounter rate.  If not supplied, a default of 0 is used.
+#'   encounter rate.  If not supplied, the external encounter rate is left
+#'   unchanged. Initially is is set to 0.
 #' @param ... Unused
 #' 
 #' @return `setExtEncounter()`: A MizerParams object with updated external encounter
@@ -36,7 +37,6 @@ setExtEncounter <- function(params, ext_encounter = NULL, ...) {
     
     if (is.null(ext_encounter)) {
         ext_encounter <- params@ext_encounter
-        ext_encounter[] <- 0
     }
     
     assert_that(is.array(ext_encounter),

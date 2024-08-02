@@ -236,6 +236,7 @@ newMultispeciesParams <- function(
 #' \item [setMaxIntakeRate()]
 #' \item [setMetabolicRate()]
 #' \item [setExtMort()]
+#' \item [setExtEncounter()]
 #' \item [setReproduction()]
 #' \item [setFishing()]
 #' \item [setResource()]
