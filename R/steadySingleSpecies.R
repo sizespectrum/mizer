@@ -43,11 +43,6 @@ steadySingleSpecies <- function(params, species = NULL,
         w_max_idx <- sum(params@w <= params@species_params[sp, "w_max"])
         idx <- w_min_idx:(w_max_idx - 1)
         
-        if (any(growth[idx] == 0)) {
-            stop("With these parameter values the ", sp,
-                 " does not have enough food to cover its metabolic cost")
-        }
-        
         # Keep egg density constant
         n0 <- params@initial_n[sp, w_min_idx]
         # Steady state solution of the upwind-difference scheme used in project

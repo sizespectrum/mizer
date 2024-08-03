@@ -1,5 +1,6 @@
 # Development version
 
+- `steadySingleSpecies()` no longer requires species to grow to `w_max`.
 - `matchGrowth()` now also rescales the external encounter rate.
 - `setExtEncounter()` no longer resets the external encounter rate to zero when
   called without the `ext_encounter` argument.
