@@ -1,12 +1,13 @@
 # Development version
 
+- Improved scaling of the y-axis in `plotGrowthCurves()`.
 - `steadySingleSpecies()` no longer requires species to grow to `w_max`.
 - `matchGrowth()` now also rescales the external encounter rate.
 - `setExtEncounter()` no longer resets the external encounter rate to zero when
   called without the `ext_encounter` argument.
 - The function `plotBiomassObservedVsModel()` now plots the ratio of modelled
-to observed biomass as default (`ratio = T`), as this is more useful visually to 
-see how far off modelled biomass is from observed biomass.
+  to observed biomass as default (`ratio = T`), as this is more useful visually
+  to see how far off modelled biomass is from observed biomass.
 
 
 # mizer 2.5.1

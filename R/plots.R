@@ -1077,9 +1077,9 @@ plotlyFMort <- function(object, species = NULL,
 #' on the x-axis. But to follow the usual convention from age-based models, we
 #' plot size on the y-axis and age on the x-axis.
 #'
-#' When the growth curve for only a single species is plotted, horizontal lines
-#' are included that indicate the maturity size and the maximum size for that
-#' species, as well as a vertical line indicating the maturity age.
+#' In each panel for a single species, a horizontal line is included that
+#' indicate the maturity size of the species and a vertical line indicating its
+#' maturity age.
 #' 
 #' If size at age data is passed via the `size_at_age` argument, this is plotted
 #' on top of the growth curve. When comparing this to the growth curves, you
@@ -1223,9 +1223,6 @@ plotGrowthCurves <- function(object, species = NULL,
     if (!percentage)  {
         if (length(species) == 1) {
             idx <- which(sp$species == species)
-            w_max <- sp$w_max[idx]
-            p <- p + geom_hline(yintercept = w_max, colour = "grey") + 
-                annotate("text", 0, w_max, vjust = -1, label = "Maximum")
             w_mat <- sp$w_mat[idx]
             age_mat <- sp$age_mat[idx]
             p <- p + geom_hline(yintercept = w_mat, linetype = "dashed", 
