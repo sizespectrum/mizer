@@ -277,28 +277,28 @@ setReproduction <- function(params, maturity = NULL,
         }
     } else {
         # Set defaults for m
-        params <- set_species_param_default(params, "m", 1)
-        if (any(params@species_params$m < params@species_params[["n"]])) {
+        species_params <- set_species_param_default(species_params, "m", 1)
+        if (any(species_params$m < species_params[["n"]])) {
             stop("The exponent `m` must not be smaller than the exponent `n`.")
         }
         # Set defaults for w_mat_max
-        params <- set_species_param_default(params, "w_mat_max", 
-                                            params@species_params$w_max)
+        species_params <- set_species_param_default(species_params, "w_mat_max",
+                                                    params@species_params$w_max)
         
         repro_prop <- array(
             unlist(
                 tapply(params@w, seq_along(params@w),
                        function(wx, w_mat_max, mn) (wx / w_mat_max)^(mn),
-                       w_mat_max = params@species_params$w_mat_max,
-                       mn = params@species_params[["m"]] - 
-                           params@species_params[["n"]]
+                       w_mat_max = species_params$w_mat_max,
+                       mn = species_params[["m"]] - species_params[["n"]]
                 )
             ), dim = c(nrow(species_params), length(params@w)))
+        repro_prop[repro_prop > 1] <- 1
     }
     
     psi <- params@maturity * repro_prop
     # psi should never be larger than 1
-    psi[params@psi > 1] <- 1
+    psi[psi > 1] <- 1
     # Set psi for all w > w_mat_max to 1
     psi[outer(species_params$w_mat_max, params@w, "<")] <- 1
     assert_that(all(psi >= 0 & psi <= 1))
