@@ -1,5 +1,7 @@
 # Development version
 
+- `getDiet()` now also includes the contribution of the external encounter rate
+  to the diet.
 - Improved scaling of the y-axis in `plotGrowthCurves()`.
 - `steadySingleSpecies()` no longer requires species to grow to `w_max`.
 - `matchGrowth()` now also rescales the external encounter rate.

@@ -38,11 +38,12 @@ NULL
 #' Get diet of predator at size, resolved by prey species
 #'
 #' Calculates the rate at which a predator of a particular species and size
-#' consumes biomass of each prey species and resource. 
-#' The diet has units of grams/year.
+#' consumes biomass of each prey species, resource, and other components of the
+#' ecosystem. Returns either the rates in grams/year or the proportion of the
+#' total consumption rate.
 #'
-#' Returns the rates \eqn{D_{ij}(w)} at which a predator of species \eqn{i}
-#' and size \eqn{w} consumes biomass from prey species \eqn{j}. This is
+#' The rates \eqn{D_{ij}(w)} at which a predator of species \eqn{i}
+#' and size \eqn{w} consumes biomass from prey species \eqn{j} are
 #' calculated from the predation kernel \eqn{\phi_i(w, w_p)},
 #' the search volume \eqn{\gamma_i(w)}, the feeding level \eqn{f_i(w)}, the
 #' species interaction matrix \eqn{\theta_{ij}} and the prey abundance density
@@ -51,17 +52,17 @@ NULL
 #' D_{ij}(w, w_p) = (1-f_i(w)) \gamma_i(w) \theta_{ij}
 #' \int N_j(w_p) \phi_i(w, w_p) w_p dw_p.
 #' }
-#' The prey index \eqn{j} runs over all species and the resource. It also runs
-#' over any extra ecosystem components in your model for which you have
-#' defined an encounter rate function. This encounter rate is multiplied by
-#' \eqn{1-f_i(w)} to give the rate of consumption of biomass from these extra
-#' components.
+#' The prey index \eqn{j} runs over all species and the resource. 
 #' 
-#' This function performs the same integration as
-#' [getEncounter()] but does not aggregate over prey species, and
-#' multiplies by \eqn{1-f_i(w)} to get the consumed biomass rather than the
-#' available biomass. Outside the range of sizes for a predator species the
-#' returned rate is zero.
+#' Extra columns are added for the external encounter rate and for any extra
+#' ecosystem components in your model for which you have defined an encounter
+#' rate function. These encounter rates are multiplied by \eqn{1-f_i(w)} to give
+#' the rate of consumption of biomass from these extra components.
+#' 
+#' This function performs the same integration as [getEncounter()] but does not
+#' aggregate over prey species, and multiplies by \eqn{1-f_i(w)} to get the
+#' consumed biomass rather than the available biomass. Outside the range of
+#' sizes for a predator species the returned rate is zero.
 #'
 #' @inheritParams getEncounter
 #' @param proportion If TRUE (default) the function returns the diet as a
@@ -69,7 +70,9 @@ NULL
 #'   consumption rate in grams per year.
 #' 
 #' @return An array (predator species  x predator size x 
-#'   (prey species + resource + other components) )
+#'   (prey species + resource + other components). Dimnames are "prey", "w",
+#'   and "predator".
+#'   
 #' @export
 #' @family summary functions
 #' @concept summary_function
@@ -92,11 +95,11 @@ getDiet <- function(params,
     other_names <- names(params@other_encounter)
     assert_that(identical(dim(n), c(no_sp, no_w)),
                 length(n_pp) == no_w_full)
-    diet <- array(0, dim = c(no_sp, no_w, no_sp + 1 + no_other),
+    diet <- array(0, dim = c(no_sp, no_w, no_sp + 2 + no_other),
                   dimnames = list("predator" = species,
                                   "w" = dimnames(params@initial_n)$w,
                                   "prey" = c(as.character(species), 
-                                             "Resource",
+                                             "Resource", "External",
                                              other_names)))
     # idx_sp are the index values of object@w_full such that
     # object@w_full[idx_sp] = object@w
@@ -141,9 +144,11 @@ getDiet <- function(params,
     diet[, , 1:(no_sp + 1)] <- sweep(sweep(diet[, , 1:(no_sp + 1), drop = FALSE],
                                            c(1, 3), inter, "*"), 
                                      c(1, 2), params@search_vol, "*")
+    # Add diet from external sources
+    diet[, , no_sp + 2] <- params@ext_encounter
     # Add diet from other components
     for (i in seq_along(params@other_encounter)) {
-        diet[, , no_sp + 1 + i] <-
+        diet[, , no_sp + 2 + i] <-
             do.call(params@other_encounter[[i]], 
                     list(params = params,
                          n = n, n_pp = n_pp, n_other = n_other,

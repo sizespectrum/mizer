@@ -299,8 +299,8 @@ test_that("getDiet works with additional components", {
     
     diet1 <- getDiet(params, proportion = FALSE)
     diet2 <- getDiet(p, proportion = FALSE)
-    expect_identical(diet1[, , 1:13], diet2[, , 1:13])
-    expect_identical(diet2[1, 1, 14], 111)
+    expect_identical(diet1[, , 1:14], diet2[, , 1:14])
+    expect_identical(diet2[1, 1, 15], 111)
 })
 
 
