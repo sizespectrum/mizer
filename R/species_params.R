@@ -33,7 +33,7 @@
 #' * `k`, `ks` and `p` are used to set activity and basic metabolic rate, 
 #'   see [setMetabolicRate()].
 #' * `z0` is used to set the external mortality rate, see [setExtMort()].
-#' * `w_mat`, `w_mat25`, `w_max` and `m` are used to set the allocation to
+#' * `w_mat`, `w_mat25`, `w_mat_max` and `m` are used to set the allocation to
 #'   reproduction, see [setReproduction()].
 #' * `pred_kernel_type` specifies the shape of the predation kernel. The default
 #'   is a "lognormal", for other options see the "Setting predation kernel"
@@ -72,8 +72,9 @@
 #'   relationship \eqn{w = a l ^ b}.
 #'   
 #' If you have supplied the `a` and `b` parameters, then you can replace weight
-#' parameters like `w_max`, `w_mat`, `w_mat25` and `w_min` by their
-#' corresponding length parameters `l_max`, `l_mat`, `l_mat25` and `l_min`.
+#' parameters like `w_max`, `w_mat`, `w_mat25`, w_mat_max and `w_min` by their
+#' corresponding length parameters `l_max`, `l_mat`, `l_mat25`, `l_mat_max` and
+#' `l_min`.
 #'   
 #' The parameters that are only used to calculate default values for other
 #' parameters are:
@@ -511,7 +512,9 @@ get_ks_default <- function(params) {
 #' inconsistent.
 #' 
 #' If a `w_inf` column is given but no `w_max` then the value from `w_inf` is
-#' used. This is for backwards compatibility.
+#' used. This is for backwards compatibility. But note that the von Bertalanffy
+#' parameter `w_inf` is not the maximum size of the largest individual, but the
+#' asymptotic size of an average individual.
 #' 
 #' Some inconsistencies in the size parameters are resolved as follows:
 #' * Any `w_mat` that is not smaller than `w_max` is set to `w_max / 4`.
@@ -543,7 +546,8 @@ validSpeciesParams <- function(species_params) {
     # Check for misspellings ----
     misspellings <- c("wmin", "wmax", "wmat", "wmat25", "w_mat_25", "Rmax",
                       "Species", "Gamma", "Beta", "Sigma", "Alpha",
-                      "W_min", "W_max", "W_mat", "e_repro", "Age_mat")
+                      "W_min", "W_max", "W_mat", "e_repro", "Age_mat",
+                      "w_max_mat")
     query <- intersect(misspellings, names(sp))
     if (length(query) > 0) {
         warning("Some column names in your species parameter data ",
@@ -575,6 +579,7 @@ validSpeciesParams <- function(species_params) {
         sp <- sp %>%
             set_species_param_from_length("w_mat", "l_mat") %>%
             set_species_param_from_length("w_mat25", "l_mat25") %>%
+            set_species_param_from_length("w_mat_max", "l_mat_max") %>%
             set_species_param_from_length("w_max", "l_max") %>%
             set_species_param_from_length("w_min", "l_min")
     }
