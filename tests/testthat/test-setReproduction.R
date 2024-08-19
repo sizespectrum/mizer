@@ -10,7 +10,7 @@ test_that("setReproduction works", {
                           repro_prop = p2@psi)
     comment(p3@psi) <- comment(p2@psi)
     expect_unchanged(p2, p3)
-    p3 <- setReproduction(params, repro_prop = p2@psi)
+    p3 <- setReproduction(params, repro_prop = repro_prop(params))
     comment(p3@psi) <- comment(params@psi)
     expect_unchanged(params, p3)
     expect_error(setReproduction(params, RDD = "str"),

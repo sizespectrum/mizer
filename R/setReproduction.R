@@ -11,7 +11,11 @@
 #' that is invested into reproduction is the product of two factors: the
 #' proportion `maturity` of individuals that are mature and the proportion
 #' `repro_prop` of the energy available to a mature individual that is 
-#' invested into reproduction.
+#' invested into reproduction. There is a size `w_repro_max` at which all the
+#' energy is invested into reproduction and therefore all growth stops. There
+#' can be no fish larger than `w_repro_max`. If you have not specified the
+#' `w_repro_max` column in the species parameter data frame, then the maximum size
+#' `w_max` is used instead.
 #' 
 #' \subsection{Maturity ogive}{
 #' If the the proportion of individuals that are mature is not supplied via
@@ -29,29 +33,30 @@
 #' default it is chosen as \eqn{U = 10}, however this can be overridden by
 #' including a column \code{w_mat25} in the species parameter dataframe that
 #' specifies the weight at which 25% of individuals are mature, which sets
-#' \eqn{U = \log(3) / \log(w_{mat} / w_{25}).}{U = log(3) / log(w_mat / w_25).}
+#' \eqn{U = \log(3) / \log(w_{mat} / w_{mat25}).}{U = log(3) / log(w_mat /
+#' w_mat25).}
 #' 
-#' The sigmoidal function given above would strictly reach 1 only asymptotically.
-#' Mizer instead sets the function equal to 1 already at the species' 
-#' maximum size, taken from the compulsory `w_max` column in the
-#' species parameter data frame. Also, for computational simplicity, any 
-#' proportion smaller than `1e-8` is set to `0`.
+#' The sigmoidal function given above would strictly reach 1 only
+#' asymptotically. Mizer instead sets the function equal to 1 already at a size
+#' taken from the `w_repro_max` column in the species parameter data frame, if it
+#' exists, or otherwise from the `w_max` column. Also, for computational
+#' simplicity, any proportion smaller than `1e-8` is set to `0`.
 #' }
 #' 
 #' \subsection{Investment into reproduction}{
 #' If the the energy available to a mature individual that is 
 #' invested into reproduction is not supplied via the `repro_prop` argument,
 #' it is set to the allometric form
-#' \deqn{{\tt repro\_prop}(w) = \left(\frac{w}{w_{max}}\right)^{m-n}.}{
-#'   repro_prop(w) = (w/w_max)^(m - n).}
+#' \deqn{{\tt repro\_prop}(w) = \left(\frac{w}{w_{mat_max}}\right)^{m-n}.}{
+#'   repro_prop(w) = (w/w_repro_max)^(m - n).}
 #' Here \eqn{n} is the scaling exponent of the energy income rate. Hence
 #' the exponent \eqn{m} determines the scaling of the investment into
 #' reproduction for mature individuals. By default it is chosen to be 
 #' \eqn{m = 1} so that the rate at which energy is invested into reproduction 
 #' scales linearly with the size. This default can be overridden by including a 
-#' column `m` in the species parameter dataframe. The maximum sizes
-#' are taken from the compulsory `w_max` column in the species parameter
-#' data frame.
+#' column `m` in the species parameter dataframe. The maximum sizes are taken
+#' from the `w_repro_max` column in the species parameter data frame, if it
+#' exists, or otherwise from the `w_max` column.
 #' 
 #' The total proportion of energy invested into reproduction of an individual
 #' of size \eqn{w} is then
@@ -222,11 +227,10 @@ setReproduction <- function(params, maturity = NULL,
         maturity[] <- 
             unlist(
                 tapply(params@w, seq_along(params@w),
-                       function(wx, w_max, w_mat, w_mat25) {
+                       function(wx, w_mat, w_mat25) {
                            U <- log(3) / log(w_mat / w_mat25)
                            return((1 + (wx / w_mat)^-U)^-1)
                        },
-                       w_max = species_params$w_max,
                        w_mat = species_params$w_mat,
                        w_mat25 = species_params$w_mat25
                 )
@@ -273,27 +277,30 @@ setReproduction <- function(params, maturity = NULL,
         }
     } else {
         # Set defaults for m
-        params <- set_species_param_default(params, "m", 1)
-        if (any(params@species_params$m < params@species_params[["n"]])) {
+        species_params <- set_species_param_default(species_params, "m", 1)
+        if (any(species_params$m < species_params[["n"]])) {
             stop("The exponent `m` must not be smaller than the exponent `n`.")
         }
+        # Set defaults for w_repro_max
+        species_params <- set_species_param_default(species_params, "w_repro_max",
+                                                    params@species_params$w_max)
         
         repro_prop <- array(
             unlist(
                 tapply(params@w, seq_along(params@w),
-                       function(wx, w_max, mn) (wx / w_max)^(mn),
-                       w_max = params@species_params$w_max,
-                       mn = params@species_params[["m"]] - 
-                           params@species_params[["n"]]
+                       function(wx, w_repro_max, mn) (wx / w_repro_max)^(mn),
+                       w_repro_max = species_params$w_repro_max,
+                       mn = species_params[["m"]] - species_params[["n"]]
                 )
             ), dim = c(nrow(species_params), length(params@w)))
+        repro_prop[repro_prop > 1] <- 1
     }
     
     psi <- params@maturity * repro_prop
     # psi should never be larger than 1
-    psi[params@psi > 1] <- 1
-    # Set psi for all w > w_max to 1
-    psi[outer(species_params$w_max, params@w, "<")] <- 1
+    psi[psi > 1] <- 1
+    # Set psi for all w > w_repro_max to 1
+    psi[outer(species_params$w_repro_max, params@w, "<")] <- 1
     assert_that(all(psi >= 0 & psi <= 1))
     
     # if the slot is protected and the user did not supply a new repro_prop
