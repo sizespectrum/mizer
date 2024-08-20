@@ -19,7 +19,7 @@
 #' 
 #' \subsection{Maturity ogive}{
 #' If the the proportion of individuals that are mature is not supplied via
-#' the `maturity` argument , then it is set to a sigmoidal 
+#' the `maturity` argument, then it is set to a sigmoidal 
 #' maturity ogive that changes from 0 to 1 at around the maturity size:
 #' \deqn{{\tt maturity}(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}.}{
 #'   maturity(w) = [1+(w/w_mat)^(-U)]^(-1)}
@@ -278,6 +278,7 @@ setReproduction <- function(params, maturity = NULL,
     } else {
         # Set defaults for m
         species_params <- set_species_param_default(species_params, "m", 1)
+        params@species_params$m <- species_params$m
         if (any(species_params$m < species_params[["n"]])) {
             stop("The exponent `m` must not be smaller than the exponent `n`.")
         }
