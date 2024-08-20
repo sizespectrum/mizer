@@ -60,7 +60,7 @@ size-dependent parameters that are used in the mizer model:
 \item \code{k}, \code{ks} and \code{p} are used to set activity and basic metabolic rate,
 see \code{\link[=setMetabolicRate]{setMetabolicRate()}}.
 \item \code{z0} is used to set the external mortality rate, see \code{\link[=setExtMort]{setExtMort()}}.
-\item \code{w_mat}, \code{w_mat25}, \code{w_max} and \code{m} are used to set the allocation to
+\item \code{w_mat}, \code{w_mat25}, \code{w_repro_max} and \code{m} are used to set the allocation to
 reproduction, see \code{\link[=setReproduction]{setReproduction()}}.
 \item \code{pred_kernel_type} specifies the shape of the predation kernel. The default
 is a "lognormal", for other options see the "Setting predation kernel"
@@ -102,8 +102,9 @@ relationship \eqn{w = a l ^ b}.
 }
 
 If you have supplied the \code{a} and \code{b} parameters, then you can replace weight
-parameters like \code{w_max}, \code{w_mat}, \code{w_mat25} and \code{w_min} by their
-corresponding length parameters \code{l_max}, \code{l_mat}, \code{l_mat25} and \code{l_min}.
+parameters like \code{w_max}, \code{w_mat}, \code{w_mat25}, w_repro_max and \code{w_min} by their
+corresponding length parameters \code{l_max}, \code{l_mat}, \code{l_mat25}, \code{l_mat_max} and
+\code{l_min}.
 
 The parameters that are only used to calculate default values for other
 parameters are:

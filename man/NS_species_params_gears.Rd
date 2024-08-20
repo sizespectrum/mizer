@@ -8,8 +8,7 @@
 A data frame with 12 rows and 8 columns. Each row is a species.
 \describe{
 \item{species}{Name of the species}
-\item{w_max}{The size at which the population invests 100\% of its income into
-reproduction so that all growth stops.}
+\item{w_max}{Maximum size.}
 \item{w_mat}{Size at maturity}
 \item{beta}{Size preference ratio}
 \item{sigma}{Width of the size-preference}

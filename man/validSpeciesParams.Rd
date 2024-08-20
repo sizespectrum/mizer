@@ -25,7 +25,9 @@ weight are given, then weight is used and a warning is issued if the two are
 inconsistent.
 
 If a \code{w_inf} column is given but no \code{w_max} then the value from \code{w_inf} is
-used. This is for backwards compatibility.
+used. This is for backwards compatibility. But note that the von Bertalanffy
+parameter \code{w_inf} is not the maximum size of the largest individual, but the
+asymptotic size of an average individual.
 
 Some inconsistencies in the size parameters are resolved as follows:
 \itemize{
