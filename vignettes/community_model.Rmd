@@ -129,6 +129,11 @@ abundance by size in the last time step of the simulation, and the total
 biomass through time. Each of the plots can be shown individually if desired.
 
 ```{r label=print_plot_comm_sim}
+#| fig.alt: >
+#|   The plot shows the results of the community model projection. The top panel
+#|   shows the total biomass of the community through time. The other panels show
+#|   the feeding level, predation mortality, fishing mortality and abundance by
+#|   size in the last time step of the simulation.
 plot(sim)
 ```
 
@@ -191,6 +196,10 @@ If you plot this predation mortality on a log-log scale you can see how the
 predation mortality declines to almost zero for the largest sizes.
 
 ```{r label=print_plot_comm_m2, warning=FALSE}
+#| fig.alt: >
+#|  The plot shows the predation mortality at size in the final time step of the
+#|  community model projection. The x-axis is on a log scale.
+#|  The predation mortality declines to almost zero for the largest sizes.
 plot(x = w(params), y = pred_mort_final, log = "xy", type = "l", 
      xlab = "Size [g]", ylab = "Predation mortality [1/year]")
 ```
@@ -203,6 +212,9 @@ so we show also how you would create the above graph with `ggplot()`. For
 more detail see the section on 
 [using ggplot2 and plotly with mizer](plotting.html).
 ```{r}
+#| fig.alt: >
+#|   The plot shows the predation mortality at size in the final time step of
+#|   the community model projection. This plot was created with ggplot2.
 library(ggplot2)
 sd <- data.frame(x = w(params), y = pred_mort_final)
 ggplot(sd, aes(x = x, y = y)) +
@@ -252,6 +264,8 @@ knife-edge selectivity at 1000 g can be clearly seen and an effort of 1 has
 resulted in a fishing mortality of 1 for the fully selected sizes.
 
 ```{r label=print_plot_comm_fmort}
+#| fig.alt: >
+#|   A summary plot of the simulation with fishing.
 plot(sim1, power = 2)
 ```
  
@@ -281,8 +295,10 @@ relative_abundance <- finalN(sim1) / finalN(sim0)
 
 This can then be plotted using basic R plotting commands.
 
-
 ```{r label=plot_relative_comm_abund}
+#| fig.alt: >
+#|   The plot shows the relative abundance of the community when fished compared
+#|   to when not fished.
 plot(x = w(params), y = relative_abundance, log = "x", type = "n",
     xlab = "Size (g)", ylab = "Relative abundance")
 lines(x = w(params), y = relative_abundance)
@@ -345,6 +361,10 @@ Let's take a look at how the abundances change through time. We can do this with
 the `plotBiomass()` function:
 
 ```{r label=plot_comm_biomass_sigma1}
+#| fig.alt: >
+#|  The plot shows the biomass of the community through time when the value of
+#|  sigma is set to 1.0. The abundances no longer converge to a stable
+#|  equilibrium and the dynamics appear to be chaotic.
 plotBiomass(sim_sigma1)
 ```
 

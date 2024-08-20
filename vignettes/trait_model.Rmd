@@ -99,6 +99,8 @@ community and resource spectra through time, as well as the original
 of the results of the simulation by calling the `plot()` method:
 
 ```{r plot_comm_sim_2}
+#| fig.alt: >
+#|   Summary plot of the trait-based model without fishing.
 plot(sim)
 ```
 
@@ -172,6 +174,8 @@ Again, we can plot the summary of the fished community using the default
 the fishing mortality panel:
 
 ```{r label=plot_trait_fmort}
+#| fig.alt: >
+#|  Summary plot of the trait-based model with fishing.
 plot(sim1)
 ```
 
@@ -205,6 +209,9 @@ relative_abundance <- total_abund1 / total_abund0
 This can be plotted using the commands below:
 
 ```{r label=plot_relative_comm_abund2}
+#| fig.alt: >
+#|   Relative abundances from the unfished (dashed line) and fished (solid line)
+#|   trait-based model.
 plot(x = w(params), y = relative_abundance, log = "xy", type = "n", 
      xlab = "Size (g)", ylab = "Relative abundance", ylim = c(0.1, 10))
 lines(x = w(params), y = relative_abundance)
@@ -314,6 +321,8 @@ sim_multi_gear <- project(params_multi_gear, t_max = 75, effort = 0.5)
 By plotting this you can see that the fishing mortality for each species now has a different selectivity pattern, and that the position of the selectivity knife-edge is given by the maximum size of the species.
 
 ```{r label=plot_multi_gear_trait_single_effort}
+#| fig.alt: >
+#|   Summary plot of the trait-based model with multiple gears and a single effort.
 plot(sim_multi_gear)
 ```
 
@@ -335,6 +344,8 @@ Now you can see that the *Industrial* gear has been operating and that fishing
 mortality for species larger than 500 g is 0.
 
 ```{r label=plot_multi_gear_trait}
+#| fig.alt: >
+#|  Summary plot of the trait-based model with only the Industrial gear active.
 plot(sim_multi_gear)
 ```
 
@@ -358,6 +369,8 @@ relative_abundance <- total_abund1 / total_abund0
 And plot the relative abundances:
 
 ```{r label=plot_relative_comm_abund_industrial}
+#| fig.alt: >
+#|   Relative abundances from the unfished (dashed line) and fished (solid line)
 plot(x = w(params), y = relative_abundance, log = "xy", type = "n", 
      xlab = "Size [g]", ylab = "Relative abundance", ylim = c(0.1, 10))
 lines(x = w(params), y = relative_abundance)
