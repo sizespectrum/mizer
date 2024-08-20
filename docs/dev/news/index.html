@@ -57,6 +57,22 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.5.1.9003" id="mizer-2519003">mizer 2.5.1.9003<a class="anchor" aria-label="anchor" href="#mizer-2519003"></a></h2>
+<ul><li>New species parameter <code>w_repro_max</code> giving the size at which a species invests 100% of its energy into reproduction. Set to <code>w_max</code> by default.</li>
+<li>
+<code><a href="../reference/getDiet.html">getDiet()</a></code> now also includes the contribution of the external encounter rate to the diet.</li>
+<li>In <code><a href="../reference/plotYieldGear.html">plotYieldGear()</a></code> one can select a subset of gears with new <code>gears</code> argument.</li>
+<li>New helper function <code><a href="../reference/valid_gears_arg.html">valid_gears_arg()</a></code> to check the <code>gears</code> argument in functions that take a <code>gears</code> argument.</li>
+<li>Improved scaling of the y-axis in <code><a href="../reference/plotGrowthCurves.html">plotGrowthCurves()</a></code>.</li>
+<li>
+<code><a href="../reference/steadySingleSpecies.html">steadySingleSpecies()</a></code> no longer requires species to grow to <code>w_max</code>.</li>
+<li>
+<code><a href="../reference/matchGrowth.html">matchGrowth()</a></code> now also rescales the external encounter rate.</li>
+<li>
+<code><a href="../reference/setExtEncounter.html">setExtEncounter()</a></code> no longer resets the external encounter rate to zero when called without the <code>ext_encounter</code> argument.</li>
+<li>The function <code><a href="../reference/plotBiomassObservedVsModel.html">plotBiomassObservedVsModel()</a></code> now plots the ratio of modelled to observed biomass as default (<code>ratio = T</code>), as this is more useful visually to see how far off modelled biomass is from observed biomass.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.5.1" id="mizer-251">mizer 2.5.1<a class="anchor" aria-label="anchor" href="#mizer-251"></a></h2><p class="text-muted">CRAN release: 2024-03-08</p>
 <p>This is a patch release made necessary by a change in CRAN’s requirement regarding the vignettes. It also includes a bug fix:</p>
 <ul><li>

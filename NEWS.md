@@ -1,9 +1,13 @@
-# Development version
+# mizer 2.5.1.9003
 
 - New species parameter `w_repro_max` giving the size at which a species 
   invests 100% of its energy into reproduction. Set to `w_max` by default.
 - `getDiet()` now also includes the contribution of the external encounter rate
   to the diet.
+- In `plotYieldGear()` one can select a subset of gears with new `gears` 
+  argument.
+- New helper function `valid_gears_arg()` to check the `gears` argument in 
+  functions that take a `gears` argument.
 - Improved scaling of the y-axis in `plotGrowthCurves()`.
 - `steadySingleSpecies()` no longer requires species to grow to `w_max`.
 - `matchGrowth()` now also rescales the external encounter rate.
