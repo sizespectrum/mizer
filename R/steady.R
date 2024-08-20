@@ -400,3 +400,46 @@ valid_species_arg <- function(object, species = NULL, return.logical = FALSE,
     }
     species
 }
+
+#' Helper function to assure validity of gears argument
+#' 
+#' If the gears argument contains invalid gears, then these are
+#' ignored but a warning is issued.
+#' 
+#' @param object A MizerSim or MizerParams object from which the gears
+#'   should be selected.
+#' @param gears The gears to be selected. Optional. By default all gears
+#'   are selected. A vector of gear names.
+#' @param error_on_empty Whether to throw an error if there are zero valid
+#'   gears. Default FALSE.
+#'   
+#' @return A vector of gear names.
+#' @export
+#' @concept helper
+valid_gears_arg <- function(object, gears = NULL,
+                              error_on_empty = FALSE) {
+    if (is(object, "MizerSim")) {
+        params <- object@params
+    } else if (is(object, "MizerParams")) {
+        params <- object
+    } else {
+        stop("The first argument must be a MizerSim or MizerParams object.")
+    }
+    assert_that(is.flag(error_on_empty))
+    all_gears <- unique(params@gear_params$gear)
+    no_gear <- length(all_gears)
+    # Set gears if missing to list of all gears
+    if (is.null(gears)) {
+        gears <- all_gears
+    }
+    invalid <- setdiff(gears, all_gears)
+    if (length(invalid) > 0) {
+        warning("The following gears do not exist: ", 
+                toString(invalid), ".")
+    }
+    gears <- intersect(gears, all_gears)
+    if (length(gears) == 0 && error_on_empty) {
+        stop("No gears have been selected.")
+    }
+    gears
+}

@@ -461,6 +461,8 @@ plotlyYield <- function(sim, sim2,
 #' 
 #' @param sim An object of class \linkS4class{MizerSim}
 #' @inheritParams plotSpectra
+#' @param gears A vector of gear names to be included in the plot. Default is
+#'  all gears.
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the four variables 'Year', 'Yield', 'Species' and 'Gear' is
@@ -481,6 +483,7 @@ plotlyYield <- function(sim, sim2,
 #' }
 plotYieldGear <- function(sim,
                           species = NULL,
+                          gears = NULL,
                           total = FALSE,
                           highlight = NULL, return_data = FALSE,
                           ...) {
@@ -489,10 +492,11 @@ plotYieldGear <- function(sim,
                 is.flag(return_data))
     params <- sim@params
     species <- valid_species_arg(sim, species, error_on_empty = TRUE)
+    gears <- valid_gears_arg(sim, gears, error_on_empty = TRUE)
     
     y <- getYieldGear(sim, ...)
     y_total <- rowSums(y, dims = 2)
-    y <- y[, , dimnames(y)$sp %in% species, drop = FALSE]
+    y <- y[, dimnames(y)$gear %in% gears, dimnames(y)$sp %in% species, drop = FALSE]
     names(dimnames(y))[names(dimnames(y)) == "sp"] <- "Species"
     ym <- reshape2::melt(y)
     if (total) {

@@ -69,6 +69,7 @@ can be plotted against time.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plotYieldGear</span><span class="op">(</span></span>
 <span>  <span class="va">sim</span>,</span>
 <span>  species <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  gears <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  total <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  highlight <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  return_data <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -91,6 +92,11 @@ can be plotted against time.</p>
 species are selected. A vector of species names, or a
 numeric vector with the species indices, or a logical vector indicating for
 each species whether it is to be selected (TRUE) or not.</p></dd>
+
+
+<dt id="arg-gears">gears<a class="anchor" aria-label="anchor" href="#arg-gears"></a></dt>
+<dd><p>A vector of gear names to be included in the plot. Default is
+all gears.</p></dd>
 
 
 <dt id="arg-total">total<a class="anchor" aria-label="anchor" href="#arg-total"></a></dt>

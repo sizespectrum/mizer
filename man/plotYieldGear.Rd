@@ -8,6 +8,7 @@
 plotYieldGear(
   sim,
   species = NULL,
+  gears = NULL,
   total = FALSE,
   highlight = NULL,
   return_data = FALSE,
@@ -23,6 +24,9 @@ plotlyYieldGear(sim, species = NULL, total = FALSE, highlight = NULL, ...)
 species are selected. A vector of species names, or a
 numeric vector with the species indices, or a logical vector indicating for
 each species whether it is to be selected (TRUE) or not.}
+
+\item{gears}{A vector of gear names to be included in the plot. Default is
+all gears.}
 
 \item{total}{A boolean value that determines whether the total over all
 species in the system is plotted as well. Note that even if the plot
