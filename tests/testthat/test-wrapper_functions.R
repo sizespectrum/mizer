@@ -122,3 +122,9 @@ test_that("Scaling model is set up correctly", {
     bm <- getBiomass(sim)
     expect_lt(max(abs(bm[1, ] - bm[6, ])), 1.3e-4)
 })
+
+# Community ----
+test_that("newCommunityParams works", {
+    newCommunityParams(z0 = 0.05, f0 = 0.5) |>
+        expect_warning(NA)
+})
