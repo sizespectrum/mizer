@@ -16,7 +16,7 @@
 - The function `plotBiomassObservedVsModel()` now plots the ratio of modelled
   to observed biomass as default (`ratio = T`), as this is more useful visually
   to see how far off modelled biomass is from observed biomass.
-
+- Deprecated `matchYields()` and `calibrateYield()`.
 
 # mizer 2.5.1
 

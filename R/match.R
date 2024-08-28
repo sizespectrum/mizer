@@ -128,7 +128,16 @@ matchNumbers <- function(params, species = NULL) {
 
 #' Match yields to observations
 #' 
-#' `r lifecycle::badge("experimental")`
+#' `r lifecycle::badge("deprecated")`
+#' This function has been deprecated and will be removed in the future unless
+#' you have a usecase for it. If you do have a usecase for it, please let the
+#' developers know by creating an issue at
+#' <https://github.com/sizespectrum/mizerExperimental/issues>.
+#' 
+#' If you want to match the yields to observations, you should use the
+#' `mizerExperimental::matchYield()` function instead, which adjusts the
+#' catchability to match the yield rather than by adjusting the biomass.
+#' 
 #' The function adjusts the abundances of the species in the model so that their
 #' yearly yields under the given fishing mortalities match with observations.
 #' 
@@ -151,6 +160,7 @@ matchNumbers <- function(params, species = NULL) {
 #'   with the species indices, or a logical vector indicating for each species
 #'   whether it is to be affected (TRUE) or not.
 #' @return A MizerParams object
+#' @keywords internal
 #' @export
 #' @examples 
 #' params <- NS_params
@@ -162,6 +172,10 @@ matchNumbers <- function(params, species = NULL) {
 #' params <- matchYields(params)
 #' plotYieldObservedVsModel(params)
 matchYields <- function(params, species = NULL) {
+    lifecycle::deprecate_warn(
+        "2.6.0", "matchYields()", "mizerExperimental::matchYield()",
+        details = "This function has not proven useful. If you do have a usecase for it, please let the developers know by creating an issue at https://github.com/sizespectrum/mizerExperimental/issues"
+    )
     if (!("yield_observed" %in% names(params@species_params))) {
         return(params)
     }

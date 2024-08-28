@@ -18,11 +18,20 @@ whether it is to be affected (TRUE) or not.}
 A MizerParams object
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-The function adjusts the abundances of the species in the model so that their
-yearly yields under the given fishing mortalities match with observations.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+This function has been deprecated and will be removed in the future unless
+you have a usecase for it. If you do have a usecase for it, please let the
+developers know by creating an issue at
+\url{https://github.com/sizespectrum/mizerExperimental/issues}.
 }
 \details{
+If you want to match the yields to observations, you should use the
+\code{mizerExperimental::matchYield()} function instead, which adjusts the
+catchability to match the yield rather than by adjusting the biomass.
+
+The function adjusts the abundances of the species in the model so that their
+yearly yields under the given fishing mortalities match with observations.
+
 The function works by multiplying for each species the abundance density
 at all sizes by the same factor. This will of course not give a steady
 state solution, even if the initial abundance densities were at steady state.
@@ -46,3 +55,4 @@ params <- calibrateYield(params)
 params <- matchYields(params)
 plotYieldObservedVsModel(params)
 }
+\keyword{internal}

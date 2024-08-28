@@ -288,7 +288,7 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
 #' 
 #' There can optionally also be a column `yield_observed` that allows you to
 #' specify for each gear and species the total annual fisheries yield. This is
-#' used by [calibrateYield()] and [matchYields()].
+#' used by [mizerExperimental::matchYield()].
 #' 
 #' The fishing effort, which is also needed to determine the fishing mortality
 #' exerted by a gear is not set via the `gear_params` data frame but is set

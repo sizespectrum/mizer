@@ -117,7 +117,13 @@ calibrateNumber <- function(params) {
 
 #' Calibrate the model scale to match total observed yield
 #' 
-#' `r lifecycle::badge("experimental")`
+#' `r lifecycle::badge("deprecated")`
+#' 
+#' This function has been deprecated and will be removed in the future unless
+#' you have a usecase for it. If you do have a usecase for it, please let the
+#' developers know by creating an issue at
+#' <https://github.com/sizespectrum/mizerExperimental/issues>.
+#' 
 #' Given a MizerParams object `params` for which yield observations are
 #' available for at least some species via the `yield_observed` column in the
 #' species_params data frame, this function returns an updated MizerParams
@@ -135,6 +141,7 @@ calibrateNumber <- function(params) {
 #' 
 #' @param params A MizerParams object
 #' @return A MizerParams object
+#' @keywords internal
 #' @export
 #' @examples 
 #' params <- NS_params
@@ -145,6 +152,10 @@ calibrateNumber <- function(params) {
 #' params2 <- calibrateYield(params)
 #' plotYieldObservedVsModel(params2)
 calibrateYield <- function(params) {
+    lifecycle::deprecate_warn(
+        "2.6.0", "calibrateYield()",
+        details = "This function has not proven useful. If you do have a usecase for it, please let the developers know by creating an issue at https://github.com/sizespectrum/mizerExperimental/issues"
+    )
     if ((!("yield_observed" %in% names(params@species_params))) ||
         all(is.na(params@species_params$yield_observed))) {
         return(params)

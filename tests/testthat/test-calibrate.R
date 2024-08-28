@@ -45,36 +45,6 @@ test_that("calibrateNumber works", {
     # `scaleModel()` which is unit-tested separately.
 })
 
-
-test_that("calibrateYield works", {
-    params <- NS_params
-    # Does nothing when no observed yield
-    expect_identical(calibrateYield(params), params)
-    species_params(params)$yield_observed <- NA
-    expect_identical(calibrateYield(params), params)
-    # Does nothing if observed already equals model
-    biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
-    yield_model <- rowSums(biomass * getFMort(params))
-    species_params(params)$yield_observed <- yield_model
-    expect_unchanged(calibrateYield(params), params)
-    # Even if only partially observed
-    species_params(params)$yield_observed[1:5] <- NA
-    expect_unchanged(calibrateYield(params), params)
-    # If we double the observations, we get twice the abundance
-    species_params(params)$yield_observed <- 
-        species_params(params)$yield_observed * 2
-    params2 <- calibrateYield(params)
-    expect_equal(params2@initial_n, params@initial_n * 2)
-    # If we double the catchability as well, we get the original abundance
-    gear_params(params)$catchability <- 
-        gear_params(params)$catchability * 2
-    params2 <- calibrateYield(params)
-    expect_equal(params2@initial_n, params@initial_n)
-    # We don't need to check other slots because this function uses
-    # `scaleModel()` which is unit-tested separately.
-})
-
-
 test_that("scaleModel does not change dynamics.", {
     factor <- 10
     sim <- project(NS_params, t_max = 1)

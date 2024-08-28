@@ -13,14 +13,20 @@ calibrateYield(params)
 A MizerParams object
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+}
+\details{
+This function has been deprecated and will be removed in the future unless
+you have a usecase for it. If you do have a usecase for it, please let the
+developers know by creating an issue at
+\url{https://github.com/sizespectrum/mizerExperimental/issues}.
+
 Given a MizerParams object \code{params} for which yield observations are
 available for at least some species via the \code{yield_observed} column in the
 species_params data frame, this function returns an updated MizerParams
 object which is rescaled with \code{\link[=scaleModel]{scaleModel()}} so that the total yield in
 the model agrees with the total observed yield.
-}
-\details{
+
 After using this function the total yield in the model will match the
 total observed yield, summed over all species. However the yields of the
 individual species will not match observations yet, with some species
@@ -39,3 +45,4 @@ gear_params(params)$catchability <-
 params2 <- calibrateYield(params)
 plotYieldObservedVsModel(params2)
 }
+\keyword{internal}

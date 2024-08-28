@@ -11,7 +11,7 @@ test_that("plotYieldObservedVsModel works", {
     # pull out data frame for yield comparison
     species_params(params)$yield_observed <-
         c(0.8, 61, 12, 35, 1.6, 20, 10, 7.6, 135, 60, 30, 78)
-    params <- calibrateYield(params)
+    expect_warning(params <- calibrateYield(params))
     expect_message(dummy <- plotYieldObservedVsModel(params, return_data = T))
     
     # Check yields equal those put in
