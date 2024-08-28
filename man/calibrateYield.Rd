@@ -45,4 +45,4 @@ gear_params(params)$catchability <-
 params2 <- calibrateYield(params)
 plotYieldObservedVsModel(params2)
 }
-\keyword{internal}
+\concept{deprecated}

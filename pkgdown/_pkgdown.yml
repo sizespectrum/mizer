@@ -20,6 +20,7 @@ template:
   bootstrap: 5
   params:
     bootswatch: cerulean
+  math-rendering: mathjax
   opengraph:
     image:
       src: man/figures/logo.png
@@ -37,7 +38,7 @@ toc:
 navbar:
   structure:
     left: [intro, course, articles, reference, news]
-    right: [blog, twitter, github]
+    right: [search, blog, twitter, github]
   components:
     home: ~
     course:
@@ -117,8 +118,6 @@ reference:
   - matchBiomasses
   - matchNumbers
   - plotYieldObservedVsModel
-  - calibrateYield
-  - matchYields
   - scaleModel
 - title: Dynamics tuning
   description: After tuning the steady state, you need to tune the sensitivity

@@ -20,7 +20,7 @@ different <- function(a, b) {
 #' 
 #' For each species, convert between length and weight using the relationship
 #' \deqn{w_i = a_i l_i^{b_i}}{w_i = a_i l_i^b_i} or 
-#' \deqn{l_i = (w_i / a_i)^{1/b_i}}{l_i = (w_i / a_i)^{1/b_i}
+#' \deqn{l_i = (w_i / a_i)^{1/b_i}}{l_i = (w_i / a_i)^{1/b_i}}
 #' where `a` and `b` are taken from the species parameter data frame and 
 #' \eqn{i}{i} is the species index.
 #' 

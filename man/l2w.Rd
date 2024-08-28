@@ -10,22 +10,24 @@ l2w(l, params)
 w2l(w, params)
 }
 \arguments{
-\item{l}{Lengths in cm. Either a single number or a vector with one number
-for each species.}
+\item{l}{Lengths in cm. Either a single number used for all species or a
+vector with one number for each species.}
 
 \item{params}{A species parameter data frame or a MizerParams object.}
 
-\item{w}{Weights in grams. Either a single number or a vector with one number
-for each species.}
+\item{w}{Weights in grams. Either a single number used for all species or a
+vector with one number for each species.}
 }
 \value{
 A vector with one entry for each species. \code{l2w()} returns a vector
 of weights in grams and \code{w2l()} returns a vector of lengths in cm.
 }
 \description{
-Convert between length and weight using the relationship
-\deqn{w = a l^b}
-where \code{a} and \code{b} are taken from the species parameter data frame.
+For each species, convert between length and weight using the relationship
+\deqn{w_i = a_i l_i^{b_i}}{w_i = a_i l_i^b_i} or
+\deqn{l_i = (w_i / a_i)^{1/b_i}}{l_i = (w_i / a_i)^{1/b_i}}
+where \code{a} and \code{b} are taken from the species parameter data frame and
+\eqn{i}{i} is the species index.
 }
 \details{
 This is useful for converting a length-based species parameter to a

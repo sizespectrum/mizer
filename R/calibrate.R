@@ -141,7 +141,7 @@ calibrateNumber <- function(params) {
 #' 
 #' @param params A MizerParams object
 #' @return A MizerParams object
-#' @keywords internal
+#' @concept deprecated
 #' @export
 #' @examples 
 #' params <- NS_params

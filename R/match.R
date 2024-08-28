@@ -160,7 +160,7 @@ matchNumbers <- function(params, species = NULL) {
 #'   with the species indices, or a logical vector indicating for each species
 #'   whether it is to be affected (TRUE) or not.
 #' @return A MizerParams object
-#' @keywords internal
+#' @concept deprecated
 #' @export
 #' @examples 
 #' params <- NS_params
