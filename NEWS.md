@@ -1,5 +1,7 @@
-# mizer 2.5.1.9003
+# mizer 2.5.1.9004
 
+- `addSpecies()` now correctly preserves all `species_params` of the existing
+  model.
 - New species parameter `w_repro_max` giving the size at which a species 
   invests 100% of its energy into reproduction. Set to `w_max` by default.
 - `getDiet()` now also includes the contribution of the external encounter rate
@@ -17,6 +19,8 @@
   to observed biomass as default (`ratio = T`), as this is more useful visually
   to see how far off modelled biomass is from observed biomass.
 - Deprecated `matchYields()` and `calibrateYield()`.
+- Improved some unit tests.
+- Some improvements to documentation.
 
 # mizer 2.5.1
 

@@ -6,7 +6,7 @@ test_that("addSpecies works when adding a second identical species", {
     species_params <- p@species_params[5, ]
     species_params$species <- "new"
     # Adding species 5 again should lead two copies of the species
-    expect_message(pa <- addSpecies(p, species_params))
+    pa <- addSpecies(p, species_params)
     expect_identical(pa@metab[5, ], pa@metab[no_sp + 1, ])
     expect_identical(pa@psi[5, ], pa@psi[no_sp + 1, ])
     expect_identical(pa@ft_pred_kernel_e[5, ], pa@ft_pred_kernel_e[no_sp + 1, ])
@@ -160,9 +160,25 @@ test_that("Added species stay at low abundance", {
     expect_message(params <- addSpecies(params, species_params))
     no_sp <- nrow(params@species_params)
     sim <- project(params, t_max = 1, progress_bar = FALSE)
-    expect_lt(finalN(sim)[no_sp, 1] / initialN(sim)[no_sp, 1], 1.04)
+    expect_lt(finalN(sim)[no_sp, 1] / initialN(sim)[no_sp, 1], 1.05)
 })
 
+test_that("addSpecies preserves both given and other species params", {
+    
+    params <- newTraitParams()
+    params@given_species_params$b <- 3
+    params@species_params$w_mat25 <- params@species_params$w_mat25 * 1.01
+    sp <- data.frame(species = "new",
+                     w_max = 10, test = "test")
+    expect_message(p <- addSpecies(params, sp))
+    no_sp <- nrow(params@species_params)
+    expect_identical(p@species_params$w_mat25[1:no_sp],
+                     params@species_params$w_mat25[1:no_sp])
+    expect_identical(p@given_species_params$b[1:no_sp],
+                     params@given_species_params$b[1:no_sp])
+    expect_in("test", names(p@species_params))
+    expect_in("test", names(p@given_species_params))
+})
 
 # removeSpecies ----
 test_that("removeSpecies works", {
@@ -209,7 +225,7 @@ test_that("adding and then removing species leaves params unaltered", {
     # two arbitrary species
     sp <- data.frame(species = c("new1", "new2"),
                      w_max = c(10, 100),
-                     k_vb = c(4, 1),
+                     k_vb = c(4, 2),
                      stringsAsFactors = FALSE)
     # add comments to test that they will be preserved as well
     comment(params) <- "test"

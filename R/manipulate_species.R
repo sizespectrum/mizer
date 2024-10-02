@@ -85,7 +85,7 @@ addSpecies <- function(params, species_params,
              "has its catchability array protected by a comment.")
     }
     
-    # set interaction
+    # set interaction ----
     no_old_sp <- nrow(params@species_params)
     old_sp <- 1:no_old_sp
     no_new_sp <- nrow(species_params)
@@ -112,9 +112,9 @@ addSpecies <- function(params, species_params,
     # combine species params ----
     
     # Move linecolour and linetype into species_params
-    params@given_species_params$linetype <-
+    params@species_params$linetype <-
         params@linetype[as.character(params@species_params$species)]
-    params@given_species_params$linecolour <-
+    params@species_params$linecolour <-
         params@linecolour[as.character(params@species_params$species)]
     
     # Make sure that all columns exist in both data frames
@@ -123,9 +123,16 @@ addSpecies <- function(params, species_params,
     missing <- setdiff(names(given_species_params), names(params@given_species_params))
     params@given_species_params[missing] <- NA
     
+    missing <- setdiff(names(params@species_params), names(species_params))
+    species_params[missing] <- NA
+    missing <- setdiff(names(species_params), names(params@species_params))
+    params@species_params[missing] <- NA
+    
     # add the new species (with parameters described by species_params),
     # to make a larger species_params dataframe.
-    combi_species_params <- rbind(params@given_species_params, given_species_params,
+    combi_species_params <- rbind(params@species_params, species_params,
+                                  stringsAsFactors = FALSE)
+    combi_given_species_params <- rbind(params@given_species_params, given_species_params,
                                   stringsAsFactors = FALSE)
     
     # combine gear params ----
@@ -194,6 +201,7 @@ addSpecies <- function(params, species_params,
         lambda = params@resource_params$lambda,
         w_pp_cutoff = params@resource_params$w_pp_cutoff
     )
+    p@given_species_params <- combi_given_species_params
     
     # Set effort ----
     new_gear <- setdiff(unique(gear_params$gear),
