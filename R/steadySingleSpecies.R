@@ -74,5 +74,6 @@ steadySingleSpecies <- function(params, species = NULL,
         params@initial_n <- params@initial_n * factor
     }
     
+    params@time_modified <- lubridate::now()
     params
 }

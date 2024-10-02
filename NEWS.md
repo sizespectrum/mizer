@@ -18,6 +18,8 @@
 - The function `plotBiomassObservedVsModel()` now plots the ratio of modelled
   to observed biomass as default (`ratio = T`), as this is more useful visually
   to see how far off modelled biomass is from observed biomass.
+- The `time_modified` field is now updated correctly by `steadySingleSpecies()`,
+  `setColours()` and `setLinetypes()`.
 - Deprecated `matchYields()` and `calibrateYield()`.
 - Improved some unit tests.
 - Some improvements to documentation.

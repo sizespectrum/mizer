@@ -6,9 +6,9 @@ test_that("setMaxIntakeRate works", {
     expect_identical(2 * params@intake_max, p2@intake_max)
     # only intake max changed
     p2@intake_max <- params@intake_max
-    p2@time_modified <- params@time_modified
-    expect_identical(p2, params)
+    expect_unchanged(p2, params)
 })
+
 test_that("Comment works on intake_max", {
     params <- NS_params
     # if no comment, it is set automatically

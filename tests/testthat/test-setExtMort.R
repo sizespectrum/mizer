@@ -14,7 +14,11 @@ test_that("setExtMort works", {
     p2 <- setExtMort(params, 3 * params@mu_b)
     comment(p2@mu_b) <- NULL
     expect_equal(p2@mu_b, 3 * params@mu_b)
+    
+    # has updated time_modified
+    expect_false(identical(params@time_modified, p2@time_modified))
 })
+
 test_that("Comment works on mu_b", {
     params <- NS_params
     # if no comment, it is set automatically

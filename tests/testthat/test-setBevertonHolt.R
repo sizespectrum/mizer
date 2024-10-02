@@ -47,6 +47,11 @@ test_that("setBevertonHolt sets erepro correctly when setting same value for som
     expect_identical(params@species_params$erepro[1:2], c(0.1, 0.2))
 })
 
+test_that("setBevertonHolt updates `time_modified`", {
+    expect_false(identical(setBevertonHolt(NS_params, erepro = 1)@time_modified, 
+                           NS_params@time_modified))
+})
+
 # R_max ----
 test_that("setBevertonHolt sets R_max correctly when setting all values", {
     params <- setBevertonHolt(NS_params,

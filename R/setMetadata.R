@@ -22,6 +22,9 @@
 #' set by the extension packages.
 #' * `time_created` A POSIXct date-time object with the creation time.
 #' * `time_modified` A POSIXct date-time object with the last modified time.
+#' 
+#' Setting the metadata with this function does not count as a modification of
+#' the object, so the `time_modified` field will not be updated.
 #'
 #' @param params The MizerParams object for the model
 #' @param title A string with the title for the model
@@ -70,8 +73,6 @@ setMetadata <- function(params, title, description,
         metadata$doi <- doi
     }
     params@metadata <- modifyList(metadata, list(...))
-    
-    params@time_modified <- lubridate::now()
     params
 }
 

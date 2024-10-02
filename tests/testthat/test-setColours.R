@@ -2,6 +2,8 @@
 test_that("setColours and getColours works", {
     params <- NS_params
     no_col <- length(getColours(params))
+    # nothing changes when setting the same colours
+    expect_identical(setColours(params, getColours(params)), params)
     # set new entry
     params <- setColours(params, list("test" = "orange"))
     expect_length(getColours(params), no_col + 1)
@@ -20,12 +22,16 @@ test_that("setColours and getColours works", {
         "The following are not valid colour values and will be ignored: igit, igitigit")
     expect_length(getColours(params), no_col + 2)
     expect_identical(getColours(params)[["test"]], "blue")
+    # Expect updated time_modified
+    expect_false(identical(params@time_modified, NS_params@time_modified))
 })
 
 # setLinetypes, getLinetypes ----
 test_that("setLinetypes and getLinetypes works", {
     params <- NS_params
     no_types <- length(getLinetypes(params))
+    # nothing changes when using existing types
+    expect_identical(setLinetypes(params, getLinetypes(params)), params)
     # set new entry
     params <- setLinetypes(params, list("test" = "dashed"))
     expect_equal(length(getLinetypes(params)), no_types + 1)
@@ -44,4 +50,6 @@ test_that("setLinetypes and getLinetypes works", {
         "The following are not valid lineypes")
     expect_length(getLinetypes(params), no_types + 2)
     expect_identical(getLinetypes(params)[["test"]], "dotted")
+    # Expect updated time_modified
+    expect_false(identical(params@time_modified, NS_params@time_modified))
 })

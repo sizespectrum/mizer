@@ -87,6 +87,8 @@ test_that("steady() preserves R_max", {
                        suppressMessages(),
                    "The following species require an unrealistic reproductive")
     expect_equal(p2@species_params$R_max, params@species_params$R_max)
+    # Test that steady updates time_modified
+    expect_false(identical(p2@time_modified, params@time_modified))
 })
 
 # valid_species_arg ----

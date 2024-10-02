@@ -11,9 +11,12 @@ test_that("setExtEncounter works", {
     p2 <- setExtEncounter(params, 3 * params@mu_b)
     expect_equal(p2@ext_encounter, 3 * params@mu_b)
     
-    # only mu_b changed
+    # only ext_encounter changed
     p2@ext_encounter <- params@ext_encounter
     expect_unchanged(p2, params)
+    
+    # has updated time_modified
+    expect_false(identical(params@time_modified, p2@time_modified))
 })
 
 test_that("Comment works on ext_encounter", {

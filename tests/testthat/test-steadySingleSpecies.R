@@ -6,12 +6,14 @@ test_that("steadySingleSpecies only affects selected species", {
     # but Cod changed
     expect_gt(params@initial_n["Cod", 100], 
               NS_params@initial_n["Cod", 100])
+    # Test that steadySingleSpecies updates time_modified
+    expect_false(identical(NS_params@time_modified, params@time_modified))
 })
 
 test_that("steadySingleSpecies is idempotent on single-species model", {
     ss <- newSingleSpeciesParams()
     ss2 <- steadySingleSpecies(ss)
-    expect_equal(ss@initial_n, ss2@initial_n)
+    expect_unchanged(ss, ss2)
 })
 
 test_that("steadySingleSpecies `keep` argument works", {

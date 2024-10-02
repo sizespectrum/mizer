@@ -35,8 +35,13 @@
 setColours <- function(params, colours) {
     assert_that(is(params, "MizerParams"))
     colours <- validColours(colours)
+    if (identical(colours, as.list(params@linecolour))) {
+        return(params)
+    }
     params@linecolour <- unlist(
         modifyList(as.list(params@linecolour), colours))
+    
+    params@time_modified <- lubridate::now()
     params
 }
 
@@ -69,8 +74,13 @@ validColours <- function(colours) {
 setLinetypes <- function(params, linetypes) {
     assert_that(is(params, "MizerParams"))
     linetypes <- validLinetypes(linetypes)
+    if (identical(linetypes, as.list(params@linetype))) {
+        return(params)
+    }
     params@linetype <- unlist(
         modifyList(as.list(params@linetype), as.list(linetypes)))
+    
+    params@time_modified <- lubridate::now()
     params
 }
 

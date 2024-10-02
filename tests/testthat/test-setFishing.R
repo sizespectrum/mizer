@@ -88,6 +88,8 @@ test_that("Set Fishing works", {
     expect_unchanged(params, setFishing(params))
     gear_params(params) <- params@gear_params
     expect_unchanged(params, params1)
+    # has updated time_modified
+    expect_false(identical(params@time_modified, params1@time_modified))
 })
 
 test_that("Setting selectivity works", {

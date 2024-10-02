@@ -2,9 +2,14 @@
 # changed except for the time_modified
 expect_unchanged <- function(object, expected) {
     if (is(object, "MizerParams")) {
+        # has updated time_modified
+        expect_false(identical(object@time_modified, expected@time_modified))
         object@time_modified <- expected@time_modified
     }
     if (is(object, "MizerSim")) {
+        # has updated time_modified
+        expect_false(identical(object@params@time_modified,
+                               expected@params@time_modified))
         object@params@time_modified <- expected@params@time_modified
     }
     

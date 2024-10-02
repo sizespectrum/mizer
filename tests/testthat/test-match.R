@@ -2,7 +2,7 @@ test_that("matchBiomasses works", {
     params <- setBevertonHolt(NS_params)
     
     # Does nothing when no observed biomass
-    expect_unchanged(matchBiomasses(params), params)
+    expect_identical(matchBiomasses(params), params)
     species_params(params)$biomass_observed <- NA
     expect_unchanged(matchBiomasses(params), params)
     # Does nothing if observed already equals model
@@ -31,7 +31,7 @@ test_that("matchNumbers works", {
     params <- setBevertonHolt(NS_params)
     
     # Does nothing when no observed numbers
-    expect_unchanged(matchNumbers(params), params)
+    expect_identical(matchNumbers(params), params)
     species_params(params)$number_observed <- NA
     expect_unchanged(matchNumbers(params), params)
     # Does nothing if observed already equals model
