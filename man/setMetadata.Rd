@@ -61,4 +61,7 @@ set by the extension packages.
 \item \code{time_created} A POSIXct date-time object with the creation time.
 \item \code{time_modified} A POSIXct date-time object with the last modified time.
 }
+
+Setting the metadata with this function does not count as a modification of
+the object, so the \code{time_modified} field will not be updated.
 }
