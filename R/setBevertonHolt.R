@@ -249,8 +249,8 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
         params@species_params$erepro[sp_idx] * rdi_new / rdi
     wrong <- params@species_params$erepro[sp_idx] > 1
     if (any(wrong)) {
-        warning("The following species require an unrealistic reproductive ",
-                "efficiency greater than 1: ",
+        warning("The following species require an unrealistic value greater ",
+                "than 1 for `erepro`: ",
                 paste(species[wrong], collapse = ", "), "\n")
     }
     
