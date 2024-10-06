@@ -267,24 +267,12 @@ addSpecies <- function(params, species_params,
     # Turn off self-interaction among the new species, so we can determine the
     # growth rates, and death rates induced upon them by the pre-existing species
     p@interaction[new_sp, new_sp] <- 0
-    mumu <- getMort(p)
-    gg <- getEGrowth(p)
     
     # Compute solution for new species
+    p <- steadySingleSpecies(p, species = new_sp)
+    
+    # set low abundance ----
     for (i in new_sp) {
-        g <- gg[i, ]
-        mu <- mumu[i, ]
-        w_max_idx <- sum(p@w < p@species_params$w_max[i])
-        idx <- p@w_min_idx[i]:(w_max_idx - 1)
-        if (any(g[idx] == 0)) {
-            stop("Can not compute steady state due to zero growth rates for ",
-                 p@species_params$species[i])
-        }
-        p@initial_n[i, ] <- 0
-        p@initial_n[i, p@w_min_idx[i]:w_max_idx] <-
-            c(1, cumprod(g[idx] / ((g + mu * p@dw)[idx + 1])))
-        
-        # set low abundance ----
         # Normalise solution so that it is never more than 1/100th of the
         # Sheldon spectrum.
         # We look at the maximum of abundance times w^lambda

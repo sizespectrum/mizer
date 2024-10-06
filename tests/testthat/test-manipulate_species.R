@@ -83,7 +83,7 @@ test_that("addSpecies handles interaction matrix correctly", {
     interaction <- matrix(1:16/16, ncol = 4)
     (pa <- addSpecies(p, sp, interaction = interaction)) |>
         expect_message() |>
-        expect_warning("The following species require an unrealistic reproductive efficiency greater than 1: new2")
+        expect_warning("The following species require an unrealistic value greater than 1 for `erepro`: new2")
     expect_equal(pa@interaction, interaction, ignore_attr = TRUE)
     
     addSpecies(p, sp, interaction = matrix(1:9, ncol = 3)) |>
