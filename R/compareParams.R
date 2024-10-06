@@ -20,33 +20,12 @@ compareParams <- function(params1, params2) {
     result <- character()
 
     # species parameters ----
-    sp_names1 <- names(params1@species_params)
-    sp_names2 <- names(params2@species_params)
-    sp_diff1 <- setdiff(sp_names1, sp_names2)
-    if (length(sp_diff1) > 0) {
-        msg <- paste("params1 has the following additional species parameters:",
-                     toString(sp_diff1))
-        result <- c(result, msg)
-    }
-    sp_diff2 <- setdiff(sp_names2, sp_names1)
-    if (length(sp_diff2) > 0) {
-        msg <- paste("params2 has the following additional species parameters:",
-                     toString(sp_diff2))
-        result <- c(result, msg)
-    }
-    sp_names <- intersect(sp_names1, sp_names2)
-
-    sp_eq <- all.equal(params1@species_params[, sp_names],
-                       params2@species_params[, sp_names], scale = 1)
-    if (!isTRUE(sp_eq)) {
-        msg <- paste("The following species parameters differ:",
-               toString(sp_eq))
-        result <- c(result, msg)
-        # ctable <- compareDF::compare_df(params1@species_params[, sp_names],
-        #                       params2@species_params[, sp_names],
-        #                       keep_unchanged_cols = FALSE)
-        # print(ctable$comparison_df)
-    }
+    result <- c(result, 
+                compareSpeciesParams(params1@species_params,
+                                     params2@species_params),
+                compareSpeciesParams(params1@given_species_params,
+                                     params2@given_species_params,
+                                     text = "given species parameters"))
 
     # resource parameters ----
     res1 <- params1@resource_params
@@ -82,7 +61,8 @@ compareParams <- function(params1, params2) {
 
     # other slots ----
     for (sl in slotNames(params1)) {
-        if (sl %in% c("w", "w_full", "species_params", "resource_params")) {
+        if (sl %in% c("w", "w_full", "species_params", 
+                      "given_species_params", "resource_params")) {
             next
         }
         eq <- all.equal(slot(params1, sl), slot(params2, sl), scale = 1)
@@ -95,5 +75,43 @@ compareParams <- function(params1, params2) {
     if (length(result) == 0) {
         result <- "No differences"
     }
+    result
+}
+
+compareSpeciesParams <- function(species_params1, 
+                                 species_params2, 
+                                 text = "species parameters") {
+
+    result <- character()
+
+    # species parameters ----
+    sp_names1 <- names(species_params1)
+    sp_names2 <- names(species_params2)
+    sp_diff1 <- setdiff(sp_names1, sp_names2)
+    if (length(sp_diff1) > 0) {
+        msg <- paste0("params1 has the following additional ",
+                      text, ": ", toString(sp_diff1))
+        result <- c(result, msg)
+    }
+    sp_diff2 <- setdiff(sp_names2, sp_names1)
+    if (length(sp_diff2) > 0) {
+        msg <- paste0("params2 has the following additional ",
+                      text, ": ", toString(sp_diff2))
+        result <- c(result, msg)
+    }
+    sp_names <- intersect(sp_names1, sp_names2)
+
+    sp_eq <- all.equal(species_params1[, sp_names],
+                       species_params2[, sp_names], scale = 1)
+    if (!isTRUE(sp_eq)) {
+        msg <- paste("The following", text, "differ:",
+               toString(sp_eq))
+        result <- c(result, msg)
+        # ctable <- compareDF::compare_df(params1@species_params[, sp_names],
+        #                       params2@species_params[, sp_names],
+        #                       keep_unchanged_cols = FALSE)
+        # print(ctable$comparison_df)
+    }
+    
     result
 }

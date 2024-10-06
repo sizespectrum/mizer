@@ -6,6 +6,7 @@
   maturity size is required.
 - New species parameter `w_repro_max` giving the size at which a species 
   invests 100% of its energy into reproduction. Set to `w_max` by default.
+- `compareParams()` now also spells out differences in given species parameters.
 - `getDiet()` now also includes the contribution of the external encounter rate
   to the diet.
 - In `plotYieldGear()` one can select a subset of gears with new `gears` 

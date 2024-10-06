@@ -8,11 +8,25 @@ test_that("compareParams", {
   expect_equal(compareParams(params, params2)[[1]],
       'The following species parameters differ: Component "gamma": Mean absolute difference: 1')
   # Add a species param
-  params@species_params$extra <- 1
+  params1 <- params
+  params1@species_params$extra <- 1
   expect_true("params1 has the following additional species parameters: extra" %in%
-                  compareParams(params, params2))
+                  compareParams(params1, params))
   params2@species_params$extra2 <- 2
   expect_true("params2 has the following additional species parameters: extra2" %in%
+                  compareParams(params, params2))
+  # Change a given species param
+  params2 <- params
+  params2@given_species_params$gamma[[1]] <- 1
+  expect_equal(compareParams(params, params2)[[1]],
+               'The following given species parameters differ: Component "gamma": Mean absolute difference: 1')
+  # Add a given species param
+  params1 <- params
+  params1@given_species_params$extra <- 1
+  expect_true("params1 has the following additional given species parameters: extra" %in%
+                  compareParams(params1, params))
+  params2@given_species_params$extra2 <- 2
+  expect_true("params2 has the following additional given species parameters: extra2" %in%
                   compareParams(params, params2))
   # Change a resource param
   params2@resource_params$lambda <- 1
