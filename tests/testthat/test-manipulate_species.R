@@ -226,6 +226,7 @@ test_that("adding and then removing species leaves params unaltered", {
     sp <- data.frame(species = c("new1", "new2"),
                      w_max = c(10, 100),
                      k_vb = c(4, 2),
+                     test = "test",
                      stringsAsFactors = FALSE)
     # add comments to test that they will be preserved as well
     comment(params) <- "test"

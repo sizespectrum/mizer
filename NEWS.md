@@ -6,6 +6,8 @@
   maturity size is required.
 - New species parameter `w_repro_max` giving the size at which a species 
   invests 100% of its energy into reproduction. Set to `w_max` by default.
+- `removeSpecies()` now also removes species parameters that are not set for
+  any of the remaining species.
 - `compareParams()` now also spells out differences in given species parameters.
 - `getDiet()` now also includes the contribution of the external encounter rate
   to the diet.

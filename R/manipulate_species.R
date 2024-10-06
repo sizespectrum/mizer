@@ -382,6 +382,12 @@ removeSpecies <- function(params, species) {
                                        p@species_params$species, ]
     p@gear_params <- validGearParams(p@gear_params, p@species_params)
     
+    # Drop species parameters with all values NA
+    keep <- colSums(is.na(p@species_params)) < nrow(p@species_params)
+    p@species_params <- p@species_params[, keep]
+    keep <- colSums(is.na(p@given_species_params)) < nrow(p@given_species_params)
+    p@given_species_params <- p@given_species_params[, keep]
+    
     # Preserve comments
     for (slot in (slotNames(p))) {
         comment(slot(p, slot)) <- comment(slot(params, slot))
