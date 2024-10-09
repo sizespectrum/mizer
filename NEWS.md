@@ -11,6 +11,8 @@
 - `compareParams()` now also spells out differences in given species parameters.
 - `getDiet()` now also includes the contribution of the external encounter rate
   to the diet.
+- `setPredKernel()` now throws an error if some of the required predation kernel
+  parameters are NA.
 - In `plotYieldGear()` one can select a subset of gears with new `gears` 
   argument.
 - New helper function `valid_gears_arg()` to check the `gears` argument in 

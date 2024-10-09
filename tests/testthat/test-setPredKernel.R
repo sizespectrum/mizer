@@ -83,21 +83,35 @@ test_that("Can get and set pred_kernel slot", {
 
 ## get_phi ----
 test_that("get_phi works", {
-    NS_species_params$pred_kernel_type <- "box"
-    NS_species_params$ppmr_min <- 2
-    NS_species_params$ppmr_max <- 4
-    phi <- get_phi(NS_species_params, 1:5)
+    sp <- NS_species_params
+    sp$pred_kernel_type <- "box"
+    sp$ppmr_min <- 2
+    sp$ppmr_max <- 4
+    phi <- get_phi(sp, 1:5)
     expect_identical(phi[1, ], phi[2, ])
     expect_identical(phi[1, 1], 0)
     expect_identical(phi[1, 2], 1)
     expect_identical(phi[1, 5], 0)
     # call with invalid parameters
-    NS_species_params$ppmr_max <- 1
-    expect_error(get_phi(NS_species_params, 1:5),
+    sp$ppmr_max <- 1
+    expect_error(get_phi(sp, 1:5),
                  "ppmr_min not less than ppmr_max")
-    NS_species_params$pred_kernel_type <- "lognormal"
-    NS_species_params$sigma <- 0
-    expect_error(get_phi(NS_species_params, 1:5),
+    sp$pred_kernel_type <- "lognormal"
+    sp$sigma <- 0
+    expect_error(get_phi(sp, 1:5),
                  "The function lognormal_pred_kernel returned a zero predation kernel")
 })
 
+test_that("get_phi throws error if predation kernel parameters are missing", {
+    sp <- NS_species_params
+    sp$pred_kernel_type <- "box"
+    # parameters missing entirely
+    expect_error(get_phi(sp, 1:5),
+                 "missing from the parameter dataframe: ppmr_min")
+    # some entries missing
+    sp$ppmr_min <- 2
+    sp$ppmr_max <- 4
+    sp$ppmr_min[2] <- NA
+    expect_error(get_phi(sp, 1:5),
+                 "arguments for the predation kernel function box_pred_kernel are NA")
+})

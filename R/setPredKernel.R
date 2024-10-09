@@ -317,6 +317,14 @@ get_phi <- function(species_params, ppmr) {
                  " are missing from the parameter dataframe: ",
                  toString(args[missing]))
         }
+        if (any(is.na(species_params[i, args]))) {
+            stop("For species ",
+                 species_params$species[i],
+                 " the following arguments for the predation kernel function ",
+                 pred_kernel_func_name,
+                 " are NA in the parameter dataframe: ",
+                 toString(args[is.na(species_params[i, args])]))
+        }
         pars <- c(ppmr = list(ppmr), as.list(species_params[i, args]))
         phi <- do.call(pred_kernel_func_name, args = pars)
         
