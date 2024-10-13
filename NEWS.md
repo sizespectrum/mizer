@@ -11,6 +11,7 @@
   invests 100% of its energy into reproduction. Set to `w_max` by default.
 - `removeSpecies()` now also removes species parameters that are not set for
   any of the remaining species.
+- Changing `w_max` now also correctly updates `ft_mask` (#296).
 - `compareParams()` now also spells out differences in given species parameters.
 - `getDiet()` now also includes the contribution of the external encounter rate
   to the diet.

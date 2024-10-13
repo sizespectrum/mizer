@@ -24,21 +24,6 @@ validMizerParams <- function(object) {
     w_idx <- (no_w_full - no_w + 1):no_w_full
     
     # Check weight grids ----
-    # Check dw and dw_full are correct length 
-    if (length(object@dw) != no_w) {
-        msg <- paste("dw is length ", length(object@dw),
-                     " and w is length ", no_w,
-                     ". These should be the same length", sep = "")
-        errors <- c(errors, msg)
-    }
-    
-    if (length(object@dw_full) != no_w_full) {
-        msg <- paste("dw_full is length ", length(object@dw_full),
-                     " and w_full is length ", no_w_full,
-                     ". These should be the same length", sep = "")
-        errors <- c(errors, msg)
-    }
-    
     # Check that the last entries of w_full and dw_full agree with w and dw
     if (different(object@w[], object@w_full[w_idx])) {
         msg <- "The later entries of w_full should be equal to those of w."
