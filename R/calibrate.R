@@ -154,7 +154,7 @@ calibrateNumber <- function(params) {
 calibrateYield <- function(params) {
     lifecycle::deprecate_warn(
         "2.6.0", "calibrateYield()",
-        details = "This function has not proven useful. If you do have a usecase for it, please let the developers know by creating an issue at https://github.com/sizespectrum/mizerExperimental/issues"
+        details = "This function has not proven useful. If you do have a use case for it, please let the developers know by creating an issue at https://github.com/sizespectrum/mizerExperimental/issues"
     )
     if ((!("yield_observed" %in% names(params@species_params))) ||
         all(is.na(params@species_params$yield_observed))) {

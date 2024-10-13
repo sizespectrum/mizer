@@ -2,7 +2,7 @@
 % Please edit documentation in R/MizerParams-class.R
 \name{validParams}
 \alias{validParams}
-\title{Validate MizerParams object and upgrade if necessary using \code{\link[=upgradeParams]{upgradeParams()}}.}
+\title{Validate MizerParams object and upgrade if necessary}
 \usage{
 validParams(params)
 }
@@ -13,5 +13,10 @@ validParams(params)
 A valid MizerParams object
 }
 \description{
-Validate MizerParams object and upgrade if necessary using \code{\link[=upgradeParams]{upgradeParams()}}.
+Checks that the given MizerParams object is valid and upgrades it if
+necessary by calling \code{\link[=upgradeParams]{upgradeParams()}}.
+}
+\details{
+Besides upgrading if necessary, the only change that may be made to the
+given MizerParams object is that the \code{w_min_idx} slot is recalculated.
 }

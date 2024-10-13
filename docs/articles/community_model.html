@@ -5,7 +5,6 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="mizer">
 <title>The Community Model • mizer</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
@@ -15,99 +14,68 @@
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="The Community Model">
-<meta property="og:description" content="mizer">
-<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png">
-<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:creator" content="@mizer_model">
-<meta name="twitter:site" content="@mizer_model">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="../deps/MathJax-3.2.2/tex-chtml.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="The Community Model">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
-    
 
-    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary"><div class="container">
-    
+
+    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.5.2</small>
 
-    
+
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item">
-  <a class="nav-link" href="../articles/mizer.html">Get started</a>
-</li>
-<li class="nav-item">
-  <a class="external-link nav-link" href="https://mizer.course.sizespectrum.org">Course</a>
-</li>
+<li class="nav-item"><a class="nav-link" href="../articles/mizer.html">Get started</a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://mizer.course.sizespectrum.org">Course</a></li>
 <li class="active nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Tutorials</h6>
-    <a class="dropdown-item" href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    <a class="dropdown-item" href="../articles/community_model.html">The Community Model</a>
-    <a class="dropdown-item" href="../articles/trait_model.html">The Trait-Based Model</a>
-    <a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a>
-    <a class="dropdown-item" href="../articles/running_a_simulation.html">Running a Simulation</a>
-    <a class="dropdown-item" href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
-    <a class="dropdown-item" href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
-    <a class="dropdown-item" href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Publications</h6>
-    <a class="dropdown-item" href="../articles/publications.html">Publications</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>For developers</h6>
-    <a class="dropdown-item" href="../articles/developer_vignette.html">Developer Guide</a>
-    <a class="dropdown-item" href="../articles/working_with_git.html">Working with git and GitHub</a>
-    <a class="dropdown-item" href="../articles/developer_FAQ.html">Developer FAQ</a>
-    <a class="dropdown-item" href="../articles/editing_website.html">Editing the Mizer Website</a>
-  </div>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Tutorials</h6></li>
+    <li><a class="dropdown-item" href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a></li>
+    <li><a class="dropdown-item" href="../articles/community_model.html">The Community Model</a></li>
+    <li><a class="dropdown-item" href="../articles/trait_model.html">The Trait-Based Model</a></li>
+    <li><a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a></li>
+    <li><a class="dropdown-item" href="../articles/running_a_simulation.html">Running a Simulation</a></li>
+    <li><a class="dropdown-item" href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a></li>
+    <li><a class="dropdown-item" href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a></li>
+    <li><a class="dropdown-item" href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Publications</h6></li>
+    <li><a class="dropdown-item" href="../articles/publications.html">Publications</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>For developers</h6></li>
+    <li><a class="dropdown-item" href="../articles/developer_vignette.html">Developer Guide</a></li>
+    <li><a class="dropdown-item" href="../articles/working_with_git.html">Working with git and GitHub</a></li>
+    <li><a class="dropdown-item" href="../articles/developer_FAQ.html">Developer FAQ</a></li>
+    <li><a class="dropdown-item" href="../articles/editing_website.html">Editing the Mizer Website</a></li>
+  </ul>
 </li>
-<li class="nav-item">
-  <a class="nav-link" href="../reference/index.html">Reference</a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="../news/index.html">Changelog</a>
-</li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
-<form class="form-inline my-2 my-lg-0" role="search">
-        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
-</form>
-
-      <ul class="navbar-nav">
-<li class="nav-item">
-  <a class="external-link nav-link" href="https://blog.mizer.sizespectrum.org">Blog</a>
-</li>
-<li class="nav-item">
-  <a class="external-link nav-link" href="https://twitter.com/mizer_model" aria-label="Twitter">
-    <span class="fab fa fab fa-twitter fa-lg"></span>
-     
-  </a>
-</li>
-<li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/sizespectrum/mizer/" aria-label="github">
-    <span class="fab fa fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
+<ul class="navbar-nav">
+<li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
+</form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://blog.mizer.sizespectrum.org">Blog</a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://twitter.com/mizer_model" aria-label="Twitter"><span class="fa fab fa-twitter fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/sizespectrum/mizer/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
-    
+
   </div>
 </nav><div class="container template-article">
 
@@ -261,7 +229,7 @@ of the simulation, and the total biomass through time. Each of the plots
 can be shown individually if desired.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span></code></pre></div>
-<p><img src="community_model_files/figure-html/print_plot_comm_sim-1.png" width="700"></p>
+<p><img src="community_model_files/figure-html/print_plot_comm_sim-1.png" alt="The plot shows the results of the community model projection. The top panel shows the total biomass of the community through time. The other panels show the feeding level, predation mortality, fishing mortality and abundance by size in the last time step of the simulation." width="700"></p>
 <p>In the above plot there are several things going on that are worth
 talking about. Looking at the total biomass of the community against
 time, you can see that the biomass quickly reaches a stable equilibrium.
@@ -322,7 +290,7 @@ sizes.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">pred_mort_final</span>, log <span class="op">=</span> <span class="st">"xy"</span>, type <span class="op">=</span> <span class="st">"l"</span>, </span>
 <span>     xlab <span class="op">=</span> <span class="st">"Size [g]"</span>, ylab <span class="op">=</span> <span class="st">"Predation mortality [1/year]"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="community_model_files/figure-html/print_plot_comm_m2-1.png" width="700"></p>
+<p><img src="community_model_files/figure-html/print_plot_comm_m2-1.png" alt="The plot shows the predation mortality at size in the final time step of the community model projection. The x-axis is on a log scale. The predation mortality declines to almost zero for the largest sizes." width="700"></p>
 <p>Note how we used <code>w(sim)</code> to get the vector of sizes to
 plot along the x-axis and how we specified that we wanted to have
 logarithmic axes.</p>
@@ -336,8 +304,9 @@ with <code><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_log10</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Size [g]"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Predation mortality [1/year]"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning: Transformation introduced infinite values in continuous y-axis</span></span></code></pre>
-<p><img src="community_model_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
+<pre><code><span><span class="co">## Warning in scale_y_log10(): <span style="color: #00BB00;">log-10</span> transformation introduced</span></span>
+<span><span class="co">## infinite values.</span></span></code></pre>
+<p><img src="community_model_files/figure-html/unnamed-chunk-4-1.png" alt="The plot shows the predation mortality at size in the final time step of the community model projection. This plot was created with ggplot2." width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="sec:trophic_cascade_comm_model">Example of a trophic cascade with the community model<a class="anchor" aria-label="anchor" href="#sec:trophic_cascade_comm_model"></a>
@@ -375,7 +344,7 @@ clearly seen and an effort of 1 has resulted in a fishing mortality of 1
 for the fully selected sizes.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim1</span>, power <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="community_model_files/figure-html/print_plot_comm_fmort-1.png" width="700"></p>
+<p><img src="community_model_files/figure-html/print_plot_comm_fmort-1.png" alt="A summary plot of the simulation with fishing." width="700"></p>
 <p>To explore the presence of a trophic cascade, we are interested in
 looking at the relative change in abundance when the community is fished
 compared to when it is not fished. To do this we need to get the
@@ -402,7 +371,7 @@ could have done</p>
 <span>    xlab <span class="op">=</span> <span class="st">"Size (g)"</span>, ylab <span class="op">=</span> <span class="st">"Relative abundance"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">relative_abundance</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="community_model_files/figure-html/plot_relative_comm_abund-1.png" width="700"></p>
+<p><img src="community_model_files/figure-html/plot_relative_comm_abund-1.png" alt="The plot shows the relative abundance of the community when fished compared to when not fished." width="700"></p>
 <p>The impact of fishing on species larger than 1000g can be clearly
 seen. The fishing pressure lowers the abundance of large fish (the
 decrease in relative abundance at 1000 g). This then relieves the
@@ -456,7 +425,7 @@ time it takes to run a projection.</p>
 do this with the <code><a href="../reference/plotBiomass.html">plotBiomass()</a></code> function:</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotBiomass.html">plotBiomass</a></span><span class="op">(</span><span class="va">sim_sigma1</span><span class="op">)</span></span></code></pre></div>
-<p><img src="community_model_files/figure-html/plot_comm_biomass_sigma1-1.png" width="700"></p>
+<p><img src="community_model_files/figure-html/plot_comm_biomass_sigma1-1.png" alt="The plot shows the biomass of the community through time when the value of sigma is set to 1.0. The abundances no longer converge to a stable equilibrium and the dynamics appear to be chaotic." width="700"></p>
 <p>The plot above shows that abundances of the community no longer
 converge to a stable equilibrium and the dynamics appear to be chaotic.
 The ecological significance of the change in dynamics, and of the
@@ -467,28 +436,26 @@ implemented, the magnitude of the oscillations are much smaller.</p>
 <p>The next section is about <a href="trait_model.html">the trait based
 model.</a></p>
 </div>
-  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
 
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p>
-<p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
+  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.9000.</p>
 </div>
 
     </footer>
 </div>
 
-  
 
-  
+
+
 
   </body>
 </html>

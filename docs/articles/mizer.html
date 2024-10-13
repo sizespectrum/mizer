@@ -5,7 +5,6 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="mizer">
 <title>Getting started with mizer • mizer</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
@@ -15,99 +14,68 @@
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Getting started with mizer">
-<meta property="og:description" content="mizer">
-<meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png">
-<meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:creator" content="@mizer_model">
-<meta name="twitter:site" content="@mizer_model">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="../deps/MathJax-3.2.2/tex-chtml.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Getting started with mizer">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
-    
 
-    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary"><div class="container">
-    
+
+    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.5.2</small>
 
-    
+
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="active nav-item">
-  <a class="nav-link" href="../articles/mizer.html">Get started</a>
-</li>
-<li class="nav-item">
-  <a class="external-link nav-link" href="https://mizer.course.sizespectrum.org">Course</a>
-</li>
+<li class="active nav-item"><a class="nav-link" href="../articles/mizer.html">Get started</a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://mizer.course.sizespectrum.org">Course</a></li>
 <li class="nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Tutorials</h6>
-    <a class="dropdown-item" href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a>
-    <a class="dropdown-item" href="../articles/community_model.html">The Community Model</a>
-    <a class="dropdown-item" href="../articles/trait_model.html">The Trait-Based Model</a>
-    <a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a>
-    <a class="dropdown-item" href="../articles/running_a_simulation.html">Running a Simulation</a>
-    <a class="dropdown-item" href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
-    <a class="dropdown-item" href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a>
-    <a class="dropdown-item" href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Publications</h6>
-    <a class="dropdown-item" href="../articles/publications.html">Publications</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>For developers</h6>
-    <a class="dropdown-item" href="../articles/developer_vignette.html">Developer Guide</a>
-    <a class="dropdown-item" href="../articles/working_with_git.html">Working with git and GitHub</a>
-    <a class="dropdown-item" href="../articles/developer_FAQ.html">Developer FAQ</a>
-    <a class="dropdown-item" href="../articles/editing_website.html">Editing the Mizer Website</a>
-  </div>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Tutorials</h6></li>
+    <li><a class="dropdown-item" href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a></li>
+    <li><a class="dropdown-item" href="../articles/community_model.html">The Community Model</a></li>
+    <li><a class="dropdown-item" href="../articles/trait_model.html">The Trait-Based Model</a></li>
+    <li><a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a></li>
+    <li><a class="dropdown-item" href="../articles/running_a_simulation.html">Running a Simulation</a></li>
+    <li><a class="dropdown-item" href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a></li>
+    <li><a class="dropdown-item" href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a></li>
+    <li><a class="dropdown-item" href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Publications</h6></li>
+    <li><a class="dropdown-item" href="../articles/publications.html">Publications</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>For developers</h6></li>
+    <li><a class="dropdown-item" href="../articles/developer_vignette.html">Developer Guide</a></li>
+    <li><a class="dropdown-item" href="../articles/working_with_git.html">Working with git and GitHub</a></li>
+    <li><a class="dropdown-item" href="../articles/developer_FAQ.html">Developer FAQ</a></li>
+    <li><a class="dropdown-item" href="../articles/editing_website.html">Editing the Mizer Website</a></li>
+  </ul>
 </li>
-<li class="nav-item">
-  <a class="nav-link" href="../reference/index.html">Reference</a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="../news/index.html">Changelog</a>
-</li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
-<form class="form-inline my-2 my-lg-0" role="search">
-        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
-</form>
-
-      <ul class="navbar-nav">
-<li class="nav-item">
-  <a class="external-link nav-link" href="https://blog.mizer.sizespectrum.org">Blog</a>
-</li>
-<li class="nav-item">
-  <a class="external-link nav-link" href="https://twitter.com/mizer_model" aria-label="Twitter">
-    <span class="fab fa fab fa-twitter fa-lg"></span>
-     
-  </a>
-</li>
-<li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/sizespectrum/mizer/" aria-label="github">
-    <span class="fab fa fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
+<ul class="navbar-nav">
+<li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
+</form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://blog.mizer.sizespectrum.org">Blog</a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://twitter.com/mizer_model" aria-label="Twitter"><span class="fa fab fa-twitter fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/sizespectrum/mizer/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
-    
+
   </div>
 </nav><div class="container template-article">
 
@@ -145,20 +113,21 @@ results</a>.</p></li>
 suggestions, let us know about it by posting about it on our <a href="https://github.com/sizespectrum/mizer/issues/new" class="external-link">issue
 tracker</a>. You can also twitter to @<a href="https://twitter.com/mizer_model" class="external-link">mizer_model</a>. We love to hear
 from you.</p>
-<p>A good way to get into mizer is to follow the online <a href="mizer.course.sizespectrum.org">mizer course</a>. This course has
-three parts, each consisting of several tutorials with example code and
-exercises:</p>
+<p>A good way to get into mizer is to follow the online <a href="https://mizer.course.sizespectrum.org" class="external-link">mizer course</a>. This
+course has three parts, each consisting of several tutorials with
+example code and exercises:</p>
 <ul>
-<li><p><strong><a href="https://mizer.course.sizespectrum.org/understand" class="external-link">Part 1:
+<li><p><strong><a href="https://mizer.course.sizespectrum.org/understand/" class="external-link">Part 1:
 Understand</a></strong><br>
 You will gain an understanding of size spectra and their dynamics by
 exploring simple example systems hands-on with mizer.</p></li>
-<li><p><strong><a href="https://mizer.course.sizespectrum.org/build" class="external-link">Part 2:
+<li><p><strong><a href="https://mizer.course.sizespectrum.org/build/" class="external-link">Part 2:
 Build</a></strong><br>
 You will build your own multi-species mizer model for the Celtic sea,
 following our example. You can also create a model for your own area of
 interest.</p></li>
-<li><p><strong>[Part 3: Use]((<a href="https://mizer.course.sizespectrum.org/use" class="external-link uri">https://mizer.course.sizespectrum.org/use</a>)</strong><br>
+<li><p><strong><a href="https://mizer.course.sizespectrum.org/use/" class="external-link">Part
+3: Use</a></strong><br>
 You will explore the effects of changes in fishing and changes in
 resource dynamics on the fish community and the fisheries yield. You
 will run your own model scenarios.</p></li>
@@ -197,8 +166,8 @@ quite acceptable.</p>
 <p>This guide assumes that you will be using RStudio to work with R.
 There is really no reason not to use RStudio and it makes a lot of
 things much easier. RStudio develops rapidly and adds useful features
-all the time and so it pays to upgrade to the <a href="https://www.rstudio.com/products/rstudio/download/preview/" class="external-link">latest
-version</a> frequently. This guide was written with version 1.3.820.</p>
+all the time and so it pays to upgrade to the <a href="https://posit.co/download/rstudio-desktop/" class="external-link">latest version</a>
+frequently. This guide was written with version 2023.12.1.</p>
 <p>The source code for mizer is hosted on <a href="https://github.com/sizespectrum/mizer" class="external-link">GitHub</a>. If you are
 feeling brave and wish to try out a development version of mizer you can
 install the package from here using the R package devtools (which was
@@ -311,7 +280,7 @@ Pedersen 2010</a>)</span>. This section introduces the central
 assumptions, concepts, processes, equations and parameters of size
 spectrum models.</p>
 <p>Roughly speaking there are four versions of the size spectrum
-modelling framework of increasing complexity: The <a href="https://sizespectrum.org/mizer/dev/articles/single_species_size-spectrum_dynamics.html">single-species
+modelling framework of increasing complexity: The <a href="https://sizespectrum.org/mizer/articles/single_species_size-spectrum_dynamics.html">single-species
 model</a>, the <a href="#community-model">community model</a> <span class="citation">(<a href="#ref-benoit_continuous_2004">Benoît and
 Rochet 2004</a>; <a href="#ref-maury_modeling_2007">Maury et al.
 2007</a>; <a href="#ref-blanchard_how_2009">Blanchard et al. 2009</a>;
@@ -357,7 +326,8 @@ mature individuals in the population <span class="math inline">\(R_i\)</span>: <
 ``standard’’ assumptions from ecology and fisheries science about how
 encounters between predators and prey leads to growth <span class="math inline">\(g_i(w)\)</span> and reproduction <span class="math inline">\(R_i\)</span> of the predators, and mortality of
 the prey <span class="math inline">\(\mu_i(w)\)</span>.</p>
-<p>For a more detailed exposition of the model see the section <a href="model_description.html">The mizer size-spectrum model</a>.</p>
+<p>For a more detailed exposition of the model see the section <a href="https://sizespectrum.org/mizer/articles/model_description.html">The
+mizer size-spectrum model</a>.</p>
 <p>It is easiest to learn the basics of mizer through examples. We do
 this by looking at four set-ups of the framework, of increasing
 complexity. For each one there is an article that describes how to set
@@ -366,7 +336,7 @@ recommend that you explore these in the following order:</p>
 <div class="section level3">
 <h3 id="single-species-model">Single-species model<a class="anchor" aria-label="anchor" href="#single-species-model"></a>
 </h3>
-<p>The <a href="https://sizespectrum.org/mizer/dev/articles/single_species_size-spectrum_dynamics.html">single-species
+<p>The <a href="https://sizespectrum.org/mizer/articles/single_species_size-spectrum_dynamics.html">single-species
 model</a> is a good starting point because it allows one to understand
 the main features of size-spectrum modelling without the complexities of
 multi-species interactions. The model describes a single species in a
@@ -457,7 +427,7 @@ thinking.</p>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-andersen_asymptotic_2006" class="csl-entry">
 Andersen, K. H., and J. E. Beyer. 2006. <span>“Asymptotic Size
 Determines Species Abundance in the Marine Size Spectrum.”</span>
@@ -536,28 +506,26 @@ Journal of Marine Science</em> 63 (6): 1029–44. <a href="https://doi.org/10.10
 </div>
 </div>
 </div>
-  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
 
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p>
-<p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
+  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.9000.</p>
 </div>
 
     </footer>
 </div>
 
-  
 
-  
+
+
 
   </body>
 </html>

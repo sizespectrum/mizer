@@ -81,6 +81,6 @@ performed by the individual rate-setting functions (see \code{\link[=setParams]{
 list of these functions).
 }
 \seealso{
-\code{\link[=species_params]{species_params()}}, \code{\link[=validGearParams]{validGearParams()}}
+\code{\link[=species_params]{species_params()}}, \code{\link[=validGearParams]{validGearParams()}}, \code{\link[=validParams]{validParams()}}
 }
 \concept{helper}

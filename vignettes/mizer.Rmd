@@ -8,7 +8,7 @@ output:
 bibliography: reflib.bib
 link-citations: true
 resource_files:
-  - vignette_images/cheat_sheet.pdf
+  - images/cheat_sheet.pdf
 vignette: >
   %\VignetteIndexEntry{Getting started with mizer}
   %\VignetteEngine{knitr::rmarkdown}
@@ -44,12 +44,12 @@ This course has three parts, each consisting of several tutorials with example c
 -   **[Part 2: Build](https://mizer.course.sizespectrum.org/build/)**\
     You will build your own multi-species mizer model for the Celtic sea, following our example. You can also create a model for your own area of interest.
 
--   **[Part 3: Use]((https://mizer.course.sizespectrum.org/use/)**\
+-   **[Part 3: Use](https://mizer.course.sizespectrum.org/use/)**\
     You will explore the effects of changes in fishing and changes in resource dynamics on the fish community and the fisheries yield. You will run your own model scenarios.
 
 
 Click on this preview to open a mizer cheat sheet.
-[![Cheat Sheet](vignette_images/cheat_sheet_preview.png)](https://sizespectrum.org/mizer/articles/images/cheat_sheet.pdf)
+[![Cheat Sheet](images/cheat_sheet_preview.png)](https://sizespectrum.org/mizer/articles/images/cheat_sheet.pdf)
 
 There is a [series of YouTube videos](https://www.youtube.com/watch?v=zh0PDyTUssw&list=PLCTMeyjMKRkqR7uohI3p-61P7ZJj8sd5B) 
 by Richard Southwell about mizer which are however no longer entirely up-to-date.
