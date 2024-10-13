@@ -218,10 +218,7 @@ test_that("removeSpecies works correctly on gear_params", {
 })
 
 test_that("adding and then removing species leaves params unaltered", {
-    params <- NS_params
-    # TODO: currently NS_params still has factors in gear_params
-    params@gear_params$species <- as.character(params@gear_params$species)
-    params@gear_params$gear <- as.character(params@gear_params$gear)
+    params <- newMultispeciesParams(NS_species_params, info_level = 0)
     # two arbitrary species
     sp <- data.frame(species = c("new1", "new2"),
                      w_max = c(10, 100),

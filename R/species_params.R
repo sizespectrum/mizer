@@ -72,9 +72,9 @@
 #'   relationship \eqn{w = a l ^ b}.
 #'   
 #' If you have supplied the `a` and `b` parameters, then you can replace weight
-#' parameters like `w_max`, `w_mat`, `w_mat25`, w_repro_max and `w_min` by their
-#' corresponding length parameters `l_max`, `l_mat`, `l_mat25`, `l_mat_max` and
-#' `l_min`.
+#' parameters like `w_max`, `w_mat`, `w_mat25`, `w_repro_max` and `w_min` by
+#' their corresponding length parameters `l_max`, `l_mat`, `l_mat25`,
+#' `l_repro_max` and `l_min`.
 #'   
 #' The parameters that are only used to calculate default values for other
 #' parameters are:
@@ -91,7 +91,7 @@
 #' effect. You need to set them with `given_species_params<-()` in order to
 #' trigger a re-calculation of the other species parameters.
 #' 
-#' In the past mizer also used the von Bertalanffy parameters `k_vb`, `w_inf`
+#' In the past, mizer also used the von Bertalanffy parameters `k_vb`, `w_inf`
 #' and `t0` to determine a default for `h`. This is unreliable and is therefore
 #' now deprecated.
 #' 
@@ -127,7 +127,7 @@
 #' @param params A MizerParams object
 #' @return Data frame of species parameters
 #' @export
-#' @seealso [validSpeciesParams()], [completeSpeciesParams()]
+#' @seealso [validSpeciesParams()], [setParams()]
 #' @family functions for setting parameters
 species_params <- function(params) {
     assert_that(is(params, "MizerParams"))
@@ -139,7 +139,7 @@ species_params <- function(params) {
 #' @export
 `species_params<-` <- function(params, value) {
     assert_that(is(params, "MizerParams"))
-    value <- completeSpeciesParams(value)
+    value <- validSpeciesParams(value)
     params@species_params <- value
     suppressMessages(setParams(params))
 }
@@ -156,7 +156,7 @@ given_species_params <- function(params) {
 #' @export
 `given_species_params<-` <- function(params, value) {
     assert_that(is(params, "MizerParams"))
-    value <- validSpeciesParams(value)
+    value <- validGivenSpeciesParams(value)
     old_value <- params@given_species_params
     
     # Create data frame which contains only the values that have changed 
@@ -196,7 +196,7 @@ given_species_params <- function(params) {
     }
     
     params@given_species_params <- value
-    params@species_params <- completeSpeciesParams(value)
+    params@species_params <- validSpeciesParams(value)
     suppressMessages(setParams(params))
 }
 
@@ -304,7 +304,7 @@ get_h_default <- function(params) {
     if (is(params, "MizerParams")) {
         species_params <- params@species_params
     } else {
-        species_params <- completeSpeciesParams(params)
+        species_params <- validSpeciesParams(params)
     }
     assert_that("n" %in% names(species_params))
     species_params <- set_species_param_default(species_params, "f0", 0.6)
@@ -313,7 +313,7 @@ get_h_default <- function(params) {
     }
     missing <- is.na(species_params[["h"]])
     if (any(missing)) {
-        # The following should be assured by `completeSpeciesParams()`
+        # The following should be assured by `validSpeciesParams()`
         assert_that(is.numeric(species_params$f0),
                     noNA(species_params$alpha),
                     "alpha" %in% names(species_params))
@@ -492,205 +492,4 @@ get_ks_default <- function(params) {
              "parameter ks. Got: ", sp$ks)
     }
     return(sp$ks)
-}
-
-#' Validate species parameter data frame
-#' 
-#' Check validity of species parameters.
-#' 
-#' @param species_params The user-supplied species parameter data frame
-#' @return A valid species parameter data frame
-#' 
-#' This function throws an error if 
-#' * the `species` column does not exist or contains duplicates
-#' * the maximum size is not specified for all species
-#' 
-#' If a weight-based parameter is missing but the corresponding length-based
-#' parameter is given, as well as the `a` and `b` parameters for length-weight
-#' conversion, then the weight-based parameters are added. If both length and
-#' weight are given, then weight is used and a warning is issued if the two are
-#' inconsistent.
-#' 
-#' If a `w_inf` column is given but no `w_max` then the value from `w_inf` is
-#' used. This is for backwards compatibility. But note that the von Bertalanffy
-#' parameter `w_inf` is not the maximum size of the largest individual, but the
-#' asymptotic size of an average individual.
-#' 
-#' Some inconsistencies in the size parameters are resolved as follows:
-#' * Any `w_mat` that is not smaller than `w_max` is set to `w_max / 4`.
-#' * Any `w_mat25` that is not smaller than `w_mat` is set to NA.
-#' * Any `w_min` that is not smaller than `w_mat` is set to `0.001` or 
-#'   `w_mat /10`, whichever is smaller.
-#' 
-#' The row names of the returned data frame will be the species names.
-#' If `species_params` was provided as a tibble it is converted back to an
-#' ordinary data frame.
-#' 
-#' The function tests for some typical misspellings of parameter names, like
-#' wrong capitalisation or missing underscores and issues a warning if it 
-#' detects such a name.
-#' 
-#' Note that the species parameters returned by this function are not guaranteed
-#' to produce a viable model. More checks of the parameters are performed by the
-#' individual rate-setting functions (see [setParams()] for the list of these
-#' functions).
-#' @seealso species_params()
-#' @concept helper
-#' @export
-validSpeciesParams <- function(species_params) {
-    assert_that(is.data.frame(species_params))
-    # Convert a tibble back to an ordinary data frame
-    sp <- as.data.frame(species_params,
-                        stringsAsFactors = FALSE) # for old versions of R
-    
-    # Check for misspellings ----
-    misspellings <- c("wmin", "wmax", "wmat", "wmat25", "w_mat_25", "Rmax",
-                      "Species", "Gamma", "Beta", "Sigma", "Alpha",
-                      "W_min", "W_max", "W_mat", "e_repro", "Age_mat",
-                      "w_max_mat")
-    query <- intersect(misspellings, names(sp))
-    if (length(query) > 0) {
-        warning("Some column names in your species parameter data ",
-                "frame are very close to standard parameter names: ",
-                paste(query, collapse = ", "),
-                ". Did you perhaps mis-spell the names?")
-    }
-    
-    # check species ----
-    if (!("species" %in% colnames(sp))) {
-        stop("The species params dataframe needs a column 'species' with the species names")
-    }
-    species_names <- as.character(sp$species)
-    sp$species <- species_names
-    row.names(sp) <- species_names
-    no_sp <- nrow(sp)
-    if (length(unique(species_names)) != no_sp) {
-        stop("The species parameter data frame has multiple rows for the same species")
-    }
-    
-    ## For backwards compatibility, allow r_max instead of R_max
-    if (!("R_max" %in% names(sp)) &&
-        "r_max" %in% names(sp)) {
-        names(sp)[names(sp) == "r_max"] <- "R_max"
-    }
-    
-    # Convert lengths to weights ----
-    if (all(c("a", "b") %in% names(sp))) {
-        sp <- sp %>%
-            set_species_param_from_length("w_mat", "l_mat") %>%
-            set_species_param_from_length("w_mat25", "l_mat25") %>%
-            set_species_param_from_length("w_repro_max", "l_mat_max") %>%
-            set_species_param_from_length("w_max", "l_max") %>%
-            set_species_param_from_length("w_min", "l_min")
-    }
-    
-    # check w_max ----
-    if (!("w_max" %in% names(sp))) {
-        # If old name `w_inf` is used, then copy over to `w_max`
-        if ("w_inf" %in% names(sp)) {
-            sp$w_max <- sp$w_inf
-            warning("The species parameter data frame is missing a `w_max` column. I am copying over the values from the `w_inf` column. But note that `w_max` should be the maximum size of the largest individual, not the asymptotic size of an average indivdidual.")
-        } else {
-            sp$w_max <- rep(NA, no_sp)
-        }
-    }
-    missing <- is.na(sp$w_max)
-    if (any(missing)) {
-        stop("You need to specify maximum sizes for all species.")
-    }
-    if (!is.numeric(sp$w_max)) {
-        stop("`w_max` contains non-numeric values.")
-    }
-    
-    # check w_mat ----
-    if ("w_mat" %in% names(sp)) {
-        wrong <- !is.na(sp$w_mat) & sp$w_mat >= sp$w_max
-        if (any(wrong)) {
-            warning("For the species ", 
-                    paste(sp$species[wrong], collapse = ", "),
-                    " the value for `w_mat` is not smaller than that of `w_max`.",
-                    " I have corrected that by setting it to 25% of `w_max.")
-            sp$w_mat[wrong] <- sp$w_max[wrong] / 4
-        }
-        
-        # check w_mat25 ----
-        if ("w_mat25" %in% names(sp)) {
-            wrong <- !is.na(sp$w_mat) & !is.na(sp$w_mat25) & sp$w_mat25 >= sp$w_mat
-            if (any(wrong)) {
-                warning("For the species ", 
-                        paste(sp$species[wrong], collapse = ", "),
-                        " the value for `w_mat25` is not smaller than that of `w_mat`.",
-                        " I have corrected that by setting it to NA.")
-                sp$w_mat25[wrong] <- NA
-            }
-        }
-        
-        # check w_min ----
-        if ("w_min" %in% names(sp)) {
-            wrong <- !is.na(sp$w_min) & !is.na(sp$w_mat) & sp$w_min >= sp$w_mat
-            if (any(wrong)) {
-                sp$w_min[wrong] <- pmin(0.001, sp$w_mat[wrong] / 10)
-                warning("For the species ", 
-                        paste(sp$species[wrong], collapse = ", "),
-                        " the value for `w_min` is not smaller than that of `w_mat`.",
-                        " I have reduced the values.")
-            }
-        }
-    }
-    sp
-}
-
-#' Complete species parameter data frame with default values
-#' 
-#' Sets defaults for missing but required species parameters.
-#' 
-#' @param species_params The user-supplied species parameter data frame
-#' @return A completed species parameter data frame
-#' 
-#' The function sets default values if any of the following species parameters
-#' are missing or NA:
-#' * `w_mat` is set to `w_max/4`
-#' * `w_min` is set to `0.001`
-#' * `alpha` is set to `0.6`
-#' * `interaction_resource` is set to `1`
-#' * `n` is set to `3/4`
-#' 
-#' It calls [validSpeciesParams()] to check the validity of the species
-#' parameters. Nevertheless the species parameters returned by this function are not guaranteed
-#' to produce a viable model. More checks of the parameters are performed by the
-#' individual rate-setting functions (see [setParams()] for the list of these
-#' functions).
-#' @seealso [species_params()], [validSpeciesParams()]
-#' @concept helper
-#' @export
-completeSpeciesParams <- function(species_params) {
-    sp <- validSpeciesParams(species_params)
-    sp <- set_species_param_default(sp, "w_mat", sp$w_max / 4)
-    sp <- set_species_param_default(sp, "w_min", 0.001)
-    sp <- set_species_param_default(sp, "alpha", 0.6)
-    sp <- set_species_param_default(sp, "interaction_resource", 1)
-    sp <- set_species_param_default(sp, "n", 3/4)
-    validSpeciesParams(sp)
-}
-
-# Set weight-based parameter from length-based parameter
-set_species_param_from_length <- function(sp, pw, pl) {
-    if (pl %in% names(sp)) {
-        vw <- l2w(sp[[pl]], sp)
-        if (any(vw <= 0, na.rm = TRUE)) {
-            stop("All lengths should be positive and non-zero.")
-        }
-        sp <- set_species_param_default(sp, pw, vw)
-        # If both weight and length are given, check that they agree to
-        # within 10% at least.
-        incons <- !is.na(sp[[pw]]) & !is.na(sp[[pl]]) &
-            (abs(sp[[pw]] - vw) / pmax(sp[[pw]], vw) > 0.1)
-        if (any(incons)) {
-            signal(paste0("For the following species I will ignore your value for ",
-                         pl, " because it is not consistent with your value for ",
-                         pw, ": ", paste(sp$species[incons], collapse = ", ")),
-                   class = "info_about_default", var = pl, level = 3)
-        }
-    }
-    sp
 }

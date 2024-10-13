@@ -1,9 +1,12 @@
-# mizer 2.5.1.9005
+# mizer 2.5.1.9006
 
 - `addSpecies()` now correctly preserves all `species_params` of the existing
   model.
 - `addSpecies()` no longer requires new species to grow to maximum size, only
   maturity size is required.
+- Now `validGivenSpeciesParams()` validates the given species parameters without
+  adding defaults and `validSpeciesParams()` validates and returns a completed
+  species parameter dataframe.
 - New species parameter `w_repro_max` giving the size at which a species 
   invests 100% of its energy into reproduction. Set to `w_max` by default.
 - `removeSpecies()` now also removes species parameters that are not set for

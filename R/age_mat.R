@@ -24,7 +24,7 @@ age_mat_vB <- function(object) {
         if (!is.data.frame(object)) {
             stop("The first argument must be either a MizerParams object or a species_params data frame.")
         }
-        sp <- completeSpeciesParams(object)
+        sp <- validSpeciesParams(object)
     }
     sp <- set_species_param_default(sp, "t0", 0)
     sp <- set_species_param_default(sp, "b", 3)

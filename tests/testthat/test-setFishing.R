@@ -2,7 +2,7 @@ params <- NS_params
 
 # validGearParams ----
 test_that("validGearParams works", {
-    sp <- completeSpeciesParams(
+    sp <- validSpeciesParams(
         data.frame(species = c("species1", "species2"),
                    w_max = c(100, 1000),
                    stringsAsFactors = FALSE))

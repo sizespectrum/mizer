@@ -155,9 +155,9 @@ newMultispeciesParams <- function(
     
     species_params <- set_species_param_default(species_params, "n", n)
     species_params <- set_species_param_default(species_params, "p", p)
-    given_species_params <- validSpeciesParams(species_params)
+    given_species_params <- validGivenSpeciesParams(species_params)
     
-    species_params <- completeSpeciesParams(species_params)
+    species_params <- validSpeciesParams(species_params)
     gear_params <- validGearParams(gear_params, species_params)
     
     ## Create MizerParams object ----
