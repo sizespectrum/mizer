@@ -87,7 +87,7 @@ NULL
 utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
                          "x", "y", "Year", "Yield", "Biomass", "Size",
                          "Proportion", "Prey", "Legend", "Type", "Gear",
-                         "Predator", "weight", "a", "b", "age"))
+                         "Predator", "weight", "a", "b", "age", "w_max"))
 
 #' Make a plot from a data frame
 #'
