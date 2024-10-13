@@ -1,5 +1,7 @@
 # mizer 2.5.1.9006
 
+- Fixed bug that had led `newCommunityParams()` to set up resource parameters
+  differently since version 2.4.0 (#293)
 - `addSpecies()` now correctly preserves all `species_params` of the existing
   model.
 - `addSpecies()` no longer requires new species to grow to maximum size, only

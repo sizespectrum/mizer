@@ -117,6 +117,7 @@ newCommunityParams <- function(max_w = 1e6,
     params <- 
         newMultispeciesParams(species_params, no_w = no_w, min_w_pp = min_w_pp,
                               p = p, n = n, lambda = lambda, min_w = min_w,
+                              kappa = kappa,
                               resource_capacity = kappa,
                               resource_rate = r_pp,
                               w_pp_cutoff = w_pp_cutoff,
