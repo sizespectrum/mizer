@@ -85,7 +85,7 @@ test_that("steady() preserves R_max", {
     species_params(params)$erepro <- 1.01 * species_params(params)$erepro
     expect_warning(p2 <- steady(params, t_per = 1, preserve = "R_max") |>
                        suppressMessages(),
-                   "The following species require an unrealistic reproductive")
+                   "The following species require an unrealistic value")
     expect_equal(p2@species_params$R_max, params@species_params$R_max)
     # Test that steady updates time_modified
     expect_false(identical(p2@time_modified, params@time_modified))
