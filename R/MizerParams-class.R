@@ -16,29 +16,36 @@
 # Validity function ---------------------------------------------------------
 # Not documented as removed later on
 validMizerParams <- function(object) {
-    
+    params <- object
     errors <- character()
     # grab some dims
-    no_w <- length(object@w)
-    no_w_full <- length(object@w_full)
+    no_w <- length(params@w)
+    no_w_full <- length(params@w_full)
     w_idx <- (no_w_full - no_w + 1):no_w_full
     
     # Check weight grids ----
     # Check that the last entries of w_full and dw_full agree with w and dw
-    if (different(object@w[], object@w_full[w_idx])) {
+    if (different(params@w[], params@w_full[w_idx])) {
         msg <- "The later entries of w_full should be equal to those of w."
         errors <- c(errors, msg)
     }
-    if (different(object@dw[], object@dw_full[w_idx])) {
+    if (different(params@dw[], params@dw_full[w_idx])) {
         msg <- "The later entries of dw_full should be equal to those of dw."
         errors <- c(errors, msg)
     }
     # Check w_min_idx
-    if (any(object@species_params$w_min + .Machine$double.eps <
-            object@w[object@w_min_idx]) ||
-        any(object@species_params$w_min - .Machine$double.eps >
-            object@w[object@w_min_idx + 1])) {
+    if (any(params@species_params$w_min + .Machine$double.eps <
+            params@w[params@w_min_idx]) ||
+        any(params@species_params$w_min - .Machine$double.eps >
+            params@w[params@w_min_idx + 1])) {
         msg <- "The `w_min_idx` should point to the start of the size bin containing the egg size `w_min`."
+        errors <- c(errors, msg)
+    }
+    # Check ft_mask
+    if (!identical(as.vector(params@ft_mask), 
+                   as.vector(t(sapply(params@species_params$w_max,
+                                      function(x) params@w_full < x))))) {
+        msg <- "The ft_mask should be equal to the logical matrix of w_full < w_max."
         errors <- c(errors, msg)
     }
 
@@ -47,162 +54,162 @@ validMizerParams <- function(object) {
     # at the same time. Just use == and the recycling rule
     
     # 2D arrays
-    if (!all(c(length(dim(object@initial_n)),
-               length(dim(object@psi)),
-               length(dim(object@intake_max)),
-               length(dim(object@search_vol)),
-               length(dim(object@metab)),
-               length(dim(object@mu_b)),
-               length(dim(object@ext_encounter)),
-               length(dim(object@interaction)),
-               length(dim(object@maturity)),
-               length(dim(object@ft_mask)),
-               length(dim(object@catchability))) == 2)) {
+    if (!all(c(length(dim(params@initial_n)),
+               length(dim(params@psi)),
+               length(dim(params@intake_max)),
+               length(dim(params@search_vol)),
+               length(dim(params@metab)),
+               length(dim(params@mu_b)),
+               length(dim(params@ext_encounter)),
+               length(dim(params@interaction)),
+               length(dim(params@maturity)),
+               length(dim(params@ft_mask)),
+               length(dim(params@catchability))) == 2)) {
         msg <- "initial_n, psi, intake_max, search_vol, metab, mu_b, ext_encounter, interaction, maturity, ft_mask and catchability must all be two dimensions"
         errors <- c(errors, msg)
     }
     # 3D arrays
-    if (length(dim(object@selectivity)) != 3) {
+    if (length(dim(params@selectivity)) != 3) {
         msg <- "selectivity must be three dimensions"
         errors <- c(errors, msg)
     }
     # Check number of species is equal across relevant slots
     if (!all(c(
-        dim(object@initial_n)[1],
-        dim(object@maturity)[1],
-        dim(object@psi)[1],
-        dim(object@intake_max)[1],
-        dim(object@search_vol)[1],
-        dim(object@metab)[1],
-        dim(object@mu_b)[1],
-        dim(object@ext_encounter)[1],
-        dim(object@selectivity)[2],
-        dim(object@catchability)[2],
-        dim(object@interaction)[1],
-        dim(object@interaction)[2],
-        dim(object@ft_mask)[1]) == 
-        dim(object@species_params)[1])) {
+        dim(params@initial_n)[1],
+        dim(params@maturity)[1],
+        dim(params@psi)[1],
+        dim(params@intake_max)[1],
+        dim(params@search_vol)[1],
+        dim(params@metab)[1],
+        dim(params@mu_b)[1],
+        dim(params@ext_encounter)[1],
+        dim(params@selectivity)[2],
+        dim(params@catchability)[2],
+        dim(params@interaction)[1],
+        dim(params@interaction)[2],
+        dim(params@ft_mask)[1]) == 
+        dim(params@species_params)[1])) {
         msg <- "The number of species in the model must be consistent across the species_params, psi, intake_max, search_vol, mu_b, ext_encounter, interaction (dim 1), selectivity, catchability and interaction (dim 2) slots"
         errors <- c(errors, msg)
     }
     # Check number of size groups
     if (!all(c(
-        dim(object@initial_n)[2],
-        dim(object@maturity)[2],
-        dim(object@psi)[2],
-        dim(object@mu_b)[2],
-        dim(object@ext_encounter)[2],
-        dim(object@intake_max)[2],
-        dim(object@search_vol)[2],
-        dim(object@metab)[2],
-        dim(object@selectivity)[3]) ==
+        dim(params@initial_n)[2],
+        dim(params@maturity)[2],
+        dim(params@psi)[2],
+        dim(params@mu_b)[2],
+        dim(params@ext_encounter)[2],
+        dim(params@intake_max)[2],
+        dim(params@search_vol)[2],
+        dim(params@metab)[2],
+        dim(params@selectivity)[3]) ==
         no_w)) {
         msg <- "The number of size bins in the model must be consistent across the w, initial_n, maturity, psi, mu_b, ext_encounter, intake_max, search_vol, and selectivity (dim 3) slots"
         errors <- c(errors, msg)
     }
     # Check number of gears
-    if (!isTRUE(all.equal(dim(object@selectivity)[1], dim(object@catchability)[1]))) {
+    if (!isTRUE(all.equal(dim(params@selectivity)[1], dim(params@catchability)[1]))) {
         msg <- "The number of fishing gears must be consistent across the catchability and selectivity (dim 1) slots"
         errors <- c(errors, msg)
     }
     # Check names of dimnames of arrays ----
     # sp dimension
     if (!all(c(
-        names(dimnames(object@initial_n))[1],
-        names(dimnames(object@maturity))[1],
-        names(dimnames(object@psi))[1],
-        names(dimnames(object@intake_max))[1],
-        names(dimnames(object@search_vol))[1],
-        names(dimnames(object@metab))[1],
-        names(dimnames(object@mu_b))[1],
-        names(dimnames(object@ext_encounter))[1],
-        names(dimnames(object@selectivity))[2],
-        names(dimnames(object@catchability))[2]) == "sp")) {
+        names(dimnames(params@initial_n))[1],
+        names(dimnames(params@maturity))[1],
+        names(dimnames(params@psi))[1],
+        names(dimnames(params@intake_max))[1],
+        names(dimnames(params@search_vol))[1],
+        names(dimnames(params@metab))[1],
+        names(dimnames(params@mu_b))[1],
+        names(dimnames(params@ext_encounter))[1],
+        names(dimnames(params@selectivity))[2],
+        names(dimnames(params@catchability))[2]) == "sp")) {
         msg <- "Name of first dimension of initial_n, maturity, psi, intake_max, search_vol, metab, mu_b, ext_encounter and the second dimension of selectivity and catchability must be 'sp'"
         errors <- c(errors, msg)
     }
     #interaction dimension names
-    if (names(dimnames(object@interaction))[1] != "predator") {
+    if (names(dimnames(params@interaction))[1] != "predator") {
         msg <- "The first dimension of interaction must be called 'predator'"
         errors <- c(errors, msg)
     }
-    if (names(dimnames(object@interaction))[2] != "prey") {
+    if (names(dimnames(params@interaction))[2] != "prey") {
         msg <- "The first dimension of interaction must be called 'prey'"
         errors <- c(errors, msg)
     }
     # w dimension
     if (!all(c(
-        names(dimnames(object@psi))[2],
-        names(dimnames(object@intake_max))[2],
-        names(dimnames(object@search_vol))[2],
-        names(dimnames(object@metab))[2],
-        names(dimnames(object@selectivity))[3]) == "w")) {
+        names(dimnames(params@psi))[2],
+        names(dimnames(params@intake_max))[2],
+        names(dimnames(params@search_vol))[2],
+        names(dimnames(params@metab))[2],
+        names(dimnames(params@selectivity))[3]) == "w")) {
         msg <- "Name of second dimension of psi, intake_max, search_vol, metab and third dimension of selectivity must be 'w'"
         errors <- c(errors, msg)
     }
     if (!all(c(
-        names(dimnames(object@selectivity))[1],
-        names(dimnames(object@catchability))[1]) == "gear")) {
+        names(dimnames(params@selectivity))[1],
+        names(dimnames(params@catchability))[1]) == "gear")) {
         msg <- "Name of first dimension of selectivity and catchability must be 'gear'"
         errors <- c(errors, msg)
     }
     
     # Check dimnames of species are identical
     if (!all(c(
-        dimnames(object@psi)[[1]],
-        dimnames(object@intake_max)[[1]],
-        dimnames(object@search_vol)[[1]],
-        dimnames(object@metab)[[1]],
-        dimnames(object@mu_b)[[1]],
-        dimnames(object@ext_encounter)[[1]],
-        dimnames(object@selectivity)[[2]],
-        dimnames(object@catchability)[[2]],
-        dimnames(object@interaction)[[1]],
-        dimnames(object@interaction)[[2]]) ==
-        object@species_params$species)) {
+        dimnames(params@psi)[[1]],
+        dimnames(params@intake_max)[[1]],
+        dimnames(params@search_vol)[[1]],
+        dimnames(params@metab)[[1]],
+        dimnames(params@mu_b)[[1]],
+        dimnames(params@ext_encounter)[[1]],
+        dimnames(params@selectivity)[[2]],
+        dimnames(params@catchability)[[2]],
+        dimnames(params@interaction)[[1]],
+        dimnames(params@interaction)[[2]]) ==
+        params@species_params$species)) {
         msg <- "The species names of species_params, psi, intake_max, search_vol, metab, mu_b, ext_encounter, selectivity, catchability and interaction must all be the same"
         errors <- c(errors, msg)
     }
     # Check dimnames of w
     if (!all(c(
-        dimnames(object@psi)[[2]],
-        dimnames(object@intake_max)[[2]],
-        dimnames(object@search_vol)[[2]],
-        dimnames(object@metab)[[2]]) == 
-        dimnames(object@selectivity)[[3]])) {
+        dimnames(params@psi)[[2]],
+        dimnames(params@intake_max)[[2]],
+        dimnames(params@search_vol)[[2]],
+        dimnames(params@metab)[[2]]) == 
+        dimnames(params@selectivity)[[3]])) {
         msg <- "The size names of psi, intake_max, search_vol, metab and selectivity must all be the same"
         errors <- c(errors, msg)
     }
     # Check dimnames of gear
     if (!isTRUE(all.equal(
-        dimnames(object@catchability)[[1]],
-        dimnames(object@selectivity)[[1]]))) {
+        dimnames(params@catchability)[[1]],
+        dimnames(params@selectivity)[[1]]))) {
         msg <- "The gear names of selectivity and catchability must all be the same"
         errors <- c(errors, msg)
     }
     # Check the vector slots ----
-    if (length(object@rr_pp) != length(object@w_full)) {
+    if (length(params@rr_pp) != length(params@w_full)) {
         msg <- "rr_pp must be the same length as w_full"
         errors <- c(errors, msg)
     }
-    if (length(object@cc_pp) != length(object@w_full)) {
+    if (length(params@cc_pp) != length(params@w_full)) {
         msg <- "cc_pp must be the same length as w_full"
         errors <- c(errors, msg)
     }
     
     # TODO: Rewrite the following into a test of the @rates_funcs slot ----
     # SRR 
-    # if (!is.string(object@srr)) {
+    # if (!is.string(params@srr)) {
     #     msg <- "srr needs to be specified as a string giving the name of the function"
     #     errors <- c(errors, msg)
     # } else {
-    #     if (!exists(object@srr)) {
+    #     if (!exists(params@srr)) {
     #         msg <- paste0("The stock-recruitment function ",
-    #                       object@srr,
+    #                       params@srr,
     #                       "does not exist.")
     #         errors <- c(errors, msg)
     #     } else {
-    #         srr <- get(object@srr)
+    #         srr <- get(params@srr)
     #         if (!is.function(srr)) {
     #             msg <- "The specified srr is not a function."
     #             errors <- c(errors, msg)
@@ -217,14 +224,14 @@ validMizerParams <- function(object) {
     # }
     
     # Should not have legacy r_max column (has been renamed to R_max)
-    if ("r_max" %in% names(object@species_params)) {
+    if ("r_max" %in% names(params@species_params)) {
         msg <- "The 'r_max' column in species_params should be called 'R_max'. You can use 'upgradeParams()' to upgrade your params object."
         errors <- c(errors, msg)
     }
     # # species_params data.frame must have columns: 
     # # species, z0, alpha, eRepro
     # species_params_cols <- c("species","z0","alpha","erepro")
-    # if (!all(species_params_cols %in% names(object@species_params))) {
+    # if (!all(species_params_cols %in% names(params@species_params))) {
     #     msg <- "species_params data.frame must have 'species', 'z0', 'alpha' and 'erepro' columms"
     #     errors <- c(errors,msg)
     # }

@@ -37,12 +37,14 @@ test_that("compareParams", {
   expect_true("The metab slots do not agree: Mean absolute difference: 896.7543" %in%
                   compareParams(params, params2))
 
-  # Change size bins
+  # Change size bin at small sizes
   params2@w_full[[1]] <- 1
   expect_true("The resource size bins differ." %in%
                   compareParams(params, params2))
-  params2@w[[length(params2@w)]] <- 1
-  params2@w_full[[length(params2@w_full)]] <- 1
+  # Change a size bin in the fish range
+  fish_offset <- length(params2@w_full) - length(params2@w)
+  params2@w[[10]] <- 1
+  params2@w_full[[10 + fish_offset]] <- 1
   expect_true("The community size bins differ." %in%
                   compareParams(params, params2))
 })
