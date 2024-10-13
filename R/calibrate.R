@@ -120,9 +120,9 @@ calibrateNumber <- function(params) {
 #' `r lifecycle::badge("deprecated")`
 #' 
 #' This function has been deprecated and will be removed in the future unless
-#' you have a usecase for it. If you do have a usecase for it, please let the
+#' you have a use case for it. If you do have a usecase for it, please let the
 #' developers know by creating an issue at
-#' <https://github.com/sizespectrum/mizerExperimental/issues>.
+#' <https://github.com/sizespectrum/mizer/issues>.
 #' 
 #' Given a MizerParams object `params` for which yield observations are
 #' available for at least some species via the `yield_observed` column in the
@@ -154,7 +154,7 @@ calibrateNumber <- function(params) {
 calibrateYield <- function(params) {
     lifecycle::deprecate_warn(
         "2.6.0", "calibrateYield()",
-        details = "This function has not proven useful. If you do have a use case for it, please let the developers know by creating an issue at https://github.com/sizespectrum/mizerExperimental/issues"
+        details = "This function has not proven useful. If you do have a use case for it, please let the developers know by creating an issue at https://github.com/sizespectrum/mizer/issues"
     )
     if ((!("yield_observed" %in% names(params@species_params))) ||
         all(is.na(params@species_params$yield_observed))) {

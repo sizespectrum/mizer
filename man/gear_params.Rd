@@ -40,8 +40,7 @@ functions.
 For the details see \code{\link[=setFishing]{setFishing()}}.
 
 There can optionally also be a column \code{yield_observed} that allows you to
-specify for each gear and species the total annual fisheries yield. This is
-used by \code{\link[mizerExperimental:matchYield]{mizerExperimental::matchYield()}}.
+specify for each gear and species the total annual fisheries yield.
 
 The fishing effort, which is also needed to determine the fishing mortality
 exerted by a gear is not set via the \code{gear_params} data frame but is set

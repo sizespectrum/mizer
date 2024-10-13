@@ -17,9 +17,9 @@ A MizerParams object
 }
 \details{
 This function has been deprecated and will be removed in the future unless
-you have a usecase for it. If you do have a usecase for it, please let the
+you have a use case for it. If you do have a usecase for it, please let the
 developers know by creating an issue at
-\url{https://github.com/sizespectrum/mizerExperimental/issues}.
+\url{https://github.com/sizespectrum/mizer/issues}.
 
 Given a MizerParams object \code{params} for which yield observations are
 available for at least some species via the \code{yield_observed} column in the

@@ -20,14 +20,15 @@ A MizerParams object
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 This function has been deprecated and will be removed in the future unless
-you have a usecase for it. If you do have a usecase for it, please let the
+you have a usecase for it. If you do have a use case for it, please let the
 developers know by creating an issue at
-\url{https://github.com/sizespectrum/mizerExperimental/issues}.
+\url{https://github.com/sizespectrum/mizer/issues}.
 }
 \details{
 If you want to match the yields to observations, you should use the
-\code{mizerExperimental::matchYield()} function instead, which adjusts the
-catchability to match the yield rather than by adjusting the biomass.
+matchYield() function from the mizerExperimental package instead, which
+adjusts the catchability to match the yield rather than by adjusting the
+biomass.
 
 The function adjusts the abundances of the species in the model so that their
 yearly yields under the given fishing mortalities match with observations.

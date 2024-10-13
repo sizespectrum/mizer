@@ -129,8 +129,8 @@ knife_edge <- function(w, knife_edge_size, ...) {
 #' Weight based sigmoidal selectivity function
 #'
 #' A sigmoidal selectivity function with 50% selectivity at
-#' weight `sigmoidal_weight` and width `sigmoidal_sigma`.
-#' \deqn{S(w) = \left(1 + \left(\frac{w}{\text{sigmoidal_weight}}\right)^{-\text{sigmoidal_sigma}}\right)^{-1}}{S(w) = (1 + (w/sigmoidal_weight)^{-sigmoidal_sigma})^{-1}}
+#' weight `sigmoidal_weight` \eqn{=w_{\text{sigmoid}}} and width `sigmoidal_sigma` \eqn{=\sigma}.
+#' \deqn{S(w) = \left(1 + \left(\frac{w}{w_{\text{sigmoid}}}\right)^{-\sigma}\right)^{-1}}{S(w) = (1 + (w/sigmoidal_weight)^{-sigmoidal_sigma})^{-1}}
 #'
 #' @param w Vector of sizes.
 #' @param sigmoidal_weight The weight at which the knife-edge operates.
