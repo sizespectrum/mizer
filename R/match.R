@@ -130,7 +130,7 @@ matchNumbers <- function(params, species = NULL) {
 #' 
 #' `r lifecycle::badge("deprecated")`
 #' This function has been deprecated and will be removed in the future unless
-#' you have a usecase for it. If you do have a use case for it, please let the
+#' you have a use case for it. If you do have a use case for it, please let the
 #' developers know by creating an issue at
 #' <https://github.com/sizespectrum/mizer/issues>.
 #' 

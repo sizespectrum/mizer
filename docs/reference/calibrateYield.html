@@ -83,7 +83,7 @@
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function has been deprecated and will be removed in the future unless
-you have a use case for it. If you do have a usecase for it, please let the
+you have a use case for it. If you do have a use case for it, please let the
 developers know by creating an issue at
 <a href="https://github.com/sizespectrum/mizer/issues" class="external-link">https://github.com/sizespectrum/mizer/issues</a>.</p>
 <p>Given a MizerParams object <code>params</code> for which yield observations are
@@ -108,10 +108,6 @@ use <code><a href="calibrateBiomass.html">calibrateBiomass()</a></code> instead 
 <span class="r-in"><span><span class="fu"><a href="gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">catchability</span> <span class="op">&lt;-</span></span></span>
 <span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.3</span>, <span class="fl">0.065</span>, <span class="fl">0.31</span>, <span class="fl">0.18</span>, <span class="fl">0.98</span>, <span class="fl">0.24</span>, <span class="fl">0.37</span>, <span class="fl">0.46</span>, <span class="fl">0.18</span>, <span class="fl">0.30</span>, <span class="fl">0.27</span>, <span class="fl">0.39</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">params2</span> <span class="op">&lt;-</span> <span class="fu">calibrateYield</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`calibrateYield()` was deprecated in mizer 2.6.0.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> This function has not proven useful. If you do have a use case for it, please</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   let the developers know by creating an issue at</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   https://github.com/sizespectrum/mizer/issues</span>
 <span class="r-in"><span><span class="fu"><a href="plotYieldObservedVsModel.html">plotYieldObservedVsModel</a></span><span class="op">(</span><span class="va">params2</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The following species are not being fished in your model and will not be included in the plot: Sprat, Sandeel, N.pout.</span>
 <span class="r-plt img"><img src="calibrateYield-1.png" alt="" width="700" height="433"></span>

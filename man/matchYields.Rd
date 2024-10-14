@@ -20,7 +20,7 @@ A MizerParams object
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 This function has been deprecated and will be removed in the future unless
-you have a usecase for it. If you do have a use case for it, please let the
+you have a use case for it. If you do have a use case for it, please let the
 developers know by creating an issue at
 \url{https://github.com/sizespectrum/mizer/issues}.
 }
