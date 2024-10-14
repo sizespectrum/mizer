@@ -12,8 +12,6 @@
 #' species_params(params2)$w_mat[1] <- 10
 #' compareParams(params1, params2)
 compareParams <- function(params1, params2) {
-    validObject(params1)
-    validObject(params2)
     assert_that(is(params1, "MizerParams"))
     assert_that(is(params2, "MizerParams"))
 

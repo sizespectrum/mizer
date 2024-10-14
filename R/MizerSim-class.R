@@ -241,6 +241,28 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
     return(sim)
 }
 
+#' Validate MizerParams object and upgrade if necessary
+#' 
+#' Checks that the given MizerParams object is valid and upgrades it if
+#' necessary by calling [upgradeParams()].
+#' 
+#' Besides upgrading if necessary, the only change that may be made to the
+#' given MizerParams object is that the `w_min_idx` slot is recalculated.
+#' 
+#' @param params The MizerParams object to validate
+#' @return A valid MizerParams object
+#' @export
+validSim <- function(sim) {
+    assert_that(is(sim, "MizerSim"))
+    if (needs_upgrading(sim)) {
+        params <- suppressWarnings(upgradeSim(sim))
+        warning("Your MizerSim object was created with an earlier version of mizer. You can upgrade it with `sim <- upgradeSim(sim)` where you should replace `sim` by the name of the variable that holds your MizerSim object.")
+    }
+    sim@params <- validParams(sim@params)
+    validObject(sim)
+    sim
+}
+
 #' Time series of size spectra
 #' 
 #' Fetch the simulation results for the size spectra over time.

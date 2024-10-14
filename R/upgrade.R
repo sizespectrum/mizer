@@ -15,7 +15,7 @@ needs_upgrading <- function(object) {
         stop("The object you supplied is neither a MizerParams nor a MizerSim object.")
     }
     !.hasSlot(params, "mizer_version") ||
-        params@mizer_version < "2.4.1.9002"
+        params@mizer_version < "2.5.2"
 }
 
 #' Upgrade MizerParams object from earlier mizer versions
@@ -358,6 +358,18 @@ upgradeParams <- function(params) {
     if (!("w_mat25" %in% names(params@species_params))) {
         params <- set_species_param_default(params, "w_mat25",       
             params@species_params$w_mat / (3 ^ (1 / 10)))
+    }
+    
+    # Before 2.5.2 ----
+    if (version < "2.5.2") {
+        # setParams() will update the ft_mask if necessary
+        # It will also warn if `w_max` is not valid
+        ft_mask <- params@ft_mask
+        params <- setParams(params)
+        if (!identical(as.vector(params@ft_mask), 
+                       as.vector(ft_mask))) {
+            warning("The ft_mask slot has been updated.")
+        }
     }
     
     params@mizer_version <- packageVersion("mizer")
