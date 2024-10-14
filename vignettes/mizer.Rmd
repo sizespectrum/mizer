@@ -8,7 +8,7 @@ output:
 bibliography: reflib.bib
 link-citations: true
 resource_files:
-  - images/cheat_sheet.pdf
+  - vignette_images/cheat_sheet_preview.png
 vignette: >
   %\VignetteIndexEntry{Getting started with mizer}
   %\VignetteEngine{knitr::rmarkdown}
@@ -49,7 +49,7 @@ This course has three parts, each consisting of several tutorials with example c
 
 
 Click on this preview to open a mizer cheat sheet.
-[![Cheat Sheet](images/cheat_sheet_preview.png)](https://sizespectrum.org/mizer/articles/images/cheat_sheet.pdf)
+[![Cheat Sheet](vignette_images/cheat_sheet_preview.png)](https://sizespectrum.org/mizer/articles/images/cheat_sheet.pdf)
 
 There is a [series of YouTube videos](https://www.youtube.com/watch?v=zh0PDyTUssw&list=PLCTMeyjMKRkqR7uohI3p-61P7ZJj8sd5B) 
 by Richard Southwell about mizer which are however no longer entirely up-to-date.
