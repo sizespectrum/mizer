@@ -340,7 +340,6 @@ setParams <- function(params, interaction = NULL, ...) {
     params@ft_mask <- t(sapply(params@species_params$w_max, 
                                function(x) params@w_full < x))
     
-    params <- suppressWarnings(validParams(params))
     params <- setInteraction(params, interaction)
     params <- setPredKernel(params, ...)
     params <- setMaxIntakeRate(params, ...)

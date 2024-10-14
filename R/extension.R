@@ -83,8 +83,7 @@ setRateFunction <- function(params, rate, fun) {
 #'   `rate` argument.
 #' @export
 getRateFunction <- function(params, rate) {
-    assert_that(is(params, "MizerParams"))
-    validObject(params)
+    params <- validParams(params)
     if (missing(rate)) {
         return(params@rates_funcs)
     }

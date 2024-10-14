@@ -1,3 +1,9 @@
+# mizer 2.5.2.1
+
+A patch update so that users who had changed `w_max` manually in their model
+will not get unhelpful error messages when trying to use this model in the
+new version.
+
 # mizer 2.5.2
 
 - Fixed bug that had led `newCommunityParams()` to set up resource parameters

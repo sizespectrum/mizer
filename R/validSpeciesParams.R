@@ -146,7 +146,7 @@ validGivenSpeciesParams <- function(species_params) {
         if (any(wrong)) {
             warning("For the species ", 
                     paste(sp$species[wrong], collapse = ", "),
-                    " the value for `w_max` is smaller than that of `w_repro_max`.",
+                    " the value for `w_max` is larger than that of `w_repro_max`.",
                     " I have corrected that by setting `w_max` equal to `w_repro_max`.")
             sp$w_max[wrong] <- sp$w_repro_max[wrong]
         }
