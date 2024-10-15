@@ -1,7 +1,7 @@
-# mizer 2.5.2.1
+# mizer 2.5.3
 
 A patch update so that users who had changed `w_max` manually in their model
-will not get unhelpful error messages when trying to use this model in the
+will not get unhelpful error messages when trying to use their model in the
 new version.
 
 # mizer 2.5.2
