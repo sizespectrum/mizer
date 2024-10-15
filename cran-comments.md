@@ -1,3 +1,6 @@
+This version avoids the errors reported at 
+https://cloud.r-project.org/web/checks/check_results_mizer.html
+
 ## Test environments
   
 ### local Ubuntu, R 4.4.1
