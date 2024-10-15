@@ -819,13 +819,13 @@ dw_full <- function(params) {
 #' @export
 validParams <- function(params) {
     assert_that(is(params, "MizerParams"))
+    params@w_min_idx <- get_w_min_idx(params@species_params, params@w)
     
     if (needs_upgrading(params)) {
         params <- suppressWarnings(upgradeParams(params))
         warning("Your MizerParams object was created with an earlier version of mizer. You can upgrade it with `params <- upgradeParams(params)` where you should replace `params` by the name of the variable that holds your MizerParams object.")
     }
     
-    params@w_min_idx <- get_w_min_idx(params@species_params, params@w)
     validObject(params)
     params
 }

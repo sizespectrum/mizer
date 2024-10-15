@@ -255,10 +255,12 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
 validSim <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     if (needs_upgrading(sim)) {
-        params <- suppressWarnings(upgradeSim(sim))
+        sim <- suppressWarnings(upgradeSim(sim))
         warning("Your MizerSim object was created with an earlier version of mizer. You can upgrade it with `sim <- upgradeSim(sim)` where you should replace `sim` by the name of the variable that holds your MizerSim object.")
+    } else {
+        # Always validate the params object, even if no upgrading was required.
+        sim@params <- validParams(sim@params)
     }
-    sim@params <- validParams(sim@params)
     validObject(sim)
     sim
 }

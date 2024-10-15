@@ -363,6 +363,5 @@ setParams <- function(params, interaction = NULL, ...) {
         params <- setLinetypes(params, linetypes)
     }
     
-    validObject(params)
-    params
+    validParams(params)
 }

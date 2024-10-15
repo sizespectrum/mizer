@@ -15,7 +15,7 @@ needs_upgrading <- function(object) {
         stop("The object you supplied is neither a MizerParams nor a MizerSim object.")
     }
     !.hasSlot(params, "mizer_version") ||
-        params@mizer_version < "2.5.2"
+        params@mizer_version < "2.4.1.9002"
 }
 
 #' Upgrade MizerParams object from earlier mizer versions
@@ -63,6 +63,13 @@ needs_upgrading <- function(object) {
 #' @seealso [validParams()]
 upgradeParams <- function(params) {
     if (!needs_upgrading(params)) return(params)
+    
+    # Preserve time_created
+    if (.hasSlot(params, "time_created")) {
+        time_created <- params@time_created
+    } else {
+        time_created <- lubridate::now()
+    }
     
     # We'll use the version to decide which upgrades are needed. Copy it to
     # a variable because params@mizer_version might get changed during the 
@@ -360,20 +367,9 @@ upgradeParams <- function(params) {
             params@species_params$w_mat / (3 ^ (1 / 10)))
     }
     
-    # Before 2.5.2 ----
-    if (version < "2.5.2") {
-        # setParams() will update the ft_mask if necessary
-        # It will also warn if `w_max` is not valid
-        ft_mask <- params@ft_mask
-        params <- setParams(params)
-        if (!identical(as.vector(params@ft_mask), 
-                       as.vector(ft_mask))) {
-            warning("The ft_mask slot has been updated.")
-        }
-    }
-    
     params@mizer_version <- packageVersion("mizer")
     params@time_modified <- lubridate::now()
+    params@time_created <- time_created
     validObject(params)
     params
 }
@@ -402,6 +398,8 @@ upgradeParams <- function(params) {
 #' @export
 upgradeSim <- function(sim) {
     assert_that(is(sim, "MizerSim"))
+    if (!needs_upgrading(sim)) return(sim)
+    
     t_dimnames <- dimnames(sim@n_pp)[[1]]
     no_gears <- dim(sim@effort)[[2]]
     new_sim <- MizerSim(upgradeParams(sim@params),
