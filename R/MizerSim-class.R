@@ -241,16 +241,16 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
     return(sim)
 }
 
-#' Validate MizerParams object and upgrade if necessary
+#' Validate MizerSim object and upgrade if necessary
 #' 
-#' Checks that the given MizerParams object is valid and upgrades it if
-#' necessary by calling [upgradeParams()].
+#' Checks that the given MizerSim object is valid and upgrades it if
+#' necessary by calling [upgradeSim()].
 #' 
-#' Besides upgrading if necessary, the only change that may be made to the
-#' given MizerParams object is that the `w_min_idx` slot is recalculated.
+#' In particular, it makes sure that the MizerParams object inside the 
+#' MizerSim object is valid by calling [validParams()].
 #' 
-#' @param params The MizerParams object to validate
-#' @return A valid MizerParams object
+#' @param sim The MizerSim object to validate
+#' @return A valid MizerSim object
 #' @export
 validSim <- function(sim) {
     assert_that(is(sim, "MizerSim"))

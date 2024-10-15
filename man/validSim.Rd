@@ -2,21 +2,21 @@
 % Please edit documentation in R/MizerSim-class.R
 \name{validSim}
 \alias{validSim}
-\title{Validate MizerParams object and upgrade if necessary}
+\title{Validate MizerSim object and upgrade if necessary}
 \usage{
 validSim(sim)
 }
 \arguments{
-\item{params}{The MizerParams object to validate}
+\item{sim}{The MizerSim object to validate}
 }
 \value{
-A valid MizerParams object
+A valid MizerSim object
 }
 \description{
-Checks that the given MizerParams object is valid and upgrades it if
-necessary by calling \code{\link[=upgradeParams]{upgradeParams()}}.
+Checks that the given MizerSim object is valid and upgrades it if
+necessary by calling \code{\link[=upgradeSim]{upgradeSim()}}.
 }
 \details{
-Besides upgrading if necessary, the only change that may be made to the
-given MizerParams object is that the \code{w_min_idx} slot is recalculated.
+In particular, it makes sure that the MizerParams object inside the
+MizerSim object is valid by calling \code{\link[=validParams]{validParams()}}.
 }
