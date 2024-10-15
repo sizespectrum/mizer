@@ -39,5 +39,6 @@
 ^vignettes/Growth_curve.pdf$
 ^vignettes/publications.Rmd$
 ^vignettes/*.pdf$
+^vignettes/mizer.Rmd
 ^doc$
 ^Meta$

@@ -80,7 +80,9 @@ articles:
   - working_with_git
   - developer_FAQ
   - editing_website
-
+- title: internal
+  contents:
+  - mizer_vignette
 
 reference:
 - title: Creating a new model
