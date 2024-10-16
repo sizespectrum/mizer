@@ -88,11 +88,11 @@ species_params(params)$biomass_cutoff <- 10
 params <- calibrateBiomass(params)
 
 # Plot with default options
-plotBiomassObservedVsModel(params)
+plotBiomassObservedVsModel(params, ratio = FALSE)
 
 # Plot including also species without observations
-plotBiomassObservedVsModel(params, show_unobserved = TRUE)
+plotBiomassObservedVsModel(params, show_unobserved = TRUE, ratio = FALSE)
 
 # Show the ratio instead
-plotBiomassObservedVsModel(params, ratio = TRUE)
+plotBiomassObservedVsModel(params)
 }

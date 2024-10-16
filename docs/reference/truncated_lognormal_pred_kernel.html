@@ -9,7 +9,7 @@ predator/prey mass ratio"><meta property="og:image" content="https://sizespectru
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.5.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.5.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,8 @@ predator/prey mass ratio"><meta property="og:image" content="https://sizespectru
     <li><a class="dropdown-item" href="../articles/working_with_git.html">Working with git and GitHub</a></li>
     <li><a class="dropdown-item" href="../articles/developer_FAQ.html">Developer FAQ</a></li>
     <li><a class="dropdown-item" href="../articles/editing_website.html">Editing the Mizer Website</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -110,12 +112,21 @@ predation kernel slots in a MizerParams object.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p>Other predation kernel:
+    <div class="dont-index"><p><code><a href="setPredKernel.html">setPredKernel()</a></code></p>
+<p>Other predation kernel:
 <code><a href="box_pred_kernel.html">box_pred_kernel</a>()</code>,
 <code><a href="lognormal_pred_kernel.html">lognormal_pred_kernel</a>()</code>,
 <code><a href="power_law_pred_kernel.html">power_law_pred_kernel</a>()</code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="va">NS_params</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">pred_kernel_type</span> <span class="op">&lt;-</span> <span class="st">"truncated_lognormal"</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="w.html">w_full</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="fu"><a href="setPredKernel.html">getPredKernel</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="st">"Cod"</span>, <span class="fl">10</span>, <span class="op">]</span>, type<span class="op">=</span><span class="st">"l"</span>, log<span class="op">=</span><span class="st">"x"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="truncated_lognormal_pred_kernel-1.png" alt="" width="700" height="433"></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

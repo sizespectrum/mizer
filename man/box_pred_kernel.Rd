@@ -28,7 +28,17 @@ feeding kernel is 1 if \eqn{w/w_p} is between \code{ppmr_min} and
 species parameter dataframe in the columns \code{ppmr_min} and
 \code{ppmr_max}.
 }
+\examples{
+params <- NS_params
+# Set all required paramters before changing kernel type
+species_params(params)$ppmr_max <- 4000
+species_params(params)$ppmr_min <- 200
+species_params(params)$pred_kernel_type <- "box"
+plot(w_full(params), getPredKernel(params)["Cod", 10, ], type="l", log="x")
+}
 \seealso{
+\code{\link[=setPredKernel]{setPredKernel()}}
+
 Other predation kernel: 
 \code{\link{lognormal_pred_kernel}()},
 \code{\link{power_law_pred_kernel}()},

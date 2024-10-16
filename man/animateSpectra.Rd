@@ -56,6 +56,7 @@ animateSpectra(NS_sim, power = 2, wlim = c(0.1, NA), time_range = 1997:2007)
 }
 \seealso{
 Other plotting functions: 
+\code{\link{plot,MizerParams,missing-method}},
 \code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},
 \code{\link{plotDiet}()},

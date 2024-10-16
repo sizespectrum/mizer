@@ -19,6 +19,7 @@ not set by the user.
 }
 \examples{
 params <- NS_params
+str(calc_selectivity(params))
 calc_selectivity(params)["Pelagic", "Herring", ]
 }
 \concept{helper}

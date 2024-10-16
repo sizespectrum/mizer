@@ -47,7 +47,20 @@ ppmr^kernel_exp /
 The parameters need to be given as columns in the species parameter
 dataframe.
 }
+\examples{
+params <- NS_params
+# Set all required paramters before changing kernel type
+species_params(params)["Cod", "kernel_exp"] <- -0.8
+species_params(params)["Cod", "kernel_l_l"] <- 4.6
+species_params(params)["Cod", "kernel_u_l"] <- 3
+species_params(params)["Cod", "kernel_l_r"] <- 12.5
+species_params(params)["Cod", "kernel_u_r"] <- 4.3
+species_params(params)["Cod", "kernel_type"] <- "power_law"
+plot(w_full(params), getPredKernel(params)["Cod", 10, ], type="l", log="x")
+}
 \seealso{
+\code{\link[=setPredKernel]{setPredKernel()}}
+
 Other predation kernel: 
 \code{\link{box_pred_kernel}()},
 \code{\link{lognormal_pred_kernel}()},

@@ -20,3 +20,4 @@ it directly.
 \code{\link[=validParams]{validParams()}}
 }
 \concept{helper}
+\keyword{internal}

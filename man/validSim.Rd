@@ -13,20 +13,17 @@ validSim(sim)
 A valid MizerSim object
 }
 \description{
-Checks that the given MizerSim object is valid and upgrades it if
-necessary.
+Checks that the given MizerSim object is valid and upgrades it if necessary.
+Checks whether any abundances are non-finite and if any are found, a warning
+is issued and the simulation is truncated at the last time step where all
+results are finite.
 }
 \details{
 Occasionally, during the development of new features for mizer, the
 \linkS4class{MizerSim} class or the \linkS4class{MizerParams} class gains
 extra slots. MizerSim objects created in older versions of mizer are then no
 longer valid in the new version because of the missing slots. You need to
-upgrade them with
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{sim <- validSim(sim)
-}\if{html}{\out{</div>}}
-
-where \code{sim} should be replaced by the name of your MizerSim object.
+upgrade them with this function.
 
 This function adds the missing slots and fills them with default values. It
 also calls \code{\link[=validParams]{validParams()}} to upgrade the MizerParams object inside the

@@ -46,12 +46,12 @@ used.
 \examples{
 \donttest{
 params <-NS_params
-# Get the fishing mortality when effort is constant
-# for all gears and time:
-getFMortGear(params, effort = 1)
-# Get the fishing mortality when effort is different
-# between the four gears but constant in time:
-getFMortGear(params, effort = c(0.5, 1, 1.5, 0.75))
+# Get the fishing mortality in initial state
+F <- getFMortGear(params, effort = 1)
+str(F)
+# Get the initial fishing mortality when effort is different
+# between the four gears:
+F <- getFMortGear(params, effort = c(0.5, 1, 1.5, 0.75))
 # Get the fishing mortality when effort is different
 # between the four gears and changes with time:
 effort <- array(NA, dim = c(20, 4))
@@ -59,11 +59,12 @@ effort[, 1] <- seq(from=0, to = 1, length = 20)
 effort[, 2] <- seq(from=1, to = 0.5, length = 20)
 effort[, 3] <- seq(from=1, to = 2, length = 20)
 effort[, 4] <- seq(from=2, to = 1, length = 20)
-getFMortGear(params, effort = effort)
+F <- getFMortGear(params, effort = effort)
+str(F)
 # Get the fishing mortality using the effort already held in a MizerSim object.
 sim <- project(params, t_max = 20, effort = 0.5)
-getFMortGear(sim)
-getFMortGear(sim, time_range = c(10, 20))
+F <- getFMortGear(sim)
+F <- getFMortGear(sim, time_range = c(10, 20))
 }
 
 }

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.5.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.5.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,6 +39,8 @@
     <li><a class="dropdown-item" href="../articles/working_with_git.html">Working with git and GitHub</a></li>
     <li><a class="dropdown-item" href="../articles/developer_FAQ.html">Developer FAQ</a></li>
     <li><a class="dropdown-item" href="../articles/editing_website.html">Editing the Mizer Website</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -59,7 +61,17 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.5.2" id="mizer-252">mizer 2.5.2<a class="anchor" aria-label="anchor" href="#mizer-252"></a></h2>
+<h2 class="pkg-version" data-toc-text="2.5.3" id="mizer-253">mizer 2.5.3<a class="anchor" aria-label="anchor" href="#mizer-253"></a></h2>
+<p>A patch update so that users who had changed <code>w_max</code> manually in their model will not get unhelpful error messages when trying to use their model in the new version. General checking of parameters is made more robust. In particular</p>
+<ul><li>
+<code><a href="../reference/validSpeciesParams.html">validSpeciesParams()</a></code> has extra checks on consistency of species parameters</li>
+<li>
+<code><a href="../reference/validParams.html">validParams()</a></code> checks that rate arrays contain finite numeric values</li>
+<li>
+<code><a href="../reference/validSim.html">validSim()</a></code> checks that simulation results are finite and truncates the simulation if they are not.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.5.2" id="mizer-252">mizer 2.5.2<a class="anchor" aria-label="anchor" href="#mizer-252"></a></h2><p class="text-muted">CRAN release: 2024-10-14</p>
 <ul><li>Fixed bug that had led <code><a href="../reference/newCommunityParams.html">newCommunityParams()</a></code> to set up resource parameters differently since version 2.4.0 (<a href="https://github.com/sizespectrum/mizer/issues/293" class="external-link">#293</a>)</li>
 <li>
 <code><a href="../reference/addSpecies.html">addSpecies()</a></code> now correctly preserves all <code>species_params</code> of the existing model.</li>

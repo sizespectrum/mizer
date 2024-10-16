@@ -104,6 +104,7 @@ str(fr)
 
 Other plotting functions: 
 \code{\link{animateSpectra}()},
+\code{\link{plot,MizerParams,missing-method}},
 \code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},
 \code{\link{plotDiet}()},

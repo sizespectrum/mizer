@@ -9,6 +9,7 @@
 <url><loc>https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/articles/index.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/articles/mizer.html</loc></url>
+<url><loc>https://sizespectrum.org/mizer/articles/mizer_vignette.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/articles/model_description.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/articles/multispecies_model.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/articles/plotting.html</loc></url>
@@ -205,6 +206,7 @@
 <url><loc>https://sizespectrum.org/mizer/reference/upgradeSim.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/validGearParams.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/validParams.html</loc></url>
+<url><loc>https://sizespectrum.org/mizer/reference/validSim.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/validSpeciesParams.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/valid_gears_arg.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/valid_species_arg.html</loc></url>

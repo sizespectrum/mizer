@@ -24,6 +24,14 @@
 #'   predator/prey mass ratios in the \code{ppmr} argument.
 #' @export
 #' @family predation kernel
+#' @seealso [setPredKernel()]
+#' @examples
+#' params <- NS_params
+#' plot(w_full(params), getPredKernel(params)["Cod", 10, ], type="l", log="x")
+#' # The restriction that the kernel is zero for w/w_p < 1 is more
+#' # noticeable for larger sigma
+#' species_params(params)$sigma <- 4
+#' plot(w_full(params), getPredKernel(params)["Cod", 10, ], type="l", log="x")
 lognormal_pred_kernel <- function(ppmr, beta, sigma) {
     Beta <- log(beta)
     phi <- exp(-(log(ppmr) - Beta)^2 / (2 * sigma^2))
@@ -58,6 +66,11 @@ lognormal_pred_kernel <- function(ppmr, beta, sigma) {
 #'   predator/prey mass ratios in the `ppmr` argument.
 #' @export
 #' @family predation kernel
+#' @seealso [setPredKernel()]
+#' @examples
+#' params <- NS_params
+#' species_params(params)$pred_kernel_type <- "truncated_lognormal"
+#' plot(w_full(params), getPredKernel(params)["Cod", 10, ], type="l", log="x")
 truncated_lognormal_pred_kernel <- function(ppmr, beta, sigma) {
     Beta <- log(beta)
     phi <- exp(-(log(ppmr) - Beta)^2 / (2 * sigma^2))
@@ -86,6 +99,14 @@ truncated_lognormal_pred_kernel <- function(ppmr, beta, sigma) {
 #'   predator/prey mass ratios in the `ppmr` argument.
 #' @export
 #' @family predation kernel
+#' @seealso [setPredKernel()]
+#' @examples
+#' params <- NS_params
+#' # Set all required paramters before changing kernel type
+#' species_params(params)$ppmr_max <- 4000
+#' species_params(params)$ppmr_min <- 200
+#' species_params(params)$pred_kernel_type <- "box"
+#' plot(w_full(params), getPredKernel(params)["Cod", 10, ], type="l", log="x")
 box_pred_kernel <- function(ppmr, ppmr_min, ppmr_max) {
     assert_that(ppmr_min < ppmr_max)
     phi <- rep(1, length(ppmr))
@@ -122,6 +143,17 @@ box_pred_kernel <- function(ppmr, ppmr_min, ppmr_max) {
 #'   predator/prey mass ratios in the `ppmr` argument.
 #' @export
 #' @family predation kernel
+#' @seealso [setPredKernel()]
+#' @examples
+#' params <- NS_params
+#' # Set all required paramters before changing kernel type
+#' species_params(params)["Cod", "kernel_exp"] <- -0.8
+#' species_params(params)["Cod", "kernel_l_l"] <- 4.6
+#' species_params(params)["Cod", "kernel_u_l"] <- 3
+#' species_params(params)["Cod", "kernel_l_r"] <- 12.5
+#' species_params(params)["Cod", "kernel_u_r"] <- 4.3
+#' species_params(params)["Cod", "kernel_type"] <- "power_law"
+#' plot(w_full(params), getPredKernel(params)["Cod", 10, ], type="l", log="x")
 power_law_pred_kernel <- function(ppmr, kernel_exp,
                                   kernel_l_l, kernel_u_l,
                                   kernel_l_r, kernel_u_r) {

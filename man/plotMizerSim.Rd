@@ -2,12 +2,9 @@
 % Please edit documentation in R/plots.R
 \name{plot,MizerSim,missing-method}
 \alias{plot,MizerSim,missing-method}
-\alias{plot,MizerParams,missing-method}
 \title{Summary plot for \code{MizerSim} objects}
 \usage{
 \S4method{plot}{MizerSim,missing}(x, y, ...)
-
-\S4method{plot}{MizerParams,missing}(x, y, ...)
 }
 \arguments{
 \item{x}{An object of class \linkS4class{MizerSim}}
@@ -21,17 +18,11 @@ and \code{\link[=plotFMort]{plotFMort()}}.}
 }
 \value{
 A viewport object
-
-A viewport object
 }
 \description{
 After running a projection, produces 5 plots in the same window: feeding
 level, abundance spectra, predation mortality and fishing mortality of each
 species by size; and biomass of each species through time. This method just
-uses the other plotting functions and puts them all in one window.
-
-Produces 3 plots in the same window: abundance spectra, feeding
-level and predation mortality of each species through time. This method just
 uses the other plotting functions and puts them all in one window.
 }
 \examples{
@@ -39,35 +30,14 @@ uses the other plotting functions and puts them all in one window.
 params <-  NS_params
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plot(sim)
-plot(sim, time_range = 10:20) # change time period for size-based plots
-plot(sim, min_w = 10, max_w = 1000) # change size range for biomass plot
-}
-\donttest{
-params <-  NS_params
-plot(params)
-plot(params, min_w = 10, max_w = 1000) # change size range for biomass plot
 }
 }
 \seealso{
 \link{plotting_functions}
 
-\link{plotting_functions}
-
 Other plotting functions: 
 \code{\link{animateSpectra}()},
-\code{\link{plotBiomass}()},
-\code{\link{plotDiet}()},
-\code{\link{plotFMort}()},
-\code{\link{plotFeedingLevel}()},
-\code{\link{plotGrowthCurves}()},
-\code{\link{plotPredMort}()},
-\code{\link{plotSpectra}()},
-\code{\link{plotYield}()},
-\code{\link{plotYieldGear}()},
-\code{\link{plotting_functions}}
-
-Other plotting functions: 
-\code{\link{animateSpectra}()},
+\code{\link{plot,MizerParams,missing-method}},
 \code{\link{plotBiomass}()},
 \code{\link{plotDiet}()},
 \code{\link{plotFMort}()},

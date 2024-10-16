@@ -54,14 +54,18 @@ same arguments.
 \examples{
 \donttest{
 params <- NS_params
+# Predation mortality in initial state
+M2 <- getPredMort(params)
+str(M2)
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get predation mortality at one time step
-getPredMort(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ])
+M2 <- getPredMort(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ])
 # Get predation mortality at all saved time steps
-getPredMort(sim)
+M2 <- getPredMort(sim)
+str(M2)
 # Get predation mortality over the years 15 - 20
-getPredMort(sim, time_range = c(15, 20))
+M2 <- getPredMort(sim, time_range = c(15, 20))
 }
 }
 \seealso{

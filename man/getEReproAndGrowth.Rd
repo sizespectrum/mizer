@@ -75,8 +75,10 @@ params <- NS_params
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the energy at a particular time step
-getEReproAndGrowth(params, n = N(sim)[15, , ], 
-                   n_pp = NResource(sim)[15, ], t = 15)
+e <- getEReproAndGrowth(params, n = N(sim)[15, , ], 
+                        n_pp = NResource(sim)[15, ], t = 15)
+# Rate at this time for Sprat of size 2g
+e["Sprat", "2"]
 }
 }
 \seealso{

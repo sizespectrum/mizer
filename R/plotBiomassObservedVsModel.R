@@ -55,13 +55,13 @@
 #' params <- calibrateBiomass(params)
 #'
 #' # Plot with default options
-#' plotBiomassObservedVsModel(params)
+#' plotBiomassObservedVsModel(params, ratio = FALSE)
 #' 
 #' # Plot including also species without observations
-#' plotBiomassObservedVsModel(params, show_unobserved = TRUE)
+#' plotBiomassObservedVsModel(params, show_unobserved = TRUE, ratio = FALSE)
 #'
 #' # Show the ratio instead
-#' plotBiomassObservedVsModel(params, ratio = TRUE)
+#' plotBiomassObservedVsModel(params)
 plotBiomassObservedVsModel <- function(object, species = NULL, ratio = TRUE,
                                       log_scale = TRUE, return_data = FALSE, 
                                       labels = TRUE, show_unobserved = FALSE) {

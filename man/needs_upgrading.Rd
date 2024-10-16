@@ -15,5 +15,7 @@ TRUE or FALSE
 \description{
 Looks at the mizer version that was used to last update the object and
 returns TRUE if changes since that version require an upgrade of the object.
+You would not usually have to call this function. Upgrades are initiated
+automatically by \code{validParams} and \code{validSim} when necessary.
 }
 \concept{helper}

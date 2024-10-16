@@ -16,3 +16,4 @@ The upgraded MizerSim object
 Upgrade MizerSim object from earlier mizer versions
 }
 \concept{helper}
+\keyword{internal}

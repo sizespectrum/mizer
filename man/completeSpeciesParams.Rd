@@ -2,7 +2,7 @@
 % Please edit documentation in R/validSpeciesParams.R
 \name{completeSpeciesParams}
 \alias{completeSpeciesParams}
-\title{Alias for \code{validateSpeciesParams()}}
+\title{Alias for \code{validSpeciesParams()}}
 \usage{
 completeSpeciesParams(species_params)
 }
@@ -10,10 +10,11 @@ completeSpeciesParams(species_params)
 \item{species_params}{The user-supplied species parameter data frame}
 }
 \value{
-A valid species parameter data frame with additional parameters
-with default values.
+For validSpeciesParams(): A valid species parameter data frame with
+additional parameters with default values.
 
-A valid species parameter data frame without additional parameters.
+For validGivenSpeciesParams(): A valid species parameter data frame
+without additional parameters.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
@@ -21,7 +22,7 @@ A valid species parameter data frame without additional parameters.
 An alias provided for backward compatibility with mizer version <= 2.5.2
 }
 \details{
-\code{validateGivenSpeciesParams()} checks the validity of the given species
+\code{validGivenSpeciesParams()} checks the validity of the given species
 parameter It throws an error if
 \itemize{
 \item the \code{species} column does not exist or contains duplicates
@@ -41,11 +42,11 @@ asymptotic size of an average individual.
 
 Some inconsistencies in the size parameters are resolved as follows:
 \itemize{
-\item Any \code{w_max} that is larger than \code{w_repro_max} is set to \code{w_repro_max}.
 \item Any \code{w_mat} that is not smaller than \code{w_max} is set to \code{w_max / 4}.
 \item Any \code{w_mat25} that is not smaller than \code{w_mat} is set to NA.
 \item Any \code{w_min} that is not smaller than \code{w_mat} is set to \code{0.001} or
 \code{w_mat /10}, whichever is smaller.
+\item Any \code{w_repro_max} that is not larger than \code{w_mat} is set to \code{4 * w_mat}.
 }
 
 The row names of the returned data frame will be the species names.
@@ -75,6 +76,6 @@ performed by the individual rate-setting functions (see \code{\link[=setParams]{
 list of these functions).
 }
 \seealso{
-\code{\link[=species_params]{species_params()}}, \code{\link[=validGearParams]{validGearParams()}}, \code{\link[=validParams]{validParams()}}
+\code{\link[=species_params]{species_params()}}, \code{\link[=validGearParams]{validGearParams()}}, \code{\link[=validParams]{validParams()}}, \code{\link[=validSim]{validSim()}}
 }
 \concept{deprecated}

@@ -66,8 +66,10 @@ params <- NS_params
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the total mortality at a particular time step
-getMort(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], 
-        t = 15, effort = 0.5)
+mort <- getMort(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], 
+                t = 15, effort = 0.5)
+# Mortality rate at this time for Sprat of size 2g
+mort["Sprat", "2"]
 }
 }
 \seealso{

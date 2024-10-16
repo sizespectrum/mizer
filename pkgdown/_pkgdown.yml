@@ -142,7 +142,6 @@ reference:
   - "N"
   - NResource
   - finalN
-  - idxFinalT
   - getEffort
   - getTimes
 - title: Analysing results

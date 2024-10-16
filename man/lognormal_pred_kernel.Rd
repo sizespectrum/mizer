@@ -35,7 +35,17 @@ dataframe in the columns \code{beta} and \code{sigma}.
 This function is called from \code{\link[=setPredKernel]{setPredKernel()}} to set up the
 predation kernel slots in a MizerParams object.
 }
+\examples{
+params <- NS_params
+plot(w_full(params), getPredKernel(params)["Cod", 10, ], type="l", log="x")
+# The restriction that the kernel is zero for w/w_p < 1 is more
+# noticeable for larger sigma
+species_params(params)$sigma <- 4
+plot(w_full(params), getPredKernel(params)["Cod", 10, ], type="l", log="x")
+}
 \seealso{
+\code{\link[=setPredKernel]{setPredKernel()}}
+
 Other predation kernel: 
 \code{\link{box_pred_kernel}()},
 \code{\link{power_law_pred_kernel}()},

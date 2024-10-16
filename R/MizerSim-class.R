@@ -252,11 +252,7 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
 #' \linkS4class{MizerSim} class or the \linkS4class{MizerParams} class gains
 #' extra slots. MizerSim objects created in older versions of mizer are then no
 #' longer valid in the new version because of the missing slots. You need to
-#' upgrade them with
-#' ```
-#' sim <- validSim(sim)
-#' ```
-#' where `sim` should be replaced by the name of your MizerSim object.
+#' upgrade them with this function.
 #' 
 #' This function adds the missing slots and fills them with default values. It
 #' also calls [validParams()] to upgrade the MizerParams object inside the
@@ -347,7 +343,6 @@ NResource <- function(sim) {
 #' @param sim A MizerSim object
 #' @return For `finalN()`: An array (species x size) holding the consumer
 #'   number densities at the end of the simulation
-#' @seealso [idxFinalT()]
 #' @export
 #' @examples
 #' str(finalN(NS_sim))
@@ -372,10 +367,8 @@ finalNResource <- function(sim) {
     sim@n_pp[dim(sim@n_pp)[[1]], ]
 }
 
-#' Time index at end of simulation
-#' 
-#' @param sim A MizerSim object
-#' @return An integer giving the index for extracting the
+#' @rdname finalN
+#' @return For `idxFinalT()`: An integer giving the index for extracting the
 #'   results for the final time step
 #' @export
 #' @examples

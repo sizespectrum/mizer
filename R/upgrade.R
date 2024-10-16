@@ -1,7 +1,9 @@
 #' Determine whether a MizerParams or MizerSim object needs to be upgraded
 #' 
-#' Looks at the mizer version that was used to last update the object and 
+#' Looks at the mizer version that was used to last update the object and
 #' returns TRUE if changes since that version require an upgrade of the object.
+#' You would not usually have to call this function. Upgrades are initiated
+#' automatically by `validParams` and `validSim` when necessary.
 #' 
 #' @param object A MizerParams or MizerSim object
 #' @return TRUE or FALSE
@@ -27,6 +29,7 @@ needs_upgrading <- function(object) {
 #' 
 #' @return The upgraded MizerParams object
 #' @concept helper
+#' @keywords internal
 #' @seealso [validParams()]
 upgradeParams <- function(params) {
     if (!needs_upgrading(params)) return(params)
@@ -346,6 +349,7 @@ upgradeParams <- function(params) {
 #' 
 #' @return The upgraded MizerSim object
 #' @concept helper
+#' @keywords internal
 upgradeSim <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     if (!needs_upgrading(sim)) return(sim)

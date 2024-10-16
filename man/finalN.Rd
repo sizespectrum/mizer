@@ -3,11 +3,14 @@
 \name{finalN}
 \alias{finalN}
 \alias{finalNResource}
+\alias{idxFinalT}
 \title{Size spectra at end of simulation}
 \usage{
 finalN(sim)
 
 finalNResource(sim)
+
+idxFinalT(sim)
 }
 \arguments{
 \item{sim}{A MizerSim object}
@@ -18,6 +21,9 @@ number densities at the end of the simulation
 
 For \code{finalNResource()}: A vector holding the resource number
 densities at the end of the simulation for all size classes
+
+For \code{idxFinalT()}: An integer giving the index for extracting the
+results for the final time step
 }
 \description{
 Size spectra at end of simulation
@@ -28,7 +34,13 @@ str(finalN(NS_sim))
 # This could also be obtained using `N()` and `idxFinalT()`
 identical(N(NS_sim)[idxFinalT(NS_sim), , ], finalN(NS_sim))
 str(finalNResource(NS_sim))
-}
-\seealso{
-\code{\link[=idxFinalT]{idxFinalT()}}
+idx <- idxFinalT(NS_sim)
+idx
+# This coincides with
+length(getTimes(NS_sim))
+# and corresponds to the final time
+getTimes(NS_sim)[idx]
+# We can use this index to extract the result at the final time
+identical(N(NS_sim)[idx, , ], finalN(NS_sim))
+identical(NResource(NS_sim)[idx, ], finalNResource(NS_sim))
 }

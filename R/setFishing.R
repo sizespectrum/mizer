@@ -402,10 +402,27 @@ getInitialEffort <- function(params) {
 #' effort invested into fishing with that gear. The effort value for each gear
 #' is multiplied by the catchability and the selectivity to determine the
 #' fishing mortality imposed by that gear, see [setFishing()] for more details.
-#' 
 #' The initial effort you have set can be overruled when running a simulation
 #' by providing an `effort` argument to [project()] which allows you to
 #' specify a time-varying effort.
+#' 
+#' A valid effort vector is a named vector with one effort value for each gear.
+#' However you can also supply the effort value in different ways:
+#' 
+#' * a scalar, which is then replicated for each gear
+#' * an unnamed vector, which is then assumed to be in the same order as the
+#'   gears in the params object
+#' * a named vector in which the gear names have a different order than in the
+#'   params object. This is then sorted correctly.
+#' * a named vector which only supplies values for some of the gears.
+#'   The effort for the other gears is then set to zero.
+#' 
+#' These conversions are done by the function `validEffortVector()`.
+#'   
+#' An `effort` argument will lead to an error if it is either
+#' * unnamed and of the wrong length
+#' * named but where some names do not match any of the gears
+#' * not numeric
 #' 
 #' @param params A MizerParams object
 #' @return Effort vector
@@ -415,7 +432,8 @@ initial_effort <- function(params) {
 }
 
 #' @rdname initial_effort
-#' @param value The initial fishing effort
+#' @param value A vector or scalar with the initial fishing effort, see Details
+#'   below.
 #' @export
 `initial_effort<-` <- function(params, value) {
     setFishing(params, initial_effort = value)
@@ -602,29 +620,12 @@ validGearParams <- function(gear_params, species_params) {
     gear_params
 }
 
-#' Return valid effort vector
+#' Make a valid effort vector
 #' 
-#' A valid effort vector is a named vector with one effort value for each gear.
-#' 
-#' The function also accepts an `effort` that is not yet valid:
-#' 
-#' * a scalar, which is then replicated for each gear
-#' * an unnamed vector, which is then assumed to be in the same order as the
-#'   gears in the params object
-#' * a named vector in which the gear names have a different order than in the
-#'   params object. This is then sorted correctly.
-#' * a named vector which only supplies values for some of the gears.
-#'   The effort for the other gears is then set to zero.
-#'   
-#' An `effort` argument will lead to an error if it is either
-#' * unnamed and of the wrong length
-#' * named but where some names do not match any of the gears
-#' * not numeric
-#' 
-#' @param effort A vector or scalar.
+#' @param effort A vector or scalar with the initial fishing effort, see Details
+#'   below.
 #' 
 #' @export
-#' @concept helper
 #' @rdname initial_effort
 validEffortVector <- function(effort, params) {
     assert_that(is(params, "MizerParams"),
@@ -679,6 +680,7 @@ validEffortVector <- function(effort, params) {
 #' @export
 #' @examples
 #' params <- NS_params
+#' str(calc_selectivity(params))
 #' calc_selectivity(params)["Pelagic", "Herring", ]
 calc_selectivity <- function(params) {
     

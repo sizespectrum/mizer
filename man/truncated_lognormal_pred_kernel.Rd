@@ -37,7 +37,14 @@ parameters need to be given in the species parameter dataframe in the columns
 This function is called from \code{\link[=setPredKernel]{setPredKernel()}} to set up the
 predation kernel slots in a MizerParams object.
 }
+\examples{
+params <- NS_params
+species_params(params)$pred_kernel_type <- "truncated_lognormal"
+plot(w_full(params), getPredKernel(params)["Cod", 10, ], type="l", log="x")
+}
 \seealso{
+\code{\link[=setPredKernel]{setPredKernel()}}
+
 Other predation kernel: 
 \code{\link{box_pred_kernel}()},
 \code{\link{lognormal_pred_kernel}()},

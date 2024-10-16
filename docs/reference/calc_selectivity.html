@@ -11,7 +11,7 @@ not set by the user."><meta property="og:image" content="https://sizespectrum.or
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.5.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.5.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,6 +43,8 @@ not set by the user."><meta property="og:image" content="https://sizespectrum.or
     <li><a class="dropdown-item" href="../articles/working_with_git.html">Working with git and GitHub</a></li>
     <li><a class="dropdown-item" href="../articles/developer_FAQ.html">Developer FAQ</a></li>
     <li><a class="dropdown-item" href="../articles/editing_website.html">Editing the Mizer Website</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -90,6 +92,12 @@ not set by the user.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="va">NS_params</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="fu">calc_selectivity</span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  num [1:4, 1:12, 1:100] 0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "dimnames")=List of 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ gear: chr [1:4] "Industrial" "Pelagic" "Beam" "Otter"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ sp  : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ w   : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
 <span class="r-in"><span><span class="fu">calc_selectivity</span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="st">"Pelagic"</span>, <span class="st">"Herring"</span>, <span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   0.001 0.00119 0.00142  0.0017 0.00203 0.00242 0.00289 0.00345 0.00411 0.00491 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       0       0       0       0       0       0       0       0       0       0 </span>

@@ -59,10 +59,14 @@ the same arguments.
 \examples{
 \donttest{
 params <- NS_params
+# Predation rate in initial state
+pred_rate <- getPredRate(params)
+str(pred_rate)
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the feeding level at one time step
-getPredRate(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ])
+pred_rate <- getPredRate(params, n = N(sim)[15, , ], 
+                         n_pp = NResource(sim)[15, ], t = 15)
 }
 }
 \seealso{

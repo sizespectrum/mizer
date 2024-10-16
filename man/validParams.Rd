@@ -20,21 +20,20 @@ necessary.
 It is possible to render a MizerParams object invalid by manually changing
 its slots. This function checks that the object is valid and if not it
 attempts to upgrade it to a valid object or gives an error message. If the
-object is valid then it is returned unchanged.
+object is valid then it is returned unchanged. The function reports an error
+if any of the rate arrays contain any non-finite numbers (except for the
+maximum intake rate that is allowed to be infinite).
 
 Occasionally, during the development of new features for mizer, the
 \linkS4class{MizerParams} object gains extra slots. MizerParams objects
 created in older versions of mizer are then no longer valid in the new
-version because of the missing slots. You need to upgrade them with
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{params <- validParams(params)
-}\if{html}{\out{</div>}}
-
-where \code{params} should be replaced by the name of your MizerParams object.
-This function adds the missing slots and fills them with default values. Any
+version because of the missing slots. You need to upgrade them with this
+function. It adds the missing slots and fills them with default values. Any
 object from version 0.4 onwards can be upgraded. Any old
 \linkS4class{MizerSim} objects should be similarly updated with
-\code{\link[=validSim]{validSim()}}. This function uses \code{\link[=newMultispeciesParams]{newMultispeciesParams()}} to create a new
+\code{\link[=validSim]{validSim()}}.
+
+This function uses \code{\link[=newMultispeciesParams]{newMultispeciesParams()}} to create a new
 MizerParams object using the parameters extracted from the old MizerParams
 object.
 

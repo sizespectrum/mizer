@@ -168,6 +168,10 @@ getFeedingLevel <- function(object, n, n_pp, n_other,
 #' @param params A MizerParams object
 #' @return A matrix (species x size) with the critical feeding level
 #' @export
+#' @examples
+#' \donttest{
+#' str(getFeedingLevel(NS_params))
+#' }
 getCriticalFeedingLevel <- function(params) {
     params <- validParams(params)
     params@metab / params@intake_max / params@species_params$alpha
@@ -195,8 +199,10 @@ getCriticalFeedingLevel <- function(params) {
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the energy at a particular time step
-#' getEReproAndGrowth(params, n = N(sim)[15, , ], 
-#'                    n_pp = NResource(sim)[15, ], t = 15)
+#' e <- getEReproAndGrowth(params, n = N(sim)[15, , ], 
+#'                         n_pp = NResource(sim)[15, ], t = 15)
+#' # Rate at this time for Sprat of size 2g
+#' e["Sprat", "2"]
 #' }
 getEReproAndGrowth <- function(params, n = initialN(params), 
                                n_pp = initialNResource(params),
@@ -233,10 +239,14 @@ getEReproAndGrowth <- function(params, n = initialN(params),
 #' @examples
 #' \donttest{
 #' params <- NS_params
+#' # Predation rate in initial state
+#' pred_rate <- getPredRate(params)
+#' str(pred_rate)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the feeding level at one time step
-#' getPredRate(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ])
+#' pred_rate <- getPredRate(params, n = N(sim)[15, , ], 
+#'                          n_pp = NResource(sim)[15, ], t = 15)
 #' }
 getPredRate <- function(params, n = initialN(params), 
                         n_pp = initialNResource(params),
@@ -276,14 +286,18 @@ getPredRate <- function(params, n = initialN(params),
 #' @examples
 #' \donttest{
 #' params <- NS_params
+#' # Predation mortality in initial state
+#' M2 <- getPredMort(params)
+#' str(M2)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get predation mortality at one time step
-#' getPredMort(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ])
+#' M2 <- getPredMort(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ])
 #' # Get predation mortality at all saved time steps
-#' getPredMort(sim)
+#' M2 <- getPredMort(sim)
+#' str(M2)
 #' # Get predation mortality over the years 15 - 20
-#' getPredMort(sim, time_range = c(15, 20))
+#' M2 <- getPredMort(sim, time_range = c(15, 20))
 #' }
 getPredMort <- function(object, n, n_pp, n_other,
                         time_range, drop = TRUE, ...) {
@@ -416,12 +430,12 @@ getM2Background <- getResourceMort
 #' @examples
 #' \donttest{
 #' params <-NS_params
-#' # Get the fishing mortality when effort is constant
-#' # for all gears and time:
-#' getFMortGear(params, effort = 1)
-#' # Get the fishing mortality when effort is different
-#' # between the four gears but constant in time:
-#' getFMortGear(params, effort = c(0.5, 1, 1.5, 0.75))
+#' # Get the fishing mortality in initial state
+#' F <- getFMortGear(params, effort = 1)
+#' str(F)
+#' # Get the initial fishing mortality when effort is different
+#' # between the four gears:
+#' F <- getFMortGear(params, effort = c(0.5, 1, 1.5, 0.75))
 #' # Get the fishing mortality when effort is different
 #' # between the four gears and changes with time:
 #' effort <- array(NA, dim = c(20, 4))
@@ -429,11 +443,12 @@ getM2Background <- getResourceMort
 #' effort[, 2] <- seq(from=1, to = 0.5, length = 20)
 #' effort[, 3] <- seq(from=1, to = 2, length = 20)
 #' effort[, 4] <- seq(from=2, to = 1, length = 20)
-#' getFMortGear(params, effort = effort)
+#' F <- getFMortGear(params, effort = effort)
+#' str(F)
 #' # Get the fishing mortality using the effort already held in a MizerSim object.
 #' sim <- project(params, t_max = 20, effort = 0.5)
-#' getFMortGear(sim)
-#' getFMortGear(sim, time_range = c(10, 20))
+#' F <- getFMortGear(sim)
+#' F <- getFMortGear(sim, time_range = c(10, 20))
 #' }
 #' 
 getFMortGear <- function(object, effort, time_range) {
@@ -532,12 +547,12 @@ getFMortGear <- function(object, effort, time_range) {
 #' @examples
 #' \donttest{
 #' params <- NS_params
-#' # Get the total fishing mortality when effort is constant for all 
-#' # gears and time:
-#' getFMort(params, effort = 1)
-#' # Get the total fishing mortality when effort is different
-#' # between the four gears but constant in time:
-#' getFMort(params, effort = c(0.5,1,1.5,0.75))
+#' # Get the total fishing mortality in the initial state
+#' F <- getFMort(params, effort = 1)
+#' str(F)
+#' # Get the initial total fishing mortality when effort is different
+#' # between the four gears:
+#' F <- getFMort(params, effort = c(0.5,1,1.5,0.75))
 #' # Get the total fishing mortality when effort is different
 #' # between the four gears and changes with time:
 #' effort <- array(NA, dim = c(20,4))
@@ -545,12 +560,13 @@ getFMortGear <- function(object, effort, time_range) {
 #' effort[, 2] <- seq(from = 1, to = 0.5, length = 20)
 #' effort[, 3] <- seq(from = 1, to = 2, length = 20)
 #' effort[, 4] <- seq(from = 2, to = 1, length = 20)
-#' getFMort(params, effort = effort)
+#' F <- getFMort(params, effort = effort)
+#' str(F)
 #' # Get the total fishing mortality using the effort already held in a 
 #' # MizerSim object.
 #' sim <- project(params, t_max = 20, effort = 0.5)
-#' getFMort(sim)
-#' getFMort(sim, time_range = c(10, 20))
+#' F <- getFMort(sim)
+#' F <- getFMort(sim, time_range = c(10, 20))
 #' }
 getFMort <- function(object, effort, time_range, drop = TRUE) {
     if (is(object, "MizerParams")) {
@@ -665,8 +681,10 @@ getFMort <- function(object, effort, time_range, drop = TRUE) {
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the total mortality at a particular time step
-#' getMort(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], 
-#'         t = 15, effort = 0.5)
+#' mort <- getMort(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], 
+#'                 t = 15, effort = 0.5)
+#' # Mortality rate at this time for Sprat of size 2g
+#' mort["Sprat", "2"]
 #' }
 getMort <- function(params, 
                     n = initialN(params), 
@@ -718,8 +736,10 @@ getZ <- getMort
 #' params <- NS_params
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
-#' # Get the energy at a particular time step
-#' getERepro(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], t = 15)
+#' # Get the rate at a particular time step
+#' erepro <- getERepro(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], t = 15)
+#' # Rate at this time for Sprat of size 2g
+#' erepro["Sprat", "2"]
 #' }
 getERepro <- function(params, n = initialN(params), 
                       n_pp = initialNResource(params),
@@ -763,7 +783,9 @@ getESpawning <- getERepro
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the energy at a particular time step
-#' getEGrowth(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], t = 15)
+#' growth <- getEGrowth(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], t = 15)
+#' # Growth rate at this time for Sprat of size 2g
+#' growth["Sprat", "2"]
 #' }
 getEGrowth <- function(params, n = initialN(params), 
                        n_pp = initialNResource(params),

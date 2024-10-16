@@ -17,3 +17,8 @@ The critical feeding level is the feeding level at which the food intake is
 just high enough to cover the metabolic costs, with nothing left over for
 growth or reproduction.
 }
+\examples{
+\donttest{
+str(getFeedingLevel(NS_params))
+}
+}

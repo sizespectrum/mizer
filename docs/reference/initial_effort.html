@@ -3,11 +3,15 @@
 effort invested into fishing with that gear. The effort value for each gear
 is multiplied by the catchability and the selectivity to determine the
 fishing mortality imposed by that gear, see setFishing() for more details.
-A valid effort vector is a named vector with one effort value for each gear."><meta property="og:description" content="The fishing effort is a named vector, specifying for each fishing gear the
+The initial effort you have set can be overruled when running a simulation
+by providing an effort argument to project() which allows you to
+specify a time-varying effort."><meta property="og:description" content="The fishing effort is a named vector, specifying for each fishing gear the
 effort invested into fishing with that gear. The effort value for each gear
 is multiplied by the catchability and the selectivity to determine the
 fishing mortality imposed by that gear, see setFishing() for more details.
-A valid effort vector is a named vector with one effort value for each gear."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
+The initial effort you have set can be overruled when running a simulation
+by providing an effort argument to project() which allows you to
+specify a time-varying effort."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -15,7 +19,7 @@ A valid effort vector is a named vector with one effort value for each gear."><m
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.5.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.5.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,6 +51,8 @@ A valid effort vector is a named vector with one effort value for each gear."><m
     <li><a class="dropdown-item" href="../articles/working_with_git.html">Working with git and GitHub</a></li>
     <li><a class="dropdown-item" href="../articles/developer_FAQ.html">Developer FAQ</a></li>
     <li><a class="dropdown-item" href="../articles/editing_website.html">Editing the Mizer Website</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -71,8 +77,10 @@ A valid effort vector is a named vector with one effort value for each gear."><m
     <p>The fishing effort is a named vector, specifying for each fishing gear the
 effort invested into fishing with that gear. The effort value for each gear
 is multiplied by the catchability and the selectivity to determine the
-fishing mortality imposed by that gear, see <code><a href="setFishing.html">setFishing()</a></code> for more details.</p>
-<p>A valid effort vector is a named vector with one effort value for each gear.</p>
+fishing mortality imposed by that gear, see <code><a href="setFishing.html">setFishing()</a></code> for more details.
+The initial effort you have set can be overruled when running a simulation
+by providing an <code>effort</code> argument to <code><a href="project.html">project()</a></code> which allows you to
+specify a time-varying effort.</p>
     </div>
 
     <div class="section level2">
@@ -93,11 +101,13 @@ fishing mortality imposed by that gear, see <code><a href="setFishing.html">setF
 
 
 <dt id="arg-value">value<a class="anchor" aria-label="anchor" href="#arg-value"></a></dt>
-<dd><p>The initial fishing effort</p></dd>
+<dd><p>A vector or scalar with the initial fishing effort, see Details
+below.</p></dd>
 
 
 <dt id="arg-effort">effort<a class="anchor" aria-label="anchor" href="#arg-effort"></a></dt>
-<dd><p>A vector or scalar.</p></dd>
+<dd><p>A vector or scalar with the initial fishing effort, see Details
+below.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -106,17 +116,16 @@ fishing mortality imposed by that gear, see <code><a href="setFishing.html">setF
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The initial effort you have set can be overruled when running a simulation
-by providing an <code>effort</code> argument to <code><a href="project.html">project()</a></code> which allows you to
-specify a time-varying effort.</p>
-<p>The function also accepts an <code>effort</code> that is not yet valid:</p><ul><li><p>a scalar, which is then replicated for each gear</p></li>
+    <p>A valid effort vector is a named vector with one effort value for each gear.
+However you can also supply the effort value in different ways:</p><ul><li><p>a scalar, which is then replicated for each gear</p></li>
 <li><p>an unnamed vector, which is then assumed to be in the same order as the
 gears in the params object</p></li>
 <li><p>a named vector in which the gear names have a different order than in the
 params object. This is then sorted correctly.</p></li>
 <li><p>a named vector which only supplies values for some of the gears.
 The effort for the other gears is then set to zero.</p></li>
-</ul><p>An <code>effort</code> argument will lead to an error if it is either</p><ul><li><p>unnamed and of the wrong length</p></li>
+</ul><p>These conversions are done by the function <code>validEffortVector()</code>.</p>
+<p>An <code>effort</code> argument will lead to an error if it is either</p><ul><li><p>unnamed and of the wrong length</p></li>
 <li><p>named but where some names do not match any of the gears</p></li>
 <li><p>not numeric</p></li>
 </ul></div>
