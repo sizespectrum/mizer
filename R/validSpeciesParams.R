@@ -24,11 +24,11 @@
 #' asymptotic size of an average individual.
 #' 
 #' Some inconsistencies in the size parameters are resolved as follows:
-#' * Any `w_max` that is larger than `w_repro_max` is set to `w_repro_max`.
 #' * Any `w_mat` that is not smaller than `w_max` is set to `w_max / 4`.
 #' * Any `w_mat25` that is not smaller than `w_mat` is set to NA.
 #' * Any `w_min` that is not smaller than `w_mat` is set to `0.001` or 
 #'   `w_mat /10`, whichever is smaller.
+#' * Any `w_repro_max` that is not larger than `w_mat` is set to `4 * w_mat`.
 #' 
 #' The row names of the returned data frame will be the species names.
 #' If `species_params` was provided as a tibble it is converted back to an
@@ -140,18 +140,6 @@ validGivenSpeciesParams <- function(species_params) {
         stop("`w_max` contains non-numeric values.")
     }
     
-    # check w_repro_max ----
-    if ("w_repro_max" %in% names(sp)) {
-        wrong <- !is.na(sp$w_repro_max) & sp$w_repro_max < sp$w_max
-        if (any(wrong)) {
-            warning("For the species ", 
-                    paste(sp$species[wrong], collapse = ", "),
-                    " the value for `w_max` is larger than that of `w_repro_max`.",
-                    " I have corrected that by setting `w_max` equal to `w_repro_max`.")
-            sp$w_max[wrong] <- sp$w_repro_max[wrong]
-        }
-    }
-    
     # check w_mat ----
     if ("w_mat" %in% names(sp)) {
         wrong <- !is.na(sp$w_mat) & sp$w_mat >= sp$w_max
@@ -185,6 +173,22 @@ validGivenSpeciesParams <- function(species_params) {
                         " the value for `w_min` is not smaller than that of `w_mat`.",
                         " I have reduced the values.")
             }
+        }
+    }
+    
+    # check w_repro_max ----
+    if ("w_repro_max" %in% names(sp) &&
+        "w_mat" %in% names(sp) &&
+        "w_mat" %in% names(sp)) {
+        wrong <- !is.na(sp$w_repro_max) &
+            !is.na(sp$w_mat) &
+            sp$w_repro_max <= sp$w_mat
+        if (any(wrong)) {
+            warning("For the species ", 
+                    paste(sp$species[wrong], collapse = ", "),
+                    " the value for `w_repro_max` is smaller than that of `w_mat`.",
+                    " I have corrected that by setting it to 4 times `w_mat.")
+            sp$w_repro_max[wrong] <- 4 * sp$w_mat[wrong]
         }
     }
     sp
