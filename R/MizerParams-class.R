@@ -582,7 +582,7 @@ emptyParams <- function(species_params,
                          dimnames = list(predator = species_names,
                                          prey = species_names))
     
-    vec1 <- as.numeric(rep(NA, no_w_full))
+    vec1 <- as.numeric(rep(0, no_w_full))
     names(vec1) <- signif(w_full, 3)
     
     w_min_idx <- get_w_min_idx(species_params, w)
@@ -814,20 +814,20 @@ dw_full <- function(params) {
 #' It is possible to render a MizerParams object invalid by manually changing
 #' its slots. This function checks that the object is valid and if not it
 #' attempts to upgrade it to a valid object or gives an error message. If the
-#' object is valid then it is returned unchanged.
+#' object is valid then it is returned unchanged. The function reports an error
+#' if any of the rate arrays contain any non-finite numbers (except for the
+#' maximum intake rate that is allowed to be infinite).
 #' 
 #' Occasionally, during the development of new features for mizer, the
 #' \linkS4class{MizerParams} object gains extra slots. MizerParams objects
 #' created in older versions of mizer are then no longer valid in the new
-#' version because of the missing slots. You need to upgrade them with
-#' ```
-#' params <- validParams(params)
-#' ```
-#' where `params` should be replaced by the name of your MizerParams object.
-#' This function adds the missing slots and fills them with default values. Any
+#' version because of the missing slots. You need to upgrade them with this
+#' function. It adds the missing slots and fills them with default values. Any
 #' object from version 0.4 onwards can be upgraded. Any old
 #' \linkS4class{MizerSim} objects should be similarly updated with
-#' [validSim()]. This function uses [newMultispeciesParams()] to create a new
+#' [validSim()]. 
+#' 
+#' This function uses [newMultispeciesParams()] to create a new
 #' MizerParams object using the parameters extracted from the old MizerParams
 #' object.
 #' 
@@ -882,6 +882,50 @@ validParams <- function(params) {
     params@ft_mask[] <- t(sapply(params@species_params$w_max, 
                                function(x) params@w_full < x))
     
+    # Check that there are no non-finite values in the arrays
+    if (!all(is.finite(params@initial_n))) {
+        stop("initial_n must not contain non-finite values")
+    }
+    if (!all(is.finite(params@psi))) {
+        stop("psi must not contain non-finite values")
+    }
+    if (!all(is.finite(params@search_vol))) {
+        stop("search_vol must not contain non-finite values")
+    }
+    if (!all(is.finite(params@metab))) {
+        stop("metab must not contain non-finite values")
+    }
+    if (!all(is.finite(params@mu_b))) {
+        stop("mu_b must not contain non-finite values")
+    }
+    if (!all(is.finite(params@ext_encounter))) {
+        stop("ext_encounter must not contain non-finite values")
+    }
+    if (!all(is.finite(params@selectivity))) {
+        stop("selectivity must not contain non-finite values")
+    }
+    if (!all(is.finite(params@catchability))) {
+        stop("catchability must not contain non-finite values")
+    }
+    if (!all(is.finite(params@interaction))) {
+        stop("interaction must not contain non-finite values")
+    }
+    if (!all(is.finite(params@maturity))) {
+        stop("maturity must not contain non-finite values")
+    }
+    if (!all(is.finite(params@initial_n_pp))) {
+        stop("initial_n_pp must not contain non-finite values")
+    }
+    if (!all(is.finite(params@rr_pp))) {
+        stop("rr_pp must not contain non-finite values")
+    }
+    if (!all(is.finite(params@cc_pp))) {
+        stop("cc_pp must not contain non-finite values")
+    }
+    # intake_max can also be Inf
+    if (!all(is.finite(params@intake_max) | is.infinite(params@intake_max))) {
+        stop("intake_max must contain finite or infinite numeric values only")
+    }
     validObject(params)
     params
 }
