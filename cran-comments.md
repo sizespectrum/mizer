@@ -1,3 +1,5 @@
+This is a resubmission. Days since last update: 2
+
 This version avoids the errors reported at 
 https://cloud.r-project.org/web/checks/check_results_mizer.html
 
@@ -12,7 +14,7 @@ https://cloud.r-project.org/web/checks/check_results_mizer.html
 
 Status: 1 NOTE
 Found the following (possibly) invalid URLs:
-  URL: https://twitter.com/mizer_model
+  URL: https://x.com/mizer_model
   
 This URL is however correct.
 

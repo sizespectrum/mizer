@@ -46,7 +46,7 @@ called [mizerExperimental](https://sizespectrum.org/mizerExperimental/)
 where user contributions can be checked out and receive feedback from
 the community. Example mizer models can be contributed to
 [mizerExamples](https://sizespectrum.org/mizerExamples/). Follow us on
-[twitter](https://twitter.com/mizer_model) and read our
+[twitter](https://x.com/mizer_model) and read our
 [blog](https://blog.mizer.sizespectrum.org) to stay up-to-date with new
 developments. Does your project or publication use mizer? If so, we
 would love to know.
