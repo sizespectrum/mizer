@@ -47,6 +47,14 @@ test_that("validGearParams works", {
     gp$gear <- c("g1", "g2")
     expect_identical(rownames(validGearParams(gp, sp)), 
                      c("species1, g1", "species1, g2"))
+    
+    # Factors are converted to strings
+    gp <- data.frame(species = factor("species1"), gear = factor("g"),
+                     stringsAsFactors = TRUE)
+    sp <- data.frame(species = "species1", w_max = 100)
+    gp <- validGearParams(gp, sp)
+    expect_identical(gp$species, "species1")
+    expect_identical(gp$gear, "g")
 })
 
 # validEffortVector ----

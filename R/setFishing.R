@@ -541,6 +541,9 @@ validGearParams <- function(gear_params, species_params) {
         stop("`gear_params` must have columns 'species' and 'gear'.")
     }
     
+    gear_params$species <- as.character(gear_params$species)
+    gear_params$gear <- as.character(gear_params$gear)
+    
     # Check that every species mentioned in gear_params exists
     if (!all(gear_params$species %in% species_params$species)) {
         stop("The gear_params dataframe contains species that do not exist in the model.")
