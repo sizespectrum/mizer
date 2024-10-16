@@ -1403,6 +1403,10 @@ setMethod("plot", signature(x = "MizerSim", y = "missing"),
 #' level and predation mortality of each species through time. This method just
 #' uses the other plotting functions and puts them all in one window.
 #' 
+#' @param x An object of class \linkS4class{MizerParams}
+#' @param y Not used
+#' @param ...  For additional arguments see the documentation for
+#'   [plotFeedingLevel()],[plotSpectra()],[plotPredMort()]
 #' @return A viewport object
 #' @export
 #' @family plotting functions

@@ -10,10 +10,10 @@ completeSpeciesParams(species_params)
 \item{species_params}{The user-supplied species parameter data frame}
 }
 \value{
-For validSpeciesParams(): A valid species parameter data frame with
+For \code{validSpeciesParams()}: A valid species parameter data frame with
 additional parameters with default values.
 
-For validGivenSpeciesParams(): A valid species parameter data frame
+For \code{validGivenSpeciesParams()}: A valid species parameter data frame
 without additional parameters.
 }
 \description{

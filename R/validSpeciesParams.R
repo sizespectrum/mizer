@@ -55,7 +55,7 @@
 #' list of these functions).
 #' 
 #' @param species_params The user-supplied species parameter data frame
-#' @return For validSpeciesParams(): A valid species parameter data frame with
+#' @return For `validSpeciesParams()`: A valid species parameter data frame with
 #'   additional parameters with default values.
 #' 
 #' @seealso [species_params()], [validGearParams()], [validParams()], [validSim()]
@@ -73,7 +73,7 @@ validSpeciesParams <- function(species_params) {
 }
 
 #' @rdname validSpeciesParams
-#' @return For validGivenSpeciesParams(): A valid species parameter data frame
+#' @return For `validGivenSpeciesParams()`: A valid species parameter data frame
 #'   without additional parameters.
 #' @export
 validGivenSpeciesParams <- function(species_params) {

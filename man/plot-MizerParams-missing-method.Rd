@@ -6,6 +6,14 @@
 \usage{
 \S4method{plot}{MizerParams,missing}(x, y, ...)
 }
+\arguments{
+\item{x}{An object of class \linkS4class{MizerParams}}
+
+\item{y}{Not used}
+
+\item{...}{For additional arguments see the documentation for
+\code{\link[=plotFeedingLevel]{plotFeedingLevel()}},\code{\link[=plotSpectra]{plotSpectra()}},\code{\link[=plotPredMort]{plotPredMort()}}}
+}
 \value{
 A viewport object
 }
