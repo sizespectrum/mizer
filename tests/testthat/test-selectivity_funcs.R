@@ -12,10 +12,10 @@ test_that("knife-edge selectivity function is working properly", {
     # Chop off l25, l50, a and b columns - the trawl selectivity
     NS_species_params_gears <- NS_species_params_gears[,!(colnames(NS_species_params_gears) %in% c("l25","l50","a","b"))]
     params <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
-    industrial_species <- as.character(NS_species_params_gears$species[NS_species_params_gears$gear == "Industrial"])
-    pelagic_species <- as.character(NS_species_params_gears$species[NS_species_params_gears$gear == "Pelagic"])
-    beam_trawl_species <- as.character(NS_species_params_gears$species[NS_species_params_gears$gear == "Beam"])
-    otter_trawl_species <- as.character(NS_species_params_gears$species[NS_species_params_gears$gear == "Otter"])
+    industrial_species <- NS_species_params_gears$species[NS_species_params_gears$gear == "Industrial"]
+    pelagic_species <- NS_species_params_gears$species[NS_species_params_gears$gear == "Pelagic"]
+    beam_trawl_species <- NS_species_params_gears$species[NS_species_params_gears$gear == "Beam"]
+    otter_trawl_species <- NS_species_params_gears$species[NS_species_params_gears$gear == "Otter"]
     
     expect_true(all(params@selectivity["Industrial",industrial_species,params@w < 500] == 0))
     expect_true(all(params@selectivity["Industrial",industrial_species,params@w >= 500] == 1))

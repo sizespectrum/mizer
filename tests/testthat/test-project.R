@@ -243,7 +243,7 @@ test_that("Final result the same when called with sim or params", {
 # This test is motivated by the bug in 
 # https://github.com/sizespectrum/mizer/issues/173
 test_that("Dimnames on effort have correct names", {
-  gear_names <- as.character(unique(gear_params(NS_params)$gear))
+  gear_names <- unique(gear_params(NS_params)$gear)
   effort <- array(1, dim = c(3, length(gear_names)), 
                   dimnames = list(1:3,
                                   gear_names))

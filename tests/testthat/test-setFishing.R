@@ -260,7 +260,6 @@ test_that("Duplicate gear-species pairs give error", {
 
 test_that("Non-existing species give error", {
     gp <- NS_params@gear_params
-    gp$species <- as.character(gp$species)
     gp$species[[1]] <- "test"
     expect_error(gear_params(params) <- gp,
                  "The gear_params dataframe contains species that do not exist in the model.")
