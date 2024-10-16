@@ -244,10 +244,23 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
 #' Validate MizerSim object and upgrade if necessary
 #' 
 #' Checks that the given MizerSim object is valid and upgrades it if
-#' necessary by calling [upgradeSim()].
+#' necessary.
 #' 
-#' In particular, it makes sure that the MizerParams object inside the 
-#' MizerSim object is valid by calling [validParams()].
+#' Occasionally, during the development of new features for mizer, the
+#' \linkS4class{MizerSim} class or the \linkS4class{MizerParams} class gains
+#' extra slots. MizerSim objects created in older versions of mizer are then no
+#' longer valid in the new version because of the missing slots. You need to
+#' upgrade them with
+#' ```
+#' sim <- validSim(sim)
+#' ```
+#' where `sim` should be replaced by the name of your MizerSim object.
+#' 
+#' This function adds the missing slots and fills them with default values. It
+#' also calls [validParams()] to upgrade the MizerParams object inside the
+#' MizerSim object. Any object from version 0.4 onwards can be upgraded.
+#' 
+#' @inheritSection validParams Backwards compatibility
 #' 
 #' @param sim The MizerSim object to validate
 #' @return A valid MizerSim object

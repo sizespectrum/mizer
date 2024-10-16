@@ -7,7 +7,7 @@ for (file in list.files("data")) {
     name <- load(path)
     print(name)
     if (is(get(name), "MizerParams")) {
-        assign(name, upgradeParams(get(name)))
+        assign(name, validParams(get(name)))
         save(list = name, file = path, version = 2)
     }
 }

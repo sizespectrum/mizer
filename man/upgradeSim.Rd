@@ -13,43 +13,6 @@ upgradeSim(sim)
 The upgraded MizerSim object
 }
 \description{
-Occasionally, during the development of new features for mizer, the
-\linkS4class{MizerSim} class or the \linkS4class{MizerParams} class gains
-extra slots. MizerSim objects created in older versions of mizer are then no
-longer valid in the new version because of the missing slots. You need to
-upgrade them with
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{sim <- upgradeSim(sim)
-}\if{html}{\out{</div>}}
-
-where \code{sim} should be replaced by the name of your MizerSim object.
+Upgrade MizerSim object from earlier mizer versions
 }
-\details{
-This function adds the missing slots and fills them with default values. It
-calls \code{\link[=upgradeParams]{upgradeParams()}} to upgrade the MizerParams object inside the MizerSim
-object. Any object from version 0.4 onwards can be upgraded.
-}
-\section{Backwards compatibility}{
-
-The internal numerics in mizer have changed over time, so there may be small
-discrepancies between the results obtained with the upgraded object
-in the new version and the original object in the old version. If it
-is important for you to reproduce the exact results then you should install
-the version of mizer with which you obtained the results. You can do this
-with
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{remotes::install_github("sizespectrum/mizer", ref = "v0.2")
-}\if{html}{\out{</div>}}
-
-where you should replace "v0.2" with the version number you require. You can
-see the list of available releases at
-\url{https://github.com/sizespectrum/mizer/tags}.
-
-If you only have a serialised version of the old object, for example
-created via \code{\link[=saveRDS]{saveRDS()}}, and you get an error when trying to read it in
-with \code{\link[=readRDS]{readRDS()}} then unfortunately you will need to install the old version
-of mizer first to read the params object into your workspace, then switch
-to the current version and then call \code{\link[=upgradeParams]{upgradeParams()}}. You can then save
-the new version again with \code{\link[=saveRDS]{saveRDS()}}.
-}
-
+\concept{helper}

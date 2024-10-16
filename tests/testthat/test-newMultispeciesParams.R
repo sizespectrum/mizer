@@ -57,11 +57,15 @@ test_that("setParams handles change in w_max", {
     params <- NS_params
     # Check that ft_mask is recalculated correctly
     params@species_params$w_max[1] <- 1000
+    expect_warning(setParams(params),
+                   "For the species Sprat the value for `w_max` is larger")
+    params@species_params$w_repro_max[1] <- 1000
     params <- setParams(params)
     expect_equal(sum(params@ft_mask[1, ]), 205)
     
-    # Check that error is thrown if w_max is too large
+    # Check that warning is given if w_max is too large
     params@species_params$w_max[1] <- max(params@w) + 10
-    expect_error(setParams(params),
+    params@species_params$w_repro_max[1] <- max(params@w) + 10
+    expect_warning(setParams(params),
                  "The maximum weight of a species is larger than")
 })

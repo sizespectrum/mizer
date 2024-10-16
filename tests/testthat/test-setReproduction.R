@@ -97,12 +97,13 @@ test_that("Comment works on psi", {
     # no message when nothing changes
     expect_message(setReproduction(params), NA)
     # but message when a change is not stored due to comment
-    params@species_params$w_max <- params@species_params$w_max * 1.1
+    params@species_params$w_max <- params@species_params$w_max / 1.1
+    params@species_params$w_repro_max <- params@species_params$w_repro_max / 1.1
     expect_message(setReproduction(params),  "has been commented")
     # Can reset
     p <- setReproduction(params, reset = TRUE)
-    # The increase in w_max should lower the psi curve
-    expect_gt(max(params@psi - p@psi), 0)
+    # The decrease in w_repro_max should increase the psi curve
+    expect_lt(min(params@psi - p@psi), 0)
     expect_warning(setReproduction(params, repro_prop = repro_prop,
                                     reset = TRUE),
                    "Because you set `reset = TRUE`, the")

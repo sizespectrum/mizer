@@ -27,23 +27,17 @@ test_that("upgradeSim preserves comments", {
 
 test_that("Object from version 0.4 can be upgraded", {
     simc.0.4 <- readRDS("assets/simc.0.4.rds")
-    (sim <- upgradeSim(simc.0.4)) |>
-        expect_message() |>
-        expect_warning("The species parameter data frame is missing a `w_max`") |>
-        # TODO: This multiple warming should be removed
-        expect_warning("The species parameter data frame is missing a `w_max`") |>
-        expect_warning("The species parameter data frame is missing a `w_max`")
+    (sim <- validSim(simc.0.4)) |>
+        expect_message("Initial effort has been set to 0") |>
+        expect_warning("Your MizerSim object was created with an earlier")
     
     expect_true(validObject(sim))
 })
 test_that("Object from version 1.0 can be upgraded", {
     simc.1.0 <- readRDS("assets/simc.1.0.rds")
-    (sim <- upgradeSim(simc.1.0)) |>
-        expect_message() |>
-        expect_warning("The species parameter data frame is missing a `w_max`") |>
-        # TODO: This multiple warming should be removed
-        expect_warning("The species parameter data frame is missing a `w_max`") |>
-        expect_warning("The species parameter data frame is missing a `w_max`")
+    (sim <- validSim(simc.1.0)) |>
+        expect_message("Initial effort has been set to 0") |>
+        expect_warning("Your MizerSim object was created with an earlier")
     expect_true(validObject(sim))
 })
 test_that("r_max is renamed", {

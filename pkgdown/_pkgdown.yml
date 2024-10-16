@@ -249,10 +249,9 @@ reference:
   - compareParams
   - "w"
   - validParams
-  - upgradeParams
   - MizerSim-class
   - summary,MizerSim-method
-  - upgradeSim
+  - validSim
   - MizerSim
   - getParams
 - title: Example parameter sets

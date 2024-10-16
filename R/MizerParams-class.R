@@ -225,7 +225,7 @@ validMizerParams <- function(object) {
     
     # Should not have legacy r_max column (has been renamed to R_max)
     if ("r_max" %in% names(params@species_params)) {
-        msg <- "The 'r_max' column in species_params should be called 'R_max'. You can use 'upgradeParams()' to upgrade your params object."
+        msg <- "The 'r_max' column in species_params should be called 'R_max'. You can use 'validParams()' to upgrade your params object."
         errors <- c(errors, msg)
     }
     # # species_params data.frame must have columns: 
@@ -807,24 +807,80 @@ dw_full <- function(params) {
 }
 
 #' Validate MizerParams object and upgrade if necessary
-#' 
+#'
 #' Checks that the given MizerParams object is valid and upgrades it if
-#' necessary by calling [upgradeParams()].
+#' necessary.
 #' 
-#' Besides upgrading if necessary, the only change that may be made to the
-#' given MizerParams object is that the `w_min_idx` slot is recalculated.
+#' It is possible to render a MizerParams object invalid by manually changing
+#' its slots. This function checks that the object is valid and if not it
+#' attempts to upgrade it to a valid object or gives an error message. If the
+#' object is valid then it is returned unchanged.
 #' 
+#' Occasionally, during the development of new features for mizer, the
+#' \linkS4class{MizerParams} object gains extra slots. MizerParams objects
+#' created in older versions of mizer are then no longer valid in the new
+#' version because of the missing slots. You need to upgrade them with
+#' ```
+#' params <- validParams(params)
+#' ```
+#' where `params` should be replaced by the name of your MizerParams object.
+#' This function adds the missing slots and fills them with default values. Any
+#' object from version 0.4 onwards can be upgraded. Any old
+#' \linkS4class{MizerSim} objects should be similarly updated with
+#' [validSim()]. This function uses [newMultispeciesParams()] to create a new
+#' MizerParams object using the parameters extracted from the old MizerParams
+#' object.
+#' 
+#' Besides upgrading, if necessary, the only changes that may be made to the
+#' given MizerParams object is that the `w_min_idx` and `ft_mask` slots are
+#' recalculated.
+#' 
+#' @section Backwards compatibility:
+#' The internal numerics in mizer have changed over time, so there may be small
+#' discrepancies between the results obtained with the upgraded object
+#' in the new version and the original object in the old version. If it
+#' is important for you to reproduce the exact results then you should install
+#' the version of mizer with which you obtained the results. You can do this
+#' with
+#' ```
+#' remotes::install_github("sizespectrum/mizer", ref = "v0.2")
+#' ```
+#' where you should replace "v0.2" with the version number you require. You can
+#' see the list of available releases at 
+#' <https://github.com/sizespectrum/mizer/tags>.
+#' 
+#' If you only have a serialised version of the old object, for example
+#' created via [saveRDS()], and you get an error when trying to read it in
+#' with [readRDS()] then unfortunately you will need to install the old version
+#' of mizer first to read the params object into your workspace, then switch
+#' to the current version and then call [validParams()]. You can then save
+#' the new version again with [saveParams()].
+#'
 #' @param params The MizerParams object to validate
 #' @return A valid MizerParams object
 #' @export
 validParams <- function(params) {
     assert_that(is(params, "MizerParams"))
-    params@w_min_idx <- get_w_min_idx(params@species_params, params@w)
     
     if (needs_upgrading(params)) {
         params <- suppressWarnings(upgradeParams(params))
-        warning("Your MizerParams object was created with an earlier version of mizer. You can upgrade it with `params <- upgradeParams(params)` where you should replace `params` by the name of the variable that holds your MizerParams object.")
+        warning("Your MizerParams object was created with an earlier version of mizer. You can upgrade it with `params <- validParams(params)` where you should replace `params` by the name of the variable that holds your MizerParams object.")
     }
+    
+    params@species_params <- validSpeciesParams(params@species_params)
+    params@w_min_idx <- get_w_min_idx(params@species_params, params@w)
+    
+    # Check w_max
+    # This isn't checked by `validSpeciesParams()` because that function does
+    # not have access to the full weight grid.
+    w_max <- max(params@w) + 1e-6 # The 1e-6 is to avoid rounding errors
+    if (any(params@species_params$w_max > w_max)) {
+        warning("The maximum weight of a species is larger than the maximum ",
+             "weight of the model. ")
+    }
+    # Recalculate ft_mask in case w_max has changed
+    params@ft_mask[] <- t(sapply(params@species_params$w_max, 
+                               function(x) params@w_full < x))
     
     validObject(params)
     params

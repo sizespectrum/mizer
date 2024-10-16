@@ -20,46 +20,13 @@ needs_upgrading <- function(object) {
 
 #' Upgrade MizerParams object from earlier mizer versions
 #' 
-#' Occasionally during the development of new features for mizer, the
-#' \linkS4class{MizerParams} object gains extra slots. MizerParams objects
-#' created in older versions of mizer are then no longer valid in the new
-#' version because of the missing slots. You need to upgrade them with
-#' ```
-#'params <- upgradeParams(params)
-#' ```
-#' where `params` should be replaced by the name of your MizerParams object.
-#' This function adds the missing slots and fills them with default values. Any
-#' object from version 0.4 onwards can be upgraded. Any old
-#' \linkS4class{MizerSim} objects should be similarly updated with
-#' [upgradeSim()]. This function uses [newMultispeciesParams()] to create a new
-#' MizerParams object using the parameters extracted from the old MizerParams
-#' object.
-#' 
-#' @section Backwards compatibility:
-#' The internal numerics in mizer have changed over time, so there may be small
-#' discrepancies between the results obtained with the upgraded object
-#' in the new version and the original object in the old version. If it
-#' is important for you to reproduce the exact results then you should install
-#' the version of mizer with which you obtained the results. You can do this
-#' with
-#' ```
-#' remotes::install_github("sizespectrum/mizer", ref = "v0.2")
-#' ```
-#' where you should replace "v0.2" with the version number you require. You can
-#' see the list of available releases at 
-#' <https://github.com/sizespectrum/mizer/tags>.
-#' 
-#' If you only have a serialised version of the old object, for example
-#' created via [saveRDS()], and you get an error when trying to read it in
-#' with [readRDS()] then unfortunately you will need to install the old version
-#' of mizer first to read the params object into your workspace, then switch
-#' to the current version and then call [upgradeParams()]. You can then save
-#' the new version again with [saveRDS()].
+#' This function is called from [validParams()]. You should never need to call
+#' it directly.
 #' 
 #' @param params An old MizerParams object to be upgraded
 #' 
 #' @return The upgraded MizerParams object
-#' @export
+#' @concept helper
 #' @seealso [validParams()]
 upgradeParams <- function(params) {
     if (!needs_upgrading(params)) return(params)
@@ -370,39 +337,22 @@ upgradeParams <- function(params) {
     params@mizer_version <- packageVersion("mizer")
     params@time_modified <- lubridate::now()
     params@time_created <- time_created
-    validObject(params)
     params
 }
 
 #' Upgrade MizerSim object from earlier mizer versions
 #' 
-#' Occasionally, during the development of new features for mizer, the
-#' \linkS4class{MizerSim} class or the \linkS4class{MizerParams} class gains
-#' extra slots. MizerSim objects created in older versions of mizer are then no
-#' longer valid in the new version because of the missing slots. You need to
-#' upgrade them with
-#' ```
-#' sim <- upgradeSim(sim)
-#' ```
-#' where `sim` should be replaced by the name of your MizerSim object.
-#' 
-#' This function adds the missing slots and fills them with default values. It
-#' calls [upgradeParams()] to upgrade the MizerParams object inside the MizerSim
-#' object. Any object from version 0.4 onwards can be upgraded.
-#' 
-#' @inheritSection upgradeParams Backwards compatibility
-#' 
 #' @param sim An old MizerSim object to be upgraded
 #' 
 #' @return The upgraded MizerSim object
-#' @export
+#' @concept helper
 upgradeSim <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     if (!needs_upgrading(sim)) return(sim)
     
     t_dimnames <- dimnames(sim@n_pp)[[1]]
     no_gears <- dim(sim@effort)[[2]]
-    new_sim <- MizerSim(upgradeParams(sim@params),
+    new_sim <- MizerSim(validParams(sim@params),
                         t_dimnames = as.numeric(t_dimnames))
     
     new_sim@n <- sim@n
