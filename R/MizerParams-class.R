@@ -831,9 +831,10 @@ dw_full <- function(params) {
 #' MizerParams object using the parameters extracted from the old MizerParams
 #' object.
 #' 
-#' Besides upgrading, if necessary, the only changes that may be made to the
-#' given MizerParams object is that the `w_min_idx` and `ft_mask` slots are
-#' recalculated.
+#' Besides upgrading, if necessary, the function also uses
+#' [validSpeciesParams()], [validGivenSpeciesParams()] and [validGearParams()]
+#' to ensure the validity of these parameters. Finally the `w_min_idx` and
+#' `ft_mask` slots are recalculated.
 #' 
 #' @section Backwards compatibility:
 #' The internal numerics in mizer have changed over time, so there may be small
@@ -867,6 +868,8 @@ validParams <- function(params) {
         warning("Your MizerParams object was created with an earlier version of mizer. You can upgrade it with `params <- validParams(params)` where you should replace `params` by the name of the variable that holds your MizerParams object.")
     }
     
+    params@given_species_params <- 
+        validGivenSpeciesParams(params@given_species_params)
     params@species_params <- validSpeciesParams(params@species_params)
     params@w_min_idx <- get_w_min_idx(params@species_params, params@w)
     
