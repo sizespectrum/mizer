@@ -1,3 +1,9 @@
+# Development version 2.5.3.9000
+
+- `species` and `gears` columns are now never factors, so no longer need to
+  call `as.character()` so often.
+- `validParams()` also calls `validGearParams()`.
+
 # mizer 2.5.3
 
 A patch update so that users who had changed `w_max` manually in their model
