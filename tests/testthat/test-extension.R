@@ -42,7 +42,7 @@ test_that("Time is passed correctly to rate functions", {
     params@rates_funcs$FeedingLevel <- "nt"
     expect_identical(getFeedingLevel(params, time_range = 2), nt(params, 2))
     
-    gears <- unique(as.character(gear_params(params)$gear))
+    gears <- unique(gear_params(params)$gear)
     effort <- array(0, dim = c(3, 4), 
                     dimnames = list(time = 2020:2022,
                                     gear = gears))

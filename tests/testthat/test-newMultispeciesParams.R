@@ -5,10 +5,10 @@ test_that("constructor with species_params and interaction signature gives the r
     # expect_that(params, is_a("MizerParams")) # deprecated, trying to find alternative
     expect_equal(class(params)[1], "MizerParams") # alternative?
     expect_equal(dim(params@psi)[1], nrow(NS_species_params))
-    expect_equal(dimnames(params@psi)$sp, as.character(NS_species_params$species))
+    expect_equal(dimnames(params@psi)$sp, NS_species_params$species)
     params_gears <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)  
     expect_equal(unique(dimnames(params_gears@selectivity)$gear), 
-                 as.character(unique(params_gears@species_params$gear)))
+                 unique(params_gears@species_params$gear))
     # pass in other arguments
     params_gears <- newMultispeciesParams(NS_species_params_gears, 
                                           inter, no_w = 50, info_level = 0)  

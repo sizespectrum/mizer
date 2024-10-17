@@ -835,7 +835,7 @@ getRDI <- function(params, n = initialN(params),
                                    n_other = n_other, t = t), 
              mort = getMort(params, n = n, n_pp = n_pp, 
                             n_other = n_other, t = t))
-    names(rdi) <- as.character(params@species_params$species)
+    names(rdi) <- params@species_params$species
     rdi
 }
 
@@ -882,7 +882,7 @@ getRDD <- function(params, n = initialN(params),
     f <- get(params@rates_funcs$RDD)
     rdd <- f(rdi = rdi, species_params = params@species_params, 
              params = params, t = t)
-    names(rdd) <- as.character(params@species_params$species)
+    names(rdd) <- params@species_params$species
     rdd
 }
 

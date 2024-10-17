@@ -98,7 +98,7 @@ getDiet <- function(params,
     diet <- array(0, dim = c(no_sp, no_w, no_sp + 2 + no_other),
                   dimnames = list("predator" = species,
                                   "w" = dimnames(params@initial_n)$w,
-                                  "prey" = c(as.character(species), 
+                                  "prey" = c(species, 
                                              "Resource", "External",
                                              other_names)))
     # idx_sp are the index values of object@w_full such that

@@ -119,11 +119,11 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
                 is.flag(reset))
     species_params <- params@species_params
     gear_params <- params@gear_params
-    sp_names <- as.character(species_params$species)
+    sp_names <- species_params$species
     no_sp <- length(sp_names)
     w_names <- dimnames(params@selectivity)[[3]]
     no_w <- length(params@w)
-    gear_names <- as.character(unique(gear_params$gear))
+    gear_names <- unique(gear_params$gear)
     no_gears <- length(gear_names)
     
     if (reset) {
@@ -239,8 +239,8 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
                   )
             )
         for (g in seq_len(nrow(gear_params))) {
-            catchability[[as.character(gear_params$gear[[g]]), 
-                          as.character(gear_params$species[[g]])]] <-
+            catchability[[gear_params$gear[[g]], 
+                          gear_params$species[[g]]]] <-
                 gear_params$catchability[[g]]
         }
         if (!is.null(comment(params@catchability)) &&
@@ -508,10 +508,10 @@ validGearParams <- function(gear_params, species_params) {
          "sel_func" %in% names(species_params))) {
         # Try to take parameters from species_params
         gear_params <- 
-            data.frame(species = as.character(species_params$species),
+            data.frame(species = species_params$species,
                        stringsAsFactors = FALSE)
         if ("gear" %in% names(species_params)) {
-            gear_params$gear <- as.character(species_params$gear)
+            gear_params$gear <- species_params$gear
             gear_params$gear[is.na(gear_params$gear)] <- 
                 species_params$species[is.na(gear_params$gear)]
         } else {
@@ -532,7 +532,7 @@ validGearParams <- function(gear_params, species_params) {
         }
         # copy over any selectivity function parameters
         for (g in seq_len(no_sp)) {
-            args <- names(formals(as.character(gear_params[g, "sel_func"])))
+            args <- names(formals(gear_params[g, "sel_func"]))
             args <- args[!(args %in% c("w", "species_params", "..."))]
             for (arg in args) {
                 if (!arg %in% names(gear_params)) {
@@ -596,8 +596,7 @@ validGearParams <- function(gear_params, species_params) {
             gear_params$knife_edge_size[[g]] <- species_params$w_mat[sel]
         }
         # get args
-        # These as.characters are annoying - but factors everywhere
-        arg <- names(formals(as.character(gear_params[g, "sel_func"])))
+        arg <- names(formals(gear_params[g, "sel_func"]))
         arg <- arg[!(arg %in% c("w", "species_params", "..."))]
         if (!all(arg %in% colnames(gear_params))) {
             stop("Some arguments needed for the selectivity function are ",
@@ -687,11 +686,11 @@ calc_selectivity <- function(params) {
     assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
     gear_params <- params@gear_params
-    sp_names <- as.character(species_params$species)
+    sp_names <- species_params$species
     no_sp <- length(sp_names)
     w_names <- dimnames(params@selectivity)[[3]]
     no_w <- length(params@w)
-    gear_names <- as.character(unique(gear_params$gear))
+    gear_names <- unique(gear_params$gear)
     no_gears <- length(gear_names)
     
     selectivity <- 
@@ -702,9 +701,8 @@ calc_selectivity <- function(params) {
               )
         )
     for (g in seq_len(nrow(gear_params))) {
-        # These as.characters are annoying - but factors everywhere
-        species <- as.character(gear_params[g, "species"])
-        gear <- as.character(gear_params[g, "gear"])
+        species <- gear_params[g, "species"]
+        gear <- gear_params[g, "gear"]
         sel_func <- as.character(gear_params[g, "sel_func"])
         # get args
         arg <- names(formals(sel_func))

@@ -113,9 +113,9 @@ addSpecies <- function(params, species_params,
     
     # Move linecolour and linetype into species_params
     params@species_params$linetype <-
-        params@linetype[as.character(params@species_params$species)]
+        params@linetype[params@species_params$species]
     params@species_params$linecolour <-
-        params@linecolour[as.character(params@species_params$species)]
+        params@linecolour[params@species_params$species]
     
     # Make sure that all columns exist in both data frames
     missing <- setdiff(names(params@given_species_params), names(given_species_params))
@@ -331,21 +331,6 @@ removeSpecies <- function(params, species) {
     keep <- !species
     p <- params
     
-    # We don't like factors because we don't want to have to reduce the
-    # number of levels by hand
-    if (is.factor(p@species_params$species)) {
-        p@species_params$species <- as.character(p@species_params$species)
-    }
-    if (is.factor(p@given_species_params$species)) {
-        p@given_species_params$species <- as.character(p@species_params$species)
-    }
-    if (is.factor(p@gear_params$species)) {
-        p@gear_params$species <- as.character(p@gear_params$species)
-    }
-    if (is.factor(p@gear_params$gear)) {
-        p@gear_params$gear <- as.character(p@gear_params$gear)
-    }
-    
     # Select only the parts corresponding the species we keep
     p@linecolour <-
         params@linecolour[!(names(params@linecolour) %in%
@@ -422,7 +407,7 @@ renameSpecies <- function(params, replace) {
     params <- validParams(params)
     replace[] <- as.character(replace)
     to_replace <- names(replace)
-    species <- as.character(params@species_params$species)
+    species <- params@species_params$species
     wrong <- setdiff(names(replace), species)
     if (length(wrong) > 0) {
         stop(paste(wrong, collapse = ", "),
@@ -435,7 +420,7 @@ renameSpecies <- function(params, replace) {
     params@species_params$species <- species
     rownames(params@given_species_params) <- species
     params@given_species_params$species <- species
-    params@gear_params$species <- as.character(params@gear_params$species)
+    params@gear_params$species <- params@gear_params$species
     for (i in seq_len(nrow(params@gear_params))) {
         if (params@gear_params$species[[i]] %in% names(replace)) {
             params@gear_params$species[[i]] <-

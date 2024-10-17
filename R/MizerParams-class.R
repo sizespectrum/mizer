@@ -561,7 +561,7 @@ emptyParams <- function(species_params,
     
     # Basic arrays for templates ----
     no_sp <- nrow(species_params)
-    species_names <- as.character(species_params$species)
+    species_names <- species_params$species
     gear_names <- unique(gear_params$gear)
     mat1 <- array(0, dim = c(no_sp, no_w), 
                   dimnames = list(sp = species_names, w = signif(w, 3)))
@@ -638,7 +638,7 @@ emptyParams <- function(species_params,
     } else {
         linecolour <- rep(colour_palette, length.out = no_sp)
     }
-    names(linecolour) <- as.character(species_names)
+    names(linecolour) <- species_names
     linecolour <- c(linecolour, "Resource" = "green", "Total" = "black",
                     "Background" = "grey", "Fishing" = "red", 
                     "External" = "grey")
@@ -649,7 +649,7 @@ emptyParams <- function(species_params,
     } else {
         linetype <- rep(type_palette, length.out = no_sp)
     }
-    names(linetype) <- as.character(species_names)
+    names(linetype) <- species_names
     linetype <- c(linetype, "Resource" = "solid", "Total" = "solid",
                   "Background" = "solid", "Fishing" = "solid", 
                   "External" = "solid")
@@ -942,6 +942,6 @@ get_w_min_idx <- function(species_params, w) {
                function(w_min, wx) max(which(wx <= w_min)), wx = w)))
     # Due to rounding errors this might happen:
     w_min_idx[w_min_idx == -Inf] <- 1
-    names(w_min_idx) <- as.character(species_params$species)
+    names(w_min_idx) <- species_params$species
     w_min_idx
 }
