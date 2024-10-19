@@ -36,10 +36,6 @@ object from version 0.4 onwards can be upgraded. Any old
 This function uses \code{\link[=newMultispeciesParams]{newMultispeciesParams()}} to create a new
 MizerParams object using the parameters extracted from the old MizerParams
 object.
-
-Besides upgrading, if necessary, the only changes that may be made to the
-given MizerParams object is that the \code{w_min_idx} and \code{ft_mask} slots are
-recalculated.
 }
 \section{Backwards compatibility}{
 

@@ -831,11 +831,6 @@ dw_full <- function(params) {
 #' MizerParams object using the parameters extracted from the old MizerParams
 #' object.
 #' 
-#' Besides upgrading, if necessary, the function also uses
-#' [validSpeciesParams()], [validGivenSpeciesParams()] and [validGearParams()]
-#' to ensure the validity of these parameters. Finally the `w_min_idx` and
-#' `ft_mask` slots are recalculated.
-#' 
 #' @section Backwards compatibility:
 #' The internal numerics in mizer have changed over time, so there may be small
 #' discrepancies between the results obtained with the upgraded object
@@ -871,11 +866,23 @@ validParams <- function(params) {
     params@given_species_params <- 
         validGivenSpeciesParams(params@given_species_params)
     params@species_params <- validSpeciesParams(params@species_params)
-    params@w_min_idx <- get_w_min_idx(params@species_params, params@w)
     
-    # Check w_max
+    # Check w_max and w_min
     # This isn't checked by `validSpeciesParams()` because that function does
     # not have access to the full weight grid.
+    # w_min should not be smaller than the minimum weight of the model
+    # However no harm is done if it is, so we just issue a warning
+    w_min <- params@w[1] 
+    wrong <- params@species_params$w_min < w_min * (1 - 1e-6) # The 1e-6 is to avoid rounding errors
+    if (any(wrong)) {
+        params@species_params$w_min[wrong] <- w_min
+        warning("The minimum weight of some species was smaller than the ",
+                "minimum weight of the model: ", 
+                paste(params@species_params$species[wrong], collapse = ", "),
+                ". I have increased it to ", w_min, ".")
+    }
+    params@w_min_idx <- get_w_min_idx(params@species_params, params@w)
+    # w_max should not be larger than the maximum weight of the model
     w_max <- max(params@w) + 1e-6 # The 1e-6 is to avoid rounding errors
     if (any(params@species_params$w_max > w_max)) {
         warning("The maximum weight of a species is larger than the maximum ",

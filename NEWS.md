@@ -3,6 +3,8 @@
 - `species` and `gears` columns are now never factors, so no longer need to
   call `as.character()` so often.
 - `validParams()` also calls `validGearParams()`.
+- `validParams()` checks that `w_min` is valid for all species and increases it
+  if necessary.
 
 # mizer 2.5.3
 

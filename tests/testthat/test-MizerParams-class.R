@@ -92,3 +92,15 @@ test_that("validParams works", {
         expect_warning("Your MizerParams object was created with an earlier")
     expect_true(validObject(p))
 })
+
+test_that("validParams checks w_min and w_max", {
+    # w_max
+    params <- NS_params
+    params@species_params$w_max[1] <- 1e6
+    expect_warning(validParams(params), "The maximum weight of a species is larger")
+    # w_min
+    params <- NS_params
+    params@species_params$w_min[1:3] <- 1e-6
+    expect_warning(params <- validParams(params), "smaller than the minimum")
+    expect_true(validObject(params))
+})
