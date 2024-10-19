@@ -10,6 +10,7 @@
 ^.github$
 ^\.github$
 ^\.lintr
+^\.nojekyll
 ^runtime\.txt$
 ^CITATION.cff
 ^CRAN-RELEASE$
