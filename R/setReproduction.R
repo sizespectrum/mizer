@@ -47,7 +47,7 @@
 #' If the the energy available to a mature individual that is 
 #' invested into reproduction is not supplied via the `repro_prop` argument,
 #' it is set to the allometric form
-#' \deqn{{\tt repro\_prop}(w) = \left(\frac{w}{w_{mat_max}}\right)^{m-n}.}{
+#' \deqn{{\tt repro\_prop}(w) = \left(\frac{w}{w_{\tt{repro\_max}}}\right)^{m-n}.}{
 #'   repro_prop(w) = (w/w_repro_max)^(m - n).}
 #' Here \eqn{n} is the scaling exponent of the energy income rate. Hence
 #' the exponent \eqn{m} determines the scaling of the investment into
