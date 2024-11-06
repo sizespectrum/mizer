@@ -48,6 +48,8 @@ matchBiomasses <- function(params, species = NULL) {
     if (length(species) == 0) {
         return(params)
     }
+    
+    error_message <- ""
     for (sp in seq_len(nrow(params@species_params))[species]) {
         cutoff <- params@species_params$biomass_cutoff[[sp]]
         if (is.null(cutoff) || is.na(cutoff)) {
@@ -55,8 +57,17 @@ matchBiomasses <- function(params, species = NULL) {
         }
         total <- sum((params@initial_n[sp, ] * params@w * params@dw)
                      [params@w >= cutoff])
+        if (!(total > 0)) {
+            error_message <- paste(
+                error_message, params@species_params$species[[sp]],
+                "does not grow up to the biomass_cutoff size of",
+                cutoff, "grams.\n")
+        }
         factor <- params@species_params$biomass_observed[[sp]] / total
         params@initial_n[sp, ] <- params@initial_n[sp, ] * factor
+    }
+    if (error_message != "") {
+        stop(error_message)
     }
     
     setBevertonHolt(params)
@@ -112,6 +123,11 @@ matchNumbers <- function(params, species = NULL) {
                                  return.logical = TRUE) &
         !is.na(params@species_params$number_observed) &
         params@species_params$number_observed > 0
+    if (length(species) == 0) {
+        return(params)
+    }
+    
+    error_message <- ""
     for (sp in seq_len(nrow(params@species_params))[species]) {
         cutoff <- params@species_params$number_cutoff[[sp]]
         if (is.null(cutoff) || is.na(cutoff)) {
@@ -119,8 +135,17 @@ matchNumbers <- function(params, species = NULL) {
         }
         total <- sum((params@initial_n[sp, ] * params@dw)
                      [params@w >= cutoff])
+        if (!(total > 0)) {
+            error_message <- paste(
+                error_message, params@species_params$species[[sp]],
+                "does not grow up to the biomass_cutoff size of",
+                cutoff, "grams.\n")
+        }
         factor <- params@species_params$number_observed[[sp]] / total
         params@initial_n[sp, ] <- params@initial_n[sp, ] * factor
+    }
+    if (error_message != "") {
+        stop(error_message)
     }
     
     setBevertonHolt(params)
