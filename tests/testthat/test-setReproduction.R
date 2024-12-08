@@ -52,17 +52,17 @@ test_that("Comment works on maturity", {
     maturity <- params@maturity
     params <- setReproduction(params, maturity = maturity)
     expect_identical(comment(params@maturity), "set manually")
-    
+
     # comment is stored
     comment(maturity) <- "test"
     params <- setReproduction(params, maturity = maturity)
     expect_identical(comment(params@maturity), "test")
-    
+
     # if no comment, previous comment is kept
     comment(maturity) <- NULL
     params <- setReproduction(params, maturity = maturity)
     expect_identical(comment(params@maturity), "test")
-    
+
     # no message when nothing changes
     expect_message(setReproduction(params), NA)
     # but message when a change is not stored due to comment
@@ -83,17 +83,17 @@ test_that("Comment works on psi", {
     repro_prop <- getReproductionProportion(params)
     params <- setReproduction(params, repro_prop = repro_prop)
     expect_identical(comment(getReproductionProportion(params)), "set manually")
-    
+
     # comment is stored
     comment(repro_prop) <- "test"
     params <- setReproduction(params, repro_prop = repro_prop)
     expect_identical(comment(getReproductionProportion(params)), "test")
-    
+
     # if no comment, previous comment is kept
     comment(repro_prop) <- NULL
     params <- setReproduction(params, repro_prop = repro_prop)
     expect_identical(comment(getReproductionProportion(params)), "test")
-    
+
     # no message when nothing changes
     expect_message(setReproduction(params), NA)
     # but message when a change is not stored due to comment
@@ -127,13 +127,23 @@ test_that("getReproductionProportion works", {
     expect_unchanged(params, params2)
 })
 
+test_that("getReproductionProportion returns a proportion",{
+    params <- NS_params
+    # Make extremely wide maturity ogive
+    species_params(params)$w_mat25 <- 1
+    repro_prop <- getReproductionProportion(params)
+    expect_true(all(repro_prop >= 0))
+    expect_true(all(repro_prop <= 1))
+})
+
 test_that("Can get and set repro_prop", {
     params <- NS_params
-    new <- repro_prop(params) ^ 2 
+    new <- repro_prop(params) ^ 2
     comment(new) <- "test"
     repro_prop(params) <- new
     expect_equal(repro_prop(params)[2, 50], new[2, 50])
 })
+
 test_that("Can get and set maturity", {
     params <- NS_params
     new <- 1/2 * maturity(params)

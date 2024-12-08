@@ -1,10 +1,14 @@
-# Development version 2.5.3.9000
+# Development version 2.5.3.9001
 
 - `species` and `gears` columns are now never factors, so no longer need to
   call `as.character()` so often.
 - `validParams()` also calls `validGearParams()`.
 - `validParams()` checks that `w_min` is valid for all species and increases it
   if necessary.
+
+## Bug fixes
+
+- `getReproductionProportion()` no longer returns incorrect proportions > 1 (#299)
 
 # mizer 2.5.3
 
