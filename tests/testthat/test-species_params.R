@@ -99,6 +99,15 @@ test_that("Setting species params works", {
     expect_identical(params@given_species_params$beta, beta)
 })
 
+test_that("Error if species names don't match", {
+    sp <- NS_species_params
+    sp$species[2] <- "not a species"
+    expect_error(species_params(NS_params) <- sp,
+                 "The species names in the new species parameter data frame do not match")
+    expect_error(given_species_params(NS_params) <- sp,
+                 "The species names in the new species parameter data frame do not match")
+})
+
 
 test_that("set_species_params_from_length works", {
     sp <- data.frame(species = 1:2, a = 0.01, b = 3)

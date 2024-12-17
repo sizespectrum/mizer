@@ -5,6 +5,8 @@
 - `validParams()` also calls `validGearParams()`.
 - `validParams()` checks that `w_min` is valid for all species and increases it
   if necessary.
+- `species_params<-()` and `given_species_params<-()` now check that species
+  names match.
 
 ## Bug fixes
 

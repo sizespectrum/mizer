@@ -140,6 +140,9 @@ species_params <- function(params) {
 `species_params<-` <- function(params, value) {
     assert_that(is(params, "MizerParams"))
     value <- validSpeciesParams(value)
+    if (!all(value$species == params@species_params$species)) {
+        stop("The species names in the new species parameter data frame do not match the species names in the model.")
+    }
     params@species_params <- value
     suppressMessages(setParams(params))
 }
@@ -157,6 +160,9 @@ given_species_params <- function(params) {
 `given_species_params<-` <- function(params, value) {
     assert_that(is(params, "MizerParams"))
     value <- validGivenSpeciesParams(value)
+    if (!all(value$species == params@species_params$species)) {
+        stop("The species names in the new species parameter data frame do not match the species names in the model.")
+    }
     old_value <- params@given_species_params
     
     # Create data frame which contains only the values that have changed 
