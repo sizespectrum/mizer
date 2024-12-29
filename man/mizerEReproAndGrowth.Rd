@@ -40,18 +40,20 @@ calculated by \code{\link[=getFeedingLevel]{getFeedingLevel()}}.}
 }
 \value{
 A two dimensional array (species x size) holding
-\deqn{E_{r.i}(w) = \max(0, \alpha_i\, (1 - {\tt feeding\_level}_i(w))\, 
+\deqn{E_{r.i}(w) = \max(0, \alpha_i\, (1 - {\tt feeding\_level}_i(w))\,
                            {\tt encounter}_i(w) - {\tt metab}_i(w)).}{
-  E_{r.i}(w) = max(0, alpha_i * (1 - feeding_level_i(w)) * 
+  E_{r.i}(w) = max(0, alpha_i * (1 - feeding_level_i(w)) *
                       encounter_i(w) - metab_i(w)).}
 Due to the form of the feeding level, calculated by
-\code{\link[=getFeedingLevel]{getFeedingLevel()}}, this can also be expressed as
-\deqn{E_{r.i}(w) = \max(0, \alpha_i\, {\tt feeding\_level}_i(w)\, 
+\code{\link[=getFeedingLevel]{getFeedingLevel()}}, if the feeding level is nonzero this can also be expressed as
+\deqn{E_{r.i}(w) = \max(0, \alpha_i\, {\tt feeding\_level}_i(w)\,
                            h_i(w) - {\tt metab}_i(w))}{
-  E_{r.i}(w) = max(0, alpha_i * feeding_level_i(w) * 
+  E_{r.i}(w) = max(0, alpha_i * feeding_level_i(w) *
                       h_i(w) - metab_i(w))}
 where \eqn{h_i} is the maximum intake rate, set with
-\code{\link[=setMaxIntakeRate]{setMaxIntakeRate()}}.
+\code{\link[=setMaxIntakeRate]{setMaxIntakeRate()}}. However this function is using the first equation
+above so that it works also when the maximum intake rate is infinite, i.e.,
+there is no satiation.
 The assimilation rate \eqn{\alpha_i} is taken from the species parameter
 data frame in \code{params}. The metabolic rate \code{metab} is taken from
 \code{params} and set with \code{\link[=setMetabolicRate]{setMetabolicRate()}}.
