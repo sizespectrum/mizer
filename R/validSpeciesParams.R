@@ -38,7 +38,7 @@
 #' wrong capitalisation or missing underscores and issues a warning if it 
 #' detects such a name.
 #' 
-#' `validSpeciesParams()` first calls `validateGivenSpeciesParams()` but then
+#' `validSpeciesParams()` first calls `validGivenSpeciesParams()` but then
 #' goes further by adding default values for species parameters that were not
 #' provided. The function sets default values if any of the following species
 #' parameters are missing or NA:
@@ -48,6 +48,7 @@
 #' * `alpha` is set to `0.6`
 #' * `interaction_resource` is set to `1`
 #' * `n` is set to `3/4`
+#' * `p` is set to `n`
 #' 
 #' Note that the species parameters returned by these functions are not
 #' guaranteed to produce a viable model. More checks of the parameters are
@@ -69,6 +70,7 @@ validSpeciesParams <- function(species_params) {
     sp <- set_species_param_default(sp, "alpha", 0.6)
     sp <- set_species_param_default(sp, "interaction_resource", 1)
     sp <- set_species_param_default(sp, "n", 3/4)
+    sp <- set_species_param_default(sp, "p", sp$n)
     return(sp)
 }
 

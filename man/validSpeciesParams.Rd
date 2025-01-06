@@ -63,7 +63,7 @@ The function tests for some typical misspellings of parameter names, like
 wrong capitalisation or missing underscores and issues a warning if it
 detects such a name.
 
-\code{validSpeciesParams()} first calls \code{validateGivenSpeciesParams()} but then
+\code{validSpeciesParams()} first calls \code{validGivenSpeciesParams()} but then
 goes further by adding default values for species parameters that were not
 provided. The function sets default values if any of the following species
 parameters are missing or NA:
@@ -74,6 +74,7 @@ parameters are missing or NA:
 \item \code{alpha} is set to \code{0.6}
 \item \code{interaction_resource} is set to \code{1}
 \item \code{n} is set to \code{3/4}
+\item \code{p} is set to \code{n}
 }
 
 Note that the species parameters returned by these functions are not
