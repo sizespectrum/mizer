@@ -600,6 +600,7 @@ expandSizeGrid <- function(params,
         min_w_pp = (params@w_full[[1]] + params@w_full[[2]]) / 2,
         no_w = new_no_w,
         gear_params = params@gear_params,
+        initial_effort = params@initial_effort,
         kappa = params@resource_params$kappa,
         n = params@resource_params[["n"]],
         lambda = params@resource_params$lambda,
@@ -609,6 +610,7 @@ expandSizeGrid <- function(params,
     # Step 3: Copy over data for existing species and resource spectra
     # selector for old w bins inside new w
     old_w <- (extra_no_w + 1):(extra_no_w + no_w)
+    p@initial_n[, old_w] <- params@initial_n
     p@A <- params@A
     p@psi[, old_w] <- params@psi
     p@maturity[, old_w] <- params@maturity
@@ -626,6 +628,7 @@ expandSizeGrid <- function(params,
     p@resource_params <- params@resource_params
 
     # Step 4: Preserve other slots and metadata
+    p@given_species_params <- params@given_species_params
     p@other_dynamics <- params@other_dynamics
     p@other_encounter <- params@other_encounter
     p@other_mort <- params@other_mort
@@ -636,6 +639,8 @@ expandSizeGrid <- function(params,
     p@time_created <- params@time_created
     p@mizer_version <- params@mizer_version
     p@extensions <- params@extensions
+    p@linecolour <- params@linecolour
+    p@linetype <- params@linetype
 
     # Preserve comments
     comment(p) <- comment(params)
@@ -643,5 +648,5 @@ expandSizeGrid <- function(params,
         comment(slot(p, slot)) <- comment(slot(params, slot))
     }
 
-    return(p)
+    return(validParams(p))
 }
