@@ -2,10 +2,10 @@
 # Class has members to store parameters of size based model
 # Copyright 2012 Finlay Scott and Julia Blanchard.
 # Copyright 2018 Gustav Delius and Richard Southwell.
-# Development has received funding from the European Commission's Horizon 2020 
-# Research and Innovation Programme under Grant Agreement No. 634495 
+# Development has received funding from the European Commission's Horizon 2020
+# Research and Innovation Programme under Grant Agreement No. 634495
 # for the project MINOUW (http://minouw-project.eu/).
-# Distributed under the GPL 3 or later 
+# Distributed under the GPL 3 or later
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
 # Naming conventions:
@@ -22,7 +22,7 @@ validMizerParams <- function(object) {
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
     w_idx <- (no_w_full - no_w + 1):no_w_full
-    
+
     # Check weight grids ----
     # Check that the last entries of w_full and dw_full agree with w and dw
     if (different(params@w[], params@w_full[w_idx])) {
@@ -42,7 +42,7 @@ validMizerParams <- function(object) {
         errors <- c(errors, msg)
     }
     # Check ft_mask
-    if (!identical(as.vector(params@ft_mask), 
+    if (!identical(as.vector(params@ft_mask),
                    as.vector(t(sapply(params@species_params$w_max,
                                       function(x) params@w_full < x))))) {
         msg <- "The ft_mask should be equal to the logical matrix of w_full < w_max."
@@ -50,9 +50,9 @@ validMizerParams <- function(object) {
     }
 
     # Check the array dimensions are good ----
-    # Bit tricky this one as I don't know of a way to compare lots of vectors 
+    # Bit tricky this one as I don't know of a way to compare lots of vectors
     # at the same time. Just use == and the recycling rule
-    
+
     # 2D arrays
     if (!all(c(length(dim(params@initial_n)),
                length(dim(params@psi)),
@@ -87,7 +87,7 @@ validMizerParams <- function(object) {
         dim(params@catchability)[2],
         dim(params@interaction)[1],
         dim(params@interaction)[2],
-        dim(params@ft_mask)[1]) == 
+        dim(params@ft_mask)[1]) ==
         dim(params@species_params)[1])) {
         msg <- "The number of species in the model must be consistent across the species_params, psi, intake_max, search_vol, mu_b, ext_encounter, interaction (dim 1), selectivity, catchability and interaction (dim 2) slots"
         errors <- c(errors, msg)
@@ -153,7 +153,7 @@ validMizerParams <- function(object) {
         msg <- "Name of first dimension of selectivity and catchability must be 'gear'"
         errors <- c(errors, msg)
     }
-    
+
     # Check dimnames of species are identical
     if (!all(c(
         dimnames(params@psi)[[1]],
@@ -175,7 +175,7 @@ validMizerParams <- function(object) {
         dimnames(params@psi)[[2]],
         dimnames(params@intake_max)[[2]],
         dimnames(params@search_vol)[[2]],
-        dimnames(params@metab)[[2]]) == 
+        dimnames(params@metab)[[2]]) ==
         dimnames(params@selectivity)[[3]])) {
         msg <- "The size names of psi, intake_max, search_vol, metab and selectivity must all be the same"
         errors <- c(errors, msg)
@@ -196,9 +196,9 @@ validMizerParams <- function(object) {
         msg <- "cc_pp must be the same length as w_full"
         errors <- c(errors, msg)
     }
-    
+
     # TODO: Rewrite the following into a test of the @rates_funcs slot ----
-    # SRR 
+    # SRR
     # if (!is.string(params@srr)) {
     #     msg <- "srr needs to be specified as a string giving the name of the function"
     #     errors <- c(errors, msg)
@@ -222,13 +222,13 @@ validMizerParams <- function(object) {
     #         }
     #     }
     # }
-    
+
     # Should not have legacy r_max column (has been renamed to R_max)
     if ("r_max" %in% names(params@species_params)) {
         msg <- "The 'r_max' column in species_params should be called 'R_max'. You can use 'validParams()' to upgrade your params object."
         errors <- c(errors, msg)
     }
-    # # species_params data.frame must have columns: 
+    # # species_params data.frame must have columns:
     # # species, z0, alpha, eRepro
     # species_params_cols <- c("species","z0","alpha","erepro")
     # if (!all(species_params_cols %in% names(params@species_params))) {
@@ -236,39 +236,39 @@ validMizerParams <- function(object) {
     #     errors <- c(errors,msg)
     # }
     # must also have SRR params but not sorted out yet
-    
+
     # species_params
     # Column check done in constructor
-    
+
     # If everything is OK
     if (length(errors) == 0) TRUE else errors
 }
 
 
 #### Class definition ####
-#' A class to hold the parameters for a size based model. 
-#' 
+#' A class to hold the parameters for a size based model.
+#'
 #' Although it is possible to build a `MizerParams` object by hand it is
 #' not recommended and several constructors are available. Dynamic simulations
-#' are performed using [project()] function on objects of this class. As a 
+#' are performed using [project()] function on objects of this class. As a
 #' user you should never need to access the slots inside a `MizerParams` object
-#' directly. 
-#' 
+#' directly.
+#'
 #' The \linkS4class{MizerParams} class is fairly complex with a large number of
 #' slots, many of which are multidimensional arrays. The dimensions of these
 #' arrays is strictly enforced so that `MizerParams` objects are consistent
 #' in terms of number of species and number of size classes.
-#'   
+#'
 #' The `MizerParams` class does not hold any dynamic information, e.g.
 #' abundances or harvest effort through time. These are held in
 #' \linkS4class{MizerSim} objects.
-#' 
+#'
 #' @slot metadata A list with metadata information. See [setMetadata()].
 #' @slot mizer_version The package version of mizer (as returned by
 #'   `packageVersion("mizer")`) that created or upgraded the model.
 #' @slot extensions A named vector of strings where each name is the name of
-#'    and extension package needed to run the model and each value is a string 
-#'    giving the information that the remotes package needs to install the 
+#'    and extension package needed to run the model and each value is a string
+#'    giving the information that the remotes package needs to install the
 #'    correct version of the extension package, see https://remotes.r-lib.org/.
 #' @slot time_created A POSIXct date-time object with the creation time.
 #' @slot time_modified A POSIXct date-time object with the last modified time.
@@ -286,10 +286,10 @@ validMizerParams <- function(object) {
 #'   of each species
 #' @slot maturity An array (species x size) that holds the proportion of
 #'   individuals of each species at size that are mature. This enters in the
-#'   calculation of the spawning stock biomass with [getSSB()]. Set 
+#'   calculation of the spawning stock biomass with [getSSB()]. Set
 #'   with [setReproduction()].
 #' @slot psi An array (species x size) that holds the allocation to reproduction
-#'   for each species at size, \eqn{\psi_i(w)}. Changed with 
+#'   for each species at size, \eqn{\psi_i(w)}. Changed with
 #'   [setReproduction()].
 #' @slot intake_max An array (species x size) that holds the maximum intake for
 #'   each species at size. Changed with [setMaxIntakeRate()].
@@ -303,12 +303,12 @@ validMizerParams <- function(object) {
 #'   \eqn{E_{ext.i}(w)}. Changed with [setExtEncounter()].
 #' @slot pred_kernel An array (species x predator size x prey size) that holds
 #'   the predation coefficient of each predator at size on each prey size. If
-#'   this is NA then the following two slots will be used. Changed with 
+#'   this is NA then the following two slots will be used. Changed with
 #'   [setPredKernel()].
 #' @slot ft_pred_kernel_e An array (species x log of predator/prey size ratio)
 #'   that holds the Fourier transform of the feeding kernel in a form
 #'   appropriate for evaluating the encounter rate integral. If this is NA
-#'   then the `pred_kernel` will be used to calculate the available 
+#'   then the `pred_kernel` will be used to calculate the available
 #'   energy integral. Changed with [setPredKernel()].
 #' @slot ft_pred_kernel_p An array (species x log of predator/prey size ratio)
 #'   that holds the Fourier transform of the feeding kernel in a form
@@ -325,9 +325,9 @@ validMizerParams <- function(object) {
 #'   values of other dynamical components of the ecosystem that may be modelled
 #'   by a mizer extensions you have installed. The names of the list entries
 #'   are the names of those components.
-#' @slot other_encounter A named list of functions for calculating the 
+#' @slot other_encounter A named list of functions for calculating the
 #'   contribution to the encounter rate from each other dynamical component.
-#' @slot other_mort A named list of functions for calculating the 
+#' @slot other_mort A named list of functions for calculating the
 #'   contribution to the mortality rate from each other dynamical components.
 #' @slot other_params A list containing the parameters needed by any mizer
 #'   extensions you may have installed to model other dynamical components of
@@ -341,15 +341,15 @@ validMizerParams <- function(object) {
 #'   See [species_params()] for details.
 #' @slot given_species_params A data.frame to hold the species parameters that
 #'   were given explicitly rather than obtained by default calculations.
-#' @slot gear_params Data frame with parameters for gear selectivity. See 
+#' @slot gear_params Data frame with parameters for gear selectivity. See
 #'   [setFishing()] for details.
 #' @slot interaction The species specific interaction matrix, \eqn{\theta_{ij}}.
 #'   Changed with [setInteraction()].
 #' @slot selectivity An array (gear x species x w) that holds the selectivity of
-#'   each gear for species and size, \eqn{S_{g,i,w}}. Changed with 
+#'   each gear for species and size, \eqn{S_{g,i,w}}. Changed with
 #'   [setFishing()].
 #' @slot catchability An array (gear x species) that holds the catchability of
-#'   each species by each gear, \eqn{Q_{g,i}}. Changed with 
+#'   each species by each gear, \eqn{Q_{g,i}}. Changed with
 #'   [setFishing()].
 #' @slot initial_effort A vector containing the initial fishing effort for each
 #'   gear. Changed with [setFishing()].
@@ -364,12 +364,12 @@ validMizerParams <- function(object) {
 #'   Abundance multipliers.
 #' @slot linecolour A named vector of colour values, named by species.
 #'   Used to give consistent colours in plots.
-#' @slot linetype A named vector of linetypes, named by species. 
+#' @slot linetype A named vector of linetypes, named by species.
 #'   Used to give consistent line types in plots.
 #' @slot ft_mask An array (species x w_full) with zeros for weights larger than
 #'   the maximum weight of each species. Used to efficiently minimize
 #'   wrap-around errors in Fourier transform calculations.
-#' 
+#'
 #' @seealso [project()] [MizerSim()]
 #'   [emptyParams()] [newMultispeciesParams()]
 #'   [newCommunityParams()]
@@ -430,30 +430,30 @@ remove(validMizerParams)
 
 
 #' Create empty MizerParams object of the right size
-#' 
+#'
 #' An internal function.
 #' Sets up a valid \linkS4class{MizerParams} object with all the slots
 #' initialised and given dimension names, but with some slots left empty. This
 #' function is to be used by other functions to set up full parameter objects.
-#' 
+#'
 #' @section Size grid:
-# Some code is commented out that would allow the user to 
+# Some code is commented out that would allow the user to
 # specify a grid with a non-constant log spacing. But we comment this out
 # for now because of the fft.
-# #' When the `w_full` argument is not given, then 
+# #' When the `w_full` argument is not given, then
 #' A size grid is created so that
 #' the log-sizes are equally spaced. The spacing is chosen so that there will be
 #' `no_w` fish size bins, with the smallest starting at `min_w` and the largest
 #' starting at `max_w`. For the resource spectrum there is a larger set of
 #' bins containing additional bins below
 #' `min_w`, with the same log size. The number of extra bins is such that
-#' `min_w_pp` comes to lie within the smallest bin. 
-#' 
+#' `min_w_pp` comes to lie within the smallest bin.
+#'
 #' @section Changes to species params:
 #' The `species_params` slot of the returned MizerParams object may differ
 #' from the data frame supplied as argument to this function because
 #' default values are set for missing parameters.
-#' 
+#'
 #' @param species_params A data frame of species-specific parameter values.
 #' @param gear_params A data frame with gear-specific parameter values.
 #' @param no_w The number of size bins in the consumer spectrum.
@@ -471,7 +471,7 @@ remove(validMizerParams)
 #'   frame.
 #' @param min_w_pp The smallest size of the resource spectrum.
 # #'   Ignored if w_full is specified.
-#' 
+#'
 #' @return An empty but valid MizerParams object
 #' @seealso See [newMultispeciesParams()] for a function that fills
 #'   the slots left empty by this function.
@@ -487,17 +487,17 @@ emptyParams <- function(species_params,
     assert_that(is.data.frame(species_params),
                 is.data.frame(gear_params),
                 no_w > 10)
-    
+
     given_species_params <- validGivenSpeciesParams(species_params)
-    
+
     ## Set defaults ----
     if (is.na(min_w_pp)) min_w_pp <- 1e-12
     species_params <- set_species_param_default(species_params, "w_min", min_w)
-    min_w <- min(species_params$w_min)
-    
+    min_w <- min(min_w, species_params$w_min)
+
     species_params <- validSpeciesParams(species_params)
     gear_params <- validGearParams(gear_params, species_params)
-    
+
     if (is.na(max_w)) {
         max_w <- max(species_params$w_max)
     } else {
@@ -508,9 +508,9 @@ emptyParams <- function(species_params,
                  toString(too_large))
         }
     }
-    
+
     # Set up grids ----
-    # The following code anticipates that in future we might allow the user to 
+    # The following code anticipates that in future we might allow the user to
     # specify a grid with a non-constant log spacing. But we comment this out
     # for now because of the fft.
     # if (missing(w_full)) {
@@ -522,8 +522,8 @@ emptyParams <- function(species_params,
         dw <- (10^dx - 1) * w
         # To avoid issues due to numerical imprecision
         min_w <- w[1]
-        
-        # For fft methods we need a constant log bin size throughout. 
+
+        # For fft methods we need a constant log bin size throughout.
         # Therefore we use as many steps as are necessary so that the first size
         # class includes min_w_pp.
         if (min_w_pp >= min_w) {
@@ -539,7 +539,7 @@ emptyParams <- function(species_params,
             w_full <- w_full[2:length(w_full)]
         }
         no_w_full <- length(w_full)
-        dw_full <- (10^dx - 1) * w_full	
+        dw_full <- (10^dx - 1) * w_full
     # } else {
     #     # use supplied w_full
     #     no_w_full <- length(w_full) - 1
@@ -558,43 +558,43 @@ emptyParams <- function(species_params,
     #     no_w <- length(w)
     #     min_w_pp <- w_full[1]
     # }
-    
+
     # Basic arrays for templates ----
     no_sp <- nrow(species_params)
     species_names <- species_params$species
     gear_names <- unique(gear_params$gear)
-    mat1 <- array(0, dim = c(no_sp, no_w), 
+    mat1 <- array(0, dim = c(no_sp, no_w),
                   dimnames = list(sp = species_names, w = signif(w, 3)))
     ft_pred_kernel <- array(NA, dim = c(no_sp, no_w_full),
                             dimnames = list(sp = species_names, k = 1:no_w_full))
     ft_mask <- t(sapply(species_params$w_max, function(x) w_full < x))
-    
-    selectivity <- array(0, dim = c(length(gear_names), no_sp, no_w), 
-                         dimnames = list(gear = gear_names, sp = species_names, 
+
+    selectivity <- array(0, dim = c(length(gear_names), no_sp, no_w),
+                         dimnames = list(gear = gear_names, sp = species_names,
                                          w = signif(w, 3)))
-    catchability <- array(0, dim = c(length(gear_names), no_sp), 
+    catchability <- array(0, dim = c(length(gear_names), no_sp),
                           dimnames = list(gear = gear_names, sp = species_names))
     default_effort <- ifelse(defaults_edition() < 2, 0, 1)
     initial_effort <- rep(default_effort, length(gear_names))
     names(initial_effort) <- gear_names
-    
+
     interaction <- array(1, dim = c(no_sp, no_sp),
                          dimnames = list(predator = species_names,
                                          prey = species_names))
-    
+
     vec1 <- as.numeric(rep(0, no_w_full))
     names(vec1) <- signif(w_full, 3)
-    
+
     w_min_idx <- get_w_min_idx(species_params, w)
-    
+
     # Colour and linetype scales ----
     # for use in plots
     # Colour-blind-friendly palettes
     # From http://dr-k-lo.blogspot.co.uk/2013/07/a-color-blind-friendly-palette-for-r.html
-    # cbbPalette <- c("#000000", "#009E73", "#e79f00", "#9ad0f3", "#0072B2", "#D55E00", 
+    # cbbPalette <- c("#000000", "#009E73", "#e79f00", "#9ad0f3", "#0072B2", "#D55E00",
     #                 "#CC79A7", "#F0E442")
     # From http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
-    # cbbPalette <- c("#E69F00", "#56B4E9", "#009E73", 
+    # cbbPalette <- c("#E69F00", "#56B4E9", "#009E73",
     #                 "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
     # Random palette gemerated pm https://medialab.github.io/iwanthue/
     colour_palette <- c("#815f00",
@@ -623,26 +623,26 @@ emptyParams <- function(species_params,
                         "#dc8488",
                         "#005c67",
                         "#5c585a")
-    # type_palette <- c("solid", "dashed", "dotdash", "longdash", 
+    # type_palette <- c("solid", "dashed", "dotdash", "longdash",
     #                   "twodash")
     type_palette <- c("solid")
-    
+
     if ("linecolour" %in% names(species_params)) {
         linecolour <- species_params$linecolour
         # If any NA's first fill them with unused colours
-        linecolour[is.na(linecolour)] <- 
+        linecolour[is.na(linecolour)] <-
             setdiff(colour_palette, linecolour)[1:sum(is.na(linecolour))]
         # if there are still NAs, start from beginning of palette again
-        linecolour[is.na(linecolour)] <- 
+        linecolour[is.na(linecolour)] <-
             colour_palette[1:sum(is.na(linecolour))]
     } else {
         linecolour <- rep(colour_palette, length.out = no_sp)
     }
     names(linecolour) <- species_names
     linecolour <- c(linecolour, "Resource" = "green", "Total" = "black",
-                    "Background" = "grey", "Fishing" = "red", 
+                    "Background" = "grey", "Fishing" = "red",
                     "External" = "grey")
-    
+
     if ("linetype" %in% names(species_params)) {
         linetype <- species_params$linetype
         linetype[is.na(linetype)] <- "solid"
@@ -651,9 +651,9 @@ emptyParams <- function(species_params,
     }
     names(linetype) <- species_names
     linetype <- c(linetype, "Resource" = "solid", "Total" = "solid",
-                  "Background" = "solid", "Fishing" = "solid", 
+                  "Background" = "solid", "Fishing" = "solid",
                   "External" = "solid")
-    
+
     # Make object ----
     # Should Z0, rrPP and ccPP have names (species names etc)?
     params <- new(
@@ -715,15 +715,15 @@ emptyParams <- function(species_params,
         linetype = linetype,
         ft_mask = ft_mask
     )
-    
+
     return(params)
 }
 
 #' Size bins
-#' 
+#'
 #' Functions to fetch information about the size bins used in the model
-#' described by `params`. 
-#' 
+#' described by `params`.
+#'
 #' To represent the continuous size spectrum in the computer, the size
 #' variable is discretized into a vector `w` of discrete weights,
 #' providing a grid of sizes spanning the range from the smallest egg size
@@ -732,12 +732,12 @@ emptyParams <- function(species_params,
 #' small enough to avoid the discretisation errors from becoming too big.
 #' You can fetch this vector with `w()` and the vector of bin widths with
 #' `dw()`.
-#' 
+#'
 #' The weight grid is set up to be logarithmically spaced, so that
 #' `w[j]=w[1]*10^(j*dx)` for some fixed `dx`. This means that the bin widths
 #' increase with size: `dw[j] = w[j] * (10^dx - 1)`.
 #' This grid is set up automatically when creating a MizerParams object.
-#' 
+#'
 #' Because the resource spectrum spans a larger range of sizes, these sizes
 #' are discretized into a different vector of weights `w_full`. This usually
 #' starts at a much smaller size than `w`, but also runs up to the same
@@ -745,34 +745,34 @@ emptyParams <- function(species_params,
 #' entries of `w`. The logarithmic spacing for `w_full` is the same as that for
 #' `w`, so that again `w_full[j]=w_full[1]*10^(j*dx)`. The function `w_full()`
 #' gives the vector of sizes and `dw_full()` gives the vector of bin widths.
-#' 
+#'
 #' You will need these vectors when converting number densities to numbers.
 #' For example the size spectrum of a species is stored as a vector of
 #' values that represent the *density* of fish in each size bin rather than
 #' the *number* of fish. The number of fish in the size bin between `w[j]` and
 #' `w[j+1]=w[j]+dw[j]` is obtained as `N[j]*dw[j]`.
-#' 
+#'
 #' The vector `w` can be used for example to convert the number of individuals
 #' in a size bin into the biomass in the size bin. The biomass in the
-#' `j`th bin is `biomass[j] = N[j] * dw[j] * w[j]`. 
-#' 
+#' `j`th bin is `biomass[j] = N[j] * dw[j] * w[j]`.
+#'
 #' Of course all these calculations with discrete sizes and size bins are
 #' only giving approximations to the continuous values, and these approximations
 #' get better the smaller the size bins are, i.e., the more size bins are
 #' used. However using more size bins also slows down the calculations, so
-#' there is a trade-off. This is why the functions setting up MizerParams 
+#' there is a trade-off. This is why the functions setting up MizerParams
 #' objects allow you to choose the number of size bins `no_w`.
-#' 
+#'
 #' @param params A MizerParams object
 #' @return `w()` returns a vector with the sizes at the start of each size bin
 #'   of the consumer spectrum.
 #' @export
-#' @examples 
+#' @examples
 #' str(w(NS_params))
 #' str(dw(NS_params))
 #' str(w_full(NS_params))
 #' str(dw_full(NS_params))
-#' 
+#'
 #' # Calculating the biomass of Cod in each bin in the North Sea model
 #' biomass <- initialN(NS_params)["Cod", ] * dw(NS_params) * w(NS_params)
 #' # Summing to get total biomass
@@ -810,14 +810,14 @@ dw_full <- function(params) {
 #'
 #' Checks that the given MizerParams object is valid and upgrades it if
 #' necessary.
-#' 
+#'
 #' It is possible to render a MizerParams object invalid by manually changing
 #' its slots. This function checks that the object is valid and if not it
 #' attempts to upgrade it to a valid object or gives an error message. If the
 #' object is valid then it is returned unchanged. The function reports an error
 #' if any of the rate arrays contain any non-finite numbers (except for the
 #' maximum intake rate that is allowed to be infinite).
-#' 
+#'
 #' Occasionally, during the development of new features for mizer, the
 #' \linkS4class{MizerParams} object gains extra slots. MizerParams objects
 #' created in older versions of mizer are then no longer valid in the new
@@ -825,12 +825,12 @@ dw_full <- function(params) {
 #' function. It adds the missing slots and fills them with default values. Any
 #' object from version 0.4 onwards can be upgraded. Any old
 #' \linkS4class{MizerSim} objects should be similarly updated with
-#' [validSim()]. 
-#' 
+#' [validSim()].
+#'
 #' This function uses [newMultispeciesParams()] to create a new
 #' MizerParams object using the parameters extracted from the old MizerParams
 #' object.
-#' 
+#'
 #' @section Backwards compatibility:
 #' The internal numerics in mizer have changed over time, so there may be small
 #' discrepancies between the results obtained with the upgraded object
@@ -842,9 +842,9 @@ dw_full <- function(params) {
 #' remotes::install_github("sizespectrum/mizer", ref = "v0.2")
 #' ```
 #' where you should replace "v0.2" with the version number you require. You can
-#' see the list of available releases at 
+#' see the list of available releases at
 #' <https://github.com/sizespectrum/mizer/tags>.
-#' 
+#'
 #' If you only have a serialised version of the old object, for example
 #' created via [saveRDS()], and you get an error when trying to read it in
 #' with [readRDS()] then unfortunately you will need to install the old version
@@ -857,27 +857,27 @@ dw_full <- function(params) {
 #' @export
 validParams <- function(params) {
     assert_that(is(params, "MizerParams"))
-    
+
     if (needs_upgrading(params)) {
         params <- suppressWarnings(upgradeParams(params))
         warning("Your MizerParams object was created with an earlier version of mizer. You can upgrade it with `params <- validParams(params)` where you should replace `params` by the name of the variable that holds your MizerParams object.")
     }
-    
-    params@given_species_params <- 
+
+    params@given_species_params <-
         validGivenSpeciesParams(params@given_species_params)
     params@species_params <- validSpeciesParams(params@species_params)
-    
+
     # Check w_max and w_min
     # This isn't checked by `validSpeciesParams()` because that function does
     # not have access to the full weight grid.
     # w_min should not be smaller than the minimum weight of the model
     # However no harm is done if it is, so we just issue a warning
-    w_min <- params@w[1] 
+    w_min <- params@w[1]
     wrong <- params@species_params$w_min < w_min * (1 - 1e-6) # The 1e-6 is to avoid rounding errors
     if (any(wrong)) {
         params@species_params$w_min[wrong] <- w_min
         warning("The minimum weight of some species was smaller than the ",
-                "minimum weight of the model: ", 
+                "minimum weight of the model: ",
                 paste(params@species_params$species[wrong], collapse = ", "),
                 ". I have increased it to ", w_min, ".")
     }
@@ -889,9 +889,9 @@ validParams <- function(params) {
              "weight of the model. ")
     }
     # Recalculate ft_mask in case w_max has changed
-    params@ft_mask[] <- t(sapply(params@species_params$w_max, 
+    params@ft_mask[] <- t(sapply(params@species_params$w_max,
                                function(x) params@w_full < x))
-    
+
     # Check that there are no non-finite values in the arrays
     if (!all(is.finite(params@initial_n))) {
         stop("initial_n must not contain non-finite values")
