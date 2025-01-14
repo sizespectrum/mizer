@@ -284,5 +284,13 @@ test_that("expandSizeGrid works", {
 test_that("expandSizeGrid preserves existing data", {
     params <- expandSizeGrid(NS_params)
     params@time_modified <- NS_params@time_modified
+    expect_true(all(names(NS_params@linecolour) %in% names(params@linecolour)))
+    expect_identical(params@linecolour[names(NS_params@linecolour)], 
+                     NS_params@linecolour)
+    expect_true(all(names(NS_params@linetype) %in% names(params@linetype)))
+    expect_identical(params@linetype[names(NS_params@linetype)], 
+                     NS_params@linetype)
+    params@linecolour <- NS_params@linecolour
+    params@linetype <- NS_params@linetype
     expect_identical(compareParams(params, NS_params), "No differences")
 })
