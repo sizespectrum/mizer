@@ -1,10 +1,13 @@
 #' Set resource dynamics
 #' 
-#' Sets the intrinsic resource growth rate and the intrinsic resource carrying
+#' Sets the intrinsic resource birth rate and the intrinsic resource carrying
 #' capacity as well as the name of the function used to simulate the resource
-#' dynamics. By default this function changes both the rate and the capacity
+#' dynamics. By default, the birth rate and the carrying capacity are changed
 #' together in such a way that the resource replenishes at the same rate at
-#' which it is consumed.
+#' which it is consumed. So you should only provide either the 
+#' `resource_rate` or the `resource_capacity` (or `resource_level`) because
+#' the other is determined by the requirement that the resource replenishes
+#' at the same rate at which it is consumed.
 #' 
 #' @section Setting resource dynamics:
 #' You would usually set the resource dynamics only after having finished the 
@@ -29,9 +32,9 @@
 #' the details.
 #' 
 #' The `resource_rate` argument can be a vector (with the same length as
-#' `w_full(params)`) specifying the intrinsic resource growth rate for each size
+#' `w_full(params)`) specifying the intrinsic resource birth rate for each size
 #' class. Alternatively it can be a single number, which is then used as the
-#' coefficient in a power law: then the intrinsic growth rate \eqn{r_R(w)} at
+#' coefficient in a power law: then the intrinsic birth rate \eqn{r_R(w)} at
 #' size \eqn{w} is set to
 #' \deqn{r_R(w) = r_R w^{n-1}.}
 #' The power-law exponent \eqn{n} is taken from the `n` argument.
@@ -39,27 +42,28 @@
 #' The `resource_capacity` argument can be a vector specifying the intrinsic
 #' resource carrying capacity for each size class. Alternatively it can be a
 #' single number, which is then used as the coefficient in a truncated power
-#' law: then the intrinsic growth rate \eqn{c_R(w)} at size \eqn{w} is set to
+#' law: then the intrinsic carrying capacity \eqn{c_R(w)} at size \eqn{w}
+#' is set to
 #' \deqn{c(w) = \kappa\, w^{-\lambda}}{c(w) = \kappa w^{-\lambda}}
 #' for all \eqn{w} less than `w_pp_cutoff` and zero for larger sizes.
 #' The power-law exponent \eqn{\lambda} is taken from the `lambda` argument.
 #'
-#' The values for `lambda`, `n` and `w_pp_cutoff` are stored in a list in the
-#' `resource_params` slot of the MizerParams object so that they can be re-used
-#' automatically in the future. That list can be accessed with
-#' [resource_params()]. It also holds the coefficient `kappa` that describes the
-#' steady-state resource abundance.
+#' The values for `kappa`, `lambda`, `n` and `w_pp_cutoff` are stored in a list
+#' in the `resource_params` slot of the MizerParams object so that they can be
+#' re-used automatically in the future. That list can be accessed with
+#' [resource_params()].
 #' 
 #' @param params A MizerParams object
-#' @param resource_rate Optional. Vector of resource intrinsic birth rates or
-#'   coefficient in the power-law for the birth rate, see Details. Must be
-#'   strictly positive.
+#' @param resource_rate Optional. A vector of per-capita resource birth
+#'   rate for each size class or a single number giving the coefficient in the
+#'   power-law for this rate, see Details. Must be strictly positive.
 #' @param resource_capacity Optional. Vector of resource intrinsic carrying
 #'   capacities or coefficient in the power-law for the capacity, see Details.
 #'   The resource capacity must be larger than the resource abundance.
 #' @param resource_level Optional. The ratio between the current resource number
 #'   density and the resource capacity. Either a number used at all sizes or a
-#'   vector specifying a value for each size. Must be strictly between 0 and 1,
+#'   vector specifying a value for each size. Must be strictly positive and no
+#'   higher than 1,
 #'   except at sizes where the resource is zero, where it can be `NaN`. This
 #'   determines the resource capacity, so do not specify both this and
 #'   `resource_capacity`.
@@ -146,9 +150,11 @@ setResource <- function(params,
         if (any(NR > 0 & is.nan(resource_level))) {
             stop("The resource level must be defined everywhere where the current resource is non-vanishing.")
         }
-        if (any(NR > 0 &
-                (resource_level <= 0 | resource_level >= 1))) {
-            stop("The 'resource_level' must always be strictly between 0 and 1.")
+        if (any(NR > 0 & resource_level <= 0)) {
+            stop("The 'resource_level' must always be strictly positive.")
+        }
+        if (any(NR > 0 & resource_level > 1)) {
+            stop("The 'resource_level' must never be greater than 1.")
         }
         resource_capacity <- NR / resource_level
         resource_capacity[is.nan(resource_level)] <- 0
