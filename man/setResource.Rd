@@ -56,8 +56,7 @@ The resource capacity must be larger than the resource abundance.}
 
 \item{resource_level}{Optional. The ratio between the current resource number
 density and the resource capacity. Either a number used at all sizes or a
-vector specifying a value for each size. Must be strictly positive and no
-higher than 1,
+vector specifying a value for each size. Must be strictly between 0 and 1,
 except at sizes where the resource is zero, where it can be \code{NaN}. This
 determines the resource capacity, so do not specify both this and
 \code{resource_capacity}.}

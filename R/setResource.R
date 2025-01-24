@@ -62,8 +62,7 @@
 #'   The resource capacity must be larger than the resource abundance.
 #' @param resource_level Optional. The ratio between the current resource number
 #'   density and the resource capacity. Either a number used at all sizes or a
-#'   vector specifying a value for each size. Must be strictly positive and no
-#'   higher than 1,
+#'   vector specifying a value for each size. Must be strictly between 0 and 1,
 #'   except at sizes where the resource is zero, where it can be `NaN`. This
 #'   determines the resource capacity, so do not specify both this and
 #'   `resource_capacity`.
@@ -150,11 +149,9 @@ setResource <- function(params,
         if (any(NR > 0 & is.nan(resource_level))) {
             stop("The resource level must be defined everywhere where the current resource is non-vanishing.")
         }
-        if (any(NR > 0 & resource_level <= 0)) {
-            stop("The 'resource_level' must always be strictly positive.")
-        }
-        if (any(NR > 0 & resource_level > 1)) {
-            stop("The 'resource_level' must never be greater than 1.")
+        if (any(NR > 0 &
+                (resource_level <= 0 | resource_level >= 1))) {
+            stop("The 'resource_level' must always be strictly between 0 and 1.")
         }
         resource_capacity <- NR / resource_level
         resource_capacity[is.nan(resource_level)] <- 0
