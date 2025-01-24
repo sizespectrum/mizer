@@ -66,7 +66,7 @@ resource_semichemostat <- function(params, n, n_pp, n_other, rates, t, dt,
 #' to determine the values of the resource parameters that are needed to make
 #' the replenishment rate at each size equal the consumption rate at that size,
 #' as calculated by [getResourceMort()]. It should be called with only one of
-#' `resource_rate` or `resource_capacity` should and will return a named list
+#' `resource_rate` or `resource_capacity` and will return a named list
 #' with the values for both.
 #' @export
 balance_resource_semichemostat <- function(params,

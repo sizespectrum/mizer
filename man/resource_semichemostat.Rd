@@ -74,7 +74,7 @@ The \code{\link[=balance_resource_semichemostat]{balance_resource_semichemostat(
 to determine the values of the resource parameters that are needed to make
 the replenishment rate at each size equal the consumption rate at that size,
 as calculated by \code{\link[=getResourceMort]{getResourceMort()}}. It should be called with only one of
-\code{resource_rate} or \code{resource_capacity} should and will return a named list
+\code{resource_rate} or \code{resource_capacity} and will return a named list
 with the values for both.
 }
 \seealso{
