@@ -22,8 +22,7 @@
 #' in that case you should not specify `resource_capacity` as well.
 #' 
 #' If you provide none of the arguments `resource_level`, `resource_rate` or
-#' `resource_capacity` then the resource rate is set to the resource rate is
-#' kept at its previous value.
+#' `resource_capacity` then the resource rate is kept at its previous value.
 #' 
 #' @section Setting resource dynamics:
 #' 
