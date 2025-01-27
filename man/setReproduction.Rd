@@ -176,12 +176,12 @@ these as models for writing your own functions.
 # Plot maturity and reproduction ogives for Cod in North Sea model
 maturity <- getMaturityProportion(NS_params)["Cod", ]
 repro_prop <- getReproductionProportion(NS_params)["Cod", ]
-df <- data.frame(Size = w(NS_params), 
-                 Reproduction = repro_prop, 
-                 Maturity = maturity, 
+df <- data.frame(Size = w(NS_params),
+                 Reproduction = repro_prop,
+                 Maturity = maturity,
                  Total = maturity * repro_prop)
-dff <- melt(df, id.vars = "Size", 
-            variable.name = "Type", 
+dff <- melt(df, id.vars = "Size",
+            variable.name = "Type",
             value.name = "Proportion")
 library(ggplot2)
 ggplot(dff) + geom_line(aes(x = Size, y = Proportion, colour = Type))

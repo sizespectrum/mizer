@@ -216,7 +216,6 @@ scaleModel <- function(params, factor) {
     
     # Resource replenishment rate
     params@cc_pp <- params@cc_pp * factor
-    params@resource_params$kappa <- params@resource_params$kappa * factor
     
     # Rmax
     # r_max is a deprecated spelling of R_max. Get rid of it.
@@ -243,6 +242,8 @@ scaleModel <- function(params, factor) {
     initialN(params) <- params@initial_n * factor
     initialNResource(params) <- params@initial_n_pp * factor
     initialNOther(params) <- initial_n_other
+    # Resource abundance coefficient
+    params@resource_params$kappa <- params@resource_params$kappa * factor
     
     # community
     params@sc <- params@sc * factor

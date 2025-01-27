@@ -223,7 +223,7 @@ reference:
   - has_concept("selectivity functions")
 - title: Resource dynamics
   contents:
-  - has_concept("resource dynamics")
+  - has_concept("resource dynamics functions")
   - has_concept("resource parameters")
   - resource_params
 - title: Reproduction functions

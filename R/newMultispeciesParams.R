@@ -239,7 +239,6 @@ newMultispeciesParams <- function(
 #' \item [setExtEncounter()]
 #' \item [setReproduction()]
 #' \item [setFishing()]
-#' \item [setResource()]
 #' }
 #' See the Details section below for a discussion of how to use this function.
 #' 

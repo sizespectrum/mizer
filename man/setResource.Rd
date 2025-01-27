@@ -48,10 +48,12 @@ resource_dynamics(params) <- value
 
 \item{resource_rate}{Optional. A vector of per-capita resource birth
 rate for each size class or a single number giving the coefficient in the
-power-law for this rate, see Details. Must be strictly positive.}
+power-law for this rate, see "Setting resource dynamics" below.
+Must be strictly positive.}
 
 \item{resource_capacity}{Optional. Vector of resource intrinsic carrying
-capacities or coefficient in the power-law for the capacity, see Details.
+capacities or coefficient in the power-law for the capacity, see
+"Setting resource dynamics" below.
 The resource capacity must be larger than the resource abundance.}
 
 \item{resource_level}{Optional. The ratio between the current resource number
@@ -92,6 +94,15 @@ argument instead.}
 }
 \value{
 \code{setResource}: A MizerParams object with updated resource parameters
+
+A vector with the intrinsic resource birth rate for each size class.
+
+A vector with the intrinsic resource capacity for each size class.
+
+A vector with the ratio between the current resource number density
+and the resource capacity for each size class.
+
+The name of the function that determines the resource dynamics.
 }
 \description{
 Sets the intrinsic resource birth rate and the intrinsic resource carrying
@@ -103,8 +114,7 @@ which it is consumed. So you should only provide either the
 the other is determined by the requirement that the resource replenishes
 at the same rate at which it is consumed.
 }
-\section{Setting resource dynamics}{
-
+\details{
 You would usually set the resource dynamics only after having finished the
 calibration of the steady state. Then setting the resource dynamics with
 this function will preserve that steady state, unless you explicitly
@@ -112,6 +122,17 @@ choose to set \code{balance = FALSE}. Your choice of the resource dynamics only
 affects the dynamics around the steady state. The higher the resource rate
 or the lower the resource capacity the less sensitive the model will be to
 changes in the competition for resource.
+
+If you provide the \code{resource_level} then that sets the \code{resource_capacity}
+to the current resource number density divided by the resource level. So
+in that case you should not specify \code{resource_capacity} as well.
+
+If you provide none of the arguments \code{resource_level}, \code{resource_rate} or
+\code{resource_capacity} then the resource rate is set to the resource rate is
+kept at its previous value.
+}
+\section{Setting resource dynamics}{
+
 
 The \code{resource_dynamics} argument allows you to choose the resource dynamics
 function. By default, mizer uses a semichemostat model to describe the
@@ -122,13 +143,13 @@ you can use \code{\link[=resource_constant]{resource_constant()}} which keeps th
 can write your own function.
 
 Both the \code{\link[=resource_semichemostat]{resource_semichemostat()}} and the \code{\link[=resource_logistic]{resource_logistic()}} dynamics
-are parametrised in terms of a size-dependent rate \eqn{r_R(w)} and a
+are parametrised in terms of a size-dependent birth rate \eqn{r_R(w)} and a
 size-dependent capacity \eqn{c_R}. The help pages of these functions give
 the details.
 
 The \code{resource_rate} argument can be a vector (with the same length as
 \code{w_full(params)}) specifying the intrinsic resource birth rate for each size
-class. Alternatively it can be a single number, which is then used as the
+class. Alternatively it can be a single number that is used as the
 coefficient in a power law: then the intrinsic birth rate \eqn{r_R(w)} at
 size \eqn{w} is set to
 \deqn{r_R(w) = r_R w^{n-1}.}
@@ -136,14 +157,14 @@ The power-law exponent \eqn{n} is taken from the \code{n} argument.
 
 The \code{resource_capacity} argument can be a vector specifying the intrinsic
 resource carrying capacity for each size class. Alternatively it can be a
-single number, which is then used as the coefficient in a truncated power
+single number that is used as the coefficient in a truncated power
 law: then the intrinsic carrying capacity \eqn{c_R(w)} at size \eqn{w}
 is set to
-\deqn{c(w) = \kappa\, w^{-\lambda}}{c(w) = \kappa w^{-\lambda}}
+\deqn{c_R(w) = c_R\, w^{-\lambda}}{c_R(w) = c_R w^{-\lambda}}
 for all \eqn{w} less than \code{w_pp_cutoff} and zero for larger sizes.
 The power-law exponent \eqn{\lambda} is taken from the \code{lambda} argument.
 
-The values for \code{kappa}, \code{lambda}, \code{n} and \code{w_pp_cutoff} are stored in a list
+The values for \code{lambda}, \code{n} and \code{w_pp_cutoff} are stored in a list
 in the \code{resource_params} slot of the MizerParams object so that they can be
 re-used automatically in the future. That list can be accessed with
 \code{\link[=resource_params]{resource_params()}}.
@@ -154,4 +175,6 @@ params <- NS_params
 resource_dynamics(params)
 resource_dynamics(params) <- "resource_constant"
 }
-\concept{resource parameters}
+\seealso{
+\code{\link[=setParams]{setParams()}}
+}

@@ -14,7 +14,8 @@ resource_constant(params, n_pp, ...)
 \item{...}{Unused}
 }
 \value{
-Vector containing resource spectrum at next timestep
+Vector containing the resource number density in each size class at
+the next timestep
 }
 \description{
 If you set your resource dynamics to use this function then the resource
@@ -34,8 +35,10 @@ params <- NS_params
 resource_dynamics(params) <- "resource_constant"
 }
 \seealso{
-Other resource dynamics: 
+\code{\link[=setResource]{setResource()}}
+
+Other resource dynamics functions: 
 \code{\link{resource_logistic}()},
 \code{\link{resource_semichemostat}()}
 }
-\concept{resource dynamics}
+\concept{resource dynamics functions}

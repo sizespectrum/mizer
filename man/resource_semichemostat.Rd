@@ -42,7 +42,8 @@ balance_resource_semichemostat(params, resource_rate, resource_capacity)
 \item{...}{Unused}
 }
 \value{
-Vector containing resource spectrum at next timestep
+Vector containing the resource number density in each size class at
+the next timestep
 }
 \description{
 If you set your resource dynamics to use this function then the time
@@ -78,8 +79,10 @@ as calculated by \code{\link[=getResourceMort]{getResourceMort()}}. It should be
 with the values for both.
 }
 \seealso{
-Other resource dynamics: 
+\code{\link[=setResource]{setResource()}}
+
+Other resource dynamics functions: 
 \code{\link{resource_constant}()},
 \code{\link{resource_logistic}()}
 }
-\concept{resource dynamics}
+\concept{resource dynamics functions}

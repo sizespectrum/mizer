@@ -33,10 +33,12 @@
 #' @param resource_rate Resource replenishment rate
 #' @param resource_capacity Resource carrying capacity
 #' @param ... Unused
-#'   
-#' @return Vector containing resource spectrum at next timestep
+#'
+#' @return Vector containing the resource number density in each size class at
+#'   the next timestep
 #' @export
-#' @family resource dynamics
+#' @family resource dynamics functions
+#' @seealso [setResource()]
 resource_semichemostat <- function(params, n, n_pp, n_other, rates, t, dt,
                                    resource_rate, resource_capacity, ...) {
     # We use the exact solution under the assumption of constant mortality 

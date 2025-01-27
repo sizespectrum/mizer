@@ -78,7 +78,6 @@ functions
 \item \code{\link[=setExtEncounter]{setExtEncounter()}}
 \item \code{\link[=setReproduction]{setReproduction()}}
 \item \code{\link[=setFishing]{setFishing()}}
-\item \code{\link[=setResource]{setResource()}}
 }
 See the Details section below for a discussion of how to use this function.
 }

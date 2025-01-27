@@ -14,9 +14,11 @@
 #' @inheritParams resource_semichemostat
 #' @param ... Unused
 #'   
-#' @return Vector containing resource spectrum at next timestep
+#' @return Vector containing the resource number density in each size class at
+#'   the next timestep
 #' @export
-#' @family resource dynamics
+#' @family resource dynamics functions
+#' @seealso [setResource()]
 #' @examples
 #' params <- NS_params
 #' resource_dynamics(params) <- "resource_constant"
@@ -47,13 +49,17 @@ resource_constant <- function(params, n_pp, ...) {
 #' its cutoff value: \deqn{c_R(w) = c_R w^{-\lambda}} for all \eqn{w} less than
 #' `w_pp_cutoff` and zero for larger sizes.
 #'
-#' The resource parameter `kappa` (\eqn{\kappa}) determines the initial resource
-#' abundance: \deqn{N_R(w) = \kappa\, w^{-\lambda}}{c_R(w) = \kappa
-#' w^{-\lambda}} for all \eqn{w} less than `w_pp_cutoff` and zero for larger
-#' sizes.
+#' The resource parameter `kappa` (\eqn{\kappa}) is slightly different in that
+#' it is not a parameter for the resource dynamics. Instead it is a parameter
+#' that determined the initial resource abundance when the model was created:
+#' \deqn{N_R(w) = \kappa\, w^{-\lambda}}{c_R(w) = \kappa w^{-\lambda}}
+#' for all \eqn{w} less than `w_pp_cutoff` and zero for larger sizes. Note that
+#' the initial resource abundance is not changed by [setResource()] even if you
+#' change the value of `kappa` in the `resource_params`.
 #' 
 #' @param params A MizerParams object
 #' @return A named list of resource parameters.
+#' @seealso [setResource()]
 #' @export
 resource_params <- function(params) {
     params@resource_params

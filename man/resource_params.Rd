@@ -38,8 +38,14 @@ power-law form for the carrying capacity \eqn{c_R(w)} and \code{w_pp_cutoff} is
 its cutoff value: \deqn{c_R(w) = c_R w^{-\lambda}} for all \eqn{w} less than
 \code{w_pp_cutoff} and zero for larger sizes.
 
-The resource parameter \code{kappa} (\eqn{\kappa}) determines the initial resource
-abundance: \deqn{N_R(w) = \kappa\, w^{-\lambda}}{c_R(w) = \kappa
-w^{-\lambda}} for all \eqn{w} less than \code{w_pp_cutoff} and zero for larger
-sizes.
+The resource parameter \code{kappa} (\eqn{\kappa}) is slightly different in that
+it is not a parameter for the resource dynamics. Instead it is a parameter
+that determined the initial resource abundance when the model was created:
+\deqn{N_R(w) = \kappa\, w^{-\lambda}}{c_R(w) = \kappa w^{-\lambda}}
+for all \eqn{w} less than \code{w_pp_cutoff} and zero for larger sizes. Note that
+the initial resource abundance is not changed by \code{\link[=setResource]{setResource()}} even if you
+change the value of \code{kappa} in the \code{resource_params}.
+}
+\seealso{
+\code{\link[=setResource]{setResource()}}
 }
