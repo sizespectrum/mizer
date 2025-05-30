@@ -100,7 +100,7 @@
 #' The values for `R_max` must be larger than \eqn{R_{dd}}{R_dd} and can range
 #' up to `Inf`. If a smaller value is requested a warning is issued and the
 #' value is increased to the value required for a reproduction level of 0.99.
-#' 
+#'
 #' The values for the `reproduction_level` must be positive and
 #' less than 1. The values for `erepro` must be large enough to allow the
 #' required reproduction rate. If a smaller value is requested a warning is
@@ -141,13 +141,13 @@
 #' params <- setBevertonHolt(params, reproduction_level = 0.3)
 #' t(species_params(params)[, c("erepro", "R_max")])
 #' @export
-setBevertonHolt <- function(params, R_factor = deprecated(), erepro, 
+setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
                             R_max, reproduction_level) {
     assert_that(is(params, "MizerParams"))
     no_sp <- nrow(params@species_params)
-    
+
     # check number of arguments
-    num_args <- hasArg("erepro") + hasArg("R_max") + 
+    num_args <- hasArg("erepro") + hasArg("R_max") +
         hasArg("reproduction_level") + hasArg("R_factor")
     if (num_args > 1) {
         stop("You should only provide `params` and one other argument.")
@@ -156,13 +156,13 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
         # no values given, so use previous erepro
         erepro <- params@species_params$erepro
     }
-    
+
     # No matter which argument is given, I want to manipulate the values
     if (!missing("erepro")) values <- erepro
     if (hasArg("R_max")) values <- R_max
     if (hasArg("reproduction_level")) values <- reproduction_level
     if (hasArg("R_factor")) values <- R_factor
-    
+
     if (length(values) == 1 && is.null(names(values))) {
         values <- rep(values, no_sp)
     }
@@ -187,9 +187,9 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
         stop("Some species have no reproduction.")
     }
     params@rates_funcs$RDD <- "BevertonHoltRDD"
-    
+
     rdd_new <- getRequiredRDD(params)[species]
-    
+
     if (!missing(erepro)) {
         erepro_new <- values
         erepro_old <- params@species_params$erepro[sp_idx]
@@ -209,11 +209,16 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
         r_max_new[is.nan(r_max_new)] <- Inf
         params@species_params$erepro[sp_idx] <- erepro_new
         params@species_params$R_max[sp_idx] <- r_max_new
-        
+        # Treat these calculated parameters as given parameters because
+        # user chose to have them calculated this way and won't want them
+        # changed by the next call to `setParams()` or `given_species_params()`.
+        params@given_species_params$erepro[sp_idx] <- erepro_new
+        params@given_species_params$R_max[sp_idx] <- r_max_new
+
         params@time_modified <- lubridate::now()
         return(params)
     }
-    
+
     # We now know that we are setting R_max, which however can have been
     # specified in different ways.
     if (!missing(reproduction_level)) {
@@ -239,21 +244,29 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
         }
         r_max_new <- values
     }
-    
+
     # Be careful to choose the expression that works also with r_max_new = Inf
     # rdi_new <- r_max_new * rdd_new / (r_max_new - rdd_new)
     rdi_new <- rdd_new / (1 - rdd_new / r_max_new)
-    
+
     params@species_params$R_max[sp_idx] <- r_max_new
     params@species_params$erepro[sp_idx] <-
         params@species_params$erepro[sp_idx] * rdi_new / rdi
+    # Treat these calculated parameters as given parameters because
+    # user chose to have them calculated this way and won't want them
+    # changed by the next call to `setParams()` or `given_species_params()`.
+    params@given_species_params$erepro[sp_idx] <-
+        params@species_params$erepro[sp_idx]
+    params@given_species_params$R_max[sp_idx] <-
+        params@species_params$R_max[sp_idx]
+
     wrong <- params@species_params$erepro[sp_idx] > 1
     if (any(wrong)) {
         warning("The following species require an unrealistic value greater ",
                 "than 1 for `erepro`: ",
                 paste(species[wrong], collapse = ", "), "\n")
     }
-    
+
     params@time_modified <- lubridate::now()
     return(params)
 }
@@ -311,10 +324,10 @@ getReproductionLevel <- function(params) {
 
 
 #' Alias for `setBevertonHolt()`
-#' 
+#'
 #' @description
 #' `r lifecycle::badge("deprecated")`
-#' 
+#'
 #' An alias provided for backward compatibility with mizer version <= 2.0.4
 #' @inherit setBevertonHolt
 #' @export

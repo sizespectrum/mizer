@@ -39,7 +39,7 @@
 #' params <- newSingleSpeciesParams()
 #' sim <- project(params, t_max = 5, effort = 0)
 #' plotSpectra(sim)
-newSingleSpeciesParams <- 
+newSingleSpeciesParams <-
     function(species_name = "Target species",
              w_max = 100,
              w_min = 0.001,
@@ -65,7 +65,7 @@ newSingleSpeciesParams <-
              k_vb = deprecated()) {
         if (lifecycle::is_present(w_inf)) {
             lifecycle::deprecate_warn(
-                when = "2.4.0.0", 
+                when = "2.4.0.0",
                 what = "newSingleSpeciesParams(w_inf)",
                 with = "newSingleSpeciesParams(w_max)"
             )
@@ -75,7 +75,7 @@ newSingleSpeciesParams <-
         }
         if (lifecycle::is_present(k_vb)) {
             lifecycle::deprecate_warn(
-                when = "2.4.0.0", 
+                when = "2.4.0.0",
                 what = "newSingleSpeciesParams(k_vb)",
                 details = "Specify 'h' instead."
             )
@@ -217,8 +217,9 @@ newSingleSpeciesParams <-
 
     ## Set reproduction to meet boundary condition ----
     params@species_params$erepro <- params@species_params$erepro *
-        get_required_reproduction(params) / getRDI(params) 
-    
+        get_required_reproduction(params) / getRDI(params)
+    params@given_species_params$erepro <- params@species_params$erepro
+
     params <- setBevertonHolt(params, reproduction_level = reproduction_level)
 
     return(params)

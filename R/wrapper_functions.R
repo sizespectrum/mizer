@@ -1,47 +1,47 @@
 # Copyright 2012 Finlay Scott and Julia Blanchard.
 # Copyright 2018 Gustav Delius and Richard Southwell.
-# Development has received funding from the European Commission's Horizon 2020 
-# Research and Innovation Programme under Grant Agreement No. 634495 
+# Development has received funding from the European Commission's Horizon 2020
+# Research and Innovation Programme under Grant Agreement No. 634495
 # for the project MINOUW (http://minouw-project.eu/).
-# Distributed under the GPL 3 or later 
+# Distributed under the GPL 3 or later
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
 #' Set up parameters for a community-type model
-#' 
+#'
 #' This functions creates a \code{\linkS4class{MizerParams}} object describing a
-#' community-type model. 
+#' community-type model.
 #' The function has many arguments, all of which have default values.
-#' 
+#'
 #' A community model has several features that distinguish it from a
 #' multi-species model:
-#' 
+#'
 #' * Species identities of individuals are ignored. All are aggregated into a
 #'   single community.
-#' * The resource spectrum only extends to the start of the community spectrum. 
-#' * Reproductive rate is constant, independent of the energy invested in 
-#'   reproduction, which is set to 0. 
+#' * The resource spectrum only extends to the start of the community spectrum.
+#' * Reproductive rate is constant, independent of the energy invested in
+#'   reproduction, which is set to 0.
 #' * Standard metabolism is turned off (the parameter `ks` is set to 0).
 #'   Consequently, the growth rate is now determined solely by the assimilated
-#'   food 
-#' 
-#' Fishing selectivity is modelled as a knife-edge function with one parameter, 
-#' `knife_edge_size`, which determines the size at which species are 
+#'   food
+#'
+#' Fishing selectivity is modelled as a knife-edge function with one parameter,
+#' `knife_edge_size`, which determines the size at which species are
 #' selected.
-#' 
-#' The resulting `MizerParams` object can be projected forward using 
-#' \code{project()} like any other `MizerParams` object. When projecting 
+#'
+#' The resulting `MizerParams` object can be projected forward using
+#' \code{project()} like any other `MizerParams` object. When projecting
 #' the community model it may be necessary to keep a small time step size
 #' `dt` of around 0.1 to avoid any instabilities with the solver. You can
 #' check for these numerical instabilities by plotting the biomass or abundance
 #' through time after the projection.
-#' 
-#' @param max_w The maximum size of the community. The `w_max` of the 
+#'
+#' @param max_w The maximum size of the community. The `w_max` of the
 #'   species used to represent the community is set to this value.
 #' @param min_w The minimum size of the community.
 #' @param z0 The background mortality of the community.
 #' @param alpha The assimilation efficiency of the community.
-#' @param f0 The average feeding level of individuals who feed on a power-law 
-#'   spectrum. This value is used to calculate the search rate parameter 
+#' @param f0 The average feeding level of individuals who feed on a power-law
+#'   spectrum. This value is used to calculate the search rate parameter
 #'   `gamma`.
 #' @param h The coefficient of the maximum food intake rate.
 #' @param n The allometric growth exponent. Used as allometric exponent for
@@ -49,7 +49,7 @@
 #'   rate of the resource.
 #' @param beta The preferred predator prey mass ratio.
 #' @param sigma The width of the prey preference.
-#' @param gamma Volumetric search rate. Estimated using `h`, `f0` and 
+#' @param gamma Volumetric search rate. Estimated using `h`, `f0` and
 #'   `kappa` if not supplied.
 #' @param reproduction The constant reproduction in the smallest size class of
 #'   the community spectrum. By default this is set so that the community
@@ -59,8 +59,8 @@
 #' @inheritParams newMultispeciesParams
 #' @export
 #' @return An object of type \code{\linkS4class{MizerParams}}
-#' @references K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and 
-#'   individual efficiencies of size-structured communities, Proceedings of the 
+#' @references K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and
+#'   individual efficiencies of size-structured communities, Proceedings of the
 #'   Royal Society, 276, 109-114
 #' @family functions for setting up models
 #' @examples
@@ -68,7 +68,7 @@
 #' sim <- project(params, t_max = 10)
 #' plotBiomass(sim)
 #' plotSpectra(sim, power = 2)
-#' 
+#'
 #' # More satiation. More mortality
 #' params <- newCommunityParams(f0 = 0.8, z0 = 0.4)
 #' sim <- project(params, t_max = 10)
@@ -95,7 +95,7 @@ newCommunityParams <- function(max_w = 1e6,
     w_pp_cutoff <- min_w
     ks <- 0 # Turn off standard metabolism
     p <- n # But not used as ks = 0
-    
+
     # Make the species data.frame
     species_params <- data.frame(
         species = "Community",
@@ -114,7 +114,7 @@ newCommunityParams <- function(max_w = 1e6,
         knife_edge_size = knife_edge_size,
         stringsAsFactors = FALSE
     )
-    params <- 
+    params <-
         newMultispeciesParams(species_params, no_w = no_w, min_w_pp = min_w_pp,
                               p = p, n = n, lambda = lambda, min_w = min_w,
                               kappa = kappa,
@@ -122,8 +122,8 @@ newCommunityParams <- function(max_w = 1e6,
                               resource_rate = r_pp,
                               w_pp_cutoff = w_pp_cutoff,
                               info_level = 0)
-    
-    initial_n <- array(kappa * params@w ^ (-lambda), 
+
+    initial_n <- array(kappa * params@w ^ (-lambda),
                        dim = c(1, length(params@w)))
     initialN(params) <- initial_n
 
@@ -132,16 +132,17 @@ newCommunityParams <- function(max_w = 1e6,
         reproduction <- get_required_reproduction(params)
     }
     params@species_params$constant_reproduction <- reproduction
-    params@psi[] <- 0 # Need to force to be 0. Can try setting w_mat but 
+    params@given_species_params$constant_reproduction <- reproduction
+    # R_max is not used in the community model.
+    params@species_params$R_max <- NULL
+    params@psi[] <- 0 # Need to force to be 0. Can try setting w_mat but
                           # due to slope still not 0
     comment(params@psi) <- "No investment into reproduction in community model."
-    # Set w_mat to NA for clarity - it is not actually being used
-    params@species_params$w_mat[] <- NA
     return(params)
 }
 
 #' Set up parameters for a trait-based multispecies model
-#' 
+#'
 #' This functions creates a `MizerParams` object describing a trait-based
 #' model. This is a simplification of the general size-based model used in
 #' `mizer` in which the species-specific parameters are the same for all
@@ -158,11 +159,11 @@ newCommunityParams <- function(max_w = 1e6,
 #' the minimum and maximum sizes.
 #'
 #' The characteristic weights of the smallest species are defined by
-#' `min_w` (egg size), `min_w_mat` (maturity size) and 
-#' `min_w_max` (maximum size). The maximum sizes of 
+#' `min_w` (egg size), `min_w_mat` (maturity size) and
+#' `min_w_max` (maximum size). The maximum sizes of
 #' the `no_sp` species
 #' are logarithmically evenly spaced, ranging from `min_w_max` to
-#' `max_w_max`. 
+#' `max_w_max`.
 #' Similarly the maturity sizes of the species are logarithmically evenly
 #' spaced, so that the ratio `eta` between maturity size and maximum
 #' size is the same for all species. If \code{egg_size_scaling = TRUE} then also
@@ -255,7 +256,7 @@ newCommunityParams <- function(max_w = 1e6,
 #' @param perfect_scaling `r lifecycle::badge("experimental")`
 #'   If TRUE then parameters are set so that the community
 #'   abundance, growth before reproduction and death are perfect power laws. In
-#'   particular all other scaling corrections are turned on. 
+#'   particular all other scaling corrections are turned on.
 #' @param min_w_inf `r lifecycle::badge("deprecated")` The argument has been
 #'   renamed to `min_w_max` to make it clearer that it refers to the maximum
 #'   size of a species not the von Bertalanffy asymptotic size parameter.
@@ -305,7 +306,7 @@ newTraitParams <- function(no_sp = 11,
     ## Deprecated arguments ----
     if (lifecycle::is_present(min_w_inf)) {
         lifecycle::deprecate_warn(
-            when = "2.4.0.0", 
+            when = "2.4.0.0",
             what = "newTraitParams(min_w_inf)",
             with = "newTraitParams(min_w_max)"
         )
@@ -313,13 +314,13 @@ newTraitParams <- function(no_sp = 11,
     }
     if (lifecycle::is_present(max_w_inf)) {
         lifecycle::deprecate_warn(
-            when = "2.4.0.0", 
+            when = "2.4.0.0",
             what = "newTraitParams(max_w_inf)",
             with = "newTraitParams(max_w_max)"
         )
         max_w_max <- max_w_inf
     }
-    
+
     ## Check validity of parameters ----
     assert_that(is.flag(egg_size_scaling),
                 is.flag(resource_scaling),
@@ -339,7 +340,7 @@ newTraitParams <- function(no_sp = 11,
                       "for an interval from w and 10w."))
     }
     if (no_w > 10000) {
-        message("Running a simulation with ", no_w, 
+        message("Running a simulation with ", no_w,
                 " size bins is going to be very slow.")
     }
     if (min_w_max >= max_w_max) {
@@ -384,26 +385,26 @@ newTraitParams <- function(no_sp = 11,
                                   "Set `reproduction_level = 1 / R_factor`.")
         reproduction_level <- 1 / R_factor
     }
-    
+
     if (perfect_scaling) {
         egg_size_scaling <- TRUE
         resource_scaling <- TRUE
         w_pp_cutoff <- Inf
         p <- n
     }
-    
+
     ## Set grid points and characteristic sizes ----
     # in such a way that the sizes all line up with the grid and the species are
     # all equally spaced.
-    
+
     # Divide the range from min_w to max_w into (no_w - 1) logarithmic bins of
     # log size dx so that the last bin starts at max_w
     min_x <- log10(min_w)
     max_x <- log10(max_w)
-    dx <- (max_x - min_x) / (no_w - 1) 
+    dx <- (max_x - min_x) / (no_w - 1)
     x <- seq(min_x, by = dx, length.out = no_w)
     w <- 10 ^ x
-    
+
     # Find index of nearest grid point to min_w_max that is an integer multiple
     # of the species spacing away from max_w
     min_x_inf <- log10(min_w_max)
@@ -413,13 +414,13 @@ newTraitParams <- function(no_sp = 11,
     min_i_inf <- no_w - (no_sp - 1) * bins_per_sp
     # Maximum sizes for all species
     w_max <- w[seq(min_i_inf, by = bins_per_sp, length.out = no_sp)]
-    
+
     # Find index of nearest grid point to min_w_mat
     min_x_mat <- log10(min_w_mat)
     min_i_mat <- round((min_x_mat - min_x) / dx) + 1
     # Maturity sizes for all species
     w_mat <- w[seq(min_i_mat, by = bins_per_sp, length.out = no_sp)]
-    
+
     if (egg_size_scaling) {
         # Determine egg weights w_min for all species
         w_min_idx <- seq(1, by = bins_per_sp, length.out = no_sp)
@@ -473,15 +474,15 @@ newTraitParams <- function(no_sp = 11,
             resource_rate = r_pp,
             info_level = 0
         )
-    
+
     w <- params@w
     dw <- params@dw
     w_full <- params@w_full
     ks <- params@species_params$ks[[1]]
     f0 <- get_f0_default(params)[[1]]
-    
+
     ## Construct steady state solution ----
-    
+
     # Get constants for steady-state solution
     # Predation mortality rate coefficient
     mu0 <- get_power_law_mort(params)
@@ -496,7 +497,7 @@ newTraitParams <- function(no_sp = 11,
         message("The ratio of death rate to growth rate is too small, leading to
                 an accumulation of fish at their largest size.")
     }
-    
+
     initial_n <- params@psi  # get array with correct dimensions and names
     initial_n[, ] <- 0
     mumu <- mu0 * w^(n - 1)  # Death rate
@@ -510,26 +511,26 @@ newTraitParams <- function(no_sp = 11,
         # Use the first species for normalisation
         if (i == 1) {
             dist_sp <- bins_per_sp * dx
-            mult <- kappa / 
+            mult <- kappa /
                 sum(n_exact * (w ^ (lambda - 1) * dw)[1:(min_i_inf - 1)]) *
-                (10 ^ (dist_sp * (1 - lambda) / 2) - 10^(-dist_sp * (1 - lambda) / 2)) / 
+                (10 ^ (dist_sp * (1 - lambda) / 2) - 10^(-dist_sp * (1 - lambda) / 2)) /
                 (1 - lambda)
         }
         if (!egg_size_scaling) {
             n_exact <- n_exact / n_exact[i_min]
         }
-        idxs <- w_min_idx[i]:(i_inf - 1) 
-        initial_n[i, idxs] <- n_exact * mult * 
+        idxs <- w_min_idx[i]:(i_inf - 1)
+        initial_n[i, idxs] <- n_exact * mult *
             (w_max[1] / w_max[i]) ^ lambda
         i_inf <- i_inf + bins_per_sp
         i_min <- i_min + bins_per_sp
     }
     params@initial_n <- initial_n
-    
+
     # Calculate the community spectrum
     sc <- colSums(initial_n)
     params@sc <- sc
-    
+
     ##  Setup resource ----
     if (resource_scaling) {
         resource_vec <- (kappa * w ^ (-lambda)) - sc
@@ -551,16 +552,16 @@ newTraitParams <- function(no_sp = 11,
         params@cc_pp[w_full >= w_pp_cutoff] <- 0
     }
     params@initial_n_pp <- params@cc_pp
-    
+
     # The cc_pp factor needs to be higher than the desired steady state in
     # order to compensate for predation mortality
     m2_background <- getResourceMort(params)
-    params@cc_pp <- (params@rr_pp + m2_background ) * 
+    params@cc_pp <- (params@rr_pp + m2_background ) *
         params@initial_n_pp / params@rr_pp
     comment(params@cc_pp) <- paste("Carrying capacity set higher than the",
                                    "desired steady state in order to",
                                    "compensate for predation mortality.")
-    
+
     ## Setup external death ----
     m2 <- getPredMort(params)
     flag <- FALSE
@@ -578,11 +579,11 @@ newTraitParams <- function(no_sp = 11,
                                       "combination with predation mortality",
                                       "it gives a power-law mortality.")
     }
-    
-    
+
+
     ## Set reproduction to meet boundary condition ----
     params@species_params$erepro <- params@species_params$erepro *
-        get_required_reproduction(params) / getRDI(params) 
+        get_required_reproduction(params) / getRDI(params)
     params <- setBevertonHolt(params, reproduction_level = reproduction_level)
 
     return(params)
@@ -590,15 +591,15 @@ newTraitParams <- function(no_sp = 11,
 
 
 # Helper function to calculate the coefficient of the death rate created by
-# a power-law spectrum of predators, assuming they have the same predation 
+# a power-law spectrum of predators, assuming they have the same predation
 # parameters as the first species.
 get_power_law_mort <- function(params) {
     params@interaction[] <- 0
     params@interaction[1, 1] <- 1
-    params@initial_n[1, ] <- params@resource_params$kappa * 
+    params@initial_n[1, ] <- params@resource_params$kappa *
         params@w^(-params@resource_params$lambda)
-    return(getPredMort(params)[1, 1] / 
-               params@w[[1]] ^ (1 + params@species_params[[1, "q"]] - 
+    return(getPredMort(params)[1, 1] /
+               params@w[[1]] ^ (1 + params@species_params[[1, "q"]] -
                                     params@resource_params$lambda))
 }
 
@@ -609,7 +610,7 @@ get_power_law_mort <- function(params) {
 #' @concept helper
 get_required_reproduction <- function(params) {
     assert_that(is(params, "MizerParams"))
-    
+
     no_sp <- nrow(params@species_params)
     mumu <- getMort(params)
     gg <- getEGrowth(params)
