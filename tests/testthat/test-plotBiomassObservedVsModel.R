@@ -44,7 +44,7 @@ expect_equal(dummy$observed,
 # Finally, look at plot of ratio
 dummy <- plotBiomassObservedVsModel(params, return_data = TRUE)
 p <- plotBiomassObservedVsModel(params)
-expect_true(is.ggplot(p))
+expect_true(is_ggplot(p))
 expect_identical(p$labels$x, "observed biomass [g]")
 expect_identical(p$labels$y, "model biomass / observed biomass")
 expect_identical(p$data, dummy)

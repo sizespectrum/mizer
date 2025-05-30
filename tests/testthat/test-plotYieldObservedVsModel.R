@@ -46,7 +46,7 @@ test_that("plotYieldObservedVsModel works", {
     
     # Finally, look at plot
     expect_message(p <- plotYieldObservedVsModel(params))
-    expect_true(is.ggplot(p))
+    expect_true(is_ggplot(p))
     expect_identical(p$labels$x, "observed yield [g/year]")
     expect_identical(p$labels$y, "model yield [g/year]")
     
