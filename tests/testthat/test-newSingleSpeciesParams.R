@@ -8,3 +8,11 @@ test_that("newSingleSpeciesParams works", {
     sim <- project(params, t_max = 1)
     expect_equal(sim@n[1, 1, ], sim@n[2, 1, ])
 })
+
+test_that("Sets given_species_params", {
+    # Calling `given_species_params<-()` should not make a change
+    params <- newSingleSpeciesParams()
+    p2 <- params
+    given_species_params(p2) <- given_species_params(p2)
+    expect_unchanged(p2, params)
+})

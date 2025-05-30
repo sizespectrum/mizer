@@ -6,19 +6,19 @@ test_that("constructor with species_params and interaction signature gives the r
     expect_equal(class(params)[1], "MizerParams") # alternative?
     expect_equal(dim(params@psi)[1], nrow(NS_species_params))
     expect_equal(dimnames(params@psi)$sp, NS_species_params$species)
-    params_gears <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)  
-    expect_equal(unique(dimnames(params_gears@selectivity)$gear), 
+    params_gears <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
+    expect_equal(unique(dimnames(params_gears@selectivity)$gear),
                  unique(params_gears@species_params$gear))
     # pass in other arguments
-    params_gears <- newMultispeciesParams(NS_species_params_gears, 
-                                          inter, no_w = 50, info_level = 0)  
+    params_gears <- newMultispeciesParams(NS_species_params_gears,
+                                          inter, no_w = 50, info_level = 0)
     expect_length(params_gears@w, 50)
     expect_equal(dimnames(params_gears@selectivity)$gear,
                  unique(NS_species_params_gears$gear))
 })
 
 test_that("constructor with only species_params signature gives the right dimensions", {
-    params <- newMultispeciesParams(NS_species_params, info_level = 0)  
+    params <- newMultispeciesParams(NS_species_params, info_level = 0)
     expect_true(all(params@interaction == 1))
     expect_equal(dim(params@interaction), c(dim(params@psi)[1],
                                             dim(params@psi)[1]))
@@ -43,9 +43,18 @@ test_that("w_min_idx is being set correctly", {
 })
 
 test_that("Errors are reported", {
-    expect_error(newMultispeciesParams(NS_species_params, min_w_pp = 1, 
+    expect_error(newMultispeciesParams(NS_species_params, min_w_pp = 1,
                                        info_level = 0),
                  "min_w_pp must be larger than min_w")
+})
+
+test_that("Sets given_species_params", {
+    # Calling `given_species_params<-()` should not make a change
+    sp <- data.frame(species = "sp1", w_max = 1000)
+    params <- newMultispeciesParams(sp, info_level = 0)
+    p2 <- params
+    given_species_params(p2) <- given_species_params(p2)
+    expect_unchanged(p2, params)
 })
 
 # setParams ----
@@ -59,7 +68,7 @@ test_that("setParams handles change in w_max", {
     params@species_params$w_max[1] <- 1000
     params <- setParams(params)
     expect_equal(sum(params@ft_mask[1, ]), 205)
-    
+
     # Check that warning is given if w_max is too large
     params@species_params$w_max[1] <- max(params@w) + 10
     params@species_params$w_repro_max[1] <- max(params@w) + 10
