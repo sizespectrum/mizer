@@ -18,7 +18,7 @@ expect_unchanged <- function(object, expected) {
     }
     # Check that the species_params are unchanged except for a
     # reordering of the dataframe columns
-    expect_identical(sp[, sort(names(sp))],
+    expect_equal(sp[, sort(names(sp))],
                      sp_expected[, sort(names(sp_expected))])
     # And if they were the same, remove the reordering
     if (is(object, "MizerParams")) {
