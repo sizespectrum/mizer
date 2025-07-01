@@ -365,11 +365,11 @@ depend allometrically on the maximum size:
 The fishing parameters for the model are set up with `setFishing()`, where
 you can find the details of how to set up gears with different selectivities
 and the capabilities of different species.
-Fishing mortality $\mu_{f.i}(w)$ is calculated with the function `getFMort()`.
+Fishing mortality $F_i(w)$ is calculated with the function `getFMort()`.
 
 ## Total mortality
 The total mortality rate
-\[\mu_i(w)=\mu_{p.i}(w)+\mu_{ext,u}(w)+\mu_{f.i}(w)\]
+\[\mu_i(w)=\mu_{p.i}(w)+\mu_{ext.i}(w)+F_i(w)\]
 is calculated with the function `getMort()`.
 
 
@@ -397,9 +397,9 @@ total rate of energy investment can then be converted to a total rate of
 egg production $R_{p.i}$ (numbers per year):
 \begin{equation}
   \label{eq:Rp}
-  R_{p.i} = \frac{\epsilon}{2 w_0} \int N_i(w)  E_{r.i}(w) \psi_i(w) \, dw,
+  R_{p.i} = \frac{\epsilon_i}{2 w_0} \int N_i(w)  E_{r.i}(w) \psi_i(w) \, dw,
 \end{equation}
-Here the total rate of investment is multiplied by an efficiency factor $\epsilon$ 
+Here the total rate of investment is multiplied by an efficiency factor $\epsilon_i$ 
 and then dividing by the egg weight $w_0$ to convert the energy into number of eggs.
 The result is multiplied by a factor $1/2$ to take into account that only 
 females reproduce. This rate of potential egg production is calculated with

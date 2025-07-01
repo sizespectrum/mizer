@@ -47,7 +47,7 @@ how fishing gears are set up.
 }
 \details{
 The total fishing mortality is just the sum of the fishing mortalities
-imposed by each gear, \eqn{\mu_{f.i}(w)=\sum_g F_{g,i,w}}.
+imposed by each gear, \eqn{F_i(w)=\sum_g F_{g,i,w}}.
 The fishing mortality for each gear is obtained as catchability x
 selectivity x effort.
 }
