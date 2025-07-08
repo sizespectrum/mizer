@@ -68,6 +68,7 @@ steadySingleSpecies <-
                     N0 * c(1, cumprod(growth[idx] / 
                                           ((growth + mort * params@dw)[idx + 1])))
             } else {
+                message("Determining steady state with diffusion")
                 sol <- solve_ode_steady_state(growth[idx], mort[idx],
                                               d_over_g, N0, w[idx], n)
                 params@initial_n[sp, idx] <- sol
