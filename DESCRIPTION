@@ -29,6 +29,7 @@ Imports:
     ggrepel,
     grid,
     lubridate,
+    Matrix,
     methods,
     plotly,
     plyr,
