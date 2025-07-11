@@ -84,7 +84,7 @@ steadySingleSpecies <-
         }
         
         if (keep == "biomass") {
-            factor <- biomass / getBiomass(params)
+            factor <- biomass / getBiomass(params, use_cutoff = TRUE)
             params@initial_n <- params@initial_n * factor
         }
         if (keep == "number") {
