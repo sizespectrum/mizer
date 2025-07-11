@@ -15,17 +15,17 @@ n_pp <- abs(rnorm(length(params@w_full)))
 
 ## get_size_range_array ----
 test_that("get_size_range_array works", {
-    params@species_params[["a"]] <- 
+    params@species_params[["a"]] <-
         c(0.007, 0.001, 0.009, 0.002, 0.010, 0.006, 0.008, 0.004,
             0.007, 0.005, 0.005, 0.007)
-    params@species_params[["b"]] <- 
+    params@species_params[["b"]] <-
         c(3.014, 3.320, 2.941, 3.429, 2.986, 3.080, 3.019, 3.198,
             3.101, 3.160, 3.173, 3.075)
-    
+
     # no limits
     size_n <- get_size_range_array(params)
     expect_true(all(size_n))
-    
+
     # specifying weights
     size_n <- get_size_range_array(params, min_w = 1)
     expect_true(!all(size_n[, which(params@w < 1)]))
@@ -37,50 +37,50 @@ test_that("get_size_range_array works", {
     expect_true(!all(size_n[, which(params@w > 100)]))
     expect_true(!all(size_n[, which(params@w < 1)]))
     expect_true(all(size_n[, which((params@w >= 1) & (params@w <= 100))]))
-    
+
     # specifying lengths
     min_l <- 2
     size_n <- get_size_range_array(params, min_l = min_l)
     min_w <- params@species_params$a * min_l ^ params@species_params$b
-    for (sp in seq_len(nrow(params@species_params))) { 
+    for (sp in seq_len(nrow(params@species_params))) {
         expect_true(all(size_n[sp, which(params@w >= min_w[sp])]))
         expect_true(!all(size_n[sp, which(params@w < min_w[sp])]))
     }
     max_l <- 100
     size_n <- get_size_range_array(params, max_l = max_l)
     max_w <- params@species_params$a * max_l ^ params@species_params$b
-    for (sp in seq_len(nrow(params@species_params))) { 
+    for (sp in seq_len(nrow(params@species_params))) {
         expect_true(all(size_n[sp, which(params@w <= max_w[sp])]))
         expect_true(!all(size_n[sp, which(params@w > max_w[sp])]))
     }
     size_n <- get_size_range_array(params, min_l = min_l, max_l = max_l)
     min_w <- params@species_params$a * min_l ^ params@species_params$b
     max_w <- params@species_params$a * max_l ^ params@species_params$b
-    for (sp in seq_len(nrow(params@species_params))) { 
-        expect_true(all(size_n[sp, which((params@w <= max_w[sp]) & 
+    for (sp in seq_len(nrow(params@species_params))) {
+        expect_true(all(size_n[sp, which((params@w <= max_w[sp]) &
                                              (params@w >= min_w[sp]))]))
         expect_true(!all(size_n[sp, which(params@w < min_w[sp])]))
         expect_true(!all(size_n[sp, which(params@w > max_w[sp])]))
     }
-    
+
     # mixed weights and lengths
     size_n <- get_size_range_array(params, min_w = 1, max_l = max_l)
     min_w <- rep(1, nrow(params@species_params))
-    for (sp in seq_len(nrow(params@species_params))) { 
-        expect_true(all(size_n[sp, which((params@w <= max_w[sp]) & 
+    for (sp in seq_len(nrow(params@species_params))) {
+        expect_true(all(size_n[sp, which((params@w <= max_w[sp]) &
                                              (params@w >= min_w[sp]))]))
         expect_true(!all(size_n[sp, which(params@w < min_w[sp])]))
         expect_true(!all(size_n[sp, which(params@w > max_w[sp])]))
     }
     size_n <- get_size_range_array(params, min_l = min_l, max_w = 100)
     max_w <- rep(100, nrow(params@species_params))
-    for (sp in seq_len(nrow(params@species_params))) { 
-        expect_true(all(size_n[sp, which((params@w <= max_w[sp]) & 
+    for (sp in seq_len(nrow(params@species_params))) {
+        expect_true(all(size_n[sp, which((params@w <= max_w[sp]) &
                                              (params@w >= min_w[sp]))]))
         expect_true(!all(size_n[sp, which(params@w < min_w[sp])]))
         expect_true(!all(size_n[sp, which(params@w > max_w[sp])]))
     }
-    
+
     # Gives expected error messages
     expect_error(get_size_range_array(params, min_w = 1000, max_w = 1),
                  "min_w must be less than max_w")
@@ -101,7 +101,7 @@ test_that("get_size_range_array works", {
     no_ab_params@species_params$a[1] <- NA
     expect_error(get_size_range_array(no_ab_params, min_l = 1, max_w = 100),
                  "There must be no NAs in the species_params columns 'a' and 'b'")
-    no_ab_params@species_params <- 
+    no_ab_params@species_params <-
         params@species_params[, !(names(params@species_params) %in% c("a", "b"))]
     expect_error(get_size_range_array(no_ab_params, min_l = 1, max_w = 100),
                  "pecies_params slot must have columns 'a' and 'b'")
@@ -178,7 +178,7 @@ test_that("getMeanMaxWeight works", {
     # expect_known_value(getMeanMaxWeight(sim, measure = "both"),
     #                    "values/getMeanMaxWeight")
     expect_snapshot(getMeanMaxWeight(sim, measure = "both"))
-    
+
 })
 
 
@@ -194,7 +194,7 @@ test_that("getYieldGear works",{
     # numeric test
     # expect_known_value(y, "values/getYieldGear")
     expect_snapshot(y)
-    expect_equal(getYieldGear(sim)[1, , ], 
+    expect_equal(getYieldGear(sim)[1, , ],
                  getYieldGear(sim@params))
 })
 
@@ -266,7 +266,7 @@ test_that("getDiet works with proportion = FALSE", {
     diet <- getDiet(params, n, n_pp, proportion = FALSE)
     # expect_known_value(diet, "values/getDiet")
     expect_snapshot(diet)
-    # Check that summing over all species and resource gives 
+    # Check that summing over all species and resource gives
     # total consumption
     consumption <- rowSums(diet, dims = 2)
     encounter <- getEncounter(params, n, n_pp)
@@ -293,10 +293,10 @@ test_that("getDiet works with additional components", {
     }
     # switch off satiation for easier test of result
     species_params(params)$h <- Inf
-    p <- setComponent(params, "test", 1, 
+    p <- setComponent(params, "test", 1,
                       dynamics_fun = "test_dyn",
                       encounter_fun = "test_dyn")
-    
+
     diet1 <- getDiet(params, proportion = FALSE)
     diet2 <- getDiet(p, proportion = FALSE)
     expect_identical(diet1[, , 1:14], diet2[, , 1:14])
@@ -318,6 +318,53 @@ test_that("getBiomass works", {
     # expect_known_value(biomass, "values/getBiomass")
     expect_snapshot(biomass)
     expect_equal(getBiomass(sim)[1, ], getBiomass(sim@params))
+})
+
+# getBiomass with biomass_cutoff ----
+test_that("getBiomass works with biomass_cutoff", {
+    # Add biomass_cutoff to species_params
+    params_with_cutoff <- params
+    params_with_cutoff@species_params$biomass_cutoff <- c(10, 20, 15, 5, 25, 8, 12, 18, 7, 9, 11, 14)
+
+    # Create simulation with biomass_cutoff
+    sim_with_cutoff <- project(params_with_cutoff, t_max = 10)
+
+        # Test that biomass_cutoff is used when use_cutoff = TRUE
+    biomass_with_cutoff <- getBiomass(sim_with_cutoff, use_cutoff = TRUE)
+    
+    # Test that use_cutoff = FALSE (default) ignores biomass_cutoff
+    biomass_no_cutoff <- getBiomass(sim_with_cutoff, use_cutoff = FALSE)
+    biomass_default <- getBiomass(sim_with_cutoff)
+    expect_equal(biomass_no_cutoff, biomass_default)
+
+            # Test that explicit size range arguments are ignored when use_cutoff = TRUE
+    biomass_explicit <- getBiomass(sim_with_cutoff, use_cutoff = TRUE, min_w = 5, max_w = 1000)
+    biomass_cutoff_used <- getBiomass(sim_with_cutoff, use_cutoff = TRUE)
+    
+    # These should be the same because explicit arguments are ignored when use_cutoff = TRUE
+    expect_equal(biomass_explicit, biomass_cutoff_used)
+    
+    # Test that explicit size range arguments work when use_cutoff = FALSE
+    biomass_explicit_no_cutoff <- getBiomass(sim_with_cutoff, use_cutoff = FALSE, min_w = 5, max_w = 1000)
+    # This should be different from the biomass_cutoff result
+    expect_false(all(biomass_explicit_no_cutoff == biomass_cutoff_used))
+
+    # Test with some NA values in biomass_cutoff
+    params_partial_cutoff <- params
+    params_partial_cutoff@species_params$biomass_cutoff <- c(10, NA, 15, 5, NA, 8, 12, 18, 7, 9, 11, 14)
+    sim_partial_cutoff <- project(params_partial_cutoff, t_max = 10)
+
+    # Should work without error
+    expect_no_error(getBiomass(sim_partial_cutoff))
+
+    # Test with MizerParams object
+    biomass_params <- getBiomass(params_with_cutoff)
+    expect_equal(length(biomass_params), nrow(params_with_cutoff@species_params))
+
+    # Test that use_cutoff = FALSE works with MizerParams
+    biomass_params_no_cutoff <- getBiomass(params_with_cutoff, use_cutoff = FALSE)
+    biomass_params_default <- getBiomass(params_with_cutoff)
+    expect_equal(biomass_params_no_cutoff, biomass_params_default)
 })
 
 # getN ----
