@@ -32,7 +32,7 @@ steadySingleSpecies <-
         
         # Prepare to keep biomass or number in case it was requested
         keep <- match.arg(keep)
-        biomass <- getBiomass(params)
+        biomass <- getBiomass(params, use_cutoff = TRUE)
         number <- getN(params)
         
         # Get the growth and mortality rates used for the steady state calculation

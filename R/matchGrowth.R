@@ -35,7 +35,7 @@ matchGrowth <- function(params, species = NULL,
     sp <- params@species_params
     keep <- match.arg(keep)
     
-    biomass <- getBiomass(params)
+    biomass <- getBiomass(params, use_cutoff = TRUE)
     number <- getN(params)
     
     sp <- set_species_param_default(sp, "age_mat", NA)
