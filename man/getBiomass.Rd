@@ -5,10 +5,15 @@
 \title{Calculate the total biomass of each species within a size range at each time
 step.}
 \usage{
-getBiomass(object, ...)
+getBiomass(object, use_cutoff = FALSE, ...)
 }
 \arguments{
 \item{object}{An object of class \code{MizerParams} or \code{MizerSim}.}
+
+\item{use_cutoff}{If TRUE, the \code{biomass_cutoff} column in the
+species parameters is used as the minimum weight for each species (ignoring any
+size range arguments in \code{...}). If FALSE (default), the specified size range
+arguments are used, if provided, or the full size range of the species is used.}
 
 \item{...}{
   Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
@@ -31,15 +36,30 @@ for all species.
 }
 \description{
 Calculates the total biomass through time within user defined size limits.
-The default option is to use the whole size range. You can specify minimum
+The default option is to use the size range starting at the size specified
+by the \code{biomass_cutoff} species parameter, if it is set, or else the full
+size range of each species. You can specify minimum
 and maximum weight or length range for the species. Lengths take precedence
 over weights (i.e. if both min_l and min_w are supplied, only min_l will be
 used).
+}
+\details{
+When no size range arguments are provided, the function checks if the
+\code{biomass_cutoff} column exists in the species parameters. If it does,
+those values are used as the minimum weight for each species. For species
+with NA values in \code{biomass_cutoff}, the default minimum weight (smallest
+weight in the model) is used.
 }
 \examples{
 biomass <- getBiomass(NS_sim)
 biomass["1972", "Herring"]
 biomass <- getBiomass(NS_sim, min_w = 10, max_w = 1000)
+biomass["1972", "Herring"]
+
+# If species_params contains a biomass_cutoff column, it can be used
+# as the minimum weight when use_cutoff = TRUE
+species_params(params)$biomass_cutoff <- species_params(params)$w_mat
+biomass <- getBiomass(NS_sim, use_cutoff = TRUE)  # Uses biomass_cutoff as min_w
 biomass["1972", "Herring"]
 }
 \seealso{
