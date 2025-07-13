@@ -100,7 +100,7 @@ validLinetypes <- function(linetypes) {
     valid <- linetypes %in% list_of_types
 
     if (!all(valid)) {
-        warning("The following are not valid lineypes and will be ",
+        warning("The following are not valid linetypes and will be ",
                 "ignored: ",
                 paste(linetypes[!valid], collapse = ", "),
                 ". The valid values are: ",
