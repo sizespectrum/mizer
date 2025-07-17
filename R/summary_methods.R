@@ -253,7 +253,10 @@ getBiomass <- function(object, use_cutoff = FALSE, ...) {
             biomass_cutoff <- sim@params@species_params$biomass_cutoff
             # Replace NA values with the default minimum weight
             biomass_cutoff[is.na(biomass_cutoff)] <- min(sim@params@w)
-            size_range <- get_size_range_array(sim@params, min_w = biomass_cutoff)
+            w_max <- sim@params@species_params$w_max
+            size_range <- get_size_range_array(sim@params,
+                                               min_w = biomass_cutoff,
+                                               max_w = w_max)
         } else {
             size_range <- get_size_range_array(sim@params, ...)
         }
@@ -268,7 +271,10 @@ getBiomass <- function(object, use_cutoff = FALSE, ...) {
             biomass_cutoff <- params@species_params$biomass_cutoff
             # Replace NA values with the default minimum weight
             biomass_cutoff[is.na(biomass_cutoff)] <- min(params@w)
-            size_range <- get_size_range_array(params, min_w = biomass_cutoff)
+            w_max <- params@species_params$w_max
+            size_range <- get_size_range_array(params,
+                                               min_w = biomass_cutoff,
+                                               max_w = w_max)
         } else {
             size_range <- get_size_range_array(params, ...)
         }
