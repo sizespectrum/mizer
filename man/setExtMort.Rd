@@ -11,7 +11,7 @@ setExtMort(
   params,
   ext_mort = NULL,
   z0pre = 0.6,
-  z0exp = -1/4,
+  z0exp = params@resource_params$n - 1,
   reset = FALSE,
   z0 = deprecated(),
   ...
@@ -100,6 +100,7 @@ ext_mort(params) <- allo_mort
 \seealso{
 Other functions for setting parameters: 
 \code{\link{gear_params}()},
+\code{\link{setEmigration}()},
 \code{\link{setExtEncounter}()},
 \code{\link{setFishing}()},
 \code{\link{setInitialValues}()},

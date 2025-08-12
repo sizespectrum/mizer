@@ -72,6 +72,7 @@ for predators of size \eqn{w = 1} gram is the value of the species parameter
 \seealso{
 Other functions for setting parameters: 
 \code{\link{gear_params}()},
+\code{\link{setEmigration}()},
 \code{\link{setExtEncounter}()},
 \code{\link{setExtMort}()},
 \code{\link{setFishing}()},

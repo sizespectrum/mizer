@@ -12,13 +12,13 @@
 #' species_params(params2)$w_mat[1] <- 10
 #' compareParams(params1, params2)
 compareParams <- function(params1, params2) {
-    assert_that(is(params1, "MizerParams"))
-    assert_that(is(params2, "MizerParams"))
+    params1 <- validParams(params1)
+    params2 <- validParams(params2)
 
     result <- character()
 
     # species parameters ----
-    result <- c(result, 
+    result <- c(result,
                 compareSpeciesParams(params1@species_params,
                                      params2@species_params),
                 compareSpeciesParams(params1@given_species_params,
@@ -59,7 +59,7 @@ compareParams <- function(params1, params2) {
 
     # other slots ----
     for (sl in slotNames(params1)) {
-        if (sl %in% c("w", "w_full", "species_params", 
+        if (sl %in% c("w", "w_full", "species_params",
                       "given_species_params", "resource_params")) {
             next
         }
@@ -76,8 +76,8 @@ compareParams <- function(params1, params2) {
     result
 }
 
-compareSpeciesParams <- function(species_params1, 
-                                 species_params2, 
+compareSpeciesParams <- function(species_params1,
+                                 species_params2,
                                  text = "species parameters") {
 
     result <- character()
@@ -110,6 +110,6 @@ compareSpeciesParams <- function(species_params1,
         #                       keep_unchanged_cols = FALSE)
         # print(ctable$comparison_df)
     }
-    
+
     result
 }

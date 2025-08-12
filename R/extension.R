@@ -60,6 +60,7 @@ setRateFunction <- function(params, rate, fun) {
     assert_that(is(params, "MizerParams"),
                 is.string(rate),
                 is.string(fun))
+    params <- validParams(params)
     if (!(rate %in% names(params@rates_funcs))) {
         stop("The `rate` argument must be one of ", 
              toString(names(params@rates_funcs)), ".")
