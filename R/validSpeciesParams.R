@@ -64,7 +64,12 @@
 #' @export
 validSpeciesParams <- function(species_params) {
     sp <- validGivenSpeciesParams(species_params)
-    sp <- set_species_param_default(sp, "w_repro_max", sp$w_inf)
+    # TODO: Tidy up the confusing handling of the various maximum sizes
+    if ("w_inf" %in% names(sp)) {
+        sp <- set_species_param_default(sp, "w_repro_max", sp$w_inf)
+    } else {
+        sp <- set_species_param_default(sp, "w_repro_max", sp$w_max)
+    }
     sp <- set_species_param_default(sp, "w_mat", sp$w_max / 4)
     sp <- set_species_param_default(sp, "w_min", 0.001)
     sp <- set_species_param_default(sp, "alpha", 0.6)
