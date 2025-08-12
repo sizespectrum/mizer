@@ -110,18 +110,20 @@ dependent on the density of other fish.
 
 The time evolution of the number density $N_i(w)$ is described by the 
 McKendrick-von Foerster equation, which is a transport equation (as one would
-use for traffic density) but with an additional loss term due to fish 
-mortality:
+use for traffic density) but with an additional loss terms due to fish 
+mortality and emigration:
 
 \begin{equation}
   \label{eq:MvF}
   \frac{\partial N_i(w)}{\partial t} + \frac{\partial g_i(w) N_i(w)}{\partial w} 
-  = -\mu_i(w) N_i(w),
+  = -\mu_i(w) N_i(w) - e_i(w),
 \end{equation}
 
 where individual growth $g_i(w)$ is described below in the [Growth](#growth)
 section and mortality $\mu_i(w)$ is described in the [Mortality](#mortality)
-section.
+section. The emigration rate $e_i(w)$ is a rate at which fish leave the
+size spectrum. It is set up with the `setEmigration()`
+function and is by default zero.
 
 There is no need for you to understand the mathematical notation used in
 this equation to understand its origin: it just says that the rate at which the
