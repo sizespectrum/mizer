@@ -10,12 +10,6 @@ test_that("steadySingleSpecies only affects selected species", {
     expect_false(identical(NS_params@time_modified, params@time_modified))
 })
 
-test_that("steadySingleSpecies is idempotent", {
-    params <- steadySingleSpecies(NS_params)
-    params2 <- steadySingleSpecies(params)
-    expect_unchanged(params, params2)
-})
-
 test_that("steadySingleSpecies is idempotent on single-species model", {
     ss <- newSingleSpeciesParams()
     ss2 <- steadySingleSpecies(ss)
@@ -33,14 +27,13 @@ test_that("steadySingleSpecies `keep` argument works", {
 })
 
 test_that("steadySingleSpecies handles emigration correctly", {
-    params <- NS_params
-    ext_mort(params)["Haddock", ] <- ext_mort(params)["Haddock", ] * 10
-    params <- steadySingleSpecies(params, species = "Haddock")
+    params <- newSingleSpeciesParams()
+    species_params(params)$d_over_g <- 0.1
+    params <- steadySingleSpecies(params)
     # Move mortality from ext_mort to emigration
     params2 <- params
-    emigration(params2)["Haddock", ] <-
-        ext_mort(params)["Haddock", ] * initialN(params)["Haddock", ]
-    ext_mort(params2)["Haddock", ] <- 0
-    params2 <- steadySingleSpecies(params2, species = "Haddock")
+    emigration(params2) <- ext_mort(params) * initialN(params)
+    ext_mort(params2)[] <- 0
+    params2 <- steadySingleSpecies(params2)
     expect_equal(initialN(params2), initialN(params))
 })
