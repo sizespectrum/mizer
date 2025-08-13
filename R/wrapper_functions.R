@@ -507,7 +507,7 @@ newTraitParams <- function(no_sp = 11,
         gg <- hbar * w^n * (1 - params@psi[i, ])  # Growth rate
         idx <- w_min_idx[i]:(i_inf - 2)
         # Steady state solution of the upwind-difference scheme used in project
-        n_exact <- c(1, cumprod(gg[idx] / ((gg + mumu * dw)[idx + 1])))
+        n_exact <- get_steady_state_n(gg, mumu, dw, idx)
         # Use the first species for normalisation
         if (i == 1) {
             dist_sp <- bins_per_sp * dx

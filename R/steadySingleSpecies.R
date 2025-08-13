@@ -66,8 +66,7 @@ steadySingleSpecies <-
                 idx <- w_min_idx:(w_max_idx - 1)
                 params@initial_n[sp, ] <- 0
                 params@initial_n[sp, w_min_idx:w_max_idx] <-
-                    N0 * c(1, cumprod(growth[idx] /
-                                          ((growth + mort * params@dw)[idx + 1])))
+                    get_steady_state_n(growth, mort, params@dw, idx, N0)
             } else {
                 message("Determining steady state with diffusion")
                 sol <- solve_ode_steady_state(growth[idx], mort[idx],

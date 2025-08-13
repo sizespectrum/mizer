@@ -84,3 +84,20 @@ w2l <- function(w, params) {
     
     (w / sp[["a"]])^(1 / sp[["b"]])
 }
+
+#' Helper function to calculate the steady state abundance using the upwind-difference scheme
+#'
+#' @param growth A numeric vector of growth rates.
+#' @param mort A numeric vector of mortality rates.
+#' @param dw A numeric vector of the size step.
+#' @param idx A numeric vector of indices.
+#' @param N0 The initial egg density.
+#' @return A numeric vector representing the steady state abundances.
+get_steady_state_n <- function(growth, mort, dw, idx, N0) {
+    # Steady state solution of the upwind-difference scheme used in project
+    n_exact <- c(1, cumprod(growth[idx] / ((growth + mort * dw)[idx + 1])))
+    if (!missing(N0)) {
+        n_exact <- N0 * n_exact
+    }
+    return(n_exact)
+}
