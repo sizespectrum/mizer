@@ -4,6 +4,9 @@
 #' This first calculates growth and death rates that arise from the current
 #' initial abundances. Then it uses these growth and death rates to
 #' determine the steady-state abundances of the selected species.
+#' 
+#' If a non-zero emigration rate is set for the species and is chosen so high
+#' that the species cannot sustain it, then an error is thrown.
 #'
 #' If the species parameters `d_over_g` is set, then the diffusion rate is
 #' calculated from the growth rate at the smallest size and the `d_over_g`
@@ -72,6 +75,9 @@ steadySingleSpecies <-
                 sol <- solve_ode_steady_state(growth[idx], mort[idx],
                                               emigration[idx],
                                               d_over_g, N0, w[idx], n)
+                if (any(sol <= 0)) {
+                    stop(sp, " can not sustain the level of emigration.")
+                }
                 params@initial_n[sp, idx] <- sol
             }
 
