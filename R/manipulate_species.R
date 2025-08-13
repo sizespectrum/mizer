@@ -240,6 +240,7 @@ addSpecies <- function(params, species_params,
     p@mu_b[old_sp, old_w] <- params@mu_b
     p@ext_encounter[old_sp, old_w] <- params@ext_encounter
     p@emigration[old_sp, old_w] <- params@emigration
+    p@diffusion[old_sp, old_w] <- params@diffusion
     p@intake_max[old_sp, old_w] <- params@intake_max
     p@search_vol[old_sp, old_w] <- params@search_vol
     p@metab[old_sp, old_w] <- params@metab
@@ -358,6 +359,7 @@ removeSpecies <- function(params, species) {
     p@mu_b <- params@mu_b[keep, , drop = FALSE]
     p@ext_encounter <- params@ext_encounter[keep, , drop = FALSE]
     p@emigration <- params@emigration[keep, , drop = FALSE]
+    p@diffusion <- params@diffusion[keep, , drop = FALSE]
     p@species_params <- p@species_params[keep, , drop = FALSE]
     p@given_species_params <- p@given_species_params[keep, , drop = FALSE]
     p@interaction <- params@interaction[keep, keep, drop = FALSE]
@@ -460,6 +462,7 @@ renameSpecies <- function(params, replace) {
     dimnames(params@mu_b)$sp <- species
     dimnames(params@ext_encounter)$sp <- species
     dimnames(params@emigration)$sp <- species
+    dimnames(params@diffusion)$sp <- species
     dimnames(params@interaction)$predator <- species
     dimnames(params@interaction)$prey <- species
     dimnames(params@selectivity)$sp <- species

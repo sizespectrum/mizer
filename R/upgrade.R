@@ -17,7 +17,7 @@ needs_upgrading <- function(object) {
         stop("The object you supplied is neither a MizerParams nor a MizerSim object.")
     }
     !.hasSlot(params, "mizer_version") ||
-        params@mizer_version < "2.5.3.9011"
+        params@mizer_version < "2.5.3.9012"
 }
 
 #' Upgrade MizerParams object from earlier mizer versions
@@ -312,6 +312,12 @@ upgradeParams <- function(params) {
                       dimnames = list(sp = params@species_params$species,
                                       w = signif(params@w, 3)))
         params@emigration <- mat1
+    }
+    if (!.hasSlot(params, "diffusion")) {
+        mat1 <- array(0, dim = c(nrow(params@species_params), length(params@w)),
+                      dimnames = list(sp = params@species_params$species,
+                                      w = signif(params@w, 3)))
+        params@diffusion <- mat1
     }
 
     # Before version 2.4 ----

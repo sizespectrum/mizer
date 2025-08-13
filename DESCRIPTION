@@ -19,7 +19,7 @@ Authors@R: c(person("Gustav", "Delius", email="gustav.delius@york.ac.uk",
                     comment = c(ORCID = "0000-0002-8478-3430")),
              person("Richard", "Southwell", email="richard.southwell@york.ac.uk",
                     role=c("ctb", "cph")))
-Version: 2.5.3.9011
+Version: 2.5.3.9012
 License: GPL-3
 Imports:
     assertthat,
@@ -68,6 +68,7 @@ Collate:
     'setExtMort.R'
     'setExtEncounter.R'
     'setEmigration.R'
+    'setDiffusion.R'
     'setReproduction.R'
     'setResource.R'
     'setFishing.R'
