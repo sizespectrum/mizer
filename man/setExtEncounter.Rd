@@ -64,6 +64,7 @@ ext_encounter(params) <- allo_encounter
 \seealso{
 Other functions for setting parameters: 
 \code{\link{gear_params}()},
+\code{\link{setDiffusion}()},
 \code{\link{setEmigration}()},
 \code{\link{setExtMort}()},
 \code{\link{setFishing}()},

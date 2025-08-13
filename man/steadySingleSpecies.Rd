@@ -34,6 +34,10 @@ initial abundances. Then it uses these growth and death rates to
 determine the steady-state abundances of the selected species.
 }
 \details{
+If the species parameters \code{d_over_g} is set, then the diffusion rate is
+calculated from the growth rate at the smallest size and the \code{d_over_g}
+parameter. If \code{d_over_g} is not set, then the diffusion is set to zero.
+
 The result of applying this function is of course not a multi-species steady
 state, because after changing the abundances of the selected species the
 growth and death rates will have changed.

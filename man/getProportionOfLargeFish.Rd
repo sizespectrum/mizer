@@ -57,7 +57,7 @@ be used in the calculation. This function can be used to calculate the Large
 Fish Index. The proportion is based on either abundance or biomass.
 }
 \examples{
-lfi <- getProportionOfLargeFish(NS_sim, min_w = 10, max_w = 5000, 
+lfi <- getProportionOfLargeFish(NS_sim, min_w = 10, max_w = 5000,
                                 threshold_w = 500)
 years <- c("1972", "2010")
 lfi[years]

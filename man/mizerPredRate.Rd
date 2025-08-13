@@ -33,8 +33,8 @@ spectrum.
 \description{
 Calculates the potential rate (in units 1/year) at which a prey individual of
 a given size \eqn{w} is killed by predators from species \eqn{j}. In formulas
-\deqn{{\tt pred\_rate}_j(w_p) = \int \phi_j(w,w_p) (1-f_j(w)) 
-  \gamma_j(w) N_j(w) \, dw.}{pred_rate_j(w_p) = \int\phi_i(w,w_p) (1-f_i(w)) 
+\deqn{{\tt pred\_rate}_j(w_p) = \int \phi_j(w,w_p) (1-f_j(w))
+  \gamma_j(w) N_j(w) \, dw.}{pred_rate_j(w_p) = \int\phi_i(w,w_p) (1-f_i(w))
   \gamma_i(w) N_i(w) dw.}
 This potential rate is used in the function \code{\link[=mizerPredMort]{mizerPredMort()}} to
 calculate the realised predation mortality rate on the prey individual.

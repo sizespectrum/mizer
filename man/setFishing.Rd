@@ -179,6 +179,7 @@ str(getInitialEffort(NS_params))
 
 Other functions for setting parameters: 
 \code{\link{gear_params}()},
+\code{\link{setDiffusion}()},
 \code{\link{setEmigration}()},
 \code{\link{setExtEncounter}()},
 \code{\link{setExtMort}()},

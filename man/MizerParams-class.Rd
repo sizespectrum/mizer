@@ -83,6 +83,10 @@ for each species at size. Changed with \code{\link[=setMetabolicRate]{setMetabol
 abundance density is decreased over time beyond the decrease described by
 the per-capita mortality. Changed with \code{\link[=emigration]{emigration()}}.}
 
+\item{\code{diffusion}}{An array (species x size) that holds the rate at which the
+abundance density is redistributed over body size due to mixing, beyond the
+deterministic growth dynamics. Changed with \code{\link[=diffusion]{diffusion()}}.}
+
 \item{\code{pred_kernel}}{An array (species x predator size x prey size) that holds
 the predation coefficient of each predator at size on each prey size. If
 this is NA then the following two slots will be used. Changed with

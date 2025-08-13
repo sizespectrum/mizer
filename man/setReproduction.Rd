@@ -190,6 +190,7 @@ ggplot(dff) + geom_line(aes(x = Size, y = Proportion, colour = Type))
 \seealso{
 Other functions for setting parameters: 
 \code{\link{gear_params}()},
+\code{\link{setDiffusion}()},
 \code{\link{setEmigration}()},
 \code{\link{setExtEncounter}()},
 \code{\link{setExtMort}()},

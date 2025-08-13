@@ -26,7 +26,7 @@ An alias provided for backward compatibility with mizer version <= 2.5.2
 parameter It throws an error if
 \itemize{
 \item the \code{species} column does not exist or contains duplicates
-\item the maximum size is not specified for all species
+\item the asymptotic size is not specified for all species
 }
 
 If a weight-based parameter is missing but the corresponding length-based
@@ -35,10 +35,10 @@ conversion, then the weight-based parameters are added. If both length and
 weight are given, then weight is used and a warning is issued if the two are
 inconsistent.
 
-If a \code{w_inf} column is given but no \code{w_max} then the value from \code{w_inf} is
-used. This is for backwards compatibility. But note that the von Bertalanffy
-parameter \code{w_inf} is not the maximum size of the largest individual, but the
-asymptotic size of an average individual.
+If a \code{w_inf} column is given but no \code{w_repro_max} then the value from \code{w_inf}
+is used. Note that the von Bertalanffy parameter \code{w_inf} is not the maximum
+size of the largest individual, but the asymptotic size of an average
+individual.
 
 Some inconsistencies in the size parameters are resolved as follows:
 \itemize{
@@ -62,7 +62,7 @@ goes further by adding default values for species parameters that were not
 provided. The function sets default values if any of the following species
 parameters are missing or NA:
 \itemize{
-\item \code{w_repro_max} is set to \code{w_max}
+\item \code{w_repro_max} is set to \code{w_inf}
 \item \code{w_mat} is set to \code{w_max/4}
 \item \code{w_min} is set to \code{0.001}
 \item \code{alpha} is set to \code{0.6}
