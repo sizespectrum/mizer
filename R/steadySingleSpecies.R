@@ -75,7 +75,7 @@ steadySingleSpecies <-
                 sol <- solve_ode_steady_state(growth[idx], mort[idx],
                                               emigration[idx],
                                               d_over_g, N0, w[idx], n)
-                if (any(sol <= 0)) {
+                if (any(sol < 0)) {
                     stop(sp, " can not sustain the level of emigration.")
                 }
                 params@initial_n[sp, idx] <- sol
