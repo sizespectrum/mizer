@@ -329,10 +329,30 @@ test_that("getN works", {
 })
 
 # getGrowthCurves ----
-test_that("getGrowthCurves works with MizerSim", {
+test_that("getGrowthCurves uses time-varying growth with MizerSim", {
     ps <- setInitialValues(params, sim)
-    expect_identical(getGrowthCurves(sim),
-                     getGrowthCurves(ps))
+    gc_sim <- getGrowthCurves(sim)
+    gc_ps <- getGrowthCurves(ps)
+    # With time-varying growth, the curves should generally differ from
+    # those computed with static rates from params
+    expect_false(identical(gc_sim, gc_ps))
+    # But the dimensions should agree
+    expect_identical(dim(gc_sim), dim(gc_ps))
+})
+
+test_that("getGrowthCurves respects simulation time span and percentage bounds (NS_sim)", {
+    sim <- NS_sim
+    # Very large max_age should be truncated to simulation time span
+    sim_times <- as.numeric(dimnames(sim@n)$time)
+    time_span <- max(sim_times) - min(sim_times)
+    gc <- getGrowthCurves(sim, max_age = 1e6)
+    ages <- as.numeric(dimnames(gc)$Age)
+    expect_equal(max(ages), time_span)
+
+    # Percentage output is within [0, 100]
+    gc_pct <- getGrowthCurves(sim, species = c("Cod", "Haddock"), percentage = TRUE)
+    expect_true(all(gc_pct >= 0, na.rm = TRUE))
+    expect_true(all(gc_pct <= 100, na.rm = TRUE))
 })
 
 # summary ----
