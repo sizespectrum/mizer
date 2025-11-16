@@ -388,8 +388,9 @@ getYield <- function(object) {
 #' Get growth curves giving weight as a function of age
 #' 
 #' @param object MizerSim or MizerParams object. If given a
-#'   \linkS4class{MizerSim} object, uses the growth rates at the final time of a
-#'   simulation to calculate the size at age. If given a
+#'   \linkS4class{MizerSim} object, uses the time-varying growth rates from the
+#'   simulation: at age \eqn{a} it uses the growth rate at calendar time
+#'   \eqn{t_0 + a}, where \eqn{t_0} is the first saved simulation time. If given a
 #'   \linkS4class{MizerParams} object, uses the initial growth rates instead.
 #' @inheritParams valid_species_arg
 #' @param max_age The age up to which to run the growth curve. Default is 20.
@@ -409,12 +410,12 @@ getYield <- function(object) {
 #'   facet_wrap(~ Species, scales = "free") +
 #'   ylab("Size[g]") + xlab("Age[years]")
 getGrowthCurves <- function(object, 
-                            species = NULL,
-                            max_age = 20,
-                            percentage = FALSE) {
+                           species = NULL,
+                           max_age = 20,
+                           percentage = FALSE) {
     if (is(object, "MizerSim")) {
-        params <- object@params
-        params <- setInitialValues(params, object)
+        sim <- object
+        params <- sim@params
     } else if (is(object, "MizerParams")) {
         params <- validParams(object)
     } else {
@@ -425,21 +426,91 @@ getGrowthCurves <- function(object,
     # reorder list of species to coincide with order in params
     idx <- which(params@species_params$species %in% species)
     species <- params@species_params$species[idx]
-    age <- seq(0, max_age, length.out = 50)
+
+    # Construct age vector
+    if (is(object, "MizerSim")) {
+        sim_times <- as.numeric(dimnames(sim@n)$time)
+        # Allow ages only within the covered simulation time span
+        max_age_allowed <- max_age
+        if (length(sim_times) >= 1) {
+            max_age_allowed <- min(max_age, max(sim_times) - min(sim_times))
+        }
+        age <- seq(0, max_age_allowed, length.out = 50)
+    } else {
+        age <- seq(0, max_age, length.out = 50)
+    }
+
     ws <- array(dim = c(length(species), length(age)),
                 dimnames = list(Species = species, Age = age))
-    g <- getEGrowth(params)
-    for (j in seq_along(species)) {
-        i <- idx[j]
-        g_fn <- stats::approxfun(c(params@w, params@species_params$w_max[[i]]),
-                                 c(g[i, ], 0))
-        myodefun <- function(t, state, parameters) {
-            return(list(g_fn(state)))
+
+    if (is(object, "MizerSim")) {
+        # Pre-compute growth rates at all saved times
+        sim_times <- as.numeric(dimnames(sim@n)$time)
+        n_times <- length(sim_times)
+        no_sp <- nrow(params@species_params)
+        no_w <- length(params@w)
+        g_all <- array(NA_real_, dim = c(n_times, no_sp, no_w))
+        for (ti in seq_len(n_times)) {
+            g_t <- getEGrowth(params,
+                              n = sim@n[ti, , ],
+                              n_pp = sim@n_pp[ti, ],
+                              n_other = sim@n_other[ti, ],
+                              t = sim_times[ti])
+            g_all[ti, , ] <- g_t
         }
-        ws[j, ] <- deSolve::ode(y = params@w[params@w_min_idx[i]], 
-                                times = age, func = myodefun)[, 2]
-        if (percentage) {
-            ws[j, ] <- ws[j, ] / params@species_params$w_max[i] * 100
+        # For each species, create time-aware growth function and integrate
+        for (j in seq_along(species)) {
+            i_sp <- idx[j]
+            # Interpolation functions over weight for each simulation time
+            w_max_sp <- params@species_params$w_max[[i_sp]]
+            weight_grid_ext <- c(params@w, w_max_sp)
+            g_weight_fns <- vector("list", n_times)
+            for (ti in seq_len(n_times)) {
+                g_vec <- c(g_all[ti, i_sp, ], 0)
+                g_weight_fns[[ti]] <- stats::approxfun(weight_grid_ext, g_vec)
+            }
+            # ODE with time-dependent growth: calendar time = t0 + age
+            t0 <- sim_times[1]
+            myodefun <- function(t, state, parameters) {
+                cal_t <- t0 + t
+                if (n_times == 1 || cal_t <= sim_times[1]) {
+                    g_val <- g_weight_fns[[1]](state)
+                } else if (cal_t >= sim_times[n_times]) {
+                    g_val <- g_weight_fns[[n_times]](state)
+                } else {
+                    # Find bracketing times
+                    upper_idx <- which(sim_times >= cal_t)[1]
+                    lower_idx <- upper_idx - 1
+                    t_low <- sim_times[lower_idx]
+                    t_high <- sim_times[upper_idx]
+                    lambda <- (cal_t - t_low) / (t_high - t_low)
+                    g_low <- g_weight_fns[[lower_idx]](state)
+                    g_high <- g_weight_fns[[upper_idx]](state)
+                    g_val <- (1 - lambda) * g_low + lambda * g_high
+                }
+                return(list(g_val))
+            }
+            ws[j, ] <- deSolve::ode(y = params@w[params@w_min_idx[i_sp]],
+                                    times = age, func = myodefun)[, 2]
+            if (percentage) {
+                ws[j, ] <- ws[j, ] / w_max_sp * 100
+            }
+        }
+    } else {
+        # MizerParams: time-independent growth
+        g <- getEGrowth(params)
+        for (j in seq_along(species)) {
+            i_sp <- idx[j]
+            g_fn <- stats::approxfun(c(params@w, params@species_params$w_max[[i_sp]]),
+                                     c(g[i_sp, ], 0))
+            myodefun <- function(t, state, parameters) {
+                return(list(g_fn(state)))
+            }
+            ws[j, ] <- deSolve::ode(y = params@w[params@w_min_idx[i_sp]],
+                                    times = age, func = myodefun)[, 2]
+            if (percentage) {
+                ws[j, ] <- ws[j, ] / params@species_params$w_max[i_sp] * 100
+            }
         }
     }
     return(ws)
