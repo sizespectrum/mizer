@@ -1335,8 +1335,7 @@ plotDiet <- function(object, species = NULL, return_data = FALSE) {
     # Restrict plot to relevant size ranges where abundance is meaningful
     # Get abundance data
     if (is(object, "MizerSim")) {
-        n <- object@n[dim(object@n)[1], , , drop = FALSE]  # last time step
-        n <- n[1, , , drop = FALSE]  # remove time dimension
+        n <- object@n[dim(object@n)[1], , , drop = TRUE]  # last time step, drop time dimension
     } else {
         n <- params@initial_n
     }
