@@ -4,7 +4,7 @@ species_params <- NS_species_params_gears
 species_params$species <- seq_len(nrow(species_params))
 species_params$pred_kernel_type <- "truncated_lognormal"
 (params <- newMultispeciesParams(species_params, inter, no_w = 30,
-                                n = 2 / 3, p = 0.7, lambda = 2.8 - 2 / 3, 
+                                n = 2 / 3, p = 0.7, lambda = 2.8 - 2 / 3,
                                 info_level = 0)) |>
     expect_message("Note: Dimnames of interaction matrix do not match")
 sim <- project(params, effort = 1, t_max = 3, dt = 1, t_save = 1)
@@ -107,27 +107,27 @@ test_that("return_data is identical",{
                                  start_time = 0, end_time = 2.8, y_ticks = 4, return_data = TRUE)), c(9,4))
     expect_warning(p <- plotYield(sim, sim0, species = species, return_data = TRUE))
     expect_equal(dim(p), c(8,4))
-    
+
     expect_equal(dim(plotYieldGear(sim, species = species, return_data = TRUE)), c(8,4))
-    
+
     expect_equal(dim(plotSpectra(sim, species = species, wlim = c(1,NA),
                                  return_data = TRUE)), c(37, 4))
-    
+
     expect_equal(dim(plotFeedingLevel(sim, species = species,
                                       return_data = TRUE)), c(56, 3))
-    
-    expect_equal(dim(plotPredMort(sim, species = species, 
+
+    expect_equal(dim(plotPredMort(sim, species = species,
                                   return_data = TRUE)), c(56 ,3))
-    
-    expect_equal(dim(plotFMort(sim, species = species, 
+
+    expect_equal(dim(plotFMort(sim, species = species,
                                return_data = TRUE)), c(56, 3))
-    
-    expect_equal(dim(plotGrowthCurves(sim, species = species, 
+
+    expect_equal(dim(plotGrowthCurves(sim, species = species,
                                       return_data = TRUE)), c(100,4))
     # the following is not a good test because the size of the returned data
     # frame is machine dependent due to the selection of only results above a
     # certain threshold.
-    # expect_equal(dim(plotDiet(sim@params, species = species, 
+    # expect_equal(dim(plotDiet(sim@params, species = species,
     #                           return_data = TRUE)), c(717,3))
 }
 )
@@ -163,4 +163,28 @@ test_that("plotSpectra averages over time range", {
                       power = 0, return_data = TRUE)
     expected <- exp(mean(log(NS_sim@n[time_sel, 1, 1])))
     expect_equal(df$value[1], expected)
+})
+
+test_that("plotDiet restricts to meaningful abundance ranges", {
+    # Get diet data for a species
+    diet_data <- plotDiet(params, species = "10", return_data = TRUE)
+
+    # Get abundance data for species "10"
+    sp_idx <- which(dimnames(params@initial_n)[[1]] == "10")
+    abundance <- params@initial_n[sp_idx, ] * params@w * params@dw
+    max_abundance <- max(abundance)
+
+    # Find the maximum meaningful size
+    meaningful_idx <- which(abundance > 1e-5 * max_abundance)
+    w_max_meaningful <- params@w[max(meaningful_idx)]
+
+    # Check that all sizes in diet_data are at or below w_max_meaningful
+    expect_true(all(diet_data$w <= w_max_meaningful))
+
+    # Also verify that the maximum size in diet_data is close to w_max_meaningful
+    # (there might be filtering due to proportion threshold, so we check it's not much smaller)
+    if (nrow(diet_data) > 0) {
+        max_w_in_data <- max(diet_data$w)
+        expect_true(max_w_in_data <= w_max_meaningful)
+    }
 })
