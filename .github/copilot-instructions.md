@@ -74,6 +74,7 @@ Example roxygen2 header:
 - Each source file should have a corresponding test file
 - Use descriptive test names with `test_that("description", { ... })`
 - Use snapshot testing for complex outputs where appropriate
+- Use `expect_doppelganger()` to test plots with the vdiffr package
 - Run tests with `testthat::test_local()` or `devtools::test()`
 
 Example test structure:
