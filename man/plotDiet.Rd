@@ -31,7 +31,9 @@ obtained with \code{getDiet()}.
 }
 \details{
 Prey species that contribute less than 1 permille to the diet are suppressed
-in the plot.
+in the plot. The plot only extends to predator sizes where the predator has a
+meaningful abundance (defined as having a biomass density greater than 0.1\%
+of its maximum biomass density).
 
 If more than one predator species is selected, then the plot contains one
 facet for each species.
