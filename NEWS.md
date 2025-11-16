@@ -5,12 +5,28 @@
 - `validParams()` also calls `validGearParams()`.
 - `validParams()` checks that `w_min` is valid for all species and increases it
   if necessary.
+- `validSpeciesParams()` now also sets default for `p` to be equal to `n`.
 - `species_params<-()` and `given_species_params<-()` now check that species
   names match.
+- `given_species_params()` no longer makes unwanted changes to the species
+  parameters.
 - The `params` argument in `l2w()` and `w2l()` has been renamed to `species_params`
   to follow mizer's convention that `params` refers to a MizerParams object.
 - New function `renameGear()` to rename gears in a MizerParams object, similar 
   to `renameSpecies()`.
+- `addSpecies()` now proceeds with a warning instead of an error when species
+  growth stops after maturity (#315).
+- `matchBiomasses()` and `matchNumbers()` now provide more informative error
+  messages.
+- Predation kernels are now truncated as documented.
+- `plotDiet()` now restricts the plot to size ranges with meaningful biomass
+  density (#317).
+- The `wlim` and `ylim` arguments in plotting functions now set the actual axis
+  limits instead of just zooming (#320).
+- `animateSpectra()` now uses consistent colours and preserves colour identity
+  across frames (#321).
+- The legend in `plotlyFeedingLevel()` is improved when critical feeding level
+  is included.
 
 ## Bug fixes
 
