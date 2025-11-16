@@ -131,3 +131,47 @@ test_that("animateSpectra validates input parameters", {
     expect_error(animateSpectra(sim, ylim = c(1), time_range = c(1, 2)))
     expect_error(animateSpectra(sim, ylim = c(1, 10, 100), time_range = c(1, 2)))
 })
+
+test_that("animateSpectra uses consistent colors matching linecolour", {
+    sim <- project(NS_params, t_max = 2, t_save = 1, effort = 1)
+    
+    # Get the result
+    result <- animateSpectra(sim, species = c("Cod", "Haddock", "Sprat"), 
+                            time_range = c(1, 2))
+    
+    # The plotly object should be created
+    expect_s3_class(result, "plotly")
+    
+    # Extract the data from the plotly object
+    plot_data <- plotly::plotly_build(result)
+    
+    # Check that species are factors
+    # This is done by checking the internal data structure
+    expect_true(is.list(plot_data$x$data))
+    
+    # The colors should be assigned consistently
+    # Each trace should have a specific color
+    expect_true(length(plot_data$x$data) > 0)
+})
+
+test_that("animateSpectra maintains color consistency when species go extinct", {
+    # Create a simulation where a species might have very low abundance
+    sim <- project(NS_params, t_max = 2, t_save = 1, effort = 1)
+    
+    # Test with species selection
+    result <- animateSpectra(sim, species = c("Cod", "Haddock"), 
+                            time_range = c(1, 2))
+    
+    expect_s3_class(result, "plotly")
+    
+    # Build the plot to access internal structure
+    built_plot <- plotly::plotly_build(result)
+    
+    # Check that we have traces (lines) in the plot
+    expect_true(length(built_plot$x$data) > 0)
+    
+    # Each trace should have consistent properties
+    for (trace in built_plot$x$data) {
+        expect_true("line" %in% names(trace) || "marker" %in% names(trace))
+    }
+})

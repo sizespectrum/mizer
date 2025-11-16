@@ -90,15 +90,33 @@ animateSpectra <- function(sim,
                value <= ylim[2],
                w >= wlim[1],
                w <= wlim[2])
+    
+    # Order legend to follow params@species_params$species via linecolour order ----
+    # Keep only groups present in data, but preserve the order given by
+    # names(sim@params@linecolour) which follows params@species_params$species.
+    species_in_data <- unique(nf$sp)
+    legend_levels <- intersect(names(sim@params@linecolour), species_in_data)
+    nf$sp <- factor(nf$sp, levels = legend_levels)
 
-    nf %>%
-        plotly::plot_ly() %>%
-        plotly::add_lines(x = ~w, y = ~value,
-                          color = ~sp, colors = sim@params@linecolour,
-                          frame = ~time,
-                          line = list(simplify = FALSE)) %>%
-        plotly::layout(xaxis = list(type = "log", exponentformat = "power",
-                                    title = "Size [g]"),
-                       yaxis = list(type = "log", exponentformat = "power",
-                                    title = y_label))
+    # Build traces in desired legend order to avoid alphabetical reordering ----
+    p <- plotly::plot_ly()
+    for (lev in legend_levels) {
+        df_lev <- nf[nf$sp == lev, , drop = FALSE]
+        p <- plotly::add_lines(
+            p,
+            data = df_lev,
+            x = ~w, y = ~value,
+            frame = ~time,
+            name = lev,
+            line = list(color = sim@params@linecolour[[lev]],
+                        simplify = FALSE),
+            showlegend = TRUE
+        )
+    }
+    plotly::layout(p,
+                   xaxis = list(type = "log", exponentformat = "power",
+                                title = "Size [g]"),
+                   yaxis = list(type = "log", exponentformat = "power",
+                                title = y_label),
+                   legend = list(traceorder = "normal"))
 }
