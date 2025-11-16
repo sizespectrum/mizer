@@ -52,11 +52,11 @@ steadySingleSpecies <- function(params, species = NULL,
             # Convert to absolute index
             first_zero_idx <- w_min_idx + zero_growth_idx[1] - 1
             
-            if (first_zero_idx <= w_mat_idx) {
-                # Growth stops before or at maturity - this is an error
+            if (first_zero_idx < w_mat_idx) {
+                # Growth stops before maturity - this is an error
                 stop(sp, " cannot grow to maturity")
             } else {
-                # Growth stops after maturity - issue a warning
+                # Growth stops at or after maturity - issue a warning
                 warning(sp, " has zero growth rate after maturity size")
             }
         }
