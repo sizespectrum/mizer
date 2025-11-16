@@ -897,7 +897,8 @@ plotFeedingLevel <- function(object, species = NULL,
     p + geom_line(aes(x = w, y = value,
                       colour = Legend, linetype = Legend, linewidth = Legend)) +
         scale_x_continuous(name = "Size [g]", trans = "log10") +
-        scale_y_continuous(name = "Feeding Level", limits = c(0, 1)) +
+        scale_y_continuous(name = "Feeding Level") +
+        coord_cartesian(ylim = c(0, 1)) +
         scale_colour_manual(values = params@linecolour[legend_levels]) +
         scale_linetype_manual(values = params@linetype[legend_levels]) +
         scale_discrete_manual("linewidth", values = linesize)
@@ -909,7 +910,7 @@ plotlyFeedingLevel <- function(object,
                              species = NULL,
                              time_range,
                              highlight = NULL,
-                             include_critical, ...) {
+                             include_critical = FALSE, ...) {
     argg <- as.list(environment())
     p <- ggplotly(do.call("plotFeedingLevel", argg),
                   tooltip = c("Species", "w", "value"))
