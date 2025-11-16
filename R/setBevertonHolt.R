@@ -59,14 +59,14 @@
 #'
 #' ggplot(rbind(df, df2)) +
 #'     geom_line(aes(x = E_R, y = value, linetype = variable,
-#'                   colour = dd, size = dd)) +
+#'                   colour = dd, linewidth = dd)) +
 #'     annotate("point", x = 5/4, y = 5/6, size = 2) +
-#'     labs(linetype = "", size = "R_max", colour = "R_max") +
+#'     labs(linetype = "", linewidth = "R_max", colour = "R_max") +
 #'     scale_y_continuous(name = "Reproduction rate [eggs/year]",
 #'                        breaks = c(5/6), labels = c("R_dd")) +
 #'     scale_x_continuous(name = "Energy invested [g/year]",
 #'                        breaks = c(5/4), labels = c("E_R")) +
-#'     scale_size_manual(values = c(1, 0.5)) +
+#'     scale_linewidth_manual(values = c(1, 0.5)) +
 #'     scale_colour_manual(values = c("black", "blue")) +
 #'     scale_linetype_manual(values = c("solid", "dashed", "dotted"))
 #' ```

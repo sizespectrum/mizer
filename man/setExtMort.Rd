@@ -11,7 +11,7 @@ setExtMort(
   params,
   ext_mort = NULL,
   z0pre = 0.6,
-  z0exp = -1/4,
+  z0exp = params@resource_params$n - 1,
   reset = FALSE,
   z0 = deprecated(),
   ...

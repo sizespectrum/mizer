@@ -128,8 +128,7 @@ to the current resource number density divided by the resource level. So
 in that case you should not specify \code{resource_capacity} as well.
 
 If you provide none of the arguments \code{resource_level}, \code{resource_rate} or
-\code{resource_capacity} then the resource rate is set to the resource rate is
-kept at its previous value.
+\code{resource_capacity} then the resource rate is kept at its previous value.
 }
 \section{Setting resource dynamics}{
 

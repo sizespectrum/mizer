@@ -24,7 +24,7 @@ mass ratio is normally distributed.
 \details{
 Writing the predator mass as \eqn{w} and the prey mass as \eqn{w_p},
 the feeding kernel is given as
-\deqn{\phi_i(w, w_p) = 
+\deqn{\phi_i(w, w_p) =
 \exp \left[ \frac{-(\ln(w / w_p / \beta_i))^2}{2\sigma_i^2} \right]
 }{\phi_i(w/w_p) = exp(-(ln(w/w_p/\beta_i))^2/(2\sigma_i^2))}
 if \eqn{w/w_p} is larger than 1 and zero otherwise. Here \eqn{\beta_i} is the

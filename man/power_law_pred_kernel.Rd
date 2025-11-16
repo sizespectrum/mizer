@@ -41,7 +41,7 @@ The return value is calculated as
 \code{
 ppmr^kernel_exp /
   (1 + (exp(kernel_l_l) / ppmr)^kernel_u_l) /
-  (1 + (ppmr / exp(kernel_l_r))^kernel_u_r) 
+  (1 + (ppmr / exp(kernel_l_r))^kernel_u_r)
 }
 
 The parameters need to be given as columns in the species parameter

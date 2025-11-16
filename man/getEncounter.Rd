@@ -45,11 +45,11 @@ fish prey and of resource. This is determined by summing over all prey
 species and the resource spectrum and then integrating over all prey sizes
 \eqn{w_p}, weighted by predation kernel \eqn{\phi(w,w_p)}:
 \deqn{
-E_i(w) = \gamma_i(w) \int 
-\left( \theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) \right) 
+E_i(w) = \gamma_i(w) \int
+\left( \theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) \right)
 \phi_i(w,w_p) w_p \, dw_p.
-}{\gamma_i(w) \int 
-( \theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) ) 
+}{\gamma_i(w) \int
+( \theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) )
 \phi_i(w,w_p) w_p dw_p.}
 Here \eqn{N_j(w)} is the abundance density of species \eqn{j} and
 \eqn{N_R(w)} is the abundance density of resource.
