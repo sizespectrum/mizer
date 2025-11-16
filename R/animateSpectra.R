@@ -91,25 +91,32 @@ animateSpectra <- function(sim,
                w >= wlim[1],
                w <= wlim[2])
     
-    # Order species factor to match linecolour and ensure consistent colors ----
-    # This ensures that colors remain consistent across frames even when 
-    # species go extinct. Use the order from nf$sp (which follows species param
-    # order from the simulation) and filter through linecolour for colors.
+    # Order legend to follow params@species_params$species via linecolour order ----
+    # Keep only groups present in data, but preserve the order given by
+    # names(sim@params@linecolour) which follows params@species_params$species.
     species_in_data <- unique(nf$sp)
-    legend_levels <- species_in_data[species_in_data %in% names(sim@params@linecolour)]
+    legend_levels <- intersect(names(sim@params@linecolour), species_in_data)
     nf$sp <- factor(nf$sp, levels = legend_levels)
-    # Extract colors in the correct order
-    colors_ordered <- sim@params@linecolour[legend_levels]
 
-    nf %>%
-        plotly::plot_ly() %>%
-        plotly::add_lines(x = ~w, y = ~value,
-                          color = ~sp, colors = colors_ordered,
-                          frame = ~time,
-                          line = list(simplify = FALSE)) %>%
-        plotly::layout(xaxis = list(type = "log", exponentformat = "power",
-                                    title = "Size [g]"),
-                       yaxis = list(type = "log", exponentformat = "power",
-                                    title = y_label),
-                       legend = list(traceorder = "normal"))
+    # Build traces in desired legend order to avoid alphabetical reordering ----
+    p <- plotly::plot_ly()
+    for (lev in legend_levels) {
+        df_lev <- nf[nf$sp == lev, , drop = FALSE]
+        p <- plotly::add_lines(
+            p,
+            data = df_lev,
+            x = ~w, y = ~value,
+            frame = ~time,
+            name = lev,
+            line = list(color = sim@params@linecolour[[lev]],
+                        simplify = FALSE),
+            showlegend = TRUE
+        )
+    }
+    plotly::layout(p,
+                   xaxis = list(type = "log", exponentformat = "power",
+                                title = "Size [g]"),
+                   yaxis = list(type = "log", exponentformat = "power",
+                                title = y_label),
+                   legend = list(traceorder = "normal"))
 }
