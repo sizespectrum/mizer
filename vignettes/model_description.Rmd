@@ -397,10 +397,10 @@ total rate of energy investment can then be converted to a total rate of
 egg production $R_{p.i}$ (numbers per year):
 \begin{equation}
   \label{eq:Rp}
-  R_{p.i} = \frac{\epsilon_i}{2 w_0} \int N_i(w)  E_{r.i}(w) \psi_i(w) \, dw,
+  R_{p.i} = \frac{\epsilon_i}{2 w_{0.i}} \int N_i(w)  E_{r.i}(w) \psi_i(w) \, dw,
 \end{equation}
 Here the total rate of investment is multiplied by an efficiency factor $\epsilon_i$ 
-and then dividing by the egg weight $w_0$ to convert the energy into number of eggs.
+and then dividing by the egg weight $w_{0.i}$ to convert the energy into number of eggs.
 The result is multiplied by a factor $1/2$ to take into account that only 
 females reproduce. This rate of potential egg production is calculated with
 `getRDI()`.
@@ -446,4 +446,4 @@ and `noRDD()`. Also, users are able to write their own functions, e.g.
 The reproduction rate $R_i$ determines the abundance density of species $i$
 at egg size. Intuitively, the rate at which individuals of size $w_0$ is produced
 must equal the rate at which they grow away from size $w_0$, which gives
-$$N_i(w_0) = \frac{R_i}{g_i(w_0)}.$$
+$$N_i(w_{0.i}) = \frac{R_i}{g_i(w_{0.i})}.$$
