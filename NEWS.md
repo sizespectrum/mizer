@@ -30,7 +30,7 @@
 - `getReproductionProportion()` no longer returns incorrect proportions > 1 (#299)
 - `setResource()` now correctly applies the `w_pp_cutoff` parameter to the 
   carrying capacity and initial resource abundance when changed without 
-  providing `resource_capacity`.
+  providing `resource_capacity`(#306).
 - Predation kernels are now truncated as documented.
 - `given_species_params()` no longer makes unwanted changes to the species
   parameters.

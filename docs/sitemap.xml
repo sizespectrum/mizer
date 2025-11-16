@@ -1,5 +1,6 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://sizespectrum.org/mizer/404.html</loc></url>
+<url><loc>https://sizespectrum.org/mizer/AGENTS.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/CONTRIBUTING.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/articles/a_multispecies_model_of_the_north_sea.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/articles/community_model.html</loc></url>
@@ -19,6 +20,7 @@
 <url><loc>https://sizespectrum.org/mizer/articles/trait_model.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/articles/working_with_git.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/authors.html</loc></url>
+<url><loc>https://sizespectrum.org/mizer/copilot-instructions.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/index.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/news/index.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/BevertonHoltRDD.html</loc></url>
@@ -107,7 +109,6 @@
 <url><loc>https://sizespectrum.org/mizer/reference/get_required_reproduction.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/get_size_range_array.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/get_time_elements.html</loc></url>
-<url><loc>https://sizespectrum.org/mizer/reference/idxFinalT.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/index.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/indicator_functions.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/initialN-set.html</loc></url>
@@ -143,6 +144,7 @@
 <url><loc>https://sizespectrum.org/mizer/reference/newSingleSpeciesParams.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/newTraitParams.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/noRDD.html</loc></url>
+<url><loc>https://sizespectrum.org/mizer/reference/plot-MizerParams-missing-method.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/plotBiomass.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/plotBiomassObservedVsModel.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/plotDataFrame.html</loc></url>
@@ -164,6 +166,7 @@
 <url><loc>https://sizespectrum.org/mizer/reference/project_simple.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/reexports.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/removeSpecies.html</loc></url>
+<url><loc>https://sizespectrum.org/mizer/reference/renameGear.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/renameSpecies.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/resource_constant.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/resource_logistic.html</loc></url>

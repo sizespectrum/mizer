@@ -18,8 +18,7 @@ authors:
 
 template:
   bootstrap: 5
-  params:
-    bootswatch: cerulean
+  light-switch: true
   math-rendering: mathjax
   opengraph:
     image:
@@ -38,7 +37,7 @@ toc:
 navbar:
   structure:
     left: [intro, course, articles, reference, news]
-    right: [search, blog, twitter, github]
+    right: [search, blog, twitter, github, lightswitch]
   components:
     home: ~
     course:
