@@ -89,7 +89,11 @@
 #' @param lambda Used to set power-law exponent for resource capacity if the
 #'   `resource_capacity` argument is given as a single number.
 #' @param w_pp_cutoff The upper cut off size of the resource spectrum power law
-#'   used only if `resource_capacity` is given as a single number.
+#'   used when `resource_capacity` is given as a single number. When changing
+#'   `w_pp_cutoff` without providing `resource_capacity`, the cutoff can only
+#'   be decreased. In that case, both the carrying capacity and the initial
+#'   resource abundance will be cut off at the new value. To increase the cutoff,
+#'   you must also provide the `resource_capacity` for the extended range.
 #' @param r_pp `r lifecycle::badge("deprecated")`. Use `resource_rate` argument
 #'   instead.
 #' @param kappa `r lifecycle::badge("deprecated")`. Use `resource_capacity`
@@ -126,6 +130,10 @@ setResource <- function(params,
                 is.number(lambda),
                 is.number(w_pp_cutoff), w_pp_cutoff > 0,
                 is.number(n))
+    
+    # Store the old w_pp_cutoff before updating
+    old_w_pp_cutoff <- params@resource_params[["w_pp_cutoff"]]
+    
     params@resource_params[["lambda"]] <- lambda
     params@resource_params[["n"]] <- n
     params@resource_params[["w_pp_cutoff"]] <- w_pp_cutoff
@@ -198,6 +206,24 @@ setResource <- function(params,
         }
         if (any(resource_capacity < 0)) {
             stop("The 'resource_capacity' must never be negative.")
+        }
+    }
+    
+    # Handle w_pp_cutoff change when capacity is not explicitly provided ----
+    if (is.null(resource_capacity) && is.null(resource_level) && 
+        !is.null(old_w_pp_cutoff) && w_pp_cutoff != old_w_pp_cutoff) {
+        if (w_pp_cutoff > old_w_pp_cutoff) {
+            stop("You cannot increase w_pp_cutoff without also providing the resource_capacity for the extended range.")
+        }
+        # New cutoff is smaller, so we need to cut off both carrying capacity
+        # and initial resource abundance at the new cutoff
+        if (w_pp_cutoff < old_w_pp_cutoff) {
+            # Cut off the carrying capacity at the new cutoff
+            params@cc_pp[w_full >= w_pp_cutoff] <- 0
+            # Cut off the initial resource abundance at the new cutoff
+            params@initial_n_pp[w_full >= w_pp_cutoff] <- 0
+            # Update NR for consistency
+            NR <- params@initial_n_pp
         }
     }
     
