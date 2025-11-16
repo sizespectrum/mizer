@@ -167,6 +167,7 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
     ybreaks <- waiver()
     if (ytrans == "log10") ybreaks <- log_breaks(n = y_ticks)
 
+    # Set up axis limits. NA values mean auto-scale to data range.
     # The reason why below `group = species` is included in `ggplot()`
     # rather than in `geom_line` is because that puts it first in the
     # plotly tooltips, due to a bug in plotly.
