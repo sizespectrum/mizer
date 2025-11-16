@@ -63,3 +63,50 @@ test_that("box_pred_kernel returns vector of correct length", {
     result <- box_pred_kernel(ppmr, ppmr_min = 10, ppmr_max = 50)
     expect_equal(length(result), length(ppmr))
 })
+
+test_that("lognormal_pred_kernel returns correct values", {
+    ppmr <- c(0.5, 1, 10, 100, 1000)
+    result <- lognormal_pred_kernel(ppmr, beta = 100, sigma = 2)
+    
+    # All values should be non-negative
+    expect_true(all(result >= 0))
+    # Length should match input
+    expect_equal(length(result), length(ppmr))
+    # Values below 1 should be 0 (predator smaller than prey)
+    expect_equal(result[ppmr < 1], rep(0, sum(ppmr < 1)))
+    # Peak should be near beta
+    ppmr_fine <- seq(1, 200, by = 1)
+    result_fine <- lognormal_pred_kernel(ppmr_fine, beta = 100, sigma = 1)
+    peak_idx <- which.max(result_fine)
+    expect_true(abs(ppmr_fine[peak_idx] - 100) < 5)  # Peak within 5 of beta
+})
+
+test_that("truncated_lognormal_pred_kernel truncates correctly", {
+    ppmr <- seq(1, 200, by = 1)
+    result_ln <- lognormal_pred_kernel(ppmr, beta = 100, sigma = 2)
+    result_tln <- truncated_lognormal_pred_kernel(ppmr, beta = 100, sigma = 2)
+    
+    # Length should match input
+    expect_equal(length(result_tln), length(ppmr))
+    # Should be zero at some large ppmr
+    expect_true(any(result_tln == 0))
+    # Should match lognormal in the middle range
+    expect_equal(result_ln[50], result_tln[50])
+})
+
+test_that("power_law_pred_kernel returns correct shape", {
+    ppmr <- 1:100
+    result <- power_law_pred_kernel(ppmr, kernel_exp = 0,
+                                    kernel_l_l = log(25), kernel_u_l = 1000,
+                                    kernel_l_r = log(75), kernel_u_r = 1000)
+    
+    # All values should be non-negative
+    expect_true(all(result >= 0))
+    # Length should match input
+    expect_equal(length(result), length(ppmr))
+    # Should be close to 0 outside the range
+    expect_true(result[10] < 0.1)
+    expect_true(result[90] < 0.1)
+    # Should be close to 1 in the middle of the range
+    expect_true(result[50] > 0.9)
+})
