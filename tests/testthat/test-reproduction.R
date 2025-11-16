@@ -55,3 +55,43 @@ test_that("noRDD returns rdi unchanged", {
     rdd <- noRDD(rdi, sp)
     expect_identical(rdd, rdi)
 })
+
+test_that("w_repro_max is rounded down to w grid for new versions", {
+    # Create a new params object with current version
+    params_new <- NS_params
+    # Set a w_repro_max that doesn't fall exactly on a grid point
+    original_w_repro_max <- params_new@species_params$w_max[1] * 0.95
+    params_new@species_params$w_repro_max <- rep(original_w_repro_max, 
+                                                  nrow(params_new@species_params))
+    
+    # Call setReproduction which should round down w_repro_max
+    params_new <- setReproduction(params_new, reset = TRUE)
+    
+    # Check that w_repro_max was rounded down to a grid point
+    for (i in seq_len(nrow(params_new@species_params))) {
+        expect_true(params_new@species_params$w_repro_max[i] %in% params_new@w)
+        expect_true(params_new@species_params$w_repro_max[i] <= original_w_repro_max)
+    }
+    
+    # Verify it's the largest grid point <= original value
+    expected_w_repro_max <- params_new@w[max(which(params_new@w <= original_w_repro_max))]
+    expect_equal(params_new@species_params$w_repro_max[1], expected_w_repro_max)
+})
+
+test_that("w_repro_max rounding only applies to new versions", {
+    # Create an old params object by setting mizer_version to an old value
+    params_old <- NS_params
+    params_old@mizer_version <- as.package_version("2.5.3.9000")
+    
+    # Set a w_repro_max that doesn't fall exactly on a grid point
+    original_w_repro_max <- params_old@species_params$w_max[1] * 0.95
+    params_old@species_params$w_repro_max <- rep(original_w_repro_max, 
+                                                  nrow(params_old@species_params))
+    
+    # Call setReproduction - should NOT round for old versions
+    params_old <- setReproduction(params_old, reset = TRUE)
+    
+    # Check that w_repro_max was NOT rounded (should be the original or default)
+    # Since reset = TRUE, it should use w_max as default
+    expect_equal(params_old@species_params$w_repro_max, params_old@species_params$w_max)
+})

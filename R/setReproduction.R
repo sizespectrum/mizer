@@ -285,6 +285,19 @@ setReproduction <- function(params, maturity = NULL,
         # Set defaults for w_repro_max
         species_params <- set_species_param_default(species_params, "w_repro_max",
                                                     params@species_params$w_max)
+        
+        # Round down w_repro_max to next-lower point on w grid for newer versions
+        # This prevents fish from growing into size classes beyond w_repro_max
+        # due to numerical integration behavior
+        if (params@mizer_version > "2.5.3.9000") {
+            for (i in seq_len(nrow(species_params))) {
+                # Find the largest w grid point that is <= w_repro_max
+                idx <- max(which(params@w <= species_params$w_repro_max[i]))
+                species_params$w_repro_max[i] <- params@w[idx]
+            }
+            # Save the rounded values back to params
+            params@species_params$w_repro_max <- species_params$w_repro_max
+        }
 
         repro_prop <- array(
             unlist(
