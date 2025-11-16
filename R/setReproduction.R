@@ -12,10 +12,11 @@
 #' proportion `maturity` of individuals that are mature and the proportion
 #' `repro_prop` of the energy available to a mature individual that is
 #' invested into reproduction. There is a size `w_repro_max` at which all the
-#' energy is invested into reproduction and therefore all growth stops. There
-#' can be no fish larger than `w_repro_max`. If you have not specified the
-#' `w_repro_max` column in the species parameter data frame, then the maximum size
-#' `w_max` is used instead.
+#' energy is invested into reproduction and therefore all growth stops. For
+#' models created with mizer version > 2.5.3.9000, `w_repro_max` is rounded
+#' down to the nearest grid point to ensure there can be no fish larger than
+#' `w_repro_max`. If you have not specified the `w_repro_max` column in the
+#' species parameter data frame, then the maximum size `w_max` is used instead.
 #'
 #' \subsection{Maturity ogive}{
 #' If the the proportion of individuals that are mature is not supplied via
@@ -57,6 +58,12 @@
 #' column `m` in the species parameter dataframe. The maximum sizes are taken
 #' from the `w_repro_max` column in the species parameter data frame, if it
 #' exists, or otherwise from the `w_max` column.
+#'
+#' For models created with mizer version > 2.5.3.9000, `w_repro_max` is 
+#' automatically rounded down to the next-lower point on the size grid. This
+#' prevents fish from growing into size classes beyond `w_repro_max` due to
+#' numerical integration behavior where a zero growth rate at the start of a
+#' size class can still lead to non-zero abundance in that class.
 #'
 #' The total proportion of energy invested into reproduction of an individual
 #' of size \eqn{w} is then
