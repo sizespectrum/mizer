@@ -292,8 +292,11 @@ setReproduction <- function(params, maturity = NULL,
         if (params@mizer_version > "2.5.3.9000") {
             for (i in seq_len(nrow(species_params))) {
                 # Find the largest w grid point that is <= w_repro_max
-                idx <- max(which(params@w <= species_params$w_repro_max[i]))
-                species_params$w_repro_max[i] <- params@w[idx]
+                idx <- which(params@w <= species_params$w_repro_max[i])
+                if (length(idx) > 0) {
+                    species_params$w_repro_max[i] <- params@w[max(idx)]
+                }
+                # If w_repro_max is smaller than all grid points, leave it unchanged
             }
             # Save the rounded values back to params
             params@species_params$w_repro_max <- species_params$w_repro_max
