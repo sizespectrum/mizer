@@ -113,6 +113,10 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #' @param xtrans Transformation for the x-axis. Often "log10" may be useful
 #'   instead of the default of "identity".
 #' @param ytrans Transformation for the y-axis.
+#' @param xlim A numeric vector of length two providing lower and upper limits
+#'   for the x axis. Use NA to refer to the existing minimum or maximum.
+#' @param ylim A numeric vector of length two providing lower and upper limits
+#'   for the y axis. Use NA to refer to the existing minimum or maximum.
 #' @param y_ticks The approximate number of ticks desired on the y axis
 #' @param highlight Name or vector of names of the species to be highlighted.
 #' @return A ggplot2 object
@@ -120,6 +124,7 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #' @export
 plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
                           ylab = waiver(), xtrans = "identity", ytrans = "identity",
+                          xlim = c(NA, NA), ylim = c(NA, NA),
                           y_ticks = 6, highlight = NULL, legend_var = NULL,
                           wrap_var = NULL, wrap_scale = NULL) {
     assert_that(is.data.frame(frame),
@@ -162,13 +167,16 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
     ybreaks <- waiver()
     if (ytrans == "log10") ybreaks <- log_breaks(n = y_ticks)
 
+    # Set up axis limits. NA values mean auto-scale to data range.
     # The reason why below `group = species` is included in `ggplot()`
     # rather than in `geom_line` is because that puts it first in the
     # plotly tooltips, due to a bug in plotly.
     p <- ggplot(frame, aes(group = .data[[group_var]])) +
         scale_y_continuous(trans = ytrans, breaks = ybreaks,
-                           labels = prettyNum, name = ylab) +
-        scale_x_continuous(trans = xtrans, name = xlab)
+                           labels = prettyNum, name = ylab,
+                           limits = ylim) +
+        scale_x_continuous(trans = xtrans, name = xlab,
+                           limits = xlim)
 
     switch(style,
            "line" = {
@@ -240,7 +248,8 @@ log_breaks <- function(n = 6) {
 #'   time series.
 #' @param ylim A numeric vector of length two providing lower and upper limits
 #'   for the y axis. Use NA to refer to the existing minimum or maximum. Any
-#'   values below 1e-20 are always cut off.
+#'   values below 1e-20 are always cut off. Data is filtered to this range and
+#'   the axis limits are set accordingly.
 #' @param total A boolean value that determines whether the total biomass from
 #'   all species is plotted as well. Default is FALSE.
 #' @inheritParams plotSpectra
@@ -321,7 +330,7 @@ plotBiomass <- function(sim, species = NULL,
     if (return_data) return(plot_dat)
 
     plotDataFrame(plot_dat, params, xlab = "Year", ylab = "Biomass [g]",
-                  ytrans = "log10",
+                  ytrans = "log10", ylim = ylim,
                   y_ticks = y_ticks, highlight = highlight,
                   legend_var = "Legend")
 }
@@ -557,10 +566,12 @@ plotlyYieldGear <- function(sim, species = NULL,
 #'   If TRUE then the average of the abundances over the
 #'   time range is a geometric mean instead of the default arithmetic mean.
 #' @param wlim A numeric vector of length two providing lower and upper limits
-#'   for the w axis. Use NA to refer to the existing minimum or maximum.
+#'   for the w axis. Use NA to refer to the existing minimum or maximum. Data
+#'   is filtered to this range and the axis limits are set accordingly.
 #' @param ylim A numeric vector of length two providing lower and upper limits
 #'   for the y axis. Use NA to refer to the existing minimum or maximum. Any
-#'   values below 1e-20 are always cut off.
+#'   values below 1e-20 are always cut off. Data is filtered to this range and
+#'   the axis limits are set accordingly.
 #' @param power The abundance is plotted as the number density times the weight
 #' raised to `power`. The default \code{power = 1} gives the biomass
 #' density, whereas \code{power = 2} gives the biomass density with respect
@@ -745,6 +756,7 @@ plot_spectra <- function(params, n, n_pp,
 
     plotDataFrame(plot_dat, params, xlab = "Size [g]", ylab = y_label,
                   xtrans = "log10", ytrans = "log10",
+                  xlim = wlim, ylim = ylim,
                   highlight = highlight, legend_var = "Legend")
 }
 

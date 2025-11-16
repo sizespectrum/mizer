@@ -188,3 +188,28 @@ test_that("plotDiet restricts to meaningful abundance ranges", {
         expect_true(max_w_in_data <= w_max_meaningful)
     }
 })
+
+# Test axis limits are properly set ----
+test_that("axis limits are set correctly", {
+    # Test ylim in plotBiomass
+    p <- plotBiomass(sim, species = species, ylim = c(1e3, 1e6))
+    expect_equal(p$scales$scales[[1]]$limits, c(3, 6))
+
+    # Test with NA values
+    p <- plotBiomass(sim, species = species, ylim = c(NA, 1e6))
+    expect_equal(p$scales$scales[[1]]$limits[2], 6)
+    expect_true(is.na(p$scales$scales[[1]]$limits[1]))
+
+    # Test wlim and ylim in plotSpectra
+    p <- plotSpectra(sim, species = species, wlim = c(1, 100), ylim = c(1e5, 1e8))
+    # x-axis is first scale, y-axis is second
+    expect_equal(p$scales$scales[[2]]$limits, c(0, 2))
+    expect_equal(p$scales$scales[[1]]$limits, c(5, 8))
+
+    # Test with NA values in wlim
+    p <- plotSpectra(sim, species = species, wlim = c(10, NA), ylim = c(NA, 1e8))
+    expect_equal(p$scales$scales[[2]]$limits[1], 1)
+    expect_equal(p$scales$scales[[2]]$limits[2], log10(max(params@w_full)))
+    expect_equal(p$scales$scales[[1]]$limits[1], -20)
+    expect_equal(p$scales$scales[[1]]$limits[2], 8)
+})
