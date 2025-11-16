@@ -7,6 +7,8 @@
   if necessary.
 - `species_params<-()` and `given_species_params<-()` now check that species
   names match.
+- The `params` argument in `l2w()` and `w2l()` has been renamed to `species_params`
+  to follow mizer's convention that `params` refers to a MizerParams object.
 
 ## Bug fixes
 
