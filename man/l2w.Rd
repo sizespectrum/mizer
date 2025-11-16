@@ -5,15 +5,15 @@
 \alias{w2l}
 \title{Length-weight conversion}
 \usage{
-l2w(l, params)
+l2w(l, species_params)
 
-w2l(w, params)
+w2l(w, species_params)
 }
 \arguments{
 \item{l}{Lengths in cm. Either a single number used for all species or a
 vector with one number for each species.}
 
-\item{params}{A species parameter data frame or a MizerParams object.}
+\item{species_params}{A species parameter data frame or a MizerParams object.}
 
 \item{w}{Weights in grams. Either a single number used for all species or a
 vector with one number for each species.}
