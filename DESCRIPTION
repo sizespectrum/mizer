@@ -43,6 +43,7 @@ Depends:
 Suggests:
     testthat (>= 3.0.0),
     vdiffr,
+    diffviewer,
     roxygen2,
     knitr,
     rmarkdown,
