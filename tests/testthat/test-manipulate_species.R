@@ -268,3 +268,50 @@ test_that("renameSpecies warns on wrong names", {
     expect_error(renameSpecies(NS_params, c(Kod = "cod", Hadok = "haddock")),
                  "Kod, Hadok do not exist")
 })
+
+# renameGear ----
+test_that("renameGear works", {
+    p <- NS_params
+    # Get original gear names
+    original_gears <- dimnames(p@selectivity)$gear
+    
+    # Define replacement
+    replace <- c(Industrial = "Trawl", Otter = "Beam_Trawl")
+    
+    # Rename gears
+    p2 <- renameGear(p, replace)
+    
+    # Check that gear_params is updated
+    expect_true("Trawl" %in% p2@gear_params$gear)
+    expect_true("Beam_Trawl" %in% p2@gear_params$gear)
+    expect_false("Industrial" %in% p2@gear_params$gear)
+    expect_false("Otter" %in% p2@gear_params$gear)
+    
+    # Check that selectivity dimension names are updated
+    new_gears <- dimnames(p2@selectivity)$gear
+    expect_true("Trawl" %in% new_gears)
+    expect_true("Beam_Trawl" %in% new_gears)
+    expect_false("Industrial" %in% new_gears)
+    expect_false("Otter" %in% new_gears)
+    
+    # Check that catchability dimension names are updated
+    expect_identical(dimnames(p2@catchability)$gear, new_gears)
+    
+    # Check that initial_effort names are updated
+    expect_true("Trawl" %in% names(p2@initial_effort))
+    expect_true("Beam_Trawl" %in% names(p2@initial_effort))
+    expect_false("Industrial" %in% names(p2@initial_effort))
+    expect_false("Otter" %in% names(p2@initial_effort))
+    
+    # Check that the values in initial_effort are preserved
+    expect_equal(p2@initial_effort[["Trawl"]], p@initial_effort[["Industrial"]])
+    expect_equal(p2@initial_effort[["Beam_Trawl"]], p@initial_effort[["Otter"]])
+    
+    # Check that params object is valid
+    expect_true(validObject(p2))
+})
+
+test_that("renameGear warns on wrong names", {
+    expect_error(renameGear(NS_params, c(Trawler = "New_Trawl", NonExistent = "Other")),
+                 "Trawler, NonExistent do not exist")
+})

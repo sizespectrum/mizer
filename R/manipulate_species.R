@@ -467,3 +467,64 @@ renameSpecies <- function(params, replace) {
     params@time_modified <- lubridate::now()
     return(params)
 }
+
+
+#' Rename gears
+#'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
+#' Changes the names of gears in a MizerParams object. This involves for
+#' example changing the gear dimension names of selectivity and catchability
+#' arrays appropriately.
+#'
+#' @param params A mizer params object
+#' @param replace A named character vector, with new names as values, and old
+#'   names as names.
+#'
+#' @return An object of type \linkS4class{MizerParams}
+#' @export
+#' @examples
+#' replace <- c(Industrial = "Trawl", Otter = "Beam_Trawl")
+#' params <- renameGear(NS_params, replace)
+#' gear_params(params)$gear
+renameGear <- function(params, replace) {
+    params <- validParams(params)
+    replace[] <- as.character(replace)
+    to_replace <- names(replace)
+    gears <- dimnames(params@selectivity)$gear
+    wrong <- setdiff(names(replace), gears)
+    if (length(wrong) > 0) {
+        stop(paste(wrong, collapse = ", "),
+             " do not exist.")
+    }
+    names(gears) <- gears
+    gears[to_replace] <- replace
+    names(gears) <- NULL
+    
+    # Update gear_params data frame
+    for (i in seq_len(nrow(params@gear_params))) {
+        if (params@gear_params$gear[[i]] %in% names(replace)) {
+            params@gear_params$gear[[i]] <-
+                replace[[params@gear_params$gear[[i]]]]
+        }
+    }
+    params@gear_params <- validGearParams(params@gear_params, 
+                                          params@species_params)
+    
+    # Update dimension names in arrays
+    dimnames(params@selectivity)$gear <- gears
+    dimnames(params@catchability)$gear <- gears
+    
+    # Update initial_effort names
+    gearnames <- names(params@initial_effort)
+    names(gearnames) <- gearnames
+    gearnames[to_replace] <- replace
+    names(gearnames) <- NULL
+    names(params@initial_effort) <- gearnames
+    
+    validObject(params)
+    
+    params@time_modified <- lubridate::now()
+    return(params)
+}
