@@ -217,14 +217,12 @@ setResource <- function(params,
         }
         # New cutoff is smaller, so we need to cut off both carrying capacity
         # and initial resource abundance at the new cutoff
-        if (w_pp_cutoff < old_w_pp_cutoff) {
-            # Cut off the carrying capacity at the new cutoff
-            params@cc_pp[w_full >= w_pp_cutoff] <- 0
-            # Cut off the initial resource abundance at the new cutoff
-            params@initial_n_pp[w_full >= w_pp_cutoff] <- 0
-            # Update NR for consistency
-            NR <- params@initial_n_pp
-        }
+        # Cut off the carrying capacity at the new cutoff
+        params@cc_pp[w_full >= w_pp_cutoff] <- 0
+        # Cut off the initial resource abundance at the new cutoff
+        params@initial_n_pp[w_full >= w_pp_cutoff] <- 0
+        # Update NR for consistency
+        NR <- params@initial_n_pp
     }
     
     # Balance ----
