@@ -88,3 +88,57 @@ test_that("Can get and set resource_dynamics slot", {
     resource_dynamics(params) <- new
     expect_identical(resource_dynamics(params), new)
 })
+
+test_that("w_pp_cutoff can be decreased without providing carrying_capacity", {
+    params <- NS_params
+    old_cutoff <- resource_params(params)$w_pp_cutoff
+    # Choose a new cutoff that is smaller
+    new_cutoff <- old_cutoff / 2
+    
+    # This should work and cut off both carrying capacity and initial abundance
+    params_new <- setResource(params, w_pp_cutoff = new_cutoff)
+    
+    # Check that w_pp_cutoff was updated
+    expect_equal(resource_params(params_new)$w_pp_cutoff, new_cutoff)
+    
+    # Check that carrying capacity is zero above the new cutoff
+    w_full <- params_new@w_full
+    expect_true(all(params_new@cc_pp[w_full >= new_cutoff] == 0))
+    
+    # Check that initial resource abundance is zero above the new cutoff
+    expect_true(all(params_new@initial_n_pp[w_full >= new_cutoff] == 0))
+    
+    # Check that carrying capacity is non-zero below the new cutoff
+    # (at least somewhere)
+    expect_true(any(params_new@cc_pp[w_full < new_cutoff] > 0))
+})
+
+test_that("w_pp_cutoff cannot be increased without providing carrying_capacity", {
+    params <- NS_params
+    old_cutoff <- resource_params(params)$w_pp_cutoff
+    # Try to increase the cutoff
+    new_cutoff <- old_cutoff * 2
+    
+    # This should give an error
+    expect_error(
+        setResource(params, w_pp_cutoff = new_cutoff),
+        "You cannot increase w_pp_cutoff without also providing the resource_capacity"
+    )
+})
+
+test_that("w_pp_cutoff can be changed when providing carrying_capacity", {
+    params <- NS_params
+    old_cutoff <- resource_params(params)$w_pp_cutoff
+    new_cutoff <- old_cutoff * 2
+    
+    # This should work when we also provide carrying capacity
+    params_new <- setResource(params, w_pp_cutoff = new_cutoff, 
+                             resource_capacity = 10, balance = FALSE)
+    
+    # Check that w_pp_cutoff was updated
+    expect_equal(resource_params(params_new)$w_pp_cutoff, new_cutoff)
+    
+    # Check that carrying capacity follows the new cutoff
+    w_full <- params_new@w_full
+    expect_true(all(params_new@cc_pp[w_full >= new_cutoff] == 0))
+})

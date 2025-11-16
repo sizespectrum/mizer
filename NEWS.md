@@ -15,6 +15,9 @@
 ## Bug fixes
 
 - `getReproductionProportion()` no longer returns incorrect proportions > 1 (#299)
+- `setResource()` now correctly applies the `w_pp_cutoff` parameter to the 
+  carrying capacity and initial resource abundance when changed without 
+  providing `resource_capacity`.
 
 # mizer 2.5.3
 
