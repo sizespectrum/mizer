@@ -57,7 +57,7 @@ params <-  NS_params
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotFMort(sim)
 plotFMort(sim, highlight = c("Cod", "Haddock"))
- 
+
 # Returning the data frame
 fr <- plotFMort(sim, return_data = TRUE)
 str(fr)

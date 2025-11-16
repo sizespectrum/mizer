@@ -50,7 +50,8 @@ time series.}
 
 \item{ylim}{A numeric vector of length two providing lower and upper limits
 for the y axis. Use NA to refer to the existing minimum or maximum. Any
-values below 1e-20 are always cut off.}
+values below 1e-20 are always cut off. Data is filtered to this range and
+the axis limits are set accordingly.}
 
 \item{total}{A boolean value that determines whether the total biomass from
 all species is plotted as well. Default is FALSE.}

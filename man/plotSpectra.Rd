@@ -57,11 +57,13 @@ If TRUE then the average of the abundances over the
 time range is a geometric mean instead of the default arithmetic mean.}
 
 \item{wlim}{A numeric vector of length two providing lower and upper limits
-for the w axis. Use NA to refer to the existing minimum or maximum.}
+for the w axis. Use NA to refer to the existing minimum or maximum. Data
+is filtered to this range and the axis limits are set accordingly.}
 
 \item{ylim}{A numeric vector of length two providing lower and upper limits
 for the y axis. Use NA to refer to the existing minimum or maximum. Any
-values below 1e-20 are always cut off.}
+values below 1e-20 are always cut off. Data is filtered to this range and
+the axis limits are set accordingly.}
 
 \item{power}{The abundance is plotted as the number density times the weight
 raised to \code{power}. The default \code{power = 1} gives the biomass

@@ -12,6 +12,8 @@ plotDataFrame(
   ylab = waiver(),
   xtrans = "identity",
   ytrans = "identity",
+  xlim = c(NA, NA),
+  ylim = c(NA, NA),
   y_ticks = 6,
   highlight = NULL,
   legend_var = NULL,
@@ -42,6 +44,12 @@ and "area" for geom_area. Default is "line".}
 instead of the default of "identity".}
 
 \item{ytrans}{Transformation for the y-axis.}
+
+\item{xlim}{A numeric vector of length two providing lower and upper limits
+for the x axis. Use NA to refer to the existing minimum or maximum.}
+
+\item{ylim}{A numeric vector of length two providing lower and upper limits
+for the y axis. Use NA to refer to the existing minimum or maximum.}
 
 \item{y_ticks}{The approximate number of ticks desired on the y axis}
 

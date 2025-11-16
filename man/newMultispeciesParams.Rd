@@ -127,7 +127,11 @@ The resource capacity must be larger than the resource abundance.}
 \code{resource_capacity} argument is given as a single number.}
 
 \item{w_pp_cutoff}{The upper cut off size of the resource spectrum power law
-used only if \code{resource_capacity} is given as a single number.}
+used when \code{resource_capacity} is given as a single number. When changing
+\code{w_pp_cutoff} without providing \code{resource_capacity}, the cutoff can only
+be decreased. In that case, both the carrying capacity and the initial
+resource abundance will be cut off at the new value. To increase the cutoff,
+you must also provide the \code{resource_capacity} for the extended range.}
 
 \item{resource_dynamics}{Optional. Name of the function that determines the
 resource dynamics by calculating the resource spectrum at the next time

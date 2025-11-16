@@ -21,7 +21,7 @@ plotlyFeedingLevel(
   species = NULL,
   time_range,
   highlight = NULL,
-  include_critical,
+  include_critical = FALSE,
   ...
 )
 }
