@@ -911,8 +911,74 @@ plotlyFeedingLevel <- function(object,
                              highlight = NULL,
                              include_critical, ...) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotFeedingLevel", argg),
-             tooltip = c("Species", "w", "value"))
+    p <- ggplotly(do.call("plotFeedingLevel", argg),
+                  tooltip = c("Species", "w", "value"))
+
+    # When critical feeding level is included, ggplotly creates traces split by the
+    # interaction of Species and Type, which produces a very long combined legend.
+    # The code below reshapes the legend to mirror the ggplot output:
+    # - Species appear once under a "Legend" group
+    # - A separate "Feeding Level" group shows "actual" and "critical"
+    if (isTRUE(include_critical)) {
+        species_seen <- character(0)
+        for (i in seq_along(p$x$data)) {
+            tr <- p$x$data[[i]]
+            # Only adjust line traces with names like "(actual, Cod)"
+            if (!identical(tr$type, "scatter") ||
+                is.null(tr$mode) || !grepl("lines", tr$mode)) next
+            nm <- tr$name
+            if (!is.null(nm) && grepl("^\\(", nm)) {
+                nm_clean <- gsub("^\\(|\\)$", "", nm)
+                parts <- strsplit(nm_clean, ",\\s*")[[1]]
+                if (length(parts) >= 2) {
+                    typ <- parts[[1]]
+                    sp <- paste(parts[-1], collapse = ",")
+                    # Rename the trace to species name and group under "Legend"
+                    p$x$data[[i]]$name <- sp
+                    p$x$data[[i]]$legendgroup <- "Legend"
+                    # Add group title once
+                    if (length(species_seen) == 0) {
+                        p$x$data[[i]]$legendgrouptitle <- list(text = "Legend")
+                    }
+                    # Hide duplicate legend entries for "critical" traces
+                    if (identical(typ, "critical")) {
+                        p$x$data[[i]]$showlegend <- FALSE
+                    }
+                    species_seen <- unique(c(species_seen, sp))
+                }
+            }
+        }
+
+        # Add two legend-only traces to show the "Feeding Level" group
+        p <- plotly::add_trace(
+            p,
+            x = c(0, 1), y = c(0, 1),
+            type = "scatter", mode = "lines",
+            name = "actual",
+            legendgroup = "Feeding Level",
+            legendgrouptitle = list(text = "Feeding Level"),
+            line = list(color = "blue"),
+            opacity = 1,
+            hoverinfo = "skip",
+            visible = "legendonly",
+            showlegend = TRUE,
+            inherit = FALSE
+        )
+        p <- plotly::add_trace(
+            p,
+            x = c(0, 1), y = c(0, 1),
+            type = "scatter", mode = "lines",
+            name = "critical",
+            legendgroup = "Feeding Level",
+            line = list(color = "blue"),
+            opacity = 0.5,
+            hoverinfo = "skip",
+            visible = "legendonly",
+            showlegend = TRUE,
+            inherit = FALSE
+        )
+    }
+    p
 }
 
 #' Plot predation mortality rate of each species against size
