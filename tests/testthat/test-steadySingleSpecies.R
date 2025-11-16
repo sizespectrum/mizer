@@ -25,3 +25,38 @@ test_that("steadySingleSpecies `keep` argument works", {
     expect_equal(getN(params)[3], getN(NS_params)[3])
     expect_gt(getBiomass(params)[3], getBiomass(NS_params)[3])
 })
+
+test_that("steadySingleSpecies errors when growth stops before maturity", {
+    # Create a simple params object
+    params <- newTraitParams(no_sp = 1)
+    
+    # Artificially set growth rate to zero before maturity
+    # by setting very high metabolic rate
+    params@metab[1, ] <- params@metab[1, ] * 1000
+    
+    expect_error(steadySingleSpecies(params, species = 1),
+                 "cannot grow to maturity")
+})
+
+test_that("steadySingleSpecies warns when growth stops after maturity", {
+    # Create a simple params object
+    params <- newTraitParams(no_sp = 1)
+    
+    # Get the species and find indices for maturity and max size
+    w_mat <- params@species_params$w_mat[1]
+    w_max <- params@species_params$w_max[1]
+    w_mat_idx <- sum(params@w <= w_mat)
+    w_max_idx <- sum(params@w <= w_max)
+    
+    # Set metabolic rate very high only after maturity to stop growth there
+    # but keep it normal before maturity
+    params@metab[1, ] <- params@metab[1, ]
+    # Increase metabolic rate significantly after maturity
+    if (w_mat_idx < length(params@w)) {
+        params@metab[1, (w_mat_idx + 1):length(params@w)] <- 
+            params@metab[1, (w_mat_idx + 1):length(params@w)] * 1000
+    }
+    
+    expect_warning(steadySingleSpecies(params, species = 1),
+                   "has zero growth rate after maturity size")
+})

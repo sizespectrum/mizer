@@ -45,8 +45,20 @@ steadySingleSpecies <- function(params, species = NULL,
         
         # Check that species can grow to maturity at least
         w_mat_idx <- sum(params@w <= params@species_params[sp, "w_mat"])
-        if (any(growth[w_min_idx:w_mat_idx] == 0)) {
-            stop(sp, " cannot grow to maturity")
+        
+        # Find first index where growth becomes zero
+        zero_growth_idx <- which(growth[w_min_idx:w_max_idx] == 0)
+        if (length(zero_growth_idx) > 0) {
+            # Convert to absolute index
+            first_zero_idx <- w_min_idx + zero_growth_idx[1] - 1
+            
+            if (first_zero_idx <= w_mat_idx) {
+                # Growth stops before or at maturity - this is an error
+                stop(sp, " cannot grow to maturity")
+            } else {
+                # Growth stops after maturity - issue a warning
+                warning(sp, " has zero growth rate after maturity size")
+            }
         }
         
         # Keep egg density constant
