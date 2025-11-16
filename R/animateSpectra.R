@@ -90,11 +90,19 @@ animateSpectra <- function(sim,
                value <= ylim[2],
                w >= wlim[1],
                w <= wlim[2])
+    
+    # Order species factor to match linecolour and ensure consistent colors ----
+    # This ensures that colors remain consistent across frames even when 
+    # species go extinct
+    legend_levels <- intersect(names(sim@params@linecolour), unique(nf$sp))
+    nf$sp <- factor(nf$sp, levels = legend_levels)
+    # Extract colors in the correct order
+    colors_ordered <- sim@params@linecolour[legend_levels]
 
     nf %>%
         plotly::plot_ly() %>%
         plotly::add_lines(x = ~w, y = ~value,
-                          color = ~sp, colors = sim@params@linecolour,
+                          color = ~sp, colors = colors_ordered,
                           frame = ~time,
                           line = list(simplify = FALSE)) %>%
         plotly::layout(xaxis = list(type = "log", exponentformat = "power",
