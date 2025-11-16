@@ -113,6 +113,10 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #' @param xtrans Transformation for the x-axis. Often "log10" may be useful
 #'   instead of the default of "identity".
 #' @param ytrans Transformation for the y-axis.
+#' @param xlim A numeric vector of length two providing lower and upper limits
+#'   for the x axis. Use NA to refer to the existing minimum or maximum.
+#' @param ylim A numeric vector of length two providing lower and upper limits
+#'   for the y axis. Use NA to refer to the existing minimum or maximum.
 #' @param y_ticks The approximate number of ticks desired on the y axis
 #' @param highlight Name or vector of names of the species to be highlighted.
 #' @return A ggplot2 object
@@ -120,6 +124,7 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #' @export
 plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
                           ylab = waiver(), xtrans = "identity", ytrans = "identity",
+                          xlim = c(NA, NA), ylim = c(NA, NA),
                           y_ticks = 6, highlight = NULL, legend_var = NULL,
                           wrap_var = NULL, wrap_scale = NULL) {
     assert_that(is.data.frame(frame),
@@ -167,8 +172,10 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
     # plotly tooltips, due to a bug in plotly.
     p <- ggplot(frame, aes(group = .data[[group_var]])) +
         scale_y_continuous(trans = ytrans, breaks = ybreaks,
-                           labels = prettyNum, name = ylab) +
-        scale_x_continuous(trans = xtrans, name = xlab)
+                           labels = prettyNum, name = ylab,
+                           limits = ylim) +
+        scale_x_continuous(trans = xtrans, name = xlab,
+                           limits = xlim)
 
     switch(style,
            "line" = {
@@ -321,7 +328,7 @@ plotBiomass <- function(sim, species = NULL,
     if (return_data) return(plot_dat)
 
     plotDataFrame(plot_dat, params, xlab = "Year", ylab = "Biomass [g]",
-                  ytrans = "log10",
+                  ytrans = "log10", ylim = ylim,
                   y_ticks = y_ticks, highlight = highlight,
                   legend_var = "Legend")
 }
@@ -745,6 +752,7 @@ plot_spectra <- function(params, n, n_pp,
 
     plotDataFrame(plot_dat, params, xlab = "Size [g]", ylab = y_label,
                   xtrans = "log10", ytrans = "log10",
+                  xlim = wlim, ylim = ylim,
                   highlight = highlight, legend_var = "Legend")
 }
 
