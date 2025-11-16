@@ -47,7 +47,7 @@ test_that("setLinetypes and getLinetypes works", {
     # Invalid linetypes are ignored and trigger warning
     expect_warning(
         params <- setLinetypes(params, list(test = "igit", test3 = "igitigit")),
-        "The following are not valid lineypes")
+        "The following are not valid linetypes")
     expect_length(getLinetypes(params), no_types + 2)
     expect_identical(getLinetypes(params)[["test"]], "dotted")
     # Expect updated time_modified
