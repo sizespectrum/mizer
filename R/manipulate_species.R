@@ -485,11 +485,9 @@ renameSpecies <- function(params, replace) {
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
 #' @examples
-#' \dontrun{
-#' replace <- c(Industrial = "Trawl", Otter = "Beam")
+#' replace <- c(Industrial = "Trawl", Otter = "Beam_Trawl")
 #' params <- renameGear(NS_params, replace)
 #' gear_params(params)$gear
-#' }
 renameGear <- function(params, replace) {
     params <- validParams(params)
     replace[] <- as.character(replace)
