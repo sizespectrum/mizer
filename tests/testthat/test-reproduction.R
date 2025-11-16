@@ -44,3 +44,14 @@ test_that("SheperdRDD works", {
     rdd <- SheperdRDD(rdi, sp)
     expect_equal(rdd, BevertonHoltRDD(rdi, sp))
 })
+
+test_that("constantRDD returns constant_reproduction values", {
+    sp$constant_reproduction <- c(100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200)
+    rdd <- constantRDD(rdi, sp)
+    expect_identical(rdd, sp$constant_reproduction)
+})
+
+test_that("noRDD returns rdi unchanged", {
+    rdd <- noRDD(rdi, sp)
+    expect_identical(rdd, rdi)
+})
