@@ -21,6 +21,13 @@ test_that("BevertonHoltRDD works", {
     expect_identical(rdd, rdi / (1 + rdi/sp$R_max))
 })
 
+test_that("BevertonHoltRDD checks for R_max column", {
+    sp_no_rmax <- sp
+    sp_no_rmax$R_max <- NULL
+    expect_error(BevertonHoltRDD(rdi, sp_no_rmax),
+                 "The R_max column is missing in species_params.")
+})
+
 test_that("RickerRDD works", {
     expect_error(RickerRDD(rdi, sp),
                  "The ricker_b column is missing in species_params")

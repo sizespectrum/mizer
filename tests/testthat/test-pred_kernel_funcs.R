@@ -19,3 +19,47 @@ test_that("pred kernel functions", {
     expect_equal(phip[30], 1)
     expect_equal(phip[90], 0)
 })
+
+test_that("box_pred_kernel returns correct values", {
+    # Test basic box kernel
+    ppmr <- 1:10
+    result <- box_pred_kernel(ppmr, ppmr_min = 3, ppmr_max = 7)
+    
+    # Values below min should be 0
+    expect_equal(result[1:2], c(0, 0))
+    # Values within range should be 1
+    expect_equal(result[3:7], rep(1, 5))
+    # Values above max should be 0
+    expect_equal(result[8:10], c(0, 0, 0))
+})
+
+test_that("box_pred_kernel handles boundary values correctly", {
+    ppmr <- c(1.9, 2.0, 2.1, 3.9, 4.0, 4.1)
+    result <- box_pred_kernel(ppmr, ppmr_min = 2, ppmr_max = 4)
+    
+    # Value just below min should be 0
+    expect_equal(result[1], 0)
+    # Value at min should be 1
+    expect_equal(result[2], 1)
+    # Value just above min should be 1
+    expect_equal(result[3], 1)
+    # Value just below max should be 1
+    expect_equal(result[4], 1)
+    # Value at max should be 1
+    expect_equal(result[5], 1)
+    # Value just above max should be 0
+    expect_equal(result[6], 0)
+})
+
+test_that("box_pred_kernel validates parameters", {
+    ppmr <- 1:10
+    # ppmr_min must be less than ppmr_max
+    expect_error(box_pred_kernel(ppmr, ppmr_min = 5, ppmr_max = 3))
+    expect_error(box_pred_kernel(ppmr, ppmr_min = 5, ppmr_max = 5))
+})
+
+test_that("box_pred_kernel returns vector of correct length", {
+    ppmr <- 1:100
+    result <- box_pred_kernel(ppmr, ppmr_min = 10, ppmr_max = 50)
+    expect_equal(length(result), length(ppmr))
+})

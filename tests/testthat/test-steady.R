@@ -145,3 +145,20 @@ test_that("valid_species_arg works", {
                      valid_species_arg(NS_params, 
                                        NS_params@species_params$species))
 })
+
+# constant_other ----
+test_that("constant_other returns component value", {
+    params <- NS_params
+    # Create a simple n_other list with test components
+    n_other <- list(
+        component1 = 100,
+        component2 = c(1, 2, 3),
+        component3 = matrix(1:6, nrow = 2)
+    )
+    
+    # Test that constant_other returns the correct component
+    expect_equal(constant_other(params, n_other, "component1"), 100)
+    expect_equal(constant_other(params, n_other, "component2"), c(1, 2, 3))
+    expect_equal(constant_other(params, n_other, "component3"), 
+                 matrix(1:6, nrow = 2))
+})
