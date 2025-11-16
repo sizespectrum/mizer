@@ -1331,6 +1331,35 @@ plotDiet <- function(object, species = NULL, return_data = FALSE) {
     plot_dat$Prey <- factor(plot_dat$Prey, levels = rev(prey))
     
     plot_dat <- plot_dat[plot_dat$Proportion > 0.001, ]
+    
+    # Restrict plot to relevant size ranges where abundance is meaningful
+    # Get abundance data
+    if (is(object, "MizerSim")) {
+        n <- object@n[dim(object@n)[1], , , drop = FALSE]  # last time step
+        n <- n[1, , , drop = FALSE]  # remove time dimension
+    } else {
+        n <- params@initial_n
+    }
+    
+    # For each predator species, find the maximum size where abundance is meaningful
+    predator_names <- dimnames(diet)$Predator
+    for (pred in predator_names) {
+        pred_idx <- which(dimnames(n)[[1]] == pred)
+        if (length(pred_idx) > 0) {
+            abundance <- n[pred_idx, ]
+            max_abundance <- max(abundance)
+            if (max_abundance > 0) {
+                # Find sizes where abundance > 1e-5 * max_abundance
+                meaningful_idx <- which(abundance > 1e-5 * max_abundance)
+                if (length(meaningful_idx) > 0) {
+                    w_max_meaningful <- params@w[max(meaningful_idx)]
+                    # Filter plot data for this predator
+                    plot_dat <- plot_dat[!(plot_dat$Predator == pred & plot_dat$w > w_max_meaningful), ]
+                }
+            }
+        }
+    }
+    
     if (return_data) return(plot_dat)
     
     legend_levels <- 
