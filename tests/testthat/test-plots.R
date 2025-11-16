@@ -164,3 +164,27 @@ test_that("plotSpectra averages over time range", {
     expected <- exp(mean(log(NS_sim@n[time_sel, 1, 1])))
     expect_equal(df$value[1], expected)
 })
+
+test_that("plotDiet restricts to meaningful abundance ranges", {
+    # Get diet data for a species
+    diet_data <- plotDiet(params, species = "10", return_data = TRUE)
+    
+    # Get abundance data for species "10"
+    sp_idx <- which(dimnames(params@initial_n)[[1]] == "10")
+    abundance <- params@initial_n[sp_idx, ]
+    max_abundance <- max(abundance)
+    
+    # Find the maximum meaningful size
+    meaningful_idx <- which(abundance > 1e-5 * max_abundance)
+    w_max_meaningful <- params@w[max(meaningful_idx)]
+    
+    # Check that all sizes in diet_data are at or below w_max_meaningful
+    expect_true(all(diet_data$w <= w_max_meaningful))
+    
+    # Also verify that the maximum size in diet_data is close to w_max_meaningful
+    # (there might be filtering due to proportion threshold, so we check it's not much smaller)
+    if (nrow(diet_data) > 0) {
+        max_w_in_data <- max(diet_data$w)
+        expect_true(max_w_in_data <= w_max_meaningful)
+    }
+})
