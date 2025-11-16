@@ -34,16 +34,16 @@ different <- function(a, b) {
 #'   vector with one number for each species.
 #' @param w Weights in grams. Either a single number used for all species or a
 #'   vector with one number for each species.
-#' @param params A species parameter data frame or a MizerParams object.
+#' @param species_params A species parameter data frame or a MizerParams object.
 #' @return A vector with one entry for each species. `l2w()` returns a vector
 #' of weights in grams and `w2l()` returns a vector of lengths in cm.
 #' @export
 #' @concept helper
-l2w <- function(l, params) {
+l2w <- function(l, species_params) {
     assert_that(is.numeric(l))
-    sp <- params
-    if (is(params, "MizerParams")) {
-        sp <- params@species_params
+    sp <- species_params
+    if (is(species_params, "MizerParams")) {
+        sp <- species_params@species_params
     }
     if (!is.data.frame(sp)) {
         stop("The second argument must be either a MizerParams object or a
@@ -63,11 +63,11 @@ l2w <- function(l, params) {
 
 #' @rdname l2w
 #' @export
-w2l <- function(w, params) {
+w2l <- function(w, species_params) {
     assert_that(is.numeric(w))
-    sp <- params
-    if (is(params, "MizerParams")) {
-        sp <- params@species_params
+    sp <- species_params
+    if (is(species_params, "MizerParams")) {
+        sp <- species_params@species_params
     }
     if (!is.data.frame(sp)) {
         stop("The second argument must be either a MizerParams object or a
