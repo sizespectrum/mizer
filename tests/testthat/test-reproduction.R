@@ -21,6 +21,13 @@ test_that("BevertonHoltRDD works", {
     expect_identical(rdd, rdi / (1 + rdi/sp$R_max))
 })
 
+test_that("BevertonHoltRDD checks for R_max column", {
+    sp_no_rmax <- sp
+    sp_no_rmax$R_max <- NULL
+    expect_error(BevertonHoltRDD(rdi, sp_no_rmax),
+                 "The R_max column is missing in species_params.")
+})
+
 test_that("RickerRDD works", {
     expect_error(RickerRDD(rdi, sp),
                  "The ricker_b column is missing in species_params")
@@ -36,4 +43,15 @@ test_that("SheperdRDD works", {
     sp$sheperd_c <- 1
     rdd <- SheperdRDD(rdi, sp)
     expect_equal(rdd, BevertonHoltRDD(rdi, sp))
+})
+
+test_that("constantRDD returns constant_reproduction values", {
+    sp$constant_reproduction <- c(100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200)
+    rdd <- constantRDD(rdi, sp)
+    expect_identical(rdd, sp$constant_reproduction)
+})
+
+test_that("noRDD returns rdi unchanged", {
+    rdd <- noRDD(rdi, sp)
+    expect_identical(rdd, rdi)
 })

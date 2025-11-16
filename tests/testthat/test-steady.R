@@ -145,3 +145,76 @@ test_that("valid_species_arg works", {
                      valid_species_arg(NS_params, 
                                        NS_params@species_params$species))
 })
+
+# constant_other ----
+test_that("constant_other returns component value", {
+    params <- NS_params
+    # Create a simple n_other list with test components
+    n_other <- list(
+        component1 = 100,
+        component2 = c(1, 2, 3),
+        component3 = matrix(1:6, nrow = 2)
+    )
+    
+    # Test that constant_other returns the correct component
+    expect_equal(constant_other(params, n_other, "component1"), 100)
+    expect_equal(constant_other(params, n_other, "component2"), c(1, 2, 3))
+    expect_equal(constant_other(params, n_other, "component3"), 
+                 matrix(1:6, nrow = 2))
+})
+
+# distance functions ----
+test_that("distanceMaxRelRDI calculates max relative RDI change", {
+    params <- NS_params
+    # Create two states with different abundances
+    current <- list(
+        n = initialN(params) * 1.1,  # 10% increase
+        n_pp = initialNResource(params),
+        n_other = list()
+    )
+    previous <- list(
+        n = initialN(params),
+        n_pp = initialNResource(params),
+        n_other = list()
+    )
+    
+    # Distance should be non-negative
+    distance <- distanceMaxRelRDI(params, current, previous)
+    expect_true(distance >= 0)
+    expect_true(is.numeric(distance))
+    expect_equal(length(distance), 1)
+    
+    # Distance should be 0 when states are identical
+    distance_zero <- distanceMaxRelRDI(params, previous, previous)
+    expect_equal(distance_zero, 0)
+})
+
+test_that("distanceSSLogN calculates sum of squared log differences", {
+    params <- NS_params
+    # Create two states with different abundances
+    current <- list(
+        n = initialN(params) * 1.1,  # 10% increase
+        n_pp = initialNResource(params),
+        n_other = list()
+    )
+    previous <- list(
+        n = initialN(params),
+        n_pp = initialNResource(params),
+        n_other = list()
+    )
+    
+    # Distance should be non-negative
+    distance <- distanceSSLogN(params, current, previous)
+    expect_true(distance >= 0)
+    expect_true(is.numeric(distance))
+    expect_equal(length(distance), 1)
+    
+    # Distance should be 0 when states are identical
+    distance_zero <- distanceSSLogN(params, previous, previous)
+    expect_equal(distance_zero, 0)
+    
+    # Distance should handle zero abundances gracefully
+    current_with_zeros <- current
+    current_with_zeros$n[1, 1] <- 0
+    expect_error(distanceSSLogN(params, current_with_zeros, previous), NA)
+})
