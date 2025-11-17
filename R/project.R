@@ -116,6 +116,11 @@ NULL
 #' effort_array[,"Beam"] <- seq(from = 1, to = 0, length = length(times))
 #' effort_array[,"Otter"] <- seq(from = 1, to = 0.5, length = length(times))
 #' sim <- project(params, effort = effort_array)
+#' # Extend a simulation beyond the effort array times
+#' # Effort values from the final time are used for the extension
+#' sim <- project(params, effort = effort_array, t_max = 15)
+#' # Control save times with an effort array using t_save
+#' sim <- project(params, effort = effort_array, t_save = 2)
 #' }
 project <- function(object, effort,
                     t_max = 100, dt = 0.1, t_save = 1, t_start = 0,
