@@ -1,3 +1,7 @@
+# Development version 2.5.4.9000
+
+- 
+
 # mizer 2.5.4
 
 - New function `renameGear()` to rename gears in a MizerParams object, similar 
