@@ -25,12 +25,14 @@ NULL
 #'   \linkS4class{MizerSim} object (which contains a `MizerParams` object).
 #' @param effort The effort of each fishing gear through time. See notes below.
 #' @param t_max The number of years the projection runs for. The default value
-#'   is 100. This argument is ignored if an array is used for the `effort`
-#'   argument. See notes below.
+#'   is 100. When an effort array is supplied, this argument can be used to
+#'   extend the simulation beyond the times specified in the effort array.
+#'   See notes below.
 #' @param dt Time step of the solver. The default value is 0.1.
 #' @param t_save The frequency with which the output is stored. The default
-#'   value is 1. This argument is ignored if an array is used for the `effort`
-#'   argument. See notes below.
+#'   value is 1. When an effort array is supplied, this argument can be used
+#'   to control the times at which the simulation results are saved.
+#'   See notes below.
 #' @param t_start The the year of the start of the simulation. The simulation
 #'   will cover the period from `t_start` to \code{t_start + t_max}.
 #'   Defaults to 0. Ignored if an array is used for the `effort`
@@ -75,9 +77,18 @@ NULL
 #' If effort is specified as an array then the smallest time in the array is 
 #' used as the initial time for the simulation. Otherwise the initial time is
 #' set to the final time of the previous simulation if `object` is a 
-#' `MizerSim` object or to `t_start` otherwise. Also, if the effort is
-#' an array then the `t_max` and `t_save` arguments are ignored and the
-#' simulation times will be taken from the effort array.
+#' `MizerSim` object or to `t_start` otherwise. 
+#' 
+#' When an effort array is provided, the `t_max` argument can be used to
+#' extend the simulation beyond the last time specified in the effort array.
+#' In this case, the effort values from the last time in the array will be
+#' used for the extended period. The `t_save` argument can be used to specify
+#' the frequency at which simulation results are saved. If `t_save` is not
+#' supplied, the results will be saved at the times specified in the effort
+#' array. If both `t_max` and `t_save` are provided with an effort array,
+#' effort values will be interpolated (using step function) or extrapolated
+#' (using the last known value) as needed for the new time points. The
+#' `t_start` argument continues to be ignored when an effort array is supplied.
 #' 
 #' If the `object` argument is of class `MizerSim` then the initial
 #' values for the simulation are taken from the final values in the 
@@ -150,6 +161,7 @@ project <- function(object, effort,
     
     # Set effort array ----
     if (missing(effort)) effort <- params@initial_effort
+    
     if (is.null(dim(effort))) { # effort is a vector or scalar
         # Set up the effort array transposed so we can use the recycling rules
         # no point running a simulation with no saved results
@@ -164,6 +176,67 @@ project <- function(object, effort,
                                           time = times)))
     } else {
         effort <- validEffortArray(effort, params)
+        
+        # When an effort array is supplied, we now respect t_max and t_save
+        # if they are explicitly provided by the user
+        effort_times <- as.numeric(dimnames(effort)[[1]])
+        t_start_effort <- effort_times[1]
+        t_end_effort <- effort_times[length(effort_times)]
+        
+        # Check if t_max or t_save were explicitly provided by the user
+        t_max_provided <- !missing(t_max)
+        t_save_provided <- !missing(t_save)
+        
+        if (t_max_provided || t_save_provided) {
+            # Determine the end time
+            if (t_max_provided) {
+                t_end <- t_start_effort + t_max
+            } else {
+                # Keep the end time from the effort array
+                t_end <- t_end_effort
+            }
+            
+            # Determine the save frequency
+            if (t_save_provided) {
+                # Use the provided t_save
+                save_freq <- t_save
+            } else {
+                # Infer from effort array times or use default
+                if (length(effort_times) > 1) {
+                    # Use the first interval as the save frequency
+                    save_freq <- effort_times[2] - effort_times[1]
+                } else {
+                    save_freq <- 1  # default
+                }
+            }
+            
+            # Ensure we don't use a t_save larger than the duration
+            duration <- t_end - t_start_effort
+            if (duration < save_freq) {
+                save_freq <- duration
+            }
+            
+            # Generate new time points
+            times <- seq(t_start_effort, t_end, by = save_freq)
+            
+            # Interpolate effort values for the new time points
+            gear_names <- dimnames(effort)[[2]]
+            new_effort <- array(NA, dim = c(length(times), length(gear_names)),
+                              dimnames = list(time = times, gear = gear_names))
+            
+            for (g in seq_along(gear_names)) {
+                # Use approx with rule=2 for constant extrapolation beyond range
+                # method="constant" means the effort value applies from that time
+                # until the next time point (step function)
+                new_effort[, g] <- stats::approx(x = effort_times, 
+                                                 y = effort[, g],
+                                                 xout = times,
+                                                 method = "constant",
+                                                 rule = 2,
+                                                 f = 0)$y
+            }
+            effort <- new_effort
+        }
     }
     
     times <- as.numeric(dimnames(effort)[[1]])

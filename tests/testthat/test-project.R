@@ -250,3 +250,121 @@ test_that("Dimnames on effort have correct names", {
   sim <- project(NS_params, effort, t_max = 0.1)
   expect_identical(names(dimnames(sim@effort)), c("time", "gear"))
 })
+
+# t_max and t_save with effort arrays ----
+test_that("t_max extends simulation beyond effort array", {
+  gear_names <- unique(gear_params(NS_params)$gear)
+  # Create effort array that goes from year 1 to year 5
+  effort <- array(0.5, dim = c(5, length(gear_names)),
+                  dimnames = list(time = 1:5, gear = gear_names))
+  
+  # Extend simulation to year 10 with t_max
+  sim <- project(NS_params, effort = effort, t_max = 9, dt = 0.1)
+  
+  # Should save at times 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+  expect_equal(as.numeric(dimnames(sim@n)[[1]]), 1:10)
+  expect_equal(dim(sim@n)[1], 10)
+  
+  # Effort should be extrapolated with last value (0.5)
+  expect_true(all(sim@effort[, ] == 0.5))
+})
+
+test_that("t_save controls save frequency with effort array", {
+  gear_names <- unique(gear_params(NS_params)$gear)
+  # Create effort array with times 0, 1, 2, 3, 4, 5
+  effort <- array(0.5, dim = c(6, length(gear_names)),
+                  dimnames = list(time = 0:5, gear = gear_names))
+  
+  # Use t_save to control output frequency
+  sim <- project(NS_params, effort = effort, t_save = 2, dt = 0.1)
+  
+  # Should save at times 0, 2, 4
+  expect_equal(as.numeric(dimnames(sim@n)[[1]]), c(0, 2, 4))
+  expect_equal(dim(sim@n)[1], 3)
+})
+
+test_that("t_max and t_save work together with effort array", {
+  gear_names <- unique(gear_params(NS_params)$gear)
+  # Create effort array from 0 to 3
+  effort <- array(0.5, dim = c(4, length(gear_names)),
+                  dimnames = list(time = 0:3, gear = gear_names))
+  
+  # Extend to 6 and save every 2 years
+  sim <- project(NS_params, effort = effort, t_max = 6, t_save = 2, dt = 0.1)
+  
+  # Should save at times 0, 2, 4, 6
+  expect_equal(as.numeric(dimnames(sim@n)[[1]]), c(0, 2, 4, 6))
+  expect_equal(dim(sim@n)[1], 4)
+})
+
+test_that("Effort array times used when t_max and t_save not provided", {
+  gear_names <- unique(gear_params(NS_params)$gear)
+  # Create effort array with irregular times
+  effort <- array(0.5, dim = c(4, length(gear_names)),
+                  dimnames = list(time = c(0, 1, 3, 7), gear = gear_names))
+  
+  # Without t_max or t_save, should use effort array times
+  sim <- project(NS_params, effort = effort, dt = 0.1)
+  
+  expect_equal(as.numeric(dimnames(sim@n)[[1]]), c(0, 1, 3, 7))
+  expect_equal(dim(sim@n)[1], 4)
+})
+
+test_that("Effort values interpolated correctly", {
+  gear_names <- unique(gear_params(NS_params)$gear)
+  # Create effort array with varying effort
+  effort <- array(NA, dim = c(3, length(gear_names)),
+                  dimnames = list(time = c(0, 5, 10), gear = gear_names))
+  effort[, 1] <- c(0, 0.5, 1.0)  # Industrial
+  effort[, 2:4] <- 0.3  # Others constant
+  
+  # Use t_save to create intermediate time points
+  sim <- project(NS_params, effort = effort, t_save = 2.5, dt = 0.1)
+  
+  # Should have times 0, 2.5, 5, 7.5, 10
+  expect_equal(as.numeric(dimnames(sim@n)[[1]]), c(0, 2.5, 5, 7.5, 10))
+  
+  # Check effort interpolation (step function)
+  # At time 0, effort is 0
+  expect_equal(sim@effort[1, "Industrial"], 0)
+  # At time 2.5, effort should be 0 (constant from time 0)
+  expect_equal(sim@effort[2, "Industrial"], 0)
+  # At time 5, effort is 0.5
+  expect_equal(sim@effort[3, "Industrial"], 0.5)
+  # At time 7.5, effort should be 0.5 (constant from time 5)
+  expect_equal(sim@effort[4, "Industrial"], 0.5)
+  # At time 10, effort is 1.0
+  expect_equal(sim@effort[5, "Industrial"], 1.0)
+})
+
+test_that("Can extend simulation with NA in final effort", {
+  # This is the motivating use case from the issue
+  gear_names <- unique(gear_params(NS_params)$gear)
+  effort <- array(0.5, dim = c(3, length(gear_names)),
+                  dimnames = list(time = 2017:2019, gear = gear_names))
+  # The last year has NA which gets replaced by default (1 for edition >= 2)
+  effort[3, ] <- NA
+  
+  # Run until 2020 without needing to specify effort for 2019
+  sim <- project(NS_params, effort = effort, t_max = 3, dt = 0.1)
+  
+  # Should have years 2017, 2018, 2019, 2020
+  expect_equal(as.numeric(dimnames(sim@n)[[1]]), 2017:2020)
+  expect_equal(dim(sim@n)[1], 4)
+  
+  # The NA gets replaced by default effort during validation
+  # Then extrapolated for 2020
+  expect_true(all(!is.na(sim@effort)))
+})
+
+test_that("t_max less than effort array duration uses effort times", {
+  gear_names <- unique(gear_params(NS_params)$gear)
+  effort <- array(0.5, dim = c(6, length(gear_names)),
+                  dimnames = list(time = 0:5, gear = gear_names))
+  
+  # t_max = 3 should run until time 3, not 5
+  sim <- project(NS_params, effort = effort, t_max = 3, dt = 0.1)
+  
+  # Should stop at year 3
+  expect_equal(max(as.numeric(dimnames(sim@n)[[1]])), 3)
+})
