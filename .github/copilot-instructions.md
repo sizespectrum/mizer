@@ -162,7 +162,6 @@ Before submitting changes:
 3. Update documentation: `devtools::document()`
 4. Run linting: `lintr::lint_package()`
 5. Update NEWS.md if adding features or fixing bugs
-6. Consider adding examples to the mizerExamples package for new features
 
 ## Common Tasks
 
