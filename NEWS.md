@@ -1,6 +1,11 @@
 # Development version 2.5.4.9000
 
-- 
+- `t_max` and `t_save` arguments in `project()` are now respected even when an
+  effort array is supplied. When `t_max` is provided, the simulation extends
+  beyond the times in the effort array using the last known effort values. When
+  `t_save` is provided, it controls the save frequency with effort values
+  interpolated as needed. This allows users to extend simulations without
+  specifying dummy effort values for the final time period (#231).
 
 # mizer 2.5.4
 
