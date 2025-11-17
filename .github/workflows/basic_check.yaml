@@ -3,7 +3,7 @@
 on:
   pull_request:
 
-name: R-CMD-check.yaml
+name: basic-check.yaml
 
 permissions: read-all
 
