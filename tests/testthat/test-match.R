@@ -8,8 +8,7 @@ test_that("matchBiomasses works", {
 
     # Does nothing if observed already equals model
     species_params(params)$biomass_cutoff <- 1e-4
-    biomass_actual <-
-        rowSums(sweep(params@initial_n, 2, params@w * params@dw, "*"))
+    biomass_actual <- getBiomass(params, use_cutoff = TRUE)
     species_params(params)$biomass_observed <- biomass_actual
     expect_unchanged(matchBiomasses(params), params)
 

@@ -35,7 +35,7 @@ matchGrowth <- function(params, species = NULL,
     sp <- params@species_params
     keep <- match.arg(keep)
     
-    biomass <- getBiomass(params)
+    biomass <- getBiomass(params, usecutoff = TRUE)
     number <- getN(params)
     
     sp <- set_species_param_default(sp, "age_mat", NA)
@@ -65,7 +65,7 @@ matchGrowth <- function(params, species = NULL,
     params <- steadySingleSpecies(params, species = sel)
     
     if (keep == "biomass") {
-        factor <- biomass / getBiomass(params)
+        factor <- biomass / getBiomass(params, use_cutoff = TRUE)
         params@initial_n <- params@initial_n * factor
     }
     if (keep == "number") {
