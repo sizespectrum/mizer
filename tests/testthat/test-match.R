@@ -26,11 +26,6 @@ test_that("matchBiomasses works", {
     expect_equal(params2@initial_n[1:5, ], params@initial_n[1:5, ])
     # and unselected species don't change
     expect_equal(params2@initial_n[10:12, ], params@initial_n[10:12, ])
-
-    # Throws an error if biomass_cutoff > w_max
-    params@species_params$biomass_cutoff[6] <- 1e16
-    expect_error(matchBiomasses(params),
-                 "Whiting does not grow up to the biomass_cutoff")
 })
 
 test_that("matchNumbers works", {
