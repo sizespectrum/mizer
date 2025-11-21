@@ -81,15 +81,13 @@ test_that("get_size_range_array works", {
         expect_true(!all(size_n[sp, which(params@w > max_w[sp])]))
     }
 
-    # Gives expected error messages
-    expect_error(get_size_range_array(params, min_w = 1000, max_w = 1),
-                 "min_w must be less than max_w")
-    expect_error(get_size_range_array(params, min_l = 1000, max_l = 1),
-                 "min_w must be less than max_w")
-    expect_error(get_size_range_array(params, min_l = 1000, max_w = 1),
-                 "min_w must be less than max_w")
-    expect_error(get_size_range_array(params, min_w = 1000, max_l = 1),
-                 "min_w must be less than max_w")
+    # Return all FALSE if no sizes in range
+    expect_true(all(get_size_range_array(params, min_w = 1000, max_w = 1) == FALSE))
+    expect_true(all(get_size_range_array(params, min_l = 1000, max_l = 1) == FALSE))
+    expect_true(all(get_size_range_array(params, min_l = 1000, max_w = 1) == FALSE))
+    expect_true(all(get_size_range_array(params, min_w = 1000, max_l = 1) == FALSE))
+
+    # Expect errors
     expect_error(get_size_range_array(params, min_l = 1:4, max_w = 10),
                  "min_l must be a single number or a vector")
     expect_error(get_size_range_array(params, min_l = 1, max_l = 1:10),
@@ -333,7 +331,7 @@ test_that("getBiomass works with biomass_cutoff", {
 
         # Test that biomass_cutoff is used when use_cutoff = TRUE
     biomass_with_cutoff <- getBiomass(sim_with_cutoff, use_cutoff = TRUE)
-    
+
     # Test that use_cutoff = FALSE (default) ignores biomass_cutoff
     biomass_no_cutoff <- getBiomass(sim_with_cutoff, use_cutoff = FALSE)
     biomass_default <- getBiomass(sim_with_cutoff)
@@ -342,10 +340,10 @@ test_that("getBiomass works with biomass_cutoff", {
             # Test that explicit size range arguments are ignored when use_cutoff = TRUE
     biomass_explicit <- getBiomass(sim_with_cutoff, use_cutoff = TRUE, min_w = 5, max_w = 1000)
     biomass_cutoff_used <- getBiomass(sim_with_cutoff, use_cutoff = TRUE)
-    
+
     # These should be the same because explicit arguments are ignored when use_cutoff = TRUE
     expect_equal(biomass_explicit, biomass_cutoff_used)
-    
+
     # Test that explicit size range arguments work when use_cutoff = FALSE
     biomass_explicit_no_cutoff <- getBiomass(sim_with_cutoff, use_cutoff = FALSE, min_w = 5, max_w = 1000)
     # This should be different from the biomass_cutoff result
