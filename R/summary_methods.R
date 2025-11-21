@@ -205,12 +205,25 @@ getSSB <- function(object) {
 #' step.
 #' 
 #' Calculates the total biomass through time within user defined size limits.
-#' The default option is to use the whole size range. You can specify minimum
+#' The default option is to use the size range starting at the size specified
+#' by the `biomass_cutoff` species parameter, if it is set, or else the full
+#' size range of each species. You can specify minimum
 #' and maximum weight or length range for the species. Lengths take precedence
 #' over weights (i.e. if both min_l and min_w are supplied, only min_l will be
 #' used).
 #' 
+#' @details
+#' When no size range arguments are provided, the function checks if the
+#' `biomass_cutoff` column exists in the species parameters. If it does,
+#' those values are used as the minimum weight for each species. For species
+#' with NA values in `biomass_cutoff`, the default minimum weight (smallest
+#' weight in the model) is used.
+#' 
 #' @param object An object of class `MizerParams` or `MizerSim`.
+#' @param use_cutoff If TRUE, the `biomass_cutoff` column in the
+#'   species parameters is used as the minimum weight for each species (ignoring any
+#'   size range arguments in `...`). If FALSE (default), the specified size range
+#'   arguments are used, if provided, or the full size range of the species is used.
 #' @inheritDotParams get_size_range_array -params
 #'
 #' @return If called with a MizerParams object, a vector with the biomass in
@@ -225,16 +238,40 @@ getSSB <- function(object) {
 #' biomass["1972", "Herring"]
 #' biomass <- getBiomass(NS_sim, min_w = 10, max_w = 1000)
 #' biomass["1972", "Herring"]
-getBiomass <- function(object, ...) {
+#' 
+#' # If species_params contains a `biomass_cutoff`` column, it can be used
+#' # as the minimum weight when use_cutoff = TRUE
+#' species_params(NS_sim@params)$biomass_cutoff <- 10
+#' biomass <- getBiomass(NS_sim, use_cutoff = TRUE)  # Uses biomass_cutoff as min_w
+#' biomass["1972", "Herring"]
+getBiomass <- function(object, use_cutoff = FALSE, ...) {
     if (is(object, "MizerSim")) {
         sim <- object
-        size_range <- get_size_range_array(sim@params, ...)
+        
+        if (use_cutoff && "biomass_cutoff" %in% names(sim@params@species_params)) {
+            # Use biomass_cutoff as min_w for each species
+            biomass_cutoff <- sim@params@species_params$biomass_cutoff
+            # Replace NA values with the default minimum weight
+            biomass_cutoff[is.na(biomass_cutoff)] <- min(sim@params@w)
+            size_range <- get_size_range_array(sim@params, min_w = biomass_cutoff)
+        } else {
+            size_range <- get_size_range_array(sim@params, ...)
+        }
         return(apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
                            sim@params@w * sim@params@dw, "*"), c(1, 2), sum))
     }
     if (is(object, "MizerParams")) {
         params <- object
-        size_range <- get_size_range_array(params, ...)
+        
+        if (use_cutoff && "biomass_cutoff" %in% names(params@species_params)) {
+            # Use biomass_cutoff as min_w for each species
+            biomass_cutoff <- params@species_params$biomass_cutoff
+            # Replace NA values with the default minimum weight
+            biomass_cutoff[is.na(biomass_cutoff)] <- min(params@w)
+            size_range <- get_size_range_array(params, min_w = biomass_cutoff)
+        } else {
+            size_range <- get_size_range_array(params, ...)
+        }
         return(((params@initial_n * size_range) %*% 
                     (params@w * params@dw))[, , drop = TRUE])
     }

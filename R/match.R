@@ -41,34 +41,31 @@ matchBiomasses <- function(params, species = NULL) {
     if (!("biomass_observed" %in% names(params@species_params))) {
         return(params)
     }
-    species <- valid_species_arg(params, species = species, 
+    species_sel <- valid_species_arg(params, species = species, 
                                  return.logical = TRUE) &
         !is.na(params@species_params$biomass_observed) &
         params@species_params$biomass_observed > 0
-    if (length(species) == 0) {
+    if (!any(species_sel)) {
         return(params)
     }
     
-    error_message <- ""
-    for (sp in seq_len(nrow(params@species_params))[species]) {
-        cutoff <- params@species_params$biomass_cutoff[[sp]]
-        if (is.null(cutoff) || is.na(cutoff)) {
-            cutoff <- 0
-        }
-        total <- sum((params@initial_n[sp, ] * params@w * params@dw)
-                     [params@w >= cutoff])
-        if (!(total > 0)) {
-            error_message <- paste(
-                error_message, params@species_params$species[[sp]],
-                "does not grow up to the biomass_cutoff size of",
-                cutoff, "grams.\n")
-        }
-        factor <- params@species_params$biomass_observed[[sp]] / total
-        params@initial_n[sp, ] <- params@initial_n[sp, ] * factor
+    model_biomass <- getBiomass(params, use_cutoff = TRUE)
+    observed_biomass <- params@species_params$biomass_observed
+    
+    # Only consider selected species
+    selected_idx <- which(species_sel)
+    zero_biomass <- model_biomass[selected_idx] <= 0 | is.na(model_biomass[selected_idx])
+    if (any(zero_biomass)) {
+        cutoff <- params@species_params$biomass_cutoff[selected_idx][zero_biomass]
+        error_species <- params@species_params$species[selected_idx][zero_biomass]
+        stop(paste(
+            paste(error_species, "does not grow up to the biomass_cutoff size of",
+                  cutoff, "grams."),
+            collapse = "\n"
+        ))
     }
-    if (error_message != "") {
-        stop(error_message)
-    }
+    factors <- observed_biomass[selected_idx] / model_biomass[selected_idx]
+    params@initial_n[selected_idx, ] <- params@initial_n[selected_idx, , drop = FALSE] * factors
     
     setBevertonHolt(params)
 }

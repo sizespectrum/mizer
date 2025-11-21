@@ -26,7 +26,7 @@ steadySingleSpecies <- function(params, species = NULL,
     species <- valid_species_arg(params, species)
     keep <- match.arg(keep)
     
-    biomass <- getBiomass(params)
+    biomass <- getBiomass(params, use_cutoff = TRUE)
     number <- getN(params)
     
     # Use growth and mortality from current abundances
@@ -78,7 +78,7 @@ steadySingleSpecies <- function(params, species = NULL,
     }
     
     if (keep == "biomass") {
-        factor <- biomass / getBiomass(params)
+        factor <- biomass / getBiomass(params, use_cutoff = TRUE)
         params@initial_n <- params@initial_n * factor
     }
     if (keep == "number") {

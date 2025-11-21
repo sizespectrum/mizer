@@ -322,6 +322,53 @@ test_that("getBiomass works", {
     expect_equal(getBiomass(sim)[1, ], getBiomass(sim@params))
 })
 
+# getBiomass with biomass_cutoff ----
+test_that("getBiomass works with biomass_cutoff", {
+    # Add biomass_cutoff to species_params
+    params_with_cutoff <- params
+    params_with_cutoff@species_params$biomass_cutoff <- c(10, 20, 15, 5, 25, 8, 12, 18, 7, 9, 11, 14)
+
+    # Create simulation with biomass_cutoff
+    sim_with_cutoff <- project(params_with_cutoff, t_max = 10)
+
+        # Test that biomass_cutoff is used when use_cutoff = TRUE
+    biomass_with_cutoff <- getBiomass(sim_with_cutoff, use_cutoff = TRUE)
+    
+    # Test that use_cutoff = FALSE (default) ignores biomass_cutoff
+    biomass_no_cutoff <- getBiomass(sim_with_cutoff, use_cutoff = FALSE)
+    biomass_default <- getBiomass(sim_with_cutoff)
+    expect_equal(biomass_no_cutoff, biomass_default)
+
+            # Test that explicit size range arguments are ignored when use_cutoff = TRUE
+    biomass_explicit <- getBiomass(sim_with_cutoff, use_cutoff = TRUE, min_w = 5, max_w = 1000)
+    biomass_cutoff_used <- getBiomass(sim_with_cutoff, use_cutoff = TRUE)
+    
+    # These should be the same because explicit arguments are ignored when use_cutoff = TRUE
+    expect_equal(biomass_explicit, biomass_cutoff_used)
+    
+    # Test that explicit size range arguments work when use_cutoff = FALSE
+    biomass_explicit_no_cutoff <- getBiomass(sim_with_cutoff, use_cutoff = FALSE, min_w = 5, max_w = 1000)
+    # This should be different from the biomass_cutoff result
+    expect_false(all(biomass_explicit_no_cutoff == biomass_cutoff_used))
+
+    # Test with some NA values in biomass_cutoff
+    params_partial_cutoff <- params
+    params_partial_cutoff@species_params$biomass_cutoff <- c(10, NA, 15, 5, NA, 8, 12, 18, 7, 9, 11, 14)
+    sim_partial_cutoff <- project(params_partial_cutoff, t_max = 10)
+
+    # Should work without error
+    expect_no_error(getBiomass(sim_partial_cutoff))
+
+    # Test with MizerParams object
+    biomass_params <- getBiomass(params_with_cutoff)
+    expect_equal(length(biomass_params), nrow(params_with_cutoff@species_params))
+
+    # Test that use_cutoff = FALSE works with MizerParams
+    biomass_params_no_cutoff <- getBiomass(params_with_cutoff, use_cutoff = FALSE)
+    biomass_params_default <- getBiomass(params_with_cutoff)
+    expect_equal(biomass_params_no_cutoff, biomass_params_default)
+})
+
 # getN ----
 test_that("getN works", {
     N <- getN(sim)

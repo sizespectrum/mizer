@@ -16,6 +16,7 @@ plotBiomass(
   background = TRUE,
   highlight = NULL,
   return_data = FALSE,
+  use_cutoff = FALSE,
   ...
 )
 
@@ -29,6 +30,7 @@ plotlyBiomass(
   total = FALSE,
   background = TRUE,
   highlight = NULL,
+  use_cutoff = FALSE,
   ...
 )
 }
@@ -64,6 +66,11 @@ Default is TRUE.}
 
 \item{return_data}{A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default value is FALSE}
+
+\item{use_cutoff}{If TRUE, the \code{biomass_cutoff} column in the
+species parameters is used as the minimum weight for each species (ignoring any
+size range arguments in \code{...}). If FALSE (default), the specified size range
+arguments are used, if provided, or the full size range of the species is used.}
 
 \item{...}{
   Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
