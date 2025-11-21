@@ -2,13 +2,27 @@
 % Please edit documentation in R/plots.R
 \name{plotFeedingLevel}
 \alias{plotFeedingLevel}
+\alias{plotFeedingLevel.MizerSim}
+\alias{plotFeedingLevel.MizerParams}
 \alias{plotlyFeedingLevel}
 \title{Plot the feeding level of species by size}
 \usage{
-plotFeedingLevel(
+plotFeedingLevel(object, ...)
+
+\method{plotFeedingLevel}{MizerSim}(
   object,
   species = NULL,
   time_range,
+  highlight = NULL,
+  all.sizes = FALSE,
+  include_critical = FALSE,
+  return_data = FALSE,
+  ...
+)
+
+\method{plotFeedingLevel}{MizerParams}(
+  object,
+  species = NULL,
   highlight = NULL,
   all.sizes = FALSE,
   include_critical = FALSE,
@@ -28,6 +42,8 @@ plotlyFeedingLevel(
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or
 \linkS4class{MizerParams}.}
+
+\item{...}{Other arguments (currently unused)}
 
 \item{species}{The species to be selected. Optional. By default all target
 species are selected. A vector of species names, or a
@@ -49,8 +65,6 @@ plotted. Default FALSE.}
 
 \item{return_data}{A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default value is FALSE}
-
-\item{...}{Other arguments (currently unused)}
 }
 \value{
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data

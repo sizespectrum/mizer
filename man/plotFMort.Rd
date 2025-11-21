@@ -2,13 +2,26 @@
 % Please edit documentation in R/plots.R
 \name{plotFMort}
 \alias{plotFMort}
+\alias{plotFMort.MizerSim}
+\alias{plotFMort.MizerParams}
 \alias{plotlyFMort}
 \title{Plot total fishing mortality of each species by size}
 \usage{
-plotFMort(
+plotFMort(object, ...)
+
+\method{plotFMort}{MizerSim}(
   object,
   species = NULL,
   time_range,
+  all.sizes = FALSE,
+  highlight = NULL,
+  return_data = FALSE,
+  ...
+)
+
+\method{plotFMort}{MizerParams}(
+  object,
+  species = NULL,
   all.sizes = FALSE,
   highlight = NULL,
   return_data = FALSE,
@@ -20,6 +33,8 @@ plotlyFMort(object, species = NULL, time_range, highlight = NULL, ...)
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or
 \linkS4class{MizerParams}.}
+
+\item{...}{Other arguments (currently unused)}
 
 \item{species}{The species to be selected. Optional. By default all target
 species are selected. A vector of species names, or a
@@ -38,8 +53,6 @@ outside a species' size range. Default FALSE.}
 
 \item{return_data}{A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default value is FALSE}
-
-\item{...}{Other arguments (currently unused)}
 }
 \value{
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data

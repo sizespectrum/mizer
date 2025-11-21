@@ -2,10 +2,13 @@
 % Please edit documentation in R/plots.R
 \name{plotYieldGear}
 \alias{plotYieldGear}
+\alias{plotYieldGear.MizerSim}
 \alias{plotlyYieldGear}
 \title{Plot the total yield of each species by gear through time}
 \usage{
-plotYieldGear(
+plotYieldGear(sim, ...)
+
+\method{plotYieldGear}{MizerSim}(
   sim,
   species = NULL,
   gears = NULL,
@@ -19,6 +22,8 @@ plotlyYieldGear(sim, species = NULL, total = FALSE, highlight = NULL, ...)
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}}
+
+\item{...}{Other arguments (currently unused)}
 
 \item{species}{The species to be selected. Optional. By default all target
 species are selected. A vector of species names, or a
@@ -37,8 +42,6 @@ Default is FALSE.}
 
 \item{return_data}{A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default value is FALSE}
-
-\item{...}{Other arguments (currently unused)}
 }
 \value{
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data

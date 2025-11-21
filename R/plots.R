@@ -272,7 +272,15 @@ log_breaks <- function(n = 6) {
 #' fr <- plotBiomass(NS_sim, return_data = TRUE)
 #' str(fr)
 #' }
-plotBiomass <- function(sim, species = NULL,
+#' @rdname plotBiomass
+#' @export
+plotBiomass <- function(sim, ...) {
+    UseMethod("plotBiomass")
+}
+
+#' @rdname plotBiomass
+#' @export
+plotBiomass.MizerSim <- function(sim, species = NULL,
                         start_time, end_time,
                         y_ticks = 6, ylim = c(NA, NA),
                         total = FALSE, background = TRUE,
@@ -390,7 +398,15 @@ plotlyBiomass <- function(sim,
 #' fr <- plotYield(sim, return_data = TRUE)
 #' str(fr)
 #' }
-plotYield <- function(sim, sim2,
+#' @rdname plotYield
+#' @export
+plotYield <- function(sim, ...) {
+    UseMethod("plotYield")
+}
+
+#' @rdname plotYield
+#' @export
+plotYield.MizerSim <- function(sim, sim2,
                       species = NULL,
                       total = FALSE, log = TRUE,
                       highlight = NULL, return_data = FALSE,
@@ -494,7 +510,15 @@ plotlyYield <- function(sim, sim2,
 #' fr <- plotYieldGear(sim, return_data = TRUE)
 #' str(fr)
 #' }
-plotYieldGear <- function(sim,
+#' @rdname plotYieldGear
+#' @export
+plotYieldGear <- function(sim, ...) {
+    UseMethod("plotYieldGear")
+}
+
+#' @rdname plotYieldGear
+#' @export
+plotYieldGear.MizerSim <- function(sim,
                           species = NULL,
                           gears = NULL,
                           total = FALSE,
@@ -618,7 +642,15 @@ plotlyYieldGear <- function(sim, species = NULL,
 #' fr <- plotSpectra(sim, return_data = TRUE)
 #' str(fr)
 #' }
-plotSpectra <- function(object, species = NULL,
+#' @rdname plotSpectra
+#' @export
+plotSpectra <- function(object, ...) {
+    UseMethod("plotSpectra")
+}
+
+#' @rdname plotSpectra
+#' @export
+plotSpectra.MizerSim <- function(object, species = NULL,
                         time_range,
                         geometric_mean = FALSE,
                         wlim = c(NA, NA), ylim = c(NA, NA),
@@ -639,37 +671,52 @@ plotSpectra <- function(object, species = NULL,
     if (length(species) == 0 && !total && !resource) {
         stop("There is nothing to plot as no valid species have been selected.")
     }
-    if (is(object, "MizerSim")) {
-        if (missing(time_range)) {
-            time_range  <- max(as.numeric(dimnames(object@n)$time))
-        }
-        time_elements <- get_time_elements(object, time_range)
-        mean_fn <- mean
-        if (geometric_mean) {
-            mean_fn <- function(x) {
-                exp(mean(log(x)))
-            }
-        }
-        n <- apply(object@n[time_elements, , , drop = FALSE], c(2, 3), mean_fn)
-        n_pp <- apply(object@n_pp[time_elements, , drop = FALSE], 2, mean_fn)
-        ps <- plot_spectra(object@params, n = n, n_pp = n_pp,
-                           species = species, wlim = wlim, ylim = ylim,
-                           power = power, total = total, resource = resource,
-                           background = background, highlight = highlight,
-                           return_data = return_data)
-        return(ps)
-    } else if (is(object, "MizerParams")) {
-        ps <- plot_spectra(object, n = object@initial_n,
-                           n_pp = object@initial_n_pp,
-                           species = species, wlim = wlim, ylim = ylim,
-                           power = power, total = total, resource = resource,
-                           background = background, highlight = highlight,
-                           return_data = return_data)
-        return(ps)
-    } else {
-        stop("First argument of `plotSpectra()` needs to be a MizerSim or ",
-             "a MizerParams object.")
+    if (missing(time_range)) {
+        time_range  <- max(as.numeric(dimnames(object@n)$time))
     }
+    time_elements <- get_time_elements(object, time_range)
+    mean_fn <- mean
+    if (geometric_mean) {
+        mean_fn <- function(x) {
+            exp(mean(log(x)))
+        }
+    }
+    n <- apply(object@n[time_elements, , , drop = FALSE], c(2, 3), mean_fn)
+    n_pp <- apply(object@n_pp[time_elements, , drop = FALSE], 2, mean_fn)
+    plot_spectra(object@params, n = n, n_pp = n_pp,
+                 species = species, wlim = wlim, ylim = ylim,
+                 power = power, total = total, resource = resource,
+                 background = background, highlight = highlight,
+                 return_data = return_data)
+}
+
+#' @rdname plotSpectra
+#' @export
+plotSpectra.MizerParams <- function(object, species = NULL,
+                        wlim = c(NA, NA), ylim = c(NA, NA),
+                        power = 1, biomass = TRUE,
+                        total = FALSE, resource = TRUE,
+                        background = TRUE,
+                        highlight = NULL, return_data = FALSE, ...) {
+    # to deal with old-type biomass argument
+    if (missing(power)) {
+        power <- as.numeric(biomass)
+    }
+    assert_that(is.flag(total), is.flag(resource),
+                is.flag(background),
+                is.number(power),
+                length(wlim) == 2,
+                length(ylim) == 2)
+    species <- valid_species_arg(object, species)
+    if (length(species) == 0 && !total && !resource) {
+        stop("There is nothing to plot as no valid species have been selected.")
+    }
+    plot_spectra(object, n = object@initial_n,
+                 n_pp = object@initial_n_pp,
+                 species = species, wlim = wlim, ylim = ylim,
+                 power = power, total = total, resource = resource,
+                 background = background, highlight = highlight,
+                 return_data = return_data)
 }
 
 
@@ -820,27 +867,56 @@ plotlySpectra <- function(object, species = NULL,
 #' fr <- plotFeedingLevel(sim, return_data = TRUE)
 #' str(fr)
 #' }
-plotFeedingLevel <- function(object, species = NULL,
+#' @rdname plotFeedingLevel
+#' @export
+plotFeedingLevel <- function(object, ...) {
+    UseMethod("plotFeedingLevel")
+}
+
+#' @rdname plotFeedingLevel
+#' @export
+plotFeedingLevel.MizerSim <- function(object, species = NULL,
             time_range, highlight = NULL,
             all.sizes = FALSE, include_critical = FALSE,
             return_data = FALSE, ...) {
     assert_that(is.flag(all.sizes),
                 is.flag(include_critical),
                 is.flag(return_data))
-    if (is(object, "MizerSim")) {
-        if (missing(time_range)) {
-            time_range  <- max(as.numeric(dimnames(object@n)$time))
-        }
-        params <- validParams(object@params)
-        feed <- getFeedingLevel(object, time_range = time_range, drop = FALSE)
-    } else if (is(object, "MizerParams")) {
-        params <- validParams(object)
-        feed <- getFeedingLevel(params, drop = FALSE)
+    if (missing(time_range)) {
+        time_range  <- max(as.numeric(dimnames(object@n)$time))
     }
+    params <- validParams(object@params)
+    feed <- getFeedingLevel(object, time_range = time_range, drop = FALSE)
     # If a time range was returned, average over it
     if (length(dim(feed)) == 3) {
         feed <- apply(feed, c(2, 3), mean)
     }
+    plot_feeding_level(params, feed, species = species,
+                       highlight = highlight, all.sizes = all.sizes,
+                       include_critical = include_critical,
+                       return_data = return_data)
+}
+
+#' @rdname plotFeedingLevel
+#' @export
+plotFeedingLevel.MizerParams <- function(object, species = NULL,
+            highlight = NULL,
+            all.sizes = FALSE, include_critical = FALSE,
+            return_data = FALSE, ...) {
+    assert_that(is.flag(all.sizes),
+                is.flag(include_critical),
+                is.flag(return_data))
+    params <- validParams(object)
+    feed <- getFeedingLevel(params, drop = FALSE)
+    plot_feeding_level(params, feed, species = species,
+                       highlight = highlight, all.sizes = all.sizes,
+                       include_critical = include_critical,
+                       return_data = return_data)
+}
+
+plot_feeding_level <- function(params, feed, species, highlight,
+                               all.sizes, include_critical,
+                               return_data) {
 
     # selector for desired species
     sel_sp <- valid_species_arg(params, species, return.logical = TRUE,
@@ -1012,25 +1088,51 @@ plotlyFeedingLevel <- function(object,
 #' fr <- plotPredMort(sim, return_data = TRUE)
 #' str(fr)
 #' }
-plotPredMort <- function(object, species = NULL,
+#' @rdname plotPredMort
+#' @export
+plotPredMort <- function(object, ...) {
+    UseMethod("plotPredMort")
+}
+
+#' @rdname plotPredMort
+#' @export
+plotPredMort.MizerSim <- function(object, species = NULL,
                          time_range, all.sizes = FALSE,
                          highlight = NULL, return_data = FALSE,
                          ...) {
     assert_that(is.flag(all.sizes),
                 is.flag(return_data))
-    if (is(object, "MizerSim")) {
-        if (missing(time_range)) {
-            time_range  <- max(as.numeric(dimnames(object@n)$time))
-        }
-        params <- object@params
-    } else {
-        params <- validParams(object)
+    if (missing(time_range)) {
+        time_range  <- max(as.numeric(dimnames(object@n)$time))
     }
+    params <- object@params
     pred_mort <- getPredMort(object, time_range = time_range, drop = FALSE)
     # If a time range was returned, average over it
     if (length(dim(pred_mort)) == 3) {
         pred_mort <- apply(pred_mort, c(2, 3), mean)
     }
+    plot_pred_mort(params, pred_mort, species = species,
+                   highlight = highlight, all.sizes = all.sizes,
+                   return_data = return_data)
+}
+
+#' @rdname plotPredMort
+#' @export
+plotPredMort.MizerParams <- function(object, species = NULL,
+                         all.sizes = FALSE,
+                         highlight = NULL, return_data = FALSE,
+                         ...) {
+    assert_that(is.flag(all.sizes),
+                is.flag(return_data))
+    params <- validParams(object)
+    pred_mort <- getPredMort(object, drop = FALSE)
+    plot_pred_mort(params, pred_mort, species = species,
+                   highlight = highlight, all.sizes = all.sizes,
+                   return_data = return_data)
+}
+
+plot_pred_mort <- function(params, pred_mort, species, highlight,
+                           all.sizes, return_data) {
 
     species <- valid_species_arg(params, species, error_on_empty = TRUE)
     pred_mort <- pred_mort[as.character(dimnames(pred_mort)[[1]]) %in% species, , drop = FALSE]
@@ -1105,25 +1207,51 @@ plotlyPredMort <- function(object, species = NULL,
 #' fr <- plotFMort(sim, return_data = TRUE)
 #' str(fr)
 #' }
-plotFMort <- function(object, species = NULL,
+#' @rdname plotFMort
+#' @export
+plotFMort <- function(object, ...) {
+    UseMethod("plotFMort")
+}
+
+#' @rdname plotFMort
+#' @export
+plotFMort.MizerSim <- function(object, species = NULL,
                       time_range, all.sizes = FALSE,
                       highlight = NULL, return_data = FALSE,
                       ...) {
     assert_that(is.flag(all.sizes),
                 is.flag(return_data))
-    if (is(object, "MizerSim")) {
-        if (missing(time_range)) {
-            time_range  <- max(as.numeric(dimnames(object@n)$time))
-        }
-        params <- object@params
-    } else {
-        params <- validParams(object)
+    if (missing(time_range)) {
+        time_range  <- max(as.numeric(dimnames(object@n)$time))
     }
+    params <- object@params
     f <- getFMort(object, time_range = time_range, drop = FALSE)
     # If a time range was returned, average over it
     if (length(dim(f)) == 3) {
         f <- apply(f, c(2, 3), mean)
     }
+    plot_f_mort(params, f, species = species,
+                highlight = highlight, all.sizes = all.sizes,
+                return_data = return_data)
+}
+
+#' @rdname plotFMort
+#' @export
+plotFMort.MizerParams <- function(object, species = NULL,
+                      all.sizes = FALSE,
+                      highlight = NULL, return_data = FALSE,
+                      ...) {
+    assert_that(is.flag(all.sizes),
+                is.flag(return_data))
+    params <- validParams(object)
+    f <- getFMort(object, drop = FALSE)
+    plot_f_mort(params, f, species = species,
+                highlight = highlight, all.sizes = all.sizes,
+                return_data = return_data)
+}
+
+plot_f_mort <- function(params, f, species, highlight,
+                        all.sizes, return_data) {
     species <- valid_species_arg(params, species, error_on_empty = TRUE)
     f <- f[as.character(dimnames(f)[[1]]) %in% species, , drop = FALSE]
     plot_dat <- data.frame(w = rep(params@w, each = length(species)),
@@ -1207,7 +1335,15 @@ plotlyFMort <- function(object, species = NULL,
 #' fr <- plotGrowthCurves(sim, return_data = TRUE)
 #' str(fr)
 #' }
-plotGrowthCurves <- function(object, species = NULL,
+#' @rdname plotGrowthCurves
+#' @export
+plotGrowthCurves <- function(object, ...) {
+    UseMethod("plotGrowthCurves")
+}
+
+#' @rdname plotGrowthCurves
+#' @export
+plotGrowthCurves.MizerSim <- function(object, species = NULL,
                              max_age = 20, percentage = FALSE,
                              species_panel = FALSE, highlight = NULL,
                              size_at_age = NULL,
@@ -1216,12 +1352,39 @@ plotGrowthCurves <- function(object, species = NULL,
                 is.flag(species_panel),
                 is.flag(return_data),
                 is.number(max_age))
-    if (is(object, "MizerSim")) {
-        params <- object@params
-        params <- setInitialValues(params, object)
-    } else if (is(object, "MizerParams")) {
-        params <- validParams(object)
-    }
+    params <- object@params
+    params <- setInitialValues(params, object)
+    plot_growth_curves(params, species = species,
+                       max_age = max_age, percentage = percentage,
+                       species_panel = species_panel, highlight = highlight,
+                       size_at_age = size_at_age,
+                       return_data = return_data)
+}
+
+#' @rdname plotGrowthCurves
+#' @export
+plotGrowthCurves.MizerParams <- function(object, species = NULL,
+                             max_age = 20, percentage = FALSE,
+                             species_panel = FALSE, highlight = NULL,
+                             size_at_age = NULL,
+                             return_data = FALSE, ...) {
+    assert_that(is.flag(percentage),
+                is.flag(species_panel),
+                is.flag(return_data),
+                is.number(max_age))
+    params <- validParams(object)
+    plot_growth_curves(params, species = species,
+                       max_age = max_age, percentage = percentage,
+                       species_panel = species_panel, highlight = highlight,
+                       size_at_age = size_at_age,
+                       return_data = return_data)
+}
+
+plot_growth_curves <- function(params, species,
+                               max_age, percentage,
+                               species_panel, highlight,
+                               size_at_age,
+                               return_data) {
     sp <- params@species_params
     sp <- set_species_param_default(sp, "age_mat", age_mat_vB(params))
 
@@ -1404,12 +1567,67 @@ plotlyGrowthCurves <- function(object, species = NULL,
 #' fr <- plotDiet(NS_params, species = "Cod", return_data = TRUE)
 #' str(fr)
 #' }
-plotDiet <- function(object, species = NULL, return_data = FALSE) {
+#' @rdname plotDiet
+#' @export
+plotDiet <- function(object, ...) {
+    UseMethod("plotDiet")
+}
+
+#' @rdname plotDiet
+#' @export
+plotDiet.MizerSim <- function(object, species = NULL,
+                              time_range, return_data = FALSE, ...) {
+    assert_that(is.flag(return_data))
+    if (missing(time_range)) {
+        time_range  <- max(as.numeric(dimnames(object@n)$time))
+    }
+    params <- object@params
+    # Calculate average abundances over time range
+    time_elements <- get_time_elements(object, time_range)
+    n <- apply(object@n[time_elements, , , drop = FALSE], c(2, 3), mean)
+    n_pp <- apply(object@n_pp[time_elements, , drop = FALSE], 2, mean)
+    n_other <- object@n_other[time_elements, , drop = FALSE]
+    if (length(dim(n_other)) == 2) {
+        if (ncol(n_other) > 0) {
+            n_other <- apply(n_other, 2, mean)
+        } else {
+            n_other <- numeric(0)
+        }
+    } else {
+        # If n_other is a list or has different structure, handling might be complex.
+        # But usually it's a matrix [time, component]
+        # If it's a list of arrays?
+        # For now assume standard structure or that getDiet handles it.
+        # Actually getDiet expects n_other to be passed.
+        # Let's check how getDiet handles n_other.
+        # In getDiet: n_other = initialNOther(params) default.
+        # We should pass the averaged n_other.
+        # If n_other is a list, we need to average each component.
+        if (is.list(n_other)) {
+             n_other <- lapply(n_other, function(x) {
+                 if (length(dim(x)) == 2) apply(x, 2, mean) else mean(x)
+             })
+        }
+    }
+    
+    diet <- getDiet(params, n = n, n_pp = n_pp, n_other = n_other)
+    plot_diet(params, n = n, diet = diet, species = species,
+              return_data = return_data)
+}
+
+#' @rdname plotDiet
+#' @export
+plotDiet.MizerParams <- function(object, species = NULL, return_data = FALSE, ...) {
     assert_that(is.flag(return_data))
     params <- validParams(object)
-    n <- params@initial_n
-    species <- valid_species_arg(object, species, return.logical = TRUE)
-    diet <- getDiet(params)[species, , , drop = FALSE]
+    diet <- getDiet(params)
+    plot_diet(params, n = params@initial_n, diet = diet, species = species,
+              return_data = return_data)
+}
+
+plot_diet <- function(params, n, diet, species, return_data) {
+    species <- valid_species_arg(params, species, return.logical = TRUE)
+    diet <- diet[species, , , drop = FALSE]
     names(dimnames(diet)) <- c("Predator", "w", "Prey")
     plot_dat <- melt(diet, value.name = "Proportion")
     prey <- dimnames(diet)$Prey
