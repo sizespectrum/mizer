@@ -5,3 +5,4 @@
 *.Rproj
 docs/*/*.md
 docs/*.md
+.vscode
