@@ -79,6 +79,7 @@ gear_params(params)["Cod, gear1", "catchability"] <- 0.8
 \code{\link[=validGearParams]{validGearParams()}}
 
 Other functions for setting parameters: 
+\code{\link{setDiffusion}()},
 \code{\link{setExtEncounter}()},
 \code{\link{setExtMort}()},
 \code{\link{setFishing}()},

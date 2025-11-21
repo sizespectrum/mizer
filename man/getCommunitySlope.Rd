@@ -57,11 +57,11 @@ slope_numbers[1, ] # in 1976
 slope_biomass <- getCommunitySlope(NS_sim, min_w = 10, max_w = 1000)
 slope_biomass[1, ] # in 1976
 
-# Slope based on biomass, using only demersal species and 
+# Slope based on biomass, using only demersal species and
 # sizes between 10g and 1000g
 dem_species <- c("Dab","Whiting", "Sole", "Gurnard", "Plaice",
                  "Haddock", "Cod", "Saithe")
-slope_biomass <- getCommunitySlope(NS_sim, species = dem_species, 
+slope_biomass <- getCommunitySlope(NS_sim, species = dem_species,
                                    min_w = 10, max_w = 1000)
 slope_biomass[1, ] # in 1976
 }

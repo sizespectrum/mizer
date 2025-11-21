@@ -109,6 +109,12 @@ effort values will be interpolated (using step function) or extrapolated
 (using the last known value) as needed for the new time points. The
 \code{t_start} argument continues to be ignored when an effort array is supplied.
 
+Note that if \code{t_max} or \code{t_save} are specified, the time grid for the
+simulation is resampled based on \code{t_save}. This means that if the time
+points in the \code{effort} array are irregular and do not align with the new
+grid, those specific time points may be lost and the effort values at the
+new grid points will be calculated via interpolation.
+
 If the \code{object} argument is of class \code{MizerSim} then the initial
 values for the simulation are taken from the final values in the
 \code{MizerSim} object and the corresponding arguments to this function will
@@ -116,21 +122,23 @@ be ignored.
 }
 \examples{
 \donttest{
-params <-  NS_params
+params <- NS_params
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # With constant fishing effort which is different for each gear
 effort <- c(Industrial = 0, Pelagic = 1, Beam = 0.5, Otter = 0.5)
 sim <- project(params, t_max = 20, effort = effort)
 # With fishing effort that varies through time for each gear
-gear_names <- c("Industrial","Pelagic","Beam","Otter")
+gear_names <- c("Industrial", "Pelagic", "Beam", "Otter")
 times <- seq(from = 1, to = 10, by = 1)
-effort_array <- array(NA, dim = c(length(times), length(gear_names)),
-    dimnames = list(time = times, gear = gear_names))
-effort_array[,"Industrial"] <- 0.5
-effort_array[,"Pelagic"] <- seq(from = 1, to = 2, length = length(times))
-effort_array[,"Beam"] <- seq(from = 1, to = 0, length = length(times))
-effort_array[,"Otter"] <- seq(from = 1, to = 0.5, length = length(times))
+effort_array <- array(NA,
+    dim = c(length(times), length(gear_names)),
+    dimnames = list(time = times, gear = gear_names)
+)
+effort_array[, "Industrial"] <- 0.5
+effort_array[, "Pelagic"] <- seq(from = 1, to = 2, length = length(times))
+effort_array[, "Beam"] <- seq(from = 1, to = 0, length = length(times))
+effort_array[, "Otter"] <- seq(from = 1, to = 0.5, length = length(times))
 sim <- project(params, effort = effort_array)
 # Extend a simulation beyond the effort array times
 # Effort values from the final time are used for the extension

@@ -518,6 +518,7 @@ an effort that varies through time.
 \seealso{
 Other functions for setting parameters: 
 \code{\link{gear_params}()},
+\code{\link{setDiffusion}()},
 \code{\link{setExtEncounter}()},
 \code{\link{setExtMort}()},
 \code{\link{setFishing}()},

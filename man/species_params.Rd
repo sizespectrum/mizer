@@ -162,6 +162,7 @@ MizerParams object, in case your own code makes use of them.
 
 Other functions for setting parameters: 
 \code{\link{gear_params}()},
+\code{\link{setDiffusion}()},
 \code{\link{setExtEncounter}()},
 \code{\link{setExtMort}()},
 \code{\link{setFishing}()},

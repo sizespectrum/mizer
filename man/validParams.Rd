@@ -4,7 +4,7 @@
 \alias{validParams}
 \title{Validate MizerParams object and upgrade if necessary}
 \usage{
-validParams(params)
+validParams(params, info_level = 3)
 }
 \arguments{
 \item{params}{The MizerParams object to validate}

@@ -46,7 +46,7 @@ yield[c("1972", "2010"), c("Herring", "Cod")]
 
 # Running simulation for another year, saving intermediate time steps
 params <- setInitialValues(getParams(NS_sim), NS_sim)
-sim <- project(params, t_save = 0.1, t_max = 1, 
+sim <- project(params, t_save = 0.1, t_max = 1,
                t_start = 2010, progress_bar = FALSE)
 # The yield rate for Herring decreases during the year
 getYield(sim)[, "Herring"]

@@ -149,7 +149,7 @@ validMizerParams <- function(object) {
         names(dimnames(params@metab))[2],
         names(dimnames(params@selectivity))[3],
         names(dimnames(params@diffusion))[2]) == "w")) {
-        msg <- "Name of second dimension of psi, intake_max, search_vol, metab, emigration, diffusion and third dimension of selectivity must be 'w'"
+        msg <- "Name of second dimension of psi, intake_max, search_vol, metab, diffusion and third dimension of selectivity must be 'w'"
         errors <- c(errors, msg)
     }
     if (!all(c(
