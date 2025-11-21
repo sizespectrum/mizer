@@ -254,7 +254,6 @@ log_breaks <- function(n = 6) {
 #' @family plotting functions
 #' @seealso [plotting_functions], [getBiomass()]
 #' @examples
-#' @examples
 #' \donttest{
 #' plotBiomass(NS_sim)
 #' plotBiomass(NS_sim, species = c("Sandeel", "Herring"), total = TRUE)

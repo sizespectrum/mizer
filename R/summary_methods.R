@@ -239,9 +239,9 @@ getSSB <- function(object) {
 #' biomass <- getBiomass(NS_sim, min_w = 10, max_w = 1000)
 #' biomass["1972", "Herring"]
 #' 
-#' # If species_params contains a biomass_cutoff column, it can be used
+#' # If species_params contains a `biomass_cutoff`` column, it can be used
 #' # as the minimum weight when use_cutoff = TRUE
-#' species_params(params)$biomass_cutoff <- species_params(params)$w_mat
+#' species_params(NS_sim@params)$biomass_cutoff <- 10
 #' biomass <- getBiomass(NS_sim, use_cutoff = TRUE)  # Uses biomass_cutoff as min_w
 #' biomass["1972", "Herring"]
 getBiomass <- function(object, use_cutoff = FALSE, ...) {
