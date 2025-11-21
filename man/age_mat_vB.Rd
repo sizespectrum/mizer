@@ -2,9 +2,18 @@
 % Please edit documentation in R/age_mat.R
 \name{age_mat_vB}
 \alias{age_mat_vB}
+\alias{age_mat_vB.MizerParams}
+\alias{age_mat_vB.data.frame}
+\alias{age_mat_vB.default}
 \title{Calculate age at maturity from von Bertalanffy growth parameters}
 \usage{
-age_mat_vB(object)
+age_mat_vB(object, ...)
+
+\method{age_mat_vB}{MizerParams}(object, ...)
+
+\method{age_mat_vB}{data.frame}(object, ...)
+
+\method{age_mat_vB}{default}(object, ...)
 }
 \arguments{
 \item{object}{A MizerParams object or a species_params data frame}

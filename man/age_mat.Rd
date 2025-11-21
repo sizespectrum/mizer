@@ -2,9 +2,12 @@
 % Please edit documentation in R/age_mat.R
 \name{age_mat}
 \alias{age_mat}
+\alias{age_mat.MizerParams}
 \title{Calculate age at maturity}
 \usage{
-age_mat(params)
+age_mat(object, ...)
+
+\method{age_mat}{MizerParams}(object, ...)
 }
 \arguments{
 \item{params}{A MizerParams object}

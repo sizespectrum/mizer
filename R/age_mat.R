@@ -17,23 +17,36 @@
 #' @return A named vector. The names are the species names and the values are
 #'   the ages at maturity.
 #' @export
-age_mat_vB <- function(object) {
-    if (is(object, "MizerParams")) {
-        sp <- object@species_params
-    } else {
-        if (!is.data.frame(object)) {
-            stop("The first argument must be either a MizerParams object or a species_params data frame.")
-        }
-        sp <- validSpeciesParams(object)
-    }
+#' @rdname age_mat_vB
+#' @export
+age_mat_vB <- function(object, ...) {
+    UseMethod("age_mat_vB")
+}
+
+#' @rdname age_mat_vB
+#' @export
+age_mat_vB.MizerParams <- function(object, ...) {
+    age_mat_vB.data.frame(object@species_params)
+}
+
+#' @rdname age_mat_vB
+#' @export
+age_mat_vB.data.frame <- function(object, ...) {
+    sp <- object
     sp <- set_species_param_default(sp, "t0", 0)
     sp <- set_species_param_default(sp, "b", 3)
     sp <- set_species_param_default(sp, "k_vb", NA)
     sp <- set_species_param_default(sp, "w_inf", sp$w_max)
 
-    a_mat <- -log(1 - (sp$w_mat / sp$w_inf) ^ (1/sp$b)) / sp$k_vb + sp$t0
+    a_mat <- -log(1 - (sp$w_mat / sp$w_inf)^(1 / sp$b)) / sp$k_vb + sp$t0
     names(a_mat) <- sp$species
     a_mat
+}
+
+#' @rdname age_mat_vB
+#' @export
+age_mat_vB.default <- function(object, ...) {
+    stop("The first argument must be either a MizerParams object or a species_params data frame.")
 }
 
 #' Calculate age at maturity
@@ -51,8 +64,16 @@ age_mat_vB <- function(object) {
 #' @concept helper
 #' @examples
 #' age_mat(NS_params)
-age_mat <- function(params) {
-    assert_that(is(params, "MizerParams"))
+#' @rdname age_mat
+#' @export
+age_mat <- function(object, ...) {
+    UseMethod("age_mat")
+}
+
+#' @rdname age_mat
+#' @export
+age_mat.MizerParams <- function(object, ...) {
+    params <- object
     sp <- params@species_params
     no_sp <- nrow(sp)
 
