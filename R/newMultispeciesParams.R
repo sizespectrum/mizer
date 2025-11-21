@@ -146,6 +146,7 @@ newMultispeciesParams <- function(
     collect_info <- function(cnd) {
         if (cnd$level <= info_level) {
             infos[[cnd$var]] <<- cnd$message
+            rlang::cnd_muffle(cnd)
         }
     }
     # Register this signal handler
@@ -183,6 +184,7 @@ newMultispeciesParams <- function(
         setParams(
                   # setInteraction
                   interaction = interaction,
+                  info_level = 0,
                   # setPredKernel()
                   pred_kernel = pred_kernel,
                   # setSearchVolume()
@@ -326,7 +328,19 @@ newMultispeciesParams <- function(
 #' @family functions for setting parameters
 # The reason we list `interaction` explicitly rather than including it in
 # the `...` is for backwards compatibility. It used to be the second argument.
-setParams <- function(params, interaction = NULL, ...) {
+setParams <- function(params, interaction = NULL, info_level = 3, ...) {
+    # Define a signal handler that collects the information signals
+    # into the `infos` list.
+    infos <- list()
+    collect_info <- function(cnd) {
+        if (cnd$level <= info_level) {
+            infos[[cnd$var]] <<- cnd$message
+            rlang::cnd_muffle(cnd)
+        }
+    }
+    # Register this signal handler
+    withCallingHandlers(
+        info_about_default = collect_info, {
     params <- validParams(params)
     
     params <- setInteraction(params, interaction)
@@ -353,5 +367,9 @@ setParams <- function(params, interaction = NULL, ...) {
     }
     
     validObject(params)
+    })
+    if (length(infos) > 0) {
+        message(paste(infos, collapse = "\n"))
+    }
     params
 }

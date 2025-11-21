@@ -90,7 +90,19 @@ newCommunityParams <- function(max_w = 1e6,
                                lambda = 2.05,
                                r_pp = 10,
                                knife_edge_size = 1000,
-                               reproduction) {
+                               reproduction,
+                               info_level = 2) {
+    # Define a signal handler that collects the information signals
+    # into the `infos` list.
+    infos <- list()
+    collect_info <- function(cnd) {
+        if (cnd$level <= info_level) {
+            infos[[cnd$var]] <<- cnd$message
+        }
+    }
+    # Register this signal handler
+    withCallingHandlers(
+        info_about_default = collect_info, {
     w_max <- max_w
     w_pp_cutoff <- min_w
     ks <- 0 # Turn off standard metabolism
@@ -138,6 +150,10 @@ newCommunityParams <- function(max_w = 1e6,
     params@psi[] <- 0 # Need to force to be 0. Can try setting w_mat but
                           # due to slope still not 0
     comment(params@psi) <- "No investment into reproduction in community model."
+    })
+    if (length(infos) > 0) {
+        message(paste(infos, collapse = "\n"))
+    }
     return(params)
 }
 
@@ -302,7 +318,19 @@ newTraitParams <- function(no_sp = 11,
                            resource_scaling = FALSE,
                            perfect_scaling = FALSE,
                            min_w_inf = deprecated(),
-                           max_w_inf = deprecated()) {
+                           max_w_inf = deprecated(),
+                           info_level = 2) {
+    # Define a signal handler that collects the information signals
+    # into the `infos` list.
+    infos <- list()
+    collect_info <- function(cnd) {
+        if (cnd$level <= info_level) {
+            infos[[cnd$var]] <<- cnd$message
+        }
+    }
+    # Register this signal handler
+    withCallingHandlers(
+        info_about_default = collect_info, {
     ## Deprecated arguments ----
     if (lifecycle::is_present(min_w_inf)) {
         lifecycle::deprecate_warn(
@@ -585,7 +613,10 @@ newTraitParams <- function(no_sp = 11,
     params@species_params$erepro <- params@species_params$erepro *
         get_required_reproduction(params) / getRDI(params)
     params <- setBevertonHolt(params, reproduction_level = reproduction_level)
-
+    })
+    if (length(infos) > 0) {
+        message(paste(infos, collapse = "\n"))
+    }
     return(params)
 }
 

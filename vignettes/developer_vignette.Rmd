@@ -313,42 +313,110 @@ already there for other similar slots.
 
 Mizer should make good use of R's condition handling system, which is well described at https://adv-r.hadley.nz/conditions.html. Currently this is being only in a small number of places in the code. Search the code for `signal()` and `withCallingHandlers()` to find those places.
 
-## Framework for informing users about defaults
+## Signal Handling in mizer
 
-Mizer's strength is that it can choose default values for most parameters, so that the user needs to supply only very limited information to create a viable MizerParams object. The downside of that is that the user may rely on this too much and may not have enough information about the quality of the defaults.
+Mizer uses the `rlang::signal()` function to generate information messages that can be controlled by the user via the `info_level` argument. This system allows for different levels of verbosity without cluttering the console with warnings or standard messages that cannot be easily suppressed or filtered.
 
-Currently mizer issues some messages to the user when it calculates defaults. But this is minimal in order not to overload the user who does not need the extra information.
+### The `info_level` Argument
 
-I would like the functions that calculate defaults to issue information freely, and the wrapper functions around these to decide what of this information should be shown to the user. Functions like `newMultispeciesParams()` could get an extra `info_level` argument that allows the user to control the amount of information shown.
+The `info_level` argument is an integer that controls the amount of information shown to the user. It works by filtering signals based on their assigned level.
 
-There will be a function to signal information:
+- **`info_level = 0`**: No information messages are shown. This is useful for running simulations in loops or when a clean output is desired.
+- **`info_level = 1`**: Only important messages are shown. These are typically about issues that might affect the validity of the model or significant assumptions being made.
+- **`info_level = 2`**: Intermediate level (currently not widely used, reserved for future granularity).
+- **`info_level = 3`**: All information messages are shown. This includes details about default values being set and other minor notifications.
 
+### How to Use Signals
+
+When writing functions in mizer, you should use `signal()` instead of `message()` or `warning()` for information that is not critical (i.e., not an error or a deprecation warning) but helpful for the user to know.
+
+#### Syntax
+
+```r
+signal(message, class = "info_about_default", var = "variable_name", level = integer_level)
 ```
-info_about_default <- function(message, var, level) {
-    signal(message, class = "info_about_default", var = var, level = level)
-}
-```
-and functions like `newMultispeciesParams()` will get extra code like the following:
-```
-# Define a signal handler that collects the information signals
-# into the `infos` list.
+
+- **`message`**: The text to display.
+- **`class`**: Should be `"info_about_default"` for messages related to setting default values. This is the class that `newMultispeciesParams` listens for.
+- **`var`**: The name of the variable or parameter the message is about (e.g., "h", "gamma", "ks").
+- **`level`**: The importance level of the message (1, 2, or 3).
+
+#### Guidelines for Levels
+
+- **Level 1**: Use for non-critical but significant issues.
+    - Example: "Because you have n != p, the default value for `h` is not very good."
+    - Example: "No h provided for some species, so using age at maturity to calculate it." (If this is considered a risky fallback).
+
+- **Level 3**: Use for routine information about defaults.
+    - Example: "Using default values for 'a' parameter."
+    - Example: "For species where no growth information is available the parameter h has been set to h = 30."
+
+### Handling Signals
+
+Functions that accept `info_level` should set up a calling handler to capture and filter these signals.
+
+```r
 infos <- list()
 collect_info <- function(cnd) {
-  if (cnd$level >= info_level) {
-    infos[[cnd$var]] <<- cnd$message
+    if (cnd$level <= info_level) {
+        infos[[cnd$var]] <<- cnd$message
   cnd_muffle(cnd) # So this info will not be repeated higher up
-  }
+    }
 }
-# Register this signal handler
+
 withCallingHandlers(
-  info_about_default = collect_info
-
-  # Here goes the existing code of the function
-
+    info_about_default = collect_info, {
+        # ... code that might generate signals ...
+    }
 )
-# Here goes some code to process the list `infos` to create
-# a useful narrative for the user.
+
+if (length(infos) > 0) {
+    message(paste(infos, collapse = "\n"))
+}
 ```
+
+This pattern collects all relevant messages and prints them at the end, avoiding duplicate messages for the same variable if multiple defaults are set.
+
+### Signal Bubbling
+
+Signals in R bubble up the call stack. This means that if a function signals a condition using `signal()`, R looks for a handler in the current function. If none is found (or if the handler declines to handle it), R looks in the calling function, and so on up the stack.
+
+This behavior allows us to have a hierarchy of functions where:
+1.  Low-level functions (like `setSpeciesParams`) emit signals about what they are doing.
+2.  Mid-level functions (like `newMultispeciesParams`) can choose to handle these signals (e.g., collect them to display later) or let them bubble up.
+3.  High-level functions (like `newCommunityParams`) can also choose to handle them or let them bubble up to the user's console.
+
+This implies that if `newMultispeciesParams` handles a signal (by catching it with a calling handler), that signal will **not** automatically bubble up further unless the handler explicitly signals it again or if the handler is a "calling" handler that doesn't stop bubbling (but `rlang::cnd_muffle` or similar might be used to stop it).
+
+In the context of `mizer`'s `info_level`:
+- We use `withCallingHandlers`.
+- If we want to "consume" the signal so it doesn't print twice or bubble further to a higher-level handler that might also print it, we might need to muffle it.
+- However, our current pattern in `newMultispeciesParams` is to collect the info and then print it *after* the block.
+- If a function `A` calls `B`, and both have `info_level` handling:
+    - `B` emits signal.
+    - `B`'s handler catches it, adds to `B`'s list.
+    - Since it's a *calling* handler, the signal continues to bubble to `A`?
+    - **Wait**, `withCallingHandlers` does *not* consume the signal unless you invoke a restart like `muffleRestart`.
+    - If `B` does not muffle it, `A` will also see it.
+    - This could lead to duplication if both `A` and `B` decide to print the collected messages.
+
+**Important**: To avoid duplicate messages when wrapping functions that also handle `info_level`, the wrapper function should generally pass `info_level = 0` (or a sufficiently low level) to the inner function to suppress its *internal* handling/printing, while relying on the inner function's signals bubbling up to the wrapper's handler. Alternatively, if the inner function mutes its signals after handling, the wrapper won't see them.
+
+The current implementation in `newMultispeciesParams` uses `withCallingHandlers` but does **not** muffle the signal. This means the signal continues to bubble up.
+However, `newMultispeciesParams` prints the collected messages at the end.
+If `newCommunityParams` also collects and prints, we get double printing.
+**Important**: To avoid duplicate messages when wrapping functions that also handle `info_level`, the wrapper function should generally pass `info_level = 0` (or a sufficiently low level) to the inner function to suppress its *internal* handling/printing, while relying on the inner function's signals bubbling up to the wrapper's handler. Alternatively, if the inner function mutes its signals after handling, the wrapper won't see them.
+
+The current implementation in `newMultispeciesParams` uses `withCallingHandlers` but does **not** muffle the signal. This means the signal continues to bubble up.
+However, `newMultispeciesParams` prints the collected messages at the end.
+If `newCommunityParams` also collects and prints, we get double printing.
+Therefore, when calling a function that has its own `info_level` handling, you should usually suppress its handling (e.g. by passing `info_level = 0`) so that only the top-level function handles and reports the signals.
+
+### Avoiding Duplication
+
+To ensure a unified summary and avoid duplicate messages, we adopt a **Top-Level Reporting** strategy.
+-   **Top-Level Functions**: Functions that are directly called by the user (e.g., `newCommunityParams`) should handle signals and print the summary.
+-   **Inner Functions**: Functions called by other functions (e.g., `newMultispeciesParams` called by `newCommunityParams`) should be called with `info_level = 0`. This prevents them from printing their own summary but allows their signals to bubble up to the top-level function's handler.
 
 # Defaults editions
 

@@ -80,7 +80,8 @@ projectToSteady <- function(params,
                             dt = 0.1,
                             tol = 0.1 * t_per,
                             return_sim = FALSE,
-                            progress_bar = TRUE, ...) {
+                            progress_bar = TRUE,
+                            info_level = 3, ...) {
     params <- validParams(params)
     effort <- validEffortVector(effort, params = params)
     params@initial_effort <- effort
@@ -162,12 +163,16 @@ projectToSteady <- function(params,
         previous <- current
     }
     if (!success) {
-        message("Simulation run did not converge after ",
-                (i - 1) * t_per,
-                " years. Value returned by the distance function was: ",
-                distance)
+        if (info_level >= 3) {
+            message("Simulation run did not converge after ",
+                    (i - 1) * t_per,
+                    " years. Value returned by the distance function was: ",
+                    distance)
+        }
     } else {
-        message("Convergence was achieved in ", (i - 1) * t_per, " years.")
+        if (info_level >= 3) {
+            message("Convergence was achieved in ", (i - 1) * t_per, " years.")
+        }
     }
     
     params@initial_n[] <- current$n
@@ -230,7 +235,8 @@ projectToSteady <- function(params,
 steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
                    tol = 0.1 * dt, return_sim = FALSE, 
                    preserve = c("reproduction_level", "erepro", "R_max"),
-                   progress_bar = TRUE) {
+                   progress_bar = TRUE,
+                   info_level = 3) {
     params <- validParams(params)
     
     if (params@rates_funcs$RDD == "BevertonHoltRDD") {
@@ -262,7 +268,8 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
                               dt = dt,
                               tol = tol,
                               return_sim = return_sim,
-                              progress_bar = progress_bar)
+                              progress_bar = progress_bar,
+                              info_level = info_level)
     if (return_sim) {
         params <- object@params
     } else {
