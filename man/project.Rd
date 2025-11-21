@@ -25,14 +25,16 @@ project(
 \item{effort}{The effort of each fishing gear through time. See notes below.}
 
 \item{t_max}{The number of years the projection runs for. The default value
-is 100. This argument is ignored if an array is used for the \code{effort}
-argument. See notes below.}
+is 100. When an effort array is supplied, this argument can be used to
+extend the simulation beyond the times specified in the effort array.
+See notes below.}
 
 \item{dt}{Time step of the solver. The default value is 0.1.}
 
 \item{t_save}{The frequency with which the output is stored. The default
-value is 1. This argument is ignored if an array is used for the \code{effort}
-argument. See notes below.}
+value is 1. When an effort array is supplied, this argument can be used
+to control the times at which the simulation results are saved.
+See notes below.}
 
 \item{t_start}{The the year of the start of the simulation. The simulation
 will cover the period from \code{t_start} to \code{t_start + t_max}.
@@ -94,9 +96,18 @@ is used during the interval from that time to the next time in the array.
 If effort is specified as an array then the smallest time in the array is
 used as the initial time for the simulation. Otherwise the initial time is
 set to the final time of the previous simulation if \code{object} is a
-\code{MizerSim} object or to \code{t_start} otherwise. Also, if the effort is
-an array then the \code{t_max} and \code{t_save} arguments are ignored and the
-simulation times will be taken from the effort array.
+\code{MizerSim} object or to \code{t_start} otherwise.
+
+When an effort array is provided, the \code{t_max} argument can be used to
+extend the simulation beyond the last time specified in the effort array.
+In this case, the effort values from the last time in the array will be
+used for the extended period. The \code{t_save} argument can be used to specify
+the frequency at which simulation results are saved. If \code{t_save} is not
+supplied, the results will be saved at the times specified in the effort
+array. If both \code{t_max} and \code{t_save} are provided with an effort array,
+effort values will be interpolated (using step function) or extrapolated
+(using the last known value) as needed for the new time points. The
+\code{t_start} argument continues to be ignored when an effort array is supplied.
 
 If the \code{object} argument is of class \code{MizerSim} then the initial
 values for the simulation are taken from the final values in the
@@ -121,5 +132,10 @@ effort_array[,"Pelagic"] <- seq(from = 1, to = 2, length = length(times))
 effort_array[,"Beam"] <- seq(from = 1, to = 0, length = length(times))
 effort_array[,"Otter"] <- seq(from = 1, to = 0.5, length = length(times))
 sim <- project(params, effort = effort_array)
+# Extend a simulation beyond the effort array times
+# Effort values from the final time are used for the extension
+sim <- project(params, effort = effort_array, t_max = 15)
+# Control save times with an effort array using t_save
+sim <- project(params, effort = effort_array, t_save = 2)
 }
 }
