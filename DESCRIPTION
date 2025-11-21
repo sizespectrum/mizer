@@ -19,7 +19,7 @@ Authors@R: c(person("Gustav", "Delius", email="gustav.delius@york.ac.uk",
                     comment = c(ORCID = "0000-0002-8478-3430")),
              person("Richard", "Southwell", email="richard.southwell@york.ac.uk",
                     role=c("ctb", "cph")))
-Version: 2.5.4.9000
+Version: 2.5.4.9001
 License: GPL-3
 Imports:
     assertthat,
@@ -39,7 +39,7 @@ Imports:
     lifecycle
 LinkingTo: Rcpp
 Depends:
-    R (>= 3.1)
+    R (>= 3.5)
 Suggests:
     testthat (>= 3.0.0),
     vdiffr,
@@ -67,6 +67,7 @@ Collate:
     'setMetadata.R'
     'setExtMort.R'
     'setExtEncounter.R'
+    'setDiffusion.R'
     'setReproduction.R'
     'setResource.R'
     'setFishing.R'

@@ -7,7 +7,7 @@
 #'   species to their steady-state solution in the given initial state of the
 #'   existing ecosystem. This will be close to the true steady state if the
 #'   abundances of the new species are sufficiently low. Hence the abundances of
-#'   the new species are set so that they are at most 1/100th of the resource 
+#'   the new species are set so that they are at most 1/100th of the resource
 #'   power law. Their reproductive efficiencies are set so as to keep them at
 #'   that low level.
 #'
@@ -25,7 +25,7 @@
 #'   introduced in `gear_params`. Not needed if the added species are only
 #'   fished by already existing gear. Should not include effort values
 #'   for existing gear. New gear for which no effort is set via this
-#'   vector will have an initial effort of 0. 
+#'   vector will have an initial effort of 0.
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #'
@@ -84,7 +84,7 @@ addSpecies <- function(params, species_params,
         stop("addSpecies() can not add species to a MizerParams object that ",
              "has its catchability array protected by a comment.")
     }
-    
+
     # set interaction ----
     no_old_sp <- nrow(params@species_params)
     old_sp <- 1:no_old_sp
@@ -108,33 +108,33 @@ addSpecies <- function(params, species_params,
     } else {
         inter <- interaction
     }
-    
+
     # combine species params ----
-    
+
     # Move linecolour and linetype into species_params
     params@species_params$linetype <-
         params@linetype[params@species_params$species]
     params@species_params$linecolour <-
         params@linecolour[params@species_params$species]
-    
+
     # Make sure that all columns exist in both data frames
     missing <- setdiff(names(params@given_species_params), names(given_species_params))
     given_species_params[missing] <- NA
     missing <- setdiff(names(given_species_params), names(params@given_species_params))
     params@given_species_params[missing] <- NA
-    
+
     missing <- setdiff(names(params@species_params), names(species_params))
     species_params[missing] <- NA
     missing <- setdiff(names(species_params), names(params@species_params))
     params@species_params[missing] <- NA
-    
+
     # add the new species (with parameters described by species_params),
     # to make a larger species_params dataframe.
     combi_species_params <- rbind(params@species_params, species_params,
                                   stringsAsFactors = FALSE)
     combi_given_species_params <- rbind(params@given_species_params, given_species_params,
                                   stringsAsFactors = FALSE)
-    
+
     # combine gear params ----
     if (!all(gear_params$species %in% species_params$species)) {
         stop("gear_params should only set gear parameters for new species.")
@@ -150,7 +150,7 @@ addSpecies <- function(params, species_params,
     }
     combi_gear_params <- rbind(params@gear_params, gear_params,
                                stringsAsFactors = FALSE)
-    
+
     # expand grid ----
     # in case the new species need a bigger range of w
     # We need to make sure that the new grid that newMultispeciesParams()
@@ -179,11 +179,11 @@ addSpecies <- function(params, species_params,
         sel_min <- combi_species_params$w_min == new_min_w
         new_min_w <- max(params@w_full[params@w_full <= new_min_w])
         combi_species_params$w_min[sel_min] <- new_min_w
-        
+
         extra_no_w <- sum(params@w_full >= new_min_w) - no_w
         new_no_w <- new_no_w + extra_no_w
     }
-    
+
     # new params object ----
     # use dataframe and global settings from params to make a new MizerParams
     # object.
@@ -202,7 +202,7 @@ addSpecies <- function(params, species_params,
         w_pp_cutoff = params@resource_params$w_pp_cutoff
     )
     p@given_species_params <- combi_given_species_params
-    
+
     # Set effort ----
     new_gear <- setdiff(unique(gear_params$gear),
                         unique(params@gear_params$gear))
@@ -216,20 +216,20 @@ addSpecies <- function(params, species_params,
         }
         p@initial_effort[names(initial_effort)] <- initial_effort
     }
-    
+
     # Keep resource spectrum ----
     p@initial_n_pp[1:no_w_full] <- params@initial_n_pp
     p@cc_pp[1:no_w_full] <- params@cc_pp
     p@rr_pp[1:no_w_full] <- params@rr_pp
     p@resource_dynamics <- params@resource_dynamics
     p@resource_params <- params@resource_params
-    
+
     # Preserve comments ----
     comment(p) <- comment(params)
     for (slot in (slotNames(p))) {
         comment(slot(p, slot)) <- comment(slot(params, slot))
     }
-    
+
     # Copy old data ----
     # selector for old w bins inside new w
     old_w <- (extra_no_w + 1):(extra_no_w + no_w)
@@ -239,38 +239,39 @@ addSpecies <- function(params, species_params,
     p@sc[old_w] <- params@sc
     p@mu_b[old_sp, old_w] <- params@mu_b
     p@ext_encounter[old_sp, old_w] <- params@ext_encounter
+    p@diffusion[old_sp, old_w] <- params@diffusion
     p@intake_max[old_sp, old_w] <- params@intake_max
     p@search_vol[old_sp, old_w] <- params@search_vol
     p@metab[old_sp, old_w] <- params@metab
-    
+
     p@other_dynamics <- params@other_dynamics
     p@other_encounter <- params@other_encounter
     p@other_mort <- params@other_mort
     p@other_params <- params@other_params
     p@rates_funcs <- params@rates_funcs
-    
+
     p@metadata <- params@metadata
     p@time_created <- params@time_created
     p@mizer_version <- params@mizer_version
     p@extensions <- params@extensions
-    
+
     # The following does not affect the new species but preserves
     # any changes the user might have made in the original params object
     p <- setColours(p, params@linecolour)
     p <- setLinetypes(p, params@linetype)
-    
+
     # we assume same background death for all species
     # p@mu_b[new_sp, ] <- rep(params@mu_b[1, ], each = no_new_sp)
-    
+
     # initial solution ----
     p@initial_n[old_sp, old_w] <- params@initial_n
     # Turn off self-interaction among the new species, so we can determine the
     # growth rates, and death rates induced upon them by the pre-existing species
     p@interaction[new_sp, new_sp] <- 0
-    
+
     # Compute solution for new species
     p <- steadySingleSpecies(p, species = new_sp)
-    
+
     # set low abundance ----
     for (i in new_sp) {
         # Normalise solution so that it is never more than 1/100th of the
@@ -279,26 +280,26 @@ addSpecies <- function(params, species_params,
         # because that is always an increasing function at small size.
         idx <- which.max(p@initial_n[i, ] * p@w^p@resource_params$lambda)
         p@initial_n[i, ] <- p@initial_n[i, ] *
-            p@resource_params$kappa * p@w[idx]^(-p@resource_params$lambda) / 
+            p@resource_params$kappa * p@w[idx]^(-p@resource_params$lambda) /
             p@initial_n[i, idx] / 100
         p@A[i] <- sum(p@initial_n[i, ] * p@w * p@dw * p@maturity[i, ])
     }
-    
+
     if (any(is.infinite(p@initial_n))) {
         stop("Candidate steady state holds infinities.")
     }
     if (any(is.na(p@initial_n) | is.nan(p@initial_n))) {
         stop("Candidate steady state holds non-numeric values.")
     }
-    
+
     # Turn self interaction back on
     p@interaction[new_sp, new_sp] <- inter[new_sp, new_sp]
-    
+
     # Retune reproductive efficiencies of new species
     repro_level <- rep(1 / 4, length(new_sp))
     names(repro_level) <- p@species_params$species[new_sp]
     p <- setBevertonHolt(p, reproduction_level = repro_level)
-    
+
     return(p)
 }
 
@@ -330,7 +331,7 @@ removeSpecies <- function(params, species) {
                                  return.logical = TRUE)
     keep <- !species
     p <- params
-    
+
     # Select only the parts corresponding the species we keep
     p@linecolour <-
         params@linecolour[!(names(params@linecolour) %in%
@@ -356,6 +357,7 @@ removeSpecies <- function(params, species) {
     p@ft_mask <- params@ft_mask[keep, , drop = FALSE]
     p@mu_b <- params@mu_b[keep, , drop = FALSE]
     p@ext_encounter <- params@ext_encounter[keep, , drop = FALSE]
+    p@diffusion <- params@diffusion[keep, , drop = FALSE]
     p@species_params <- p@species_params[keep, , drop = FALSE]
     p@given_species_params <- p@given_species_params[keep, , drop = FALSE]
     p@interaction <- params@interaction[keep, keep, drop = FALSE]
@@ -366,20 +368,20 @@ removeSpecies <- function(params, species) {
     p@gear_params <- p@gear_params[p@gear_params$species %in%
                                        p@species_params$species, ]
     p@gear_params <- validGearParams(p@gear_params, p@species_params)
-    
+
     # Drop species parameters with all values NA
     keep <- colSums(is.na(p@species_params)) < nrow(p@species_params)
     p@species_params <- p@species_params[, keep]
     keep <- colSums(is.na(p@given_species_params)) < nrow(p@given_species_params)
     p@given_species_params <- p@given_species_params[, keep]
-    
+
     # Preserve comments
     for (slot in (slotNames(p))) {
         comment(slot(p, slot)) <- comment(slot(params, slot))
     }
-    
+
     validObject(p)
-    
+
     p@time_modified <- lubridate::now()
     return(p)
 }
@@ -427,7 +429,7 @@ renameSpecies <- function(params, replace) {
                 replace[[params@gear_params$species[[i]]]]
         }
     }
-    params@gear_params <- validGearParams(params@gear_params, 
+    params@gear_params <- validGearParams(params@gear_params,
                                           params@species_params)
     # rename line colours
     linenames <- names(params@linecolour)
@@ -441,7 +443,7 @@ renameSpecies <- function(params, replace) {
     linenames[to_replace] <- replace
     names(linenames) <- NULL
     names(params@linetype) <- linenames
-    
+
     names(params@w_min_idx) <- species
     dimnames(params@maturity)$sp <- species
     dimnames(params@psi)$sp <- species
@@ -457,13 +459,14 @@ renameSpecies <- function(params, replace) {
     }
     dimnames(params@mu_b)$sp <- species
     dimnames(params@ext_encounter)$sp <- species
+    dimnames(params@diffusion)$sp <- species
     dimnames(params@interaction)$predator <- species
     dimnames(params@interaction)$prey <- species
     dimnames(params@selectivity)$sp <- species
     dimnames(params@catchability)$sp <- species
-    
+
     validObject(params)
-    
+
     params@time_modified <- lubridate::now()
     return(params)
 }
@@ -501,7 +504,7 @@ renameGear <- function(params, replace) {
     names(gears) <- gears
     gears[to_replace] <- replace
     names(gears) <- NULL
-    
+
     # Update gear_params data frame
     for (i in seq_len(nrow(params@gear_params))) {
         if (params@gear_params$gear[[i]] %in% names(replace)) {
@@ -509,22 +512,22 @@ renameGear <- function(params, replace) {
                 replace[[params@gear_params$gear[[i]]]]
         }
     }
-    params@gear_params <- validGearParams(params@gear_params, 
+    params@gear_params <- validGearParams(params@gear_params,
                                           params@species_params)
-    
+
     # Update dimension names in arrays
     dimnames(params@selectivity)$gear <- gears
     dimnames(params@catchability)$gear <- gears
-    
+
     # Update initial_effort names
     gearnames <- names(params@initial_effort)
     names(gearnames) <- gearnames
     gearnames[to_replace] <- replace
     names(gearnames) <- NULL
     names(params@initial_effort) <- gearnames
-    
+
     validObject(params)
-    
+
     params@time_modified <- lubridate::now()
     return(params)
 }
