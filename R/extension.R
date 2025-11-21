@@ -1,10 +1,10 @@
 #' Set own rate function to replace mizer rate function
-#' 
+#'
 #' If the way mizer calculates a fundamental rate entering the model is
 #' not flexible enough for you (for example if you need to introduce time
 #' dependence) then you can write your own functions for calculating that
 #' rate and use `setRateFunction()` to register it with mizer.
-#' 
+#'
 #' At each time step during a simulation with the [project()] function, mizer
 #' needs to calculate the instantaneous values of the various rates. By
 #' default it calls the [mizerRates()] function which creates a list with the
@@ -21,7 +21,7 @@
 #' * `e_growth` from [mizerEGrowth()]
 #' * `rdi` from [mizerRDI()]
 #' * `rdd` from [BevertonHoltRDD()]
-#' 
+#'
 #' For each of these you can substitute your own function. So for example if
 #' you have written your own function for calculating the total mortality
 #' rate and have called it `myMort` and have a mizer model stored in a
@@ -35,14 +35,14 @@
 #' ```
 #' params <- setRateFunction(params, "SomeRateFunc", "myVersionOfThis")
 #' ```
-#' 
+#'
 #' In some extreme cases you may need to swap out the entire `mizerRates()`
 #' function for your own function called `myRates()`. That you can do with
 #' ```
 #' params <- setRateFunction(params, "Rates", "myRates")
 #' ```
-#' 
-#' Your new rate functions may need their own model parameters. These you 
+#'
+#' Your new rate functions may need their own model parameters. These you
 #' can store in `other_params(params)`. For example
 #' ```
 #' other_params(params)$my_param <- 42
@@ -50,18 +50,18 @@
 #' Note that your own rate functions need to be defined in the global
 #' environment or in a package. If they are defined within a function then
 #' mizer will not find them.
-#' 
+#'
 #' @param params A MizerParams object
 #' @param rate Name of the rate for which a new function is to be set.
 #' @param fun Name of the function to use to calculate the rate.
 #' @return For `setRateFunction()`: An updated MizerParams object
 #' @export
 setRateFunction <- function(params, rate, fun) {
-    assert_that(is(params, "MizerParams"),
-                is.string(rate),
+    params <- validParams(params)
+    assert_that(is.string(rate),
                 is.string(fun))
     if (!(rate %in% names(params@rates_funcs))) {
-        stop("The `rate` argument must be one of ", 
+        stop("The `rate` argument must be one of ",
              toString(names(params@rates_funcs)), ".")
     }
     if (!exists(fun, mode = "function")) {
@@ -70,9 +70,9 @@ setRateFunction <- function(params, rate, fun) {
     # TODO: put some code to test that the function has the right kind of
     # arguments
     params@rates_funcs[[rate]] <- fun
-    
+
     validObject(params)
-    
+
     params@time_modified <- lubridate::now()
     params
 }
@@ -88,7 +88,7 @@ getRateFunction <- function(params, rate) {
         return(params@rates_funcs)
     }
     if (!(rate %in% names(params@rates_funcs))) {
-        stop("The `rate` argument must be one of ", 
+        stop("The `rate` argument must be one of ",
              toString(names(params@rates_funcs)), ".")
     }
     params@rates_funcs[[rate]]
@@ -114,26 +114,26 @@ other_params <- function(params) {
     # We save the value in the $other slot in order to make it impossible for
     # the user to overwrite component parameters by mistake.
     params@other_params$other <- value
-    
+
     params@time_modified <- lubridate::now()
     params
 }
 
 #' Add a dynamical ecosystem component
-#' 
+#'
 #' By default, mizer models any number of size-resolved consumer species
 #' and a single size-resolved resource spectrum. Your model may require
 #' additional components, like for example detritus or carrion or multiple
 #' resources or .... This function allows you to set up such components.
-#' 
+#'
 #' The component can be a number, a vector, an array, a list, or any other
-#' data structure you like. 
-#' 
+#' data structure you like.
+#'
 #' If you set a component with a new name, the new component will be added
 #' to the existing components. If you set a component with an existing name,
 #' that component will be overwritten. You can remove a component with
 #' `removeComponent()`.
-#' 
+#'
 #' @param params A MizerParams object
 #' @param component Name of the component
 #' @param initial_value Initial value of the component
@@ -147,8 +147,8 @@ other_params <- function(params) {
 #' @return The updated MizerParams object
 #' @export
 setComponent <- function(params, component, initial_value,
-                         dynamics_fun, 
-                         encounter_fun, mort_fun,  
+                         dynamics_fun,
+                         encounter_fun, mort_fun,
                          component_params) {
     assert_that(is(params, "MizerParams"),
                 is.string(component),
@@ -173,7 +173,7 @@ setComponent <- function(params, component, initial_value,
     if (!missing(component_params)) {
         params@other_params[[component]] <- component_params
     }
-    
+
     params@time_modified <- lubridate::now()
     params
 }
@@ -189,14 +189,14 @@ removeComponent <- function(params, component) {
     params@other_mort[[component]] <- NULL
     params@other_params[[component]] <- NULL
     params@initial_n_other[[component]] <- NULL
-    
+
     params@time_modified <- lubridate::now()
     params
 }
 
 
 #' Get information about other ecosystem components
-#' 
+#'
 #' @param params A MizerParams object
 #' @param component Name of the component of interest. If missing, a list of
 #'   all components will be returned.
@@ -248,7 +248,7 @@ getComponent <- function(params, component) {
         stop("Missing values for components ", components[extra])
     }
     params@initial_n_other <- value
-    
+
     params@time_modified <- lubridate::now()
     params
 }
@@ -271,9 +271,9 @@ initialNOther <- function(object) {
 }
 
 #' Time series of other components
-#' 
+#'
 #' Fetch the simulation results for other components over time.
-#' 
+#'
 #' @param sim A MizerSim object
 #' @return A list array (time x component) that stores the projected values for
 #'   other ecosystem components.
@@ -284,7 +284,7 @@ NOther <- function(sim) {
 
 
 #' Values of other ecosystem components at end of simulation
-#' 
+#'
 #' @param sim A MizerSim object
 #' @return A named list holding the values of other ecosystem components at the
 #'   end of the simulation
