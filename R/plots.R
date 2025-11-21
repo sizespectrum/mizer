@@ -234,6 +234,7 @@ log_breaks <- function(n = 6) {
 #' @param sim An object of class \linkS4class{MizerSim}
 #' @inheritParams valid_species_arg
 #' @inheritParams plotDataFrame
+#' @inheritParams getBiomass
 #' @param start_time The first time to be plotted. Default is the beginning
 #'   of the time series.
 #' @param end_time The last time to be plotted. Default is the end of the
@@ -253,6 +254,7 @@ log_breaks <- function(n = 6) {
 #' @family plotting functions
 #' @seealso [plotting_functions], [getBiomass()]
 #' @examples
+#' @examples
 #' \donttest{
 #' plotBiomass(NS_sim)
 #' plotBiomass(NS_sim, species = c("Sandeel", "Herring"), total = TRUE)
@@ -267,11 +269,13 @@ plotBiomass <- function(sim, species = NULL,
                         y_ticks = 6, ylim = c(NA, NA), 
                         total = FALSE, background = TRUE, 
                         highlight = NULL, return_data = FALSE,
+                        use_cutoff = FALSE,
                         ...) {
     assert_that(is(sim, "MizerSim"),
                 is.flag(total),
                 is.flag(background),
                 is.flag(return_data),
+                is.flag(use_cutoff),
                 length(ylim) == 2)
     params <- sim@params
     species <- valid_species_arg(sim, species, error_on_empty = TRUE)
@@ -285,7 +289,7 @@ plotBiomass <- function(sim, species = NULL,
     # First we get the data frame for all species, including the background,
     # for all times but only the desired size range, by passing any size range
     # arguments on to getBiomass()
-    bm <- getBiomass(sim, ...)
+    bm <- getBiomass(sim, use_cutoff = use_cutoff, ...)
     # Select time range
     bm <- bm[(as.numeric(dimnames(bm)[[1]]) >= start_time) &
                (as.numeric(dimnames(bm)[[1]]) <= end_time), , drop = FALSE]
@@ -337,6 +341,7 @@ plotlyBiomass <- function(sim,
              total = FALSE,
              background = TRUE,
              highlight = NULL,
+             use_cutoff = FALSE,
              ...) {
     argg <- c(as.list(environment()), list(...))
     ggplotly(do.call("plotBiomass", argg),
