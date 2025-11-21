@@ -1,4 +1,3 @@
-devtools::load_all()
 test_that("plotBiomass works with use_cutoff", {
     params <- NS_params
     species_params(params)$biomass_cutoff <- 10
