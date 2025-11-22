@@ -4,6 +4,8 @@
 #'
 #' @param params1 First MizerParams object
 #' @param params2 Second MizerParams object
+#' @param ... Additional arguments passed to the method.
+#' 
 #' @return String describing the differences
 #' @export
 #' @examples

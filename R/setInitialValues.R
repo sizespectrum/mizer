@@ -30,6 +30,7 @@
 #'   time range is a geometric mean instead of the default arithmetic mean. This
 #'   does not affect the average of the effort or of other components, which is
 #'   always arithmetic.
+#' @param ... Additional arguments passed to the method.
 #'   
 #' @return The `params` object with updated initial values and initial effort. 
 #'   Because of the way the
@@ -49,7 +50,7 @@ setInitialValues <- function(params, sim, time_range, geometric_mean = FALSE, ..
     UseMethod("setInitialValues")
 }
 #' @export
-setInitialValues.MizerParams <- function(params, sim, time_range, geometric_mean = FALSE) {
+setInitialValues.MizerParams <- function(params, sim, time_range, geometric_mean = FALSE, ...) {
     assert_that(is(sim, "MizerSim"),
                 is.flag(geometric_mean))
     no_t <- dim(sim@n)[1]

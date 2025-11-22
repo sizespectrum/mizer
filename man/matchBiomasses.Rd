@@ -13,6 +13,8 @@ matchBiomasses(params, species = NULL, ...)
 biomasses will be matched. A vector of species names, or a numeric vector
 with the species indices, or a logical vector indicating for each species
 whether it is to be affected (TRUE) or not.}
+
+\item{...}{Additional arguments passed to the method.}
 }
 \value{
 A MizerParams object

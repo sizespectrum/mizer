@@ -43,6 +43,8 @@ species in the system is plotted as well. Default is FALSE.}
 
 \item{resource}{A boolean value that determines whether resource is included.
 Default is TRUE.}
+
+\item{...}{Additional arguments passed to the method.}
 }
 \value{
 A plotly object

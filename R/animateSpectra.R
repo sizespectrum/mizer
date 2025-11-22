@@ -21,6 +21,7 @@
 #'   species in the system is plotted as well. Default is FALSE.
 #' @param resource A boolean value that determines whether resource is included.
 #'   Default is TRUE.
+#' @param ... Additional arguments passed to the method.
 #'
 #' @return A plotly object
 #' @export

@@ -42,6 +42,7 @@
 #' @param interaction Optional interaction matrix of the species (predator
 #'   species x prey species). By default all entries are 1. See "Setting
 #'   interaction matrix" section below.
+#' @param ... Additional arguments passed to the method.
 #'
 #' @return `setInteraction`: A MizerParams object with updated interaction
 #'   matrix

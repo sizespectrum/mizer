@@ -23,6 +23,8 @@
 #'   choices are "egg" which keeps the egg density constant, "biomass" which 
 #'   keeps the total biomass of the species constant and "number" which keeps
 #'   the total number of individuals constant.
+#' @param ... Additional arguments passed to the method.
+#' 
 #' @return A modified MizerParams object with rescaled search volume, maximum
 #'   consumption rate and metabolic rate and rescaled species parameters
 #'   `gamma`,`h`, `ks` and `k`.

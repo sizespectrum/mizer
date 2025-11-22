@@ -10,6 +10,8 @@ compareParams(params1, params2, ...)
 \item{params1}{First MizerParams object}
 
 \item{params2}{Second MizerParams object}
+
+\item{...}{Additional arguments passed to the method.}
 }
 \value{
 String describing the differences

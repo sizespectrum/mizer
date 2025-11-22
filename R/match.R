@@ -27,6 +27,7 @@
 #'   biomasses will be matched. A vector of species names, or a numeric vector
 #'   with the species indices, or a logical vector indicating for each species
 #'   whether it is to be affected (TRUE) or not.
+#' @param ... Additional arguments passed to the method.
 #' @return A MizerParams object
 #' @export
 #' @examples 
@@ -107,6 +108,7 @@ matchBiomasses.MizerParams <- function(params, species = NULL) {
 #'   numbers will be matched. A vector of species names, or a numeric vector
 #'   with the species indices, or a logical vector indicating for each species
 #'   whether it is to be affected (TRUE) or not.
+#' @param ... Additional arguments passed to the method.
 #' @return A MizerParams object
 #' @export
 #' @examples
@@ -190,6 +192,7 @@ matchNumbers.MizerParams <- function(params, species = NULL) {
 #'   yields will be matched. A vector of species names, or a numeric vector
 #'   with the species indices, or a logical vector indicating for each species
 #'   whether it is to be affected (TRUE) or not.
+#' @param ... Additional arguments passed to the method.
 #' @return A MizerParams object
 #' @concept deprecated
 #' @export

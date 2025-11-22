@@ -23,6 +23,7 @@
 #' use [calibrateYield()] instead of this function.
 #' 
 #' @param params A MizerParams object
+#' @param ... Additional arguments passed to the method.
 #' @return A MizerParams object
 #' @export
 #' @examples 
@@ -88,6 +89,7 @@ calibrateBiomass.MizerParams <- function(params) {
 #' use [calibrateYield()] instead of this function.
 #'
 #' @param params A MizerParams object
+#' @param ... Additional arguments passed to the method.
 #' @return A MizerParams object
 #' @export
 #' @examples
@@ -148,6 +150,7 @@ calibrateNumber.MizerParams <- function(params) {
 #' use [calibrateBiomass()] instead of this function.
 #' 
 #' @param params A MizerParams object
+#' @param ... Additional arguments passed to the method.
 #' @return A MizerParams object
 #' @concept deprecated
 #' @export
@@ -218,6 +221,7 @@ calibrateYield.MizerParams <- function(params) {
 #'
 #' @param params A MizerParams object
 #' @param factor The factor by which the scale is multiplied
+#' @param ... Additional arguments passed to the method.
 #'
 #' @return The rescaled MizerParams object
 #' @export

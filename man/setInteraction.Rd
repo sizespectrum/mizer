@@ -19,6 +19,8 @@ interaction_matrix(params) <- value
 species x prey species). By default all entries are 1. See "Setting
 interaction matrix" section below.}
 
+\item{...}{Additional arguments passed to the method.}
+
 \item{value}{An interaction matrix}
 }
 \value{

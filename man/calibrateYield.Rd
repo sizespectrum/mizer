@@ -8,6 +8,8 @@ calibrateYield(params, ...)
 }
 \arguments{
 \item{params}{A MizerParams object}
+
+\item{...}{Additional arguments passed to the method.}
 }
 \value{
 A MizerParams object
