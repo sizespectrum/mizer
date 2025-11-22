@@ -26,6 +26,7 @@
 #'   fished by already existing gear. Should not include effort values
 #'   for existing gear. New gear for which no effort is set via this
 #'   vector will have an initial effort of 0.
+#' @param ... Additional arguments
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #'
@@ -62,11 +63,12 @@
 #' @seealso [removeSpecies()]
 #' @export
 #' @rdname addSpecies
-addSpecies <- function(params, ...) {
+addSpecies <- function(params, species_params,
+                       gear_params = data.frame(), initial_effort,
+                       interaction, ...) {
     UseMethod("addSpecies")
 }
 
-#' @rdname addSpecies
 #' @export
 addSpecies.MizerParams <- function(params, species_params,
                                    gear_params = data.frame(), initial_effort,
@@ -310,12 +312,6 @@ addSpecies.MizerParams <- function(params, species_params,
     return(p)
 }
 
-#' @rdname addSpecies
-#' @export
-addSpecies.default <- function(params, ...) {
-    stop("The first argument to addSpecies() must be a MizerParams object.")
-}
-
 
 #' Remove species
 #'
@@ -330,6 +326,7 @@ addSpecies.default <- function(params, ...) {
 #' @param species The species to be removed. A vector of species names, or a
 #'   numeric vector of species indices, or a logical vector indicating for
 #'   each species whether it is to be removed (TRUE) or not.
+#' @param ... Additional arguments
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
@@ -339,11 +336,10 @@ addSpecies.default <- function(params, ...) {
 #' species_params(params)$species
 #' params <- removeSpecies(params, c("Cod", "Haddock"))
 #' species_params(params)$species
-removeSpecies <- function(params, ...) {
+removeSpecies <- function(params, species, ...) {
     UseMethod("removeSpecies")
 }
 
-#' @rdname removeSpecies
 #' @export
 removeSpecies.MizerParams <- function(params, species) {
     params <- validParams(params)
@@ -406,12 +402,6 @@ removeSpecies.MizerParams <- function(params, species) {
     return(p)
 }
 
-#' @rdname removeSpecies
-#' @export
-removeSpecies.default <- function(params, ...) {
-    stop("The first argument to removeSpecies() must be a MizerParams object.")
-}
-
 
 #' Rename species
 #'
@@ -424,6 +414,7 @@ removeSpecies.default <- function(params, ...) {
 #' @param params A mizer params object
 #' @param replace A named character vector, with new names as values, and old
 #'   names as names.
+#' @param ... Additional arguments
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
@@ -432,11 +423,10 @@ removeSpecies.default <- function(params, ...) {
 #' replace <- c(Cod = "Kabeljau", Haddock = "Schellfisch")
 #' params <- renameSpecies(NS_params, replace)
 #' species_params(params)$species
-renameSpecies <- function(params, ...) {
+renameSpecies <- function(params, replace, ...) {
     UseMethod("renameSpecies")
 }
 
-#' @rdname renameSpecies
 #' @export
 renameSpecies.MizerParams <- function(params, replace) {
     params <- validParams(params)
@@ -504,13 +494,6 @@ renameSpecies.MizerParams <- function(params, replace) {
     return(params)
 }
 
-#' @rdname renameSpecies
-#' @export
-renameSpecies.default <- function(params, ...) {
-    stop("The first argument to renameSpecies() must be a MizerParams object.")
-}
-
-
 #' Rename gears
 #'
 #' @description
@@ -523,6 +506,7 @@ renameSpecies.default <- function(params, ...) {
 #' @param params A mizer params object
 #' @param replace A named character vector, with new names as values, and old
 #'   names as names.
+#' @param ... Additional arguments
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
@@ -531,11 +515,10 @@ renameSpecies.default <- function(params, ...) {
 #' replace <- c(Industrial = "Trawl", Otter = "Beam_Trawl")
 #' params <- renameGear(NS_params, replace)
 #' gear_params(params)$gear
-renameGear <- function(params, ...) {
+renameGear <- function(params, replace, ...) {
     UseMethod("renameGear")
 }
 
-#' @rdname renameGear
 #' @export
 renameGear.MizerParams <- function(params, replace) {
     params <- validParams(params)
@@ -576,10 +559,4 @@ renameGear.MizerParams <- function(params, replace) {
 
     params@time_modified <- lubridate::now()
     return(params)
-}
-
-#' @rdname renameGear
-#' @export
-renameGear.default <- function(params, ...) {
-    stop("The first argument to renameGear() must be a MizerParams object.")
 }

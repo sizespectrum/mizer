@@ -2,21 +2,17 @@
 % Please edit documentation in R/manipulate_species.R
 \name{renameSpecies}
 \alias{renameSpecies}
-\alias{renameSpecies.MizerParams}
-\alias{renameSpecies.default}
 \title{Rename species}
 \usage{
-renameSpecies(params, ...)
-
-\method{renameSpecies}{MizerParams}(params, replace)
-
-\method{renameSpecies}{default}(params, ...)
+renameSpecies(params, replace, ...)
 }
 \arguments{
 \item{params}{A mizer params object}
 
 \item{replace}{A named character vector, with new names as values, and old
 names as names.}
+
+\item{...}{Additional arguments}
 }
 \value{
 An object of type \linkS4class{MizerParams}

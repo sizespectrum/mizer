@@ -2,18 +2,14 @@
 % Please edit documentation in R/age_mat.R
 \name{age_mat}
 \alias{age_mat}
-\alias{age_mat.MizerParams}
-\alias{age_mat.default}
 \title{Calculate age at maturity}
 \usage{
 age_mat(params, ...)
-
-\method{age_mat}{MizerParams}(params, ...)
-
-\method{age_mat}{default}(params, ...)
 }
 \arguments{
 \item{params}{A MizerParams object}
+
+\item{...}{Additional arguments}
 }
 \value{
 A named vector. The names are the species names and the values are

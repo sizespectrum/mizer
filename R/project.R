@@ -438,11 +438,12 @@ project.MizerSim <- function(object, effort,
 #'
 #' @export
 #' @concept helper
-project_simple <- function(params, n, n_pp, n_other, effort, t, dt, steps, ...) {
+project_simple <- function(params, n, n_pp, n_other, effort, t, dt, steps,
+                           resource_dynamics_fn, other_dynamics_fns,
+                           rates_fns, ...) {
     UseMethod("project_simple")
 }
 
-#' @rdname project_simple
 #' @export
 project_simple.MizerParams <-
     function(params,

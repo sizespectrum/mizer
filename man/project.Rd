@@ -2,9 +2,39 @@
 % Please edit documentation in R/project.R
 \name{project}
 \alias{project}
+\alias{project.MizerParams}
+\alias{project.MizerSim}
 \title{Project size spectrum forward in time}
 \usage{
 project(
+  object,
+  effort,
+  t_max = 100,
+  dt = 0.1,
+  t_save = 1,
+  t_start = 0,
+  initial_n,
+  initial_n_pp,
+  append = TRUE,
+  progress_bar = TRUE,
+  ...
+)
+
+\method{project}{MizerParams}(
+  object,
+  effort,
+  t_max = 100,
+  dt = 0.1,
+  t_save = 1,
+  t_start = 0,
+  initial_n,
+  initial_n_pp,
+  append = TRUE,
+  progress_bar = TRUE,
+  ...
+)
+
+\method{project}{MizerSim}(
   object,
   effort,
   t_max = 100,

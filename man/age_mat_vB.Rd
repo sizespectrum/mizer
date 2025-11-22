@@ -17,6 +17,8 @@ age_mat_vB(object, ...)
 }
 \arguments{
 \item{object}{A MizerParams object or a species_params data frame}
+
+\item{...}{Additional arguments}
 }
 \value{
 A named vector. The names are the species names and the values are

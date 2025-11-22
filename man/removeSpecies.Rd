@@ -2,15 +2,9 @@
 % Please edit documentation in R/manipulate_species.R
 \name{removeSpecies}
 \alias{removeSpecies}
-\alias{removeSpecies.MizerParams}
-\alias{removeSpecies.default}
 \title{Remove species}
 \usage{
-removeSpecies(params, ...)
-
-\method{removeSpecies}{MizerParams}(params, species)
-
-\method{removeSpecies}{default}(params, ...)
+removeSpecies(params, species, ...)
 }
 \arguments{
 \item{params}{A mizer params object for the original system.}
@@ -18,6 +12,8 @@ removeSpecies(params, ...)
 \item{species}{The species to be removed. A vector of species names, or a
 numeric vector of species indices, or a logical vector indicating for
 each species whether it is to be removed (TRUE) or not.}
+
+\item{...}{Additional arguments}
 }
 \value{
 An object of type \linkS4class{MizerParams}

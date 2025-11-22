@@ -2,21 +2,16 @@
 % Please edit documentation in R/manipulate_species.R
 \name{addSpecies}
 \alias{addSpecies}
-\alias{addSpecies.MizerParams}
-\alias{addSpecies.default}
 \title{Add new species}
 \usage{
-addSpecies(params, ...)
-
-\method{addSpecies}{MizerParams}(
+addSpecies(
   params,
   species_params,
   gear_params = data.frame(),
   initial_effort,
-  interaction
+  interaction,
+  ...
 )
-
-\method{addSpecies}{default}(params, ...)
 }
 \arguments{
 \item{params}{A mizer params object for the original system.}
@@ -38,6 +33,8 @@ interaction coefficients between all species or only those between the new
 species. In the latter case all interaction between an old and a new
 species are set to 1. If this argument is missing, all interactions
 involving a new species are set to 1.}
+
+\item{...}{Additional arguments}
 }
 \value{
 An object of type \linkS4class{MizerParams}

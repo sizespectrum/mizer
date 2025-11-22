@@ -14,11 +14,12 @@
 #' missing. If `w_inf` is missing, `w_max` is used instead.
 #'
 #' @param object A MizerParams object or a species_params data frame
+#' @param ... Additional arguments
+#'
 #' @return A named vector. The names are the species names and the values are
 #'   the ages at maturity.
 #' @export
 #' @rdname age_mat_vB
-#' @export
 age_mat_vB <- function(object, ...) {
     UseMethod("age_mat_vB")
 }
@@ -58,6 +59,8 @@ age_mat_vB.default <- function(object, ...) {
 #' \deqn{\mathrm{age_{mat}} = \int_0^{w_{mat}.}\frac{dw}{g(w)}}{age_mat = \int_0^w_mat 1/g(w) dw.}
 #'
 #' @param params A MizerParams object
+#' @param ... Additional arguments
+#'
 #' @return A named vector. The names are the species names and the values are
 #'   the ages at maturity.
 #' @export
@@ -70,7 +73,6 @@ age_mat <- function(params, ...) {
     UseMethod("age_mat")
 }
 
-#' @rdname age_mat
 #' @export
 age_mat.MizerParams <- function(params, ...) {
     sp <- params@species_params
@@ -85,10 +87,4 @@ age_mat.MizerParams <- function(params, ...) {
     }
 
     a_mat
-}
-
-#' @rdname age_mat
-#' @export
-age_mat.default <- function(params, ...) {
-    stop("The first argument must be a MizerParams object.")
 }
