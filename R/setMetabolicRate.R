@@ -20,7 +20,7 @@
 #' in the species parameter data frame. If the critical feeding level is not
 #' specified, a default of \eqn{f_c = 0.2} is used.
 #'
-#' @param params MizerParams
+#' @param object A MizerParams object
 #' @param metab Optional. An array (species x size) holding the metabolic rate
 #'   for each species at size. If not supplied, a default is set as described in
 #'   the section "Setting metabolic rate".
@@ -38,16 +38,17 @@
 #' @return `setMetabolicRate()`: A MizerParams object with updated metabolic rate.
 #' @export
 #' @family functions for setting parameters
-setMetabolicRate <- function(params, metab = NULL, p = NULL,
+setMetabolicRate <- function(object, metab = NULL, p = NULL,
                              reset = FALSE, ...) {
     UseMethod("setMetabolicRate")
 }
 #' @export
-setMetabolicRate.MizerParams <- function(params, metab = NULL, p = NULL,
+setMetabolicRate.MizerParams <- function(object, metab = NULL, p = NULL,
                                          reset = FALSE, ...) {
     assert_that(is.flag(reset))
+    params <- object
     if (!is.null(p)) {
-        assert_that(is.numeric(p))
+        if (!is.numeric(p)) stop("p must be numeric")
         params <- set_species_param_default(params, "p", p)
     } else {
         params <- set_species_param_default(params, "p", 3/4)

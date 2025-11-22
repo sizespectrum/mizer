@@ -7,7 +7,7 @@
 \alias{metab<-}
 \title{Set metabolic rate}
 \usage{
-setMetabolicRate(params, metab = NULL, p = NULL, reset = FALSE, ...)
+setMetabolicRate(object, metab = NULL, p = NULL, reset = FALSE, ...)
 
 getMetabolicRate(params)
 
@@ -16,7 +16,7 @@ metab(params)
 metab(params) <- value
 }
 \arguments{
-\item{params}{MizerParams}
+\item{object}{A MizerParams object}
 
 \item{metab}{Optional. An array (species x size) holding the metabolic rate
 for each species at size. If not supplied, a default is set as described in
