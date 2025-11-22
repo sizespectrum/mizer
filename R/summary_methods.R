@@ -85,6 +85,14 @@ getDiet <- function(params,
                     n_pp = initialNResource(params),
                     n_other = initialNOther(params),
                     proportion = TRUE) {
+    UseMethod("getDiet")
+}
+#' @export
+getDiet.MizerParams <- function(params,
+                    n = initialN(params),
+                    n_pp = initialNResource(params),
+                    n_other = initialNOther(params),
+                    proportion = TRUE) {
     # The code is based on that for getEncounter()
     params <- validParams(params)
     species <- params@species_params$species
@@ -187,17 +195,19 @@ getDiet <- function(params,
 #' ssb <- getSSB(NS_sim)
 #' ssb[c("1972", "2010"), c("Herring", "Cod")]
 getSSB <- function(object) {
-    if (is(object, "MizerSim")) {
-        sim <- object
-        return(apply(sweep(sweep(sim@n, c(2, 3), sim@params@maturity, "*"), 3,
-                           sim@params@w * sim@params@dw, "*"), c(1, 2), sum) )
-    }
-    if (is(object, "MizerParams")) {
-        params <- object
-        return(((params@initial_n * params@maturity) %*%
-                    (params@w * params@dw))[, , drop = TRUE])
-    }
-    stop("'object' should be a MizerParams or a MizerSim object")
+    UseMethod("getSSB")
+}
+#' @export
+getSSB.MizerSim <- function(object) {
+    sim <- object
+    return(apply(sweep(sweep(sim@n, c(2, 3), sim@params@maturity, "*"), 3,
+                       sim@params@w * sim@params@dw, "*"), c(1, 2), sum) )
+}
+#' @export
+getSSB.MizerParams <- function(object) {
+    params <- object
+    return(((params@initial_n * params@maturity) %*%
+                (params@w * params@dw))[, , drop = TRUE])
 }
 
 
@@ -245,10 +255,13 @@ getSSB <- function(object) {
 #' biomass <- getBiomass(NS_sim, use_cutoff = TRUE)  # Uses biomass_cutoff as min_w
 #' biomass["1972", "Herring"]
 getBiomass <- function(object, use_cutoff = FALSE, ...) {
-    if (is(object, "MizerSim")) {
-        sim <- object
+    UseMethod("getBiomass")
+}
+#' @export
+getBiomass.MizerSim <- function(object, use_cutoff = FALSE, ...) {
+    sim <- object
 
-        if (use_cutoff && "biomass_cutoff" %in% names(sim@params@species_params)) {
+    if (use_cutoff && "biomass_cutoff" %in% names(sim@params@species_params)) {
             # Use biomass_cutoff as min_w for each species
             biomass_cutoff <- sim@params@species_params$biomass_cutoff
             # Replace NA values with the default minimum weight
@@ -259,11 +272,12 @@ getBiomass <- function(object, use_cutoff = FALSE, ...) {
         }
         return(apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
                            sim@params@w * sim@params@dw, "*"), c(1, 2), sum))
-    }
-    if (is(object, "MizerParams")) {
-        params <- object
+}
+#' @export
+getBiomass.MizerParams <- function(object, use_cutoff = FALSE, ...) {
+    params <- object
 
-        if (use_cutoff && "biomass_cutoff" %in% names(params@species_params)) {
+    if (use_cutoff && "biomass_cutoff" %in% names(params@species_params)) {
             # Use biomass_cutoff as min_w for each species
             biomass_cutoff <- params@species_params$biomass_cutoff
             # Replace NA values with the default minimum weight
@@ -274,8 +288,6 @@ getBiomass <- function(object, use_cutoff = FALSE, ...) {
         }
         return(((params@initial_n * size_range) %*%
                     (params@w * params@dw))[, , drop = TRUE])
-    }
-    stop("'object' should be a MizerParams or a MizerSim object")
 }
 
 
@@ -303,18 +315,20 @@ getBiomass <- function(object, use_cutoff = FALSE, ...) {
 #' numbers <- getN(NS_sim, min_w = 10, max_w = 1000)
 #' numbers["1972", "Herring"]
 getN <- function(object, ...) {
-    if (is(object, "MizerSim")) {
-        sim <- object
-        size_range <- get_size_range_array(sim@params, ...)
-        return(apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
-                           sim@params@dw, "*"), c(1, 2), sum))
-    }
-    if (is(object, "MizerParams")) {
-        params <- object
-        size_range <- get_size_range_array(params, ...)
-        return(((params@initial_n * size_range) %*% params@dw)[, , drop = TRUE])
-    }
-    stop("'object' should be a MizerParams or a MizerSim object")
+    UseMethod("getN")
+}
+#' @export
+getN.MizerSim <- function(object, ...) {
+    sim <- object
+    size_range <- get_size_range_array(sim@params, ...)
+    return(apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
+                       sim@params@dw, "*"), c(1, 2), sum))
+}
+#' @export
+getN.MizerParams <- function(object, ...) {
+    params <- object
+    size_range <- get_size_range_array(params, ...)
+    return(((params@initial_n * size_range) %*% params@dw)[, , drop = TRUE])
 }
 
 
@@ -341,21 +355,22 @@ getN <- function(object, ...) {
 #' yield["1972", "Herring", "Herring"]
 #' # (In this example MizerSim object each species was set up with its own gear)
 getYieldGear <- function(object) {
-    if (is(object, "MizerSim")) {
-        sim <- object
-        biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
-        f_gear <- getFMortGear(sim)
-        return(apply(sweep(f_gear, c(1, 3, 4), biomass, "*"), c(1, 2, 3), sum))
-    }
-    if (is(object, "MizerParams")) {
-        params <- object
-        biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
-        f_gear <- getFMortGear(params)
-        return(apply(sweep(f_gear, c(2, 3), biomass, "*"), c(1, 2), sum))
-    }
-    stop("'object' should be a MizerParams or a MizerSim object")
+    UseMethod("getYieldGear")
 }
-
+#' @export
+getYieldGear.MizerSim <- function(object) {
+    sim <- object
+    biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
+    f_gear <- getFMortGear(sim)
+    return(apply(sweep(f_gear, c(1, 3, 4), biomass, "*"), c(1, 2, 3), sum))
+}
+#' @export
+getYieldGear.MizerParams <- function(object) {
+    params <- object
+    biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
+    f_gear <- getFMortGear(params)
+    return(apply(sweep(f_gear, c(2, 3), biomass, "*"), c(1, 2), sum))
+}
 
 #' Calculate the rate at which biomass of each species is fished
 #'
@@ -406,19 +421,21 @@ getYieldGear <- function(object) {
 #' # We get the total catch in the year by averaging over the year
 #' sum(getYield(sim)[1:10, "Herring"] / 10)
 getYield <- function(object) {
-    if (is(object, "MizerSim")) {
-        sim <- object
-        biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
-        f <- getFMort(sim, drop = FALSE)
-        return(apply(f * biomass, c(1, 2), sum))
-    }
-    if (is(object, "MizerParams")) {
-        params <- object
-        biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
-        f <- getFMort(params, drop = FALSE)
-        return(apply(f * biomass, 1, sum))
-    }
-    stop("'object' should be a MizerParams or a MizerSim object")
+    UseMethod("getYield")
+}
+#' @export
+getYield.MizerSim <- function(object) {
+    sim <- object
+    biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
+    f <- getFMort(sim, drop = FALSE)
+    return(apply(f * biomass, c(1, 2), sum))
+}
+#' @export
+getYield.MizerParams <- function(object) {
+    params <- object
+    biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
+    f <- getFMort(params, drop = FALSE)
+    return(apply(f * biomass, 1, sum))
 }
 
 
@@ -449,15 +466,23 @@ getGrowthCurves <- function(object,
                             species = NULL,
                             max_age = 20,
                             percentage = FALSE) {
-    if (is(object, "MizerSim")) {
-        params <- object@params
-        params <- setInitialValues(params, object)
-    } else if (is(object, "MizerParams")) {
-        params <- validParams(object)
-    } else {
-        stop("The first argument to `getGrowthCurves()` must be a ",
-             "MizerParams or a MizerSim object.")
-    }
+    UseMethod("getGrowthCurves")
+}
+#' @export
+getGrowthCurves.MizerSim <- function(object,
+                            species = NULL,
+                            max_age = 20,
+                            percentage = FALSE) {
+    params <- object@params
+    params <- setInitialValues(params, object)
+    getGrowthCurves(params, species, max_age, percentage)
+}
+#' @export
+getGrowthCurves.MizerParams <- function(object,
+                            species = NULL,
+                            max_age = 20,
+                            percentage = FALSE) {
+    params <- object
     species <- valid_species_arg(params, species)
     # reorder list of species to coincide with order in params
     idx <- which(params@species_params$species %in% species)
@@ -695,7 +720,13 @@ getProportionOfLargeFish <- function(sim,
                                      species = NULL,
                                      threshold_w = 100, threshold_l = NULL,
                                      biomass_proportion = TRUE, ...) {
-    assert_that(is(sim, "MizerSim"))
+    UseMethod("getProportionOfLargeFish")
+}
+#' @export
+getProportionOfLargeFish.MizerSim <- function(sim,
+                                     species = NULL,
+                                     threshold_w = 100, threshold_l = NULL,
+                                     biomass_proportion = TRUE, ...) {
     species <- valid_species_arg(sim, species)
 
     total_size_range <- get_size_range_array(sim@params, ...)
@@ -755,6 +786,10 @@ getProportionOfLargeFish <- function(sim,
 #' getMeanWeight(NS_sim, species = c("Herring", "Sprat", "N.pout"))[years]
 #' getMeanWeight(NS_sim, min_w = 10, max_w = 5000)[years]
 getMeanWeight <- function(sim, species = NULL, ...) {
+    UseMethod("getMeanWeight")
+}
+#' @export
+getMeanWeight.MizerSim <- function(sim, species = NULL, ...) {
     assert_that(is(sim, "MizerSim"))
     species <- valid_species_arg(sim, species)
     n_species <- getN(sim, ...)
@@ -794,6 +829,11 @@ getMeanWeight <- function(sim, species = NULL, ...) {
 #' getMeanMaxWeight(NS_sim, species=c("Herring","Sprat","N.pout"))[years, ]
 #' getMeanMaxWeight(NS_sim, min_w = 10, max_w = 5000)[years, ]
 getMeanMaxWeight <- function(sim, species = NULL,
+                             measure = "both", ...) {
+    UseMethod("getMeanMaxWeight")
+}
+#' @export
+getMeanMaxWeight.MizerSim <- function(sim, species = NULL,
                              measure = "both", ...) {
     assert_that(is(sim, "MizerSim"))
     if (!(measure %in% c("both", "numbers", "biomass"))) {
@@ -857,6 +897,11 @@ getMeanMaxWeight <- function(sim, species = NULL,
 #'                                    min_w = 10, max_w = 1000)
 #' slope_biomass[1, ] # in 1976
 getCommunitySlope <- function(sim, species = NULL,
+                              biomass = TRUE, ...) {
+    UseMethod("getCommunitySlope")
+}
+#' @export
+getCommunitySlope.MizerSim <- function(sim, species = NULL,
                               biomass = TRUE, ...) {
     assert_that(is(sim, "MizerSim"))
     species <- valid_species_arg(sim, species)
