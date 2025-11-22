@@ -4,13 +4,10 @@
 \alias{setRmax}
 \title{Alias for \code{setBevertonHolt()}}
 \usage{
-setRmax(params, R_factor = deprecated(), erepro, R_max, reproduction_level)
+setRmax(params, erepro, R_max, reproduction_level, ...)
 }
 \arguments{
 \item{params}{A MizerParams object}
-
-\item{R_factor}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use
-\code{reproduction_level = 1 / R_factor} instead.}
 
 \item{erepro}{Reproductive efficiency for each species. See details.}
 

@@ -4,7 +4,17 @@
 \alias{animateSpectra}
 \title{Animation of the abundance spectra}
 \usage{
-animateSpectra(sim, ...)
+animateSpectra(
+  sim,
+  species,
+  time_range,
+  wlim,
+  ylim,
+  power,
+  total,
+  resource,
+  ...
+)
 }
 \arguments{
 \item{sim}{A MizerSim object}

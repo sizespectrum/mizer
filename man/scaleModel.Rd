@@ -4,7 +4,7 @@
 \alias{scaleModel}
 \title{Change scale of the model}
 \usage{
-scaleModel(params, ...)
+scaleModel(params, factor, ...)
 }
 \arguments{
 \item{params}{A MizerParams object}

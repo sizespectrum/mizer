@@ -6,7 +6,7 @@
 \alias{interaction_matrix<-}
 \title{Set species interaction matrix}
 \usage{
-setInteraction(params, interaction = NULL)
+setInteraction(params, interaction = NULL, ...)
 
 interaction_matrix(params)
 

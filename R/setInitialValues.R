@@ -45,9 +45,12 @@
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' params <- setInitialValues(params, sim)
 #' }
-setInitialValues <- function(params, sim, time_range, geometric_mean = FALSE) {
-    assert_that(is(params, "MizerParams"),
-                is(sim, "MizerSim"),
+setInitialValues <- function(params, sim, time_range, geometric_mean = FALSE, ...) {
+    UseMethod("setInitialValues")
+}
+#' @export
+setInitialValues.MizerParams <- function(params, sim, time_range, geometric_mean = FALSE) {
+    assert_that(is(sim, "MizerSim"),
                 is.flag(geometric_mean))
     no_t <- dim(sim@n)[1]
     if (!identical(dim(sim@n)[2:3], dim(params@initial_n))) {
@@ -114,6 +117,10 @@ setInitialValues <- function(params, sim, time_range, geometric_mean = FALSE) {
 #'   number densities for the fish spectra.
 #' @export
 `initialN<-` <- function(params, value) {
+    UseMethod("initialN<-")
+}
+#' @export
+`initialN<-.MizerParams` <- function(params, value) {
     if (!is(params, "MizerParams")) {
         stop("You can only assign an initial N to a MizerParams object. ",
              params, " is of class ", class(params), ".")
@@ -145,13 +152,18 @@ setInitialValues <- function(params, sim, time_range, geometric_mean = FALSE) {
 #' # Of course this initial state will no longer be a steady state
 #' params <- steady(params)
 initialN <- function(object) {
-    if (is(object, "MizerParams")) {
-        params <- validParams(object)
-        return(params@initial_n)
-    }
-    if (is(object, "MizerSim")) {
-        return(object@params@initial_n)
-    }
+    UseMethod("initialN")
+}
+#' @rdname initialN-set
+#' @export
+initialN.MizerParams <- function(object) {
+    params <- validParams(object)
+    return(params@initial_n)
+}
+#' @rdname initialN-set
+#' @export
+initialN.MizerSim <- function(object) {
+    return(object@params@initial_n)
 }
 
 #' Initial value for resource spectrum
@@ -170,6 +182,10 @@ initialN <- function(object) {
 #' # Of course this initial state will no longer be a steady state
 #' params <- steady(params)
 `initialNResource<-` <- function(params, value) {
+    UseMethod("initialNResource<-")
+}
+#' @export
+`initialNResource<-.MizerParams` <- function(params, value) {
     if (!is(params, "MizerParams")) {
         stop("You can only assign an initial N to a MizerParams object. ",
              params, " is of class ", class(params), ".")
@@ -192,11 +208,16 @@ initialN <- function(object) {
 #'   spectrum
 #' @export
 initialNResource <- function(object) {
-    if (is(object, "MizerParams")) {
-        params <- validParams(object)
-        return(params@initial_n_pp)
-    }
-    if (is(object, "MizerSim")) {
-        return(object@params@initial_n_pp)
-    }
+    UseMethod("initialNResource")
+}
+#' @rdname initialNResource-set
+#' @export
+initialNResource.MizerParams <- function(object) {
+    params <- validParams(object)
+    return(params@initial_n_pp)
+}
+#' @rdname initialNResource-set
+#' @export
+initialNResource.MizerSim <- function(object) {
+    return(object@params@initial_n_pp)
 }

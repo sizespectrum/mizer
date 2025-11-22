@@ -133,7 +133,12 @@
 #' library(ggplot2)
 #' ggplot(dff) + geom_line(aes(x = Size, y = Proportion, colour = Type))
 #' }
-setReproduction <- function(params, maturity = NULL,
+setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
+                           reset = FALSE, RDD = NULL, ...) {
+    UseMethod("setReproduction")
+}
+#' @export
+setReproduction.MizerParams <- function(params, maturity = NULL,
                             repro_prop = NULL, reset = FALSE,
                             RDD = NULL, ...) {
     # check arguments ----

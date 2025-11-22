@@ -221,7 +221,7 @@ calibrateYield.MizerParams <- function(params) {
 #'
 #' @return The rescaled MizerParams object
 #' @export
-scaleModel <- function(params, ...)
+scaleModel <- function(params, factor, ...)
     UseMethod("scaleModel")
 
 #' @export

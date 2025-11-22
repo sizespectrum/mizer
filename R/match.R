@@ -37,7 +37,7 @@
 #' params <- calibrateBiomass(params)
 #' params <- matchBiomasses(params)
 #' plotBiomassObservedVsModel(params)
-matchBiomasses <- function(params, ...)
+matchBiomasses <- function(params, species = NULL, ...)
     UseMethod("matchBiomasses")
 
 #' @export
@@ -116,7 +116,7 @@ matchBiomasses.MizerParams <- function(params, species = NULL) {
 #' species_params(params)$number_cutoff <- 10
 #' params <- calibrateNumber(params)
 #' params <- matchNumbers(params)
-matchNumbers <- function(params, ...)
+matchNumbers <- function(params, species = NULL, ...)
     UseMethod("matchNumbers")
 
 #' @export
@@ -202,7 +202,7 @@ matchNumbers.MizerParams <- function(params, species = NULL) {
 #' params <- calibrateYield(params)
 #' params <- matchYields(params)
 #' plotYieldObservedVsModel(params)
-matchYields <- function(params, ...)
+matchYields <- function(params, species = NULL, ...)
     UseMethod("matchYields")
 
 #' @export

@@ -141,8 +141,13 @@
 #' params <- setBevertonHolt(params, reproduction_level = 0.3)
 #' t(species_params(params)[, c("erepro", "R_max")])
 #' @export
-setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
-                            R_max, reproduction_level) {
+setBevertonHolt <- function(params, erepro,
+                            R_max, reproduction_level, ...) {
+    UseMethod("setBevertonHolt")
+}
+#' @export
+setBevertonHolt.MizerParams <- function(params, R_factor = deprecated(), erepro,
+                            R_max, reproduction_level, ...) {
     assert_that(is(params, "MizerParams"))
     no_sp <- nrow(params@species_params)
 
@@ -272,6 +277,10 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
 }
 
 getRequiredRDD <- function(params) {
+    UseMethod("getRequiredRDD")
+}
+#' @export
+getRequiredRDD.MizerParams <- function(params) {
     # Calculate required rdd
     mumu <- getMort(params)
     gg <- getEGrowth(params)
@@ -315,6 +324,10 @@ getRequiredRDD <- function(params) {
 #' identical(getRDD(params) / species_params(params)$R_max,
 #'           getReproductionLevel(params))
 getReproductionLevel <- function(params) {
+    UseMethod("getReproductionLevel")
+}
+#' @export
+getReproductionLevel.MizerParams <- function(params) {
     assert_that(is(params, "MizerParams"))
     if (!"R_max" %in% names(params@species_params)) {
         stop("No `R_max` is included in the species parameters.")

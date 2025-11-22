@@ -27,12 +27,13 @@
 #'   consumption rate and metabolic rate and rescaled species parameters
 #'   `gamma`,`h`, `ks` and `k`.
 #' @export
-matchGrowth <- function(params, ...)
+matchGrowth <- function(params, species = NULL, 
+                        keep = c("egg", "biomass", "number"), ...)
     UseMethod("matchGrowth")
 
 #' @export
 matchGrowth.MizerParams <- function(params, species = NULL,
-                        keep = c("egg", "biomass", "number")) {
+                        keep = c("egg", "biomass", "number")){
     assert_that(is(params, "MizerParams"))
     sel <- valid_species_arg(params, species = species, 
                                  return.logical = TRUE)

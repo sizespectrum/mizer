@@ -4,7 +4,7 @@
 \alias{matchYields}
 \title{Match yields to observations}
 \usage{
-matchYields(params, ...)
+matchYields(params, species = NULL, ...)
 }
 \arguments{
 \item{params}{A MizerParams object}

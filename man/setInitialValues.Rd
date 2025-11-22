@@ -4,7 +4,7 @@
 \alias{setInitialValues}
 \title{Set initial values to values from a simulation}
 \usage{
-setInitialValues(params, sim, time_range, geometric_mean = FALSE)
+setInitialValues(params, sim, time_range, geometric_mean = FALSE, ...)
 }
 \arguments{
 \item{params}{A \code{MizerParams} object in which to set the initial values}

@@ -41,6 +41,10 @@
 #' @export
 #' @family functions for setting parameters
 setSearchVolume <- function(params, search_vol = NULL, reset = FALSE, ...) {
+    UseMethod("setSearchVolume")
+}
+#' @export
+setSearchVolume.MizerParams <- function(params, search_vol = NULL, reset = FALSE, ...) {
     assert_that(is(params, "MizerParams"),
                 is.flag(reset))
     species_params <- params@species_params
@@ -111,6 +115,10 @@ setSearchVolume <- function(params, search_vol = NULL, reset = FALSE, ...) {
 #'   x size) holding the search volume
 #' @export
 getSearchVolume <- function(params) {
+    UseMethod("getSearchVolume")
+}
+#' @export
+getSearchVolume.MizerParams <- function(params) {
     params@search_vol
 }
 
@@ -118,6 +126,10 @@ getSearchVolume <- function(params) {
 #' @rdname setSearchVolume
 #' @export
 search_vol <- function(params) {
+    UseMethod("search_vol")
+}
+#' @export
+search_vol.MizerParams <- function(params) {
     params@search_vol
 }
 
@@ -125,5 +137,9 @@ search_vol <- function(params) {
 #' @param value search_vol
 #' @export
 `search_vol<-` <- function(params, value) {
+    UseMethod("search_vol<-")
+}
+#' @export
+`search_vol<-.MizerParams` <- function(params, value) {
     setSearchVolume(params, search_vol = value)
 }

@@ -3,11 +3,17 @@
 \name{initialN<-}
 \alias{initialN<-}
 \alias{initialN}
+\alias{initialN.MizerParams}
+\alias{initialN.MizerSim}
 \title{Initial values for fish spectra}
 \usage{
 initialN(params) <- value
 
 initialN(object)
+
+\method{initialN}{MizerParams}(object)
+
+\method{initialN}{MizerSim}(object)
 }
 \arguments{
 \item{params}{A MizerParams object}

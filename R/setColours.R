@@ -33,6 +33,10 @@
 #' getColours(params)
 #' getLinetypes(params)
 setColours <- function(params, colours) {
+    UseMethod("setColours")
+}
+#' @export
+setColours.MizerParams <- function(params, colours) {
     assert_that(is(params, "MizerParams"))
     colours <- validColours(colours)
     if (identical(colours, as.list(params@linecolour))) {
@@ -49,6 +53,10 @@ setColours <- function(params, colours) {
 #' @return `getColours()`: A named vector of colours
 #' @export
 getColours <- function(params) {
+    UseMethod("getColours")
+}
+#' @export
+getColours.MizerParams <- function(params) {
     params@linecolour
 }
 
@@ -72,6 +80,10 @@ validColours <- function(colours) {
 #' @return `setLinetypes()`: The MizerParams object with updated linetypes
 #' @export
 setLinetypes <- function(params, linetypes) {
+    UseMethod("setLinetypes")
+}
+#' @export
+setLinetypes.MizerParams <- function(params, linetypes) {
     assert_that(is(params, "MizerParams"))
     linetypes <- validLinetypes(linetypes)
     if (identical(linetypes, as.list(params@linetype))) {
@@ -88,6 +100,10 @@ setLinetypes <- function(params, linetypes) {
 #' @return `getLinetypes()`: A named vector of linetypes
 #' @export
 getLinetypes <- function(params) {
+    UseMethod("getLinetypes")
+}
+#' @export
+getLinetypes.MizerParams <- function(params) {
     params@linetype
 }
 

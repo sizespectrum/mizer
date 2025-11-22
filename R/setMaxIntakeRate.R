@@ -33,6 +33,10 @@
 #' @export
 #' @family functions for setting parameters
 setMaxIntakeRate <- function(params, intake_max = NULL, reset = FALSE, ...) {
+    UseMethod("setMaxIntakeRate")
+}
+#' @export
+setMaxIntakeRate.MizerParams <- function(params, intake_max = NULL, reset = FALSE, ...) {
     assert_that(is(params, "MizerParams"),
                 is.flag(reset))
     species_params <- params@species_params
@@ -99,6 +103,10 @@ setMaxIntakeRate <- function(params, intake_max = NULL, reset = FALSE, ...) {
 #'   (species x size) with the maximum intake rate.
 #' @export
 getMaxIntakeRate <- function(params) {
+    UseMethod("getMaxIntakeRate")
+}
+#' @export
+getMaxIntakeRate.MizerParams <- function(params) {
     params@intake_max
 }
 
@@ -106,6 +114,10 @@ getMaxIntakeRate <- function(params) {
 #' @rdname setMaxIntakeRate
 #' @export
 intake_max <- function(params) {
+    UseMethod("intake_max")
+}
+#' @export
+intake_max.MizerParams <- function(params) {
     params@intake_max
 }
 
@@ -113,5 +125,9 @@ intake_max <- function(params) {
 #' @param value intake_max
 #' @export
 `intake_max<-` <- function(params, value) {
+    UseMethod("intake_max<-")
+}
+#' @export
+`intake_max<-.MizerParams` <- function(params, value) {
     setMaxIntakeRate(params, intake_max = value)
 }

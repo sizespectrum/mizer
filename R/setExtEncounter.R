@@ -33,6 +33,10 @@
 #' # Change the external encounter rate in the params object
 #' ext_encounter(params) <- allo_encounter
 setExtEncounter <- function(params, ext_encounter = NULL, ...) {
+    UseMethod("setExtEncounter")
+}
+#' @export
+setExtEncounter.MizerParams <- function(params, ext_encounter = NULL, ...) {
     assert_that(is(params, "MizerParams"))
     
     if (is.null(ext_encounter)) {
@@ -57,12 +61,20 @@ setExtEncounter <- function(params, ext_encounter = NULL, ...) {
 #' (species x size) with the external encounter rate.
 #' @export
 getExtEncounter <- function(params) {
+    UseMethod("getExtEncounter")
+}
+#' @export
+getExtEncounter.MizerParams <- function(params) {
     params@ext_encounter
 }
 
 #' @rdname setExtEncounter
 #' @export
 ext_encounter <- function(params) {
+    UseMethod("ext_encounter")
+}
+#' @export
+ext_encounter.MizerParams <- function(params) {
     params@ext_encounter
 }
 
@@ -70,5 +82,9 @@ ext_encounter <- function(params) {
 #' @param value ext_encounter
 #' @export
 `ext_encounter<-` <- function(params, value) {
+    UseMethod("ext_encounter<-")
+}
+#' @export
+`ext_encounter<-.MizerParams` <- function(params, value) {
     setExtEncounter(params, ext_encounter = value)
 }

@@ -113,6 +113,11 @@
 #' @seealso [gear_params()]
 #' @family functions for setting parameters
 setFishing <- function(params, selectivity = NULL, catchability = NULL,
+                       reset = FALSE, initial_effort = NULL, ...) {
+    UseMethod("setFishing")
+}
+#' @export
+setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NULL,
                        reset = FALSE,
                        initial_effort = NULL, ...) {
     assert_that(is(params, "MizerParams"),
@@ -326,6 +331,10 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
 #' # changing an individual entry
 #' gear_params(params)["Cod, gear1", "catchability"] <- 0.8
 gear_params <- function(params) {
+    UseMethod("gear_params")
+}
+#' @export
+gear_params.MizerParams <- function(params) {
     params@gear_params
 }
 
@@ -334,6 +343,10 @@ gear_params <- function(params) {
 #' @seealso [validGearParams()]
 #' @export
 `gear_params<-` <- function(params, value) {
+    UseMethod("gear_params<-")
+}
+#' @export
+`gear_params<-.MizerParams` <- function(params, value) {
     value <- validGearParams(value, params@species_params)
     params@gear_params <- value
     setFishing(params)
@@ -347,12 +360,20 @@ gear_params <- function(params) {
 #' @examples
 #' str(getCatchability(NS_params))
 getCatchability <- function(params) {
+    UseMethod("getCatchability")
+}
+#' @export
+getCatchability.MizerParams <- function(params) {
     params@catchability
 }
 
 #' @rdname setFishing
 #' @export
 catchability <- function(params) {
+    UseMethod("catchability")
+}
+#' @export
+catchability.MizerParams <- function(params) {
     params@catchability
 }
 
@@ -360,6 +381,10 @@ catchability <- function(params) {
 #' @param value .
 #' @export
 `catchability<-` <- function(params, value) {
+    UseMethod("catchability<-")
+}
+#' @export
+`catchability<-.MizerParams` <- function(params, value) {
     setFishing(params, catchability = value)
 }
 
@@ -371,18 +396,30 @@ catchability <- function(params) {
 #' @examples
 #' str(getSelectivity(NS_params))
 getSelectivity <- function(params) {
+    UseMethod("getSelectivity")
+}
+#' @export
+getSelectivity.MizerParams <- function(params) {
     params@selectivity
 }
 
 #' @rdname setFishing
 #' @export
 selectivity <- function(params) {
+    UseMethod("selectivity")
+}
+#' @export
+selectivity.MizerParams <- function(params) {
     params@selectivity
 }
 
 #' @rdname setFishing
 #' @export
 `selectivity<-` <- function(params, value) {
+    UseMethod("selectivity<-")
+}
+#' @export
+`selectivity<-.MizerParams` <- function(params, value) {
     setFishing(params, selectivity = value)
 }
 
@@ -393,6 +430,10 @@ selectivity <- function(params) {
 #' @examples
 #' str(getInitialEffort(NS_params))
 getInitialEffort <- function(params) {
+    UseMethod("getInitialEffort")
+}
+#' @export
+getInitialEffort.MizerParams <- function(params) {
     params@initial_effort
 }
 
@@ -428,6 +469,10 @@ getInitialEffort <- function(params) {
 #' @return Effort vector
 #' @export
 initial_effort <- function(params) {
+    UseMethod("initial_effort")
+}
+#' @export
+initial_effort.MizerParams <- function(params) {
     params@initial_effort
 }
 
@@ -436,6 +481,10 @@ initial_effort <- function(params) {
 #'   below.
 #' @export
 `initial_effort<-` <- function(params, value) {
+    UseMethod("initial_effort<-")
+}
+#' @export
+`initial_effort<-.MizerParams` <- function(params, value) {
     setFishing(params, initial_effort = value)
 }
 

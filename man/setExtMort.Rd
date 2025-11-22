@@ -13,7 +13,6 @@ setExtMort(
   z0pre = 0.6,
   z0exp = params@resource_params$n - 1,
   reset = FALSE,
-  z0 = deprecated(),
   ...
 )
 
@@ -45,12 +44,12 @@ previously overwritten with a custom value. If set to FALSE (default) then
 a recalculation from the species parameters will take place only if no
 custom value has been set.}
 
-\item{z0}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{ext_mort} instead. Not to
-be confused with the species_parameter \code{z0}.}
-
 \item{...}{Unused}
 
 \item{value}{ext_mort}
+
+\item{z0}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{ext_mort} instead. Not to
+be confused with the species_parameter \code{z0}.}
 }
 \value{
 \code{setExtMort()}: A MizerParams object with updated external mortality

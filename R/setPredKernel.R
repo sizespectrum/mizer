@@ -93,7 +93,11 @@
 #' pred_kernel["Herring", , ] <- sweep(pred_kernel["Herring", , ], 2, 
 #'                                     params@w_full, "*")
 #' params<- setPredKernel(params, pred_kernel = pred_kernel)
-setPredKernel <- function(params,
+setPredKernel <- function(params, pred_kernel = NULL, reset = FALSE, ...) {
+    UseMethod("setPredKernel")
+}
+#' @export
+setPredKernel.MizerParams <- function(params,
                           pred_kernel = NULL,
                           reset = FALSE, ...) {
     assert_that(is(params, "MizerParams"),
@@ -191,6 +195,10 @@ setPredKernel <- function(params,
 #'   species x predator_size x prey_size)
 #' @export
 getPredKernel <- function(params) {
+    UseMethod("getPredKernel")
+}
+#' @export
+getPredKernel.MizerParams <- function(params) {
     # This function is more complicated than you might have thought because
     # usually the predation kernel is not stored in the MizerParams object,
     # but rather only the Fourier coefficients needed for fast calculation of
@@ -229,6 +237,10 @@ getPredKernel <- function(params) {
 #' @rdname setPredKernel
 #' @export
 pred_kernel <- function(params) {
+    UseMethod("pred_kernel")
+}
+#' @export
+pred_kernel.MizerParams <- function(params) {
     getPredKernel(params)
 }
 
@@ -236,6 +248,10 @@ pred_kernel <- function(params) {
 #' @param value pred_kernel
 #' @export
 `pred_kernel<-` <- function(params, value) {
+    UseMethod("pred_kernel<-")
+}
+#' @export
+`pred_kernel<-.MizerParams` <- function(params, value) {
     setPredKernel(params, pred_kernel = value)
 }
 

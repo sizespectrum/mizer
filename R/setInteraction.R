@@ -53,8 +53,12 @@
 #' inter[1, 2:3] <- 0
 #' params <- setInteraction(params, interaction = inter)
 #' getInteraction(params)
-setInteraction <- function(params,
-                           interaction = NULL) {
+setInteraction <- function(params, interaction = NULL, ...) {
+    UseMethod("setInteraction")
+}
+#' @export
+setInteraction.MizerParams <- function(params,
+                           interaction = NULL, ...) {
     assert_that(is(params, "MizerParams"))
     if (is.null(interaction)) {
         interaction <- params@interaction
@@ -129,6 +133,10 @@ setInteraction <- function(params,
 #' @export
 #' @keywords internal
 getInteraction <- function(params) {
+    UseMethod("getInteraction")
+}
+#' @export
+getInteraction.MizerParams <- function(params) {
     lifecycle::deprecate_warn("2.4.0", "getInteraction()", 
                               "interaction_matrix()")
     interaction_matrix(params)
@@ -140,6 +148,10 @@ getInteraction <- function(params) {
 #'   prey species)
 #' @export
 interaction_matrix <- function(params) {
+    UseMethod("interaction_matrix")
+}
+#' @export
+interaction_matrix.MizerParams <- function(params) {
     params@interaction
 }
 
@@ -147,5 +159,9 @@ interaction_matrix <- function(params) {
 #' @param value An interaction matrix
 #' @export
 `interaction_matrix<-` <- function(params, value) {
+    UseMethod("interaction_matrix<-")
+}
+#' @export
+`interaction_matrix<-.MizerParams` <- function(params, value) {
     setInteraction(params, interaction = value)
 }
