@@ -130,19 +130,28 @@ NULL
 #' # Control save times with an effort array using t_save
 #' sim <- project(params, effort = effort_array, t_save = 2)
 #' }
+#' @rdname project
+#' @export
 project <- function(object, effort,
                     t_max = 100, dt = 0.1, t_save = 1, t_start = 0,
                     initial_n, initial_n_pp,
                     append = TRUE,
                     progress_bar = TRUE, ...) {
+    UseMethod("project")
+}
+
+#' @rdname project
+#' @export
+project.MizerParams <- function(object, effort,
+                                t_max = 100, dt = 0.1, t_save = 1, t_start = 0,
+                                initial_n, initial_n_pp,
+                                append = TRUE,
+                                progress_bar = TRUE, ...) {
+    params <- object
     # Set and check initial values ----
     assert_that(t_max > 0)
-    if (is(object, "MizerSim")) {
-        validObject(object)
-        params <- setInitialValues(object@params, object)
-        t_start <- getTimes(object)[idxFinalT(object)]
-    } else if (is(object, "MizerParams")) {
-        params <- validParams(object)
+    if (is(params, "MizerParams")) {
+        params <- validParams(params)
         if (!missing(initial_n)) params@initial_n[] <- initial_n
         if (!missing(initial_n_pp)) params@initial_n_pp[] <- initial_n_pp
     } else {
@@ -331,8 +340,29 @@ project <- function(object, effort,
         sim@n_other[i, ] <- unserialize(serialize(n_list$n_other, NULL))
     }
 
-    # append to previous simulation ----
-    if (is(object, "MizerSim") && append) {
+    return(sim)
+}
+
+#' @rdname project
+#' @export
+project.MizerSim <- function(object, effort,
+                             t_max = 100, dt = 0.1, t_save = 1, t_start = 0,
+                             initial_n, initial_n_pp,
+                             append = TRUE,
+                             progress_bar = TRUE, ...) {
+    validObject(object)
+    params <- setInitialValues(object@params, object)
+    t_start <- getTimes(object)[idxFinalT(object)]
+
+    sim <- project(params,
+        effort = effort, t_max = t_max, dt = dt,
+        t_save = t_save, t_start = t_start,
+        initial_n = initial_n, initial_n_pp = initial_n_pp,
+        progress_bar = progress_bar, ...
+    )
+
+    if (append) {
+        times <- as.numeric(dimnames(sim@n)[[1]])
         no_t_old <- dim(object@n)[1]
         no_t <- length(times)
         new_t_dimnames <- c(
@@ -408,7 +438,13 @@ project <- function(object, effort,
 #'
 #' @export
 #' @concept helper
-project_simple <-
+project_simple <- function(params, n, n_pp, n_other, effort, t, dt, steps, ...) {
+    UseMethod("project_simple")
+}
+
+#' @rdname project_simple
+#' @export
+project_simple.MizerParams <-
     function(params,
              n = params@initial_n,
              n_pp = params@initial_n_pp,
