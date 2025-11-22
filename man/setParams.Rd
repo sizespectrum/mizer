@@ -4,10 +4,10 @@
 \alias{setParams}
 \title{Set or change any model parameters}
 \usage{
-setParams(params, interaction = NULL, ...)
+setParams(object, interaction = NULL, ...)
 }
 \arguments{
-\item{params}{A \linkS4class{MizerParams} object}
+\item{object}{A \linkS4class{MizerParams} object}
 
 \item{interaction}{Optional interaction matrix of the species (predator
 species x prey species). By default all entries are 1. See "Setting
@@ -16,6 +16,7 @@ interaction matrix" section below.}
 \item{...}{
   Arguments passed on to \code{\link[=setPredKernel]{setPredKernel}}, \code{\link[=setSearchVolume]{setSearchVolume}}, \code{\link[=setMaxIntakeRate]{setMaxIntakeRate}}, \code{\link[=setMetabolicRate]{setMetabolicRate}}, \code{\link[=setExtMort]{setExtMort}}, \code{\link[=setExtEncounter]{setExtEncounter}}, \code{\link[=setReproduction]{setReproduction}}, \code{\link[=setFishing]{setFishing}}
   \describe{
+    \item{\code{params}}{A MizerParams object}
     \item{\code{pred_kernel}}{Optional. An array (species x predator size x prey size)
 that holds the predation coefficient of each predator at size on each prey
 size. If not supplied, a default is set as described in section "Setting

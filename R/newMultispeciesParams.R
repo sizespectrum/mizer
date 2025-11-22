@@ -242,7 +242,7 @@ newMultispeciesParams <- function(
 #' }
 #' See the Details section below for a discussion of how to use this function.
 #'
-#' @param params A \linkS4class{MizerParams} object
+#' @param object A \linkS4class{MizerParams} object
 #' @inheritParams setInteraction
 #' @inheritDotParams setPredKernel -reset
 #' @inheritDotParams setSearchVolume -reset
@@ -327,8 +327,12 @@ newMultispeciesParams <- function(
 #' @family functions for setting parameters
 # The reason we list `interaction` explicitly rather than including it in
 # the `...` is for backwards compatibility. It used to be the second argument.
-setParams <- function(params, interaction = NULL, ...) {
-    params <- validParams(params)
+setParams <- function(object, interaction = NULL, ...) {
+    UseMethod("setParams")
+}
+#' @export
+setParams.MizerParams <- function(object, interaction = NULL, ...) {
+    params <- validParams(object)
 
     params <- setInteraction(params, interaction)
     params <- setPredKernel(params, ...)
