@@ -66,14 +66,13 @@ age_mat_vB.default <- function(object, ...) {
 #' age_mat(NS_params)
 #' @rdname age_mat
 #' @export
-age_mat <- function(object, ...) {
+age_mat <- function(params, ...) {
     UseMethod("age_mat")
 }
 
 #' @rdname age_mat
 #' @export
-age_mat.MizerParams <- function(object, ...) {
-    params <- object
+age_mat.MizerParams <- function(params, ...) {
     sp <- params@species_params
     no_sp <- nrow(sp)
 
@@ -86,4 +85,10 @@ age_mat.MizerParams <- function(object, ...) {
     }
 
     a_mat
+}
+
+#' @rdname age_mat
+#' @export
+age_mat.default <- function(params, ...) {
+    stop("The first argument must be a MizerParams object.")
 }

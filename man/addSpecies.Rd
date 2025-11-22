@@ -2,15 +2,21 @@
 % Please edit documentation in R/manipulate_species.R
 \name{addSpecies}
 \alias{addSpecies}
+\alias{addSpecies.MizerParams}
+\alias{addSpecies.default}
 \title{Add new species}
 \usage{
-addSpecies(
+addSpecies(params, ...)
+
+\method{addSpecies}{MizerParams}(
   params,
   species_params,
   gear_params = data.frame(),
   initial_effort,
   interaction
 )
+
+\method{addSpecies}{default}(params, ...)
 }
 \arguments{
 \item{params}{A mizer params object for the original system.}

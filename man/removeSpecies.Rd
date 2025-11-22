@@ -2,9 +2,15 @@
 % Please edit documentation in R/manipulate_species.R
 \name{removeSpecies}
 \alias{removeSpecies}
+\alias{removeSpecies.MizerParams}
+\alias{removeSpecies.default}
 \title{Remove species}
 \usage{
-removeSpecies(params, species)
+removeSpecies(params, ...)
+
+\method{removeSpecies}{MizerParams}(params, species)
+
+\method{removeSpecies}{default}(params, ...)
 }
 \arguments{
 \item{params}{A mizer params object for the original system.}
