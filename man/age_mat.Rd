@@ -3,11 +3,14 @@
 \name{age_mat}
 \alias{age_mat}
 \alias{age_mat.MizerParams}
+\alias{age_mat.default}
 \title{Calculate age at maturity}
 \usage{
-age_mat(object, ...)
+age_mat(params, ...)
 
-\method{age_mat}{MizerParams}(object, ...)
+\method{age_mat}{MizerParams}(params, ...)
+
+\method{age_mat}{default}(params, ...)
 }
 \arguments{
 \item{params}{A MizerParams object}

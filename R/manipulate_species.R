@@ -45,8 +45,6 @@
 #'   The new species will have a reproduction level of 1/4, this can then be
 #'   changed with [setBevertonHolt()]
 #'
-#' @seealso [removeSpecies()]
-#' @export
 #' @examples
 #' params <- newTraitParams()
 #' species_params <- data.frame(
@@ -61,9 +59,18 @@
 #' )
 #' params <- addSpecies(params, species_params)
 #' plotSpectra(params)
-addSpecies <- function(params, species_params,
-                       gear_params = data.frame(), initial_effort,
-                       interaction) {
+#' @seealso [removeSpecies()]
+#' @export
+#' @rdname addSpecies
+addSpecies <- function(params, ...) {
+    UseMethod("addSpecies")
+}
+
+#' @rdname addSpecies
+#' @export
+addSpecies.MizerParams <- function(params, species_params,
+                                   gear_params = data.frame(), initial_effort,
+                                   interaction) {
     # check validity of parameters ----
     params <- validParams(params)
     given_species_params <- validGivenSpeciesParams(species_params)
@@ -303,6 +310,12 @@ addSpecies <- function(params, species_params,
     return(p)
 }
 
+#' @rdname addSpecies
+#' @export
+addSpecies.default <- function(params, ...) {
+    stop("The first argument to addSpecies() must be a MizerParams object.")
+}
+
 
 #' Remove species
 #'
@@ -320,12 +333,19 @@ addSpecies <- function(params, species_params,
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
+#' @rdname removeSpecies
 #' @examples
 #' params <- NS_params
 #' species_params(params)$species
 #' params <- removeSpecies(params, c("Cod", "Haddock"))
 #' species_params(params)$species
-removeSpecies <- function(params, species) {
+removeSpecies <- function(params, ...) {
+    UseMethod("removeSpecies")
+}
+
+#' @rdname removeSpecies
+#' @export
+removeSpecies.MizerParams <- function(params, species) {
     params <- validParams(params)
     species <- valid_species_arg(params, species,
                                  return.logical = TRUE)
@@ -386,6 +406,12 @@ removeSpecies <- function(params, species) {
     return(p)
 }
 
+#' @rdname removeSpecies
+#' @export
+removeSpecies.default <- function(params, ...) {
+    stop("The first argument to removeSpecies() must be a MizerParams object.")
+}
+
 
 #' Rename species
 #'
@@ -401,11 +427,18 @@ removeSpecies <- function(params, species) {
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
+#' @rdname renameSpecies
 #' @examples
 #' replace <- c(Cod = "Kabeljau", Haddock = "Schellfisch")
 #' params <- renameSpecies(NS_params, replace)
 #' species_params(params)$species
-renameSpecies <- function(params, replace) {
+renameSpecies <- function(params, ...) {
+    UseMethod("renameSpecies")
+}
+
+#' @rdname renameSpecies
+#' @export
+renameSpecies.MizerParams <- function(params, replace) {
     params <- validParams(params)
     replace[] <- as.character(replace)
     to_replace <- names(replace)
@@ -471,6 +504,12 @@ renameSpecies <- function(params, replace) {
     return(params)
 }
 
+#' @rdname renameSpecies
+#' @export
+renameSpecies.default <- function(params, ...) {
+    stop("The first argument to renameSpecies() must be a MizerParams object.")
+}
+
 
 #' Rename gears
 #'
@@ -487,11 +526,18 @@ renameSpecies <- function(params, replace) {
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
+#' @rdname renameGear
 #' @examples
 #' replace <- c(Industrial = "Trawl", Otter = "Beam_Trawl")
 #' params <- renameGear(NS_params, replace)
 #' gear_params(params)$gear
-renameGear <- function(params, replace) {
+renameGear <- function(params, ...) {
+    UseMethod("renameGear")
+}
+
+#' @rdname renameGear
+#' @export
+renameGear.MizerParams <- function(params, replace) {
     params <- validParams(params)
     replace[] <- as.character(replace)
     to_replace <- names(replace)
@@ -530,4 +576,10 @@ renameGear <- function(params, replace) {
 
     params@time_modified <- lubridate::now()
     return(params)
+}
+
+#' @rdname renameGear
+#' @export
+renameGear.default <- function(params, ...) {
+    stop("The first argument to renameGear() must be a MizerParams object.")
 }

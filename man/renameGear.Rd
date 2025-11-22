@@ -2,9 +2,15 @@
 % Please edit documentation in R/manipulate_species.R
 \name{renameGear}
 \alias{renameGear}
+\alias{renameGear.MizerParams}
+\alias{renameGear.default}
 \title{Rename gears}
 \usage{
-renameGear(params, replace)
+renameGear(params, ...)
+
+\method{renameGear}{MizerParams}(params, replace)
+
+\method{renameGear}{default}(params, ...)
 }
 \arguments{
 \item{params}{A mizer params object}
