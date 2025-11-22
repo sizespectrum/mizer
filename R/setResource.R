@@ -334,12 +334,20 @@ resource_capacity.MizerParams <- function(params) {
 #'   and the resource capacity for each size class.
 #' @export
 resource_level <- function(params) {
+    UseMethod("resource_level")
+}
+#' @export
+resource_level.MizerParams <- function(params) {
     params@initial_n_pp / params@cc_pp
 }
 
 #' @rdname setResource
 #' @export
 `resource_level<-` <- function(params, value) {
+    UseMethod("resource_level<-")
+}
+#' @export
+`resource_level<-.MizerParams` <- function(params, value) {
     setResource(params, resource_level = value)
 }
 
