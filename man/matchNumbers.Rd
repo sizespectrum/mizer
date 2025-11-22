@@ -4,7 +4,7 @@
 \alias{matchNumbers}
 \title{Match numbers to observations}
 \usage{
-matchNumbers(params, species = NULL)
+matchNumbers(params, ...)
 }
 \arguments{
 \item{params}{A MizerParams object}

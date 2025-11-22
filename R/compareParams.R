@@ -11,7 +11,11 @@
 #' params2 <- params1
 #' species_params(params2)$w_mat[1] <- 10
 #' compareParams(params1, params2)
-compareParams <- function(params1, params2) {
+compareParams <- function(params1, ...)
+    UseMethod("compareParams")
+
+#' @export
+compareParams.MizerParams <- function(params1, params2) {
     params1 <- validParams(params1)
     params2 <- validParams(params2)
 

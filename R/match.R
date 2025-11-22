@@ -37,7 +37,11 @@
 #' params <- calibrateBiomass(params)
 #' params <- matchBiomasses(params)
 #' plotBiomassObservedVsModel(params)
-matchBiomasses <- function(params, species = NULL) {
+matchBiomasses <- function(params, ...)
+    UseMethod("matchBiomasses")
+
+#' @export
+matchBiomasses.MizerParams <- function(params, species = NULL) {
     if (!("biomass_observed" %in% names(params@species_params))) {
         return(params)
     }
@@ -112,7 +116,11 @@ matchBiomasses <- function(params, species = NULL) {
 #' species_params(params)$number_cutoff <- 10
 #' params <- calibrateNumber(params)
 #' params <- matchNumbers(params)
-matchNumbers <- function(params, species = NULL) {
+matchNumbers <- function(params, ...)
+    UseMethod("matchNumbers")
+
+#' @export
+matchNumbers.MizerParams <- function(params, species = NULL) {
     if (!("number_observed" %in% names(params@species_params))) {
         return(params)
     }
@@ -194,7 +202,11 @@ matchNumbers <- function(params, species = NULL) {
 #' params <- calibrateYield(params)
 #' params <- matchYields(params)
 #' plotYieldObservedVsModel(params)
-matchYields <- function(params, species = NULL) {
+matchYields <- function(params, ...)
+    UseMethod("matchYields")
+
+#' @export
+matchYields.MizerParams <- function(params, species = NULL) {
     lifecycle::deprecate_warn(
         "2.6.0", "matchYields()", "mizerExperimental::matchYield()",
         details = "This function has not proven useful. If you do have a use case for it, please let the developers know by creating an issue at https://github.com/sizespectrum/mizer/issues"

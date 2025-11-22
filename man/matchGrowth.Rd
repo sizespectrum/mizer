@@ -4,7 +4,7 @@
 \alias{matchGrowth}
 \title{Adjust model to produce observed growth}
 \usage{
-matchGrowth(params, species = NULL, keep = c("egg", "biomass", "number"))
+matchGrowth(params, ...)
 }
 \arguments{
 \item{params}{A MizerParams object}

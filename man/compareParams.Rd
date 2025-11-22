@@ -4,7 +4,7 @@
 \alias{compareParams}
 \title{Compare two MizerParams objects and print out differences}
 \usage{
-compareParams(params1, params2)
+compareParams(params1, ...)
 }
 \arguments{
 \item{params1}{First MizerParams object}

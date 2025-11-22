@@ -29,7 +29,11 @@
 #' \donttest{
 #' animateSpectra(NS_sim, power = 2, wlim = c(0.1, NA), time_range = 1997:2007)
 #' }
-animateSpectra <- function(sim,
+animateSpectra <- function(sim, ...)
+    UseMethod("animateSpectra")
+
+#' @export
+animateSpectra.MizerSim <- function(sim,
                            species = NULL,
                            time_range,
                            wlim = c(NA, NA),
@@ -120,3 +124,4 @@ animateSpectra <- function(sim,
                                 title = y_label),
                    legend = list(traceorder = "normal"))
 }
+

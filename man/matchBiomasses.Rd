@@ -4,7 +4,7 @@
 \alias{matchBiomasses}
 \title{Match biomasses to observations}
 \usage{
-matchBiomasses(params, species = NULL)
+matchBiomasses(params, ...)
 }
 \arguments{
 \item{params}{A MizerParams object}
