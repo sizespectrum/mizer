@@ -1,5 +1,4 @@
 test_that("Time resampling in project behaves as documented", {
-    devtools::load_all(".")
     params <- NS_params
     gear_names <- unique(gear_params(params)$gear)
 
