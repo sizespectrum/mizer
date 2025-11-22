@@ -864,6 +864,8 @@ dw_full <- function(params) {
 #' the new version again with [saveParams()].
 #'
 #' @param params The MizerParams object to validate
+#' @param info_level Controls the amount of information messages and warnings
+#'   that are shown. Higher levels lead to more messages.
 #' @return A valid MizerParams object
 #' @export
 validParams <- function(params, info_level = 3) {
