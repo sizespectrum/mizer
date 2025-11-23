@@ -35,6 +35,8 @@ know about it by posting about it on our [issue tracker](https://github.com/size
 to @[mizer_model](https://twitter.com/mizer_model). We love to hear from
 you.
 
+![](images/workflow.png)
+
 A good way to get into mizer is to follow the online [mizer course](https://mizer.course.sizespectrum.org).
 This course has three parts, each consisting of several tutorials with example code and exercises:
 

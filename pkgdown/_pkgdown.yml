@@ -37,7 +37,7 @@ toc:
 navbar:
   structure:
     left: [intro, course, articles, reference, news]
-    right: [search, blog, twitter, github, lightswitch]
+    right: [ai, search, blog, twitter, github, lightswitch]
   components:
     home: ~
     course:
@@ -50,6 +50,10 @@ navbar:
        icon: "fab fa-twitter fa-lg"
        href: https://twitter.com/mizer_model
        aria-label: Twitter
+    ai:
+      icon: fa-robot
+      text: "Ask AI"
+      href: https://notebooklm.google.com/notebook/6aa51f75-d1a8-4140-9180-84532ef5f821
 
 articles:
 - title: Model description
