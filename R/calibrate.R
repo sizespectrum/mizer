@@ -37,7 +37,7 @@ calibrateBiomass <- function(params, ...)
     UseMethod("calibrateBiomass")
 
 #' @export
-calibrateBiomass.MizerParams <- function(params) {
+calibrateBiomass.MizerParams <- function(params, ...) {
     if ((!("biomass_observed" %in% names(params@species_params))) ||
         all(is.na(params@species_params$biomass_observed))) {
         return(params)
@@ -102,7 +102,7 @@ calibrateNumber <- function(params, ...)
     UseMethod("calibrateNumber")
 
 #' @export
-calibrateNumber.MizerParams <- function(params) {
+calibrateNumber.MizerParams <- function(params, ...) {
     if ((!("number_observed" %in% names(params@species_params))) ||
         all(is.na(params@species_params$number_observed))) {
         return(params)
@@ -166,7 +166,7 @@ calibrateYield <- function(params, ...)
     UseMethod("calibrateYield")
 
 #' @export
-calibrateYield.MizerParams <- function(params) {
+calibrateYield.MizerParams <- function(params, ...) {
     lifecycle::deprecate_warn(
         "2.6.0", "calibrateYield()",
         details = "This function has not proven useful. If you do have a use case for it, please let the developers know by creating an issue at https://github.com/sizespectrum/mizer/issues"
@@ -229,7 +229,7 @@ scaleModel <- function(params, factor, ...)
     UseMethod("scaleModel")
 
 #' @export
-scaleModel.MizerParams <- function(params, factor) {
+scaleModel.MizerParams <- function(params, factor, ...) {
     params <- validParams(params)
     assert_that(is.number(factor),
                 factor > 0)

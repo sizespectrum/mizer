@@ -42,6 +42,8 @@ Default value is 0.6.}
     \item{\code{z0exp}}{If \code{z0}, the mortality from other sources, is not a column in
 the species data frame, it is calculated as \code{z0pre * w_max ^ z0exp}.
 Default value is \code{n-1}.}
+    \item{\code{z0}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{ext_mort} instead. Not to
+be confused with the species_parameter \code{z0}.}
     \item{\code{ext_encounter}}{Optional. An array (species x size) holding the external
 encounter rate.  If not supplied, the external encounter rate is left
 unchanged. Initially is is set to 0.}

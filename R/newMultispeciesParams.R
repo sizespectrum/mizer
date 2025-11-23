@@ -18,6 +18,8 @@
 #' @inheritParams setReproduction
 #' @inheritParams setFishing
 #' @inheritParams setResource
+#' @param r_pp `r lifecycle::badge("deprecated")`. Use `resource_rate` argument
+#'   instead.
 #' @param kappa The coefficient of the initial resource abundance power-law.
 #' @param min_w_pp The smallest size of the resource spectrum. By default this
 #'   is set to the smallest value at which any of the consumers can feed.

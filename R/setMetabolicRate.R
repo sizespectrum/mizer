@@ -21,6 +21,7 @@
 #' specified, a default of \eqn{f_c = 0.2} is used.
 #'
 #' @param object A MizerParams object
+#' @param params A MizerParams object
 #' @param metab Optional. An array (species x size) holding the metabolic rate
 #'   for each species at size. If not supplied, a default is set as described in
 #'   the section "Setting metabolic rate".

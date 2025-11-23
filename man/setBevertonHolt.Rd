@@ -16,8 +16,11 @@ setBevertonHolt(params, erepro, R_max, reproduction_level, ...)
 \item{reproduction_level}{Sets \code{R_max} so that the reproduction rate at
 the initial state is \code{R_max * reproduction_level}.}
 
-\item{R_factor}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use
-\code{reproduction_level = 1 / R_factor} instead.}
+\item{...}{Unused
+\itemize{
+\item \code{R_factor}: \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use
+\code{reproduction_level = 1 / R_factor} instead.
+}}
 }
 \value{
 A MizerParams object

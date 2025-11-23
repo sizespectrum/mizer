@@ -27,7 +27,6 @@ setDiffusion <- function(params, diffusion = NULL, reset = FALSE, ...) {
 #' @rdname setDiffusion
 #' @export
 setDiffusion.MizerParams <- function(params, diffusion = NULL, reset = FALSE, ...) {
-    assert_that(is(params, "MizerParams"))
 
     if (is.null(diffusion)) {
         diffusion <- params@diffusion

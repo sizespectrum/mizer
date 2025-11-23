@@ -73,10 +73,11 @@ step from the current state.}
 
 \item{w_pp_cutoff}{The upper cut off size of the resource spectrum power law
 used when \code{resource_capacity} is given as a single number. When changing
-\code{w_pp_cutoff} without providing \code{resource_capacity}, the cutoff can only
-be decreased. In that case, both the carrying capacity and the initial
-resource abundance will be cut off at the new value. To increase the cutoff,
-you must also provide the \code{resource_capacity} for the extended range.}
+\code{w_pp_cutoff} without providing \code{resource_capacity}, the cutoff can only be
+decreased. In that case, both the carrying capacity and the initial
+resource abundance will be cut off at the new value. To increase the
+cutoff, you must also provide the \code{resource_capacity} for the extended
+range.}
 
 \item{balance}{By default, if possible, the resource parameters are
 set so that the resource replenishes at the same rate at which it is
@@ -87,12 +88,6 @@ determined automatically. Set to FALSE if you do not want the balancing.}
 \item{...}{Unused}
 
 \item{value}{The desired new value for the respective parameter.}
-
-\item{r_pp}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}. Use \code{resource_rate} argument
-instead.}
-
-\item{kappa}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}. Use \code{resource_capacity}
-argument instead.}
 }
 \value{
 \code{setResource}: A MizerParams object with updated resource parameters

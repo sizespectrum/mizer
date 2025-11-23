@@ -70,9 +70,8 @@ addSpecies <- function(params, species_params,
 }
 
 #' @export
-addSpecies.MizerParams <- function(params, species_params,
-                                   gear_params = data.frame(), initial_effort,
-                                   interaction) {
+addSpecies.MizerParams <- function(params, species_params, gear_params = data.frame(),
+                                   initial_effort = NULL, interaction = NULL, ...) {
     # check validity of parameters ----
     params <- validParams(params)
     given_species_params <- validGivenSpeciesParams(species_params)
@@ -341,7 +340,7 @@ removeSpecies <- function(params, species, ...) {
 }
 
 #' @export
-removeSpecies.MizerParams <- function(params, species) {
+removeSpecies.MizerParams <- function(params, species, ...) {
     params <- validParams(params)
     species <- valid_species_arg(params, species,
                                  return.logical = TRUE)
@@ -428,7 +427,7 @@ renameSpecies <- function(params, replace, ...) {
 }
 
 #' @export
-renameSpecies.MizerParams <- function(params, replace) {
+renameSpecies.MizerParams <- function(params, replace, ...) {
     params <- validParams(params)
     replace[] <- as.character(replace)
     to_replace <- names(replace)
@@ -520,7 +519,7 @@ renameGear <- function(params, replace, ...) {
 }
 
 #' @export
-renameGear.MizerParams <- function(params, replace) {
+renameGear.MizerParams <- function(params, replace, ...) {
     params <- validParams(params)
     replace[] <- as.character(replace)
     to_replace <- names(replace)

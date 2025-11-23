@@ -1692,6 +1692,8 @@ plot_diet <- function(params, n, diet, species, return_data) {
 #' @family plotting functions
 #' @seealso [plotting_functions]
 #' @rdname plotMizerSim
+#' @name plotMizerSim
+#' @aliases plot,MizerSim,missing-method
 #' @examples
 #' \donttest{
 #' params <-  NS_params
@@ -1736,6 +1738,8 @@ setMethod("plot", signature(x = "MizerSim", y = "missing"),
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions]
+#' @name plotMizerParams
+#' @aliases plot,MizerParams,missing-method
 #' @examples
 #' \donttest{
 #' params <-  NS_params

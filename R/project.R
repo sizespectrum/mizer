@@ -150,13 +150,10 @@ project.MizerParams <- function(object, effort,
     params <- object
     # Set and check initial values ----
     assert_that(t_max > 0)
-    if (is(params, "MizerParams")) {
-        params <- validParams(params)
-        if (!missing(initial_n)) params@initial_n[] <- initial_n
-        if (!missing(initial_n_pp)) params@initial_n_pp[] <- initial_n_pp
-    } else {
-        stop("The `object` argument must be either a MizerParams or a MizerSim object.")
-    }
+    params <- validParams(params)
+    if (!missing(initial_n)) params@initial_n[] <- initial_n
+    if (!missing(initial_n_pp)) params@initial_n_pp[] <- initial_n_pp
+
     initial_n <- params@initial_n
     initial_n_pp <- params@initial_n_pp
     initial_n_other <- params@initial_n_other

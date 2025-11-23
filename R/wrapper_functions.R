@@ -56,6 +56,7 @@
 #'   spectrum is continuous with the resource spectrum.
 #' @param knife_edge_size The size at the edge of the knife-edge-selectivity
 #'   function.
+#' @param r_pp Growth rate parameter for the resource spectrum.
 #' @inheritParams newMultispeciesParams
 #' @export
 #' @return An object of type \code{\linkS4class{MizerParams}}

@@ -35,6 +35,8 @@ custom value has been set.}
 
 \item{...}{Unused}
 
+\item{params}{A MizerParams object}
+
 \item{value}{metab}
 }
 \value{

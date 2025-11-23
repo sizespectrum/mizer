@@ -60,7 +60,6 @@ setInteraction <- function(params, interaction = NULL, ...) {
 #' @export
 setInteraction.MizerParams <- function(params,
                            interaction = NULL, ...) {
-    assert_that(is(params, "MizerParams"))
     if (is.null(interaction)) {
         interaction <- params@interaction
     }
@@ -86,16 +85,16 @@ setInteraction.MizerParams <- function(params,
                            names(dimnames(params@interaction)))) {
                 message("Note: Your interaction matrix has dimensions called: `",
                         toString(names(dimnames(interaction))),
-                        "`. I expected 'predator, prey'. ", 
+                        "`. I expected 'predator, prey'. ",
                         "I will now ignore your names.")
             }
         }
         names(dimnames(interaction)) <- names(dimnames(params@interaction))
         # If user did not supply rownames, then save to assume that they have
-        # put the rows in the same order as the columns, so copy over 
+        # put the rows in the same order as the columns, so copy over
         # the colnames
-        if (is.null(rownames(interaction)) || 
-            all(rownames(interaction) == 
+        if (is.null(rownames(interaction)) ||
+            all(rownames(interaction) ==
                 as.character(seq_len(nrow(interaction))))) {
             rownames(interaction) <- colnames(interaction)
         }
@@ -110,7 +109,7 @@ setInteraction.MizerParams <- function(params,
         }
     }
     params@interaction[] <- interaction
-    
+
     # Check the interaction_resource column in species_params
     message <- "Note: No interaction_resource column in species data frame so assuming all species feed on resource."
     species_params <- set_species_param_default(params@species_params,
@@ -121,15 +120,15 @@ setInteraction.MizerParams <- function(params,
         stop("Values in the resource interaction vector must be non-negative.")
     }
     params@species_params$interaction_resource <- species_params$interaction_resource
-    
+
     params@time_modified <- lubridate::now()
     return(params)
 }
 
 #' Deprecated function to get interaction matrix
-#' 
+#'
 #' You should now use [interaction_matrix()] instead.
-#' 
+#'
 #' @param params A MizerParams object
 #' @export
 #' @keywords internal
@@ -138,7 +137,7 @@ getInteraction <- function(params) {
 }
 #' @export
 getInteraction.MizerParams <- function(params) {
-    lifecycle::deprecate_warn("2.4.0", "getInteraction()", 
+    lifecycle::deprecate_warn("2.4.0", "getInteraction()",
                               "interaction_matrix()")
     interaction_matrix(params)
 }

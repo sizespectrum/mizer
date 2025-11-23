@@ -112,6 +112,7 @@
 #' @param RDD The name of the function calculating the density-dependent
 #'   reproduction rate from the density-independent rate. Defaults to
 #'   "[BevertonHoltRDD()]".
+#' @param value The desired new value for the respective parameter.
 #' @param ... Unused
 #'
 #' @return `setReproduction()`: A MizerParams object with updated reproduction
@@ -142,8 +143,7 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
                             repro_prop = NULL, reset = FALSE,
                             RDD = NULL, ...) {
     # check arguments ----
-    assert_that(is(params, "MizerParams"),
-                is.flag(reset))
+    assert_that(is.flag(reset))
     if (is.null(RDD)) RDD <- params@rates_funcs[["RDD"]]
     assert_that(is.string(RDD),
                 exists(RDD),

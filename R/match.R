@@ -42,7 +42,7 @@ matchBiomasses <- function(params, species = NULL, ...)
     UseMethod("matchBiomasses")
 
 #' @export
-matchBiomasses.MizerParams <- function(params, species = NULL) {
+matchBiomasses.MizerParams <- function(params, species = NULL, ...) {
     if (!("biomass_observed" %in% names(params@species_params))) {
         return(params)
     }
@@ -122,7 +122,7 @@ matchNumbers <- function(params, species = NULL, ...)
     UseMethod("matchNumbers")
 
 #' @export
-matchNumbers.MizerParams <- function(params, species = NULL) {
+matchNumbers.MizerParams <- function(params, species = NULL, ...) {
     if (!("number_observed" %in% names(params@species_params))) {
         return(params)
     }
@@ -209,7 +209,7 @@ matchYields <- function(params, species = NULL, ...)
     UseMethod("matchYields")
 
 #' @export
-matchYields.MizerParams <- function(params, species = NULL) {
+matchYields.MizerParams <- function(params, species = NULL, ...) {
     lifecycle::deprecate_warn(
         "2.6.0", "matchYields()", "mizerExperimental::matchYield()",
         details = "This function has not proven useful. If you do have a use case for it, please let the developers know by creating an issue at https://github.com/sizespectrum/mizer/issues"

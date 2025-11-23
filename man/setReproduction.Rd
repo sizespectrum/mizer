@@ -55,6 +55,8 @@ reproduction rate from the density-independent rate. Defaults to
 "\code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}".}
 
 \item{...}{Unused}
+
+\item{value}{The desired new value for the respective parameter.}
 }
 \value{
 \code{setReproduction()}: A MizerParams object with updated reproduction

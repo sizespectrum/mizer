@@ -17,7 +17,7 @@ compareParams <- function(params1, params2, ...)
     UseMethod("compareParams")
 
 #' @export
-compareParams.MizerParams <- function(params1, params2) {
+compareParams.MizerParams <- function(params1, params2, ...) {
     params1 <- validParams(params1)
     params2 <- validParams(params2)
 

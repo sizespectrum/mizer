@@ -39,14 +39,9 @@ animateSpectra <- function(sim, species, time_range,
     UseMethod("animateSpectra")
 
 #' @export
-animateSpectra.MizerSim <- function(sim,
-                           species = NULL,
-                           time_range,
-                           wlim = c(NA, NA),
-                           ylim = c(NA, NA),
-                           power = 1,
-                           total = FALSE,
-                           resource = TRUE) {
+animateSpectra.MizerSim <- function(sim, species = NULL, time_range = NULL,
+                                    wlim = c(NA, NA), ylim = c(NA, NA),
+                                    power = 1, total = FALSE, resource = TRUE, ...) {
     assert_that(is.flag(total), is.flag(resource),
                 is.number(power),
                 length(wlim) == 2,

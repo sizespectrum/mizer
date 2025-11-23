@@ -80,13 +80,13 @@ str(fr)
 
 Other plotting functions: 
 \code{\link{animateSpectra}()},
-\code{\link{plot,MizerParams,missing-method}},
-\code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},
 \code{\link{plotDiet}()},
 \code{\link{plotFMort}()},
 \code{\link{plotFeedingLevel}()},
 \code{\link{plotGrowthCurves}()},
+\code{\link{plotMizerParams}},
+\code{\link{plotMizerSim}},
 \code{\link{plotSpectra}()},
 \code{\link{plotYield}()},
 \code{\link{plotYieldGear}()},

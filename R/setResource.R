@@ -90,14 +90,11 @@
 #'   `resource_capacity` argument is given as a single number.
 #' @param w_pp_cutoff The upper cut off size of the resource spectrum power law
 #'   used when `resource_capacity` is given as a single number. When changing
-#'   `w_pp_cutoff` without providing `resource_capacity`, the cutoff can only
-#'   be decreased. In that case, both the carrying capacity and the initial
-#'   resource abundance will be cut off at the new value. To increase the cutoff,
-#'   you must also provide the `resource_capacity` for the extended range.
-#' @param r_pp `r lifecycle::badge("deprecated")`. Use `resource_rate` argument
-#'   instead.
-#' @param kappa `r lifecycle::badge("deprecated")`. Use `resource_capacity`
-#'   argument instead.
+#'   `w_pp_cutoff` without providing `resource_capacity`, the cutoff can only be
+#'   decreased. In that case, both the carrying capacity and the initial
+#'   resource abundance will be cut off at the new value. To increase the
+#'   cutoff, you must also provide the `resource_capacity` for the extended
+#'   range.
 #' @param ... Unused
 #'
 #' @return `setResource`: A MizerParams object with updated resource parameters
@@ -117,26 +114,24 @@ setResource.MizerParams <- function(params,
                         resource_capacity = NULL,
                         resource_level = NULL,
                         resource_dynamics = NULL,
-                        r_pp = deprecated(),
-                        kappa = deprecated(),
                         lambda = resource_params(params)[["lambda"]],
                         n = resource_params(params)[["n"]],
                         w_pp_cutoff = resource_params(params)[["w_pp_cutoff"]],
                         balance = NULL,
                         ...) {
 
-    if (lifecycle::is_present(r_pp)) {
+    args <- list(...)
+    if ("r_pp" %in% names(args)) {
         lifecycle::deprecate_warn("1.0.0", "setParams(r_pp)",
                                   "setParams(resource_rate)")
-        resource_rate <- r_pp
+        resource_rate <- args[["r_pp"]]
     }
-    if (lifecycle::is_present(kappa)) {
+    if ("kappa" %in% names(args)) {
         lifecycle::deprecate_warn("1.0.0", "setParams(kappa)",
                                   "setParams(resource_capacity)")
-        resource_capacity <- kappa
+        resource_capacity <- args[["kappa"]]
     }
-    assert_that(is(params, "MizerParams"),
-                is.number(lambda),
+    assert_that(is.number(lambda),
                 is.number(w_pp_cutoff), w_pp_cutoff > 0,
                 is.number(n))
 

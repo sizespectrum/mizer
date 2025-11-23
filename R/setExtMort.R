@@ -57,7 +57,8 @@
 #' # Change the external mortality rate in the params object
 #' ext_mort(params) <- allo_mort
 setExtMort <- function(params, ext_mort = NULL, z0pre = 0.6,
-                       z0exp = params@resource_params$n - 1, reset = FALSE, ...) {
+                       z0exp = params@resource_params$n - 1, reset = FALSE,
+                       z0 = deprecated(), ...) {
     UseMethod("setExtMort")
 }
 #' @export
@@ -68,8 +69,7 @@ setExtMort.MizerParams <- function(params, ext_mort = NULL,
         lifecycle::deprecate_warn("2.2.3", "setExtMort(z0)", "setExtMort(ext_mort)")
         ext_mort <- z0
     }
-    assert_that(is(params, "MizerParams"),
-                is.flag(reset),
+    assert_that(is.flag(reset),
                 is.number(z0pre), is.number(z0exp))
 
     if (reset) {

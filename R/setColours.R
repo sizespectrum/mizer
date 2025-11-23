@@ -15,7 +15,7 @@
 #'
 #' You can use the same colours in your own ggplot2 plots by adding
 #' `scale_colour_manual(values = getColours(params))` to your plot. Similarly
-#' you can use the linetypes with 
+#' you can use the linetypes with
 #' `scale_linetype_manual(values = getLinetypes(params))`.
 #'
 #' @param params A MizerParams object
@@ -37,14 +37,13 @@ setColours <- function(params, colours) {
 }
 #' @export
 setColours.MizerParams <- function(params, colours) {
-    assert_that(is(params, "MizerParams"))
     colours <- validColours(colours)
     if (identical(colours, as.list(params@linecolour))) {
         return(params)
     }
     params@linecolour <- unlist(
         modifyList(as.list(params@linecolour), colours))
-    
+
     params@time_modified <- lubridate::now()
     params
 }
@@ -62,7 +61,7 @@ getColours.MizerParams <- function(params) {
 
 validColours <- function(colours) {
     valid <- sapply(colours, function(X) {
-        tryCatch(is.matrix(col2rgb(X)), 
+        tryCatch(is.matrix(col2rgb(X)),
                  error = function(e) FALSE)
     })
     if (!all(valid)) {
@@ -76,7 +75,7 @@ validColours <- function(colours) {
 
 #' @rdname setColours
 #' @param linetypes A named list or named vector of linetypes.
-#' 
+#'
 #' @return `setLinetypes()`: The MizerParams object with updated linetypes
 #' @export
 setLinetypes <- function(params, linetypes) {
@@ -84,14 +83,13 @@ setLinetypes <- function(params, linetypes) {
 }
 #' @export
 setLinetypes.MizerParams <- function(params, linetypes) {
-    assert_that(is(params, "MizerParams"))
     linetypes <- validLinetypes(linetypes)
     if (identical(linetypes, as.list(params@linetype))) {
         return(params)
     }
     params@linetype <- unlist(
         modifyList(as.list(params@linetype), as.list(linetypes)))
-    
+
     params@time_modified <- lubridate::now()
     params
 }
@@ -111,7 +109,7 @@ getLinetypes.MizerParams <- function(params) {
 
 validLinetypes <- function(linetypes) {
     linetypes <- linetypes[!is.na(linetypes)]
-    list_of_types <- list(0, 1, 2, 3, 4, 5, 6, "blank", "solid", "dashed", 
+    list_of_types <- list(0, 1, 2, 3, 4, 5, 6, "blank", "solid", "dashed",
                           "dotted", "dotdash", "longdash", "twodash")
     valid <- linetypes %in% list_of_types
 
