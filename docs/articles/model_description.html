@@ -73,6 +73,7 @@
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
+<li class="nav-item"><a class="external-link nav-link" href="https://notebooklm.google.com/notebook/6aa51f75-d1a8-4140-9180-84532ef5f821"><span class="fa fa-robot"></span> Ask AI</a></li>
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
@@ -274,6 +275,7 @@ subsections we will build towards determining the growth rate resulting
 from predation. We will discuss how we model the <a href="#sec:pref">predator-prey encounter rate</a>, the resulting rate of
 <a href="#consumption">consumption</a>, the rate of <a href="#metabolic-losses">metabolic losses</a>, and the partitioning of
 the remaining energy into <a href="#sec:repro">reproduction</a> and <a href="#resulting-growth">growth</a>.</p>
+<p><img src="images/energy.png" style="width:60.0%"></p>
 <div class="section level3">
 <h3 id="sec:pref">Predator-prey encounter rate<a class="anchor" aria-label="anchor" href="#sec:pref"></a>
 </h3>
@@ -393,6 +395,7 @@ extension package.</p>
 mortality <span class="math inline">\(\mu_{p.i}(w)\)</span>, background
 mortality <span class="math inline">\(\mu_{ext.i}(w)\)</span> and
 fishing mortality <span class="math inline">\(\mu_{f.i}(w)\)</span>.</p>
+<p><img src="images/mortality.png" style="width:50.0%"></p>
 <p>Predation mortality is calculated such that all that is eaten
 translates into corresponding predation mortalities on the ingested prey
 individuals. Recalling that <span class="math inline">\(1-f_j(w)\)</span> is the proportion of the food

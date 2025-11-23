@@ -195,6 +195,8 @@ We will discuss how we model the [predator-prey encounter rate], the resulting r
 of [consumption], the rate of [metabolic losses], and the partitioning of the
 remaining energy into [reproduction](#sec:repro) and [growth](#resulting-growth).
 
+![](images/energy.png){width=60%}
+
 ## Predator-prey encounter rate {#sec:pref}
 
 The rate at which a predator of species $i$ and weight $w$ encounters food 
@@ -323,6 +325,8 @@ extension package.
 The mortality rate of an individual $\mu_i(w)$ has three sources: 
 predation mortality $\mu_{p.i}(w)$, background mortality $\mu_{ext.i}(w)$ and 
 fishing mortality $\mu_{f.i}(w)$. 
+
+![](images/mortality.png){width=50%}
 
 Predation mortality is calculated such that all that is eaten translates into 
 corresponding predation mortalities on the ingested prey individuals. 

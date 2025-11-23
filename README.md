@@ -32,7 +32,7 @@ and calculations of community indicators such as the slope of the size
 spectrum. Size-based models can be complicated, so mizer contains many
 default options that you can however change when needed.
 
-<a href="man/figures/mizer_workflow.png" target="_blank">
+<a href="https://sizespectrum.org/mizer/reference/figures/mizer_workflow.png" target="_blank">
 <img src="man/figures/mizer_workflow.png" style='height: 100%; width: 100%; object-fit: contain' title="mizer workflow"/>
 </a>
 
@@ -106,8 +106,8 @@ See the accompanying [Get
 started](https://sizespectrum.org/mizer/articles/mizer.html) page for
 more details on how the package works, including detailed examples.
 
-<a href="size_spectrum.png" target="_blank">
-<img src="man/figures/size.png" style='height: 80%; width: 80%; object-fit: contain' title="Size spectrum dynamics"/>
+<a href="https://sizespectrum.org/mizer/reference/figures/size_spectrum.png" target="_blank">
+<img src="man/figures/size.png" style='height: 95%; width: 95%; object-fit: contain' title="Size spectrum dynamics"/>
 </a>
 
 ## Dynamic multi-species size-spectrum model
@@ -146,7 +146,7 @@ populations and ecosystems, and for developing effective fisheries
 management strategies that account for the complex interactions among
 species and their environment.
 
-<img src="man/figures/size_selective_fishing.png" style='height: 80%; width: 80%; object-fit: contain' title="Effect of size-selective fishing"/>
+<img src="man/figures/size_selective_fishing.png" style='height: 95%; width: 95%; object-fit: contain' title="Effect of size-selective fishing"/>
 
 A mizer model captures the interactions between species. The growth
 rates of fish are determined by the availability of prey and the death
@@ -193,8 +193,8 @@ traffic jams.
 
 An analogy with road traffic may be helpful:
 
-<a href="man/figures/traffic_jam.png" target="_blank">
-<img src="man/figures/traffic.png" style='height: 100%; width: 100%; object-fit: contain' title="Fish growth traffic jam"/>
+<a href="https://sizespectrum.org/mizer/reference/figures/traffic_jam.png" target="_blank">
+<img src="man/figures/traffic.png" style='height: 95%; width: 95%; object-fit: contain' title="Fish growth traffic jam"/>
 </a>
 
 In road traffic, if traffic density gets too high in a section of the
