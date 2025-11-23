@@ -185,6 +185,7 @@ reference:
   - setInteraction
   - setMaxIntakeRate
   - setMetabolicRate
+  - setDiffusion
   - setExtMort
   - setExtEncounter
   - setReproduction

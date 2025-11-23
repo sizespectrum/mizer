@@ -39,3 +39,4 @@ If any of \code{k_vb} is missing for a species, the function returns NA for that
 species. Default values of \code{b = 3} and \code{t0 = 0} are used if these are
 missing. If \code{w_inf} is missing, \code{w_max} is used instead.
 }
+\concept{helper}

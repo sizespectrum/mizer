@@ -19,6 +19,7 @@
 #' @return A named vector. The names are the species names and the values are
 #'   the ages at maturity.
 #' @export
+#' @concept helper
 #' @rdname age_mat_vB
 age_mat_vB <- function(object, ...) {
     UseMethod("age_mat_vB")

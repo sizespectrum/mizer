@@ -23,3 +23,4 @@ A numeric vector representing the steady state abundances.
 \description{
 Helper function to calculate the steady state abundance using the upwind-difference scheme
 }
+\keyword{internal}

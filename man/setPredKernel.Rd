@@ -104,7 +104,7 @@ different.
 ## Set up a MizerParams object
 params <-  NS_params
 
-## If you change predation kernel parameters after setting up a model, 
+## If you change predation kernel parameters after setting up a model,
 #  this will be used to recalculate the kernel
 species_params(params)["Cod", "beta"] <- 200
 
@@ -117,7 +117,7 @@ plot(w_full(params), getPredKernel(params)["Cod", 100, ], type="l", log="x")
 ## If you need a kernel that depends also on prey size you need to define
 # it yourself.
 pred_kernel <- getPredKernel(params)
-pred_kernel["Herring", , ] <- sweep(pred_kernel["Herring", , ], 2, 
+pred_kernel["Herring", , ] <- sweep(pred_kernel["Herring", , ], 2,
                                     params@w_full, "*")
 params<- setPredKernel(params, pred_kernel = pred_kernel)
 }
