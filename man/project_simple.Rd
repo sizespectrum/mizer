@@ -6,16 +6,16 @@
 \usage{
 project_simple(
   params,
-  n = params@initial_n,
-  n_pp = params@initial_n_pp,
-  n_other = params@initial_n_other,
-  effort = params@initial_effort,
-  t = 0,
-  dt = 0.1,
+  n,
+  n_pp,
+  n_other,
+  effort,
+  t,
+  dt,
   steps,
-  resource_dynamics_fn = get(params@resource_dynamics),
-  other_dynamics_fns = lapply(params@other_dynamics, get),
-  rates_fns = lapply(params@rates_funcs, get),
+  resource_dynamics_fn,
+  other_dynamics_fns,
+  rates_fns,
   ...
 )
 }

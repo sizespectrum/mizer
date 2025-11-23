@@ -18,12 +18,10 @@ setResource(
   resource_capacity = NULL,
   resource_level = NULL,
   resource_dynamics = NULL,
-  balance = NULL,
   lambda = resource_params(params)[["lambda"]],
   n = resource_params(params)[["n"]],
   w_pp_cutoff = resource_params(params)[["w_pp_cutoff"]],
-  r_pp = deprecated(),
-  kappa = deprecated(),
+  balance = NULL,
   ...
 )
 
@@ -67,12 +65,6 @@ determines the resource capacity, so do not specify both this and
 resource dynamics by calculating the resource spectrum at the next time
 step from the current state.}
 
-\item{balance}{By default, if possible, the resource parameters are
-set so that the resource replenishes at the same rate at which it is
-consumed. In this case you should only specify either the resource rate
-or the resource capacity (or resource level) because the other is then
-determined automatically. Set to FALSE if you do not want the balancing.}
-
 \item{lambda}{Used to set power-law exponent for resource capacity if the
 \code{resource_capacity} argument is given as a single number.}
 
@@ -81,16 +73,17 @@ determined automatically. Set to FALSE if you do not want the balancing.}
 
 \item{w_pp_cutoff}{The upper cut off size of the resource spectrum power law
 used when \code{resource_capacity} is given as a single number. When changing
-\code{w_pp_cutoff} without providing \code{resource_capacity}, the cutoff can only
-be decreased. In that case, both the carrying capacity and the initial
-resource abundance will be cut off at the new value. To increase the cutoff,
-you must also provide the \code{resource_capacity} for the extended range.}
+\code{w_pp_cutoff} without providing \code{resource_capacity}, the cutoff can only be
+decreased. In that case, both the carrying capacity and the initial
+resource abundance will be cut off at the new value. To increase the
+cutoff, you must also provide the \code{resource_capacity} for the extended
+range.}
 
-\item{r_pp}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}. Use \code{resource_rate} argument
-instead.}
-
-\item{kappa}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}. Use \code{resource_capacity}
-argument instead.}
+\item{balance}{By default, if possible, the resource parameters are
+set so that the resource replenishes at the same rate at which it is
+consumed. In this case you should only specify either the resource rate
+or the resource capacity (or resource level) because the other is then
+determined automatically. Set to FALSE if you do not want the balancing.}
 
 \item{...}{Unused}
 

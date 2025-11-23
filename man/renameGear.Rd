@@ -4,13 +4,15 @@
 \alias{renameGear}
 \title{Rename gears}
 \usage{
-renameGear(params, replace)
+renameGear(params, replace, ...)
 }
 \arguments{
 \item{params}{A mizer params object}
 
 \item{replace}{A named character vector, with new names as values, and old
 names as names.}
+
+\item{...}{Additional arguments}
 }
 \value{
 An object of type \linkS4class{MizerParams}

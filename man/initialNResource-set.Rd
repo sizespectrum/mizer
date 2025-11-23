@@ -3,11 +3,17 @@
 \name{initialNResource<-}
 \alias{initialNResource<-}
 \alias{initialNResource}
+\alias{initialNResource.MizerParams}
+\alias{initialNResource.MizerSim}
 \title{Initial value for resource spectrum}
 \usage{
 initialNResource(params) <- value
 
 initialNResource(object)
+
+\method{initialNResource}{MizerParams}(object)
+
+\method{initialNResource}{MizerSim}(object)
 }
 \arguments{
 \item{params}{A MizerParams object}

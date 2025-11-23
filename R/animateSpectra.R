@@ -3,7 +3,7 @@
 #' `r lifecycle::badge("experimental")`
 #'
 #' @param sim A MizerSim object
-#' @param species Name or vector of names of the species to be plotted. By 
+#' @param species Name or vector of names of the species to be plotted. By
 #'   default all species are plotted.
 #' @param time_range The time range to animate over. Either a vector of values
 #'   or a vector of min and max time. Default is the entire time range of the
@@ -21,7 +21,8 @@
 #'   species in the system is plotted as well. Default is FALSE.
 #' @param resource A boolean value that determines whether resource is included.
 #'   Default is TRUE.
-#' 
+#' @param ... Additional arguments passed to the method.
+#'
 #' @return A plotly object
 #' @export
 #' @family plotting functions
@@ -29,16 +30,20 @@
 #' \donttest{
 #' animateSpectra(NS_sim, power = 2, wlim = c(0.1, NA), time_range = 1997:2007)
 #' }
-animateSpectra <- function(sim,
-                           species = NULL,
-                           time_range,
-                           wlim = c(NA, NA),
-                           ylim = c(NA, NA),
-                           power = 1,
-                           total = FALSE,
-                           resource = TRUE) {
+animateSpectra <- function(sim, species, time_range,
+                           wlim,
+                           ylim,
+                           power,
+                           total,
+                           resource, ...)
+    UseMethod("animateSpectra")
+
+#' @export
+animateSpectra.MizerSim <- function(sim, species = NULL, time_range = NULL,
+                                    wlim = c(NA, NA), ylim = c(NA, NA),
+                                    power = 1, total = FALSE, resource = TRUE, ...) {
     assert_that(is.flag(total), is.flag(resource),
-                is.number(power), 
+                is.number(power),
                 length(wlim) == 2,
                 length(ylim) == 2)
 
@@ -47,7 +52,7 @@ animateSpectra <- function(sim,
         time_range  <- as.numeric(dimnames(sim@n)$time)
     }
     time_elements <- get_time_elements(sim, time_range)
-    
+
     nf <- melt(sim@n[time_elements,
                      as.character(dimnames(sim@n)$sp) %in% species,
                                , drop = FALSE])
@@ -90,7 +95,7 @@ animateSpectra <- function(sim,
                value <= ylim[2],
                w >= wlim[1],
                w <= wlim[2])
-    
+
     # Order legend to follow params@species_params$species via linecolour order ----
     # Keep only groups present in data, but preserve the order given by
     # names(sim@params@linecolour) which follows params@species_params$species.
@@ -120,3 +125,4 @@ animateSpectra <- function(sim,
                                 title = y_label),
                    legend = list(traceorder = "normal"))
 }
+

@@ -4,6 +4,8 @@
 #'
 #' @param params1 First MizerParams object
 #' @param params2 Second MizerParams object
+#' @param ... Additional arguments passed to the method.
+#' 
 #' @return String describing the differences
 #' @export
 #' @examples
@@ -11,7 +13,11 @@
 #' params2 <- params1
 #' species_params(params2)$w_mat[1] <- 10
 #' compareParams(params1, params2)
-compareParams <- function(params1, params2) {
+compareParams <- function(params1, params2, ...)
+    UseMethod("compareParams")
+
+#' @export
+compareParams.MizerParams <- function(params1, params2, ...) {
     params1 <- validParams(params1)
     params2 <- validParams(params2)
 

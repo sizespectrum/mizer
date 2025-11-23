@@ -213,3 +213,10 @@ test_that("axis limits are set correctly", {
     expect_equal(p$scales$scales[[1]]$limits[1], -20)
     expect_equal(p$scales$scales[[1]]$limits[2], 8)
 })
+
+test_that("plotDiet works with MizerSim", {
+    p <- plotDiet(sim, species = 11) # Species 11 is Cod in setup
+    expect_true(is(p, "ggplot"))
+    p <- plotDiet(sim, species = 11, time_range = 1:2)
+    expect_true(is(p, "ggplot"))
+})

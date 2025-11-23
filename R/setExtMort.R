@@ -56,15 +56,20 @@
 #'
 #' # Change the external mortality rate in the params object
 #' ext_mort(params) <- allo_mort
-setExtMort <- function(params, ext_mort = NULL,
+setExtMort <- function(params, ext_mort = NULL, z0pre = 0.6,
+                       z0exp = params@resource_params$n - 1, reset = FALSE,
+                       z0 = deprecated(), ...) {
+    UseMethod("setExtMort")
+}
+#' @export
+setExtMort.MizerParams <- function(params, ext_mort = NULL,
                        z0pre = 0.6, z0exp = params@resource_params$n - 1,
                        reset = FALSE, z0 = deprecated(), ...) {
     if (lifecycle::is_present(z0)) {
         lifecycle::deprecate_warn("2.2.3", "setExtMort(z0)", "setExtMort(ext_mort)")
         ext_mort <- z0
     }
-    assert_that(is(params, "MizerParams"),
-                is.flag(reset),
+    assert_that(is.flag(reset),
                 is.number(z0pre), is.number(z0exp))
 
     if (reset) {
@@ -126,12 +131,20 @@ setExtMort <- function(params, ext_mort = NULL,
 #'   size) with the external mortality.
 #' @export
 getExtMort <- function(params) {
+    UseMethod("getExtMort")
+}
+#' @export
+getExtMort.MizerParams <- function(params) {
     params@mu_b
 }
 
 #' @rdname setExtMort
 #' @export
 ext_mort <- function(params) {
+    UseMethod("ext_mort")
+}
+#' @export
+ext_mort.MizerParams <- function(params) {
     params@mu_b
 }
 
@@ -139,5 +152,9 @@ ext_mort <- function(params) {
 #' @param value ext_mort
 #' @export
 `ext_mort<-` <- function(params, value) {
+    UseMethod("ext_mort<-")
+}
+#' @export
+`ext_mort<-.MizerParams` <- function(params, value) {
     setExtMort(params, ext_mort = value)
 }

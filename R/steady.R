@@ -17,6 +17,10 @@
 #' @concept helper
 #' @export
 distanceMaxRelRDI <- function(params, current, previous) {
+    UseMethod("distanceMaxRelRDI")
+}
+#' @export
+distanceMaxRelRDI.MizerParams <- function(params, current, previous) {
     current_rdi <- getRDI(params, n = current$n, n_pp = current$n_pp,
                           n_other = current$n_other)
     previous_rdi <- getRDI(params, n = previous$n, n_pp = previous$n_pp,
@@ -45,6 +49,10 @@ distanceMaxRelRDI <- function(params, current, previous) {
 #' @concept helper
 #' @export
 distanceSSLogN <- function(params, current, previous) {
+    UseMethod("distanceSSLogN")
+}
+#' @export
+distanceSSLogN.MizerParams <- function(params, current, previous) {
     sel <- current$n > 0 & previous$n > 0
     sum((log(current$n[sel]) - log(previous$n[sel]))^2)
 }
@@ -73,6 +81,18 @@ distanceSSLogN <- function(params, current, previous) {
 #' @seealso [distanceSSLogN()], [distanceMaxRelRDI()]
 #' @export
 projectToSteady <- function(params,
+                            effort = params@initial_effort,
+                            distance_func = distanceSSLogN,
+                            t_per = 1.5,
+                            t_max = 100,
+                            dt = 0.1,
+                            tol = 0.1 * t_per,
+                            return_sim = FALSE,
+                            progress_bar = TRUE, ...) {
+    UseMethod("projectToSteady")
+}
+#' @export
+projectToSteady.MizerParams <- function(params,
                             effort = params@initial_effort,
                             distance_func = distanceSSLogN,
                             t_per = 1.5,
@@ -231,7 +251,14 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
                    tol = 0.1 * dt, return_sim = FALSE, 
                    preserve = c("reproduction_level", "erepro", "R_max"),
                    progress_bar = TRUE) {
-    params <- validParams(params)
+    UseMethod("steady")
+}
+
+#' @export
+steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
+                   tol = 0.1 * dt, return_sim = FALSE, 
+                   preserve = c("reproduction_level", "erepro", "R_max"),
+                   progress_bar = TRUE) {
     
     if (params@rates_funcs$RDD == "BevertonHoltRDD") {
         preserve <- match.arg(preserve)
@@ -417,7 +444,7 @@ valid_species_arg <- function(object, species = NULL, return.logical = FALSE,
 #' @export
 #' @concept helper
 valid_gears_arg <- function(object, gears = NULL,
-                              error_on_empty = FALSE) {
+                            error_on_empty = FALSE) {
     if (is(object, "MizerSim")) {
         params <- object@params
     } else if (is(object, "MizerParams")) {

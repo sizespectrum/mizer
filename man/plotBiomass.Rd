@@ -2,10 +2,13 @@
 % Please edit documentation in R/plots.R
 \name{plotBiomass}
 \alias{plotBiomass}
+\alias{plotBiomass.MizerSim}
 \alias{plotlyBiomass}
 \title{Plot the biomass of species through time}
 \usage{
-plotBiomass(
+plotBiomass(sim, ...)
+
+\method{plotBiomass}{MizerSim}(
   sim,
   species = NULL,
   start_time,
@@ -36,6 +39,19 @@ plotlyBiomass(
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}}
+
+\item{...}{
+  Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
+  \describe{
+    \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
+the model.}
+    \item{\code{max_w}}{Largest weight in size range. Defaults to largest weight in the
+model.}
+    \item{\code{min_l}}{Smallest length in size range. If supplied, this takes
+precedence over \code{min_w}.}
+    \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
+over \code{max_w}.}
+  }}
 
 \item{species}{The species to be selected. Optional. By default all target
 species are selected. A vector of species names, or a
@@ -71,19 +87,6 @@ used for the plot is returned instead of the plot itself. Default value is FALSE
 species parameters is used as the minimum weight for each species (ignoring any
 size range arguments in \code{...}). If FALSE (default), the specified size range
 arguments are used, if provided, or the full size range of the species is used.}
-
-\item{...}{
-  Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
-  \describe{
-    \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
-the model.}
-    \item{\code{max_w}}{Largest weight in size range. Defaults to largest weight in the
-model.}
-    \item{\code{min_l}}{Smallest length in size range. If supplied, this takes
-precedence over \code{min_w}.}
-    \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
-over \code{max_w}.}
-  }}
 }
 \value{
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
@@ -111,12 +114,12 @@ str(fr)
 
 Other plotting functions: 
 \code{\link{animateSpectra}()},
-\code{\link{plot,MizerParams,missing-method}},
-\code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotDiet}()},
 \code{\link{plotFMort}()},
 \code{\link{plotFeedingLevel}()},
 \code{\link{plotGrowthCurves}()},
+\code{\link{plotMizerParams}},
+\code{\link{plotMizerSim}},
 \code{\link{plotPredMort}()},
 \code{\link{plotSpectra}()},
 \code{\link{plotYield}()},

@@ -2,10 +2,26 @@
 % Please edit documentation in R/plots.R
 \name{plotGrowthCurves}
 \alias{plotGrowthCurves}
+\alias{plotGrowthCurves.MizerSim}
+\alias{plotGrowthCurves.MizerParams}
 \alias{plotlyGrowthCurves}
 \title{Plot growth curves}
 \usage{
-plotGrowthCurves(
+plotGrowthCurves(object, ...)
+
+\method{plotGrowthCurves}{MizerSim}(
+  object,
+  species = NULL,
+  max_age = 20,
+  percentage = FALSE,
+  species_panel = FALSE,
+  highlight = NULL,
+  size_at_age = NULL,
+  return_data = FALSE,
+  ...
+)
+
+\method{plotGrowthCurves}{MizerParams}(
   object,
   species = NULL,
   max_age = 20,
@@ -32,6 +48,8 @@ plotlyGrowthCurves(
 simulation to calculate the size at age. If given a
 \linkS4class{MizerParams} object, uses the initial growth rates instead.}
 
+\item{...}{Other arguments (currently unused)}
+
 \item{species}{The species to be selected. Optional. By default all target
 species are selected. A vector of species names, or a
 numeric vector with the species indices, or a logical vector indicating for
@@ -55,8 +73,6 @@ or \code{length} (in cm). If both \code{weight} and \code{length} are provided, 
 
 \item{return_data}{A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default value is FALSE}
-
-\item{...}{Other arguments (currently unused)}
 }
 \value{
 A ggplot2 object
@@ -104,12 +120,12 @@ str(fr)
 
 Other plotting functions: 
 \code{\link{animateSpectra}()},
-\code{\link{plot,MizerParams,missing-method}},
-\code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},
 \code{\link{plotDiet}()},
 \code{\link{plotFMort}()},
 \code{\link{plotFeedingLevel}()},
+\code{\link{plotMizerParams}},
+\code{\link{plotMizerSim}},
 \code{\link{plotPredMort}()},
 \code{\link{plotSpectra}()},
 \code{\link{plotYield}()},

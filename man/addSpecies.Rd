@@ -9,7 +9,8 @@ addSpecies(
   species_params,
   gear_params = data.frame(),
   initial_effort,
-  interaction
+  interaction,
+  ...
 )
 }
 \arguments{
@@ -32,6 +33,8 @@ interaction coefficients between all species or only those between the new
 species. In the latter case all interaction between an old and a new
 species are set to 1. If this argument is missing, all interactions
 involving a new species are set to 1.}
+
+\item{...}{Additional arguments}
 }
 \value{
 An object of type \linkS4class{MizerParams}

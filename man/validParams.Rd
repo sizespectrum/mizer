@@ -8,6 +8,9 @@ validParams(params, info_level = 3)
 }
 \arguments{
 \item{params}{The MizerParams object to validate}
+
+\item{info_level}{Controls the amount of information messages and warnings
+that are shown. Higher levels lead to more messages.}
 }
 \value{
 A valid MizerParams object

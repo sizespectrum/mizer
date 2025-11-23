@@ -61,8 +61,7 @@ rate of the resource.}
 \item{lambda}{Used to set power-law exponent for resource capacity if the
 \code{resource_capacity} argument is given as a single number.}
 
-\item{r_pp}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}. Use \code{resource_rate} argument
-instead.}
+\item{r_pp}{Growth rate parameter for the resource spectrum.}
 
 \item{knife_edge_size}{The size at the edge of the knife-edge-selectivity
 function.}

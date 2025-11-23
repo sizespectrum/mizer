@@ -4,12 +4,14 @@
 \alias{scaleModel}
 \title{Change scale of the model}
 \usage{
-scaleModel(params, factor)
+scaleModel(params, factor, ...)
 }
 \arguments{
 \item{params}{A MizerParams object}
 
 \item{factor}{The factor by which the scale is multiplied}
+
+\item{...}{Additional arguments passed to the method.}
 }
 \value{
 The rescaled MizerParams object

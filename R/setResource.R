@@ -1,31 +1,31 @@
 #' Set resource dynamics
-#' 
+#'
 #' Sets the intrinsic resource birth rate and the intrinsic resource carrying
 #' capacity as well as the name of the function used to simulate the resource
 #' dynamics. By default, the birth rate and the carrying capacity are changed
 #' together in such a way that the resource replenishes at the same rate at
-#' which it is consumed. So you should only provide either the 
+#' which it is consumed. So you should only provide either the
 #' `resource_rate` or the `resource_capacity` (or `resource_level`) because
 #' the other is determined by the requirement that the resource replenishes
 #' at the same rate at which it is consumed.
-#' 
-#' You would usually set the resource dynamics only after having finished the 
+#'
+#' You would usually set the resource dynamics only after having finished the
 #' calibration of the steady state. Then setting the resource dynamics with
-#' this function will preserve that steady state, unless you explicitly 
+#' this function will preserve that steady state, unless you explicitly
 #' choose to set `balance = FALSE`. Your choice of the resource dynamics only
 #' affects the dynamics around the steady state. The higher the resource rate
 #' or the lower the resource capacity the less sensitive the model will be to
 #' changes in the competition for resource.
-#' 
+#'
 #' If you provide the `resource_level` then that sets the `resource_capacity`
 #' to the current resource number density divided by the resource level. So
 #' in that case you should not specify `resource_capacity` as well.
-#' 
+#'
 #' If you provide none of the arguments `resource_level`, `resource_rate` or
 #' `resource_capacity` then the resource rate is kept at its previous value.
-#' 
+#'
 #' @section Setting resource dynamics:
-#' 
+#'
 #' The `resource_dynamics` argument allows you to choose the resource dynamics
 #' function. By default, mizer uses a semichemostat model to describe the
 #' resource dynamics in each size class independently. This semichemostat
@@ -33,12 +33,12 @@
 #' change that to use a logistic model implemented by [resource_logistic()] or
 #' you can use [resource_constant()] which keeps the resource constant or you
 #' can write your own function.
-#' 
+#'
 #' Both the [resource_semichemostat()] and the [resource_logistic()] dynamics
-#' are parametrised in terms of a size-dependent birth rate \eqn{r_R(w)} and a 
+#' are parametrised in terms of a size-dependent birth rate \eqn{r_R(w)} and a
 #' size-dependent capacity \eqn{c_R}. The help pages of these functions give
 #' the details.
-#' 
+#'
 #' The `resource_rate` argument can be a vector (with the same length as
 #' `w_full(params)`) specifying the intrinsic resource birth rate for each size
 #' class. Alternatively it can be a single number that is used as the
@@ -46,7 +46,7 @@
 #' size \eqn{w} is set to
 #' \deqn{r_R(w) = r_R w^{n-1}.}
 #' The power-law exponent \eqn{n} is taken from the `n` argument.
-#' 
+#'
 #' The `resource_capacity` argument can be a vector specifying the intrinsic
 #' resource carrying capacity for each size class. Alternatively it can be a
 #' single number that is used as the coefficient in a truncated power
@@ -60,14 +60,14 @@
 #' in the `resource_params` slot of the MizerParams object so that they can be
 #' re-used automatically in the future. That list can be accessed with
 #' [resource_params()].
-#' 
+#'
 #' @param params A MizerParams object
 #' @param resource_rate Optional. A vector of per-capita resource birth
 #'   rate for each size class or a single number giving the coefficient in the
 #'   power-law for this rate, see "Setting resource dynamics" below.
 #'   Must be strictly positive.
 #' @param resource_capacity Optional. Vector of resource intrinsic carrying
-#'   capacities or coefficient in the power-law for the capacity, see 
+#'   capacities or coefficient in the power-law for the capacity, see
 #'   "Setting resource dynamics" below.
 #'   The resource capacity must be larger than the resource abundance.
 #' @param resource_level Optional. The ratio between the current resource number
@@ -78,9 +78,9 @@
 #'   `resource_capacity`.
 #' @param resource_dynamics Optional. Name of the function that determines the
 #'   resource dynamics by calculating the resource spectrum at the next time
-#'   step from the current state. 
-#' @param balance By default, if possible, the resource parameters are 
-#'   set so that the resource replenishes at the same rate at which it is 
+#'   step from the current state.
+#' @param balance By default, if possible, the resource parameters are
+#'   set so that the resource replenishes at the same rate at which it is
 #'   consumed. In this case you should only specify either the resource rate
 #'   or the resource capacity (or resource level) because the other is then
 #'   determined automatically. Set to FALSE if you do not want the balancing.
@@ -90,58 +90,62 @@
 #'   `resource_capacity` argument is given as a single number.
 #' @param w_pp_cutoff The upper cut off size of the resource spectrum power law
 #'   used when `resource_capacity` is given as a single number. When changing
-#'   `w_pp_cutoff` without providing `resource_capacity`, the cutoff can only
-#'   be decreased. In that case, both the carrying capacity and the initial
-#'   resource abundance will be cut off at the new value. To increase the cutoff,
-#'   you must also provide the `resource_capacity` for the extended range.
-#' @param r_pp `r lifecycle::badge("deprecated")`. Use `resource_rate` argument
-#'   instead.
-#' @param kappa `r lifecycle::badge("deprecated")`. Use `resource_capacity`
-#'   argument instead.
+#'   `w_pp_cutoff` without providing `resource_capacity`, the cutoff can only be
+#'   decreased. In that case, both the carrying capacity and the initial
+#'   resource abundance will be cut off at the new value. To increase the
+#'   cutoff, you must also provide the `resource_capacity` for the extended
+#'   range.
 #' @param ... Unused
-#' 
+#'
 #' @return `setResource`: A MizerParams object with updated resource parameters
 #' @seealso [setParams()]
 #' @export
-setResource <- function(params,
+setResource <- function(params, resource_rate = NULL, resource_capacity = NULL,
+                        resource_level = NULL, resource_dynamics = NULL,
+                        lambda = resource_params(params)[["lambda"]],
+                        n = resource_params(params)[["n"]],
+                        w_pp_cutoff = resource_params(params)[["w_pp_cutoff"]],
+                        balance = NULL, ...) {
+    UseMethod("setResource")
+}
+#' @export
+setResource.MizerParams <- function(params,
                         resource_rate = NULL,
                         resource_capacity = NULL,
                         resource_level = NULL,
                         resource_dynamics = NULL,
-                        balance = NULL,
                         lambda = resource_params(params)[["lambda"]],
                         n = resource_params(params)[["n"]],
                         w_pp_cutoff = resource_params(params)[["w_pp_cutoff"]],
-                        r_pp = deprecated(),
-                        kappa = deprecated(),
+                        balance = NULL,
                         ...) {
-    
-    if (lifecycle::is_present(r_pp)) {
-        lifecycle::deprecate_warn("1.0.0", "setParams(r_pp)", 
+
+    args <- list(...)
+    if ("r_pp" %in% names(args)) {
+        lifecycle::deprecate_warn("1.0.0", "setParams(r_pp)",
                                   "setParams(resource_rate)")
-        resource_rate <- r_pp
+        resource_rate <- args[["r_pp"]]
     }
-    if (lifecycle::is_present(kappa)) {
-        lifecycle::deprecate_warn("1.0.0", "setParams(kappa)", 
+    if ("kappa" %in% names(args)) {
+        lifecycle::deprecate_warn("1.0.0", "setParams(kappa)",
                                   "setParams(resource_capacity)")
-        resource_capacity <- kappa
-    } 
-    assert_that(is(params, "MizerParams"),
-                is.number(lambda),
+        resource_capacity <- args[["kappa"]]
+    }
+    assert_that(is.number(lambda),
                 is.number(w_pp_cutoff), w_pp_cutoff > 0,
                 is.number(n))
-    
+
     # Store the old w_pp_cutoff before updating
     old_w_pp_cutoff <- params@resource_params[["w_pp_cutoff"]]
-    
+
     params@resource_params[["lambda"]] <- lambda
     params@resource_params[["n"]] <- n
     params@resource_params[["w_pp_cutoff"]] <- w_pp_cutoff
-    
+
     if (!is.null(resource_capacity) && !is.null(resource_level)) {
         stop("You should specify only either 'resource_level' or 'resource_capacity'.")
     }
-    
+
     # Check and set dynamics function ----
     if (!is.null(resource_dynamics)) {
         assert_that(is.character(resource_dynamics))
@@ -150,12 +154,12 @@ setResource <- function(params,
         }
         params@resource_dynamics <- resource_dynamics
     }
-    
+
     w_full <- w_full(params)
     no_w_full <- length(w_full)
     mu <- getResourceMort(params)
     NR <- initialNResource(params)
-    
+
     # Check resource level ----
     if (!is.null(resource_level)) {
         assert_that(is.numeric(resource_level))
@@ -175,7 +179,7 @@ setResource <- function(params,
         resource_capacity[is.nan(resource_level)] <- 0
         comment(resource_capacity) <- comment(resource_level)
     }
-    
+
     # Check growth rate ----
     if (!is.null(resource_rate)) {
         assert_that(is.numeric(resource_rate))
@@ -191,7 +195,7 @@ setResource <- function(params,
             stop("The 'resource_rate' must always be non-negative.")
         }
     }
-    
+
     # Check capacity ----
     if (!is.null(resource_capacity)) {
         assert_that(is.numeric(resource_capacity))
@@ -208,9 +212,9 @@ setResource <- function(params,
             stop("The 'resource_capacity' must never be negative.")
         }
     }
-    
+
     # Handle w_pp_cutoff change when capacity is not explicitly provided ----
-    if (is.null(resource_capacity) && is.null(resource_level) && 
+    if (is.null(resource_capacity) && is.null(resource_level) &&
         !is.null(old_w_pp_cutoff) && w_pp_cutoff != old_w_pp_cutoff) {
         if (w_pp_cutoff > old_w_pp_cutoff) {
             stop("You cannot increase w_pp_cutoff without also providing the resource_capacity for the extended range.")
@@ -224,7 +228,7 @@ setResource <- function(params,
         # Update NR for consistency
         NR <- params@initial_n_pp
     }
-    
+
     # Balance ----
     balance_fn <- get0(paste0("balance_", params@resource_dynamics))
     if (is.null(balance)) {
@@ -241,18 +245,18 @@ setResource <- function(params,
             # no values given, so use previous resource_rate
             resource_rate <- params@rr_pp
         }
-        
-        # For balancing the resource capacity must be above current abundance 
+
+        # For balancing the resource capacity must be above current abundance
         # except where both are zero
         if (!is.null(resource_capacity) &&
             any(resource_capacity <= NR & NR > 0)) {
             stop("The 'resource_capacity' must always be greater than current resource number density.")
         }
-        
+
         balance_fn <- get0(paste0("balance_", params@resource_dynamics))
         if (!is.function(balance_fn)) {
             stop("There is no balancing function available for ",
-                 params@resource_dynamics, 
+                 params@resource_dynamics,
                  ". You should not set `balance = TRUE`.")
         }
         balance <- balance_fn(params,
@@ -261,7 +265,7 @@ setResource <- function(params,
         resource_rate <- balance$resource_rate
         resource_capacity <- balance$resource_capacity
     }
-    
+
     # Set rates
     if (!is.null(resource_rate)) {
         params@rr_pp[] <- resource_rate
@@ -271,7 +275,7 @@ setResource <- function(params,
         params@cc_pp[] <- resource_capacity
         comment(params@cc_pp) <- comment(resource_capacity)
     }
-    
+
     params@time_modified <- lubridate::now()
     return(params)
 }
@@ -280,6 +284,10 @@ setResource <- function(params,
 #' @return A vector with the intrinsic resource birth rate for each size class.
 #' @export
 resource_rate <- function(params) {
+    UseMethod("resource_rate")
+}
+#' @export
+resource_rate.MizerParams <- function(params) {
     params@rr_pp
 }
 
@@ -287,6 +295,10 @@ resource_rate <- function(params) {
 #' @param value The desired new value for the respective parameter.
 #' @export
 `resource_rate<-` <- function(params, value) {
+    UseMethod("resource_rate<-")
+}
+#' @export
+`resource_rate<-.MizerParams` <- function(params, value) {
     setResource(params, resource_rate = value)
 }
 
@@ -294,12 +306,20 @@ resource_rate <- function(params) {
 #' @return A vector with the intrinsic resource capacity for each size class.
 #' @export
 resource_capacity <- function(params) {
+    UseMethod("resource_capacity")
+}
+#' @export
+resource_capacity.MizerParams <- function(params) {
     params@cc_pp
 }
 
 #' @rdname setResource
 #' @export
 `resource_capacity<-` <- function(params, value) {
+    UseMethod("resource_capacity<-")
+}
+#' @export
+`resource_capacity<-.MizerParams` <- function(params, value) {
     setResource(params, resource_capacity = value)
 }
 
@@ -309,12 +329,20 @@ resource_capacity <- function(params) {
 #'   and the resource capacity for each size class.
 #' @export
 resource_level <- function(params) {
+    UseMethod("resource_level")
+}
+#' @export
+resource_level.MizerParams <- function(params) {
     params@initial_n_pp / params@cc_pp
 }
 
 #' @rdname setResource
 #' @export
 `resource_level<-` <- function(params, value) {
+    UseMethod("resource_level<-")
+}
+#' @export
+`resource_level<-.MizerParams` <- function(params, value) {
     setResource(params, resource_level = value)
 }
 
@@ -323,6 +351,10 @@ resource_level <- function(params) {
 #' @return The name of the function that determines the resource dynamics.
 #' @export
 resource_dynamics <- function(params) {
+    UseMethod("resource_dynamics")
+}
+#' @export
+resource_dynamics.MizerParams <- function(params) {
     params@resource_dynamics
 }
 
@@ -334,5 +366,9 @@ resource_dynamics <- function(params) {
 #' resource_dynamics(params)
 #' resource_dynamics(params) <- "resource_constant"
 `resource_dynamics<-` <- function(params, value) {
+    UseMethod("resource_dynamics<-")
+}
+#' @export
+`resource_dynamics<-.MizerParams` <- function(params, value) {
     setResource(params, resource_dynamics = value)
 }

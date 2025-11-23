@@ -4,10 +4,12 @@
 \alias{age_mat}
 \title{Calculate age at maturity}
 \usage{
-age_mat(params)
+age_mat(params, ...)
 }
 \arguments{
 \item{params}{A MizerParams object}
+
+\item{...}{Additional arguments}
 }
 \value{
 A named vector. The names are the species names and the values are

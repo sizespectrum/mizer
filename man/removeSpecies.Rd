@@ -4,7 +4,7 @@
 \alias{removeSpecies}
 \title{Remove species}
 \usage{
-removeSpecies(params, species)
+removeSpecies(params, species, ...)
 }
 \arguments{
 \item{params}{A mizer params object for the original system.}
@@ -12,6 +12,8 @@ removeSpecies(params, species)
 \item{species}{The species to be removed. A vector of species names, or a
 numeric vector of species indices, or a logical vector indicating for
 each species whether it is to be removed (TRUE) or not.}
+
+\item{...}{Additional arguments}
 }
 \value{
 An object of type \linkS4class{MizerParams}

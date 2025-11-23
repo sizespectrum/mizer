@@ -4,7 +4,7 @@
 \alias{matchNumbers}
 \title{Match numbers to observations}
 \usage{
-matchNumbers(params, species = NULL)
+matchNumbers(params, species = NULL, ...)
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -13,6 +13,8 @@ matchNumbers(params, species = NULL)
 numbers will be matched. A vector of species names, or a numeric vector
 with the species indices, or a logical vector indicating for each species
 whether it is to be affected (TRUE) or not.}
+
+\item{...}{Additional arguments passed to the method.}
 }
 \value{
 A MizerParams object

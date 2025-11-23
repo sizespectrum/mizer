@@ -4,7 +4,7 @@
 \alias{matchGrowth}
 \title{Adjust model to produce observed growth}
 \usage{
-matchGrowth(params, species = NULL, keep = c("egg", "biomass", "number"))
+matchGrowth(params, species = NULL, keep = c("egg", "biomass", "number"), ...)
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -19,6 +19,8 @@ not.}
 choices are "egg" which keeps the egg density constant, "biomass" which
 keeps the total biomass of the species constant and "number" which keeps
 the total number of individuals constant.}
+
+\item{...}{Additional arguments passed to the method.}
 }
 \value{
 A modified MizerParams object with rescaled search volume, maximum

@@ -23,6 +23,11 @@
 #' @export
 steadySingleSpecies <- function(params, species = NULL,
                                 keep = c("egg", "biomass", "number")) {
+    UseMethod("steadySingleSpecies")
+}
+#' @export
+steadySingleSpecies.MizerParams <- function(params, species = NULL,
+                                keep = c("egg", "biomass", "number")) {
     species <- valid_species_arg(params, species)
     keep <- match.arg(keep)
 

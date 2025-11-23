@@ -42,6 +42,7 @@
 #' @param interaction Optional interaction matrix of the species (predator
 #'   species x prey species). By default all entries are 1. See "Setting
 #'   interaction matrix" section below.
+#' @param ... Additional arguments passed to the method.
 #'
 #' @return `setInteraction`: A MizerParams object with updated interaction
 #'   matrix
@@ -53,9 +54,12 @@
 #' inter[1, 2:3] <- 0
 #' params <- setInteraction(params, interaction = inter)
 #' getInteraction(params)
-setInteraction <- function(params,
-                           interaction = NULL) {
-    assert_that(is(params, "MizerParams"))
+setInteraction <- function(params, interaction = NULL, ...) {
+    UseMethod("setInteraction")
+}
+#' @export
+setInteraction.MizerParams <- function(params,
+                           interaction = NULL, ...) {
     if (is.null(interaction)) {
         interaction <- params@interaction
     }
@@ -81,16 +85,16 @@ setInteraction <- function(params,
                            names(dimnames(params@interaction)))) {
                 message("Note: Your interaction matrix has dimensions called: `",
                         toString(names(dimnames(interaction))),
-                        "`. I expected 'predator, prey'. ", 
+                        "`. I expected 'predator, prey'. ",
                         "I will now ignore your names.")
             }
         }
         names(dimnames(interaction)) <- names(dimnames(params@interaction))
         # If user did not supply rownames, then save to assume that they have
-        # put the rows in the same order as the columns, so copy over 
+        # put the rows in the same order as the columns, so copy over
         # the colnames
-        if (is.null(rownames(interaction)) || 
-            all(rownames(interaction) == 
+        if (is.null(rownames(interaction)) ||
+            all(rownames(interaction) ==
                 as.character(seq_len(nrow(interaction))))) {
             rownames(interaction) <- colnames(interaction)
         }
@@ -105,7 +109,7 @@ setInteraction <- function(params,
         }
     }
     params@interaction[] <- interaction
-    
+
     # Check the interaction_resource column in species_params
     message <- "Note: No interaction_resource column in species data frame so assuming all species feed on resource."
     species_params <- set_species_param_default(params@species_params,
@@ -116,20 +120,24 @@ setInteraction <- function(params,
         stop("Values in the resource interaction vector must be non-negative.")
     }
     params@species_params$interaction_resource <- species_params$interaction_resource
-    
+
     params@time_modified <- lubridate::now()
     return(params)
 }
 
 #' Deprecated function to get interaction matrix
-#' 
+#'
 #' You should now use [interaction_matrix()] instead.
-#' 
+#'
 #' @param params A MizerParams object
 #' @export
 #' @keywords internal
 getInteraction <- function(params) {
-    lifecycle::deprecate_warn("2.4.0", "getInteraction()", 
+    UseMethod("getInteraction")
+}
+#' @export
+getInteraction.MizerParams <- function(params) {
+    lifecycle::deprecate_warn("2.4.0", "getInteraction()",
                               "interaction_matrix()")
     interaction_matrix(params)
 }
@@ -140,6 +148,10 @@ getInteraction <- function(params) {
 #'   prey species)
 #' @export
 interaction_matrix <- function(params) {
+    UseMethod("interaction_matrix")
+}
+#' @export
+interaction_matrix.MizerParams <- function(params) {
     params@interaction
 }
 
@@ -147,5 +159,9 @@ interaction_matrix <- function(params) {
 #' @param value An interaction matrix
 #' @export
 `interaction_matrix<-` <- function(params, value) {
+    UseMethod("interaction_matrix<-")
+}
+#' @export
+`interaction_matrix<-.MizerParams` <- function(params, value) {
     setInteraction(params, interaction = value)
 }

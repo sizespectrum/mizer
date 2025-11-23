@@ -56,7 +56,7 @@ reproduction rate from the density-independent rate. Defaults to
 
 \item{...}{Unused}
 
-\item{value}{.}
+\item{value}{The desired new value for the respective parameter.}
 }
 \value{
 \code{setReproduction()}: A MizerParams object with updated reproduction

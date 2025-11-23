@@ -23,6 +23,7 @@
 #' use [calibrateYield()] instead of this function.
 #' 
 #' @param params A MizerParams object
+#' @param ... Additional arguments passed to the method.
 #' @return A MizerParams object
 #' @export
 #' @examples 
@@ -32,7 +33,11 @@
 #' species_params(params)$biomass_cutoff <- 10
 #' params2 <- calibrateBiomass(params)
 #' plotBiomassObservedVsModel(params2)
-calibrateBiomass <- function(params) {
+calibrateBiomass <- function(params, ...)
+    UseMethod("calibrateBiomass")
+
+#' @export
+calibrateBiomass.MizerParams <- function(params, ...) {
     if ((!("biomass_observed" %in% names(params@species_params))) ||
         all(is.na(params@species_params$biomass_observed))) {
         return(params)
@@ -84,6 +89,7 @@ calibrateBiomass <- function(params) {
 #' use [calibrateYield()] instead of this function.
 #'
 #' @param params A MizerParams object
+#' @param ... Additional arguments passed to the method.
 #' @return A MizerParams object
 #' @export
 #' @examples
@@ -92,7 +98,11 @@ calibrateBiomass <- function(params) {
 #'     c(0.8, 61, 12, 35, 1.6, 20, 10, 7.6, 135, 60, 30, 78)
 #' species_params(params)$number_cutoff <- 10
 #' params2 <- calibrateNumber(params)
-calibrateNumber <- function(params) {
+calibrateNumber <- function(params, ...)
+    UseMethod("calibrateNumber")
+
+#' @export
+calibrateNumber.MizerParams <- function(params, ...) {
     if ((!("number_observed" %in% names(params@species_params))) ||
         all(is.na(params@species_params$number_observed))) {
         return(params)
@@ -140,6 +150,7 @@ calibrateNumber <- function(params) {
 #' use [calibrateBiomass()] instead of this function.
 #' 
 #' @param params A MizerParams object
+#' @param ... Additional arguments passed to the method.
 #' @return A MizerParams object
 #' @concept deprecated
 #' @export
@@ -151,7 +162,11 @@ calibrateNumber <- function(params) {
 #'     c(1.3, 0.065, 0.31, 0.18, 0.98, 0.24, 0.37, 0.46, 0.18, 0.30, 0.27, 0.39)
 #' params2 <- calibrateYield(params)
 #' plotYieldObservedVsModel(params2)
-calibrateYield <- function(params) {
+calibrateYield <- function(params, ...)
+    UseMethod("calibrateYield")
+
+#' @export
+calibrateYield.MizerParams <- function(params, ...) {
     lifecycle::deprecate_warn(
         "2.6.0", "calibrateYield()",
         details = "This function has not proven useful. If you do have a use case for it, please let the developers know by creating an issue at https://github.com/sizespectrum/mizer/issues"
@@ -206,10 +221,15 @@ calibrateYield <- function(params) {
 #'
 #' @param params A MizerParams object
 #' @param factor The factor by which the scale is multiplied
+#' @param ... Additional arguments passed to the method.
 #'
 #' @return The rescaled MizerParams object
 #' @export
-scaleModel <- function(params, factor) {
+scaleModel <- function(params, factor, ...)
+    UseMethod("scaleModel")
+
+#' @export
+scaleModel.MizerParams <- function(params, factor, ...) {
     params <- validParams(params)
     assert_that(is.number(factor),
                 factor > 0)

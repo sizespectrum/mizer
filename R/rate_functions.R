@@ -34,6 +34,13 @@ getRates <- function(params, n = initialN(params),
                      n_pp = initialNResource(params),
                      n_other = initialNOther(params),
                      effort, t = 0, ...) {
+    UseMethod("getRates")
+}
+#' @export
+getRates.MizerParams <- function(params, n = initialN(params), 
+                     n_pp = initialNResource(params),
+                     n_other = initialNOther(params),
+                     effort, t = 0, ...) {
     params <- validParams(params)
     if (missing(effort)) {
         effort <- params@initial_effort
@@ -58,6 +65,13 @@ getRates <- function(params, n = initialN(params),
 #' encounter <- getEncounter(NS_params)
 #' str(encounter)
 getEncounter <- function(params, n = initialN(params), 
+                         n_pp = initialNResource(params),
+                         n_other = initialNOther(params),
+                         t = 0, ...) {
+    UseMethod("getEncounter")
+}
+#' @export
+getEncounter.MizerParams <- function(params, n = initialN(params), 
                          n_pp = initialNResource(params),
                          n_other = initialNOther(params),
                          t = 0, ...) {
@@ -116,31 +130,40 @@ getEncounter <- function(params, n = initialN(params),
 #' }
 getFeedingLevel <- function(object, n, n_pp, n_other,
                             time_range, drop = FALSE, ...) {
-    if (is(object, "MizerParams")) {
-        params <- validParams(object)
-        if (missing(time_range)) time_range <- 0
-        t <- min(time_range)
-        if (missing(n)) n <- params@initial_n
-        if (missing(n_pp)) n_pp <- params@initial_n_pp
-        if (missing(n_other)) n_other <- params@initial_n_other
-        # calculate feeding level
-        f <- get(params@rates_funcs$FeedingLevel)
-        feeding_level <- f(params, n = n, n_pp = n_pp, n_other = n_other,
-                           encounter = getEncounter(params, n, n_pp, n_other, 
-                                                    t = t), 
+    UseMethod("getFeedingLevel")
+}
+
+#' @export
+getFeedingLevel.MizerParams <- function(object, n, n_pp, n_other,
+                            time_range, drop = FALSE, ...) {
+    params <- validParams(object)
+    if (missing(time_range)) time_range <- 0
+    t <- min(time_range)
+    if (missing(n)) n <- params@initial_n
+    if (missing(n_pp)) n_pp <- params@initial_n_pp
+    if (missing(n_other)) n_other <- params@initial_n_other
+    # calculate feeding level
+    f <- get(params@rates_funcs$FeedingLevel)
+    feeding_level <- f(params, n = n, n_pp = n_pp, n_other = n_other,
+                       encounter = getEncounter(params, n, n_pp, n_other, 
+                                                t = t), 
                            t = t)
-        dimnames(feeding_level) <- dimnames(params@metab)
-        return(feeding_level)
-    } else {
-        sim <- object
-        if (missing(time_range)) {
-            time_range <- dimnames(sim@n)$time
-        }
-        time_elements <- get_time_elements(sim, time_range)
-        feed_time <- plyr::aaply(which(time_elements), 1, function(x) {
-            # Necessary as we only want single time step but may only have 1
-            # species which makes using drop impossible
-            n <- array(sim@n[x, , ], dim = dim(sim@n)[2:3])
+    dimnames(feeding_level) <- dimnames(params@metab)
+    return(feeding_level)
+}
+
+#' @export
+getFeedingLevel.MizerSim <- function(object, n, n_pp, n_other,
+                            time_range, drop = FALSE, ...) {
+    sim <- object
+    if (missing(time_range)) {
+        time_range <- dimnames(sim@n)$time
+    }
+    time_elements <- get_time_elements(sim, time_range)
+    feed_time <- plyr::aaply(which(time_elements), 1, function(x) {
+        # Necessary as we only want single time step but may only have 1
+        # species which makes using drop impossible
+        n <- array(sim@n[x, , ], dim = dim(sim@n)[2:3])
             dimnames(n) <- dimnames(sim@n)[2:3]
             n_other <- sim@n_other[x, ]
             names(n_other) <- dimnames(sim@n_other)$component
@@ -150,12 +173,11 @@ getFeedingLevel <- function(object, n, n_pp, n_other,
                                     n_other = n_other,
                                     time_range = t)
             return(feed)
-            }, .drop = FALSE)
-        # Before we drop dimensions we want to set the time dimname
-        names(dimnames(feed_time))[[1]] <- "time"
-        feed_time <- feed_time[, , , drop = drop]
-        return(feed_time)
-    }
+        }, .drop = FALSE)
+    # Before we drop dimensions we want to set the time dimname
+    names(dimnames(feed_time))[[1]] <- "time"
+    feed_time <- feed_time[, , , drop = drop]
+    return(feed_time)
 }
 
 
@@ -173,6 +195,10 @@ getFeedingLevel <- function(object, n, n_pp, n_other,
 #' str(getFeedingLevel(NS_params))
 #' }
 getCriticalFeedingLevel <- function(params) {
+    UseMethod("getCriticalFeedingLevel")
+}
+#' @export
+getCriticalFeedingLevel.MizerParams <- function(params) {
     params <- validParams(params)
     params@metab / params@intake_max / params@species_params$alpha
 }
@@ -205,6 +231,14 @@ getCriticalFeedingLevel <- function(params) {
 #' e["Sprat", "2"]
 #' }
 getEReproAndGrowth <- function(params, n = initialN(params), 
+                               n_pp = initialNResource(params),
+                               n_other = initialNOther(params),
+                               t = 0, ...) {
+    UseMethod("getEReproAndGrowth")
+}
+
+#' @export
+getEReproAndGrowth.MizerParams <- function(params, n = initialN(params), 
                                n_pp = initialNResource(params),
                                n_other = initialNOther(params),
                                t = 0, ...) {
@@ -249,6 +283,14 @@ getEReproAndGrowth <- function(params, n = initialN(params),
 #'                          n_pp = NResource(sim)[15, ], t = 15)
 #' }
 getPredRate <- function(params, n = initialN(params), 
+                        n_pp = initialNResource(params),
+                        n_other = initialNOther(params),
+                        t = 0, ...) {
+    UseMethod("getPredRate")
+}
+
+#' @export
+getPredRate.MizerParams <- function(params, n = initialN(params), 
                         n_pp = initialNResource(params),
                         n_other = initialNOther(params),
                         t = 0, ...) {
@@ -301,24 +343,33 @@ getPredRate <- function(params, n = initialN(params),
 #' }
 getPredMort <- function(object, n, n_pp, n_other,
                         time_range, drop = TRUE, ...) {
-    if (is(object, "MizerParams")) {
-        params <- validParams(object)
-        if (missing(n)) n <- params@initial_n
-        if (missing(n_pp)) n_pp <- params@initial_n_pp
-        if (missing(n_other)) n_other <- params@initial_n_other
-        if (missing(time_range)) time_range <- 0
-        t <- min(time_range)
-        
-        f <- get(params@rates_funcs$PredMort)
-        pred_mort <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-                       pred_rate = getPredRate(params, n = n, n_pp = n_pp, 
-                                               n_other = n_other, t = t))
-        dimnames(pred_mort) <- list(prey = dimnames(params@initial_n)$sp,
-                                    w_prey = dimnames(params@initial_n)$w)
-        pred_mort
-    } else {
-        sim <- object
-        if (missing(time_range)) {
+    UseMethod("getPredMort")
+}
+
+#' @export
+getPredMort.MizerParams <- function(object, n, n_pp, n_other,
+                        time_range, drop = TRUE, ...) {
+    params <- validParams(object)
+    if (missing(n)) n <- params@initial_n
+    if (missing(n_pp)) n_pp <- params@initial_n_pp
+    if (missing(n_other)) n_other <- params@initial_n_other
+    if (missing(time_range)) time_range <- 0
+    t <- min(time_range)
+    
+    f <- get(params@rates_funcs$PredMort)
+    pred_mort <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                   pred_rate = getPredRate(params, n = n, n_pp = n_pp, 
+                                           n_other = n_other, t = t))
+    dimnames(pred_mort) <- list(prey = dimnames(params@initial_n)$sp,
+                                w_prey = dimnames(params@initial_n)$w)
+    pred_mort
+}
+
+#' @export
+getPredMort.MizerSim <- function(object, n, n_pp, n_other,
+                        time_range, drop = TRUE, ...) {
+    sim <- object
+    if (missing(time_range)) {
             time_range <- dimnames(sim@n)$time
         }
         time_elements <- get_time_elements(sim, time_range)
@@ -336,7 +387,6 @@ getPredMort <- function(object, n, n_pp, n_other,
         names(dimnames(pred_mort_time))[[1]] <- "time"
         pred_mort_time <- pred_mort_time[, , , drop = drop]
         return(pred_mort_time)
-    }
 }
 
 #' Alias for `getPredMort()`
@@ -373,7 +423,14 @@ getResourceMort <-
              n_pp = initialNResource(params),
              n_other = initialNOther(params),
              t = 0, ...) {
-      
+    UseMethod("getResourceMort")
+}
+
+#' @export
+getResourceMort.MizerParams <- function(params, n = initialN(params), 
+             n_pp = initialNResource(params),
+             n_other = initialNOther(params),
+             t = 0, ...) {
     params <- validParams(params)
     
     f <- get(params@rates_funcs$ResourceMort)
@@ -452,20 +509,16 @@ getM2Background <- getResourceMort
 #' }
 #' 
 getFMortGear <- function(object, effort, time_range) {
-    if (is(object, "MizerSim")) {
-        sim <- object
-        if (missing(time_range)) {
-            time_range <- dimnames(sim@effort)$time
-        }
-        time_elements <- get_time_elements(sim, time_range)
-        f_mort_gear <- getFMortGear(sim@params, sim@effort)
-        return(f_mort_gear[time_elements, , , , drop = FALSE])
-    } else {
-        params <- validParams(object)
-        if (missing(effort)) {
-            effort <- params@initial_effort
-        }
-        if (is(effort, "numeric")) {
+    UseMethod("getFMortGear")
+}
+
+#' @export
+getFMortGear.MizerParams <- function(object, effort, time_range) {
+    params <- validParams(object)
+    if (missing(effort)) {
+        effort <- params@initial_effort
+    }
+    if (is(effort, "numeric")) {
             no_gear <- dim(params@catchability)[1]
             # If a single value, just repeat it for all gears
             if (length(effort) == 1) {
@@ -478,7 +531,6 @@ getFMortGear <- function(object, effort, time_range) {
             f <- mizerFMortGear(params, effort = effort)
             dimnames(f) <- dimnames(params@selectivity)
             return(f)
-        
         } else {
             # assuming effort is a matrix, and object is of MizerParams class
             no_gear <- dim(params@catchability)[1]
@@ -496,9 +548,18 @@ getFMortGear <- function(object, effort, time_range) {
             out <- aperm(out, c(4, 1, 2, 3))
             return(out)
         }
-    }
 }
 
+#' @export
+getFMortGear.MizerSim <- function(object, effort, time_range) {
+    sim <- object
+    if (missing(time_range)) {
+        time_range <- dimnames(sim@effort)$time
+    }
+    time_elements <- get_time_elements(sim, time_range)
+    f_mort_gear <- getFMortGear(sim@params, sim@effort)
+    return(f_mort_gear[time_elements, , , , drop = FALSE])
+}
 
 #' Get the total fishing mortality rate from all fishing gears by time, species
 #' and size.
@@ -569,93 +630,96 @@ getFMortGear <- function(object, effort, time_range) {
 #' F <- getFMort(sim, time_range = c(10, 20))
 #' }
 getFMort <- function(object, effort, time_range, drop = TRUE) {
-    if (is(object, "MizerParams")) {
-        params <- validParams(object)
-        if (missing(effort)) {
-          effort <- params@initial_effort
-        }
-        if (missing(time_range)) time_range <- 0
-        t <- min(time_range)
-        n <- params@initial_n
-        n_pp <- params@initial_n_pp
-        n_other <- params@initial_n_other
-        no_gears <- dim(params@catchability)[[1]]
-        f <- get(params@rates_funcs$FMort)
-        if (length(dim(effort)) == 2) {
-            times <- dimnames(effort)$time
-            f_mort <- array(0,
-                            dim = c(dim(effort)[[1]], dim(params@initial_n)),
-                            dimnames = c(list(time = times),
-                                         dimnames(params@initial_n)))
-            times <- as.numeric(times)
-            for (i in seq_len(dim(effort)[1])) {
-                f_mort[i, , ] <- 
-                    f(params, n = n, n_pp = n_pp, n_other = n_other,
-                      effort = effort[i, ], t = times[i],
-                      e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
-                                            n_other = n_other, t = times[i]), 
-                      pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
-                                              n_other = n_other,
-                                              time_range = times[i]))
-            }
-            return(f_mort)
-        } else if (length(effort) <= 1) {
-            fmort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
-                       effort = rep(effort, no_gears), t = t,
-                       e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
-                                             n_other = n_other, t = t), 
-                       pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
-                                               n_other = n_other, 
-                                               time_range = t))
-            dimnames(fmort) <- dimnames(params@metab)
-            return(fmort)
-        } else if (length(effort) == no_gears) {
-            fmort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
-                       effort = effort, t = t,
-                       e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
-                                             n_other = n_other, t = t), 
-                       pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
-                                               n_other = n_other, 
-                                               time_range = t))
-            dimnames(fmort) <- dimnames(params@metab)
-            return(fmort)
-        } else {
-            stop("Invalid effort argument")
-        }
-    } else if (is(object, "MizerSim")) {
-        #case where object is MizerSim, and we use effort from there
-        sim <- object
-        params <- sim@params
-        f <- get(params@rates_funcs$FMort)
-        if (missing(time_range)) {
-            time_range <- dimnames(sim@effort)$time
-        }
-        time_elements <- get_time_elements(sim, time_range)
-        effort <- sim@effort[time_elements, , drop = FALSE]
-        n <- sim@n[time_elements, , , drop = FALSE]
-        n_pp <- sim@n_pp[time_elements, , drop = FALSE]
-        n_other <- sim@n_other[time_elements, , drop = FALSE]
+    UseMethod("getFMort")
+}
+
+#' @export
+getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE) {
+    params <- validParams(object)
+    if (missing(effort)) {
+        effort <- params@initial_effort
+    }
+    if (missing(time_range)) time_range <- 0
+    t <- min(time_range)
+    n <- params@initial_n
+    n_pp <- params@initial_n_pp
+    n_other <- params@initial_n_other
+    no_gears <- dim(params@catchability)[[1]]
+    f <- get(params@rates_funcs$FMort)
+    if (length(dim(effort)) == 2) {
         times <- dimnames(effort)$time
         f_mort <- array(0,
                         dim = c(dim(effort)[[1]], dim(params@initial_n)),
-                        dimnames = c(list(time = times),
-                                     dimnames(params@initial_n)))
+                            dimnames = c(list(time = times),
+                                         dimnames(params@initial_n)))
         times <- as.numeric(times)
         for (i in seq_len(dim(effort)[1])) {
             f_mort[i, , ] <- 
-                f(params, n = n[i, , ], n_pp = n_pp[i, ], 
-                  n_other = n_other[i, ], effort = effort[i, ], t = times[i],
-                  e_growth = getEGrowth(params, n = n[i, , ], n_pp = n_pp[i, ],
-                                        n_other = n_other[i, ], t = times[i]), 
-                  pred_mort = getPredMort(params, n = n[i, , ], 
-                                          n_pp = n_pp[i, ], 
-                                          n_other = n_other[i, ],
+                f(params, n = n, n_pp = n_pp, n_other = n_other,
+                  effort = effort[i, ], t = times[i],
+                  e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
+                                        n_other = n_other, t = times[i]), 
+                  pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
+                                          n_other = n_other,
                                           time_range = times[i]))
         }
-        return(f_mort[, , , drop = drop])
+        return(f_mort)
+    } else if (length(effort) <= 1) {
+        fmort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
+                   effort = rep(effort, no_gears), t = t,
+                   e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
+                                         n_other = n_other, t = t), 
+                   pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
+                                           n_other = n_other, 
+                                           time_range = t))
+        dimnames(fmort) <- dimnames(params@metab)
+        return(fmort)
+    } else if (length(effort) == no_gears) {
+        fmort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
+                   effort = effort, t = t,
+                   e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
+                                         n_other = n_other, t = t), 
+                   pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
+                                           n_other = n_other, 
+                                           time_range = t))
+        dimnames(fmort) <- dimnames(params@metab)
+        return(fmort)
     } else {
-      stop("The first argument needs to be a MizerParams or MizerSim object.")
+        stop("Invalid effort argument")
     }
+}
+#'
+#' @export
+getFMort.MizerSim <- function(object, effort, time_range, drop = TRUE) {
+    sim <- object
+    params <- sim@params
+    f <- get(params@rates_funcs$FMort)
+    if (missing(time_range)) {
+        time_range <- dimnames(sim@effort)$time
+    }
+    time_elements <- get_time_elements(sim, time_range)
+    effort <- sim@effort[time_elements, , drop = FALSE]
+    n <- sim@n[time_elements, , , drop = FALSE]
+    n_pp <- sim@n_pp[time_elements, , drop = FALSE]
+    n_other <- sim@n_other[time_elements, , drop = FALSE]
+    times <- dimnames(effort)$time
+    f_mort <- array(0,
+                    dim = c(dim(effort)[[1]], dim(params@initial_n)),
+                    dimnames = c(list(time = times),
+                                 dimnames(params@initial_n)))
+    times <- as.numeric(times)
+    for (i in seq_len(dim(effort)[1])) {
+        f_mort[i, , ] <- 
+            f(params, n = n[i, , ], n_pp = n_pp[i, ], 
+              n_other = n_other[i, ], effort = effort[i, ], t = times[i],
+              e_growth = getEGrowth(params, n = n[i, , ], n_pp = n_pp[i, ],
+                                    n_other = n_other[i, ], t = times[i]), 
+              pred_mort = getPredMort(params, n = n[i, , ], 
+                                      n_pp = n_pp[i, ], 
+                                      n_other = n_other[i, ],
+                                      time_range = times[i]))
+    }
+    return(f_mort[, , , drop = drop])
 }
 
 
@@ -687,6 +751,16 @@ getFMort <- function(object, effort, time_range, drop = TRUE) {
 #' mort["Sprat", "2"]
 #' }
 getMort <- function(params, 
+                    n = initialN(params), 
+                    n_pp = initialNResource(params),
+                    n_other = initialNOther(params),
+                    effort = getInitialEffort(params),
+                    t = 0, ...) {
+    UseMethod("getMort")
+}
+
+#' @export
+getMort.MizerParams <- function(params, 
                     n = initialN(params), 
                     n_pp = initialNResource(params),
                     n_other = initialNOther(params),
@@ -745,6 +819,14 @@ getERepro <- function(params, n = initialN(params),
                       n_pp = initialNResource(params),
                       n_other = initialNOther(params),
                       t = 0, ...) {
+    UseMethod("getERepro")
+}
+
+#' @export
+getERepro.MizerParams <- function(params, n = initialN(params), 
+                      n_pp = initialNResource(params),
+                      n_other = initialNOther(params),
+                      t = 0, ...) {
     params <- validParams(params)
     f <- get(params@rates_funcs$ERepro)
     erepro <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t, 
@@ -791,6 +873,14 @@ getEGrowth <- function(params, n = initialN(params),
                        n_pp = initialNResource(params),
                        n_other = initialNOther(params),
                        t = 0, ...) {
+    UseMethod("getEGrowth")
+}
+
+#' @export
+getEGrowth.MizerParams <- function(params, n = initialN(params), 
+                       n_pp = initialNResource(params),
+                       n_other = initialNOther(params),
+                       t = 0, ...) {
     params <- validParams(params)
     f <- get(params@rates_funcs$EGrowth)
     g <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t, 
@@ -827,6 +917,15 @@ getRDI <- function(params, n = initialN(params),
                    n_pp = initialNResource(params),
                    n_other = initialNOther(params),
                    t = 0, ...) {
+    UseMethod("getRDI")
+}
+
+#' @export
+getRDI.MizerParams <- function(params, n = initialN(params), 
+                   n_pp = initialNResource(params),
+                   n_other = initialNOther(params),
+                   t = 0, ...) {
+    params <- validParams(params)
     f <- get(params@rates_funcs$RDI)
     rdi <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t, 
              e_repro = getERepro(params, n = n, n_pp = n_pp, 
@@ -868,6 +967,16 @@ getRDI <- function(params, n = initialN(params),
 #' getRDD(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], t = 15)
 #' }
 getRDD <- function(params, n = initialN(params), 
+                   n_pp = initialNResource(params),
+                   n_other = initialNOther(params),
+                   t = 0,
+                   rdi = getRDI(params, n = n, n_pp = n_pp, 
+                                n_other = n_other, t = t), ...) {
+    UseMethod("getRDD")
+}
+
+#' @export
+getRDD.MizerParams <- function(params, n = initialN(params), 
                    n_pp = initialNResource(params),
                    n_other = initialNOther(params),
                    t = 0,

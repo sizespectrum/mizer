@@ -6,13 +6,14 @@
 \usage{
 animateSpectra(
   sim,
-  species = NULL,
+  species,
   time_range,
-  wlim = c(NA, NA),
-  ylim = c(NA, NA),
-  power = 1,
-  total = FALSE,
-  resource = TRUE
+  wlim,
+  ylim,
+  power,
+  total,
+  resource,
+  ...
 )
 }
 \arguments{
@@ -42,6 +43,8 @@ species in the system is plotted as well. Default is FALSE.}
 
 \item{resource}{A boolean value that determines whether resource is included.
 Default is TRUE.}
+
+\item{...}{Additional arguments passed to the method.}
 }
 \value{
 A plotly object
@@ -56,13 +59,13 @@ animateSpectra(NS_sim, power = 2, wlim = c(0.1, NA), time_range = 1997:2007)
 }
 \seealso{
 Other plotting functions: 
-\code{\link{plot,MizerParams,missing-method}},
-\code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},
 \code{\link{plotDiet}()},
 \code{\link{plotFMort}()},
 \code{\link{plotFeedingLevel}()},
 \code{\link{plotGrowthCurves}()},
+\code{\link{plotMizerParams}},
+\code{\link{plotMizerSim}},
 \code{\link{plotPredMort}()},
 \code{\link{plotSpectra}()},
 \code{\link{plotYield}()},

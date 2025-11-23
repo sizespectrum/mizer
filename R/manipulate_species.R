@@ -26,6 +26,7 @@
 #'   fished by already existing gear. Should not include effort values
 #'   for existing gear. New gear for which no effort is set via this
 #'   vector will have an initial effort of 0.
+#' @param ... Additional arguments
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #'
@@ -45,8 +46,6 @@
 #'   The new species will have a reproduction level of 1/4, this can then be
 #'   changed with [setBevertonHolt()]
 #'
-#' @seealso [removeSpecies()]
-#' @export
 #' @examples
 #' params <- newTraitParams()
 #' species_params <- data.frame(
@@ -61,9 +60,18 @@
 #' )
 #' params <- addSpecies(params, species_params)
 #' plotSpectra(params)
+#' @seealso [removeSpecies()]
+#' @export
+#' @rdname addSpecies
 addSpecies <- function(params, species_params,
                        gear_params = data.frame(), initial_effort,
-                       interaction) {
+                       interaction, ...) {
+    UseMethod("addSpecies")
+}
+
+#' @export
+addSpecies.MizerParams <- function(params, species_params, gear_params = data.frame(),
+                                   initial_effort = NULL, interaction = NULL, ...) {
     # check validity of parameters ----
     params <- validParams(params)
     given_species_params <- validGivenSpeciesParams(species_params)
@@ -317,15 +325,22 @@ addSpecies <- function(params, species_params,
 #' @param species The species to be removed. A vector of species names, or a
 #'   numeric vector of species indices, or a logical vector indicating for
 #'   each species whether it is to be removed (TRUE) or not.
+#' @param ... Additional arguments
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
+#' @rdname removeSpecies
 #' @examples
 #' params <- NS_params
 #' species_params(params)$species
 #' params <- removeSpecies(params, c("Cod", "Haddock"))
 #' species_params(params)$species
-removeSpecies <- function(params, species) {
+removeSpecies <- function(params, species, ...) {
+    UseMethod("removeSpecies")
+}
+
+#' @export
+removeSpecies.MizerParams <- function(params, species, ...) {
     params <- validParams(params)
     species <- valid_species_arg(params, species,
                                  return.logical = TRUE)
@@ -398,14 +413,21 @@ removeSpecies <- function(params, species) {
 #' @param params A mizer params object
 #' @param replace A named character vector, with new names as values, and old
 #'   names as names.
+#' @param ... Additional arguments
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
+#' @rdname renameSpecies
 #' @examples
 #' replace <- c(Cod = "Kabeljau", Haddock = "Schellfisch")
 #' params <- renameSpecies(NS_params, replace)
 #' species_params(params)$species
-renameSpecies <- function(params, replace) {
+renameSpecies <- function(params, replace, ...) {
+    UseMethod("renameSpecies")
+}
+
+#' @export
+renameSpecies.MizerParams <- function(params, replace, ...) {
     params <- validParams(params)
     replace[] <- as.character(replace)
     to_replace <- names(replace)
@@ -471,7 +493,6 @@ renameSpecies <- function(params, replace) {
     return(params)
 }
 
-
 #' Rename gears
 #'
 #' @description
@@ -484,14 +505,21 @@ renameSpecies <- function(params, replace) {
 #' @param params A mizer params object
 #' @param replace A named character vector, with new names as values, and old
 #'   names as names.
+#' @param ... Additional arguments
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
+#' @rdname renameGear
 #' @examples
 #' replace <- c(Industrial = "Trawl", Otter = "Beam_Trawl")
 #' params <- renameGear(NS_params, replace)
 #' gear_params(params)$gear
-renameGear <- function(params, replace) {
+renameGear <- function(params, replace, ...) {
+    UseMethod("renameGear")
+}
+
+#' @export
+renameGear.MizerParams <- function(params, replace, ...) {
     params <- validParams(params)
     replace[] <- as.character(replace)
     to_replace <- names(replace)

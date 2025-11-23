@@ -112,6 +112,7 @@
 #' @param RDD The name of the function calculating the density-dependent
 #'   reproduction rate from the density-independent rate. Defaults to
 #'   "[BevertonHoltRDD()]".
+#' @param value The desired new value for the respective parameter.
 #' @param ... Unused
 #'
 #' @return `setReproduction()`: A MizerParams object with updated reproduction
@@ -133,12 +134,16 @@
 #' library(ggplot2)
 #' ggplot(dff) + geom_line(aes(x = Size, y = Proportion, colour = Type))
 #' }
-setReproduction <- function(params, maturity = NULL,
+setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
+                           reset = FALSE, RDD = NULL, ...) {
+    UseMethod("setReproduction")
+}
+#' @export
+setReproduction.MizerParams <- function(params, maturity = NULL,
                             repro_prop = NULL, reset = FALSE,
                             RDD = NULL, ...) {
     # check arguments ----
-    assert_that(is(params, "MizerParams"),
-                is.flag(reset))
+    assert_that(is.flag(reset))
     if (is.null(RDD)) RDD <- params@rates_funcs[["RDD"]]
     assert_that(is.string(RDD),
                 exists(RDD),
@@ -351,20 +356,30 @@ setReproduction <- function(params, maturity = NULL,
 #'   of individuals of each species at size that are mature.
 #' @export
 getMaturityProportion <- function(params) {
-    assert_that(is(params, "MizerParams"))
+    UseMethod("getMaturityProportion")
+}
+#' @export
+getMaturityProportion.MizerParams <- function(params) {
     params@maturity
 }
 
 #' @rdname setReproduction
 #' @export
 maturity <- function(params) {
+    UseMethod("maturity")
+}
+#' @export
+maturity.MizerParams <- function(params) {
     params@maturity
 }
 
 #' @rdname setReproduction
-#' @param value .
 #' @export
 `maturity<-` <- function(params, value) {
+    UseMethod("maturity<-")
+}
+#' @export
+`maturity<-.MizerParams` <- function(params, value) {
     setReproduction(params, maturity = value)
 }
 
@@ -376,7 +391,10 @@ maturity <- function(params) {
 #'   proportion is zero, also the reproduction proportion is returned as zero.
 #' @export
 getReproductionProportion <- function(params) {
-    assert_that(is(params, "MizerParams"))
+    UseMethod("getReproductionProportion")
+}
+#' @export
+getReproductionProportion.MizerParams <- function(params) {
     repro_prop <- params@psi / params@maturity
     repro_prop[is.nan(repro_prop)] <- 0
     repro_prop[repro_prop > 1] <- 1
@@ -387,12 +405,19 @@ getReproductionProportion <- function(params) {
 #' @rdname setReproduction
 #' @export
 repro_prop <- function(params) {
+    UseMethod("repro_prop")
+}
+#' @export
+repro_prop.MizerParams <- function(params) {
     getReproductionProportion(params)
 }
 
 #' @rdname setReproduction
-#' @param value .
 #' @export
 `repro_prop<-` <- function(params, value) {
+    UseMethod("repro_prop<-")
+}
+#' @export
+`repro_prop<-.MizerParams` <- function(params, value) {
     setReproduction(params, repro_prop = value)
 }

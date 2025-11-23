@@ -2,10 +2,13 @@
 % Please edit documentation in R/plots.R
 \name{plotYield}
 \alias{plotYield}
+\alias{plotYield.MizerSim}
 \alias{plotlyYield}
 \title{Plot the total yield of species through time}
 \usage{
-plotYield(
+plotYield(sim, ...)
+
+\method{plotYield}{MizerSim}(
   sim,
   sim2,
   species = NULL,
@@ -29,6 +32,8 @@ plotlyYield(
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}}
 
+\item{...}{Other arguments (currently unused)}
+
 \item{sim2}{An optional second object of class \linkS4class{MizerSim}. If
 this is provided its yields will be shown on the same plot in bolder lines.}
 
@@ -49,8 +54,6 @@ Defaults to true.}
 
 \item{return_data}{A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default value is FALSE}
-
-\item{...}{Other arguments (currently unused)}
 }
 \value{
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
@@ -82,13 +85,13 @@ str(fr)
 
 Other plotting functions: 
 \code{\link{animateSpectra}()},
-\code{\link{plot,MizerParams,missing-method}},
-\code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},
 \code{\link{plotDiet}()},
 \code{\link{plotFMort}()},
 \code{\link{plotFeedingLevel}()},
 \code{\link{plotGrowthCurves}()},
+\code{\link{plotMizerParams}},
+\code{\link{plotMizerSim}},
 \code{\link{plotPredMort}()},
 \code{\link{plotSpectra}()},
 \code{\link{plotYieldGear}()},

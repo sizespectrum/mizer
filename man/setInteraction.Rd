@@ -6,7 +6,7 @@
 \alias{interaction_matrix<-}
 \title{Set species interaction matrix}
 \usage{
-setInteraction(params, interaction = NULL)
+setInteraction(params, interaction = NULL, ...)
 
 interaction_matrix(params)
 
@@ -18,6 +18,8 @@ interaction_matrix(params) <- value
 \item{interaction}{Optional interaction matrix of the species (predator
 species x prey species). By default all entries are 1. See "Setting
 interaction matrix" section below.}
+
+\item{...}{Additional arguments passed to the method.}
 
 \item{value}{An interaction matrix}
 }

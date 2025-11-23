@@ -35,6 +35,8 @@
 #'   shown as if their observed yield was equal to the model yield.
 #' @param return_data Whether to return the data frame for the plot (TRUE) or
 #'   not (FALSE). Default is FALSE.
+#' @param ... Additional arguments passed to the generic function.
+#' 
 #' @return A ggplot2 object with the plot of model yield by species compared
 #'   to observed yield. If `return_data = TRUE`, the data frame used to
 #'   create the plot is returned instead of the plot.
@@ -56,27 +58,24 @@
 #'
 #' # Show the ratio instead
 #' plotYieldObservedVsModel(params, ratio = TRUE)
-plotYieldObservedVsModel = function(object, species = NULL, ratio = FALSE,
-                                      log_scale = TRUE, return_data = FALSE, 
-                                      labels = TRUE, show_unobserved = FALSE) {
+plotYieldObservedVsModel <- function(object, species = NULL, ratio = FALSE,
+                                     log_scale = TRUE, return_data = FALSE, 
+                                     labels = TRUE, show_unobserved = FALSE, ...) {
+    UseMethod("plotYieldObservedVsModel")
+}
+#' @export
+plotYieldObservedVsModel.MizerParams <- function(object, species = NULL, ratio = FALSE,
+                                     log_scale = TRUE, return_data = FALSE, 
+                                     labels = TRUE, show_unobserved = FALSE, ...) {
     
-    # preliminary checks
-    if (is(object, "MizerSim")) {
-        params = object@params # pull out params object
-        n <- finalN(object) # we want final numbers
-    } else if (is(object, "MizerParams")) {
-        params = object # params object is just input
-        n <- initialN(params) # we want initial numbers
-    } else {
-        stop("You have not provided a valid mizerSim or mizerParams object.")
-    }
-    sp_params <- params@species_params # get species_params data frame
+    params <- object
+    sp_params <- params@species_params
     
     biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
     yield_model <- rowSums(biomass * getFMort(params))
     
     # Select appropriate species
-    species = valid_species_arg(object, species)
+    species <- valid_species_arg(object, species)
     no_yield <- yield_model[species] == 0
     if (any(no_yield)) {
         message("The following species are not being fished in your model ",
@@ -87,7 +86,7 @@ plotYieldObservedVsModel = function(object, species = NULL, ratio = FALSE,
     if (length(species) == 0) stop("No species selected, please fix.")
     
     # find rows corresponding to species selected
-    row_select = match(species, sp_params$species)
+    row_select <- match(species, sp_params$species)
     if (!"yield_observed" %in% names(sp_params)) {
         stop("You have not provided values for the column 'yield_observed' ",
              "in the mizerParams/mizerSim object.")
@@ -95,11 +94,11 @@ plotYieldObservedVsModel = function(object, species = NULL, ratio = FALSE,
         stop("The column 'yield_observed' in the mizerParams/mizerSim object",
              " is not numeric, please fix.")
     } else { # accept
-        yield_observed = sp_params$yield_observed
+        yield_observed <- sp_params$yield_observed
     }
     
     # Build dataframe
-    dummy = data.frame(species = species, 
+    dummy <- data.frame(species = species, 
                        model = yield_model[row_select], 
                        observed = yield_observed[row_select]) %>%
         mutate(species = factor(species, levels = species),
@@ -172,13 +171,23 @@ plotYieldObservedVsModel = function(object, species = NULL, ratio = FALSE,
     }
     gg
 }
+#' @export
+plotYieldObservedVsModel.MizerSim <- function(object, species = NULL, ratio = FALSE,
+                                     log_scale = TRUE, return_data = FALSE, 
+                                     labels = TRUE, show_unobserved = FALSE, ...) {
+    params <- setInitialValues(object@params, object)
+    plotYieldObservedVsModel(params, species = species, ratio = ratio,
+                             log_scale = log_scale, return_data = return_data,
+                             labels = labels, show_unobserved = show_unobserved)
+}
+
 
 #' @rdname plotYieldObservedVsModel
 #' @export
 plotlyYieldObservedVsModel <- function(object, species = NULL, ratio = FALSE,
                                          log_scale = TRUE, return_data = FALSE, 
-                                         show_unobserved = FALSE) {
+                                         show_unobserved = FALSE, ...) {
     argg <- as.list(environment())
     argg$labels <- FALSE
-    ggplotly(do.call("plotYieldObservedVsModel", argg))
+    ggplotly(do.call("plotYieldObservedVsModel", argg), ...)
 }

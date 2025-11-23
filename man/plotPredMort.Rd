@@ -2,13 +2,26 @@
 % Please edit documentation in R/plots.R
 \name{plotPredMort}
 \alias{plotPredMort}
+\alias{plotPredMort.MizerSim}
+\alias{plotPredMort.MizerParams}
 \alias{plotlyPredMort}
 \title{Plot predation mortality rate of each species against size}
 \usage{
-plotPredMort(
+plotPredMort(object, ...)
+
+\method{plotPredMort}{MizerSim}(
   object,
   species = NULL,
   time_range,
+  all.sizes = FALSE,
+  highlight = NULL,
+  return_data = FALSE,
+  ...
+)
+
+\method{plotPredMort}{MizerParams}(
+  object,
+  species = NULL,
   all.sizes = FALSE,
   highlight = NULL,
   return_data = FALSE,
@@ -20,6 +33,8 @@ plotlyPredMort(object, species = NULL, time_range, highlight = NULL, ...)
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or
 \linkS4class{MizerParams}.}
+
+\item{...}{Other arguments (currently unused)}
 
 \item{species}{The species to be selected. Optional. By default all target
 species are selected. A vector of species names, or a
@@ -38,8 +53,6 @@ outside a species' size range. Default FALSE.}
 
 \item{return_data}{A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default value is FALSE}
-
-\item{...}{Other arguments (currently unused)}
 }
 \value{
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
@@ -67,13 +80,13 @@ str(fr)
 
 Other plotting functions: 
 \code{\link{animateSpectra}()},
-\code{\link{plot,MizerParams,missing-method}},
-\code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},
 \code{\link{plotDiet}()},
 \code{\link{plotFMort}()},
 \code{\link{plotFeedingLevel}()},
 \code{\link{plotGrowthCurves}()},
+\code{\link{plotMizerParams}},
+\code{\link{plotMizerSim}},
 \code{\link{plotSpectra}()},
 \code{\link{plotYield}()},
 \code{\link{plotYieldGear}()},

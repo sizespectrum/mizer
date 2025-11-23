@@ -4,18 +4,19 @@
 \alias{setParams}
 \title{Set or change any model parameters}
 \usage{
-setParams(params, interaction = NULL, ...)
+setParams(object, interaction = NULL, ...)
 }
 \arguments{
-\item{params}{A \linkS4class{MizerParams} object}
+\item{object}{A \linkS4class{MizerParams} object}
 
 \item{interaction}{Optional interaction matrix of the species (predator
 species x prey species). By default all entries are 1. See "Setting
 interaction matrix" section below.}
 
 \item{...}{
-  Arguments passed on to \code{\link[=setPredKernel]{setPredKernel}}, \code{\link[=setSearchVolume]{setSearchVolume}}, \code{\link[=setMaxIntakeRate]{setMaxIntakeRate}}, \code{\link[=setMetabolicRate]{setMetabolicRate}}, \code{\link[=setExtMort]{setExtMort}}, \code{\link[=setReproduction]{setReproduction}}, \code{\link[=setFishing]{setFishing}}
+  Arguments passed on to \code{\link[=setPredKernel]{setPredKernel}}, \code{\link[=setSearchVolume]{setSearchVolume}}, \code{\link[=setMaxIntakeRate]{setMaxIntakeRate}}, \code{\link[=setMetabolicRate]{setMetabolicRate}}, \code{\link[=setExtMort]{setExtMort}}, \code{\link[=setExtEncounter]{setExtEncounter}}, \code{\link[=setReproduction]{setReproduction}}, \code{\link[=setFishing]{setFishing}}
   \describe{
+    \item{\code{params}}{A MizerParams object}
     \item{\code{pred_kernel}}{Optional. An array (species x predator size x prey size)
 that holds the predation coefficient of each predator at size on each prey
 size. If not supplied, a default is set as described in section "Setting
@@ -43,6 +44,9 @@ the species data frame, it is calculated as \code{z0pre * w_max ^ z0exp}.
 Default value is \code{n-1}.}
     \item{\code{z0}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{ext_mort} instead. Not to
 be confused with the species_parameter \code{z0}.}
+    \item{\code{ext_encounter}}{Optional. An array (species x size) holding the external
+encounter rate.  If not supplied, the external encounter rate is left
+unchanged. Initially is is set to 0.}
     \item{\code{maturity}}{Optional. An array (species x size) that holds the proportion
 of individuals of each species at size that are mature. If not supplied, a
 default is set as described in the section "Setting reproduction".}

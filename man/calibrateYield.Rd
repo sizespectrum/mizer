@@ -4,10 +4,12 @@
 \alias{calibrateYield}
 \title{Calibrate the model scale to match total observed yield}
 \usage{
-calibrateYield(params)
+calibrateYield(params, ...)
 }
 \arguments{
 \item{params}{A MizerParams object}
+
+\item{...}{Additional arguments passed to the method.}
 }
 \value{
 A MizerParams object

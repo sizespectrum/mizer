@@ -14,6 +14,10 @@
 #' @return NULL invisibly
 #' @export
 saveParams <- function(params, file) {
+    UseMethod("saveParams")
+}
+#' @export
+saveParams.MizerParams <- function(params, file) {
     params <- validParams(params)
     
     kernel_fns <- paste0(unique(params@species_params$pred_kernel_type),

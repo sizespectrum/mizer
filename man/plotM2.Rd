@@ -4,37 +4,11 @@
 \alias{plotM2}
 \title{Alias for \code{plotPredMort()}}
 \usage{
-plotM2(
-  object,
-  species = NULL,
-  time_range,
-  all.sizes = FALSE,
-  highlight = NULL,
-  return_data = FALSE,
-  ...
-)
+plotM2(object, ...)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or
 \linkS4class{MizerParams}.}
-
-\item{species}{The species to be selected. Optional. By default all target
-species are selected. A vector of species names, or a
-numeric vector with the species indices, or a logical vector indicating for
-each species whether it is to be selected (TRUE) or not.}
-
-\item{time_range}{The time range (either a vector of values, a vector of min
-and max time, or a single value) to average the abundances over. Default is
-the final time step. Ignored when called with a \linkS4class{MizerParams}
-object.}
-
-\item{all.sizes}{If TRUE, then predation mortality is plotted also for sizes
-outside a species' size range. Default FALSE.}
-
-\item{highlight}{Name or vector of names of the species to be highlighted.}
-
-\item{return_data}{A boolean value that determines whether the formatted data
-used for the plot is returned instead of the plot itself. Default value is FALSE}
 
 \item{...}{Other arguments (currently unused)}
 }
@@ -63,13 +37,13 @@ str(fr)
 
 Other plotting functions: 
 \code{\link{animateSpectra}()},
-\code{\link{plot,MizerParams,missing-method}},
-\code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},
 \code{\link{plotDiet}()},
 \code{\link{plotFMort}()},
 \code{\link{plotFeedingLevel}()},
 \code{\link{plotGrowthCurves}()},
+\code{\link{plotMizerParams}},
+\code{\link{plotMizerSim}},
 \code{\link{plotSpectra}()},
 \code{\link{plotYield}()},
 \code{\link{plotYieldGear}()},

@@ -5,7 +5,15 @@
 \alias{getMetadata}
 \title{Set metadata for a model}
 \usage{
-setMetadata(params, title, description, authors, url, doi, ...)
+setMetadata(
+  params,
+  title = NULL,
+  description = NULL,
+  authors = NULL,
+  url = NULL,
+  doi = NULL,
+  ...
+)
 
 getMetadata(params)
 }

@@ -4,7 +4,7 @@
 \alias{setInitialValues}
 \title{Set initial values to values from a simulation}
 \usage{
-setInitialValues(params, sim, time_range, geometric_mean = FALSE)
+setInitialValues(params, sim, time_range, geometric_mean = FALSE, ...)
 }
 \arguments{
 \item{params}{A \code{MizerParams} object in which to set the initial values}
@@ -21,6 +21,8 @@ If TRUE then the average of the abundances over the
 time range is a geometric mean instead of the default arithmetic mean. This
 does not affect the average of the effort or of other components, which is
 always arithmetic.}
+
+\item{...}{Additional arguments passed to the method.}
 }
 \value{
 The \code{params} object with updated initial values and initial effort.

@@ -2,14 +2,33 @@
 % Please edit documentation in R/plots.R
 \name{plotSpectra}
 \alias{plotSpectra}
+\alias{plotSpectra.MizerSim}
+\alias{plotSpectra.MizerParams}
 \alias{plotlySpectra}
 \title{Plot the abundance spectra}
 \usage{
-plotSpectra(
+plotSpectra(object, ...)
+
+\method{plotSpectra}{MizerSim}(
   object,
   species = NULL,
   time_range,
   geometric_mean = FALSE,
+  wlim = c(NA, NA),
+  ylim = c(NA, NA),
+  power = 1,
+  biomass = TRUE,
+  total = FALSE,
+  resource = TRUE,
+  background = TRUE,
+  highlight = NULL,
+  return_data = FALSE,
+  ...
+)
+
+\method{plotSpectra}{MizerParams}(
+  object,
+  species = NULL,
   wlim = c(NA, NA),
   ylim = c(NA, NA),
   power = 1,
@@ -41,6 +60,8 @@ plotlySpectra(
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or
 \linkS4class{MizerParams}.}
+
+\item{...}{Other arguments (currently unused)}
 
 \item{species}{The species to be selected. Optional. By default all target
 species are selected. A vector of species names, or a
@@ -91,8 +112,6 @@ Default is TRUE.}
 
 \item{return_data}{A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default value is FALSE}
-
-\item{...}{Other arguments (currently unused)}
 }
 \value{
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
@@ -129,13 +148,13 @@ str(fr)
 
 Other plotting functions: 
 \code{\link{animateSpectra}()},
-\code{\link{plot,MizerParams,missing-method}},
-\code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},
 \code{\link{plotDiet}()},
 \code{\link{plotFMort}()},
 \code{\link{plotFeedingLevel}()},
 \code{\link{plotGrowthCurves}()},
+\code{\link{plotMizerParams}},
+\code{\link{plotMizerSim}},
 \code{\link{plotPredMort}()},
 \code{\link{plotYield}()},
 \code{\link{plotYieldGear}()},

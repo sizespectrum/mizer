@@ -120,8 +120,11 @@
 #' @param R_max Maximum reproduction rate. See details.
 #' @param reproduction_level Sets `R_max` so that the reproduction rate at
 #'   the initial state is `R_max * reproduction_level`.
-#' @param R_factor `r lifecycle::badge("deprecated")` Use
-#'   `reproduction_level = 1 / R_factor` instead.
+#' @param ... Unused
+#'   \itemize{
+#'     \item `R_factor`: `r lifecycle::badge("deprecated")` Use
+#'       `reproduction_level = 1 / R_factor` instead.
+#'   }
 #'
 #' @return A MizerParams object
 #' @examples
@@ -141,14 +144,23 @@
 #' params <- setBevertonHolt(params, reproduction_level = 0.3)
 #' t(species_params(params)[, c("erepro", "R_max")])
 #' @export
-setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
-                            R_max, reproduction_level) {
-    assert_that(is(params, "MizerParams"))
+setBevertonHolt <- function(params, erepro,
+                            R_max, reproduction_level, ...) {
+    UseMethod("setBevertonHolt")
+}
+#' @export
+setBevertonHolt.MizerParams <- function(params, erepro,
+                            R_max, reproduction_level, ...) {
     no_sp <- nrow(params@species_params)
+
+    args <- list(...)
+    if ("R_factor" %in% names(args)) {
+        R_factor <- args[["R_factor"]]
+    }
 
     # check number of arguments
     num_args <- hasArg("erepro") + hasArg("R_max") +
-        hasArg("reproduction_level") + hasArg("R_factor")
+        hasArg("reproduction_level") + exists("R_factor")
     if (num_args > 1) {
         stop("You should only provide `params` and one other argument.")
     }
@@ -161,7 +173,7 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
     if (!missing("erepro")) values <- erepro
     if (hasArg("R_max")) values <- R_max
     if (hasArg("reproduction_level")) values <- reproduction_level
-    if (hasArg("R_factor")) values <- R_factor
+    if (exists("R_factor")) values <- R_factor
 
     if (length(values) == 1 && is.null(names(values))) {
         values <- rep(values, no_sp)
@@ -227,7 +239,7 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
         }
         r_max_new <- rdd_new / values
     }
-    if (!missing(R_factor)) {
+    if (exists("R_factor")) {
         if (!all(values > 1)) {
             stop("The R_factor must be greater than 1.")
         }
@@ -272,6 +284,10 @@ setBevertonHolt <- function(params, R_factor = deprecated(), erepro,
 }
 
 getRequiredRDD <- function(params) {
+    UseMethod("getRequiredRDD")
+}
+#' @export
+getRequiredRDD.MizerParams <- function(params) {
     # Calculate required rdd
     mumu <- getMort(params)
     gg <- getEGrowth(params)
@@ -315,7 +331,10 @@ getRequiredRDD <- function(params) {
 #' identical(getRDD(params) / species_params(params)$R_max,
 #'           getReproductionLevel(params))
 getReproductionLevel <- function(params) {
-    assert_that(is(params, "MizerParams"))
+    UseMethod("getReproductionLevel")
+}
+#' @export
+getReproductionLevel.MizerParams <- function(params) {
     if (!"R_max" %in% names(params@species_params)) {
         stop("No `R_max` is included in the species parameters.")
     }
