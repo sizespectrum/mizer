@@ -675,7 +675,7 @@ validGearParams <- function(gear_params, species_params) {
 #' @export
 #' @rdname initial_effort
 validEffortVector <- function(effort, params) {
-    assert_that(is.null(effort), is.numeric(effort))
+    assert_that(is.null(effort) || is.numeric(effort))
     gear_names <- dimnames(params@catchability)[[1]]
     no_gears <- length(gear_names)
 
