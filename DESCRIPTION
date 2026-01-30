@@ -79,6 +79,7 @@ Collate:
     'resource_dynamics.R'
     'resource_semichemostat.R'
     'resource_logistic.R'
+    'project_n.R'
     'project.R'
     'mizer-package.R'
     'project_methods.R'
