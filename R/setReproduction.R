@@ -12,10 +12,11 @@
 #' proportion `maturity` of individuals that are mature and the proportion
 #' `repro_prop` of the energy available to a mature individual that is
 #' invested into reproduction. There is a size `w_repro_max` at which all the
-#' energy is invested into reproduction and therefore all growth stops. There
-#' can be no fish larger than `w_repro_max`. If you have not specified the
-#' `w_repro_max` column in the species parameter data frame, then the maximum size
-#' `w_max` is used instead.
+#' energy is invested into reproduction and therefore all growth stops. For
+#' models created with mizer version > 2.5.3.9000, `w_repro_max` is rounded
+#' down to the nearest grid point to ensure there can be no fish larger than
+#' `w_repro_max`. If you have not specified the `w_repro_max` column in the
+#' species parameter data frame, then the maximum size `w_max` is used instead.
 #'
 #' \subsection{Maturity ogive}{
 #' If the the proportion of individuals that are mature is not supplied via
@@ -57,6 +58,12 @@
 #' column `m` in the species parameter dataframe. The maximum sizes are taken
 #' from the `w_repro_max` column in the species parameter data frame, if it
 #' exists, or otherwise from the `w_max` column.
+#'
+#' For models created with mizer version > 2.5.3.9000, `w_repro_max` is 
+#' automatically rounded down to the next-lower point on the size grid. This
+#' prevents fish from growing into size classes beyond `w_repro_max` due to
+#' numerical integration behavior where a zero growth rate at the start of a
+#' size class can still lead to non-zero abundance in that class.
 #'
 #' The total proportion of energy invested into reproduction of an individual
 #' of size \eqn{w} is then
@@ -290,6 +297,22 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
         # Set defaults for w_repro_max
         species_params <- set_species_param_default(species_params, "w_repro_max",
                                                     params@species_params$w_max)
+        
+        # Round down w_repro_max to next-lower point on w grid for newer versions
+        # This prevents fish from growing into size classes beyond w_repro_max
+        # due to numerical integration behavior
+        if (params@mizer_version > "2.5.3.9000") {
+            for (i in seq_len(nrow(species_params))) {
+                # Find the largest w grid point that is <= w_repro_max
+                idx <- which(params@w <= species_params$w_repro_max[i])
+                if (length(idx) > 0) {
+                    species_params$w_repro_max[i] <- params@w[max(idx)]
+                }
+                # If w_repro_max is smaller than all grid points, leave it unchanged
+            }
+            # Save the rounded values back to params
+            params@species_params$w_repro_max <- species_params$w_repro_max
+        }
 
         repro_prop <- array(
             unlist(
