@@ -92,7 +92,8 @@ test_that("Exact steady state is maintained", {
                                                beta = 100, 
                                                sigma = 1, 
                                                k_vb = 0.1), 
-                                    no_w = 1000, min_w = 1e-3)
+                                    no_w = 1000, min_w = 1e-3,
+                                    info_level = 0)
     
     params <- setRateFunction(params, "EGrowth", "start_growth")
     params <- setRateFunction(params, "Mort", "start_mort")
@@ -126,7 +127,8 @@ test_that("Exact time-dependent solution is followed", {
                                                beta = 100, 
                                                sigma = 1, 
                                                k_vb = 0.1), 
-                                    no_w = 1000, min_w = 1e-3)
+                                    no_w = 1000, min_w = 1e-3,
+                                    info_level = 0)
     
     params <- setRateFunction(params, "EGrowth", "start_growth")
     params <- setRateFunction(params, "Mort", "start_mort")
