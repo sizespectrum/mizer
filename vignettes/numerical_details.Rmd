@@ -36,79 +36,80 @@ The number density $N_i(w)$ is approximated by a constant value $N_{i,j}$ within
 
 # The Transport Equation
 
-The time evolution of the number density $N_i(w)$ is described by the McKendrick-von Foerster equation:
+The time evolution of the number density $N_i(w)$ is described by the McKendrick-von Foerster equation with an added diffusion term:
 $$
-\frac{\partial N_i}{\partial t} + \frac{\partial g_i N_i}{\partial w} = -\mu_i N_i
+\frac{\partial N_i}{\partial t} + \frac{\partial}{\partial w} \left( g_i N_i - \frac{1}{2}\frac{\partial(d_i N_i)}{\partial w} \right) = -\mu_i N_i
 $$
-where $g_i(w)$ is the somatic growth rate and $\mu_i(w)$ is the total mortality rate.
+where $g_i(w)$ is the somatic growth rate, $d_i(w)$ is the diffusion coefficient and $\mu_i(w)$ is the total mortality rate.
 
-We discretise this equation using a finite difference scheme. We use a **semi-implicit upwind scheme** which is stable and robust. 
+We discretise this equation using a finite volume scheme.
 
-## Discretisation of the Growth Term
+## Discretisation of the Fluxs
 
-The term $\frac{\partial g_i N_i}{\partial w}$ represents the transport of biomass up the size spectrum due to growth. We use an upwind difference approximation for the derivative:
-$$
-\frac{\partial g_i N_i}{\partial w} \approx \frac{g_i(w_j) N_{i,j} - g_i(w_{j-1}) N_{i,j-1}}{\Delta w_j}.
-$$
-This approximation uses the flux of individuals *leaving* the bin $j$ (which is $g_i(w_j) N_{i,j}$) and the flux of individuals *entering* the bin $j$ from the bin below (which is $g_i(w_{j-1}) N_{i,j-1}$).
+The term inside the derivative with respect to $w$ is the flux $J_i(w)$:
+$$ J_i(w) = g_i(w) N_i(w) - \frac{1}{2}\frac{\partial(d_i(w) N_i(w))}{\partial w} $$
+We consider the $j$-th size bin $[w_j, w_{j+1}]$. Integrating the conservation equation over this bin gives:
+$$ \Delta w_j \frac{\partial N_{i,j}}{\partial t} + J_i(w_{j+1}) - J_i(w_j) = -\int_{w_j}^{w_{j+1}} \mu_i(w) N_i(w) dw $$
+Approximating the integral and dividing by $\Delta w_j$:
+$$ \frac{N_{i,j}^{t+1} - N_{i,j}^t}{\Delta t} + \frac{J_{i,j+1} - J_{i,j}}{\Delta w_j} = -\mu_i(w_j) N_{i,j}^{t+1} $$
+where $J_{i,j}$ represents the flux at the boundary $w_j$.
 
-## Discretisation of Time
+### Advective Flux
+For the advective part of the flux $g_i N_i$, we use an **upwind** approximation. Since fish grow from smaller to larger sizes ($g_i > 0$), the flux at boundary $w_j$ is determined by the density in the bin below ($j-1$):
+$$ J_{i,j}^{adv} = g_i(w_{j-1}) N_{i,j-1} $$
+(Note: for $j=j_{min}$, this boundary flux is the recruitment $R_{dd,i}$).
 
-We denote the number density at time $t$ by $N_{i,j}^t$ and at time $t+\Delta t$ by $N_{i,j}^{t+1}$. 
-The time derivative is approximated by the forward difference:
-$$
-\frac{\partial N_i}{\partial t} \approx \frac{N_{i,j}^{t+1} - N_{i,j}^t}{\Delta t}.
-$$
+### Diffusive Flux
+For the diffusive part of the flux $-\frac{1}{2}\frac{\partial(d_i N_i)}{\partial w}$, we use a **central difference** approximation at the boundary $w_j$. We approximate the gradient using the densities in the adjacent bins $j-1$ and $j$:
+$$ J_{i,j}^{diff} \approx -\frac{1}{2} \frac{(d_i N_i)_j - (d_i N_i)_{j-1}}{w_j - w_{j-1}} = -\frac{1}{2} \frac{d_i(w_j) N_{i,j} - d_i(w_{j-1}) N_{i,j-1}}{\Delta w_{j-1}} $$
+Note the use of $N_{i,j}$ (density in bin $j$) and $N_{i,j-1}$ (density in bin $j-1$) to estimate the value at the interface $w_j$.
 
-For the growth and mortality terms on the right-hand side, we have a choice of evaluating them at time $t$ (explicit scheme) or at time $t+\Delta t$ (implicit scheme). The explicit scheme is only stable for very small time steps $\Delta t$ (the Courant-Friedrichs-Lewy condition), whereas the implicit scheme is unconditionally stable.
+The total flux at boundary $w_j$ is:
+$$ J_{i,j} = g_i(w_{j-1}) N_{i,j-1} - \frac{1}{2} \frac{d_i(w_j) N_{i,j} - d_i(w_{j-1}) N_{i,j-1}}{\Delta w_{j-1}} $$
+And similarly at boundary $w_{j+1}$:
+$$ J_{i,j+1} = g_i(w_j) N_{i,j} - \frac{1}{2} \frac{d_i(w_{j+1}) N_{i,j+1} - d_i(w_j) N_{i,j}}{\Delta w_j} $$
 
-Mizer uses a semi-implicit scheme where the fast dynamical variables (the densities $N_i$) are treated implicitly, while the slow dynamical variables (the growth and mortality rates $g_i$ and $\mu_i$) are treated explicitly. This means we evaluate $N_i$ at $t+\Delta t$ but $g_i$ and $\mu_i$ at time $t$.
+## Limitation on Time Step
 
-The discretised equation for $j > 1$ is:
-$$
-\frac{N_{i,j}^{t+1} - N_{i,j}^t}{\Delta t} + \frac{g_i(w_j) N_{i,j}^{t+1} - g_i(w_{j-1}) N_{i,j-1}^{t+1}}{\Delta w_j} = -\mu_i(w_j) N_{i,j}^{t+1}.
-$$
+With the diffusion term, an explicit time discretisation would require a very small time step for stability ($\Delta t \sim \Delta w^2$). Therefore, we use a semi-implicit scheme where the densities $N_i$ are evaluated at time $t+1$, but the rates ($g_i, \mu_i, d_i$) are evaluated at time $t$.
 
-Rearranging this equation to solve for $N_{i,j}^{t+1}$ gives:
-$$
-\left( 1 + \frac{\Delta t}{\Delta w_j} g_i(w_j) + \Delta t \mu_i(w_j) \right) N_{i,j}^{t+1} - \frac{\Delta t}{\Delta w_j} g_i(w_{j-1}) N_{i,j-1}^{t+1} = N_{i,j}^t.
-$$
+## Discretised Equation
 
-We can write this as a linear system:
+Substituting the fluxes into the conservation equation:
 $$
-B_{i,j} N_{i,j}^{t+1} + A_{i,j} N_{i,j-1}^{t+1} = S_{i,j}
+\frac{N_{i,j}^{t+1} - N_{i,j}^t}{\Delta t} + \frac{1}{\Delta w_j} \left( J_{i,j+1}^{t+1} - J_{i,j}^{t+1} \right) = -\mu_i(w_j) N_{i,j}^{t+1}
 $$
-where
+This leads to a linear system of the form:
+$$
+A_{i,j} N_{i,j-1}^{t+1} + B_{i,j} N_{i,j}^{t+1} + C_{i,j} N_{i,j+1}^{t+1} = S_{i,j}
+$$
+where $S_{i,j} = N_{i,j}^t$.
+This is a **tridiagonal system** for each species $i$, which can be solved efficiently (e.g., using the Thomas algorithm).
+
+The coefficients are:
 $$
 \begin{aligned}
-A_{i,j} &= -\frac{\Delta t}{\Delta w_j} g_i(w_{j-1}) \\
-B_{i,j} &= 1 + \frac{\Delta t}{\Delta w_j} g_i(w_j) + \Delta t \mu_i(w_j) \\
-S_{i,j} &= N_{i,j}^t
+A_{i,j} &= -\frac{\Delta t}{\Delta w_j} \left( g_i(w_{j-1}) + \frac{1}{2} \frac{d_i(w_{j-1})}{\Delta w_{j-1}} \right) \\
+C_{i,j} &= -\frac{\Delta t}{\Delta w_j} \left( \frac{1}{2} \frac{d_i(w_{j+1})}{\Delta w_j} \right) \\
+B_{i,j} &= 1 + \Delta t \mu_i(w_j) + \frac{\Delta t}{\Delta w_j} \left( g_i(w_j) + \frac{1}{2} \frac{d_i(w_j)}{\Delta w_j} + \frac{1}{2} \frac{d_i(w_j)}{\Delta w_{j-1}} \right)
 \end{aligned}
 $$
 
-This system can be solved nicely by iterating from the smallest size bin upwards. Once we know $N_{i,j-1}^{t+1}$, we can calculate $N_{i,j}^{t+1}$:
-$$
-N_{i,j}^{t+1} = \frac{S_{i,j} - A_{i,j} N_{i,j-1}^{t+1}}{B_{i,j}}.
-$$
+## Boundary Conditions
 
-## Boundary Condition at Smallest Size
+**At the smallest size ($j=j_{min}$):**
+The flux entering the grid is determined by recruitment.
+$$ J_{i, j_{min}} = R_{dd, i} $$
+(We assume diffusive flux at the lower boundary is negligible or incorporated into $R_{dd}$).
+The equation for the first bin becomes:
+$$ \frac{N_{i,j_{min}}^{t+1} - N_{i,j_{min}}^t}{\Delta t} + \frac{J_{i, j_{min}+1}^{t+1} - R_{dd,i}}{\Delta w_{j_{min}}} = -\mu_i(w_{j_{min}}) N_{i,j_{min}}^{t+1} $$
+This involves $N_{i, j_{min}}^{t+1}$ and $N_{i, j_{min}+1}^{t+1}$.
 
-For the first size bin ($j=j_{min}$), there is no flux from a smaller bin ($g_i(w_{j_{min}-1}) N_{i,j_{min}-1}$ is not defined). Instead, there is an influx of new recruits into the smallest size class. Let $R_{dd, i}$ be the rate of recruitment (density-dependent reproduction rate, numbers per time).
-
-The discretised equation for the first bin is:
-$$
-\frac{N_{i,j_{min}}^{t+1} - N_{i,j_{min}}^t}{\Delta t} + \frac{g_i(w_{j_{min}}) N_{i,j_{min}}^{t+1} - R_{dd, i}}{\Delta w_{j_{min}}} = -\mu_i(w_{j_{min}}) N_{i,j_{min}}^{t+1}.
-$$
-
-Solving for $N_{i,j_{min}}^{t+1}$:
-$$
-\left( 1 + \frac{\Delta t}{\Delta w_{j_{min}}} g_i(w_{j_{min}}) + \Delta t \mu_i(w_{j_{min}}) \right) N_{i,j_{min}}^{t+1} = N_{i,j_{min}}^t + \frac{\Delta t}{\Delta w_{j_{min}}} R_{dd, i}.
-$$
-This gives the starting value for the iteration:
-$$
-N_{i,j_{min}}^{t+1} = \frac{N_{i,j_{min}}^t + \frac{\Delta t}{\Delta w_{j_{min}}} R_{dd, i}}{B_{i,j_{min}}}.
-$$
+**At the largest size ($j=j_{max}$):**
+We typically assume that densities drop to zero beyond the maximum size, $N_{i, j_{max}+1} = 0$.
+The flux leaving the grid is:
+$$ J_{i, j_{max}+1} = g_i(w_{j_{max}}) N_{i, j_{max}} - \frac{1}{2} \frac{0 - d_i(w_{j_{max}}) N_{i, j_{max}}}{\Delta w_{j_{max}}} $$
+This closes the system.
 
 # Resource Dynamics
 
@@ -129,11 +130,11 @@ $$
 
 In each time step $\Delta t$, the `project()` function performs the following steps:
 
-1.  **Calculate Rates**: Calculate the biological rates (growth $g_i$, mortality $\mu_i$, recruitment $R_{dd, i}$) based on the current population densities $N^t$.
+1.  **Calculate Rates**: Calculate the biological rates (growth $g_i$, mortality $\mu_i$, recruitment $R_{dd, i}$) and diffusion coefficients $d_i$ based on the current population densities $N^t$.
 2.  **Resource Update**: Update the resource density $N_R^{t+1}$ using the explicit rates and implicit density.
-3.  **Consumer Update**: Update the consumer densities $N_i^{t+1}$ by iterating from small to large sizes:
-    -   Calculate $N_{i,j_{min}}^{t+1}$ using the recruitment $R_{dd, i}$.
-    -   Calculate $N_{i,j}^{t+1}$ for $j > j_{min}$ using the upwind scheme.
+3.  **Consumer Update**: Update the consumer densities $N_i^{t+1}$ by solving the tridiagonal system for each species.
+    -   Combine the recruitment flux $R_{dd, i}$ with the boundary conditions.
+    -   Use a tridiagonal solver (e.g., Thomas algorithm).
 4.  **Advance Time**: $t \leftarrow t + \Delta t$.
 
 This split between calculating rates explicitly and solving densities implicitly is what makes the scheme "semi-implicit".

@@ -463,6 +463,7 @@ project_simple.MizerParams <-
         # Matrices for solver
         a <- matrix(0, nrow = no_sp, ncol = no_w)
         b <- matrix(0, nrow = no_sp, ncol = no_w)
+        c <- matrix(0, nrow = no_sp, ncol = no_w)
         S <- matrix(0, nrow = no_sp, ncol = no_w)
 
         # Loop over time steps ----
@@ -501,7 +502,7 @@ project_simple.MizerParams <-
             )
 
             # * Update species ----
-            n <- project_n(params, r, n, dt, a, b, S, idx, w_min_idx_array_ref,
+            n <- project_n(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
                            no_sp, no_w)
 
             # * Update time ----
