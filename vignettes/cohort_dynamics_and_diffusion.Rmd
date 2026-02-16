@@ -8,6 +8,10 @@ output:
 editor_options: 
   markdown: 
     wrap: 72
+vignette: >
+  %\VignetteIndexEntry{The Numerical Scheme used in Mizer}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
@@ -32,6 +36,7 @@ cohort to broaden as it ages.
 ```{r}
 library(mizer)
 library(ggplot2)
+library(plotly)
 ```
 
 # Setting up the model
@@ -41,7 +46,7 @@ We start by creating a single-species model using
 power-law background community.
 
 ```{r}
-params <- newSingleSpeciesParams()
+params <- newSingleSpeciesParams(h = 10, no_w = 400)
 params <- steady(params)
 ```
 
@@ -120,22 +125,25 @@ for (tt in times_to_plot) {
     pos <- n_at_t > 0
     if (any(pos)) {
         plot_list[[length(plot_list) + 1]] <- data.frame(
-            w = w[pos], n = n_at_t[pos],
+            w = w[pos], n = n_at_t[pos] * w[pos]^2,
             time = factor(paste0("t = ", actual_time))
         )
     }
 }
 plot_data <- do.call(rbind, plot_list)
 
-ggplot(plot_data, aes(x = w, y = n, colour = time)) +
+p <- ggplot(plot_data, aes(x = w, y = n, colour = time)) +
     geom_line(linewidth = 0.8) +
     scale_x_log10(limits = c(1e-3, 100)) +
-    scale_y_log10() +
-    labs(x = "Weight [g]", y = "Number density [1/g]",
+    # scale_y_log10() +
+    labs(x = "Weight [g]", y = "Biomass density [g]",
          title = "Cohort evolution without diffusion",
          colour = "Time") +
     theme_minimal(base_size = 14)
+
+ggplotly(p)
 ```
+
 
 Without diffusion, each cohort appears as a relatively sharp peak that
 moves to the right (towards larger sizes) as the fish grow.
@@ -150,10 +158,10 @@ We define a helper function that runs the simulation for a given
 diffusion coefficient:
 
 ```{r}
-run_with_diffusion <- function(params_base, diff_coeff, t_max = 5) {
+run_with_diffusion <- function(params_base, diff_coeff, diff_exp, t_max = 5) {
     p <- params_base
     d <- p@diffusion
-    d[] <- diff_coeff
+    d[] <- diff_coeff * w ^ diff_exp
     p <- setDiffusion(p, diffusion = d)
     initialN(p)[] <- 0
     sim <- project(p, t_max = t_max, dt = 0.05,
@@ -168,9 +176,10 @@ Let's compare simulations with no diffusion, low diffusion, and high
 diffusion:
 
 ```{r}
-sim_d0 <- run_with_diffusion(params_pulse, diff_coeff = 0)
-sim_d_low <- run_with_diffusion(params_pulse, diff_coeff = 0.01)
-sim_d_high <- run_with_diffusion(params_pulse, diff_coeff = 0.1)
+diff_exp <- params_pulse@species_params$n + 1
+sim_d0 <- run_with_diffusion(params_pulse, diff_coeff = 0, diff_exp = diff_exp)
+sim_d_low <- run_with_diffusion(params_pulse, diff_coeff = 0.01, diff_exp = diff_exp)
+sim_d_high <- run_with_diffusion(params_pulse, diff_coeff = 0.1, diff_exp = , diff_exp)
 ```
 
 Now let's visualise the cohorts at a specific time point to see how
@@ -197,24 +206,19 @@ snapshot_data <- rbind(
     build_snapshot(sim_d_high, "D = 0.1 (high)")
 )
 
-ggplot(snapshot_data, aes(x = w, y = n, colour = diffusion)) +
+ggplot(snapshot_data, aes(x = w, y = n * w^2, colour = diffusion)) +
     geom_line(linewidth = 0.8) +
     scale_x_log10(limits = c(1e-3, 100)) +
-    scale_y_log10() +
-    labs(x = "Weight [g]", y = "Number density [1/g]",
+    # scale_y_log10() +
+    labs(x = "Weight [g]", y = "Biomass density [g]",
          title = paste0("Effect of diffusion on cohorts at t = ",
                         snapshot_time),
          colour = "Diffusion rate") +
     theme_minimal(base_size = 14)
 ```
 
-We can clearly see that:
-
--   **Without diffusion** (D = 0), the cohorts are sharp peaks.
--   **With low diffusion** (D = 0.01), the cohorts are slightly
-    broadened.
--   **With high diffusion** (D = 0.1), the cohorts are significantly
-    spread out, reflecting large individual variability in growth rates.
+We can see that diffusion has a large effect on the speed at which the cohort
+peaks are moving but not so much effect on the broadening of the peaks.
 
 # Time evolution with diffusion
 
@@ -222,7 +226,8 @@ Let's look at the full time evolution of the size spectrum with
 moderate diffusion to see how cohorts spread over time:
 
 ```{r fig.height=6}
-sim_d_med <- run_with_diffusion(params_pulse, diff_coeff = 0.05)
+diff_exp <- params_pulse@species_params$n + 1
+sim_d_med <- run_with_diffusion(params_pulse, diff_coeff = 0.05, diff_exp = diff_exp)
 
 times_to_plot <- c(0.5, 1, 2, 3, 4, 5)
 
@@ -234,7 +239,7 @@ for (tt in times_to_plot) {
     pos <- n_at_t > 0
     if (any(pos)) {
         plot_list_diff[[length(plot_list_diff) + 1]] <- data.frame(
-            w = w[pos], n = n_at_t[pos],
+            w = w[pos], n = n_at_t[pos] * w[pos]^2,
             time = factor(paste0("t = ", actual_time))
         )
     }
@@ -244,7 +249,7 @@ plot_data_diff <- do.call(rbind, plot_list_diff)
 ggplot(plot_data_diff, aes(x = w, y = n, colour = time)) +
     geom_line(linewidth = 0.8) +
     scale_x_log10(limits = c(1e-3, 100)) +
-    scale_y_log10() +
+    # scale_y_log10() +
     labs(x = "Weight [g]", y = "Number density [1/g]",
          title = "Cohort evolution with moderate diffusion (D = 0.05)",
          colour = "Time") +
@@ -276,7 +281,7 @@ for (i in seq_along(all_times)) {
         heatmap_list[[length(heatmap_list) + 1]] <- data.frame(
             time = all_times[i],
             w = w[pos],
-            log_n = log10(n_at_t[pos])
+            log_n = n_at_t[pos] * w[pos]^2
         )
     }
 }
@@ -306,10 +311,3 @@ This vignette demonstrated:
 4.  How diffusion, set via `setDiffusion()`, controls the spreading of
     cohorts — representing individual variability in growth rates.
 
-The key insight is that diffusion smooths out the sharp cohort structure.
-In reality, individual fish within a cohort grow at different rates due
-to environmental variability, differences in food availability, and
-genetic variation. The diffusion term in the size-spectrum model
-captures this variability. The magnitude of the diffusion coefficient
-controls how quickly cohorts spread: larger values lead to faster
-spreading and less distinct cohort structure.
