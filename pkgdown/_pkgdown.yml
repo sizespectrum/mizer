@@ -79,6 +79,7 @@ articles:
 - title: Developer Guide
   navbar: For developers
   contents:
+  - numerical_details
   - developer_vignette
   - working_with_git
   - developer_FAQ

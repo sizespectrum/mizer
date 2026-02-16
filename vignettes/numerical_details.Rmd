@@ -1,0 +1,139 @@
+---
+title: "The Numerical Scheme used in Mizer"
+output:
+  html_document:
+    toc: yes
+    fig_width: 5
+    fig_height: 5
+vignette: >
+  %\VignetteIndexEntry{The Numerical Scheme used in Mizer}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+In this vignette we explain the numerical scheme used in mizer. We will not go into the details of the model itself, which is described in the [model description vignette](model_description.html). We will focus on how the model is discretised and how the resulting difference equations are solved.
+
+# The weight grid
+
+The model dynamics are described by partial differential equations (PDEs) for the species number densities $N_i(w)$ and the resource number density $N_R(w)$. These depend on the individual weight $w$. To solve these equations numerically, we discretise the weight axis. 
+
+We choose a grid of weights $w_1, w_2, \ldots, w_K$. The grid is logarithmically spaced, meaning that the ratio of consecutive weights is constant:
+$$ w_{j+1} / w_j = 10^{\Delta x} = \text{const}. $$
+The logarithmic spacing is chosen because the weights of fish span many orders of magnitude, from milligrams to megagrams.
+
+This grid defines a set of bins. The $j$-th bin is the interval $[w_j, w_{j+1})$. The width of the $j$-th bin is
+$$ \Delta w_j = w_{j+1} - w_j = w_j (10^{\Delta x} - 1). $$
+Note that $\Delta w_j$ increases with $w_j$, which is appropriate for a logarithmic grid.
+
+The number density $N_i(w)$ is approximated by a constant value $N_{i,j}$ within each bin. Thus $N_{i,j}$ represents the density at the start of the bin $w_j$. The number of individuals in the $j$-th bin is $N_{i,j} \Delta w_j$.
+
+# The Transport Equation
+
+The time evolution of the number density $N_i(w)$ is described by the McKendrick-von Foerster equation:
+$$
+\frac{\partial N_i}{\partial t} + \frac{\partial g_i N_i}{\partial w} = -\mu_i N_i
+$$
+where $g_i(w)$ is the somatic growth rate and $\mu_i(w)$ is the total mortality rate.
+
+We discretise this equation using a finite difference scheme. We use a **semi-implicit upwind scheme** which is stable and robust. 
+
+## Discretisation of the Growth Term
+
+The term $\frac{\partial g_i N_i}{\partial w}$ represents the transport of biomass up the size spectrum due to growth. We use an upwind difference approximation for the derivative:
+$$
+\frac{\partial g_i N_i}{\partial w} \approx \frac{g_i(w_j) N_{i,j} - g_i(w_{j-1}) N_{i,j-1}}{\Delta w_j}.
+$$
+This approximation uses the flux of individuals *leaving* the bin $j$ (which is $g_i(w_j) N_{i,j}$) and the flux of individuals *entering* the bin $j$ from the bin below (which is $g_i(w_{j-1}) N_{i,j-1}$).
+
+## Discretisation of Time
+
+We denote the number density at time $t$ by $N_{i,j}^t$ and at time $t+\Delta t$ by $N_{i,j}^{t+1}$. 
+The time derivative is approximated by the forward difference:
+$$
+\frac{\partial N_i}{\partial t} \approx \frac{N_{i,j}^{t+1} - N_{i,j}^t}{\Delta t}.
+$$
+
+For the growth and mortality terms on the right-hand side, we have a choice of evaluating them at time $t$ (explicit scheme) or at time $t+\Delta t$ (implicit scheme). The explicit scheme is only stable for very small time steps $\Delta t$ (the Courant-Friedrichs-Lewy condition), whereas the implicit scheme is unconditionally stable.
+
+Mizer uses a semi-implicit scheme where the fast dynamical variables (the densities $N_i$) are treated implicitly, while the slow dynamical variables (the growth and mortality rates $g_i$ and $\mu_i$) are treated explicitly. This means we evaluate $N_i$ at $t+\Delta t$ but $g_i$ and $\mu_i$ at time $t$.
+
+The discretised equation for $j > 1$ is:
+$$
+\frac{N_{i,j}^{t+1} - N_{i,j}^t}{\Delta t} + \frac{g_i(w_j) N_{i,j}^{t+1} - g_i(w_{j-1}) N_{i,j-1}^{t+1}}{\Delta w_j} = -\mu_i(w_j) N_{i,j}^{t+1}.
+$$
+
+Rearranging this equation to solve for $N_{i,j}^{t+1}$ gives:
+$$
+\left( 1 + \frac{\Delta t}{\Delta w_j} g_i(w_j) + \Delta t \mu_i(w_j) \right) N_{i,j}^{t+1} - \frac{\Delta t}{\Delta w_j} g_i(w_{j-1}) N_{i,j-1}^{t+1} = N_{i,j}^t.
+$$
+
+We can write this as a linear system:
+$$
+B_{i,j} N_{i,j}^{t+1} + A_{i,j} N_{i,j-1}^{t+1} = S_{i,j}
+$$
+where
+$$
+\begin{aligned}
+A_{i,j} &= -\frac{\Delta t}{\Delta w_j} g_i(w_{j-1}) \\
+B_{i,j} &= 1 + \frac{\Delta t}{\Delta w_j} g_i(w_j) + \Delta t \mu_i(w_j) \\
+S_{i,j} &= N_{i,j}^t
+\end{aligned}
+$$
+
+This system can be solved nicely by iterating from the smallest size bin upwards. Once we know $N_{i,j-1}^{t+1}$, we can calculate $N_{i,j}^{t+1}$:
+$$
+N_{i,j}^{t+1} = \frac{S_{i,j} - A_{i,j} N_{i,j-1}^{t+1}}{B_{i,j}}.
+$$
+
+## Boundary Condition at Smallest Size
+
+For the first size bin ($j=j_{min}$), there is no flux from a smaller bin ($g_i(w_{j_{min}-1}) N_{i,j_{min}-1}$ is not defined). Instead, there is an influx of new recruits into the smallest size class. Let $R_{dd, i}$ be the rate of recruitment (density-dependent reproduction rate, numbers per time).
+
+The discretised equation for the first bin is:
+$$
+\frac{N_{i,j_{min}}^{t+1} - N_{i,j_{min}}^t}{\Delta t} + \frac{g_i(w_{j_{min}}) N_{i,j_{min}}^{t+1} - R_{dd, i}}{\Delta w_{j_{min}}} = -\mu_i(w_{j_{min}}) N_{i,j_{min}}^{t+1}.
+$$
+
+Solving for $N_{i,j_{min}}^{t+1}$:
+$$
+\left( 1 + \frac{\Delta t}{\Delta w_{j_{min}}} g_i(w_{j_{min}}) + \Delta t \mu_i(w_{j_{min}}) \right) N_{i,j_{min}}^{t+1} = N_{i,j_{min}}^t + \frac{\Delta t}{\Delta w_{j_{min}}} R_{dd, i}.
+$$
+This gives the starting value for the iteration:
+$$
+N_{i,j_{min}}^{t+1} = \frac{N_{i,j_{min}}^t + \frac{\Delta t}{\Delta w_{j_{min}}} R_{dd, i}}{B_{i,j_{min}}}.
+$$
+
+# Resource Dynamics
+
+The resource spectrum $N_R(w)$ is also updated using a similar Euler method, but often with a different equation. For example, if semi-chemostat dynamics are used:
+$$
+\frac{\partial N_R}{\partial t} = r_R(c_R - N_R) - \mu_R N_R.
+$$
+The discretised update is:
+$$
+\frac{N_{R,j}^{t+1} - N_{R,j}^t}{\Delta t} = r_R(w_j) (c_R(w_j) - N_{R,j}^{t+1}) - \mu_R(w_j) N_{R,j}^{t+1}.
+$$
+Solving for $N_{R,j}^{t+1}$:
+$$
+N_{R,j}^{t+1} = \frac{N_{R,j}^t + \Delta t r_R(w_j) c_R(w_j)}{1 + \Delta t (r_R(w_j) + \mu_R(w_j))}.
+$$
+
+# Summary of the Algorithm
+
+In each time step $\Delta t$, the `project()` function performs the following steps:
+
+1.  **Calculate Rates**: Calculate the biological rates (growth $g_i$, mortality $\mu_i$, recruitment $R_{dd, i}$) based on the current population densities $N^t$.
+2.  **Resource Update**: Update the resource density $N_R^{t+1}$ using the explicit rates and implicit density.
+3.  **Consumer Update**: Update the consumer densities $N_i^{t+1}$ by iterating from small to large sizes:
+    -   Calculate $N_{i,j_{min}}^{t+1}$ using the recruitment $R_{dd, i}$.
+    -   Calculate $N_{i,j}^{t+1}$ for $j > j_{min}$ using the upwind scheme.
+4.  **Advance Time**: $t \leftarrow t + \Delta t$.
+
+This split between calculating rates explicitly and solving densities implicitly is what makes the scheme "semi-implicit".

@@ -2,10 +2,47 @@
 % Please edit documentation in R/project_n.R
 \name{project_n}
 \alias{project_n}
-\title{Advance abundance density by one time step}
+\title{Project values for first time step of Euler method}
 \usage{
 project_n(params, r, n, dt, a, b, S, idx, w_min_idx_array_ref, no_sp, no_w)
 }
-\description{
-Advance abundance density by one time step
+\arguments{
+\item{params}{A \linkS4class{MizerParams} object.}
+
+\item{r}{A list of rates as returned by \code{mizerRates()}.}
+
+\item{n}{An array (species x size) with the number density at the current time step.}
+
+\item{dt}{Time step.}
+
+\item{a}{A matrix (species x size) used in the solver (transport term).}
+
+\item{b}{A matrix (species x size) used in the solver (diagonal term).}
+
+\item{S}{A matrix (species x size) used in the solver (source term).}
+
+\item{idx}{Index vector for size bins (excluding the first one).}
+
+\item{w_min_idx_array_ref}{Index vector for the start of the size spectrum for each species.}
+
+\item{no_sp}{Number of species.}
+
+\item{no_w}{Number of size bins.}
 }
+\value{
+The updated abundance density matrix \code{n}.
+}
+\description{
+This is an internal function used by the user-facing \code{project()} function.
+It is of potential interest only to mizer extension authors.
+}
+\details{
+The function calculates the abundance at the next time step using the
+McKendrick-von Foerster equation:
+\deqn{\frac{\partial N}{\partial t} + \frac{\partial g N}{\partial w} = -\mu N}
+which is solved using a semi-implicit upwind finite difference scheme.
+}
+\seealso{
+\code{\link{project}}, \code{\link{mizerRates}}
+}
+\concept{helper}
