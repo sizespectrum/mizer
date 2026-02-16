@@ -4,7 +4,7 @@
 \alias{get_steady_state_n}
 \title{Helper function to calculate the steady state abundance using the upwind-difference scheme}
 \usage{
-get_steady_state_n(growth, mort, dw, idx, N0)
+get_steady_state_n(growth, mort, dw, diffusion = rep(0, length(dw)), idx, N0)
 }
 \arguments{
 \item{growth}{A numeric vector of growth rates.}

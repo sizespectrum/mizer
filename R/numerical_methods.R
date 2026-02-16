@@ -3,9 +3,9 @@
 #' Solves a tridiagonal system of linear equations A * x = d
 #' where A is a tridiagonal matrix defined by diagonals a, b, c.
 #'
-#' @param a Lower diagonal (length N). a[1] is ignored/0.
+#' @param a Lower diagonal (length N). a_1 is ignored/0.
 #' @param b Main diagonal (length N).
-#' @param c Upper diagonal (length N). c[N] is ignored/0.
+#' @param c Upper diagonal (length N). c_N is ignored/0.
 #' @param d Right hand side vector (length N).
 #'
 #' @return Solution vector x (length N).
