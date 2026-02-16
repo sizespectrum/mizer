@@ -200,7 +200,7 @@ newSingleSpeciesParams <-
     idxs <- 1:i_inf
     gg <- hbar * w^n * (1 - params@psi[1, ])  # Growth rate
     # Steady state solution of the upwind-difference scheme used in project
-    initial_n[1, idxs] <- get_steady_state_n(gg, mumu, dw, idx)
+    initial_n[1, idxs] <- get_steady_state_n(gg, mumu, dw, params@diffusion[1, ], idx)
 
     # The resource was already set up by newMultispeciesParams()
     initial_n_pp <- params@initial_n_pp

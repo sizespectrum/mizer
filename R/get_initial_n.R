@@ -68,7 +68,7 @@ get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
         idx <- idxs[1:(length(idxs) - 1)]
         # Steady state solution of the upwind-difference scheme used in project
         p@initial_n[i, idxs] <-
-            get_steady_state_n(growth, mort, p@dw, idx)
+            get_steady_state_n(growth, mort, p@dw, p@diffusion[i, ], idx)
     }
     p <- matchBiomasses(p)
     return(p@initial_n)
