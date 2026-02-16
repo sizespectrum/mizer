@@ -613,15 +613,57 @@ get_required_reproduction <- function(params) {
     assert_that(is(params, "MizerParams"))
 
     no_sp <- nrow(params@species_params)
-    mumu <- getMort(params)
-    gg <- getEGrowth(params)
+    
+    # Calculate rates
+    rates_fns <- lapply(params@rates_funcs, get)
+    rates <- mizerRates(params, n = params@initial_n, n_pp = params@initial_n_pp,
+                        n_other = params@initial_n_other, t = 0, 
+                        effort = params@initial_effort, rates_fns = rates_fns)
+    
+    # Calculate transport coefficients
+    dt <- 1
+    coefs <- get_transport_coefs(params, params@initial_n, params@initial_n_pp, 
+                                 params@initial_n_other, rates, dt)
+    
     reproduction <- params@species_params$erepro # vector of correct length
+    
     for (i in (1:no_sp)) {
-        gg0 <- gg[i, params@w_min_idx[i]]
-        mumu0 <- mumu[i, params@w_min_idx[i]]
-        DW <- params@dw[params@w_min_idx[i]]
-        reproduction[i] <- params@initial_n[i, params@w_min_idx[i]] *
-            (gg0 + DW * mumu0)
+        w_min_idx <- params@w_min_idx[i]
+        
+        # Get coefficients for this species at the boundary
+        # The equation for the first node is:
+        # (N_new - N_old)/dt = -(Flux_matrix * N) + R/dw
+        # In steady state N_new = N_old, so:
+        # Flux_matrix * N = R/dw
+        # The rows of coefs correspond to the linear system A*N_{j-1} + B*N_j + C*N_{j+1} = ...
+        # For the first node j=w_min_idx:
+        # A*N_{j-1} + (B-1)/dt * N_j + C/dt * N_{j+1} = R/dw / dt ?
+        # No, let's look at project_n again.
+        # It solves A N_{i-1} + B N_i + C N_{i+1} = N_old + RHS_source
+        # In steady state: A N_{i-1} + B N_i + C N_{i+1} = N + R * dt / dw
+        # So R = ( A N_{i-1} + (B-1) N_i + C N_{i+1} ) * dw / dt
+        
+        # Extract coefficients
+        a <- coefs$a[i, w_min_idx]
+        b <- coefs$b[i, w_min_idx]
+        c <- coefs$c[i, w_min_idx]
+        
+        # Boundary correction for diffusion (if not at global min size)
+        if (w_min_idx > 1) {
+             correction <- (dt / params@dw[w_min_idx]) * 0.5 * params@diffusion[i, w_min_idx] / params@dw[w_min_idx - 1]
+             b <- b - correction
+             a <- 0
+        }
+        
+        n_current <- params@initial_n[i, w_min_idx]
+        n_next <- if (w_min_idx < length(params@w)) params@initial_n[i, w_min_idx + 1] else 0
+        n_prev <- if (w_min_idx > 1) params@initial_n[i, w_min_idx - 1] else 0 # Should be irrelevant if A=0 or boundary
+        
+        # Calculate R
+        # R = ( A * n_prev + (B - 1) * n_current + C * n_next ) * dw / dt
+        
+        total_rate <- a * n_prev + (b - 1) * n_current + c * n_next
+        reproduction[i] <- total_rate * params@dw[w_min_idx] / dt
     }
     return(reproduction)
 }
