@@ -80,6 +80,7 @@ articles:
   navbar: For developers
   contents:
   - numerical_details
+  - analytic_test
   - developer_vignette
   - working_with_git
   - developer_FAQ
