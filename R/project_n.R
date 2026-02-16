@@ -28,104 +28,12 @@
 #' @export
 project_n <- function(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
                       no_sp, no_w) {
-    # We solve the system A_j * N_{j-1} + B_j * N_j + C_j * N_{j+1} = S_j
-    
-    # Diffusion coefficient D_i(w)
-    d <- params@diffusion # species x size
-    
-    # Pre-calculate some common terms
-    # g_i(w_j)
-    g <- r$e_growth
-    # mu_i(w_j)
-    mu <- r$mort
-    # dw_j
-    dw <- params@dw
-    # Delta t / Delta w_j
-    dt_dw <- matrix(dt / dw, nrow = no_sp, ncol = no_w, byrow = TRUE)
-    
-    # We assume d is 0 at the boundaries for simplicity or it is handled by the loop constraints
-    # Actually for j=1, A is 0, for j=no_w, C is 0 (boundary condition)
-    
-    # A_j = - dt/dw_j * (g_{j-1} + D_{j-1} / (2 * dw_{j-1}))
-    # Note: efficient calculation avoiding loop:
-    # We compute A for j in idx (2:no_w). g_{j-1} corresponds to columns 1:(no_w-1)
-    
-    # Indices for j-1 and j
-    # idx is 2:no_w
-    idx_minus_1 <- idx - 1
-    
-    term_diff_minus_1 <- 0.5 * d[, idx_minus_1] / 
-        matrix(dw[idx_minus_1], nrow = no_sp, ncol = length(idx), byrow = TRUE)
-    
-    a[, idx] <- -dt_dw[, idx] * (g[, idx_minus_1] + term_diff_minus_1)
-    
-    # C_j = - dt/dw_j * (D_{j+1} / (2 * dw_j))
-    # Note: For j=no_w, we assume N_{j+1}=0, so we don't need C_{no_w} effectively, or it is 0 flux.
-    # The equation involves C_j * N_{j+1}. At j=no_w, N_{no_w+1} is 0. So C_{no_w} doesn't matter.
-    # We can compute C for j=1:(no_w-1).
-    # idx_plus_1 is 2:no_w
-    idx_j <- 1:(no_w - 1)
-    term_diff_plus_1 <- 0.5 * d[, idx_j + 1] / 
-        matrix(dw[idx_j], nrow = no_sp, ncol = length(idx_j), byrow = TRUE)
-    
-    c[, idx_j] <- -dt_dw[, idx_j] * term_diff_plus_1
-    c[, no_w] <- 0 # Boundary condition N_{no_w+1} = 0
-    
-    # B_j
-    # B_j = 1 + dt * mu_j + dt/dw_j * (g_j + D_j / (2 * dw_j) + D_j / (2 * dw_{j-1}))
-    # Careful with j=1 term for D_j / (2 * dw_{j-1}). dw_0 is not defined.
-    # At j=1 boundary condition comes from recruitment.
-    # Standard formula works for j > 1.
-    
-    term_diff_j <- 0.5 * d[, idx] / matrix(dw[idx], nrow = no_sp, ncol = length(idx), byrow = TRUE)
-    term_diff_j_minus_1 <- 0.5 * d[, idx] / matrix(dw[idx_minus_1], nrow = no_sp, ncol = length(idx), byrow = TRUE)
-    
-    b[, idx] <- 1 + dt * mu[, idx] + dt_dw[, idx] * (g[, idx] + term_diff_j + term_diff_j_minus_1)
-    
-    # Boundary j=1 (approx w_min)
-    # Equation: N_1 - N_1^old / dt + (J_{3/2} - J_{1/2}) / dw_1 = -mu_1 N_1
-    # J_{1/2} = R_dd (recruitment flux).
-    # J_{3/2} follows standard flux definition.
-    # result: (1 + dt*mu_1 + dt/dw_1 * (g_1 + D_1/(2*dw_1))) N_1 - dt/dw_1 * (D_2/(2*dw_1)) N_2 = N_1^old + dt/dw_1 * R_dd
-    # So for j=1:
-    # B_1 = 1 + dt*mu_1 + dt/dw_1 * (g_1 + d_1/(2*dw_1))
-    # C_1 = - dt/dw_1 * d_2/(2*dw_1)  (Matches standard formula)
-    # A_1 = 0
-    # S_1 = N_1^old + dt/dw_1 * R_dd
-    
-    dw_1 <- dw[1]
-    dt_dw_1 <- dt / dw_1
-    b[, 1] <- 1 + dt * mu[, 1] + dt_dw_1 * (g[, 1] + 0.5 * d[, 1] / dw_1)
-    # c[, 1] already computed correctly above
-    a[, 1] <- 0
-    
-    # RHS S
-    S[] <- n
-    # Add recruitment to S[, 1] for each species
-    # We need to distribute R_dd correctly.
-    # r$rdd is vector of length no_sp.
-    # "r$rdd * dt / params@dw[params@w_min_idx]"
-    # Wait, the prompt says "w_min_idx_array_ref" handles the start index.
-    # Different species can have different w_min_idx.
-    # So the "j=1" above really refers to w_min_idx[i].
-    # But currently 'a' and 'b' and 'c' are computed for the whole grid.
-    # Species i only exists from w_min_idx[i] to w_max_idx[i] (implicitly).
-    # We should iterate the Thomas algorithm for each species from w_min_idx[i] to no_w.
-    
-    # Let's adjust S for the recruitment term at the start index for each species.
-    # S[w_min_idx_array_ref] <- S[w_min_idx_array_ref] + r$rdd * dt / params@dw[params@w_min_idx]
-    # But wait, we need to respect the diffusion B_1 term calculation which might be different at the boundary.
-    # The B calculation above `b[, idx]` used `idx` which starts at 2.
-    # If w_min_idx[i] > 1, then the "standard" formula for B at w_min_idx[i] might be using w_{j-1} which is essentially 0 since N is 0 there?
-    # Actually, if we assume N is 0 below w_min_idx, then the flux from below is just the recruitment.
-    # So for j = w_min_idx[i], the term A_j should be effectively 0 (or replaced by recruitment boundary condition).
-    # The B_j term should not include diffusion from below (or handled as boundary).
-    # We can handle this by essentially running the solver from w_min_idx[i].
-    
-    # Correct B matrix for start indices
-    # We need to loop over species to correct B at w_min_idx, because vectorization is hard with variable indices.
-    # However, w_min_idx might be same for all species or not.
-    
+    coefs <- get_transport_coefs(params, n, n_pp, n_other, r, dt)
+    a <- coefs$a
+    b <- coefs$b
+    c <- coefs$c
+    S <- coefs$S
+
     # Loop over species to apply boundary condition and solve
     
     # Temporary copy of C for modification during Thomas algo
@@ -139,7 +47,7 @@ project_n <- function(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
         
         # Apply boundary condition to S (RHS)
         # S_j_start = N_old + dt/dw * R_dd
-        d_prime[i, j_start] <- d_prime[i, j_start] + r$rdd[i] * dt / dw[j_start]
+        d_prime[i, j_start] <- d_prime[i, j_start] + r$rdd[i] * dt / params@dw[j_start]
         
         # Apply boundary condition to B (LHS)
         # Remove the influence of "below" diffusion/growth which is replaced by recruitment flux
@@ -153,7 +61,7 @@ project_n <- function(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
         # We need to subtract that term
         if (j_start > 1) {
              # The term added was: dt/dw[j_start] * 0.5 * d[i, j_start] / dw[j_start-1]
-             correction <- (dt / dw[j_start]) * 0.5 * d[i, j_start] / dw[j_start - 1]
+             correction <- (dt / params@dw[j_start]) * 0.5 * params@diffusion[i, j_start] / params@dw[j_start - 1]
              b[i, j_start] <- b[i, j_start] - correction
              
              # Also A[i, j_start] should be ignored/0.

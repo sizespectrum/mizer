@@ -4,7 +4,7 @@
 \alias{project_n}
 \title{Project values for first time step of Euler method}
 \usage{
-project_n(params, r, n, dt, a, b, S, idx, w_min_idx_array_ref, no_sp, no_w)
+project_n(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref, no_sp, no_w)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object.}
@@ -18,6 +18,8 @@ project_n(params, r, n, dt, a, b, S, idx, w_min_idx_array_ref, no_sp, no_w)
 \item{a}{A matrix (species x size) used in the solver (transport term).}
 
 \item{b}{A matrix (species x size) used in the solver (diagonal term).}
+
+\item{c}{A matrix (species x size) used in the solver (transport term).}
 
 \item{S}{A matrix (species x size) used in the solver (source term).}
 
@@ -39,8 +41,8 @@ It is of potential interest only to mizer extension authors.
 \details{
 The function calculates the abundance at the next time step using the
 McKendrick-von Foerster equation:
-\deqn{\frac{\partial N}{\partial t} + \frac{\partial g N}{\partial w} = -\mu N}
-which is solved using a semi-implicit upwind finite difference scheme.
+\deqn{\frac{\partial N}{\partial t} + \frac{\partial}{\partial w} \left( g N - \frac{1}{2}\frac{\partial(D N)}{\partial w} \right) = -\mu N}
+which is solved using a semi-implicit upwind finite volume scheme.
 }
 \seealso{
 \code{\link{project}}, \code{\link{mizerRates}}
