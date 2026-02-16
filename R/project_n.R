@@ -36,18 +36,13 @@ project_n <- function(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
 
     # Loop over species to apply boundary condition and solve
     
-    # Temporary copy of C for modification during Thomas algo
-    c_prime <- c 
-    # Temporary copy of S (d in Thomas algo context)
-    d_prime <- S
-    
     for (i in 1:no_sp) {
         # Start index for this species
         j_start <- params@w_min_idx[i]
         
         # Apply boundary condition to S (RHS)
         # S_j_start = N_old + dt/dw * R_dd
-        d_prime[i, j_start] <- d_prime[i, j_start] + r$rdd[i] * dt / params@dw[j_start]
+        S[i, j_start] <- S[i, j_start] + r$rdd[i] * dt / params@dw[j_start]
         
         # Apply boundary condition to B (LHS)
         # Remove the influence of "below" diffusion/growth which is replaced by recruitment flux
@@ -66,41 +61,29 @@ project_n <- function(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
              
              # Also A[i, j_start] should be ignored/0.
              a[i, j_start] <- 0
-        } else {
-             # j_start == 1. The formula used 'dw[1]' for prev bin width in approximation?
-             # My code above: `b[, 1] <- ... + g[, 1] + 0.5 * d[, 1] / dw_1`
-             # This formula for j=1 was already "boundary-like" (omitted term from below).
-             # So if j_start == 1, B is already correct for the boundary condition derived.
         }
         
-        # Thomas Algorithm: Forward Elimination
-        # For j = j_start
-        # c'[j] = c[j] / b[j]
-        # d'[j] = d[j] / b[j]
+        # Thomas Algorithm
+        # We need to pass the sub-vectors for the current species i, starting from j_start
+        # We are solving for n[i, j_start:no_w]
         
-        c_prime[i, j_start] <- c_prime[i, j_start] / b[i, j_start]
-        d_prime[i, j_start] <- d_prime[i, j_start] / b[i, j_start]
+        # Extract the relevant parts of the vectors
+        # Note: thomas_solve accepts vectors of length N
+        # a, b, c, d are vectors of length N
         
-        # Loop j from j_start+1 to no_w
-        if (j_start < no_w) {
-            for (j in (j_start + 1):no_w) {
-                temp <- b[i, j] - a[i, j] * c_prime[i, j - 1]
-                if (j < no_w) {
-                    c_prime[i, j] <- c_prime[i, j] / temp
-                }
-                d_prime[i, j] <- (d_prime[i, j] - a[i, j] * d_prime[i, j - 1]) / temp
-            }
-        }
+        # Correctly slicing from j_start to no_w
+        # a[i, j_start] is effectively 0 or ignored by thomas_solve if it's the first element passed
+        # c[i, no_w] is 0 or ignored by thomas_solve
         
-        # Backward Substitution
-        n[i, no_w] <- d_prime[i, no_w]
-        if (no_w > j_start) {
-            for (j in (no_w - 1):j_start) {
-                n[i, j] <- d_prime[i, j] - c_prime[i, j] * n[i, j + 1]
-            }
-        }
-        # Species density is 0 below j_start? Mizer usually keeps it 0 or doesn't update.
-        # The loop range updates n for j >= j_start.
+        # We solve for the segment of the size spectrum inhabited by the species
+        relevant_indices <- j_start:no_w
+        
+        n[i, relevant_indices] <- thomas_solve(
+            a = a[i, relevant_indices],
+            b = b[i, relevant_indices],
+            c = c[i, relevant_indices],
+            d = S[i, relevant_indices]
+        )
     }
     
     n
