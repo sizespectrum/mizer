@@ -72,6 +72,7 @@ articles:
   - exploring_the_simulation_results
   - a_multispecies_model_of_the_north_sea
   - plotting
+  - cohort_dynamics_and_diffusion
 - title: Publications
   navbar: Publications
   contents:

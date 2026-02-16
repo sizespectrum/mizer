@@ -1,0 +1,315 @@
+---
+title: "Cohort dynamics and diffusion"
+output:
+  html_document:
+    toc: yes
+    fig_width: 7
+    fig_height: 5
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+# Introduction
+
+In this vignette we explore how yearly cohorts of fish evolve over time
+in a single-species size-spectrum model. We will drive the model with a
+short burst of reproductive flux once a year, creating distinct cohorts.
+We will then visualise how these cohorts grow through the size spectrum
+and how the diffusion rate affects the spreading of the cohorts over
+time.
+
+Diffusion in the size-spectrum model represents individual variability
+in growth rates. Without diffusion, all individuals born at the same
+time grow at the same deterministic rate and remain together as a sharp
+cohort. With diffusion, individuals spread out in size, causing the
+cohort to broaden as it ages.
+
+```{r}
+library(mizer)
+library(ggplot2)
+```
+
+# Setting up the model
+
+We start by creating a single-species model using
+`newSingleSpeciesParams()`. This sets up a species embedded in a
+power-law background community.
+
+```{r}
+params <- newSingleSpeciesParams()
+params <- steady(params)
+```
+
+# Pulsed reproduction
+
+To create distinct yearly cohorts, we need reproduction to happen in
+short bursts rather than continuously. We achieve this by writing a
+custom density-dependent reproduction rate function (RDD function) that
+only allows reproduction during a brief window at the start of each
+year.
+
+First, we calculate the steady-state reproduction rate. This tells us
+the total egg production rate needed to maintain the population. We will
+use this value as the magnitude of our annual pulse.
+
+```{r}
+rdd_steady <- getRDD(params)
+cat("Steady-state RDD:", rdd_steady, "\n")
+```
+
+The RDD function receives the current time `t` as an argument. We use
+this to turn reproduction on only during a short window at the start of
+each year and off at all other times. To maintain the same total annual
+egg production, we scale up the rate during the pulse to compensate for
+its short duration.
+
+```{r}
+# Custom RDD function: pulsed reproduction using a fixed rate
+pulse_width <- 0.1  # Reproduce during first 10% of each year
+
+annual_pulse_RDD <- function(rdi, species_params, t, ...) {
+    frac <- t %% 1
+    if (frac < pulse_width) {
+        # Scale up to maintain total annual reproduction
+        return(species_params$rdd_steady / pulse_width)
+    } else {
+        return(0 * rdi)
+    }
+}
+```
+
+We store the steady-state RDD value in the species parameters so our
+function can access it, and then register the function:
+
+```{r}
+params_pulse <- params
+species_params(params_pulse)$rdd_steady <- rdd_steady
+params_pulse <- setRateFunction(params_pulse, "RDD", "annual_pulse_RDD")
+```
+
+# Simulating cohort dynamics without diffusion
+
+We start from an empty spectrum (no fish) and let the pulsed
+reproduction create cohorts from scratch.
+
+```{r}
+params_empty <- params_pulse
+initialN(params_empty)[] <- 0
+
+sim_no_diff <- project(params_empty, t_max = 5, dt = 0.05,
+                       t_save = 0.1, progress_bar = FALSE)
+```
+
+Let's visualise the size spectrum at different time points to see the
+cohorts:
+
+```{r fig.height=6}
+times_to_plot <- c(0.5, 1, 1.5, 2, 3, 4)
+w <- params_pulse@w
+
+plot_list <- list()
+for (tt in times_to_plot) {
+    idx <- which.min(abs(as.numeric(dimnames(sim_no_diff@n)$time) - tt))
+    actual_time <- as.numeric(dimnames(sim_no_diff@n)$time[idx])
+    n_at_t <- as.numeric(sim_no_diff@n[idx, 1, ])
+    pos <- n_at_t > 0
+    if (any(pos)) {
+        plot_list[[length(plot_list) + 1]] <- data.frame(
+            w = w[pos], n = n_at_t[pos],
+            time = factor(paste0("t = ", actual_time))
+        )
+    }
+}
+plot_data <- do.call(rbind, plot_list)
+
+ggplot(plot_data, aes(x = w, y = n, colour = time)) +
+    geom_line(linewidth = 0.8) +
+    scale_x_log10(limits = c(1e-3, 100)) +
+    scale_y_log10() +
+    labs(x = "Weight [g]", y = "Number density [1/g]",
+         title = "Cohort evolution without diffusion",
+         colour = "Time") +
+    theme_minimal(base_size = 14)
+```
+
+Without diffusion, each cohort appears as a relatively sharp peak that
+moves to the right (towards larger sizes) as the fish grow.
+
+# Adding diffusion
+
+Now let's add diffusion to the model. Diffusion is set as an array with
+dimensions species × size via `setDiffusion()`. We'll set a constant
+diffusion rate across all sizes.
+
+We define a helper function that runs the simulation for a given
+diffusion coefficient:
+
+```{r}
+run_with_diffusion <- function(params_base, diff_coeff, t_max = 5) {
+    p <- params_base
+    d <- p@diffusion
+    d[] <- diff_coeff
+    p <- setDiffusion(p, diffusion = d)
+    initialN(p)[] <- 0
+    sim <- project(p, t_max = t_max, dt = 0.05,
+                   t_save = 0.1, progress_bar = FALSE)
+    return(sim)
+}
+```
+
+# Comparing different diffusion rates
+
+Let's compare simulations with no diffusion, low diffusion, and high
+diffusion:
+
+```{r}
+sim_d0 <- run_with_diffusion(params_pulse, diff_coeff = 0)
+sim_d_low <- run_with_diffusion(params_pulse, diff_coeff = 0.01)
+sim_d_high <- run_with_diffusion(params_pulse, diff_coeff = 0.1)
+```
+
+Now let's visualise the cohorts at a specific time point to see how
+diffusion affects their shape:
+
+```{r fig.height=5, fig.width=9}
+snapshot_time <- 3
+
+build_snapshot <- function(sim, label) {
+    idx <- which.min(abs(as.numeric(dimnames(sim@n)$time) - snapshot_time))
+    n_at_t <- as.numeric(sim@n[idx, 1, ])
+    w <- sim@params@w
+    pos <- n_at_t > 0
+    if (any(pos)) {
+        data.frame(w = w[pos], n = n_at_t[pos], diffusion = label)
+    } else {
+        data.frame(w = numeric(0), n = numeric(0), diffusion = character(0))
+    }
+}
+
+snapshot_data <- rbind(
+    build_snapshot(sim_d0, "D = 0 (no diffusion)"),
+    build_snapshot(sim_d_low, "D = 0.01 (low)"),
+    build_snapshot(sim_d_high, "D = 0.1 (high)")
+)
+
+ggplot(snapshot_data, aes(x = w, y = n, colour = diffusion)) +
+    geom_line(linewidth = 0.8) +
+    scale_x_log10(limits = c(1e-3, 100)) +
+    scale_y_log10() +
+    labs(x = "Weight [g]", y = "Number density [1/g]",
+         title = paste0("Effect of diffusion on cohorts at t = ",
+                        snapshot_time),
+         colour = "Diffusion rate") +
+    theme_minimal(base_size = 14)
+```
+
+We can clearly see that:
+
+-   **Without diffusion** (D = 0), the cohorts are sharp peaks.
+-   **With low diffusion** (D = 0.01), the cohorts are slightly
+    broadened.
+-   **With high diffusion** (D = 0.1), the cohorts are significantly
+    spread out, reflecting large individual variability in growth rates.
+
+# Time evolution with diffusion
+
+Let's look at the full time evolution of the size spectrum with
+moderate diffusion to see how cohorts spread over time:
+
+```{r fig.height=6}
+sim_d_med <- run_with_diffusion(params_pulse, diff_coeff = 0.05)
+
+times_to_plot <- c(0.5, 1, 2, 3, 4, 5)
+
+plot_list_diff <- list()
+for (tt in times_to_plot) {
+    idx <- which.min(abs(as.numeric(dimnames(sim_d_med@n)$time) - tt))
+    actual_time <- as.numeric(dimnames(sim_d_med@n)$time[idx])
+    n_at_t <- as.numeric(sim_d_med@n[idx, 1, ])
+    pos <- n_at_t > 0
+    if (any(pos)) {
+        plot_list_diff[[length(plot_list_diff) + 1]] <- data.frame(
+            w = w[pos], n = n_at_t[pos],
+            time = factor(paste0("t = ", actual_time))
+        )
+    }
+}
+plot_data_diff <- do.call(rbind, plot_list_diff)
+
+ggplot(plot_data_diff, aes(x = w, y = n, colour = time)) +
+    geom_line(linewidth = 0.8) +
+    scale_x_log10(limits = c(1e-3, 100)) +
+    scale_y_log10() +
+    labs(x = "Weight [g]", y = "Number density [1/g]",
+         title = "Cohort evolution with moderate diffusion (D = 0.05)",
+         colour = "Time") +
+    theme_minimal(base_size = 14)
+```
+
+As time progresses, we see that:
+
+1.  New cohorts enter at the egg size each year.
+2.  Each cohort grows towards larger sizes.
+3.  The diffusion causes each cohort to spread out more and more as it
+    ages.
+4.  Eventually, older cohorts merge together as their spreading
+    overwhelms the year-to-year separation.
+
+# Heatmap visualisation
+
+A heatmap provides a compact view of the entire dynamics, showing how
+the size spectrum evolves continuously over time:
+
+```{r fig.height=5, fig.width=9}
+all_times <- as.numeric(dimnames(sim_d_med@n)$time)
+
+heatmap_list <- list()
+for (i in seq_along(all_times)) {
+    n_at_t <- as.numeric(sim_d_med@n[i, 1, ])
+    pos <- n_at_t > 0
+    if (any(pos)) {
+        heatmap_list[[length(heatmap_list) + 1]] <- data.frame(
+            time = all_times[i],
+            w = w[pos],
+            log_n = log10(n_at_t[pos])
+        )
+    }
+}
+heatmap_data <- do.call(rbind, heatmap_list)
+
+ggplot(heatmap_data, aes(x = time, y = w, fill = log_n)) +
+    geom_raster(interpolate = TRUE) +
+    scale_y_log10() +
+    scale_fill_viridis_c(name = expression(log[10](N))) +
+    labs(x = "Time [years]", y = "Weight [g]",
+         title = "Size spectrum over time (D = 0.05)") +
+    theme_minimal(base_size = 14)
+```
+
+In the heatmap, the diagonal bands represent individual cohorts growing
+through the size spectrum. The broadening of these bands with time is
+the effect of diffusion.
+
+# Summary
+
+This vignette demonstrated:
+
+1.  How to set up a single-species model with `newSingleSpeciesParams()`.
+2.  How to implement pulsed annual reproduction using a custom RDD
+    function.
+3.  How cohorts of fish grow through the size spectrum over time.
+4.  How diffusion, set via `setDiffusion()`, controls the spreading of
+    cohorts — representing individual variability in growth rates.
+
+The key insight is that diffusion smooths out the sharp cohort structure.
+In reality, individual fish within a cohort grow at different rates due
+to environmental variability, differences in food availability, and
+genetic variation. The diffusion term in the size-spectrum model
+captures this variability. The magnitude of the diffusion coefficient
+controls how quickly cohorts spread: larger values lead to faster
+spreading and less distinct cohort structure.
