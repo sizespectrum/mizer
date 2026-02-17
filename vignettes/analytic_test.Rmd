@@ -374,13 +374,16 @@ We verify this by running the projection with *zero* physical diffusion and comp
 In this test, we use the same power law rates:
 $g(w) = A w^p$.
 $\Delta w \approx w \delta$ where $\delta = \ln(10^{\Delta x}) = \ln(\beta)$.
-So $D_{num} \approx A w^p \cdot w \delta = (A \delta) w^{p+1}$.
-This corresponds to the power law form for diffusion $D(w) = K w^{p+1}$ with $K = A \delta$.
-
+So $D_{num} = g(w) \Delta w + g(w)^2 \Delta t$.
+For power law rates $g(w) = A w^p$, and grid spacing $\Delta w \approx w \delta$, this becomes:
+$D_{num} \approx A w^p \cdot w \delta + (A w^p)^2 \Delta t = (A \delta) w^{p+1} + A^2 \Delta t w^{2p}$.
+To allow an analytic solution with a simple power-law diffusion $D = K w^{p+1}$, we set $p=1$ for this test.
+Then $D_{num} \approx (A \delta + A^2 \Delta t) w^2$.
+This corresponds to $K = A \delta + A^2 \Delta t$.
 
 ```{r}
 # Parameters for the test
-p_test <- 0.7
+p_test <- 1 # Use p=1 to match diffusion scaling
 A_test <- 1
 B_test <- 0.5
 
@@ -399,11 +402,17 @@ start_mort_test <- function(params, ...) {
 constant_rdd_test <- function(rdi, species_params, params, ...) {
     # Calculate effective K based on grid resolution
     beta_grid <- params@w[2] / params@w[1]
-    K_loc <- A_test * (beta_grid - 1)
+    
+    # Grid spacing beta approx 1+delta
+    # K_spatial = A * (beta - 1)
+    # K_time = A^2 * dt
+    # We use dt = 0.01 in the project call below
+    dt <- 0.01
+    
+    K_loc <- A_test * (beta_grid - 1) + A_test^2 * dt
     
     # Calculate lambda for this K
     # Solve quadratic: K x^2 - (2A - K) x - 2B = 0
-    # If K is very small, we might have issues, but here K = A(beta-1) > 0.
     a_q <- K_loc
     b_q <- -(2*A_test - K_loc)
     c_q <- -2*B_test

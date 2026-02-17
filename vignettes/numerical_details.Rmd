@@ -114,22 +114,18 @@ $$ J_{i, j_{max}+1} = g_i(w_{j_{max}}) N_{i, j_{max}} - \frac{1}{2} \frac{0 - d_
 
 The upwind scheme used for the advective term introduces numerical diffusion. This is a well-known property of first-order upwind schemes. We can estimate the magnitude of this diffusion by expanding the discretised term using a Taylor series.
 
-The discretised advection term is:
-$$ \frac{g_i(w_j) N_{i,j} - g_i(w_{j-1}) N_{i,j-1}}{\Delta w_j} $$
-Using a Taylor expansion of $(g_i N_i)(w_{j-1})$ around $w_j$:
-$$ (g_i N_i)(w_{j-1}) \approx (g_i N_i)(w_j) - \Delta w_{j-1} \frac{\partial (g_i N_i)}{\partial w} + \frac{1}{2} (\Delta w_{j-1})^2 \frac{\partial^2 (g_i N_i)}{\partial w^2} $$
-Substituting this into the difference quotient and approximating $\Delta w_{j-1} \approx \Delta w_j$ (which is valid for small grid steps):
-$$ \frac{\partial (g_i N_i)}{\partial w} - \frac{1}{2} \Delta w_j \frac{\partial^2 (g_i N_i)}{\partial w^2} $$
-Comparing this to the transport equation with diffusion:
-$$ \frac{\partial (g_i N_i)}{\partial w} - \frac{\partial}{\partial w} \left( \frac{1}{2} d_{num} \frac{\partial N_i}{\partial w} \right) $$
-we see that the upwind scheme introduces a numerical diffusion term with coefficient roughly:
-$$ d_{num} \approx g_i(w) \Delta w $$
-(The factor of 1/2 cancels out if we match the forms, or depends on the exact definition of diffusion flux). Specifically, the error term looks like $-\frac{1}{2} \Delta w \frac{\partial^2 (gN)}{\partial w^2}$. If we assume $g$ is constant locally, this is $-\frac{\partial}{\partial w} (\frac{1}{2} g \Delta w \frac{\partial N}{\partial w})$.
-So the numerical diffusion coefficient is approximately:
-$$ d_{num}(w) \approx g_i(w) \Delta w $$
-Since $\Delta w \approx w \ln(\beta)$ (where $\beta = w_{j+1}/w_j$), substituting $\Delta w$:
-$$ d_{num}(w) \approx g_i(w) w \ln(\beta) $$
-This means that even if the physical diffusion $d_i(w)$ is set to zero, the numerical scheme will behave as if there is a diffusion $d_{num}$. This numerical diffusion scales with the grid resolution: finer grids (smaller $\beta$) reduce the numerical diffusion.
+The discretised equation for the transport (advection only, with constant rates for simplicity) is:
+$$ \frac{N_j^{t+1} - N_j^t}{\Delta t} + g \frac{N_j^{t+1} - N_{j-1}^{t+1}}{\Delta w} = 0 $$
+Expanding $N(w, t)$ around $(w_j, t+\Delta t)$ leads to the following leading order error terms:
+$$ \frac{\partial N}{\partial t} + g \frac{\partial N}{\partial w} = \frac{g \Delta w}{2} \left( 1 + \frac{g \Delta t}{\Delta w} \right) \frac{\partial^2 N}{\partial w^2} $$
+The coefficient of the second derivative represents the numerical diffusivity:
+$$ D_{num} = \frac{g \Delta w}{2} (1 + C) $$
+where $C = \frac{g \Delta t}{\Delta w}$ is the Courant-Friedrichs-Lewy (CFL) number.
+Comparing this to the Mizer diffusion equation form (where the diffusion term is $\frac{\partial}{\partial w} ( \frac{1}{2} \frac{\partial (D N)}{\partial w} )$), the effective diffusion parameter is:
+$$ d_{num}(w) \approx g(w) \Delta w (1 + C(w)) $$
+Since $\Delta w \approx w \ln(\beta)$, this is:
+$$ d_{num}(w) \approx g(w) w \ln(\beta) \left( 1 + \frac{g(w) \Delta t}{w \ln(\beta)} \right) = g(w) w \ln(\beta) + g(w)^2 \Delta t $$
+This means the numerical scheme behaves as if there is a diffusion $d_{num}$. This numerical diffusion has two components: one from spatial discretisation (scaling with $\Delta w$) and one from time stepping (scaling with $\Delta t$).
 
 
 # Resource Dynamics
