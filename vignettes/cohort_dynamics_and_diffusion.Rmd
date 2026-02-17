@@ -178,8 +178,8 @@ diffusion:
 ```{r}
 diff_exp <- params_pulse@species_params$n + 1
 sim_d0 <- run_with_diffusion(params_pulse, diff_coeff = 0, diff_exp = diff_exp)
-sim_d_low <- run_with_diffusion(params_pulse, diff_coeff = 0.01, diff_exp = diff_exp)
-sim_d_high <- run_with_diffusion(params_pulse, diff_coeff = 0.1, diff_exp = , diff_exp)
+sim_d_low <- run_with_diffusion(params_pulse, diff_coeff = 0.1, diff_exp = diff_exp)
+sim_d_high <- run_with_diffusion(params_pulse, diff_coeff = 0.5, diff_exp = diff_exp)
 ```
 
 Now let's visualise the cohorts at a specific time point to see how
@@ -202,8 +202,8 @@ build_snapshot <- function(sim, label) {
 
 snapshot_data <- rbind(
     build_snapshot(sim_d0, "D = 0 (no diffusion)"),
-    build_snapshot(sim_d_low, "D = 0.01 (low)"),
-    build_snapshot(sim_d_high, "D = 0.1 (high)")
+    build_snapshot(sim_d_low, "D = 0.1 (low)"),
+    build_snapshot(sim_d_high, "D = 0.5 (high)")
 )
 
 ggplot(snapshot_data, aes(x = w, y = n * w^2, colour = diffusion)) +
