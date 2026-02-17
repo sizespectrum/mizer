@@ -68,7 +68,7 @@ in the guide by Hadley on R package development.
 To work with the code you will create your own git repository with a copy of the mizer code. Go to https://github.com/sizespectrum/mizer and fork it into your own repository by clicking the "Fork" button.
 
 <center>
-![](images/fork.png){width=80%}
+![Fork button on GitHub](images/fork.png){width=80%}
 </center>
 
 You will be prompted to log in to GitHub. If you do not yet have an account, 
@@ -79,19 +79,19 @@ whichever machine you work on. You can do this from within RStudio. For this you
 click on the "Project" drop-down and then select "New Project...".
 
 <center>
-![](images/new_project.png){width=80%}
+![New Project menu in RStudio](images/new_project.png){width=80%}
 </center>
 
 This will bring up a dialog box where you select "Version Control".
 <center>
-![](images/version_control.png){width=50%}
+![Version Control option in New Project wizard](images/version_control.png){width=50%}
 </center>
 
 Provided you have Git installed and RStudio was able to find it you can then
 choose "Git" on the next dialog box.
 
 <center>
-![](images/git.png){width=50%}
+![Git option in New Project wizard](images/git.png){width=50%}
 </center>
 
 If the Git option is not showing, the you need to troubleshoot, and perhaps
@@ -99,7 +99,7 @@ https://happygitwithr.com/rstudio-see-git.html helps.
 
 In the next dialog box you let RStudio know where to find your fork.
 <center>
-![](images/repository.png){width=50%}
+![Repository configuration in New Project wizard](images/repository.png){width=50%}
 </center>
 
 To find the correct repository URL you go back to GitHub to the front page of 
@@ -108,7 +108,7 @@ There you will find a "Clone or download" button which when clicked will
 reveal the repository URL. Make sure that you are on the page of your fork of
 the repository. The URL should contain your GitHub username.
 <center>
-![](images/repro_url.png){width=80%}
+![Clone or download button on GitHub](images/repro_url.png){width=80%}
 </center>
 
 You can copy that to the clipboard by pressing the
@@ -133,19 +133,19 @@ You are now all set to develop R packages, and
 To set things up, click on Build -> More -> Configure Build Tools.
 
 <center>
-![](images/build_tools.png)
+![Configure Build Tools menu](images/build_tools.png)
 </center>
 
 In the resulting dialog box, tick the checkboxes "Use devtools package functions if available" and "Generate documentation with roxygen" and then click on "Configure".
 
 <center>
-![](images/roxygen.png){width=50%}
+![Roxygen configuration in Project Options](images/roxygen.png){width=50%}
 </center>
 
 This will open another dialog box where you tick "Install and Restart".
 
 <center>
-![](images/tick.png){width=40%}
+![Install and Restart checkbox](images/tick.png){width=40%}
 </center>
 
 Hit "OK". While you are on the Project Options dialog box, click on
@@ -153,7 +153,7 @@ Hit "OK". While you are on the Project Options dialog box, click on
 to 4, because that is the convention the mizer code follows.
 
 <center>
-![](images/tabs.png){width=50%}
+![Tab width configuration in Code Editing](images/tabs.png){width=50%}
 </center>
 
 ## usethis package
@@ -180,7 +180,7 @@ local code, you will want to install mizer using that code. To do this
 go to the "Build" tab in RStudio and click on "Install and Restart" or
 alternatively use the keyboard shortcut Ctrl+Shift+B.
 <center>
-![](images/build.png)
+![Install and Restart button in Build tab](images/build.png)
 </center>
 
 You can watch the progress in the "Build" tab. Once the build has completed, you will see that in the console RStudio automatically runs
