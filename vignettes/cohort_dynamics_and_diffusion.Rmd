@@ -9,7 +9,7 @@ editor_options:
   markdown: 
     wrap: 72
 vignette: >
-  %\VignetteIndexEntry{The Numerical Scheme used in Mizer}
+  %\VignetteIndexEntry{Cohort dynamics and diffusion}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
