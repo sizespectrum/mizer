@@ -2,9 +2,25 @@
 % Please edit documentation in R/project_n.R
 \name{project_n}
 \alias{project_n}
+\alias{project_n_diffusion_R}
 \title{Project values for first time step of Euler method}
 \usage{
 project_n(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref, no_sp, no_w)
+
+project_n_diffusion_R(
+  params,
+  r,
+  n,
+  dt,
+  a,
+  b,
+  c,
+  S,
+  idx,
+  w_min_idx_array_ref,
+  no_sp,
+  no_w
+)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object.}

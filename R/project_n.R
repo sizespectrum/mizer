@@ -33,7 +33,52 @@ project_n <- function(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
     b <- coefs$b
     c <- coefs$c
     S <- coefs$S
+    
+    # Boundary condition updates
+    # Vectorized implementation of the loop over species
+    
+    # S_j_start = N_old + dt/dw * R_dd
+    # Matrix of indices for (i, j_start)
+    # w_min_idx is 1-based index of start size bin for each species
+    j_start <- params@w_min_idx
+    idxs <- cbind(1:no_sp, j_start)
+    
+    S[idxs] <- S[idxs] + r$rdd * dt / params@dw[j_start]
+    
+    # Apply boundary condition to B (LHS)
+    # Remove the influence of "below" diffusion/growth which is replaced by recruitment flux
+    # if (j_start > 1) { ... }
+    
+    # Identify species where start index > 1
+    mask <- j_start > 1
+    if (any(mask)) {
+        i_sub <- which(mask)
+        j_sub <- j_start[i_sub]
+        idxs_sub <- cbind(i_sub, j_sub)
+        
+        # correction <- (dt / params@dw[j_start]) * 0.5 * params@diffusion[i, j_start] / params@dw[j_start - 1]
+        correction <- (dt / params@dw[j_sub]) * 0.5 * 
+            params@diffusion[idxs_sub] / params@dw[j_sub - 1]
+        
+        b[idxs_sub] <- b[idxs_sub] - correction
+        a[idxs_sub] <- 0
+    }
+    
+    # Call C++ function to solve tridiagonal system
+    n <- project_n_loop(n, a, b, c, S, j_start)
+    
+    n
+}
 
+#' @rdname project_n
+project_n_diffusion_R <- function(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
+                                  no_sp, no_w) {
+    coefs <- get_transport_coefs(params, n, n_pp, n_other, r, dt)
+    a <- coefs$a
+    b <- coefs$b
+    c <- coefs$c
+    S <- coefs$S
+    
     # Loop over species to apply boundary condition and solve
     
     for (i in 1:no_sp) {
@@ -55,12 +100,12 @@ project_n <- function(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
         # Original B[i, j_start] contains: ... + dt/dw * ( ... + 0.5 * d[i, j_start] / dw[j_start-1])
         # We need to subtract that term
         if (j_start > 1) {
-             # The term added was: dt/dw[j_start] * 0.5 * d[i, j_start] / dw[j_start-1]
-             correction <- (dt / params@dw[j_start]) * 0.5 * params@diffusion[i, j_start] / params@dw[j_start - 1]
-             b[i, j_start] <- b[i, j_start] - correction
-             
-             # Also A[i, j_start] should be ignored/0.
-             a[i, j_start] <- 0
+            # The term added was: dt/dw[j_start] * 0.5 * d[i, j_start] / dw[j_start-1]
+            correction <- (dt / params@dw[j_start]) * 0.5 * params@diffusion[i, j_start] / params@dw[j_start - 1]
+            b[i, j_start] <- b[i, j_start] - correction
+            
+            # Also A[i, j_start] should be ignored/0.
+            a[i, j_start] <- 0
         }
         
         # Thomas Algorithm

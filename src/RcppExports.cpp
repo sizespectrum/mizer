@@ -27,9 +27,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// project_n_loop
+NumericMatrix project_n_loop(NumericMatrix n, NumericMatrix a, NumericMatrix b, NumericMatrix c, NumericMatrix S, NumericVector w_min_idx);
+RcppExport SEXP _mizer_project_n_loop(SEXP nSEXP, SEXP aSEXP, SEXP bSEXP, SEXP cSEXP, SEXP SSEXP, SEXP w_min_idxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type n(nSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type a(aSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type b(bSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type c(cSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type S(SSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type w_min_idx(w_min_idxSEXP);
+    rcpp_result_gen = Rcpp::wrap(project_n_loop(n, a, b, c, S, w_min_idx));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_mizer_inner_project_loop", (DL_FUNC) &_mizer_inner_project_loop, 7},
+    {"_mizer_project_n_loop", (DL_FUNC) &_mizer_project_n_loop, 6},
     {NULL, NULL, 0}
 };
 
