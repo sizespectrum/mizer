@@ -2,14 +2,12 @@
 #'
 #' @param params A \linkS4class{MizerParams} object.
 #' @param n An array (species x size) with the number density at the current time step.
-#' @param n_pp A vector (size) with the resource number density at the current time step.
-#' @param n_other A list with the abundances of other components.
 #' @param rates A list of rates as returned by [mizerRates()].
 #' @param dt Time step.
 #'
 #' @return A list with the coefficients A, B, C and S.
 #' @noRd
-get_transport_coefs <- function(params, n, n_pp, n_other, rates, dt) {
+get_transport_coefs <- function(params, n, rates, dt) {
     # We solve the system A_j * N_{j-1} + B_j * N_j + C_j * N_{j+1} = S_j
     
     no_sp <- nrow(params@species_params)
