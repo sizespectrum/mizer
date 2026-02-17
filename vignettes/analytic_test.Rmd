@@ -366,3 +366,122 @@ if (rel_err_total < 0.05 && rel_err_peak_loc < 0.05 && rel_err_peak_val < 0.4) {
 }
 ```
 
+## Numerical Diffusion Test
+
+The upwind scheme introduces a numerical diffusion $D_{num} \approx g(w) \Delta w$.
+We verify this by running the projection with *zero* physical diffusion and comparing the result to the analytical steady state solution for a system *with* diffusion $D(w) = g(w) \Delta w$.
+
+In this test, we use the same power law rates:
+$g(w) = A w^p$.
+$\Delta w \approx w \delta$ where $\delta = \ln(10^{\Delta x}) = \ln(\beta)$.
+So $D_{num} \approx A w^p \cdot w \delta = (A \delta) w^{p+1}$.
+This corresponds to the power law form for diffusion $D(w) = K w^{p+1}$ with $K = A \delta$.
+
+
+```{r}
+# Parameters for the test
+p_test <- 0.7
+A_test <- 1
+B_test <- 0.5
+
+# Helper: Growth rate
+start_growth_test <- function(params, ...) {
+    matrix(A_test * params@w^p_test, nrow = 1, byrow = TRUE)
+}
+
+# Helper: Mortality rate
+start_mort_test <- function(params, ...) {
+    matrix(B_test * params@w^(p_test-1), nrow = 1, byrow = TRUE)
+}
+
+# Helper: RDD
+# We need to calculate K_num inside because it depends on params (resolution)
+constant_rdd_test <- function(rdi, species_params, params, ...) {
+    # Calculate effective K based on grid resolution
+    beta_grid <- params@w[2] / params@w[1]
+    K_loc <- A_test * (beta_grid - 1)
+    
+    # Calculate lambda for this K
+    # Solve quadratic: K x^2 - (2A - K) x - 2B = 0
+    # If K is very small, we might have issues, but here K = A(beta-1) > 0.
+    a_q <- K_loc
+    b_q <- -(2*A_test - K_loc)
+    c_q <- -2*B_test
+    det <- b_q^2 - 4 * a_q * c_q
+    x <- (-b_q - sqrt(det)) / (2 * a_q)
+    lam <- p_test - x
+    
+    w_min <- min(params@w)
+    J_min <- w_min^(p_test - lam) * (A_test - 0.5 * K_loc * (p_test + 1 - lam))
+    structure(rep(J_min, length(rdi)), names = names(rdi))
+}
+
+# Function to perform the numerical diffusion test
+run_numerical_diffusion_test <- function(no_w) {
+    # Create params
+    params <- newMultispeciesParams(data.frame(species = "Test", 
+                                               w_inf = 1000, 
+                                               w_mat = 100, 
+                                               beta = 100, 
+                                               sigma = 1, 
+                                               k_vb = 0.1), 
+                                    no_w = no_w, min_w = 1e-3, max_w = 1000)
+    
+    # Set rates
+    params <- setRateFunction(params, "EGrowth", "start_growth_test")
+    params <- setRateFunction(params, "Mort", "start_mort_test")
+    params <- setRateFunction(params, "RDD", "constant_rdd_test")
+    
+    # NO physical diffusion
+    # We set the diffusion matrix to zero
+    params@diffusion[] <- 0
+    
+    params <- setResource(params, resource_dynamics = "resource_constant")
+    initialNResource(params) <- 0
+    
+    # Calculate analytic initial condition to start close to steady state
+    # We use the same logic as in constant_rdd_test to get lambda
+    beta_grid <- params@w[2] / params@w[1]
+    K_loc <- A_test * (beta_grid - 1)
+    
+    a_q <- K_loc
+    b_q <- -(2*A_test - K_loc)
+    c_q <- -2*B_test
+    det <- b_q^2 - 4 * a_q * c_q
+    x <- (-b_q - sqrt(det)) / (2 * a_q)
+    lam <- p_test - x
+    
+    # Initialize 
+    initialN(params) <- matrix(params@w^(-lam), nrow = 1, byrow = TRUE)
+    
+    # Project
+    sim <- project(params, t_max = 5, dt = 0.01)
+    
+    n0 <- initialN(params)[1, ]
+    n1 <- finalN(sim)[1, ]
+    
+    # Compare (ignore boundaries)
+    idx <- 10:(length(params@w)-10)
+    
+    # Calculate error
+    err <- abs(n1[idx] - n0[idx]) / n0[idx]
+    mean(err)
+}
+
+# Run the test
+err_100 <- run_numerical_diffusion_test(100)
+err_400 <- run_numerical_diffusion_test(400)
+
+print(paste("Mean relative error with 100 bins:", err_100))
+print(paste("Mean relative error with 400 bins:", err_400))
+
+# Check success
+if (err_400 < 0.05) {
+  print("Numerical diffusion test passed: Numerical solution (D=0) matches Analytic solution (D=D_num).")
+} else {
+  print("Numerical diffusion test failed.")
+}
+```
+
+
+
