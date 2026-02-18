@@ -2,12 +2,13 @@
 #'
 #' @param params A \linkS4class{MizerParams} object.
 #' @param n An array (species x size) with the number density at the current time step.
-#' @param rates A list of rates as returned by [mizerRates()].
+#' @param g The growth rate.
+#' @param mu The mortality rate.
 #' @param dt Time step.
 #'
 #' @return A list with the coefficients A, B, C and S.
 #' @noRd
-get_transport_coefs <- function(params, n, rates, dt) {
+get_transport_coefs <- function(params, n, g, mu, dt) {
     # We solve the system A_j * N_{j-1} + B_j * N_j + C_j * N_{j+1} = S_j
     
     no_sp <- nrow(params@species_params)
@@ -17,10 +18,6 @@ get_transport_coefs <- function(params, n, rates, dt) {
     d <- params@diffusion # species x size
     
     # Pre-calculate some common terms
-    # g_i(w_j)
-    g <- rates$e_growth
-    # mu_i(w_j)
-    mu <- rates$mort
     # dw_j
     dw <- params@dw
     # Delta t / Delta w_j

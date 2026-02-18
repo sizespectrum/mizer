@@ -622,7 +622,7 @@ get_required_reproduction <- function(params) {
     
     # Calculate transport coefficients
     dt <- 1
-    coefs <- get_transport_coefs(params, params@initial_n, rates, dt)
+    coefs <- get_transport_coefs(params, params@initial_n, rates$e_growth, rates$mort, dt)
     
     reproduction <- params@species_params$erepro # vector of correct length
     
