@@ -40,62 +40,19 @@ test_that("steadySingleSpecies produces steady state with diffusion", {
     
     params <- steadySingleSpecies(params, species = species)
     
-    # Since N is fixed at the boundary (and potentially inconsistent with R_dd),
-    # projecting with `project()` (which uses R_dd) will immediately change the boundary 
-    # and propagate effects.
-    # Instead, we verify that the calculated N satisfies the steady state transport equation
-    # with the fixed boundary condition.
+    # Now that we have the steady state, we can use setBevertonHolt() to
+    # set the reproduction parameters to values that are consistent with it.
+    suppressWarnings(params <- setBevertonHolt(params, reproduction_level = 0.5))
     
-    # We need to access internal functions
-    get_transport_coefs <- mizer:::get_transport_coefs
-    
-    # Calculate coefficients
-    # steadySingleSpecies uses rates from the *original* state
-    # and dt=1
-    growth <- getEGrowth(params_orig)
-    mort <- getMort(params_orig)
-    dt <- 1
-    
-    coefs <- get_transport_coefs(params_orig, params_orig@initial_n, growth, mort, dt,
-                                 recruitment_flux = numeric(nrow(params_orig@species_params)))
-                                 
-    # Check residual for Cod
-    sp <- species
-    n <- params@initial_n[sp, ]
-    
-    a <- coefs$a[sp, ]
-    b <- coefs$b[sp, ] - 1 # Adjust for steady state
-    c <- coefs$c[sp, ]
-    
-    # Boundary correction used in steadySingleSpecies
-    w_min_idx <- params@w_min_idx[sp]
-    # In steadySingleSpecies we set b[w_min_idx] = 1 and c[w_min_idx] = 0.
-    # We should replicate that here to verify the interior.
-    b[w_min_idx] <- 1
-    c[w_min_idx] <- 0
-    a[w_min_idx] <- 0
-    
-    # Calculate residual A*N_{i-1} + B*N_i + C*N_{i+1}
-    # For interior points within the solved range
-    w_max_idx <- sum(params@w <= params@species_params[sp, "w_max"])
-    
-    residuals <- numeric(w_max_idx)
-    # Start from w_min_idx + 1 (the first interior node)
-    # End at w_max_idx (the last solved node)
-    for (i in (w_min_idx + 1):w_max_idx) {
-        # Note: n[i+1] will be 0 if i = w_max_idx, which is consistent with the solver 
-        # (assuming 0 flux from above or just absorbing boundary)
-        val_next <- if (i < length(n)) n[i+1] else 0
-        residuals[i] <- a[i] * n[i-1] + b[i] * n[i] + c[i] * val_next
-    }
-    
-    # Check max residual relative to N
-    # We exclude the boundary point because we fixed it explicitly.
-    
-    valid_range <- (w_min_idx + 1):w_max_idx
-    max_rel_resid <- max(abs(residuals[valid_range]) / n[valid_range])
-    
-    expect_lt(max_rel_resid, 1e-10)
+    # And then the steady state should be preserved by project()
+    sim <- project(params, t_max = 5)
+    initial_n <- params@initial_n[species, ]
+    final_n <- finalN(sim)[species, ]
+    rel_error <- abs(initial_n - final_n) / initial_n
+    # Ignore indices where initial_n is very small/zero to avoid division by zero or numerical noise
+    valid_idx <- initial_n > 1e-20
+    max_rel_error <- max(rel_error[valid_idx], na.rm = TRUE)
+    expect_lt(max_rel_error, 1e-10)
 })
 
 test_that("steadySingleSpecies errors when growth stops before maturity", {
