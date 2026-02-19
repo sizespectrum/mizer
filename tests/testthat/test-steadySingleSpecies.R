@@ -31,9 +31,13 @@ test_that("steadySingleSpecies produces steady state with diffusion", {
     
     # Enable diffusion for Cod
     species <- "Cod"
-    p <- params@species_params[species, "p"]
-    d <- 0.1 * params@w^p
+    n <- params@species_params[species, "n"]
+    d <- 0.1 * params@w^(n + 1)
     diffusion(params)[species, ] <- d
+
+    # Increase minimum size to test boundary condition
+    params@w_min_idx[species] <- 10
+    params@species_params[species, "w_min"] <- params@w[10]
     
     # Keep original params to calculate rates that steadySingleSpecies used
     params_orig <- params
