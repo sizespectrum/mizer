@@ -39,16 +39,16 @@ test_that("get_transport_coefs works correctly", {
     # Species 1
     j_start_1 <- params@w_min_idx[1]
     expected_S_1 <- n[1, j_start_1] + recruitment_flux[1] * dt / params@dw[j_start_1]
-    expect_equivalent(coefs$S[1, j_start_1], expected_S_1)
+    expect_equal(coefs$S[1, j_start_1], expected_S_1, ignore_attr = TRUE)
     
     # Species 2
     j_start_2 <- params@w_min_idx[2]
     expected_S_2 <- n[2, j_start_2] + recruitment_flux[2] * dt / params@dw[j_start_2]
-    expect_equivalent(coefs$S[2, j_start_2], expected_S_2)
+    expect_equal(coefs$S[2, j_start_2], expected_S_2, ignore_attr = TRUE)
     
     # Check that 'a' at boundary is 0
-    expect_equivalent(coefs$a[1, j_start_1], 0)
-    expect_equivalent(coefs$a[2, j_start_2], 0)
+    expect_equal(coefs$a[1, j_start_1], 0, ignore_attr = TRUE)
+    expect_equal(coefs$a[2, j_start_2], 0, ignore_attr = TRUE)
     
     # Check 'b' at boundary
     # b_j_start = 1 + dt*mu + dt/dw * (g + D/(2*dw))
@@ -61,5 +61,5 @@ test_that("get_transport_coefs works correctly", {
     expected_b_2 <- 1 + dt * mu[2, j_start_2] + 
         (dt / dw[j_start_2]) * (g[2, j_start_2] + 0.5 * params@diffusion[2, j_start_2] / dw[j_start_2])
         
-    expect_equivalent(coefs$b[2, j_start_2], expected_b_2)
+    expect_equal(coefs$b[2, j_start_2], expected_b_2, ignore_attr = TRUE)
 })
