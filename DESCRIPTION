@@ -58,6 +58,7 @@ Collate:
     'reproduction.R'
     'saveParams.R'
     'species_params.R'
+    'getRequiredRDD.R'
     'setColours.R'
     'setInteraction.R'
     'setPredKernel.R'
