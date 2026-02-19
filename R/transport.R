@@ -5,11 +5,14 @@
 #' @param g The growth rate.
 #' @param mu The mortality rate.
 #' @param dt Time step.
+#' 
+#' This calculates the coefficients A, B, C and S for the linear system
+#' A_j * N_{j-1} + B_j * N_j + C_j * N_{j+1} = S_j
+#' For details see the [Numerical Details](https://sizespectrum.org/mizer/articles/numerical_details.html#discretised-equation) vignette.
 #'
 #' @return A list with the coefficients A, B, C and S.
 #' @noRd
-get_transport_coefs <- function(params, n, g, mu, dt) {
-    # We solve the system A_j * N_{j-1} + B_j * N_j + C_j * N_{j+1} = S_j
+get_transport_coefs <- function(params, n, g, mu, dt, recruitment_flux) {
     
     no_sp <- nrow(params@species_params)
     no_w <- length(params@w)
@@ -58,7 +61,7 @@ get_transport_coefs <- function(params, n, g, mu, dt) {
         matrix(dw[idx_j], nrow = no_sp, ncol = length(idx_j), byrow = TRUE)
     
     c[, idx_j] <- -dt_dw[, idx_j] * term_diff_plus_1
-    c[, no_w] <- 0 # Boundary condition N_{no_w+1} = 0
+    # c[, no_w] is 0 as initialized
     
     # B_j
     # B_j = 1 + dt * mu_j + dt/dw_j * (g_j + D_j / (2 * dw_j) + D_j / (2 * dw_{j-1}))
@@ -71,24 +74,40 @@ get_transport_coefs <- function(params, n, g, mu, dt) {
     
     b[, idx] <- 1 + dt * mu[, idx] + dt_dw[, idx] * (g[, idx] + term_diff_j + term_diff_j_minus_1)
     
-    # Boundary j=1 (approx w_min)
-    # Equation: N_1 - N_1^old / dt + (J_{3/2} - J_{1/2}) / dw_1 = -mu_1 N_1
-    # J_{1/2} = R_dd (recruitment flux).
-    # J_{3/2} follows standard flux definition.
-    # result: (1 + dt*mu_1 + dt/dw_1 * (g_1 + D_1/(2*dw_1))) N_1 - dt/dw_1 * (D_2/(2*dw_1)) N_2 = N_1^old + dt/dw_1 * R_dd
-    # So for j=1:
-    # B_1 = 1 + dt*mu_1 + dt/dw_1 * (g_1 + d_1/(2*dw_1))
-    # C_1 = - dt/dw_1 * d_2/(2*dw_1)  (Matches standard formula)
-    # A_1 = 0
+    # Boundary condition updates
+    # We treat the start of the size spectrum (j_start) for each species as a boundary.
+    # At j_start, the incoming flux is the recruitment flux R_dd.
+    # The boundary condition for B (LHS) reflects that there is no transport from "below" j_start 
+    # (other than R_dd which is on RHS).
     
-    dw_1 <- dw[1]
-    dt_dw_1 <- dt / dw_1
-    b[, 1] <- 1 + dt * mu[, 1] + dt_dw_1 * (g[, 1] + 0.5 * d[, 1] / dw_1)
-    # c[, 1] already computed correctly above
-    a[, 1] <- 0
-
-    # RHS S
+    j_start <- params@w_min_idx
+    idxs <- cbind(1:no_sp, j_start)
+    
+    # S_j_start = N_old + dt/dw * R_dd
     S[] <- n
+    S[idxs] <- S[idxs] + recruitment_flux * dt / params@dw[j_start]
+    
+    # b_j_start = 1 + dt*mu + dt/dw * (g + D/(2*dw))
+    # This formula excludes the upstream diffusion term D/(2*dw_{j-1}) because 
+    # flux from below is replaced by recruitment flux.
+    b[idxs] <- 1 + dt * mu[idxs] + dt_dw[idxs] * (g[idxs] + 0.5 * d[idxs] / params@dw[j_start])
+    
+    # a_j_start = 0
+    a[idxs] <- 0
+    
+    # Zero out elements for sizes smaller than w_min_idx
+    # This ensures that there is no transport or dynamics below the recruitment size
+    # Create a logical mask where col index < w_min_idx
+    # Using outer is efficient enough for this size
+    w_idx_mat <- matrix(1:no_w, nrow = no_sp, ncol = no_w, byrow = TRUE)
+    mask_below <- w_idx_mat < j_start
+    
+    if (any(mask_below)) {
+        a[mask_below] <- 0
+        b[mask_below] <- 0
+        c[mask_below] <- 0
+        S[mask_below] <- 0
+    }
     
     return(list(a = a, b = b, c = c, S = S))
 }

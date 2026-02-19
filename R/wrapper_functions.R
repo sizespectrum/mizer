@@ -614,15 +614,14 @@ get_required_reproduction <- function(params) {
 
     no_sp <- nrow(params@species_params)
     
-    # Calculate rates
-    rates_fns <- lapply(params@rates_funcs, get)
-    rates <- mizerRates(params, n = params@initial_n, n_pp = params@initial_n_pp,
-                        n_other = params@initial_n_other, t = 0, 
-                        effort = params@initial_effort, rates_fns = rates_fns)
-    
     # Calculate transport coefficients
     dt <- 1
-    coefs <- get_transport_coefs(params, params@initial_n, rates$e_growth, rates$mort, dt)
+    # We pass a dummy recruitment flux of 0 to trigger the boundary condition
+    # corrections for a and b in get_transport_coefs
+    coefs <- get_transport_coefs(params, n = params@initial_n, 
+                                 g = getEGrowth(params),
+                                 mu = getMort(params), dt,
+                                 recruitment_flux = numeric(no_sp))
     
     reproduction <- params@species_params$erepro # vector of correct length
     
@@ -639,7 +638,7 @@ get_required_reproduction <- function(params) {
         # A*N_{j-1} + (B-1)/dt * N_j + C/dt * N_{j+1} = R/dw / dt ?
         # No, let's look at project_n again.
         # It solves A N_{i-1} + B N_i + C N_{i+1} = N_old + RHS_source
-        # In steady state: A N_{i-1} + B N_i + C N_{i+1} = N + R * dt / dw
+        # In steady state: A N_{i-1} + B N_i + C N_{i+1} = N_i + R * dt / dw
         # So R = ( A N_{i-1} + (B-1) N_i + C N_{i+1} ) * dw / dt
         
         # Extract coefficients
@@ -647,12 +646,7 @@ get_required_reproduction <- function(params) {
         b <- coefs$b[i, w_min_idx]
         c <- coefs$c[i, w_min_idx]
         
-        # Boundary correction for diffusion (if not at global min size)
-        if (w_min_idx > 1) {
-             correction <- (dt / params@dw[w_min_idx]) * 0.5 * params@diffusion[i, w_min_idx] / params@dw[w_min_idx - 1]
-             b <- b - correction
-             a <- 0
-        }
+        # Boundary corrections for a and b are now handled in get_transport_coefs
         
         n_current <- params@initial_n[i, w_min_idx]
         n_next <- if (w_min_idx < length(params@w)) params@initial_n[i, w_min_idx + 1] else 0

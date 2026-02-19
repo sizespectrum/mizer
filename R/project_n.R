@@ -28,44 +28,19 @@
 #' @export
 project_n <- function(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
                       no_sp, no_w) {
-    coefs <- get_transport_coefs(params, n, r$e_growth, r$mort, dt)
+    coefs <- get_transport_coefs(params, n, r$e_growth, r$mort, dt,
+                                 recruitment_flux = r$rdd)
     a <- coefs$a
     b <- coefs$b
     c <- coefs$c
     S <- coefs$S
     
-    # Boundary condition updates
-    # Vectorized implementation of the loop over species
-    
-    # S_j_start = N_old + dt/dw * R_dd
-    # Matrix of indices for (i, j_start)
-    # w_min_idx is 1-based index of start size bin for each species
-    j_start <- params@w_min_idx
-    idxs <- cbind(1:no_sp, j_start)
-    
-    S[idxs] <- S[idxs] + r$rdd * dt / params@dw[j_start]
-    
-    # Apply boundary condition to B (LHS)
-    # Remove the influence of "below" diffusion/growth which is replaced by recruitment flux
-    # if (j_start > 1) { ... }
-    
-    # Identify species where start index > 1
-    mask <- j_start > 1
-    if (any(mask)) {
-        i_sub <- which(mask)
-        j_sub <- j_start[i_sub]
-        idxs_sub <- cbind(i_sub, j_sub)
-        
-        # correction <- (dt / params@dw[j_start]) * 0.5 * params@diffusion[i, j_start] / params@dw[j_start - 1]
-        correction <- (dt / params@dw[j_sub]) * 0.5 * 
-            params@diffusion[idxs_sub] / params@dw[j_sub - 1]
-        
-        b[idxs_sub] <- b[idxs_sub] - correction
-        a[idxs_sub] <- 0
-    }
-    
     # Call C++ function to solve tridiagonal system
-    n <- project_n_loop(n, a, b, c, S, j_start)
+    # j_start is needed for the C++ loop, we can get it from params
+    params@w_min_idx
+    
+    # Note: project_n_loop takes j_start as argument
+    n <- project_n_loop(n, a, b, c, S, params@w_min_idx)
     
     n
 }
@@ -73,40 +48,20 @@ project_n <- function(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
 #' @rdname project_n
 project_n_diffusion_R <- function(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
                                   no_sp, no_w) {
-    coefs <- get_transport_coefs(params, n, r$e_growth, r$mort, dt)
+    coefs <- get_transport_coefs(params, n, r$e_growth, r$mort, dt,
+                                 recruitment_flux = r$rdd)
     a <- coefs$a
     b <- coefs$b
     c <- coefs$c
     S <- coefs$S
     
-    # Loop over species to apply boundary condition and solve
+    # Loop over species to solve
     
     for (i in 1:no_sp) {
         # Start index for this species
         j_start <- params@w_min_idx[i]
         
-        # Apply boundary condition to S (RHS)
-        # S_j_start = N_old + dt/dw * R_dd
-        S[i, j_start] <- S[i, j_start] + r$rdd[i] * dt / params@dw[j_start]
-        
-        # Apply boundary condition to B (LHS)
-        # Remove the influence of "below" diffusion/growth which is replaced by recruitment flux
-        # B_j = 1 + ... + dt/dw * (g_j + D_j/(2*dw_j) + D_j/(2*dw_{j-1}))
-        # The D_j/(2*dw_{j-1}) term came from flux J_j.
-        # At boundary, J_j is explicitly R_dd.
-        # So we should remove the D_j/(2*dw_{j-1}) term from B[i, j_start]
-        # and A[i, j_start] is 0.
-        
-        # Original B[i, j_start] contains: ... + dt/dw * ( ... + 0.5 * d[i, j_start] / dw[j_start-1])
-        # We need to subtract that term
-        if (j_start > 1) {
-            # The term added was: dt/dw[j_start] * 0.5 * d[i, j_start] / dw[j_start-1]
-            correction <- (dt / params@dw[j_start]) * 0.5 * params@diffusion[i, j_start] / params@dw[j_start - 1]
-            b[i, j_start] <- b[i, j_start] - correction
-            
-            # Also A[i, j_start] should be ignored/0.
-            a[i, j_start] <- 0
-        }
+        # Boundary conditions are handled in get_transport_coefs
         
         # Thomas Algorithm
         # We need to pass the sub-vectors for the current species i, starting from j_start

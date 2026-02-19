@@ -56,7 +56,8 @@ test_that("steadySingleSpecies produces steady state with diffusion", {
     mort <- getMort(params_orig)
     dt <- 1
     
-    coefs <- get_transport_coefs(params_orig, params_orig@initial_n, growth, mort, dt)
+    coefs <- get_transport_coefs(params_orig, params_orig@initial_n, growth, mort, dt,
+                                 recruitment_flux = numeric(nrow(params_orig@species_params)))
                                  
     # Check residual for Cod
     sp <- species
