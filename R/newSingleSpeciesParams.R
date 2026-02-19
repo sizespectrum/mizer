@@ -217,7 +217,7 @@ newSingleSpeciesParams <-
 
     ## Set reproduction to meet boundary condition ----
     params@species_params$erepro <- params@species_params$erepro *
-        get_required_reproduction(params) / getRDI(params)
+        getRequiredRDD(params) / getRDI(params)
     params@given_species_params$erepro <- params@species_params$erepro
 
     params <- setBevertonHolt(params, reproduction_level = reproduction_level)
