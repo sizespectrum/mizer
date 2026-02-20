@@ -42,7 +42,9 @@ steadySingleSpecies.MizerParams <- function(params, species = NULL,
     # Loop through all species and calculate their steady state abundances
     # using the current growth and mortality rates
     
-    # Loop over species
+    # Loop over species to keep checks
+    N0_vec <- numeric(nrow(params@species_params))
+    names(N0_vec) <- params@species_params$species
     for (sp in species) {
         w_min_idx <- params@w_min_idx[sp]
         w_max_idx <- sum(params@w <= params@species_params[sp, "w_max"])
@@ -62,16 +64,22 @@ steadySingleSpecies.MizerParams <- function(params, species = NULL,
             }
         }
         
-        N0 <- params@initial_n[sp, w_min_idx]
+        N0_vec[sp] <- params@initial_n[sp, w_min_idx]
         params@initial_n[sp, ] <- 0
+    }
+    
+    # Calculate steady state for all species at once
+    n_exact_matrix <- get_steady_state_n(params, growth_all, mort_all, N0_vec)
+    
+    # Update initial_n for selected species
+    for (sp in species) {
+        w_min_idx <- params@w_min_idx[sp]
+        w_max_idx <- sum(params@w <= params@species_params[sp, "w_max"])
         
         if (w_min_idx == w_max_idx) {
-             params@initial_n[sp, w_min_idx] <- N0
+             params@initial_n[sp, w_min_idx] <- N0_vec[sp]
         } else {
-             idx <- w_min_idx:(w_max_idx - 1)
-             n_exact <- get_steady_state_n(growth, mort_all[sp, ], params@dw, 
-                                           params@diffusion[sp, ], idx, N0)
-             params@initial_n[sp, w_min_idx:w_max_idx] <- n_exact
+             params@initial_n[sp, w_min_idx:w_max_idx] <- n_exact_matrix[sp, w_min_idx:w_max_idx]
         }
     }
 

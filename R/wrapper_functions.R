@@ -502,13 +502,19 @@ newTraitParams <- function(no_sp = 11,
     initial_n <- params@psi  # get array with correct dimensions and names
     initial_n[, ] <- 0
     mumu <- mu0 * w^(n - 1)  # Death rate
+    g_matrix <- matrix(0, nrow = no_sp, ncol = length(w))
+    mu_matrix <- matrix(mumu, nrow = no_sp, ncol = length(w), byrow = TRUE)
+    for (i in 1:no_sp) {
+        g_matrix[i, ] <- hbar * w^n * (1 - params@psi[i, ])
+    }
+    n_exact_matrix <- get_steady_state_n(params, g_matrix, mu_matrix, rep(1, no_sp))
+
     i_inf <- min_i_inf  # index of maximum size
     i_min <- 1  # index of natural egg size
     for (i in 1:no_sp) {
-        gg <- hbar * w^n * (1 - params@psi[i, ])  # Growth rate
-        idx <- w_min_idx[i]:(i_inf - 2)
-        # Steady state solution of the upwind-difference scheme used in project
-        n_exact <- get_steady_state_n(gg, mumu, dw, params@diffusion[i, ], idx)
+        # n_exact corresponding to size bins w_min_idx[i] to i_inf - 1
+        n_exact <- n_exact_matrix[i, w_min_idx[i]:(i_inf - 1)]
+        
         # Use the first species for normalisation
         if (i == 1) {
             dist_sp <- bins_per_sp * dx

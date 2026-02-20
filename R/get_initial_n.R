@@ -54,6 +54,10 @@ get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
         p@w_full ^ (-p@resource_params$lambda)
     p@interaction[] <- 0
     income <- getEReproAndGrowth(p) + p@metab
+    mort <- getFMort(p)
+    growth <- getEGrowth(p)
+    N0_vec <- numeric(no_sp)
+    
     for (i in seq_len(no_sp)) {
         # At small sizes the income should be A w^n. Determine A
         # Use w_min_idx + 1 in case user has implemented reduced growth
@@ -61,14 +65,18 @@ get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
         iw <- p@w_min_idx[i] + 1
         A <- income[i, iw] / (p@w[iw] ^ p@species_params[[i, "n"]])
         
-        mort <- 0.4 * A * p@w ^ (p@species_params[[i, "n"]] - 1) + getFMort(p)
-        growth <- getEGrowth(p)[i, ]
+        mort[i, ] <- mort[i, ] + 0.4 * A * p@w ^ (p@species_params[[i, "n"]] - 1)
         
-        idxs <- p@w_min_idx[i]:(min(which(c(growth, 0) <= 0)) - 1)
-        idx <- idxs[1:(length(idxs) - 1)]
+        # We start with an arbitrary population at the smallest size class
+        N0_vec[i] <- 1
+    }
+    
+    n_exact_matrix <- get_steady_state_n(p, growth, mort, N0_vec)
+    
+    for (i in seq_len(no_sp)) {
+        idxs <- p@w_min_idx[i]:(min(which(c(growth[i, ], 0) <= 0)) - 1)
         # Steady state solution of the upwind-difference scheme used in project
-        p@initial_n[i, idxs] <-
-            get_steady_state_n(growth, mort, p@dw, p@diffusion[i, ], idx)
+        p@initial_n[i, idxs] <- n_exact_matrix[i, idxs]
     }
     p <- matchBiomasses(p)
     return(p@initial_n)

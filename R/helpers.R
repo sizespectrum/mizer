@@ -94,97 +94,58 @@ w2l <- function(w, species_params) {
 #' @param N0 The initial egg density.
 #' @return A numeric vector representing the steady state abundances.
 #' @keywords internal
-get_steady_state_n <- function(growth, mort, dw, diffusion = rep(0, length(dw)),
-                               idx, N0) {
-    if (any(diffusion[idx] > 0)) {
-        # Steady state solution of the upwind-difference scheme used in project
-        # We solve the system A_j * N_{j-1} + B_j * N_j + C_j * N_{j+1} = 0
-        # The N_j are the densities at the size classes j in min_idx:max_idx
-        min_idx <- min(idx)
-        max_idx <- max(idx) + 1
-        n <- max_idx - min_idx + 1
-        
-        # We need to subset the rate arrays to the range min_idx:max_idx
-        # However, the coefficients at j depend on j-1, j, j+1.
-        # So we need to be careful with indexing.
-        # We will construct a, b, c vectors of length n.
-        # The j-th element of these vectors corresponds to the size class min_idx + j - 1.
-        
-        # Ranges for the relevant size classes
-        j_range <- min_idx:max_idx
-        
-        # Diffusion coefficient D_i(w)
-        d <- diffusion
-        # Growth rate g_i(w)
-        g <- growth
-        # Mortality rate mu_i(w)
-        mu <- mort
-        
-        # Initialize vectors
-        a <- numeric(n)
-        b <- numeric(n)
-        c <- numeric(n)
-        rhs <- numeric(n)
-        
-        # Calculate coefficients for the inner points
-        # The indices into the full arrays are j
-        # The indices into the small arrays are k = j - min_idx + 1
-        
-        # We only need to form the equations for j from min_idx to max_idx.
-        # But for j = min_idx we have the boundary condition N = N0.
-        
-        # Boundary condition at min_idx
-        # N_{min_idx} = N0
-        b[1] <- 1
-        rhs[1] <- N0
-        # a[1] and c[1] are 0
-        
-        # Now loop or vectorize for the rest
-        # We iterate k from 2 to n.
-        # This corresponds to j from min_idx + 1 to max_idx.
-        if (n > 1) {
-            k <- 2:n
-            j <- j_range[k]
-            
-            # Using formulas from transport.R, divided by dt
-            # a_j = - 1/dw_j * (g_{j-1} + D_{j-1} / (2 * dw_{j-1}))
-            term_diff_minus_1 <- 0.5 * d[j - 1] / dw[j - 1]
-            a[k] <- - (g[j - 1] + term_diff_minus_1) / dw[j]
-            
-            # c_j = - 1/dw_j * (D_{j+1} / (2 * dw_j))
-            # Note: At the last bin j=max_idx, we assume N_{j+1} = 0 (or flux is handled)
-            # If j < length(dw), we compute c normally.
-            # If j == length(dw), term_diff_plus_1 involves d[length+1]??
-            # In project_n/transport, c[no_w] is set to 0.
-            # Here max_idx could be the last bin.
-            c[k] <- 0 # Default to 0
-            
-            # Create a mask for valid j+1
-            valid_c <- j < length(dw)
-            if (any(valid_c)) {
-                # Only compute for valid j
-                # Indices in k that are valid
-                k_valid <- k[valid_c]
-                j_valid <- j[valid_c]
-                term_diff_plus_1 <- 0.5 * d[j_valid + 1] / dw[j_valid]
-                c[k_valid] <- - term_diff_plus_1 / dw[j_valid]
-            }
-            
-            # b_j = mu_j + 1/dw_j * (g_j + D_j / (2 * dw_j) + D_j / (2 * dw_{j-1}))
-            term_diff_j <- 0.5 * d[j] / dw[j]
-            term_diff_j_minus_1 <- 0.5 * d[j] / dw[j - 1]
-            b[k] <- mu[j] + (g[j] + term_diff_j + term_diff_j_minus_1) / dw[j]
-        }
-        
-        # Solve
-        n_exact <- thomas_solve(a, b, c, rhs)
-        return(n_exact)
+get_steady_state_n <- function(params, g, mu, N0) {
+    no_sp <- nrow(params@species_params)
+    no_w <- length(params@w)
+    n <- matrix(0, nrow = no_sp, ncol = no_w,
+                dimnames = list(params@species_params$species, dimnames(params@initial_n)[[2]]))
+
+    # Use get_transport_coefs to compute the coefficients with dt = 1
+    # and no recruitment flux (since we handle the boundary manually)
+    coefs <- get_transport_coefs(params, n, g, mu, dt = 1,
+                                 recruitment_flux = rep(0, no_sp))
+    
+    a <- coefs$a
+    # For steady state, the diagonal term \tilde{B} is B - 1
+    b <- coefs$b - 1
+    c <- coefs$c
+    S <- coefs$S
+    
+    # Boundary conditions at the start of the size spectrum:
+    # A_j = 0, B_j = 1, C_j = 0, S_j = N0
+    j_start <- params@w_min_idx
+    idxs_start <- cbind(1:no_sp, j_start)
+    a[idxs_start] <- 0
+    b[idxs_start] <- 1
+    c[idxs_start] <- 0
+    S[idxs_start] <- N0
+    
+    # Boundary conditions for sizes w > w_max
+    # We want population to be 0 for these sizes
+    w_idx_mat <- matrix(1:no_w, nrow = no_sp, ncol = no_w, byrow = TRUE)
+    w_max_idx <- params@species_params$w_max_idx
+    if (is.null(w_max_idx)) {
+        w_max_idx <- sapply(1:no_sp, function(i) {
+            sum(params@w <= params@species_params$w_max[i])
+        })
     }
     
-    # Steady state solution of the upwind-difference scheme used in project
-    n_exact <- c(1, cumprod(growth[idx] / ((growth + mort * dw)[idx + 1])))
-    if (!missing(N0)) {
-        n_exact <- N0 * n_exact
+    mask_above <- w_idx_mat > w_max_idx
+    if (any(mask_above)) {
+        a[mask_above] <- 0
+        b[mask_above] <- 1
+        c[mask_above] <- 0
+        S[mask_above] <- 0
+        
+        # We also set c_j = 0 at the w_max_idx boundary to prevent flux
+        # out of the modelled spectrum from affecting the steady state below
+        idxs_max <- cbind(1:no_sp, w_max_idx)
+        c[idxs_max] <- 0
     }
-    return(n_exact)
+    
+    # project_n_loop expects a,b,c,S with same dimensions
+    # Provide j_start to the c++ loop
+    n <- project_n_loop(n, a, b, c, S, j_start)
+    
+    return(n)
 }
