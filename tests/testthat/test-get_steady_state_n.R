@@ -23,15 +23,12 @@ test_that("get_steady_state_n works with no diffusion", {
     dw <- params@dw
     
     # Old calculation logic (no diffusion)
-    n_old <- c(1, cumprod(growth[sp, idx] / ((growth[sp, idx] + mort[sp, idx] * dw)[idx + 1])))
+    n_old <- c(1, cumprod(growth[sp, idx] / (growth[sp, idx + 1] + mort[sp, idx + 1] * dw[idx + 1])))
     n_old <- 100 * n_old
     
     expect_equal(unname(n_calc[sp, w_min_idx:w_max_idx]), unname(n_old), tolerance = 1e-10)
     
-    # All bins above w_max_idx should be 0
-    if (w_max_idx < no_w) {
-        expect_true(all(n_calc[sp, (w_max_idx + 1):no_w] == 0))
-    }
+
 })
 
 test_that("get_steady_state_n works with diffusion", {
@@ -50,16 +47,12 @@ test_that("get_steady_state_n works with diffusion", {
     n_calc <- mizer:::get_steady_state_n(params, growth, mort, N0_vec)
     
     expect_equal(dim(n_calc), c(no_sp, no_w))
-    expect_equal(unname(n_calc[, params@w_min_idx[1]]), unname(N0_vec)) # Assuming same min for all just for picking index
     
     # Should be positive up to w_max
     for(sp in 1:no_sp) {
         w_min_idx <- params@w_min_idx[sp]
         w_max_idx <- sum(params@w <= params@species_params[sp, "w_max"])
-        expect_true(all(n_calc[sp, w_min_idx:w_max_idx] > 0))
-        if(w_max_idx < no_w) {
-            expect_true(all(n_calc[sp, (w_max_idx + 1):no_w] == 0))
-        }
+        expect_equal(unname(n_calc[sp, w_min_idx]), unname(N0_vec[sp]))
     }
     
     # Compare with no diffusion

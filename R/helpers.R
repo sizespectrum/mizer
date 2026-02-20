@@ -120,28 +120,7 @@ get_steady_state_n <- function(params, g, mu, N0) {
     c[idxs_start] <- 0
     S[idxs_start] <- N0
     
-    # Boundary conditions for sizes w > w_max
-    # We want population to be 0 for these sizes
-    w_idx_mat <- matrix(1:no_w, nrow = no_sp, ncol = no_w, byrow = TRUE)
-    w_max_idx <- params@species_params$w_max_idx
-    if (is.null(w_max_idx)) {
-        w_max_idx <- sapply(1:no_sp, function(i) {
-            sum(params@w <= params@species_params$w_max[i])
-        })
-    }
-    
-    mask_above <- w_idx_mat > w_max_idx
-    if (any(mask_above)) {
-        a[mask_above] <- 0
-        b[mask_above] <- 1
-        c[mask_above] <- 0
-        S[mask_above] <- 0
-        
-        # We also set c_j = 0 at the w_max_idx boundary to prevent flux
-        # out of the modelled spectrum from affecting the steady state below
-        idxs_max <- cbind(1:no_sp, w_max_idx)
-        c[idxs_max] <- 0
-    }
+    # project_n_loop expects a,b,c,S with same dimensions
     
     # project_n_loop expects a,b,c,S with same dimensions
     # Provide j_start to the c++ loop

@@ -42,6 +42,13 @@ steadySingleSpecies.MizerParams <- function(params, species = NULL,
     # Loop through all species and calculate their steady state abundances
     # using the current growth and mortality rates
     
+    # Save original reproduction levels to restore them after changing abundances
+    if ("R_max" %in% names(params@species_params)) {
+        reproduction_level <- getReproductionLevel(params)
+    } else {
+        reproduction_level <- NULL
+    }
+
     # Loop over species to keep checks
     N0_vec <- numeric(nrow(params@species_params))
     names(N0_vec) <- params@species_params$species
@@ -74,12 +81,12 @@ steadySingleSpecies.MizerParams <- function(params, species = NULL,
     # Update initial_n for selected species
     for (sp in species) {
         w_min_idx <- params@w_min_idx[sp]
-        w_max_idx <- sum(params@w <= params@species_params[sp, "w_max"])
+        w_min_idx <- params@w_min_idx[sp]
         
-        if (w_min_idx == w_max_idx) {
+        if (w_min_idx == length(params@w)) {
              params@initial_n[sp, w_min_idx] <- N0_vec[sp]
         } else {
-             params@initial_n[sp, w_min_idx:w_max_idx] <- n_exact_matrix[sp, w_min_idx:w_max_idx]
+             params@initial_n[sp, w_min_idx:length(params@w)] <- n_exact_matrix[sp, w_min_idx:length(params@w)]
         }
     }
 
@@ -97,6 +104,10 @@ steadySingleSpecies.MizerParams <- function(params, species = NULL,
     if (keep == "number") {
         factor <- number / getN(params)
         params@initial_n <- params@initial_n * factor
+    }
+
+    if (!is.null(reproduction_level)) {
+        params <- setBevertonHolt(params, reproduction_level = reproduction_level)
     }
 
     params@time_modified <- lubridate::now()
