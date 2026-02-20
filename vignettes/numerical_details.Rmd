@@ -104,11 +104,22 @@ $$ J_{i, j_{min}} = R_{dd, i} $$
 The equation for the first bin becomes:
 $$ \frac{N_{i,j_{min}}^{t+1} - N_{i,j_{min}}^t}{\Delta t} + \frac{J_{i, j_{min}+1}^{t+1} - R_{dd,i}}{\Delta w_{j_{min}}} = -\mu_i(w_{j_{min}}) N_{i,j_{min}}^{t+1} $$
 This involves $N_{i, j_{min}}^{t+1}$ and $N_{i, j_{min}+1}^{t+1}$.
+Comparing this to the general discretised equation translates to modifying the first row ($j=j_{min}$) of our tri-diagonal matrices:
+
+*   The $j_{min}-1$ term does not exist, so $A_{i,j_{min}} = 0$.
+*   The upward diffusion term from below the boundary is omitted, so $B_{i, j_{min}}$ does not have the $\frac{1}{2} \frac{d_i(w_{j_{min}})}{\Delta w_{j_{min}-1}}$ component:
+    $$ B_{i,j_{min}} = 1 + \Delta t \mu_i(w_{j_{min}}) + \frac{\Delta t}{\Delta w_{j_{min}}} \left( g_i(w_{j_{min}}) + \frac{1}{2} \frac{d_i(w_{j_{min}})}{\Delta w_{j_{min}}} \right) $$
+*   The coefficient $C_{i, j_{min}}$ remains unchanged from the general formula.
+*   The recruitment flux enters as a source term, so it is added to the right-hand side $S_{i, j_{min}}$:
+    $$ S_{i,j_{min}} = N_{i,j_{min}}^t + \frac{\Delta t}{\Delta w_{j_{min}}} R_{dd, i} $$
+
+(Additionally, for any size classes below the recruitment size $j < j_{min}$, we set all coefficients in the matrices $A$, $B$, $C$ and vector $S$ to $0$ to avoid any dynamics in that range).
 
 **At the largest size ($j=j_{max}$):**
 We typically assume that densities drop to zero beyond the maximum size, $N_{i, j_{max}+1} = 0$.
 The flux leaving the grid is:
 $$ J_{i, j_{max}+1} = g_i(w_{j_{max}}) N_{i, j_{max}} - \frac{1}{2} \frac{0 - d_i(w_{j_{max}}) N_{i, j_{max}}}{\Delta w_{j_{max}}} $$
+This means the term $C_{i, j_{max}}$ multiplying $N_{i, j_{max}+1}^{t+1}$ is not needed, so $C_{i, j_{max}} = 0$. The coefficients $A_{i, j_{max}}$ and $B_{i, j_{max}}$ use the standard formulas.
 
 ## Numerical Diffusion
 
