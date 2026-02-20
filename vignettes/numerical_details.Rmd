@@ -138,6 +138,51 @@ Since $\Delta w \approx w \ln(\beta)$, this is:
 $$ d_{num}(w) \approx g(w) w \ln(\beta) \left( 1 + \frac{g(w) \Delta t}{w \ln(\beta)} \right) = g(w) w \ln(\beta) + g(w)^2 \Delta t $$
 This means the numerical scheme behaves as if there is a diffusion $d_{num}$. This numerical diffusion has two components: one from spatial discretisation (scaling with $\Delta w$) and one from time stepping (scaling with $\Delta t$).
 
+## Steady-State Solution
+
+When solving the steady-state ODE instead of the time-dependent PDE, we are looking for a state where the population densities do not change over time, meaning $N_{i,j}^{t+1} = N_{i,j}^t = N_{i,j}^*$. 
+
+Substituting this into our discretised linear system:
+$$
+A_{i,j} N_{i,j-1}^* + B_{i,j} N_{i,j}^* + C_{i,j} N_{i,j+1}^* = S_{i,j}
+$$
+Recall that for $j > j_{min}$, $S_{i,j} = N_{i,j}^t$. The equation simplifies to:
+$$
+A_{i,j} N_{i,j-1}^* + (B_{i,j} - 1) N_{i,j}^* + C_{i,j} N_{i,j+1}^* = 0
+$$
+
+To find the steady-state population densities $N^*$, we formulate a new time-independent tridiagonal system:
+$$
+\tilde{A}_{i,j} N_{i,j-1}^* + \tilde{B}_{i,j} N_{i,j}^* + \tilde{C}_{i,j} N_{i,j+1}^* = \tilde{S}_{i,j}
+$$
+To eliminate the explicit dependence on the time step $\Delta t$, we can divide the equation by $\Delta t$. The modified coefficients $\tilde{A}, \tilde{B}, \tilde{C}$ defining the new tri-diagonal system are:
+$$
+\begin{aligned}
+\tilde{A}_{i,j} &= \frac{A_{i,j}}{\Delta t} = -\frac{1}{\Delta w_j} \left( g_i(w_{j-1}) + \frac{1}{2} \frac{d_i(w_{j-1})}{\Delta w_{j-1}} \right) \\
+\tilde{C}_{i,j} &= \frac{C_{i,j}}{\Delta t} = -\frac{1}{\Delta w_j} \left( \frac{1}{2} \frac{d_i(w_{j+1})}{\Delta w_j} \right) \\
+\tilde{B}_{i,j} &= \frac{B_{i,j} - 1}{\Delta t} = \mu_i(w_j) + \frac{1}{\Delta w_j} \left( g_i(w_j) + \frac{1}{2} \frac{d_i(w_j)}{\Delta w_j} + \frac{1}{2} \frac{d_i(w_j)}{\Delta w_{j-1}} \right)
+\end{aligned}
+$$
+Notice that $\tilde{A}_{i,j}$ and $\tilde{C}_{i,j}$ are exactly the expressions for $A_{i,j}$ and $C_{i,j}$ evaluated at $\Delta t = 1$. Similarly, $\tilde{B}_{i,j}$ is exactly the expression for $B_{i,j} - 1$ evaluated at $\Delta t = 1$.
+
+**Boundary conditions for the steady state:**
+
+For the smallest size ($j=j_{min}$), the original equation had a source term due to recruitment:
+$$
+S_{i, j_{min}} = N_{i,j_{min}}^t + \frac{\Delta t}{\Delta w_{j_{min}}} R_{dd, i}
+$$
+Following the same logic of setting $N^{t+1} = N^t = N^*$ and dividing by $\Delta t$, the right-hand side vector $\tilde{S}_{i,j}$ for the steady-state system becomes purely the recruitment flux term. If we again observe the original term $\frac{\Delta t}{\Delta w_{j_{min}}} R_{dd, i}$ when evaluated at $\Delta t = 1$, we get our new source vector:
+$$
+\tilde{S}_{i, j_{min}} = \frac{R_{dd, i}}{\Delta w_{j_{min}}}
+$$
+For all other $j > j_{min}$, $\tilde{S}_{i,j} = 0$. 
+
+The boundary condition modifications at the edges of the grid remain the same conceptually: $\tilde{A}_{i,j_{min}} = 0$, the upward diffusion term is omitted from $\tilde{B}_{i, j_{min}}$, and $\tilde{C}_{i, j_{max}} = 0$. For any $j < j_{min}$, all matrix entries remain zero.
+
+In code, this means that the steady-state coefficients for the matrix multiplication ($\tilde{A}, \tilde{B}, \tilde{C}$) and the constant vector ($\tilde{S}$) can be calculated by calling the standard coefficient function but simply setting $\Delta t = 1$, and dropping the $+1$ and $+N_{i,j}^t$ from the resulting $B$ and $S$ variables respectively.
+
+With these modified matrices, the steady-state densities can be calculated directly by solving the linear system avoiding the need to iterate step by step over time.
+
 
 # Resource Dynamics
 
