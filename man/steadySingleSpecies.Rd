@@ -2,7 +2,7 @@
 % Please edit documentation in R/steadySingleSpecies.R
 \name{steadySingleSpecies}
 \alias{steadySingleSpecies}
-\title{Set initial abundances to single-species steady state abundances}
+\title{Set initial abundances to solution of steady-state equation with current rates}
 \usage{
 steadySingleSpecies(
   params,
@@ -30,11 +30,18 @@ species are changed to their single-species steady state abundances.
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 This first calculates growth and death rates that arise from the current
-initial abundances. Then it uses these growth and death rates to
-determine the steady-state abundances of the selected species.
+initial abundances. Then it solves the steady-state equation with these
+growth and death rates and the current abundance at the smallest size.
+It sets the initial abundances of the selected species to this solution.
 }
 \details{
-The result of applying this function is of course not a multi-species steady
-state, because after changing the abundances of the selected species the
-growth and death rates will have changed.
+The function only changes the initial abundances. It does not adjust the
+reproduction parameters or any other parameters. Therefore the result of
+applying this function is of course not a steady state, because after
+changing the abundances of the selected species the growth, death and
+reproduction rates will have changed.
+
+If the \code{keep} argument is supplied, the solution for the selected species
+are rescaled to keep the specified quantity at the value they had before
+calling this function.
 }

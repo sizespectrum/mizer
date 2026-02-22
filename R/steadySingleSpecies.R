@@ -1,13 +1,20 @@
-#' Set initial abundances to single-species steady state abundances
+#' Set initial abundances to solution of steady-state equation with current rates
 #'
 #' `r lifecycle::badge("experimental")`
 #' This first calculates growth and death rates that arise from the current
-#' initial abundances. Then it uses these growth and death rates to
-#' determine the steady-state abundances of the selected species.
+#' initial abundances. Then it solves the steady-state equation with these
+#' growth and death rates and the current abundance at the smallest size.
+#' It sets the initial abundances of the selected species to this solution.
 #'
-#' The result of applying this function is of course not a multi-species steady
-#' state, because after changing the abundances of the selected species the
-#' growth and death rates will have changed.
+#' The function only changes the initial abundances. It does not adjust the
+#' reproduction parameters or any other parameters. Therefore the result of
+#' applying this function is of course not a steady state, because after
+#' changing the abundances of the selected species the growth, death and
+#' reproduction rates will have changed.
+#'
+#' If the `keep` argument is supplied, the solution for the selected species
+#' are rescaled to keep the specified quantity at the value they had before
+#' calling this function.
 #'
 #' @param params A MizerParams object
 #' @param species The species to be selected. Optional. By default all target
@@ -39,26 +46,16 @@ steadySingleSpecies.MizerParams <- function(params, species = NULL,
     growth_all <- getEGrowth(params)
     mort_all <- getMort(params)
 
-    # Loop through all species and calculate their steady state abundances
-    # using the current growth and mortality rates
-    
-    # Save original reproduction levels to restore them after changing abundances
-    if ("R_max" %in% names(params@species_params)) {
-        reproduction_level <- getReproductionLevel(params)
-    } else {
-        reproduction_level <- NULL
-    }
-
-    # Loop over species to keep checks
+    # Loop over species to make checks
     N0_vec <- numeric(nrow(params@species_params))
     names(N0_vec) <- params@species_params$species
     for (sp in species) {
         w_min_idx <- params@w_min_idx[sp]
         w_max_idx <- sum(params@w <= params@species_params[sp, "w_max"])
-        
+
         # Check that species can grow to maturity at least
         w_mat_idx <- sum(params@w <= params@species_params[sp, "w_mat"])
-        
+
         # Check growth (existing check)
         growth <- growth_all[sp, ]
         zero_growth_idx <- which(growth[w_min_idx:w_max_idx] == 0)
@@ -70,23 +67,23 @@ steadySingleSpecies.MizerParams <- function(params, species = NULL,
                 warning(sp, " has zero growth rate after maturity size")
             }
         }
-        
+
         N0_vec[sp] <- params@initial_n[sp, w_min_idx]
         params@initial_n[sp, ] <- 0
     }
-    
+
     # Calculate steady state for all species at once
     n_exact_matrix <- get_steady_state_n(params, growth_all, mort_all, N0_vec)
-    
+
     # Update initial_n for selected species
     for (sp in species) {
         w_min_idx <- params@w_min_idx[sp]
-        w_min_idx <- params@w_min_idx[sp]
-        
+
         if (w_min_idx == length(params@w)) {
              params@initial_n[sp, w_min_idx] <- N0_vec[sp]
         } else {
-             params@initial_n[sp, w_min_idx:length(params@w)] <- n_exact_matrix[sp, w_min_idx:length(params@w)]
+             params@initial_n[sp, w_min_idx:length(params@w)] <-
+                 n_exact_matrix[sp, w_min_idx:length(params@w)]
         }
     }
 
@@ -104,10 +101,6 @@ steadySingleSpecies.MizerParams <- function(params, species = NULL,
     if (keep == "number") {
         factor <- number / getN(params)
         params@initial_n <- params@initial_n * factor
-    }
-
-    if (!is.null(reproduction_level)) {
-        params <- setBevertonHolt(params, reproduction_level = reproduction_level)
     }
 
     params@time_modified <- lubridate::now()

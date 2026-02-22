@@ -1,13 +1,22 @@
-test_that("steadySingleSpecies only affects selected species", {
-    params <- steadySingleSpecies(NS_params, species = "Cod")
+test_that("steadySingleSpecies only affects abundance of selected species", {
+    params1 <- NS_params
+    # make sure it is not in steady state
+    params1@initial_n[,50:80] <- params1@initial_n[,50:80] * 2
+
+    params2 <- steadySingleSpecies(params1, species = "Cod") |>
+        suppressWarnings()
     # Haddock unaffected
-    expect_identical(params@initial_n["Haddock", ],
-                     NS_params@initial_n["Haddock", ])
+    expect_identical(params2@initial_n["Haddock", ],
+                     params1@initial_n["Haddock", ])
     # but Cod changed
-    expect_gt(params@initial_n["Cod", 100],
-              NS_params@initial_n["Cod", 100])
+    expect_lt(params2@initial_n["Cod", 100],
+              params1@initial_n["Cod", 100])
     # Test that steadySingleSpecies updates time_modified
-    expect_false(identical(NS_params@time_modified, params@time_modified))
+    expect_false(identical(params1@time_modified, params2@time_modified))
+    # Nothing else changed
+    params2@initial_n <- params1@initial_n
+    params2@time_modified <- params1@time_modified
+    expect_identical(params1, params2)
 })
 
 test_that("steadySingleSpecies is idempotent on single-species model", {
@@ -28,7 +37,7 @@ test_that("steadySingleSpecies `keep` argument works", {
 
 test_that("steadySingleSpecies produces steady state with diffusion", {
     params <- NS_params
-    
+
     # Enable diffusion for Cod
     species <- "Cod"
     n <- params@species_params[species, "n"]
@@ -38,16 +47,16 @@ test_that("steadySingleSpecies produces steady state with diffusion", {
     # Increase minimum size to test boundary condition
     params@w_min_idx[species] <- 10
     params@species_params[species, "w_min"] <- params@w[10]
-    
+
     # Keep original params to calculate rates that steadySingleSpecies used
     params_orig <- params
-    
+
     params <- steadySingleSpecies(params, species = species)
-    
+
     # Now that we have the steady state, we can use setBevertonHolt() to
     # set the reproduction parameters to values that are consistent with it.
     suppressWarnings(params <- setBevertonHolt(params, reproduction_level = 0.5))
-    
+
     # And then the steady state should be preserved by project()
     sim <- project(params, t_max = 5)
     initial_n <- params@initial_n[species, ]
