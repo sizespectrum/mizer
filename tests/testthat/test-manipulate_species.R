@@ -209,12 +209,8 @@ test_that("removeSpecies works with 3d pred kernel", {
     expect_unchanged(params1, params2)
 })
 test_that("removeSpecies works correctly on gear_params", {
-    # We'll check that the resulting gear_params lead to the same selectivity
-    # and catchability
     params <- removeSpecies(example_params(), "Cod")
     expect_equal(nrow(params@gear_params), 1)
-    params2 <- setFishing(params)
-    expect_unchanged(params, params2)
 })
 
 test_that("adding and then removing species leaves params unaltered", {

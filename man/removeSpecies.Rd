@@ -24,6 +24,10 @@ An object of type \linkS4class{MizerParams}
 This function simply removes all entries from the MizerParams object that
 refer to the selected species. It does not recalculate the steady state for
 the remaining species or retune their reproductive efficiency.
+
+If a gear was targeting only the removed species, then this function will
+NOT remove that gear. If you want to also remove that gear then you can do
+that by calling \code{\link[=setFishing]{setFishing()}}.
 }
 \examples{
 params <- NS_params

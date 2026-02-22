@@ -321,6 +321,10 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
 #' refer to the selected species. It does not recalculate the steady state for
 #' the remaining species or retune their reproductive efficiency.
 #'
+#' If a gear was targeting only the removed species, then this function will
+#' NOT remove that gear. If you want to also remove that gear then you can do
+#' that by calling [setFishing()].
+#'
 #' @param params A mizer params object for the original system.
 #' @param species The species to be removed. A vector of species names, or a
 #'   numeric vector of species indices, or a logical vector indicating for
