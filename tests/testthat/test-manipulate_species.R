@@ -270,38 +270,41 @@ test_that("renameGear works", {
     p <- example_params()
     # Get original gear names
     original_gears <- dimnames(p@selectivity)$gear
+    gear1 <- original_gears[1]
+    gear2 <- original_gears[2]
 
     # Define replacement
-    replace <- c(`Otter trawl` = "Otter", `Bottom trawl` = "Bottom")
+    replace <- c("new_gear1", "new_gear2")
+    names(replace) <- c(gear1, gear2)
 
     # Rename gears
     p2 <- renameGear(p, replace)
 
     # Check that gear_params is updated
-    expect_true("Otter" %in% p2@gear_params$gear)
-    expect_true("Bottom" %in% p2@gear_params$gear)
-    expect_false("Otter trawl" %in% p2@gear_params$gear)
-    expect_false("Bottom trawl" %in% p2@gear_params$gear)
+    expect_true("new_gear1" %in% p2@gear_params$gear)
+    expect_true("new_gear2" %in% p2@gear_params$gear)
+    expect_false(gear1 %in% p2@gear_params$gear)
+    expect_false(gear2 %in% p2@gear_params$gear)
 
     # Check that selectivity dimension names are updated
     new_gears <- dimnames(p2@selectivity)$gear
-    expect_true("Otter" %in% new_gears)
-    expect_true("Bottom" %in% new_gears)
-    expect_false("Otter trawl" %in% new_gears)
-    expect_false("Bottom trawl" %in% new_gears)
+    expect_true("new_gear1" %in% new_gears)
+    expect_true("new_gear2" %in% new_gears)
+    expect_false(gear1 %in% new_gears)
+    expect_false(gear2 %in% new_gears)
 
     # Check that catchability dimension names are updated
     expect_identical(dimnames(p2@catchability)$gear, new_gears)
 
     # Check that initial_effort names are updated
-    expect_true("Otter" %in% names(p2@initial_effort))
-    expect_true("Bottom" %in% names(p2@initial_effort))
-    expect_false("Otter trawl" %in% names(p2@initial_effort))
-    expect_false("Bottom trawl" %in% names(p2@initial_effort))
+    expect_true("new_gear1" %in% names(p2@initial_effort))
+    expect_true("new_gear2" %in% names(p2@initial_effort))
+    expect_false(gear1 %in% names(p2@initial_effort))
+    expect_false(gear2 %in% names(p2@initial_effort))
 
     # Check that the values in initial_effort are preserved
-    expect_equal(p2@initial_effort[["Otter"]], p@initial_effort[["Otter trawl"]])
-    expect_equal(p2@initial_effort[["Bottom"]], p@initial_effort[["Bottom trawl"]])
+    expect_equal(p2@initial_effort[["new_gear1"]], p@initial_effort[[gear1]])
+    expect_equal(p2@initial_effort[["new_gear2"]], p@initial_effort[[gear2]])
 
     # Check that params object is valid
     expect_true(validObject(p2))
