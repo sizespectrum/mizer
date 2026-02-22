@@ -201,15 +201,18 @@ test_that("removeSpecies works with 3d pred kernel", {
     # It should make no difference whether we first set full pred kernel and
     # then remove a species, or the other way around.
     params1 <- example_params()
+    sp_name <- params1@species_params$species[3]
     params1 <- setPredKernel(params1, pred_kernel = getPredKernel(params1))
-    params1 <- removeSpecies(params1, "Cod")
+    params1 <- removeSpecies(params1, sp_name)
     params2 <- example_params()
-    params2 <- removeSpecies(params2, "Cod")
+    params2 <- removeSpecies(params2, sp_name)
     params2 <- setPredKernel(params2, pred_kernel = getPredKernel(params2))
     expect_unchanged(params1, params2)
 })
 test_that("removeSpecies works correctly on gear_params", {
-    params <- removeSpecies(example_params(), "Cod")
+    p <- example_params()
+    sp_name <- p@species_params$species[3]
+    params <- removeSpecies(p, sp_name)
     expect_equal(nrow(params@gear_params), 1)
 })
 

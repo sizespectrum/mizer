@@ -35,8 +35,10 @@ test_that("projectToSteady() works", {
     
     # Check extinction
     params@psi[5:6, ] <- 0
+    sp1 <- params@species_params$species[5]
+    sp2 <- params@species_params$species[6]
     expect_warning(projectToSteady(params) |> suppressMessages(),
-                   "Dab, Whiting are going extinct.")
+                   paste0(sp1, ", ", sp2, " are going extinct."))
 })
 
 # steady ----
@@ -98,9 +100,14 @@ test_that("valid_species_arg works", {
                    "The following species do not exist: non, sense")
     expect_identical(s, vector(mode = "character"))
 
-    expect_identical(valid_species_arg(NS_params, c("Cod", "Sandeel")),
-                     c("Cod", "Sandeel"))
-    expect_identical(valid_species_arg(NS_params, c("Sprat", "Sandeel"),
+    sp1 <- NS_params@species_params$species[11]
+    sp2 <- NS_params@species_params$species[2]
+    sp_sprat <- NS_params@species_params$species[1]
+    sp3 <- NS_params@species_params$species[3]
+
+    expect_identical(valid_species_arg(NS_params, c(sp1, sp2)),
+                     c(sp1, sp2))
+    expect_identical(valid_species_arg(NS_params, c(sp_sprat, sp2),
                                        return.logical = TRUE),
                      c(TRUE, TRUE, rep(FALSE, 10)))
     expect_error(
@@ -112,9 +119,9 @@ test_that("valid_species_arg works", {
                  "A numeric 'species' argument should only contain the integers 1 to 12")
     expect_identical(s, vector(mode = "character"))
     expect_identical(valid_species_arg(NS_params, c(3, 1)),
-                     c("N.pout", "Sprat"))
+                     c(sp3, sp_sprat))
     expect_identical(valid_species_arg(NS_params, c(1, 3)),
-                     c("Sprat", "N.pout"))
+                     c(sp_sprat, sp3))
     expect_identical(valid_species_arg(NS_params, c(3, 1),
                                        return.logical = TRUE),
                      c(TRUE, FALSE, TRUE, rep(FALSE, 9)))
@@ -127,7 +134,7 @@ test_that("valid_species_arg works", {
                  "The boolean `species` argument has the wrong length")
     expect_identical(valid_species_arg(NS_params, 
                                        c(TRUE, FALSE, TRUE, rep(FALSE, 9))),
-                     c("Sprat", "N.pout"))
+                     c(sp_sprat, sp3))
     expect_identical(valid_species_arg(NS_params, 
                                        c(TRUE, FALSE, TRUE, rep(FALSE, 9)),
                                        return.logical = TRUE),
@@ -138,8 +145,8 @@ test_that("valid_species_arg works", {
         "No species have been selected.")
     # called with MizerSim object
     sim <- project(NS_params, t_max = 1, dt = 1)
-    expect_identical(valid_species_arg(sim, "Cod"),
-                     valid_species_arg(NS_params, "Cod"))
+    expect_identical(valid_species_arg(sim, sp1),
+                     valid_species_arg(NS_params, sp1))
     # called without species
     expect_identical(valid_species_arg(NS_params),
                      valid_species_arg(NS_params, 

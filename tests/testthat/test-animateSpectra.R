@@ -1,6 +1,7 @@
 test_that("animateSpectra does not throw error", {
     sim <- project(example_params(), t_max = 2, t_save = 1, effort = 1)
-    expect_error(animateSpectra(sim, species = c("Cod", "Haddock"),
+    sp <- sim@params@species_params$species
+    expect_error(animateSpectra(sim, species = sp[1:2],
                                 time_range = c(1, 2),
                                 wlim = c(1, 1000),
                                 ylim = c(1e6, 1e9),
@@ -19,11 +20,12 @@ test_that("animateSpectra handles species parameter correctly", {
     sim <- project(example_params(), t_max = 2, t_save = 1, effort = 1)
 
     # Test with specific species
-    result <- animateSpectra(sim, species = "Cod", time_range = c(1, 2))
+    sp <- sim@params@species_params$species
+    result <- animateSpectra(sim, species = sp[1], time_range = c(1, 2))
     expect_s3_class(result, "plotly")
 
     # Test with multiple species
-    result <- animateSpectra(sim, species = c("Cod", "Haddock"), time_range = c(1, 2))
+    result <- animateSpectra(sim, species = sp[1:2], time_range = c(1, 2))
     expect_s3_class(result, "plotly")
 
     # Test with NULL (default - all species)
@@ -136,7 +138,8 @@ test_that("animateSpectra uses consistent colors matching linecolour", {
     sim <- project(example_params(), t_max = 2, t_save = 1, effort = 1)
 
     # Get the result
-    result <- animateSpectra(sim, species = c("Cod", "Haddock"),
+    sp <- sim@params@species_params$species
+    result <- animateSpectra(sim, species = sp[1:2],
                             time_range = c(1, 2))
 
     # The plotly object should be created
@@ -159,7 +162,8 @@ test_that("animateSpectra maintains color consistency when species go extinct", 
     sim <- project(example_params(), t_max = 2, t_save = 1, effort = 10)
 
     # Test with species selection
-    result <- animateSpectra(sim, species = c("Cod", "Haddock"),
+    sp <- sim@params@species_params$species
+    result <- animateSpectra(sim, species = sp[1:2],
                             time_range = c(1, 2))
 
     expect_s3_class(result, "plotly")

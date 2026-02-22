@@ -75,7 +75,8 @@ sim@params@species_params[["b"]] <- 3.13
 p <- plotGrowthCurves(sim, species = "10", max_age = 50)
 expect_doppelganger("Plot Single Growth Curve", p)
 
-p <- plotDiet(NS_params, species = "Haddock")
+sp_name <- NS_params@species_params$species[10]
+p <- plotDiet(NS_params, species = sp_name)
 expect_doppelganger("Plot Diet", p)
 })
 

@@ -1,16 +1,19 @@
 test_that("steadySingleSpecies only affects abundance of selected species", {
     params1 <- NS_params
+    sp_names <- params1@species_params$species
+    species1 <- sp_names[11]
+    species2 <- sp_names[10]
     # make sure it is not in steady state
     params1@initial_n[,50:80] <- params1@initial_n[,50:80] * 2
 
-    params2 <- steadySingleSpecies(params1, species = "Cod") |>
+    params2 <- steadySingleSpecies(params1, species = species1) |>
         suppressWarnings()
     # Haddock unaffected
-    expect_identical(params2@initial_n["Haddock", ],
-                     params1@initial_n["Haddock", ])
+    expect_identical(params2@initial_n[species2, ],
+                     params1@initial_n[species2, ])
     # but Cod changed
-    expect_lt(params2@initial_n["Cod", 100],
-              params1@initial_n["Cod", 100])
+    expect_lt(params2@initial_n[species1, 100],
+              params1@initial_n[species1, 100])
     # Test that steadySingleSpecies updates time_modified
     expect_false(identical(params1@time_modified, params2@time_modified))
     # Nothing else changed
@@ -39,7 +42,7 @@ test_that("steadySingleSpecies produces steady state with diffusion", {
     params <- NS_params
 
     # Enable diffusion for Cod
-    species <- "Cod"
+    species <- params@species_params$species[11]
     n <- params@species_params[species, "n"]
     d <- 0.1 * params@w^(n + 1)
     diffusion(params)[species, ] <- d

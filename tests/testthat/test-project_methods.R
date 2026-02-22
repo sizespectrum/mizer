@@ -218,10 +218,11 @@ test_that("getPredMort passes correct time", {
 })
 
 test_that("interaction is right way round in getPredMort function", {
-    inter[, "Dab"] <- 0  # Dab not eaten by anything
+    sp_name <- NS_species_params_gears$species[5]
+    inter[, sp_name] <- 0  # Dab not eaten by anything
     params <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
     m2 <- getPredMort(params, get_initial_n(params), params@cc_pp)
-    expect_true(all(m2["Dab", ] == 0))
+    expect_true(all(m2[sp_name, ] == 0))
 })
 
 test_that("getPredMort is independent of volume", {

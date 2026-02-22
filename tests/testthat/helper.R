@@ -10,7 +10,7 @@ example_params <- function() {
 
     gp <- data.frame(
         gear = c("Otter trawl", "Bottom trawl", "Bottom trawl"),
-        species = c("Cod", "Cod", "Plaice"),
+        species = c(sp$species[3], sp$species[3], sp$species[1]),
         catchability = c(0.1, 0.2, 0.3),
         sel_func = c("sigmoid_length", "knife_edge", "double_sigmoid_length"),
         knife_edge_size = c(NA, 40, NA),
