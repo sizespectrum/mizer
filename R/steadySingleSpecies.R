@@ -63,8 +63,6 @@ steadySingleSpecies.MizerParams <- function(params, species = NULL,
             first_zero_idx <- w_min_idx + zero_growth_idx[1] - 1
             if (first_zero_idx < w_mat_idx) {
                 stop(sp, " cannot grow to maturity")
-            } else {
-                warning(sp, " has zero growth rate after maturity size")
             }
         }
 
