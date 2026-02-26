@@ -200,21 +200,8 @@ reference:
   - setFishing
 - title: Calculating rates
   contents:
-  - getRates
-  - getEncounter
-  - getEGrowth
-  - getERepro
-  - getEReproAndGrowth
-  - getFMort
-  - getFMortGear
-  - getFeedingLevel
+  - has_concept("rate functions")
   - getCriticalFeedingLevel
-  - getMort
-  - getResourceMort
-  - getPredMort
-  - getPredRate
-  - getRDD
-  - getRDI
 - title: Extending Mizer
   contents:
   - setRateFunction
@@ -239,6 +226,7 @@ reference:
   contents:
   - has_concept("functions calculating density-dependent reproduction rate")
   - getReproductionLevel
+  - getRequiredRDD
 - title: Internal rate functions
   description: These functions are used by project() to calculate
     instantaneous rates at each time step. You should use the get...()
