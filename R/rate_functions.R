@@ -87,7 +87,8 @@ getEncounter.MizerParams <- function(params, n = initialN(params),
     f <- get(params@rates_funcs$Encounter)
     encounter <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
     dimnames(encounter) <- dimnames(params@metab)
-    encounter
+    MizerRate(encounter, rate_name = "Encounter rate",
+             units = "g/year", params = params)
 }
 
 
@@ -149,7 +150,8 @@ getFeedingLevel.MizerParams <- function(object, n, n_pp, n_other,
                                                 t = t), 
                            t = t)
     dimnames(feeding_level) <- dimnames(params@metab)
-    return(feeding_level)
+    return(MizerRate(feeding_level, rate_name = "Feeding level",
+                     params = params))
 }
 
 #' @export
@@ -200,7 +202,9 @@ getCriticalFeedingLevel <- function(params) {
 #' @export
 getCriticalFeedingLevel.MizerParams <- function(params) {
     params <- validParams(params)
-    params@metab / params@intake_max / params@species_params$alpha
+    result <- params@metab / params@intake_max / params@species_params$alpha
+    MizerRate(result, rate_name = "Critical feeding level",
+             params = params)
 }
 
 
@@ -249,7 +253,8 @@ getEReproAndGrowth.MizerParams <- function(params, n = initialN(params),
            feeding_level = getFeedingLevel(params, n, n_pp, n_other, 
                                            time_range = t))
     dimnames(e) <- dimnames(params@metab)
-    e
+    MizerRate(e, rate_name = "Energy for growth and reproduction",
+             units = "g/year", params = params)
 }
 
 #' Get predation rate
@@ -360,9 +365,9 @@ getPredMort.MizerParams <- function(object, n, n_pp, n_other,
     pred_mort <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
                    pred_rate = getPredRate(params, n = n, n_pp = n_pp, 
                                            n_other = n_other, t = t))
-    dimnames(pred_mort) <- list(prey = dimnames(params@initial_n)$sp,
-                                w_prey = dimnames(params@initial_n)$w)
-    pred_mort
+    dimnames(pred_mort) <- dimnames(params@metab)
+    MizerRate(pred_mort, rate_name = "Predation mortality",
+             units = "1/year", params = params)
 }
 
 #' @export
@@ -673,6 +678,8 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE) {
                                            n_other = n_other, 
                                            time_range = t))
         dimnames(fmort) <- dimnames(params@metab)
+        fmort <- MizerRate(fmort, rate_name = "Fishing mortality",
+                           units = "1/year", params = params)
         return(fmort)
     } else if (length(effort) == no_gears) {
         fmort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
@@ -683,6 +690,8 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE) {
                                            n_other = n_other, 
                                            time_range = t))
         dimnames(fmort) <- dimnames(params@metab)
+        fmort <- MizerRate(fmort, rate_name = "Fishing mortality",
+                           units = "1/year", params = params)
         return(fmort)
     } else {
         stop("Invalid effort argument")
@@ -773,9 +782,9 @@ getMort.MizerParams <- function(params,
            f_mort = getFMort(params, effort), 
            pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
                                    n_other = n_other, time_range = t))
-    dimnames(z) <- list(prey = dimnames(params@initial_n)$sp,
-                        w_prey = dimnames(params@initial_n)$w)
-    return(z)
+    dimnames(z) <- dimnames(params@metab)
+    return(MizerRate(z, rate_name = "Total mortality",
+                     units = "1/year", params = params))
 }
 
 #' Alias for `getMort()`
@@ -833,7 +842,8 @@ getERepro.MizerParams <- function(params, n = initialN(params),
                 e = getEReproAndGrowth(params, n = n, n_pp = n_pp,
                                        n_other = n_other, t = t))
     dimnames(erepro) <- dimnames(params@metab)
-    erepro
+    MizerRate(erepro, rate_name = "Energy for reproduction",
+             units = "g/year", params = params)
 }
 
 #' Alias for `getERepro()`
@@ -889,7 +899,8 @@ getEGrowth.MizerParams <- function(params, n = initialN(params),
            e = getEReproAndGrowth(params, n = n, n_pp = n_pp, 
                                   n_other = n_other, t = t))
     dimnames(g) <- dimnames(params@metab)
-    g
+    MizerRate(g, rate_name = "Growth rate",
+             units = "g/year", params = params)
 }
 
 
@@ -1071,7 +1082,8 @@ getFlux.MizerParams <- function(params, n = initialN(params),
     }
     
     dimnames(flux) <- dimnames(params@metab)
-    flux
+    MizerRate(flux, rate_name = "Flux",
+             units = "1/year", params = params)
 }
 
 
