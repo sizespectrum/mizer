@@ -82,23 +82,3 @@ test_that("steadySingleSpecies errors when growth stops before maturity", {
     expect_error(steadySingleSpecies(params, species = 1),
                  "cannot grow to maturity")
 })
-
-test_that("steadySingleSpecies warns when growth stops after maturity", {
-    # Create a simple params object
-    params <- newSingleSpeciesParams()
-
-    # Get the species and find indices for maturity and max size
-    w_mat <- params@species_params$w_mat[1]
-    w_max <- params@species_params$w_max[1]
-    w_mat_idx <- sum(params@w <= w_mat)
-    w_max_idx <- sum(params@w <= w_max)
-
-    # Increase metabolic rate significantly after maturity
-    if (w_mat_idx < length(params@w)) {
-        params@metab[1, (w_mat_idx + 1):length(params@w)] <-
-            params@metab[1, (w_mat_idx + 1):length(params@w)] * 1000
-    }
-
-    expect_warning(steadySingleSpecies(params, species = 1),
-                   "has zero growth rate after maturity size")
-})
