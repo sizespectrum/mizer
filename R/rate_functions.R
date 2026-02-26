@@ -86,7 +86,6 @@ getEncounter.MizerParams <- function(params, n = initialN(params),
     )
     f <- get(params@rates_funcs$Encounter)
     encounter <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
-    dimnames(encounter) <- dimnames(params@metab)
     MizerRate(encounter, rate_name = "Encounter rate",
              units = "g/year", params = params)
 }
@@ -149,7 +148,6 @@ getFeedingLevel.MizerParams <- function(object, n, n_pp, n_other,
                        encounter = getEncounter(params, n, n_pp, n_other, 
                                                 t = t), 
                            t = t)
-    dimnames(feeding_level) <- dimnames(params@metab)
     return(MizerRate(feeding_level, rate_name = "Feeding level",
                      params = params))
 }
@@ -252,7 +250,6 @@ getEReproAndGrowth.MizerParams <- function(params, n = initialN(params),
            encounter = getEncounter(params, n, n_pp, n_other, t = t), 
            feeding_level = getFeedingLevel(params, n, n_pp, n_other, 
                                            time_range = t))
-    dimnames(e) <- dimnames(params@metab)
     MizerRate(e, rate_name = "Energy for growth and reproduction",
              units = "g/year", params = params)
 }
@@ -365,7 +362,6 @@ getPredMort.MizerParams <- function(object, n, n_pp, n_other,
     pred_mort <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
                    pred_rate = getPredRate(params, n = n, n_pp = n_pp, 
                                            n_other = n_other, t = t))
-    dimnames(pred_mort) <- dimnames(params@metab)
     MizerRate(pred_mort, rate_name = "Predation mortality",
              units = "1/year", params = params)
 }
@@ -677,7 +673,6 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE) {
                    pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
                                            n_other = n_other, 
                                            time_range = t))
-        dimnames(fmort) <- dimnames(params@metab)
         fmort <- MizerRate(fmort, rate_name = "Fishing mortality",
                            units = "1/year", params = params)
         return(fmort)
@@ -689,7 +684,6 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE) {
                    pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
                                            n_other = n_other, 
                                            time_range = t))
-        dimnames(fmort) <- dimnames(params@metab)
         fmort <- MizerRate(fmort, rate_name = "Fishing mortality",
                            units = "1/year", params = params)
         return(fmort)
@@ -782,7 +776,6 @@ getMort.MizerParams <- function(params,
            f_mort = getFMort(params, effort), 
            pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
                                    n_other = n_other, time_range = t))
-    dimnames(z) <- dimnames(params@metab)
     return(MizerRate(z, rate_name = "Total mortality",
                      units = "1/year", params = params))
 }
@@ -841,7 +834,6 @@ getERepro.MizerParams <- function(params, n = initialN(params),
     erepro <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t, 
                 e = getEReproAndGrowth(params, n = n, n_pp = n_pp,
                                        n_other = n_other, t = t))
-    dimnames(erepro) <- dimnames(params@metab)
     MizerRate(erepro, rate_name = "Energy for reproduction",
              units = "g/year", params = params)
 }
@@ -898,7 +890,6 @@ getEGrowth.MizerParams <- function(params, n = initialN(params),
                                n_other = n_other, t = t), 
            e = getEReproAndGrowth(params, n = n, n_pp = n_pp, 
                                   n_other = n_other, t = t))
-    dimnames(g) <- dimnames(params@metab)
     MizerRate(g, rate_name = "Growth rate",
              units = "g/year", params = params)
 }
@@ -1081,7 +1072,6 @@ getFlux.MizerParams <- function(params, n = initialN(params),
         flux[mask_below] <- 0
     }
     
-    dimnames(flux) <- dimnames(params@metab)
     MizerRate(flux, rate_name = "Flux",
              units = "1/year", params = params)
 }

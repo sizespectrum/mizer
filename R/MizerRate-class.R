@@ -35,6 +35,9 @@ MizerRate <- function(x, rate_name = NULL, units = NULL, params = NULL) {
     if (!is.matrix(x)) {
         stop("`x` must be a matrix.")
     }
+    if (!is.null(params)) {
+        dimnames(x) <- dimnames(params@metab)
+    }
     structure(x,
         class = c("MizerRate", "matrix", "array"),
         rate_name = rate_name,
