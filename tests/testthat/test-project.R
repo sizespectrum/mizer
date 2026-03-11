@@ -368,3 +368,11 @@ test_that("t_max less than effort array duration uses effort times", {
   # Should stop at year 3
   expect_equal(max(as.numeric(dimnames(sim@n)[[1]])), 3)
 })
+
+test_that("project does not change the params object", {
+    params <- NS_params
+    params@diffusion[] <- 1
+    old_params <- unserialize(serialize(params, NULL))
+    sim <- project(params, t_max = 1)
+    expect_identical(params, old_params)
+})
