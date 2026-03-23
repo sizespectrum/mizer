@@ -274,17 +274,18 @@ The rate at which food is consumed is then
 \begin{equation}
 (1-f_i(w))E_{i}(w)=f_i(w)\, h_i(w).
 \end{equation}
+Furthermore only a proportion $\alpha_i$ of the consumed food is absorbed.
 
 ## Metabolic losses
 
-Some of the consumed food is used to fuel the needs for metabolism and 
+Some of the absorbed food is used to fuel the needs for metabolism and 
 activity and movement, at a rate ${\tt metab}_i(w)$. By default 
 this is made up out of standard metabolism, scaling with exponent $p$, and
 loss due to activity and movement, scaling with exponent $1$:
 \[{\tt metab}_i(w) = k_{s.i}\,w^p + k_i\,w.\]
 See the help page for `setMetabolicRate()`. 
 
-The remaining rate, if any, is assimilated with an efficiency $\alpha_i$ and 
+The remaining rate, if any,  
 is then available for growth and reproduction. So the rate at which energy
 becomes available for growth and reproduction is
 \begin{equation}
