@@ -7,3 +7,4 @@ docs/*/*.md
 docs/*.md
 docs/dev
 .vscode
+.positai
