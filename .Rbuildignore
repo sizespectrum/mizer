@@ -45,3 +45,5 @@
 ^vignettes/mizer.Rmd
 ^doc$
 ^Meta$
+^\.positai$
+^\.claude$
