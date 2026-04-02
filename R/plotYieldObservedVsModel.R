@@ -185,7 +185,7 @@ plotYieldObservedVsModel.MizerSim <- function(object, species = NULL, ratio = FA
 #' @rdname plotYieldObservedVsModel
 #' @export
 plotlyYieldObservedVsModel <- function(object, species = NULL, ratio = FALSE,
-                                         log_scale = TRUE, return_data = FALSE, 
+                                         log_scale = TRUE,
                                          show_unobserved = FALSE, ...) {
     argg <- as.list(environment())
     argg$labels <- FALSE
