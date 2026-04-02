@@ -7,7 +7,7 @@
 getSSB(object)
 }
 \arguments{
-\item{object}{An object of class \code{MizerParams} or MizerSim`.}
+\item{object}{An object of class \code{MizerParams} or \code{MizerSim}.}
 }
 \value{
 If called with a MizerParams object, a vector with the SSB in
@@ -16,9 +16,10 @@ array (time x species) containing the SSB in grams at each time step
 for all species.
 }
 \description{
-Calculates the spawning stock biomass (SSB) through time of the species in
-the \code{MizerSim} class. SSB is calculated as the total mass of all mature
-individuals.
+Calculates the spawning stock biomass (SSB) for each species. For a
+\code{MizerSim} object this is returned for every saved time; for a
+\code{MizerParams} object it is calculated from the initial state. SSB is the
+total mass of all mature individuals.
 }
 \examples{
 ssb <- getSSB(NS_sim)

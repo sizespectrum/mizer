@@ -56,6 +56,53 @@ test_that("validSpeciesParams converts from length to weight", {
     expect_identical(sp2$w_max, c(0.01, 0.08))
 })
 
+test_that("validGivenSpeciesParams checks documented error cases and signals inconsistency info", {
+    expect_error(
+        validGivenSpeciesParams(data.frame(w_max = 1)),
+        "needs a column 'species'"
+    )
+    expect_error(
+        validGivenSpeciesParams(data.frame(species = c("a", "a"), w_max = c(1, 2))),
+        "multiple rows for the same species"
+    )
+    expect_error(
+        validGivenSpeciesParams(data.frame(species = c("a", "b"), w_max = c(1, NA))),
+        "specify maximum sizes for all species"
+    )
+
+    sp <- data.frame(species = c("a", "b"),
+                     l_max = c(10, 20),
+                     w_max = c(1, 1000),
+                     a = 0.01,
+                     b = 3)
+    expect_condition(
+        validGivenSpeciesParams(sp),
+        "For the following species I will ignore your value for l_max",
+        class = "info_about_default"
+    )
+})
+
+test_that("validSpeciesParams sets the documented defaults", {
+    sp <- data.frame(species = c("a", "b"),
+                     w_max = c(10, 100),
+                     w_mat = c(NA, 20),
+                     w_min = c(NA, 1),
+                     alpha = c(NA, 0.5),
+                     interaction_resource = c(NA, 2),
+                     n = c(NA, 0.8),
+                     p = c(NA, 0.7))
+
+    sp2 <- validSpeciesParams(sp)
+
+    expect_equal(sp2$w_repro_max, sp2$w_max)
+    expect_equal(sp2$w_mat, c(10 / 4, 20))
+    expect_equal(sp2$w_min, c(0.001, 1))
+    expect_equal(sp2$alpha, c(0.6, 0.5))
+    expect_equal(sp2$interaction_resource, c(1, 2))
+    expect_equal(sp2$n, c(3/4, 0.8))
+    expect_equal(sp2$p, c(3/4, 0.7))
+})
+
 test_that("completeSpeciesParams is a deprecated alias for validSpeciesParams", {
     sp <- data.frame(species = c("a", "b"),
                      w_max = c(10, 100),

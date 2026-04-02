@@ -37,6 +37,12 @@ Calculates the energy rate \eqn{g_i(w)} (grams/year) available by species and
 size for growth after metabolism, movement and reproduction have been
 accounted for.
 }
+\details{
+The growth rate is calculated as the difference between the energy available
+for reproduction and growth (obtainable with \code{\link[=getEReproAndGrowth]{getEReproAndGrowth()}}) and
+the energy used for reproduction (obtainable with \code{\link[=getERepro]{getERepro()}}), but is
+set to 0 if the result would be negative.
+}
 \section{Your own growth rate function}{
 
 By default \code{\link[=getEGrowth]{getEGrowth()}} calls \code{\link[=mizerEGrowth]{mizerEGrowth()}}. However you can

@@ -2,10 +2,49 @@
 % Please edit documentation in R/project_n.R
 \name{project_n}
 \alias{project_n}
-\title{Advance abundance density by one time step}
+\title{Advance species abundance densities by one time step}
 \usage{
 project_n(params, r, n, dt, a, b, S, idx, w_min_idx_array_ref, no_sp, no_w)
 }
-\description{
-Advance abundance density by one time step
+\arguments{
+\item{params}{A \code{\link[=MizerParams-class]{MizerParams-class()}} object.}
+
+\item{r}{A list of rates as returned by \code{\link[=getRates]{getRates()}} or \code{\link[=mizerRates]{mizerRates()}}. This
+function uses the \code{e_growth}, \code{mort}, and \code{rdd} entries.}
+
+\item{n}{A two-dimensional array (species x size) with the current consumer
+abundance densities.}
+
+\item{dt}{The time step in years.}
+
+\item{a}{A matrix with the same dimensions as \code{n}, used as workspace for the
+lower diagonal coefficients of the semi-implicit update.}
+
+\item{b}{A matrix with the same dimensions as \code{n}, used as workspace for the
+diagonal coefficients of the semi-implicit update.}
+
+\item{S}{A matrix with the same dimensions as \code{n}, used as workspace for the
+right-hand side of the semi-implicit update.}
+
+\item{idx}{Integer indices of the non-egg size classes to be updated with the
+tridiagonal recursion, typically \code{2:no_w}.}
+
+\item{w_min_idx_array_ref}{Integer indices for one-dimensional indexing into
+\code{n[, params@w_min_idx]}, one entry per species.}
+
+\item{no_sp}{Number of species, equal to \code{nrow(n)}.}
+
+\item{no_w}{Number of consumer size classes, equal to \code{ncol(n)}.}
 }
+\value{
+A two-dimensional array (species x size) with the updated consumer
+abundance densities after one time step.
+}
+\description{
+Update the consumer abundance density matrix by one explicit time step of the
+semi-implicit solver used in \code{\link[=project_simple]{project_simple()}} and \code{\link[=project]{project()}}. The first
+occupied size class of each species is updated from the density-dependent
+reproduction rate \code{r$rdd}, and all larger size classes are then advanced with
+the tridiagonal update implemented in \code{inner_project_loop()}.
+}
+\keyword{internal}

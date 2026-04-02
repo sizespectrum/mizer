@@ -112,3 +112,27 @@ test_that("power_law_pred_kernel returns correct shape", {
     # Should be close to 1 in the middle of the range
     expect_true(result[50] > 0.9)
 })
+
+test_that("lognormal and truncated lognormal peak at beta and truncate on the right", {
+    ppmr <- c(1, 10, 100, 1000, 50000)
+    ln <- lognormal_pred_kernel(ppmr, beta = 100, sigma = 1)
+    tln <- truncated_lognormal_pred_kernel(ppmr, beta = 100, sigma = 1)
+
+    expect_equal(ln[3], 1)
+    expect_equal(tln[3], 1)
+    expect_equal(tln[ppmr > exp(log(100) + 3)], 0)
+})
+
+test_that("power_law_pred_kernel follows its documented formula", {
+    ppmr <- c(10, 25, 50, 75, 100)
+    result <- power_law_pred_kernel(ppmr,
+                                    kernel_exp = -0.5,
+                                    kernel_l_l = log(25),
+                                    kernel_u_l = 2,
+                                    kernel_l_r = log(75),
+                                    kernel_u_r = 3)
+    expected <- ppmr^(-0.5) /
+        (1 + (exp(log(25)) / ppmr)^2) /
+        (1 + (ppmr / exp(log(75)))^3)
+    expect_equal(result, expected)
+})

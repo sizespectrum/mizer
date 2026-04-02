@@ -103,6 +103,8 @@ test_that("get_size_range_array works", {
         params@species_params[, !(names(params@species_params) %in% c("a", "b"))]
     expect_error(get_size_range_array(no_ab_params, min_l = 1, max_w = 100),
                  "pecies_params slot must have columns 'a' and 'b'")
+
+    expect_identical(names(dimnames(get_size_range_array(params))), c("sp", "w"))
 })
 
 
@@ -131,6 +133,30 @@ test_that("getProportionOfLargeFish works", {
     # numeric test
     # expect_known_value(prop, "values/getProportionOfLargeFish")
     expect_snapshot(prop)
+})
+
+test_that("getProportionOfLargeFish honours species, numbers, and threshold_l", {
+    sim <- project(params, effort = 1, t_max = 2, dt = 0.5, t_save = 0.5)
+    species <- c("Cod", "Haddock")
+    sim@params@species_params$a <- 0.01
+    sim@params@species_params$b <- 3
+    threshold_l <- 10
+    threshold_w <- 1
+
+    by_length <- getProportionOfLargeFish(
+        sim, species = species, threshold_w = threshold_w,
+        threshold_l = threshold_l, biomass_proportion = FALSE
+    )
+    expected_large <- get_size_range_array(sim@params, max_l = threshold_l)[species, ,
+                                                                             drop = FALSE]
+    total_n <- apply(sweep(sim@n[, species, , drop = FALSE], 3, sim@params@dw, "*"),
+                     1, sum)
+    upto_threshold_n <- apply(
+        sweep(sweep(sim@n[, species, , drop = FALSE], c(2, 3), expected_large, "*"),
+              3, sim@params@dw, "*"),
+        1, sum
+    )
+    expect_equal(by_length, 1 - upto_threshold_n / total_n, ignore_attr = TRUE)
 })
 
 # getMeanWeight ----
@@ -173,6 +199,24 @@ test_that("getMeanWeight works",{
 test_that("getMeanMaxWeight works", {
     expect_error(getMeanMaxWeight(sim, measure = NA),
                  "measure must be one of")
+    species <- c("Cod", "Haddock")
+    n_species <- getN(sim)
+    biomass_species <- getBiomass(sim)
+    w_max <- sim@params@species_params$w_max
+    mmw_numbers <- apply(sweep(n_species[, species, drop = FALSE], 2,
+                               w_max[match(species, sim@params@species_params$species)],
+                               "*"), 1, sum) /
+        apply(n_species[, species, drop = FALSE], 1, sum)
+    mmw_biomass <- apply(sweep(biomass_species[, species, drop = FALSE], 2,
+                               w_max[match(species, sim@params@species_params$species)],
+                               "*"), 1, sum) /
+        apply(biomass_species[, species, drop = FALSE], 1, sum)
+    expect_equal(getMeanMaxWeight(sim, species = species, measure = "numbers"),
+                 mmw_numbers, ignore_attr = TRUE)
+    expect_equal(getMeanMaxWeight(sim, species = species, measure = "biomass"),
+                 mmw_biomass, ignore_attr = TRUE)
+    expect_equal(getMeanMaxWeight(sim, species = species, measure = "both"),
+                 cbind(mmw_numbers, mmw_biomass), ignore_attr = TRUE)
     # expect_known_value(getMeanMaxWeight(sim, measure = "both"),
     #                    "values/getMeanMaxWeight")
     expect_snapshot(getMeanMaxWeight(sim, measure = "both"))
@@ -196,6 +240,13 @@ test_that("getYieldGear works",{
                  getYieldGear(sim@params))
 })
 
+test_that("getYieldGear for params matches fishing mortality by gear times biomass", {
+    biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
+    f_gear <- getFMortGear(params)
+    expected <- apply(sweep(f_gear, c(2, 3), biomass, "*"), c(1, 2), sum)
+    expect_equal(getYieldGear(params), expected)
+})
+
 
 # getYield ----
 test_that("getYield works",{
@@ -210,6 +261,13 @@ test_that("getYield works",{
     # expect_known_value(y, "values/getYield")
     expect_snapshot(y)
     expect_equal(getYield(sim)[1, ], getYield(sim@params))
+})
+
+test_that("getYield for params matches fishing mortality times biomass", {
+    biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
+    f <- getFMort(params, drop = FALSE)
+    expected <- apply(f * biomass, 1, sum)
+    expect_equal(getYield(params), expected)
 })
 
 
@@ -312,6 +370,19 @@ test_that("getSSB works", {
     expect_equal(getSSB(sim)[1, ], getSSB(sim@params))
 })
 
+test_that("getSSB matches mature biomass formula for params and sim", {
+    expected_params <- ((params@initial_n * params@maturity) %*%
+                            (params@w * params@dw))[, , drop = TRUE]
+    expected_sim <- apply(
+        sweep(sweep(sim@n, c(2, 3), sim@params@maturity, "*"), 3,
+              sim@params@w * sim@params@dw, "*"),
+        c(1, 2), sum
+    )
+
+    expect_equal(getSSB(params), expected_params)
+    expect_equal(getSSB(sim), expected_sim)
+})
+
 # getBiomass ----
 test_that("getBiomass works", {
     biomass <- getBiomass(sim)
@@ -380,6 +451,18 @@ test_that("getGrowthCurves works with MizerSim", {
     ps <- setInitialValues(params, sim)
     expect_identical(getGrowthCurves(sim),
                      getGrowthCurves(ps))
+})
+
+test_that("getGrowthCurves percentage rescales by maximum weight", {
+    curves <- getGrowthCurves(params, species = c("Cod", "Haddock"),
+                              percentage = TRUE)
+    raw <- getGrowthCurves(params, species = c("Cod", "Haddock"),
+                           percentage = FALSE)
+    w_max <- params@species_params$w_max[match(rownames(curves),
+                                               params@species_params$species)]
+    expected <- sweep(raw, 1, w_max, "/") * 100
+
+    expect_equal(curves, expected)
 })
 
 # summary ----

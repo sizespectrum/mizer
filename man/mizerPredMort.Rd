@@ -20,8 +20,9 @@ ecosystem}
 mizer rate functions but useful for extensions with time-dependent
 parameters.)}
 
-\item{pred_rate}{A two dimensional array (predator species x predator size)
-with the feeding level.}
+\item{pred_rate}{A two dimensional array (predator species x prey size) with
+the predation rate, where prey size runs over fish community plus resource
+spectrum.}
 
 \item{...}{Unused}
 }

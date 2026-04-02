@@ -17,3 +17,16 @@ test_that("get_initial_n is working properly", {
     expect_equal(slopes, rep(slopes[1], no_sp))
     # Check that slopes = slope0
 })
+
+test_that("get_initial_n validates params and honours n0_mult in edition 1", {
+    expect_error(get_initial_n(1), "params argument must of type MizerParams")
+
+    old <- getOption("mizer_defaults_edition")
+    on.exit(options(mizer_defaults_edition = old), add = TRUE)
+    options(mizer_defaults_edition = 1)
+
+    params <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
+    n1 <- get_initial_n(params, n0_mult = 1)
+    n2 <- get_initial_n(params, n0_mult = 2)
+    expect_equal(n2, 2 * n1)
+})

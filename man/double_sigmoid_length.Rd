@@ -24,6 +24,7 @@ Used to get at the length-weight parameters \code{a} and \code{b}}
 }
 \value{
 Vector of selectivities at the given sizes.
+Requires \verb{l25 < l50 < l50_right < l25_right}.
 }
 \description{
 A hump-shaped selectivity function with a sigmoidal rise and an independent

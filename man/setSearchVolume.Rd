@@ -64,9 +64,14 @@ The values of \eqn{\gamma_i} (the search volume at 1g) and \eqn{q_i} (the
 allometric exponent of the search volume) are taken from the \code{gamma} and
 \code{q} columns in the species parameter dataframe. If the \code{gamma}
 column is not supplied in the species parameter dataframe, a default is
-calculated by the \code{\link[=get_gamma_default]{get_gamma_default()}} function. Note that only
+calculated by the \code{\link[=get_gamma_default]{get_gamma_default()}} function. If the \code{q} column is not
+supplied, a default of \code{lambda - 2 + n} is used. Note that only
 for predators of size \eqn{w = 1} gram is the value of the species parameter
 \eqn{\gamma_i} the same as the value of the search volume \eqn{\gamma_i(w)}.
+
+If the \code{search_vol} slot has a comment and \code{reset = FALSE}, then a
+recalculation from the species parameters is suppressed and a message is
+issued if the recalculated values would differ from the stored ones.
 }
 
 \seealso{

@@ -110,7 +110,10 @@ effort).
 \item A named vector whose names match with existing gear names.
 The values in the vector specify the constant fishing effort for those
 fishing gears, i.e. the effort is constant through time. The
-effort for gears that are not included in the effort vector is set to 0.
+effort for gears that are not included in the effort vector is set to the
+default effort value, which is 1 in defaults edition 2 and later and 0 in
+earlier defaults editions. Missing (\code{NA}) effort entries are replaced in
+the same way.
 \item A numerical vector which has the same length as the number of fishing
 gears. The values in the vector specify the
 constant fishing effort of each of the fishing gears, with the ordering

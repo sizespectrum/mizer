@@ -19,7 +19,7 @@ interaction_matrix(params) <- value
 species x prey species). By default all entries are 1. See "Setting
 interaction matrix" section below.}
 
-\item{...}{Additional arguments passed to the method.}
+\item{...}{Unused}
 
 \item{value}{An interaction matrix}
 }
@@ -61,7 +61,9 @@ stores it in the \code{interaction} slot of the \code{params} object.
 The order of the columns and rows of the \code{interaction} argument should be
 the same as the order in the species params data frame in the \code{params}
 object. If you supply a named array then the function will check the order
-and warn if it is different. One way of creating your own interaction
+and message if it is different before ignoring the supplied dimnames. If
+you supply only column names then these are also used as the row names. One
+way of creating your own interaction
 matrix is to enter the data using a spreadsheet program and saving it as a
 .csv file. The data can then be read into R using the command \code{read.csv()}.
 

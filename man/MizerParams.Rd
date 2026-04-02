@@ -56,7 +56,7 @@ explicitly.}
 \item{r_pp}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}. Use \code{resource_rate} argument
 instead.}
 
-\item{...}{Unused}
+\item{...}{Further arguments passed to \code{\link[=newMultispeciesParams]{newMultispeciesParams()}}.}
 }
 \value{
 A MizerParams object
@@ -64,5 +64,20 @@ A MizerParams object
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 An alias provided for backward compatibility with mizer version <= 1.0
+}
+\details{
+If \code{species_params} contains a \code{w_inf} column then it is copied to \code{w_max}.
+If \code{max_w} is not supplied then it is set to \code{1.1 * max(species_params$w_max)}.
+The supplied \code{min_w_pp} is shifted up by one grid step before being passed
+to \code{\link[=newMultispeciesParams]{newMultispeciesParams()}} to compensate for the fact that newer mizer
+versions extend the full size grid below \code{min_w_pp}.
+
+Missing legacy columns in \code{species_params} are filled as follows:
+\code{gear = species}, \code{k = 0}, \code{alpha = 0.6}, \code{erepro = 1},
+\code{sel_func = "knife_edge"}, \code{knife_edge_size = w_mat} if needed,
+\code{catchability = 1}, \code{ks = h * 0.2}, and \code{m = 1}.
+If \code{h} is missing it is calculated from \code{k_vb}, \code{alpha}, \code{f0} and \code{w_max}.
+If \code{gamma} is missing it is calculated from \code{f0}, \code{h}, \code{beta}, \code{sigma},
+\code{lambda} and \code{kappa}.
 }
 \concept{deprecated}

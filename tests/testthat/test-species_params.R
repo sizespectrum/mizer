@@ -173,3 +173,65 @@ test_that("calculated_species_params returns only non-given values", {
     expect_true("gamma" %in% names(calculated))
     expect_identical(calculated$gamma, species_params(params)$gamma)
 })
+
+test_that("species_params and given_species_params accessors return stored tables", {
+    expect_identical(species_params(NS_params), NS_params@species_params)
+    expect_identical(given_species_params(NS_params), NS_params@given_species_params)
+})
+
+test_that("species_params setter validates and recalculates", {
+    params <- NS_params
+    sp <- species_params(params)
+    sp$w_min[1] <- 1
+    species_params(params) <- sp
+    expect_identical(species_params(params)$w_min[1], 1)
+    idx <- unname(params@w_min_idx[1])
+    expect_lte(w(params)[idx], 1)
+    if (idx < length(w(params))) {
+        expect_gt(w(params)[idx + 1], 1)
+    }
+})
+
+test_that("given_species_params setter can add new explicit columns", {
+    params <- NS_params
+    sp <- given_species_params(params)
+    sp$custom <- seq_len(nrow(sp))
+    given_species_params(params) <- sp
+    expect_identical(given_species_params(params)$custom, seq_len(nrow(sp)))
+    expect_identical(species_params(params)$custom, seq_len(nrow(sp)))
+})
+
+test_that("set_species_param_default converts factors to character and fills NAs only", {
+    sp <- species_params(NS_params)
+    sp$dummy <- factor(rep("blue", nrow(sp)))
+    sp$dummy[1] <- NA
+    sp2 <- set_species_param_default(sp, "dummy", "black")
+    expect_true(is.character(sp2$dummy))
+    expect_identical(sp2$dummy[1], "black")
+    expect_identical(sp2$dummy[-1], rep("blue", nrow(sp) - 1))
+})
+
+test_that("get_h_default, get_f0_default and get_ks_default follow documented defaults", {
+    params <- NS_params
+
+    sp <- species_params(params)
+    sp$h <- rep(NA_real_, nrow(sp))
+    sp$age_mat <- rep(NA_real_, nrow(sp))
+    sp$k_vb <- rep(NA_real_, nrow(sp))
+    h <- get_h_default(sp)
+    expect_identical(h, rep(30, nrow(sp)))
+
+    params2 <- params
+    params2@species_params$f0[] <- 0.6
+    params2@species_params$gamma[] <- NA
+    expect_identical(get_f0_default(params2), rep(0.6, nrow(species_params(params2))))
+
+    params3 <- params
+    params3@species_params$ks[] <- NA
+    params3@species_params$fc <- rep(0.2, nrow(species_params(params3)))
+    expected_ks <- with(
+        species_params(params3),
+        fc * alpha * h * w_mat^(n - p)
+    )
+    expect_equal(get_ks_default(params3), expected_ks)
+})

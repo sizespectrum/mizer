@@ -14,9 +14,10 @@ A valid MizerSim object
 }
 \description{
 Checks that the given MizerSim object is valid and upgrades it if necessary.
-Checks whether any abundances are non-finite and if any are found, a warning
-is issued and the simulation is truncated at the last time step where all
-results are finite.
+It also validates the embedded \code{\link[=MizerParams-class]{MizerParams-class()}} object with
+\code{\link[=validParams]{validParams()}}. If any entries of the consumer abundance array \code{sim@n} are
+non-finite, a warning is issued and the simulation is truncated at the last
+time step where \code{sim@n} is still finite.
 }
 \details{
 Occasionally, during the development of new features for mizer, the

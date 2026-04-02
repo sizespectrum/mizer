@@ -22,4 +22,36 @@ test_that("plotDataFrame builds ggplot with species legend", {
     expect_true(is_ggplot(p))
 })
 
+test_that("plotDataFrame validates helper arguments", {
+    params <- NS_params
+    df <- data.frame(x = 1:3, y = 1:3, Species = species_params(params)$species[1])
+    expect_error(plotDataFrame(df[, 1:2], params),
+                 "at least 3 variables")
+    expect_error(plotDataFrame(df, params, legend_var = "missing"),
+                 "legend_var")
+    expect_error(plotDataFrame(df, params, wrap_var = "missing"),
+                 "wrap_var")
+    expect_error(plotDataFrame(df, params, style = "bogus"),
+                 "unknown style selected")
+})
 
+test_that("plotDataFrame supports area plots, wrapping and log x breaks", {
+    params <- NS_params
+    sp <- species_params(params)$species[1:2]
+    df <- data.frame(
+        x = c(1, 10, 100, 1, 10, 100),
+        y = c(1, 2, 3, 2, 3, 4),
+        Species = rep(sp, each = 3),
+        Panel = rep(c("A", "B"), each = 3)
+    )
+    p <- plotDataFrame(df, params,
+                       style = "area",
+                       xtrans = "log10",
+                       legend_var = "Species",
+                       wrap_var = "Panel",
+                       wrap_scale = "free_y")
+    expect_true(is_ggplot(p))
+    expect_true(p$facet$params$free$y)
+    expect_false(p$facet$params$free$x)
+    expect_false(inherits(p$scales$scales[[2]]$breaks, "waiver"))
+})

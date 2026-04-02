@@ -71,7 +71,9 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'
 #' @inheritParams steady
 #' @param effort The fishing effort to be used throughout the simulation.
-#'   This must be a vector or list with one named entry per fishing gear.
+#'   This is validated by [validEffortVector()] and can therefore be `NULL`, a
+#'   single numeric value used for all gears, an unnamed numeric vector with one
+#'   entry per gear, or a named numeric vector for some or all gears.
 #' @param distance_func A function that will be called after every `t_per` years
 #'   with both the previous and the new state and that should return a number
 #'   that in some sense measures the distance between the states. By default
@@ -79,7 +81,10 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'   own distance function.
 #' @param ... Further arguments will be passed on to your distance function.
 #' 
-#' @return A MizerParams or a MizerSim object
+#' @return If `return_sim = FALSE`, a `MizerParams` object with the initial
+#'   state replaced by the final state found by the steady-state search. If
+#'   `return_sim = TRUE`, a `MizerSim` object containing the intermediate states
+#'   saved every `t_per` years.
 #' @seealso [distanceSSLogN()], [distanceMaxRelRDI()]
 #' @export
 projectToSteady <- function(params,
@@ -240,7 +245,9 @@ projectToSteady.MizerParams <- function(params,
 #'   of the `reproduction_level`.
 #' @param progress_bar A shiny progress object to implement a progress bar in a
 #'   shiny app. Default FALSE.
-#' @return A MizerParams or a MizerSim object
+#' @return If `return_sim = FALSE`, a `MizerParams` object with the initial
+#'   state replaced by the steady state. If `return_sim = TRUE`, a `MizerSim`
+#'   object containing the intermediate states saved every `t_per` years.
 #' @export
 #' @examples
 #' \donttest{
@@ -442,7 +449,9 @@ valid_species_arg <- function(object, species = NULL, return.logical = FALSE,
 #' @param error_on_empty Whether to throw an error if there are zero valid
 #'   gears. Default FALSE.
 #'   
-#' @return A vector of gear names.
+#' @return A vector of gear names in the same order as supplied in `gears`,
+#'   with invalid names removed. If `gears` is `NULL`, all gears are returned
+#'   in the order stored in the model.
 #' @export
 #' @concept helper
 valid_gears_arg <- function(object, gears = NULL,

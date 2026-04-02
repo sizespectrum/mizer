@@ -61,7 +61,10 @@ NULL
 #' \item A named vector whose names match with existing gear names.
 #'  The values in the vector specify the constant fishing effort for those
 #'  fishing gears, i.e. the effort is constant through time. The
-#'   effort for gears that are not included in the effort vector is set to 0.
+#'   effort for gears that are not included in the effort vector is set to the
+#'   default effort value, which is 1 in defaults edition 2 and later and 0 in
+#'   earlier defaults editions. Missing (`NA`) effort entries are replaced in
+#'   the same way.
 #' \item A numerical vector which has the same length as the number of fishing
 #' gears. The values in the vector specify the
 #' constant fishing effort of each of the fishing gears, with the ordering
@@ -408,8 +411,8 @@ project.MizerSim <- function(object, effort,
 #' still changing significantly, so that it can stop when a steady state has
 #' been approached. Mizer extension packages might have a similar need to run
 #' a simulation repeatedly for short periods to run some other code in
-#' between. Because this code may want to use the values of the rates at the
-#' final time step, these too are included in the returned list.
+#' between. Because this code may want to use the values of the rates from the
+#' final update step, these too are included in the returned list.
 #'
 #' @param params A MizerParams object.
 #' @param n An array (species x size) with the number density at start of
@@ -430,7 +433,8 @@ project.MizerSim <- function(object, effort,
 #' @param rates_fns List with the functions for calculating
 #'   the rates. See Details.
 #' @param ... Other arguments that are passed on to the rate functions.
-#' @return List with the final values of `n`, `n_pp` and `n_other`, `rates`.
+#' @return List with the final values of `n`, `n_pp`, and `n_other`, together
+#'   with `rates`, the rates calculated at the start of the final update step.
 #'
 #' @export
 #' @concept helper

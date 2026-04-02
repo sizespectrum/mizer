@@ -56,3 +56,38 @@ test_that("matchNumbers works", {
     # and unselected species don't change
     expect_equal(params2@initial_n[10:12, ], params@initial_n[10:12, ])
 })
+
+test_that("matchBiomasses and matchNumbers fail for unreachable cutoff", {
+    params <- setBevertonHolt(NS_params)
+    species_params(params)$biomass_observed <- 0
+    species_params(params)$biomass_observed[1] <- 1
+    species_params(params)$biomass_cutoff <- 0
+    species_params(params)$biomass_cutoff[1] <- 1e20
+    expect_error(matchBiomasses(params, 1),
+                 "Sprat does not grow up to the biomass_cutoff size of 1e\\+20 grams")
+
+    species_params(params)$number_observed <- 0
+    species_params(params)$number_observed[1] <- 1
+    species_params(params)$number_cutoff <- 0
+    species_params(params)$number_cutoff[1] <- 1e20
+    expect_error(matchNumbers(params, 1),
+                 "Sprat does not grow up to the number_cutoff size of 1e\\+20 grams")
+})
+
+test_that("matchYields works", {
+    params <- setBevertonHolt(NS_params)
+    initial_effort(params) <- setNames(rep(1, length(initial_effort(params))),
+                                       names(initial_effort(params)))
+    yield_actual <- rowSums(sweep(params@initial_n, 2, params@w * params@dw, "*") *
+                                getFMort(params))
+
+    species_params(params)$yield_observed <- NA_real_
+    params_na <- suppressWarnings(matchYields(params))
+    expect_equal(params_na@initial_n, params@initial_n)
+
+    species_params(params)$yield_observed <- 0
+    species_params(params)$yield_observed[10] <- 2 * yield_actual[10]
+    expect_warning(params2 <- matchYields(params, 10), "deprecated")
+    expect_equal(params2@initial_n[10, ], 2 * params@initial_n[10, ])
+    expect_equal(params2@initial_n[-10, ], params@initial_n[-10, ])
+})

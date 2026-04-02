@@ -52,6 +52,12 @@ test_that("setBevertonHolt updates `time_modified`", {
                            NS_params@time_modified))
 })
 
+test_that("setBevertonHolt without extra arguments keeps previous erepro", {
+    params <- setBevertonHolt(NS_params)
+    expect_identical(params@species_params$erepro,
+                     NS_params@species_params$erepro)
+})
+
 # R_max ----
 test_that("setBevertonHolt sets R_max correctly when setting all values", {
     params <- setBevertonHolt(NS_params,
@@ -88,12 +94,25 @@ test_that("setBevertonHolt sets reproduction_level correctly", {
     expect_equal(getReproductionLevel(params)[[1]], 0.4)
 })
 
+test_that("getReproductionLevel is getRDD divided by R_max", {
+    expect_equal(getReproductionLevel(NS_params),
+                 getRDD(NS_params) / NS_params@species_params$R_max)
+})
+
 # R_factor ----
 test_that("setBevertonHolt sets R_factor correctly", {
     expect_warning(params <- setBevertonHolt(NS_params, R_factor = 4),
                    "The following species require an unrealistic value greater than 1 for `erepro`: Plaice")
     expect_equal(getRDD(params), params@species_params$R_max / 4, ignore_attr = TRUE)
     expect_equal(getRequiredRDD(params), getRDD(params))
+})
+
+test_that("setRmax is an exact alias for setBevertonHolt", {
+    p1 <- suppressWarnings(setRmax(NS_params, reproduction_level = 0.3))
+    p2 <- suppressWarnings(setBevertonHolt(NS_params, reproduction_level = 0.3))
+    expect_equal(species_params(p1)$erepro, species_params(p2)$erepro)
+    expect_equal(species_params(p1)$R_max, species_params(p2)$R_max)
+    expect_identical(getReproductionLevel(p1), getReproductionLevel(p2))
 })
 
 # special values ----

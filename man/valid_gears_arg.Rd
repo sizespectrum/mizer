@@ -17,7 +17,9 @@ are selected. A vector of gear names.}
 gears. Default FALSE.}
 }
 \value{
-A vector of gear names.
+A vector of gear names in the same order as supplied in \code{gears},
+with invalid names removed. If \code{gears} is \code{NULL}, all gears are returned
+in the order stored in the model.
 }
 \description{
 If the gears argument contains invalid gears, then these are

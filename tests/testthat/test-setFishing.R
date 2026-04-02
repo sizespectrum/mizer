@@ -74,8 +74,9 @@ test_that("validEffort works", {
     # A single number is converted into a constant vector
     ie[] <- 2
     expect_identical(validEffortVector(2, params), ie)
-    # A shortened vector is expanded with zeros
-    expect_identical(validEffortVector(ie[c(1,2,4)], params)[[3]], 0)
+    # A shortened vector is expanded with the edition-specific default
+    expect_identical(validEffortVector(ie[c(1,2,4)], params)[[3]],
+                     ifelse(defaults_edition() < 2, 0, 1))
                 
     # The names are checked
     names(ie)[[1]] <- "test"
@@ -103,6 +104,7 @@ test_that("Set Fishing works", {
 test_that("Setting selectivity works", {
     selectivity <- getSelectivity(params)
     expect_identical(selectivity, params@selectivity)
+    expect_identical(selectivity(params), selectivity)
     selectivity[1, 1, 1] <- 111
     comment(selectivity) <- "selectivity"
     params <- setFishing(params, selectivity = selectivity)
@@ -113,6 +115,7 @@ test_that("Setting selectivity works", {
 test_that("Setting catchability works", {
     catchability <- getCatchability(params)
     expect_identical(catchability, params@catchability)
+    expect_identical(catchability(params), catchability)
     catchability[2, 2] <- 22
     comment(catchability) <- "catchability"
     params <- setFishing(params, catchability = catchability)
@@ -271,6 +274,7 @@ test_that("Can get and set selectivity slot", {
     comment(new) <- "test"
     selectivity(params) <- new
     expect_identical(selectivity(params), new)
+    expect_identical(getSelectivity(params), new)
 })
 test_that("Can get and set catchability slot", {
     params <- NS_params
@@ -278,10 +282,13 @@ test_that("Can get and set catchability slot", {
     comment(new) <- "test"
     catchability(params) <- new
     expect_identical(catchability(params), new)
+    expect_identical(getCatchability(params), new)
 })
 test_that("Can get and set initial_effort slot", {
     params <- NS_params
+    expect_identical(getInitialEffort(params), initial_effort(params))
     new <- 2 * initial_effort(params)
     initial_effort(params) <- new
     expect_identical(initial_effort(params), new)
+    expect_identical(getInitialEffort(params), new)
 })

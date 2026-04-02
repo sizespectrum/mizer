@@ -57,6 +57,18 @@ test_that("Sets given_species_params", {
     expect_unchanged(p2, params)
 })
 
+test_that("newMultispeciesParams sets initial resource spectrum and cutoff", {
+    params <- newMultispeciesParams(NS_species_params,
+                                    kappa = 10,
+                                    lambda = 2,
+                                    w_pp_cutoff = 1,
+                                    info_level = 0)
+    expect_equal(initialNResource(params)[w_full(params) < 1],
+                 10 * w_full(params)[w_full(params) < 1] ^ (-2),
+                 ignore_attr = TRUE)
+    expect_true(all(initialNResource(params)[w_full(params) >= 1] == 0))
+})
+
 # setParams ----
 test_that("setParams can leave params unchanged", {
     expect_unchanged(setParams(NS_params), NS_params)
@@ -74,4 +86,16 @@ test_that("setParams handles change in w_max", {
     params@species_params$w_repro_max[1] <- max(params@w) + 10
     expect_warning(setParams(params),
                  "The maximum weight of a species is larger than")
+})
+
+test_that("setParams reapplies line colours and linetypes from species_params", {
+    params <- NS_params
+    params@species_params$linecolour <- rep("#123456", nrow(species_params(params)))
+    params@species_params$linetype <- rep("dashed", nrow(species_params(params)))
+    params2 <- setParams(params)
+    sp <- species_params(params2)$species
+    expect_true(all(getColours(params2)[sp] == "#123456"))
+    expect_true(all(getLinetypes(params2)[sp] == "dashed"))
+    expect_identical(names(getColours(params2))[seq_along(sp)], sp)
+    expect_identical(names(getLinetypes(params2))[seq_along(sp)], sp)
 })

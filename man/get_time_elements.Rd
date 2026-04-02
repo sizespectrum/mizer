@@ -2,26 +2,27 @@
 % Please edit documentation in R/rate_functions.R
 \name{get_time_elements}
 \alias{get_time_elements}
-\title{Get_time_elements}
+\title{Get array indices for a time range in a MizerSim object}
 \usage{
 get_time_elements(sim, time_range, slot_name = "n")
 }
 \arguments{
-\item{sim}{A MizerSim object}
+\item{sim}{A MizerSim object.}
 
-\item{time_range}{A vector of times. Only the range of times is relevant,
-i.e., all times between the smallest and largest will be selected.
-The time_range can be character or numeric.}
+\item{time_range}{A numeric or character vector of times. Only the range of
+values matters, so all saved times between \code{min(time_range)} and
+\code{max(time_range)} are selected.}
 
-\item{slot_name}{Obsolete. Was only needed in early versions of mizer where
-the effort slot could have different time dimension from the other slots.}
+\item{slot_name}{Obsolete, kept only for backward compatibility with early
+versions where different time-based slots could have different time grids.
+Leave at the default.}
 }
 \value{
-Named boolean vector indicating for each time whether it is included
-in the range or not.
+A named logical vector, with one entry for each saved time in \code{sim},
+indicating whether that time lies in the requested range.
 }
 \description{
-Internal function to get the array element references of the time dimension
-for the time based slots of a MizerSim object.
+Internal helper to select the saved time points whose times lie between the
+smallest and largest values in \code{time_range}, inclusive.
 }
 \concept{helper}

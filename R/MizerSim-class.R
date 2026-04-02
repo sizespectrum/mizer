@@ -244,9 +244,10 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
 #' Validate MizerSim object and upgrade if necessary
 #' 
 #' Checks that the given MizerSim object is valid and upgrades it if necessary.
-#' Checks whether any abundances are non-finite and if any are found, a warning
-#' is issued and the simulation is truncated at the last time step where all
-#' results are finite.
+#' It also validates the embedded [MizerParams-class()] object with
+#' [validParams()]. If any entries of the consumer abundance array `sim@n` are
+#' non-finite, a warning is issued and the simulation is truncated at the last
+#' time step where `sim@n` is still finite.
 #' 
 #' Occasionally, during the development of new features for mizer, the
 #' \linkS4class{MizerSim} class or the \linkS4class{MizerParams} class gains
@@ -390,14 +391,14 @@ idxFinalT <- function(sim) {
 #' Times for which simulation results are available
 #' 
 #' @param sim A MizerSim object
-#' @return A numeric vectors of the times (in years) at which simulation results
+#' @return A numeric vector of the times (in years) at which simulation results
 #'   have been stored in the MizerSim object.
 #' @export
 #' @examples 
 #' getTimes(NS_sim)
 getTimes <- function(sim) {
     assert_that(is(sim, "MizerSim"))
-    as.numeric(dimnames(sim@n)$t)
+    as.numeric(dimnames(sim@n)$time)
 }
 
 #' Fishing effort used in simulation

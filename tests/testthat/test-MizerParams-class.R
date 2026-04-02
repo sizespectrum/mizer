@@ -113,4 +113,20 @@ test_that("validParams checks w_min and w_max", {
     params@species_params$w_min[1:3] <- 1e-6
     expect_warning(params <- validParams(params), "smaller than the minimum")
     expect_true(validObject(params))
+    expect_equal(params@w_min_idx[1:3], rep(1, 3), ignore_attr = TRUE)
+})
+
+test_that("validParams rejects non-finite rate arrays and allows infinite intake_max", {
+    params <- NS_params
+    params@search_vol[1, 1] <- NaN
+    expect_error(validParams(params), "search_vol must not contain non-finite values")
+
+    params <- NS_params
+    params@intake_max[1, 1] <- Inf
+    expect_no_error(validParams(params))
+
+    params <- NS_params
+    params@intake_max[1, 1] <- NaN
+    expect_error(validParams(params),
+                 "intake_max must contain finite or infinite numeric values only")
 })

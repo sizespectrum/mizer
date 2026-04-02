@@ -39,6 +39,20 @@ test_that("projectToSteady() works", {
                    "Dab, Whiting are going extinct.")
 })
 
+test_that("projectToSteady accepts the documented effort forms", {
+    params <- NS_params
+    p1 <- suppressMessages(projectToSteady(params, effort = 0.5, t_per = 0.1,
+                                           t_max = 0.1, tol = 10))
+    expect_equal(unname(p1@initial_effort), rep(0.5, length(initial_effort(params))))
+
+    named <- initial_effort(params)[1:2]
+    named[] <- c(0.2, NA)
+    p2 <- suppressMessages(projectToSteady(params, effort = named, t_per = 0.1,
+                                           t_max = 0.1, tol = 10))
+    expected <- validEffortVector(named, params)
+    expect_equal(p2@initial_effort, expected)
+})
+
 # steady ----
 test_that("steady works", {
     expect_message(
@@ -144,6 +158,20 @@ test_that("valid_species_arg works", {
     expect_identical(valid_species_arg(NS_params),
                      valid_species_arg(NS_params, 
                                        NS_params@species_params$species))
+})
+
+test_that("valid_gears_arg works", {
+    all_gears <- unique(NS_params@gear_params$gear)
+    expect_identical(valid_gears_arg(NS_params), all_gears)
+    expect_identical(valid_gears_arg(NS_params, all_gears[2:1]), all_gears[2:1])
+    expect_warning(
+        gears <- valid_gears_arg(NS_params, c("nope", all_gears[1])),
+        "The following gears do not exist: nope"
+    )
+    expect_identical(gears, all_gears[1])
+    expect_error(valid_gears_arg(NS_params, "nope", error_on_empty = TRUE) |>
+                     suppressWarnings(),
+                 "No gears have been selected.")
 })
 
 # constant_other ----

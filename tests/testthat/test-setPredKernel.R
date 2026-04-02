@@ -64,6 +64,7 @@ test_that("getPredKernel has correct dimnames", {
                      dimnames(params@initial_n)$w)
     expect_identical(dimnames(pred_kernel)$w_prey, 
                      as.character(signif(params@w_full, 3)))
+    expect_identical(pred_kernel(params), pred_kernel)
 })
 test_that("getting and setting pred kernel leads to same dynamics", {
     params <- NS_params
@@ -79,6 +80,7 @@ test_that("Can get and set pred_kernel slot", {
     comment(new) <- "test"
     pred_kernel(params) <- new
     expect_identical(pred_kernel(params), new)
+    expect_identical(getPredKernel(params), new)
 })
 
 ## get_phi ----

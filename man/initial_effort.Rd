@@ -22,7 +22,7 @@ below.}
 below.}
 }
 \value{
-Effort vector
+A named effort vector ordered by gear.
 }
 \description{
 The fishing effort is a named vector, specifying for each fishing gear the
@@ -43,7 +43,8 @@ gears in the params object
 \item a named vector in which the gear names have a different order than in the
 params object. This is then sorted correctly.
 \item a named vector which only supplies values for some of the gears.
-The effort for the other gears is then set to zero.
+The effort for the other gears is then set to the default effort returned
+by \code{\link[=validEffortVector]{validEffortVector()}}, which depends on the defaults edition.
 }
 
 These conversions are done by the function \code{validEffortVector()}.

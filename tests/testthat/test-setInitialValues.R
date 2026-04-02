@@ -23,6 +23,23 @@ test_that("We can set and get initial values from sim object", {
                  "The number of gears in the simulation in `sim` is different")
 })
 
+test_that("initialN and initialNResource setters validate dimnames and values", {
+    params <- NS_params
+    new_n <- initialN(params)
+    dimnames(new_n)[[1]][1] <- "wrong"
+    expect_warning(initialN(params) <- new_n,
+                   "The dimnames do not match. I will ignore them.")
+    expect_identical(initialN(params), NS_params@initial_n)
+
+    new_n_pp <- initialNResource(params)
+    names(new_n_pp)[1] <- "wrong"
+    initialNResource(params) <- new_n_pp
+    expect_identical(initialNResource(params), NS_params@initial_n_pp)
+
+    expect_error(initialN(params) <- (-1) * initialN(params))
+    expect_error(initialNResource(params) <- (-1) * initialNResource(params))
+})
+
 test_that("setInitialValues gives correct errors", {
     params1 <- newMultispeciesParams(NS_species_params, no_w = 20, info_level = 0)
     sim <- project(params1, t_max = 2, dt = 1)

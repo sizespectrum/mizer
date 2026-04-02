@@ -16,9 +16,9 @@ getFeedingLevel(object, n, n_pp, n_other, time_range, drop = FALSE, ...)
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
-\item{time_range}{A vector of times. Only the range of times is relevant,
-i.e., all times between the smallest and largest will be selected.
-The time_range can be character or numeric.}
+\item{time_range}{A numeric or character vector of times. Only the range of
+values matters, so all saved times between \code{min(time_range)} and
+\code{max(time_range)} are selected.}
 
 \item{drop}{If \code{TRUE} then any dimension of length 1 will be removed
 from the returned array.}

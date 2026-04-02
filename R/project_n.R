@@ -1,4 +1,34 @@
-#' Advance abundance density by one time step
+#' Advance species abundance densities by one time step
+#'
+#' Update the consumer abundance density matrix by one explicit time step of the
+#' semi-implicit solver used in [project_simple()] and [project()]. The first
+#' occupied size class of each species is updated from the density-dependent
+#' reproduction rate `r$rdd`, and all larger size classes are then advanced with
+#' the tridiagonal update implemented in `inner_project_loop()`.
+#'
+#' @param params A [MizerParams-class()] object.
+#' @param r A list of rates as returned by [getRates()] or [mizerRates()]. This
+#'   function uses the `e_growth`, `mort`, and `rdd` entries.
+#' @param n A two-dimensional array (species x size) with the current consumer
+#'   abundance densities.
+#' @param dt The time step in years.
+#' @param a A matrix with the same dimensions as `n`, used as workspace for the
+#'   lower diagonal coefficients of the semi-implicit update.
+#' @param b A matrix with the same dimensions as `n`, used as workspace for the
+#'   diagonal coefficients of the semi-implicit update.
+#' @param S A matrix with the same dimensions as `n`, used as workspace for the
+#'   right-hand side of the semi-implicit update.
+#' @param idx Integer indices of the non-egg size classes to be updated with the
+#'   tridiagonal recursion, typically `2:no_w`.
+#' @param w_min_idx_array_ref Integer indices for one-dimensional indexing into
+#'   `n[, params@w_min_idx]`, one entry per species.
+#' @param no_sp Number of species, equal to `nrow(n)`.
+#' @param no_w Number of consumer size classes, equal to `ncol(n)`.
+#'
+#' @return A two-dimensional array (species x size) with the updated consumer
+#'   abundance densities after one time step.
+#'
+#' @keywords internal
 #' @export
 project_n <- function(params, r, n, dt, a, b, S, idx, w_min_idx_array_ref,
                       no_sp, no_w) {

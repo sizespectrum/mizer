@@ -100,6 +100,31 @@ test_that("plotly functions do not throw error", {
     expect_error(plotlyGrowthCurves(params, species = species), NA)
 })
 
+test_that("plotly wrappers return plotly objects for spectra and rate plots", {
+    expect_s3_class(plotlySpectra(params, species = species), "plotly")
+    expect_s3_class(plotlyPredMort(sim, species = species), "plotly")
+    expect_s3_class(plotlyFMort(sim, species = species), "plotly")
+    expect_s3_class(plotlyGrowthCurves(sim, species = species), "plotly")
+    expect_s3_class(plotlyFeedingLevel(sim, species = species,
+                                       include_critical = TRUE), "plotly")
+})
+
+test_that("yield plotting helpers validate comparison and gear selection", {
+    sim_shifted <- sim
+    dimnames(sim_shifted@n)$time <- as.character(10:13)
+    expect_error(plotYield(sim, sim_shifted), "do not have the same times")
+
+    y <- plotYieldGear(sim, species = species,
+                       gears = dimnames(sim@params@selectivity)$gear[[1]],
+                       return_data = TRUE)
+    expect_true(all(y$Gear == dimnames(sim@params@selectivity)$gear[[1]]))
+})
+
+test_that("yield plotly wrappers return plotly objects", {
+    expect_s3_class(plotlyYield(sim, species = species), "plotly")
+    expect_s3_class(plotlyYieldGear(sim, species = species), "plotly")
+})
+
 
 # testing the plot outputs
 test_that("return_data is identical",{
@@ -163,6 +188,50 @@ test_that("plotSpectra averages over time range", {
                       power = 0, return_data = TRUE)
     expected <- exp(mean(log(NS_sim@n[time_sel, 1, 1])))
     expect_equal(df$value[1], expected)
+})
+
+test_that("plotSpectra validates empty selection and can return total only", {
+    expect_error(plotSpectra(params, species = rep(FALSE, nrow(species_params(params))),
+                             total = FALSE, resource = FALSE),
+                 "There is nothing to plot")
+    df <- plotSpectra(params, species = rep(FALSE, nrow(species_params(params))),
+                      total = TRUE, resource = FALSE, return_data = TRUE)
+    expect_true(all(df$Legend == "Total"))
+})
+
+test_that("plotPredMort and plotFMort trim to species size range by default", {
+    pred_trimmed <- plotPredMort(params, species = 2, return_data = TRUE)
+    pred_full <- plotPredMort(params, species = 2, all.sizes = TRUE, return_data = TRUE)
+    expect_lt(nrow(pred_trimmed), nrow(pred_full))
+    expect_equal(
+        plotM2(params, species = 2, return_data = TRUE),
+        pred_trimmed
+    )
+
+    f_trimmed <- plotFMort(params, species = 2, return_data = TRUE)
+    f_full <- plotFMort(params, species = 2, all.sizes = TRUE, return_data = TRUE)
+    expect_lt(nrow(f_trimmed), nrow(f_full))
+})
+
+test_that("plotFeedingLevel trims by size and can include critical levels", {
+    fl_trimmed <- plotFeedingLevel(params, species = 2, return_data = TRUE)
+    fl_full <- plotFeedingLevel(params, species = 2, all.sizes = TRUE,
+                                return_data = TRUE)
+    expect_lt(nrow(fl_trimmed), nrow(fl_full))
+
+    fl_critical <- plotFeedingLevel(params, species = 2,
+                                    include_critical = TRUE,
+                                    return_data = TRUE)
+    expect_setequal(unique(fl_critical$Type), c("actual", "critical"))
+})
+
+test_that("plotGrowthCurves validates size_at_age input", {
+    expect_error(plotGrowthCurves(params, size_at_age = data.frame(age = 1, weight = 2)),
+                 "needs to have a 'species' column")
+    expect_error(plotGrowthCurves(params, size_at_age = data.frame(species = "10", weight = 2)),
+                 "needs to have an 'age' column")
+    expect_error(plotGrowthCurves(params, size_at_age = data.frame(species = "10", age = 1)),
+                 "needs to have either a 'length' or a 'weight' column")
 })
 
 test_that("plotDiet restricts to meaningful abundance ranges", {

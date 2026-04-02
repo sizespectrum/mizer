@@ -17,7 +17,8 @@ describing the previous state}
 }
 \value{
 The sum of squares of the difference in the logs of the (nonzero)
-fish abundances n:
+fish abundances \code{n}, ignoring entries where either state has zero
+abundance:
 \code{sum((log(current$n) - log(previous$n))^2)}
 }
 \description{

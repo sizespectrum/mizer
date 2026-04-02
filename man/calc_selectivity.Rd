@@ -15,7 +15,11 @@ An array (gear x species x size) with the selectivity values
 \description{
 This function calculates the selectivity for each gear, species and size from
 the gear parameters. It is called by \code{\link[=setFishing]{setFishing()}} when the \code{selectivity} is
-not set by the user.
+not set by the user. The returned array is initialised to zero, so
+gear-species combinations that are not listed in \code{gear_params(params)} remain
+zero. For each listed combination the function named in \code{sel_func} is called
+with \code{w = params@w}, the corresponding species parameters, and the
+selectivity parameters from the matching row in \code{gear_params(params)}.
 }
 \examples{
 params <- NS_params

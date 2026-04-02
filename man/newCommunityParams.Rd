@@ -45,8 +45,9 @@ spectrum. This value is used to calculate the search rate parameter
 
 \item{h}{The coefficient of the maximum food intake rate.}
 
-\item{gamma}{Volumetric search rate. Estimated using \code{h}, \code{f0} and
-\code{kappa} if not supplied.}
+\item{gamma}{Volumetric search rate. Passed through to
+\code{\link[=newMultispeciesParams]{newMultispeciesParams()}}, which estimates it from \code{h}, \code{f0}, and \code{kappa}
+if it is left as \code{NA}.}
 
 \item{beta}{The preferred predator prey mass ratio.}
 
@@ -67,8 +68,8 @@ rate of the resource.}
 function.}
 
 \item{reproduction}{The constant reproduction in the smallest size class of
-the community spectrum. By default this is set so that the community
-spectrum is continuous with the resource spectrum.}
+the community spectrum. By default this is set to the rate required to
+maintain the constructed initial egg abundance.}
 }
 \value{
 An object of type \code{\linkS4class{MizerParams}}
