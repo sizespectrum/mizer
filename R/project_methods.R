@@ -304,15 +304,15 @@ mizerFeedingLevel <- function(params, n, n_pp, n_other, t, encounter, ...) {
 #'   calculated by [getFeedingLevel()].
 #'
 #' @return A two dimensional array (species x size) holding
-#' \deqn{E_{r.i}(w) = \max(0, \alpha_i\, (1 - {\tt feeding\_level}_i(w))\,
-#'                            {\tt encounter}_i(w) - {\tt metab}_i(w)).}{
-#'   E_{r.i}(w) = max(0, alpha_i * (1 - feeding_level_i(w)) *
-#'                       encounter_i(w) - metab_i(w)).}
+#' \deqn{E_{r.i}(w) = \alpha_i\, (1 - {\tt feeding\_level}_i(w))\,
+#'                            {\tt encounter}_i(w) - {\tt metab}_i(w).}{
+#'   E_{r.i}(w) = alpha_i * (1 - feeding_level_i(w)) *
+#'                       encounter_i(w) - metab_i(w).}
 #' Due to the form of the feeding level, calculated by
 #' [getFeedingLevel()], if the feeding level is nonzero this can also be expressed as
-#' \deqn{E_{r.i}(w) = \max(0, \alpha_i\, {\tt feeding\_level}_i(w)\,
-#'                            h_i(w) - {\tt metab}_i(w))}{
-#'   E_{r.i}(w) = max(0, alpha_i * feeding_level_i(w) *
+#' \deqn{E_{r.i}(w) = \alpha_i\, {\tt feeding\_level}_i(w)\,
+#'                            h_i(w) - {\tt metab}_i(w)}{
+#'   E_{r.i}(w) = alpha_i * feeding_level_i(w) *
 #'                       h_i(w) - metab_i(w))}
 #' where \eqn{h_i} is the maximum intake rate, set with
 #' [setMaxIntakeRate()]. However this function is using the first equation
@@ -371,12 +371,13 @@ mizerEReproAndGrowth <- function(params, n, n_pp, n_other, t, encounter,
 #'   for reproduction and growth as calculated by [mizerEReproAndGrowth()].
 #'
 #' @return A two dimensional array (species x size) holding
-#' \deqn{\psi_i(w)E_{r.i}(w)}
+#' \deqn{\psi_i(w)\max(0, E_{r.i}(w))}
 #' where \eqn{E_{r.i}(w)} is the rate at which energy becomes available for
 #' growth and reproduction, calculated with [mizerEReproAndGrowth()],
 #' and \eqn{\psi_i(w)} is the proportion of this energy that is used for
-#' reproduction. This proportion is taken from the `params` object and is
-#' set with [setReproduction()].
+#' reproduction. Negative entries in `e` are clipped to 0 before multiplying by
+#' \eqn{\psi_i(w)}. This proportion is taken from the `params` object and is set
+#' with [setReproduction()].
 #' @export
 #' @family mizer rate functions
 mizerERepro <- function(params, n, n_pp, n_other, t, e, ...) {
@@ -395,6 +396,11 @@ mizerERepro <- function(params, n, n_pp, n_other, t, e, ...) {
 #' You would not usually call this
 #' function directly but instead use [getEGrowth()], which then calls this
 #' function unless an alternative function has been registered, see below.
+#' 
+#' The growth rate is calculated as the difference between the energy available
+#' for reproduction and growth (obtainable with [getEReproAndGrowth()]) and
+#' the energy used for reproduction (obtainable with [getERepro()]), but is
+#' set to 0 if the result would be negative.
 #'
 #' @section Your own growth rate function:
 #' By default [getEGrowth()] calls [mizerEGrowth()]. However you can
@@ -417,12 +423,8 @@ mizerERepro <- function(params, n, n_pp, n_other, t, e, ...) {
 #' @export
 #' @family mizer rate functions
 mizerEGrowth <- function(params, n, n_pp, n_other, t, e_repro, e, ...) {
-    # Because getEReproAndGrowth can return negative values, we add an
-    # extra line here
-    e[e < 0] <- 0 # Do not allow negative growth
-
-    # energy for growth is intake - energy for reproduction
-    e - e_repro
+    g <- e - erepro
+    g[g < 0] <- 0 # Do not allow negative growth
 }
 
 
@@ -520,8 +522,9 @@ mizerPredRate <- function(params, n, n_pp, n_other, t, feeding_level, ...) {
 #' same arguments.
 #'
 #' @inheritParams mizerRates
-#' @param pred_rate A two dimensional array (predator species x predator size)
-#'   with the feeding level.
+#' @param pred_rate A two dimensional array (predator species x prey size) with
+#'   the predation rate, where prey size runs over fish community plus resource
+#'   spectrum.
 #'
 #' @return A two dimensional array (prey species x prey size) with the predation
 #'   mortality
@@ -543,8 +546,8 @@ mizerPredMort <- function(params, n, n_pp, n_other, t, pred_rate, ...) {
 #' @inheritParams mizerRates
 #' @param effort A vector with the effort for each fishing gear.
 #'
-#' @return An three dimensional array (gear x species x size) with the
-#'    fishing mortality
+#' @return A three dimensional array (gear x species x size) with the fishing
+#'   mortality.
 #' @note Here: fishing mortality = catchability x selectivity x effort.
 #' @seealso [setFishing()]
 #' @export
