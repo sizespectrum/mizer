@@ -844,8 +844,9 @@ getMeanMaxWeight.MizerSim <- function(sim, species = NULL,
     biomass_species <- getBiomass(sim, ...)
     n_winf <- apply(sweep(n_species, 2, sim@params@species_params$w_max, "*")[,species, drop = FALSE], 1, sum)
     biomass_winf <- apply(sweep(biomass_species, 2, sim@params@species_params$w_max,"*")[, species, drop = FALSE], 1, sum)
-    mmw_numbers <- n_winf / apply(n_species, 1, sum)
-    mmw_biomass <- biomass_winf / apply(biomass_species, 1, sum)
+    mmw_numbers <- n_winf / apply(n_species[, species, drop = FALSE], 1, sum)
+    mmw_biomass <- biomass_winf /
+        apply(biomass_species[, species, drop = FALSE], 1, sum)
     if (measure == "numbers")
         return(mmw_numbers)
     if (measure == "biomass")
