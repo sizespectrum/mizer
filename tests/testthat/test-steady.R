@@ -189,6 +189,33 @@ test_that("distanceMaxRelRDI calculates max relative RDI change", {
     expect_equal(distance_zero, 0)
 })
 
+test_that("distance functions implement their documented formulas", {
+    params <- NS_params
+    previous <- list(
+        n = initialN(params),
+        n_pp = initialNResource(params),
+        n_other = list()
+    )
+    current <- list(
+        n = initialN(params) * 1.2,
+        n_pp = initialNResource(params),
+        n_other = list()
+    )
+
+    current_rdi <- getRDI(params, n = current$n, n_pp = current$n_pp,
+                          n_other = current$n_other)
+    previous_rdi <- getRDI(params, n = previous$n, n_pp = previous$n_pp,
+                           n_other = previous$n_other)
+    expected_rel <- max(abs((current_rdi - previous_rdi) / previous_rdi))
+    expect_equal(distanceMaxRelRDI(params, current, previous), expected_rel)
+
+    current$n[1, 1] <- 0
+    previous$n[1, 2] <- 0
+    sel <- current$n > 0 & previous$n > 0
+    expected_log <- sum((log(current$n[sel]) - log(previous$n[sel]))^2)
+    expect_equal(distanceSSLogN(params, current, previous), expected_log)
+})
+
 test_that("distanceSSLogN calculates sum of squared log differences", {
     params <- NS_params
     # Create two states with different abundances

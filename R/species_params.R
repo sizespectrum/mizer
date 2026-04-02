@@ -125,7 +125,15 @@
 #' MizerParams object, in case your own code makes use of them.
 #'
 #' @param params A MizerParams object
-#' @return Data frame of species parameters
+#' @return `species_params()`: Data frame containing all species parameters
+#'   currently stored in the model.
+#'
+#'   `given_species_params()`: Data frame containing the species parameter
+#'   values that were supplied explicitly by the user.
+#'
+#'   `calculated_species_params()`: Data frame containing only those species
+#'   parameter entries that are not explicit user input. Columns that would
+#'   consist entirely of `NA` values are dropped.
 #' @export
 #' @seealso [validSpeciesParams()], [setParams()]
 #' @family functions for setting parameters

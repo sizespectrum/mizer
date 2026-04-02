@@ -24,7 +24,8 @@
 #' 
 #' @param params A MizerParams object
 #' @param ... Additional arguments passed to the method.
-#' @return A MizerParams object
+#' @return A MizerParams object. If no non-missing observed biomass values are
+#'   provided, the original object is returned unchanged.
 #' @export
 #' @examples 
 #' params <- NS_params
@@ -90,7 +91,8 @@ calibrateBiomass.MizerParams <- function(params, ...) {
 #'
 #' @param params A MizerParams object
 #' @param ... Additional arguments passed to the method.
-#' @return A MizerParams object
+#' @return A MizerParams object. If no non-missing observed number values are
+#'   provided, the original object is returned unchanged.
 #' @export
 #' @examples
 #' params <- NS_params
@@ -151,7 +153,8 @@ calibrateNumber.MizerParams <- function(params, ...) {
 #' 
 #' @param params A MizerParams object
 #' @param ... Additional arguments passed to the method.
-#' @return A MizerParams object
+#' @return A MizerParams object. If no non-missing observed yield values are
+#'   provided, the original object is returned unchanged.
 #' @concept deprecated
 #' @export
 #' @examples 

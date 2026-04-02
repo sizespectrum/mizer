@@ -10,12 +10,8 @@
 #' @param params MizerParams
 #' @param diffusion Optional. An array (species x size) holding the diffusion rate. If
 #'   not supplied, the diffusion rate is left unchanged. Initially it is set to 0.
-#' @param reset `r lifecycle::badge("experimental")`
-#'   If set to TRUE, then the diffusion rate will be reset to the value
-#'   calculated from the species parameters, even if it was previously
-#'   overwritten with a custom value. If set to FALSE (default) then a
-#'   recalculation from the species parameters will take place only if no
-#'   custom value has been set.
+#' @param reset Unused. Included for interface consistency with other setter
+#'   functions.
 #' @param ... Unused
 #'
 #' @return `setDiffusion()`: A MizerParams object with updated diffusion rate.

@@ -8,8 +8,9 @@
 #' @param params The model parameters. An object of type 
 #'   \linkS4class{MizerParams}.
 #' @param a A parameter with a default value of 0.35.
-#' @param n0_mult Multiplier for the abundance at size 0. Default value is
-#'   kappa/1000.
+#' @param n0_mult Multiplier for the abundance at size 0 when using defaults
+#'   edition 1. If not supplied, `kappa / 1000` is used. This argument is
+#'   ignored for defaults edition 2 and later.
 #' @export
 #' @concept helper
 #' @return A matrix (species x size) of population abundances.

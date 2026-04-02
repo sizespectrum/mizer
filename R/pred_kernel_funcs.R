@@ -86,9 +86,9 @@ truncated_lognormal_pred_kernel <- function(ppmr, beta, sigma) {
 #'
 #' Writing the predator mass as \eqn{w} and the prey mass as \eqn{w_p}, the
 #' feeding kernel is 1 if \eqn{w/w_p} is between `ppmr_min` and
-#' `ppmr_max` and zero otherwise. The parameters need to be given in the
-#' species parameter dataframe in the columns `ppmr_min` and
-#' `ppmr_max`.
+#' `ppmr_max` inclusive and zero otherwise. `ppmr_min` must be strictly smaller
+#' than `ppmr_max`. The parameters need to be given in the species parameter
+#' dataframe in the columns `ppmr_min` and `ppmr_max`.
 #'
 #' @param ppmr A vector of predator/prey size ratios
 #' @param ppmr_min Minimum predator/prey mass ratio
@@ -151,7 +151,7 @@ box_pred_kernel <- function(ppmr, ppmr_min, ppmr_max) {
 #' species_params(params)["Cod", "kernel_u_l"] <- 3
 #' species_params(params)["Cod", "kernel_l_r"] <- 12.5
 #' species_params(params)["Cod", "kernel_u_r"] <- 4.3
-#' species_params(params)["Cod", "kernel_type"] <- "power_law"
+#' species_params(params)["Cod", "pred_kernel_type"] <- "power_law"
 #' plot(w_full(params), getPredKernel(params)["Cod", 10, ], type="l", log="x")
 power_law_pred_kernel <- function(ppmr, kernel_exp,
                                   kernel_l_l, kernel_u_l,

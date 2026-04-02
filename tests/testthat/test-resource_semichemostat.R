@@ -76,3 +76,34 @@ test_that("balance_resource_semichemostat works", {
     expect_identical(p1@cc_pp, capacity)
     expect_true(sc(p1))
 })
+
+test_that("balance_resource_semichemostat validates balancing inputs", {
+    params <- NS_params
+
+    rate <- getResourceMort(params)
+    rate[1] <- 0
+    expect_error(balance_resource_semichemostat(params,
+                                                resource_rate = rate,
+                                                resource_capacity = NULL),
+                 "resource rate is zero while the resource mortality is not")
+
+    expect_error(balance_resource_semichemostat(
+        params,
+        resource_rate = NULL,
+        resource_capacity = initialNResource(params)
+    ), "capacity is greater than the current abundance wherever there is consumption")
+})
+
+test_that("balance_resource_semichemostat keeps current rate when unidentifiable", {
+    params <- newTraitParams()
+    initialN(params)[] <- 0
+    keep <- params@rr_pp[1]
+    capacity <- initialNResource(params)
+
+    balanced <- balance_resource_semichemostat(params,
+                                               resource_rate = NULL,
+                                               resource_capacity = capacity)
+
+    expect_identical(balanced$resource_rate[1], keep)
+    expect_identical(balanced$resource_capacity[1], capacity[1])
+})

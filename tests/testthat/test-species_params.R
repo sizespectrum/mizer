@@ -160,3 +160,16 @@ test_that("`given_species_params<-()` can remove columns", {
     expect_true("gamma" %in% names(params@species_params))
     expect_error(given_species_params(params)$species <- NULL)
 })
+
+test_that("calculated_species_params returns only non-given values", {
+    params <- NS_params
+
+    calculated <- calculated_species_params(params)
+    expect_false("species" %in% names(calculated))
+    expect_true(all(vapply(calculated, function(col) !all(is.na(col)), logical(1))))
+
+    given_species_params(params)$gamma <- NULL
+    calculated <- calculated_species_params(params)
+    expect_true("gamma" %in% names(calculated))
+    expect_identical(calculated$gamma, species_params(params)$gamma)
+})

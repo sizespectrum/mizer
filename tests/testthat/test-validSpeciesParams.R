@@ -55,3 +55,11 @@ test_that("validSpeciesParams converts from length to weight", {
     sp2 <- validSpeciesParams(sp)
     expect_identical(sp2$w_max, c(0.01, 0.08))
 })
+
+test_that("completeSpeciesParams is a deprecated alias for validSpeciesParams", {
+    sp <- data.frame(species = c("a", "b"),
+                     w_max = c(10, 100),
+                     stringsAsFactors = FALSE)
+
+    expect_identical(completeSpeciesParams(sp), validSpeciesParams(sp))
+})

@@ -63,6 +63,20 @@ test_that("double_sigmoid_length works", {
                  "l50_right not less than l25_right")
 })
 
+test_that("double_sigmoid_length produces a hump-shaped selectivity curve", {
+    species_params$a <- 0.5
+    species_params$b <- 3
+    sel <- double_sigmoid_length(w, 20, 30, 40, 50,
+                                 species_params = species_params[1, ])
+
+    expect_true(all(sel >= 0))
+    peak <- which.max(sel)
+    expect_gt(peak, 1)
+    expect_lt(peak, length(sel))
+    expect_gt(sel[peak], sel[1])
+    expect_gt(sel[peak], sel[length(sel)])
+})
+
 # sigmoid_weight ----
 test_that("sigmoid_weight works", {
     expect_length(sigmoid_weight(w, sigmoidal_weight = 20, 

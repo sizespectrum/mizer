@@ -16,6 +16,18 @@ test_that("constantEggRDI() keeps egg density constant", {
     expect_equal(finalN(sim)[idx], initialN(params)[idx])
 })
 
+test_that("constantEggRDI returns loss from the egg size bin", {
+    expected <- {
+        no_sp <- nrow(params@species_params)
+        idx <- (params@w_min_idx - 1) * no_sp + (1:no_sp)
+        params@initial_n[idx] *
+            (getEGrowth(params)[idx] + getMort(params)[idx] * params@dw[params@w_min_idx])
+    }
+    expect_equal(constantEggRDI(params, params@initial_n,
+                                getEGrowth(params), getMort(params)),
+                 expected)
+})
+
 test_that("BevertonHoltRDD works", {
     rdd <- BevertonHoltRDD(rdi, sp)
     expect_identical(rdd, rdi / (1 + rdi/sp$R_max))

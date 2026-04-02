@@ -145,13 +145,18 @@ test_that("animateSpectra uses consistent colors matching linecolour", {
     # Extract the data from the plotly object
     plot_data <- plotly::plotly_build(result)
     
-    # Check that species are factors
-    # This is done by checking the internal data structure
-    expect_true(is.list(plot_data$x$data))
-    
-    # The colors should be assigned consistently
-    # Each trace should have a specific color
-    expect_true(length(plot_data$x$data) > 0)
+    expected_names <- intersect(names(sim@params@linecolour),
+                                c("Cod", "Haddock", "Sprat", "Resource"))
+    actual_names <- vapply(plot_data$x$data, `[[`, character(1), "name")
+    actual_colours <- vapply(plot_data$x$data,
+                             function(trace) trace$line$color,
+                             character(1))
+    expected_colours <- c(unname(sim@params@linecolour[
+        intersect(names(sim@params@linecolour), c("Cod", "Haddock", "Sprat"))
+    ]), "green")
+
+    expect_identical(actual_names, expected_names)
+    expect_identical(unname(actual_colours), expected_colours)
 })
 
 test_that("animateSpectra maintains color consistency when species go extinct", {
@@ -174,4 +179,44 @@ test_that("animateSpectra maintains color consistency when species go extinct", 
     for (trace in built_plot$x$data) {
         expect_true("line" %in% names(trace) || "marker" %in% names(trace))
     }
+})
+
+test_that("animateSpectra adds resource and total traces when requested", {
+    sim <- project(NS_params, t_max = 2, t_save = 1, effort = 1)
+
+    built_plot <- plotly::plotly_build(
+        animateSpectra(sim,
+                       species = c("Cod", "Haddock"),
+                       time_range = c(1, 2),
+                       total = TRUE,
+                       resource = TRUE)
+    )
+
+    trace_names <- vapply(built_plot$x$data, `[[`, character(1), "name")
+    expect_identical(trace_names,
+                     intersect(names(sim@params@linecolour),
+                               c("Cod", "Haddock", "Total", "Resource")))
+})
+
+test_that("animateSpectra sets the y axis title from power", {
+    sim <- project(NS_params, t_max = 2, t_save = 1, effort = 1)
+
+    built0 <- plotly::plotly_build(animateSpectra(sim, species = "Cod",
+                                                  time_range = c(1, 2),
+                                                  power = 0))
+    built1 <- plotly::plotly_build(animateSpectra(sim, species = "Cod",
+                                                  time_range = c(1, 2),
+                                                  power = 1))
+    built2 <- plotly::plotly_build(animateSpectra(sim, species = "Cod",
+                                                  time_range = c(1, 2),
+                                                  power = 2))
+    built_custom <- plotly::plotly_build(animateSpectra(sim, species = "Cod",
+                                                         time_range = c(1, 2),
+                                                         power = 1.5))
+
+    expect_identical(built0$x$layout$yaxis$title, "Number density [1/g]")
+    expect_identical(built1$x$layout$yaxis$title, "Biomass density")
+    expect_identical(built2$x$layout$yaxis$title, "Biomass density [g]")
+    expect_identical(built_custom$x$layout$yaxis$title,
+                     "Number density * w^1.5")
 })

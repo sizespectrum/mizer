@@ -94,8 +94,8 @@ matchBiomasses.MizerParams <- function(params, species = NULL, ...) {
 #' blog post at https://bit.ly/2YqXESV.
 #'
 #' Before you can use this function you will need to have added a
-#' `number_observed` column to your model which gives the observed number in
-#' grams.  For species for which you have no observed number, you should set
+#' `number_observed` column to your model which gives the observed number of
+#' individuals. For species for which you have no observed number, you should set
 #' the value in the `number_observed` column to 0 or NA.
 #'
 #' Number observations usually only include individuals above a certain size.
@@ -145,7 +145,7 @@ matchNumbers.MizerParams <- function(params, species = NULL, ...) {
         if (!(total > 0)) {
             error_message <- paste(
                 error_message, params@species_params$species[[sp]],
-                "does not grow up to the biomass_cutoff size of",
+                "does not grow up to the number_cutoff size of",
                 cutoff, "grams.\n")
         }
         factor <- params@species_params$number_observed[[sp]] / total

@@ -12,7 +12,8 @@
 #' @param previous A named list with entries `n`, `n_pp` and `n_other`
 #'   describing the previous state
 #' @return The largest absolute relative change in rdi:
-#'   `max(abs((current_rdi - previous_rdi) / previous_rdi))`
+#'   `max(abs((current_rdi - previous_rdi) / previous_rdi))`. If any entry of
+#'   `previous_rdi` is zero, the result can be infinite.
 #' @family distance functions
 #' @concept helper
 #' @export
@@ -43,7 +44,8 @@ distanceMaxRelRDI.MizerParams <- function(params, current, previous) {
 #' @param previous A named list with entries `n`, `n_pp` and `n_other`
 #'   describing the previous state
 #' @return The sum of squares of the difference in the logs of the (nonzero)
-#'   fish abundances n:
+#'   fish abundances `n`, ignoring entries where either state has zero
+#'   abundance:
 #'   `sum((log(current$n) - log(previous$n))^2)`
 #' @family distance functions
 #' @concept helper

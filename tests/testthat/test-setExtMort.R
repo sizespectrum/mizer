@@ -64,3 +64,10 @@ test_that("Can get and set slot", {
     ext_mort(params) <- new
     expect_identical(ext_mort(params), new)
 })
+
+test_that("setExtMort validates dimensions and deprecated z0 argument", {
+    expect_error(setExtMort(NS_params, array(0, dim = c(1, 1))))
+    expect_warning(p <- setExtMort(NS_params, z0 = NS_params@mu_b),
+                   "deprecated")
+    expect_equal(p@mu_b, NS_params@mu_b, ignore_attr = TRUE)
+})

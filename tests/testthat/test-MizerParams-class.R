@@ -59,6 +59,16 @@ test_that("basic constructor sets dimensions properly", {
     expect_equal(dimnames(test_params_gears@catchability)$gear, gear_names)
 })
 
+test_that("emptyParams validates min_w_pp against min_w", {
+    species_params <- NS_species_params[c(6, 10, 11), ]
+    expect_error(emptyParams(species_params,
+                             min_w = 0.1,
+                             max_w = 40000,
+                             no_w = 200,
+                             min_w_pp = 0.1),
+                 "min_w_pp must be larger than min_w")
+})
+
 # validMizerParams ----
 test_that("Slots are allowed to have comments", {
     params <- NS_params
