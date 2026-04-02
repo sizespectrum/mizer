@@ -100,8 +100,8 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #'   3. Grouping variable
 #' @param params A MizerParams object, which is used for the line colours and
 #'   line types.
-#' @param style The style of the plot. Available options are "line' for geom_line
-#' and "area" for geom_area. Default is "line".
+#' @param style The style of the plot. Available options are `"line"` for
+#'   `geom_line()` and `"area"` for `geom_area()`. Default is `"line"`.
 #' @param legend_var The name of the variable that should be used in the legend
 #'   and to determine the line style. If NULL then the grouping variable is
 #'   used for this purpose.
@@ -175,7 +175,7 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
         scale_y_continuous(trans = ytrans, breaks = ybreaks,
                            labels = prettyNum, name = ylab,
                            limits = ylim) +
-        scale_x_continuous(trans = xtrans, name = xlab,
+        scale_x_continuous(trans = xtrans, breaks = xbreaks, name = xlab,
                            limits = xlim)
 
     switch(style,
@@ -195,7 +195,7 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
                                  fill = .data[[legend_var]])) +
                    scale_fill_manual(values = linecolour)
            },
-           "unknown style selected"
+           stop("unknown style selected")
     )
 
     if (!is.null(wrap_var)) {
