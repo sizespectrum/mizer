@@ -82,7 +82,8 @@
 #' The initial resource number density \eqn{N_R(w)} is set to a power law with
 #' coefficient `kappa` (\eqn{\kappa}) and exponent `-lambda` (\eqn{-\lambda}):
 #' \deqn{N_R(w) = \kappa\, w^{-\lambda}}{c_R(w) = \kappa w^{-\lambda}}
-#' for all \eqn{w} less than `w_pp_cutoff` and zero for larger sizes.
+#' for all \eqn{w} less than `w_pp_cutoff` and zero for sizes at or above
+#' `w_pp_cutoff`.
 #'
 #' @export
 #' @family functions for setting up models

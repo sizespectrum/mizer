@@ -33,7 +33,7 @@ saveParams.MizerParams <- function(params, file) {
     missing <- !sapply(packages, requireNamespace, quietly = TRUE)
     if (any(missing)) {
         stop("Some required extension packages are not installed: ",
-             paste(missing, collapse = ", "))
+             paste(packages[missing], collapse = ", "))
     }
     custom <- sapply(funs, is_custom, packages = packages)
     if (any(custom)) {

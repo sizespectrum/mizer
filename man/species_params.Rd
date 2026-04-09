@@ -24,7 +24,24 @@ calculated_species_params(params)
 \item{value}{A data frame with the species parameters}
 }
 \value{
-Data frame of species parameters
+\code{species_params()}: Data frame containing all species parameters
+currently stored in the model.
+
+\verb{species_params<-()}: Updates the full species parameter table after
+validating it with \code{\link[=validSpeciesParams]{validSpeciesParams()}} and then recalculating the model
+parameters with \code{\link[=setParams]{setParams()}}.
+
+\code{given_species_params()}: Data frame containing the species parameter
+values that were supplied explicitly by the user.
+
+\verb{given_species_params<-()}: Updates the explicitly supplied species
+parameters after validating them with \code{\link[=validGivenSpeciesParams]{validGivenSpeciesParams()}} and then
+recalculating the full species parameter table and dependent model
+quantities.
+
+\code{calculated_species_params()}: Data frame containing only those species
+parameter entries that are not explicit user input. Columns that would
+consist entirely of \code{NA} values are dropped.
 }
 \description{
 These functions allow you to get or set the species-specific parameters
@@ -88,7 +105,7 @@ see "Predation encounter" section in the help for \code{\link[=getEncounter]{get
 \item \code{erepro} is the reproductive efficiency, the proportion of the energy
 invested into reproduction that is converted to egg biomass, see
 \code{\link[=getRDI]{getRDI()}}.
-\item \code{Rmax} is the parameter in the Beverton-Holt density dependence added to
+\item \code{R_max} is the parameter in the Beverton-Holt density dependence added to
 the reproduction, see \code{\link[=setBevertonHolt]{setBevertonHolt()}}. There will be other such
 parameters if you use other density dependence functions, see the
 "Density dependence" section in the help for \code{\link[=setReproduction]{setReproduction()}}.
@@ -118,9 +135,12 @@ maintain itself. This is used to get a default value for the coefficient
 the coefficient \code{h} of the maximum intake rate, see \code{\link[=get_h_default]{get_h_default()}}.
 }
 
-Note that setting these parameters with \verb{species_params<-()} will have no
-effect. You need to set them with \verb{given_species_params<-()} in order to
-trigger a re-calculation of the other species parameters.
+Changing these parameters with \verb{species_params<-()} updates the stored
+species parameter table and triggers a recalculation via \code{\link[=setParams]{setParams()}}.
+However they only affect model behaviour if the corresponding downstream
+parameters are recalculated rather than kept at explicitly supplied values.
+In typical workflows these quantities should therefore be changed via
+\verb{given_species_params<-()}.
 
 In the past, mizer also used the von Bertalanffy parameters \code{k_vb}, \code{w_inf}
 and \code{t0} to determine a default for \code{h}. This is unreliable and is therefore

@@ -10,4 +10,12 @@ test_that("saveParams/readParams round-trip", {
     expect_identical(params2@species_params$species, params@species_params$species)
 })
 
+test_that("saveParams reports missing extension packages by name", {
+    params <- NS_params
+    params@extensions <- c(definitelyMissingPkg = "github::owner/repo")
+    tmp <- tempfile(fileext = ".rds")
+    on.exit(unlink(tmp), add = TRUE)
 
+    expect_error(saveParams(params, tmp),
+                 "Some required extension packages are not installed: definitelyMissingPkg")
+})

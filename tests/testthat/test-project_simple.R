@@ -30,4 +30,51 @@ test_that("project_simple matches project for one saved step", {
     expect_equal(out$n_pp, NResource(sim)[2, ], tolerance = 1e-12)
 })
 
+test_that("project_simple returns rates from the final update step", {
+    params <- NS_params
+    dt <- 0.1
+    steps <- 2
+    effort <- getInitialEffort(params)
+    res_fn <- get(params@resource_dynamics)
+    other_fns <- lapply(params@other_dynamics, get)
+    rates_fns <- lapply(params@rates_funcs, get)
+    out <- project_simple(
+        params,
+        n = params@initial_n,
+        n_pp = params@initial_n_pp,
+        n_other = params@initial_n_other,
+        t = 0,
+        dt = dt,
+        steps = steps,
+        effort = effort,
+        resource_dynamics_fn = res_fn,
+        other_dynamics_fns = other_fns,
+        rates_fns = rates_fns
+    )
 
+    step1 <- project_simple(
+        params,
+        n = params@initial_n,
+        n_pp = params@initial_n_pp,
+        n_other = params@initial_n_other,
+        t = 0,
+        dt = dt,
+        steps = 1,
+        effort = effort,
+        resource_dynamics_fn = res_fn,
+        other_dynamics_fns = other_fns,
+        rates_fns = rates_fns
+    )
+    expected_rates <- getRates(
+        params,
+        n = step1$n,
+        n_pp = step1$n_pp,
+        n_other = step1$n_other,
+        effort = effort,
+        t = dt
+    )
+
+    expect_identical(names(out$rates), names(expected_rates))
+    expect_equal(out$rates$encounter, expected_rates$encounter)
+    expect_equal(out$rates$rdd, expected_rates$rdd)
+})

@@ -136,6 +136,11 @@ test_that("getFeedingLevel is independent of volume", {
     expect_equal(fl, fl_r)
 })
 
+test_that("getCriticalFeedingLevel matches metab over intake_max times alpha", {
+    expected <- params@metab / params@intake_max / params@species_params$alpha
+    expect_equal(getCriticalFeedingLevel(params), expected)
+})
+
 # getPredRate -------------------------------------------------------------
 
 test_that("getPredRate for MizerParams", {
@@ -254,6 +259,17 @@ test_that("getResourceMort is independent of volume", {
     expect_equal(pm, pm_r)
 })
 
+test_that("getResourceMort and getZ aliases delegate exactly", {
+    expect_equal(
+        getResourceMort(params, n, n_full),
+        colSums(getPredRate(params, n, n_full))
+    )
+    expect_identical(
+        getZ(params, n = n, n_pp = n_full, effort = 0.2),
+        getMort(params, n = n, n_pp = n_full, effort = 0.2)
+    )
+})
+
 
 # getFmortGear ------------------------------------------------------------
 
@@ -348,6 +364,15 @@ test_that("getFMort", {
     expect_snapshot_value(f1, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
+test_that("getFMort drop argument controls singleton dimensions for MizerSim", {
+    single <- project(newMultispeciesParams(NS_species_params_gears[12, ], info_level = 0),
+                      effort = 1, t_max = 2, progress_bar = FALSE)
+    expect_equal(dim(getFMort(single, drop = FALSE)),
+                 c(length(getTimes(single)), 1, length(single@params@w)))
+    expect_equal(dim(getFMort(single)),
+                 c(length(getTimes(single)), length(single@params@w)))
+})
+
 test_that("getFMort passes correct time", {
     # Here we will check that when getFMort() calls mizerFMort().
     # it passes the correct time. To implement the test we write simple
@@ -424,6 +449,12 @@ test_that("getMort is independent of volume", {
     expect_equal(m, m_r)
 })
 
+test_that("getM2 and getM2Background are aliases", {
+    expect_identical(getM2(params, n, n_full), getPredMort(params, n, n_full))
+    expect_identical(getM2Background(params, n, n_full),
+                     getResourceMort(params, n, n_full))
+})
+
 
 # getEReproAndGrowth ------------------------------------------------------
 
@@ -453,6 +484,30 @@ test_that("getEReproAndGrowth is independent of volume", {
     expect_equal(g, g_r)
 })
 
+test_that("mizerEReproAndGrowth, mizerERepro and mizerEGrowth follow formulas", {
+    encounter <- getEncounter(params, n = n, n_pp = n_full)
+    feeding_level <- getFeedingLevel(params, n = n, n_pp = n_full,
+                                     encounter = encounter)
+    e <- mizerEReproAndGrowth(params, n = n, n_pp = n_full, n_other = list(),
+                              t = 0, encounter = encounter,
+                              feeding_level = feeding_level)
+    expected_e <- sweep((1 - feeding_level) * encounter, 1,
+                        params@species_params$alpha, "*",
+                        check.margin = FALSE) - params@metab
+    expect_equal(e, expected_e)
+
+    e_test <- e
+    e_test[1, 1] <- -1
+    e_repro <- mizerERepro(params, n = n, n_pp = n_full, n_other = list(),
+                           t = 0, e = e_test)
+    expect_equal(e_repro[1, 1], 0)
+    expect_equal(e_repro[-c(1)], (params@psi * pmax(e_test, 0))[-c(1)])
+
+    e_growth <- mizerEGrowth(params, n = n, n_pp = n_full, n_other = list(),
+                             t = 0, e_repro = e_repro, e = e_test)
+    expect_equal(e_growth, pmax(e_test, 0) - e_repro)
+})
+
 
 # getERepro ------------------------------------------------------------
 
@@ -473,6 +528,13 @@ test_that("getERepro", {
     # expect_known_value(es, "values/getERepro")
     # expect_snapshot(es)
     expect_snapshot_value(es, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
+})
+
+test_that("getESpawning is an exact alias for getERepro", {
+    expect_identical(
+        getESpawning(params, n = n, n_pp = n_full),
+        getERepro(params, n = n, n_pp = n_full)
+    )
 })
 
 
@@ -536,6 +598,51 @@ test_that("getEGrowth is working", {
     # expect_known_value(eg1, "values/getEGrowth")
     # expect_snapshot(eg1)
     expect_snapshot_value(eg1, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
+})
+
+test_that("mizerFMortGear, mizerFMort, mizerPredMort and mizerResourceMort follow formulas", {
+    effort <- setNames(seq_len(nrow(params@catchability)),
+                       dimnames(params@catchability)$gear)
+    f_gear <- mizerFMortGear(params, effort)
+    expected_f_gear <- params@selectivity
+    expected_f_gear[] <- effort * c(params@catchability) * c(params@selectivity)
+    expect_equal(f_gear, expected_f_gear)
+
+    f_total <- mizerFMort(params, n = n, n_pp = n_full, n_other = list(),
+                          t = 0, effort = effort,
+                          e_growth = array(0, dim = dim(params@initial_n)),
+                          pred_mort = array(0, dim = dim(params@initial_n)))
+    expect_equal(f_total, colSums(f_gear))
+
+    pred_rate <- getPredRate(params, n = n, n_pp = n_full)
+    idx_sp <- (length(params@w_full) - length(params@w) + 1):length(params@w_full)
+    expect_equal(mizerPredMort(params, n = n, n_pp = n_full, n_other = list(),
+                               t = 0, pred_rate = pred_rate),
+                 t(params@interaction) %*% pred_rate[, idx_sp, drop = FALSE])
+    expect_equal(mizerResourceMort(params, n = n, n_pp = n_full, n_other = list(),
+                                   t = 0, pred_rate = pred_rate),
+                 as.vector(params@species_params$interaction_resource %*% pred_rate))
+})
+
+test_that("mizerRates returns the standard rate list from registered functions", {
+    rates_fns <- lapply(params@rates_funcs, get)
+    r <- mizerRates(params,
+                    n = params@initial_n,
+                    n_pp = params@initial_n_pp,
+                    n_other = params@initial_n_other,
+                    effort = params@initial_effort,
+                    t = 0,
+                    rates_fns = rates_fns)
+    expect_named(r,
+                 c("encounter", "feeding_level", "e", "e_repro", "e_growth",
+                   "pred_rate", "pred_mort", "f_mort", "mort", "rdi",
+                   "rdd", "resource_mort"))
+    expect_identical(r$encounter,
+                     rates_fns$Encounter(params,
+                                         n = params@initial_n,
+                                         n_pp = params@initial_n_pp,
+                                         n_other = params@initial_n_other,
+                                         t = 0))
 })
 
 

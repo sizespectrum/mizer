@@ -53,11 +53,13 @@ age_mat_vB.default <- function(object, ...) {
 
 #' Calculate age at maturity
 #'
-#' Uses the growth rate and the size at maturity to calculate the age at
-#' maturity
+#' Uses the size-dependent growth rate and the size at maturity to calculate
+#' the age at maturity.
 #'
 #' Using that by definition of the growth rate \eqn{g(w) = dw/dt} we have that
 #' \deqn{\mathrm{age_{mat}} = \int_0^{w_{mat}.}\frac{dw}{g(w)}}{age_mat = \int_0^w_mat 1/g(w) dw.}
+#' In the implementation this integral is approximated on the model size grid by
+#' summing `dw / g(w)` over all size bins with `w < w_mat`.
 #'
 #' @param params A MizerParams object
 #' @param ... Additional arguments

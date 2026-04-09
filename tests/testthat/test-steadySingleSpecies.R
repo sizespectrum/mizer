@@ -39,10 +39,10 @@ test_that("steadySingleSpecies `keep` argument works", {
 })
 
 test_that("steadySingleSpecies produces steady state with diffusion", {
-    params <- NS_params
-
-    # Enable diffusion for Cod
-    species <- params@species_params$species[11]
+    # Use a single-species model so that changing the species abundance does
+    # not affect its own growth and mortality rates via self-predation.
+    params <- newSingleSpeciesParams()
+    species <- params@species_params$species[1]
     n <- params@species_params[species, "n"]
     d <- 0.1 * params@w^(n + 1)
     diffusion(params)[species, ] <- d
@@ -50,9 +50,6 @@ test_that("steadySingleSpecies produces steady state with diffusion", {
     # Increase minimum size to test boundary condition
     params@w_min_idx[species] <- 10
     params@species_params[species, "w_min"] <- params@w[10]
-
-    # Keep original params to calculate rates that steadySingleSpecies used
-    params_orig <- params
 
     params <- steadySingleSpecies(params, species = species)
 

@@ -55,3 +55,17 @@ test_that("Can get and set slot", {
     intake_max(params) <- new
     expect_identical(intake_max(params), new)
 })
+
+test_that("setMaxIntakeRate validates manual arrays", {
+    params <- NS_params
+    new <- intake_max(params)
+
+    bad_names <- new
+    dimnames(bad_names)[[1]] <- rev(dimnames(bad_names)[[1]])
+    expect_error(setMaxIntakeRate(params, intake_max = bad_names),
+                 "same ordering of species")
+
+    bad_values <- new
+    bad_values[1, 1] <- -1
+    expect_error(setMaxIntakeRate(params, intake_max = bad_values))
+})

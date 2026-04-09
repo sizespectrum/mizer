@@ -67,9 +67,12 @@ resource_logistic <- function(params, n, n_pp, n_other, rates, t, dt,
 #' The [balance_resource_logistic()] function is called by [setResource()] to
 #' determine the values of the resource parameters that are needed to make the
 #' replenishment rate at each size equal the consumption rate at that size, as
-#' calculated by [getResourceMort()]. It should be called with only one of
-#' `resource_rate` or `resource_capacity` should and will return a named list
-#' with the values for both.
+#' calculated by [getResourceMort()]. It should be called with exactly one of
+#' `resource_rate` or `resource_capacity` and returns a named list with values
+#' for both. If `resource_rate` is supplied it must be at least as large as the
+#' current mortality at each size. If `resource_capacity` is supplied it must be
+#' greater than the current resource abundance wherever there is positive
+#' consumption.
 #' @export
 balance_resource_logistic <- function(params,
                                       resource_rate, resource_capacity) {
@@ -101,7 +104,7 @@ balance_resource_logistic <- function(params,
         assert_that(is.numeric(resource_capacity),
                     length(resource_capacity) == length(params@cc_pp))
         if (any(resource_capacity < NR)) {
-            "I can't balance the resource if the capacity is less than the current abundance."
+            stop("I can't balance the resource if the capacity is less than the current abundance.")
         }
         # If the capacity equals the abundance then there is no 
         # replenishment, so this is only allowed when there is no death either.

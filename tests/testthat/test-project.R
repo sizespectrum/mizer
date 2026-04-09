@@ -357,6 +357,19 @@ test_that("Can extend simulation with NA in final effort", {
   expect_true(all(!is.na(sim@effort)))
 })
 
+test_that("Named effort vectors fill missing gears with the default effort", {
+  gear_names <- unique(gear_params(NS_params)$gear)
+  effort <- c(Industrial = 0.25, Pelagic = 0.4)
+
+  sim <- project(NS_params, effort = effort, t_max = 1, progress_bar = FALSE)
+
+  default_effort <- ifelse(defaults_edition() < 2, 0, 1)
+  expect_equal(sim@effort[1, "Industrial"], 0.25)
+  expect_equal(sim@effort[1, "Pelagic"], 0.4)
+  expect_true(all(sim@effort[1, setdiff(gear_names, c("Industrial", "Pelagic"))] ==
+                    default_effort))
+})
+
 test_that("t_max less than effort array duration uses effort times", {
   gear_names <- unique(gear_params(NS_params)$gear)
   effort <- array(0.5, dim = c(6, length(gear_names)),

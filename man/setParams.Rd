@@ -177,7 +177,9 @@ stores it in the \code{interaction} slot of the \code{params} object.
 The order of the columns and rows of the \code{interaction} argument should be
 the same as the order in the species params data frame in the \code{params}
 object. If you supply a named array then the function will check the order
-and warn if it is different. One way of creating your own interaction
+and message if it is different before ignoring the supplied dimnames. If
+you supply only column names then these are also used as the row names. One
+way of creating your own interaction
 matrix is to enter the data using a spreadsheet program and saving it as a
 .csv file. The data can then be read into R using the command \code{read.csv()}.
 
@@ -259,9 +261,14 @@ The values of \eqn{\gamma_i} (the search volume at 1g) and \eqn{q_i} (the
 allometric exponent of the search volume) are taken from the \code{gamma} and
 \code{q} columns in the species parameter dataframe. If the \code{gamma}
 column is not supplied in the species parameter dataframe, a default is
-calculated by the \code{\link[=get_gamma_default]{get_gamma_default()}} function. Note that only
+calculated by the \code{\link[=get_gamma_default]{get_gamma_default()}} function. If the \code{q} column is not
+supplied, a default of \code{lambda - 2 + n} is used. Note that only
 for predators of size \eqn{w = 1} gram is the value of the species parameter
 \eqn{\gamma_i} the same as the value of the search volume \eqn{\gamma_i(w)}.
+
+If the \code{search_vol} slot has a comment and \code{reset = FALSE}, then a
+recalculation from the species parameters is suppressed and a message is
+issued if the recalculated values would differ from the stored ones.
 }
 
 \section{Setting maximum intake rate}{
@@ -280,6 +287,10 @@ calculated by the \code{\link[=get_h_default]{get_h_default()}} function.
 
 If \eqn{h_i} is set to \code{Inf}, fish of species i will consume all encountered
 food.
+
+If the \code{intake_max} slot has a comment and \code{reset = FALSE}, then a
+recalculation from the species parameters is suppressed and a message is
+issued if the recalculated values would differ from the stored ones.
 }
 
 \section{Setting metabolic rate}{
@@ -295,11 +306,15 @@ where \eqn{k_s w^p} represents the rate of standard metabolism and \eqn{k w}
 is the rate at which energy is expended on activity and movement. The values
 of \eqn{k_s}, \eqn{p} and \eqn{k} are taken from the \code{ks}, \code{p} and
 \code{k} columns in the species parameter dataframe. If any of these
-parameters are not supplied, the defaults are \eqn{k = 0}, \eqn{p = n} and
+parameters are not supplied, the defaults are \eqn{k = 0}, \eqn{p = 3/4} and
 \deqn{k_s = f_c h \alpha w_{mat}^{n-p},}{k_s = f_c * h * alpha * w_mat^(n - p),}
 where \eqn{f_c} is the critical feeding level taken from the \code{fc} column
 in the species parameter data frame. If the critical feeding level is not
 specified, a default of \eqn{f_c = 0.2} is used.
+
+If the \code{metab} slot has a comment and \code{reset = FALSE}, then a recalculation
+from the species parameters is suppressed and a message is issued if the
+recalculated values would differ from the stored ones.
 }
 
 \section{Setting external mortality rate}{

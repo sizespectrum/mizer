@@ -10,8 +10,8 @@ NOther(sim)
 \item{sim}{A MizerSim object}
 }
 \value{
-A list array (time x component) that stores the projected values for
-other ecosystem components.
+A list array indexed by time and component that stores the projected
+values for other ecosystem components.
 }
 \description{
 Fetch the simulation results for other components over time.

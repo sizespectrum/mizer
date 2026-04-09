@@ -12,7 +12,8 @@ calibrateBiomass(params, ...)
 \item{...}{Additional arguments passed to the method.}
 }
 \value{
-A MizerParams object
+A MizerParams object. If no non-missing observed biomass values are
+provided, the original object is returned unchanged.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

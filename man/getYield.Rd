@@ -10,10 +10,10 @@ getYield(object)
 \item{object}{An object of class \code{MizerParams} or \code{MizerSim}.}
 }
 \value{
-If called with a MizerParams object, a vector with the yield rate in
-grams per year for each species in the model. If called with a MizerSim
-object, an array (time x species) containing the yield rate at each time
-step for all species.
+If called with a \code{MizerParams} object, a named numeric vector with
+the yield rate in grams per year for each species in the model. If called
+with a \code{MizerSim} object, an array (time x species) containing the yield
+rate at each saved time step.
 }
 \description{
 This yield rate is given in grams per year. It is calculated at each time
@@ -50,7 +50,7 @@ sim <- project(params, t_save = 0.1, t_max = 1,
                t_start = 2010, progress_bar = FALSE)
 # The yield rate for Herring decreases during the year
 getYield(sim)[, "Herring"]
-# We get the total catch in the year by averaging over the year
+# We approximate the total catch in the year by averaging over the year
 sum(getYield(sim)[1:10, "Herring"] / 10)
 }
 \seealso{

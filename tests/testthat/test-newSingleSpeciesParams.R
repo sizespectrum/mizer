@@ -9,6 +9,17 @@ test_that("newSingleSpeciesParams works", {
     expect_equal(sim@n[1, 1, ], sim@n[2, 1, ])
 })
 
+test_that("newSingleSpeciesParams documents and applies grid and deprecation behaviour", {
+    expect_message(
+        params <- newSingleSpeciesParams(w_max = 100, w_min = 0.001, no_w = 2),
+        "Increased no_w to 26"
+    )
+    expect_equal(length(w(params)), 26)
+
+    expect_snapshot_warning(params2 <- newSingleSpeciesParams(R_factor = Inf))
+    expect_equal(unname(getReproductionLevel(params2)), rep(0, nrow(species_params(params2))))
+})
+
 test_that("Sets given_species_params", {
     # Calling `given_species_params<-()` should not make a change
     params <- newSingleSpeciesParams()

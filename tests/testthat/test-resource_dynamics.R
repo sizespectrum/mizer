@@ -21,4 +21,25 @@ test_that("We can set and get resource parameters", {
     # set
     resource_params(params)$test <- "hi"
     expect_identical(params@resource_params$test, "hi")
+
+    rp2 <- params@resource_params
+    rp2$lambda <- rp2$lambda + 0.1
+    resource_params(params) <- rp2
+    expect_identical(resource_params(params), rp2)
+})
+
+test_that("Deprecated resource getters warn and delegate to accessors", {
+    params <- NS_params
+    expect_warning(expect_identical(getResourceDynamics(params),
+                                    resource_dynamics(params)),
+                   "deprecated")
+    expect_warning(expect_identical(getResourceLevel(params),
+                                    resource_level(params)),
+                   "deprecated")
+    expect_warning(expect_identical(getResourceRate(params),
+                                    resource_rate(params)),
+                   "deprecated")
+    expect_warning(expect_identical(getResourceCapacity(params),
+                                    resource_capacity(params)),
+                   "deprecated")
 })

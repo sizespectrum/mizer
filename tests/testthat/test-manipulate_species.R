@@ -216,6 +216,16 @@ test_that("removeSpecies works correctly on gear_params", {
     expect_equal(nrow(params@gear_params), 1)
 })
 
+test_that("removeSpecies accepts numeric and logical selectors", {
+    by_name <- removeSpecies(NS_params, c("Cod", "Haddock"))
+    by_index <- removeSpecies(NS_params, c(10, 11))
+    by_logical <- removeSpecies(NS_params,
+                                species_params(NS_params)$species %in%
+                                    c("Cod", "Haddock"))
+    expect_equal(by_index, by_name, ignore_attr = TRUE)
+    expect_equal(by_logical, by_name, ignore_attr = TRUE)
+})
+
 test_that("adding and then removing species leaves params unaltered", {
     params <- newMultispeciesParams(NS_species_params, info_level = 0)
     # two arbitrary species
@@ -262,6 +272,18 @@ test_that("renameSpecies works", {
     p2@time_modified <- p@time_modified
     p2@time_created <- p@time_created
     expect_identical(p, p2)
+})
+
+test_that("renameSpecies updates linked species names", {
+    replace <- c(Cod = "Kabeljau", Haddock = "Schellfisch")
+    p <- renameSpecies(NS_params, replace)
+    expect_true(all(replace %in% species_params(p)$species))
+    expect_true(all(replace %in% names(getColours(p))))
+    expect_true(all(replace %in% names(getLinetypes(p))))
+    expect_true(all(replace %in% gear_params(p)$species))
+    expect_true(all(replace %in% dimnames(initialN(p))$sp))
+    expect_true(all(replace %in% dimnames(getSelectivity(p))$sp))
+    expect_true(all(replace %in% dimnames(getCatchability(p))$sp))
 })
 test_that("renameSpecies warns on wrong names", {
     expect_error(renameSpecies(example_params(), c(Kod = "cod", Hadok = "haddock")),

@@ -16,6 +16,10 @@
 #' If \eqn{h_i} is set to `Inf`, fish of species i will consume all encountered
 #' food.
 #'
+#' If the `intake_max` slot has a comment and `reset = FALSE`, then a
+#' recalculation from the species parameters is suppressed and a message is
+#' issued if the recalculated values would differ from the stored ones.
+#'
 #' @param params MizerParams
 #' @param intake_max Optional. An array (species x size) holding the maximum
 #'   intake rate for each species at size. If not supplied, a default is set as
@@ -28,7 +32,7 @@
 #'   custom value has been set.
 #' @param ... Unused
 #'
-#' @return `setReproduction()`: A MizerParams object with updated maximum
+#' @return `setMaxIntakeRate()`: A MizerParams object with updated maximum
 #'   intake rate.
 #' @export
 #' @family functions for setting parameters

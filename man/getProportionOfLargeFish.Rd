@@ -21,12 +21,14 @@ species are selected. A vector of species names, or a
 numeric vector with the species indices, or a logical vector indicating for
 each species whether it is to be selected (TRUE) or not.}
 
-\item{threshold_w}{the size used as the cutoff between large and small fish.
+\item{threshold_w}{The weight used as the cutoff between large and small
+fish.
 Default value is 100.}
 
-\item{threshold_l}{the size used as the cutoff between large and small fish.}
+\item{threshold_l}{The length used as the cutoff between large and small
+fish. If supplied, this takes precedence over \code{threshold_w}.}
 
-\item{biomass_proportion}{a boolean value. If TRUE the proportion calculated
+\item{biomass_proportion}{A boolean value. If TRUE the proportion calculated
 is based on biomass, if FALSE it is based on numbers of individuals.
 Default is TRUE.}
 
@@ -47,14 +49,16 @@ over \code{max_w}.}
 A vector containing the proportion of large fish through time
 }
 \description{
-Calculates the proportion of large fish through time in the \code{MizerSim}
+Calculates the proportion of large fish through time in a \code{MizerSim}
 class within user defined size limits. The default option is to use the whole
 size range. You can specify minimum and maximum size ranges for the species
 and also the threshold size for large fish. Sizes can be expressed as weight
-or size. Lengths take precedence over weights (i.e. if both min_l and min_w
-are supplied, only min_l will be used). You can also specify the species to
-be used in the calculation. This function can be used to calculate the Large
-Fish Index. The proportion is based on either abundance or biomass.
+or length. Lengths take precedence over weights (i.e. if both \code{min_l} and
+\code{min_w} are supplied, only \code{min_l} will be used, and if \code{threshold_l} is
+supplied it takes precedence over \code{threshold_w}). You can also specify the
+species to be used in the calculation. This function can be used to
+calculate the Large Fish Index. The proportion is based on either abundance
+or biomass.
 }
 \examples{
 lfi <- getProportionOfLargeFish(NS_sim, min_w = 10, max_w = 5000,

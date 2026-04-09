@@ -70,9 +70,14 @@ test_that("We can set and get other params", {
                  "other_params should be a named list")
     expect_error(other_params(params) <- list(5),
                  "other_params should be a named list")
-    other_params(params)$test <- 5
-    expect_identical(other_params(params)$test, 5)
-    other_params(params)$test <- NULL
+    other_params(params) <- list(test = 5, other = 6)
+    expect_identical(other_params(params), list(test = 5, other = 6))
+    params2 <- setComponent(NS_params, "component", 1,
+                            dynamics_fun = "test_dyn",
+                            component_params = list(a = 2))
+    expect_null(other_params(params2))
+    expect_identical(params2@other_params$component, list(a = 2))
+    other_params(params) <- structure(list(), names = character())
     expect_length(other_params(params), 0)
     expect_null(other_params(params)$test)
 })
@@ -108,6 +113,10 @@ test_that("We can set, get and remove components", {
     expect_null(all2$test2$encounter_fun)
     p <- setComponent(p2, "test2", 1, "test_dyn", mort_fun = NULL)
     expect_null(getComponent(p, "test2")$mort_fun)
+    p3 <- setComponent(p, "test2", 3, "test_dyn")
+    expect_identical(getComponent(p3, "test2")$initial_value, 3)
+    expect_null(getComponent(p3, "test2")$mort_fun)
+    expect_null(getComponent(p3, "test2")$encounter_fun)
     expect_error(removeComponent(p2, "test3"),
                  "There is no component named test3")
     expect_null(getComponent(p2, "test3"))
@@ -115,6 +124,8 @@ test_that("We can set, get and remove components", {
     d <- getComponent(p1, "test2")
     expect_length(p1@other_dynamics, 1)
     expect_length(p1@other_encounter, 0)
+    expect_null(p1@initial_n_other[["test"]])
+    expect_null(p1@other_params[["test"]])
 })
 
 # initial values ----
@@ -165,6 +176,7 @@ test_that("We can access simulation results", {
     expect_identical(finalNOther(sim), list("test" = 111))
     expect_identical(NOther(sim)[2, ], list(111))
     expect_identical(NOther(sim)[1, ], list(1))
+    expect_identical(dimnames(NOther(sim))$component, "test")
 })
 
 test_that("component can mimic resource", {

@@ -21,7 +21,6 @@ plotlyYieldObservedVsModel(
   species = NULL,
   ratio = FALSE,
   log_scale = TRUE,
-  return_data = FALSE,
   show_unobserved = FALSE,
   ...
 )

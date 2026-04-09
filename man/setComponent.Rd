@@ -50,6 +50,8 @@ data structure you like.
 
 If you set a component with a new name, the new component will be added
 to the existing components. If you set a component with an existing name,
-that component will be overwritten. You can remove a component with
+the \code{initial_value} and \code{dynamics_fun} are overwritten, while the optional
+\code{encounter_fun}, \code{mort_fun} and \code{component_params} are only changed if the
+corresponding arguments are supplied. You can remove a component with
 \code{removeComponent()}.
 }

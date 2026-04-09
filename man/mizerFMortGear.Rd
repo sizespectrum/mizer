@@ -13,8 +13,8 @@ mizerFMortGear(params, effort)
 \item{effort}{A vector with the effort for each fishing gear.}
 }
 \value{
-An three dimensional array (gear x species x size) with the
-fishing mortality
+A three dimensional array (gear x species x size) with the fishing
+mortality.
 }
 \description{
 Calculates the fishing mortality rate \eqn{F_{g,i,w}} by gear, species and

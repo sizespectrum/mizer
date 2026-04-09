@@ -39,15 +39,18 @@ density, whereas \code{power = 2} gives the biomass density with respect
 to logarithmic size bins.}
 
 \item{total}{A boolean value that determines whether the total over all
-species in the system is plotted as well. Default is FALSE.}
+species in the system is plotted as an additional trace called \code{"Total"}.
+Default is FALSE.}
 
 \item{resource}{A boolean value that determines whether resource is included.
-Default is TRUE.}
+If \code{TRUE}, the resource spectrum is plotted as an additional trace called
+\code{"Resource"}. Default is TRUE.}
 
 \item{...}{Additional arguments passed to the method.}
 }
 \value{
-A plotly object
+A plotly object with one animated line trace per plotted group. The
+y-axis title depends on \code{power}.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

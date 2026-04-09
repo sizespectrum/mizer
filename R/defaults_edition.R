@@ -23,7 +23,10 @@
 #' * initial effort = 1 instead of 0
 #' 
 #' @param edition NULL or a numerical value.
-#' @return The current edition number.
+#' @return If `edition` is `NULL`, the currently active edition number. If
+#'   `edition` is supplied, the function sets the global
+#'   `mizer_defaults_edition` option, emits a message, and returns the supplied
+#'   value invisibly.
 #' @export
 defaults_edition <- function(edition = NULL) {
     current_edition <- 1

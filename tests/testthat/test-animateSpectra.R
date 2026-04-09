@@ -179,3 +179,43 @@ test_that("animateSpectra maintains color consistency when species go extinct", 
         expect_true("line" %in% names(trace) || "marker" %in% names(trace))
     }
 })
+
+test_that("animateSpectra adds resource and total traces when requested", {
+    sim <- project(NS_params, t_max = 2, t_save = 1, effort = 1)
+
+    built_plot <- plotly::plotly_build(
+        animateSpectra(sim,
+                       species = c("Cod", "Haddock"),
+                       time_range = c(1, 2),
+                       total = TRUE,
+                       resource = TRUE)
+    )
+
+    trace_names <- vapply(built_plot$x$data, `[[`, character(1), "name")
+    expect_identical(trace_names,
+                     intersect(names(sim@params@linecolour),
+                               c("Cod", "Haddock", "Total", "Resource")))
+})
+
+test_that("animateSpectra sets the y axis title from power", {
+    sim <- project(NS_params, t_max = 2, t_save = 1, effort = 1)
+
+    built0 <- plotly::plotly_build(animateSpectra(sim, species = "Cod",
+                                                  time_range = c(1, 2),
+                                                  power = 0))
+    built1 <- plotly::plotly_build(animateSpectra(sim, species = "Cod",
+                                                  time_range = c(1, 2),
+                                                  power = 1))
+    built2 <- plotly::plotly_build(animateSpectra(sim, species = "Cod",
+                                                  time_range = c(1, 2),
+                                                  power = 2))
+    built_custom <- plotly::plotly_build(animateSpectra(sim, species = "Cod",
+                                                         time_range = c(1, 2),
+                                                         power = 1.5))
+
+    expect_identical(built0$x$layout$yaxis$title, "Number density [1/g]")
+    expect_identical(built1$x$layout$yaxis$title, "Biomass density")
+    expect_identical(built2$x$layout$yaxis$title, "Biomass density [g]")
+    expect_identical(built_custom$x$layout$yaxis$title,
+                     "Number density * w^1.5")
+})

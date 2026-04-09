@@ -18,12 +18,15 @@
 #' density, whereas \code{power = 2} gives the biomass density with respect
 #' to logarithmic size bins.
 #' @param total A boolean value that determines whether the total over all
-#'   species in the system is plotted as well. Default is FALSE.
+#'   species in the system is plotted as an additional trace called `"Total"`.
+#'   Default is FALSE.
 #' @param resource A boolean value that determines whether resource is included.
-#'   Default is TRUE.
+#'   If `TRUE`, the resource spectrum is plotted as an additional trace called
+#'   `"Resource"`. Default is TRUE.
 #' @param ... Additional arguments passed to the method.
 #'
-#' @return A plotly object
+#' @return A plotly object with one animated line trace per plotted group. The
+#'   y-axis title depends on `power`.
 #' @export
 #' @family plotting functions
 #' @examples
@@ -125,4 +128,3 @@ animateSpectra.MizerSim <- function(sim, species = NULL, time_range = NULL,
                                 title = y_label),
                    legend = list(traceorder = "normal"))
 }
-

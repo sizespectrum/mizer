@@ -64,6 +64,7 @@ test_that("getPredKernel has correct dimnames", {
                      dimnames(params@initial_n)$w)
     expect_identical(dimnames(pred_kernel)$w_prey, 
                      as.character(signif(params@w_full, 3)))
+    expect_identical(pred_kernel(params), pred_kernel)
 })
 test_that("getting and setting pred kernel leads to same dynamics", {
     params <- NS_params
@@ -79,6 +80,7 @@ test_that("Can get and set pred_kernel slot", {
     comment(new) <- "test"
     pred_kernel(params) <- new
     expect_identical(pred_kernel(params), new)
+    expect_identical(getPredKernel(params), new)
 })
 
 ## get_phi ----
@@ -114,4 +116,33 @@ test_that("get_phi throws error if predation kernel parameters are missing", {
     sp$ppmr_min[2] <- NA
     expect_error(get_phi(sp, 1:5),
                  "arguments for the predation kernel function box_pred_kernel are NA")
+})
+
+test_that("default_pred_kernel_params sets defaults for data frames and params", {
+    sp <- data.frame(species = c("A", "B"),
+                     w_max = c(10, 20),
+                     stringsAsFactors = FALSE)
+    sp_defaulted <- default_pred_kernel_params(sp)
+    expect_identical(sp_defaulted$pred_kernel_type, c("lognormal", "lognormal"))
+    expect_identical(sp_defaulted$beta, c(30, 30))
+    expect_identical(sp_defaulted$sigma, c(2, 2))
+
+    params <- NS_params
+    params@species_params$pred_kernel_type <- NA
+    params@species_params$beta <- NA
+    params@species_params$sigma <- NA
+    params_defaulted <- default_pred_kernel_params(params)
+    expect_true(all(params_defaulted@species_params$pred_kernel_type == "lognormal"))
+    expect_true(all(params_defaulted@species_params$beta == 30))
+    expect_true(all(params_defaulted@species_params$sigma == 2))
+})
+
+test_that("default_pred_kernel_params leaves manually set full kernels unchanged", {
+    params <- setPredKernel(NS_params, pred_kernel = getPredKernel(NS_params))
+    params@species_params$beta[] <- NA
+
+    unchanged <- default_pred_kernel_params(params)
+
+    expect_true(all(is.na(unchanged@species_params$beta)))
+    expect_identical(unchanged@pred_kernel, params@pred_kernel)
 })

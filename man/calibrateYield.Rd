@@ -12,7 +12,8 @@ calibrateYield(params, ...)
 \item{...}{Additional arguments passed to the method.}
 }
 \value{
-A MizerParams object
+A MizerParams object. If no non-missing observed yield values are
+provided, the original object is returned unchanged.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}

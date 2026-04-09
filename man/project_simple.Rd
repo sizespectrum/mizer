@@ -52,7 +52,8 @@ the rates. See Details.}
 \item{...}{Other arguments that are passed on to the rate functions.}
 }
 \value{
-List with the final values of \code{n}, \code{n_pp} and \code{n_other}, \code{rates}.
+List with the final values of \code{n}, \code{n_pp}, and \code{n_other}, together
+with \code{rates}, the rates calculated at the start of the final update step.
 }
 \description{
 This is an internal function used by the user-facing \code{project()} function.
@@ -82,7 +83,7 @@ This function is also used in \code{steady()}. In between calls to
 still changing significantly, so that it can stop when a steady state has
 been approached. Mizer extension packages might have a similar need to run
 a simulation repeatedly for short periods to run some other code in
-between. Because this code may want to use the values of the rates at the
-final time step, these too are included in the returned list.
+between. Because this code may want to use the values of the rates from the
+final update step, these too are included in the returned list.
 }
 \concept{helper}

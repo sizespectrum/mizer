@@ -21,7 +21,6 @@ plotlyBiomassObservedVsModel(
   species = NULL,
   ratio = FALSE,
   log_scale = TRUE,
-  return_data = FALSE,
   show_unobserved = FALSE,
   ...
 )
@@ -65,7 +64,8 @@ If biomass observations are available for at least some species via the
 \code{biomass_observed} column in the species parameter data frame, this function
 plots the biomass of each species in the model against the observed
 biomasses. When called with a MizerSim object, the plot will use the model
-biomasses predicted for the final time step in the simulation.
+biomasses predicted for the final time step in the simulation. For the
+MizerSim and plotly methods, \code{ratio} defaults to \code{FALSE}.
 }
 \details{
 Before you can use this function you will need to have added a

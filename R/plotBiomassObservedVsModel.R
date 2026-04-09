@@ -5,7 +5,8 @@
 #' `biomass_observed` column in the species parameter data frame, this function
 #' plots the biomass of each species in the model against the observed
 #' biomasses. When called with a MizerSim object, the plot will use the model
-#' biomasses predicted for the final time step in the simulation.
+#' biomasses predicted for the final time step in the simulation. For the
+#' MizerSim and plotly methods, `ratio` defaults to `FALSE`.
 #'
 #' Before you can use this function you will need to have added a
 #' `biomass_observed` column to your model which gives the observed biomass in
@@ -200,7 +201,7 @@ plotBiomassObservedVsModel.MizerSim <- function(object, species = NULL, ratio = 
 #' @rdname plotBiomassObservedVsModel
 #' @export
 plotlyBiomassObservedVsModel <- function(object, species = NULL, ratio = FALSE,
-                                         log_scale = TRUE, return_data = FALSE, 
+                                         log_scale = TRUE,
                                          show_unobserved = FALSE, ...) {
     argg <- as.list(environment())
     argg$labels <- FALSE

@@ -8,3 +8,5 @@ docs/*.md
 docs/dev
 .vscode
 .positai
+.claude
+.codex

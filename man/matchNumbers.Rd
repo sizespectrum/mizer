@@ -34,8 +34,8 @@ exactly. You could then iterate this process. This is described in the
 blog post at https://bit.ly/2YqXESV.
 
 Before you can use this function you will need to have added a
-\code{number_observed} column to your model which gives the observed number in
-grams.  For species for which you have no observed number, you should set
+\code{number_observed} column to your model which gives the observed number of
+individuals. For species for which you have no observed number, you should set
 the value in the \code{number_observed} column to 0 or NA.
 
 Number observations usually only include individuals above a certain size.

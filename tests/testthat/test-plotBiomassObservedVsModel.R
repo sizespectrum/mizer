@@ -59,4 +59,24 @@ vdiffr::expect_doppelganger("plotBiomassObservedVsModel", p)
 
 })
 
+test_that("plotBiomassObservedVsModel methods for MizerSim and plotly work", {
+params <- NS_params
+species_params(params)$biomass_observed <-
+  c(0.8, 61, 12, 35, 1.6, 20, 10, 7.6, 135, 60, 30, 78)
+species_params(params)$biomass_cutoff <- 10
+params <- calibrateBiomass(params)
+sim <- project(params, t_max = 0.1, progress_bar = FALSE)
 
+dummy_sim <- plotBiomassObservedVsModel(sim, return_data = TRUE)
+dummy_params <- plotBiomassObservedVsModel(setInitialValues(sim@params, sim),
+                                           return_data = TRUE,
+                                           ratio = FALSE)
+expect_identical(dummy_sim, dummy_params)
+
+    p <- plotBiomassObservedVsModel(sim)
+    expect_true(is_ggplot(p))
+    expect_identical(p$labels$y, "model biomass [g]")
+
+    pp <- plotlyBiomassObservedVsModel(params)
+    expect_s3_class(pp, "plotly")
+})

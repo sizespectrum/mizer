@@ -5,6 +5,7 @@ w <- NS_params@w
 test_that("knife-edge selectivity function is working properly", {
     expect_length(knife_edge(w, 20, species_params = species_params[1, ]),
                   length(w))
+    expect_equal(knife_edge(c(10, 20, 30), 20), c(0, 1, 1))
     
     NS_species_params_gears$sel_func <- "knife_edge"
     NS_species_params_gears$knife_edge_size <- 1000
@@ -46,6 +47,10 @@ test_that("sigmoid_length works", {
     species_params$b <- 3
     expect_length(sigmoid_length(w, 20, 30, species_params = species_params[1, ]),
                   length(w))
+    w25 <- species_params$a[[1]] * 20 ^ species_params$b[[1]]
+    w50 <- species_params$a[[1]] * 30 ^ species_params$b[[1]]
+    sel <- sigmoid_length(c(w25, w50), 20, 30, species_params = species_params[1, ])
+    expect_equal(sel, c(0.25, 0.5))
 })
 
 # double_sigmoid_length ----
@@ -63,8 +68,26 @@ test_that("double_sigmoid_length works", {
                  "l50_right not less than l25_right")
 })
 
+test_that("double_sigmoid_length produces a hump-shaped selectivity curve", {
+    species_params$a <- 0.5
+    species_params$b <- 3
+    sel <- double_sigmoid_length(w, 20, 30, 40, 50,
+                                 species_params = species_params[1, ])
+
+    expect_true(all(sel >= 0))
+    peak <- which.max(sel)
+    expect_gt(peak, 1)
+    expect_lt(peak, length(sel))
+    expect_gt(sel[peak], sel[1])
+    expect_gt(sel[peak], sel[length(sel)])
+})
+
 # sigmoid_weight ----
 test_that("sigmoid_weight works", {
     expect_length(sigmoid_weight(w, sigmoidal_weight = 20, 
                                  sigmoidal_sigma = 2), length(w))
+    expect_equal(sigmoid_weight(c(5, 20, 80),
+                                sigmoidal_weight = 20,
+                                sigmoidal_sigma = 2),
+                 c(1 / 17, 0.5, 16 / 17))
 })

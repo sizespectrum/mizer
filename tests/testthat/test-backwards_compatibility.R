@@ -124,6 +124,15 @@ test_that("set_trait_model() works as in version 1", {
   # max(abs(old - new))
 })
 
+test_that("set_trait_model uses documented grid arguments and deprecates softly", {
+  expect_warning(
+    params <- set_trait_model(max_w = 2e5, min_w_pp = 1e-8),
+    "deprecated"
+  ) 
+  expect_equal(max(w(params)), 2e5)
+  expect_equal(min(w_full(params)), 1e-8)
+})
+
 test_that("set_community_model() works as in version 1", {
   # expect_warning(params <- set_community_model(), "deprecated")
   # warning no longer thrown - default params are now 2.5.1 (see `params@mizer_version`)
@@ -181,4 +190,50 @@ test_that("set_community_model() works as in version 1", {
   #     scale_x_log10() +
   #     scale_y_log10()
   # max(abs(new - old))
+})
+
+test_that("set_community_model deprecates softly and sets constant-community behaviour", {
+  expect_warning(params <- set_community_model(), "deprecated")
+  expect_identical(params@rates_funcs$RDD, "constantRDD")
+  expect_true(all(params@psi == 0))
+  expect_true(all(is.na(params@species_params$w_mat)))
+})
+
+test_that("set_multispecies_model keeps documented legacy defaults", {
+  expect_warning(
+    suppressMessages(params <- set_multispecies_model(NS_species_params_gears, inter, info_level = 0)),
+    "deprecated"
+  )
+  expect_equal(max(w(params)), 1.1 * max(NS_species_params_gears$w_max))
+
+  reduced <- NS_species_params_gears[
+    ,
+    setdiff(
+      names(NS_species_params_gears),
+      c("gear", "alpha", "erepro", "sel_func", "knife_edge_size",
+        "catchability", "gamma", "ks", "m")
+    )
+  ]
+  expect_warning(
+    suppressMessages(params2 <- set_multispecies_model(reduced, inter, info_level = 0)),
+    "deprecated"
+  )
+  sp <- species_params(params2)
+  expect_identical(sp$gear, sp$species)
+  expect_true(all(sp$alpha == 0.6))
+  expect_true(all(sp$erepro == 1))
+  expect_true(all(sp$sel_func == "knife_edge"))
+  expect_identical(sp$knife_edge_size, sp$w_mat)
+  expect_true(all(sp$catchability == 1))
+  expect_true(all(sp$m == 1))
+  expect_equal(sp$ks, sp$h * 0.2)
+})
+
+test_that("getPhiPrey deprecates softly and matches encounter over search volume", {
+  params <- NS_params
+  expect_warning(
+    phi <- getPhiPrey(params, n = initialN(params), n_pp = initialNResource(params)),
+    "deprecated"
+  )
+  expect_equal(phi, getEncounter(params) / getSearchVolume(params))
 })

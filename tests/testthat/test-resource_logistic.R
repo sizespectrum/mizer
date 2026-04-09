@@ -77,3 +77,35 @@ test_that("balance_resource_logistic works", {
     expect_true(sc(p1))
     
 })
+
+test_that("balance_resource_logistic validates balancing inputs", {
+    params <- NS_params
+
+    rate <- getResourceMort(params)
+    rate[1] <- rate[1] * 0.9
+    expect_error(balance_resource_logistic(params,
+                                           resource_rate = rate,
+                                           resource_capacity = NULL),
+                 "resource rate is less than the mortality rate")
+
+    expect_error(balance_resource_logistic(params,
+                                           resource_rate = NULL,
+                                           resource_capacity =
+                                               initialNResource(params) * 0.9),
+                 "capacity is less than the current abundance")
+})
+
+test_that("balance_resource_logistic keeps current capacity when unidentifiable", {
+    params <- newTraitParams()
+    initialN(params)[] <- 0
+    keep <- params@cc_pp[1]
+    rate <- getResourceMort(params)
+    rate[1] <- 0
+
+    balanced <- balance_resource_logistic(params,
+                                          resource_rate = rate,
+                                          resource_capacity = NULL)
+
+    expect_identical(balanced$resource_capacity[1], keep)
+    expect_equal(unname(balanced$resource_rate[1]), 0)
+})

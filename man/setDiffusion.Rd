@@ -21,12 +21,8 @@ diffusion(params) <- value
 \item{diffusion}{Optional. An array (species x size) holding the diffusion rate. If
 not supplied, the diffusion rate is left unchanged. Initially it is set to 0.}
 
-\item{reset}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-If set to TRUE, then the diffusion rate will be reset to the value
-calculated from the species parameters, even if it was previously
-overwritten with a custom value. If set to FALSE (default) then a
-recalculation from the species parameters will take place only if no
-custom value has been set.}
+\item{reset}{Unused. Included for interface consistency with other setter
+functions.}
 
 \item{...}{Unused}
 

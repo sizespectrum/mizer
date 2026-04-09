@@ -12,6 +12,14 @@ test_that("l2w works", {
                  "l is not a numeric or integer vector")
     expect_error(l2w(1:2, NS_species_params),
                  "The length of 'l'")
+    sp <- NS_species_params[1:2, "species", drop = FALSE]
+    expect_condition(
+        expect_condition(expect_equal(l2w(c(2, 3), sp), c(0.08, 0.27)),
+                         "Using default values for 'a' parameter.",
+                         class = "info_about_default"),
+        "Using default values for 'b' parameter.",
+        class = "info_about_default"
+    )
 })
 
 test_that("w2l works", {
@@ -28,4 +36,12 @@ test_that("w2l works", {
     # w2l should do the inverse of l2w
     expect_equal(w2l(l2w(2, NS_species_params), NS_species_params),
                  rep(2, no_sp))
+    sp <- NS_species_params[1:2, "species", drop = FALSE]
+    expect_condition(
+        expect_condition(expect_equal(w2l(c(0.08, 0.27), sp), c(2, 3)),
+                         "Using default values for 'a' parameter.",
+                         class = "info_about_default"),
+        "Using default values for 'b' parameter.",
+        class = "info_about_default"
+    )
 })

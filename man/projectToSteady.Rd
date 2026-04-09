@@ -21,7 +21,9 @@ projectToSteady(
 \item{params}{A \linkS4class{MizerParams} object}
 
 \item{effort}{The fishing effort to be used throughout the simulation.
-This must be a vector or list with one named entry per fishing gear.}
+This is validated by \code{\link[=validEffortVector]{validEffortVector()}} and can therefore be \code{NULL}, a
+single numeric value used for all gears, an unnamed numeric vector with one
+entry per gear, or a named numeric vector for some or all gears.}
 
 \item{distance_func}{A function that will be called after every \code{t_per} years
 with both the previous and the new state and that should return a number
@@ -51,7 +53,10 @@ shiny app. Default FALSE.}
 \item{...}{Further arguments will be passed on to your distance function.}
 }
 \value{
-A MizerParams or a MizerSim object
+If \code{return_sim = FALSE}, a \code{MizerParams} object with the initial
+state replaced by the final state found by the steady-state search. If
+\code{return_sim = TRUE}, a \code{MizerSim} object containing the intermediate states
+saved every \code{t_per} years.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

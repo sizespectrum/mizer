@@ -24,6 +24,6 @@ The \code{object} with an updated column in the species params data frame.
 If the species parameter does not yet exist in the species parameter data
 frame, then create it and fill it with the default. Otherwise use the default
 only to fill in any NAs. Optionally gives a message if the parameter
-did not already exist.
+did not already exist. The signal has class \code{info_about_default}.
 }
 \concept{helper}

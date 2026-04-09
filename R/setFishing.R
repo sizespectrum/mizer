@@ -455,7 +455,8 @@ getInitialEffort.MizerParams <- function(params) {
 #' * a named vector in which the gear names have a different order than in the
 #'   params object. This is then sorted correctly.
 #' * a named vector which only supplies values for some of the gears.
-#'   The effort for the other gears is then set to zero.
+#'   The effort for the other gears is then set to the default effort returned
+#'   by [validEffortVector()], which depends on the defaults edition.
 #'
 #' These conversions are done by the function `validEffortVector()`.
 #'
@@ -465,7 +466,7 @@ getInitialEffort.MizerParams <- function(params) {
 #' * not numeric
 #'
 #' @param params A MizerParams object
-#' @return Effort vector
+#' @return A named effort vector ordered by gear.
 #' @export
 initial_effort <- function(params) {
     UseMethod("initial_effort")
@@ -718,7 +719,11 @@ validEffortVector <- function(effort, params) {
 #'
 #' This function calculates the selectivity for each gear, species and size from
 #' the gear parameters. It is called by [setFishing()] when the `selectivity` is
-#' not set by the user.
+#' not set by the user. The returned array is initialised to zero, so
+#' gear-species combinations that are not listed in `gear_params(params)` remain
+#' zero. For each listed combination the function named in `sel_func` is called
+#' with `w = params@w`, the corresponding species parameters, and the
+#' selectivity parameters from the matching row in `gear_params(params)`.
 #'
 #' @param params A MizerParams object
 #' @return An array (gear x species x size) with the selectivity values

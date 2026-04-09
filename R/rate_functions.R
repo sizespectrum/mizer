@@ -797,12 +797,13 @@ getZ <- getMort
 #' @inheritParams mizerRates
 #'
 #' @return A two dimensional array (prey species x prey size) holding
-#' \deqn{\psi_i(w)E_{r.i}(w)}
+#' \deqn{\psi_i(w)\max(0, E_{r.i}(w))}
 #' where \eqn{E_{r.i}(w)} is the rate at which energy becomes available for
 #' growth and reproduction, calculated with [getEReproAndGrowth()],
 #' and \eqn{\psi_i(w)} is the proportion of this energy that is used for
-#' reproduction. This proportion is taken from the `params` object and is
-#' set with [setReproduction()].
+#' reproduction. Negative values of \eqn{E_{r.i}(w)} are clipped to 0 before
+#' multiplying by \eqn{\psi_i(w)}. This proportion is taken from the `params`
+#' object and is set with [setReproduction()].
 #' @export
 #' @family rate functions
 #' @examples
@@ -1075,19 +1076,19 @@ getFlux.MizerParams <- function(params, n = initialN(params),
 }
 
 
-
-#' Get_time_elements
+#' Get array indices for a time range in a MizerSim object
 #'
-#' Internal function to get the array element references of the time dimension
-#' for the time based slots of a MizerSim object.
-#' @param sim A MizerSim object
-#' @param time_range A vector of times. Only the range of times is relevant,
-#'   i.e., all times between the smallest and largest will be selected.
-#'   The time_range can be character or numeric.
-#' @param slot_name Obsolete. Was only needed in early versions of mizer where
-#'   the effort slot could have different time dimension from the other slots.
-#' @return Named boolean vector indicating for each time whether it is included
-#'   in the range or not.
+#' Internal helper to select the saved time points whose times lie between the
+#' smallest and largest values in `time_range`, inclusive.
+#' @param sim A MizerSim object.
+#' @param time_range A numeric or character vector of times. Only the range of
+#'   values matters, so all saved times between `min(time_range)` and
+#'   `max(time_range)` are selected.
+#' @param slot_name Obsolete, kept only for backward compatibility with early
+#'   versions where different time-based slots could have different time grids.
+#'   Leave at the default.
+#' @return A named logical vector, with one entry for each saved time in `sim`,
+#'   indicating whether that time lies in the requested range.
 #' @export
 #' @concept helper
 get_time_elements <- function(sim, time_range, slot_name = "n") {
