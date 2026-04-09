@@ -1,5 +1,12 @@
 # Development version 2.5.4.9101
 
+- New `MizerRate` S3 class for the species x size arrays returned by rate
+  functions such as `getEncounter()`, `getFeedingLevel()`, `getEReproAndGrowth()`,
+  etc. A `MizerRate` object behaves like a regular matrix for arithmetic and
+  subsetting, but carries a human-readable `rate_name` and `units` attribute and
+  provides enhanced `print()`, `summary()`, `plot()`, and `as.data.frame()`
+  methods.
+
 - New `expandSizeGrid()` function expands the size grid of a `MizerParams`
   object to a new minimum and/or maximum size while preserving all existing
   species data.
