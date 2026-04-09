@@ -34,8 +34,9 @@ test_that("Comment works on ext_encounter", {
 })
 
 test_that("getExtEncounter works", {
-    expect_identical(getExtEncounter(NS_params),
-                     NS_params@ext_encounter)
+    expect_true(is.ArraySpeciesBySize(getExtEncounter(NS_params)))
+    expect_equal(getExtEncounter(NS_params), NS_params@ext_encounter,
+                 ignore_attr = TRUE)
 })
 
 test_that("setExtEncounter validates dimensions", {
@@ -49,5 +50,6 @@ test_that("Can get and set slot", {
     new <- 2 * ext_encounter
     comment(new) <- "test"
     ext_encounter(params) <- new
-    expect_identical(ext_encounter(params), new)
+    expect_equal(ext_encounter(params), new, ignore_attr = TRUE)
+    expect_identical(comment(params@ext_encounter), "test")
 })

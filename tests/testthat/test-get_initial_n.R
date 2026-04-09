@@ -28,5 +28,5 @@ test_that("get_initial_n validates params and honours n0_mult in edition 1", {
     params <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
     n1 <- get_initial_n(params, n0_mult = 1)
     n2 <- get_initial_n(params, n0_mult = 2)
-    expect_equal(n2, 2 * n1)
+    expect_equal(n2, 2 * n1, ignore_attr = TRUE)
 })

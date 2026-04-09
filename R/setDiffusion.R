@@ -42,14 +42,16 @@ setDiffusion.MizerParams <- function(params, diffusion = NULL, reset = FALSE, ..
 }
 
 #' @rdname setDiffusion
-#' @return `diffusion()`: An array (species x size) with the diffusion rate.
+#' @return `diffusion()`: A `ArraySpeciesBySize` object (species x size) with
+#'   the diffusion rate.
 #' @export
 diffusion <- function(params) {
     UseMethod("diffusion")
 }
 #' @export
 diffusion.MizerParams <- function(params) {
-    params@diffusion
+    ArraySpeciesBySize(params@diffusion,
+                       value_name = "Diffusion rate")
 }
 
 #' @rdname setDiffusion

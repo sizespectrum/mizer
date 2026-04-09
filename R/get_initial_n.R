@@ -13,7 +13,7 @@
 #'   ignored for defaults edition 2 and later.
 #' @export
 #' @concept helper
-#' @return A matrix (species x size) of population abundances.
+#' @return A `ArraySpeciesBySize` object (species x size) of population abundances.
 #' @examples
 #' init_n <- get_initial_n(NS_params)
 get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
@@ -46,9 +46,9 @@ get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
                                 w_min = params@species_params$w_min)
                          )
                   ] <- 0    
-        return(initial_n)
+        return(ArraySpeciesBySize(initial_n, value_name = "Number density"))
     }
-    
+
     p <- params
     p@initial_n[] <- 0
     p@initial_n_pp <- p@resource_params$kappa * 
@@ -80,5 +80,5 @@ get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
         p@initial_n[i, idxs] <- n_exact_matrix[i, idxs]
     }
     p <- matchBiomasses(p)
-    return(p@initial_n)
+    return(ArraySpeciesBySize(p@initial_n, value_name = "Number density"))
 }

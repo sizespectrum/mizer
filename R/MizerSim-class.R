@@ -342,8 +342,8 @@ NResource <- function(sim) {
 #' Size spectra at end of simulation
 #' 
 #' @param sim A MizerSim object
-#' @return For `finalN()`: An array (species x size) holding the consumer
-#'   number densities at the end of the simulation
+#' @return For `finalN()`: A `ArraySpeciesBySize` object (species x size)
+#'   holding the consumer number densities at the end of the simulation
 #' @export
 #' @examples
 #' str(finalN(NS_sim))
@@ -354,7 +354,7 @@ finalN <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     n <- sim@params@initial_n  # Needed to get the right dimnames
     n[] <- sim@n[dim(sim@n)[[1]], , ]
-    n
+    ArraySpeciesBySize(n, value_name = "Number density")
 }
 
 #' @rdname finalN

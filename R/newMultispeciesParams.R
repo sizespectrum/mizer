@@ -221,7 +221,7 @@ newMultispeciesParams <- function(
             w_pp_cutoff = w_pp_cutoff,
             balance = FALSE)
 
-    params@initial_n <- get_initial_n(params)
+    params@initial_n[] <- get_initial_n(params)
     params@A <- rep(1, nrow(species_params))
     })
     if (length(infos) > 0) {

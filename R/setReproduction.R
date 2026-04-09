@@ -351,8 +351,8 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
 }
 
 #' @rdname setReproduction
-#' @return `getMaturityProportion()` or equivalently `maturity():
-#'   An array (species x size) that holds the proportion
+#' @return `getMaturityProportion()` or equivalently `maturity()`:
+#'   A `ArraySpeciesBySize` object (species x size) that holds the proportion
 #'   of individuals of each species at size that are mature.
 #' @export
 getMaturityProportion <- function(params) {
@@ -360,7 +360,8 @@ getMaturityProportion <- function(params) {
 }
 #' @export
 getMaturityProportion.MizerParams <- function(params) {
-    params@maturity
+    ArraySpeciesBySize(params@maturity,
+                       value_name = "Maturity proportion")
 }
 
 #' @rdname setReproduction
@@ -370,7 +371,7 @@ maturity <- function(params) {
 }
 #' @export
 maturity.MizerParams <- function(params) {
-    params@maturity
+    getMaturityProportion(params)
 }
 
 #' @rdname setReproduction
@@ -385,7 +386,7 @@ maturity.MizerParams <- function(params) {
 
 #' @rdname setReproduction
 #' @return `getReproductionProportion()` or equivalently `repro_prop()`:
-#'   An array (species x size) that holds the
+#'   A `ArraySpeciesBySize` object (species x size) that holds the
 #'   proportion of consumed energy that a mature individual allocates to
 #'   reproduction for each species at size. For sizes where the maturity
 #'   proportion is zero, also the reproduction proportion is returned as zero.
@@ -395,11 +396,10 @@ getReproductionProportion <- function(params) {
 }
 #' @export
 getReproductionProportion.MizerParams <- function(params) {
-    repro_prop <- params@psi / params@maturity
-    repro_prop[is.nan(repro_prop)] <- 0
-    repro_prop[repro_prop > 1] <- 1
-    comment(repro_prop) <- comment(params@psi)
-    repro_prop
+    rp <- params@psi / params@maturity
+    rp[is.nan(rp)] <- 0
+    rp[rp > 1] <- 1
+    ArraySpeciesBySize(rp, value_name = "Reproductive proportion")
 }
 
 #' @rdname setReproduction

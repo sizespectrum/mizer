@@ -20,7 +20,7 @@ test_that("ArraySpeciesBySize constructor validates input", {
 
 test_that("Rate functions return ArraySpeciesBySize", {
     params <- NS_params
-    
+
     expect_true(is.ArraySpeciesBySize(getEncounter(params)))
     expect_true(is.ArraySpeciesBySize(getFeedingLevel(params)))
     expect_true(is.ArraySpeciesBySize(getCriticalFeedingLevel(params)))
@@ -31,6 +31,14 @@ test_that("Rate functions return ArraySpeciesBySize", {
     expect_true(is.ArraySpeciesBySize(getPredMort(params)))
     expect_true(is.ArraySpeciesBySize(getMort(params)))
     expect_true(is.ArraySpeciesBySize(getFlux(params)))
+    expect_true(is.ArraySpeciesBySize(getMaxIntakeRate(params)))
+    expect_true(is.ArraySpeciesBySize(getMetabolicRate(params)))
+    expect_true(is.ArraySpeciesBySize(getSearchVolume(params)))
+    expect_true(is.ArraySpeciesBySize(getExtMort(params)))
+    expect_true(is.ArraySpeciesBySize(getExtEncounter(params)))
+    expect_true(is.ArraySpeciesBySize(getMaturityProportion(params)))
+    expect_true(is.ArraySpeciesBySize(getReproductionProportion(params)))
+    expect_true(is.ArraySpeciesBySize(diffusion(params)))
 })
 
 test_that("All rate functions have consistent dimnames", {

@@ -51,8 +51,8 @@ test_that("Comment works on mu_b", {
 
 # getExtMort ----
 test_that("getExtMort works", {
-    expect_identical(getExtMort(NS_params),
-                     NS_params@mu_b)
+    expect_true(is.ArraySpeciesBySize(getExtMort(NS_params)))
+    expect_equal(getExtMort(NS_params), NS_params@mu_b, ignore_attr = TRUE)
 })
 
 test_that("Can get and set slot", {
@@ -62,7 +62,8 @@ test_that("Can get and set slot", {
     new <- 2 * ext_mort
     comment(new) <- "test"
     ext_mort(params) <- new
-    expect_identical(ext_mort(params), new)
+    expect_equal(ext_mort(params), new, ignore_attr = TRUE)
+    expect_identical(comment(params@mu_b), "test")
 })
 
 test_that("setExtMort validates dimensions and deprecated z0 argument", {
