@@ -23,6 +23,24 @@
   single-species model; numerical details documenting the finite-volume scheme and
   its steady-state solution; and a vignette on using FFT for predation kernel
   calculations.
+- Many functions now have S3 methods so they can be called with either a
+  MizerParams or MizerSim object and users could define their own subclasses
+  and methods to modify mizer behaviour (#330).
+- `getBiomass()` now has a `use_cutoff` argument to restrict the biomass
+  calculation to sizes above the `biomass_cutoff` species parameter.
+- `plotBiomass()` and `plotlyBiomass()` now have a `use_cutoff` argument,
+  passed to `getBiomass()`.
+- `age_mat_vB()` is now exported.
+- `project_n()` is a new exported function that projects the abundance
+  spectrum forward in time, factored out of `project()`.
+
+## Bug fixes
+
+- `getMeanMaxWeight()` now correctly applies the species selector to the
+  denominator.
+- `plotDataFrame()` now correctly applies custom log-scale x breaks.
+- `get_size_range_array()` no longer gives an error when no size brackets are
+  selected.
 
 # mizer 2.5.4
 
