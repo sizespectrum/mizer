@@ -26,13 +26,12 @@ from the returned array.}
 \item{...}{Unused}
 }
 \value{
-If a \code{MizerParams} object is passed in, the function returns a two
-dimensional array (predator species x predator size) based on the
-abundances also passed in.
-If a \code{MizerSim} object is passed in, the function returns a three
-dimensional array (time step x predator species x predator size) with the
-feeding level calculated at every time step in the simulation.
-If \code{drop = TRUE} then the dimension of length 1 will be removed from
+If a \code{MizerParams} object is passed in, returns a \code{MizerRate} object
+(predator species x predator size) with the feeding level.
+If a \code{MizerSim} object is passed in, returns a three-dimensional array
+(time step x predator species x predator size) with the feeding level at
+every time step.
+If \code{drop = TRUE} then dimensions of length 1 will be removed from
 the returned array.
 }
 \description{

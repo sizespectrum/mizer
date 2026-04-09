@@ -30,7 +30,8 @@ parameters.)}
 \item{...}{Unused}
 }
 \value{
-A two dimensional array (prey species x prey size)
+A \code{MizerRate} object (species x size) with the flux of individuals
+entering each size class (numbers/year).
 }
 \description{
 Calculates the flux \eqn{J_i(w)} (numbers/year) entering each size class

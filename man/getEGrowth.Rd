@@ -30,7 +30,8 @@ parameters.)}
 \item{...}{Unused}
 }
 \value{
-A two dimensional array (prey species x prey size)
+A \code{MizerRate} object (species x size) with the somatic growth rates
+(grams/year).
 }
 \description{
 Calculates the energy rate \eqn{g_i(w)} (grams/year) available by species and

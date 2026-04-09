@@ -26,12 +26,12 @@ from the returned array.}
 \item{...}{Unused}
 }
 \value{
-If a \code{MizerParams} object is passed in, the function returns a two
-dimensional array (prey species x prey size) based on the abundances also
-passed in. If a \code{MizerSim} object is passed in, the function returns a
-three dimensional array (time step x prey species x prey size) with the
-predation mortality calculated at every time step in the simulation.
-Dimensions may be dropped if they have length 1 unless \code{drop = FALSE}.
+If a \code{MizerParams} object is passed in, returns a \code{MizerRate} object
+(prey species x prey size) with the predation mortality rates.
+If a \code{MizerSim} object is passed in, returns a three-dimensional array
+(time step x prey species x prey size) with the predation mortality at
+every time step. Dimensions may be dropped if they have length 1 unless
+\code{drop = FALSE}.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}

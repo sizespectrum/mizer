@@ -34,7 +34,7 @@ parameters.)}
 \item{...}{Unused}
 }
 \value{
-A two dimensional array (prey species x prey size).
+A \code{MizerRate} object (species x size) with the total mortality rates.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}

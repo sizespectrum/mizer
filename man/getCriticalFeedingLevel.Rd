@@ -10,7 +10,7 @@ getCriticalFeedingLevel(params)
 \item{params}{A MizerParams object}
 }
 \value{
-A matrix (species x size) with the critical feeding level
+A \code{MizerRate} object (species x size) with the critical feeding level
 }
 \description{
 The critical feeding level is the feeding level at which the food intake is

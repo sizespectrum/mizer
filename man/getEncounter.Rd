@@ -30,8 +30,8 @@ parameters.)}
 \item{...}{Unused}
 }
 \value{
-A named two dimensional array (predator species x predator size) with
-the encounter rates.
+A \code{MizerRate} object (predator species x predator size) with the
+encounter rates.
 }
 \description{
 Returns the rate at which a predator of species \eqn{i} and
