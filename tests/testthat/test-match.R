@@ -82,7 +82,7 @@ test_that("matchYields works", {
                                 getFMort(params))
 
     species_params(params)$yield_observed <- NA_real_
-    params_na <- suppressWarnings(matchYields(params))
+    params_na <- suppressMessages(suppressWarnings(matchYields(params)))
     expect_equal(params_na@initial_n, params@initial_n)
 
     species_params(params)$yield_observed <- 0
