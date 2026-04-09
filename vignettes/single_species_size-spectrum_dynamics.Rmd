@@ -485,17 +485,14 @@ food availability, for example.
 
 ```{r include=FALSE}
 mort_rate_frame <- melt(getMort(params))
-mm <- lm(log(mort_rate_frame$value) ~ log(mort_rate_frame$w_prey))
+mm <- lm(log(mort_rate_frame$value) ~ log(mort_rate_frame$w))
 m0 <- round(mm$coefficients[[1]], digits = 3)
 ```
 > ## Exercise 3
 > 
 > Now over to you. Do exercise 3 in the exercise notebook. Use the methods
 > you have just seen to make a log-log plot of the mortality rate. You can
-> get the mortality rate with the `getMort()` function. While adjusting
-> the code to this new task, you need to take into account that the name
-> of the size-dimension of the array returned by `getMort()` is `"w_prey"`
-> instead of `"w"`. 
+> get the mortality rate with the `getMort()` function. 
 
 <details>
 
@@ -504,7 +501,7 @@ m0 <- round(mm$coefficients[[1]], digits = 3)
 ```{r}
 mort_rate_frame <- melt(getMort(params))
 p <- ggplot(mort_rate_frame) +
-    geom_line(aes(x = w_prey, y = value)) +
+    geom_line(aes(x = w, y = value)) +
     scale_x_log10() +
     scale_y_log10() +
     labs(x = "Weight [g]",
@@ -524,7 +521,7 @@ p
 <summary> Solution </summary>
 
 ```{r}
-lm(log(mort_rate_frame$value) ~ log(mort_rate_frame$w_prey))
+lm(log(mort_rate_frame$value) ~ log(mort_rate_frame$w))
 ```
 
 </details>
