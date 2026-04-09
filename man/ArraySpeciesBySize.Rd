@@ -20,14 +20,14 @@ future extensions.}
 A \code{ArraySpeciesBySize} object (inherits from \code{matrix} and \code{array}).
 }
 \description{
-Many rate functions in mizer return two-dimensional arrays (species x size)
+Many functions in mizer return two-dimensional arrays (species x size)
 holding rates like encounter rate, feeding level, growth rate, mortality etc.
-The \code{ArraySpeciesBySize} class wraps these arrays to provide convenient \code{print()},
-\code{summary()}, \code{plot()}, and \code{as.data.frame()} methods.
+The \code{ArraySpeciesBySize} class wraps these arrays to provide convenient
+\code{print()}, \code{summary()}, \code{plot()}, and \code{as.data.frame()} methods.
 }
 \details{
-A \code{ArraySpeciesBySize} object behaves just like a regular matrix for arithmetic
-operations and subsetting. It carries two lightweight attributes:
+A \code{ArraySpeciesBySize} object behaves just like a regular matrix for
+arithmetic operations and subsetting. It carries two lightweight attributes:
 \itemize{
 \item \code{value_name} – a human-readable name for the value
 (e.g. "Encounter rate").

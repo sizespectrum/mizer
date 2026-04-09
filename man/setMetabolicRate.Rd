@@ -42,8 +42,8 @@ custom value has been set.}
 \value{
 \code{setMetabolicRate()}: A MizerParams object with updated metabolic rate.
 
-\code{getMetabolicRate()} or equivalently \code{metab()}: An array
-(species x size) with the metabolic rate.
+\code{getMetabolicRate()} or equivalently \code{metab()}: A
+\code{ArraySpeciesBySize} object (species x size) with the metabolic rate.
 }
 \description{
 Sets the rate at which energy is used for metabolism and activity

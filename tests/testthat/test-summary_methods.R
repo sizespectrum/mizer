@@ -251,6 +251,7 @@ test_that("getYieldGear for params matches fishing mortality by gear times bioma
 # getYield ----
 test_that("getYield works",{
     y <- getYield(sim)
+    expect_true(is.ArraySpeciesByTime(y))
     # check dims
     expect_equal(dim(y), c(11,dim(params@catchability)[2]), ignore_attr = TRUE)
     # check a value and assume the others are right
@@ -365,6 +366,7 @@ test_that("getDiet works with additional components", {
 # getSSB ----
 test_that("getSSB works", {
     ssb <- getSSB(sim)
+    expect_true(is.ArraySpeciesByTime(ssb))
     # expect_known_value(ssb, "values/getSSB")
     expect_snapshot(ssb)
     expect_equal(getSSB(sim)[1, ], getSSB(sim@params))
@@ -380,12 +382,14 @@ test_that("getSSB matches mature biomass formula for params and sim", {
     )
 
     expect_equal(getSSB(params), expected_params)
-    expect_equal(getSSB(sim), expected_sim)
+    expect_true(is.ArraySpeciesByTime(getSSB(sim)))
+    expect_equal(getSSB(sim), expected_sim, ignore_attr = TRUE)
 })
 
 # getBiomass ----
 test_that("getBiomass works", {
     biomass <- getBiomass(sim)
+    expect_true(is.ArraySpeciesByTime(biomass))
     # expect_known_value(biomass, "values/getBiomass")
     expect_snapshot(biomass)
     expect_equal(getBiomass(sim)[1, ], getBiomass(sim@params))
@@ -441,6 +445,7 @@ test_that("getBiomass works with biomass_cutoff", {
 # getN ----
 test_that("getN works", {
     N <- getN(sim)
+    expect_true(is.ArraySpeciesByTime(N))
     # expect_known_value(N, "values/getN")
     expect_snapshot(N)
     expect_equal(getN(sim)[1, ], getN(sim@params))

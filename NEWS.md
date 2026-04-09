@@ -7,9 +7,18 @@
 
 - New `ArraySpeciesBySize` S3 class for the species x size arrays returned by
   many mizer functions such as `getEncounter()`, `getFeedingLevel()`,
-  etc. An `ArraySpeciesBySize` object behaves like a regular matrix for
-  arithmetic and subsetting, but carries a human-readable `value_name` and
-  `units` attribute and provides enhanced `print()`, `summary()`, `plot()`,
+  `getMaxIntakeRate()`, `getMetabolicRate()`, `getSearchVolume()`,
+  `getExtMort()`, `getExtEncounter()`, `getMaturityProportion()`,
+  `getReproductionProportion()`, `diffusion()`, `finalN()`, and
+  `get_initial_n()`. An `ArraySpeciesBySize` object behaves like a regular
+  matrix for arithmetic and subsetting, but carries a human-readable
+  `value_name` and `units` attribute and provides enhanced `print()`,
+  `summary()`, `plot()`, and `as.data.frame()` methods.
+
+- New `ArraySpeciesByTime` S3 class for the time x species arrays returned by
+  `getBiomass()`, `getSSB()`, `getN()`, and `getYield()` when called on a
+  `MizerSim` object. Like `ArraySpeciesBySize`, it carries `value_name` and
+  `units` attributes and provides enhanced `print()`, `summary()`, `plot()`,
   and `as.data.frame()` methods.
 
 - New `expandSizeGrid()` function expands the size grid of a `MizerParams`

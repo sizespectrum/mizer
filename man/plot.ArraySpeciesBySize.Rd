@@ -40,7 +40,7 @@ A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
 frame with the variables 'w', 'value', 'Species' is returned.
 }
 \description{
-Plots the rate against size for each species, using species colours and
+Plots the value against size for each species, using species colours and
 linetypes from the MizerParams object.
 }
 \examples{
