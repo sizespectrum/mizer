@@ -12,7 +12,8 @@ steady(
   tol = 0.1 * dt,
   return_sim = FALSE,
   preserve = c("reproduction_level", "erepro", "R_max"),
-  progress_bar = TRUE
+  progress_bar = TRUE,
+  info_level = 3
 )
 }
 \arguments{

@@ -4,7 +4,7 @@
 \alias{setParams}
 \title{Set or change any model parameters}
 \usage{
-setParams(object, interaction = NULL, ...)
+setParams(object, interaction = NULL, info_level = 3, ...)
 }
 \arguments{
 \item{object}{A \linkS4class{MizerParams} object}

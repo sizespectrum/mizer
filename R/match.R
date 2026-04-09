@@ -38,11 +38,13 @@
 #' params <- calibrateBiomass(params)
 #' params <- matchBiomasses(params)
 #' plotBiomassObservedVsModel(params)
-matchBiomasses <- function(params, species = NULL, ...)
+matchBiomasses <- function(params, species = NULL, info_level = 3, ...) {
     UseMethod("matchBiomasses")
+}
 
 #' @export
-matchBiomasses.MizerParams <- function(params, species = NULL, ...) {
+matchBiomasses.MizerParams <- function(params, species = NULL,
+                                       info_level = 3, ...) {
     if (!("biomass_observed" %in% names(params@species_params))) {
         return(params)
     }
@@ -118,11 +120,13 @@ matchBiomasses.MizerParams <- function(params, species = NULL, ...) {
 #' species_params(params)$number_cutoff <- 10
 #' params <- calibrateNumber(params)
 #' params <- matchNumbers(params)
-matchNumbers <- function(params, species = NULL, ...)
+matchNumbers <- function(params, species = NULL, info_level = 3, ...) {
     UseMethod("matchNumbers")
+}
 
 #' @export
-matchNumbers.MizerParams <- function(params, species = NULL, ...) {
+matchNumbers.MizerParams <- function(params, species = NULL,
+                                     info_level = 3, ...) {
     if (!("number_observed" %in% names(params@species_params))) {
         return(params)
     }
@@ -205,11 +209,13 @@ matchNumbers.MizerParams <- function(params, species = NULL, ...) {
 #' params <- calibrateYield(params)
 #' params <- matchYields(params)
 #' plotYieldObservedVsModel(params)
-matchYields <- function(params, species = NULL, ...)
+matchYields <- function(params, species = NULL, info_level = 3, ...) {
     UseMethod("matchYields")
+}
 
 #' @export
-matchYields.MizerParams <- function(params, species = NULL, ...) {
+matchYields.MizerParams <- function(params, species = NULL,
+                                    info_level = 3, ...) {
     lifecycle::deprecate_warn(
         "2.6.0", "matchYields()", "mizerExperimental::matchYield()",
         details = "This function has not proven useful. If you do have a use case for it, please let the developers know by creating an issue at https://github.com/sizespectrum/mizer/issues"
@@ -229,18 +235,22 @@ matchYields.MizerParams <- function(params, species = NULL, ...) {
         (is.na(params@species_params$yield_observed) |
         params@species_params$yield_observed <= 0)
     if (any(no_obs)) {
-        message("The following species have no yield observations and ",
-                "their abundances will not be changed: ",
-                paste0(all_species[no_obs], collapse = ", "), ".")
+        if (info_level >= 3) {
+            message("The following species have no yield observations and ",
+                    "their abundances will not be changed: ",
+                    paste0(all_species[no_obs], collapse = ", "), ".")
+        }
         include <- include & !no_obs
     }
-    
+
     # ignore species with no model yield
     no_yield <- include & yield_model == 0
     if (any(no_yield)) {
-        message("The following species are not being fished in your model ",
-                "and their abundances will not be changed: ",
-                paste0(all_species[no_yield], collapse = ", "), ".")
+        if (info_level >= 3) {
+            message("The following species are not being fished in your model ",
+                    "and their abundances will not be changed: ",
+                    paste0(all_species[no_yield], collapse = ", "), ".")
+        }
         include <- include & !no_yield
     }
     

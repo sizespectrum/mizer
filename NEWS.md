@@ -1,5 +1,10 @@
 # Development version 2.5.4.9101
 
+- Added `info_level` argument to `projectToSteady()`, `steady()`, `setParams()`,
+  `newCommunityParams()`, `newTraitParams()`, `matchBiomasses()`, `matchNumbers()`,
+  and `matchYields()`. Setting `info_level = 0` suppresses informational messages;
+  `info_level = 3` (the default) shows all messages.
+
 - `t_max` and `t_save` arguments in `project()` are now respected even when an
   effort array is supplied. When `t_max` is provided, the simulation extends
   beyond the times in the effort array using the last known effort values. When

@@ -14,6 +14,7 @@ projectToSteady(
   tol = 0.1 * t_per,
   return_sim = FALSE,
   progress_bar = TRUE,
+  info_level = 3,
   ...
 )
 }

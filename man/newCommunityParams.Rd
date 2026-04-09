@@ -21,7 +21,8 @@ newCommunityParams(
   lambda = 2.05,
   r_pp = 10,
   knife_edge_size = 1000,
-  reproduction
+  reproduction,
+  info_level = 2
 )
 }
 \arguments{
@@ -70,6 +71,10 @@ function.}
 \item{reproduction}{The constant reproduction in the smallest size class of
 the community spectrum. By default this is set to the rate required to
 maintain the constructed initial egg abundance.}
+
+\item{info_level}{Controls the amount of information messages that are shown
+when the function sets default values for parameters. Higher levels lead
+to more messages.}
 }
 \value{
 An object of type \code{\linkS4class{MizerParams}}

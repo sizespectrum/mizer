@@ -37,7 +37,8 @@ newTraitParams(
   resource_scaling = FALSE,
   perfect_scaling = FALSE,
   min_w_inf = deprecated(),
-  max_w_inf = deprecated()
+  max_w_inf = deprecated(),
+  info_level = 2
 )
 }
 \arguments{
