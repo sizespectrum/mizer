@@ -339,3 +339,30 @@ test_that("renameGear warns on wrong names", {
     expect_error(renameGear(example_params(), c(Trawler = "New_Trawl", NonExistent = "Other")),
                  "Trawler, NonExistent do not exist")
 })
+
+# expandSizeGrid ----
+test_that("expandSizeGrid works", {
+    params <- expandSizeGrid(NS_params, new_min_w = 1e-4, new_max_w = 50000)
+    expect_lt(min(params@w), 1e-4)
+    expect_gt(max(params@w), 50000)
+    min_idx <- sum(params@w < min(NS_params@w)) + 1
+    max_idx <- sum(params@w < max(NS_params@w)) + 1
+    expect_equal(params@w[min_idx:max_idx], NS_params@w)
+    expect_equal(params@search_vol[, min_idx:max_idx], NS_params@search_vol)
+    expect_equal(params@metab[, min_idx:max_idx], NS_params@metab)
+    expect_equal(params@initial_n[, min_idx:max_idx], NS_params@initial_n)
+})
+
+test_that("expandSizeGrid preserves existing data", {
+    params <- expandSizeGrid(NS_params)
+    params@time_modified <- NS_params@time_modified
+    expect_true(all(names(NS_params@linecolour) %in% names(params@linecolour)))
+    expect_identical(params@linecolour[names(NS_params@linecolour)],
+                     NS_params@linecolour)
+    expect_true(all(names(NS_params@linetype) %in% names(params@linetype)))
+    expect_identical(params@linetype[names(NS_params@linetype)],
+                     NS_params@linetype)
+    params@linecolour <- NS_params@linecolour
+    params@linetype <- NS_params@linetype
+    expect_identical(compareParams(params, NS_params), "No differences")
+})

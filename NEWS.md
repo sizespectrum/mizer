@@ -1,5 +1,9 @@
 # Development version 2.5.4.9101
 
+- New `expandSizeGrid()` function expands the size grid of a `MizerParams`
+  object to a new minimum and/or maximum size while preserving all existing
+  species data.
+
 - Added `info_level` argument to `projectToSteady()`, `steady()`, `setParams()`,
   `newCommunityParams()`, `newTraitParams()`, `matchBiomasses()`, `matchNumbers()`,
   and `matchYields()`. Setting `info_level = 0` suppresses informational messages;
