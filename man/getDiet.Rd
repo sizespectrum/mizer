@@ -72,6 +72,8 @@ Other summary functions:
 \code{\link{getGrowthCurves}()},
 \code{\link{getN}()},
 \code{\link{getSSB}()},
+\code{\link{getTrophicLevel}()},
+\code{\link{getTrophicLevelBySpecies}()},
 \code{\link{getYield}()},
 \code{\link{getYieldGear}()}
 }

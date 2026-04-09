@@ -114,6 +114,7 @@ reference:
   - initialNResource
   - initial_effort
   - renameGear
+  - expandSizeGrid
 - title: Steady state tuning
   description: The first task after creating a multi-species model is to tune
     the model parameters so that in its steady state the model reproduces
@@ -155,20 +156,11 @@ reference:
 - title: Analysing results
   contents:
   - summary_functions
-  - getDiet
-  - getBiomass
-  - getN
-  - getSSB
-  - getYield
-  - getYieldGear
-  - getGrowthCurves
+  - has_concept("summary functions")
 - title: Calculating indicators
   contents:
   - indicator_functions
-  - getProportionOfLargeFish
-  - getCommunitySlope
-  - getMeanWeight
-  - getMeanMaxWeight
+  - has_concept("functions for calculating indicators")
 - title: Plotting results
   contents:
   - plotting_functions
@@ -241,15 +233,15 @@ reference:
 - title: Classes
   contents:
   - MizerParams-class
-  - summary,MizerParams-method
   - compareParams
   - "w"
   - validParams
+  - summary.MizerParams
   - MizerSim-class
-  - summary,MizerSim-method
   - validSim
   - MizerSim
   - getParams
+  - summary.MizerSim
   - MizerRate
   - is.MizerRate
 - title: Example parameter sets

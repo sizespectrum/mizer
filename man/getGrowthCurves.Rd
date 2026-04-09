@@ -44,6 +44,8 @@ Other summary functions:
 \code{\link{getDiet}()},
 \code{\link{getN}()},
 \code{\link{getSSB}()},
+\code{\link{getTrophicLevel}()},
+\code{\link{getTrophicLevelBySpecies}()},
 \code{\link{getYield}()},
 \code{\link{getYieldGear}()}
 }

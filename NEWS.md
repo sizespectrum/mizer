@@ -1,5 +1,12 @@
 # Development version 2.5.4.9101
 
+- New `getTrophicLevel()` function returns a matrix (species × size) with the
+  trophic level of individuals at each size, accounting for ontogenetic diet
+  shifts by integrating the consumption-weighted average prey trophic level
+  over the individual's growth trajectory. New `getTrophicLevelBySpecies()`
+  returns the consumption-rate-weighted mean trophic level per species.
+  Both functions accept `MizerParams` and `MizerSim` objects. Closes #307.
+
 - The `plot()` and `summary()` methods for `MizerParams`, `MizerSim`, and 
   `MizerRate` objects are now registered as S3 methods rather than S4 methods.
   This means `plot()` and `summary()` remain plain S3 generics when mizer is
