@@ -14,8 +14,6 @@
 \code{\link[=plotBiomass]{plotBiomass()}},
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}},\code{\link[=plotSpectra]{plotSpectra()}},\code{\link[=plotPredMort]{plotPredMort()}}
 and \code{\link[=plotFMort]{plotFMort()}}.}
-
-\item{y}{Not used}
 }
 \value{
 A viewport object

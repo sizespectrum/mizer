@@ -282,6 +282,8 @@ newCommunityParams <- function(max_w = 1e6,
 #'   size of a species not the von Bertalanffy asymptotic size parameter.
 #' @param max_w_inf `r lifecycle::badge("deprecated")` The argument has been
 #'   renamed to `max_w_max`.
+#' @param info_level Controls the amount of information messages that are shown.
+#'   Higher levels lead to more messages.
 #' @export
 #' @importFrom lifecycle deprecated
 #' @return An object of type `MizerParams`

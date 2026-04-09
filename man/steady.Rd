@@ -43,6 +43,9 @@ of the \code{reproduction_level}.}
 
 \item{progress_bar}{A shiny progress object to implement a progress bar in a
 shiny app. Default FALSE.}
+
+\item{info_level}{Controls the amount of information messages that are shown.
+Higher levels lead to more messages.}
 }
 \value{
 If \code{return_sim = FALSE}, a \code{MizerParams} object with the initial

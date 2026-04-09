@@ -14,6 +14,9 @@ numbers will be matched. A vector of species names, or a numeric vector
 with the species indices, or a logical vector indicating for each species
 whether it is to be affected (TRUE) or not.}
 
+\item{info_level}{Controls the amount of information messages that are shown.
+Higher levels lead to more messages.}
+
 \item{...}{Additional arguments passed to the method.}
 }
 \value{

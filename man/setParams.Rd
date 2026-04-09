@@ -13,6 +13,9 @@ setParams(object, interaction = NULL, info_level = 3, ...)
 species x prey species). By default all entries are 1. See "Setting
 interaction matrix" section below.}
 
+\item{info_level}{Controls the amount of information messages that are shown.
+Higher levels lead to more messages.}
+
 \item{...}{
   Arguments passed on to \code{\link[=setPredKernel]{setPredKernel}}, \code{\link[=setSearchVolume]{setSearchVolume}}, \code{\link[=setMaxIntakeRate]{setMaxIntakeRate}}, \code{\link[=setMetabolicRate]{setMetabolicRate}}, \code{\link[=setExtMort]{setExtMort}}, \code{\link[=setExtEncounter]{setExtEncounter}}, \code{\link[=setReproduction]{setReproduction}}, \code{\link[=setFishing]{setFishing}}
   \describe{

@@ -12,8 +12,6 @@
 
 \item{...}{For additional arguments see the documentation for
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}},\code{\link[=plotSpectra]{plotSpectra()}},\code{\link[=plotPredMort]{plotPredMort()}}}
-
-\item{y}{Not used}
 }
 \value{
 A viewport object

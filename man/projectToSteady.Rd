@@ -51,6 +51,9 @@ a MizerParams object with the "initial" slots set to the steady state.}
 \item{progress_bar}{A shiny progress object to implement a progress bar in a
 shiny app. Default FALSE.}
 
+\item{info_level}{Controls the amount of information messages that are shown.
+Higher levels lead to more messages.}
+
 \item{...}{Further arguments will be passed on to your distance function.}
 }
 \value{

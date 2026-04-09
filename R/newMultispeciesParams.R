@@ -257,6 +257,8 @@ newMultispeciesParams <- function(
 #' @inheritDotParams setExtEncounter
 #' @inheritDotParams setReproduction -reset
 #' @inheritDotParams setFishing -reset
+#' @param info_level Controls the amount of information messages that are shown.
+#'   Higher levels lead to more messages.
 #'
 #' @return A \linkS4class{MizerParams} object
 #'

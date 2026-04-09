@@ -146,6 +146,9 @@ size of a species not the von Bertalanffy asymptotic size parameter.}
 
 \item{max_w_inf}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The argument has been
 renamed to \code{max_w_max}.}
+
+\item{info_level}{Controls the amount of information messages that are shown.
+Higher levels lead to more messages.}
 }
 \value{
 An object of type \code{MizerParams}

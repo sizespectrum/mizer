@@ -1682,7 +1682,6 @@ plot_diet <- function(params, n, diet, species, return_data) {
 #' uses the other plotting functions and puts them all in one window.
 #'
 #' @param x An object of class \linkS4class{MizerSim}
-#' @param y Not used
 #' @param ...  For additional arguments see the documentation for
 #'   [plotBiomass()],
 #'   [plotFeedingLevel()],[plotSpectra()],[plotPredMort()]
@@ -1728,7 +1727,6 @@ plot.MizerSim <- function(x, ...) {
 #' uses the other plotting functions and puts them all in one window.
 #'
 #' @param x An object of class \linkS4class{MizerParams}
-#' @param y Not used
 #' @param ...  For additional arguments see the documentation for
 #'   [plotFeedingLevel()],[plotSpectra()],[plotPredMort()]
 #' @return A viewport object

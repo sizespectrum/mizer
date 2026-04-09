@@ -79,6 +79,8 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'   that in some sense measures the distance between the states. By default
 #'   this uses the function [distanceSSLogN()] that you can use as a model for your
 #'   own distance function.
+#' @param info_level Controls the amount of information messages that are shown.
+#'   Higher levels lead to more messages.
 #' @param ... Further arguments will be passed on to your distance function.
 #' 
 #' @return If `return_sim = FALSE`, a `MizerParams` object with the initial
@@ -251,6 +253,8 @@ projectToSteady.MizerParams <- function(params,
 #'   of the `reproduction_level`.
 #' @param progress_bar A shiny progress object to implement a progress bar in a
 #'   shiny app. Default FALSE.
+#' @param info_level Controls the amount of information messages that are shown.
+#'   Higher levels lead to more messages.
 #' @return If `return_sim = FALSE`, a `MizerParams` object with the initial
 #'   state replaced by the steady state. If `return_sim = TRUE`, a `MizerSim`
 #'   object containing the intermediate states saved every `t_per` years.
