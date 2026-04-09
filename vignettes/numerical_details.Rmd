@@ -44,7 +44,7 @@ where $g_i(w)$ is the somatic growth rate, $d_i(w)$ is the diffusion coefficient
 
 We discretise this equation using a finite volume scheme.
 
-## Discretisation of the Fluxs
+## Discretisation of the Fluxes
 
 The term inside the derivative with respect to $w$ is the flux $J_i(w)$:
 $$ J_i(w) = g_i(w) N_i(w) - \frac{1}{2}\frac{\partial(d_i(w) N_i(w))}{\partial w} $$

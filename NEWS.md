@@ -439,7 +439,7 @@ state, so you will need to also call `steady()` after matching the growth rates.
 * Many improvements in the documentation.
 * Many small improvements to code quality and testing.
 * Better social media cards, especially for twitter.
-* mizer can be run on binder, https://mybinder.org/v2/gh/sizespectrum/mizer/HEAD?urlpath=rstudio
+* mizer can be [run on binder](https://mybinder.org/v2/gh/sizespectrum/mizer/HEAD?urlpath=rstudio)
 
 ## Bug fixes
 
@@ -889,7 +889,7 @@ species. The information is set up via a new `gear_params()` data frame. See
   well as `idxFinalT()` to access the values at the final time of a simulation.
 * New function `getCriticalFeedingLevel()` returns the critical feeding level
   for each species at each size.
-* Mizer reexports the `melt()` function from the reshape2 package which allows
+* Mizer re-exports the `melt()` function from the reshape2 package which allows
   users to convert the arrays returned by mizer functions into data frames
   that can be used for example in ggplot2 and plotly.
 * `validSpeciesParams()` checks validity of species parameter data frame and

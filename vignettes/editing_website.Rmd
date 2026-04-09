@@ -121,7 +121,7 @@ repository.
 
 
 ## GitHub pages
-The website is hosted with [GitHubPages](https://pages.github.com/). In the
+The website is hosted with [GitHub Pages](https://pages.github.com/). In the
 settings pages of the mizer repository on GitHub the source is set to
 "master branch/docs folder". This means that only the master branch controls
 the website.
