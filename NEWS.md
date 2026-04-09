@@ -1,4 +1,4 @@
-# Development version 2.5.4.9000
+# Development version 2.5.4.9101
 
 - `t_max` and `t_save` arguments in `project()` are now respected even when an
   effort array is supplied. When `t_max` is provided, the simulation extends
@@ -6,6 +6,23 @@
   `t_save` is provided, it controls the save frequency with effort values
   interpolated as needed. This allows users to extend simulations without
   specifying dummy effort values for the final time period (#231).
+- The numerical scheme now supports diffusion in the McKendrick-von Foerster
+  equation, allowing individual variability in growth to be modelled. A new
+  `diffusion` slot in `MizerParams` holds the diffusion coefficient (species x
+  size). Use `setDiffusion()` / `diffusion()` / `diffusion<-()` to set and
+  retrieve it.
+- New `getFlux()` function calculates the flux of individuals entering each size
+  class, combining the advective flux from somatic growth and the diffusive flux.
+- `getRequiredRDD()` is now exported. It calculates the recruitment rate needed
+  to maintain a given initial abundance, accounting for both growth and diffusion.
+- `steadySingleSpecies()` now correctly preserves the steady state under
+  `project()`, including when diffusion is non-zero.
+- Growth is now forced to always be non-negative, preventing unphysical shrinkage.
+  No warning is issued when growth stops at or after maturity size.
+- New vignettes: cohort dynamics demonstrating the effect of diffusion in a
+  single-species model; numerical details documenting the finite-volume scheme and
+  its steady-state solution; and a vignette on using FFT for predation kernel
+  calculations.
 
 # mizer 2.5.4
 
