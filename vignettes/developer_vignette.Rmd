@@ -278,6 +278,26 @@ mizer code, because the code avoids using S4 methods. In the presentation
 below we assume that the `MizerParams` object is called `params` and the
 `MizerSim` object is called `sim`.
 
+Although `MizerParams` and `MizerSim` are S4 classes, mizer registers all
+their methods as S3 methods rather than S4 methods. For example, the summary
+plot for a `MizerParams` object is defined as `plot.MizerParams()` and
+registered with `S3method(plot, MizerParams)` in the NAMESPACE, not via
+`setMethod("plot", "MizerParams", ...)`. This works because S3 dispatch reads
+the `class()` attribute of an object, which S4 objects have, so
+`plot(params)` correctly finds `plot.MizerParams()`.
+
+The reason for preferring S3 is that calling `setMethod()` on a function that
+is not already an S4 generic silently promotes it to one, changing dispatch
+semantics package-wide. For instance, if mizer used `setMethod("plot", ...)`,
+then `plot` would become an S4 generic for all code running in the same R
+session. This can cause hard-to-diagnose failures when `plot()` is called with
+objects of mixed S3/S4 types, because S4 dispatch requires an exact method
+match on all arguments rather than falling back gracefully to S3 methods.
+
+In short: use S3 methods (named `generic.ClassName`) for `MizerParams` and
+`MizerSim`, and avoid `setMethod()` unless you are extending a generic that is
+already S4 in a dependency.
+
 
 ## The MizerParams class
 An object of class 'MizerParams' holds all the information needed for the

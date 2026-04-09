@@ -1693,36 +1693,33 @@ plot_diet <- function(params, n, diet, species, return_data) {
 #' @seealso [plotting_functions]
 #' @rdname plotMizerSim
 #' @name plotMizerSim
-#' @aliases plot,MizerSim,missing-method
 #' @examples
 #' \donttest{
 #' params <-  NS_params
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plot(sim)
 #' }
-setMethod("plot", signature(x = "MizerSim", y = "missing"),
-          function(x, ...) {
-              p1 <- plotFeedingLevel(x, ...)
-              p2 <- plotSpectra(x, ...)
-              p3 <- plotBiomass(x, y_ticks = 3, ...)
-              p4 <- plotPredMort(x, ...)
-              p5 <- plotFMort(x, ...)
-              grid::grid.newpage()
-              glayout <- grid::grid.layout(3, 2) # widths and heights arguments
-              vp <- grid::viewport(layout = glayout)
-              grid::pushViewport(vp)
-              vplayout <- function(x, y) {
-                  grid::viewport(layout.pos.row = x, layout.pos.col = y)
-              }
-              print(p1 + theme(legend.position = "none"), vp = vplayout(1, 1))
-              print(p3 + theme(legend.position = "none"), vp = vplayout(1, 2))
-              print(p4 + theme(legend.position = "none"), vp = vplayout(2, 1))
-              print(p5 + theme(legend.position = "none"), vp = vplayout(2, 2))
-              print(p2 + theme(legend.position = "right",
-                               legend.key.size = unit(0.1, "cm")),
-                    vp = vplayout(3, 1:2))
-          }
-)
+plot.MizerSim <- function(x, ...) {
+    p1 <- plotFeedingLevel(x, ...)
+    p2 <- plotSpectra(x, ...)
+    p3 <- plotBiomass(x, y_ticks = 3, ...)
+    p4 <- plotPredMort(x, ...)
+    p5 <- plotFMort(x, ...)
+    grid::grid.newpage()
+    glayout <- grid::grid.layout(3, 2) # widths and heights arguments
+    vp <- grid::viewport(layout = glayout)
+    grid::pushViewport(vp)
+    vplayout <- function(x, y) {
+        grid::viewport(layout.pos.row = x, layout.pos.col = y)
+    }
+    print(p1 + theme(legend.position = "none"), vp = vplayout(1, 1))
+    print(p3 + theme(legend.position = "none"), vp = vplayout(1, 2))
+    print(p4 + theme(legend.position = "none"), vp = vplayout(2, 1))
+    print(p5 + theme(legend.position = "none"), vp = vplayout(2, 2))
+    print(p2 + theme(legend.position = "right",
+                     legend.key.size = unit(0.1, "cm")),
+          vp = vplayout(3, 1:2))
+}
 
 #' Summary plot for `MizerParams` objects
 #'
@@ -1739,29 +1736,26 @@ setMethod("plot", signature(x = "MizerSim", y = "missing"),
 #' @family plotting functions
 #' @seealso [plotting_functions]
 #' @name plotMizerParams
-#' @aliases plot,MizerParams,missing-method
 #' @examples
 #' \donttest{
 #' params <-  NS_params
 #' plot(params)
 #' }
-setMethod("plot", signature(x = "MizerParams", y = "missing"),
-          function(x, ...) {
-              params <- validParams(x)
-              p11 <- plotFeedingLevel(params, ...)
-              p2 <- plotSpectra(params, ...)
-              p12 <- plotPredMort(params, ...)
-              grid::grid.newpage()
-              glayout <- grid::grid.layout(2, 2) # widths and heights arguments
-              vp <- grid::viewport(layout = glayout)
-              grid::pushViewport(vp)
-              vplayout <- function(x, y) {
-                  grid::viewport(layout.pos.row = x, layout.pos.col = y)
-              }
-              print(p11 + theme(legend.position = "none"), vp = vplayout(1, 1))
-              print(p12 + theme(legend.position = "none"), vp = vplayout(1, 2))
-              print(p2 + theme(legend.position = "right",
-                               legend.key.size = unit(0.1, "cm")),
-                    vp = vplayout(2, 1:2))
-          }
-)
+plot.MizerParams <- function(x, ...) {
+    params <- validParams(x)
+    p11 <- plotFeedingLevel(params, ...)
+    p2 <- plotSpectra(params, ...)
+    p12 <- plotPredMort(params, ...)
+    grid::grid.newpage()
+    glayout <- grid::grid.layout(2, 2) # widths and heights arguments
+    vp <- grid::viewport(layout = glayout)
+    grid::pushViewport(vp)
+    vplayout <- function(x, y) {
+        grid::viewport(layout.pos.row = x, layout.pos.col = y)
+    }
+    print(p11 + theme(legend.position = "none"), vp = vplayout(1, 1))
+    print(p12 + theme(legend.position = "none"), vp = vplayout(1, 2))
+    print(p2 + theme(legend.position = "right",
+                     legend.key.size = unit(0.1, "cm")),
+          vp = vplayout(2, 1:2))
+}

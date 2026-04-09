@@ -2,18 +2,18 @@
 % Please edit documentation in R/plots.R
 \name{plotMizerParams}
 \alias{plotMizerParams}
-\alias{plot,MizerParams,missing-method}
+\alias{plot.MizerParams}
 \title{Summary plot for \code{MizerParams} objects}
 \usage{
-\S4method{plot}{MizerParams,missing}(x, y, ...)
+\method{plot}{MizerParams}(x, ...)
 }
 \arguments{
 \item{x}{An object of class \linkS4class{MizerParams}}
 
-\item{y}{Not used}
-
 \item{...}{For additional arguments see the documentation for
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}},\code{\link[=plotSpectra]{plotSpectra()}},\code{\link[=plotPredMort]{plotPredMort()}}}
+
+\item{y}{Not used}
 }
 \value{
 A viewport object

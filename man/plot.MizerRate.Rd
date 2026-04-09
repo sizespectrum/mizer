@@ -4,7 +4,7 @@
 \alias{plot.MizerRate}
 \title{Plot a MizerRate object}
 \usage{
-plot.MizerRate(
+\method{plot}{MizerRate}(
   x,
   params = NULL,
   species = NULL,

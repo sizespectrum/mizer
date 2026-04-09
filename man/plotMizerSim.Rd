@@ -2,20 +2,20 @@
 % Please edit documentation in R/plots.R
 \name{plotMizerSim}
 \alias{plotMizerSim}
-\alias{plot,MizerSim,missing-method}
+\alias{plot.MizerSim}
 \title{Summary plot for \code{MizerSim} objects}
 \usage{
-\S4method{plot}{MizerSim,missing}(x, y, ...)
+\method{plot}{MizerSim}(x, ...)
 }
 \arguments{
 \item{x}{An object of class \linkS4class{MizerSim}}
-
-\item{y}{Not used}
 
 \item{...}{For additional arguments see the documentation for
 \code{\link[=plotBiomass]{plotBiomass()}},
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}},\code{\link[=plotSpectra]{plotSpectra()}},\code{\link[=plotPredMort]{plotPredMort()}}
 and \code{\link[=plotFMort]{plotFMort()}}.}
+
+\item{y}{Not used}
 }
 \value{
 A viewport object
