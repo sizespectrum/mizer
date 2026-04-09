@@ -180,7 +180,7 @@ Again note the American spelling "colors" required by plotly.
 ## Plotting rate functions
 
 Functions such as `getEncounter()`, `getFeedingLevel()`, `getMort()`,
-`getEGrowth()` and others return a `MizerRate` object — a species × size matrix
+`getEGrowth()` and others return a `ArraySpeciesBySize` object — a species × size matrix
 that carries a human-readable name and units. These objects have their own
 `plot()` method that produces a ggplot directly, so no `melt()` step is needed:
 

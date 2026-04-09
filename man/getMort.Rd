@@ -34,7 +34,7 @@ parameters.)}
 \item{...}{Unused}
 }
 \value{
-A \code{MizerRate} object (species x size) with the total mortality rates.
+A \code{ArraySpeciesBySize} object (species x size) with the total mortality rates.
 }
 \description{
 Calculates the total mortality rate \eqn{\mu_i(w)}  (in units 1/year) on each

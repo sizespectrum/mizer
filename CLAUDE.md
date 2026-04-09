@@ -30,13 +30,13 @@ devtools::clean_dll(); devtools::load_all()
 
 **`MizerSim`** (S4, `R/MizerSim-class.R`) — stores simulation output: a 3D array `n` (time × species × size), `n_pp` (time × size) for resource, `n_other` for additional biomass components, `effort` history, and the `MizerParams` used.
 
-**`MizerRate`** (S3, `R/MizerRate-class.R`) — wraps 2D arrays (species × size) returned by rate functions with metadata (`rate_name`, `units`). Inherits from `matrix`/`array`. Provides enhanced `print()`, `summary()`, `plot()`, and `as.data.frame()`.
+**`ArraySpeciesBySize`** (S3, `R/ArraySpeciesBySize-class.R`) — wraps 2D arrays (species × size) returned by mizer functions with metadata (`value_name`, `units`). Inherits from `matrix`/`array`. Provides enhanced `print()`, `summary()`, `plot()`, and `as.data.frame()`.
 
 ### Execution Flow
 
 1. **Setup**: `newMultispeciesParams()` / `newSingleSpeciesParams()` / `newCommunityParams()`
 2. **Configure**: `set*()` functions (`setFishing()`, `setPredKernel()`, `setMetabolicRate()`, …)
-3. **Rates**: `getEncounter()`, `getFeedingLevel()`, `getPredMort()`, `getFMort()`, `getRates()` — each returns a `MizerRate` matrix (species × size)
+3. **Rates**: `getEncounter()`, `getFeedingLevel()`, `getPredMort()`, `getFMort()`, `getRates()` — each returns an `ArraySpeciesBySize` matrix (species × size)
 4. **Project**: `project(params, t_max = 100, effort = ...)` → `MizerSim`
 5. **Analyse**: `getYield()`, `getBiomass()`, `getSSB()`, `plotSpectra()`, etc.
 
