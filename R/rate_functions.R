@@ -53,12 +53,14 @@ getRates.MizerParams <- function(params, n = initialN(params),
 }
 
 #' Get encounter rate
-#' 
+#'
 #' Returns the rate at which a predator of species \eqn{i} and
 #' weight \eqn{w} encounters food (grams/year).
-#' 
+#'
 #' @inherit mizerEncounter
-#' 
+#'
+#' @return A `MizerRate` object (predator species x predator size) with the
+#'   encounter rates.
 #' @export
 #' @family rate functions
 #' @examples
@@ -86,8 +88,8 @@ getEncounter.MizerParams <- function(params, n = initialN(params),
     )
     f <- get(params@rates_funcs$Encounter)
     encounter <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
-    dimnames(encounter) <- dimnames(params@metab)
-    encounter
+    MizerRate(encounter, rate_name = "Encounter rate",
+             units = "g/year", params = params)
 }
 
 
@@ -105,13 +107,12 @@ getEncounter.MizerParams <- function(params, n = initialN(params),
 #' @param drop If `TRUE` then any dimension of length 1 will be removed
 #'   from the returned array.
 #'
-#' @return If a `MizerParams` object is passed in, the function returns a two
-#'   dimensional array (predator species x predator size) based on the
-#'   abundances also passed in.
-#'   If a `MizerSim` object is passed in, the function returns a three
-#'   dimensional array (time step x predator species x predator size) with the
-#'   feeding level calculated at every time step in the simulation.
-#'   If \code{drop = TRUE} then the dimension of length 1 will be removed from
+#' @return If a `MizerParams` object is passed in, returns a `MizerRate` object
+#'   (predator species x predator size) with the feeding level.
+#'   If a `MizerSim` object is passed in, returns a three-dimensional array
+#'   (time step x predator species x predator size) with the feeding level at
+#'   every time step.
+#'   If \code{drop = TRUE} then dimensions of length 1 will be removed from
 #'   the returned array.
 #' 
 #' @export
@@ -148,8 +149,8 @@ getFeedingLevel.MizerParams <- function(object, n, n_pp, n_other,
                        encounter = getEncounter(params, n, n_pp, n_other, 
                                                 t = t), 
                            t = t)
-    dimnames(feeding_level) <- dimnames(params@metab)
-    return(feeding_level)
+    return(MizerRate(feeding_level, rate_name = "Feeding level",
+                     params = params))
 }
 
 #' @export
@@ -188,7 +189,7 @@ getFeedingLevel.MizerSim <- function(object, n, n_pp, n_other,
 #' growth or reproduction. 
 #' 
 #' @param params A MizerParams object
-#' @return A matrix (species x size) with the critical feeding level
+#' @return A `MizerRate` object (species x size) with the critical feeding level
 #' @export
 #' @examples
 #' \donttest{
@@ -200,7 +201,9 @@ getCriticalFeedingLevel <- function(params) {
 #' @export
 getCriticalFeedingLevel.MizerParams <- function(params) {
     params <- validParams(params)
-    params@metab / params@intake_max / params@species_params$alpha
+    result <- params@metab / params@intake_max / params@species_params$alpha
+    MizerRate(result, rate_name = "Critical feeding level",
+             params = params)
 }
 
 
@@ -213,7 +216,9 @@ getCriticalFeedingLevel.MizerParams <- function(params) {
 #' @inheritParams mizerRates
 #'
 #' @inherit mizerEReproAndGrowth
-#' 
+#'
+#' @return A `MizerRate` object (species x size) with the energy rate
+#'   \eqn{E_{r.i}(w)} available for growth and reproduction (grams/year).
 #' @export
 #' @seealso The part of this energy rate that is invested into growth is
 #'   calculated with [getEGrowth()] and the part that is invested into
@@ -248,8 +253,8 @@ getEReproAndGrowth.MizerParams <- function(params, n = initialN(params),
            encounter = getEncounter(params, n, n_pp, n_other, t = t), 
            feeding_level = getFeedingLevel(params, n, n_pp, n_other, 
                                            time_range = t))
-    dimnames(e) <- dimnames(params@metab)
-    e
+    MizerRate(e, rate_name = "Energy for growth and reproduction",
+             units = "g/year", params = params)
 }
 
 #' Get predation rate
@@ -317,12 +322,12 @@ getPredRate.MizerParams <- function(params, n = initialN(params),
 #' @inheritParams getFeedingLevel
 #'
 #' @return
-#'   If a `MizerParams` object is passed in, the function returns a two
-#'   dimensional array (prey species x prey size) based on the abundances also
-#'   passed in. If a `MizerSim` object is passed in, the function returns a
-#'   three dimensional array (time step x prey species x prey size) with the
-#'   predation mortality calculated at every time step in the simulation.
-#'   Dimensions may be dropped if they have length 1 unless `drop = FALSE`.
+#'   If a `MizerParams` object is passed in, returns a `MizerRate` object
+#'   (prey species x prey size) with the predation mortality rates.
+#'   If a `MizerSim` object is passed in, returns a three-dimensional array
+#'   (time step x prey species x prey size) with the predation mortality at
+#'   every time step. Dimensions may be dropped if they have length 1 unless
+#'   `drop = FALSE`.
 #' @family rate functions
 #' @export
 #' @examples
@@ -360,9 +365,8 @@ getPredMort.MizerParams <- function(object, n, n_pp, n_other,
     pred_mort <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
                    pred_rate = getPredRate(params, n = n, n_pp = n_pp, 
                                            n_other = n_other, t = t))
-    dimnames(pred_mort) <- list(prey = dimnames(params@initial_n)$sp,
-                                w_prey = dimnames(params@initial_n)$w)
-    pred_mort
+    MizerRate(pred_mort, rate_name = "Predation mortality",
+             units = "1/year", params = params)
 }
 
 #' @export
@@ -584,10 +588,11 @@ getFMortGear.MizerSim <- function(object, effort, time_range) {
 #'   dimensions of length 1 be dropped, e.g. if your community only has one
 #'   species it might make presentation of results easier. Default is TRUE.
 #'
-#' @return An array. If the effort argument has a time dimension, or object is
-#'   of class `MizerSim`, the output array has three dimensions (time x
-#'   species x size). If the effort argument does not have a time dimension, the
-#'   output array has two dimensions (species x size).
+#' @return If a `MizerParams` object is passed in without a time-dimensioned
+#'   effort, returns a `MizerRate` object (species x size) with the fishing
+#'   mortality rates. If the effort argument has a time dimension, or a
+#'   `MizerSim` object is passed in, returns a three-dimensional array
+#'   (time x species x size).
 #'
 #' The `effort` argument is only used if a `MizerParams` object is
 #' passed in. The `effort` argument can be a two dimensional array (time x
@@ -672,7 +677,8 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE) {
                    pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
                                            n_other = n_other, 
                                            time_range = t))
-        dimnames(fmort) <- dimnames(params@metab)
+        fmort <- MizerRate(fmort, rate_name = "Fishing mortality",
+                           units = "1/year", params = params)
         return(fmort)
     } else if (length(effort) == no_gears) {
         fmort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
@@ -682,7 +688,8 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE) {
                    pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
                                            n_other = n_other, 
                                            time_range = t))
-        dimnames(fmort) <- dimnames(params@metab)
+        fmort <- MizerRate(fmort, rate_name = "Fishing mortality",
+                           units = "1/year", params = params)
         return(fmort)
     } else {
         stop("Invalid effort argument")
@@ -734,7 +741,7 @@ getFMort.MizerSim <- function(object, effort, time_range, drop = TRUE) {
 #' @param effort A numeric vector of the effort by gear or a single numeric
 #'   effort value which is used for all gears.
 #'
-#' @return A two dimensional array (prey species x prey size). 
+#' @return A `MizerRate` object (species x size) with the total mortality rates.
 #'
 #' @export
 #' @seealso [getPredMort()], [getFMort()]
@@ -773,9 +780,8 @@ getMort.MizerParams <- function(params,
            f_mort = getFMort(params, effort), 
            pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
                                    n_other = n_other, time_range = t))
-    dimnames(z) <- list(prey = dimnames(params@initial_n)$sp,
-                        w_prey = dimnames(params@initial_n)$w)
-    return(z)
+    return(MizerRate(z, rate_name = "Total mortality",
+                     units = "1/year", params = params))
 }
 
 #' Alias for `getMort()`
@@ -796,7 +802,7 @@ getZ <- getMort
 #' @inherit mizerERepro
 #' @inheritParams mizerRates
 #'
-#' @return A two dimensional array (prey species x prey size) holding
+#' @return A `MizerRate` object (species x size) holding
 #' \deqn{\psi_i(w)\max(0, E_{r.i}(w))}
 #' where \eqn{E_{r.i}(w)} is the rate at which energy becomes available for
 #' growth and reproduction, calculated with [getEReproAndGrowth()],
@@ -833,8 +839,8 @@ getERepro.MizerParams <- function(params, n = initialN(params),
     erepro <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t, 
                 e = getEReproAndGrowth(params, n = n, n_pp = n_pp,
                                        n_other = n_other, t = t))
-    dimnames(erepro) <- dimnames(params@metab)
-    erepro
+    MizerRate(erepro, rate_name = "Energy for reproduction",
+             units = "g/year", params = params)
 }
 
 #' Alias for `getERepro()`
@@ -856,7 +862,8 @@ getESpawning <- getERepro
 #' @inherit mizerEGrowth
 #' @inheritParams mizerRates
 #'   
-#' @return A two dimensional array (prey species x prey size) 
+#' @return A `MizerRate` object (species x size) with the somatic growth rates
+#'   (grams/year).
 #' @export
 #' @seealso [getERepro()], [getEReproAndGrowth()]
 #' @family rate functions
@@ -889,8 +896,8 @@ getEGrowth.MizerParams <- function(params, n = initialN(params),
                                n_other = n_other, t = t), 
            e = getEReproAndGrowth(params, n = n, n_pp = n_pp, 
                                   n_other = n_other, t = t))
-    dimnames(g) <- dimnames(params@metab)
-    g
+    MizerRate(g, rate_name = "Growth rate",
+             units = "g/year", params = params)
 }
 
 
@@ -1008,7 +1015,8 @@ getRDD.MizerParams <- function(params, n = initialN(params),
 #'
 #' @inheritParams mizerRates
 #'   
-#' @return A two dimensional array (prey species x prey size) 
+#' @return A `MizerRate` object (species x size) with the flux of individuals
+#'   entering each size class (numbers/year).
 #' @export
 #' @seealso [getEGrowth()], [getRDD()]
 #' @family rate functions
@@ -1071,8 +1079,8 @@ getFlux.MizerParams <- function(params, n = initialN(params),
         flux[mask_below] <- 0
     }
     
-    dimnames(flux) <- dimnames(params@metab)
-    flux
+    MizerRate(flux, rate_name = "Flux",
+             units = "1/year", params = params)
 }
 
 

@@ -30,7 +30,7 @@ parameters.)}
 \item{...}{Unused}
 }
 \value{
-A two dimensional array (prey species x prey size) holding
+A \code{MizerRate} object (species x size) holding
 \deqn{\psi_i(w)\max(0, E_{r.i}(w))}
 where \eqn{E_{r.i}(w)} is the rate at which energy becomes available for
 growth and reproduction, calculated with \code{\link[=getEReproAndGrowth]{getEReproAndGrowth()}},

@@ -55,6 +55,7 @@ Collate:
     'helpers.R'
     'MizerParams-class.R'
     'MizerSim-class.R'
+    'MizerRate-class.R'
     'reproduction.R'
     'saveParams.R'
     'species_params.R'

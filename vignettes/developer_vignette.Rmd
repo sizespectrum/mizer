@@ -278,6 +278,26 @@ mizer code, because the code avoids using S4 methods. In the presentation
 below we assume that the `MizerParams` object is called `params` and the
 `MizerSim` object is called `sim`.
 
+Although `MizerParams` and `MizerSim` are S4 classes, mizer registers all
+their methods as S3 methods rather than S4 methods. For example, the summary
+plot for a `MizerParams` object is defined as `plot.MizerParams()` and
+registered with `S3method(plot, MizerParams)` in the NAMESPACE, not via
+`setMethod("plot", "MizerParams", ...)`. This works because S3 dispatch reads
+the `class()` attribute of an object, which S4 objects have, so
+`plot(params)` correctly finds `plot.MizerParams()`.
+
+The reason for preferring S3 is that calling `setMethod()` on a function that
+is not already an S4 generic silently promotes it to one, changing dispatch
+semantics package-wide. For instance, if mizer used `setMethod("plot", ...)`,
+then `plot` would become an S4 generic for all code running in the same R
+session. This can cause hard-to-diagnose failures when `plot()` is called with
+objects of mixed S3/S4 types, because S4 dispatch requires an exact method
+match on all arguments rather than falling back gracefully to S3 methods.
+
+In short: use S3 methods (named `generic.ClassName`) for `MizerParams` and
+`MizerSim`, and avoid `setMethod()` unless you are extending a generic that is
+already S4 in a dependency.
+
 
 ## The MizerParams class
 An object of class 'MizerParams' holds all the information needed for the
@@ -308,6 +328,74 @@ already there for other similar slots.
 
 
 -->
+
+## The MizerRate class
+
+Many rate functions in mizer — `getEncounter()`, `getFeedingLevel()`,
+`getPredMort()`, `getMort()`, `getEReproAndGrowth()`, `getERepro()`,
+`getEGrowth()`, `getFMort()`, `getFlux()`, and `getCriticalFeedingLevel()` —
+return a `MizerRate` object. This is a lightweight S3 class that wraps a
+species × size matrix and attaches two extra attributes:
+
+- `rate_name`: a human-readable label (e.g. `"Encounter rate"`).
+- `units`: the physical units of the rate (e.g. `"g/year"` or `"1/year"`).
+
+### Behaviour
+
+A `MizerRate` object behaves exactly like a regular matrix for subsetting and
+arithmetic. Subsetting with `[` preserves the class as long as the result is
+still a 2-D matrix; arithmetic operators (via `Ops.MizerRate`) strip the class
+and return a plain matrix. This means you can use `MizerRate` objects
+transparently in calculations without worrying about attribute contamination.
+
+```{r eval=FALSE}
+enc <- getEncounter(NS_params)
+is.MizerRate(enc)       # TRUE
+enc["Cod", "100"]       # still a MizerRate
+enc * 2                 # plain matrix — class is stripped by Ops.MizerRate
+```
+
+### Enhanced output methods
+
+`MizerRate` provides `print()`, `summary()`, `plot()`, and `as.data.frame()`
+methods designed for quick inspection of rate arrays:
+
+```{r eval=FALSE}
+enc <- getEncounter(NS_params)
+print(enc)              # one-line min/mean/max per species
+summary(enc)            # tabular summary per species
+plot(enc, NS_params)    # line plot vs. size, coloured by species
+as.data.frame(enc)      # long-format data frame with columns w, value, Species
+```
+
+The `plot()` method accepts a `params` argument so it can use the species
+colours and linetypes stored in the `MizerParams` object, and it restricts each
+species' curve to its natural size range (`w_min` to `w_max`) unless
+`all.sizes = TRUE`.
+
+### Wrapping your own rate functions
+
+If you write a custom rate function that replaces one of the built-in `mizer*`
+functions (see `?setRateFunction`), you do **not** need to return a `MizerRate`:
+the `get*` wrapper that calls your function is responsible for wrapping the
+result. Your function should return a plain numeric matrix with the correct
+dimensions (species × size) and dimnames.
+
+If you write a new standalone rate function that is meant to be called directly
+by users, you may want to wrap its result yourself:
+
+```{r eval=FALSE}
+myRateFunction <- function(params, ...) {
+    result <- # ... compute a species x size matrix ...
+    MizerRate(result, rate_name = "My rate", units = "1/year", params = params)
+}
+```
+
+The `params` argument to `MizerRate()` is used only to copy `dimnames` from
+`params@metab` onto the result, so that species names and size labels are
+set consistently.
+
+You can test whether an object is a `MizerRate` with `is.MizerRate()`.
 
 # Condition handling system
 

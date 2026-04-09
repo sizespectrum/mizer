@@ -600,7 +600,7 @@ get_size_range_array <- function(params, min_w = min(params@w),
 #' @concept summary_function
 #' @examples
 #' summary(NS_params)
-setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
+summary.MizerParams <- function(object, ...) {
     params <- validParams(object)
     cat("An object of class \"", as.character(class(params)), "\" \n", sep = "")
     cat("Consumer size spectrum:\n")
@@ -632,7 +632,7 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
                 toString(splist)), "\n")
     }
     invisible(params)
-})
+}
 
 
 #### summary for MizerSim ####
@@ -646,7 +646,7 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
 #' @concept summary_function
 #' @examples
 #' summary(NS_sim)
-setMethod("summary", signature(object = "MizerSim"), function(object, ...) {
+summary.MizerSim <- function(object, ...) {
     cat("An object of class \"", as.character(class(object)), "\" \n", sep = "")
     cat("Parameters:\n")
     summary(object@params)
@@ -661,7 +661,7 @@ setMethod("summary", signature(object = "MizerSim"), function(object, ...) {
         as.numeric(dimnames(object@n)$time)[2] -
             as.numeric(dimnames(object@n)$time)[1], " years\n", sep = "")
     invisible(object)
-})
+}
 
 # Indicator functions ####
 #' Description of indicator functions

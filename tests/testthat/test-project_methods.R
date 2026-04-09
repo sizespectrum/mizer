@@ -64,7 +64,7 @@ test_that("getEncounter returns with correct dimnames", {
     expect_identical(dimnames(enc), 
                      dimnames(params@initial_n))
 })
-test_that("mizerEncounter is independent of volume", {
+test_that("getEncounter is independent of volume", {
     enc <- getEncounter(params)
     enc_r <- getEncounter(params_r)
     expect_equal(enc, enc_r)
@@ -74,7 +74,7 @@ test_that("External encounter is included", {
     # add something of the right dimension
     extra_enc <- params@mu_b
     ext_encounter(params) <- ext_encounter(params) + extra_enc
-    expect_identical(getEncounter(params), enc + extra_enc)
+    expect_equal(getEncounter(params), enc + extra_enc, ignore_attr = TRUE)
 })
 
 # getFeedingLevel -----------------------------------------
@@ -87,7 +87,7 @@ test_that("getFeedingLevel for MizerParams", {
     # A crap test - just returns what's already in the function
     encounter <- getEncounter(params, n = n, n_pp = n_full)
     f <- encounter / (encounter + params@intake_max)
-    expect_identical(fl, f)
+    expect_equal(fl, f, ignore_attr = TRUE)
     # test value
     # expect_known_value(fl, "values/getFeedingLevel")
     # expect_snapshot(round(fl, 5)) # round to take into account different rounding errors depending on OS
@@ -104,10 +104,11 @@ test_that("getFeedingLevel for MizerSim", {
     expect_identical(dimnames(fl)$w, dimnames(params@initial_n)$w)
     time_range <- 20
     expect_length(dim(getFeedingLevel(sim, time_range = time_range)), 3)
-    expect_identical(
+    expect_equal(
         getFeedingLevel(sim, time_range = time_range)[1, , ],
         getFeedingLevel(sim@params, sim@n[as.character(time_range), , ], 
-                        sim@n_pp[as.character(time_range), ])
+                        sim@n_pp[as.character(time_range), ]),
+        ignore_attr = TRUE
     )
 })
 
@@ -138,7 +139,8 @@ test_that("getFeedingLevel is independent of volume", {
 
 test_that("getCriticalFeedingLevel matches metab over intake_max times alpha", {
     expected <- params@metab / params@intake_max / params@species_params$alpha
-    expect_equal(getCriticalFeedingLevel(params), expected)
+    expect_equal(getCriticalFeedingLevel(params), expected,
+                 ignore_attr = c("rate_name", "units", "class"))
 })
 
 # getPredRate -------------------------------------------------------------
@@ -356,8 +358,8 @@ test_that("getFMort", {
         fmg22 <- fmg22 + fmg2[i, , ]
         fmg33 <- fmg33 + fmg3[, i, , ]
     }
-    expect_equal(f1, fmg11)
-    expect_equal(f2, fmg22)
+    expect_equal(f1, fmg11, ignore_attr = TRUE)
+    expect_equal(f2, fmg22, ignore_attr = TRUE)
     expect_equal(f3, fmg33)
     # expect_known_value(f1, "values/getFMort")
     # expect_snapshot(f1)
@@ -431,8 +433,8 @@ test_that("getMort", {
     z <- getMort(params, n, n_full, effort = effort2)
     # test dim
     expect_identical(dim(z), c(no_sp, no_w))
-    expect_identical(dimnames(z)$prey, dimnames(params@initial_n)$sp)
-    expect_identical(dimnames(z)$w_prey, dimnames(params@initial_n)$w)
+    expect_identical(dimnames(z)$sp, dimnames(params@initial_n)$sp)
+    expect_identical(dimnames(z)$w, dimnames(params@initial_n)$w)
     # Look at numbers in species 1
     f <- getFMort(params, effort2)
     m2 <- getPredMort(params, n, n_full)
@@ -494,7 +496,7 @@ test_that("mizerEReproAndGrowth, mizerERepro and mizerEGrowth follow formulas", 
     expected_e <- sweep((1 - feeding_level) * encounter, 1,
                         params@species_params$alpha, "*",
                         check.margin = FALSE) - params@metab
-    expect_equal(e, expected_e)
+    expect_equal(e, expected_e, ignore_attr = c("rate_name", "units", "class"))
 
     e_test <- e
     e_test[1, 1] <- -1
@@ -520,11 +522,11 @@ test_that("getERepro", {
     e <- getEReproAndGrowth(params, n = n, n_pp = n_full)
     e_repro <- params@psi * e
     e_repro[e_repro <= 0] <- 0
-    expect_identical(es, e_repro)
+    expect_equal(es, e_repro, ignore_attr = TRUE)
     e_growth <- getEGrowth(params, n, n_full)
     e_growth_man <- e - es
     e_growth_man[e_growth_man <= 0] <- 0
-    expect_identical(e_growth, e_growth_man)
+    expect_equal(e_growth, e_growth_man, ignore_attr = TRUE)
     # expect_known_value(es, "values/getERepro")
     # expect_snapshot(es)
     expect_snapshot_value(es, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS

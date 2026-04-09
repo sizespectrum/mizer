@@ -23,10 +23,11 @@ dimensions of length 1 be dropped, e.g. if your community only has one
 species it might make presentation of results easier. Default is TRUE.}
 }
 \value{
-An array. If the effort argument has a time dimension, or object is
-of class \code{MizerSim}, the output array has three dimensions (time x
-species x size). If the effort argument does not have a time dimension, the
-output array has two dimensions (species x size).
+If a \code{MizerParams} object is passed in without a time-dimensioned
+effort, returns a \code{MizerRate} object (species x size) with the fishing
+mortality rates. If the effort argument has a time dimension, or a
+\code{MizerSim} object is passed in, returns a three-dimensional array
+(time x species x size).
 
 The \code{effort} argument is only used if a \code{MizerParams} object is
 passed in. The \code{effort} argument can be a two dimensional array (time x

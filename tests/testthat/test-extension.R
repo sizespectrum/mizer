@@ -38,17 +38,19 @@ test_that("setRateFunction works", {
 
 test_that("Time is passed correctly to rate functions", {
     params@rates_funcs$Encounter <- "nt"
-    expect_identical(getEncounter(params, t = 2), nt(params, 2))
+    expect_equal(getEncounter(params, t = 2), nt(params, 2),
+                 ignore_attr = TRUE)
     params@rates_funcs$FeedingLevel <- "nt"
-    expect_identical(getFeedingLevel(params, time_range = 2), nt(params, 2))
+    expect_equal(getFeedingLevel(params, time_range = 2), nt(params, 2),
+                 ignore_attr = TRUE)
     
     gears <- unique(gear_params(params)$gear)
     effort <- array(0, dim = c(3, 4), 
                     dimnames = list(time = 2020:2022,
                                     gear = gears))
     sim <- project(params, effort = effort, dt = 1)
-    expect_identical(getFeedingLevel(sim, time_range = 2021:2022)[1, , ],
-                     nt(params, 2021))
+    expect_equal(getFeedingLevel(sim, time_range = 2021:2022)[1, , ],
+                 nt(params, 2021), ignore_attr = TRUE)
     #TODO: extend this
 })
 
@@ -160,11 +162,11 @@ test_that("encounter and mortality functions are called", {
                       dynamics_fun = "test_dyn",
                       encounter_fun = "test_dyn",
                       mort_fun = "test_dyn")
-    expect_identical(getEncounter(p), e + 111)
+    expect_equal(getEncounter(p), e + 111, ignore_attr = TRUE)
     p <- setComponent(params, "test", 1, 
                       dynamics_fun = "test_dyn",
                       mort_fun = "test_dyn")
-    expect_identical(getMort(p), m + 111)
+    expect_equal(getMort(p), m + 111, ignore_attr = TRUE)
 })
 
 test_that("We can access simulation results", {
