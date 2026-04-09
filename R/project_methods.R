@@ -396,7 +396,7 @@ mizerERepro <- function(params, n, n_pp, n_other, t, e, ...) {
 #' You would not usually call this
 #' function directly but instead use [getEGrowth()], which then calls this
 #' function unless an alternative function has been registered, see below.
-#' 
+#'
 #' The growth rate is calculated as the difference between the energy available
 #' for reproduction and growth (obtainable with [getEReproAndGrowth()]) and
 #' the energy used for reproduction (obtainable with [getERepro()]), but is

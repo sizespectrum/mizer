@@ -1,6 +1,8 @@
 ---
 title: "Estimating feeding kernel parameters"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include = FALSE}
@@ -23,7 +25,7 @@ select <- c("Merluccius merluccius", "Aspitrigla cuculus")
 Here we will use the Barnes dataset. If you don't have it, you can download it
 with
 ```{r eval=FALSE}
-download.file("http://esapubs.org/archive/ecol/E089/051/Predator_and_prey_body_sizes_in_marine_food_webs_vsn4.txt", destfile = "barnes.csv")
+download.file("https://esapubs.org/archive/ecol/E089/051/Predator_and_prey_body_sizes_in_marine_food_webs_vsn4.txt", destfile = "barnes.csv")
 ```
 
 We load the entire Barnes dataset and then select only the part we are
