@@ -47,3 +47,5 @@
 ^Meta$
 ^\.positai$
 ^\.claude$
+^CLAUDE\.md$
+^\.codex$
