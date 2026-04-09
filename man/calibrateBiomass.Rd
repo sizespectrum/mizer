@@ -34,7 +34,7 @@ total biomass, summed over all species. However the biomasses of the
 individual species will not match observations yet, with some species
 having biomasses that are too high and others too low. So after this
 function you may want to use \code{\link[=matchBiomasses]{matchBiomasses()}}. This is described in the
-blog post at https://bit.ly/2YqXESV.
+blog post at \url{https://bit.ly/2YqXESV}.
 
 If you have observations of the yearly yield instead of biomasses, you can
 use \code{\link[=calibrateYield]{calibrateYield()}} instead of this function.
