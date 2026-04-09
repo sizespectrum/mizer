@@ -12,7 +12,8 @@ steady(
   tol = 0.1 * dt,
   return_sim = FALSE,
   preserve = c("reproduction_level", "erepro", "R_max"),
-  progress_bar = TRUE
+  progress_bar = TRUE,
+  info_level = 3
 )
 }
 \arguments{
@@ -44,7 +45,9 @@ of the \code{reproduction_level}.}
 shiny app. Default FALSE.}
 }
 \value{
-A MizerParams or a MizerSim object
+If \code{return_sim = FALSE}, a \code{MizerParams} object with the initial
+state replaced by the steady state. If \code{return_sim = TRUE}, a \code{MizerSim}
+object containing the intermediate states saved every \code{t_per} years.
 }
 \description{
 The steady state is found by running the dynamics while keeping reproduction,

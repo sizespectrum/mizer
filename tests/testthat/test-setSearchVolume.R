@@ -42,6 +42,8 @@ test_that("Comment works on search volume", {
 test_that("getSearchVolume works", {
     expect_identical(getSearchVolume(NS_params),
                      NS_params@search_vol)
+    expect_identical(getSearchVolume(NS_params),
+                     search_vol(NS_params))
 })
 
 
@@ -51,4 +53,24 @@ test_that("Can get and set search_vol slot", {
     comment(new) <- "test"
     search_vol(params) <- new
     expect_identical(search_vol(params), new)
+})
+
+test_that("setSearchVolume uses q default and validates manual arrays", {
+    params <- NS_params
+    params@species_params$q[] <- NA
+    params <- setSearchVolume(params, reset = TRUE)
+    expect_equal(
+        species_params(params)$q,
+        resource_params(params)$lambda - 2 + species_params(params)$n
+    )
+
+    new <- search_vol(NS_params)
+    bad_names <- new
+    dimnames(bad_names)[[1]] <- rev(dimnames(bad_names)[[1]])
+    expect_error(setSearchVolume(NS_params, search_vol = bad_names),
+                 "same ordering of species")
+
+    bad_values <- new
+    bad_values[1, 1] <- -1
+    expect_error(setSearchVolume(NS_params, search_vol = bad_values))
 })

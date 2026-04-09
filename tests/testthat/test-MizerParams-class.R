@@ -59,6 +59,16 @@ test_that("basic constructor sets dimensions properly", {
     expect_equal(dimnames(test_params_gears@catchability)$gear, gear_names)
 })
 
+test_that("emptyParams validates min_w_pp against min_w", {
+    species_params <- NS_species_params[c(6, 10, 11), ]
+    expect_error(emptyParams(species_params,
+                             min_w = 0.1,
+                             max_w = 40000,
+                             no_w = 200,
+                             min_w_pp = 0.1),
+                 "min_w_pp must be larger than min_w")
+})
+
 # validMizerParams ----
 test_that("Slots are allowed to have comments", {
     params <- NS_params
@@ -103,4 +113,20 @@ test_that("validParams checks w_min and w_max", {
     params@species_params$w_min[1:3] <- 1e-6
     expect_warning(params <- validParams(params), "smaller than the minimum")
     expect_true(validObject(params))
+    expect_equal(params@w_min_idx[1:3], rep(1, 3), ignore_attr = TRUE)
+})
+
+test_that("validParams rejects non-finite rate arrays and allows infinite intake_max", {
+    params <- NS_params
+    params@search_vol[1, 1] <- NaN
+    expect_error(validParams(params), "search_vol must not contain non-finite values")
+
+    params <- NS_params
+    params@intake_max[1, 1] <- Inf
+    expect_no_error(validParams(params))
+
+    params <- NS_params
+    params@intake_max[1, 1] <- NaN
+    expect_error(validParams(params),
+                 "intake_max must contain finite or infinite numeric values only")
 })

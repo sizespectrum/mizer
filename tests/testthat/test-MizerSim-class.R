@@ -60,3 +60,10 @@ test_that("validSim works", {
                    "The simulation failed to work beyond time = 0")
     expect_equal(dim(simt@n), c(1, 12, 100))
 })
+
+test_that("validSim also validates embedded params", {
+    sim <- project(NS_params, t_max = 0.2, t_save = 0.1)
+    sim@params@species_params$w_min[1] <- 1e-10
+    expect_warning(sim2 <- validSim(sim), "smaller than the minimum")
+    expect_equal(sim2@params@w_min_idx[[1]], 1)
+})

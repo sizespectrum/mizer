@@ -357,6 +357,19 @@ test_that("Can extend simulation with NA in final effort", {
   expect_true(all(!is.na(sim@effort)))
 })
 
+test_that("Named effort vectors fill missing gears with the default effort", {
+  gear_names <- unique(gear_params(NS_params)$gear)
+  effort <- c(Industrial = 0.25, Pelagic = 0.4)
+
+  sim <- project(NS_params, effort = effort, t_max = 1, progress_bar = FALSE)
+
+  default_effort <- ifelse(defaults_edition() < 2, 0, 1)
+  expect_equal(sim@effort[1, "Industrial"], 0.25)
+  expect_equal(sim@effort[1, "Pelagic"], 0.4)
+  expect_true(all(sim@effort[1, setdiff(gear_names, c("Industrial", "Pelagic"))] ==
+                    default_effort))
+})
+
 test_that("t_max less than effort array duration uses effort times", {
   gear_names <- unique(gear_params(NS_params)$gear)
   effort <- array(0.5, dim = c(6, length(gear_names)),
@@ -367,4 +380,12 @@ test_that("t_max less than effort array duration uses effort times", {
   
   # Should stop at year 3
   expect_equal(max(as.numeric(dimnames(sim@n)[[1]])), 3)
+})
+
+test_that("project does not change the params object", {
+    params <- NS_params
+    params@diffusion[] <- 1
+    old_params <- unserialize(serialize(params, NULL))
+    sim <- project(params, t_max = 1)
+    expect_identical(params, old_params)
 })

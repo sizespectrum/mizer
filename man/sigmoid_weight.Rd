@@ -9,7 +9,7 @@ sigmoid_weight(w, sigmoidal_weight, sigmoidal_sigma, ...)
 \arguments{
 \item{w}{Vector of sizes.}
 
-\item{sigmoidal_weight}{The weight at which the knife-edge operates.}
+\item{sigmoidal_weight}{The weight at which selectivity is 50\%.}
 
 \item{sigmoidal_sigma}{The width of the selection function.}
 

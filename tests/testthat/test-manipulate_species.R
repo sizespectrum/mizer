@@ -216,6 +216,16 @@ test_that("removeSpecies works correctly on gear_params", {
     expect_equal(nrow(params@gear_params), 1)
 })
 
+test_that("removeSpecies accepts numeric and logical selectors", {
+    by_name <- removeSpecies(NS_params, c("Cod", "Haddock"))
+    by_index <- removeSpecies(NS_params, c(10, 11))
+    by_logical <- removeSpecies(NS_params,
+                                species_params(NS_params)$species %in%
+                                    c("Cod", "Haddock"))
+    expect_equal(by_index, by_name, ignore_attr = TRUE)
+    expect_equal(by_logical, by_name, ignore_attr = TRUE)
+})
+
 test_that("adding and then removing species leaves params unaltered", {
     params <- newMultispeciesParams(NS_species_params, info_level = 0)
     # two arbitrary species
@@ -262,6 +272,18 @@ test_that("renameSpecies works", {
     p2@time_modified <- p@time_modified
     p2@time_created <- p@time_created
     expect_identical(p, p2)
+})
+
+test_that("renameSpecies updates linked species names", {
+    replace <- c(Cod = "Kabeljau", Haddock = "Schellfisch")
+    p <- renameSpecies(NS_params, replace)
+    expect_true(all(replace %in% species_params(p)$species))
+    expect_true(all(replace %in% names(getColours(p))))
+    expect_true(all(replace %in% names(getLinetypes(p))))
+    expect_true(all(replace %in% gear_params(p)$species))
+    expect_true(all(replace %in% dimnames(initialN(p))$sp))
+    expect_true(all(replace %in% dimnames(getSelectivity(p))$sp))
+    expect_true(all(replace %in% dimnames(getCatchability(p))$sp))
 })
 test_that("renameSpecies warns on wrong names", {
     expect_error(renameSpecies(example_params(), c(Kod = "cod", Hadok = "haddock")),
@@ -316,4 +338,31 @@ test_that("renameGear works", {
 test_that("renameGear warns on wrong names", {
     expect_error(renameGear(example_params(), c(Trawler = "New_Trawl", NonExistent = "Other")),
                  "Trawler, NonExistent do not exist")
+})
+
+# expandSizeGrid ----
+test_that("expandSizeGrid works", {
+    params <- expandSizeGrid(NS_params, new_min_w = 1e-4, new_max_w = 50000)
+    expect_lt(min(params@w), 1e-4)
+    expect_gt(max(params@w), 50000)
+    min_idx <- sum(params@w < min(NS_params@w)) + 1
+    max_idx <- sum(params@w < max(NS_params@w)) + 1
+    expect_equal(params@w[min_idx:max_idx], NS_params@w)
+    expect_equal(params@search_vol[, min_idx:max_idx], NS_params@search_vol)
+    expect_equal(params@metab[, min_idx:max_idx], NS_params@metab)
+    expect_equal(params@initial_n[, min_idx:max_idx], NS_params@initial_n)
+})
+
+test_that("expandSizeGrid preserves existing data", {
+    params <- expandSizeGrid(NS_params)
+    params@time_modified <- NS_params@time_modified
+    expect_true(all(names(NS_params@linecolour) %in% names(params@linecolour)))
+    expect_identical(params@linecolour[names(NS_params@linecolour)],
+                     NS_params@linecolour)
+    expect_true(all(names(NS_params@linetype) %in% names(params@linetype)))
+    expect_identical(params@linetype[names(NS_params@linetype)],
+                     NS_params@linetype)
+    params@linecolour <- NS_params@linecolour
+    params@linetype <- NS_params@linetype
+    expect_identical(compareParams(params, NS_params), "No differences")
 })

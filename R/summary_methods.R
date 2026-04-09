@@ -178,11 +178,12 @@ getDiet.MizerParams <- function(params,
 
 #' Calculate the SSB of species
 #'
-#' Calculates the spawning stock biomass (SSB) through time of the species in
-#' the `MizerSim` class. SSB is calculated as the total mass of all mature
-#' individuals.
+#' Calculates the spawning stock biomass (SSB) for each species. For a
+#' `MizerSim` object this is returned for every saved time; for a
+#' `MizerParams` object it is calculated from the initial state. SSB is the
+#' total mass of all mature individuals.
 #'
-#' @param object An object of class `MizerParams` or MizerSim`.
+#' @param object An object of class `MizerParams` or `MizerSim`.
 #'
 #' @return If called with a MizerParams object, a vector with the SSB in
 #'   grams for each species in the model. If called with a MizerSim object, an
@@ -352,8 +353,8 @@ getN.MizerParams <- function(object, ...) {
 #' @seealso [getYield()]
 #' @examples
 #' yield <- getYieldGear(NS_sim)
-#' yield["1972", "Herring", "Herring"]
-#' # (In this example MizerSim object each species was set up with its own gear)
+#' dim(yield)
+#' yield["1972", , "Herring"]
 getYieldGear <- function(object) {
     UseMethod("getYieldGear")
 }
@@ -400,10 +401,10 @@ getYieldGear.MizerParams <- function(object) {
 #'
 #' @param object An object of class `MizerParams` or `MizerSim`.
 #'
-#' @return If called with a MizerParams object, a vector with the yield rate in
-#'   grams per year for each species in the model. If called with a MizerSim
-#'   object, an array (time x species) containing the yield rate at each time
-#'   step for all species.
+#' @return If called with a `MizerParams` object, a named numeric vector with
+#'   the yield rate in grams per year for each species in the model. If called
+#'   with a `MizerSim` object, an array (time x species) containing the yield
+#'   rate at each saved time step.
 #' @export
 #' @family summary functions
 #' @concept summary_function
@@ -418,7 +419,7 @@ getYieldGear.MizerParams <- function(object) {
 #'                t_start = 2010, progress_bar = FALSE)
 #' # The yield rate for Herring decreases during the year
 #' getYield(sim)[, "Herring"]
-#' # We get the total catch in the year by averaging over the year
+#' # We approximate the total catch in the year by averaging over the year
 #' sum(getYield(sim)[1:10, "Herring"] / 10)
 getYield <- function(object) {
     UseMethod("getYield")
@@ -509,7 +510,7 @@ getGrowthCurves.MizerParams <- function(object,
 
 #' Get size range array
 #'
-#' Helper function that returns an array (species x size) of boolean values
+#' Helper function that returns an array (species x size) of logical values
 #' indicating whether that size bin is within the size limits specified by the
 #' arguments. Either the size limits can be the same for all species or they
 #' can be specified as vectors with one value for each species in the model.
@@ -525,7 +526,7 @@ getGrowthCurves.MizerParams <- function(object,
 #'   over `max_w`.
 #' @param ... Unused
 #'
-#' @return Boolean array (species x size)
+#' @return A logical array (species x size), with dimnames `sp` and `w`.
 #'
 #' @section Length to weight conversion:
 #' If `min_l` is specified there is no need to specify `min_w` and so on.
@@ -684,20 +685,24 @@ NULL
 
 #' Calculate the proportion of large fish
 #'
-#' Calculates the proportion of large fish through time in the `MizerSim`
+#' Calculates the proportion of large fish through time in a `MizerSim`
 #' class within user defined size limits. The default option is to use the whole
 #' size range. You can specify minimum and maximum size ranges for the species
 #' and also the threshold size for large fish. Sizes can be expressed as weight
-#' or size. Lengths take precedence over weights (i.e. if both min_l and min_w
-#' are supplied, only min_l will be used). You can also specify the species to
-#' be used in the calculation. This function can be used to calculate the Large
-#' Fish Index. The proportion is based on either abundance or biomass.
+#' or length. Lengths take precedence over weights (i.e. if both `min_l` and
+#' `min_w` are supplied, only `min_l` will be used, and if `threshold_l` is
+#' supplied it takes precedence over `threshold_w`). You can also specify the
+#' species to be used in the calculation. This function can be used to
+#' calculate the Large Fish Index. The proportion is based on either abundance
+#' or biomass.
 #'
 #' @inheritParams getMeanWeight
-#' @param threshold_w the size used as the cutoff between large and small fish.
+#' @param threshold_w The weight used as the cutoff between large and small
+#'   fish.
 #'   Default value is 100.
-#' @param threshold_l the size used as the cutoff between large and small fish.
-#' @param biomass_proportion a boolean value. If TRUE the proportion calculated
+#' @param threshold_l The length used as the cutoff between large and small
+#'   fish. If supplied, this takes precedence over `threshold_w`.
+#' @param biomass_proportion A boolean value. If TRUE the proportion calculated
 #'   is based on biomass, if FALSE it is based on numbers of individuals.
 #'   Default is TRUE.
 #' @inheritDotParams get_size_range_array -params
@@ -844,8 +849,9 @@ getMeanMaxWeight.MizerSim <- function(sim, species = NULL,
     biomass_species <- getBiomass(sim, ...)
     n_winf <- apply(sweep(n_species, 2, sim@params@species_params$w_max, "*")[,species, drop = FALSE], 1, sum)
     biomass_winf <- apply(sweep(biomass_species, 2, sim@params@species_params$w_max,"*")[, species, drop = FALSE], 1, sum)
-    mmw_numbers <- n_winf / apply(n_species, 1, sum)
-    mmw_biomass <- biomass_winf / apply(biomass_species, 1, sum)
+    mmw_numbers <- n_winf / apply(n_species[, species, drop = FALSE], 1, sum)
+    mmw_biomass <- biomass_winf /
+        apply(biomass_species[, species, drop = FALSE], 1, sum)
     if (measure == "numbers")
         return(mmw_numbers)
     if (measure == "biomass")

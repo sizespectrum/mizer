@@ -116,6 +116,7 @@ test_that("Comment works on psi", {
 test_that("getMaturityProportion works", {
     params <- setReproduction(NS_params)
     maturity <- getMaturityProportion(params)
+    expect_identical(maturity(params), maturity)
     params2 <- setReproduction(params, maturity =  maturity)
     comment(params2@maturity) <- NULL
     expect_unchanged(params, params2)
@@ -125,6 +126,7 @@ test_that("getMaturityProportion works", {
 test_that("getReproductionProportion works", {
     params <- setReproduction(NS_params)
     repro_prop <- getReproductionProportion(params)
+    expect_identical(repro_prop(params), repro_prop)
     params2 <- setReproduction(params, repro_prop = repro_prop)
     comment(params2@psi) <- NULL
     expect_unchanged(params, params2)
@@ -145,6 +147,7 @@ test_that("Can get and set repro_prop", {
     comment(new) <- "test"
     repro_prop(params) <- new
     expect_equal(repro_prop(params)[2, 50], new[2, 50])
+    expect_equal(getReproductionProportion(params)[2, 50], new[2, 50])
 })
 
 test_that("Can get and set maturity", {
@@ -153,4 +156,5 @@ test_that("Can get and set maturity", {
     comment(new) <- "test"
     maturity(params) <- new
     expect_identical(maturity(params), new)
+    expect_identical(getMaturityProportion(params), new)
 })

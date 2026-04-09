@@ -10,7 +10,7 @@ getTimes(sim)
 \item{sim}{A MizerSim object}
 }
 \value{
-A numeric vectors of the times (in years) at which simulation results
+A numeric vector of the times (in years) at which simulation results
 have been stored in the MizerSim object.
 }
 \description{

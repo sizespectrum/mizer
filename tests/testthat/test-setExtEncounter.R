@@ -38,6 +38,10 @@ test_that("getExtEncounter works", {
                      NS_params@ext_encounter)
 })
 
+test_that("setExtEncounter validates dimensions", {
+    expect_error(setExtEncounter(NS_params, array(0, dim = c(1, 1))))
+})
+
 test_that("Can get and set slot", {
     params <- NS_params
     ext_encounter <- getExtEncounter(params)

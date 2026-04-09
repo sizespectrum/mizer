@@ -8,15 +8,15 @@
 #' for species parameters that were not provided.
 #' 
 #' `validGivenSpeciesParams()` checks the validity of the given species
-#' parameter It throws an error if
+#' parameters. It throws an error if
 #' * the `species` column does not exist or contains duplicates
 #' * the maximum size is not specified for all species
 #' 
 #' If a weight-based parameter is missing but the corresponding length-based
 #' parameter is given, as well as the `a` and `b` parameters for length-weight
 #' conversion, then the weight-based parameters are added. If both length and
-#' weight are given, then weight is used and a warning is issued if the two are
-#' inconsistent.
+#' weight are given, then weight is used and an `info_about_default` condition
+#' is signalled if the two are inconsistent.
 #' 
 #' If a `w_inf` column is given but no `w_max` then the value from `w_inf` is
 #' used. This is for backwards compatibility. But note that the von Bertalanffy
@@ -83,8 +83,6 @@ validGivenSpeciesParams <- function(species_params) {
     # Convert a tibble back to an ordinary data frame
     sp <- as.data.frame(species_params,
                         stringsAsFactors = FALSE) # for old versions of R
-    sp$species <- as.character(sp$species)
-    
     # Check for misspellings ----
     misspellings <- c("wmin", "wmax", "wmat", "wmat25", "w_mat_25", "Rmax",
                       "Species", "Gamma", "Beta", "Sigma", "Alpha",
@@ -102,13 +100,14 @@ validGivenSpeciesParams <- function(species_params) {
     if (!("species" %in% colnames(sp))) {
         stop("The species params dataframe needs a column 'species' with the species names")
     }
+    sp$species <- as.character(sp$species)
     species_names <- as.character(sp$species)
-    sp$species <- species_names
-    row.names(sp) <- species_names
     no_sp <- nrow(sp)
     if (length(unique(species_names)) != no_sp) {
         stop("The species parameter data frame has multiple rows for the same species")
     }
+    sp$species <- species_names
+    row.names(sp) <- species_names
     
     ## For backwards compatibility, allow r_max instead of R_max
     if (!("R_max" %in% names(sp)) &&

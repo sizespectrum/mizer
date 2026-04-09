@@ -17,14 +17,15 @@
 #' individual species will not match observations yet, with some species
 #' having biomasses that are too high and others too low. So after this
 #' function you may want to use [matchBiomasses()]. This is described in the
-#' blog post at https://bit.ly/2YqXESV.
+#' blog post at \url{https://bit.ly/2YqXESV}.
 #' 
 #' If you have observations of the yearly yield instead of biomasses, you can
 #' use [calibrateYield()] instead of this function.
 #' 
 #' @param params A MizerParams object
 #' @param ... Additional arguments passed to the method.
-#' @return A MizerParams object
+#' @return A MizerParams object. If no non-missing observed biomass values are
+#'   provided, the original object is returned unchanged.
 #' @export
 #' @examples 
 #' params <- NS_params
@@ -83,14 +84,15 @@ calibrateBiomass.MizerParams <- function(params, ...) {
 #' individual species will not match observations yet, with some species
 #' having numbers that are too high and others too low. So after this
 #' function you may want to use [matchNumbers()]. This is described in the
-#' blog post at https://bit.ly/2YqXESV.
+#' blog post at \url{https://bit.ly/2YqXESV}.
 #'
 #' If you have observations of the yearly yield instead of numbers, you can
 #' use [calibrateYield()] instead of this function.
 #'
 #' @param params A MizerParams object
 #' @param ... Additional arguments passed to the method.
-#' @return A MizerParams object
+#' @return A MizerParams object. If no non-missing observed number values are
+#'   provided, the original object is returned unchanged.
 #' @export
 #' @examples
 #' params <- NS_params
@@ -151,7 +153,8 @@ calibrateNumber.MizerParams <- function(params, ...) {
 #' 
 #' @param params A MizerParams object
 #' @param ... Additional arguments passed to the method.
-#' @return A MizerParams object
+#' @return A MizerParams object. If no non-missing observed yield values are
+#'   provided, the original object is returned unchanged.
 #' @concept deprecated
 #' @export
 #' @examples 

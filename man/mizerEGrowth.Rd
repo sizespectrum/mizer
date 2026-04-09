@@ -39,6 +39,12 @@ You would not usually call this
 function directly but instead use \code{\link[=getEGrowth]{getEGrowth()}}, which then calls this
 function unless an alternative function has been registered, see below.
 }
+\details{
+The growth rate is calculated as the difference between the energy available
+for reproduction and growth (obtainable with \code{\link[=getEReproAndGrowth]{getEReproAndGrowth()}}) and
+the energy used for reproduction (obtainable with \code{\link[=getERepro]{getERepro()}}), but is
+set to 0 if the result would be negative.
+}
 \section{Your own growth rate function}{
 
 By default \code{\link[=getEGrowth]{getEGrowth()}} calls \code{\link[=mizerEGrowth]{mizerEGrowth()}}. However you can

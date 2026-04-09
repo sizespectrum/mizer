@@ -95,8 +95,9 @@ getRateFunction <- function(params, rate) {
 }
 
 #' @rdname setRateFunction
-#' @return For `other_params()`: A named list with all the parameters for which
-#'   you have set values.
+#' @return For `other_params()`: The user-defined parameters stored in
+#'   `other_params(params)`, or `NULL` if none have been set. This excludes any
+#'   component-specific parameters stored via [setComponent()].
 #' @export
 other_params <- function(params) {
     assert_that(is(params, "MizerParams"))
@@ -104,7 +105,8 @@ other_params <- function(params) {
 }
 
 #' @rdname setRateFunction
-#' @param value Values for other parameters
+#' @param value A named list of user-defined parameters to store in
+#'   `other_params(params)`.
 #' @export
 `other_params<-` <- function(params, value) {
     assert_that(is(params, "MizerParams"))
@@ -131,7 +133,9 @@ other_params <- function(params) {
 #'
 #' If you set a component with a new name, the new component will be added
 #' to the existing components. If you set a component with an existing name,
-#' that component will be overwritten. You can remove a component with
+#' the `initial_value` and `dynamics_fun` are overwritten, while the optional
+#' `encounter_fun`, `mort_fun` and `component_params` are only changed if the
+#' corresponding arguments are supplied. You can remove a component with
 #' `removeComponent()`.
 #'
 #' @param params A MizerParams object
@@ -275,8 +279,8 @@ initialNOther <- function(object) {
 #' Fetch the simulation results for other components over time.
 #'
 #' @param sim A MizerSim object
-#' @return A list array (time x component) that stores the projected values for
-#'   other ecosystem components.
+#' @return A list array indexed by time and component that stores the projected
+#'   values for other ecosystem components.
 #' @export
 NOther <- function(sim) {
     return(sim@n_other)

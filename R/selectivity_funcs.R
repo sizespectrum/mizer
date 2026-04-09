@@ -77,6 +77,7 @@ sigmoid_length <- function(w, l25, l50, species_params, ...) {
 #'   Used to get at the length-weight parameters `a` and `b`
 #' @param ... Unused
 #' @return Vector of selectivities at the given sizes.
+#'   Requires `l25 < l50 < l50_right < l25_right`.
 #' @export
 #' @seealso [gear_params()] for setting the selectivity parameters.
 #' @family selectivity functions
@@ -133,7 +134,7 @@ knife_edge <- function(w, knife_edge_size, ...) {
 #' \deqn{S(w) = \left(1 + \left(\frac{w}{w_{\text{sigmoid}}}\right)^{-\sigma}\right)^{-1}}{S(w) = (1 + (w/sigmoidal_weight)^{-sigmoidal_sigma})^{-1}}
 #'
 #' @param w Vector of sizes.
-#' @param sigmoidal_weight The weight at which the knife-edge operates.
+#' @param sigmoidal_weight The weight at which selectivity is 50%.
 #' @param sigmoidal_sigma The width of the selection function.
 #' @param ... Unused
 #' @return Vector of selectivities at the given sizes.

@@ -313,42 +313,76 @@ already there for other similar slots.
 
 Mizer should make good use of R's condition handling system, which is well described at https://adv-r.hadley.nz/conditions.html. Currently this is being only in a small number of places in the code. Search the code for `signal()` and `withCallingHandlers()` to find those places.
 
-## Framework for informing users about defaults
+## Signal Handling in mizer
 
-Mizer's strength is that it can choose default values for most parameters, so that the user needs to supply only very limited information to create a viable MizerParams object. The downside of that is that the user may rely on this too much and may not have enough information about the quality of the defaults.
+Mizer uses the `rlang::signal()` function to generate information messages that can be controlled by the user via the `info_level` argument. This system allows for different levels of verbosity without cluttering the console with warnings or standard messages that cannot be easily suppressed or filtered.
 
-Currently mizer issues some messages to the user when it calculates defaults. But this is minimal in order not to overload the user who does not need the extra information.
+### The `info_level` Argument
 
-I would like the functions that calculate defaults to issue information freely, and the wrapper functions around these to decide what of this information should be shown to the user. Functions like `newMultispeciesParams()` could get an extra `info_level` argument that allows the user to control the amount of information shown.
+The `info_level` argument is an integer that controls the amount of information shown to the user. It works by filtering signals based on their assigned level.
 
-There will be a function to signal information:
+- **`info_level = 0`**: No information messages are shown. This is useful for running simulations in loops or when a clean output is desired.
+- **`info_level = 1`**: Only important messages are shown. These are typically about issues that might affect the validity of the model or significant assumptions being made.
+- **`info_level = 2`**: Intermediate level (currently not widely used, reserved for future granularity).
+- **`info_level = 3`**: All information messages are shown. This includes details about default values being set and other minor notifications.
 
+### How to Use Signals
+
+When writing functions in mizer, you should use `signal()` instead of `message()` or `warning()` for information that is not critical (i.e., not an error or a deprecation warning) but helpful for the user to know.
+
+#### Syntax
+
+```r
+signal(message, class = "info_about_default", var = "variable_name", level = integer_level)
 ```
-info_about_default <- function(message, var, level) {
-    signal(message, class = "info_about_default", var = var, level = level)
-}
-```
-and functions like `newMultispeciesParams()` will get extra code like the following:
-```
-# Define a signal handler that collects the information signals
-# into the `infos` list.
+
+- **`message`**: The text to display.
+- **`class`**: Should be `"info_about_default"` for messages related to setting default values.
+- **`var`**: The name of the variable or parameter the message is about (e.g., "h", "gamma", "ks").
+- **`level`**: The importance level of the message (1, 2, or 3).
+
+#### Guidelines for Levels
+
+- **Level 1**: Use for non-critical but significant issues.
+    - Example: "Because you have n != p, the default value for `h` is not very good."
+
+- **Level 3**: Use for routine information about defaults.
+    - Example: "For species where no growth information is available the parameter h has been set to h = 30."
+
+### Handling Signals
+
+Functions that accept `info_level` should set up a calling handler to capture and filter these signals.
+
+```r
 infos <- list()
 collect_info <- function(cnd) {
-  if (cnd$level >= info_level) {
-    infos[[cnd$var]] <<- cnd$message
-  cnd_muffle(cnd) # So this info will not be repeated higher up
-  }
+    if (cnd$level <= info_level) {
+        infos[[cnd$var]] <<- cnd$message
+        rlang::cnd_muffle(cnd) # So this info will not be repeated higher up
+    }
 }
-# Register this signal handler
+
 withCallingHandlers(
-  info_about_default = collect_info
-
-  # Here goes the existing code of the function
-
+    info_about_default = collect_info, {
+        # ... code that might generate signals ...
+    }
 )
-# Here goes some code to process the list `infos` to create
-# a useful narrative for the user.
+
+if (length(infos) > 0) {
+    message(paste(infos, collapse = "\n"))
+}
 ```
+
+This pattern collects all relevant messages and prints them at the end, avoiding duplicate messages for the same variable if multiple defaults are set.
+
+### Avoiding Duplication
+
+Signals in R bubble up the call stack via `withCallingHandlers`. To ensure a unified summary and avoid duplicate messages, we adopt a **Top-Level Reporting** strategy:
+
+- **Top-Level Functions**: Functions that are directly called by the user (e.g., `newCommunityParams`) should handle signals and print the summary.
+- **Inner Functions**: Functions called by other functions (e.g., `newMultispeciesParams` called by `newCommunityParams`) should be called with `info_level = 0`. This prevents them from printing their own summary while allowing their signals to bubble up to the top-level function's handler.
+
+For example, `newMultispeciesParams` calls `setParams(params, info_level = 0, ...)` so that `setParams` does not print its own summary; instead, the signals bubble up to `newMultispeciesParams`'s handler.
 
 # Defaults editions
 

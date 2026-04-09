@@ -52,3 +52,23 @@ test_that("plotYieldObservedVsModel works", {
     
     vdiffr::expect_doppelganger("plotYieldObservedVsModel", p)
 })
+
+test_that("plotYieldObservedVsModel methods for MizerSim and plotly work", {
+    params <- NS_params
+    species_params(params)$yield_observed <-
+        c(0.8, 61, 12, 35, 1.6, 20, 10, 7.6, 135, 60, 30, 78)
+    expect_warning(params <- calibrateYield(params))
+    sim <- project(params, t_max = 0.1, progress_bar = FALSE)
+
+    expect_message(dummy_sim <- plotYieldObservedVsModel(sim, return_data = TRUE))
+    expect_message(dummy_params <- plotYieldObservedVsModel(setInitialValues(sim@params, sim),
+                                                            return_data = TRUE))
+    expect_equal(dummy_sim, dummy_params, ignore_attr = TRUE)
+
+    expect_message(p <- plotYieldObservedVsModel(sim, ratio = TRUE))
+    expect_true(is_ggplot(p))
+    expect_identical(p$labels$y, "model yield / observed yield")
+
+    expect_message(pp <- plotlyYieldObservedVsModel(params))
+    expect_s3_class(pp, "plotly")
+})

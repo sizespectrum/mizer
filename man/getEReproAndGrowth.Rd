@@ -31,15 +31,15 @@ parameters.)}
 }
 \value{
 A two dimensional array (species x size) holding
-\deqn{E_{r.i}(w) = \max(0, \alpha_i\, (1 - {\tt feeding\_level}_i(w))\,
-                           {\tt encounter}_i(w) - {\tt metab}_i(w)).}{
-  E_{r.i}(w) = max(0, alpha_i * (1 - feeding_level_i(w)) *
-                      encounter_i(w) - metab_i(w)).}
+\deqn{E_{r.i}(w) = \alpha_i\, (1 - {\tt feeding\_level}_i(w))\,
+                           {\tt encounter}_i(w) - {\tt metab}_i(w).}{
+  E_{r.i}(w) = alpha_i * (1 - feeding_level_i(w)) *
+                      encounter_i(w) - metab_i(w).}
 Due to the form of the feeding level, calculated by
 \code{\link[=getFeedingLevel]{getFeedingLevel()}}, if the feeding level is nonzero this can also be expressed as
-\deqn{E_{r.i}(w) = \max(0, \alpha_i\, {\tt feeding\_level}_i(w)\,
-                           h_i(w) - {\tt metab}_i(w))}{
-  E_{r.i}(w) = max(0, alpha_i * feeding_level_i(w) *
+\deqn{E_{r.i}(w) = \alpha_i\, {\tt feeding\_level}_i(w)\,
+                           h_i(w) - {\tt metab}_i(w)}{
+  E_{r.i}(w) = alpha_i * feeding_level_i(w) *
                       h_i(w) - metab_i(w))}
 where \eqn{h_i} is the maximum intake rate, set with
 \code{\link[=setMaxIntakeRate]{setMaxIntakeRate()}}. However this function is using the first equation

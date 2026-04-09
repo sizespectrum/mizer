@@ -17,6 +17,7 @@ getPhiPrey(object, n, n_pp, ...)
 }
 \value{
 A two dimensional array (predator species x predator size)
+equal to \code{getEncounter(object, n, n_pp) / getSearchVolume(object)}.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}

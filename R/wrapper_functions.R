@@ -49,11 +49,12 @@
 #'   rate of the resource.
 #' @param beta The preferred predator prey mass ratio.
 #' @param sigma The width of the prey preference.
-#' @param gamma Volumetric search rate. Estimated using `h`, `f0` and
-#'   `kappa` if not supplied.
+#' @param gamma Volumetric search rate. Passed through to
+#'   [newMultispeciesParams()], which estimates it from `h`, `f0`, and `kappa`
+#'   if it is left as `NA`.
 #' @param reproduction The constant reproduction in the smallest size class of
-#'   the community spectrum. By default this is set so that the community
-#'   spectrum is continuous with the resource spectrum.
+#'   the community spectrum. By default this is set to the rate required to
+#'   maintain the constructed initial egg abundance.
 #' @param knife_edge_size The size at the edge of the knife-edge-selectivity
 #'   function.
 #' @param r_pp Growth rate parameter for the resource spectrum.
@@ -91,7 +92,19 @@ newCommunityParams <- function(max_w = 1e6,
                                lambda = 2.05,
                                r_pp = 10,
                                knife_edge_size = 1000,
-                               reproduction) {
+                               reproduction,
+                               info_level = 2) {
+    # Define a signal handler that collects the information signals
+    # into the `infos` list.
+    infos <- list()
+    collect_info <- function(cnd) {
+        if (cnd$level <= info_level) {
+            infos[[cnd$var]] <<- cnd$message
+        }
+    }
+    # Register this signal handler
+    withCallingHandlers(
+        info_about_default = collect_info, {
     w_max <- max_w
     w_pp_cutoff <- min_w
     ks <- 0 # Turn off standard metabolism
@@ -139,6 +152,10 @@ newCommunityParams <- function(max_w = 1e6,
     params@psi[] <- 0 # Need to force to be 0. Can try setting w_mat but
                           # due to slope still not 0
     comment(params@psi) <- "No investment into reproduction in community model."
+    })
+    if (length(infos) > 0) {
+        message(paste(infos, collapse = "\n"))
+    }
     return(params)
 }
 
@@ -213,8 +230,10 @@ newCommunityParams <- function(max_w = 1e6,
 #'   there are 20 bins for each factor of 10 in weight.
 #' @param min_w_pp The smallest size of the resource spectrum. By default this
 #'   is set to the smallest value at which any of the consumers can feed.
-#' @param w_pp_cutoff The largest size of the resource spectrum. Default value
-#'   is min_w_max unless \code{perfect_scaling = TRUE} when it is Inf.
+#' @param w_pp_cutoff The cutoff used when truncating the constructed resource
+#'   spectrum. Resource abundance is retained only up to the largest grid point
+#'   below this value. If `perfect_scaling = TRUE`, the constructed initial
+#'   resource spectrum is not truncated.
 #' @param n Scaling exponent of the maximum intake rate.
 #' @param p Scaling exponent of the standard metabolic rate. By default this is
 #'   equal to the exponent `n`.
@@ -237,15 +256,15 @@ newCommunityParams <- function(max_w = 1e6,
 #' @param ext_mort_prop The proportion of the total mortality that comes from
 #'   external mortality, i.e., from sources not explicitly modelled. A number in
 #'   the interval [0, 1).
-#' @param reproduction_level A number between 0 an 1 that determines the
+#' @param reproduction_level A number between 0 and 1 that determines the
 #'   level of density dependence in reproduction, see [setBevertonHolt()].
 #' @param R_factor `r lifecycle::badge("deprecated")` Use
 #'   `reproduction_level = 1 / R_factor` instead.
-#' @param gear_names The names of the fishing gears for each species. A
-#'   character vector, the same length as the number of species.
+#' @param gear_names The names of the fishing gears for each species. Either a
+#'   single name used for all species or a character vector of length `no_sp`.
 #' @param knife_edge_size The minimum size at which the gear or gears select
-#'   fish. A single value for each gear or a vector with one value for each
-#'   gear.
+#'   fish. Either a single value used for all species or a vector of length
+#'   `no_sp`.
 #' @param egg_size_scaling `r lifecycle::badge("experimental")`
 #'   If TRUE, the egg size is a constant fraction of the
 #'   maximum size of each species. This fraction is \code{min_w / min_w_max}. If
@@ -303,7 +322,19 @@ newTraitParams <- function(no_sp = 11,
                            resource_scaling = FALSE,
                            perfect_scaling = FALSE,
                            min_w_inf = deprecated(),
-                           max_w_inf = deprecated()) {
+                           max_w_inf = deprecated(),
+                           info_level = 2) {
+    # Define a signal handler that collects the information signals
+    # into the `infos` list.
+    infos <- list()
+    collect_info <- function(cnd) {
+        if (cnd$level <= info_level) {
+            infos[[cnd$var]] <<- cnd$message
+        }
+    }
+    # Register this signal handler
+    withCallingHandlers(
+        info_about_default = collect_info, {
     ## Deprecated arguments ----
     if (lifecycle::is_present(min_w_inf)) {
         lifecycle::deprecate_warn(
@@ -592,13 +623,12 @@ newTraitParams <- function(no_sp = 11,
     params@species_params$erepro <- params@species_params$erepro *
         getRequiredRDD(params) / getRDI(params)
     params <- setBevertonHolt(params, reproduction_level = reproduction_level)
-
+    })
+    if (length(infos) > 0) {
+        message(paste(infos, collapse = "\n"))
+    }
     return(params)
 }
-
-
-
-
 
 # Helper function to calculate the coefficient of the death rate created by
 # a power-law spectrum of predators, assuming they have the same predation

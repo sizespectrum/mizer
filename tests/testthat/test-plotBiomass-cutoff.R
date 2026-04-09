@@ -25,3 +25,12 @@ test_that("plotBiomass works with use_cutoff", {
     # Test plotlyBiomass accepts the argument
     expect_error(plotlyBiomass(sim, use_cutoff = TRUE), NA)
 })
+
+test_that("plotBiomass validates time range and can include total", {
+    sim <- project(NS_params, t_max = 1, effort = 1, progress_bar = FALSE)
+    expect_error(plotBiomass(sim, start_time = 1, end_time = 1),
+                 "start_time must be less than end_time")
+
+    d <- plotBiomass(sim, species = "Cod", total = TRUE, return_data = TRUE)
+    expect_true("Total" %in% d$Species)
+})

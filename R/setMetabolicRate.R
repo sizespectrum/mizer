@@ -14,11 +14,15 @@
 #' is the rate at which energy is expended on activity and movement. The values
 #' of \eqn{k_s}, \eqn{p} and \eqn{k} are taken from the `ks`, `p` and
 #' `k` columns in the species parameter dataframe. If any of these
-#' parameters are not supplied, the defaults are \eqn{k = 0}, \eqn{p = n} and
+#' parameters are not supplied, the defaults are \eqn{k = 0}, \eqn{p = 3/4} and
 #' \deqn{k_s = f_c h \alpha w_{mat}^{n-p},}{k_s = f_c * h * alpha * w_mat^(n - p),}
 #' where \eqn{f_c} is the critical feeding level taken from the `fc` column
 #' in the species parameter data frame. If the critical feeding level is not
 #' specified, a default of \eqn{f_c = 0.2} is used.
+#'
+#' If the `metab` slot has a comment and `reset = FALSE`, then a recalculation
+#' from the species parameters is suppressed and a message is issued if the
+#' recalculated values would differ from the stored ones.
 #'
 #' @param object A MizerParams object
 #' @param params A MizerParams object

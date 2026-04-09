@@ -30,7 +30,9 @@
 #'   The order of the columns and rows of the `interaction` argument should be
 #'   the same as the order in the species params data frame in the `params`
 #'   object. If you supply a named array then the function will check the order
-#'   and warn if it is different. One way of creating your own interaction
+#'   and message if it is different before ignoring the supplied dimnames. If
+#'   you supply only column names then these are also used as the row names. One
+#'   way of creating your own interaction
 #'   matrix is to enter the data using a spreadsheet program and saving it as a
 #'   .csv file. The data can then be read into R using the command `read.csv()`.
 #'
@@ -42,7 +44,7 @@
 #' @param interaction Optional interaction matrix of the species (predator
 #'   species x prey species). By default all entries are 1. See "Setting
 #'   interaction matrix" section below.
-#' @param ... Additional arguments passed to the method.
+#' @param ... Unused
 #'
 #' @return `setInteraction`: A MizerParams object with updated interaction
 #'   matrix

@@ -4,6 +4,7 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 NumericMatrix project_n_loop(NumericMatrix n, NumericMatrix a, NumericMatrix b, NumericMatrix c, 
                              NumericMatrix S, NumericVector w_min_idx) {
+    n = Rcpp::clone(n);
     int no_sp = n.nrow();
     int no_w = n.ncol();
     

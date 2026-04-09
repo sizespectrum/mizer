@@ -60,7 +60,7 @@
 #' * `erepro` is the reproductive efficiency, the proportion of the energy
 #'   invested into reproduction that is converted to egg biomass, see
 #'   [getRDI()].
-#' * `Rmax` is the parameter in the Beverton-Holt density dependence added to
+#' * `R_max` is the parameter in the Beverton-Holt density dependence added to
 #'   the reproduction, see [setBevertonHolt()]. There will be other such
 #'   parameters if you use other density dependence functions, see the
 #'   "Density dependence" section in the help for [setReproduction()].
@@ -87,9 +87,12 @@
 #' * `age_mat` is the age at maturity and is used to get a default value for
 #'   the coefficient `h` of the maximum intake rate, see [get_h_default()].
 #'
-#' Note that setting these parameters with `species_params<-()` will have no
-#' effect. You need to set them with `given_species_params<-()` in order to
-#' trigger a re-calculation of the other species parameters.
+#' Changing these parameters with `species_params<-()` updates the stored
+#' species parameter table and triggers a recalculation via [setParams()].
+#' However they only affect model behaviour if the corresponding downstream
+#' parameters are recalculated rather than kept at explicitly supplied values.
+#' In typical workflows these quantities should therefore be changed via
+#' `given_species_params<-()`.
 #'
 #' In the past, mizer also used the von Bertalanffy parameters `k_vb`, `w_inf`
 #' and `t0` to determine a default for `h`. This is unreliable and is therefore
@@ -125,7 +128,24 @@
 #' MizerParams object, in case your own code makes use of them.
 #'
 #' @param params A MizerParams object
-#' @return Data frame of species parameters
+#' @return `species_params()`: Data frame containing all species parameters
+#'   currently stored in the model.
+#'
+#'   `species_params<-()`: Updates the full species parameter table after
+#'   validating it with [validSpeciesParams()] and then recalculating the model
+#'   parameters with [setParams()].
+#'
+#'   `given_species_params()`: Data frame containing the species parameter
+#'   values that were supplied explicitly by the user.
+#'
+#'   `given_species_params<-()`: Updates the explicitly supplied species
+#'   parameters after validating them with [validGivenSpeciesParams()] and then
+#'   recalculating the full species parameter table and dependent model
+#'   quantities.
+#'
+#'   `calculated_species_params()`: Data frame containing only those species
+#'   parameter entries that are not explicit user input. Columns that would
+#'   consist entirely of `NA` values are dropped.
 #' @export
 #' @seealso [validSpeciesParams()], [setParams()]
 #' @family functions for setting parameters
@@ -252,7 +272,7 @@ replace_with_na <- function(x, y) {
 #' If the species parameter does not yet exist in the species parameter data
 #' frame, then create it and fill it with the default. Otherwise use the default
 #' only to fill in any NAs. Optionally gives a message if the parameter
-#' did not already exist.
+#' did not already exist. The signal has class `info_about_default`.
 #' @param object Either a MizerParams object or a species parameter data frame
 #' @param parname A string with the name of the species parameter to set
 #' @param default A single default value or a vector with one default value for

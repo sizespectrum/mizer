@@ -6,6 +6,7 @@ using namespace Rcpp;
 NumericMatrix inner_project_loop(int no_sp, int no_w, 
                 NumericMatrix n, NumericMatrix A, NumericMatrix B,
                 NumericMatrix S, NumericVector w_min_idx) {
+    n = Rcpp::clone(n);
     
     for (int i = 0; i < no_sp; i++) {
         for (int j = w_min_idx[i]; j < no_w; j++) {

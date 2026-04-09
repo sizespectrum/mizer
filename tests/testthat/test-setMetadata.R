@@ -18,3 +18,21 @@ test_that("setMetadata works", {
     expect_identical(metadata$title, "new")
     expect_null(metadata$new)
 })
+
+test_that("getMetadata always includes automatic fields", {
+    metadata <- getMetadata(NS_params)
+    expect_identical(metadata$mizer_version, NS_params@mizer_version)
+    expect_identical(metadata$extensions, NS_params@extensions)
+    expect_identical(metadata$time_created, NS_params@time_created)
+    expect_identical(metadata$time_modified, NS_params@time_modified)
+})
+
+test_that("setMetadata ignores automatic fields supplied in dots", {
+    expect_message(
+        params <- setMetadata(NS_params, mizer_version = "bad", time_created = 0),
+        "set automatically by mizer"
+    )
+    metadata <- getMetadata(params)
+    expect_identical(metadata$mizer_version, NS_params@mizer_version)
+    expect_identical(metadata$time_created, NS_params@time_created)
+})

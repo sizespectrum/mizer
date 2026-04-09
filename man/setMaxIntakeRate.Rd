@@ -34,7 +34,7 @@ custom value has been set.}
 \item{value}{intake_max}
 }
 \value{
-\code{setReproduction()}: A MizerParams object with updated maximum
+\code{setMaxIntakeRate()}: A MizerParams object with updated maximum
 intake rate.
 
 \code{getMaxIntakeRate()} or equivalently \code{intake_max()}: An array
@@ -59,6 +59,10 @@ calculated by the \code{\link[=get_h_default]{get_h_default()}} function.
 
 If \eqn{h_i} is set to \code{Inf}, fish of species i will consume all encountered
 food.
+
+If the \code{intake_max} slot has a comment and \code{reset = FALSE}, then a
+recalculation from the species parameters is suppressed and a message is
+issued if the recalculated values would differ from the stored ones.
 }
 
 \seealso{

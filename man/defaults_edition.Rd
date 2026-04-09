@@ -10,7 +10,10 @@ defaults_edition(edition = NULL)
 \item{edition}{NULL or a numerical value.}
 }
 \value{
-The current edition number.
+If \code{edition} is \code{NULL}, the currently active edition number. If
+\code{edition} is supplied, the function sets the global
+\code{mizer_defaults_edition} option, emits a message, and returns the supplied
+value invisibly.
 }
 \description{
 Function to set and get which edition of default choices is being used.

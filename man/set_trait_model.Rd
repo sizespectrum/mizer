@@ -47,11 +47,11 @@ community.}
 
 \item{min_w}{The smallest size of the community spectrum.}
 
-\item{max_w}{Obsolete argument because the maximum size of the consumer
-spectrum is set to max_w_inf.}
+\item{max_w}{Maximum size of the consumer size grid passed to
+\code{\link[=MizerParams]{MizerParams()}}. Default value is \code{max_w_inf * 1.1}.}
 
-\item{min_w_pp}{Obsolete argument because the smallest resource size is set
-to the smallest size at which the consumers feed.}
+\item{min_w_pp}{Smallest size on the resource size grid passed to
+\code{\link[=MizerParams]{MizerParams()}}. Default value is \code{1e-10}.}
 
 \item{w_pp_cutoff}{The cut off size of the resource spectrum. Default value
 is 1.}

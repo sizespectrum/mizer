@@ -62,3 +62,22 @@ test_that("Can get and set metab slot", {
     metab(params) <- new
     expect_identical(metab(params), new)
 })
+
+test_that("setMetabolicRate uses the documented defaults and validates inputs", {
+    params <- NS_params
+    params@species_params$p[] <- NA
+    params <- setMetabolicRate(params)
+    expect_identical(species_params(params)$p, rep(3 / 4, nrow(species_params(params))))
+
+    expect_error(setMetabolicRate(NS_params, p = "x"), "p must be numeric")
+
+    new <- metab(NS_params)
+    bad_names <- new
+    dimnames(bad_names)[[1]] <- rev(dimnames(bad_names)[[1]])
+    expect_error(setMetabolicRate(NS_params, metab = bad_names),
+                 "same ordering of species")
+
+    bad_values <- new
+    bad_values[1, 1] <- -1
+    expect_error(setMetabolicRate(NS_params, metab = bad_values))
+})

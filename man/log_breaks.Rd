@@ -19,7 +19,7 @@ magnitude, in which case the ggplot2 default produces no ticks.
 }
 \details{
 Thanks to Heather Turner at
-https://stackoverflow.com/questions/14255533/pretty-ticks-for-log-normal-scale-using-ggplot2-dynamic-not-manual
+\url{https://stackoverflow.com/questions/14255533/pretty-ticks-for-log-normal-scale-using-ggplot2-dynamic-not-manual}
 }
 \concept{helper}
 \keyword{internal}

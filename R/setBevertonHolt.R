@@ -101,7 +101,7 @@
 #' up to `Inf`. If a smaller value is requested a warning is issued and the
 #' value is increased to the value required for a reproduction level of 0.99.
 #'
-#' The values for the `reproduction_level` must be positive and
+#' The values for the `reproduction_level` must be non-negative and
 #' less than 1. The values for `erepro` must be large enough to allow the
 #' required reproduction rate. If a smaller value is requested a warning is
 #' issued and the value is increased to the smallest possible value. The values
@@ -122,8 +122,8 @@
 #'   the initial state is `R_max * reproduction_level`.
 #' @param ... Unused
 #'   \itemize{
-#'     \item `R_factor`: `r lifecycle::badge("deprecated")` Use
-#'       `reproduction_level = 1 / R_factor` instead.
+#'     \item `R_factor`: Legacy alternative for specifying
+#'       `reproduction_level = 1 / R_factor`.
 #'   }
 #'
 #' @return A MizerParams object

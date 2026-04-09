@@ -37,7 +37,8 @@ newTraitParams(
   resource_scaling = FALSE,
   perfect_scaling = FALSE,
   min_w_inf = deprecated(),
-  max_w_inf = deprecated()
+  max_w_inf = deprecated(),
+  info_level = 2
 )
 }
 \arguments{
@@ -70,8 +71,10 @@ there are 20 bins for each factor of 10 in weight.}
 \item{min_w_pp}{The smallest size of the resource spectrum. By default this
 is set to the smallest value at which any of the consumers can feed.}
 
-\item{w_pp_cutoff}{The largest size of the resource spectrum. Default value
-is min_w_max unless \code{perfect_scaling = TRUE} when it is Inf.}
+\item{w_pp_cutoff}{The cutoff used when truncating the constructed resource
+spectrum. Resource abundance is retained only up to the largest grid point
+below this value. If \code{perfect_scaling = TRUE}, the constructed initial
+resource spectrum is not truncated.}
 
 \item{n}{Scaling exponent of the maximum intake rate.}
 
@@ -109,18 +112,18 @@ by \code{\link[=get_gamma_default]{get_gamma_default()}} using the value of \cod
 external mortality, i.e., from sources not explicitly modelled. A number in
 the interval [0, 1).}
 
-\item{reproduction_level}{A number between 0 an 1 that determines the
+\item{reproduction_level}{A number between 0 and 1 that determines the
 level of density dependence in reproduction, see \code{\link[=setBevertonHolt]{setBevertonHolt()}}.}
 
 \item{R_factor}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use
 \code{reproduction_level = 1 / R_factor} instead.}
 
-\item{gear_names}{The names of the fishing gears for each species. A
-character vector, the same length as the number of species.}
+\item{gear_names}{The names of the fishing gears for each species. Either a
+single name used for all species or a character vector of length \code{no_sp}.}
 
 \item{knife_edge_size}{The minimum size at which the gear or gears select
-fish. A single value for each gear or a vector with one value for each
-gear.}
+fish. Either a single value used for all species or a vector of length
+\code{no_sp}.}
 
 \item{egg_size_scaling}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 If TRUE, the egg size is a constant fraction of the

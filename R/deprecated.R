@@ -5,11 +5,30 @@
 #' 
 #' This function has been deprecated in favour of the function
 #' [newMultispeciesParams()] that sets better default values.
+#'
+#' This wrapper keeps the legacy defaults and also fills in several columns in
+#' `species_params` if they are missing, using the same rules as older mizer
+#' versions.
 #' 
 #' @inheritParams newMultispeciesParams
 #' @inheritParams newTraitParams
 #' @param q Allometric exponent of search volume
-#' @param ... Unused
+#' @param ... Further arguments passed to [newMultispeciesParams()].
+#'
+#' @details
+#' If `species_params` contains a `w_inf` column then it is copied to `w_max`.
+#' If `max_w` is not supplied then it is set to `1.1 * max(species_params$w_max)`.
+#' The supplied `min_w_pp` is shifted up by one grid step before being passed
+#' to [newMultispeciesParams()] to compensate for the fact that newer mizer
+#' versions extend the full size grid below `min_w_pp`.
+#'
+#' Missing legacy columns in `species_params` are filled as follows:
+#' `gear = species`, `k = 0`, `alpha = 0.6`, `erepro = 1`,
+#' `sel_func = "knife_edge"`, `knife_edge_size = w_mat` if needed,
+#' `catchability = 1`, `ks = h * 0.2`, and `m = 1`.
+#' If `h` is missing it is calculated from `k_vb`, `alpha`, `f0` and `w_max`.
+#' If `gamma` is missing it is calculated from `f0`, `h`, `beta`, `sigma`,
+#' `lambda` and `kappa`.
 #' @return A MizerParams object
 #' @export
 #' @concept deprecated
@@ -186,10 +205,10 @@ MizerParams <- set_multispecies_model
 #' @param max_w_inf The asymptotic size of the largest species in the community.
 #' @param no_w The number of size bins in the community spectrum.
 #' @param min_w The smallest size of the community spectrum.
-#' @param max_w Obsolete argument because the maximum size of the consumer
-#'   spectrum is set to max_w_inf.
-#' @param min_w_pp Obsolete argument because the smallest resource size is set
-#'   to the smallest size at which the consumers feed.
+#' @param max_w Maximum size of the consumer size grid passed to
+#'   [MizerParams()]. Default value is `max_w_inf * 1.1`.
+#' @param min_w_pp Smallest size on the resource size grid passed to
+#'   [MizerParams()]. Default value is `1e-10`.
 #' @param w_pp_cutoff The cut off size of the resource spectrum. Default value
 #'    is 1.
 #' @param k0 Multiplier for the maximum recruitment. Default value is 50.
@@ -458,8 +477,8 @@ set_community_model <- function(max_w = 1e6,
     com_params_df <- data.frame(
         species = "Community",
         w_inf = w_inf,
-        w_mat = 1e12, # Has no affect as psi set to 0 but we set it to something 
-        # to help the constructor
+        w_mat = w_inf * 0.25, # Has no affect as psi set to 0 but we set it to
+        # something to help the constructor
         h = h, # max food intake
         gamma = gamma,# vol. search rate,
         ks = ks,# standard metabolism coefficient,
@@ -501,6 +520,7 @@ set_community_model <- function(max_w = 1e6,
 #' @param ... Other arguments (currently unused)
 #'   
 #' @return A two dimensional array (predator species x predator size)
+#'   equal to `getEncounter(object, n, n_pp) / getSearchVolume(object)`.
 #' @seealso [project()]
 #' @export
 #' @concept deprecated

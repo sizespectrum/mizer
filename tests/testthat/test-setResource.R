@@ -81,6 +81,24 @@ test_that("Can get and set resource_rate slot", {
   resource_rate(params) <- new
   expect_identical(resource_rate(params), new)
 })
+test_that("resource accessors return documented values", {
+    params <- NS_params
+    expect_identical(resource_rate(params), params@rr_pp)
+    expect_identical(resource_capacity(params), params@cc_pp)
+    expect_equal(resource_level(params), params@initial_n_pp / params@cc_pp)
+})
+test_that("Can get and set resource_level slot", {
+    params <- NS_params
+    new <- rep(0.5, length(resource_level(params)))
+    resource_level(params) <- new
+    expected_level <- new
+    expected_level[initialNResource(params) == 0] <- NaN
+    expected_capacity <- initialNResource(params) / expected_level
+    expected_capacity[is.nan(expected_capacity)] <- 0
+    expect_equal(resource_level(params), expected_level, ignore_attr = TRUE)
+    expect_equal(resource_capacity(params), expected_capacity,
+                 ignore_attr = TRUE)
+})
 test_that("Can get and set resource_dynamics slot", {
     params <- NS_params
     new <- "resource_constant"

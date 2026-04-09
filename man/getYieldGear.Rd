@@ -25,8 +25,8 @@ For details of how the yield rate is defined see the help page of
 }
 \examples{
 yield <- getYieldGear(NS_sim)
-yield["1972", "Herring", "Herring"]
-# (In this example MizerSim object each species was set up with its own gear)
+dim(yield)
+yield["1972", , "Herring"]
 }
 \seealso{
 \code{\link[=getYield]{getYield()}}

@@ -1,4 +1,13 @@
-# Development version 2.5.4.9000
+# Development version 2.5.4.9101
+
+- New `expandSizeGrid()` function expands the size grid of a `MizerParams`
+  object to a new minimum and/or maximum size while preserving all existing
+  species data.
+
+- Added `info_level` argument to `projectToSteady()`, `steady()`, `setParams()`,
+  `newCommunityParams()`, `newTraitParams()`, `matchBiomasses()`, `matchNumbers()`,
+  and `matchYields()`. Setting `info_level = 0` suppresses informational messages;
+  `info_level = 3` (the default) shows all messages.
 
 - `t_max` and `t_save` arguments in `project()` are now respected even when an
   effort array is supplied. When `t_max` is provided, the simulation extends
@@ -6,6 +15,41 @@
   `t_save` is provided, it controls the save frequency with effort values
   interpolated as needed. This allows users to extend simulations without
   specifying dummy effort values for the final time period (#231).
+- The numerical scheme now supports diffusion in the McKendrick-von Foerster
+  equation, allowing individual variability in growth to be modelled. A new
+  `diffusion` slot in `MizerParams` holds the diffusion coefficient (species x
+  size). Use `setDiffusion()` / `diffusion()` / `diffusion<-()` to set and
+  retrieve it.
+- New `getFlux()` function calculates the flux of individuals entering each size
+  class, combining the advective flux from somatic growth and the diffusive flux.
+- `getRequiredRDD()` is now exported. It calculates the recruitment rate needed
+  to maintain a given initial abundance, accounting for both growth and diffusion.
+- `steadySingleSpecies()` now correctly preserves the steady state under
+  `project()`, including when diffusion is non-zero.
+- Growth is now forced to always be non-negative, preventing unphysical shrinkage.
+  No warning is issued when growth stops at or after maturity size.
+- New vignettes: cohort dynamics demonstrating the effect of diffusion in a
+  single-species model; numerical details documenting the finite-volume scheme and
+  its steady-state solution; and a vignette on using FFT for predation kernel
+  calculations.
+- Many functions now have S3 methods so they can be called with either a
+  MizerParams or MizerSim object and users could define their own subclasses
+  and methods to modify mizer behaviour (#330).
+- `getBiomass()` now has a `use_cutoff` argument to restrict the biomass
+  calculation to sizes above the `biomass_cutoff` species parameter.
+- `plotBiomass()` and `plotlyBiomass()` now have a `use_cutoff` argument,
+  passed to `getBiomass()`.
+- `age_mat_vB()` is now exported.
+- `project_n()` is a new exported function that projects the abundance
+  spectrum forward in time, factored out of `project()`.
+
+## Bug fixes
+
+- `getMeanMaxWeight()` now correctly applies the species selector to the
+  denominator.
+- `plotDataFrame()` now correctly applies custom log-scale x breaks.
+- `get_size_range_array()` no longer gives an error when no size brackets are
+  selected.
 
 # mizer 2.5.4
 
@@ -404,7 +448,7 @@ state, so you will need to also call `steady()` after matching the growth rates.
 * Many improvements in the documentation.
 * Many small improvements to code quality and testing.
 * Better social media cards, especially for twitter.
-* mizer can be run on binder, https://mybinder.org/v2/gh/sizespectrum/mizer/HEAD?urlpath=rstudio
+* mizer can be [run on binder](https://mybinder.org/v2/gh/sizespectrum/mizer/HEAD?urlpath=rstudio)
 
 ## Bug fixes
 
@@ -854,7 +898,7 @@ species. The information is set up via a new `gear_params()` data frame. See
   well as `idxFinalT()` to access the values at the final time of a simulation.
 * New function `getCriticalFeedingLevel()` returns the critical feeding level
   for each species at each size.
-* Mizer reexports the `melt()` function from the reshape2 package which allows
+* Mizer re-exports the `melt()` function from the reshape2 package which allows
   users to convert the arrays returned by mizer functions into data frames
   that can be used for example in ggplot2 and plotly.
 * `validSpeciesParams()` checks validity of species parameter data frame and

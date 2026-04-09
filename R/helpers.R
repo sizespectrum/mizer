@@ -56,7 +56,7 @@ l2w <- function(l, species_params) {
         set_species_param_default("a", 0.01,
                                   "Using default values for 'a' parameter.") %>%
         set_species_param_default("b", 3,
-                                  "Using default values for 'a' parameter.")
+                                  "Using default values for 'b' parameter.")
 
     sp[["a"]] * l^sp[["b"]]
 }
@@ -80,7 +80,7 @@ w2l <- function(w, species_params) {
         set_species_param_default("a", 0.01,
                                   "Using default values for 'a' parameter.") %>%
         set_species_param_default("b", 3,
-                                  "Using default values for 'a' parameter.")
+                                  "Using default values for 'b' parameter.")
 
     (w / sp[["a"]])^(1 / sp[["b"]])
 }

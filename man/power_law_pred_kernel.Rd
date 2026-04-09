@@ -55,7 +55,7 @@ species_params(params)["Cod", "kernel_l_l"] <- 4.6
 species_params(params)["Cod", "kernel_u_l"] <- 3
 species_params(params)["Cod", "kernel_l_r"] <- 12.5
 species_params(params)["Cod", "kernel_u_r"] <- 4.3
-species_params(params)["Cod", "kernel_type"] <- "power_law"
+species_params(params)["Cod", "pred_kernel_type"] <- "power_law"
 plot(w_full(params), getPredKernel(params)["Cod", 10, ], type="l", log="x")
 }
 \seealso{

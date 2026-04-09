@@ -39,3 +39,26 @@ test_that("matchGrowth does nothing when no info is given", {
     expect_identical(params2@initial_n[sp_name, ], 
                      params@initial_n[sp_name, ])
 })
+
+test_that("matchGrowth rescales rates and species parameters by age ratio", {
+    params <- NS_params
+    i <- which(species_params(params)$species == "Cod")
+    sp <- set_species_param_default(species_params(params), "age_mat", NA)
+    if (all(c("k_vb", "w_inf") %in% names(sp))) {
+        sp <- set_species_param_default(sp, "age_mat", age_mat_vB(params))
+    }
+    factor <- age_mat(params)[[i]] / sp$age_mat[[i]]
+
+    params2 <- matchGrowth(params, species = i)
+    expect_equal(params2@search_vol[i, ], params@search_vol[i, ] * factor,
+                 ignore_attr = TRUE)
+    expect_equal(params2@intake_max[i, ], params@intake_max[i, ] * factor,
+                 ignore_attr = TRUE)
+    expect_equal(params2@metab[i, ], params@metab[i, ] * factor,
+                 ignore_attr = TRUE)
+    expect_equal(params2@ext_encounter[[i]], params@ext_encounter[[i]] * factor)
+    expect_equal(species_params(params2)$gamma[[i]],
+                 species_params(params)$gamma[[i]] * factor)
+    expect_equal(species_params(params2)$h[[i]],
+                 species_params(params)$h[[i]] * factor)
+})

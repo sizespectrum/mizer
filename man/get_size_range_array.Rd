@@ -31,10 +31,10 @@ over \code{max_w}.}
 \item{...}{Unused}
 }
 \value{
-Boolean array (species x size)
+A logical array (species x size), with dimnames \code{sp} and \code{w}.
 }
 \description{
-Helper function that returns an array (species x size) of boolean values
+Helper function that returns an array (species x size) of logical values
 indicating whether that size bin is within the size limits specified by the
 arguments. Either the size limits can be the same for all species or they
 can be specified as vectors with one value for each species in the model.

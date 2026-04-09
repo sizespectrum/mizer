@@ -21,7 +21,8 @@ newCommunityParams(
   lambda = 2.05,
   r_pp = 10,
   knife_edge_size = 1000,
-  reproduction
+  reproduction,
+  info_level = 2
 )
 }
 \arguments{
@@ -45,8 +46,9 @@ spectrum. This value is used to calculate the search rate parameter
 
 \item{h}{The coefficient of the maximum food intake rate.}
 
-\item{gamma}{Volumetric search rate. Estimated using \code{h}, \code{f0} and
-\code{kappa} if not supplied.}
+\item{gamma}{Volumetric search rate. Passed through to
+\code{\link[=newMultispeciesParams]{newMultispeciesParams()}}, which estimates it from \code{h}, \code{f0}, and \code{kappa}
+if it is left as \code{NA}.}
 
 \item{beta}{The preferred predator prey mass ratio.}
 
@@ -67,8 +69,12 @@ rate of the resource.}
 function.}
 
 \item{reproduction}{The constant reproduction in the smallest size class of
-the community spectrum. By default this is set so that the community
-spectrum is continuous with the resource spectrum.}
+the community spectrum. By default this is set to the rate required to
+maintain the constructed initial egg abundance.}
+
+\item{info_level}{Controls the amount of information messages that are shown
+when the function sets default values for parameters. Higher levels lead
+to more messages.}
 }
 \value{
 An object of type \code{\linkS4class{MizerParams}}
