@@ -64,7 +64,7 @@ test_that("getEncounter returns with correct dimnames", {
     expect_identical(dimnames(enc), 
                      dimnames(params@initial_n))
 })
-test_that("mizerEncounter is independent of volume", {
+test_that("getEncounter is independent of volume", {
     enc <- getEncounter(params)
     enc_r <- getEncounter(params_r)
     expect_equal(enc, enc_r)
@@ -139,7 +139,8 @@ test_that("getFeedingLevel is independent of volume", {
 
 test_that("getCriticalFeedingLevel matches metab over intake_max times alpha", {
     expected <- params@metab / params@intake_max / params@species_params$alpha
-    expect_equal(getCriticalFeedingLevel(params), expected)
+    expect_equal(getCriticalFeedingLevel(params), expected,
+                 ignore_attr = c("rate_name", "units", "class"))
 })
 
 # getPredRate -------------------------------------------------------------
@@ -495,7 +496,7 @@ test_that("mizerEReproAndGrowth, mizerERepro and mizerEGrowth follow formulas", 
     expected_e <- sweep((1 - feeding_level) * encounter, 1,
                         params@species_params$alpha, "*",
                         check.margin = FALSE) - params@metab
-    expect_equal(e, expected_e)
+    expect_equal(e, expected_e, ignore_attr = c("rate_name", "units", "class"))
 
     e_test <- e
     e_test[1, 1] <- -1
