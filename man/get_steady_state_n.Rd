@@ -2,25 +2,25 @@
 % Please edit documentation in R/helpers.R
 \name{get_steady_state_n}
 \alias{get_steady_state_n}
-\title{Helper function to calculate the steady state abundance using the upwind-difference scheme}
+\title{Calculate steady state abundance}
 \usage{
-get_steady_state_n(growth, mort, dw, idx, N0)
+get_steady_state_n(params, g, mu, N0)
 }
 \arguments{
-\item{growth}{A numeric vector of growth rates.}
+\item{params}{A MizerParams object}
 
-\item{mort}{A numeric vector of mortality rates.}
+\item{g}{A matrix of growth rates (species x size)}
 
-\item{dw}{A numeric vector of the size step.}
+\item{mu}{A matrix of mortality rates (species x size)}
 
-\item{idx}{A numeric vector of indices.}
-
-\item{N0}{The initial egg density.}
+\item{N0}{A vector with the abundance at the smallest size for each species}
 }
 \value{
-A numeric vector representing the steady state abundances.
+A matrix with the steady state abundance
 }
 \description{
-Helper function to calculate the steady state abundance using the upwind-difference scheme
+This function calculates the steady state abundance by solving the
+transport equation with given growth and mortality rates. It sets up a
+tri-diagonal system and solves it.
 }
-\keyword{internal}
+\concept{helper}

@@ -1,13 +1,20 @@
-#' Set initial abundances to single-species steady state abundances
+#' Set initial abundances to solution of steady-state equation with current rates
 #'
 #' `r lifecycle::badge("experimental")`
 #' This first calculates growth and death rates that arise from the current
-#' initial abundances. Then it uses these growth and death rates to
-#' determine the steady-state abundances of the selected species.
+#' initial abundances. Then it solves the steady-state equation with these
+#' growth and death rates and the current abundance at the smallest size.
+#' It sets the initial abundances of the selected species to this solution.
 #'
-#' The result of applying this function is of course not a multi-species steady
-#' state, because after changing the abundances of the selected species the
-#' growth and death rates will have changed.
+#' The function only changes the initial abundances. It does not adjust the
+#' reproduction parameters or any other parameters. Therefore the result of
+#' applying this function is of course not a steady state, because after
+#' changing the abundances of the selected species the growth, death and
+#' reproduction rates will have changed.
+#'
+#' If the `keep` argument is supplied, the solution for the selected species
+#' are rescaled to keep the specified quantity at the value they had before
+#' calling this function.
 #'
 #' @param params A MizerParams object
 #' @param species The species to be selected. Optional. By default all target
@@ -35,43 +42,47 @@ steadySingleSpecies.MizerParams <- function(params, species = NULL,
     number <- getN(params)
 
     # Use growth and mortality from current abundances
+    # Use growth and mortality from current abundances
     growth_all <- getEGrowth(params)
     mort_all <- getMort(params)
 
-    # Loop through all species and calculate their steady state abundances
-    # using the current growth and mortality rates
+    # Loop over species to make checks
+    N0_vec <- numeric(nrow(params@species_params))
+    names(N0_vec) <- params@species_params$species
     for (sp in species) {
-        growth <- growth_all[sp, ]
-        mort <- mort_all[sp, ]
-
         w_min_idx <- params@w_min_idx[sp]
         w_max_idx <- sum(params@w <= params@species_params[sp, "w_max"])
-        idx <- w_min_idx:(w_max_idx - 1)
 
         # Check that species can grow to maturity at least
         w_mat_idx <- sum(params@w <= params@species_params[sp, "w_mat"])
 
-        # Find first index where growth becomes zero
+        # Check growth (existing check)
+        growth <- growth_all[sp, ]
         zero_growth_idx <- which(growth[w_min_idx:w_max_idx] == 0)
         if (length(zero_growth_idx) > 0) {
-            # Convert to absolute index
             first_zero_idx <- w_min_idx + zero_growth_idx[1] - 1
-
             if (first_zero_idx < w_mat_idx) {
-                # Growth stops before maturity - this is an error
                 stop(sp, " cannot grow to maturity")
-            } else {
-                # Growth stops at or after maturity - issue a warning
-                warning(sp, " has zero growth rate after maturity size")
             }
         }
 
-        # Keep egg density constant
-        N0 <- params@initial_n[sp, w_min_idx]
-        # Steady state solution of the upwind-difference scheme used in project
+        N0_vec[sp] <- params@initial_n[sp, w_min_idx]
         params@initial_n[sp, ] <- 0
-        params@initial_n[sp, w_min_idx:w_max_idx] <-
-            get_steady_state_n(growth, mort, params@dw, idx, N0)
+    }
+
+    # Calculate steady state for all species at once
+    n_exact_matrix <- get_steady_state_n(params, growth_all, mort_all, N0_vec)
+
+    # Update initial_n for selected species
+    for (sp in species) {
+        w_min_idx <- params@w_min_idx[sp]
+
+        if (w_min_idx == length(params@w)) {
+             params@initial_n[sp, w_min_idx] <- N0_vec[sp]
+        } else {
+             params@initial_n[sp, w_min_idx:length(params@w)] <-
+                 n_exact_matrix[sp, w_min_idx:length(params@w)]
+        }
     }
 
     if (any(is.infinite(params@initial_n))) {

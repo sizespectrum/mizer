@@ -41,7 +41,7 @@ state solution, even if the initial abundance densities were at steady state.
 So after using this function you may want to use \code{steady()} to run the model
 to steady state, after which of course the yields will no longer match
 exactly. You could then iterate this process. This is described in the
-blog post at https://bit.ly/2YqXESV.
+blog post at \url{https://bit.ly/2YqXESV}.
 
 Before you can use this function you will need to have added a
 \code{yield_observed} column to your model which gives the observed yields in

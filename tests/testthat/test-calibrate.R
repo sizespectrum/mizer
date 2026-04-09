@@ -1,19 +1,19 @@
 test_that("calibrateBiomass works", {
-    params <- NS_params
+    params <- example_params()
     # Does nothing when no observed biomass
     expect_identical(calibrateBiomass(params), params)
     species_params(params)$biomass_observed <- NA
     expect_identical(calibrateBiomass(params), params)
     # Does nothing if observed already equals model
     species_params(params)$biomass_cutoff <- 1e-4
-    species_params(params)$biomass_observed <- 
+    species_params(params)$biomass_observed <-
         rowSums(sweep(params@initial_n, 2, params@w * params@dw, "*"))
     expect_unchanged(calibrateBiomass(params), params)
     # Even if only partially observed
-    species_params(params)$biomass_observed[1:5] <- NA
+    species_params(params)$biomass_observed[1:2] <- NA
     expect_unchanged(calibrateBiomass(params), params)
     # If we double the observations, we get twice the abundance
-    species_params(params)$biomass_observed <- 
+    species_params(params)$biomass_observed <-
         species_params(params)$biomass_observed * 2
     params2 <- calibrateBiomass(params)
     expect_equal(params2@initial_n, params@initial_n * 2)
@@ -23,21 +23,21 @@ test_that("calibrateBiomass works", {
 
 
 test_that("calibrateNumber works", {
-    params <- NS_params
+    params <- example_params()
     # Does nothing when no observed Number
     expect_identical(calibrateNumber(params), params)
     species_params(params)$number_observed <- NA
     expect_identical(calibrateNumber(params), params)
     # Does nothing if observed already equals model
     species_params(params)$number_cutoff <- 1e-4
-    species_params(params)$number_observed <- 
+    species_params(params)$number_observed <-
         rowSums(sweep(params@initial_n, 2, params@dw, "*"))
     expect_unchanged(calibrateNumber(params), params)
     # Even if only partially observed
-    species_params(params)$number_observed[1:5] <- NA
+    species_params(params)$number_observed[1:2] <- NA
     expect_unchanged(calibrateNumber(params), params)
     # If we double the observations, we get twice the abundance
-    species_params(params)$number_observed <- 
+    species_params(params)$number_observed <-
         species_params(params)$number_observed * 2
     params2 <- calibrateNumber(params)
     expect_equal(params2@initial_n, params@initial_n * 2)

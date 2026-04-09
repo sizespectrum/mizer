@@ -1,15 +1,18 @@
 test_that("matchGrowth only affects selected species", {
-    params <- matchGrowth(NS_params, species = "Cod")
+    sp <- NS_params@species_params$species
+    species1 <- sp[11]
+    species2 <- sp[10]
+    params <- matchGrowth(NS_params, species = species1)
     # Haddock unaffected
-    expect_identical(params@initial_n["Haddock", ], 
-                     NS_params@initial_n["Haddock", ])
+    expect_identical(params@initial_n[species2, ], 
+                     NS_params@initial_n[species2, ])
     # but Cod changed
-    expect_gt(params@initial_n["Cod", 100], 
-              NS_params@initial_n["Cod", 100])
+    expect_gt(params@initial_n[species1, 100], 
+              NS_params@initial_n[species1, 100])
     # and changes again when called again
-    params2 <- matchGrowth(params, species = "Cod")
-    expect_lt(params2@initial_n["Cod", 100], 
-                     params@initial_n["Cod", 100])
+    params2 <- matchGrowth(params, species = species1)
+    expect_lt(params2@initial_n[species1, 100], 
+                     params@initial_n[species1, 100])
 })
 
 test_that("matchGrowth is idempotent on single species", {
@@ -31,9 +34,10 @@ test_that("matchGrowth `keep` argument works", {
 test_that("matchGrowth does nothing when no info is given", {
     params <- NS_params
     params@species_params$k_vb <- NULL
-    params2 <- matchGrowth(params, species = "Cod")
-    expect_identical(params2@initial_n["Cod", ], 
-                     params@initial_n["Cod", ])
+    sp_name <- params@species_params$species[11]
+    params2 <- matchGrowth(params, species = sp_name)
+    expect_identical(params2@initial_n[sp_name, ], 
+                     params@initial_n[sp_name, ])
 })
 
 test_that("matchGrowth rescales rates and species parameters by age ratio", {

@@ -1,37 +1,96 @@
-#' Advance species abundance densities by one time step
-#'
-#' Update the consumer abundance density matrix by one explicit time step of the
-#' semi-implicit solver used in [project_simple()] and [project()]. The first
-#' occupied size class of each species is updated from the density-dependent
-#' reproduction rate `r$rdd`, and all larger size classes are then advanced with
-#' the tridiagonal update implemented in `inner_project_loop()`.
-#'
-#' @param params A [MizerParams-class()] object.
-#' @param r A list of rates as returned by [getRates()] or [mizerRates()]. This
-#'   function uses the `e_growth`, `mort`, and `rdd` entries.
-#' @param n A two-dimensional array (species x size) with the current consumer
-#'   abundance densities.
-#' @param dt The time step in years.
-#' @param a A matrix with the same dimensions as `n`, used as workspace for the
-#'   lower diagonal coefficients of the semi-implicit update.
-#' @param b A matrix with the same dimensions as `n`, used as workspace for the
-#'   diagonal coefficients of the semi-implicit update.
-#' @param S A matrix with the same dimensions as `n`, used as workspace for the
-#'   right-hand side of the semi-implicit update.
-#' @param idx Integer indices of the non-egg size classes to be updated with the
-#'   tridiagonal recursion, typically `2:no_w`.
-#' @param w_min_idx_array_ref Integer indices for one-dimensional indexing into
-#'   `n[, params@w_min_idx]`, one entry per species.
-#' @param no_sp Number of species, equal to `nrow(n)`.
-#' @param no_w Number of consumer size classes, equal to `ncol(n)`.
-#'
-#' @return A two-dimensional array (species x size) with the updated consumer
-#'   abundance densities after one time step.
-#'
-#' @keywords internal
+#' Project values for first time step of Euler method
+#' 
+#' This is an internal function used by the user-facing `project()` function.
+#' It is of potential interest only to mizer extension authors.
+#' 
+#' @details
+#' The function calculates the abundance at the next time step using the
+#' McKendrick-von Foerster equation:
+#' \deqn{\frac{\partial N}{\partial t} + \frac{\partial}{\partial w} \left( g N - \frac{1}{2}\frac{\partial(D N)}{\partial w} \right) = -\mu N}
+#' which is solved using a semi-implicit upwind finite volume scheme.
+#' 
+#' @param params A \linkS4class{MizerParams} object.
+#' @param r A list of rates as returned by `mizerRates()`.
+#' @param n An array (species x size) with the number density at the current time step.
+#' @param dt Time step.
+#' @param a A matrix (species x size) used in the solver (transport term).
+#' @param b A matrix (species x size) used in the solver (diagonal term).
+#' @param c A matrix (species x size) used in the solver (transport term).
+#' @param S A matrix (species x size) used in the solver (source term).
+#' @param idx Index vector for size bins (excluding the first one).
+#' @param w_min_idx_array_ref Index vector for the start of the size spectrum for each species.
+#' @param no_sp Number of species.
+#' @param no_w Number of size bins.
+#' 
+#' @return The updated abundance density matrix `n`.
+#' @seealso \code{\link{project}}, \code{\link{mizerRates}}
+#' @concept helper
 #' @export
-project_n <- function(params, r, n, dt, a, b, S, idx, w_min_idx_array_ref,
+project_n <- function(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
                       no_sp, no_w) {
+    coefs <- get_transport_coefs(params, n, r$e_growth, r$mort, dt,
+                                 recruitment_flux = r$rdd)
+    a <- coefs$a
+    b <- coefs$b
+    c <- coefs$c
+    S <- coefs$S
+    
+    # Call C++ function to solve tridiagonal system
+    # j_start is needed for the C++ loop, we can get it from params
+    params@w_min_idx
+    
+    # Note: project_n_loop takes j_start as argument
+    n <- project_n_loop(n, a, b, c, S, params@w_min_idx)
+    
+    n
+}
+
+#' @rdname project_n
+project_n_diffusion_R <- function(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
+                                  no_sp, no_w) {
+    coefs <- get_transport_coefs(params, n, r$e_growth, r$mort, dt,
+                                 recruitment_flux = r$rdd)
+    a <- coefs$a
+    b <- coefs$b
+    c <- coefs$c
+    S <- coefs$S
+    
+    # Loop over species to solve
+    
+    for (i in 1:no_sp) {
+        # Start index for this species
+        j_start <- params@w_min_idx[i]
+        
+        # Boundary conditions are handled in get_transport_coefs
+        
+        # Thomas Algorithm
+        # We need to pass the sub-vectors for the current species i, starting from j_start
+        # We are solving for n[i, j_start:no_w]
+        
+        # Extract the relevant parts of the vectors
+        # Note: thomas_solve accepts vectors of length N
+        # a, b, c, d are vectors of length N
+        
+        # Correctly slicing from j_start to no_w
+        # a[i, j_start] is effectively 0 or ignored by thomas_solve if it's the first element passed
+        # c[i, no_w] is 0 or ignored by thomas_solve
+        
+        # We solve for the segment of the size spectrum inhabited by the species
+        relevant_indices <- j_start:no_w
+        
+        n[i, relevant_indices] <- thomas_solve(
+            a = a[i, relevant_indices],
+            b = b[i, relevant_indices],
+            c = c[i, relevant_indices],
+            d = S[i, relevant_indices]
+        )
+    }
+    
+    n
+}
+
+project_n_no_diffusion <- function(params, r, n, dt, a, b, S, idx, w_min_idx_array_ref,
+                                   no_sp, no_w) {
     # a_{ij} = - g_i(w_{j-1}) / dw_j dt
     a[, idx] <- sweep(
         -r$e_growth[, idx - 1, drop = FALSE] * dt, 2,

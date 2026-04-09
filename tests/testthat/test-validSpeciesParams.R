@@ -7,8 +7,9 @@ test_that("validSpeciesParams() works", {
     expect_message(sp <- validSpeciesParams(sp), NA)
     expect_equal(sp$w_mat[1], sp$w_max[1] / 4)
     sp$w_mat[2:4] <- 100
+    sp2 <- sp$species[2]; sp3 <- sp$species[3]; sp5 <- sp$species[5]
     expect_warning(sp <- validSpeciesParams(sp),
-                   "For the species Sandeel, N.pout the value")
+                   paste0("For the species ", sp2, ", ", sp3, " the value"))
     expect_equal(sp$w_mat[2], sp$w_max[2] / 4)
     
     # test w_mat25
@@ -17,7 +18,7 @@ test_that("validSpeciesParams() works", {
     expect_warning(validSpeciesParams(sp), NA)
     sp$w_mat25[2:5] <- 21
     expect_warning(sp <- validSpeciesParams(sp),
-                   "For the species Sandeel, Dab the value")
+                   paste0("For the species ", sp2, ", ", sp5, " the value"))
     expect_true(is.na(sp$w_mat25[[2]]))
     expect_identical(sp$w_mat25[[3]], 21)
     
@@ -27,7 +28,7 @@ test_that("validSpeciesParams() works", {
     expect_warning(validSpeciesParams(sp), NA)
     sp$w_min[2:5] <- 21
     expect_warning(sp <- validSpeciesParams(sp),
-                   "For the species Sandeel, Dab the value")
+                   paste0("For the species ", sp2, ", ", sp5, " the value"))
     expect_identical(sp$w_min[[2]], 0.001)
     expect_identical(sp$w_min[[3]], 21)
     

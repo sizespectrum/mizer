@@ -30,8 +30,10 @@ test_that("setReproduction works", {
 test_that("setReproduction checks arguments", {
     params <- NS_params
     params@species_params$w_max[[2]] <- NA
+    params@species_params$w_max[[2]] <- NA
+    sp_name <- params@species_params$species[2]
     expect_error(setReproduction(params),
-                 "The following species are missing data for their maximum size w_max: Sandeel")
+                 paste0("The following species are missing data for their maximum size w_max: ", sp_name))
     params@species_params$w_max[[2]] <- 1e-5
     expect_error(setReproduction(params),
                  "Some of the maximum sizes are smaller than the egg sizes.")
@@ -41,8 +43,9 @@ test_that("setReproduction checks arguments", {
 
     params <- NS_params
     params@species_params$w_mat[[2]] <- NA
+    sp_name <- params@species_params$species[2]
     expect_message(pa <- setReproduction(params),
-                 "Note: The following species were missing data for their maturity size w_mat: Sandeel.")
+                 paste0("Note: The following species were missing data for their maturity size w_mat: ", sp_name, "."))
 })
 
 # * Comments ----

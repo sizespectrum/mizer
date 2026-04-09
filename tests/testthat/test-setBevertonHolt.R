@@ -8,9 +8,10 @@ test_that("setBevertonHolt sets erepro correctly when setting all values", {
 })
 
 test_that("setBevertonHolt sets erepro correctly when setting same value for all species", {
+    sp_name <- NS_params@species_params$species[8]
     expect_warning(params <- setBevertonHolt(NS_params, erepro = 0.1),
                    "For the following species `erepro` has been")
-    expect_identical(params@species_params$R_max[params@species_params$species == "Gurnard"],
+    expect_identical(params@species_params$R_max[params@species_params$species == sp_name],
                      Inf)
     expect_equal(getRequiredRDD(NS_params), getRDD(params))
 })
@@ -79,16 +80,18 @@ test_that("setBevertonHolt sets R_max correctly when setting values for some spe
 
 test_that("setBevertonHolt issues warning when an R_max leads to an erepro > 1", {
     R_max_new <- NS_params@species_params$R_max * 1.02
+    sp_name <- NS_params@species_params$species[9]
     expect_warning(params <- setBevertonHolt(NS_params, R_max = R_max_new),
-                   "The following species require an unrealistic value greater than 1 for `erepro`: Plaice")
-    expect_gt(params@species_params$erepro[params@species_params$species == "Plaice"], 1)
+                   paste0("The following species require an unrealistic value greater than 1 for `erepro`: ", sp_name))
+    expect_gt(params@species_params$erepro[params@species_params$species == sp_name], 1)
     expect_identical(params@species_params$R_max, R_max_new)
 })
 
 # reproduction_level ----
 test_that("setBevertonHolt sets reproduction_level correctly", {
+    sp_name <- NS_params@species_params$species[9]
     expect_warning(params <- setBevertonHolt(NS_params, reproduction_level = 0.4),
-                   "The following species require an unrealistic value greater than 1 for `erepro`: Plaice")
+                   paste0("The following species require an unrealistic value greater than 1 for `erepro`: ", sp_name))
     expect_equal(getRDD(params), params@species_params$R_max * 0.4, ignore_attr = TRUE)
     expect_equal(getRequiredRDD(params), getRDD(params))
     expect_equal(getReproductionLevel(params)[[1]], 0.4)
@@ -101,8 +104,9 @@ test_that("getReproductionLevel is getRDD divided by R_max", {
 
 # R_factor ----
 test_that("setBevertonHolt sets R_factor correctly", {
+    sp_name <- NS_params@species_params$species[9]
     expect_warning(params <- setBevertonHolt(NS_params, R_factor = 4),
-                   "The following species require an unrealistic value greater than 1 for `erepro`: Plaice")
+                   paste0("The following species require an unrealistic value greater than 1 for `erepro`: ", sp_name))
     expect_equal(getRDD(params), params@species_params$R_max / 4, ignore_attr = TRUE)
     expect_equal(getRequiredRDD(params), getRDD(params))
 })
@@ -121,7 +125,8 @@ test_that("setBevertonHolt does nothing when called with only NA values", {
     params <- setBevertonHolt(NS_params, erepro = erepro_new)
     expect_identical(params, NS_params)
     erepro_new <- NA
-    names(erepro_new) <- "Cod"
+    sp_name <- NS_params@species_params$species[11]
+    names(erepro_new) <- sp_name
     params <- setBevertonHolt(NS_params, erepro = erepro_new)
     expect_identical(params, NS_params)
 })
@@ -150,7 +155,12 @@ test_that("reproduction_level of 0 works", {
 })
 
 test_that("R_max is increased when needed", {
+    sp_name1 <- NS_params@species_params$species[1]
+    sp_name2 <- NS_params@species_params$species[2]
     expect_warning(p <- setBevertonHolt(NS_params, R_max = c(1, 2, rep(NA, 10))),
-                 "has been increased to give a reproduction level of 0.99: Sprat, Sandeel")
+                 paste0("has been increased to give a reproduction level of 0.99: ", sp_name1, ", ", sp_name2))
     expect_gt(p@species_params$R_max[1], NS_params@species_params$R_max[1])
 })
+
+
+

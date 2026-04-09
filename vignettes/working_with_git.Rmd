@@ -45,7 +45,7 @@ To create the new branch, first make sure you have selected the master branch
 on the "Switch branch" dropdown in RStudio Git panel and then click the button
 to the left of that dropdown.
 <center>
-![](images/new_branch_button.png){width=30%}
+![New branch button](images/new_branch_button.png){width=30%}
 </center>
 
 In the dialog box enter the name for your new branch: "add_my_info". Leave 
@@ -65,7 +65,7 @@ file for this developer guide, written in [R Markdown](https://rmarkdown.rstudio
 A good way to navigate within files is to use the document outline which will
 be displayed when you hit the right-most icon on the editor pane toolbar.
 <center>
-![](images/outline.png){width=30%}
+![Markdown outline in RStudio](images/outline.png){width=30%}
 </center>
 
 You will find the subheading "People with a mizer fork" towards the bottom of
@@ -88,12 +88,12 @@ So far you have only saved your changes to your local disc, but have not yet
 committed it to your local repository. To do that you click on the "Commit"
 button on the toolbar in the "Git" pane in RStudio:
 <center>
-![](images/commit_button.png){width=40%}
+![Commit button in Git tab](images/commit_button.png){width=40%}
 </center>
 
 This will pop up a screen like the following:
 <center>
-![](images/commit.png){width=70%}
+![Commit dialog box](images/commit.png){width=70%}
 </center>
 
 The blue M to the left of the file vignettes/developer_vignette.Rmd indicates 
@@ -125,7 +125,7 @@ After you have pushed your changes, you will be able to see them also on GitHub.
 If you go to the home page of your GitHub repository you will see a comment
 that you made a commit a little while ago:
 <center>
-![](images/recently_pushed.png){width=80%}
+![Recently pushed branches on GitHub](images/recently_pushed.png){width=80%}
 </center>
 
 It may be that you have several computers on which you work an you can have a

@@ -10,7 +10,7 @@ test_that("basic constructor sets dimensions properly", {
     min_w_pp <- 1e-8
     expect_error(emptyParams(species_params, min_w = min_w, max_w = max_w,
                              no_w = no_w, min_w_pp = min_w_pp),
-                 "Some of your species have an maximum size larger than max_w: Cod")
+                 paste0("Some of your species have an maximum size larger than max_w: ", species_params$species[3]))
     max_w <- 40000
     test_params <- 
         emptyParams(species_params, min_w = min_w, max_w = max_w,

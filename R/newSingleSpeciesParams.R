@@ -215,7 +215,10 @@ newSingleSpeciesParams <-
     idxs <- 1:i_inf
     gg <- hbar * w^n * (1 - params@psi[1, ])  # Growth rate
     # Steady state solution of the upwind-difference scheme used in project
-    initial_n[1, idxs] <- get_steady_state_n(gg, mumu, dw, idx)
+    growth_matrix <- matrix(gg, nrow = 1)
+    mort_matrix <- matrix(mumu, nrow = 1)
+    n_exact <- get_steady_state_n(params, growth_matrix, mort_matrix, c(1))
+    initial_n[1, idxs] <- n_exact[1, idxs]
 
     # The resource was already set up by newMultispeciesParams()
     initial_n_pp <- params@initial_n_pp
@@ -232,7 +235,7 @@ newSingleSpeciesParams <-
 
     ## Set reproduction to meet boundary condition ----
     params@species_params$erepro <- params@species_params$erepro *
-        get_required_reproduction(params) / getRDI(params)
+        getRequiredRDD(params) / getRDI(params)
     params@given_species_params$erepro <- params@species_params$erepro
 
     params <- setBevertonHolt(params, reproduction_level = reproduction_level)

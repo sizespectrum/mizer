@@ -17,7 +17,7 @@
 #' individual species will not match observations yet, with some species
 #' having biomasses that are too high and others too low. So after this
 #' function you may want to use [matchBiomasses()]. This is described in the
-#' blog post at https://bit.ly/2YqXESV.
+#' blog post at \url{https://bit.ly/2YqXESV}.
 #' 
 #' If you have observations of the yearly yield instead of biomasses, you can
 #' use [calibrateYield()] instead of this function.
@@ -84,7 +84,7 @@ calibrateBiomass.MizerParams <- function(params, ...) {
 #' individual species will not match observations yet, with some species
 #' having numbers that are too high and others too low. So after this
 #' function you may want to use [matchNumbers()]. This is described in the
-#' blog post at https://bit.ly/2YqXESV.
+#' blog post at \url{https://bit.ly/2YqXESV}.
 #'
 #' If you have observations of the yearly yield instead of numbers, you can
 #' use [calibrateYield()] instead of this function.

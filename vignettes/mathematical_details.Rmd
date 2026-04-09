@@ -1,0 +1,134 @@
+---
+title: "Mathematical Details of the Mizer Implementation"
+output:
+  html_document:
+    toc: yes
+    fig_width: 5
+    fig_height: 5
+vignette: >
+  %\VignetteIndexEntry{Mathematical Details of the Mizer Implementation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+In this vignette we describe the mathematical details of how the convolution
+integrals in the expressions for the encounter rate and for the mortality rate
+are calculated with the help of Fast Fourier Transform (FFT).
+
+## Conservation Equations
+
+The model dynamics are described by the McKendrick-von Foerster equation for
+the species number densities $N_i(w)$ and the resource number density $N_R(w)$.
+
+## The Convolution Integrals
+
+The encounter rate $E_i(w)$ of a predator of species $i$ and weight $w$ is given
+by
+$$
+E_i(w) = \gamma_i(w) \int
+\left( \theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) \right)
+\phi_i(w,w_p) w_p \, dw_p.
+$$
+The first term in the integral is the contribution from the resource and the
+second term is the contribution from the fish prey.
+$\gamma_i(w)$ is the search volume, $\theta_{ij}$ is the interaction matrix,
+and $\phi_i(w,w_p)$ is the predation kernel.
+
+The predation rate $P_j(w_p)$ on a prey of species $j$ and size $w_p$ is
+given by
+$$
+P_j(w_p) = \sum_i \int \phi_i(w,w_p) (1-f_i(w)) \gamma_i(w) N_i(w) \, dw.
+$$
+Here $f_i(w)$ is the feeding level of the predator.
+
+## Discretization on Logarithmic Grid
+
+We use a logarithmic grid of weights $w_k = w_1 \beta^{k-1}$ for $k=1,\dots,K$,
+where $\beta = 10^{\Delta x}$.
+The integral over prey size $w_p$ transforms into a sum over grid indices $k$.
+Assuming the predation kernel depends only on the predator/prey mass ratio
+$w/w_p$, i.e., $\phi_i(w,w_p) = \tilde{\phi}_i(w/w_p)$, and converting to
+log-space $x = \log_\beta w$, the integrals become convolutions.
+
+Let $x_k = \log_\beta w_k = x_1 + (k-1)$.
+The term $\phi_i(w_n, w_k) = \tilde{\phi}_i(\beta^{n-k})$.
+
+## Fast Fourier Transform Implementation
+
+The evaluation of these convolution sums is computationally expensive if done
+directly ($\mathcal{O}(K^2)$). By using the Fast Fourier Transform (FFT),
+we can reduce the complexity to $\mathcal{O}(K \log K)$.
+
+### Encounter Rate
+
+The integral for the encounter rate can be written as a convolution of the
+available prey energy density with the predation kernel.
+Let $A(w_p) = (\theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p)) w_p$.
+The discretized encounter rate (ignoring coefficients) is roughly
+$$ E[n] = \sum_k \tilde{\phi}[n-k] A[k] $$
+In `mizer`, we define `ft_pred_kernel_e` as the FFT of the predation kernel.
+The available energy is calculated, transformed via FFT, multiplied by
+`ft_pred_kernel_e`, and then inverse transformed.
+
+The code in `mizerEncounter()` implements this:
+```r
+avail_energy <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_e) *
+                                     mvfft(base::t(prey)),
+                           inverse = TRUE))) / length(params@w_full)
+```
+
+### Predation Rate
+
+Similarly, the predation rate is a convolution of the predator density (scaled
+by search volume and feeding level) with the predation kernel.
+However, there is a slight difference in the indexing because the integral is
+over predator sizes $w$, whereas the kernel is usually defined in terms of
+predator/prey ratio.
+$$ P(w_p) = \int \tilde{\phi}(w/w_p) D(w) dw $$
+where $D(w) = (1-f(w)) \gamma(w) N(w)$.
+In terms of indices:
+$$ P[k] = \sum_n \tilde{\phi}[n-k] D[n] $$
+To compute this as a standard convolution $P[k] = \sum_n \psi[k-n] D[n]$, we
+need to define a reversed kernel $\psi[m] = \tilde{\phi}[-m]$.
+This is why `setPredKernel()` calculates `ft_pred_kernel_p` using a reversed
+version of the kernel.
+
+```r
+# R/setPredKernel.R
+ri <- min(max(which(phi > 0)), no_w_full - 1)  # index of largest ppmr
+phi_p <- rep(0, no_w_full)
+phi_p[(no_w_full - ri + 1):no_w_full] <- phi[(ri + 1):2]
+ft_pred_kernel_p[i, ] <- fft(phi_p)
+```
+The `phi_p` construction effectively reverses the kernel and wraps it around
+to suit the FFT definition of convolution.
+
+## The Wrap-around Hack (`ft_mask`)
+
+FFT-based convolution is actually circular convolution. This means that effects
+from the largest sizes can "wrap around" and affect the smallest sizes, which
+is unphysical in our context (large predators don't eat orders of magnitude
+smaller than their prey preference, and certainly not "negative" sizes wrapping
+to positive).
+
+To avoid artifacts from this circularity, we pad the grid or careful masking.
+In `mizer`, we use `ft_mask` to zero out the predation rate at sizes that
+should not receive any predation from the largest predators (because they are
+larger than the maximum predator size or due to the kernel support).
+
+In `mizerPredRate()`:
+```r
+return(pred_rate * params@ft_mask)
+```
+The `ft_mask` ensures that we don't get spurious predation mortality at sizes
+where it shouldn't exist due to the periodic nature of the DFT.
+`ft_mask` is a logical array (0 or 1) that is 1 strictly for sizes smaller than
+the maximum size of the species, preventing the "tail" of the convolution from
+wrapping around to the small sizes.

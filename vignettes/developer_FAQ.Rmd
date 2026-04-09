@@ -86,7 +86,7 @@ To create this new branch, first make sure you have selected the master branch
 on the "Switch branch" dropdown in RStudio Git panel and then click the button
 to the left of that dropdown.
 <center>
-![](images/new_branch_button.png){width=30%}
+![New branch button](images/new_branch_button.png){width=30%}
 
 In the dialog box enter a name for your new branch and click "Create".
 

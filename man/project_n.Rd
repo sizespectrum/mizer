@@ -2,49 +2,65 @@
 % Please edit documentation in R/project_n.R
 \name{project_n}
 \alias{project_n}
-\title{Advance species abundance densities by one time step}
+\alias{project_n_diffusion_R}
+\title{Project values for first time step of Euler method}
 \usage{
-project_n(params, r, n, dt, a, b, S, idx, w_min_idx_array_ref, no_sp, no_w)
+project_n(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref, no_sp, no_w)
+
+project_n_diffusion_R(
+  params,
+  r,
+  n,
+  dt,
+  a,
+  b,
+  c,
+  S,
+  idx,
+  w_min_idx_array_ref,
+  no_sp,
+  no_w
+)
 }
 \arguments{
-\item{params}{A \code{\link[=MizerParams-class]{MizerParams-class()}} object.}
+\item{params}{A \linkS4class{MizerParams} object.}
 
-\item{r}{A list of rates as returned by \code{\link[=getRates]{getRates()}} or \code{\link[=mizerRates]{mizerRates()}}. This
-function uses the \code{e_growth}, \code{mort}, and \code{rdd} entries.}
+\item{r}{A list of rates as returned by \code{mizerRates()}.}
 
-\item{n}{A two-dimensional array (species x size) with the current consumer
-abundance densities.}
+\item{n}{An array (species x size) with the number density at the current time step.}
 
-\item{dt}{The time step in years.}
+\item{dt}{Time step.}
 
-\item{a}{A matrix with the same dimensions as \code{n}, used as workspace for the
-lower diagonal coefficients of the semi-implicit update.}
+\item{a}{A matrix (species x size) used in the solver (transport term).}
 
-\item{b}{A matrix with the same dimensions as \code{n}, used as workspace for the
-diagonal coefficients of the semi-implicit update.}
+\item{b}{A matrix (species x size) used in the solver (diagonal term).}
 
-\item{S}{A matrix with the same dimensions as \code{n}, used as workspace for the
-right-hand side of the semi-implicit update.}
+\item{c}{A matrix (species x size) used in the solver (transport term).}
 
-\item{idx}{Integer indices of the non-egg size classes to be updated with the
-tridiagonal recursion, typically \code{2:no_w}.}
+\item{S}{A matrix (species x size) used in the solver (source term).}
 
-\item{w_min_idx_array_ref}{Integer indices for one-dimensional indexing into
-\code{n[, params@w_min_idx]}, one entry per species.}
+\item{idx}{Index vector for size bins (excluding the first one).}
 
-\item{no_sp}{Number of species, equal to \code{nrow(n)}.}
+\item{w_min_idx_array_ref}{Index vector for the start of the size spectrum for each species.}
 
-\item{no_w}{Number of consumer size classes, equal to \code{ncol(n)}.}
+\item{no_sp}{Number of species.}
+
+\item{no_w}{Number of size bins.}
 }
 \value{
-A two-dimensional array (species x size) with the updated consumer
-abundance densities after one time step.
+The updated abundance density matrix \code{n}.
 }
 \description{
-Update the consumer abundance density matrix by one explicit time step of the
-semi-implicit solver used in \code{\link[=project_simple]{project_simple()}} and \code{\link[=project]{project()}}. The first
-occupied size class of each species is updated from the density-dependent
-reproduction rate \code{r$rdd}, and all larger size classes are then advanced with
-the tridiagonal update implemented in \code{inner_project_loop()}.
+This is an internal function used by the user-facing \code{project()} function.
+It is of potential interest only to mizer extension authors.
 }
-\keyword{internal}
+\details{
+The function calculates the abundance at the next time step using the
+McKendrick-von Foerster equation:
+\deqn{\frac{\partial N}{\partial t} + \frac{\partial}{\partial w} \left( g N - \frac{1}{2}\frac{\partial(D N)}{\partial w} \right) = -\mu N}
+which is solved using a semi-implicit upwind finite volume scheme.
+}
+\seealso{
+\code{\link{project}}, \code{\link{mizerRates}}
+}
+\concept{helper}

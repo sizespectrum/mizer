@@ -85,20 +85,45 @@ w2l <- function(w, species_params) {
     (w / sp[["a"]])^(1 / sp[["b"]])
 }
 
-#' Helper function to calculate the steady state abundance using the upwind-difference scheme
+#' Calculate steady state abundance
 #'
-#' @param growth A numeric vector of growth rates.
-#' @param mort A numeric vector of mortality rates.
-#' @param dw A numeric vector of the size step.
-#' @param idx A numeric vector of indices.
-#' @param N0 The initial egg density.
-#' @return A numeric vector representing the steady state abundances.
-#' @keywords internal
-get_steady_state_n <- function(growth, mort, dw, idx, N0) {
-    # Steady state solution of the upwind-difference scheme used in project
-    n_exact <- c(1, cumprod(growth[idx] / ((growth + mort * dw)[idx + 1])))
-    if (!missing(N0)) {
-        n_exact <- N0 * n_exact
-    }
-    return(n_exact)
+#' This function calculates the steady state abundance by solving the
+#' transport equation with given growth and mortality rates. It sets up a
+#' tri-diagonal system and solves it.
+#'
+#' @param params A MizerParams object
+#' @param g A matrix of growth rates (species x size)
+#' @param mu A matrix of mortality rates (species x size)
+#' @param N0 A vector with the abundance at the smallest size for each species
+#' @return A matrix with the steady state abundance
+#' @concept helper
+get_steady_state_n <- function(params, g, mu, N0) {
+    no_sp <- nrow(params@species_params)
+    no_w <- length(params@w)
+    n <- matrix(0, nrow = no_sp, ncol = no_w,
+                dimnames = list(params@species_params$species, dimnames(params@initial_n)[[2]]))
+
+    # Use get_transport_coefs to compute the coefficients with dt = 1
+    # and no recruitment flux (since we handle the boundary manually)
+    coefs <- get_transport_coefs(params, n, g, mu, dt = 1,
+                                 recruitment_flux = rep(0, no_sp))
+
+    a <- coefs$a
+    # For steady state, the diagonal term \tilde{B} is B - 1
+    b <- coefs$b - 1
+    c <- coefs$c
+    S <- coefs$S
+
+    # Boundary conditions at the start of the size spectrum:
+    # A_j = 0, B_j = 1, C_j = 0, S_j = N0
+    j_start <- params@w_min_idx
+    idxs_start <- cbind(1:no_sp, j_start)
+    a[idxs_start] <- 0
+    b[idxs_start] <- 1
+    c[idxs_start] <- 0
+    S[idxs_start] <- N0
+
+    n <- project_n_loop(n, a, b, c, S, j_start)
+
+    return(n)
 }

@@ -3,7 +3,7 @@
 
 <div style="text-align: center;">
 
-<img src="man/figures/mizer.png" style='height: 50%; width: 50%; object-fit: contain' title="mizer logo created by Kira Askaroff (www.kiraaskaroff.com)"/>
+<img src="man/figures/mizer.png" style='height: 50%; width: 50%; object-fit: contain' title="mizer logo created by Kira Askaroff (www.kiraaskaroff.com)" alt="mizer logo"/>
 
 [![CRAN
 Status](https://www.r-pkg.org/badges/version-ago/mizer)](https://cran.r-project.org/package=mizer)
@@ -33,7 +33,7 @@ spectrum. Size-based models can be complicated, so mizer contains many
 default options that you can however change when needed.
 
 <a href="https://sizespectrum.org/mizer/reference/figures/mizer_workflow.png" target="_blank">
-<img src="man/figures/mizer_workflow.png" style='height: 100%; width: 100%; object-fit: contain' title="mizer workflow"/>
+<img src="man/figures/mizer_workflow.png" style='height: 100%; width: 100%; object-fit: contain' title="mizer workflow" alt="mizer workflow"/>
 </a>
 
 <!-- Mizer can also be used to create web apps that allow users to explore models -->
@@ -100,14 +100,14 @@ plots:
 plot(sim)
 ```
 
-![](man/figures/unnamed-chunk-4-1.png)<!-- -->
+![Plot showing simulation results](man/figures/unnamed-chunk-4-1.png)<!-- -->
 
 See the accompanying [Get
 started](https://sizespectrum.org/mizer/articles/mizer.html) page for
 more details on how the package works, including detailed examples.
 
 <a href="https://sizespectrum.org/mizer/reference/figures/size_spectrum.png" target="_blank">
-<img src="man/figures/size.png" style='height: 95%; width: 95%; object-fit: contain' title="Size spectrum dynamics"/>
+<img src="man/figures/size.png" style='height: 95%; width: 95%; object-fit: contain' title="Size spectrum dynamics" alt="Size spectrum dynamics"/>
 </a>
 
 ## Dynamic multi-species size-spectrum model
@@ -146,7 +146,7 @@ populations and ecosystems, and for developing effective fisheries
 management strategies that account for the complex interactions among
 species and their environment.
 
-<img src="man/figures/size_selective_fishing.png" style='height: 95%; width: 95%; object-fit: contain' title="Effect of size-selective fishing"/>
+<img src="man/figures/size_selective_fishing.png" style='height: 95%; width: 95%; object-fit: contain' title="Effect of size-selective fishing" alt="Effect of size-selective fishing"/>
 
 A mizer model captures the interactions between species. The growth
 rates of fish are determined by the availability of prey and the death
@@ -194,7 +194,7 @@ traffic jams.
 An analogy with road traffic may be helpful:
 
 <a href="https://sizespectrum.org/mizer/reference/figures/traffic_jam.png" target="_blank">
-<img src="man/figures/traffic.png" style='height: 95%; width: 95%; object-fit: contain' title="Fish growth traffic jam"/>
+<img src="man/figures/traffic.png" style='height: 95%; width: 95%; object-fit: contain' title="Fish growth traffic jam" alt="Fish growth traffic jam"/>
 </a>
 
 In road traffic, if traffic density gets too high in a section of the

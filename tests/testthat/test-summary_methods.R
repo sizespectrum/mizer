@@ -169,7 +169,7 @@ test_that("getMeanWeight works",{
     mw <- getMeanWeight(sim)
     expect_equal(mw, mw1, ignore_attr = TRUE)
     # select species
-    species <- c("Cod","Haddock")
+    species <- sim@params@species_params$species[11:10]
     total_biomass <- apply(sweep(sim@n[,species,], 3, sim@params@w * sim@params@dw, "*"),1,sum)
     total_n  <- apply(sweep(sim@n[,species,], 3, sim@params@dw, "*"),1,sum)
     mw2 <- total_biomass / total_n
@@ -303,7 +303,7 @@ test_that("getCommunitySlope works",{
     expect_equal(slope_b2[dim(sim@n)[1],"slope"], summary(lm_res)$coefficients[2,1], ignore_attr = TRUE)
     expect_equal(slope_b2[dim(sim@n)[1],"intercept"], summary(lm_res)$coefficients[1,1], ignore_attr = TRUE)
     # Check the species
-    dem_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock", "Cod","Saithe")
+    dem_species <- sim@params@species_params$species[5:12]
     slope_b3 <- getCommunitySlope(sim, species = dem_species)
     biomass <- apply(sweep(sim@n[,dem_species,],3,sim@params@w,"*"),c(1,3),sum)
     # r2, slope and intercept at last time step

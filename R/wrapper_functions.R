@@ -131,7 +131,7 @@ newCommunityParams <- function(max_w = 1e6,
 
     params@rates_funcs$RDD <- "constantRDD"
     if (missing(reproduction)) {
-        reproduction <- get_required_reproduction(params)
+        reproduction <- getRequiredRDD(params)
     }
     params@species_params$constant_reproduction <- reproduction
     params@given_species_params$constant_reproduction <- reproduction
@@ -505,13 +505,19 @@ newTraitParams <- function(no_sp = 11,
     initial_n <- params@psi  # get array with correct dimensions and names
     initial_n[, ] <- 0
     mumu <- mu0 * w^(n - 1)  # Death rate
+    g_matrix <- matrix(0, nrow = no_sp, ncol = length(w))
+    mu_matrix <- matrix(mumu, nrow = no_sp, ncol = length(w), byrow = TRUE)
+    for (i in 1:no_sp) {
+        g_matrix[i, ] <- hbar * w^n * (1 - params@psi[i, ])
+    }
+    n_exact_matrix <- get_steady_state_n(params, g_matrix, mu_matrix, rep(1, no_sp))
+
     i_inf <- min_i_inf  # index of maximum size
     i_min <- 1  # index of natural egg size
     for (i in 1:no_sp) {
-        gg <- hbar * w^n * (1 - params@psi[i, ])  # Growth rate
-        idx <- w_min_idx[i]:(i_inf - 2)
-        # Steady state solution of the upwind-difference scheme used in project
-        n_exact <- get_steady_state_n(gg, mumu, dw, idx)
+        # n_exact corresponding to size bins w_min_idx[i] to i_inf - 1
+        n_exact <- n_exact_matrix[i, w_min_idx[i]:(i_inf - 1)]
+        
         # Use the first species for normalisation
         if (i == 1) {
             dist_sp <- bins_per_sp * dx
@@ -587,12 +593,11 @@ newTraitParams <- function(no_sp = 11,
 
     ## Set reproduction to meet boundary condition ----
     params@species_params$erepro <- params@species_params$erepro *
-        get_required_reproduction(params) / getRDI(params)
+        getRequiredRDD(params) / getRDI(params)
     params <- setBevertonHolt(params, reproduction_level = reproduction_level)
 
     return(params)
 }
-
 
 # Helper function to calculate the coefficient of the death rate created by
 # a power-law spectrum of predators, assuming they have the same predation
@@ -605,26 +610,4 @@ get_power_law_mort <- function(params) {
     return(getPredMort(params)[1, 1] /
                params@w[[1]] ^ (1 + params@species_params[[1, "q"]] -
                                     params@resource_params$lambda))
-}
-
-#' Determine reproduction rate needed for initial egg abundance
-#'
-#' @param params A MizerParams object
-#' @return A vector of reproduction rates for all species
-#' @concept helper
-get_required_reproduction <- function(params) {
-    assert_that(is(params, "MizerParams"))
-
-    no_sp <- nrow(params@species_params)
-    mumu <- getMort(params)
-    gg <- getEGrowth(params)
-    reproduction <- params@species_params$erepro # vector of correct length
-    for (i in (1:no_sp)) {
-        gg0 <- gg[i, params@w_min_idx[i]]
-        mumu0 <- mumu[i, params@w_min_idx[i]]
-        DW <- params@dw[params@w_min_idx[i]]
-        reproduction[i] <- params@initial_n[i, params@w_min_idx[i]] *
-            (gg0 + DW * mumu0)
-    }
-    return(reproduction)
 }

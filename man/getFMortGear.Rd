@@ -76,6 +76,7 @@ Other rate functions:
 \code{\link{getEncounter}()},
 \code{\link{getFMort}()},
 \code{\link{getFeedingLevel}()},
+\code{\link{getFlux}()},
 \code{\link{getMort}()},
 \code{\link{getPredMort}()},
 \code{\link{getPredRate}()},

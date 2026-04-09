@@ -5,3 +5,7 @@ inner_project_loop <- function(no_sp, no_w, n, A, B, S, w_min_idx) {
     .Call('_mizer_inner_project_loop', PACKAGE = 'mizer', no_sp, no_w, n, A, B, S, w_min_idx)
 }
 
+project_n_loop <- function(n, a, b, c, S, w_min_idx) {
+    .Call('_mizer_project_n_loop', PACKAGE = 'mizer', n, a, b, c, S, w_min_idx)
+}
+

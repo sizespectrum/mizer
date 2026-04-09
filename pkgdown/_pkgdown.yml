@@ -72,6 +72,7 @@ articles:
   - exploring_the_simulation_results
   - a_multispecies_model_of_the_north_sea
   - plotting
+  - cohort_dynamics_and_diffusion
 - title: Publications
   navbar: Publications
   contents:
@@ -80,6 +81,8 @@ articles:
   navbar: For developers
   contents:
   - numerical_details
+  - mathematical_details
+  - analytic_test
   - developer_vignette
   - working_with_git
   - developer_FAQ
@@ -197,21 +200,8 @@ reference:
   - setFishing
 - title: Calculating rates
   contents:
-  - getRates
-  - getEncounter
-  - getEGrowth
-  - getERepro
-  - getEReproAndGrowth
-  - getFMort
-  - getFMortGear
-  - getFeedingLevel
+  - has_concept("rate functions")
   - getCriticalFeedingLevel
-  - getMort
-  - getResourceMort
-  - getPredMort
-  - getPredRate
-  - getRDD
-  - getRDI
 - title: Extending Mizer
   contents:
   - setRateFunction
@@ -236,6 +226,7 @@ reference:
   contents:
   - has_concept("functions calculating density-dependent reproduction rate")
   - getReproductionLevel
+  - getRequiredRDD
 - title: Internal rate functions
   description: These functions are used by project() to calculate
     instantaneous rates at each time step. You should use the get...()

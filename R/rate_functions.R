@@ -996,6 +996,86 @@ getRDD.MizerParams <- function(params, n = initialN(params),
     rdd
 }
 
+#' Get flux into size bins
+#'
+#' Calculates the flux \eqn{J_i(w)} (numbers/year) entering each size class
+#' from the one below it. This is composed of an advective flux from somatic 
+#' growth and a diffusive flux from the redistribution of individuals.
+#' 
+#' At the recruitment size, the flux is simply the recruitment rate 
+#' \eqn{R_{dd,i}} (see [getRDD()]). For sizes below the recruitment size 
+#' the flux is zero.
+#'
+#' @inheritParams mizerRates
+#'   
+#' @return A two dimensional array (prey species x prey size) 
+#' @export
+#' @seealso [getEGrowth()], [getRDD()]
+#' @family rate functions
+#' @examples
+#' \donttest{
+#' params <- NS_params
+#' # Project with constant fishing effort for all gears for 20 time steps
+#' sim <- project(params, t_max = 20, effort = 0.5)
+#' # Get the flux at a particular time step
+#' flux <- getFlux(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], t = 15)
+#' # Flux for Sprat of size 2g
+#' flux["Sprat", "2"]
+#' }
+getFlux <- function(params, n = initialN(params), 
+                    n_pp = initialNResource(params),
+                    n_other = initialNOther(params),
+                    t = 0, ...) {
+    UseMethod("getFlux")
+}
+
+#' @export
+getFlux.MizerParams <- function(params, n = initialN(params), 
+                    n_pp = initialNResource(params),
+                    n_other = initialNOther(params),
+                    t = 0, ...) {
+    params <- validParams(params)
+    
+    no_sp <- nrow(params@species_params)
+    no_w <- length(params@w)
+    
+    g <- getEGrowth(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
+    d <- params@diffusion
+    dw <- params@dw
+    
+    flux <- matrix(0, nrow = no_sp, ncol = no_w,
+                   dimnames = list(params@species_params$species, NULL))
+                   
+    idx <- 2:no_w
+    idx_minus_1 <- idx - 1
+    
+    # Calculate J_{i,j} for all j > 1
+    # J_{i,j} = g_{i, j-1} N_{i, j-1} - 1/2 * (d_{i, j} N_{i, j} - d_{i, j-1} N_{i, j-1}) / dw_{j-1}
+    diff_term <- (d[, idx] * n[, idx] - d[, idx_minus_1] * n[, idx_minus_1]) / 
+        matrix(dw[idx_minus_1], nrow = no_sp, ncol = length(idx_minus_1), byrow = TRUE)
+        
+    flux[, idx] <- g[, idx_minus_1] * n[, idx_minus_1] - 0.5 * diff_term
+                   
+    # Apply recruitment boundary conditions
+    rdd <- getRDD(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
+    
+    j_start <- params@w_min_idx
+    idxs <- cbind(1:no_sp, j_start)
+    flux[idxs] <- rdd
+    
+    # Zero out elements for sizes smaller than w_min_idx
+    w_idx_mat <- matrix(1:no_w, nrow = no_sp, ncol = no_w, byrow = TRUE)
+    mask_below <- w_idx_mat < j_start
+    
+    if (any(mask_below)) {
+        flux[mask_below] <- 0
+    }
+    
+    dimnames(flux) <- dimnames(params@metab)
+    flux
+}
+
+
 #' Get array indices for a time range in a MizerSim object
 #'
 #' Internal helper to select the saved time points whose times lie between the
