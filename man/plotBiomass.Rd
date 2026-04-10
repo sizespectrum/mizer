@@ -11,65 +11,61 @@ plotBiomass(sim, ...)
 \method{plotBiomass}{MizerSim}(
   sim,
   species = NULL,
-  start_time,
-  end_time,
+  start_time = NULL,
+  end_time = NULL,
   y_ticks = 6,
   ylim = c(NA, NA),
   total = FALSE,
   background = TRUE,
   highlight = NULL,
+  log = TRUE,
   return_data = FALSE,
   use_cutoff = FALSE,
-  ...
+  min_w = min(sim@params@w),
+  max_w = max(sim@params@w),
+  min_l = NULL,
+  max_l = NULL
 )
 
 plotlyBiomass(
   sim,
   species = NULL,
-  start_time,
-  end_time,
+  start_time = NULL,
+  end_time = NULL,
   y_ticks = 6,
   ylim = c(NA, NA),
   total = FALSE,
   background = TRUE,
   highlight = NULL,
+  log = TRUE,
   use_cutoff = FALSE,
-  ...
+  min_w = min(sim@params@w),
+  max_w = max(sim@params@w),
+  min_l = NULL,
+  max_l = NULL
 )
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}}
 
-\item{...}{
-  Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
-  \describe{
-    \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
-the model.}
-    \item{\code{max_w}}{Largest weight in size range. Defaults to largest weight in the
-model.}
-    \item{\code{min_l}}{Smallest length in size range. If supplied, this takes
-precedence over \code{min_w}.}
-    \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
-over \code{max_w}.}
-  }}
+\item{...}{Unused}
 
 \item{species}{The species to be selected. Optional. By default all target
 species are selected. A vector of species names, or a
 numeric vector with the species indices, or a logical vector indicating for
 each species whether it is to be selected (TRUE) or not.}
 
-\item{start_time}{The first time to be plotted. Default is the beginning
-of the time series.}
+\item{start_time}{The first time to be plotted. Default (\code{NULL}) is the
+beginning of the time series.}
 
-\item{end_time}{The last time to be plotted. Default is the end of the
-time series.}
+\item{end_time}{The last time to be plotted. Default (\code{NULL}) is the end of
+the time series.}
 
-\item{y_ticks}{The approximate number of ticks desired on the y axis}
+\item{y_ticks}{The approximate number of ticks desired on the y axis.}
 
 \item{ylim}{A numeric vector of length two providing lower and upper limits
-for the y axis. Use NA to refer to the existing minimum or maximum. Any
-values below 1e-20 are always cut off. Data is filtered to this range and
-the axis limits are set accordingly.}
+for the y axis. Use \code{NA} to refer to the existing minimum or maximum. Any
+values below 1e-20 are always cut off.}
 
 \item{total}{A boolean value that determines whether the total biomass from
 all species is plotted as well. Default is FALSE.}
@@ -80,13 +76,25 @@ Default is TRUE.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 
-\item{return_data}{A boolean value that determines whether the formatted data
-used for the plot is returned instead of the plot itself. Default value is FALSE}
+\item{log}{If \code{TRUE} (default), use a log10 y-axis.}
 
-\item{use_cutoff}{If TRUE, the \code{biomass_cutoff} column in the
-species parameters is used as the minimum weight for each species (ignoring any
-size range arguments in \code{...}). If FALSE (default), the specified size range
-arguments are used, if provided, or the full size range of the species is used.}
+\item{return_data}{A boolean value that determines whether the formatted data
+used for the plot is returned instead of the plot itself. Default is FALSE.}
+
+\item{use_cutoff}{If TRUE, the \code{biomass_cutoff} column in the species
+parameters is used as the minimum weight for each species.}
+
+\item{min_w}{Smallest weight in size range. Defaults to smallest weight in
+the model.}
+
+\item{max_w}{Largest weight in size range. Defaults to largest weight in the
+model.}
+
+\item{min_l}{Smallest length in size range. If supplied, this takes
+precedence over \code{min_w}.}
+
+\item{max_l}{Largest length in size range. If supplied, this takes precedence
+over \code{max_w}.}
 }
 \value{
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
@@ -96,7 +104,7 @@ returned.
 \description{
 After running a projection, the biomass of each species can be plotted
 against time. The biomass is calculated within user defined size limits
-(min_w, max_w, min_l, max_l, see \code{\link[=getBiomass]{getBiomass()}}).
+(see \code{\link[=getBiomass]{getBiomass()}}).
 }
 \examples{
 \donttest{

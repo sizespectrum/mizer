@@ -237,24 +237,30 @@ log_breaks <- function(n = 6) {
 #'
 #' After running a projection, the biomass of each species can be plotted
 #' against time. The biomass is calculated within user defined size limits
-#' (min_w, max_w, min_l, max_l, see [getBiomass()]).
+#' (see [getBiomass()]).
 #'
 #' @param sim An object of class \linkS4class{MizerSim}
 #' @inheritParams valid_species_arg
-#' @inheritParams plotDataFrame
-#' @inheritParams getBiomass
-#' @param start_time The first time to be plotted. Default is the beginning
-#'   of the time series.
-#' @param end_time The last time to be plotted. Default is the end of the
-#'   time series.
+#' @param start_time The first time to be plotted. Default (`NULL`) is the
+#'   beginning of the time series.
+#' @param end_time The last time to be plotted. Default (`NULL`) is the end of
+#'   the time series.
+#' @param y_ticks The approximate number of ticks desired on the y axis.
 #' @param ylim A numeric vector of length two providing lower and upper limits
-#'   for the y axis. Use NA to refer to the existing minimum or maximum. Any
-#'   values below 1e-20 are always cut off. Data is filtered to this range and
-#'   the axis limits are set accordingly.
+#'   for the y axis. Use `NA` to refer to the existing minimum or maximum. Any
+#'   values below 1e-20 are always cut off.
 #' @param total A boolean value that determines whether the total biomass from
 #'   all species is plotted as well. Default is FALSE.
-#' @inheritParams plotSpectra
-#' @inheritDotParams get_size_range_array -params
+#' @param background A boolean value that determines whether background species
+#'   are included. Ignored if the model does not contain background species.
+#'   Default is TRUE.
+#' @param highlight Name or vector of names of the species to be highlighted.
+#' @param log If `TRUE` (default), use a log10 y-axis.
+#' @param return_data A boolean value that determines whether the formatted data
+#'   used for the plot is returned instead of the plot itself. Default is FALSE.
+#' @param use_cutoff If TRUE, the `biomass_cutoff` column in the species
+#'   parameters is used as the minimum weight for each species.
+#' @inheritParams get_size_range_array
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the four variables 'Year', 'Biomass', 'Species', 'Legend' is
@@ -281,85 +287,44 @@ plotBiomass <- function(sim, ...) {
 #' @rdname plotBiomass
 #' @export
 plotBiomass.MizerSim <- function(sim, species = NULL,
-                        start_time, end_time,
+                        start_time = NULL, end_time = NULL,
                         y_ticks = 6, ylim = c(NA, NA),
                         total = FALSE, background = TRUE,
-                        highlight = NULL, return_data = FALSE,
+                        highlight = NULL, log = TRUE,
+                        return_data = FALSE,
                         use_cutoff = FALSE,
-                        ...) {
-    assert_that(is(sim, "MizerSim"),
-                is.flag(total),
-                is.flag(background),
-                is.flag(return_data),
-                is.flag(use_cutoff),
-                length(ylim) == 2)
-    params <- sim@params
-    species <- valid_species_arg(sim, species, error_on_empty = TRUE)
-    if (missing(start_time)) start_time <-
-            as.numeric(dimnames(sim@n)[[1]][1])
-    if (missing(end_time)) end_time <-
-            as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]])
-    if (start_time >= end_time) {
-        stop("start_time must be less than end_time")
-    }
-    # First we get the data frame for all species, including the background,
-    # for all times but only the desired size range, by passing any size range
-    # arguments on to getBiomass()
-    bm <- getBiomass(sim, use_cutoff = use_cutoff, ...)
-    # Select time range
-    bm <- bm[(as.numeric(dimnames(bm)[[1]]) >= start_time) &
-               (as.numeric(dimnames(bm)[[1]]) <= end_time), , drop = FALSE]
-
-    # Include total
-    if (total) {
-        bm <- cbind(bm, Total = rowSums(bm))
-    }
-
-    bm <- reshape2::melt(bm)
-
-    # Implement ylim and a minimal cutoff and bring columns in desired order
-    min_value <- 1e-20
-    bm <- bm[bm$value >= min_value &
-                 (is.na(ylim[1]) | bm$value >= ylim[1]) &
-                 (is.na(ylim[2]) | bm$value <= ylim[2]), c(1, 3, 2)]
-    names(bm) <- c("Year", "Biomass", "Species")
-
-    # Select species
-    plot_dat <- bm[bm$Species %in% c("Total", species), ]
-    plot_dat$Legend <- plot_dat$Species
-
-    if (background) {
-        # Add background species in light grey
-        bkgrd_sp <- dimnames(sim@n)$sp[is.na(sim@params@A)]
-        if (length(bkgrd_sp) > 0) {
-            bm_bkgrd <- bm[bm$Species %in% bkgrd_sp, ]
-            bm_bkgrd$Legend <- "Background"
-            plot_dat <- rbind(plot_dat, bm_bkgrd)
-        }
-    }
-
-    if (return_data) return(plot_dat)
-
-    plotDataFrame(plot_dat, params, xlab = "Year", ylab = "Biomass [g]",
-                  ytrans = "log10", ylim = ylim,
-                  y_ticks = y_ticks, highlight = highlight,
-                  legend_var = "Legend")
+                        min_w = min(sim@params@w),
+                        max_w = max(sim@params@w),
+                        min_l = NULL, max_l = NULL) {
+    bm <- getBiomass(sim, use_cutoff = use_cutoff,
+                     min_w = min_w, max_w = max_w,
+                     min_l = min_l, max_l = max_l)
+    plot(bm, species = species,
+         start_time = start_time, end_time = end_time,
+         y_ticks = y_ticks, ylim = ylim,
+         total = total, background = background,
+         highlight = highlight, log = log,
+         return_data = return_data)
 }
 
 #' @rdname plotBiomass
 #' @export
 plotlyBiomass <- function(sim,
              species = NULL,
-             start_time,
-             end_time,
+             start_time = NULL,
+             end_time = NULL,
              y_ticks = 6,
              ylim = c(NA, NA),
              total = FALSE,
              background = TRUE,
              highlight = NULL,
+             log = TRUE,
              use_cutoff = FALSE,
-             ...) {
-    argg <- c(as.list(environment()), list(...))
+             min_w = min(sim@params@w),
+             max_w = max(sim@params@w),
+             min_l = NULL,
+             max_l = NULL) {
+    argg <- as.list(environment())
     ggplotly(do.call("plotBiomass", argg),
              tooltip = c("Species", "Year", "Biomass"))
 }

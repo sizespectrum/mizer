@@ -134,10 +134,10 @@ print.summary.ArraySpeciesByTime <- function(x, ...) {
 #' @param x An `ArraySpeciesByTime` object.
 #' @param species Character vector of species to include. `NULL` (default) means
 #'   all species.
-#' @param start_time The first time to be plotted. Default is the beginning
-#'   of the time series.
-#' @param end_time The last time to be plotted. Default is the end of the
-#'   time series.
+#' @param start_time The first time to be plotted. Default (`NULL`) is the
+#'   beginning of the time series.
+#' @param end_time The last time to be plotted. Default (`NULL`) is the end of
+#'   the time series.
 #' @param y_ticks The approximate number of ticks desired on the y axis.
 #' @param ylim A numeric vector of length two providing lower and upper limits
 #'   for the y axis. Use NA to refer to the existing minimum or maximum. Any
@@ -164,7 +164,7 @@ print.summary.ArraySpeciesByTime <- function(x, ...) {
 #' plot(getYield(NS_sim), species = c("Cod", "Herring"))
 #' }
 plot.ArraySpeciesByTime <- function(x, species = NULL,
-                                    start_time, end_time,
+                                    start_time = NULL, end_time = NULL,
                                     y_ticks = 6, ylim = c(NA, NA),
                                     total = FALSE, background = TRUE,
                                     highlight = NULL, log = TRUE,
@@ -177,11 +177,14 @@ plot.ArraySpeciesByTime <- function(x, species = NULL,
     # Filter to time range
     t <- as.numeric(rownames(x))
     if (any(is.na(t))) t <- seq_len(nrow(x))
-    if (!missing(start_time)) {
+    if (!is.null(start_time) && !is.null(end_time) && start_time >= end_time) {
+        stop("start_time must be less than end_time")
+    }
+    if (!is.null(start_time)) {
         x <- x[t >= start_time, , drop = FALSE]
         t <- t[t >= start_time]
     }
-    if (!missing(end_time)) {
+    if (!is.null(end_time)) {
         x <- x[t <= end_time, , drop = FALSE]
         t <- t[t <= end_time]
     }
