@@ -1,5 +1,8 @@
 # get_initial_n ----
-test_that("get_initial_n is working properly", {
+test_that("get_initial_n is working properly in edition 1", {
+    old <- getOption("mizer_defaults_edition")
+    on.exit(options(mizer_defaults_edition = old), add = TRUE)
+    options(mizer_defaults_edition = 1)
     params <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
     n <- get_initial_n(params)
     no_sp <- nrow(params@species_params)

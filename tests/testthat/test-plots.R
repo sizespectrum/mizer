@@ -1,4 +1,6 @@
 # Initialisation ----------------
+# Snapshots recorded with edition 1; lock params creation to edition 1
+withr::local_options(mizer_defaults_edition = 1)
 species_params <- NS_species_params_gears
 # Make species names numeric because that created problems in the past
 species_params$species <- seq_len(nrow(species_params))

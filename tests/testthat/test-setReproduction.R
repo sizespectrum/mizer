@@ -1,4 +1,4 @@
-params <- NS_params
+params <- setReproduction(NS_params)
 no_sp <- nrow(params@species_params)
 
 # setReproduction ----

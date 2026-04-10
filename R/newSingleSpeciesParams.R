@@ -181,6 +181,8 @@ newSingleSpeciesParams <-
         ))
     # No cannibalism
     params@interaction[] <- 0
+    # No fishing
+    params@initial_effort[] <- 0
 
     w <- params@w
     dw <- params@dw

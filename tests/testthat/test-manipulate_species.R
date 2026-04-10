@@ -33,14 +33,16 @@ test_that("addSpecies handles gear params correctly", {
                      sel_func = "knife_edge",
                      knife_edge_size = c(5, 5, 50))
 
-    # If no initial_effort for new gear is provided, it is 0
+    # If no initial_effort for new gear is provided, it is the edition default
     # Wrapping in `expect_warning()` to ignore warnings about unrealistic
     # reproductive efficiency
     (pa <- addSpecies(p, sp, gp)) |>
         expect_message() |>
         expect_warning()
+    default_effort <- ifelse(defaults_edition() < 2, 0, 1)
     expect_identical(pa@initial_effort,
-                     c(knife_edge_gear = 0, gear1 = 0, gear2 = 0))
+                     c(knife_edge_gear = default_effort,
+                       gear1 = default_effort, gear2 = default_effort))
     expect_identical(nrow(pa@gear_params), 5L)
 
     # effort for existing gear is not changed
@@ -48,7 +50,7 @@ test_that("addSpecies handles gear params correctly", {
     (pa <- addSpecies(p, sp, gp, initial_effort = extra_effort)) |>
         expect_message() |>
         expect_warning()
-    expect_identical(pa@initial_effort, c(knife_edge_gear = 0, extra_effort))
+    expect_identical(pa@initial_effort, c(knife_edge_gear = default_effort, extra_effort))
 
     effort <- 2
     addSpecies(p, sp, gp, initial_effort = effort) |>

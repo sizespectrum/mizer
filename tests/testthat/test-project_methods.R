@@ -1,4 +1,6 @@
 # Initialise --------------------------------------------------------------
+# Snapshots recorded with edition 1; lock params creation to edition 1
+withr::local_options(mizer_defaults_edition = 1)
 
 # North sea
 params <- newMultispeciesParams(NS_species_params_gears, inter,

@@ -218,6 +218,10 @@ test_that("Gear checking and sorting is OK", {
 
 # same numerical results as previously ----
 test_that("Simulation gives same numerical results as previously",{
+  # Snapshot values were recorded with edition 1
+  old <- getOption("mizer_defaults_edition")
+  on.exit(options(mizer_defaults_edition = old), add = TRUE)
+  options(mizer_defaults_edition = 1)
   params <- newMultispeciesParams(NS_species_params_gears, inter,
                                   n = 2/3, p = 0.7, lambda = 2.8 - 2/3, info_level = 0)
   sim <- project(params, t_max = 1)

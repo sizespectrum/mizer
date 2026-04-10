@@ -71,7 +71,8 @@ test_that("newMultispeciesParams sets initial resource spectrum and cutoff", {
 
 # setParams ----
 test_that("setParams can leave params unchanged", {
-    expect_unchanged(setParams(NS_params), NS_params)
+    params <- setParams(NS_params)
+    expect_unchanged(setParams(params), params)
 })
 
 test_that("setParams handles change in w_max", {
