@@ -1,5 +1,9 @@
 # Development version 2.5.4.9102
 
+- `addSpecies()` now accepts an `info_level` argument (default 3) to control
+  the verbosity of information messages, consistent with `newMultispeciesParams()`.
+  Set `info_level = 0` to suppress all such messages. Closes #290.
+
 - `summary()` for `MizerParams` and `MizerSim` now displays metadata from the
   `@metadata` slot, including title, description, authors, DOI, URL, mizer
   version, and creation/modification timestamps (when set).

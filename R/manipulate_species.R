@@ -26,6 +26,9 @@
 #'   fished by already existing gear. Should not include effort values
 #'   for existing gear. New gear for which no effort is set via this
 #'   vector will have an initial effort of 0.
+#' @param info_level Controls the amount of information messages that are shown
+#'   when the function sets default values for parameters. Higher levels lead
+#'   to more messages. Set to 0 to suppress all such messages.
 #' @param ... Additional arguments
 #'
 #' @return An object of type \linkS4class{MizerParams}
@@ -65,13 +68,14 @@
 #' @rdname addSpecies
 addSpecies <- function(params, species_params,
                        gear_params = data.frame(), initial_effort,
-                       interaction, ...) {
+                       interaction, info_level = 3, ...) {
     UseMethod("addSpecies")
 }
 
 #' @export
 addSpecies.MizerParams <- function(params, species_params, gear_params = data.frame(),
-                                   initial_effort = NULL, interaction = NULL, ...) {
+                                   initial_effort = NULL, interaction = NULL,
+                                   info_level = 3, ...) {
     # check validity of parameters ----
     params <- validParams(params)
     given_species_params <- validGivenSpeciesParams(species_params)
@@ -207,7 +211,8 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
         kappa = params@resource_params$kappa,
         n = params@resource_params[["n"]],
         lambda = params@resource_params$lambda,
-        w_pp_cutoff = params@resource_params$w_pp_cutoff
+        w_pp_cutoff = params@resource_params$w_pp_cutoff,
+        info_level = info_level
     )
     p@given_species_params <- combi_given_species_params
 
