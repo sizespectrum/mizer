@@ -156,20 +156,11 @@ reference:
 - title: Analysing results
   contents:
   - summary_functions
-  - getDiet
-  - getBiomass
-  - getN
-  - getSSB
-  - getYield
-  - getYieldGear
-  - getGrowthCurves
+  - has_concept("summary functions")
 - title: Calculating indicators
   contents:
   - indicator_functions
-  - getProportionOfLargeFish
-  - getCommunitySlope
-  - getMeanWeight
-  - getMeanMaxWeight
+  - has_concept("functions for calculating indicators")
 - title: Plotting results
   contents:
   - plotting_functions

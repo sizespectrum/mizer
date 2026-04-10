@@ -363,6 +363,69 @@ test_that("getDiet works with additional components", {
 })
 
 
+# getTrophicLevel ----
+test_that("getTrophicLevel returns matrix with correct structure", {
+    tl <- getTrophicLevel(params, n, n_pp)
+    expect_true(is.ArraySpeciesBySize(tl))
+    expect_true(is.matrix(tl))
+    expect_equal(dim(tl), c(no_sp, no_w))
+    expect_equal(dimnames(tl), dimnames(params@initial_n))
+    # All trophic levels >= 1 (since T = 1 + non-negative)
+    expect_true(all(tl >= 1, na.rm = TRUE))
+    # Trophic levels should be reasonable (< 10)
+    expect_true(all(tl < 10, na.rm = TRUE))
+})
+
+test_that("getTrophicLevel gives same result with explicit pred_kernel", {
+    tl1 <- getTrophicLevel(params, n, n_pp)
+    # Force explicit pred_kernel storage
+    params2 <- setPredKernel(params, pred_kernel = getPredKernel(params))
+    tl2 <- getTrophicLevel(params2, n, n_pp)
+    expect_equal(tl1, tl2, tolerance = 1e-10)
+})
+
+test_that("getTrophicLevel increases along body size for apex predators", {
+    tl <- getTrophicLevel(NS_params)
+    # For Cod (apex predator), trophic level should increase with size
+    cod_tl <- tl["Cod", ]
+    cod_tl <- cod_tl[!is.na(cod_tl)]
+    # Should be non-decreasing overall (allow small numerical fluctuations)
+    expect_true(cod_tl[length(cod_tl)] >= cod_tl[1])
+})
+
+test_that("getTrophicLevel works for MizerSim", {
+    tl_sim <- getTrophicLevel(sim)
+    expect_equal(length(dim(tl_sim)), 3)
+    expect_equal(dim(tl_sim)[2:3], c(no_sp, no_w))
+    expect_equal(names(dimnames(tl_sim)), c("time", "sp", "w"))
+})
+
+# getTrophicLevelBySpecies ----
+test_that("getTrophicLevelBySpecies returns named vector", {
+    tl_sp <- getTrophicLevelBySpecies(params, n, n_pp)
+    expect_true(is.numeric(tl_sp))
+    expect_equal(length(tl_sp), no_sp)
+    expect_equal(names(tl_sp), params@species_params$species)
+    expect_true(all(tl_sp >= 1, na.rm = TRUE))
+})
+
+test_that("getTrophicLevelBySpecies is consistent with getTrophicLevel", {
+    tl <- getTrophicLevel(params, n, n_pp)
+    tl_sp <- getTrophicLevelBySpecies(params, n, n_pp)
+    # Species-level trophic level should be between min and max size-resolved tl
+    for (i in seq_len(no_sp)) {
+        tl_range <- range(tl[i, ], na.rm = TRUE)
+        expect_gte(tl_sp[i], tl_range[1] - 1e-10)
+        expect_lte(tl_sp[i], tl_range[2] + 1e-10)
+    }
+})
+
+test_that("getTrophicLevelBySpecies works for MizerSim", {
+    tl_sim <- getTrophicLevelBySpecies(sim)
+    expect_equal(dim(tl_sim), c(length(dimnames(sim@n)$time), no_sp))
+})
+
+
 # getSSB ----
 test_that("getSSB works", {
     ssb <- getSSB(sim)

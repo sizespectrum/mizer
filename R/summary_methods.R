@@ -20,6 +20,8 @@
 #' \tabular{lll}{
 #'   Function \tab Returns \tab Description \cr
 #'   [getDiet()] \tab Three dimensional array (predator x size x prey) \tab Diet of predator at size, resolved by prey species \cr
+#'   [getTrophicLevel()] \tab `ArraySpeciesBySize` (species x size) \tab Trophic level of individuals at size, accounting for ontogenetic diet shifts \cr
+#'   [getTrophicLevelBySpecies()] \tab Named vector (species) \tab Consumption-rate-weighted mean trophic level of each species \cr
 #'   [getSSB()] \tab Two dimensional array (time x species) \tab Total Spawning Stock Biomass (SSB) of each species through time where SSB is calculated as the sum of weight of all mature individuals. \cr
 #'   [getBiomass()] \tab Two dimensional array (time x species) \tab Total biomass of each species through time. \cr
 #'   [getN()] \tab Two dimensional array (time x species) \tab Total abundance of each species through time. \cr
@@ -175,6 +177,203 @@ getDiet.MizerParams <- function(params,
     return(diet)
 }
 
+
+#' Get trophic level of individuals at size
+#'
+#' `r lifecycle::badge("experimental")`
+#' Calculates the trophic level of individuals of each species at each size,
+#' assuming the system is in a steady state. The trophic level of an individual
+#' is defined as 1 more than the consumption-rate-weighted average trophic level
+#' of all the prey it has consumed during its lifetime up to the current size.
+#' The trophic level of the primary resource is set to 0.
+#'
+#'
+#' @details
+#' In the traditional non-size-resolved approach, all individuals of a species
+#' have the same diet composition \eqn{D_{ij}}, defined as the proportion of
+#' total biomass intake of species \eqn{i} that comes from species \eqn{j}.
+#' The trophic levels then satisfy
+#' \deqn{T_i = 1 + \sum_j D_{ij}\,T_j,}
+#' which is solved as a linear system \eqn{(I - D)\,\mathbf{T} = \mathbf{1}}.
+#'
+#' In mizer, diet composition changes as an individual grows, so we must
+#' integrate over the individual's lifetime. Assuming a steady state so that
+#' the growth rate \eqn{g_i(w)} and prey densities depend only on size and not
+#' on time, we can replace the integral over time since birth by an integral
+#' over weight using \eqn{dt = dw / g_i(w)}. The trophic level
+#' \eqn{T_i(w)} of an individual of species \eqn{i} at weight \eqn{w} is
+#' then
+#' \deqn{
+#' T_i(w) = 1 + \frac{
+#'   \int_{w_0}^{w} \frac{1}{g_i(w')} \sum_j \int r_{ij}(w', w_p)\, T_j(w_p)\, dw_p\, dw'
+#' }{
+#'   \int_{w_0}^{w} \frac{1}{g_i(w')} \sum_j \int r_{ij}(w', w_p)\, dw_p\, dw'
+#' },
+#' }
+#' where \eqn{w_0} is the egg size and \eqn{r_{ij}(w, w_p)} is the rate at
+#' which a predator of species \eqn{i} at weight \eqn{w} consumes biomass from
+#' prey species \eqn{j} at weight \eqn{w_p}:
+#' \deqn{
+#' r_{ij}(w, w_p) = \theta_{ij}\,\gamma_i(w)\,(1 - f_i(w))\,\phi_i(w/w_p)\,
+#'   N_j(w_p)\,w_p.
+#' }
+#' The sum over \eqn{j} runs over all species. The resource is excluded from
+#' the numerator because its trophic level is 0, but is included in the
+#' denominator (which equals the total biomass consumed over the predator's
+#' lifetime from egg size to current weight \eqn{w}).
+#'
+#' This equation can be viewed as a linear system
+#' \eqn{(I - D)\,\mathbf{T} = \mathbf{1}} in which the entries of
+#' \eqn{\mathbf{T}} are indexed by \eqn{(i, w)} and the matrix \eqn{D} encodes
+#' the lifetime-integrated diet composition. The system is solved iteratively
+#' from small to large sizes, exploiting the fact that prey are typically much
+#' smaller than the predator (large predator-to-prey mass ratio), so that the
+#' trophic levels of all relevant prey sizes are already known when computing
+#' \eqn{T_i(w)}.
+#'
+#' @inheritParams getDiet
+#'
+#' @return An `ArraySpeciesBySize` object (species x size) with the trophic
+#'   level of individuals at each size. Entries below the egg size of each
+#'   species are \code{NA}.
+#'
+#' @export
+#' @family summary functions
+#' @concept summary_function
+#' @seealso [getTrophicLevelBySpecies()]
+#' @examples
+#' tl <- getTrophicLevel(NS_params)
+#' plot(tl)
+getTrophicLevel <- function(params,
+                            n = initialN(params),
+                            n_pp = initialNResource(params),
+                            n_other = initialNOther(params),
+                            ...) {
+    UseMethod("getTrophicLevel")
+}
+
+#' @export
+getTrophicLevel.MizerParams <- function(params,
+                                        n = initialN(params),
+                                        n_pp = initialNResource(params),
+                                        n_other = initialNOther(params),
+                                        ...) {
+    params <- validParams(params)
+    no_sp <- nrow(params@species_params)
+    no_w <- length(params@w)
+    no_w_full <- length(params@w_full)
+    idx_sp <- (no_w_full - no_w + 1):no_w_full
+
+    # Pre-compute rates
+    encounter <- getEncounter(params, n, n_pp, n_other)  # no_sp x no_w
+    feeding_level <- getFeedingLevel(params, n, n_pp, n_other)  # no_sp x no_w
+    growth <- getEGrowth(params, n, n_pp, n_other)  # no_sp x no_w
+    # Total consumption = (1 - f) * E, used for denominator accumulator
+    consumption <- (1 - feeding_level) * encounter  # no_sp x no_w
+
+    # Full predation kernel array (no_sp x no_w x no_w_full).
+    # getPredKernel() computes it from species parameters if not explicitly stored.
+    pred_kernel <- getPredKernel(params)
+
+    # prey_mass_tl[j, p] = N_j(w_p) * T_j(w_p) * w_p * dw_p
+    # Initialised with T_j = 1 everywhere; updated as trophic levels are computed
+    prey_mass_tl <- sweep(n, 2, params@w * params@dw, "*")  # no_sp x no_w
+
+    # Cumulative numerator A_i and denominator B_i (integrals weighted by 1/g dw)
+    cumA <- numeric(no_sp)
+    cumB <- numeric(no_sp)
+
+    # Output matrix: NA below egg size of each species
+    tl <- matrix(NA_real_, nrow = no_sp, ncol = no_w,
+                 dimnames = dimnames(params@initial_n))
+
+    # Iterate from smallest to largest size, building up trophic levels
+    for (k in seq_len(no_w)) {
+        # Trophic-level-weighted encounter for all predator species at size w[k]:
+        # E_tl[i] = gamma_i(w_k) * sum_j theta_ij * sum_p kernel[i,k,p] * N_tl[j,p] * w_p * dw_p
+        pred_kernel_k <- matrix(pred_kernel[, k, idx_sp], nrow = no_sp)
+        ae_k <- pred_kernel_k %*% t(prey_mass_tl)  # no_sp x no_sp
+        E_tl <- params@search_vol[, k] * rowSums(params@interaction * ae_k)
+
+        # Update trophic level for each species active at this size
+        for (i in seq_len(no_sp)) {
+            if (k < params@w_min_idx[i]) next
+            g_ik <- growth[i, k]
+            if (!is.finite(g_ik) || g_ik <= 0) {
+                # No growth: carry forward previous trophic level
+                tl[i, k] <- if (k > params@w_min_idx[i]) tl[i, k - 1L] else 1
+                next
+            }
+            weight <- params@dw[k] / g_ik
+            cumA[i] <- cumA[i] + (1 - feeding_level[i, k]) * E_tl[i] * weight
+            cumB[i] <- cumB[i] + consumption[i, k] * weight
+            tl[i, k] <- if (cumB[i] > 0) 1 + cumA[i] / cumB[i] else 1
+        }
+
+        # Update prey_mass_tl for size k with newly computed trophic levels
+        active_k <- k >= params@w_min_idx
+        tl_k <- tl[, k]
+        tl_k[is.na(tl_k)] <- 1
+        prey_mass_tl[active_k, k] <-
+            n[active_k, k] * tl_k[active_k] * params@w[k] * params@dw[k]
+    }
+
+    return(ArraySpeciesBySize(tl, value_name = "Trophic level", params = params))
+}
+
+
+#' Get mean trophic level of each species
+#'
+#' `r lifecycle::badge("experimental")`
+#' Calculates the consumption-rate-weighted mean trophic level of each species,
+#' defined as
+#' \deqn{
+#'   T_i = \frac{\int r_i(w)\,N_i(w)\,T_i(w)\,dw}
+#'              {\int r_i(w)\,N_i(w)\,dw},
+#' }
+#' where \eqn{r_i(w) = (1 - f_i(w))\,E_i(w)} is the consumption rate of an
+#' individual of species \eqn{i} at weight \eqn{w}, \eqn{N_i(w)} is the
+#' abundance density, and \eqn{T_i(w)} is the size-resolved trophic level
+#' from [getTrophicLevel()].
+#'
+#' @inheritParams getDiet
+#'
+#' @return A named vector with the mean trophic level for each species.
+#'
+#' @export
+#' @family summary functions
+#' @concept summary_function
+#' @seealso [getTrophicLevel()]
+#' @examples
+#' getTrophicLevelBySpecies(NS_params)
+getTrophicLevelBySpecies <- function(params,
+                                     n = initialN(params),
+                                     n_pp = initialNResource(params),
+                                     n_other = initialNOther(params),
+                                     ...) {
+    UseMethod("getTrophicLevelBySpecies")
+}
+
+#' @export
+getTrophicLevelBySpecies.MizerParams <- function(params,
+                                                  n = initialN(params),
+                                                  n_pp = initialNResource(params),
+                                                  n_other = initialNOther(params),
+                                                  ...) {
+    params <- validParams(params)
+    tl <- getTrophicLevel(params, n = n, n_pp = n_pp, n_other = n_other)
+    tl[is.na(tl)] <- 0
+    encounter <- getEncounter(params, n, n_pp, n_other)
+    feeding_level <- getFeedingLevel(params, n, n_pp, n_other)
+    # Consumption rate per individual times abundance density
+    consumption_n <- (1 - feeding_level) * encounter * n  # no_sp x no_w
+    # Weighted mean trophic level: integral of consumption_n * T * dw / integral of consumption_n * dw
+    numerator <- (consumption_n * tl) %*% params@dw
+    denominator <- consumption_n %*% params@dw
+    tl_by_sp <- numerator[, 1] / denominator[, 1]
+    tl_by_sp[denominator[, 1] == 0] <- NA_real_
+    return(tl_by_sp)
+}
 
 #' Calculate the SSB of species
 #'
