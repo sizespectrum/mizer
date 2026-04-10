@@ -908,9 +908,11 @@ validParams <- function(params, info_level = 3) {
     if (any(wrong)) {
         params@species_params$w_min[wrong] <- w_min
         warning("The minimum weight of some species was smaller than the ",
-                "minimum weight of the model: ",
+                "minimum weight of the weight grid in the model: ",
                 paste(params@species_params$species[wrong], collapse = ", "),
-                ". I have increased it to ", w_min, ".")
+                ". I have increased it to ", w_min, ". Before you can decrease ",
+                "it further you will need expand the weight grid with ",
+                "`expandSizeGrid()`.")
     }
     params@w_min_idx <- get_w_min_idx(params@species_params, params@w)
     # w_max should not be larger than the maximum weight of the model
