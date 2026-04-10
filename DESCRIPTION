@@ -57,6 +57,7 @@ Collate:
     'MizerSim-class.R'
     'ArraySpeciesBySize-class.R'
     'ArraySpeciesByTime-class.R'
+    'background.R'
     'reproduction.R'
     'saveParams.R'
     'species_params.R'
