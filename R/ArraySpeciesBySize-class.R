@@ -139,6 +139,15 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #' @param highlight Name or vector of names of the species to be highlighted.
 #' @param return_data If `TRUE`, return the data frame instead of the plot.
 #' @param log_x If `TRUE` (default), use a log10 x-axis.
+#' @param log_y If `TRUE`, use a log10 y-axis. Default is `FALSE`. Useful for
+#'   quantities that span several orders of magnitude (e.g. encounter rates,
+#'   search volumes).
+#' @param wlim A numeric vector of length two providing lower and upper limits
+#'   for the weight (x) axis. Use `NA` to refer to the existing minimum or
+#'   maximum.
+#' @param ylim A numeric vector of length two providing lower and upper limits
+#'   for the value (y) axis. Use `NA` to refer to the existing minimum or
+#'   maximum.
 #' @param ... Further arguments (currently unused).
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
@@ -151,7 +160,8 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #' }
 plot.ArraySpeciesBySize <- function(x, species = NULL,
                             all.sizes = FALSE, highlight = NULL,
-                            return_data = FALSE, log_x = TRUE, ...) {
+                            return_data = FALSE, log_x = TRUE, log_y = FALSE,
+                            wlim = c(NA, NA), ylim = c(NA, NA), ...) {
     value_name <- attr(x, "value_name") %||% "Rate"
     units_str <- attr(x, "units")
     params <- attr(x, "params")
@@ -202,14 +212,18 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
         }
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
-    
+
+    # Apply wlim filter
+    if (!is.na(wlim[1])) plot_dat <- plot_dat[plot_dat$w >= wlim[1], ]
+    if (!is.na(wlim[2])) plot_dat <- plot_dat[plot_dat$w <= wlim[2], ]
+
     if (return_data) return(plot_dat)
-    
+
     y_label <- value_name
     if (!is.null(units_str)) {
         y_label <- paste0(value_name, " [", units_str, "]")
     }
-    
+
     # Set up species as ordered factor for legend
     if (!is.null(linecolour)) {
         legend_levels <- intersect(names(linecolour), plot_dat$Species)
@@ -217,13 +231,15 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
         legend_levels <- unique(plot_dat$Species)
     }
     plot_dat$Species <- factor(plot_dat$Species, levels = legend_levels)
-    
+
     linesize <- rep(0.8, length(legend_levels))
     names(linesize) <- legend_levels
     if (!is.null(highlight)) {
         linesize[highlight] <- 1.6
     }
-    
+
+    y_trans <- if (log_y) "log10" else "identity"
+
     p <- ggplot2::ggplot(plot_dat, ggplot2::aes(group = .data[["Species"]])) +
         ggplot2::geom_line(ggplot2::aes(
             x = .data[["w"]],
@@ -232,14 +248,12 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
             linetype = .data[["Species"]],
             linewidth = .data[["Species"]]
         )) +
-        ggplot2::scale_y_continuous(name = y_label)
-    
-    if (log_x) {
-        p <- p + ggplot2::scale_x_continuous(name = "Size [g]",
-                                              trans = "log10")
-    } else {
-        p <- p + ggplot2::scale_x_continuous(name = "Size [g]")
-    }
+        ggplot2::scale_y_continuous(name = y_label, trans = y_trans,
+                                    limits = ylim)
+
+    x_trans <- if (log_x) "log10" else "identity"
+    p <- p + ggplot2::scale_x_continuous(name = "Size [g]", trans = x_trans,
+                                         limits = wlim)
     
     if (!is.null(linecolour)) {
         p <- p + 

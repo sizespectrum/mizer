@@ -148,6 +148,9 @@ print.summary.ArraySpeciesByTime <- function(x, ...) {
 #'   are included. Ignored if the model does not contain background species.
 #'   Default is TRUE.
 #' @param highlight Name or vector of names of the species to be highlighted.
+#' @param log If `TRUE` (default), use a log10 y-axis. Appropriate for
+#'   quantities like biomass, SSB, and yield that span orders of magnitude.
+#'   Set to `FALSE` for a linear y-axis.
 #' @param return_data If `TRUE`, return the data frame instead of the plot.
 #' @param ... Further arguments (currently unused).
 #'
@@ -164,7 +167,8 @@ plot.ArraySpeciesByTime <- function(x, species = NULL,
                                     start_time, end_time,
                                     y_ticks = 6, ylim = c(NA, NA),
                                     total = FALSE, background = TRUE,
-                                    highlight = NULL, return_data = FALSE,
+                                    highlight = NULL, log = TRUE,
+                                    return_data = FALSE,
                                     ...) {
     value_name <- attr(x, "value_name") %||% "Value"
     units_str <- attr(x, "units")
@@ -231,7 +235,7 @@ plot.ArraySpeciesByTime <- function(x, species = NULL,
     if (return_data) return(plot_dat)
 
     plotDataFrame(plot_dat, params, xlab = "Year", ylab = y_label,
-                  ytrans = "log10", ylim = ylim,
+                  ytrans = if (log) "log10" else "identity", ylim = ylim,
                   y_ticks = y_ticks, highlight = highlight,
                   legend_var = "Legend")
 }
