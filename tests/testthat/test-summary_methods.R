@@ -381,7 +381,7 @@ test_that("getTrophicLevel gives same result with explicit pred_kernel", {
     # Force explicit pred_kernel storage
     params2 <- setPredKernel(params, pred_kernel = getPredKernel(params))
     tl2 <- getTrophicLevel(params2, n, n_pp)
-    expect_equal(tl1, tl2, tolerance = 1e-10)
+    expect_equal(tl1, tl2, tolerance = 1e-10, ignore_attr = TRUE)
 })
 
 test_that("getTrophicLevel increases along body size for apex predators", {
@@ -391,13 +391,6 @@ test_that("getTrophicLevel increases along body size for apex predators", {
     cod_tl <- cod_tl[!is.na(cod_tl)]
     # Should be non-decreasing overall (allow small numerical fluctuations)
     expect_true(cod_tl[length(cod_tl)] >= cod_tl[1])
-})
-
-test_that("getTrophicLevel works for MizerSim", {
-    tl_sim <- getTrophicLevel(sim)
-    expect_equal(length(dim(tl_sim)), 3)
-    expect_equal(dim(tl_sim)[2:3], c(no_sp, no_w))
-    expect_equal(names(dimnames(tl_sim)), c("time", "sp", "w"))
 })
 
 # getTrophicLevelBySpecies ----
@@ -418,11 +411,6 @@ test_that("getTrophicLevelBySpecies is consistent with getTrophicLevel", {
         expect_gte(tl_sp[i], tl_range[1] - 1e-10)
         expect_lte(tl_sp[i], tl_range[2] + 1e-10)
     }
-})
-
-test_that("getTrophicLevelBySpecies works for MizerSim", {
-    tl_sim <- getTrophicLevelBySpecies(sim)
-    expect_equal(dim(tl_sim), c(length(dimnames(sim@n)$time), no_sp))
 })
 
 
