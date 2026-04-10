@@ -5,10 +5,14 @@ test_that("setExtMort works", {
     params <- NS_params
     params@species_params$z0 <- 2 * params@species_params$z0
     p2 <- setExtMort(params)
-    expect_identical(2 * params@mu_b, p2@mu_b)
+    expect_equal(p2@mu_b, 2 * params@mu_b, ignore_attr = TRUE)
     # only mu_b changed
-    p2@mu_b <- params@mu_b
-    expect_unchanged(p2, params)
+    p2_compare <- p2
+    p2_compare@mu_b <- params@mu_b
+    p2_compare@species_params[c("d", "z_ext")] <- NULL
+    params_compare <- params
+    params_compare@species_params[c("d", "z_ext")] <- NULL
+    expect_unchanged(p2_compare, params_compare)
     
     # supplying ext_mort
     p2 <- setExtMort(params, 3 * params@mu_b)
@@ -17,6 +21,36 @@ test_that("setExtMort works", {
     
     # has updated time_modified
     expect_false(identical(params@time_modified, p2@time_modified))
+})
+
+test_that("setExtMort uses z_ext and d species parameters", {
+    params <- NS_params
+    params@species_params$z0 <- rep(0.2, nrow(params@species_params))
+    params@species_params$z_ext <- seq_len(nrow(params@species_params)) / 10
+    params@species_params$d <- seq(-0.25, by = 0.01,
+                                   length.out = nrow(params@species_params))
+
+    p2 <- setExtMort(params)
+
+    expected <- outer(params@species_params$d, params@w,
+                      function(d, w) w^d)
+    expected <- sweep(expected, 1, params@species_params$z_ext, "*")
+    expected <- sweep(expected, 1, params@species_params$z0, "+")
+    expect_equal(p2@mu_b, expected, ignore_attr = TRUE)
+})
+
+test_that("setExtMort defaults z_ext to 0 and d to n - 1", {
+    params <- NS_params
+    params@species_params$z_ext <- NULL
+    params@species_params$d <- NULL
+
+    p2 <- setExtMort(params, reset = TRUE)
+
+    expect_equal(p2@mu_b,
+                 outer(p2@species_params$z0, rep(1, length(p2@w))),
+                 ignore_attr = TRUE)
+    expect_equal(p2@species_params$z_ext, rep(0, nrow(p2@species_params)))
+    expect_equal(p2@species_params$d, p2@species_params$n - 1)
 })
 
 test_that("Comment works on mu_b", {

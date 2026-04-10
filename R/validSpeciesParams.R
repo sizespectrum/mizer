@@ -49,6 +49,8 @@
 #' * `interaction_resource` is set to `1`
 #' * `n` is set to `3/4`
 #' * `p` is set to `n`
+#' * `z_ext` is set to `0`
+#' * `d` is set to `n - 1`
 #' * `E_ext` is set to `0`
 #'
 #' Note that the species parameters returned by these functions are not
@@ -72,6 +74,8 @@ validSpeciesParams <- function(species_params) {
     sp <- set_species_param_default(sp, "interaction_resource", 1)
     sp <- set_species_param_default(sp, "n", 3/4)
     sp <- set_species_param_default(sp, "p", sp$n)
+    sp <- set_species_param_default(sp, "z_ext", 0)
+    sp <- set_species_param_default(sp, "d", sp$n - 1)
     sp <- set_species_param_default(sp, "E_ext", 0)
     return(sp)
 }

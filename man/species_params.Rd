@@ -76,7 +76,10 @@ size-dependent parameters that are used in the mizer model:
 \item \code{h} and \code{n} are used to set the maximum intake rate, see \code{\link[=setMaxIntakeRate]{setMaxIntakeRate()}}.
 \item \code{k}, \code{ks} and \code{p} are used to set activity and basic metabolic rate,
 see \code{\link[=setMetabolicRate]{setMetabolicRate()}}.
-\item \code{z0} is used to set the external mortality rate, see \code{\link[=setExtMort]{setExtMort()}}.
+\item \code{z0}, \code{z_ext} and \code{d} are used to set the external mortality rate, see
+\code{\link[=setExtMort]{setExtMort()}}.
+\item \code{E_ext} and \code{n} are used to set the external encounter rate, see
+\code{\link[=setExtEncounter]{setExtEncounter()}}.
 \item \code{w_mat}, \code{w_mat25}, \code{w_repro_max} and \code{m} are used to set the allocation to
 reproduction, see \code{\link[=setReproduction]{setReproduction()}}.
 \item \code{pred_kernel_type} specifies the shape of the predation kernel. The default

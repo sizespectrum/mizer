@@ -32,7 +32,8 @@
 #' * `h` and `n` are used to set the maximum intake rate, see [setMaxIntakeRate()].
 #' * `k`, `ks` and `p` are used to set activity and basic metabolic rate,
 #'   see [setMetabolicRate()].
-#' * `z0` is used to set the external mortality rate, see [setExtMort()].
+#' * `z0`, `z_ext` and `d` are used to set the external mortality rate, see
+#'   [setExtMort()].
 #' * `E_ext` and `n` are used to set the external encounter rate, see
 #'   [setExtEncounter()].
 #' * `w_mat`, `w_mat25`, `w_repro_max` and `m` are used to set the allocation to

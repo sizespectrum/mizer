@@ -40,7 +40,7 @@ Default value is \code{n-1}.}
 
 \item{reset}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 If set to TRUE, then the external mortality rate will be reset
-to the value calculated from the \code{z0} parameters, even if it was
+to the value calculated from the species parameters, even if it was
 previously overwritten with a custom value. If set to FALSE (default) then
 a recalculation from the species parameters will take place only if no
 custom value has been set.}
@@ -75,11 +75,14 @@ that depends on species and body size. You can see an example of this in
 the Examples section of the help page for \code{\link[=setExtMort]{setExtMort()}}.
 
 If the \code{ext_mort} argument is not supplied, then the external mortality is
-assumed to depend only on the species, not on the size of the individual:
-\eqn{\mu_{ext.i}(w) = z_{0.i}}. The value of the constant \eqn{z_0} for each
-species is taken from the \code{z0} column of the species parameter data frame, if
-that column exists. Otherwise it is calculated as
+taken from the species parameters as
+\deqn{\mu_{ext.i}(w) = z_{0.i} + z_{ext.i} w^{d_i}.}{mu_ext,i(w) = z0_i + z_ext,i w ^ d_i.}
+The value of the constant \eqn{z_0} for each species is taken from the \code{z0}
+column of the species parameter data frame, if that column exists.
+Otherwise it is calculated as
 \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
+Missing values of \code{z_ext} are set to 0 and missing values of \code{d} are set to
+\code{n - 1}.
 }
 
 \examples{

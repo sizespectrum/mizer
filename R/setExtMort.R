@@ -12,11 +12,14 @@
 #' the Examples section of the help page for [setExtMort()].
 #'
 #' If the `ext_mort` argument is not supplied, then the external mortality is
-#' assumed to depend only on the species, not on the size of the individual:
-#' \eqn{\mu_{ext.i}(w) = z_{0.i}}. The value of the constant \eqn{z_0} for each
-#' species is taken from the `z0` column of the species parameter data frame, if
-#' that column exists. Otherwise it is calculated as
+#' taken from the species parameters as
+#' \deqn{\mu_{ext.i}(w) = z_{0.i} + z_{ext.i} w^{d_i}.}{mu_ext,i(w) = z0_i + z_ext,i w ^ d_i.}
+#' The value of the constant \eqn{z_0} for each species is taken from the `z0`
+#' column of the species parameter data frame, if that column exists.
+#' Otherwise it is calculated as
 #' \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
+#' Missing values of `z_ext` are set to 0 and missing values of `d` are set to
+#' `n - 1`.
 #'
 #' @param params MizerParams
 #' @param ext_mort Optional. An array (species x size) holding the external
@@ -24,7 +27,7 @@
 #'   section "Setting external mortality rate".
 #' @param reset `r lifecycle::badge("experimental")`
 #'   If set to TRUE, then the external mortality rate will be reset
-#'   to the value calculated from the `z0` parameters, even if it was
+#'   to the value calculated from the species parameters, even if it was
 #'   previously overwritten with a custom value. If set to FALSE (default) then
 #'   a recalculation from the species parameters will take place only if no
 #'   custom value has been set.
@@ -108,8 +111,20 @@ setExtMort.MizerParams <- function(params, ext_mort = NULL,
     params <- set_species_param_default(params, "z0",
                                         z0pre * species_params$w_max^z0exp,
                                         message)
+    params <- set_species_param_default(params, "z_ext", 0)
+    params <- set_species_param_default(params, "d",
+                                        params@species_params$n - 1)
     mu_b <- params@mu_b
     mu_b[] <- params@species_params$z0
+    has_power_law <- params@species_params$z_ext != 0
+    if (any(has_power_law)) {
+        mu_b[has_power_law, ] <- mu_b[has_power_law, ] +
+            sweep(
+                outer(params@species_params$d[has_power_law], params@w,
+                      function(d, w) w^d),
+                1, params@species_params$z_ext[has_power_law], "*"
+            )
+    }
 
     # Prevent overwriting slot if it has been commented
     if (!is.null(comment(params@mu_b))) {

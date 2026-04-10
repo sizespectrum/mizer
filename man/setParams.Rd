@@ -48,8 +48,9 @@ Default value is \code{n-1}.}
     \item{\code{z0}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{ext_mort} instead. Not to
 be confused with the species_parameter \code{z0}.}
     \item{\code{ext_encounter}}{Optional. An array (species x size) holding the external
-encounter rate.  If not supplied, the external encounter rate is left
-unchanged. Initially is is set to 0.}
+encounter rate.  If not supplied, a default is calculated from the \code{E_ext}
+and \code{n} species parameters as described in the section "Setting external
+encounter rate".}
     \item{\code{maturity}}{Optional. An array (species x size) that holds the proportion
 of individuals of each species at size that are mature. If not supplied, a
 default is set as described in the section "Setting reproduction".}
@@ -334,11 +335,14 @@ that depends on species and body size. You can see an example of this in
 the Examples section of the help page for \code{\link[=setExtMort]{setExtMort()}}.
 
 If the \code{ext_mort} argument is not supplied, then the external mortality is
-assumed to depend only on the species, not on the size of the individual:
-\eqn{\mu_{ext.i}(w) = z_{0.i}}. The value of the constant \eqn{z_0} for each
-species is taken from the \code{z0} column of the species parameter data frame, if
-that column exists. Otherwise it is calculated as
+taken from the species parameters as
+\deqn{\mu_{ext.i}(w) = z_{0.i} + z_{ext.i} w^{d_i}.}{mu_ext,i(w) = z0_i + z_ext,i w ^ d_i.}
+The value of the constant \eqn{z_0} for each species is taken from the \code{z0}
+column of the species parameter data frame, if that column exists.
+Otherwise it is calculated as
 \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
+Missing values of \code{z_ext} are set to 0 and missing values of \code{d} are set to
+\code{n - 1}.
 }
 
 \section{Setting external encounter rate}{
@@ -349,6 +353,17 @@ food that is not explicitly modelled. It is a rate with units mass/year.
 The \code{ext_encounter} argument allows you to specify an external encounter rate
 that depends on species and body size. You can see an example of this in
 the Examples section of the help page for \code{\link[=setExtEncounter]{setExtEncounter()}}.
+
+If the \code{ext_encounter} argument is not supplied, then the external encounter
+rate is calculated as a power law:
+\deqn{E_{ext.i}(w) = E_{ext.i}\, w^{n_i}.}{E_{ext.i}(w) = E_{ext.i} * w^n_i.}
+The coefficient \eqn{E_{ext.i}} is taken from the \code{E_ext} column of the
+species parameter data frame, which defaults to 0. The exponent \eqn{n_i} is
+taken from the \code{n} column of the species parameter data frame.
+
+If the \code{ext_encounter} slot has a comment and \code{reset = FALSE}, then a
+recalculation from the species parameters is suppressed and a message is
+issued if the recalculated values would differ from the stored ones.
 }
 
 \section{Setting reproduction}{
