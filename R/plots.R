@@ -1100,20 +1100,20 @@ plotPredMort.MizerSim <- function(object, species = NULL,
                          time_range, all.sizes = FALSE,
                          highlight = NULL, return_data = FALSE,
                          ...) {
-    assert_that(is.flag(all.sizes),
-                is.flag(return_data))
     if (missing(time_range)) {
-        time_range  <- max(as.numeric(dimnames(object@n)$time))
+        time_range <- max(as.numeric(dimnames(object@n)$time))
     }
-    params <- object@params
     pred_mort <- getPredMort(object, time_range = time_range, drop = FALSE)
-    # If a time range was returned, average over it
     if (length(dim(pred_mort)) == 3) {
         pred_mort <- apply(pred_mort, c(2, 3), mean)
     }
-    plot_pred_mort(params, pred_mort, species = species,
-                   highlight = highlight, all.sizes = all.sizes,
-                   return_data = return_data)
+    pred_mort <- ArraySpeciesBySize(pred_mort,
+                                    value_name = "Predation mortality",
+                                    units = "1/year",
+                                    params = object@params)
+    plot(pred_mort, species = species, all.sizes = all.sizes,
+         highlight = highlight, return_data = return_data,
+         ylim = c(0, NA))
 }
 
 #' @rdname plotPredMort
@@ -1122,44 +1122,9 @@ plotPredMort.MizerParams <- function(object, species = NULL,
                          all.sizes = FALSE,
                          highlight = NULL, return_data = FALSE,
                          ...) {
-    assert_that(is.flag(all.sizes),
-                is.flag(return_data))
-    params <- validParams(object)
-    pred_mort <- getPredMort(object, drop = FALSE)
-    plot_pred_mort(params, pred_mort, species = species,
-                   highlight = highlight, all.sizes = all.sizes,
-                   return_data = return_data)
-}
-
-plot_pred_mort <- function(params, pred_mort, species, highlight,
-                           all.sizes, return_data) {
-
-    species <- valid_species_arg(params, species, error_on_empty = TRUE)
-    pred_mort <- pred_mort[as.character(dimnames(pred_mort)[[1]]) %in% species, , drop = FALSE]
-    plot_dat <- data.frame(
-        w = rep(params@w, each = length(species)),
-        value = c(pred_mort),
-        Species = species)
-
-    if (!all.sizes) {
-        # Remove feeding level for sizes outside a species' size range
-        for (sp in species) {
-            plot_dat$value[plot_dat$Species == sp &
-                               (plot_dat$w < params@species_params[sp, "w_min"] |
-                                    plot_dat$w > params@species_params[sp, "w_max"])] <- NA
-        }
-        plot_dat <- plot_dat[complete.cases(plot_dat), ]
-    }
-
-    if (return_data) return(plot_dat)
-
-    p <- plotDataFrame(plot_dat, params, xlab = "Size [g]", xtrans = "log10",
-                       highlight = highlight)
-    suppressMessages(
-        p <- p + scale_y_continuous(labels = prettyNum,
-                                    name = "Predation mortality [1/year]",
-                                    limits = c(0, max(plot_dat$value))))
-    p
+    plot(getPredMort(validParams(object)), species = species,
+         all.sizes = all.sizes, highlight = highlight,
+         return_data = return_data, ylim = c(0, NA))
 }
 
 #' Alias for `plotPredMort()`
@@ -1219,20 +1184,17 @@ plotFMort.MizerSim <- function(object, species = NULL,
                       time_range, all.sizes = FALSE,
                       highlight = NULL, return_data = FALSE,
                       ...) {
-    assert_that(is.flag(all.sizes),
-                is.flag(return_data))
     if (missing(time_range)) {
-        time_range  <- max(as.numeric(dimnames(object@n)$time))
+        time_range <- max(as.numeric(dimnames(object@n)$time))
     }
-    params <- object@params
     f <- getFMort(object, time_range = time_range, drop = FALSE)
-    # If a time range was returned, average over it
     if (length(dim(f)) == 3) {
         f <- apply(f, c(2, 3), mean)
     }
-    plot_f_mort(params, f, species = species,
-                highlight = highlight, all.sizes = all.sizes,
-                return_data = return_data)
+    f <- ArraySpeciesBySize(f, value_name = "Fishing mortality",
+                            units = "1/year", params = object@params)
+    plot(f, species = species, all.sizes = all.sizes,
+         highlight = highlight, return_data = return_data)
 }
 
 #' @rdname plotFMort
@@ -1241,37 +1203,9 @@ plotFMort.MizerParams <- function(object, species = NULL,
                       all.sizes = FALSE,
                       highlight = NULL, return_data = FALSE,
                       ...) {
-    assert_that(is.flag(all.sizes),
-                is.flag(return_data))
-    params <- validParams(object)
-    f <- getFMort(object, drop = FALSE)
-    plot_f_mort(params, f, species = species,
-                highlight = highlight, all.sizes = all.sizes,
-                return_data = return_data)
-}
-
-plot_f_mort <- function(params, f, species, highlight,
-                        all.sizes, return_data) {
-    species <- valid_species_arg(params, species, error_on_empty = TRUE)
-    f <- f[as.character(dimnames(f)[[1]]) %in% species, , drop = FALSE]
-    plot_dat <- data.frame(w = rep(params@w, each = length(species)),
-                           value = c(f),
-                           Species = species)
-
-    if (!all.sizes) {
-        # Remove feeding level for sizes outside a species' size range
-        for (sp in species) {
-            plot_dat$value[plot_dat$Species == sp &
-                               (plot_dat$w < params@species_params[sp, "w_min"] |
-                                    plot_dat$w > params@species_params[sp, "w_max"])] <- NA
-        }
-        plot_dat <- plot_dat[complete.cases(plot_dat), ]
-    }
-
-    if (return_data) return(plot_dat)
-
-    plotDataFrame(plot_dat, params, xlab = "Size [g]", xtrans = "log10",
-                  ylab = "Fishing mortality [1/Year]", highlight = highlight)
+    plot(getFMort(validParams(object)), species = species,
+         all.sizes = all.sizes, highlight = highlight,
+         return_data = return_data)
 }
 
 #' @rdname plotFMort
