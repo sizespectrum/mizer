@@ -1,3 +1,142 @@
+# Helper called by setRateFunction() to verify the registered function returns
+# an array (or vector/list) of the correct dimensions.
+.checkRateFunctionOutput <- function(params, rate, fun) {
+    no_sp  <- nrow(params@species_params)
+    no_w   <- length(params@w)
+    no_w_full <- length(params@w_full)
+
+    n       <- params@initial_n
+    n_pp    <- params@initial_n_pp
+    n_other <- params@initial_n_other
+    t       <- 0
+    effort  <- params@initial_effort
+
+    f <- get(fun, mode = "function")
+
+    # For functions that depend on prerequisite rates, compute the current rates
+    # first (using whatever functions are already registered).
+    if (!(rate %in% c("Encounter", "Rates"))) {
+        rates <- tryCatch(
+            getRates(params, n = n, n_pp = n_pp, n_other = n_other,
+                     effort = effort, t = t),
+            error = function(e) {
+                warning("Could not validate '", fun, "' because the current ",
+                        "model rates could not be computed: ",
+                        conditionMessage(e), call. = FALSE)
+                NULL
+            }
+        )
+        if (is.null(rates)) return(invisible(NULL))
+    }
+
+    # Call the candidate function with appropriate test inputs.
+    result <- tryCatch(
+        switch(rate,
+            Encounter =
+                f(params, n = n, n_pp = n_pp, n_other = n_other, t = t),
+            FeedingLevel =
+                f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                  encounter = rates$encounter),
+            EReproAndGrowth =
+                f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                  encounter = rates$encounter,
+                  feeding_level = rates$feeding_level),
+            ERepro =
+                f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                  e = rates$e),
+            EGrowth =
+                f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                  e = rates$e, e_repro = rates$e_repro),
+            PredRate =
+                f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                  feeding_level = rates$feeding_level),
+            PredMort =
+                f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                  pred_rate = rates$pred_rate),
+            FMort =
+                f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                  effort = effort,
+                  e_growth = rates$e_growth, pred_mort = rates$pred_mort),
+            Mort =
+                f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                  f_mort = rates$f_mort, pred_mort = rates$pred_mort),
+            RDI =
+                f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                  e_growth = rates$e_growth, mort = rates$mort,
+                  e_repro = rates$e_repro),
+            RDD =
+                f(rdi = rates$rdi, species_params = params@species_params,
+                  params = params, t = t),
+            ResourceMort =
+                f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                  pred_rate = rates$pred_rate),
+            Rates =
+                f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                  effort = effort,
+                  rates_fns = lapply(params@rates_funcs, get))
+        ),
+        error = function(e) {
+            stop("The function '", fun, "' failed when called with test inputs: ",
+                 conditionMessage(e), call. = FALSE)
+        }
+    )
+
+    # --- Check return dimensions ---
+    if (rate == "Rates") {
+        if (!is.list(result)) {
+            stop("The function '", fun, "' must return a list, not a ",
+                 class(result)[[1L]], ".", call. = FALSE)
+        }
+        required <- c("encounter", "feeding_level", "pred_rate", "pred_mort",
+                      "f_mort", "mort", "resource_mort", "e", "e_repro",
+                      "e_growth", "rdi", "rdd")
+        missing  <- setdiff(required, names(result))
+        if (length(missing) > 0L) {
+            stop("The list returned by '", fun,
+                 "' is missing the following components: ",
+                 toString(missing), ".", call. = FALSE)
+        }
+    } else if (rate %in% c("RDI", "RDD")) {
+        if (length(result) != no_sp) {
+            stop("The function '", fun, "' must return a vector of length ",
+                 no_sp, " (one value per species), but returned length ",
+                 length(result), ".", call. = FALSE)
+        }
+    } else if (rate == "ResourceMort") {
+        if (length(result) != no_w_full) {
+            stop("The function '", fun, "' must return a vector of length ",
+                 no_w_full,
+                 " (one value per size bin in the full size grid), ",
+                 "but returned length ", length(result), ".", call. = FALSE)
+        }
+    } else {
+        expected_dim <- if (rate == "PredRate") c(no_sp, no_w_full)
+                        else                    c(no_sp, no_w)
+        actual_dim   <- dim(result)
+        size_desc    <- if (rate == "PredRate")
+            paste0(no_sp, " x ", no_w_full, " (species x full size grid)")
+        else
+            paste0(no_sp, " x ", no_w, " (species x size grid)")
+        if (is.null(actual_dim) || length(actual_dim) < 2L ||
+            actual_dim[[1L]] != expected_dim[[1L]] ||
+            actual_dim[[2L]] != expected_dim[[2L]]) {
+            if (!is.null(actual_dim)) {
+                stop("The function '", fun,
+                     "' must return a 2D array of dimensions ", size_desc,
+                     " but returned dimensions ",
+                     paste(actual_dim, collapse = " x "), ".", call. = FALSE)
+            } else {
+                stop("The function '", fun,
+                     "' must return a 2D array of dimensions ", size_desc,
+                     " but returned a non-array object of class ",
+                     class(result)[[1L]], ".", call. = FALSE)
+            }
+        }
+    }
+
+    invisible(NULL)
+}
+
 #' Set own rate function to replace mizer rate function
 #'
 #' If the way mizer calculates a fundamental rate entering the model is
@@ -67,8 +206,7 @@ setRateFunction <- function(params, rate, fun) {
     if (!exists(fun, mode = "function")) {
         stop("There is no function called '", fun, "'.")
     }
-    # TODO: put some code to test that the function has the right kind of
-    # arguments
+    .checkRateFunctionOutput(params, rate, fun)
     params@rates_funcs[[rate]] <- fun
 
     validObject(params)

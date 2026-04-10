@@ -3,6 +3,9 @@ e <- globalenv()
 e$test_dyn <- function(params, ...) {
     111
 }
+e$test_egrowth <- function(params, ...) {
+    array(111, dim = c(nrow(params@species_params), length(params@w)))
+}
 e$nt <- function(params, t, ...) {
     params@initial_n * t
 }
@@ -26,14 +29,14 @@ test_that("setRateFunction works", {
                  "There is no function ")
     p <- setRateFunction(params, "Mort", "mizerMort")
     expect_identical(params@rates_funcs, p@rates_funcs)
-    p <- setRateFunction(params, rate = "EGrowth", fun = "test_dyn")
-    expect_identical(p@rates_funcs[["EGrowth"]], "test_dyn")
-    r <- mizerRates(p, n = initialN(p), 
-                    n_pp = initialNResource(p), 
+    p <- setRateFunction(params, rate = "EGrowth", fun = "test_egrowth")
+    expect_identical(p@rates_funcs[["EGrowth"]], "test_egrowth")
+    r <- mizerRates(p, n = initialN(p),
+                    n_pp = initialNResource(p),
                     n_other = initialNOther(p),
                     effort = 0,
                     rates_fns = lapply(p@rates_funcs, get))
-    expect_identical(r$e_growth, 111)
+    expect_true(all(r$e_growth == 111))
 })
 
 test_that("Time is passed correctly to rate functions", {
