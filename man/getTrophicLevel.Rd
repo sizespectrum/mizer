@@ -23,10 +23,12 @@ getTrophicLevel(
 ecosystem}
 }
 \value{
-A matrix (species x size) with the trophic level of individuals at
-each size. Entries below the egg size of each species are \code{NA}.
+An \code{ArraySpeciesBySize} object (species x size) with the trophic
+level of individuals at each size. Entries below the egg size of each
+species are \code{NA}.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Calculates the trophic level of individuals of each species at each size,
 assuming the system is in a steady state. The trophic level of an individual
 is defined as 1 more than the consumption-rate-weighted average trophic level
@@ -78,7 +80,7 @@ trophic levels of all relevant prey sizes are already known when computing
 }
 \examples{
 tl <- getTrophicLevel(NS_params)
-str(tl)
+plot(tl)
 }
 \seealso{
 \code{\link[=getTrophicLevelBySpecies]{getTrophicLevelBySpecies()}}

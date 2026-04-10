@@ -180,11 +180,13 @@ getDiet.MizerParams <- function(params,
 
 #' Get trophic level of individuals at size
 #'
+#' `r lifecycle::badge("experimental")`
 #' Calculates the trophic level of individuals of each species at each size,
 #' assuming the system is in a steady state. The trophic level of an individual
 #' is defined as 1 more than the consumption-rate-weighted average trophic level
 #' of all the prey it has consumed during its lifetime up to the current size.
 #' The trophic level of the primary resource is set to 0.
+#'
 #'
 #' @details
 #' In the traditional non-size-resolved approach, all individuals of a species
@@ -241,7 +243,7 @@ getDiet.MizerParams <- function(params,
 #' @seealso [getTrophicLevelBySpecies()]
 #' @examples
 #' tl <- getTrophicLevel(NS_params)
-#' str(tl)
+#' plot(tl)
 getTrophicLevel <- function(params,
                             n = initialN(params),
                             n_pp = initialNResource(params),
@@ -322,6 +324,7 @@ getTrophicLevel.MizerParams <- function(params,
 
 #' Get mean trophic level of each species
 #'
+#' `r lifecycle::badge("experimental")`
 #' Calculates the consumption-rate-weighted mean trophic level of each species,
 #' defined as
 #' \deqn{

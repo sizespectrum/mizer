@@ -11,7 +11,7 @@ A list of available summary functions is given in the table below.
 \tabular{lll}{
 Function \tab Returns \tab Description \cr
 \code{\link[=getDiet]{getDiet()}} \tab Three dimensional array (predator x size x prey) \tab Diet of predator at size, resolved by prey species \cr
-\code{\link[=getTrophicLevel]{getTrophicLevel()}} \tab Two dimensional array (species x size) \tab Trophic level of individuals at size, accounting for ontogenetic diet shifts \cr
+\code{\link[=getTrophicLevel]{getTrophicLevel()}} \tab \code{ArraySpeciesBySize} (species x size) \tab Trophic level of individuals at size, accounting for ontogenetic diet shifts \cr
 \code{\link[=getTrophicLevelBySpecies]{getTrophicLevelBySpecies()}} \tab Named vector (species) \tab Consumption-rate-weighted mean trophic level of each species \cr
 \code{\link[=getSSB]{getSSB()}} \tab Two dimensional array (time x species) \tab Total Spawning Stock Biomass (SSB) of each species through time where SSB is calculated as the sum of weight of all mature individuals. \cr
 \code{\link[=getBiomass]{getBiomass()}} \tab Two dimensional array (time x species) \tab Total biomass of each species through time. \cr

@@ -26,6 +26,7 @@ ecosystem}
 A named vector with the mean trophic level for each species.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Calculates the consumption-rate-weighted mean trophic level of each species,
 defined as
 \deqn{
