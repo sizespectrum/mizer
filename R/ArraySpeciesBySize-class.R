@@ -21,8 +21,8 @@
 #' @param x A matrix (species x size).
 #' @param value_name A string giving the human-readable name for the value.
 #' @param units A string giving the units (e.g. "g/year", "1/year").
-#' @param params A `MizerParams` object. Currently unused but reserved for
-#'   future extensions.
+#' @param params A `MizerParams` object. Used for species colours, linetypes,
+#'   and size ranges in the `plot()` method.
 #'
 #' @return A `ArraySpeciesBySize` object (inherits from `matrix` and `array`).
 #' @export
@@ -43,7 +43,8 @@ ArraySpeciesBySize <- function(x, value_name = NULL, units = NULL,
     structure(x,
         class = c("ArraySpeciesBySize", "matrix", "array"),
         value_name = value_name,
-        units = units
+        units = units,
+        params = params
     )
 }
 
@@ -128,15 +129,13 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #' Plot a ArraySpeciesBySize object
 #'
 #' Plots the value against size for each species, using species colours and
-#' linetypes from the MizerParams object.
+#' linetypes from the MizerParams object stored in the `params` attribute.
 #'
 #' @param x A `ArraySpeciesBySize` object.
-#' @param params A `MizerParams` object. Used for species colours, linetypes,
-#'   and size ranges. If `NULL`, a basic plot is produced.
 #' @param species Character vector of species to include. `NULL` (default) means
 #'   all species.
 #' @param all.sizes If `FALSE` (default), values outside a species' size range
-#'   (`w_min` to `w_max`) are removed. Only effective when `params` is provided.
+#'   (`w_min` to `w_max`) are removed.
 #' @param highlight Name or vector of names of the species to be highlighted.
 #' @param return_data If `TRUE`, return the data frame instead of the plot.
 #' @param log_x If `TRUE` (default), use a log10 x-axis.
@@ -147,16 +146,16 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #' @export
 #' @examples
 #' \donttest{
-#' plot(getEncounter(NS_params), NS_params)
-#' plot(getFeedingLevel(NS_params), NS_params,
-#'      species = c("Cod", "Herring"))
+#' plot(getEncounter(NS_params))
+#' plot(getFeedingLevel(NS_params), species = c("Cod", "Herring"))
 #' }
-plot.ArraySpeciesBySize <- function(x, params = NULL, species = NULL, 
-                            all.sizes = FALSE, highlight = NULL, 
+plot.ArraySpeciesBySize <- function(x, species = NULL,
+                            all.sizes = FALSE, highlight = NULL,
                             return_data = FALSE, log_x = TRUE, ...) {
     value_name <- attr(x, "value_name") %||% "Rate"
     units_str <- attr(x, "units")
-    
+    params <- attr(x, "params")
+
     # Get w grid from params or from dimnames
     if (!is.null(params)) {
         w <- params@w
@@ -279,6 +278,7 @@ as.data.frame.ArraySpeciesBySize <- function(x, row.names = NULL,
     if (is.matrix(result) && length(dim(result)) == 2) {
         attr(result, "value_name") <- attr(x, "value_name")
         attr(result, "units") <- attr(x, "units")
+        attr(result, "params") <- attr(x, "params")
         class(result) <- c("ArraySpeciesBySize", "matrix", "array")
     }
     result
@@ -299,5 +299,6 @@ unclass_rate <- function(x) {
     x <- unclass(x)
     attr(x, "value_name") <- NULL
     attr(x, "units") <- NULL
+    attr(x, "params") <- NULL
     x
 }

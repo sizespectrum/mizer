@@ -127,7 +127,8 @@ getMetabolicRate <- function(params) {
 getMetabolicRate.MizerParams <- function(params) {
     ArraySpeciesBySize(params@metab,
                        value_name = "Metabolic rate",
-                       units = "g/year")
+                       units = "g/year",
+                       params = params)
 }
 
 #' @rdname setMetabolicRate

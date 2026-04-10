@@ -137,7 +137,8 @@ getExtMort <- function(params) {
 getExtMort.MizerParams <- function(params) {
     ArraySpeciesBySize(params@mu_b,
                        value_name = "External mortality",
-                       units = "1/year")
+                       units = "1/year",
+                       params = params)
 }
 
 #' @rdname setExtMort

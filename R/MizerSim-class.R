@@ -354,7 +354,8 @@ finalN <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     n <- sim@params@initial_n  # Needed to get the right dimnames
     n[] <- sim@n[dim(sim@n)[[1]], , ]
-    ArraySpeciesBySize(n, value_name = "Number density")
+    ArraySpeciesBySize(n, value_name = "Number density",
+                       params = sim@params)
 }
 
 #' @rdname finalN

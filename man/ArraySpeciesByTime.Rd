@@ -4,13 +4,7 @@
 \alias{ArraySpeciesByTime}
 \title{S3 class for time x species arrays}
 \usage{
-ArraySpeciesByTime(
-  x,
-  value_name = NULL,
-  units = NULL,
-  sim = NULL,
-  params = NULL
-)
+ArraySpeciesByTime(x, value_name = NULL, units = NULL, params = NULL)
 }
 \arguments{
 \item{x}{A matrix (time x species).}
@@ -19,15 +13,11 @@ ArraySpeciesByTime(
 
 \item{units}{A string giving the units (e.g. "g", "g/year").}
 
-\item{sim}{A \code{MizerSim} object. If provided, the \code{MizerParams} are
-extracted and stored so that \code{plot()} can use species colours and
-linetypes without needing to pass \code{params} separately.}
-
-\item{params}{A \code{MizerParams} object. An alternative to passing \code{sim};
-if both are given, \code{sim} takes precedence.}
+\item{params}{A \code{MizerParams} object holding the model that created the
+values.}
 }
 \value{
-A \code{ArraySpeciesByTime} object (inherits from \code{matrix} and \code{array}).
+An \code{ArraySpeciesByTime} object (inherits from \code{matrix} and \code{array}).
 }
 \description{
 Some functions in mizer return two-dimensional arrays (time x species)
@@ -42,8 +32,7 @@ arithmetic operations and subsetting. It carries these lightweight attributes:
 \item \code{value_name} – a human-readable name for the value
 (e.g. "Biomass").
 \item \code{units} – the units of the value (e.g. "g", "g/year").
-\item \code{params} – the \code{MizerParams} object (if available), used for
-species colours and linetypes in plots.
+\item \code{params} – the \code{MizerParams} object that created the values.
 }
 }
 \examples{

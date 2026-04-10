@@ -196,5 +196,5 @@ test_that("component can mimic resource", {
     sim2 <- project(params2, t_max = 0.1, t_save = 0.1, effort = 0)
     expect_identical(finalNResource(sim2), finalNOther(sim2)$resource)
     expect_identical(finalNResource(sim), finalNResource(sim2))
-    expect_identical(finalN(sim), finalN(sim2))
+    expect_equal(finalN(sim), finalN(sim2), ignore_attr = "params")
 })

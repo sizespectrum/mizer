@@ -6,7 +6,6 @@
 \usage{
 \method{plot}{ArraySpeciesBySize}(
   x,
-  params = NULL,
   species = NULL,
   all.sizes = FALSE,
   highlight = NULL,
@@ -18,14 +17,11 @@
 \arguments{
 \item{x}{A \code{ArraySpeciesBySize} object.}
 
-\item{params}{A \code{MizerParams} object. Used for species colours, linetypes,
-and size ranges. If \code{NULL}, a basic plot is produced.}
-
 \item{species}{Character vector of species to include. \code{NULL} (default) means
 all species.}
 
 \item{all.sizes}{If \code{FALSE} (default), values outside a species' size range
-(\code{w_min} to \code{w_max}) are removed. Only effective when \code{params} is provided.}
+(\code{w_min} to \code{w_max}) are removed.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 
@@ -41,12 +37,11 @@ frame with the variables 'w', 'value', 'Species' is returned.
 }
 \description{
 Plots the value against size for each species, using species colours and
-linetypes from the MizerParams object.
+linetypes from the MizerParams object stored in the \code{params} attribute.
 }
 \examples{
 \donttest{
-plot(getEncounter(NS_params), NS_params)
-plot(getFeedingLevel(NS_params), NS_params,
-     species = c("Cod", "Herring"))
+plot(getEncounter(NS_params))
+plot(getFeedingLevel(NS_params), species = c("Cod", "Herring"))
 }
 }

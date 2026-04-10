@@ -2,11 +2,10 @@
 % Please edit documentation in R/ArraySpeciesByTime-class.R
 \name{plot.ArraySpeciesByTime}
 \alias{plot.ArraySpeciesByTime}
-\title{Plot a ArraySpeciesByTime object}
+\title{Plot an ArraySpeciesByTime object}
 \usage{
 \method{plot}{ArraySpeciesByTime}(
   x,
-  params = NULL,
   species = NULL,
   start_time,
   end_time,
@@ -21,11 +20,6 @@
 }
 \arguments{
 \item{x}{An \code{ArraySpeciesByTime} object.}
-
-\item{params}{A \code{MizerParams} object. Used for species colours and
-linetypes. If \code{NULL}, the params stored in \code{x} (set when the object was
-created from a \code{MizerSim}) are used. If none are available, a basic plot
-is produced.}
 
 \item{species}{Character vector of species to include. \code{NULL} (default) means
 all species.}

@@ -51,7 +51,8 @@ diffusion <- function(params) {
 #' @export
 diffusion.MizerParams <- function(params) {
     ArraySpeciesBySize(params@diffusion,
-                       value_name = "Diffusion rate")
+                       value_name = "Diffusion rate",
+                       params = params)
 }
 
 #' @rdname setDiffusion

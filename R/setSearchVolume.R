@@ -124,7 +124,8 @@ getSearchVolume <- function(params) {
 #' @export
 getSearchVolume.MizerParams <- function(params) {
     ArraySpeciesBySize(params@search_vol,
-                       value_name = "Search volume")
+                       value_name = "Search volume",
+                       params = params)
 }
 
 

@@ -112,7 +112,8 @@ getMaxIntakeRate <- function(params) {
 getMaxIntakeRate.MizerParams <- function(params) {
     ArraySpeciesBySize(params@intake_max,
                        value_name = "Maximum intake rate",
-                       units = "g/year")
+                       units = "g/year",
+                       params = params)
 }
 
 

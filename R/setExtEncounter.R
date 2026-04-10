@@ -66,7 +66,8 @@ getExtEncounter <- function(params) {
 getExtEncounter.MizerParams <- function(params) {
     ArraySpeciesBySize(params@ext_encounter,
                        value_name = "External encounter rate",
-                       units = "g/year")
+                       units = "g/year",
+                       params = params)
 }
 
 #' @rdname setExtEncounter

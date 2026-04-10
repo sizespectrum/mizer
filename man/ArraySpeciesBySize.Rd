@@ -13,8 +13,8 @@ ArraySpeciesBySize(x, value_name = NULL, units = NULL, params = NULL)
 
 \item{units}{A string giving the units (e.g. "g/year", "1/year").}
 
-\item{params}{A \code{MizerParams} object. Currently unused but reserved for
-future extensions.}
+\item{params}{A \code{MizerParams} object. Used for species colours, linetypes,
+and size ranges in the \code{plot()} method.}
 }
 \value{
 A \code{ArraySpeciesBySize} object (inherits from \code{matrix} and \code{array}).

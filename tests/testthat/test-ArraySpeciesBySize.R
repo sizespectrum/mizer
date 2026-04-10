@@ -75,21 +75,17 @@ test_that("summary.ArraySpeciesBySize works", {
 
 test_that("plot.ArraySpeciesBySize returns ggplot", {
     enc <- getEncounter(NS_params)
-    
-    # With params for styling
-    p <- plot(enc, NS_params)
+
+    # params attribute is used for styling
+    p <- plot(enc)
     expect_s3_class(p, "ggplot")
-    
-    # Without params (basic plot)
-    p2 <- plot(enc)
-    expect_s3_class(p2, "ggplot")
-    
+
     # With species selection
-    p3 <- plot(enc, NS_params, species = c("Cod", "Herring"))
-    expect_s3_class(p3, "ggplot")
-    
+    p2 <- plot(enc, species = c("Cod", "Herring"))
+    expect_s3_class(p2, "ggplot")
+
     # return_data works
-    df <- plot(enc, NS_params, return_data = TRUE)
+    df <- plot(enc, return_data = TRUE)
     expect_true(is.data.frame(df))
     expect_true(all(c("w", "value", "Species") %in% names(df)))
 })
