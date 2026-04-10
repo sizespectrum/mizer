@@ -33,6 +33,8 @@
 #' * `k`, `ks` and `p` are used to set activity and basic metabolic rate,
 #'   see [setMetabolicRate()].
 #' * `z0` is used to set the external mortality rate, see [setExtMort()].
+#' * `E_ext` and `n` are used to set the external encounter rate, see
+#'   [setExtEncounter()].
 #' * `w_mat`, `w_mat25`, `w_repro_max` and `m` are used to set the allocation to
 #'   reproduction, see [setReproduction()].
 #' * `pred_kernel_type` specifies the shape of the predation kernel. The default

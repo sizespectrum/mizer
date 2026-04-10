@@ -254,7 +254,7 @@ newMultispeciesParams <- function(
 #' @inheritDotParams setMaxIntakeRate -reset
 #' @inheritDotParams setMetabolicRate -reset
 #' @inheritDotParams setExtMort -reset
-#' @inheritDotParams setExtEncounter
+#' @inheritDotParams setExtEncounter -reset
 #' @inheritDotParams setReproduction -reset
 #' @inheritDotParams setFishing -reset
 #' @param info_level Controls the amount of information messages that are shown.

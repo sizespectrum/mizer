@@ -1,5 +1,12 @@
 # Development version 2.5.4.9102
 
+- New species parameter `E_ext` (default 0) sets the coefficient of the
+  external encounter rate power law. `setExtEncounter()` now calculates the
+  default external encounter rate as `E_ext * w^n` when no custom array is
+  supplied, matching the pattern of `setMaxIntakeRate()`. A `reset` argument
+  is also added to `setExtEncounter()` to force recalculation from species
+  parameters.
+
 - The indicator functions `getProportionOfLargeFish()`, `getMeanWeight()`,
   `getMeanMaxWeight()`, and `getCommunitySlope()` now also accept a
   `MizerParams` object and return a single value (or named vector for
