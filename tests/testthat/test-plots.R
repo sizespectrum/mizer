@@ -13,7 +13,7 @@ sim <- project(params, effort = 1, t_max = 3, dt = 1, t_save = 1)
 sim0 <- project(params, effort = 0, t_max = 3, dt = 1, t_save = 1)
 species <- c(11, 10)
 # Mark some species as background
-params_bkgrd <- markBackground(params, species = params$species[1:3])
+params_bkgrd <- markBackground(params, species = params@species_params$species[1:3])
 # params object with single species
 sp_single <- data.frame(species = 1, w_max = 1000, h = 30)
 params_single <- newMultispeciesParams(sp_single, no_w = 30, info_level = 0)

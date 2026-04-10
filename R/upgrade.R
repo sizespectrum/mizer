@@ -17,7 +17,7 @@ needs_upgrading <- function(object) {
         stop("The object you supplied is neither a MizerParams nor a MizerSim object.")
     }
     !.hasSlot(params, "mizer_version") ||
-        params@mizer_version < "2.5.4.9001"
+        params@mizer_version < "2.5.4.9110"
 }
 
 #' Upgrade MizerParams object from earlier mizer versions
@@ -345,6 +345,11 @@ upgradeParams <- function(params) {
     if (!("w_mat25" %in% names(params@species_params))) {
         params <- set_species_param_default(params, "w_mat25",
             params@species_params$w_mat / (3 ^ (1 / 10)))
+    }
+
+    # Derive is_background from the old @A slot if not already present
+    if (!("is_background" %in% names(params@species_params))) {
+        params@species_params$is_background <- is.na(params@A)
     }
 
     params@mizer_version <- packageVersion("mizer")
