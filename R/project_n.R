@@ -46,49 +46,6 @@ project_n <- function(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
 }
 
 #' @rdname project_n
-project_n_diffusion_R <- function(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
-                                  no_sp, no_w) {
-    coefs <- get_transport_coefs(params, n, r$e_growth, r$mort, dt,
-                                 recruitment_flux = r$rdd)
-    a <- coefs$a
-    b <- coefs$b
-    c <- coefs$c
-    S <- coefs$S
-    
-    # Loop over species to solve
-    
-    for (i in 1:no_sp) {
-        # Start index for this species
-        j_start <- params@w_min_idx[i]
-        
-        # Boundary conditions are handled in get_transport_coefs
-        
-        # Thomas Algorithm
-        # We need to pass the sub-vectors for the current species i, starting from j_start
-        # We are solving for n[i, j_start:no_w]
-        
-        # Extract the relevant parts of the vectors
-        # Note: thomas_solve accepts vectors of length N
-        # a, b, c, d are vectors of length N
-        
-        # Correctly slicing from j_start to no_w
-        # a[i, j_start] is effectively 0 or ignored by thomas_solve if it's the first element passed
-        # c[i, no_w] is 0 or ignored by thomas_solve
-        
-        # We solve for the segment of the size spectrum inhabited by the species
-        relevant_indices <- j_start:no_w
-        
-        n[i, relevant_indices] <- thomas_solve(
-            a = a[i, relevant_indices],
-            b = b[i, relevant_indices],
-            c = c[i, relevant_indices],
-            d = S[i, relevant_indices]
-        )
-    }
-    
-    n
-}
-
 project_n_no_diffusion <- function(params, r, n, dt, a, b, S, idx, w_min_idx_array_ref,
                                    no_sp, no_w) {
     # a_{ij} = - g_i(w_{j-1}) / dw_j dt
