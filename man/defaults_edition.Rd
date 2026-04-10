@@ -43,5 +43,8 @@ current value of \code{interaction_resource} instead of
 interaction_resource = 1`.
 \item \code{initial_n} is set using \code{\link[=get_steady_state_n]{get_steady_state_n()}} instead of the rather
 arbitrary old choice.
+\item In \code{\link[=setReproduction]{setReproduction()}}, \code{psi} is no longer forced to 1 above
+\code{w_repro_max}; its value is determined entirely by the maturity ogive
+and the reproductive proportion.
 }
 }

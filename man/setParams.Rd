@@ -54,9 +54,10 @@ unchanged. Initially is is set to 0.}
 of individuals of each species at size that are mature. If not supplied, a
 default is set as described in the section "Setting reproduction".}
     \item{\code{repro_prop}}{Optional. An array (species x size) that holds the
-proportion of consumed energy that a mature individual allocates to
-reproduction for each species at size. If not supplied, a default is set as
-described in the section "Setting reproduction".}
+proportion of the energy available for growth and reproduction that a mature
+individual allocates to reproduction for each species at size. If not
+supplied, a default is set as described in the section "Setting
+reproduction".}
     \item{\code{RDD}}{The name of the function calculating the density-dependent
 reproduction rate from the density-independent rate. Defaults to
 "\code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}".}
@@ -384,17 +385,16 @@ specifies the weight at which 25\% of individuals are mature, which sets
 w_mat25).}
 
 The sigmoidal function given above would strictly reach 1 only
-asymptotically. Mizer instead sets the function equal to 1 already at a size
-taken from the \code{w_repro_max} column in the species parameter data frame, if it
-exists, or otherwise from the \code{w_max} column. Also, for computational
-simplicity, any proportion smaller than \code{1e-8} is set to \code{0}.
+asymptotically. For computational simplicity, any proportion smaller than
+\code{1e-8} is set to \code{0}.
 }
 
 \subsection{Investment into reproduction}{
 If the the energy available to a mature individual that is
 invested into reproduction is not supplied via the \code{repro_prop} argument,
 it is set to the allometric form
-\deqn{{\tt repro\_prop}(w) = \left(\frac{w}{w_{\tt{repro\_max}}}\right)^{m-n}.}{
+\deqn{{\tt repro\_prop}(w) =
+  \left(\frac{w}{w_{\tt{repro\_max}}}\right)^{m-n}.}{
   repro_prop(w) = (w/w_repro_max)^(m - n).}
 Here \eqn{n} is the scaling exponent of the energy income rate. Hence
 the exponent \eqn{m} determines the scaling of the investment into
@@ -407,7 +407,13 @@ exists, or otherwise from the \code{w_max} column.
 
 The total proportion of energy invested into reproduction of an individual
 of size \eqn{w} is then
-\deqn{\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)}{psi(w) = maturity(w) * repro_prop(w)}
+\deqn{\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)}{
+  psi(w) = maturity(w) * repro_prop(w)}
+In mizer edition 1, at sizes above \code{w_repro_max} the value of \eqn{\psi}
+is additionally forced to 1, so that all available energy is invested into
+reproduction and growth stops. In edition 2 and above this forcing is not
+applied, and \eqn{\psi} is determined entirely by the maturity ogive and the
+reproductive proportion.
 }
 
 \subsection{Reproductive efficiency}{

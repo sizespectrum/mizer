@@ -22,10 +22,13 @@
 #' * `catchability` = 0.3 instead of 1
 #' * `initial effort` = 1 instead of 0
 #' * `gamma` is set to ensure a feeding level of `f0` for larvae with the
-#'   current value of `interaction_resource` instead of 
+#'   current value of `interaction_resource` instead of
 #'   interaction_resource = 1`.
 #' * `initial_n` is set using [get_steady_state_n()] instead of the rather
 #'   arbitrary old choice.
+#' * In [setReproduction()], `psi` is no longer forced to 1 above
+#'   `w_repro_max`; its value is determined entirely by the maturity ogive
+#'   and the reproductive proportion.
 #' 
 #' @param edition NULL or a numerical value.
 #' @return If `edition` is `NULL`, the currently active edition number. If
