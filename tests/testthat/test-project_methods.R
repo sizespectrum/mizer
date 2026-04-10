@@ -28,6 +28,9 @@ set.seed(0)
 n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w))) * 1e9
 n_full <- abs(rnorm(no_w_full)) * 1e9
 
+# Helper: strip params attribute before snapshot to avoid JSON roundtrip failure
+drop_params <- function(x) { attr(x, "params") <- NULL; x }
+
 params2 <- params
 params2@initial_n <- params2@initial_n / 2
 params2@initial_n_pp <- params2@initial_n_pp / 2
@@ -67,7 +70,7 @@ test_that("getEncounter returns with correct dimnames", {
 test_that("getEncounter is independent of volume", {
     enc <- getEncounter(params)
     enc_r <- getEncounter(params_r)
-    expect_equal(enc, enc_r)
+    expect_equal(enc, enc_r, ignore_attr = "params")
 })
 test_that("External encounter is included", {
     enc <- getEncounter(params)
@@ -91,7 +94,7 @@ test_that("getFeedingLevel for MizerParams", {
     # test value
     # expect_known_value(fl, "values/getFeedingLevel")
     # expect_snapshot(round(fl, 5)) # round to take into account different rounding errors depending on OS
-    expect_snapshot_value(fl, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
+    expect_snapshot_value(drop_params(fl), style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 test_that("getFeedingLevel for MizerSim", {
@@ -134,13 +137,13 @@ test_that("getFeedingLevel passes correct time", {
 test_that("getFeedingLevel is independent of volume", {
     fl <- getFeedingLevel(params)
     fl_r <- getFeedingLevel(params_r)
-    expect_equal(fl, fl_r)
+    expect_equal(fl, fl_r, ignore_attr = "params")
 })
 
 test_that("getCriticalFeedingLevel matches metab over intake_max times alpha", {
     expected <- params@metab / params@intake_max / params@species_params$alpha
     expect_equal(getCriticalFeedingLevel(params), expected,
-                 ignore_attr = c("rate_name", "units", "class"))
+                 ignore_attr = c("value_name", "units", "class", "params"))
 })
 
 # getPredRate -------------------------------------------------------------
@@ -176,8 +179,8 @@ test_that("getPredMort for MizerParams", {
     m <- getPredMort(params, n, n_full)
     # expect_known_value(m, "values/getPredMort")
     # expect_snapshot(m)
-    expect_snapshot_value(m, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
-    
+    expect_snapshot_value(drop_params(m), style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
+
     # Look at numbers in a single prey
     w_offset <- no_w_full - no_w
     m2temp <- rep(NA, no_w)
@@ -235,7 +238,7 @@ test_that("interaction is right way round in getPredMort function", {
 test_that("getPredMort is independent of volume", {
     pr <- getPredMort(params)
     pr_r <- getPredMort(params_r)
-    expect_equal(pr, pr_r)
+    expect_equal(pr, pr_r, ignore_attr = "params")
 })
 
 
@@ -363,7 +366,7 @@ test_that("getFMort", {
     expect_equal(f3, fmg33)
     # expect_known_value(f1, "values/getFMort")
     # expect_snapshot(f1)
-    expect_snapshot_value(f1, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
+    expect_snapshot_value(drop_params(f1), style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 test_that("getFMort drop argument controls singleton dimensions for MizerSim", {
@@ -442,13 +445,13 @@ test_that("getMort", {
     expect_equal(z1, z[1, ])
     # expect_known_value(z, "values/getMort")
     # expect_snapshot(z)
-    expect_snapshot_value(z, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
+    expect_snapshot_value(drop_params(z), style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 test_that("getMort is independent of volume", {
     m <- getMort(params, effort = 1)
     m_r <- getMort(params_r, effort = 1)
-    expect_equal(m, m_r)
+    expect_equal(m, m_r, ignore_attr = "params")
 })
 
 test_that("getM2 and getM2Background are aliases", {
@@ -477,13 +480,13 @@ test_that("getEReproAndGrowth", {
     erg[erg <= 0] <- 0
     # expect_known_value(erg, "values/getEReproAndGrowth")
     # expect_snapshot(erg)
-    expect_snapshot_value(erg, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
+    expect_snapshot_value(drop_params(erg), style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 test_that("getEReproAndGrowth is independent of volume", {
     g <- getEReproAndGrowth(params)
     g_r <- getEReproAndGrowth(params_r)
-    expect_equal(g, g_r)
+    expect_equal(g, g_r, ignore_attr = "params")
 })
 
 test_that("mizerEReproAndGrowth, mizerERepro and mizerEGrowth follow formulas", {
@@ -496,7 +499,7 @@ test_that("mizerEReproAndGrowth, mizerERepro and mizerEGrowth follow formulas", 
     expected_e <- sweep((1 - feeding_level) * encounter, 1,
                         params@species_params$alpha, "*",
                         check.margin = FALSE) - params@metab
-    expect_equal(e, expected_e, ignore_attr = c("rate_name", "units", "class"))
+    expect_equal(e, expected_e, ignore_attr = c("value_name", "units", "class"))
 
     e_test <- e
     e_test[1, 1] <- -1
@@ -529,7 +532,7 @@ test_that("getERepro", {
     expect_equal(e_growth, e_growth_man, ignore_attr = TRUE)
     # expect_known_value(es, "values/getERepro")
     # expect_snapshot(es)
-    expect_snapshot_value(es, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
+    expect_snapshot_value(drop_params(es), style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 test_that("getESpawning is an exact alias for getERepro", {
@@ -599,7 +602,7 @@ test_that("getEGrowth is working", {
     expect_identical(dimnames(eg1), dimnames(params@initial_n))
     # expect_known_value(eg1, "values/getEGrowth")
     # expect_snapshot(eg1)
-    expect_snapshot_value(eg1, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
+    expect_snapshot_value(drop_params(eg1), style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
 })
 
 test_that("mizerFMortGear, mizerFMort, mizerPredMort and mizerResourceMort follow formulas", {

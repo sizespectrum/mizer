@@ -33,9 +33,9 @@
         "class": {
           "type": "character",
           "attributes": {},
-          "value": ["MizerRate", "matrix", "array"]
+          "value": ["ArraySpeciesBySize", "matrix", "array"]
         },
-        "rate_name": {
+        "value_name": {
           "type": "character",
           "attributes": {},
           "value": ["Feeding level"]
@@ -115,9 +115,9 @@
         "class": {
           "type": "character",
           "attributes": {},
-          "value": ["MizerRate", "matrix", "array"]
+          "value": ["ArraySpeciesBySize", "matrix", "array"]
         },
-        "rate_name": {
+        "value_name": {
           "type": "character",
           "attributes": {},
           "value": ["Predation mortality"]
@@ -224,9 +224,9 @@
         "class": {
           "type": "character",
           "attributes": {},
-          "value": ["MizerRate", "matrix", "array"]
+          "value": ["ArraySpeciesBySize", "matrix", "array"]
         },
-        "rate_name": {
+        "value_name": {
           "type": "character",
           "attributes": {},
           "value": ["Fishing mortality"]
@@ -275,9 +275,9 @@
         "class": {
           "type": "character",
           "attributes": {},
-          "value": ["MizerRate", "matrix", "array"]
+          "value": ["ArraySpeciesBySize", "matrix", "array"]
         },
-        "rate_name": {
+        "value_name": {
           "type": "character",
           "attributes": {},
           "value": ["Total mortality"]
@@ -326,9 +326,9 @@
         "class": {
           "type": "character",
           "attributes": {},
-          "value": ["MizerRate", "matrix", "array"]
+          "value": ["ArraySpeciesBySize", "matrix", "array"]
         },
-        "rate_name": {
+        "value_name": {
           "type": "character",
           "attributes": {},
           "value": ["Energy for growth and reproduction"]
@@ -377,9 +377,9 @@
         "class": {
           "type": "character",
           "attributes": {},
-          "value": ["MizerRate", "matrix", "array"]
+          "value": ["ArraySpeciesBySize", "matrix", "array"]
         },
-        "rate_name": {
+        "value_name": {
           "type": "character",
           "attributes": {},
           "value": ["Energy for reproduction"]
@@ -456,9 +456,9 @@
         "class": {
           "type": "character",
           "attributes": {},
-          "value": ["MizerRate", "matrix", "array"]
+          "value": ["ArraySpeciesBySize", "matrix", "array"]
         },
-        "rate_name": {
+        "value_name": {
           "type": "character",
           "attributes": {},
           "value": ["Growth rate"]

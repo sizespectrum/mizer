@@ -17,7 +17,7 @@ ignored for defaults edition 2 and later.}
 \item{a}{A parameter with a default value of 0.35.}
 }
 \value{
-A matrix (species x size) of population abundances.
+A \code{ArraySpeciesBySize} object (species x size) of population abundances.
 }
 \description{
 This function uses the model parameters and other parameters to calculate

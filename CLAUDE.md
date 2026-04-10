@@ -30,15 +30,17 @@ devtools::clean_dll(); devtools::load_all()
 
 **`MizerSim`** (S4, `R/MizerSim-class.R`) — stores simulation output: a 3D array `n` (time × species × size), `n_pp` (time × size) for resource, `n_other` for additional biomass components, `effort` history, and the `MizerParams` used.
 
-**`MizerRate`** (S3, `R/MizerRate-class.R`) — wraps 2D arrays (species × size) returned by rate functions with metadata (`rate_name`, `units`). Inherits from `matrix`/`array`. Provides enhanced `print()`, `summary()`, `plot()`, and `as.data.frame()`.
+**`ArraySpeciesBySize`** (S3, `R/ArraySpeciesBySize-class.R`) — wraps 2D arrays (species × size) returned by mizer functions with metadata (`value_name`, `units`). Inherits from `matrix`/`array`. Provides enhanced `print()`, `summary()`, `plot()`, and `as.data.frame()`. Arithmetic via `Ops` strips the class, returning a plain matrix.
+
+**`ArraySpeciesByTime`** (S3, `R/ArraySpeciesByTime-class.R`) — wraps 2D arrays (time × species) returned by `getBiomass()`, `getSSB()`, `getN()`, and `getYield()` on `MizerSim` objects. Same attribute pattern and method set as `ArraySpeciesBySize`. When assigning back to S4 slots, use `slot[] <- value` (not `slot <- value`) to strip the class.
 
 ### Execution Flow
 
 1. **Setup**: `newMultispeciesParams()` / `newSingleSpeciesParams()` / `newCommunityParams()`
 2. **Configure**: `set*()` functions (`setFishing()`, `setPredKernel()`, `setMetabolicRate()`, …)
-3. **Rates**: `getEncounter()`, `getFeedingLevel()`, `getPredMort()`, `getFMort()`, `getRates()` — each returns a `MizerRate` matrix (species × size)
+3. **Rates**: `getEncounter()`, `getFeedingLevel()`, `getPredMort()`, `getFMort()`, `getRates()` — each returns an `ArraySpeciesBySize` (species × size). Params accessors `getMaxIntakeRate()`, `getMetabolicRate()`, `getSearchVolume()`, `getExtMort()`, `getExtEncounter()`, `getMaturityProportion()`, `getReproductionProportion()`, `diffusion()` also return `ArraySpeciesBySize`.
 4. **Project**: `project(params, t_max = 100, effort = ...)` → `MizerSim`
-5. **Analyse**: `getYield()`, `getBiomass()`, `getSSB()`, `plotSpectra()`, etc.
+5. **Analyse**: `getYield()`, `getBiomass()`, `getSSB()`, `getN()` on a `MizerSim` return `ArraySpeciesByTime` (time × species). `plotSpectra()`, etc.
 
 ### Customisable Rate Functions
 

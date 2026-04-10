@@ -102,15 +102,18 @@ setMaxIntakeRate.MizerParams <- function(params, intake_max = NULL, reset = FALS
 }
 
 #' @rdname setMaxIntakeRate
-#' @return `getMaxIntakeRate()` or equivalently `intake_max()`: An array
-#'   (species x size) with the maximum intake rate.
+#' @return `getMaxIntakeRate()` or equivalently `intake_max()`: A
+#'   `ArraySpeciesBySize` object (species x size) with the maximum intake rate.
 #' @export
 getMaxIntakeRate <- function(params) {
     UseMethod("getMaxIntakeRate")
 }
 #' @export
 getMaxIntakeRate.MizerParams <- function(params) {
-    params@intake_max
+    ArraySpeciesBySize(params@intake_max,
+                       value_name = "Maximum intake rate",
+                       units = "g/year",
+                       params = params)
 }
 
 
@@ -121,7 +124,7 @@ intake_max <- function(params) {
 }
 #' @export
 intake_max.MizerParams <- function(params) {
-    params@intake_max
+    getMaxIntakeRate(params)
 }
 
 #' @rdname setMaxIntakeRate

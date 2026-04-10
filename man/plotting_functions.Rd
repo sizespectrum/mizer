@@ -33,6 +33,26 @@ creation using the ggplot grammar of graphics. The corresponding function
 names with \code{plot} replaced by \code{plotly} produce interactive plots
 with the help of the plotly package.
 
+In addition to the named plot functions above, mizer provides generic
+\code{plot()} and \code{\link[=plotly]{plotly()}} methods for the array classes returned by the
+rate and summary functions:
+\itemize{
+\item \verb{plot(<ArraySpeciesBySize>)} — plots any species-by-size array (such as
+those returned by \code{\link[=getEncounter]{getEncounter()}}, \code{\link[=getFeedingLevel]{getFeedingLevel()}}, \code{\link[=getPredMort]{getPredMort()}},
+\code{\link[=getFMort]{getFMort()}}, \code{\link[=getSearchVolume]{getSearchVolume()}}, etc.) as lines of value against body
+size, one line per species. Supports \code{species}, \code{highlight}, \code{log_x},
+\code{log_y}, \code{wlim}, \code{ylim}, and \code{all.sizes} arguments.
+\item \verb{plot(<ArraySpeciesByTime>)} — plots any time-by-species array (such as
+those returned by \code{\link[=getBiomass]{getBiomass()}}, \code{\link[=getSSB]{getSSB()}}, \code{\link[=getYield]{getYield()}}, and \code{\link[=getN]{getN()}}
+on a \code{MizerSim}) as lines of value against time, one line per species.
+Supports \code{species}, \code{start_time}, \code{end_time}, \code{total}, \code{background},
+\code{highlight}, \code{log}, and \code{ylim} arguments. This makes
+\code{plot(getBiomass(sim))} equivalent to \code{plotBiomass(sim)}.
+\item \code{\link[=plotly]{plotly()}} wraps either of the above in \code{\link[plotly:ggplotly]{plotly::ggplotly()}} to produce
+an interactive figure. Call it as \code{plotly(getEncounter(params))} or
+\code{plotly(getBiomass(sim))}.
+}
+
 While most plot functions take their data from a MizerSim object, some of
 those that make plots representing data at a single time can also take their
 data from the initial values in a MizerParams object.

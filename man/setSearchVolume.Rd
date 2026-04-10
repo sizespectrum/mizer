@@ -36,8 +36,8 @@ value has been set.}
 \value{
 \code{setSearchVolume()}: A MizerParams object with updated search volume.
 
-\code{getSearchVolume()} or equivalently \code{search_vol()}: An array (species
-x size) holding the search volume
+\code{getSearchVolume()} or equivalently \code{search_vol()}: A
+\code{ArraySpeciesBySize} object (species x size) holding the search volume.
 }
 \description{
 Set search volume

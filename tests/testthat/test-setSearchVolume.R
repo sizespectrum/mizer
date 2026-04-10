@@ -40,8 +40,9 @@ test_that("Comment works on search volume", {
 
 # getSearchVolume ----
 test_that("getSearchVolume works", {
-    expect_identical(getSearchVolume(NS_params),
-                     NS_params@search_vol)
+    expect_true(is.ArraySpeciesBySize(getSearchVolume(NS_params)))
+    expect_equal(getSearchVolume(NS_params), NS_params@search_vol,
+                 ignore_attr = TRUE)
     expect_identical(getSearchVolume(NS_params),
                      search_vol(NS_params))
 })
@@ -52,7 +53,8 @@ test_that("Can get and set search_vol slot", {
     new <- 2 * search_vol(params)
     comment(new) <- "test"
     search_vol(params) <- new
-    expect_identical(search_vol(params), new)
+    expect_equal(search_vol(params), new, ignore_attr = TRUE)
+    expect_identical(comment(params@search_vol), "test")
 })
 
 test_that("setSearchVolume uses q default and validates manual arrays", {

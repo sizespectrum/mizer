@@ -115,15 +115,17 @@ setSearchVolume.MizerParams <- function(params, search_vol = NULL, reset = FALSE
 }
 
 #' @rdname setSearchVolume
-#' @return `getSearchVolume()` or equivalently `search_vol()`: An array (species
-#'   x size) holding the search volume
+#' @return `getSearchVolume()` or equivalently `search_vol()`: A
+#'   `ArraySpeciesBySize` object (species x size) holding the search volume.
 #' @export
 getSearchVolume <- function(params) {
     UseMethod("getSearchVolume")
 }
 #' @export
 getSearchVolume.MizerParams <- function(params) {
-    params@search_vol
+    ArraySpeciesBySize(params@search_vol,
+                       value_name = "Search volume",
+                       params = params)
 }
 
 
@@ -134,7 +136,7 @@ search_vol <- function(params) {
 }
 #' @export
 search_vol.MizerParams <- function(params) {
-    params@search_vol
+    getSearchVolume(params)
 }
 
 #' @rdname setSearchVolume

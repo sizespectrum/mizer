@@ -12,8 +12,8 @@ getYield(object)
 \value{
 If called with a \code{MizerParams} object, a named numeric vector with
 the yield rate in grams per year for each species in the model. If called
-with a \code{MizerSim} object, an array (time x species) containing the yield
-rate at each saved time step.
+with a \code{MizerSim} object, a \code{ArraySpeciesByTime} object (time x species)
+containing the yield rate in grams per year at each saved time step.
 }
 \description{
 This yield rate is given in grams per year. It is calculated at each time

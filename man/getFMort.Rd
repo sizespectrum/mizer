@@ -24,7 +24,7 @@ species it might make presentation of results easier. Default is TRUE.}
 }
 \value{
 If a \code{MizerParams} object is passed in without a time-dimensioned
-effort, returns a \code{MizerRate} object (species x size) with the fishing
+effort, returns a \code{ArraySpeciesBySize} object (species x size) with the fishing
 mortality rates. If the effort argument has a time dimension, or a
 \code{MizerSim} object is passed in, returns a three-dimensional array
 (time x species x size).

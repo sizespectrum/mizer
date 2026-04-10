@@ -51,8 +51,9 @@ test_that("Comment works on metab", {
 
 # getMetabolicRate ----
 test_that("getMetabolicRate works", {
-    expect_identical(getMetabolicRate(NS_params),
-                     NS_params@metab)
+    expect_true(is.ArraySpeciesBySize(getMetabolicRate(NS_params)))
+    expect_equal(getMetabolicRate(NS_params), NS_params@metab,
+                 ignore_attr = TRUE)
 })
 
 test_that("Can get and set metab slot", {
@@ -60,7 +61,8 @@ test_that("Can get and set metab slot", {
     new <- 2 * metab(params)
     comment(new) <- "test"
     metab(params) <- new
-    expect_identical(metab(params), new)
+    expect_equal(metab(params), new, ignore_attr = TRUE)
+    expect_identical(comment(params@metab), "test")
 })
 
 test_that("setMetabolicRate uses the documented defaults and validates inputs", {

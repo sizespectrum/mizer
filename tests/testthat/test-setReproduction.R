@@ -85,17 +85,17 @@ test_that("Comment works on psi", {
     # if no comment, it is set automatically
     repro_prop <- getReproductionProportion(params)
     params <- setReproduction(params, repro_prop = repro_prop)
-    expect_identical(comment(getReproductionProportion(params)), "set manually")
+    expect_identical(comment(params@psi), "set manually")
 
     # comment is stored
     comment(repro_prop) <- "test"
     params <- setReproduction(params, repro_prop = repro_prop)
-    expect_identical(comment(getReproductionProportion(params)), "test")
+    expect_identical(comment(params@psi), "test")
 
     # if no comment, previous comment is kept
     comment(repro_prop) <- NULL
     params <- setReproduction(params, repro_prop = repro_prop)
-    expect_identical(comment(getReproductionProportion(params)), "test")
+    expect_identical(comment(params@psi), "test")
 
     # no message when nothing changes
     expect_message(setReproduction(params), NA)
@@ -155,6 +155,7 @@ test_that("Can get and set maturity", {
     new <- 1/2 * maturity(params)
     comment(new) <- "test"
     maturity(params) <- new
-    expect_identical(maturity(params), new)
-    expect_identical(getMaturityProportion(params), new)
+    expect_equal(maturity(params), new, ignore_attr = TRUE)
+    expect_equal(getMaturityProportion(params), new, ignore_attr = TRUE)
+    expect_identical(comment(params@maturity), "test")
 })

@@ -11,7 +11,7 @@ test_that("We can set and get initial values from sim object", {
     initialNResource(params) <- params@cc_pp
     expect_identical(initialNResource(params), params@cc_pp)
     params <- setInitialValues(params, sim)
-    expect_identical(finalN(sim), initialN(params))
+    expect_equal(finalN(sim), initialN(params), ignore_attr = TRUE)
     expect_identical(finalNResource(sim), initialNResource(params))
     expect_identical(sim@effort[no_t, ], params@initial_effort)
     expect_named(params@initial_effort, gear_names)
@@ -69,7 +69,7 @@ test_that("Can set initial values in a model with a single species", {
     params <- newMultispeciesParams(species_params, info_level = 0)
     sim <- project(params, t_max = 0.1, t_save = 0.1)
     p <- setInitialValues(params, sim)
-    expect_identical(finalN(sim), initialN(p))
+    expect_equal(finalN(sim), initialN(p), ignore_attr = TRUE)
 })
 
 test_that("Can set initial values in a model with a single other component", {

@@ -23,9 +23,10 @@ over \code{max_w}.}
   }}
 }
 \value{
-If called with a MizerParams object, a vector with the numbers for
-each species in the model. If called with a MizerSim object, an array (time
-x species) containing the numbers at each time step for all species.
+If called with a MizerParams object, a named vector with the numbers
+for each species in the model. If called with a MizerSim object, a
+\code{ArraySpeciesByTime} object (time x species) containing the numbers at
+each time step for all species.
 }
 \description{
 Calculates the number of individuals within user-defined size limits. The

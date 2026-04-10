@@ -1,4 +1,28 @@
-# Development version 2.5.4.9101
+# Development version 2.5.4.9102
+
+- New `ArraySpeciesBySize` S3 class for the species x size arrays returned by
+  many mizer functions such as `getEncounter()`, `getFeedingLevel()`,
+  `getMaxIntakeRate()`, `getMetabolicRate()`, `getSearchVolume()`,
+  `getExtMort()`, `getExtEncounter()`, `getMaturityProportion()`,
+  `getReproductionProportion()`, `diffusion()`, `finalN()`, and
+  `get_initial_n()`. An `ArraySpeciesBySize` object behaves like a regular
+  matrix for arithmetic and subsetting, but carries a human-readable
+  `value_name` and `units` attribute and provides enhanced `print()`,
+  `summary()`, `plot()`, and `as.data.frame()` methods.
+
+- New `ArraySpeciesByTime` S3 class for the time x species arrays returned by
+  `getBiomass()`, `getSSB()`, `getN()`, and `getYield()` when called on a
+  `MizerSim` object. Like `ArraySpeciesBySize`, it carries `value_name` and
+  `units` attributes and provides enhanced `print()`, `summary()`, `plot()`,
+  and `as.data.frame()` methods.
+
+- New `plotly()` generic function with methods for `ArraySpeciesBySize` and
+  `ArraySpeciesByTime` that convert the `ggplot2` output of `plot()` into an
+  interactive plotly figure via `plotly::ggplotly()`.
+
+- The `plot()` method for `ArraySpeciesBySize` gains `log_y`, `wlim`, and
+  `ylim` arguments for controlling the y-axis scale and axis limits. The
+  `plot()` method for `ArraySpeciesByTime` gains `log` and `ylim` arguments.
 
 - New `getTrophicLevel()` function returns a matrix (species × size) with the
   trophic level of individuals at each size, accounting for ontogenetic diet
@@ -8,16 +32,9 @@
   Both functions accept `MizerParams` and `MizerSim` objects. Closes #307.
 
 - The `plot()` and `summary()` methods for `MizerParams`, `MizerSim`, and 
-  `MizerRate` objects are now registered as S3 methods rather than S4 methods.
+  `ArraySpeciesBySize` objects are now registered as S3 methods rather than S4 methods.
   This means `plot()` and `summary()` remain plain S3 generics when mizer is
   loaded, avoiding interference with S4 method dispatch for other packages.
-
-- New `MizerRate` S3 class for the species x size arrays returned by rate
-  functions such as `getEncounter()`, `getFeedingLevel()`, `getEReproAndGrowth()`,
-  etc. A `MizerRate` object behaves like a regular matrix for arithmetic and
-  subsetting, but carries a human-readable `rate_name` and `units` attribute and
-  provides enhanced `print()`, `summary()`, `plot()`, and `as.data.frame()`
-  methods.
 
 - New `expandSizeGrid()` function expands the size grid of a `MizerParams`
   object to a new minimum and/or maximum size while preserving all existing

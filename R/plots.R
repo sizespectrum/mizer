@@ -38,6 +38,27 @@
 #' names with `plot` replaced by `plotly` produce interactive plots
 #' with the help of the plotly package.
 #'
+#' In addition to the named plot functions above, mizer provides generic
+#' `plot()` and [plotly()] methods for the array classes returned by the
+#' rate and summary functions:
+#'
+#' * `plot(<ArraySpeciesBySize>)` — plots any species-by-size array (such as
+#'   those returned by [getEncounter()], [getFeedingLevel()], [getPredMort()],
+#'   [getFMort()], [getSearchVolume()], etc.) as lines of value against body
+#'   size, one line per species. Supports `species`, `highlight`, `log_x`,
+#'   `log_y`, `wlim`, `ylim`, and `all.sizes` arguments.
+#'
+#' * `plot(<ArraySpeciesByTime>)` — plots any time-by-species array (such as
+#'   those returned by [getBiomass()], [getSSB()], [getYield()], and [getN()]
+#'   on a `MizerSim`) as lines of value against time, one line per species.
+#'   Supports `species`, `start_time`, `end_time`, `total`, `background`,
+#'   `highlight`, `log`, and `ylim` arguments. This makes
+#'   `plot(getBiomass(sim))` equivalent to `plotBiomass(sim)`.
+#'
+#' * [plotly()] wraps either of the above in [plotly::ggplotly()] to produce
+#'   an interactive figure. Call it as `plotly(getEncounter(params))` or
+#'   `plotly(getBiomass(sim))`.
+#'
 #' While most plot functions take their data from a MizerSim object, some of
 #' those that make plots representing data at a single time can also take their
 #' data from the initial values in a MizerParams object.
@@ -237,24 +258,30 @@ log_breaks <- function(n = 6) {
 #'
 #' After running a projection, the biomass of each species can be plotted
 #' against time. The biomass is calculated within user defined size limits
-#' (min_w, max_w, min_l, max_l, see [getBiomass()]).
+#' (see [getBiomass()]).
 #'
 #' @param sim An object of class \linkS4class{MizerSim}
 #' @inheritParams valid_species_arg
-#' @inheritParams plotDataFrame
-#' @inheritParams getBiomass
-#' @param start_time The first time to be plotted. Default is the beginning
-#'   of the time series.
-#' @param end_time The last time to be plotted. Default is the end of the
-#'   time series.
+#' @param start_time The first time to be plotted. Default (`NULL`) is the
+#'   beginning of the time series.
+#' @param end_time The last time to be plotted. Default (`NULL`) is the end of
+#'   the time series.
+#' @param y_ticks The approximate number of ticks desired on the y axis.
 #' @param ylim A numeric vector of length two providing lower and upper limits
-#'   for the y axis. Use NA to refer to the existing minimum or maximum. Any
-#'   values below 1e-20 are always cut off. Data is filtered to this range and
-#'   the axis limits are set accordingly.
+#'   for the y axis. Use `NA` to refer to the existing minimum or maximum. Any
+#'   values below 1e-20 are always cut off.
 #' @param total A boolean value that determines whether the total biomass from
 #'   all species is plotted as well. Default is FALSE.
-#' @inheritParams plotSpectra
-#' @inheritDotParams get_size_range_array -params
+#' @param background A boolean value that determines whether background species
+#'   are included. Ignored if the model does not contain background species.
+#'   Default is TRUE.
+#' @param highlight Name or vector of names of the species to be highlighted.
+#' @param log If `TRUE` (default), use a log10 y-axis.
+#' @param return_data A boolean value that determines whether the formatted data
+#'   used for the plot is returned instead of the plot itself. Default is FALSE.
+#' @param use_cutoff If TRUE, the `biomass_cutoff` column in the species
+#'   parameters is used as the minimum weight for each species.
+#' @inheritParams get_size_range_array
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the four variables 'Year', 'Biomass', 'Species', 'Legend' is
@@ -281,85 +308,44 @@ plotBiomass <- function(sim, ...) {
 #' @rdname plotBiomass
 #' @export
 plotBiomass.MizerSim <- function(sim, species = NULL,
-                        start_time, end_time,
+                        start_time = NULL, end_time = NULL,
                         y_ticks = 6, ylim = c(NA, NA),
                         total = FALSE, background = TRUE,
-                        highlight = NULL, return_data = FALSE,
+                        highlight = NULL, log = TRUE,
+                        return_data = FALSE,
                         use_cutoff = FALSE,
-                        ...) {
-    assert_that(is(sim, "MizerSim"),
-                is.flag(total),
-                is.flag(background),
-                is.flag(return_data),
-                is.flag(use_cutoff),
-                length(ylim) == 2)
-    params <- sim@params
-    species <- valid_species_arg(sim, species, error_on_empty = TRUE)
-    if (missing(start_time)) start_time <-
-            as.numeric(dimnames(sim@n)[[1]][1])
-    if (missing(end_time)) end_time <-
-            as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]])
-    if (start_time >= end_time) {
-        stop("start_time must be less than end_time")
-    }
-    # First we get the data frame for all species, including the background,
-    # for all times but only the desired size range, by passing any size range
-    # arguments on to getBiomass()
-    bm <- getBiomass(sim, use_cutoff = use_cutoff, ...)
-    # Select time range
-    bm <- bm[(as.numeric(dimnames(bm)[[1]]) >= start_time) &
-               (as.numeric(dimnames(bm)[[1]]) <= end_time), , drop = FALSE]
-
-    # Include total
-    if (total) {
-        bm <- cbind(bm, Total = rowSums(bm))
-    }
-
-    bm <- reshape2::melt(bm)
-
-    # Implement ylim and a minimal cutoff and bring columns in desired order
-    min_value <- 1e-20
-    bm <- bm[bm$value >= min_value &
-                 (is.na(ylim[1]) | bm$value >= ylim[1]) &
-                 (is.na(ylim[2]) | bm$value <= ylim[2]), c(1, 3, 2)]
-    names(bm) <- c("Year", "Biomass", "Species")
-
-    # Select species
-    plot_dat <- bm[bm$Species %in% c("Total", species), ]
-    plot_dat$Legend <- plot_dat$Species
-
-    if (background) {
-        # Add background species in light grey
-        bkgrd_sp <- dimnames(sim@n)$sp[is.na(sim@params@A)]
-        if (length(bkgrd_sp) > 0) {
-            bm_bkgrd <- bm[bm$Species %in% bkgrd_sp, ]
-            bm_bkgrd$Legend <- "Background"
-            plot_dat <- rbind(plot_dat, bm_bkgrd)
-        }
-    }
-
-    if (return_data) return(plot_dat)
-
-    plotDataFrame(plot_dat, params, xlab = "Year", ylab = "Biomass [g]",
-                  ytrans = "log10", ylim = ylim,
-                  y_ticks = y_ticks, highlight = highlight,
-                  legend_var = "Legend")
+                        min_w = min(sim@params@w),
+                        max_w = max(sim@params@w),
+                        min_l = NULL, max_l = NULL) {
+    bm <- getBiomass(sim, use_cutoff = use_cutoff,
+                     min_w = min_w, max_w = max_w,
+                     min_l = min_l, max_l = max_l)
+    plot(bm, species = species,
+         start_time = start_time, end_time = end_time,
+         y_ticks = y_ticks, ylim = ylim,
+         total = total, background = background,
+         highlight = highlight, log = log,
+         return_data = return_data)
 }
 
 #' @rdname plotBiomass
 #' @export
 plotlyBiomass <- function(sim,
              species = NULL,
-             start_time,
-             end_time,
+             start_time = NULL,
+             end_time = NULL,
              y_ticks = 6,
              ylim = c(NA, NA),
              total = FALSE,
              background = TRUE,
              highlight = NULL,
+             log = TRUE,
              use_cutoff = FALSE,
-             ...) {
-    argg <- c(as.list(environment()), list(...))
+             min_w = min(sim@params@w),
+             max_w = max(sim@params@w),
+             min_l = NULL,
+             max_l = NULL) {
+    argg <- as.list(environment())
     ggplotly(do.call("plotBiomass", argg),
              tooltip = c("Species", "Year", "Biomass"))
 }
@@ -1100,20 +1086,20 @@ plotPredMort.MizerSim <- function(object, species = NULL,
                          time_range, all.sizes = FALSE,
                          highlight = NULL, return_data = FALSE,
                          ...) {
-    assert_that(is.flag(all.sizes),
-                is.flag(return_data))
     if (missing(time_range)) {
-        time_range  <- max(as.numeric(dimnames(object@n)$time))
+        time_range <- max(as.numeric(dimnames(object@n)$time))
     }
-    params <- object@params
     pred_mort <- getPredMort(object, time_range = time_range, drop = FALSE)
-    # If a time range was returned, average over it
     if (length(dim(pred_mort)) == 3) {
         pred_mort <- apply(pred_mort, c(2, 3), mean)
     }
-    plot_pred_mort(params, pred_mort, species = species,
-                   highlight = highlight, all.sizes = all.sizes,
-                   return_data = return_data)
+    pred_mort <- ArraySpeciesBySize(pred_mort,
+                                    value_name = "Predation mortality",
+                                    units = "1/year",
+                                    params = object@params)
+    plot(pred_mort, species = species, all.sizes = all.sizes,
+         highlight = highlight, return_data = return_data,
+         ylim = c(0, NA))
 }
 
 #' @rdname plotPredMort
@@ -1122,44 +1108,9 @@ plotPredMort.MizerParams <- function(object, species = NULL,
                          all.sizes = FALSE,
                          highlight = NULL, return_data = FALSE,
                          ...) {
-    assert_that(is.flag(all.sizes),
-                is.flag(return_data))
-    params <- validParams(object)
-    pred_mort <- getPredMort(object, drop = FALSE)
-    plot_pred_mort(params, pred_mort, species = species,
-                   highlight = highlight, all.sizes = all.sizes,
-                   return_data = return_data)
-}
-
-plot_pred_mort <- function(params, pred_mort, species, highlight,
-                           all.sizes, return_data) {
-
-    species <- valid_species_arg(params, species, error_on_empty = TRUE)
-    pred_mort <- pred_mort[as.character(dimnames(pred_mort)[[1]]) %in% species, , drop = FALSE]
-    plot_dat <- data.frame(
-        w = rep(params@w, each = length(species)),
-        value = c(pred_mort),
-        Species = species)
-
-    if (!all.sizes) {
-        # Remove feeding level for sizes outside a species' size range
-        for (sp in species) {
-            plot_dat$value[plot_dat$Species == sp &
-                               (plot_dat$w < params@species_params[sp, "w_min"] |
-                                    plot_dat$w > params@species_params[sp, "w_max"])] <- NA
-        }
-        plot_dat <- plot_dat[complete.cases(plot_dat), ]
-    }
-
-    if (return_data) return(plot_dat)
-
-    p <- plotDataFrame(plot_dat, params, xlab = "Size [g]", xtrans = "log10",
-                       highlight = highlight)
-    suppressMessages(
-        p <- p + scale_y_continuous(labels = prettyNum,
-                                    name = "Predation mortality [1/year]",
-                                    limits = c(0, max(plot_dat$value))))
-    p
+    plot(getPredMort(validParams(object)), species = species,
+         all.sizes = all.sizes, highlight = highlight,
+         return_data = return_data, ylim = c(0, NA))
 }
 
 #' Alias for `plotPredMort()`
@@ -1219,20 +1170,17 @@ plotFMort.MizerSim <- function(object, species = NULL,
                       time_range, all.sizes = FALSE,
                       highlight = NULL, return_data = FALSE,
                       ...) {
-    assert_that(is.flag(all.sizes),
-                is.flag(return_data))
     if (missing(time_range)) {
-        time_range  <- max(as.numeric(dimnames(object@n)$time))
+        time_range <- max(as.numeric(dimnames(object@n)$time))
     }
-    params <- object@params
     f <- getFMort(object, time_range = time_range, drop = FALSE)
-    # If a time range was returned, average over it
     if (length(dim(f)) == 3) {
         f <- apply(f, c(2, 3), mean)
     }
-    plot_f_mort(params, f, species = species,
-                highlight = highlight, all.sizes = all.sizes,
-                return_data = return_data)
+    f <- ArraySpeciesBySize(f, value_name = "Fishing mortality",
+                            units = "1/year", params = object@params)
+    plot(f, species = species, all.sizes = all.sizes,
+         highlight = highlight, return_data = return_data)
 }
 
 #' @rdname plotFMort
@@ -1241,37 +1189,9 @@ plotFMort.MizerParams <- function(object, species = NULL,
                       all.sizes = FALSE,
                       highlight = NULL, return_data = FALSE,
                       ...) {
-    assert_that(is.flag(all.sizes),
-                is.flag(return_data))
-    params <- validParams(object)
-    f <- getFMort(object, drop = FALSE)
-    plot_f_mort(params, f, species = species,
-                highlight = highlight, all.sizes = all.sizes,
-                return_data = return_data)
-}
-
-plot_f_mort <- function(params, f, species, highlight,
-                        all.sizes, return_data) {
-    species <- valid_species_arg(params, species, error_on_empty = TRUE)
-    f <- f[as.character(dimnames(f)[[1]]) %in% species, , drop = FALSE]
-    plot_dat <- data.frame(w = rep(params@w, each = length(species)),
-                           value = c(f),
-                           Species = species)
-
-    if (!all.sizes) {
-        # Remove feeding level for sizes outside a species' size range
-        for (sp in species) {
-            plot_dat$value[plot_dat$Species == sp &
-                               (plot_dat$w < params@species_params[sp, "w_min"] |
-                                    plot_dat$w > params@species_params[sp, "w_max"])] <- NA
-        }
-        plot_dat <- plot_dat[complete.cases(plot_dat), ]
-    }
-
-    if (return_data) return(plot_dat)
-
-    plotDataFrame(plot_dat, params, xlab = "Size [g]", xtrans = "log10",
-                  ylab = "Fishing mortality [1/Year]", highlight = highlight)
+    plot(getFMort(validParams(object)), species = species,
+         all.sizes = all.sizes, highlight = highlight,
+         return_data = return_data)
 }
 
 #' @rdname plotFMort

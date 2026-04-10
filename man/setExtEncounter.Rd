@@ -30,8 +30,8 @@ unchanged. Initially is is set to 0.}
 \code{setExtEncounter()}: A MizerParams object with updated external encounter
 rate.
 
-\code{getExtEncounter()} or equivalently \code{ext_encounter()}: An array
-(species x size) with the external encounter rate.
+\code{getExtEncounter()} or equivalently \code{ext_encounter()}: A
+\code{ArraySpeciesBySize} object (species x size) with the external encounter rate.
 }
 \description{
 Set external encounter rate

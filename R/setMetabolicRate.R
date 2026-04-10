@@ -117,15 +117,18 @@ setMetabolicRate.MizerParams <- function(object, metab = NULL, p = NULL,
 }
 
 #' @rdname setMetabolicRate
-#' @return `getMetabolicRate()` or equivalently `metab()`: An array
-#'   (species x size) with the metabolic rate.
+#' @return `getMetabolicRate()` or equivalently `metab()`: A
+#'   `ArraySpeciesBySize` object (species x size) with the metabolic rate.
 #' @export
 getMetabolicRate <- function(params) {
     UseMethod("getMetabolicRate")
 }
 #' @export
 getMetabolicRate.MizerParams <- function(params) {
-    params@metab
+    ArraySpeciesBySize(params@metab,
+                       value_name = "Metabolic rate",
+                       units = "g/year",
+                       params = params)
 }
 
 #' @rdname setMetabolicRate
@@ -135,7 +138,7 @@ metab <- function(params) {
 }
 #' @export
 metab.MizerParams <- function(params) {
-    params@metab
+    getMetabolicRate(params)
 }
 
 #' @rdname setMetabolicRate

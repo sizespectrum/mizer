@@ -127,15 +127,18 @@ setExtMort.MizerParams <- function(params, ext_mort = NULL,
 }
 
 #' @rdname setExtMort
-#' @return `getExtMort()` or equivalently `ext_mort()`: An array (species x
-#'   size) with the external mortality.
+#' @return `getExtMort()` or equivalently `ext_mort()`: A `ArraySpeciesBySize`
+#'   object (species x size) with the external mortality.
 #' @export
 getExtMort <- function(params) {
     UseMethod("getExtMort")
 }
 #' @export
 getExtMort.MizerParams <- function(params) {
-    params@mu_b
+    ArraySpeciesBySize(params@mu_b,
+                       value_name = "External mortality",
+                       units = "1/year",
+                       params = params)
 }
 
 #' @rdname setExtMort
@@ -145,7 +148,7 @@ ext_mort <- function(params) {
 }
 #' @export
 ext_mort.MizerParams <- function(params) {
-    params@mu_b
+    getExtMort(params)
 }
 
 #' @rdname setExtMort

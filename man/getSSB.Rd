@@ -10,10 +10,10 @@ getSSB(object)
 \item{object}{An object of class \code{MizerParams} or \code{MizerSim}.}
 }
 \value{
-If called with a MizerParams object, a vector with the SSB in
-grams for each species in the model. If called with a MizerSim object, an
-array (time x species) containing the SSB in grams at each time step
-for all species.
+If called with a MizerParams object, a named vector with the SSB in
+grams for each species in the model. If called with a MizerSim object, a
+\code{ArraySpeciesByTime} object (time x species) containing the SSB in grams
+at each time step for all species.
 }
 \description{
 Calculates the spawning stock biomass (SSB) for each species. For a

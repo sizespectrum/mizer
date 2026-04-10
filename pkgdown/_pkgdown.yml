@@ -233,17 +233,19 @@ reference:
 - title: Classes
   contents:
   - MizerParams-class
+  - summary.MizerParams
   - compareParams
   - "w"
   - validParams
-  - summary.MizerParams
   - MizerSim-class
+  - summary.MizerSim
   - validSim
   - MizerSim
   - getParams
-  - summary.MizerSim
-  - MizerRate
-  - is.MizerRate
+  - ArraySpeciesBySize
+  - is.ArraySpeciesBySize
+  - ArraySpeciesByTime
+  - is.ArraySpeciesByTime
 - title: Example parameter sets
   desc: More example parameter sets are available via
     <https://sizespectrum.org/mizerExamples>

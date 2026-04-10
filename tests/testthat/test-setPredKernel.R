@@ -71,7 +71,7 @@ test_that("getting and setting pred kernel leads to same dynamics", {
     params <- setPredKernel(params, pred_kernel = getPredKernel(params))
     sim1 <- project(NS_params, t_max = 0.1)
     sim2 <- project(params, t_max = 0.1)
-    expect_equal(finalN(sim1), finalN(sim2), tolerance = 1e-4)
+    expect_equal(finalN(sim1), finalN(sim2), tolerance = 1e-4, ignore_attr = "params")
 })
 
 test_that("Can get and set pred_kernel slot", {

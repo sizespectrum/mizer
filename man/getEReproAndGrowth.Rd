@@ -30,7 +30,7 @@ parameters.)}
 \item{...}{Unused}
 }
 \value{
-A \code{MizerRate} object (species x size) with the energy rate
+A \code{ArraySpeciesBySize} object (species x size) with the energy rate
 \eqn{E_{r.i}(w)} available for growth and reproduction (grams/year).
 }
 \description{
