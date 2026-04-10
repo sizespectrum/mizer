@@ -1,5 +1,7 @@
 test_that("compareParams", {
   local_reproducible_output()
+  sink(nullfile())
+  on.exit(sink(), add = TRUE, after = FALSE)
   params <- NS_params
   expect_equal(compareParams(params, params), "No differences")
   # Change a species param
@@ -34,8 +36,14 @@ test_that("compareParams", {
                   compareParams(params, params2))
   # Change a slot
   params2@metab[] <- 1
-  expect_true("The metab slots do not agree: Mean absolute difference: 896.7543" %in%
-                  compareParams(params, params2))
+  expect_true(any(startsWith(compareParams(params, params2),
+                             "The metab slots do not agree: Mean absolute difference: 896.7543")))
+
+  # Change only the comment attribute of a slot
+  params2 <- params
+  comment(params2@metab) <- "a comment"
+  expect_true(grepl("comment", compareParams(params, params2)[[1]],
+                    ignore.case = TRUE))
 
   # Change size bin at small sizes
   params2@w_full[[1]] <- 1

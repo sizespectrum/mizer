@@ -1,5 +1,10 @@
 # Development version 2.5.4.9102
 
+- `compareParams()` output is now printed in a human-readable format, with each
+  difference as its own block separated by blank lines. When array slots differ,
+  the max absolute difference is shown per species. When slots differ only in
+  their `comment` attributes, both comments are displayed. Closes #205.
+
 - `animateSpectra()` gains a `background` argument (default `TRUE`) to include
   background species in the animation, consistent with `plotSpectra()`. Each
   background species is shown as a separate grey line grouped under a single
