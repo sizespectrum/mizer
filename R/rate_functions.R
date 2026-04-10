@@ -59,7 +59,7 @@ getRates.MizerParams <- function(params, n = initialN(params),
 #'
 #' @inherit mizerEncounter
 #'
-#' @return A `ArraySpeciesBySize` object (predator species x predator size) with the
+#' @return An `ArraySpeciesBySize` object (predator species x predator size) with the
 #'   encounter rates.
 #' @export
 #' @family rate functions
@@ -107,7 +107,7 @@ getEncounter.MizerParams <- function(params, n = initialN(params),
 #' @param drop If `TRUE` then any dimension of length 1 will be removed
 #'   from the returned array.
 #'
-#' @return If a `MizerParams` object is passed in, returns a `ArraySpeciesBySize` object
+#' @return If a `MizerParams` object is passed in, returns an `ArraySpeciesBySize` object
 #'   (predator species x predator size) with the feeding level.
 #'   If a `MizerSim` object is passed in, returns a three-dimensional array
 #'   (time step x predator species x predator size) with the feeding level at
@@ -189,7 +189,7 @@ getFeedingLevel.MizerSim <- function(object, n, n_pp, n_other,
 #' growth or reproduction. 
 #' 
 #' @param params A MizerParams object
-#' @return A `ArraySpeciesBySize` object (species x size) with the critical feeding level
+#' @return An `ArraySpeciesBySize` object (species x size) with the critical feeding level
 #' @export
 #' @examples
 #' \donttest{
@@ -217,7 +217,7 @@ getCriticalFeedingLevel.MizerParams <- function(params) {
 #'
 #' @inherit mizerEReproAndGrowth
 #'
-#' @return A `ArraySpeciesBySize` object (species x size) with the energy rate
+#' @return An `ArraySpeciesBySize` object (species x size) with the energy rate
 #'   \eqn{E_{r.i}(w)} available for growth and reproduction (grams/year).
 #' @export
 #' @seealso The part of this energy rate that is invested into growth is
@@ -322,7 +322,7 @@ getPredRate.MizerParams <- function(params, n = initialN(params),
 #' @inheritParams getFeedingLevel
 #'
 #' @return
-#'   If a `MizerParams` object is passed in, returns a `ArraySpeciesBySize` object
+#'   If a `MizerParams` object is passed in, returns an `ArraySpeciesBySize` object
 #'   (prey species x prey size) with the predation mortality rates.
 #'   If a `MizerSim` object is passed in, returns a three-dimensional array
 #'   (time step x prey species x prey size) with the predation mortality at
@@ -589,7 +589,7 @@ getFMortGear.MizerSim <- function(object, effort, time_range) {
 #'   species it might make presentation of results easier. Default is TRUE.
 #'
 #' @return If a `MizerParams` object is passed in without a time-dimensioned
-#'   effort, returns a `ArraySpeciesBySize` object (species x size) with the fishing
+#'   effort, returns an `ArraySpeciesBySize` object (species x size) with the fishing
 #'   mortality rates. If the effort argument has a time dimension, or a
 #'   `MizerSim` object is passed in, returns a three-dimensional array
 #'   (time x species x size).
@@ -741,7 +741,7 @@ getFMort.MizerSim <- function(object, effort, time_range, drop = TRUE) {
 #' @param effort A numeric vector of the effort by gear or a single numeric
 #'   effort value which is used for all gears.
 #'
-#' @return A `ArraySpeciesBySize` object (species x size) with the total mortality rates.
+#' @return An `ArraySpeciesBySize` object (species x size) with the total mortality rates.
 #'
 #' @export
 #' @seealso [getPredMort()], [getFMort()]
@@ -802,7 +802,7 @@ getZ <- getMort
 #' @inherit mizerERepro
 #' @inheritParams mizerRates
 #'
-#' @return A `ArraySpeciesBySize` object (species x size) holding
+#' @return An `ArraySpeciesBySize` object (species x size) holding
 #' \deqn{\psi_i(w)\max(0, E_{r.i}(w))}
 #' where \eqn{E_{r.i}(w)} is the rate at which energy becomes available for
 #' growth and reproduction, calculated with [getEReproAndGrowth()],
@@ -862,7 +862,7 @@ getESpawning <- getERepro
 #' @inherit mizerEGrowth
 #' @inheritParams mizerRates
 #'   
-#' @return A `ArraySpeciesBySize` object (species x size) with the somatic growth rates
+#' @return An `ArraySpeciesBySize` object (species x size) with the somatic growth rates
 #'   (grams/year).
 #' @export
 #' @seealso [getERepro()], [getEReproAndGrowth()]
@@ -1015,7 +1015,7 @@ getRDD.MizerParams <- function(params, n = initialN(params),
 #'
 #' @inheritParams mizerRates
 #'   
-#' @return A `ArraySpeciesBySize` object (species x size) with the flux of individuals
+#' @return An `ArraySpeciesBySize` object (species x size) with the flux of individuals
 #'   entering each size class (numbers/year).
 #' @export
 #' @seealso [getEGrowth()], [getRDD()]

@@ -30,7 +30,7 @@ parameters.)}
 \item{...}{Unused}
 }
 \value{
-A \code{ArraySpeciesBySize} object (species x size) with the somatic growth rates
+An \code{ArraySpeciesBySize} object (species x size) with the somatic growth rates
 (grams/year).
 }
 \description{

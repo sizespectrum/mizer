@@ -56,7 +56,7 @@ be confused with the species_parameter \code{z0}.}
 \code{setExtMort()}: A MizerParams object with updated external mortality
 rate.
 
-\code{getExtMort()} or equivalently \code{ext_mort()}: A \code{ArraySpeciesBySize}
+\code{getExtMort()} or equivalently \code{ext_mort()}: An \code{ArraySpeciesBySize}
 object (species x size) with the external mortality.
 }
 \description{

@@ -31,7 +31,7 @@ functions.}
 \value{
 \code{setDiffusion()}: A MizerParams object with updated diffusion rate.
 
-\code{diffusion()}: A \code{ArraySpeciesBySize} object (species x size) with
+\code{diffusion()}: An \code{ArraySpeciesBySize} object (species x size) with
 the diffusion rate.
 }
 \description{

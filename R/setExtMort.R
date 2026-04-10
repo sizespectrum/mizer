@@ -127,7 +127,7 @@ setExtMort.MizerParams <- function(params, ext_mort = NULL,
 }
 
 #' @rdname setExtMort
-#' @return `getExtMort()` or equivalently `ext_mort()`: A `ArraySpeciesBySize`
+#' @return `getExtMort()` or equivalently `ext_mort()`: An `ArraySpeciesBySize`
 #'   object (species x size) with the external mortality.
 #' @export
 getExtMort <- function(params) {

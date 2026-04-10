@@ -13,7 +13,7 @@
 #'   ignored for defaults edition 2 and later.
 #' @export
 #' @concept helper
-#' @return A `ArraySpeciesBySize` object (species x size) of population abundances.
+#' @return An `ArraySpeciesBySize` object (species x size) of population abundances.
 #' @examples
 #' init_n <- get_initial_n(NS_params)
 get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {

@@ -10,7 +10,7 @@
 #' The `ArraySpeciesBySize` class wraps these arrays to provide convenient
 #' `print()`, `summary()`, `plot()`, and `as.data.frame()` methods.
 #'
-#' A `ArraySpeciesBySize` object behaves just like a regular matrix for
+#' An `ArraySpeciesBySize` object behaves just like a regular matrix for
 #' arithmetic operations and subsetting. It carries two lightweight attributes:
 #' \itemize{
 #'   \item `value_name` – a human-readable name for the value
@@ -24,7 +24,7 @@
 #' @param params A `MizerParams` object. Used for species colours, linetypes,
 #'   and size ranges in the `plot()` method.
 #'
-#' @return A `ArraySpeciesBySize` object (inherits from `matrix` and `array`).
+#' @return An `ArraySpeciesBySize` object (inherits from `matrix` and `array`).
 #' @export
 #' @examples
 #' \donttest{
@@ -51,7 +51,7 @@ ArraySpeciesBySize <- function(x, value_name = NULL, units = NULL,
 #' Test if an object is a ArraySpeciesBySize
 #'
 #' @param x An object to test.
-#' @return `TRUE` if `x` is a `ArraySpeciesBySize` object, `FALSE` otherwise.
+#' @return `TRUE` if `x` is an `ArraySpeciesBySize` object, `FALSE` otherwise.
 #' @export
 #' @examples
 #' is.ArraySpeciesBySize(getEncounter(NS_params))
@@ -131,7 +131,7 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #' Plots the value against size for each species, using species colours and
 #' linetypes from the MizerParams object stored in the `params` attribute.
 #'
-#' @param x A `ArraySpeciesBySize` object.
+#' @param x An `ArraySpeciesBySize` object.
 #' @param species Character vector of species to include. `NULL` (default) means
 #'   all species.
 #' @param all.sizes If `FALSE` (default), values outside a species' size range

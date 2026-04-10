@@ -10,7 +10,7 @@ is.ArraySpeciesByTime(x)
 \item{x}{An object to test.}
 }
 \value{
-\code{TRUE} if \code{x} is a \code{ArraySpeciesByTime} object, \code{FALSE} otherwise.
+\code{TRUE} if \code{x} is an \code{ArraySpeciesByTime} object, \code{FALSE} otherwise.
 }
 \description{
 Test if an object is a ArraySpeciesByTime

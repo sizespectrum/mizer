@@ -26,7 +26,7 @@ from the returned array.}
 \item{...}{Unused}
 }
 \value{
-If a \code{MizerParams} object is passed in, returns a \code{ArraySpeciesBySize} object
+If a \code{MizerParams} object is passed in, returns an \code{ArraySpeciesBySize} object
 (prey species x prey size) with the predation mortality rates.
 If a \code{MizerSim} object is passed in, returns a three-dimensional array
 (time step x prey species x prey size) with the predation mortality at

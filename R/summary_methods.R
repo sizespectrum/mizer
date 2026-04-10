@@ -440,7 +440,7 @@ getSSB.MizerParams <- function(object) {
 #'
 #' @return If called with a MizerParams object, a named vector with the biomass
 #'   in grams for each species in the model. If called with a MizerSim object,
-#'   a `ArraySpeciesByTime` object (time x species) containing the biomass in
+#'   an `ArraySpeciesByTime` object (time x species) containing the biomass in
 #'   grams at each time step for all species.
 #' @export
 #' @family summary functions
@@ -609,7 +609,7 @@ getYieldGear.MizerParams <- function(object) {
 #'
 #' @return If called with a `MizerParams` object, a named numeric vector with
 #'   the yield rate in grams per year for each species in the model. If called
-#'   with a `MizerSim` object, a `ArraySpeciesByTime` object (time x species)
+#'   with a `MizerSim` object, an `ArraySpeciesByTime` object (time x species)
 #'   containing the yield rate in grams per year at each saved time step.
 #' @export
 #' @family summary functions

@@ -342,7 +342,7 @@ NResource <- function(sim) {
 #' Size spectra at end of simulation
 #' 
 #' @param sim A MizerSim object
-#' @return For `finalN()`: A `ArraySpeciesBySize` object (species x size)
+#' @return For `finalN()`: An `ArraySpeciesBySize` object (species x size)
 #'   holding the consumer number densities at the end of the simulation
 #' @export
 #' @examples

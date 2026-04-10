@@ -31,7 +31,7 @@ over \code{max_w}.}
 \value{
 If called with a MizerParams object, a named vector with the biomass
 in grams for each species in the model. If called with a MizerSim object,
-a \code{ArraySpeciesByTime} object (time x species) containing the biomass in
+an \code{ArraySpeciesByTime} object (time x species) containing the biomass in
 grams at each time step for all species.
 }
 \description{

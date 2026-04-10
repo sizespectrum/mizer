@@ -16,7 +16,7 @@ idxFinalT(sim)
 \item{sim}{A MizerSim object}
 }
 \value{
-For \code{finalN()}: A \code{ArraySpeciesBySize} object (species x size)
+For \code{finalN()}: An \code{ArraySpeciesBySize} object (species x size)
 holding the consumer number densities at the end of the simulation
 
 For \code{finalNResource()}: A vector holding the resource number

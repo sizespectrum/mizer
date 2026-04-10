@@ -30,7 +30,7 @@ parameters.)}
 \item{...}{Unused}
 }
 \value{
-A \code{ArraySpeciesBySize} object (predator species x predator size) with the
+An \code{ArraySpeciesBySize} object (predator species x predator size) with the
 encounter rates.
 }
 \description{

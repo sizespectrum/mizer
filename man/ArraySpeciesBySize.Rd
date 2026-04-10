@@ -17,7 +17,7 @@ ArraySpeciesBySize(x, value_name = NULL, units = NULL, params = NULL)
 and size ranges in the \code{plot()} method.}
 }
 \value{
-A \code{ArraySpeciesBySize} object (inherits from \code{matrix} and \code{array}).
+An \code{ArraySpeciesBySize} object (inherits from \code{matrix} and \code{array}).
 }
 \description{
 Many functions in mizer return two-dimensional arrays (species x size)
@@ -26,7 +26,7 @@ The \code{ArraySpeciesBySize} class wraps these arrays to provide convenient
 \code{print()}, \code{summary()}, \code{plot()}, and \code{as.data.frame()} methods.
 }
 \details{
-A \code{ArraySpeciesBySize} object behaves just like a regular matrix for
+An \code{ArraySpeciesBySize} object behaves just like a regular matrix for
 arithmetic operations and subsetting. It carries two lightweight attributes:
 \itemize{
 \item \code{value_name} – a human-readable name for the value

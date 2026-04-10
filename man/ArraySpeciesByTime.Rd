@@ -26,7 +26,7 @@ The \code{ArraySpeciesByTime} class wraps these arrays to provide convenient
 \code{print()}, \code{summary()}, \code{plot()}, and \code{as.data.frame()} methods.
 }
 \details{
-A \code{ArraySpeciesByTime} object behaves just like a regular matrix for
+An \code{ArraySpeciesByTime} object behaves just like a regular matrix for
 arithmetic operations and subsetting. It carries these lightweight attributes:
 \itemize{
 \item \code{value_name} – a human-readable name for the value

@@ -18,7 +18,7 @@
 )
 }
 \arguments{
-\item{x}{A \code{ArraySpeciesBySize} object.}
+\item{x}{An \code{ArraySpeciesBySize} object.}
 
 \item{species}{Character vector of species to include. \code{NULL} (default) means
 all species.}

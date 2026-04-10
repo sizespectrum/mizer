@@ -334,7 +334,7 @@ already there for other similar slots.
 Many functions in mizer — `getEncounter()`, `getFeedingLevel()`,
 `getPredMort()`, `getMort()`, `getEReproAndGrowth()`, `getERepro()`,
 `getEGrowth()`, `getFMort()`, `getFlux()`, and `getCriticalFeedingLevel()` —
-return a `ArraySpeciesBySize` object. This is a lightweight S3 class that wraps a
+return an `ArraySpeciesBySize` object. This is a lightweight S3 class that wraps a
 species × size matrix and attaches two extra attributes:
 
 - `value_name`: a human-readable label (e.g. `"Encounter rate"`).
@@ -342,7 +342,7 @@ species × size matrix and attaches two extra attributes:
 
 ### Behaviour
 
-A `ArraySpeciesBySize` object behaves exactly like a regular matrix for subsetting and
+An `ArraySpeciesBySize` object behaves exactly like a regular matrix for subsetting and
 arithmetic. Subsetting with `[` preserves the class as long as the result is
 still a 2-D matrix; arithmetic operators (via `Ops.ArraySpeciesBySize`) strip the class
 and return a plain matrix. This means you can use `ArraySpeciesBySize` objects
@@ -376,7 +376,7 @@ species' curve to its natural size range (`w_min` to `w_max`) unless
 ### Wrapping your own rate functions
 
 If you write a custom rate function that replaces one of the built-in `mizer*`
-functions (see `?setRateFunction`), you do **not** need to return a `ArraySpeciesBySize`:
+functions (see `?setRateFunction`), you do **not** need to return an `ArraySpeciesBySize`:
 the `get*` wrapper that calls your function is responsible for wrapping the
 result. Your function should return a plain numeric matrix with the correct
 dimensions (species × size) and dimnames.
@@ -395,7 +395,7 @@ The `params` argument to `ArraySpeciesBySize()` is used only to copy `dimnames` 
 `params@metab` onto the result, so that species names and size labels are
 set consistently.
 
-You can test whether an object is a `ArraySpeciesBySize` with `is.ArraySpeciesBySize()`.
+You can test whether an object is an `ArraySpeciesBySize` with `is.ArraySpeciesBySize()`.
 
 # Condition handling system
 

@@ -34,7 +34,7 @@ parameters.)}
 \item{...}{Unused}
 }
 \value{
-A \code{ArraySpeciesBySize} object (species x size) with the total mortality rates.
+An \code{ArraySpeciesBySize} object (species x size) with the total mortality rates.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}

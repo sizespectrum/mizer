@@ -30,7 +30,7 @@ parameters.)}
 \item{...}{Unused}
 }
 \value{
-A \code{ArraySpeciesBySize} object (species x size) with the flux of individuals
+An \code{ArraySpeciesBySize} object (species x size) with the flux of individuals
 entering each size class (numbers/year).
 }
 \description{

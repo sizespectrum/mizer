@@ -10,7 +10,7 @@ is.ArraySpeciesBySize(x)
 \item{x}{An object to test.}
 }
 \value{
-\code{TRUE} if \code{x} is a \code{ArraySpeciesBySize} object, \code{FALSE} otherwise.
+\code{TRUE} if \code{x} is an \code{ArraySpeciesBySize} object, \code{FALSE} otherwise.
 }
 \description{
 Test if an object is a ArraySpeciesBySize

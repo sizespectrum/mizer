@@ -10,7 +10,7 @@
 #' The `ArraySpeciesByTime` class wraps these arrays to provide convenient
 #' `print()`, `summary()`, `plot()`, and `as.data.frame()` methods.
 #'
-#' A `ArraySpeciesByTime` object behaves just like a regular matrix for
+#' An `ArraySpeciesByTime` object behaves just like a regular matrix for
 #' arithmetic operations and subsetting. It carries these lightweight attributes:
 #' \itemize{
 #'   \item `value_name` – a human-readable name for the value
@@ -49,7 +49,7 @@ ArraySpeciesByTime <- function(x, value_name = NULL, units = NULL,
 #' Test if an object is a ArraySpeciesByTime
 #'
 #' @param x An object to test.
-#' @return `TRUE` if `x` is a `ArraySpeciesByTime` object, `FALSE` otherwise.
+#' @return `TRUE` if `x` is an `ArraySpeciesByTime` object, `FALSE` otherwise.
 #' @export
 #' @examples
 #' is.ArraySpeciesByTime(getBiomass(NS_sim))

@@ -63,11 +63,11 @@ reproduction rate from the density-independent rate. Defaults to
 parameters.
 
 \code{getMaturityProportion()} or equivalently \code{maturity()}:
-A \code{ArraySpeciesBySize} object (species x size) that holds the proportion
+An \code{ArraySpeciesBySize} object (species x size) that holds the proportion
 of individuals of each species at size that are mature.
 
 \code{getReproductionProportion()} or equivalently \code{repro_prop()}:
-A \code{ArraySpeciesBySize} object (species x size) that holds the
+An \code{ArraySpeciesBySize} object (species x size) that holds the
 proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. For sizes where the maturity
 proportion is zero, also the reproduction proportion is returned as zero.
