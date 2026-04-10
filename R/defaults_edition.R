@@ -19,8 +19,13 @@
 #' next release. The current default is edition 1. The following defaults
 #' are changed in edition 2:
 #' 
-#' * catchability = 0.3 instead of 1
-#' * initial effort = 1 instead of 0
+#' * `catchability` = 0.3 instead of 1
+#' * `initial effort` = 1 instead of 0
+#' * `gamma` is set to ensure a feeding level of `f0` for larvae with the
+#'   current value of `interaction_resource` instead of 
+#'   interaction_resource = 1`.
+#' * `initial_n` is set using [get_steady_state_n()] instead of the rather
+#'   arbitrary old choice.
 #' 
 #' @param edition NULL or a numerical value.
 #' @return If `edition` is `NULL`, the currently active edition number. If
