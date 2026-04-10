@@ -78,8 +78,8 @@ animateSpectra.MizerSim <- function(sim, species = NULL, time_range = NULL,
     # Add background ----
     # Keep each background species as its own trace (avoids oscillation from
     # interleaved data points) but label them all as "Background" in the legend.
-    if (background && anyNA(sim@params@A)) {
-        back_n <- sim@n[time_elements, is.na(sim@params@A), , drop = FALSE]
+    if (background && any(sim@params@species_params$is_background)) {
+        back_n <- sim@n[time_elements, sim@params@species_params$is_background, , drop = FALSE]
         nf_back <- melt(back_n)
         nf_back$legend_name <- "Background"
         nf <- rbind(nf, nf_back)

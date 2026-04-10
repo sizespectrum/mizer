@@ -198,8 +198,8 @@ test_that("animateSpectra adds resource and total traces when requested", {
 })
 
 test_that("animateSpectra handles background parameter correctly", {
-    params_bkgrd <- NS_params
-    params_bkgrd@A[1:3] <- NA
+    params_bkgrd <- markBackground(NS_params,
+                                    species = species_params(NS_params)$species[1:3])
     sim_bkgrd <- project(params_bkgrd, t_max = 2, t_save = 1, effort = 1)
 
     # background = TRUE (default) includes a "Background" trace

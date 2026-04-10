@@ -369,8 +369,10 @@ validMizerParams <- function(object) {
 #' @slot initial_n_other A list with the initial abundances of all other
 #'   ecosystem components. Has length zero if there are no other components.
 #' @slot resource_params List with parameters for resource.
-#' @slot A `r lifecycle::badge("experimental")`
-#'   Abundance multipliers.
+#' @slot A `r lifecycle::badge("deprecated")`
+#'   Formerly used to flag background species via `NA` values. Replaced by the
+#'   `is_background` column in `species_params`. Will be removed in a future
+#'   version.
 #' @slot linecolour A named vector of colour values, named by species.
 #'   Used to give consistent colours in plots.
 #' @slot linetype A named vector of linetypes, named by species.

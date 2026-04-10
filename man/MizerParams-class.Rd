@@ -165,8 +165,10 @@ ecosystem components. Has length zero if there are no other components.}
 
 \item{\code{resource_params}}{List with parameters for resource.}
 
-\item{\code{A}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-Abundance multipliers.}
+\item{\code{A}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+Formerly used to flag background species via \code{NA} values. Replaced by the
+\code{is_background} column in \code{species_params}. Will be removed in a future
+version.}
 
 \item{\code{linecolour}}{A named vector of colour values, named by species.
 Used to give consistent colours in plots.}

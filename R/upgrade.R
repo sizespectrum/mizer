@@ -280,6 +280,10 @@ upgradeParams <- function(params) {
 
         if (.hasSlot(params, "A")) {
             pnew@A <- params@A
+            # Derive is_background from the old @A slot if not already present
+            if (!("is_background" %in% names(pnew@species_params))) {
+                pnew@species_params$is_background <- is.na(params@A)
+            }
         }
 
         if (.hasSlot(params, "metadata")) {

@@ -397,7 +397,7 @@ valid_species_arg <- function(object, species = NULL, return.logical = FALSE,
     no_sp <- nrow(params@species_params)
     # Set species if missing to list of all non-background species
     if (is.null(species)) {
-        species <- dimnames(params@initial_n)$sp[!is.na(params@A)]
+        species <- dimnames(params@initial_n)$sp[!params@species_params$is_background]
         if (length(species) == 0) {  # There are no non-background species.
             if (error_on_empty) {
                 stop("No species have been selected.")

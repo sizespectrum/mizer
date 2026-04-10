@@ -77,6 +77,7 @@ validSpeciesParams <- function(species_params) {
     sp <- set_species_param_default(sp, "z_ext", 0)
     sp <- set_species_param_default(sp, "d", sp$n - 1)
     sp <- set_species_param_default(sp, "E_ext", 0)
+    sp <- set_species_param_default(sp, "is_background", FALSE)
     return(sp)
 }
 

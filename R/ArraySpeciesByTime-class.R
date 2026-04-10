@@ -225,9 +225,9 @@ plot.ArraySpeciesByTime <- function(x, species = NULL,
     plot_dat <- bm[bm$Species %in% c("Total", species), ]
     plot_dat$Legend <- plot_dat$Species
 
-    if (background && !is.null(params) && anyNA(params@A)) {
+    if (background && !is.null(params) && any(params@species_params$is_background)) {
         # Add background species in light grey
-        bkgrd_sp <- params@species_params$species[is.na(params@A)]
+        bkgrd_sp <- params@species_params$species[params@species_params$is_background]
         if (length(bkgrd_sp) > 0) {
             bm_bkgrd <- bm[bm$Species %in% bkgrd_sp, ]
             bm_bkgrd$Legend <- "Background"

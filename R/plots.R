@@ -765,8 +765,8 @@ plot_spectra <- function(params, n, n_pp,
                                      Legend = "Total")
                           )
     }
-    if (background && anyNA(params@A)) {
-        back_n <- n[is.na(params@A), , drop = FALSE]
+    if (background && any(params@species_params$is_background)) {
+        back_n <- n[params@species_params$is_background, , drop = FALSE]
         plot_dat <-
             rbind(plot_dat,
                   data.frame(w = rep(params@w,

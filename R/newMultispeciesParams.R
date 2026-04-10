@@ -222,7 +222,6 @@ newMultispeciesParams <- function(
             balance = FALSE)
 
     params@initial_n[] <- get_initial_n(params)
-    params@A <- rep(1, nrow(species_params))
     })
     if (length(infos) > 0) {
         message(paste(infos, collapse = "\n"))
