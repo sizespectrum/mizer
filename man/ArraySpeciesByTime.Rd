@@ -4,7 +4,13 @@
 \alias{ArraySpeciesByTime}
 \title{S3 class for time x species arrays}
 \usage{
-ArraySpeciesByTime(x, value_name = NULL, units = NULL, sim = NULL)
+ArraySpeciesByTime(
+  x,
+  value_name = NULL,
+  units = NULL,
+  sim = NULL,
+  params = NULL
+)
 }
 \arguments{
 \item{x}{A matrix (time x species).}
@@ -13,8 +19,12 @@ ArraySpeciesByTime(x, value_name = NULL, units = NULL, sim = NULL)
 
 \item{units}{A string giving the units (e.g. "g", "g/year").}
 
-\item{sim}{A \code{MizerSim} object. Currently unused but reserved for
-future extensions.}
+\item{sim}{A \code{MizerSim} object. If provided, the \code{MizerParams} are
+extracted and stored so that \code{plot()} can use species colours and
+linetypes without needing to pass \code{params} separately.}
+
+\item{params}{A \code{MizerParams} object. An alternative to passing \code{sim};
+if both are given, \code{sim} takes precedence.}
 }
 \value{
 A \code{ArraySpeciesByTime} object (inherits from \code{matrix} and \code{array}).
@@ -27,11 +37,13 @@ The \code{ArraySpeciesByTime} class wraps these arrays to provide convenient
 }
 \details{
 A \code{ArraySpeciesByTime} object behaves just like a regular matrix for
-arithmetic operations and subsetting. It carries two lightweight attributes:
+arithmetic operations and subsetting. It carries these lightweight attributes:
 \itemize{
 \item \code{value_name} – a human-readable name for the value
 (e.g. "Biomass").
 \item \code{units} – the units of the value (e.g. "g", "g/year").
+\item \code{params} – the \code{MizerParams} object (if available), used for
+species colours and linetypes in plots.
 }
 }
 \examples{

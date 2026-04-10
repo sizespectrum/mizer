@@ -8,19 +8,46 @@
   x,
   params = NULL,
   species = NULL,
+  start_time,
+  end_time,
+  y_ticks = 6,
+  ylim = c(NA, NA),
+  total = FALSE,
+  background = TRUE,
   highlight = NULL,
   return_data = FALSE,
   ...
 )
 }
 \arguments{
-\item{x}{A \code{ArraySpeciesByTime} object.}
+\item{x}{An \code{ArraySpeciesByTime} object.}
 
 \item{params}{A \code{MizerParams} object. Used for species colours and
-linetypes. If \code{NULL}, a basic plot is produced.}
+linetypes. If \code{NULL}, the params stored in \code{x} (set when the object was
+created from a \code{MizerSim}) are used. If none are available, a basic plot
+is produced.}
 
 \item{species}{Character vector of species to include. \code{NULL} (default) means
 all species.}
+
+\item{start_time}{The first time to be plotted. Default is the beginning
+of the time series.}
+
+\item{end_time}{The last time to be plotted. Default is the end of the
+time series.}
+
+\item{y_ticks}{The approximate number of ticks desired on the y axis.}
+
+\item{ylim}{A numeric vector of length two providing lower and upper limits
+for the y axis. Use NA to refer to the existing minimum or maximum. Any
+values below 1e-20 are always cut off.}
+
+\item{total}{A boolean value that determines whether the total from all
+species is plotted as well. Default is FALSE.}
+
+\item{background}{A boolean value that determines whether background species
+are included. Ignored if the model does not contain background species.
+Default is TRUE.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 
@@ -30,15 +57,19 @@ all species.}
 }
 \value{
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
-frame with columns 'time', 'value', 'Species' is returned.
+frame with columns 'Year', value_name, 'Species', 'Legend' is returned.
 }
 \description{
 Plots the value against time for each species, using species colours and
-linetypes from the MizerParams object.
+linetypes from the MizerParams object. This method supports the same
+arguments as \code{\link[=plotBiomass]{plotBiomass()}}, so that
+\code{plot(getBiomass(sim, ...), ...)} is equivalent to
+\code{plotBiomass(sim, ...)}.
 }
 \examples{
 \donttest{
-plot(getBiomass(NS_sim), NS_params)
-plot(getYield(NS_sim), NS_params, species = c("Cod", "Herring"))
+plot(getBiomass(NS_sim))
+plot(getBiomass(NS_sim), species = c("Cod", "Herring"), total = TRUE)
+plot(getYield(NS_sim), species = c("Cod", "Herring"))
 }
 }

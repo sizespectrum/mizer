@@ -204,7 +204,7 @@ getSSB.MizerSim <- function(object) {
     result <- apply(sweep(sweep(sim@n, c(2, 3), sim@params@maturity, "*"), 3,
                           sim@params@w * sim@params@dw, "*"), c(1, 2), sum)
     ArraySpeciesByTime(result, value_name = "Spawning stock biomass",
-                       units = "g")
+                       units = "g", params = sim@params)
 }
 #' @export
 getSSB.MizerParams <- function(object) {
@@ -275,7 +275,8 @@ getBiomass.MizerSim <- function(object, use_cutoff = FALSE, ...) {
         }
     result <- apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
                           sim@params@w * sim@params@dw, "*"), c(1, 2), sum)
-    ArraySpeciesByTime(result, value_name = "Biomass", units = "g")
+    ArraySpeciesByTime(result, value_name = "Biomass", units = "g",
+                       params = sim@params)
 }
 #' @export
 getBiomass.MizerParams <- function(object, use_cutoff = FALSE, ...) {
@@ -328,7 +329,8 @@ getN.MizerSim <- function(object, ...) {
     size_range <- get_size_range_array(sim@params, ...)
     result <- apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
                           sim@params@dw, "*"), c(1, 2), sum)
-    ArraySpeciesByTime(result, value_name = "Abundance")
+    ArraySpeciesByTime(result, value_name = "Abundance",
+                       params = sim@params)
 }
 #' @export
 getN.MizerParams <- function(object, ...) {
@@ -435,7 +437,8 @@ getYield.MizerSim <- function(object) {
     biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
     f <- getFMort(sim, drop = FALSE)
     result <- apply(f * biomass, c(1, 2), sum)
-    ArraySpeciesByTime(result, value_name = "Yield rate", units = "g/year")
+    ArraySpeciesByTime(result, value_name = "Yield rate", units = "g/year",
+                       params = sim@params)
 }
 #' @export
 getYield.MizerParams <- function(object) {

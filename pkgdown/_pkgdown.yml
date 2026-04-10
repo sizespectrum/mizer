@@ -114,6 +114,7 @@ reference:
   - initialNResource
   - initial_effort
   - renameGear
+  - expandSizeGrid
 - title: Steady state tuning
   description: The first task after creating a multi-species model is to tune
     the model parameters so that in its steady state the model reproduces
@@ -241,17 +242,19 @@ reference:
 - title: Classes
   contents:
   - MizerParams-class
-  - summary,MizerParams-method
+  - summary.MizerParams
   - compareParams
   - "w"
   - validParams
   - MizerSim-class
-  - summary,MizerSim-method
+  - summary.MizerSim
   - validSim
   - MizerSim
   - getParams
   - ArraySpeciesBySize
   - is.ArraySpeciesBySize
+  - ArraySpeciesByTime
+  - is.ArraySpeciesByTime
 - title: Example parameter sets
   desc: More example parameter sets are available via
     <https://sizespectrum.org/mizerExamples>
