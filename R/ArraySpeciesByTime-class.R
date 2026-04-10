@@ -243,6 +243,16 @@ plot.ArraySpeciesByTime <- function(x, species = NULL,
                   legend_var = "Legend")
 }
 
+#' @rdname plotly
+#' @export
+#' @examples
+#' \donttest{
+#' plotly(getBiomass(NS_sim))
+#' }
+plotly.ArraySpeciesByTime <- function(x, ...) {
+    plotly::ggplotly(plot(x, ...))
+}
+
 #' @export
 as.data.frame.ArraySpeciesByTime <- function(x, row.names = NULL,
                                              optional = FALSE, ...) {

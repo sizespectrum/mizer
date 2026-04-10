@@ -11,6 +11,9 @@
   highlight = NULL,
   return_data = FALSE,
   log_x = TRUE,
+  log_y = FALSE,
+  wlim = c(NA, NA),
+  ylim = c(NA, NA),
   ...
 )
 }
@@ -28,6 +31,18 @@ all species.}
 \item{return_data}{If \code{TRUE}, return the data frame instead of the plot.}
 
 \item{log_x}{If \code{TRUE} (default), use a log10 x-axis.}
+
+\item{log_y}{If \code{TRUE}, use a log10 y-axis. Default is \code{FALSE}. Useful for
+quantities that span several orders of magnitude (e.g. encounter rates,
+search volumes).}
+
+\item{wlim}{A numeric vector of length two providing lower and upper limits
+for the weight (x) axis. Use \code{NA} to refer to the existing minimum or
+maximum.}
+
+\item{ylim}{A numeric vector of length two providing lower and upper limits
+for the value (y) axis. Use \code{NA} to refer to the existing minimum or
+maximum.}
 
 \item{...}{Further arguments (currently unused).}
 }

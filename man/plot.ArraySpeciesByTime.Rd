@@ -7,13 +7,14 @@
 \method{plot}{ArraySpeciesByTime}(
   x,
   species = NULL,
-  start_time,
-  end_time,
+  start_time = NULL,
+  end_time = NULL,
   y_ticks = 6,
   ylim = c(NA, NA),
   total = FALSE,
   background = TRUE,
   highlight = NULL,
+  log = TRUE,
   return_data = FALSE,
   ...
 )
@@ -24,11 +25,11 @@
 \item{species}{Character vector of species to include. \code{NULL} (default) means
 all species.}
 
-\item{start_time}{The first time to be plotted. Default is the beginning
-of the time series.}
+\item{start_time}{The first time to be plotted. Default (\code{NULL}) is the
+beginning of the time series.}
 
-\item{end_time}{The last time to be plotted. Default is the end of the
-time series.}
+\item{end_time}{The last time to be plotted. Default (\code{NULL}) is the end of
+the time series.}
 
 \item{y_ticks}{The approximate number of ticks desired on the y axis.}
 
@@ -44,6 +45,10 @@ are included. Ignored if the model does not contain background species.
 Default is TRUE.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
+
+\item{log}{If \code{TRUE} (default), use a log10 y-axis. Appropriate for
+quantities like biomass, SSB, and yield that span orders of magnitude.
+Set to \code{FALSE} for a linear y-axis.}
 
 \item{return_data}{If \code{TRUE}, return the data frame instead of the plot.}
 

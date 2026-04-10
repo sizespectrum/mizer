@@ -268,6 +268,28 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
     p
 }
 
+#' Interactive plotly version of a plot method
+#'
+#' Converts the ggplot2 output of the `plot()` method into an interactive
+#' plotly figure using [plotly::ggplotly()]. All arguments are forwarded to
+#' `plot()`.
+#'
+#' @param x An object with a `plot()` method.
+#' @param ... Further arguments passed to the `plot()` method.
+#' @return A plotly object.
+#' @export
+plotly <- function(x, ...) UseMethod("plotly")
+
+#' @rdname plotly
+#' @export
+#' @examples
+#' \donttest{
+#' plotly(getEncounter(NS_params))
+#' }
+plotly.ArraySpeciesBySize <- function(x, ...) {
+    plotly::ggplotly(plot(x, ...))
+}
+
 #' @export
 as.data.frame.ArraySpeciesBySize <- function(x, row.names = NULL,
                                      optional = FALSE, ...) {
