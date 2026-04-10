@@ -90,6 +90,7 @@ Collate:
     'project_methods.R'
     'rate_functions.R'
     'summary_methods.R'
+    'indicator_functions.R'
     'plots.R'
     'plotBiomassObservedVsModel.R'
     'plotYieldObservedVsModel.R'
