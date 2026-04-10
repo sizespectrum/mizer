@@ -7,7 +7,7 @@
 getMeanMaxWeight(sim, species = NULL, measure = "both", ...)
 }
 \arguments{
-\item{sim}{A \linkS4class{MizerSim} object}
+\item{sim}{A \linkS4class{MizerSim} or \linkS4class{MizerParams} object}
 
 \item{species}{The species to be selected. Optional. By default all target
 species are selected. A vector of species names, or a
@@ -31,26 +31,28 @@ over \code{max_w}.}
 }
 \value{
 Depends on the \code{measure} argument. If \code{measure = “both”}
-  then you get a matrix with two columns, one with values by numbers, the
-other with values by biomass at each saved time step. If \code{measure =
-  “numbers”} or \code{“biomass”} you get a vector of the respective values at
-each saved time step.
+  then you get a matrix with two columns, one with values by numbers,
+the other with values by biomass at each saved time step (or a named
+vector with two entries for \code{MizerParams}). If \code{measure =
+  “numbers”} or \code{“biomass”} you get a vector of the respective values
+at each saved time step (or a single value for \code{MizerParams}).
 }
 \description{
-Calculates the mean maximum weight of the community through time. This can be
-calculated by numbers or biomass. The calculation is the sum of the w_max *
-abundance of each species, divided by the total abundance community, where
-abundance is either in biomass or numbers. You can specify minimum and
-maximum weight or length range for the species. Lengths take precedence over
-weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
-You can also specify the species to be used in the calculation.
+Calculates the mean maximum weight of the community. This can be calculated
+by numbers or biomass. The calculation is the sum of the w_max * abundance
+of each species, divided by the total abundance community, where abundance is
+either in biomass or numbers. You can specify minimum and maximum weight or
+length range for the species. Lengths take precedence over weights (i.e. if
+both min_l and min_w are supplied, only min_l will be used). You can also
+specify the species to be used in the calculation.
 }
 \examples{
 mmw <- getMeanMaxWeight(NS_sim)
-years <- c("1967", "2010")
+years <- c(“1967”, “2010”)
 mmw[years, ]
-getMeanMaxWeight(NS_sim, species=c("Herring","Sprat","N.pout"))[years, ]
+getMeanMaxWeight(NS_sim, species=c(“Herring”,”Sprat”,”N.pout”))[years, ]
 getMeanMaxWeight(NS_sim, min_w = 10, max_w = 5000)[years, ]
+getMeanMaxWeight(NS_params)
 }
 \seealso{
 Other functions for calculating indicators: 

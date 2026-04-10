@@ -10,6 +10,7 @@ addSpecies(
   gear_params = data.frame(),
   initial_effort,
   interaction,
+  info_level = 3,
   ...
 )
 }
@@ -33,6 +34,10 @@ interaction coefficients between all species or only those between the new
 species. In the latter case all interaction between an old and a new
 species are set to 1. If this argument is missing, all interactions
 involving a new species are set to 1.}
+
+\item{info_level}{Controls the amount of information messages that are shown
+when the function sets default values for parameters. Higher levels lead
+to more messages. Set to 0 to suppress all such messages.}
 
 \item{...}{Additional arguments}
 }

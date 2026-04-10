@@ -7,7 +7,7 @@
 getMeanWeight(sim, species = NULL, ...)
 }
 \arguments{
-\item{sim}{A \linkS4class{MizerSim} object}
+\item{sim}{A \linkS4class{MizerSim} or \linkS4class{MizerParams} object}
 
 \item{species}{The species to be selected. Optional. By default all target
 species are selected. A vector of species names, or a
@@ -28,11 +28,12 @@ over \code{max_w}.}
   }}
 }
 \value{
-A vector containing the mean weight of the community through time
+A vector containing the mean weight of the community through time,
+or a single value if called with a \code{MizerParams} object.
 }
 \description{
-Calculates the mean weight of the community through time. This is simply the
-total biomass of the community divided by the abundance in numbers. You can
+Calculates the mean weight of the community. This is simply the total
+biomass of the community divided by the abundance in numbers. You can
 specify minimum and maximum weight or length range for the species. Lengths
 take precedence over weights (i.e. if both min_l and min_w are supplied, only
 min_l will be used). You can also specify the species to be used in the
@@ -44,6 +45,7 @@ years <- c("1967", "2010")
 mean_weight[years]
 getMeanWeight(NS_sim, species = c("Herring", "Sprat", "N.pout"))[years]
 getMeanWeight(NS_sim, min_w = 10, max_w = 5000)[years]
+getMeanWeight(NS_params)
 }
 \seealso{
 Other functions for calculating indicators: 

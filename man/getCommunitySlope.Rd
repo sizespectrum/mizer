@@ -7,7 +7,7 @@
 getCommunitySlope(sim, species = NULL, biomass = TRUE, ...)
 }
 \arguments{
-\item{sim}{A \linkS4class{MizerSim} object}
+\item{sim}{A \linkS4class{MizerSim} or \linkS4class{MizerParams} object}
 
 \item{species}{The species to be selected. Optional. By default all target
 species are selected. A vector of species names, or a
@@ -31,13 +31,14 @@ over \code{max_w}.}
   }}
 }
 \value{
-A data.frame with four columns: time step, slope, intercept and the
-coefficient of determination R^2.
+A data.frame with columns slope, intercept and the coefficient of
+determination R^2 (and a time step column when called with a \code{MizerSim}
+object).
 }
 \description{
-Calculates the slope of the community abundance through time by performing a
-linear regression on the logged total numerical abundance at weight and
-logged weights (natural logs, not log to base 10, are used). You can specify
+Calculates the slope of the community abundance by performing a linear
+regression on the logged total numerical abundance at weight and logged
+weights (natural logs, not log to base 10, are used). You can specify
 minimum and maximum weight or length range for the species. Lengths take
 precedence over weights (i.e. if both min_l and min_w are supplied, only
 min_l will be used). You can also specify the species to be used in the
@@ -64,6 +65,8 @@ dem_species <- c("Dab","Whiting", "Sole", "Gurnard", "Plaice",
 slope_biomass <- getCommunitySlope(NS_sim, species = dem_species,
                                    min_w = 10, max_w = 1000)
 slope_biomass[1, ] # in 1976
+
+getCommunitySlope(NS_params)
 }
 \seealso{
 Other functions for calculating indicators: 

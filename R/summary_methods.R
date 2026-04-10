@@ -901,15 +901,19 @@ summary.MizerSim <- function(object, ...) {
 #' Description of indicator functions
 #'
 #' Mizer provides a range of functions to calculate indicators
-#' from a MizerSim object.
+#' from a MizerSim or MizerParams object.
 #'
-#' A list of available indicator functions for MizerSim objects is given in the table below
+#' When called with a `MizerSim` object, these functions return a time series
+#' of values. When called with a `MizerParams` object, they return a single
+#' value calculated from the initial abundances stored in the params object.
+#'
+#' A list of available indicator functions is given in the table below
 #' \tabular{lll}{
 #'   Function \tab Returns \tab Description \cr
-#'   [getProportionOfLargeFish()] \tab A vector with values at each time step. \tab Calculates the proportion of large fish through time. The threshold value can be specified. It is possible to calculation the proportion of large fish based on either length or weight. \cr
-#'   [getMeanWeight()] \tab A vector with values at each saved time step. \tab The mean weight of the community through time. This is calculated as the total biomass of the community divided by the total abundance. \cr
-#'   [getMeanMaxWeight()] \tab Depends on the measure argument. If measure = “both” then you get a matrix with two columns, one with values by numbers, the other with values by biomass at each saved time step. If measure = “numbers” or “biomass” you get a vector of the respective values at each saved time step \tab The mean maximum weight of the community through time. This can be calculated by numbers or by biomass. See the help file for more details. \cr
-#'   [getCommunitySlope()] \tab A data.frame with four columns: time step, slope, intercept and the coefficient of determination. \tab Calculates the slope of the community abundance spectrum through time by performing a linear regression on the logged total numerical abundance and logged body size. \cr
+#'   [getProportionOfLargeFish()] \tab A vector with values at each time step (or a single value for MizerParams). \tab Calculates the proportion of large fish through time. The threshold value can be specified. It is possible to calculation the proportion of large fish based on either length or weight. \cr
+#'   [getMeanWeight()] \tab A vector with values at each saved time step (or a single value for MizerParams). \tab The mean weight of the community through time. This is calculated as the total biomass of the community divided by the total abundance. \cr
+#'   [getMeanMaxWeight()] \tab Depends on the measure argument. If measure = “both” then you get a matrix with two columns, one with values by numbers, the other with values by biomass at each saved time step (or a named vector for MizerParams). If measure = “numbers” or “biomass” you get a vector of the respective values at each saved time step (or a single value for MizerParams). \tab The mean maximum weight of the community through time. This can be calculated by numbers or by biomass. See the help file for more details. \cr
+#'   [getCommunitySlope()] \tab A data.frame with four columns: time step, slope, intercept and the coefficient of determination (or a single-row data.frame for MizerParams). \tab Calculates the slope of the community abundance spectrum through time by performing a linear regression on the logged total numerical abundance and logged body size. \cr
 #' }
 #'
 #' @seealso [summary_functions], [plotting_functions]
@@ -919,16 +923,16 @@ NULL
 
 #' Calculate the proportion of large fish
 #'
-#' Calculates the proportion of large fish through time in a `MizerSim`
-#' class within user defined size limits. The default option is to use the whole
-#' size range. You can specify minimum and maximum size ranges for the species
-#' and also the threshold size for large fish. Sizes can be expressed as weight
-#' or length. Lengths take precedence over weights (i.e. if both `min_l` and
-#' `min_w` are supplied, only `min_l` will be used, and if `threshold_l` is
-#' supplied it takes precedence over `threshold_w`). You can also specify the
-#' species to be used in the calculation. This function can be used to
-#' calculate the Large Fish Index. The proportion is based on either abundance
-#' or biomass.
+#' Calculates the proportion of large fish in a `MizerSim` or `MizerParams`
+#' object within user defined size limits. The default option is to use the
+#' whole size range. You can specify minimum and maximum size ranges for the
+#' species and also the threshold size for large fish. Sizes can be expressed
+#' as weight or length. Lengths take precedence over weights (i.e. if both
+#' `min_l` and `min_w` are supplied, only `min_l` will be used, and if
+#' `threshold_l` is supplied it takes precedence over `threshold_w`). You can
+#' also specify the species to be used in the calculation. This function can be
+#' used to calculate the Large Fish Index. The proportion is based on either
+#' abundance or biomass.
 #'
 #' @inheritParams getMeanWeight
 #' @param threshold_w The weight used as the cutoff between large and small
@@ -941,7 +945,8 @@ NULL
 #'   Default is TRUE.
 #' @inheritDotParams get_size_range_array -params
 #'
-#' @return A vector containing the proportion of large fish through time
+#' @return A vector containing the proportion of large fish through time, or a
+#'   single value if called with a `MizerParams` object.
 #' @export
 #' @family functions for calculating indicators
 #' @concept summary_function
@@ -955,6 +960,7 @@ NULL
 #' getProportionOfLargeFish(NS_sim, min_w = 10, max_w = 5000)[years]
 #' getProportionOfLargeFish(NS_sim, min_w = 10, max_w = 5000,
 #'     threshold_w = 500, biomass_proportion = FALSE)[years]
+#' getProportionOfLargeFish(NS_params)
 getProportionOfLargeFish <- function(sim,
                                      species = NULL,
                                      threshold_w = 100, threshold_l = NULL,
@@ -999,22 +1005,52 @@ getProportionOfLargeFish.MizerSim <- function(sim,
     #return(lfi)
     return(1 - (upto_threshold_measure / total_measure))
 }
+#' @export
+getProportionOfLargeFish.MizerParams <- function(sim,
+                                     species = NULL,
+                                     threshold_w = 100, threshold_l = NULL,
+                                     biomass_proportion = TRUE, ...) {
+    params <- sim
+    species <- valid_species_arg(params, species)
+
+    total_size_range <- get_size_range_array(params, ...)
+    args <- list(...)
+    args[["params"]] <- params
+    args[["max_w"]] <- threshold_w
+    args[["max_l"]] <- threshold_l
+    large_size_range <- do.call("get_size_range_array", args = args)
+
+    total_size_range <- total_size_range[species, , drop = FALSE]
+    large_size_range <- large_size_range[species, , drop = FALSE]
+
+    w <- params@w
+    if (!biomass_proportion) { # based on abundance numbers
+        w[] <- 1
+    }
+
+    n <- params@initial_n[species, , drop = FALSE]
+    total_measure <- sum(n * total_size_range * w * params@dw)
+    upto_threshold_measure <- sum(n * large_size_range * w * params@dw)
+
+    return(1 - (upto_threshold_measure / total_measure))
+}
 
 
 #' Calculate the mean weight of the community
 #'
-#' Calculates the mean weight of the community through time. This is simply the
-#' total biomass of the community divided by the abundance in numbers. You can
+#' Calculates the mean weight of the community. This is simply the total
+#' biomass of the community divided by the abundance in numbers. You can
 #' specify minimum and maximum weight or length range for the species. Lengths
 #' take precedence over weights (i.e. if both min_l and min_w are supplied, only
 #' min_l will be used). You can also specify the species to be used in the
 #' calculation.
 #'
-#' @param sim A \linkS4class{MizerSim} object
+#' @param sim A \linkS4class{MizerSim} or \linkS4class{MizerParams} object
 #' @inheritParams valid_species_arg
 #' @inheritDotParams get_size_range_array -params
 #'
-#' @return A vector containing the mean weight of the community through time
+#' @return A vector containing the mean weight of the community through time,
+#'   or a single value if called with a `MizerParams` object.
 #' @export
 #' @family functions for calculating indicators
 #' @concept summary_function
@@ -1024,6 +1060,7 @@ getProportionOfLargeFish.MizerSim <- function(sim,
 #' mean_weight[years]
 #' getMeanWeight(NS_sim, species = c("Herring", "Sprat", "N.pout"))[years]
 #' getMeanWeight(NS_sim, min_w = 10, max_w = 5000)[years]
+#' getMeanWeight(NS_params)
 getMeanWeight <- function(sim, species = NULL, ...) {
     UseMethod("getMeanWeight")
 }
@@ -1037,36 +1074,46 @@ getMeanWeight.MizerSim <- function(sim, species = NULL, ...) {
     biomass_total <- apply(biomass_species[, species, drop = FALSE], 1, sum)
     return(biomass_total / n_total)
 }
+#' @export
+getMeanWeight.MizerParams <- function(sim, species = NULL, ...) {
+    params <- sim
+    species <- valid_species_arg(params, species)
+    n_total <- sum(getN(params, ...)[species])
+    biomass_total <- sum(getBiomass(params, ...)[species])
+    return(biomass_total / n_total)
+}
 
 
 #' Calculate the mean maximum weight of the community
 #'
-#' Calculates the mean maximum weight of the community through time. This can be
-#' calculated by numbers or biomass. The calculation is the sum of the w_max *
-#' abundance of each species, divided by the total abundance community, where
-#' abundance is either in biomass or numbers. You can specify minimum and
-#' maximum weight or length range for the species. Lengths take precedence over
-#' weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
-#' You can also specify the species to be used in the calculation.
+#' Calculates the mean maximum weight of the community. This can be calculated
+#' by numbers or biomass. The calculation is the sum of the w_max * abundance
+#' of each species, divided by the total abundance community, where abundance is
+#' either in biomass or numbers. You can specify minimum and maximum weight or
+#' length range for the species. Lengths take precedence over weights (i.e. if
+#' both min_l and min_w are supplied, only min_l will be used). You can also
+#' specify the species to be used in the calculation.
 #'
 #' @inheritParams getMeanWeight
 #' @param measure The measure to return. Can be 'numbers', 'biomass' or 'both'
 #' @inheritDotParams get_size_range_array -params
 #'
 #' @return Depends on the `measure` argument. If \code{measure = “both”}
-#'   then you get a matrix with two columns, one with values by numbers, the
-#'   other with values by biomass at each saved time step. If \code{measure =
-#'   “numbers”} or \code{“biomass”} you get a vector of the respective values at
-#'   each saved time step.
+#'   then you get a matrix with two columns, one with values by numbers,
+#'   the other with values by biomass at each saved time step (or a named
+#'   vector with two entries for `MizerParams`). If \code{measure =
+#'   “numbers”} or \code{“biomass”} you get a vector of the respective values
+#'   at each saved time step (or a single value for `MizerParams`).
 #' @export
 #' @family functions for calculating indicators
 #' @concept summary_function
 #' @examples
 #' mmw <- getMeanMaxWeight(NS_sim)
-#' years <- c("1967", "2010")
+#' years <- c(“1967”, “2010”)
 #' mmw[years, ]
-#' getMeanMaxWeight(NS_sim, species=c("Herring","Sprat","N.pout"))[years, ]
+#' getMeanMaxWeight(NS_sim, species=c(“Herring”,”Sprat”,”N.pout”))[years, ]
 #' getMeanMaxWeight(NS_sim, min_w = 10, max_w = 5000)[years, ]
+#' getMeanMaxWeight(NS_params)
 getMeanMaxWeight <- function(sim, species = NULL,
                              measure = "both", ...) {
     UseMethod("getMeanMaxWeight")
@@ -1093,13 +1140,35 @@ getMeanMaxWeight.MizerSim <- function(sim, species = NULL,
     if (measure == "both")
         return(cbind(mmw_numbers, mmw_biomass))
 }
+#' @export
+getMeanMaxWeight.MizerParams <- function(sim, species = NULL,
+                             measure = "both", ...) {
+    params <- sim
+    if (!(measure %in% c("both", "numbers", "biomass"))) {
+        stop("measure must be one of 'both', 'numbers' or 'biomass'")
+    }
+    species <- valid_species_arg(params, species)
+    n_species <- getN(params, ...)[species]
+    biomass_species <- getBiomass(params, ...)[species]
+    w_max <- params@species_params$w_max[match(species, params@species_params$species)]
+    n_winf <- sum(n_species * w_max)
+    biomass_winf <- sum(biomass_species * w_max)
+    mmw_numbers <- n_winf / sum(n_species)
+    mmw_biomass <- biomass_winf / sum(biomass_species)
+    if (measure == "numbers")
+        return(mmw_numbers)
+    if (measure == "biomass")
+        return(mmw_biomass)
+    if (measure == "both")
+        return(c(mmw_numbers = mmw_numbers, mmw_biomass = mmw_biomass))
+}
 
 
 #' Calculate the slope of the community abundance
 #'
-#' Calculates the slope of the community abundance through time by performing a
-#' linear regression on the logged total numerical abundance at weight and
-#' logged weights (natural logs, not log to base 10, are used). You can specify
+#' Calculates the slope of the community abundance by performing a linear
+#' regression on the logged total numerical abundance at weight and logged
+#' weights (natural logs, not log to base 10, are used). You can specify
 #' minimum and maximum weight or length range for the species. Lengths take
 #' precedence over weights (i.e. if both min_l and min_w are supplied, only
 #' min_l will be used). You can also specify the species to be used in the
@@ -1110,8 +1179,9 @@ getMeanMaxWeight.MizerSim <- function(sim, species = NULL,
 #'   if FALSE the abundance is based on numbers.
 #' @inheritDotParams get_size_range_array -params
 #'
-#' @return A data.frame with four columns: time step, slope, intercept and the
-#'   coefficient of determination R^2.
+#' @return A data.frame with columns slope, intercept and the coefficient of
+#'   determination R^2 (and a time step column when called with a `MizerSim`
+#'   object).
 #' @export
 #' @family functions for calculating indicators
 #' @concept summary_function
@@ -1136,6 +1206,8 @@ getMeanMaxWeight.MizerSim <- function(sim, species = NULL,
 #' slope_biomass <- getCommunitySlope(NS_sim, species = dem_species,
 #'                                    min_w = 10, max_w = 1000)
 #' slope_biomass[1, ] # in 1976
+#'
+#' getCommunitySlope(NS_params)
 getCommunitySlope <- function(sim, species = NULL,
                               biomass = TRUE, ...) {
     UseMethod("getCommunitySlope")
@@ -1169,4 +1241,26 @@ getCommunitySlope.MizerSim <- function(sim, species = NULL,
     dimnames(slope)[[1]] <- slope[, 1]
     slope <- slope[, -1]
     return(slope)
+}
+#' @export
+getCommunitySlope.MizerParams <- function(sim, species = NULL,
+                              biomass = TRUE, ...) {
+    params <- sim
+    species <- valid_species_arg(params, species)
+    size_range <- get_size_range_array(params, ...)
+    # set entries for unwanted sizes to zero and sum over wanted species,
+    # giving a vector (size)
+    total_n <- colSums(params@initial_n[species, , drop = FALSE] *
+                           size_range[species, , drop = FALSE])
+    # numbers or biomass?
+    if (biomass)
+        total_n <- total_n * params@w
+    # set entries that are zero to NA so they are ignored in the linear model
+    total_n[total_n <= 0] <- NA
+    summary_fit <- summary(lm(log(total_n) ~ log(params@w)))
+    data.frame(
+        slope = summary_fit$coefficients[2, 1],
+        intercept = summary_fit$coefficients[1, 1],
+        r2 = summary_fit$r.squared
+    )
 }

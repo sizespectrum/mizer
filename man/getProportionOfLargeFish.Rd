@@ -14,7 +14,7 @@ getProportionOfLargeFish(
 )
 }
 \arguments{
-\item{sim}{A \linkS4class{MizerSim} object}
+\item{sim}{A \linkS4class{MizerSim} or \linkS4class{MizerParams} object}
 
 \item{species}{The species to be selected. Optional. By default all target
 species are selected. A vector of species names, or a
@@ -46,19 +46,20 @@ over \code{max_w}.}
   }}
 }
 \value{
-A vector containing the proportion of large fish through time
+A vector containing the proportion of large fish through time, or a
+single value if called with a \code{MizerParams} object.
 }
 \description{
-Calculates the proportion of large fish through time in a \code{MizerSim}
-class within user defined size limits. The default option is to use the whole
-size range. You can specify minimum and maximum size ranges for the species
-and also the threshold size for large fish. Sizes can be expressed as weight
-or length. Lengths take precedence over weights (i.e. if both \code{min_l} and
-\code{min_w} are supplied, only \code{min_l} will be used, and if \code{threshold_l} is
-supplied it takes precedence over \code{threshold_w}). You can also specify the
-species to be used in the calculation. This function can be used to
-calculate the Large Fish Index. The proportion is based on either abundance
-or biomass.
+Calculates the proportion of large fish in a \code{MizerSim} or \code{MizerParams}
+object within user defined size limits. The default option is to use the
+whole size range. You can specify minimum and maximum size ranges for the
+species and also the threshold size for large fish. Sizes can be expressed
+as weight or length. Lengths take precedence over weights (i.e. if both
+\code{min_l} and \code{min_w} are supplied, only \code{min_l} will be used, and if
+\code{threshold_l} is supplied it takes precedence over \code{threshold_w}). You can
+also specify the species to be used in the calculation. This function can be
+used to calculate the Large Fish Index. The proportion is based on either
+abundance or biomass.
 }
 \examples{
 lfi <- getProportionOfLargeFish(NS_sim, min_w = 10, max_w = 5000,
@@ -70,6 +71,7 @@ getProportionOfLargeFish(NS_sim, species=c("Herring","Sprat","N.pout"))[years]
 getProportionOfLargeFish(NS_sim, min_w = 10, max_w = 5000)[years]
 getProportionOfLargeFish(NS_sim, min_w = 10, max_w = 5000,
     threshold_w = 500, biomass_proportion = FALSE)[years]
+getProportionOfLargeFish(NS_params)
 }
 \seealso{
 Other functions for calculating indicators: 

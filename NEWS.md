@@ -1,5 +1,11 @@
 # Development version 2.5.4.9102
 
+- The indicator functions `getProportionOfLargeFish()`, `getMeanWeight()`,
+  `getMeanMaxWeight()`, and `getCommunitySlope()` now also accept a
+  `MizerParams` object and return a single value (or named vector for
+  `getMeanMaxWeight()` with `measure = "both"`) calculated from the initial
+  abundances. Closes #262.
+
 - `addSpecies()` now accepts an `info_level` argument (default 3) to control
   the verbosity of information messages, consistent with `newMultispeciesParams()`.
   Set `info_level = 0` to suppress all such messages. Closes #290.
