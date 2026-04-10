@@ -40,4 +40,8 @@
 #' @export
 reshape2::melt
 
+#' @importFrom plotly ggplotly
+#' @export
+plotly::ggplotly
+
 globalVariables(c("expect_equal", "observed", "model", "is_observed"))

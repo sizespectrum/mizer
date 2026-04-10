@@ -64,6 +64,12 @@ test_that("plot.ArraySpeciesByTime returns ggplot", {
     expect_true(all(c("Year", "Biomass", "Species") %in% names(df)))
 })
 
+test_that("ArraySpeciesByTime has interactive plotly methods", {
+    bio <- getBiomass(NS_sim)
+
+    expect_s3_class(ggplotly(bio), "plotly")
+})
+
 test_that("plot.ArraySpeciesByTime time filtering works", {
     bio <- getBiomass(NS_sim)
     t <- as.numeric(rownames(bio))

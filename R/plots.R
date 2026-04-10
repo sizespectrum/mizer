@@ -39,7 +39,8 @@
 #' with the help of the plotly package.
 #'
 #' In addition to the named plot functions above, mizer provides generic
-#' `plot()` and [plotly()] methods for the array classes returned by the
+#' `plot()` methods and [ggplotly()] methods for the array classes
+#' returned by the
 #' rate and summary functions:
 #'
 #' * `plot(<ArraySpeciesBySize>)` — plots any species-by-size array (such as
@@ -55,9 +56,9 @@
 #'   `highlight`, `log`, and `ylim` arguments. This makes
 #'   `plot(getBiomass(sim))` equivalent to `plotBiomass(sim)`.
 #'
-#' * [plotly()] wraps either of the above in [plotly::ggplotly()] to produce
-#'   an interactive figure. Call it as `plotly(getEncounter(params))` or
-#'   `plotly(getBiomass(sim))`.
+#' * [ggplotly()] wraps either of the above to produce an interactive
+#'   figure. Call it as `ggplotly(getEncounter(params))` or
+#'   `ggplotly(getBiomass(sim))`.
 #'
 #' While most plot functions take their data from a MizerSim object, some of
 #' those that make plots representing data at a single time can also take their

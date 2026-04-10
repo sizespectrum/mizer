@@ -243,14 +243,14 @@ plot.ArraySpeciesByTime <- function(x, species = NULL,
                   legend_var = "Legend")
 }
 
-#' @rdname plotly
-#' @export
+#' @rdname ggplotly
+#' @exportS3Method plotly::ggplotly
 #' @examples
 #' \donttest{
-#' plotly(getBiomass(NS_sim))
+#' ggplotly(getBiomass(NS_sim))
 #' }
-plotly.ArraySpeciesByTime <- function(x, ...) {
-    plotly::ggplotly(plot(x, ...))
+ggplotly.ArraySpeciesByTime <- function(p, ...) {
+    ggplotly(plot(p, ...))
 }
 
 #' @export

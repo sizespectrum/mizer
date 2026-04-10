@@ -90,6 +90,12 @@ test_that("plot.ArraySpeciesBySize returns ggplot", {
     expect_true(all(c("w", "value", "Species") %in% names(df)))
 })
 
+test_that("ArraySpeciesBySize has interactive plotly methods", {
+    enc <- getEncounter(NS_params)
+
+    expect_s3_class(ggplotly(enc), "plotly")
+})
+
 test_that("as.data.frame.ArraySpeciesBySize works", {
     enc <- getEncounter(NS_params)
     df <- as.data.frame(enc)
