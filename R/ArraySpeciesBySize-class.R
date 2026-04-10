@@ -166,20 +166,6 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
     units_str <- attr(x, "units")
     params <- attr(x, "params")
 
-    # Get w grid from params or from dimnames
-    if (!is.null(params)) {
-        w <- params@w
-        linecolour <- params@linecolour
-        linetype <- params@linetype
-        species_params <- params@species_params
-    } else {
-        w <- as.numeric(colnames(x))
-        if (any(is.na(w))) w <- seq_len(ncol(x))
-        linecolour <- NULL
-        linetype <- NULL
-        species_params <- NULL
-    }
-    
     all_species <- rownames(x)
     if (is.null(species)) {
         species <- all_species
@@ -189,31 +175,29 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
             stop("None of the selected species are in the rate array.")
         }
     }
-    
+
     sel <- all_species %in% species
     mat <- unclass(x)[sel, , drop = FALSE]
-    
+
     plot_dat <- data.frame(
-        w = rep(w, each = sum(sel)),
+        w = rep(params@w, each = sum(sel)),
         value = c(mat),
         Species = rownames(mat)
     )
-    
-    if (!all.sizes && !is.null(species_params)) {
+
+    if (!all.sizes) {
+        sp_params <- params@species_params
         for (sp in species) {
-            if (sp %in% species_params$species) {
-                sp_row <- species_params[species_params$species == sp, ]
-                w_min_sp <- sp_row$w_min[1]
-                w_max_sp <- sp_row$w_max[1]
+            if (sp %in% sp_params$species) {
+                sp_row <- sp_params[sp_params$species == sp, ]
                 plot_dat$value[plot_dat$Species == sp &
-                                   (plot_dat$w < w_min_sp |
-                                        plot_dat$w > w_max_sp)] <- NA
+                                   (plot_dat$w < sp_row$w_min[1] |
+                                        plot_dat$w > sp_row$w_max[1])] <- NA
             }
         }
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
 
-    # Apply wlim filter
     if (!is.na(wlim[1])) plot_dat <- plot_dat[plot_dat$w >= wlim[1], ]
     if (!is.na(wlim[2])) plot_dat <- plot_dat[plot_dat$w <= wlim[2], ]
 
@@ -224,48 +208,10 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
         y_label <- paste0(value_name, " [", units_str, "]")
     }
 
-    # Set up species as ordered factor for legend
-    if (!is.null(linecolour)) {
-        legend_levels <- intersect(names(linecolour), plot_dat$Species)
-    } else {
-        legend_levels <- unique(plot_dat$Species)
-    }
-    plot_dat$Species <- factor(plot_dat$Species, levels = legend_levels)
-
-    linesize <- rep(0.8, length(legend_levels))
-    names(linesize) <- legend_levels
-    if (!is.null(highlight)) {
-        linesize[highlight] <- 1.6
-    }
-
-    y_trans <- if (log_y) "log10" else "identity"
-
-    p <- ggplot2::ggplot(plot_dat, ggplot2::aes(group = .data[["Species"]])) +
-        ggplot2::geom_line(ggplot2::aes(
-            x = .data[["w"]],
-            y = .data[["value"]],
-            colour = .data[["Species"]],
-            linetype = .data[["Species"]],
-            linewidth = .data[["Species"]]
-        )) +
-        ggplot2::scale_y_continuous(name = y_label, trans = y_trans,
-                                    limits = ylim)
-
-    x_trans <- if (log_x) "log10" else "identity"
-    p <- p + ggplot2::scale_x_continuous(name = "Size [g]", trans = x_trans,
-                                         limits = wlim)
-    
-    if (!is.null(linecolour)) {
-        p <- p + 
-            ggplot2::scale_colour_manual(values = linecolour[legend_levels])
-    }
-    if (!is.null(linetype)) {
-        p <- p + 
-            ggplot2::scale_linetype_manual(values = linetype[legend_levels])
-    }
-    p <- p + ggplot2::scale_discrete_manual("linewidth", values = linesize)
-    
-    p
+    plotDataFrame(plot_dat, params, xlab = "Size [g]", ylab = y_label,
+                  xtrans = if (log_x) "log10" else "identity",
+                  ytrans = if (log_y) "log10" else "identity",
+                  xlim = wlim, ylim = ylim, highlight = highlight)
 }
 
 #' Interactive plotly version of a plot method
