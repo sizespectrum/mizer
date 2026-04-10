@@ -23,6 +23,9 @@
 #' @param resource A boolean value that determines whether resource is included.
 #'   If `TRUE`, the resource spectrum is plotted as an additional trace called
 #'   `"Resource"`. Default is TRUE.
+#' @param background A boolean value that determines whether background species
+#'   are included. Ignored if the model does not contain background species.
+#'   Default is TRUE.
 #' @param ... Additional arguments passed to the method.
 #'
 #' @return A plotly object with one animated line trace per plotted group. The
@@ -38,14 +41,16 @@ animateSpectra <- function(sim, species, time_range,
                            ylim,
                            power,
                            total,
-                           resource, ...)
+                           resource,
+                           background, ...)
     UseMethod("animateSpectra")
 
 #' @export
 animateSpectra.MizerSim <- function(sim, species = NULL, time_range = NULL,
                                     wlim = c(NA, NA), ylim = c(NA, NA),
-                                    power = 1, total = FALSE, resource = TRUE, ...) {
-    assert_that(is.flag(total), is.flag(resource),
+                                    power = 1, total = FALSE, resource = TRUE,
+                                    background = TRUE, ...) {
+    assert_that(is.flag(total), is.flag(resource), is.flag(background),
                 is.number(power),
                 length(wlim) == 2,
                 length(ylim) == 2)
@@ -59,12 +64,25 @@ animateSpectra.MizerSim <- function(sim, species = NULL, time_range = NULL,
     nf <- melt(sim@n[time_elements,
                      as.character(dimnames(sim@n)$sp) %in% species,
                                , drop = FALSE])
+    # legend_name drives the legend entry and colour lookup; sp drives trace splitting.
+    # For regular species these are identical.
+    nf$legend_name <- as.character(nf$sp)
 
     # Add resource ----
     if (resource) {
         nf_pp <- melt(sim@n_pp[time_elements, , drop = FALSE])
         nf_pp$sp <- "Resource"
+        nf_pp$legend_name <- "Resource"
         nf <- rbind(nf, nf_pp)
+    }
+    # Add background ----
+    # Keep each background species as its own trace (avoids oscillation from
+    # interleaved data points) but label them all as "Background" in the legend.
+    if (background && anyNA(sim@params@A)) {
+        back_n <- sim@n[time_elements, is.na(sim@params@A), , drop = FALSE]
+        nf_back <- melt(back_n)
+        nf_back$legend_name <- "Background"
+        nf <- rbind(nf, nf_back)
     }
     # Add total ----
     if (total) {
@@ -76,6 +94,7 @@ animateSpectra.MizerSim <- function(sim, species = NULL, time_range = NULL,
             rowSums(aperm(sim@n, c(1, 3, 2)), dims = 2)
         nf_total <- melt(total_n[time_elements, , drop = FALSE])
         nf_total$sp <- "Total"
+        nf_total$legend_name <- "Total"
         nf <- rbind(nf, nf_total)
     }
 
@@ -99,26 +118,34 @@ animateSpectra.MizerSim <- function(sim, species = NULL, time_range = NULL,
                w >= wlim[1],
                w <= wlim[2])
 
-    # Order legend to follow params@species_params$species via linecolour order ----
-    # Keep only groups present in data, but preserve the order given by
-    # names(sim@params@linecolour) which follows params@species_params$species.
-    species_in_data <- unique(nf$sp)
-    legend_levels <- intersect(names(sim@params@linecolour), species_in_data)
-    nf$sp <- factor(nf$sp, levels = legend_levels)
+    # Determine trace order: follow linecolour order for legend_names, then
+    # within each legend_name group follow linecolour order for individual sp.
+    legend_name_order <- intersect(names(sim@params@linecolour),
+                                   unique(nf$legend_name))
+    sp_order <- unlist(lapply(legend_name_order, function(ln) {
+        intersect(names(sim@params@linecolour),
+                  unique(nf$sp[nf$legend_name == ln]))
+    }))
 
-    # Build traces in desired legend order to avoid alphabetical reordering ----
+    # Build one trace per sp; background species share a legend group so only
+    # the first one gets a visible legend entry.
     p <- plotly::plot_ly()
-    for (lev in legend_levels) {
-        df_lev <- nf[nf$sp == lev, , drop = FALSE]
+    shown_legend_names <- character(0)
+    for (sp_lev in sp_order) {
+        df_sp <- nf[nf$sp == sp_lev, , drop = FALSE]
+        ln <- unique(df_sp$legend_name)
+        col <- sim@params@linecolour[[ln]]
+        showlegend <- !(ln %in% shown_legend_names)
+        shown_legend_names <- c(shown_legend_names, ln)
         p <- plotly::add_lines(
             p,
-            data = df_lev,
+            data = df_sp,
             x = ~w, y = ~value,
             frame = ~time,
-            name = lev,
-            line = list(color = sim@params@linecolour[[lev]],
-                        simplify = FALSE),
-            showlegend = TRUE
+            name = ln,
+            legendgroup = ln,
+            line = list(color = col, simplify = FALSE),
+            showlegend = showlegend
         )
     }
     plotly::layout(p,

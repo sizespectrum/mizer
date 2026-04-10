@@ -197,6 +197,37 @@ test_that("animateSpectra adds resource and total traces when requested", {
                                c("Cod", "Haddock", "Total", "Resource")))
 })
 
+test_that("animateSpectra handles background parameter correctly", {
+    params_bkgrd <- NS_params
+    params_bkgrd@A[1:3] <- NA
+    sim_bkgrd <- project(params_bkgrd, t_max = 2, t_save = 1, effort = 1)
+
+    # background = TRUE (default) includes a "Background" trace
+    built_on <- plotly::plotly_build(
+        animateSpectra(sim_bkgrd, species = "Cod", time_range = c(1, 2),
+                       resource = FALSE, background = TRUE)
+    )
+    trace_names_on <- vapply(built_on$x$data, `[[`, character(1), "name")
+    expect_true("Background" %in% trace_names_on)
+
+    # background = FALSE excludes the "Background" trace
+    built_off <- plotly::plotly_build(
+        animateSpectra(sim_bkgrd, species = "Cod", time_range = c(1, 2),
+                       resource = FALSE, background = FALSE)
+    )
+    trace_names_off <- vapply(built_off$x$data, `[[`, character(1), "name")
+    expect_false("Background" %in% trace_names_off)
+
+    # background = TRUE on a model with no background species adds no "Background" trace
+    sim_plain <- project(NS_params, t_max = 2, t_save = 1, effort = 1)
+    built_plain <- plotly::plotly_build(
+        animateSpectra(sim_plain, species = "Cod", time_range = c(1, 2),
+                       resource = FALSE, background = TRUE)
+    )
+    trace_names_plain <- vapply(built_plain$x$data, `[[`, character(1), "name")
+    expect_false("Background" %in% trace_names_plain)
+})
+
 test_that("animateSpectra sets the y axis title from power", {
     sim <- project(NS_params, t_max = 2, t_save = 1, effort = 1)
 

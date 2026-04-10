@@ -1,5 +1,20 @@
 # Development version 2.5.4.9102
 
+- `animateSpectra()` gains a `background` argument (default `TRUE`) to include
+  background species in the animation, consistent with `plotSpectra()`. Each
+  background species is shown as a separate grey line grouped under a single
+  "Background" legend entry.
+
+- `setRateFunction()` now validates the registered function by calling it with
+  test inputs and checking that the return value has the correct dimensions.
+  This catches mismatched custom rate functions at registration time rather than
+  during a simulation run. Closes #167.
+
+- New species parameters `z_ext` (default 0) and `d` (default `n - 1`) add an
+  optional power-law term to the external mortality: `mu_ext(w) = z0 + z_ext *
+  w^d`. When `z_ext` is zero (the default) the behaviour is unchanged. Closes
+  #329.
+
 - New species parameter `E_ext` (default 0) sets the coefficient of the
   external encounter rate power law. `setExtEncounter()` now calculates the
   default external encounter rate as `E_ext * w^n` when no custom array is
