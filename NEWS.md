@@ -1,5 +1,9 @@
 # Development version 2.5.4.9102
 
+- `summary()` for `MizerParams` and `MizerSim` now displays metadata from the
+  `@metadata` slot, including title, description, authors, DOI, URL, mizer
+  version, and creation/modification timestamps (when set).
+
 - New `ArraySpeciesBySize` S3 class for the species x size arrays returned by
   many mizer functions such as `getEncounter()`, `getFeedingLevel()`,
   `getMaxIntakeRate()`, `getMetabolicRate()`, `getSearchVolume()`,

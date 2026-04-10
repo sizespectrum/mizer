@@ -811,6 +811,32 @@ get_size_range_array <- function(params, min_w = min(params@w),
 summary.MizerParams <- function(object, ...) {
     params <- validParams(object)
     cat("An object of class \"", as.character(class(params)), "\" \n", sep = "")
+    # Display metadata if available
+    md <- getMetadata(params)
+    if (!is.null(md$title) && nchar(md$title) > 0)
+        cat("Title: ", md$title, "\n", sep = "")
+    if (!is.null(md$description) && nchar(md$description) > 0)
+        cat("Description: ", md$description, "\n", sep = "")
+    if (!is.null(md$authors)) {
+        authors <- md$authors
+        if (is.list(authors)) {
+            author_names <- sapply(authors, function(a) {
+                if (is.list(a)) a$name else as.character(a)
+            })
+            cat("Authors: ", paste(author_names, collapse = ", "), "\n", sep = "")
+        } else {
+            cat("Authors: ", paste(authors, collapse = ", "), "\n", sep = "")
+        }
+    }
+    if (!is.null(md$doi) && length(md$doi) > 0)
+        cat("DOI: ", paste(md$doi, collapse = ", "), "\n", sep = "")
+    if (!is.null(md$url) && length(md$url) > 0)
+        cat("URL: ", paste(md$url, collapse = ", "), "\n", sep = "")
+    cat("mizer version: ", as.character(md$mizer_version), "\n", sep = "")
+    if (!is.null(md$time_created))
+        cat("Created: ", format(md$time_created), "\n", sep = "")
+    if (!is.null(md$time_modified))
+        cat("Modified: ", format(md$time_modified), "\n", sep = "")
     cat("Consumer size spectrum:\n")
     cat("\tminimum size:\t", signif(min(params@w)), "\n", sep = "")
     cat("\tmaximum size:\t", signif(max(params@w)), "\n", sep = "")
