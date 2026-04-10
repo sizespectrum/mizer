@@ -13,6 +13,7 @@ animateSpectra(
   power,
   total,
   resource,
+  background,
   ...
 )
 }
@@ -45,6 +46,10 @@ Default is FALSE.}
 \item{resource}{A boolean value that determines whether resource is included.
 If \code{TRUE}, the resource spectrum is plotted as an additional trace called
 \code{"Resource"}. Default is TRUE.}
+
+\item{background}{A boolean value that determines whether background species
+are included. Ignored if the model does not contain background species.
+Default is TRUE.}
 
 \item{...}{Additional arguments passed to the method.}
 }

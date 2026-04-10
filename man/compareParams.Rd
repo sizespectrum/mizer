@@ -14,7 +14,9 @@ compareParams(params1, params2, ...)
 \item{...}{Additional arguments passed to the method.}
 }
 \value{
-String describing the differences
+Invisibly returns a character vector of difference messages, one
+element per difference. As a side effect, prints the differences in a
+human-readable format.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
