@@ -136,8 +136,8 @@ setInitialValues.MizerParams <- function(params, sim, time_range, geometric_mean
 
 #' @rdname initialN-set
 #' @param object An object of class MizerParams or MizerSim
-#' @return A matrix with dimensions species x size holding the initial number
-#'   densities for the fish spectra.
+#' @return An `ArraySpeciesBySize` object with dimensions species x size holding
+#'   the initial number densities for the fish spectra.
 #' @export
 #' @seealso [initialNResource()], [initialNOther()]
 #' @examples
@@ -155,12 +155,15 @@ initialN <- function(object) {
 #' @export
 initialN.MizerParams <- function(object) {
     params <- validParams(object)
-    return(params@initial_n)
+    ArraySpeciesBySize(params@initial_n, value_name = "Number density",
+                       params = params)
 }
 #' @rdname initialN-set
 #' @export
 initialN.MizerSim <- function(object) {
-    return(object@params@initial_n)
+    ArraySpeciesBySize(object@params@initial_n,
+                       value_name = "Number density",
+                       params = object@params)
 }
 
 #' Initial value for resource spectrum

@@ -7,7 +7,7 @@ test_that("We can set and get initial values from sim object", {
     expect_identical(initialN(sim), initialN(params))
     expect_identical(initialNResource(sim), initialNResource(params))
     initialN(params) <- params@metab
-    expect_identical(initialN(params), params@metab)
+    expect_equal(initialN(params), params@metab, ignore_attr = TRUE)
     initialNResource(params) <- params@cc_pp
     expect_identical(initialNResource(params), params@cc_pp)
     params <- setInitialValues(params, sim)
@@ -29,7 +29,7 @@ test_that("initialN and initialNResource setters validate dimnames and values", 
     dimnames(new_n)[[1]][1] <- "wrong"
     expect_warning(initialN(params) <- new_n,
                    "The dimnames do not match. I will ignore them.")
-    expect_identical(initialN(params), NS_params@initial_n)
+    expect_equal(initialN(params), NS_params@initial_n, ignore_attr = TRUE)
 
     new_n_pp <- initialNResource(params)
     names(new_n_pp)[1] <- "wrong"

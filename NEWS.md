@@ -18,7 +18,7 @@
   many mizer functions such as `getEncounter()`, `getFeedingLevel()`,
   `getMaxIntakeRate()`, `getMetabolicRate()`, `getSearchVolume()`,
   `getExtMort()`, `getExtEncounter()`, `getMaturityProportion()`,
-  `getReproductionProportion()`, `diffusion()`, `finalN()`, and
+  `getReproductionProportion()`, `diffusion()`, `finalN()`, `initialN()`, and
   `get_initial_n()`. An `ArraySpeciesBySize` object behaves like a regular
   matrix for arithmetic and subsetting, but carries a human-readable
   `value_name` and `units` attribute and provides enhanced `print()`,
