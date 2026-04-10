@@ -20,7 +20,7 @@
 #' \tabular{lll}{
 #'   Function \tab Returns \tab Description \cr
 #'   [getDiet()] \tab Three dimensional array (predator x size x prey) \tab Diet of predator at size, resolved by prey species \cr
-#'   [getTrophicLevel()] \tab Two dimensional array (species x size) \tab Trophic level of individuals at size, accounting for ontogenetic diet shifts \cr
+#'   [getTrophicLevel()] \tab `ArraySpeciesBySize` (species x size) \tab Trophic level of individuals at size, accounting for ontogenetic diet shifts \cr
 #'   [getTrophicLevelBySpecies()] \tab Named vector (species) \tab Consumption-rate-weighted mean trophic level of each species \cr
 #'   [getSSB()] \tab Two dimensional array (time x species) \tab Total Spawning Stock Biomass (SSB) of each species through time where SSB is calculated as the sum of weight of all mature individuals. \cr
 #'   [getBiomass()] \tab Two dimensional array (time x species) \tab Total biomass of each species through time. \cr
@@ -231,8 +231,9 @@ getDiet.MizerParams <- function(params,
 #'
 #' @inheritParams getDiet
 #'
-#' @return A matrix (species x size) with the trophic level of individuals at
-#'   each size. Entries below the egg size of each species are \code{NA}.
+#' @return An `ArraySpeciesBySize` object (species x size) with the trophic
+#'   level of individuals at each size. Entries below the egg size of each
+#'   species are \code{NA}.
 #'
 #' @export
 #' @family summary functions
@@ -315,7 +316,7 @@ getTrophicLevel.MizerParams <- function(params,
             n[active_k, k] * tl_k[active_k] * params@w[k] * params@dw[k]
     }
 
-    return(tl)
+    return(ArraySpeciesBySize(tl, value_name = "Trophic level", params = params))
 }
 
 

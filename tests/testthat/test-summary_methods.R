@@ -366,6 +366,7 @@ test_that("getDiet works with additional components", {
 # getTrophicLevel ----
 test_that("getTrophicLevel returns matrix with correct structure", {
     tl <- getTrophicLevel(params, n, n_pp)
+    expect_true(is.ArraySpeciesBySize(tl))
     expect_true(is.matrix(tl))
     expect_equal(dim(tl), c(no_sp, no_w))
     expect_equal(dimnames(tl), dimnames(params@initial_n))
