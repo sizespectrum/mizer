@@ -1,15 +1,13 @@
 #' Add new species
 #'
-#' @description `r lifecycle::badge("experimental")`
-#'
-#'   Takes a \linkS4class{MizerParams} object and adds additional species with
-#'   given parameters to the ecosystem. It sets the initial values for these new
-#'   species to their steady-state solution in the given initial state of the
-#'   existing ecosystem. This will be close to the true steady state if the
-#'   abundances of the new species are sufficiently low. Hence the abundances of
-#'   the new species are set so that they are at most 1/100th of the resource
-#'   power law. Their reproductive efficiencies are set so as to keep them at
-#'   that low level.
+#' Takes a \linkS4class{MizerParams} object and adds additional species with
+#' given parameters to the ecosystem. It sets the initial values for these new
+#' species to their steady-state solution in the given initial state of the
+#' existing ecosystem. This will be close to the true steady state if the
+#' abundances of the new species are sufficiently low. Hence the abundances of
+#' the new species are set so that they are at most 1/100th of the resource
+#' power law. Their reproductive efficiencies are set so as to keep them at that
+#' low level.
 #'
 #' @param params A mizer params object for the original system.
 #' @param species_params Data frame with the species parameters of the new
@@ -318,9 +316,6 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
 
 
 #' Remove species
-#'
-#' @description
-#' `r lifecycle::badge("experimental")`
 #'
 #' This function simply removes all entries from the MizerParams object that
 #' refer to the selected species. It does not recalculate the steady state for
@@ -632,9 +627,6 @@ expandSizeGrid <- function(params,
 }
 
 #' Rename gears
-#'
-#' @description
-#' `r lifecycle::badge("experimental")`
 #'
 #' Changes the names of gears in a MizerParams object. This involves for
 #' example changing the gear dimension names of selectivity and catchability

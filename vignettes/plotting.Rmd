@@ -186,7 +186,7 @@ that carries a human-readable name and units. These objects have their own
 
 ```{r}
 fl <- getFeedingLevel(params)
-plot(fl, params)
+plot(fl)
 ```
 
 The `params` argument is optional but recommended: it supplies the species
@@ -196,14 +196,14 @@ restricts each species' curve to its natural size range (`w_min` to `w_max`).
 You can select a subset of species with the `species` argument:
 
 ```{r}
-plot(fl, params, species = c("Cod", "Herring", "Sprat"))
+plot(fl, species = c("Cod", "Herring", "Sprat"))
 ```
 
 Because the result is an ordinary ggplot object you can add layers or themes
 in the usual way:
 
 ```{r}
-plot(fl, params) +
+plot(fl) +
     geom_hline(yintercept = 0.6, linetype = "dashed", colour = "grey50") +
     labs(title = "Feeding level at steady state")
 ```

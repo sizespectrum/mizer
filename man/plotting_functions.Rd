@@ -100,6 +100,7 @@ p
 
 Other plotting functions: 
 \code{\link{animateSpectra}()},
+\code{\link{plot}()},
 \code{\link{plotBiomass}()},
 \code{\link{plotDiet}()},
 \code{\link{plotFMort}()},

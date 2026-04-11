@@ -19,7 +19,7 @@ element per difference. As a side effect, prints the differences in a
 human-readable format.
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+Compare two MizerParams objects and print out differences
 }
 \examples{
 params1 <- NS_params

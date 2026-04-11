@@ -219,9 +219,9 @@ getMeanWeight.MizerParams <- function(sim, species = NULL, ...) {
 #' @concept summary_function
 #' @examples
 #' mmw <- getMeanMaxWeight(NS_sim)
-#' years <- c(“1967”, “2010”)
+#' years <- c("1967", "2010")
 #' mmw[years, ]
-#' getMeanMaxWeight(NS_sim, species=c(“Herring”,”Sprat”,”N.pout”))[years, ]
+#' getMeanMaxWeight(NS_sim, species=c("Herring","Sprat","N.pout"))[years, ]
 #' getMeanMaxWeight(NS_sim, min_w = 10, max_w = 5000)[years, ]
 #' getMeanMaxWeight(NS_params)
 getMeanMaxWeight <- function(sim, species = NULL,

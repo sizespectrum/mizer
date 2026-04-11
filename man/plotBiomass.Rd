@@ -24,7 +24,8 @@ plotBiomass(sim, ...)
   min_w = min(sim@params@w),
   max_w = max(sim@params@w),
   min_l = NULL,
-  max_l = NULL
+  max_l = NULL,
+  ...
 )
 
 plotlyBiomass(
@@ -122,6 +123,7 @@ str(fr)
 
 Other plotting functions: 
 \code{\link{animateSpectra}()},
+\code{\link{plot}()},
 \code{\link{plotDiet}()},
 \code{\link{plotFMort}()},
 \code{\link{plotFeedingLevel}()},

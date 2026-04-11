@@ -45,16 +45,14 @@ to more messages. Set to 0 to suppress all such messages.}
 An object of type \linkS4class{MizerParams}
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-
 Takes a \linkS4class{MizerParams} object and adds additional species with
 given parameters to the ecosystem. It sets the initial values for these new
 species to their steady-state solution in the given initial state of the
 existing ecosystem. This will be close to the true steady state if the
 abundances of the new species are sufficiently low. Hence the abundances of
 the new species are set so that they are at most 1/100th of the resource
-power law. Their reproductive efficiencies are set so as to keep them at
-that low level.
+power law. Their reproductive efficiencies are set so as to keep them at that
+low level.
 }
 \details{
 The resulting MizerParams object will use the same size grid where

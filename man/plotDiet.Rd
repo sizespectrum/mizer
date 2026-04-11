@@ -66,6 +66,7 @@ str(fr)
 
 Other plotting functions: 
 \code{\link{animateSpectra}()},
+\code{\link{plot}()},
 \code{\link{plotBiomass}()},
 \code{\link{plotFMort}()},
 \code{\link{plotFeedingLevel}()},

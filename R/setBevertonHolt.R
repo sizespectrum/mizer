@@ -1,6 +1,5 @@
 #' Set Beverton-Holt reproduction without changing the steady state
 #'
-#' `r lifecycle::badge("experimental")`
 #' Takes a MizerParams object `params` with arbitrary density dependence in
 #' reproduction and
 #' returns a MizerParams object with Beverton-Holt density-dependence in such a
@@ -284,10 +283,8 @@ setBevertonHolt.MizerParams <- function(params, erepro,
 }
 
 
-
 #' Get reproduction level
 #'
-#' `r lifecycle::badge("experimental")`
 #' The reproduction level is the ratio between the density-dependent
 #' reproduction rate and the maximal reproduction rate.
 #'

@@ -26,6 +26,7 @@
 #'   values.
 #'
 #' @return An `ArraySpeciesByTime` object (inherits from `matrix` and `array`).
+#' 
 #' @export
 #' @examples
 #' \donttest{
@@ -123,39 +124,21 @@ print.summary.ArraySpeciesByTime <- function(x, ...) {
     invisible(x)
 }
 
-#' Plot an ArraySpeciesByTime object
+#' @rdname plot
 #'
-#' Plots the value against time for each species, using species colours and
-#' linetypes from the MizerParams object. This method supports the same
-#' arguments as [plotBiomass()], so that
-#' `plot(getBiomass(sim, ...), ...)` is equivalent to
-#' `plotBiomass(sim, ...)`.
-#'
-#' @param x An `ArraySpeciesByTime` object.
-#' @param species Character vector of species to include. `NULL` (default) means
-#'   all species.
 #' @param start_time The first time to be plotted. Default (`NULL`) is the
 #'   beginning of the time series.
 #' @param end_time The last time to be plotted. Default (`NULL`) is the end of
 #'   the time series.
 #' @param y_ticks The approximate number of ticks desired on the y axis.
-#' @param ylim A numeric vector of length two providing lower and upper limits
-#'   for the y axis. Use NA to refer to the existing minimum or maximum. Any
-#'   values below 1e-20 are always cut off.
 #' @param total A boolean value that determines whether the total from all
 #'   species is plotted as well. Default is FALSE.
 #' @param background A boolean value that determines whether background species
 #'   are included. Ignored if the model does not contain background species.
 #'   Default is TRUE.
-#' @param highlight Name or vector of names of the species to be highlighted.
 #' @param log If `TRUE` (default), use a log10 y-axis. Appropriate for
 #'   quantities like biomass, SSB, and yield that span orders of magnitude.
 #'   Set to `FALSE` for a linear y-axis.
-#' @param return_data If `TRUE`, return the data frame instead of the plot.
-#' @param ... Further arguments (currently unused).
-#'
-#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
-#'   frame with columns 'Year', value_name, 'Species', 'Legend' is returned.
 #' @export
 #' @examples
 #' \donttest{
@@ -243,14 +226,14 @@ plot.ArraySpeciesByTime <- function(x, species = NULL,
                   legend_var = "Legend")
 }
 
-#' @rdname ggplotly
+#' @rdname plot
 #' @exportS3Method plotly::ggplotly
 #' @examples
 #' \donttest{
 #' ggplotly(getBiomass(NS_sim))
 #' }
-ggplotly.ArraySpeciesByTime <- function(p, ...) {
-    ggplotly(plot(p, ...))
+ggplotly.ArraySpeciesByTime <- function(x, ...) {
+    ggplotly(plot(x, ...))
 }
 
 #' @export

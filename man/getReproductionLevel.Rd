@@ -13,7 +13,6 @@ getReproductionLevel(params)
 A named vector with the reproduction level for each species.
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 The reproduction level is the ratio between the density-dependent
 reproduction rate and the maximal reproduction rate.
 }

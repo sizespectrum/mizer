@@ -317,7 +317,7 @@ plotBiomass.MizerSim <- function(sim, species = NULL,
                         use_cutoff = FALSE,
                         min_w = min(sim@params@w),
                         max_w = max(sim@params@w),
-                        min_l = NULL, max_l = NULL) {
+                        min_l = NULL, max_l = NULL, ...) {
     bm <- getBiomass(sim, use_cutoff = use_cutoff,
                      min_w = min_w, max_w = max_w,
                      min_l = min_l, max_l = max_l)

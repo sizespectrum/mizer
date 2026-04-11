@@ -26,7 +26,6 @@ the initial state is \code{R_max * reproduction_level}.}
 A MizerParams object
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Takes a MizerParams object \code{params} with arbitrary density dependence in
 reproduction and
 returns a MizerParams object with Beverton-Holt density-dependence in such a

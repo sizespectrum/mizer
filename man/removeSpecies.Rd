@@ -19,12 +19,11 @@ each species whether it is to be removed (TRUE) or not.}
 An object of type \linkS4class{MizerParams}
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-
 This function simply removes all entries from the MizerParams object that
 refer to the selected species. It does not recalculate the steady state for
 the remaining species or retune their reproductive efficiency.
-
+}
+\details{
 If a gear was targeting only the removed species, then this function will
 NOT remove that gear. If you want to also remove that gear then you can do
 that by calling \code{\link[=setFishing]{setFishing()}}.

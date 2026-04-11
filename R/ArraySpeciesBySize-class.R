@@ -126,12 +126,16 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
     invisible(x)
 }
 
-#' Plot a ArraySpeciesBySize object
+#' Plot or interactively plot an ArraySpeciesBySize or ArraySpeciesByTime object
 #'
-#' Plots the value against size for each species, using species colours and
-#' linetypes from the MizerParams object stored in the `params` attribute.
+#' `plot()` creates a ggplot2 figure of the values against size (for
+#' `ArraySpeciesBySize`) or against time (for `ArraySpeciesByTime`) for each
+#' species, using species colours and linetypes from the MizerParams object
+#' stored in the `params` attribute.
 #'
-#' @param x An `ArraySpeciesBySize` object.
+#' `ggplotly()` creates an interactive version of the same figure.
+#'
+#' @param x An `ArraySpeciesBySize` or `ArraySpeciesByTime` object.
 #' @param species Character vector of species to include. `NULL` (default) means
 #'   all species.
 #' @param all.sizes If `FALSE` (default), values outside a species' size range
@@ -150,8 +154,11 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #'   maximum.
 #' @param ... Further arguments (currently unused).
 #'
-#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
-#'   frame with the variables 'w', 'value', 'Species' is returned.
+#' @return `plot()` returns a ggplot2 object, unless `return_data = TRUE`, in which case a data
+#'   frame is returned.
+#'
+#' @name plot
+#' @family plotting functions
 #' @export
 #' @examples
 #' \donttest{
@@ -214,23 +221,15 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
                   xlim = wlim, ylim = ylim, highlight = highlight)
 }
 
-#' Interactive ggplotly version of a plot method
-#'
-#' Converts the ggplot2 output of the `plot()` method into an interactive
-#' plotly figure using [ggplotly()]. All arguments are forwarded to
-#' `plot()`.
-#'
-#' @param p An object with a `plot()` method.
-#' @param ... Further arguments passed to the `plot()` method.
-#' @return A plotly object.
+#' @rdname plot
+#' @return `ggplotly()` returns a plotly object.
 #' @examples
 #' \donttest{
 #' ggplotly(getEncounter(NS_params))
 #' }
-#' @rdname ggplotly
 #' @exportS3Method plotly::ggplotly
-ggplotly.ArraySpeciesBySize <- function(p, ...) {
-    ggplotly(plot(p, ...))
+ggplotly.ArraySpeciesBySize <- function(x, ...) {
+    ggplotly(plot(x, ...))
 }
 
 #' @export
