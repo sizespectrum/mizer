@@ -17,7 +17,7 @@ needs_upgrading <- function(object) {
         stop("The object you supplied is neither a MizerParams nor a MizerSim object.")
     }
     !.hasSlot(params, "mizer_version") ||
-        params@mizer_version < "2.5.4.9111"
+        params@mizer_version < "2.5.4.9121"
 }
 
 #' Upgrade MizerParams object from earlier mizer versions
@@ -214,6 +214,9 @@ upgradeParams <- function(params) {
             pnew@initial_n <- params@initial_n
             pnew@initial_n_pp <- params@initial_n_pp
         }
+        if (.hasSlot(params, "diffusion")) {
+            pnew@ext_diffusion[] <- slot(params, "diffusion")
+        }
         if (.hasSlot(params, "initial_n_other")) {
             pnew@initial_n_other <- params@initial_n_other
         }
@@ -309,11 +312,15 @@ upgradeParams <- function(params) {
 
         params <- pnew
     }
-    if (!.hasSlot(params, "diffusion")) {
+    if (!.hasSlot(params, "ext_diffusion")) {
         mat1 <- array(0, dim = c(nrow(params@species_params), length(params@w)),
                       dimnames = list(sp = params@species_params$species,
                                       w = signif(params@w, 3)))
-        params@diffusion <- mat1
+        if (.hasSlot(params, "diffusion")) {
+            params@ext_diffusion <- slot(params, "diffusion")
+        } else {
+            params@ext_diffusion <- mat1
+        }
     }
 
     # Before version 2.4 ----

@@ -23,18 +23,17 @@ setDiffusion <- function(params, diffusion = NULL, reset = FALSE, ...) {
 #' @rdname setDiffusion
 #' @export
 setDiffusion.MizerParams <- function(params, diffusion = NULL, reset = FALSE, ...) {
-
     if (is.null(diffusion)) {
-        diffusion <- params@diffusion
+        diffusion <- params@ext_diffusion
     }
 
     assert_that(is.array(diffusion),
-                identical(dim(diffusion), dim(params@diffusion)))
-    params@diffusion[] <- diffusion
+                identical(dim(diffusion), dim(params@ext_diffusion)))
+    params@ext_diffusion[] <- diffusion
 
     # Keep old comment if new comment is NULL
     if (!is.null(comment(diffusion))) {
-        comment(params@diffusion) <- comment(diffusion)
+        comment(params@ext_diffusion) <- comment(diffusion)
     }
 
     params@time_modified <- lubridate::now()
@@ -50,7 +49,7 @@ diffusion <- function(params) {
 }
 #' @export
 diffusion.MizerParams <- function(params) {
-    ArraySpeciesBySize(params@diffusion,
+    ArraySpeciesBySize(params@ext_diffusion,
                        value_name = "Diffusion rate",
                        params = params)
 }

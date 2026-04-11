@@ -98,7 +98,7 @@ test_that("Exact steady state is maintained", {
     params <- setRateFunction(params, "EGrowth", "start_growth")
     params <- setRateFunction(params, "Mort", "start_mort")
     params <- setRateFunction(params, "RDD", "constant_rdd")
-    params@diffusion[1, ] <- K * params@w^(p + 1)
+    params@ext_diffusion[1, ] <- K * params@w^(p + 1)
     params <- setResource(params, resource_dynamics = "resource_constant")
     initialNResource(params) <- 0
     
@@ -133,7 +133,7 @@ test_that("Exact time-dependent solution is followed", {
     params <- setRateFunction(params, "EGrowth", "start_growth")
     params <- setRateFunction(params, "Mort", "start_mort")
     params <- setRateFunction(params, "RDD", "time_dep_rdd")
-    params@diffusion[1, ] <- K * params@w^(p + 1)
+    params@ext_diffusion[1, ] <- K * params@w^(p + 1)
     params <- setResource(params, resource_dynamics = "resource_constant")
     initialNResource(params) <- 0
     

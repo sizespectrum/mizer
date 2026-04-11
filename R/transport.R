@@ -18,7 +18,7 @@ get_transport_coefs <- function(params, n, g, mu, dt, recruitment_flux) {
     no_w <- length(params@w)
     
     # Diffusion coefficient D_i(w)
-    d <- params@diffusion # species x size
+    d <- params@ext_diffusion # species x size
     
     # Pre-calculate some common terms
     # dw_j

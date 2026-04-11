@@ -388,7 +388,7 @@ test_that("t_max less than effort array duration uses effort times", {
 
 test_that("project does not change the params object", {
     params <- NS_params
-    params@diffusion[] <- 1
+    params@ext_diffusion[] <- 1
     old_params <- unserialize(serialize(params, NULL))
     sim <- project(params, t_max = 1)
     expect_identical(params, old_params)

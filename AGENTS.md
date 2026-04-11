@@ -42,6 +42,7 @@ devtools::clean_dll(); devtools::load_all()
 - Use snapshot tests for complex outputs
 - Run `devtools::document()` after adding or changing exports
 - Run `devtools::load_all()` before running tests
+- After modifying the `MizerParams` or `MizerSim` class, increase the version number, then upgrade `NS_params` with `upgradeParams()` and the `NS_sim` with `upgradeSim()` before running the tests.
 
 ## Before Submitting
 

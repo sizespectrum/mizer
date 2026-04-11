@@ -24,7 +24,7 @@ test_that("getRequiredRDD handles diffusion", {
     params <- newSingleSpeciesParams()
     
     # Add diffusion
-    diffusion <- params@diffusion
+    diffusion <- params@ext_diffusion
     diffusion[] <- 1e9 * params@w
     params <- setDiffusion(params, diffusion = diffusion)
     

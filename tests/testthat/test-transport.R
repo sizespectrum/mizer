@@ -59,7 +59,7 @@ test_that("get_transport_coefs works correctly", {
     
     # Species 2
     expected_b_2 <- 1 + dt * mu[2, j_start_2] + 
-        (dt / dw[j_start_2]) * (g[2, j_start_2] + 0.5 * params@diffusion[2, j_start_2] / dw[j_start_2])
+        (dt / dw[j_start_2]) * (g[2, j_start_2] + 0.5 * params@ext_diffusion[2, j_start_2] / dw[j_start_2])
         
     expect_equal(coefs$b[2, j_start_2], expected_b_2, ignore_attr = TRUE)
 })

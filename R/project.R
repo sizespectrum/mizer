@@ -471,7 +471,7 @@ project_simple.MizerParams <-
         S <- matrix(0, nrow = no_sp, ncol = no_w)
 
         # Do we have diffusion?
-        has_diffusion <- any(params@diffusion > 0)  
+        has_diffusion <- any(params@ext_diffusion > 0)
 
         # Loop over time steps ----
         for (i_time in 1:steps) {

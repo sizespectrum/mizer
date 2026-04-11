@@ -250,7 +250,7 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
     p@sc[old_w] <- params@sc
     p@mu_b[old_sp, old_w] <- params@mu_b
     p@ext_encounter[old_sp, old_w] <- params@ext_encounter
-    p@diffusion[old_sp, old_w] <- params@diffusion
+    p@ext_diffusion[old_sp, old_w] <- params@ext_diffusion
     p@intake_max[old_sp, old_w] <- params@intake_max
     p@search_vol[old_sp, old_w] <- params@search_vol
     p@metab[old_sp, old_w] <- params@metab
@@ -376,7 +376,7 @@ removeSpecies.MizerParams <- function(params, species, ...) {
     p@ft_mask <- params@ft_mask[keep, , drop = FALSE]
     p@mu_b <- params@mu_b[keep, , drop = FALSE]
     p@ext_encounter <- params@ext_encounter[keep, , drop = FALSE]
-    p@diffusion <- params@diffusion[keep, , drop = FALSE]
+    p@ext_diffusion <- params@ext_diffusion[keep, , drop = FALSE]
     p@species_params <- p@species_params[keep, , drop = FALSE]
     p@given_species_params <- p@given_species_params[keep, , drop = FALSE]
     p@interaction <- params@interaction[keep, keep, drop = FALSE]
@@ -485,7 +485,7 @@ renameSpecies.MizerParams <- function(params, replace, ...) {
     }
     dimnames(params@mu_b)$sp <- species
     dimnames(params@ext_encounter)$sp <- species
-    dimnames(params@diffusion)$sp <- species
+    dimnames(params@ext_diffusion)$sp <- species
     dimnames(params@interaction)$predator <- species
     dimnames(params@interaction)$prey <- species
     dimnames(params@selectivity)$sp <- species
