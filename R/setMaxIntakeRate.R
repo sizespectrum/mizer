@@ -11,7 +11,8 @@
 #' gram) and \eqn{n_i} (the allometric exponent for the intake rate) are taken
 #' from the `h` and `n` columns in the species parameter dataframe. If
 #' the `h` column is not supplied in the species parameter dataframe, it is
-#' calculated by the [get_h_default()] function.
+#' calculated by the [get_h_default()] function. If the `n` column is not
+#' supplied, a default of \eqn{n_i = 3/4} is used.
 #'
 #' If \eqn{h_i} is set to `Inf`, fish of species i will consume all encountered
 #' food.
