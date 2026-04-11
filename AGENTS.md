@@ -1,3 +1,48 @@
-# Coding Instructions
+# AI Agent Instructions for mizer
 
-Please refer to `.github/copilot-instructions.md` for all project guidelines.
+mizer is an R package for dynamic multi-species size-spectrum modelling of fish communities.
+
+## Common Commands
+
+```r
+devtools::load_all()        # Load package for development
+devtools::document()        # Regenerate NAMESPACE and man/ pages from roxygen2
+devtools::test()            # Run all tests
+devtools::check()           # Full R CMD check
+lintr::lint_package()       # Lint the package
+
+# Run a single test file
+testthat::test_file("tests/testthat/test-filename.R")
+
+# After editing C++ source
+devtools::clean_dll(); devtools::load_all()
+```
+
+## Architecture
+
+**`MizerParams`** (S4) — central object passed to nearly all functions. Modified via setter functions that return new copies: `setFishing(params, ...)`, etc.
+
+**`MizerSim`** (S4) — stores simulation output: arrays `n` (time × species × size), `n_pp`, `n_other`, `effort`, and the `MizerParams` used.
+
+**`ArraySpeciesBySize`** / **`ArraySpeciesByTime`** (S3) — wrap 2D arrays with metadata. When assigning back to S4 slots, use `slot[] <- value` (not `slot <- value`) to strip the class.
+
+**Customisable rate functions**: users replace rate functions by storing a custom function name in `params@rates_funcs`. Dispatch via `get(params@rates_funcs$FunctionName)(params, ...)`.
+
+**Auto-generated files** — never edit `NAMESPACE`, `man/`, `RcppExports.R`, or `RcppExports.cpp` directly.
+
+## Code Conventions
+
+- **Indentation**: 4 spaces
+- **Naming**: camelCase or snake_case for functions/variables; PascalCase for classes
+- **Language**: British English (en-GB) — "colour", "behaviour", "modelling"
+
+## Testing
+
+- Use `expect_doppelganger()` (vdiffr) for plot tests
+- Use snapshot tests for complex outputs
+- Run `devtools::document()` after adding or changing exports
+- Run `devtools::load_all()` before running tests
+
+## Before Submitting
+
+Update `NEWS.md` when adding features or fixing bugs.
