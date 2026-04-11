@@ -94,6 +94,7 @@ Both quantities are species x size arrays:
 
 If you only need a fixed background contribution, this is usually a better
 choice than `setComponent()`.
+See [Worked example: non-dynamical external encounter and mortality](#worked-example-non-dynamical-external-encounter-and-mortality).
 
 ## `setRateFunction()`
 
@@ -113,6 +114,7 @@ params <- setRateFunction(params, "Mort", "myMort")
 
 The function must be available by name in the global environment or in an
 installed package. mizer stores the function name, not the function object.
+See [Worked example: a custom encounter function](#worked-example-a-custom-encounter-function).
 
 ## `setComponent()`
 
@@ -128,25 +130,27 @@ A component can contribute to the model in up to three ways:
 
 The component state can be any R object. For example it can be a scalar, a
 vector on the resource size grid, or a list with several fields.
+See [Worked example: adding a detritus-like component](#worked-example-adding-a-detritus-like-component).
 
-## S3 subclassing of `MizerParams` and `MizerSim`
+## S4 subclassing with S3 methods for `MizerParams` and `MizerSim`
 
 This is the most flexible extension route that still works with mizer's public
 generic functions. Although `MizerParams` and `MizerSim` are S4 classes, mizer
-registers its methods as S3 methods. That means advanced users can define a new
-S3 class layered on top of these objects and then provide custom methods such
-as:
+registers many user-facing methods as S3 methods. That means advanced users can
+define a formal S4 subclass of these objects and then provide S3 methods for
+that subclass such as:
 
-- `plot.MyMizerSim()`,
-- `plot.MyMizerParams()`,
-- `summary.MyMizerSim()`,
+- `plotBiomass.MyMizerSim()`,
+- `summary.MyMizerParams()`,
 - `getBiomass.MyMizerSim()`.
 
 This is especially useful if you have added extra components or metadata and
 want mizer's summaries or plots to include them.
 
-Because this route relies on S3 dispatch over S4 objects, it is best treated as
-an advanced package-author technique rather than a quick script-level hack.
+Because this route combines formal S4 inheritance with S3 dispatch, it is best
+treated as an advanced package-author technique rather than a quick
+script-level hack.
+See [Worked example: S4 subclassing with a custom `plotBiomass()` method](#worked-example-s4-subclassing-with-a-custom-plotbiomass-method).
 
 ## `customFunction()`
 
@@ -155,6 +159,235 @@ expressed with `setRateFunction()`, `setComponent()`, `resource_dynamics()<-`,
 or `setReproduction()`. It replaces an internal mizer function in the package
 namespace and can easily break the package if your replacement is not fully
 compatible.
+
+
+# Worked example: non-dynamical external encounter and mortality
+
+If the extra ecological process does not need its own state variable, you can
+often model it with external encounter or external mortality.
+
+For example, suppose each species has a fixed extra food source that scales
+allometrically with body size:
+
+```{r ext-encounter-example}
+params_ext <- NS_params
+extra_food <- outer(rep(0.1, nrow(species_params(params_ext))),
+                    w(params_ext)^(3/4))
+ext_encounter(params_ext) <- ext_encounter(params_ext) + extra_food
+```
+
+This adds `extra_food` directly to the total encounter rate:
+
+```{r ext-encounter-check}
+enc_base <- getEncounter(NS_params)
+enc_ext <- getEncounter(params_ext)
+range(enc_ext - enc_base, na.rm = TRUE)
+```
+
+Similarly, you can add a fixed external mortality term:
+
+```{r ext-mort-example}
+params_mort <- NS_params
+extra_mort <- outer(rep(0.05, nrow(species_params(params_mort))),
+                    w(params_mort)^(-1/4))
+ext_mort(params_mort) <- ext_mort(params_mort) + extra_mort
+```
+
+This route is appropriate when:
+
+- the extra process is not depleted or replenished dynamically,
+- fish are affected by it but do not feed back on it,
+- you want a transparent species x size term rather than a new component.
+
+# Worked example: a custom encounter function
+
+The next step up in complexity is to modify one rate while delegating most of the
+work back to the built-in mizer function. The example below adds a sinusoidal
+seasonal multiplier to the standard encounter rate.
+
+```{r seasonal-encounter-setup}
+params <- NS_params
+other_params(params) <- list(
+    season_amplitude = 0.2,
+    season_period = 1
+)
+```
+
+```{r seasonal-encounter-fun}
+seasonalEncounter <- function(params, n, n_pp, n_other, t, ...) {
+    p <- other_params(params)
+    multiplier <- 1 + p$season_amplitude * sin(2 * pi * t / p$season_period)
+    multiplier * mizerEncounter(params, n = n, n_pp = n_pp, n_other = n_other,
+                                t = t, ...)
+}
+```
+
+Register the function and inspect the result:
+
+```{r seasonal-encounter-register}
+params2 <- setRateFunction(params, "Encounter", "seasonalEncounter")
+```
+
+```{r seasonal-encounter-check}
+enc0 <- getEncounter(params2, t = 0)
+enc_quarter <- getEncounter(params2, t = 0.25)
+range(enc_quarter / enc0, na.rm = TRUE)
+```
+
+```{r seasonal-biomass}
+sim <- project(params2, t_max = 2, t_save = 0.1)
+plotBiomass(sim)
+```
+
+This pattern is often the easiest way to extend mizer safely:
+
+- fetch custom parameters from `other_params(params)`,
+- compute a modifier,
+- call the standard mizer rate function,
+- return a plain numeric matrix of the same shape.
+
+See [How custom rate functions are called](#how-custom-rate-functions-are-called)
+for more info.
+
+## Testing a custom rate function
+
+When you develop an extension package, add tests that compare your custom rate
+function to the built-in behaviour in a simple case. For the seasonal example a
+good first test would check:
+
+- at `t = 0`, the result equals `mizerEncounter()`,
+- at `t = 0.25`, the result is scaled by `1 + season_amplitude`,
+- the returned object has the same dimensions and dimnames as `initialN(params)`.
+
+# Worked example: adding a detritus-like component
+
+Now suppose you want to add a component that is consumed by fish and slowly
+relaxes back to a carrying capacity. We will store the component on the full
+resource size grid so that it can be used like an extra prey spectrum.
+
+```{r detritus-functions}
+detritusEncounter <- function(params, n, n_pp, n_other, component, ...) {
+    params2 <- params
+    params2@other_encounter[[component]] <- NULL
+    mizerEncounter(params2, n = n, n_pp = n_other[[component]],
+                   n_other = n_other, ...)
+}
+
+detritusDynamics <- function(params, n_other, rates, dt, component, ...) {
+    detritus <- n_other[[component]]
+    p <- params@other_params[[component]]
+    interaction <- params@species_params$interaction_resource
+    mort <- as.vector(interaction %*% rates$pred_rate)
+    target <- p$rate * p$capacity / (p$rate + mort)
+    target - (target - detritus) * exp(-(p$rate + mort) * dt)
+}
+```
+
+```{r detritus-component}
+detritus_params <- list(
+    capacity = initialNResource(params),
+    rate = params@rr_pp
+)
+
+params3 <- setComponent(
+    params,
+    component = "Detritus",
+    initial_value = initialNResource(params) / 2,
+    dynamics_fun = "detritusDynamics",
+    encounter_fun = "detritusEncounter",
+    component_params = detritus_params,
+    colour = "orange"
+)
+```
+
+Once the component has been added:
+
+- its initial state is available via `initialNOther(params3)$detritus`,
+- its settings can be inspected with `getComponent(params3, "detritus")`,
+- its contribution is included automatically in `getEncounter()` and `getDiet()`.
+
+For example:
+
+```{r detritus-diet}
+plotDiet(params3, species = "Cod")
+```
+
+If you also want the component to contribute to mortality, add a `mort_fun`
+when calling `setComponent()`.
+
+# Worked example: S4 subclassing with a custom `plotBiomass()` method
+
+For some extensions, the main need is not to change the core dynamics but to
+change how a model object is analysed or displayed. Because mizer uses S3
+generics for many user-facing methods, you can define a formal S4 subclass and
+then write an S3 method for that subclass.
+
+To keep this example simple, we define subclasses without adding any new slots.
+The main purpose is just to distinguish your model type from plain
+`MizerParams` and `MizerSim` objects. For our example we will build on the
+previous example with its extra detritus component. You will define new
+subclasses of the `MizerParams` and `MizerSim` classes:
+
+```{r subclass-example}
+setClass("DetritusMizerParams", contains = "MizerParams")
+setClass("DetritusMizerSim", contains = "MizerSim")
+
+newDetritusMizerParams <- function(params) {
+    new("DetritusMizerParams", params)
+}
+
+newDetritusMizerSim <- function(sim) {
+    new("DetritusMizerSim", sim)
+}
+```
+
+Note that you needed to define a formal S4 subclass with `setClass()` rather than
+changing the `class()` attribute by hand.
+
+You now can create objects of your subclasses in the usual way:
+
+```{r subclass-create}
+my_params <- newDetritusMizerParams(params3)
+my_sim <- newDetritusMizerSim(project(my_params, t_max = 2, t_save = 0.1))
+```
+
+You can then define an S3 method for one of mizer's S3 generics. For example,
+we can define a `getBiomass.DetritusMizerSim()` method then it will be dispatched
+instead of the default `getBiomass` method for objects of
+class `DetritusMizerSim`.
+
+```{r subclass-methods}
+getBiomass.DetritusMizerSim <- function(sim, ...) {
+    b <- NextMethod()
+    detritus_biomass <- vapply(
+        sim@n_other[, "Detritus"],
+        function(x) sum(x * sim@params@dw_full * sim@params@w_full),
+        numeric(1)
+    )
+    b <- cbind(unclass(b), Detritus = detritus_biomass)
+    ArraySpeciesByTime(b,
+        value_name = "Biomass", units = "g",
+        params = sim@params
+    )
+}
+```
+
+After that, `getBiomass(my_sim)` will dispatch to `getBiomass.DetritusMizerSim()`:
+
+```{r subclass-use}
+getBiomass(my_sim)
+```
+
+Note that this now also includes the detritus biomass. This works also for any mizer method that calls `getBiomass()` 
+internally, such as
+
+```{r subclass-plot}
+plotBiomass(my_sim)
+```
+
+This approach makes it possible to extend generic mizer workflows without
+rewriting the underlying package methods. 
+
 
 # How custom rate functions are called
 
@@ -236,208 +469,6 @@ many mistakes immediately.
 Before moving to dynamical components, it is worth seeing the even simpler case
 of a non-dynamical extension.
 
-# Worked example: non-dynamical external encounter and mortality
-
-If the extra ecological process does not need its own state variable, you can
-often model it with external encounter or external mortality.
-
-For example, suppose each species has a fixed extra food source that scales
-allometrically with body size:
-
-```{r ext-encounter-example}
-params_ext <- NS_params
-extra_food <- outer(rep(0.1, nrow(species_params(params_ext))),
-                    w(params_ext)^(3/4))
-ext_encounter(params_ext) <- extra_food
-```
-
-This adds `extra_food` directly to the total encounter rate:
-
-```{r ext-encounter-check}
-enc_base <- getEncounter(NS_params)
-enc_ext <- getEncounter(params_ext)
-range(enc_ext - enc_base, na.rm = TRUE)
-```
-
-Similarly, you can add a fixed external mortality term:
-
-```{r ext-mort-example}
-params_mort <- NS_params
-extra_mort <- outer(rep(0.05, nrow(species_params(params_mort))),
-                    w(params_mort)^(-1/4))
-ext_mort(params_mort) <- extra_mort
-```
-
-This route is appropriate when:
-
-- the extra process is not depleted or replenished dynamically,
-- fish are affected by it but do not feed back on it,
-- you want a transparent species x size term rather than a new component.
-
-# Worked example: a custom encounter function
-
-The next step up in complexity is to modify one rate while delegating most of the
-work back to the built-in mizer function. The example below adds a sinusoidal
-seasonal multiplier to the standard encounter rate.
-
-```{r seasonal-encounter-setup}
-params <- NS_params
-other_params(params) <- list(
-    season_amplitude = 0.2,
-    season_period = 1
-)
-```
-
-```{r seasonal-encounter-fun}
-seasonalEncounter <- function(params, n, n_pp, n_other, t, ...) {
-    p <- other_params(params)
-    multiplier <- 1 + p$season_amplitude * sin(2 * pi * t / p$season_period)
-    multiplier * mizerEncounter(params, n = n, n_pp = n_pp, n_other = n_other,
-                                t = t, ...)
-}
-```
-
-Register the function and inspect the result:
-
-```{r seasonal-encounter-register}
-params2 <- setRateFunction(params, "Encounter", "seasonalEncounter")
-```
-
-```{r seasonal-encounter-check}
-enc0 <- getEncounter(params2, t = 0)
-enc_quarter <- getEncounter(params2, t = 0.25)
-range(enc_quarter / enc0, na.rm = TRUE)
-```
-
-This pattern is often the easiest way to extend mizer safely:
-
-- fetch custom parameters from `other_params(params)`,
-- compute a modifier,
-- call the standard mizer rate function,
-- return a plain numeric matrix of the same shape.
-
-## Testing a custom rate function
-
-When you develop an extension package, add tests that compare your custom rate
-function to the built-in behaviour in a simple case. For the seasonal example a
-good first test would check:
-
-- at `t = 0`, the result equals `mizerEncounter()`,
-- at `t = 0.25`, the result is scaled by `1 + season_amplitude`,
-- the returned object has the same dimensions and dimnames as `initialN(params)`.
-
-# Worked example: adding a detritus-like component
-
-Now suppose you want to add a component that is consumed by fish and slowly
-relaxes back to a carrying capacity. We will store the component on the full
-resource size grid so that it can be used like an extra prey spectrum.
-
-```{r detritus-functions}
-detritusEncounter <- function(params, n, n_pp, n_other, component, ...) {
-    params2 <- params
-    params2@other_encounter[[component]] <- NULL
-    mizerEncounter(params2, n = n, n_pp = n_other[[component]],
-                   n_other = n_other, ...)
-}
-
-detritusDynamics <- function(params, n_other, rates, dt, component, ...) {
-    detritus <- n_other[[component]]
-    p <- params@other_params[[component]]
-    interaction <- params@species_params$interaction_resource
-    mort <- as.vector(interaction %*% rates$pred_rate)
-    target <- p$rate * p$capacity / (p$rate + mort)
-    target - (target - detritus) * exp(-(p$rate + mort) * dt)
-}
-```
-
-```{r detritus-component}
-detritus_params <- list(
-    capacity = initialNResource(params),
-    rate = params@rr_pp
-)
-
-params3 <- setComponent(
-    params,
-    component = "detritus",
-    initial_value = initialNResource(params) / 2,
-    dynamics_fun = "detritusDynamics",
-    encounter_fun = "detritusEncounter",
-    component_params = detritus_params
-)
-```
-
-Once the component has been added:
-
-- its initial state is available via `initialNOther(params3)$detritus`,
-- its settings can be inspected with `getComponent(params3, "detritus")`,
-- its contribution is included automatically in `getEncounter()` and `getDiet()`.
-
-For example:
-
-```{r detritus-diet}
-diet <- getDiet(params3, proportion = FALSE)
-tail(dimnames(diet)$prey, 3)
-```
-
-If you also want the component to contribute to mortality, add a `mort_fun`
-when calling `setComponent()`.
-
-# Worked example: S3 subclassing for custom methods
-
-For some extensions, the main need is not to change the core dynamics but to
-change how a model object is analysed or displayed. Because mizer uses S3
-generics for many user-facing methods, you can define your own methods for a
-custom subclass.
-
-For example, suppose your extension package stores extra plotting data and wants
-`plot()` for simulations to show one extra panel.
-
-```{r subclass-example, eval = FALSE}
-newMyMizerParams <- function(params, extra_info = list()) {
-    structure(params,
-              extra_info = extra_info,
-              class = c("MyMizerParams", class(params)))
-}
-
-newMyMizerSim <- function(sim, extra_series = NULL) {
-    structure(sim,
-              extra_series = extra_series,
-              class = c("MyMizerSim", class(sim)))
-}
-```
-
-You can then define new S3 methods:
-
-```{r subclass-methods, eval = FALSE}
-plot.MyMizerSim <- function(x, ...) {
-    NextMethod()
-    if (!is.null(attr(x, "extra_series"))) {
-        plot(attr(x, "extra_series"), ...)
-    }
-}
-
-plot.MyMizerParams <- function(x, ...) {
-    NextMethod()
-    message("Add an extra panel, legend, or annotation here.")
-}
-```
-
-This approach makes it possible to extend generic mizer workflows without
-rewriting the underlying package methods. For example, an extension package
-could:
-
-- add custom panels to `plot(sim)`,
-- provide specialised `summary()` output,
-- override `getBiomass()` or `getYield()` for a richer simulation class,
-- attach custom arrays and plot them alongside the standard mizer outputs.
-
-Two cautions are important:
-
-- this is an advanced pattern and is usually best implemented inside an
-  extension package, not ad hoc in analysis scripts,
-- changing the `class()` attribute of an S4 object is a deliberate S3 dispatch
-  trick, so you should test it carefully and document the behaviour clearly in
-  your package.
 
 # Practical advice for extension authors
 
