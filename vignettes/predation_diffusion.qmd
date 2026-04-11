@@ -1,0 +1,189 @@
+---
+title: "Incorporating predation diffusion"
+bibliography: diffusion_references.bib
+toc: true
+crossref:
+  eq-prefix: Eq.
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r}
+#| message: false
+#| warning: false
+library(mizerEcopath)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+```
+
+# The jump-growth equation {#sec-jump-growth}
+
+As was observed in [@datta2010], the variability in prey size leads to a diffusion term in the PDE for the abundance density $N(w,t)$. This term is neglected in mizer but will become important when matching mizer abundances to observed abundances, because it will account for fish that are larger than average. The PDE including the diffusion term is
+$$
+\frac{\partial N}{\partial t} = \frac12 \frac{\partial^2}{\partial w^2}(d N) - \frac{\partial}{\partial w}(g N)-\mu N
+$$ {#eq-PDE}
+where $g$ is the growth rate, $\mu$ is the death rate and $d$ is a new diffusion rate.
+
+The diffusion rate has an expression that is similar to that of the growth rate. Recall that the growth rate is given by
+$$
+\begin{split}
+g(w)=&(1-f(w))\,\gamma(w)\int N_c(w_p)\phi(w/w_p)\alpha\,(1-\psi(w)) w_p\,dw_p\\
+&- K(w)(1-\psi(w)),
+\end{split}
+$$ {#eq-gw}
+where $N_c(w)$ is the abundance density of prey, $\phi(w/w_p)$ is the predation kernel, $\gamma(w)$ is the search volume, $f(w)$ is the feeding level, $K(w)$ is the metabolic respiration rate, $\alpha$ is the conversion efficiency and $\psi(w)$ is the proportion of available energy that is invested into reproduction. Because the metabolic respiration loss is subtracted from the available energy before that is split into growth and reproduction, only a proportion $1-\psi$ of the metabolic rate is subtracted from the growth rate.
+
+The factor $\alpha (1- \psi(w))w_p$ in the integral in @eq-gw is the increase in somatic weight of the predator resulting from the ingestion of the prey of weight $w_p$. In the expression for the diffusion rate $d(w)$ this factor is squared:
+$$
+d(w) = (1-f(w))\,\gamma(w) \int N_c(w_p)\phi(w/w_p)(\alpha\,(1-\psi(w)) w_p)^2\,dw_p.
+$$ {#eq-dw}
+The loss due to metabolic respiration affects the growth rate but not the diffusion rate. In the derivation of the PDE @eq-PDE in [@datta2010] the metabolic respiration was not discussed but its contribution to only the first-order derivative term can be found in [@capitan2010].
+
+The increase $\alpha (1- \psi(w))w_p$ in predator mass is typically only a small proportion of the predator mass because the preferred prey are typically much smaller than the predator and also $\alpha$ and $1-\psi(w)$ are both smaller than $1$. Because this factor is squared in the expression for $d(w)$ it might be expected that the term in the PDE involving $d(w)$ can be safely neglected. However it is worth testing this intuition. We will do this now by first determining the diffusion rate in a model with allometric growth and death rates. We will then use that to determine its effect on the slope of the juvenile spectrum. Finally we will look at the numerical solution for the steady state.
+
+# Example calculation of diffusion rate {#sec-diffusion-example}
+
+Let us assume that the prey abundance is given by a power law: $N_c(w)=N_0w^{-\lambda}$ and that the predation kernel is
+$$
+\phi(w/w_p) = \exp\left(-\frac{\log(w/w_p/\beta)^2}{2\sigma^2}\right).
+$$ {#eq-phi}
+
+For juveniles $\psi(w)=0$ and hence the integral in the expression @eq-gw for the growth rate becomes
+$$
+\begin{split}
+I_g&:=\int N_c(w_p)\phi(w/w_p)\alpha\,(1-\psi(w)) w_p\,dw_p\\
+&=\alpha\int w_p^{1-\lambda}\exp\left(-\frac{\log(w/w_p/\beta)^2}{2\sigma^2}\right)dw_p.
+\end{split}
+$$ {#eq-Ig}
+This integral can be evaluated most easily by changing integration variable to $x=\log(w_p/w_0)$for an arbitrary reference weight $w_0$ and then recognising the resulting integral
+$$
+I_g=\alpha\, w_0^{2-\lambda}\int e^{(2-\lambda)x}\exp\left(-\frac{(x-\log(w/w_0)+\log(\beta))^2}{2\sigma^2}\right)dx
+$$ {#eq-Ig2}
+as a Gaussian integral. Using the general result that
+$$
+\int e^{ax}\exp\left(-\frac{(x-\mu)^2}{2\sigma^2}\right)dx = \sqrt{\frac{2\pi}{\sigma^2}}\exp\left(a\mu+\frac{a^2\sigma^2}{2}\right)
+$$ {#eq-gaussian}
+with $a = 2-\lambda$ and $\mu = \log(w/w_0)-\log(\beta)$ we find that 
+$$
+\begin{split}
+I_g&=
+\alpha\, w_0^{2-\lambda}\sqrt{\frac{2\pi}{\sigma^2}}\exp\left((2-\lambda)(\log(w/w_0)-\log(\beta))+\frac{(2-\lambda)^2\sigma^2}{2}\right)\\
+&=\alpha w^{2-\lambda}\sqrt{\frac{2\pi}{\sigma^2}}\beta^{\lambda - 2}\exp\left(\frac{(2-\lambda)^2\sigma^2}{2}\right)
+\end{split}
+$$ {#eq-Ig3}
+
+Assuming further a constant feeding level $f(w)=f$, an allometric metabolic loss rate $K(w) = k_s w^n$ and an allometric search volume $\gamma(w)=\gamma w^q$ with an exponent of $q = n - 2 + \lambda$ we obtain
+$$
+g(w) = \left((1-f)\gamma \alpha \sqrt{\frac{2\pi}{\sigma^2}}\beta^{\lambda - 2}\exp\left(\frac{(2-\lambda)^2\sigma^2}{2}\right)-k_s\right) w^n.
+$$ {#eq-gw2}
+If we assume further that the metabolic loss is a fraction $f_c/f$ of the incoming energy (we refer to $f_c$ as the critical feeding level) then this simplifies to
+$$
+g(w) =\left( \left(1-\frac{f_c}{f}\right)(1-f)\gamma \alpha \sqrt{\frac{2\pi}{\sigma^2}}\beta^{\lambda - 2}\exp\left(\frac{(2-\lambda)^2\sigma^2}{2}\right)\right) w^n.
+$$ {#eq-gwe}
+
+We can evaluate the diffusion rate $d(w)$ in the same manner. The extra factor of $w_p$ changes $a$ from $2-\lambda$ to $3-\lambda$ and we obtain
+$$
+d(w) = \left((1-f(w))\gamma \alpha^2 \sqrt{\frac{2\pi}{\sigma^2}}\beta^{\lambda - 3}\exp\left(\frac{(3-\lambda)^2\sigma^2}{2}\right)\right) w^{n+1}.
+$$ {#eq-dw2}
+Comparing this to the expression @eq-gwe for $g(w)$ we find that
+$$
+d(w) = g(w)w\frac{1}{1-f_c/f}\frac{\alpha}{\beta}\exp\left(\frac{(2\lambda - 3)\sigma^2}{2}\right).
+$$ {#eq-dw3}
+
+To get a feel for the typical magnitude of the factor let's consider concrete values 
+$$
+(1-f_c/f)=0.6, \qquad\alpha = 0.8, \qquad\beta = 100, \qquad\sigma = 2, \qquad\lambda = 2.
+$$ {#eq-params}
+```{r}
+#| include: false
+feeding_coeff <- 0.6
+alpha <- 0.8
+beta <- 100
+sigma <- 2
+lambda <- 2
+factor <- 1/(1 - feeding_coeff) * alpha / beta * exp((2 * lambda - 3) * sigma^2 / 2)
+```
+
+Then 
+$$
+d(w) \approx `r round(factor, digits = 2)` g(w)w.
+$$ {#eq-dw4}
+
+```{r}
+#| include: false
+sigma <- 1
+factor_1 <- 1/(1 - feeding_coeff) * alpha / beta * exp((2 * lambda - 3) * sigma^2 / 2)
+```
+
+However we see that the value of $d(w)$ is strongly influenced by the width of the feeding kernel. If we choose $\sigma = 1$ then $d(w)\approx `r round(factor_1, digits = 2)` g(w)w$. This decrease in the diffusion rate with decreasing $\sigma$ may explains the result from [@datta2010a] that the stability of the system decreases with decreasing $\sigma$.
+
+# Effect on juvenile slope {#sec-diffusion-juvenile}
+
+In this section we will calculate the effect of the diffusion on the slope of the juvenile spectrum in the steady state. You can skip this section if you are not interested in the details of the calculation. The outcome is that the change in the juvenile slope is small. However, the change in the size spectrum of the adults is much larger, as we will see in @sec-diffusion-numerical.
+
+Without diffusion we find the juvenile spectrum by solving the steady-state equation
+$$
+\frac{\partial}{\partial w}(g(w) N(w)) =-\mu(w) N(w).
+$$ {#eq-ss}
+
+This has the solution
+$$
+N(w) = \frac{g(w_0)}{g(w)}N(w_0)\exp\left(-\int_{w_0}^w\frac{\mu(w')}{g(w')}dw'\right).
+$$ {#eq-Nw}
+
+With allometric growth and death rates $g(w)=g_0w^n$ and $\mu(w)=\mu_0w^{n-1}$ this gives
+$$
+N(w)=\left(\frac{w}{w_0}\right)^{-n} N(w_0)\exp\left(-\frac{\mu_0}{g_0}\int_{w_0}^w\frac{1}{w'}dw'\right)=N(w_0)\left(\frac{w}{w_0}\right)^{-\mu_0/g_0-n}.
+$$ {#eq-Nwss}
+
+Thus the juvenile steady state abundance density is given by a power law with exponent $-\mu_0/g_0-n$.
+
+In the presence of diffusion the steady state equation becomes the second-order ODE
+$$
+\frac12 \frac{\partial^2}{\partial w^2}(d N) - \frac{\partial}{\partial w}(g N)-\mu N=0.
+$$ {#eq-diffss}
+
+We have seen in the previous section that with $g(w)=g_0w^n$ the diffusion rate is also a power law with one extra factor of $w$: $d(w)=d_0w^{n+1}$. This makes the equation @eq-diffss scale invariant and hence we again expect the solution to be a power law, So we make the Ansatz $N(w)=N(w_0)(w/w_0)^a$ with the exponent $a$ to be determined. Substituting this Ansatz into @eq-diffss gives
+$$
+\frac12 d_0N_0(n+1+a)(n+a)w^{n+a-1} -g_0N_0(n+a)w^{n+a-1}-\mu_0 N_0w^{n-1+a} = 0
+$$ {#eq-diffssansatz}
+which requires that
+$$
+\frac12 d_0 (n+a)^2+\left(\frac12 d_0 -g_0\right)(n+a)-\mu_0=0.
+$$ {#eq-diffssansatz2}
+This is a quadratic equation for $n+a$:
+$$
+\frac12 d_0 (n+a)^2+\left(\frac12 d_0 -g_0\right)(n+a)-\mu_0=0.
+$$ {#eq-diffssansatz3}
+This has two solutions
+$$
+(n+a_\pm) = \frac1{d_0}\left(g_0-d_0/2\pm\sqrt{(g_0-d_0/2)^2+2d_0\mu_0}\right)
+$$ {#eq-a}
+where $a_+$ is the solution with the + sign and $a_-$ is the solution with the - sign.
+
+We are only interested in the solution that goes to $a=-\mu_0/g_0-n$ when $d_0\to 0$. This means we are interested in the solution with the - sign. To check that indeed the solution $a_{-}$ satisfies $\lim_{a_-\to 0}= -\mu_0/g_0-n$ it is helpful to expand the square root term around $d_0=0$:
+$$
+\sqrt{(g_0-d_0/2)^2+2d_0\mu_0}=g_0+\frac{-g_0+2\mu_0}{2g_0}d_0+\frac{g_0^2-(-g_0+2\mu_0)^2}{8g_0^3}d_0^2+\dots
+$$ {#eq-sqrt}
+So we find
+$$
+\begin{split}
+a &= -n+\frac1{d_0}\left(g_0-d_0/2-\sqrt{(g_0-d_0/2)^2+2d_0\mu_0}\right)\\
+&\approx -n-\frac{\mu_0}{g_0} - \frac18\left(1-\left(-1+2\frac{\mu_0}{g_0}\right)^2\right) d_0+\dots\\
+&=-n-\frac{\mu_0}{g_0} +\frac12\left(\frac{\mu_0}{g_0}\left(1-\frac{\mu_0}{g_0}\right)\right)\frac{d_0}{g_0}+\dots
+\end{split}
+$$ {#eq-a-2}
+
+We see that when $\mu_0=g_0$ then the first correction term to the juvenile slope vanishes. The largest increase in slope (i.e., the least negative slope) is achieved when $\mu_0/g_0=1/2$. In that case the slope without diffusion is $-1.25$ (assuming $n=0.75$). The correction term then is $d_0/(8g_0)$. We had already seen in the previous section that $d_0/g_0$ is typically very small, so the change in slope is also very small.
+
+Using the example value of $d_0/g_0\approx`r round(factor, digits=2)`$ and $n=0.75$ we get a slope correction of approximately $`r round(factor/8, digits=3)`$ from $-1.25$ to $`r round(factor/8-1.25, digits=3)`$.
+
+Using the value $d_0/g_0\approx`r round(factor_1, digits=2)`$ we get a smaller slope correction of approximately $`r round(factor_1/8, digits=3)`$ from $-1.25$ to $`r round(factor_1/8-1.25, digits=3)`$. 
+
+When $\mu_0/g_0>1$ then the diffusion correction is negative, i.e., the juvenile slope becomes more negative due to diffusion, meaning fewer large fish.
