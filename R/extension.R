@@ -286,12 +286,17 @@ other_params <- function(params) {
 #'   mortality rate. Optional.
 #' @param component_params Object holding the parameters needed by the component
 #'   functions. This could for example be a named list of parameters. Optional.
+#' @param colour Line colour to use for the component in plots. Defaults to
+#'   `"grey"`.
+#' @param linetype Line type to use for the component in plots. Defaults to
+#'   `"solid"`.
 #' @return The updated MizerParams object
 #' @export
 setComponent <- function(params, component, initial_value,
                          dynamics_fun,
                          encounter_fun, mort_fun,
-                         component_params) {
+                         component_params,
+                         colour = "grey", linetype = "solid") {
     assert_that(is(params, "MizerParams"),
                 is.string(component),
                 is.string(dynamics_fun),
@@ -315,6 +320,8 @@ setComponent <- function(params, component, initial_value,
     if (!missing(component_params)) {
         params@other_params[[component]] <- component_params
     }
+    params <- setColours(params, stats::setNames(list(colour), component))
+    params <- setLinetypes(params, stats::setNames(list(linetype), component))
 
     params@time_modified <- lubridate::now()
     params

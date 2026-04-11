@@ -12,7 +12,9 @@ setComponent(
   dynamics_fun,
   encounter_fun,
   mort_fun,
-  component_params
+  component_params,
+  colour = "grey",
+  linetype = "solid"
 )
 
 removeComponent(params, component)
@@ -34,6 +36,12 @@ mortality rate. Optional.}
 
 \item{component_params}{Object holding the parameters needed by the component
 functions. This could for example be a named list of parameters. Optional.}
+
+\item{colour}{Line colour to use for the component in plots. Defaults to
+\code{"grey"}.}
+
+\item{linetype}{Line type to use for the component in plots. Defaults to
+\code{"solid"}.}
 }
 \value{
 The updated MizerParams object

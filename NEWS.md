@@ -1,5 +1,9 @@
 # Development version 2.5.4.9102
 
+- `setComponent()` now accepts optional `colour` and `linetype` arguments and
+  applies them via `setColours()` and `setLinetypes()` so added components can
+  be styled directly in plots.
+
 - New "Extending mizer" vignette (`vignette("extensions")`) documents when
   to use `setRateFunction()`, `setComponent()`, and `customFunction()`,
   summarises the required signatures and return shapes for custom rate

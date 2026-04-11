@@ -133,6 +133,29 @@ test_that("We can set, get and remove components", {
     expect_null(p1@other_params[["test"]])
 })
 
+test_that("We can set component colours and linetypes", {
+    p <- setComponent(params, "test", 1,
+                      dynamics_fun = "test_dyn",
+                      colour = "orange",
+                      linetype = "dashed")
+    expect_identical(getColours(p)[["test"]], "orange")
+    expect_identical(getLinetypes(p)[["test"]], "dashed")
+
+    p2 <- suppressWarnings(
+        setComponent(p, "test2", 1,
+                     dynamics_fun = "test_dyn",
+                     colour = "not-a-colour",
+                     linetype = "not-a-linetype")
+    )
+    expect_false("test2" %in% names(getColours(p2)))
+    expect_false("test2" %in% names(getLinetypes(p2)))
+
+    p3 <- setComponent(params, "test3", 1,
+                       dynamics_fun = "test_dyn")
+    expect_identical(getColours(p3)[["test3"]], "grey")
+    expect_identical(getLinetypes(p3)[["test3"]], "solid")
+})
+
 # initial values ----
 test_that("We can set and get initial values for MizerParams", {
     p <- setComponent(params, "test", 1, 
