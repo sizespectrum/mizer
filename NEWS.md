@@ -57,7 +57,7 @@
   `units` attributes and provides enhanced `print()`, `summary()`, `plot()`,
   and `as.data.frame()` methods.
 
-- New `plotly()` generic function with methods for `ArraySpeciesBySize` and
+- New `ggplotly()` methods for `ArraySpeciesBySize` and
   `ArraySpeciesByTime` that convert the `ggplot2` output of `plot()` into an
   interactive plotly figure via `plotly::ggplotly()`.
 
