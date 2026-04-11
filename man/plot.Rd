@@ -7,7 +7,7 @@
 \alias{ggplotly.ArraySpeciesBySize}
 \alias{plot.ArraySpeciesByTime}
 \alias{ggplotly.ArraySpeciesByTime}
-\title{Plot or interactively plot an ArraySpeciesBySize or ArraySpeciesByTime object}
+\title{Plotting outputs}
 \usage{
 \method{plot}{ArraySpeciesBySize}(
   x,
@@ -89,19 +89,25 @@ beginning of the time series. Only applies to \code{ArraySpeciesByTime}.}
 the time series. Only applies to \code{ArraySpeciesByTime}.}
 }
 \value{
-\code{plot()} returns a ggplot2 object, unless \code{return_data = TRUE}, in which case a data
-frame is returned.
+\code{plot()} returns a ggplot2 object, unless \code{return_data = TRUE}, in
+which case a data frame is returned.
 
 \code{ggplotly()} returns a plotly object.
 }
 \description{
-\code{plot()} creates a ggplot2 figure of the values against size (for
-\code{ArraySpeciesBySize}) or against time (for \code{ArraySpeciesByTime}) for each
-species, using species colours and linetypes from the MizerParams object
-stored in the \code{params} attribute.
+Many mizer functions return values that depend on species and either size or
+time. \code{plot()} creates a ggplot2 figure with one line for each species
+showing the values against size or against time (depending on the type of
+output). \code{ggplotly()} creates an interactive version of the same figure.
 }
 \details{
-\code{ggplotly()} creates an interactive version of the same figure.
+This works because the mizer functions that give values that depend on
+species and size return an \code{ArraySpeciesBySize} object and those that
+give values that depend on species and time return an \code{ArraySpeciesByTime}
+object. These objects have attributes that store the name of the value,
+its units, and a reference to the \code{MizerParams} object that the value was
+computed from. This allows the plots to be automatically labelled and
+coloured appropriately.
 }
 \examples{
 \donttest{

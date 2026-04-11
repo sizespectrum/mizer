@@ -126,14 +126,20 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
     invisible(x)
 }
 
-#' Plot or interactively plot an ArraySpeciesBySize or ArraySpeciesByTime object
+#' Plotting outputs
 #'
-#' `plot()` creates a ggplot2 figure of the values against size (for
-#' `ArraySpeciesBySize`) or against time (for `ArraySpeciesByTime`) for each
-#' species, using species colours and linetypes from the MizerParams object
-#' stored in the `params` attribute.
+#' Many mizer functions return values that depend on species and either size or
+#' time. `plot()` creates a ggplot2 figure with one line for each species
+#' showing the values against size or against time (depending on the type of
+#' output). `ggplotly()` creates an interactive version of the same figure.
 #'
-#' `ggplotly()` creates an interactive version of the same figure.
+#' This works because the mizer functions that give values that depend on
+#' species and size return an `ArraySpeciesBySize` object and those that
+#' give values that depend on species and time return an `ArraySpeciesByTime`
+#' object. These objects have attributes that store the name of the value,
+#' its units, and a reference to the `MizerParams` object that the value was
+#' computed from. This allows the plots to be automatically labelled and
+#' coloured appropriately.
 #'
 #' @param x An `ArraySpeciesBySize` or `ArraySpeciesByTime` object.
 #' @param species Character vector of species to include. `NULL` (default) means
@@ -160,8 +166,8 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #' @param y_ticks The approximate number of ticks desired on the y axis.
 #' @param ... Further arguments (currently unused).
 #'
-#' @return `plot()` returns a ggplot2 object, unless `return_data = TRUE`, in which case a data
-#'   frame is returned.
+#' @return `plot()` returns a ggplot2 object, unless `return_data = TRUE`, in
+#'   which case a data frame is returned.
 #'
 #' @name plot
 #' @family plotting functions
