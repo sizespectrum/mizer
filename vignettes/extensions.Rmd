@@ -1,0 +1,355 @@
+---
+title: "Extending mizer"
+output:
+  html_document:
+    toc: yes
+    fig_width: 5
+    fig_height: 5
+vignette: >
+  %\VignetteIndexEntry{Extending mizer}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(mizer)
+```
+
+# Overview
+
+This vignette is for users who want to change how mizer works without editing
+the package source code. There are three extension routes:
+
+1. Use `setRateFunction()` when you want to replace one of the standard rate
+   calculations such as encounter, growth, mortality, or recruitment.
+2. Use `setComponent()` when you want to add a new ecosystem component such as
+   detritus, carrion, or an extra resource pool.
+3. Use `customFunction()` only as a last resort when neither of the first two
+   mechanisms is sufficient.
+
+The safest workflow is to start with the smallest change that can express your
+idea. In particular, if you only need to change one rate, prefer
+`setRateFunction()` over replacing `mizerRates()` or patching internal mizer
+functions.
+
+# Choosing an extension mechanism
+
+The following table is a quick guide.
+
+```{r mechanism-table, echo = FALSE}
+mechanisms <- data.frame(
+    Goal = c(
+        "Change one built-in rate calculation",
+        "Add a new state variable or ecosystem pool",
+        "Store parameters needed by your custom code",
+        "Replace arbitrary internal mizer code"
+    ),
+    Use = c(
+        "`setRateFunction()`",
+        "`setComponent()`",
+        "`other_params()` or `component_params`",
+        "`customFunction()`"
+    ),
+    Notes = c(
+        "Best option for time-dependent or alternative rate formulations.",
+        "Lets you add component dynamics and optional encounter or mortality contributions.",
+        "Use `other_params()` for model-wide parameters and `component_params` for one component.",
+        "Experimental and fragile. Use only if the standard mechanisms cannot express your change."
+    ),
+    check.names = FALSE
+)
+knitr::kable(mechanisms)
+```
+
+## `setRateFunction()`
+
+Use `setRateFunction()` when your model still fits mizer's standard flow of
+rate calculations, but one step should be done differently. Examples include:
+
+- making encounter or mortality explicitly time-dependent,
+- using an alternative growth or reproduction formulation,
+- swapping in a different recruitment density-dependence,
+- replacing the whole `mizerRates()` pipeline with a custom version.
+
+Your function is registered by name:
+
+```{r eval = FALSE}
+params <- setRateFunction(params, "Mort", "myMort")
+```
+
+The function must be available by name in the global environment or in an
+installed package. mizer stores the function name, not the function object.
+
+## `setComponent()`
+
+Use `setComponent()` when your model needs an additional dynamical quantity that
+is not already represented in `MizerParams`, for example detritus, carrion, an
+oxygen pool, or a second resource spectrum.
+
+A component can contribute to the model in up to three ways:
+
+- `dynamics_fun` updates the component itself during projection,
+- `encounter_fun` adds to `getEncounter()`,
+- `mort_fun` adds to `getMort()`.
+
+The component state can be any R object. For example it can be a scalar, a
+vector on the resource size grid, or a list with several fields.
+
+## `customFunction()`
+
+Use `customFunction()` only if you have confirmed that your goal cannot be
+expressed with `setRateFunction()`, `setComponent()`, `resource_dynamics()<-`,
+or `setReproduction()`. It replaces an internal mizer function in the package
+namespace and can easily break the package if your replacement is not fully
+compatible.
+
+# How custom rate functions are called
+
+Each overridable rate has its own expected function signature and return shape.
+The most important point is that custom rate functions should return plain
+numeric objects, not `ArraySpeciesBySize` or `ArraySpeciesByTime` objects. The
+`get*()` wrappers add those classes afterwards where appropriate.
+
+The table below summarises the required inputs and outputs.
+
+```{r rate-table, echo = FALSE}
+rate_table <- data.frame(
+    Rate = c("Encounter", "FeedingLevel", "EReproAndGrowth", "ERepro",
+             "EGrowth", "PredRate", "PredMort", "FMort", "Mort", "RDI",
+             "RDD", "ResourceMort", "Rates"),
+    Signature = c(
+        "function(params, n, n_pp, n_other, t, ...)",
+        "function(params, n, n_pp, n_other, t, encounter, ...)",
+        "function(params, n, n_pp, n_other, t, encounter, feeding_level, ...)",
+        "function(params, n, n_pp, n_other, t, e, ...)",
+        "function(params, n, n_pp, n_other, t, e, e_repro, ...)",
+        "function(params, n, n_pp, n_other, t, feeding_level, ...)",
+        "function(params, n, n_pp, n_other, t, pred_rate, ...)",
+        "function(params, n, n_pp, n_other, t, effort, e_growth, pred_mort, ...)",
+        "function(params, n, n_pp, n_other, t, f_mort, pred_mort, ...)",
+        "function(params, n, n_pp, n_other, t, e_growth, mort, e_repro, ...)",
+        "function(rdi, species_params, params, t, ...)",
+        "function(params, n, n_pp, n_other, t, pred_rate, ...)",
+        "function(params, n, n_pp, n_other, t, effort, rates_fns, ...)"
+    ),
+    `Return value` = c(
+        "numeric matrix, species x size",
+        "numeric matrix, species x size",
+        "numeric matrix, species x size",
+        "numeric matrix, species x size",
+        "numeric matrix, species x size",
+        "numeric matrix, species x full size grid",
+        "numeric matrix, species x size",
+        "numeric matrix, species x size",
+        "numeric matrix, species x size",
+        "numeric vector, one value per species",
+        "numeric vector, one value per species",
+        "numeric vector, one value per full size bin",
+        "named list with all standard rate components"
+    ),
+    check.names = FALSE
+)
+knitr::kable(rate_table)
+```
+
+## Common arguments
+
+Most custom rate functions use the same core arguments:
+
+- `params`: the `MizerParams` object,
+- `n`: species abundance by species and size,
+- `n_pp`: the resource abundance on the full size grid,
+- `n_other`: a named list of additional component states,
+- `t`: the current simulation time.
+
+Some rates also receive prerequisite rates that were already calculated earlier
+in the pipeline, for example `encounter`, `feeding_level`, or `pred_mort`.
+
+## Dimensions and dimnames
+
+Most size-resolved rates should return a matrix with the same dimensions as
+`initialN(params)`, so a species x size matrix with the same dimnames. The two
+important exceptions are:
+
+- `PredRate`, which uses the full prey size grid and therefore returns
+  species x `w_full`,
+- `ResourceMort`, which returns one value per `w_full` bin rather than one
+  value per species.
+
+At registration time `setRateFunction()` calls your function with test inputs
+and checks that the returned object has the expected dimensions. This catches
+many mistakes immediately.
+
+# Worked example: a custom encounter function
+
+The simplest way to start is to modify one rate while delegating most of the
+work back to the built-in mizer function. The example below adds a sinusoidal
+seasonal multiplier to the standard encounter rate.
+
+```{r seasonal-encounter-setup}
+params <- NS_params
+other_params(params) <- list(
+    season_amplitude = 0.2,
+    season_period = 1
+)
+```
+
+```{r seasonal-encounter-fun}
+seasonalEncounter <- function(params, n, n_pp, n_other, t, ...) {
+    p <- other_params(params)
+    multiplier <- 1 + p$season_amplitude * sin(2 * pi * t / p$season_period)
+    multiplier * mizerEncounter(params, n = n, n_pp = n_pp, n_other = n_other,
+                                t = t, ...)
+}
+```
+
+Register the function and inspect the result:
+
+```{r seasonal-encounter-register}
+params2 <- setRateFunction(params, "Encounter", "seasonalEncounter")
+```
+
+```{r seasonal-encounter-check}
+enc0 <- getEncounter(params2, t = 0)
+enc_quarter <- getEncounter(params2, t = 0.25)
+range(enc_quarter / enc0, na.rm = TRUE)
+```
+
+This pattern is often the easiest way to extend mizer safely:
+
+- fetch custom parameters from `other_params(params)`,
+- compute a modifier,
+- call the standard mizer rate function,
+- return a plain numeric matrix of the same shape.
+
+## Testing a custom rate function
+
+When you develop an extension package, add tests that compare your custom rate
+function to the built-in behaviour in a simple case. For the seasonal example a
+good first test would check:
+
+- at `t = 0`, the result equals `mizerEncounter()`,
+- at `t = 0.25`, the result is scaled by `1 + season_amplitude`,
+- the returned object has the same dimensions and dimnames as `initialN(params)`.
+
+# Worked example: adding a detritus-like component
+
+Now suppose you want to add a component that is consumed by fish and slowly
+relaxes back to a carrying capacity. We will store the component on the full
+resource size grid so that it can be used like an extra prey spectrum.
+
+```{r detritus-functions}
+detritusEncounter <- function(params, n, n_pp, n_other, component, ...) {
+    params2 <- params
+    params2@other_encounter[[component]] <- NULL
+    mizerEncounter(params2, n = n, n_pp = n_other[[component]],
+                   n_other = n_other, ...)
+}
+
+detritusDynamics <- function(params, n_other, rates, dt, component, ...) {
+    detritus <- n_other[[component]]
+    p <- params@other_params[[component]]
+    interaction <- params@species_params$interaction_resource
+    mort <- as.vector(interaction %*% rates$pred_rate)
+    target <- p$rate * p$capacity / (p$rate + mort)
+    target - (target - detritus) * exp(-(p$rate + mort) * dt)
+}
+```
+
+```{r detritus-component}
+detritus_params <- list(
+    capacity = initialNResource(params),
+    rate = params@rr_pp
+)
+
+params3 <- setComponent(
+    params,
+    component = "detritus",
+    initial_value = initialNResource(params) / 2,
+    dynamics_fun = "detritusDynamics",
+    encounter_fun = "detritusEncounter",
+    component_params = detritus_params
+)
+```
+
+Once the component has been added:
+
+- its initial state is available via `initialNOther(params3)$detritus`,
+- its settings can be inspected with `getComponent(params3, "detritus")`,
+- its contribution is included automatically in `getEncounter()` and `getDiet()`.
+
+For example:
+
+```{r detritus-diet}
+diet <- getDiet(params3, proportion = FALSE)
+tail(dimnames(diet)$prey, 3)
+```
+
+If you also want the component to contribute to mortality, add a `mort_fun`
+when calling `setComponent()`.
+
+# Practical advice for extension authors
+
+## Start from a built-in function
+
+If possible, copy the relevant built-in mizer function, make one change, and
+register the modified version. This makes it much easier to stay compatible
+with the rest of the rate pipeline.
+
+## Keep model-wide and component-specific parameters separate
+
+Use:
+
+- `other_params(params)` for parameters used by custom rate functions across
+  the whole model,
+- `component_params` in `setComponent()` for parameters belonging to one
+  component only.
+
+This keeps the structure of `params@other_params` readable and makes debugging
+much easier.
+
+## Return plain numeric objects
+
+If you replace a built-in rate function, return a plain matrix, vector, or list
+with the expected dimensions. Do not return `ArraySpeciesBySize` objects from
+custom rate functions that are called through `setRateFunction()`.
+
+## Preserve dimnames where possible
+
+Many bugs in extension code come from returning the right numeric values with
+the wrong shape. A good habit is to build outputs from existing mizer arrays so
+that dimensions and dimnames are inherited automatically.
+
+## Test registration and use
+
+Test both of these:
+
+1. that `setRateFunction()` or `setComponent()` succeeds,
+2. that the downstream function you care about, such as `getEncounter()`,
+   `getDiet()`, or `project()`, uses your extension as intended.
+
+# When to move beyond a local script
+
+If your extension becomes useful across several projects, consider turning it
+into a small package. That gives you:
+
+- a stable namespace so mizer can find your functions by name,
+- a natural place for unit tests and documentation,
+- versioning that can be recorded in `params@extensions`.
+
+For larger changes you may also want to discuss your design on the
+[mizer issue tracker](https://github.com/sizespectrum/mizer/issues) before
+committing to an interface.
+
+# See also
+
+- `vignette("developer_vignette")` for a broader guide to working with the
+  mizer code base,
+- `?setRateFunction`,
+- `?setComponent`,
+- `?customFunction`,
+- `?getRates`.

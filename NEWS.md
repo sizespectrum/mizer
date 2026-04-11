@@ -1,5 +1,11 @@
 # Development version 2.5.4.9102
 
+- New "Extending mizer" vignette (`vignette("extensions")`) documents when
+  to use `setRateFunction()`, `setComponent()`, and `customFunction()`,
+  summarises the required signatures and return shapes for custom rate
+  functions, and gives worked examples for both a custom encounter function
+  and an added ecosystem component.
+
 - New "Cheatsheet: Analysis and Plotting" vignette (`vignette("cheatsheet")`)
   provides a quick reference for all functions that access simulation arrays,
   compute summaries, calculate indicators, and create plots. Closes #176.
