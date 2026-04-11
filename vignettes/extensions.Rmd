@@ -22,13 +22,17 @@ library(mizer)
 # Overview
 
 This vignette is for users who want to change how mizer works without editing
-the package source code. There are three extension routes:
+the package source code. There are five main extension routes:
 
-1. Use `setRateFunction()` when you want to replace one of the standard rate
+1. Use `setExtEncounter()` or `setExtMort()` when you want to add simple
+   external food or mortality sources that do not need their own dynamics.
+2. Use `setRateFunction()` when you want to replace one of the standard rate
    calculations such as encounter, growth, mortality, or recruitment.
-2. Use `setComponent()` when you want to add a new ecosystem component such as
+3. Use `setComponent()` when you want to add a new ecosystem component such as
    detritus, carrion, or an extra resource pool.
-3. Use `customFunction()` only as a last resort when neither of the first two
+4. Use S3 subclassing of `MizerParams` and `MizerSim` when you want to extend
+   generic mizer methods such as plotting or summaries for a custom model type.
+5. Use `customFunction()` only as a last resort when neither of the first four
    mechanisms is sufficient.
 
 The safest workflow is to start with the smallest change that can express your
@@ -43,20 +47,26 @@ The following table is a quick guide.
 ```{r mechanism-table, echo = FALSE}
 mechanisms <- data.frame(
     Goal = c(
+        "Add a non-dynamical external food or mortality source",
         "Change one built-in rate calculation",
         "Add a new state variable or ecosystem pool",
+        "Extend plots or summaries for a custom model type",
         "Store parameters needed by your custom code",
         "Replace arbitrary internal mizer code"
     ),
     Use = c(
+        "`setExtEncounter()` or `setExtMort()`",
         "`setRateFunction()`",
         "`setComponent()`",
+        "S3 subclass + new methods",
         "`other_params()` or `component_params`",
         "`customFunction()`"
     ),
     Notes = c(
+        "Simplest route when the extra process does not need its own state variable.",
         "Best option for time-dependent or alternative rate formulations.",
         "Lets you add component dynamics and optional encounter or mortality contributions.",
+        "Advanced route for custom behaviour layered on top of mizer generics.",
         "Use `other_params()` for model-wide parameters and `component_params` for one component.",
         "Experimental and fragile. Use only if the standard mechanisms cannot express your change."
     ),
@@ -64,6 +74,26 @@ mechanisms <- data.frame(
 )
 knitr::kable(mechanisms)
 ```
+
+## `setExtEncounter()` and `setExtMort()`
+
+These are the lightest-weight extension mechanisms. They are useful when you
+want to represent ecosystem processes that affect fish but do not need a
+separate state variable or their own dynamics.
+
+Typical uses are:
+
+- extra food sources that are not modelled explicitly, via `setExtEncounter()`,
+- mortality from predators that are outside the model, via `setExtMort()`.
+
+Both quantities are species x size arrays:
+
+- `ext_encounter` has units of mass per year and is added directly to
+  `getEncounter()`,
+- `ext_mort` has units of `1/year` and contributes directly to mortality.
+
+If you only need a fixed background contribution, this is usually a better
+choice than `setComponent()`.
 
 ## `setRateFunction()`
 
@@ -98,6 +128,25 @@ A component can contribute to the model in up to three ways:
 
 The component state can be any R object. For example it can be a scalar, a
 vector on the resource size grid, or a list with several fields.
+
+## S3 subclassing of `MizerParams` and `MizerSim`
+
+This is the most flexible extension route that still works with mizer's public
+generic functions. Although `MizerParams` and `MizerSim` are S4 classes, mizer
+registers its methods as S3 methods. That means advanced users can define a new
+S3 class layered on top of these objects and then provide custom methods such
+as:
+
+- `plot.MyMizerSim()`,
+- `plot.MyMizerParams()`,
+- `summary.MyMizerSim()`,
+- `getBiomass.MyMizerSim()`.
+
+This is especially useful if you have added extra components or metadata and
+want mizer's summaries or plots to include them.
+
+Because this route relies on S3 dispatch over S4 objects, it is best treated as
+an advanced package-author technique rather than a quick script-level hack.
 
 ## `customFunction()`
 
@@ -184,9 +233,50 @@ At registration time `setRateFunction()` calls your function with test inputs
 and checks that the returned object has the expected dimensions. This catches
 many mistakes immediately.
 
+Before moving to dynamical components, it is worth seeing the even simpler case
+of a non-dynamical extension.
+
+# Worked example: non-dynamical external encounter and mortality
+
+If the extra ecological process does not need its own state variable, you can
+often model it with external encounter or external mortality.
+
+For example, suppose each species has a fixed extra food source that scales
+allometrically with body size:
+
+```{r ext-encounter-example}
+params_ext <- NS_params
+extra_food <- outer(rep(0.1, nrow(species_params(params_ext))),
+                    w(params_ext)^(3/4))
+ext_encounter(params_ext) <- extra_food
+```
+
+This adds `extra_food` directly to the total encounter rate:
+
+```{r ext-encounter-check}
+enc_base <- getEncounter(NS_params)
+enc_ext <- getEncounter(params_ext)
+range(enc_ext - enc_base, na.rm = TRUE)
+```
+
+Similarly, you can add a fixed external mortality term:
+
+```{r ext-mort-example}
+params_mort <- NS_params
+extra_mort <- outer(rep(0.05, nrow(species_params(params_mort))),
+                    w(params_mort)^(-1/4))
+ext_mort(params_mort) <- extra_mort
+```
+
+This route is appropriate when:
+
+- the extra process is not depleted or replenished dynamically,
+- fish are affected by it but do not feed back on it,
+- you want a transparent species x size term rather than a new component.
+
 # Worked example: a custom encounter function
 
-The simplest way to start is to modify one rate while delegating most of the
+The next step up in complexity is to modify one rate while delegating most of the
 work back to the built-in mizer function. The example below adds a sinusoidal
 seasonal multiplier to the standard encounter rate.
 
@@ -291,6 +381,63 @@ tail(dimnames(diet)$prey, 3)
 
 If you also want the component to contribute to mortality, add a `mort_fun`
 when calling `setComponent()`.
+
+# Worked example: S3 subclassing for custom methods
+
+For some extensions, the main need is not to change the core dynamics but to
+change how a model object is analysed or displayed. Because mizer uses S3
+generics for many user-facing methods, you can define your own methods for a
+custom subclass.
+
+For example, suppose your extension package stores extra plotting data and wants
+`plot()` for simulations to show one extra panel.
+
+```{r subclass-example, eval = FALSE}
+newMyMizerParams <- function(params, extra_info = list()) {
+    structure(params,
+              extra_info = extra_info,
+              class = c("MyMizerParams", class(params)))
+}
+
+newMyMizerSim <- function(sim, extra_series = NULL) {
+    structure(sim,
+              extra_series = extra_series,
+              class = c("MyMizerSim", class(sim)))
+}
+```
+
+You can then define new S3 methods:
+
+```{r subclass-methods, eval = FALSE}
+plot.MyMizerSim <- function(x, ...) {
+    NextMethod()
+    if (!is.null(attr(x, "extra_series"))) {
+        plot(attr(x, "extra_series"), ...)
+    }
+}
+
+plot.MyMizerParams <- function(x, ...) {
+    NextMethod()
+    message("Add an extra panel, legend, or annotation here.")
+}
+```
+
+This approach makes it possible to extend generic mizer workflows without
+rewriting the underlying package methods. For example, an extension package
+could:
+
+- add custom panels to `plot(sim)`,
+- provide specialised `summary()` output,
+- override `getBiomass()` or `getYield()` for a richer simulation class,
+- attach custom arrays and plot them alongside the standard mizer outputs.
+
+Two cautions are important:
+
+- this is an advanced pattern and is usually best implemented inside an
+  extension package, not ad hoc in analysis scripts,
+- changing the `class()` attribute of an S4 object is a deliberate S3 dispatch
+  trick, so you should test it carefully and document the behaviour clearly in
+  your package.
 
 # Practical advice for extension authors
 
