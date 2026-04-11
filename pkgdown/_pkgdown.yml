@@ -70,6 +70,7 @@ articles:
   - multispecies_model
   - running_a_simulation
   - exploring_the_simulation_results
+  - cheatsheet
   - a_multispecies_model_of_the_north_sea
   - plotting
   - cohort_dynamics_and_diffusion
@@ -164,6 +165,7 @@ reference:
 - title: Plotting results
   contents:
   - plotting_functions
+  - has_concept("plotting functions")
   - starts_with("animate")
   - starts_with("plot")
   - -plotM2
@@ -174,6 +176,8 @@ reference:
   - addSpecies
   - removeSpecies
   - renameSpecies
+  - markBackground
+  - removeBackgroundSpecies
 - title: Setting custom rates
   desc: You can override the rates mizer calculates from the species parameters
     and gear parameters with your own rate arrays.

@@ -1,5 +1,9 @@
 # Development version 2.5.4.9102
 
+- New "Cheatsheet: Analysis and Plotting" vignette (`vignette("cheatsheet")`)
+  provides a quick reference for all functions that access simulation arrays,
+  compute summaries, calculate indicators, and create plots. Closes #176.
+
 - `compareParams()` output is now printed in a human-readable format, with each
   difference as its own block separated by blank lines. When array slots differ,
   the max absolute difference is shown per species. When slots differ only in
