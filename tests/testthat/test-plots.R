@@ -142,10 +142,10 @@ test_that("return_data is identical",{
                                       return_data = TRUE)), c(56, 3))
 
     expect_equal(dim(plotPredMort(sim, species = species,
-                                  return_data = TRUE)), c(56 ,3))
+                                  return_data = TRUE)), c(56, 4))
 
     expect_equal(dim(plotFMort(sim, species = species,
-                               return_data = TRUE)), c(56, 3))
+                               return_data = TRUE)), c(56, 4))
 
     expect_equal(dim(plotGrowthCurves(sim, species = species,
                                       return_data = TRUE)), c(100,4))

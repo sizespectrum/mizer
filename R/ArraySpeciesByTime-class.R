@@ -26,7 +26,7 @@
 #'   values.
 #'
 #' @return An `ArraySpeciesByTime` object (inherits from `matrix` and `array`).
-#' 
+#'
 #' @export
 #' @examples
 #' \donttest{
@@ -127,18 +127,9 @@ print.summary.ArraySpeciesByTime <- function(x, ...) {
 #' @rdname plot
 #'
 #' @param start_time The first time to be plotted. Default (`NULL`) is the
-#'   beginning of the time series.
+#'   beginning of the time series. Only applies to `ArraySpeciesByTime`.
 #' @param end_time The last time to be plotted. Default (`NULL`) is the end of
-#'   the time series.
-#' @param y_ticks The approximate number of ticks desired on the y axis.
-#' @param total A boolean value that determines whether the total from all
-#'   species is plotted as well. Default is FALSE.
-#' @param background A boolean value that determines whether background species
-#'   are included. Ignored if the model does not contain background species.
-#'   Default is TRUE.
-#' @param log If `TRUE` (default), use a log10 y-axis. Appropriate for
-#'   quantities like biomass, SSB, and yield that span orders of magnitude.
-#'   Set to `FALSE` for a linear y-axis.
+#'   the time series. Only applies to `ArraySpeciesByTime`.
 #' @export
 #' @examples
 #' \donttest{
@@ -150,7 +141,7 @@ plot.ArraySpeciesByTime <- function(x, species = NULL,
                                     start_time = NULL, end_time = NULL,
                                     y_ticks = 6, ylim = c(NA, NA),
                                     total = FALSE, background = TRUE,
-                                    highlight = NULL, log = TRUE,
+                                    highlight = NULL, log_y = TRUE,
                                     return_data = FALSE,
                                     ...) {
     value_name <- attr(x, "value_name") %||% "Value"
@@ -221,7 +212,7 @@ plot.ArraySpeciesByTime <- function(x, species = NULL,
     if (return_data) return(plot_dat)
 
     plotDataFrame(plot_dat, params, xlab = "Year", ylab = y_label,
-                  ytrans = if (log) "log10" else "identity", ylim = ylim,
+                  ytrans = if (log_y) "log10" else "identity", ylim = ylim,
                   y_ticks = y_ticks, highlight = highlight,
                   legend_var = "Legend")
 }

@@ -19,6 +19,9 @@
   log_y = FALSE,
   wlim = c(NA, NA),
   ylim = c(NA, NA),
+  total = FALSE,
+  background = TRUE,
+  y_ticks = 6,
   ...
 )
 
@@ -34,7 +37,7 @@
   total = FALSE,
   background = TRUE,
   highlight = NULL,
-  log = TRUE,
+  log_y = TRUE,
   return_data = FALSE,
   ...
 )
@@ -48,46 +51,42 @@
 all species.}
 
 \item{all.sizes}{If \code{FALSE} (default), values outside a species' size range
-(\code{w_min} to \code{w_max}) are removed.}
+(\code{w_min} to \code{w_max}) are removed. Only applies to \code{ArraySpeciesBySize}.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 
 \item{return_data}{If \code{TRUE}, return the data frame instead of the plot.}
 
-\item{log_x}{If \code{TRUE} (default), use a log10 x-axis.}
+\item{log_x}{If \code{TRUE} (default), use a log10 x-axis. Only applies to
+\code{ArraySpeciesBySize}.}
 
-\item{log_y}{If \code{TRUE}, use a log10 y-axis. Default is \code{FALSE}. Useful for
-quantities that span several orders of magnitude (e.g. encounter rates,
-search volumes).}
+\item{log_y}{If \code{TRUE}, use a log10 y-axis. Default is \code{FALSE} for
+\code{ArraySpeciesBySize} and \code{TRUE} for \code{ArraySpeciesByTime}.}
 
 \item{wlim}{A numeric vector of length two providing lower and upper limits
 for the weight (x) axis. Use \code{NA} to refer to the existing minimum or
-maximum.}
+maximum. Only applies to \code{ArraySpeciesBySize}.}
 
 \item{ylim}{A numeric vector of length two providing lower and upper limits
 for the value (y) axis. Use \code{NA} to refer to the existing minimum or
 maximum.}
 
-\item{...}{Further arguments (currently unused).}
-
-\item{start_time}{The first time to be plotted. Default (\code{NULL}) is the
-beginning of the time series.}
-
-\item{end_time}{The last time to be plotted. Default (\code{NULL}) is the end of
-the time series.}
-
-\item{y_ticks}{The approximate number of ticks desired on the y axis.}
-
-\item{total}{A boolean value that determines whether the total from all
-species is plotted as well. Default is FALSE.}
+\item{total}{A boolean value that determines whether the total over all
+selected species is plotted as well. Default is \code{FALSE}.}
 
 \item{background}{A boolean value that determines whether background species
 are included. Ignored if the model does not contain background species.
-Default is TRUE.}
+Default is \code{TRUE}.}
 
-\item{log}{If \code{TRUE} (default), use a log10 y-axis. Appropriate for
-quantities like biomass, SSB, and yield that span orders of magnitude.
-Set to \code{FALSE} for a linear y-axis..}
+\item{y_ticks}{The approximate number of ticks desired on the y axis.}
+
+\item{...}{Further arguments (currently unused).}
+
+\item{start_time}{The first time to be plotted. Default (\code{NULL}) is the
+beginning of the time series. Only applies to \code{ArraySpeciesByTime}.}
+
+\item{end_time}{The last time to be plotted. Default (\code{NULL}) is the end of
+the time series. Only applies to \code{ArraySpeciesByTime}.}
 }
 \value{
 \code{plot()} returns a ggplot2 object, unless \code{return_data = TRUE}, in which case a data

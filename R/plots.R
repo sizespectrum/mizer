@@ -46,17 +46,13 @@
 #' * `plot(<ArraySpeciesBySize>)` — plots any species-by-size array (such as
 #'   those returned by [getEncounter()], [getFeedingLevel()], [getPredMort()],
 #'   [getFMort()], [getSearchVolume()], etc.) as lines of value against body
-#'   size, one line per species. Supports `species`, `highlight`, `log_x`,
-#'   `log_y`, `wlim`, `ylim`, and `all.sizes` arguments.
+#'   size, one line per species.
 #'
 #' * `plot(<ArraySpeciesByTime>)` — plots any time-by-species array (such as
 #'   those returned by [getBiomass()], [getSSB()], [getYield()], and [getN()]
 #'   on a `MizerSim`) as lines of value against time, one line per species.
-#'   Supports `species`, `start_time`, `end_time`, `total`, `background`,
-#'   `highlight`, `log`, and `ylim` arguments. This makes
-#'   `plot(getBiomass(sim))` equivalent to `plotBiomass(sim)`.
 #'
-#' * [ggplotly()] wraps either of the above to produce an interactive
+#' * [ggplotly()] is similar to `plot()` but produces an interactive
 #'   figure. Call it as `ggplotly(getEncounter(params))` or
 #'   `ggplotly(getBiomass(sim))`.
 #'
@@ -325,7 +321,7 @@ plotBiomass.MizerSim <- function(sim, species = NULL,
          start_time = start_time, end_time = end_time,
          y_ticks = y_ticks, ylim = ylim,
          total = total, background = background,
-         highlight = highlight, log = log,
+         highlight = highlight, log_y = log,
          return_data = return_data)
 }
 
@@ -1530,7 +1526,7 @@ plotDiet.MizerSim <- function(object, species = NULL,
              })
         }
     }
-    
+
     diet <- getDiet(params, n = n, n_pp = n_pp, n_other = n_other)
     plot_diet(params, n = n, diet = diet, species = species,
               return_data = return_data)

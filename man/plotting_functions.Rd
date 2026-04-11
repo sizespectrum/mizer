@@ -41,15 +41,11 @@ rate and summary functions:
 \item \verb{plot(<ArraySpeciesBySize>)} — plots any species-by-size array (such as
 those returned by \code{\link[=getEncounter]{getEncounter()}}, \code{\link[=getFeedingLevel]{getFeedingLevel()}}, \code{\link[=getPredMort]{getPredMort()}},
 \code{\link[=getFMort]{getFMort()}}, \code{\link[=getSearchVolume]{getSearchVolume()}}, etc.) as lines of value against body
-size, one line per species. Supports \code{species}, \code{highlight}, \code{log_x},
-\code{log_y}, \code{wlim}, \code{ylim}, and \code{all.sizes} arguments.
+size, one line per species.
 \item \verb{plot(<ArraySpeciesByTime>)} — plots any time-by-species array (such as
 those returned by \code{\link[=getBiomass]{getBiomass()}}, \code{\link[=getSSB]{getSSB()}}, \code{\link[=getYield]{getYield()}}, and \code{\link[=getN]{getN()}}
 on a \code{MizerSim}) as lines of value against time, one line per species.
-Supports \code{species}, \code{start_time}, \code{end_time}, \code{total}, \code{background},
-\code{highlight}, \code{log}, and \code{ylim} arguments. This makes
-\code{plot(getBiomass(sim))} equivalent to \code{plotBiomass(sim)}.
-\item \code{\link[=ggplotly]{ggplotly()}} wraps either of the above to produce an interactive
+\item \code{\link[=ggplotly]{ggplotly()}} is similar to \code{plot()} but produces an interactive
 figure. Call it as \code{ggplotly(getEncounter(params))} or
 \code{ggplotly(getBiomass(sim))}.
 }
