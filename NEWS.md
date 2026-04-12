@@ -1,5 +1,10 @@
 # Development version 2.5.4.9102
 
+- `MizerParams` gains a `use_predation_diffusion` slot (logical, default `FALSE`).
+  When `FALSE` (the default), [mizerDiffusion()] omits the predation-induced
+  diffusion term, preserving the behaviour of previous mizer versions. Set to
+  `TRUE` to enable the jump-growth diffusion term.
+
 - `diffusion()` / `diffusion<-()` / `setDiffusion()` have been renamed to
   `ext_diffusion()` / `ext_diffusion<-()` / `setExtDiffusion()` to follow the
   same naming convention as `setExtMort()` and `setExtEncounter()`.

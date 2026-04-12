@@ -229,6 +229,12 @@ validMizerParams <- function(object) {
     #     }
     # }
 
+    # use_predation_diffusion must be a single logical value
+    if (!is.logical(params@use_predation_diffusion) || length(params@use_predation_diffusion) != 1) {
+        msg <- "use_predation_diffusion must be a single logical value (TRUE or FALSE)"
+        errors <- c(errors, msg)
+    }
+
     # Should not have legacy r_max column (has been renamed to R_max)
     if ("r_max" %in% names(params@species_params)) {
         msg <- "The 'r_max' column in species_params should be called 'R_max'. You can use 'validParams()' to upgrade your params object."
@@ -381,6 +387,10 @@ validMizerParams <- function(object) {
 #' @slot ft_mask An array (species x w_full) with zeros for weights larger than
 #'   the maximum weight of each species. Used to efficiently minimize
 #'   wrap-around errors in Fourier transform calculations.
+#' @slot use_predation_diffusion A logical flag controlling whether predation-induced
+#'   diffusion is included when calculating rates with [mizerDiffusion()].
+#'   Defaults to `FALSE` to preserve the behaviour of previous mizer versions.
+#'   Set to `TRUE` to enable the diffusion term from the jump-growth equation.
 #'
 #' @seealso [project()] [MizerSim()]
 #'   [emptyParams()] [newMultispeciesParams()]
@@ -434,7 +444,8 @@ setClass(
         A = "numeric",
         linecolour = "character",
         linetype = "character",
-        ft_mask = "array"
+        ft_mask = "array",
+        use_predation_diffusion = "logical"
     ),
 )
 
@@ -728,7 +739,8 @@ emptyParams <- function(species_params,
         A = as.numeric(rep(NA, no_sp)),
         linecolour = linecolour,
         linetype = linetype,
-        ft_mask = ft_mask
+        ft_mask = ft_mask,
+        use_predation_diffusion = FALSE
     )
 
     return(params)

@@ -38,7 +38,7 @@ test_that("Rate functions return ArraySpeciesBySize", {
     expect_true(is.ArraySpeciesBySize(getExtEncounter(params)))
     expect_true(is.ArraySpeciesBySize(getMaturityProportion(params)))
     expect_true(is.ArraySpeciesBySize(getReproductionProportion(params)))
-    expect_true(is.ArraySpeciesBySize(diffusion(params)))
+    expect_true(is.ArraySpeciesBySize(ext_diffusion(params)))
 })
 
 test_that("All rate functions have consistent dimnames", {

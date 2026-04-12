@@ -114,12 +114,16 @@ mizerDiffusion <- function(params, n, n_pp, n_other, t, feeding_level, ...) {
     # Get assimilation efficiency
     alpha <- params@species_params$alpha
 
-    # Calculate diffusion rate
-    # D(w) = (1-f(w)) * gamma(w) * alpha^2 * I_d(w)
-    D <- (1 - feeding_level) * params@search_vol *
-        alpha^2 * integral_d
-    
-    dimnames(D) <- dimnames(params@metab)
+    if (isTRUE(params@use_predation_diffusion)) {
+        # Calculate diffusion rate
+        # D(w) = (1-f(w)) * gamma(w) * alpha^2 * I_d(w)
+        D <- (1 - feeding_level) * params@search_vol *
+            alpha^2 * integral_d
+        dimnames(D) <- dimnames(params@metab)
+    } else {
+        D <- matrix(0, nrow = nrow(feeding_level), ncol = ncol(feeding_level),
+                    dimnames = dimnames(params@metab))
+    }
 
     # Add any externally specified diffusion
     D <- D + params@ext_diffusion

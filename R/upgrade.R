@@ -17,7 +17,7 @@ needs_upgrading <- function(object) {
         stop("The object you supplied is neither a MizerParams nor a MizerSim object.")
     }
     !.hasSlot(params, "mizer_version") ||
-        params@mizer_version < "2.5.4.9122"
+        params@mizer_version < "2.5.4.9123"
 }
 
 #' Upgrade MizerParams object from earlier mizer versions
@@ -362,6 +362,12 @@ upgradeParams <- function(params) {
     # Add Diffusion rate function if missing (added in 2.5.4.9122)
     if (is.null(params@rates_funcs[["Diffusion"]])) {
         params@rates_funcs[["Diffusion"]] <- "mizerDiffusion"
+    }
+
+    # Add use_predation_diffusion slot if missing (added in 2.5.4.9xxx)
+    # Default to FALSE to preserve behaviour of previous mizer versions.
+    if (!.hasSlot(params, "use_predation_diffusion")) {
+        params@use_predation_diffusion <- FALSE
     }
 
     params@mizer_version <- packageVersion("mizer")

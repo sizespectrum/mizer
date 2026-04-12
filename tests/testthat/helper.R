@@ -26,7 +26,7 @@ example_params <- function() {
     # Give diffusion to one species
     n <- params@species_params$n[1]
     d <- 0.1 * params@w^(n + 1)
-    diffusion(params)[1, ] <- d
+    ext_diffusion(params)[1, ] <- d
     params
 }
 

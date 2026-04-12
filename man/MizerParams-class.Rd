@@ -180,6 +180,11 @@ Used to give consistent line types in plots.}
 \item{\code{ft_mask}}{An array (species x w_full) with zeros for weights larger than
 the maximum weight of each species. Used to efficiently minimize
 wrap-around errors in Fourier transform calculations.}
+
+\item{\code{use_predation_diffusion}}{A logical flag controlling whether predation-induced
+diffusion is included when calculating rates with \code{\link[=mizerDiffusion]{mizerDiffusion()}}.
+Defaults to \code{FALSE} to preserve the behaviour of previous mizer versions.
+Set to \code{TRUE} to enable the diffusion term from the jump-growth equation.}
 }}
 
 \seealso{
