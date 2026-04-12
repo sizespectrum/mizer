@@ -1,3 +1,24 @@
+test_that("setExtDiffusion sets and returns the ext_diffusion array", {
+    params <- newSingleSpeciesParams()
+    new <- ext_diffusion(params) + 1
+
+    updated <- setExtDiffusion(params, ext_diffusion = new)
+
+    expect_true(is.ArraySpeciesBySize(ext_diffusion(updated)))
+    expect_equal(ext_diffusion(updated), new, ignore_attr = TRUE)
+    expect_equal(updated@ext_diffusion, new, ignore_attr = TRUE)
+})
+
+test_that("setExtDiffusion preserves comments from the supplied array", {
+    params <- newSingleSpeciesParams()
+    new <- ext_diffusion(params)
+    comment(new) <- "custom"
+
+    updated <- setExtDiffusion(params, ext_diffusion = new)
+
+    expect_identical(comment(updated@ext_diffusion), "custom")
+})
+
 test_that("setExtDiffusion works", {
     params <- NS_params
 

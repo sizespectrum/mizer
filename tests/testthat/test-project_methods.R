@@ -710,6 +710,7 @@ test_that("project function returns objects of correct dimension when community 
     expect_equal(dim(getEGrowth(params, n, n_pp)), c(1, no_w))
     expect_length(getRDI(params, n, n_pp), 1)
     expect_length(getRDD(params, n, n_pp), 1)
+    expect_equal(dim(getDiffusion(params, n, n_pp)), c(1, no_w))
 
     # MizerSim functions
     # time x species x size
@@ -723,6 +724,33 @@ test_that("project function returns objects of correct dimension when community 
     expect_equal(dim(getFMortGear(sim)), c(t_max + 1, 1, 1, no_w))
     # time x species x size - note drop = TRUE
     expect_equal(dim(getFMort(sim)), c(t_max + 1, no_w))
-    # time x species x size 
+    # time x species x size
     expect_equal(dim(getFMort(sim, drop = FALSE)), c(t_max + 1, 1, no_w))
+})
+
+
+# getDiffusion with predation diffusion ----
+test_that("getDiffusion snapshot with use_predation_diffusion", {
+    params_d <- params
+    params_d@use_predation_diffusion <- TRUE
+    d <- getDiffusion(params_d, n, n_full)
+    expect_snapshot_value(drop_params(d), style = 'json2', tolerance = 1e-5)
+})
+
+test_that("predation diffusion is non-negative and adds to baseline", {
+    params_d <- params
+    params_d@use_predation_diffusion <- TRUE
+    d_pred <- getDiffusion(params_d, n, n_full)
+    d_base <- getDiffusion(params, n, n_full)
+    # predation diffusion is non-negative, so total must not fall below baseline
+    expect_true(all(d_pred >= d_base - .Machine$double.eps))
+    # with non-zero abundances it must be strictly larger somewhere
+    expect_true(any(d_pred > d_base))
+})
+
+test_that("getRates diffusion is nonzero with use_predation_diffusion", {
+    params_d <- params
+    params_d@use_predation_diffusion <- TRUE
+    r_d <- getRates(params_d)
+    expect_true(any(r_d$diffusion > 0))
 })
