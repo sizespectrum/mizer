@@ -46,4 +46,5 @@ devtools::clean_dll(); devtools::load_all()
 
 ## Before Submitting
 
-Update `NEWS.md` when adding features or fixing bugs.
+- After adding a new file under `R/`, add it to the `Collate:` field in `DESCRIPTION` (roxygen2 does not manage this automatically in this package).
+- Update `NEWS.md` when adding features or fixing bugs.
