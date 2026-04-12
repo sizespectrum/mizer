@@ -58,6 +58,7 @@ following components:
 \item \code{e} from \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGrowth()}}
 \item \code{e_repro} from \code{\link[=mizerERepro]{mizerERepro()}}
 \item \code{e_growth} from \code{\link[=mizerEGrowth]{mizerEGrowth()}}
+\item \code{diffusion} from \code{\link[=mizerDiffusion]{mizerDiffusion()}}
 \item \code{rdi} from \code{\link[=mizerRDI]{mizerRDI()}}
 \item \code{rdd} from \code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}
 }

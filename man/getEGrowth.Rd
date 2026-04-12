@@ -73,6 +73,7 @@ growth["Sprat", "2"]
 \code{\link[=getERepro]{getERepro()}}, \code{\link[=getEReproAndGrowth]{getEReproAndGrowth()}}
 
 Other rate functions: 
+\code{\link{getDiffusion}()},
 \code{\link{getERepro}()},
 \code{\link{getEReproAndGrowth}()},
 \code{\link{getEncounter}()},

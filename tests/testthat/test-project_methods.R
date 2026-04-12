@@ -42,10 +42,10 @@ params2@initial_effort <- params2@initial_effort / 2
 # getRates ----
 test_that("getRates works", {
     r <- getRates(params)
-    expect_identical(names(r), 
-                     c("encounter", "feeding_level", "e", "e_repro", 
-                       "e_growth", "pred_rate", "pred_mort", "f_mort",
-                       "mort", "rdi", "rdd", "resource_mort"))
+    expect_identical(names(r),
+                     c("encounter", "feeding_level", "e", "e_repro",
+                       "e_growth", "diffusion", "pred_rate", "pred_mort",
+                       "f_mort", "mort", "rdi", "rdd", "resource_mort"))
     # test that the optional parameters take the correct defaults
     expect_identical(r, 
                      getRates(params, n = params@initial_n,
@@ -642,8 +642,8 @@ test_that("mizerRates returns the standard rate list from registered functions",
                     rates_fns = rates_fns)
     expect_named(r,
                  c("encounter", "feeding_level", "e", "e_repro", "e_growth",
-                   "pred_rate", "pred_mort", "f_mort", "mort", "rdi",
-                   "rdd", "resource_mort"))
+                   "diffusion", "pred_rate", "pred_mort", "f_mort", "mort",
+                   "rdi", "rdd", "resource_mort"))
     expect_identical(r$encounter,
                      rates_fns$Encounter(params,
                                          n = params@initial_n,

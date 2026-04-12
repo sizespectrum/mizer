@@ -76,6 +76,7 @@ mort["Sprat", "2"]
 \code{\link[=getPredMort]{getPredMort()}}, \code{\link[=getFMort]{getFMort()}}
 
 Other rate functions: 
+\code{\link{getDiffusion}()},
 \code{\link{getEGrowth}()},
 \code{\link{getERepro}()},
 \code{\link{getEReproAndGrowth}()},

@@ -64,6 +64,7 @@ identical(rates$encounter, getEncounter(NS_params))
 }
 \seealso{
 Other rate functions: 
+\code{\link{getDiffusion}()},
 \code{\link{getEGrowth}()},
 \code{\link{getERepro}()},
 \code{\link{getEReproAndGrowth}()},

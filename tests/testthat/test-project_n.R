@@ -12,13 +12,16 @@ test_that("project_n follows the documented one-step update", {
                        dimnames = dimnames(params@initial_n))
     mort <- matrix(seq(0.05, 0.05 * no_w, by = 0.05), nrow = no_sp,
                    dimnames = dimnames(params@initial_n))
-    r <- list(e_growth = e_growth, mort = mort, rdd = 3)
+    diffusion <- matrix(0, nrow = no_sp, ncol = no_w,
+                        dimnames = dimnames(params@initial_n))
+    r <- list(e_growth = e_growth, mort = mort, rdd = 3, diffusion = diffusion)
     dt <- 0.1
     a <- matrix(0, nrow = no_sp, ncol = no_w)
     b <- matrix(0, nrow = no_sp, ncol = no_w)
+    c <- matrix(0, nrow = no_sp, ncol = no_w)
     S <- matrix(0, nrow = no_sp, ncol = no_w)
 
-    result <- project_n(params, r, n, dt, a, b, S, idx, w_min_idx_array_ref,
+    result <- project_n(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
                         no_sp, no_w)
 
     a_expected <- a

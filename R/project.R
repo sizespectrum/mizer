@@ -470,9 +470,6 @@ project_simple.MizerParams <-
         c <- matrix(0, nrow = no_sp, ncol = no_w)
         S <- matrix(0, nrow = no_sp, ncol = no_w)
 
-        # Do we have diffusion?
-        has_diffusion <- any(params@ext_diffusion > 0)
-
         # Loop over time steps ----
         for (i_time in 1:steps) {
             r <- rates_fns$Rates(
@@ -509,7 +506,7 @@ project_simple.MizerParams <-
             )
 
             # * Update species ----
-            if (has_diffusion) {
+            if (any(r$diffusion > 0)) {
                 n <- project_n(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
                                no_sp, no_w)
             } else {

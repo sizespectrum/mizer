@@ -68,6 +68,10 @@ mizerRates <- function(params, n, n_pp, n_other,
     r$e_growth <- rates_fns$EGrowth(
         params, n = n, n_pp = n_pp, n_other = n_other,
         e_repro = r$e_repro, e = r$e, t = t, ...)
+    # Calculate the diffusion rate D_i(w)
+    r$diffusion <- rates_fns$Diffusion(
+        params, n = n, n_pp = n_pp, n_other = n_other,
+        feeding_level = r$feeding_level, t = t, ...)
 
     ## Mortality ----
     # Calculate the predation rate

@@ -70,6 +70,7 @@ erepro["Sprat", "2"]
 }
 \seealso{
 Other rate functions: 
+\code{\link{getDiffusion}()},
 \code{\link{getEGrowth}()},
 \code{\link{getEReproAndGrowth}()},
 \code{\link{getEncounter}()},

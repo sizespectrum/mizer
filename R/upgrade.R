@@ -17,7 +17,7 @@ needs_upgrading <- function(object) {
         stop("The object you supplied is neither a MizerParams nor a MizerSim object.")
     }
     !.hasSlot(params, "mizer_version") ||
-        params@mizer_version < "2.5.4.9121"
+        params@mizer_version < "2.5.4.9122"
 }
 
 #' Upgrade MizerParams object from earlier mizer versions
@@ -357,6 +357,11 @@ upgradeParams <- function(params) {
     # Derive is_background from the old @A slot if not already present
     if (!("is_background" %in% names(params@species_params))) {
         params@species_params$is_background <- is.na(params@A)
+    }
+
+    # Add Diffusion rate function if missing (added in 2.5.4.9122)
+    if (is.null(params@rates_funcs[["Diffusion"]])) {
+        params@rates_funcs[["Diffusion"]] <- "mizerDiffusion"
     }
 
     params@mizer_version <- packageVersion("mizer")

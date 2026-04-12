@@ -93,6 +93,7 @@ F <- getFMort(sim, time_range = c(10, 20))
 }
 \seealso{
 Other rate functions: 
+\code{\link{getDiffusion}()},
 \code{\link{getEGrowth}()},
 \code{\link{getERepro}()},
 \code{\link{getEReproAndGrowth}()},

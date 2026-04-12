@@ -73,6 +73,7 @@ M2 <- getPredMort(sim, time_range = c(15, 20))
 }
 \seealso{
 Other rate functions: 
+\code{\link{getDiffusion}()},
 \code{\link{getEGrowth}()},
 \code{\link{getERepro}()},
 \code{\link{getEReproAndGrowth}()},
