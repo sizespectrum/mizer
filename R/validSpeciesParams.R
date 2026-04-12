@@ -52,6 +52,7 @@
 #' * `z_ext` is set to `0`
 #' * `d` is set to `n - 1`
 #' * `E_ext` is set to `0`
+#' * `D_ext` is set to `0`
 #'
 #' Note that the species parameters returned by these functions are not
 #' guaranteed to produce a viable model. More checks of the parameters are
@@ -77,6 +78,7 @@ validSpeciesParams <- function(species_params) {
     sp <- set_species_param_default(sp, "z_ext", 0)
     sp <- set_species_param_default(sp, "d", sp$n - 1)
     sp <- set_species_param_default(sp, "E_ext", 0)
+    sp <- set_species_param_default(sp, "D_ext", 0)
     sp <- set_species_param_default(sp, "is_background", FALSE)
     return(sp)
 }
