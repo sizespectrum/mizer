@@ -311,6 +311,11 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
     names(repro_level) <- p@species_params$species[new_sp]
     p <- setBevertonHolt(p, reproduction_level = repro_level)
 
+    # Preserve subclass of params
+    if (class(params)[[1]] != "MizerParams") {
+        p <- as(p, class(params)[[1]])
+    }
+
     return(p)
 }
 
@@ -623,7 +628,14 @@ expandSizeGrid <- function(params,
         comment(slot(p, slot)) <- comment(slot(params, slot))
     }
 
-    return(validParams(p))
+    p <- validParams(p)
+
+    # Preserve subclass of params
+    if (class(params)[[1]] != "MizerParams") {
+        p <- as(p, class(params)[[1]])
+    }
+
+    return(p)
 }
 
 #' Rename gears
