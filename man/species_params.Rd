@@ -80,6 +80,8 @@ see \code{\link[=setMetabolicRate]{setMetabolicRate()}}.
 \code{\link[=setExtMort]{setExtMort()}}.
 \item \code{E_ext} and \code{n} are used to set the external encounter rate, see
 \code{\link[=setExtEncounter]{setExtEncounter()}}.
+\item \code{D_ext} and \code{n} are used to set the external diffusion rate, see
+\code{\link[=setExtDiffusion]{setExtDiffusion()}}.
 \item \code{w_mat}, \code{w_mat25}, \code{w_repro_max} and \code{m} are used to set the allocation to
 reproduction, see \code{\link[=setReproduction]{setReproduction()}}.
 \item \code{pred_kernel_type} specifies the shape of the predation kernel. The default

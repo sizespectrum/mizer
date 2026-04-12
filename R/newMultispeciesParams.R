@@ -70,6 +70,7 @@
 #' @inheritSection setMetabolicRate Setting metabolic rate
 #' @inheritSection setExtMort Setting external mortality rate
 #' @inheritSection setExtEncounter Setting external encounter rate
+#' @inheritSection setExtDiffusion Setting external diffusion rate
 #' @inheritSection setReproduction Setting reproduction
 #' @inheritSection setFishing Setting fishing
 #' @inheritSection setResource Setting resource dynamics
@@ -327,6 +328,7 @@ newMultispeciesParams <- function(
 #' @inheritSection setMetabolicRate Setting metabolic rate
 #' @inheritSection setExtMort Setting external mortality rate
 #' @inheritSection setExtEncounter Setting external encounter rate
+#' @inheritSection setExtDiffusion Setting external diffusion rate
 #' @inheritSection setReproduction Setting reproduction
 #' @inheritSection setFishing Setting fishing
 #' @export
@@ -359,6 +361,7 @@ setParams.MizerParams <- function(object, interaction = NULL,
     params <- setMetabolicRate(params, ...)
     params <- setExtMort(params, ...)
     params <- setExtEncounter(params, ...)
+    params <- setExtDiffusion(params, ...)
     # setSearchVolume() should be called only after
     # setMaxIntakeRate() and setPredKernel()
     params <- setSearchVolume(params, ...)

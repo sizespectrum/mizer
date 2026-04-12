@@ -19,11 +19,16 @@ ext_diffusion(params) <- value
 \item{params}{MizerParams}
 
 \item{ext_diffusion}{Optional. An array (species x size) holding the
-external diffusion rate. If not supplied, the external diffusion rate is
-left unchanged. Initially it is set to 0.}
+external diffusion rate. If not supplied, a default is calculated from the
+\code{D_ext} and \code{n} species parameters as described in the section "Setting
+external diffusion rate".}
 
-\item{reset}{Unused. Included for interface consistency with other setter
-functions.}
+\item{reset}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If set to TRUE, then the external diffusion rate will be reset to the
+value calculated from the species parameters, even if it was previously
+overwritten with a custom value. If set to FALSE (default) then a
+recalculation from the species parameters will take place only if no
+custom value has been set.}
 
 \item{...}{Unused}
 
@@ -47,6 +52,18 @@ computed by \code{\link[=mizerDiffusion]{mizerDiffusion()}}.
 
 The \code{ext_diffusion} argument allows you to specify a diffusion rate that
 depends on species and body size.
+
+If the \code{ext_diffusion} argument is not supplied, then the external diffusion
+rate is calculated as a power law:
+\deqn{D_{ext.i}(w) = D_{ext.i}\, w^{n_i+1}.}{
+  D_{ext.i}(w) = D_{ext.i} * w^(n_i+1).}
+The coefficient \eqn{D_{ext.i}} is taken from the \code{D_ext} column of the
+species parameter data frame, which defaults to 0. The exponent
+\eqn{n_i + 1} uses the \code{n} column of the species parameter data frame.
+
+If the \code{ext_diffusion} slot has a comment and \code{reset = FALSE}, then a
+recalculation from the species parameters is suppressed and a message is
+issued if the recalculated values would differ from the stored ones.
 }
 
 \seealso{

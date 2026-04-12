@@ -72,6 +72,7 @@ parameters are missing or NA:
 \item \code{z_ext} is set to \code{0}
 \item \code{d} is set to \code{n - 1}
 \item \code{E_ext} is set to \code{0}
+\item \code{D_ext} is set to \code{0}
 }
 
 Note that the species parameters returned by these functions are not
