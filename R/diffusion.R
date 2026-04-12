@@ -70,55 +70,38 @@ getDiffusion.MizerParams <- function(params, n = initialN(params),
 #'
 #' @return A two dimensional array (species x size) holding the diffusion rate.
 mizerDiffusion <- function(params, n, n_pp, n_other, t, feeding_level, ...) {
-    
+
     if (missing(feeding_level)) {
-        feeding_level <- getFeedingLevel(params, n = n, n_pp = n_pp, 
+        feeding_level <- getFeedingLevel(params, n = n, n_pp = n_pp,
                                          n_other = n_other, t = t)
     }
-    
-    # The integral of prey biomass squared weighted by predation kernel
-    # This is a convolution in log-space.
-    # We calculate it in Fourier space.
-    
-    # Extend n to full grid
-    n_full <- matrix(0, nrow = nrow(n), ncol = length(params@w_full))
-    n_full[, (length(params@w_full) - length(params@w) + 1):length(params@w_full)] <- n
-    
-    # Prey abundance is a combination of resource and consumers
-    prey <- rbind(n_pp, n_full)
-    
-    # We want to calculate a convolution with prey biomass squared density
-    # prey_density * w_p^2
-    prey_sq_biomass <- sweep(prey, 2, params@w_full^2, "*")
-    prey_ft <- mvfft(prey_sq_biomass)
-    
-    # The fft of the predation kernel
-    kernel_ft <- params@ft_pred_kernel_e
-    
-    # The interaction matrix is predator x prey. The first prey is the resource.
-    interaction <- cbind(params@species_params$interaction_resource,
-                         params@interaction)
-    
-    # The convolution theorem says that the Fourier transform of a
-    # convolution is the product of the Fourier transforms.
-    integral_d_ft <- kernel_ft * (interaction %*% prey_ft)
-    
-    # Inverse FFT
-    integral_d <- Re(mvfft(integral_d_ft, inverse = TRUE)) / length(params@w_full)
-    
-    # We are only interested in the values for the consumer sizes
-    # and we want the result as predator x size
-    integral_d <- integral_d[, (length(params@w_full) - length(params@w) + 1):length(params@w_full),
-                             drop = FALSE]
-    
-    # Get assimilation efficiency
-    alpha <- params@species_params$alpha
+
+    # idx_sp are the indices into w_full that correspond to consumer sizes w
+    idx_sp <- (length(params@w_full) - length(params@w) + 1):length(params@w_full)
 
     if (isTRUE(params@use_predation_diffusion)) {
-        # Calculate diffusion rate
-        # D(w) = (1-f(w)) * gamma(w) * alpha^2 * I_d(w)
-        D <- (1 - feeding_level) * params@search_vol *
-            alpha^2 * integral_d
+        # Calculate the diffusion integral
+        # I_d(w) = sum_prey theta_i * N_prey(w_p) * w_p^2 * dw_p
+        # This is the same convolution as in mizerEncounter but with w_p^2 * dw_p
+        # weighting instead of w_p * dw_p.
+        prey_sq <- outer(params@species_params$interaction_resource, n_pp)
+        prey_sq[, idx_sp] <- prey_sq[, idx_sp] + params@interaction %*% n
+        prey_sq <- sweep(prey_sq, 2, params@w_full^2 * params@dw_full, "*")
+
+        # Convolve with the predation kernel via FFT.
+        # mvfft() transforms each column, so we transpose to get row-wise FFTs,
+        # following the same pattern as mizerEncounter.
+        integral_d <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_e) *
+                                           mvfft(base::t(prey_sq)),
+                                       inverse = TRUE))) / length(params@w_full)
+        # Keep only the consumer sizes
+        integral_d <- integral_d[, idx_sp, drop = FALSE]
+        # Remove numerical noise
+        integral_d[integral_d < 0] <- 0
+
+        # D(w) = (1 - f(w)) * gamma(w) * alpha^2 * I_d(w)
+        alpha <- params@species_params$alpha
+        D <- (1 - feeding_level) * params@search_vol * alpha^2 * integral_d
         dimnames(D) <- dimnames(params@metab)
     } else {
         D <- matrix(0, nrow = nrow(feeding_level), ncol = ncol(feeding_level),

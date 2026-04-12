@@ -103,10 +103,10 @@ alpha <- 0.8
 beta <- 10
 sigma <- 2
 lambda <- 2
-factor <- (1 - feeding_coeff) * alpha / beta * exp((2 * lambda - 3) * sigma^2 / 2)
+factor <- alpha / beta * exp((5 - 2 * lambda) * sigma^2 / 2)
 ```
 
-Then 
+Then
 $$
 D(w) \approx `r round(factor, digits = 2)` A(w)w.
 $$ {#eq-dw4}
@@ -115,7 +115,7 @@ $$ {#eq-dw4}
 #| include: false
 sigma <- 1
 beta <- 100
-factor_1 <- (1 - feeding_coeff) * alpha / beta * exp((2 * lambda - 3) * sigma^2 / 2)
+factor_1 <- alpha / beta * exp((5 - 2 * lambda) * sigma^2 / 2)
 ```
 
 However we see that the value of $D(w)/A(w)$ is strongly influenced by the location and width of the feeding kernel. It decreases with increasing $\beta$ and decreasing $\sigma$ If we choose $\beta = 100$ and $\sigma = 1$ then $D(w)\approx `r round(factor_1, digits = 2)` A(w)w$. This relative decrease in the diffusion rate with increasing $\beta$ and decreasing $\sigma$ may explains the result from [@datta2010a] about how the stability of the system depends on these parameters.
