@@ -82,7 +82,7 @@ for each species at size. Changed with \code{\link[=setMetabolicRate]{setMetabol
 \item{\code{ext_diffusion}}{An array (species x size) that holds the external rate at
 which the
 abundance density is redistributed over body size due to mixing, beyond the
-deterministic growth dynamics. Changed with \code{\link[=diffusion]{diffusion()}}.}
+deterministic growth dynamics. Changed with \code{\link[=ext_diffusion]{ext_diffusion()}}.}
 
 \item{\code{pred_kernel}}{An array (species x predator size x prey size) that holds
 the predation coefficient of each predator at size on each prey size. If

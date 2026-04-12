@@ -1,5 +1,9 @@
 # Development version 2.5.4.9102
 
+- `diffusion()` / `diffusion<-()` / `setDiffusion()` have been renamed to
+  `ext_diffusion()` / `ext_diffusion<-()` / `setExtDiffusion()` to follow the
+  same naming convention as `setExtMort()` and `setExtEncounter()`.
+
 - `setComponent()` now accepts optional `colour` and `linetype` arguments and
   applies them via `setColours()` and `setLinetypes()` so added components can
   be styled directly in plots.
@@ -109,8 +113,8 @@
 - The numerical scheme now supports diffusion in the McKendrick-von Foerster
   equation, allowing individual variability in growth to be modelled. A new
   `diffusion` slot in `MizerParams` holds the diffusion coefficient (species x
-  size). Use `setDiffusion()` / `diffusion()` / `diffusion<-()` to set and
-  retrieve it.
+  size). Use `setExtDiffusion()` / `ext_diffusion()` / `ext_diffusion<-()` to
+  set and retrieve it.
 - New `getFlux()` function calculates the flux of individuals entering each size
   class, combining the advective flux from somatic growth and the diffusive flux.
 - `getRequiredRDD()` is now exported. It calculates the recruitment rate needed

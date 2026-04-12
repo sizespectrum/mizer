@@ -52,7 +52,7 @@ getDiffusion.MizerParams <- function(params, n = initialN(params),
 #' This diffusion rate has two components: 
 #' 1. Thethe diffusion due due to the variability in prey sizes. This is the
 #'    diffusion term from the jump-growth equation.
-#' 2. Any externally specified diffusion, which is added via [ext_diffusion()]
+#' 2. Any externally specified diffusion, which is added via [setExtDiffusion()]
 #'
 #' You would not usually call this function directly but instead use
 #' [getDiffusion()], which then calls this function unless an alternative

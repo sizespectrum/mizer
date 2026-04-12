@@ -72,7 +72,7 @@ Collate:
     'setExtMort.R'
     'setExtEncounter.R'
     'diffusion.R'
-    'setDiffusion.R'
+    'setExtDiffusion.R'
     'setReproduction.R'
     'setResource.R'
     'setFishing.R'

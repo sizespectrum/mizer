@@ -28,9 +28,12 @@ A two dimensional array (species x size) holding the diffusion rate.
 }
 \description{
 Calculates the diffusion rate \eqn{D_i(w)} (grams^2/year) for each species.
-This is the rate at which the abundance density is diffused along the
-size axis due to the variability in prey sizes. This is the diffusion
-term from the jump-growth equation.
+This diffusion rate has two components:
+\enumerate{
+\item Thethe diffusion due due to the variability in prey sizes. This is the
+diffusion term from the jump-growth equation.
+\item Any externally specified diffusion, which is added via \code{\link[=setExtDiffusion]{setExtDiffusion()}}
+}
 
 You would not usually call this function directly but instead use
 \code{\link[=getDiffusion]{getDiffusion()}}, which then calls this function unless an alternative

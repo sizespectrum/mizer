@@ -310,7 +310,7 @@ validMizerParams <- function(object) {
 #' @slot ext_diffusion An array (species x size) that holds the external rate at
 #'   which the
 #'   abundance density is redistributed over body size due to mixing, beyond the
-#'   deterministic growth dynamics. Changed with [diffusion()].
+#'   deterministic growth dynamics. Changed with [ext_diffusion()].
 #' @slot pred_kernel An array (species x predator size x prey size) that holds
 #'   the predation coefficient of each predator at size on each prey size. If
 #'   this is NA then the following two slots will be used. Changed with
