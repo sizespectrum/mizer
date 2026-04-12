@@ -42,7 +42,7 @@ devtools::clean_dll(); devtools::load_all()
 - Use snapshot tests for complex outputs
 - Run `devtools::document()` after adding or changing exports
 - Run `devtools::load_all()` before running tests
-- After modifying the `MizerParams` or `MizerSim` class, increase the version number, then upgrade `NS_params` with `upgradeParams()` and the `NS_sim` with `upgradeSim()` before running the tests.
+- After modifying the `MizerParams` or `MizerSim` class (new/removed slots, changes to `@rates_funcs`, etc.), follow the steps in `.claude/skills/upgrade-mizer-data.md`. Claude Code users can invoke this as `/upgrade-mizer-data`.
 
 ## Before Submitting
 
