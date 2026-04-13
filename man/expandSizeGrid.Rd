@@ -2,17 +2,23 @@
 % Please edit documentation in R/manipulate_species.R
 \name{expandSizeGrid}
 \alias{expandSizeGrid}
+\alias{expandSizeGrid.MizerParams}
 \title{Expand the size grid}
 \usage{
-expandSizeGrid(
+expandSizeGrid(params, ...)
+
+\method{expandSizeGrid}{MizerParams}(
   params,
   new_min_w = min(params@w),
   new_max_w = max(params@w),
-  preserve_species = params@species_params$species
+  preserve_species = params@species_params$species,
+  ...
 )
 }
 \arguments{
 \item{params}{A \link{MizerParams} object.}
+
+\item{...}{Additional arguments (currently unused).}
 
 \item{new_min_w}{The new minimum size in the grid. Must not be larger than
 the current minimum size.}

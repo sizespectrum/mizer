@@ -265,6 +265,11 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
 #' @return A valid MizerSim object
 #' @export
 validSim <- function(sim) {
+    UseMethod("validSim")
+}
+
+#' @export
+validSim.MizerSim <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     if (needs_upgrading(sim)) {
         sim <- suppressWarnings(upgradeSim(sim))
@@ -324,6 +329,11 @@ truncateSim <- function(sim, end_time) {
 #' @examples
 #' str(N(NS_sim))
 N <- function(sim) {
+    UseMethod("N")
+}
+
+#' @export
+N.MizerSim <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     sim@n
 }
@@ -334,6 +344,11 @@ N <- function(sim) {
 #' @examples
 #' str(NResource(NS_sim))
 NResource <- function(sim) {
+    UseMethod("NResource")
+}
+
+#' @export
+NResource.MizerSim <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     sim@n_pp
 }
@@ -351,6 +366,11 @@ NResource <- function(sim) {
 #' # This could also be obtained using `N()` and `idxFinalT()`
 #' identical(N(NS_sim)[idxFinalT(NS_sim), , ], finalN(NS_sim))
 finalN <- function(sim) {
+    UseMethod("finalN")
+}
+
+#' @export
+finalN.MizerSim <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     n <- sim@params@initial_n  # Needed to get the right dimnames
     n[] <- sim@n[dim(sim@n)[[1]], , ]
@@ -365,6 +385,11 @@ finalN <- function(sim) {
 #' @examples
 #' str(finalNResource(NS_sim))
 finalNResource <- function(sim) {
+    UseMethod("finalNResource")
+}
+
+#' @export
+finalNResource.MizerSim <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     sim@n_pp[dim(sim@n_pp)[[1]], ]
 }
@@ -384,6 +409,11 @@ finalNResource <- function(sim) {
 #' identical(N(NS_sim)[idx, , ], finalN(NS_sim))
 #' identical(NResource(NS_sim)[idx, ], finalNResource(NS_sim))
 idxFinalT <- function(sim) {
+    UseMethod("idxFinalT")
+}
+
+#' @export
+idxFinalT.MizerSim <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     dim(sim@n_pp)[[1]]
 }
@@ -398,6 +428,11 @@ idxFinalT <- function(sim) {
 #' @examples 
 #' getTimes(NS_sim)
 getTimes <- function(sim) {
+    UseMethod("getTimes")
+}
+
+#' @export
+getTimes.MizerSim <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     as.numeric(dimnames(sim@n)$time)
 }
@@ -416,6 +451,11 @@ getTimes <- function(sim) {
 #' @examples
 #' str(getEffort(NS_sim))
 getEffort <- function(sim) {
+    UseMethod("getEffort")
+}
+
+#' @export
+getEffort.MizerSim <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     sim@effort
 }
@@ -431,6 +471,11 @@ getEffort <- function(sim) {
 #' sim <- project(NS_params, t_max = 1)
 #' identical(getParams(sim), NS_params)
 getParams <- function(sim) {
+    UseMethod("getParams")
+}
+
+#' @export
+getParams.MizerSim <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     sim@params
 }

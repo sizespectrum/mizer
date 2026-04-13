@@ -311,6 +311,11 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
     names(repro_level) <- p@species_params$species[new_sp]
     p <- setBevertonHolt(p, reproduction_level = repro_level)
 
+    # Preserve subclass of params
+    if (class(params)[[1]] != "MizerParams") {
+        p <- as(p, class(params)[[1]])
+    }
+
     return(p)
 }
 
@@ -511,13 +516,22 @@ renameSpecies.MizerParams <- function(params, replace, ...) {
 #'   should be copied over to the new params object rather than being
 #'   re-calculated from the species parameters. If missing, all species are
 #'   preserved.
+#' @param ... Additional arguments (currently unused).
 #'
 #' @return A new [MizerParams] object with the updated size grid.
 #' @export
-expandSizeGrid <- function(params,
+#' @rdname expandSizeGrid
+expandSizeGrid <- function(params, ...) {
+    UseMethod("expandSizeGrid")
+}
+
+#' @export
+#' @rdname expandSizeGrid
+expandSizeGrid.MizerParams <- function(params,
                            new_min_w = min(params@w),
                            new_max_w = max(params@w),
-                           preserve_species = params@species_params$species) {
+                           preserve_species = params@species_params$species,
+                           ...) {
     sp_sel <- valid_species_arg(params, preserve_species, return.logical = TRUE)
     min_w <- min(params@w)
     max_w <- max(params@w)
@@ -623,7 +637,14 @@ expandSizeGrid <- function(params,
         comment(slot(p, slot)) <- comment(slot(params, slot))
     }
 
-    return(validParams(p))
+    p <- validParams(p)
+
+    # Preserve subclass of params
+    if (class(params)[[1]] != "MizerParams") {
+        p <- as(p, class(params)[[1]])
+    }
+
+    return(p)
 }
 
 #' Rename gears

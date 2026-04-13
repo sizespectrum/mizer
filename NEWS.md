@@ -9,6 +9,12 @@
   `ext_diffusion()` / `ext_diffusion<-()` / `setExtDiffusion()` to follow the
   same naming convention as `setExtMort()` and `setExtEncounter()`.
 
+- The `MizerSim` accessors defined in `R/MizerSim-class.R` (`validSim()`,
+  `N()`, `NResource()`, `finalN()`, `finalNResource()`, `idxFinalT()`,
+  `getTimes()`, `getEffort()`, and `getParams()`) are now registered as S3
+  generics with `MizerSim` methods, aligning them with the rest of the package
+  dispatch model and making extension-specific methods possible.
+
 - `setComponent()` now accepts optional `colour` and `linetype` arguments and
   applies them via `setColours()` and `setLinetypes()` so added components can
   be styled directly in plots.
