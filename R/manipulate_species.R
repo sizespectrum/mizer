@@ -516,13 +516,22 @@ renameSpecies.MizerParams <- function(params, replace, ...) {
 #'   should be copied over to the new params object rather than being
 #'   re-calculated from the species parameters. If missing, all species are
 #'   preserved.
+#' @param ... Additional arguments (currently unused).
 #'
 #' @return A new [MizerParams] object with the updated size grid.
 #' @export
-expandSizeGrid <- function(params,
+#' @rdname expandSizeGrid
+expandSizeGrid <- function(params, ...) {
+    UseMethod("expandSizeGrid")
+}
+
+#' @export
+#' @rdname expandSizeGrid
+expandSizeGrid.MizerParams <- function(params,
                            new_min_w = min(params@w),
                            new_max_w = max(params@w),
-                           preserve_species = params@species_params$species) {
+                           preserve_species = params@species_params$species,
+                           ...) {
     sp_sel <- valid_species_arg(params, preserve_species, return.logical = TRUE)
     min_w <- min(params@w)
     max_w <- max(params@w)
