@@ -39,7 +39,7 @@ functions for accessing that information.
 
 The \code{MizerSim} class has changed since previous versions of mizer. To use
 a \code{MizerSim} object created by a previous version, you need to upgrade it
-with \code{\link[=upgradeSim]{upgradeSim()}}.
+with \code{\link[=validSim]{validSim()}}.
 }
 \section{Slots}{
 
