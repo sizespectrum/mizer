@@ -887,7 +887,10 @@ dw_full.MizerParams <- function(params) {
 #' @return A valid MizerParams object
 #' @export
 validParams <- function(params, info_level = 3) {
-    assert_that(is(params, "MizerParams"))
+    UseMethod("validParams")
+}
+#' @export
+validParams.MizerParams <- function(params, info_level = 3) {
 
     if (needs_upgrading(params)) {
         params <- suppressWarnings(upgradeParams(params))
