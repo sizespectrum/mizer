@@ -109,6 +109,26 @@ test_that("base objects remain valid in extension sessions", {
     expect_s4_class(sim, "MizerSim")
 })
 
+test_that("classless extensions remain metadata only", {
+    resetMizerSession()
+    withr::defer(resetMizerSession())
+
+    chain <- c(stats = "0.0")
+    registerExtensions(chain)
+
+    params <- NS_params
+    params@extensions <- chain
+    params <- coerceToExtensionClass(params)
+
+    expect_s4_class(params, "MizerParams")
+    expect_false(usesExtensionDispatch(params))
+    expect_identical(params@extensions, chain)
+
+    sim <- MizerSim(params, t_dimnames = 0)
+    expect_s4_class(sim, "MizerSim")
+    expect_identical(sim@params@extensions, chain)
+})
+
 test_that("readParams registers and coerces saved extension objects", {
     resetMizerSession()
     withr::defer(resetMizerSession())

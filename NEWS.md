@@ -11,6 +11,9 @@
   `projectRates()`, while models without extensions keep using the pre-resolved
   `mizerRates()` pipeline directly.
 
+- Extensions that do not provide a marker class now remain metadata-only and do
+  not trigger the S3 projection-rate dispatch path.
+
 - New `scaleRates(params, factor)` function that rescales all rates in a model
   by a given factor. This is equivalent to a time rescaling: it speeds up or
   slows down all dynamics without affecting the steady state. All rate slots

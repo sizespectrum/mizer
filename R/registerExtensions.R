@@ -20,9 +20,12 @@
 #' `c(mizerExtB = "1.2.0", mizerExtA = "0.4.1")`, objects using only
 #' `c(mizerExtA = "0.4.1")` are also valid.
 #'
-#' @param extensions A named character vector. Names are extension identifiers
-#'   and S4 marker class names. Values are version strings, installation
-#'   specifications, or `NA_character_`.
+#' @param extensions A named character vector. Names are extension identifiers.
+#'   Values are version strings, installation specifications, or
+#'   `NA_character_`. Installed extensions only participate in S3 dispatch if
+#'   they provide an S4 marker class with the same name. `NA_character_` entries
+#'   are treated as in-development dispatch extensions and mizer creates their
+#'   marker classes automatically.
 #' @param install Logical. If `TRUE`, missing extension packages may be
 #'   installed. Installation support is intentionally conservative and currently
 #'   only supports CRAN-style package installation by extension name.
@@ -88,11 +91,13 @@ coerceToExtensionClass <- function(object, extensions = objectExtensions(object)
     extensions <- validateExtensionsVector(extensions)
     assertExtensionChain(object, extensions = extensions, check_class = FALSE)
 
-    if (length(extensions) == 0) {
+    dispatch_extensions <- dispatchExtensions(extensions)
+
+    if (length(dispatch_extensions) == 0) {
         return(methods::as(object, base_class))
     }
 
-    target_class <- names(extensions)[1]
+    target_class <- names(dispatch_extensions)[1]
     if (family == "sim") {
         target_class <- simExtensionClass(target_class)
     }
@@ -131,17 +136,19 @@ assertExtensionChain <- function(object, extensions = objectExtensions(object),
         )
     }
 
+    dispatch_extensions <- dispatchExtensions(extensions)
+
     if (is(object, "MizerParams")) {
-        expected_class <- if (length(extensions) == 0) {
+        expected_class <- if (length(dispatch_extensions) == 0) {
             "MizerParams"
         } else {
-            names(extensions)[1]
+            names(dispatch_extensions)[1]
         }
     } else if (is(object, "MizerSim")) {
-        expected_class <- if (length(extensions) == 0) {
+        expected_class <- if (length(dispatch_extensions) == 0) {
             "MizerSim"
         } else {
-            simExtensionClass(names(extensions)[1])
+            simExtensionClass(names(dispatch_extensions)[1])
         }
     } else {
         stop("Can only check MizerParams or MizerSim objects.")
@@ -217,6 +224,7 @@ isSuffixChain <- function(candidate, chain) {
 
 defineExtensionClasses <- function(extensions) {
     extensions <- validateExtensionsVector(extensions)
+    extensions <- dispatchExtensions(extensions)
     parent_params <- "MizerParams"
     parent_sim <- "MizerSim"
 
@@ -230,6 +238,32 @@ defineExtensionClasses <- function(extensions) {
     }
 
     invisible(extensions)
+}
+
+dispatchExtensions <- function(extensions) {
+    extensions <- validateExtensionsVector(extensions)
+    if (length(extensions) == 0) {
+        return(character())
+    }
+
+    is_dispatch_extension <- vapply(seq_along(extensions), function(i) {
+        extension <- names(extensions)[[i]]
+        requirement <- unname(extensions[[i]])
+
+        is.na(requirement) || methods::isClass(extension)
+    }, logical(1))
+
+    extensions[is_dispatch_extension]
+}
+
+usesExtensionDispatch <- function(object) {
+    if (is(object, "MizerParams")) {
+        return(!identical(class(object)[[1]], "MizerParams"))
+    }
+    if (is(object, "MizerSim")) {
+        return(!identical(class(object)[[1]], "MizerSim"))
+    }
+    stop("Can only check dispatch for MizerParams or MizerSim objects.")
 }
 
 defineOrCheckClass <- function(class, parent) {

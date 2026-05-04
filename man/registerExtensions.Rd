@@ -7,9 +7,12 @@
 registerExtensions(extensions, install = FALSE)
 }
 \arguments{
-\item{extensions}{A named character vector. Names are extension identifiers
-and S4 marker class names. Values are version strings, installation
-specifications, or \code{NA_character_}.}
+\item{extensions}{A named character vector. Names are extension identifiers.
+Values are version strings, installation specifications, or
+\code{NA_character_}. Installed extensions only participate in S3 dispatch if
+they provide an S4 marker class with the same name. \code{NA_character_} entries
+are treated as in-development dispatch extensions and mizer creates their
+marker classes automatically.}
 
 \item{install}{Logical. If \code{TRUE}, missing extension packages may be
 installed. Installation support is intentionally conservative and currently

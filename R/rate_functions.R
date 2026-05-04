@@ -87,7 +87,7 @@ getEncounter.MizerParams <- function(params, n = initialN(params),
                 identical(length(n_pp), length(params@initial_n_pp)),
                 identical(length(n_other), length(params@initial_n_other))
     )
-    if (length(params@extensions) > 0) {
+    if (usesExtensionDispatch(params)) {
         encounter <- projectEncounter(params, n = n, n_pp = n_pp,
                                       n_other = n_other, t = t, ...)
     } else {

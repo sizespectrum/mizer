@@ -211,7 +211,7 @@ projectEncounter <- function(params, n, n_pp, n_other, t = 0, ...) {
 projectRateFunctions <- function(params) {
     rates_fns <- lapply(params@rates_funcs, get)
 
-    if (length(params@extensions) > 0) {
+    if (usesExtensionDispatch(params)) {
         rates_fns$Rates <- projectRates
     }
 
