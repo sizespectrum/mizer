@@ -7,13 +7,16 @@
 \usage{
 saveParams(params, file)
 
-readParams(file)
+readParams(file, install_extensions = FALSE)
 }
 \arguments{
 \item{params}{A MizerParams object}
 
 \item{file}{The name of the file or a connection where the MizerParams object
 is saved to or read from.}
+
+\item{install_extensions}{Logical. Should \code{\link[=readParams]{readParams()}} attempt to install
+missing extension packages before registering the saved extension chain?}
 }
 \value{
 NULL invisibly

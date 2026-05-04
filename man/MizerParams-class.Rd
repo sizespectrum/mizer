@@ -29,10 +29,12 @@ abundances or harvest effort through time. These are held in
 \item{\code{mizer_version}}{The package version of mizer (as returned by
 \code{packageVersion("mizer")}) that created or upgraded the model.}
 
-\item{\code{extensions}}{A named vector of strings where each name is the name of
-and extension package needed to run the model and each value is a string
-giving the information that the remotes package needs to install the
-correct version of the extension package, see https://remotes.r-lib.org/.}
+\item{\code{extensions}}{A named vector of strings describing the extension chain
+needed to run the model. The names are extension identifiers and S4 marker
+class names. The order is the S3 dispatch order, from outermost to
+innermost extension. The values are version strings, installation
+specifications, or \code{NA_character_}. Extension subclasses are marker
+classes only and must not add slots.}
 
 \item{\code{time_created}}{A POSIXct date-time object with the creation time.}
 

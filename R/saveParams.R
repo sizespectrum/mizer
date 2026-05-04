@@ -11,6 +11,8 @@
 #' @param params A MizerParams object
 #' @param file The name of the file or a connection where the MizerParams object
 #'   is saved to or read from.
+#' @param install_extensions Logical. Should [readParams()] attempt to install
+#'   missing extension packages before registering the saved extension chain?
 #' @return NULL invisibly
 #' @export
 saveParams <- function(params, file) {
@@ -18,6 +20,13 @@ saveParams <- function(params, file) {
 }
 #' @export
 saveParams.MizerParams <- function(params, file) {
+    packages <- c("mizer", names(params@extensions)[!is.na(params@extensions)])
+    missing <- !sapply(packages, requireNamespace, quietly = TRUE)
+    if (any(missing)) {
+        stop("Some required extension packages are not installed: ",
+             paste(packages[missing], collapse = ", "))
+    }
+
     params <- validParams(params)
     
     kernel_fns <- paste0(unique(params@species_params$pred_kernel_type),
@@ -29,12 +38,6 @@ saveParams.MizerParams <- function(params, file) {
               params@other_mort,
               unique(params@gear_params$sel_func),
               kernel_fns)
-    packages <- c("mizer", names(params@extensions))
-    missing <- !sapply(packages, requireNamespace, quietly = TRUE)
-    if (any(missing)) {
-        stop("Some required extension packages are not installed: ",
-             paste(packages[missing], collapse = ", "))
-    }
     custom <- sapply(funs, is_custom, packages = packages)
     if (any(custom)) {
         warning("Your model is using the functions ",
@@ -43,13 +46,23 @@ saveParams.MizerParams <- function(params, file) {
                 "params object but also an R script or R Markdown file ",
                 "defining these functions.")
     }
-    saveRDS(params, file = file)
+    saveRDS(baseMizerClass(params), file = file)
 }
 
 #' @rdname saveParams
 #' @export
-readParams <- function(file) {
-    params <- validParams(readRDS(file))
+readParams <- function(file, install_extensions = FALSE) {
+    params <- readRDS(file)
+    if (needs_upgrading(params)) {
+        params <- suppressWarnings(upgradeParams(params))
+    }
+
+    if (length(params@extensions) > 0) {
+        registerExtensions(params@extensions, install = install_extensions)
+    }
+
+    params <- coerceToExtensionClass(params)
+    params <- validParams(params)
     
     # # Check for missing packages
     # packages <- names(params@extensions)

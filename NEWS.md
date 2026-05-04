@@ -1,5 +1,11 @@
 # Development version 2.5.4.9102
 
+- Added first-stage infrastructure for composable extension chains:
+  `registerExtensions()`, `getRegisteredExtensions()`, and
+  `coerceToExtensionClass()`. Extension classes are marker classes for S3
+  dispatch, with `MizerSim` deriving its extension chain from
+  `sim@params@extensions`.
+
 - New `scaleRates(params, factor)` function that rescales all rates in a model
   by a given factor. This is equivalent to a time rescaling: it speeds up or
   slows down all dynamics without affecting the steady state. All rate slots
