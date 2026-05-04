@@ -64,6 +64,7 @@ Other mizer rate functions:
 \code{\link[=mizerPredMort]{mizerPredMort()}},
 \code{\link[=mizerPredRate]{mizerPredRate()}},
 \code{\link[=mizerRDI]{mizerRDI()}},
-\code{\link[=mizerRates]{mizerRates()}}
+\code{\link[=mizerRates]{mizerRates()}},
+\code{\link[=projectRates]{projectRates()}}
 }
 \concept{mizer rate functions}

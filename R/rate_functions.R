@@ -46,10 +46,11 @@ getRates.MizerParams <- function(params, n = initialN(params),
         effort <- params@initial_effort
     }
     
-    get(params@rates_funcs$Rates)(
+    rates_fns <- projectRateFunctions(params)
+    rates_fns$Rates(
         params, n = n, n_pp = n_pp, n_other = n_other,
         t = t, effort = effort, 
-        rates_fns = lapply(params@rates_funcs, get), ...)
+        rates_fns = rates_fns, ...)
 }
 
 #' Get encounter rate
@@ -86,8 +87,14 @@ getEncounter.MizerParams <- function(params, n = initialN(params),
                 identical(length(n_pp), length(params@initial_n_pp)),
                 identical(length(n_other), length(params@initial_n_other))
     )
-    f <- get(params@rates_funcs$Encounter)
-    encounter <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
+    if (length(params@extensions) > 0) {
+        encounter <- projectEncounter(params, n = n, n_pp = n_pp,
+                                      n_other = n_other, t = t, ...)
+    } else {
+        encounter_fn <- get(params@rates_funcs$Encounter)
+        encounter <- encounter_fn(params, n = n, n_pp = n_pp,
+                                  n_other = n_other, t = t, ...)
+    }
     ArraySpeciesBySize(encounter, value_name = "Encounter rate",
              units = "g/year", params = params)
 }

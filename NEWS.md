@@ -6,6 +6,11 @@
   dispatch, with `MizerSim` deriving its extension chain from
   `sim@params@extensions`.
 
+- Added `projectRates()` and `projectEncounter()` as the first S3 hooks in the
+  extension-chain rate pipeline. Extension-aware projections dispatch through
+  `projectRates()`, while models without extensions keep using the pre-resolved
+  `mizerRates()` pipeline directly.
+
 - New `scaleRates(params, factor)` function that rescales all rates in a model
   by a given factor. This is equivalent to a time rescaling: it speeds up or
   slows down all dynamics without affecting the steady state. All rate slots

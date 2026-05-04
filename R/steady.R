@@ -140,7 +140,7 @@ projectToSteady.MizerParams <- function(params,
     # get functions
     resource_dynamics_fn <- get(params@resource_dynamics)
     other_dynamics_fns <- lapply(params@other_dynamics, get)
-    rates_fns <- lapply(params@rates_funcs, get)
+    rates_fns <- projectRateFunctions(params)
     r <- rates_fns$Rates(
         params, n = params@initial_n,
         n_pp = params@initial_n_pp,

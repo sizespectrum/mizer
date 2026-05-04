@@ -113,7 +113,112 @@ mizerRates <- function(params, n, n_pp, n_other,
     return(r)
 }
 
-#' Get encounter rate needed to project standard mizer model
+#' Get all rates needed to project an extension-aware mizer model
+#'
+#' S3 generic used by extension-aware projections to calculate all rates.
+#' Models without extensions keep using [mizerRates()] directly. The base
+#' method mirrors [mizerRates()] but calls migrated projection hooks directly,
+#' starting with [projectEncounter()].
+#'
+#' @inheritParams mizerRates
+#'
+#' @return List of rates.
+#' @export
+#' @family mizer rate functions
+projectRates <- function(params, n, n_pp, n_other,
+                         t = 0, effort, rates_fns, ...) {
+    UseMethod("projectRates")
+}
+
+#' @export
+projectRates.MizerParams <- function(params, n, n_pp, n_other,
+                                     t = 0, effort, rates_fns, ...) {
+    r <- list()
+
+    ## Growth ----
+    # Calculate rate E_{e,i}(w) of encountered food
+    r$encounter <- projectEncounter(
+        params, n = n, n_pp = n_pp, n_other = n_other, t = t, ...)
+    # Calculate feeding level f_i(w)
+    r$feeding_level <- rates_fns$FeedingLevel(
+        params, n = n, n_pp = n_pp, n_other = n_other,
+        encounter = r$encounter, t = t, ...)
+    # Calculate the energy available for reproduction and growth
+    r$e <- rates_fns$EReproAndGrowth(
+        params, n = n, n_pp = n_pp, n_other = n_other,
+        encounter = r$encounter, feeding_level = r$feeding_level, t = t, ...)
+    # Calculate the energy for reproduction
+    r$e_repro <- rates_fns$ERepro(
+        params, n = n, n_pp = n_pp, n_other = n_other,
+        e = r$e, t = t, ...)
+    # Calculate the growth rate g_i(w)
+    r$e_growth <- rates_fns$EGrowth(
+        params, n = n, n_pp = n_pp, n_other = n_other,
+        e_repro = r$e_repro, e = r$e, t = t, ...)
+    # Calculate the diffusion rate D_i(w)
+    r$diffusion <- rates_fns$Diffusion(
+        params, n = n, n_pp = n_pp, n_other = n_other,
+        feeding_level = r$feeding_level, t = t, ...)
+
+    ## Mortality ----
+    # Calculate the predation rate
+    r$pred_rate <- rates_fns$PredRate(
+        params, n = n, n_pp = n_pp, n_other = n_other,
+        feeding_level = r$feeding_level, t = t, ...)
+    # Calculate predation mortality on fish \mu_{p,i}(w)
+    r$pred_mort <- rates_fns$PredMort(
+        params, n = n, n_pp = n_pp, n_other = n_other,
+        pred_rate = r$pred_rate, t = t, ...)
+    # Calculate fishing mortality
+    r$f_mort <- rates_fns$FMort(
+        params, n = n, n_pp = n_pp, n_other = n_other,
+        effort = effort, t = t,
+        e_growth = r$e_growth, pred_mort = r$pred_mort, ...)
+    # Calculate total mortality \mu_i(w)
+    r$mort <- rates_fns$Mort(
+        params, n = n, n_pp = n_pp, n_other = n_other,
+        f_mort = r$f_mort, pred_mort = r$pred_mort, t = t, ...)
+
+    ## Reproduction ----
+    # R_di
+    r$rdi <- rates_fns$RDI(
+        params, n = n, n_pp = n_pp, n_other = n_other,
+        e_growth = r$e_growth,
+        mort = r$mort,
+        e_repro = r$e_repro, t = t, ...)
+    # R_dd
+    r$rdd <- rates_fns$RDD(
+        rdi = r$rdi, species_params = params@species_params,
+        params = params, t = t, ...)
+
+    ## Resource ----
+    # Calculate mortality on the resource spectrum
+    r$resource_mort <- rates_fns$ResourceMort(
+        params, n = n, n_pp = n_pp, n_other = n_other,
+        pred_rate = r$pred_rate, t = t, ...)
+
+    return(r)
+}
+
+#' @name mizerEncounter
+#' @rdname mizerEncounter
+#' @export
+projectEncounter <- function(params, n, n_pp, n_other, t = 0, ...) {
+    UseMethod("projectEncounter")
+}
+
+# Resolve rate functions for projection.
+projectRateFunctions <- function(params) {
+    rates_fns <- lapply(params@rates_funcs, get)
+
+    if (length(params@extensions) > 0) {
+        rates_fns$Rates <- projectRates
+    }
+
+    rates_fns
+}
+
+#' Get encounter rate during projection
 #'
 #' Calculates the rate \eqn{E_i(w)} at which a predator of species \eqn{i} and
 #' weight \eqn{w} encounters food (grams/year). You would not usually call this
@@ -156,11 +261,18 @@ mizerRates <- function(params, n, n_pp, n_other,
 #' [setComponent()] and for which you specified an `encounter_fun` function then
 #' the encounters of these components will be included in the returned value.
 #'
+#' @section Extension hook:
+#' `projectEncounter()` is the S3 generic used by extension-aware projections.
+#' Extension packages can add methods for their marker classes and call
+#' `NextMethod()` to compose encounter-rate changes. The `MizerParams` method
+#' contains the standard mizer calculation and is also exported as
+#' `mizerEncounter()` for compatibility.
+#'
 #' @section Your own encounter function:
-#' By default [getEncounter()] calls [mizerEncounter()]. However you can
-#' replace this with your own alternative encounter function. If
-#' your function is called `"myEncounter"` then you register it in a MizerParams
-#' object `params` with
+#' By default [getEncounter()] calls [mizerEncounter()] on models without
+#' extensions. However you can replace this with your own alternative encounter
+#' function. If your function is called `"myEncounter"` then you register it in
+#' a MizerParams object `params` with
 #' ```
 #' params <- setRateFunction(params, "Encounter", "myEncounter")
 #' ```
@@ -172,9 +284,11 @@ mizerRates <- function(params, n, n_pp, n_other,
 #'
 #' @return A named two dimensional array (predator species x predator size) with
 #'   the encounter rates.
+#' @rdname mizerEncounter
 #' @export
 #' @family mizer rate functions
-mizerEncounter <- function(params, n, n_pp, n_other, t, ...) {
+projectEncounter.MizerParams <- function(params, n, n_pp, n_other,
+                                         t = 0, ...) {
 
     # idx_sp are the index values of params@w_full such that
     # params@w_full[idx_sp] = params@w
@@ -242,6 +356,10 @@ mizerEncounter <- function(params, n, n_pp, n_other, t, ...) {
     # Add external encounter
     return(encounter + params@ext_encounter)
 }
+
+#' @rdname mizerEncounter
+#' @export
+mizerEncounter <- projectEncounter.MizerParams
 
 #' Get feeding level needed to project standard mizer model
 #'
