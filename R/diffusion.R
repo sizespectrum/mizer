@@ -114,3 +114,32 @@ mizerDiffusion <- function(params, n, n_pp, n_other, t, feeding_level, ...) {
 
     return(D)
 }
+
+
+#' Get or set the use_predation_diffusion flag
+#'
+#' Controls whether predation-induced diffusion is included when calculating
+#' rates with [mizerDiffusion()]. When `FALSE` (the default), the
+#' predation-driven diffusion term is omitted, preserving the behaviour of
+#' previous mizer versions. Set to `TRUE` to enable the diffusion term from
+#' the jump-growth equation.
+#'
+#' @param params A MizerParams object.
+#' @return `use_predation_diffusion()`: A single logical value.
+#' @export
+#' @family functions for setting parameters
+use_predation_diffusion <- function(params) {
+    params@use_predation_diffusion
+}
+
+#' @rdname use_predation_diffusion
+#' @param value A single logical value (`TRUE` or `FALSE`).
+#' @return `use_predation_diffusion<-`: A MizerParams object with the
+#'   `use_predation_diffusion` flag updated.
+#' @export
+`use_predation_diffusion<-` <- function(params, value) {
+    assert_that(is.flag(value))
+    params@use_predation_diffusion <- value
+    params@time_modified <- lubridate::now()
+    params
+}
