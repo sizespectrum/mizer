@@ -37,6 +37,11 @@ List of rates.
 }
 \description{
 Calls other rate functions in sequence and collects the results in a list.
+
+\code{projectRates()} is an S3 generic used by extension-aware
+projections to calculate all rates. Models without extensions keep using
+\code{\link[=mizerRates]{mizerRates()}} directly. The base method mirrors \code{\link[=mizerRates]{mizerRates()}} but calls
+migrated projection hooks directly, starting with \code{\link[=projectEncounter]{projectEncounter()}}.
 }
 \details{
 By default this function returns a list with the following components:

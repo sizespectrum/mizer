@@ -118,6 +118,7 @@ reference:
   - initial_effort
   - renameGear
   - expandSizeGrid
+  - use_predation_diffusion
 - title: Steady state tuning
   description: The first task after creating a multi-species model is to tune
     the model parameters so that in its steady state the model reproduces
@@ -133,6 +134,7 @@ reference:
   - matchNumbers
   - plotYieldObservedVsModel
   - scaleModel
+  - scaleRates
 - title: Dynamics tuning
   description: After tuning the steady state, you need to tune the sensitivity
     of the dynamics to perturbations away from the steady state. The following
@@ -202,6 +204,9 @@ reference:
   - getCriticalFeedingLevel
 - title: Extending Mizer
   contents:
+  - registerExtensions
+  - getRegisteredExtensions
+  - coerceToExtensionClass
   - setRateFunction
   - setComponent
   - getComponent

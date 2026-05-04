@@ -113,16 +113,13 @@ mizerRates <- function(params, n, n_pp, n_other,
     return(r)
 }
 
-#' Get all rates needed to project an extension-aware mizer model
+#' @rdname mizerRates
 #'
-#' S3 generic used by extension-aware projections to calculate all rates.
-#' Models without extensions keep using [mizerRates()] directly. The base
-#' method mirrors [mizerRates()] but calls migrated projection hooks directly,
-#' starting with [projectEncounter()].
+#' @description `projectRates()` is an S3 generic used by extension-aware
+#'   projections to calculate all rates. Models without extensions keep using
+#'   [mizerRates()] directly. The base method mirrors [mizerRates()] but calls
+#'   migrated projection hooks directly, starting with [projectEncounter()].
 #'
-#' @inheritParams mizerRates
-#'
-#' @return List of rates.
 #' @export
 #' @family mizer rate functions
 projectRates <- function(params, n, n_pp, n_other,

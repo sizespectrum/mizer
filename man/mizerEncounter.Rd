@@ -114,7 +114,6 @@ Other mizer rate functions:
 \code{\link[=mizerPredRate]{mizerPredRate()}},
 \code{\link[=mizerRDI]{mizerRDI()}},
 \code{\link[=mizerRates]{mizerRates()}},
-\code{\link[=mizerResourceMort]{mizerResourceMort()}},
-\code{\link[=projectRates]{projectRates()}}
+\code{\link[=mizerResourceMort]{mizerResourceMort()}}
 }
 \concept{mizer rate functions}
