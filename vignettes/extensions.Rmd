@@ -388,6 +388,119 @@ plotBiomass(my_sim)
 This approach makes it possible to extend generic mizer workflows without
 rewriting the underlying package methods. 
 
+# Defining a dispatching extension subclass
+
+The subclassing example above is useful for local experiments and for methods
+such as plotting or summaries. Extension packages that want to change the
+projection rate pipeline should use the same idea in a more disciplined way:
+define a marker subclass and provide S3 methods for mizer's `project*()`
+generics.
+
+Not every extension package needs a subclass. If your package only provides
+helper functions, custom rate functions for `setRateFunction()`, extra plotting
+functions, or component dynamics for `setComponent()`, it can remain
+metadata-only. Such an extension can still be recorded in `params@extensions`,
+but because it does not add a dispatch class, mizer will keep using the normal
+pre-resolved `rates_funcs` projection path.
+
+Define a subclass only when your extension needs composable behaviour in the
+projection pipeline, for example when several extensions should all modify the
+same rate and call `NextMethod()` to pass control to the next extension in the
+chain.
+
+## Marker classes
+
+An extension subclass should be a marker class: it should not add slots. Store
+extension-specific settings in `other_params(params)`, component parameters, or
+standard mizer slots instead.
+
+In your extension package you would define classes like this:
+
+```{r eval = FALSE}
+setClass("mizerMyExtension", contains = "MizerParams")
+setClass("mizerMyExtensionSim", contains = "MizerSim")
+```
+
+The class name should match the name used in the extension chain. For example:
+
+```{r eval = FALSE}
+params@extensions <- c(mizerMyExtension = "0.1.0")
+```
+
+When this object is validated or loaded with `readParams()`, mizer checks that
+the recorded extension chain is compatible with the current session and coerces
+the object to the appropriate marker class. If an extension recorded in
+`params@extensions` does not provide a marker class, it remains metadata-only
+and does not trigger projection dispatch.
+
+## Projection rate hooks
+
+The rate pipeline used by `project()` has S3 hooks corresponding to the standard
+mizer rate functions:
+
+- `projectEncounter()`
+- `projectFeedingLevel()`
+- `projectEReproAndGrowth()`
+- `projectERepro()`
+- `projectEGrowth()`
+- `projectDiffusion()`
+- `projectPredRate()`
+- `projectPredMort()`
+- `projectFMort()`
+- `projectMort()`
+- `projectRDI()`
+- `projectRDD()`
+- `projectResourceMort()`
+
+The base methods, such as `projectEncounter.MizerParams()`, contain the standard
+mizer calculation. The older names, such as `mizerEncounter()`, remain available
+as aliases to these base methods.
+
+An extension method should usually call `NextMethod()` and then modify the
+result:
+
+```{r eval = FALSE}
+projectEncounter.mizerMyExtension <- function(params, n, n_pp, n_other,
+                                              t = 0, ...) {
+    encounter <- NextMethod()
+    p <- other_params(params)$mizerMyExtension
+    encounter * p$encounter_multiplier
+}
+```
+
+If two registered extensions both provide `projectEncounter()` methods, mizer
+will dispatch through them in the order recorded in the extension chain. Each
+method can call `NextMethod()` to compose its change with the next extension and
+finally with the standard `MizerParams` method.
+
+## Registering an extension chain
+
+The extension chain is a named character vector whose names are extension
+identifiers and whose values record version requirements or installation
+information. For example:
+
+```{r eval = FALSE}
+registerExtensions(c(
+    mizerOuterExtension = "0.2.0",
+    mizerMyExtension = "0.1.0"
+))
+```
+
+The order is the dispatch order, from outermost to innermost extension. A model
+using only a suffix of the registered chain can be used in the same session.
+This makes it possible to work with one model that uses both extensions and
+another model that only uses `mizerMyExtension`.
+
+For package code, the key requirements are:
+
+- define marker subclasses without extra slots if the package needs projection
+  dispatch,
+- export or register S3 methods for the relevant `project*()` generics,
+- store all extra state in ordinary mizer extension locations, not in new S4
+  slots,
+- record the extension in `params@extensions` so saved objects can be checked
+  and restored in a compatible session.
+
 
 # How custom rate functions are called
 
