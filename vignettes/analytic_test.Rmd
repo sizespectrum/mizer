@@ -144,7 +144,7 @@ params <- setRateFunction(params, "Mort", "start_mort")
 params <- setRateFunction(params, "RDD", "constant_rdd")
 
 # Set diffusion
-params@diffusion[1, ] <- K * w(params)^(p+1)
+ext_diffusion(params)[1, ] <- K * w(params)^(p + 1)
 
 # We also need to switch off resource dynamics and other things to avoid interference
 params <- setResource(params, resource_dynamics = "resource_constant")
@@ -443,7 +443,7 @@ run_numerical_diffusion_test <- function(no_w) {
     
     # NO physical diffusion
     # We set the diffusion matrix to zero
-    params@diffusion[] <- 0
+    ext_diffusion(params)[] <- 0
     
     params <- setResource(params, resource_dynamics = "resource_constant")
     initialNResource(params) <- 0
