@@ -33,10 +33,10 @@ where $g$ is the growth rate, $\mu$ is the death rate and $d$ is a new diffusion
 The diffusion rate has an expression that is similar to that of the rate $A(w)$ at which prey biomass is assimilated and thus available for metabolism, growth and reproduction. Recall that this rate is given by
 $$
 \begin{split}
-A(w)=&(1-f(w))\,\gamma(w)\int N_c(w_p)\,\phi(w/w_p)\,\alpha\, w_p\,dw_p
+A(w)=&(1-f(w))\,\gamma(w)\int N_c(w_p)\,\phi(w,w_p)\,\alpha\, w_p\,dw_p
 \end{split}
 $$ {#eq-gw}
-where $N_c(w)$ is the abundance density of prey, $\phi(w/w_p)$ is the predation kernel, $\gamma(w)$ is the search volume, $f(w)$ is the feeding level and $\alpha$ is the assimilation efficiency.
+where $N_c(w)$ is the abundance density of prey, $\phi(w,w_p)$ is the predation kernel, $\gamma(w)$ is the search volume, $f(w)$ is the feeding level and $\alpha$ is the assimilation efficiency.
 
 The factor $\alpha\,w_p$ in the integral in @eq-gw is the increase in assimilated biomass resulting from the ingestion of an individual prey of weight $w_p$. In the expression for the diffusion rate $D(w)$ this factor is squared:
 $$
