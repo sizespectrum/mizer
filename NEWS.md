@@ -1,5 +1,13 @@
 # Development version 2.5.4.9102
 
+- New `scaleRates(params, factor)` function that rescales all rates in a model
+  by a given factor. This is equivalent to a time rescaling: it speeds up or
+  slows down all dynamics without affecting the steady state. All rate slots
+  (`search_vol`, `intake_max`, `metab`, `mu_b`, `ext_encounter`,
+  `ext_diffusion`, `catchability`, `rr_pp`) and their associated species
+  parameters (`gamma`, `h`, `ks`, `k`, `z0`, `z_ext`, `z0pre`, `E_ext`,
+  `D_ext`, `R_max`) are rescaled consistently.
+
 - `MizerParams` gains a `use_predation_diffusion` slot (logical, default `FALSE`).
   When `FALSE` (the default), [mizerDiffusion()] omits the predation-induced
   diffusion term, preserving the behaviour of previous mizer versions. Set to
