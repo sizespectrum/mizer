@@ -155,10 +155,6 @@
 #' @seealso [validSpeciesParams()], [setParams()]
 #' @family functions for setting parameters
 species_params <- function(params) {
-    UseMethod("species_params")
-}
-#' @export
-species_params.MizerParams <- function(params) {
     params@species_params
 }
 
@@ -166,10 +162,6 @@ species_params.MizerParams <- function(params) {
 #' @param value A data frame with the species parameters
 #' @export
 `species_params<-` <- function(params, value) {
-    UseMethod("species_params<-")
-}
-#' @export
-`species_params<-.MizerParams` <- function(params, value) {
     value <- validSpeciesParams(value)
     if (!all(value$species == params@species_params$species)) {
         stop("The species names in the new species parameter data frame do not match the species names in the model.")
@@ -182,20 +174,12 @@ species_params.MizerParams <- function(params) {
 #' @rdname species_params
 #' @export
 given_species_params <- function(params) {
-    UseMethod("given_species_params")
-}
-#' @export
-given_species_params.MizerParams <- function(params) {
     params@given_species_params
 }
 
 #' @rdname species_params
 #' @export
 `given_species_params<-` <- function(params, value) {
-    UseMethod("given_species_params<-")
-}
-#' @export
-`given_species_params<-.MizerParams` <- function(params, value) {
     value <- validGivenSpeciesParams(value)
     if (!all(value$species == params@species_params$species)) {
         stop("The species names in the new species parameter data frame do not match the species names in the model.")
@@ -246,10 +230,6 @@ given_species_params.MizerParams <- function(params) {
 #' @rdname species_params
 #' @export
 calculated_species_params <- function(params) {
-    UseMethod("calculated_species_params")
-}
-#' @export
-calculated_species_params.MizerParams <- function(params) {
     # Identifying common columns
     common_cols <- intersect(names(params@species_params),
                              names(params@given_species_params))

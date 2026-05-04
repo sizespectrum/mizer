@@ -62,11 +62,6 @@ resource_constant <- function(params, n_pp, ...) {
 #' @seealso [setResource()]
 #' @export
 resource_params <- function(params) {
-    UseMethod("resource_params")
-}
-#' @export
-resource_params.MizerParams <- function(params) { # nolint
-
     params@resource_params
 }
 
@@ -74,11 +69,6 @@ resource_params.MizerParams <- function(params) { # nolint
 #' @param value A named list of resource parameters.
 #' @export
 `resource_params<-` <- function(params, value) {
-    UseMethod("resource_params<-")
-}
-#' @export
-`resource_params<-.MizerParams` <- function(params, value) { # nolint
-
     assert_that(
         is.number(value$lambda),
         value$lambda >= 0,

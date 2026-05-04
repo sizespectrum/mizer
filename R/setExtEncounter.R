@@ -125,10 +125,6 @@ getExtEncounter.MizerParams <- function(params) {
 #' @rdname setExtEncounter
 #' @export
 ext_encounter <- function(params) {
-    UseMethod("ext_encounter")
-}
-#' @export
-ext_encounter.MizerParams <- function(params) {
     getExtEncounter(params)
 }
 
@@ -136,9 +132,5 @@ ext_encounter.MizerParams <- function(params) {
 #' @param value ext_encounter
 #' @export
 `ext_encounter<-` <- function(params, value) {
-    UseMethod("ext_encounter<-")
-}
-#' @export
-`ext_encounter<-.MizerParams` <- function(params, value) {
     setExtEncounter(params, ext_encounter = value)
 }

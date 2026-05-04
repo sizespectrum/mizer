@@ -416,19 +416,11 @@ getReproductionProportion.MizerParams <- function(params) {
 #' @rdname setReproduction
 #' @export
 repro_prop <- function(params) {
-    UseMethod("repro_prop")
-}
-#' @export
-repro_prop.MizerParams <- function(params) {
     getReproductionProportion(params)
 }
 
 #' @rdname setReproduction
 #' @export
 `repro_prop<-` <- function(params, value) {
-    UseMethod("repro_prop<-")
-}
-#' @export
-`repro_prop<-.MizerParams` <- function(params, value) {
     setReproduction(params, repro_prop = value)
 }

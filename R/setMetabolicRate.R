@@ -134,10 +134,6 @@ getMetabolicRate.MizerParams <- function(params) {
 #' @rdname setMetabolicRate
 #' @export
 metab <- function(params) {
-    UseMethod("metab")
-}
-#' @export
-metab.MizerParams <- function(params) {
     getMetabolicRate(params)
 }
 
@@ -145,9 +141,5 @@ metab.MizerParams <- function(params) {
 #' @param value metab
 #' @export
 `metab<-` <- function(params, value) {
-    UseMethod("metab<-")
-}
-#' @export
-`metab<-.MizerParams` <- function(params, value) {
     setMetabolicRate(params, metab = value)
 }

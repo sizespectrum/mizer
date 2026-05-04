@@ -101,10 +101,6 @@ setExtDiffusion.MizerParams <- function(params, ext_diffusion = NULL,
 #'   with the external diffusion rate.
 #' @export
 ext_diffusion <- function(params) {
-    UseMethod("ext_diffusion")
-}
-#' @export
-ext_diffusion.MizerParams <- function(params) {
     ArraySpeciesBySize(params@ext_diffusion,
                        value_name = "Diffusion rate",
                        params = params)
@@ -114,9 +110,5 @@ ext_diffusion.MizerParams <- function(params) {
 #' @param value ext_diffusion
 #' @export
 `ext_diffusion<-` <- function(params, value) {
-    UseMethod("ext_diffusion<-")
-}
-#' @export
-`ext_diffusion<-.MizerParams` <- function(params, value) {
     setExtDiffusion(params, ext_diffusion = value)
 }

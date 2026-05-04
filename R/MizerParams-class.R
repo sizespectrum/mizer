@@ -805,10 +805,6 @@ emptyParams <- function(species_params,
 #' # Summing to get total biomass
 #' sum(biomass)
 w <- function(params) {
-    UseMethod("w")
-}
-#' @export
-w.MizerParams <- function(params) {
     params@w
 }
 
@@ -818,10 +814,6 @@ w.MizerParams <- function(params) {
 #'   the consumer spectrum.
 #' @export
 w_full <- function(params) {
-    UseMethod("w_full")
-}
-#' @export
-w_full.MizerParams <- function(params) {    
     params@w_full
 }
 
@@ -830,10 +822,6 @@ w_full.MizerParams <- function(params) {
 #'   consumer spectrum.
 #' @export
 dw <- function(params) {
-    UseMethod("dw")
-}
-#' @export
-dw.MizerParams <- function(params) {
     params@dw
 }
 
@@ -842,10 +830,6 @@ dw.MizerParams <- function(params) {
 #'   resource spectrum.
 #' @export
 dw_full <- function(params) {
-    UseMethod("dw_full")
-}
-#' @export
-dw_full.MizerParams <- function(params) {
     params@dw_full
 }
 

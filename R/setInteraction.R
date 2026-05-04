@@ -150,10 +150,6 @@ getInteraction.MizerParams <- function(params) {
 #'   prey species)
 #' @export
 interaction_matrix <- function(params) {
-    UseMethod("interaction_matrix")
-}
-#' @export
-interaction_matrix.MizerParams <- function(params) {
     params@interaction
 }
 
@@ -161,9 +157,5 @@ interaction_matrix.MizerParams <- function(params) {
 #' @param value An interaction matrix
 #' @export
 `interaction_matrix<-` <- function(params, value) {
-    UseMethod("interaction_matrix<-")
-}
-#' @export
-`interaction_matrix<-.MizerParams` <- function(params, value) {
     setInteraction(params, interaction = value)
 }

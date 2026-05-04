@@ -235,10 +235,6 @@ getPredKernel.MizerParams <- function(params) {
 #' @rdname setPredKernel
 #' @export
 pred_kernel <- function(params) {
-    UseMethod("pred_kernel")
-}
-#' @export
-pred_kernel.MizerParams <- function(params) {
     getPredKernel(params)
 }
 
@@ -246,10 +242,6 @@ pred_kernel.MizerParams <- function(params) {
 #' @param value pred_kernel
 #' @export
 `pred_kernel<-` <- function(params, value) {
-    UseMethod("pred_kernel<-")
-}
-#' @export
-`pred_kernel<-.MizerParams` <- function(params, value) {
     setPredKernel(params, pred_kernel = value)
 }
 

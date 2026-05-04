@@ -121,10 +121,6 @@ getMaxIntakeRate.MizerParams <- function(params) {
 #' @rdname setMaxIntakeRate
 #' @export
 intake_max <- function(params) {
-    UseMethod("intake_max")
-}
-#' @export
-intake_max.MizerParams <- function(params) {
     getMaxIntakeRate(params)
 }
 
@@ -132,9 +128,5 @@ intake_max.MizerParams <- function(params) {
 #' @param value intake_max
 #' @export
 `intake_max<-` <- function(params, value) {
-    UseMethod("intake_max<-")
-}
-#' @export
-`intake_max<-.MizerParams` <- function(params, value) {
     setMaxIntakeRate(params, intake_max = value)
 }

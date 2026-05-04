@@ -159,10 +159,6 @@ getExtMort.MizerParams <- function(params) {
 #' @rdname setExtMort
 #' @export
 ext_mort <- function(params) {
-    UseMethod("ext_mort")
-}
-#' @export
-ext_mort.MizerParams <- function(params) {
     getExtMort(params)
 }
 
@@ -170,9 +166,5 @@ ext_mort.MizerParams <- function(params) {
 #' @param value ext_mort
 #' @export
 `ext_mort<-` <- function(params, value) {
-    UseMethod("ext_mort<-")
-}
-#' @export
-`ext_mort<-.MizerParams` <- function(params, value) {
     setExtMort(params, ext_mort = value)
 }

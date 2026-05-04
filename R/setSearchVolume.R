@@ -132,10 +132,6 @@ getSearchVolume.MizerParams <- function(params) {
 #' @rdname setSearchVolume
 #' @export
 search_vol <- function(params) {
-    UseMethod("search_vol")
-}
-#' @export
-search_vol.MizerParams <- function(params) {
     getSearchVolume(params)
 }
 
@@ -143,9 +139,5 @@ search_vol.MizerParams <- function(params) {
 #' @param value search_vol
 #' @export
 `search_vol<-` <- function(params, value) {
-    UseMethod("search_vol<-")
-}
-#' @export
-`search_vol<-.MizerParams` <- function(params, value) {
     setSearchVolume(params, search_vol = value)
 }

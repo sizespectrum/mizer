@@ -330,10 +330,6 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
 #' # changing an individual entry
 #' gear_params(params)["Cod, gear1", "catchability"] <- 0.8
 gear_params <- function(params) {
-    UseMethod("gear_params")
-}
-#' @export
-gear_params.MizerParams <- function(params) {
     params@gear_params
 }
 
@@ -342,10 +338,6 @@ gear_params.MizerParams <- function(params) {
 #' @seealso [validGearParams()]
 #' @export
 `gear_params<-` <- function(params, value) {
-    UseMethod("gear_params<-")
-}
-#' @export
-`gear_params<-.MizerParams` <- function(params, value) {
     value <- validGearParams(value, params@species_params)
     params@gear_params <- value
     setFishing(params)
@@ -469,10 +461,6 @@ getInitialEffort.MizerParams <- function(params) {
 #' @return A named effort vector ordered by gear.
 #' @export
 initial_effort <- function(params) {
-    UseMethod("initial_effort")
-}
-#' @export
-initial_effort.MizerParams <- function(params) {
     params@initial_effort
 }
 
@@ -481,10 +469,6 @@ initial_effort.MizerParams <- function(params) {
 #'   below.
 #' @export
 `initial_effort<-` <- function(params, value) {
-    UseMethod("initial_effort<-")
-}
-#' @export
-`initial_effort<-.MizerParams` <- function(params, value) {
     setFishing(params, initial_effort = value)
 }
 

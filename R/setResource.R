@@ -284,10 +284,6 @@ setResource.MizerParams <- function(params,
 #' @return A vector with the intrinsic resource birth rate for each size class.
 #' @export
 resource_rate <- function(params) {
-    UseMethod("resource_rate")
-}
-#' @export
-resource_rate.MizerParams <- function(params) {
     params@rr_pp
 }
 
@@ -295,10 +291,6 @@ resource_rate.MizerParams <- function(params) {
 #' @param value The desired new value for the respective parameter.
 #' @export
 `resource_rate<-` <- function(params, value) {
-    UseMethod("resource_rate<-")
-}
-#' @export
-`resource_rate<-.MizerParams` <- function(params, value) {
     setResource(params, resource_rate = value)
 }
 
@@ -306,20 +298,12 @@ resource_rate.MizerParams <- function(params) {
 #' @return A vector with the intrinsic resource capacity for each size class.
 #' @export
 resource_capacity <- function(params) {
-    UseMethod("resource_capacity")
-}
-#' @export
-resource_capacity.MizerParams <- function(params) {
     params@cc_pp
 }
 
 #' @rdname setResource
 #' @export
 `resource_capacity<-` <- function(params, value) {
-    UseMethod("resource_capacity<-")
-}
-#' @export
-`resource_capacity<-.MizerParams` <- function(params, value) {
     setResource(params, resource_capacity = value)
 }
 
@@ -329,20 +313,12 @@ resource_capacity.MizerParams <- function(params) {
 #'   and the resource capacity for each size class.
 #' @export
 resource_level <- function(params) {
-    UseMethod("resource_level")
-}
-#' @export
-resource_level.MizerParams <- function(params) {
     params@initial_n_pp / params@cc_pp
 }
 
 #' @rdname setResource
 #' @export
 `resource_level<-` <- function(params, value) {
-    UseMethod("resource_level<-")
-}
-#' @export
-`resource_level<-.MizerParams` <- function(params, value) {
     setResource(params, resource_level = value)
 }
 
@@ -351,10 +327,6 @@ resource_level.MizerParams <- function(params) {
 #' @return The name of the function that determines the resource dynamics.
 #' @export
 resource_dynamics <- function(params) {
-    UseMethod("resource_dynamics")
-}
-#' @export
-resource_dynamics.MizerParams <- function(params) {
     params@resource_dynamics
 }
 
@@ -366,9 +338,5 @@ resource_dynamics.MizerParams <- function(params) {
 #' resource_dynamics(params)
 #' resource_dynamics(params) <- "resource_constant"
 `resource_dynamics<-` <- function(params, value) {
-    UseMethod("resource_dynamics<-")
-}
-#' @export
-`resource_dynamics<-.MizerParams` <- function(params, value) {
     setResource(params, resource_dynamics = value)
 }
