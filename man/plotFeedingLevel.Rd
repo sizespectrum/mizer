@@ -105,19 +105,19 @@ str(fr)
 \seealso{
 \link{plotting_functions}, \code{\link[=getFeedingLevel]{getFeedingLevel()}}
 
-Other plotting functions: 
-\code{\link{animateSpectra}()},
-\code{\link{plot}()},
-\code{\link{plotBiomass}()},
-\code{\link{plotDiet}()},
-\code{\link{plotFMort}()},
-\code{\link{plotGrowthCurves}()},
+Other plotting functions:
+\code{\link[=animateSpectra]{animateSpectra()}},
+\code{\link{plot}},
+\code{\link[=plotBiomass]{plotBiomass()}},
+\code{\link[=plotDiet]{plotDiet()}},
+\code{\link[=plotFMort]{plotFMort()}},
+\code{\link[=plotGrowthCurves]{plotGrowthCurves()}},
 \code{\link{plotMizerParams}},
 \code{\link{plotMizerSim}},
-\code{\link{plotPredMort}()},
-\code{\link{plotSpectra}()},
-\code{\link{plotYield}()},
-\code{\link{plotYieldGear}()},
+\code{\link[=plotPredMort]{plotPredMort()}},
+\code{\link[=plotSpectra]{plotSpectra()}},
+\code{\link[=plotYield]{plotYield()}},
+\code{\link[=plotYieldGear]{plotYieldGear()}},
 \code{\link{plotting_functions}}
 }
 \concept{plotting functions}

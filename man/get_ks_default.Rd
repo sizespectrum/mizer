@@ -19,10 +19,10 @@ parameter data frame. If that column is not provided the default critical
 feeding level \eqn{f_c = 0.2} is used.
 }
 \seealso{
-Other functions calculating defaults: 
-\code{\link{get_f0_default}()},
-\code{\link{get_gamma_default}()},
-\code{\link{get_h_default}()}
+Other functions calculating defaults:
+\code{\link[=get_f0_default]{get_f0_default()}},
+\code{\link[=get_gamma_default]{get_gamma_default()}},
+\code{\link[=get_h_default]{get_h_default()}}
 }
 \concept{functions calculating defaults}
 \concept{helper}

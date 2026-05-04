@@ -12,8 +12,8 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{plotly}{\code{\link[plotly]{ggplotly}}}
+  \item{plotly}{\code{\link[plotly:ggplotly]{ggplotly()}}}
 
-  \item{reshape2}{\code{\link[reshape2]{melt}}}
+  \item{reshape2}{\code{\link[reshape2:melt]{melt()}}}
 }}
 

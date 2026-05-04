@@ -24,9 +24,9 @@ are selected.
 \seealso{
 \code{\link[=gear_params]{gear_params()}} for setting the \code{knife_edge_size} parameter.
 
-Other selectivity functions: 
-\code{\link{double_sigmoid_length}()},
-\code{\link{sigmoid_length}()},
-\code{\link{sigmoid_weight}()}
+Other selectivity functions:
+\code{\link[=double_sigmoid_length]{double_sigmoid_length()}},
+\code{\link[=sigmoid_length]{sigmoid_length()}},
+\code{\link[=sigmoid_weight]{sigmoid_weight()}}
 }
 \concept{selectivity functions}

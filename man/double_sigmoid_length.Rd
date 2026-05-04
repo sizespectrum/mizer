@@ -53,9 +53,9 @@ between length and weight. \deqn{l = \left(\frac{w}{a}\right)^{1/b}}{l =
 \seealso{
 \code{\link[=gear_params]{gear_params()}} for setting the selectivity parameters.
 
-Other selectivity functions: 
-\code{\link{knife_edge}()},
-\code{\link{sigmoid_length}()},
-\code{\link{sigmoid_weight}()}
+Other selectivity functions:
+\code{\link[=knife_edge]{knife_edge()}},
+\code{\link[=sigmoid_length]{sigmoid_length()}},
+\code{\link[=sigmoid_weight]{sigmoid_weight()}}
 }
 \concept{selectivity functions}

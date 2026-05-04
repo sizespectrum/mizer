@@ -25,11 +25,11 @@ returns reduced, density-dependent rates \eqn{R_{dd}}{R_dd} given as
 \deqn{R_{dd} = R_{di} \exp(- b R_{di})}{R_dd = R_di exp(- b R_di)}
 }
 \seealso{
-Other functions calculating density-dependent reproduction rate: 
-\code{\link{BevertonHoltRDD}()},
-\code{\link{SheperdRDD}()},
-\code{\link{constantEggRDI}()},
-\code{\link{constantRDD}()},
-\code{\link{noRDD}()}
+Other functions calculating density-dependent reproduction rate:
+\code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}},
+\code{\link[=SheperdRDD]{SheperdRDD()}},
+\code{\link[=constantEggRDI]{constantEggRDI()}},
+\code{\link[=constantRDD]{constantRDD()}},
+\code{\link[=noRDD]{noRDD()}}
 }
 \concept{functions calculating density-dependent reproduction rate}

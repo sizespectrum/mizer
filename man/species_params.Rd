@@ -185,19 +185,20 @@ MizerParams object, in case your own code makes use of them.
 \seealso{
 \code{\link[=validSpeciesParams]{validSpeciesParams()}}, \code{\link[=setParams]{setParams()}}
 
-Other functions for setting parameters: 
-\code{\link{gear_params}()},
-\code{\link{setExtDiffusion}()},
-\code{\link{setExtEncounter}()},
-\code{\link{setExtMort}()},
-\code{\link{setFishing}()},
-\code{\link{setInitialValues}()},
-\code{\link{setInteraction}()},
-\code{\link{setMaxIntakeRate}()},
-\code{\link{setMetabolicRate}()},
-\code{\link{setParams}()},
-\code{\link{setPredKernel}()},
-\code{\link{setReproduction}()},
-\code{\link{setSearchVolume}()}
+Other functions for setting parameters:
+\code{\link[=gear_params]{gear_params()}},
+\code{\link[=setExtDiffusion]{setExtDiffusion()}},
+\code{\link[=setExtEncounter]{setExtEncounter()}},
+\code{\link[=setExtMort]{setExtMort()}},
+\code{\link[=setFishing]{setFishing()}},
+\code{\link[=setInitialValues]{setInitialValues()}},
+\code{\link[=setInteraction]{setInteraction()}},
+\code{\link[=setMaxIntakeRate]{setMaxIntakeRate()}},
+\code{\link[=setMetabolicRate]{setMetabolicRate()}},
+\code{\link[=setParams]{setParams()}},
+\code{\link[=setPredKernel]{setPredKernel()}},
+\code{\link[=setReproduction]{setReproduction()}},
+\code{\link[=setSearchVolume]{setSearchVolume()}},
+\code{\link[=use_predation_diffusion]{use_predation_diffusion()}}
 }
 \concept{functions for setting parameters}

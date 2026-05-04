@@ -37,9 +37,9 @@ length-weight parameters \code{a} and \code{b} to convert between length and wei
 \seealso{
 \code{\link[=gear_params]{gear_params()}} for setting the selectivity parameters.
 
-Other selectivity functions: 
-\code{\link{double_sigmoid_length}()},
-\code{\link{knife_edge}()},
-\code{\link{sigmoid_weight}()}
+Other selectivity functions:
+\code{\link[=double_sigmoid_length]{double_sigmoid_length()}},
+\code{\link[=knife_edge]{knife_edge()}},
+\code{\link[=sigmoid_weight]{sigmoid_weight()}}
 }
 \concept{selectivity functions}

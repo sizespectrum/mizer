@@ -49,6 +49,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Gustav Delius \email{gustav.delius@york.ac.uk} (\href{https://orcid.org/0000-0003-4092-8228}{ORCID}) [copyright holder]
   \item Finlay Scott \email{drfinlayscott@gmail.com} [copyright holder]
   \item Julia Blanchard \email{julia.blanchard@utas.edu.au} (\href{https://orcid.org/0000-0003-0532-4824}{ORCID}) [copyright holder]
   \item Ken Andersen \email{kha@aqua.dtu.dk} (\href{https://orcid.org/0000-0002-8478-3430}{ORCID}) [copyright holder]

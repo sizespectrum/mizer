@@ -85,15 +85,15 @@ plot(tl)
 \seealso{
 \code{\link[=getTrophicLevelBySpecies]{getTrophicLevelBySpecies()}}
 
-Other summary functions: 
-\code{\link{getBiomass}()},
-\code{\link{getDiet}()},
-\code{\link{getGrowthCurves}()},
-\code{\link{getN}()},
-\code{\link{getSSB}()},
-\code{\link{getTrophicLevelBySpecies}()},
-\code{\link{getYield}()},
-\code{\link{getYieldGear}()}
+Other summary functions:
+\code{\link[=getBiomass]{getBiomass()}},
+\code{\link[=getDiet]{getDiet()}},
+\code{\link[=getGrowthCurves]{getGrowthCurves()}},
+\code{\link[=getN]{getN()}},
+\code{\link[=getSSB]{getSSB()}},
+\code{\link[=getTrophicLevelBySpecies]{getTrophicLevelBySpecies()}},
+\code{\link[=getYield]{getYield()}},
+\code{\link[=getYieldGear]{getYieldGear()}}
 }
 \concept{summary functions}
 \concept{summary_function}

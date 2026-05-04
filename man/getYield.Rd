@@ -56,15 +56,15 @@ sum(getYield(sim)[1:10, "Herring"] / 10)
 \seealso{
 \code{\link[=getYieldGear]{getYieldGear()}}
 
-Other summary functions: 
-\code{\link{getBiomass}()},
-\code{\link{getDiet}()},
-\code{\link{getGrowthCurves}()},
-\code{\link{getN}()},
-\code{\link{getSSB}()},
-\code{\link{getTrophicLevel}()},
-\code{\link{getTrophicLevelBySpecies}()},
-\code{\link{getYieldGear}()}
+Other summary functions:
+\code{\link[=getBiomass]{getBiomass()}},
+\code{\link[=getDiet]{getDiet()}},
+\code{\link[=getGrowthCurves]{getGrowthCurves()}},
+\code{\link[=getN]{getN()}},
+\code{\link[=getSSB]{getSSB()}},
+\code{\link[=getTrophicLevel]{getTrophicLevel()}},
+\code{\link[=getTrophicLevelBySpecies]{getTrophicLevelBySpecies()}},
+\code{\link[=getYieldGear]{getYieldGear()}}
 }
 \concept{summary functions}
 \concept{summary_function}

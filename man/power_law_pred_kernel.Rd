@@ -61,9 +61,9 @@ plot(w_full(params), getPredKernel(params)["Cod", 10, ], type="l", log="x")
 \seealso{
 \code{\link[=setPredKernel]{setPredKernel()}}
 
-Other predation kernel: 
-\code{\link{box_pred_kernel}()},
-\code{\link{lognormal_pred_kernel}()},
-\code{\link{truncated_lognormal_pred_kernel}()}
+Other predation kernel:
+\code{\link[=box_pred_kernel]{box_pred_kernel()}},
+\code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}},
+\code{\link[=truncated_lognormal_pred_kernel]{truncated_lognormal_pred_kernel()}}
 }
 \concept{predation kernel}
