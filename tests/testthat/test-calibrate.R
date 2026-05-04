@@ -132,3 +132,8 @@ test_that("scaleModel renames deprecated r_max column", {
     expect_false("r_max" %in% names(scaled@species_params))
     expect_equal(scaled@species_params$R_max, 2 * (1:nrow(params@species_params)))
 })
+
+test_that("scaleModel updates `time_modified`", {
+    params <- scaleModel(NS_params, factor = 2)
+    expect_false(identical(params@time_modified, NS_params@time_modified))
+})

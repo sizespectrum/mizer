@@ -82,6 +82,13 @@ test_that("mizerDiffusion scales as alpha^2", {
     expect_equal(d2, d1 * 4, tolerance = 1e-12, ignore_attr = TRUE)
 })
 
+test_that("use_predation_diffusion<- updates `time_modified`", {
+    params <- newSingleSpeciesParams()
+    p2 <- params
+    use_predation_diffusion(p2) <- TRUE
+    expect_false(identical(p2@time_modified, params@time_modified))
+})
+
 test_that("mizerDiffusion increases when fish prey are present", {
     # With use_predation_diffusion = TRUE, adding fish as prey increases D.
     # This exercises the params@interaction %*% n term.

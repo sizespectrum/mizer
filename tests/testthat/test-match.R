@@ -91,3 +91,10 @@ test_that("matchYields works", {
     expect_equal(params2@initial_n[10, ], 2 * params@initial_n[10, ])
     expect_equal(params2@initial_n[-10, ], params@initial_n[-10, ])
 })
+
+test_that("matchYields updates `time_modified`", {
+    p <- NS_params
+    species_params(p)$yield_observed <- 1
+    p2 <- suppressWarnings(matchYields(p))
+    expect_false(identical(p2@time_modified, p@time_modified))
+})

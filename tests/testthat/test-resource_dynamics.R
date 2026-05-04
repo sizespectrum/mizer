@@ -43,3 +43,9 @@ test_that("Deprecated resource getters warn and delegate to accessors", {
                                     resource_capacity(params)),
                    "deprecated")
 })
+
+test_that("resource_params<- updates `time_modified`", {
+    params <- NS_params
+    resource_params(params) <- resource_params(NS_params)
+    expect_false(identical(params@time_modified, NS_params@time_modified))
+})

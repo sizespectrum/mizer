@@ -81,6 +81,8 @@ resource_params <- function(params) {
         value$w_pp_cutoff < max(params@w_full)
     )
     params@resource_params <- value
+    
+    params@time_modified <- lubridate::now()
     params
 }
 

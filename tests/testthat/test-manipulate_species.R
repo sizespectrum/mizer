@@ -368,3 +368,33 @@ test_that("expandSizeGrid preserves existing data", {
     params@linetype <- NS_params@linetype
     expect_identical(compareParams(params, NS_params), "No differences")
 })
+
+# time_modified ----
+test_that("addSpecies updates `time_modified`", {
+    p <- newMultispeciesParams(NS_species_params, info_level = 0)
+    sp <- data.frame(species = "new", w_max = 100, k_vb = 1)
+    p2 <- suppressMessages(addSpecies(p, sp))
+    expect_false(identical(p2@time_modified, p@time_modified))
+})
+
+test_that("removeSpecies updates `time_modified`", {
+    p2 <- removeSpecies(NS_params, "Cod")
+    expect_false(identical(p2@time_modified, NS_params@time_modified))
+})
+
+test_that("renameSpecies updates `time_modified`", {
+    p2 <- renameSpecies(NS_params, c(Cod = "Kabeljau"))
+    expect_false(identical(p2@time_modified, NS_params@time_modified))
+})
+
+test_that("renameGear updates `time_modified`", {
+    p <- example_params()
+    gear1 <- dimnames(p@selectivity)$gear[[1]]
+    p2 <- renameGear(p, setNames("new_gear", gear1))
+    expect_false(identical(p2@time_modified, p@time_modified))
+})
+
+test_that("expandSizeGrid updates `time_modified`", {
+    p2 <- expandSizeGrid(NS_params, new_max_w = 2e6)
+    expect_false(identical(p2@time_modified, NS_params@time_modified))
+})

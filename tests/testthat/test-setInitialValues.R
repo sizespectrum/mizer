@@ -99,3 +99,20 @@ test_that("setInitialValues averages correctly over time range", {
     expected_n <- exp(mean(log(NS_sim@n[time_sel, 1, 50])))
     expect_equal(params@initial_n[1, 50], expected_n)
 })
+
+test_that("setInitialValues updates `time_modified`", {
+    params2 <- setInitialValues(params, sim)
+    expect_false(identical(params2@time_modified, params@time_modified))
+})
+
+test_that("initialN<- updates `time_modified`", {
+    p <- params
+    initialN(p) <- params@initial_n
+    expect_false(identical(p@time_modified, params@time_modified))
+})
+
+test_that("initialNResource<- updates `time_modified`", {
+    p <- params
+    initialNResource(p) <- params@initial_n_pp
+    expect_false(identical(p@time_modified, params@time_modified))
+})

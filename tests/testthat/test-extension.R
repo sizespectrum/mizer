@@ -224,3 +224,33 @@ test_that("component can mimic resource", {
     expect_identical(finalNResource(sim), finalNResource(sim2))
     expect_equal(finalN(sim), finalN(sim2), ignore_attr = "params")
 })
+
+# time_modified ----
+test_that("setRateFunction updates `time_modified`", {
+    p <- setRateFunction(params, "Encounter", "mizerEncounter")
+    expect_false(identical(p@time_modified, params@time_modified))
+})
+
+test_that("other_params<- updates `time_modified`", {
+    p <- params
+    other_params(p) <- list(test = 1)
+    expect_false(identical(p@time_modified, params@time_modified))
+})
+
+test_that("setComponent updates `time_modified`", {
+    p <- setComponent(params, "test", 1, dynamics_fun = "test_dyn")
+    expect_false(identical(p@time_modified, params@time_modified))
+})
+
+test_that("removeComponent updates `time_modified`", {
+    p <- setComponent(params, "test", 1, dynamics_fun = "test_dyn")
+    p2 <- removeComponent(p, "test")
+    expect_false(identical(p2@time_modified, p@time_modified))
+})
+
+test_that("initialNOther<- updates `time_modified`", {
+    p <- setComponent(params, "test", 1, dynamics_fun = "test_dyn")
+    p2 <- p
+    initialNOther(p2)$test <- 2
+    expect_false(identical(p2@time_modified, p@time_modified))
+})

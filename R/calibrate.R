@@ -237,7 +237,7 @@ scaleModel.MizerParams <- function(params, factor, ...) {
     assert_that(is.number(factor),
                 factor > 0)
     
-    # Resource replenishment rate
+    # Resource carrying capacity
     params@cc_pp <- params@cc_pp * factor
     
     # Rmax
@@ -271,5 +271,6 @@ scaleModel.MizerParams <- function(params, factor, ...) {
     # community
     params@sc <- params@sc * factor
     
+    params@time_modified <- lubridate::now()
     return(params)
 }

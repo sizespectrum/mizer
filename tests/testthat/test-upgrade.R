@@ -61,3 +61,10 @@ test_that("Some functions work with params from earlier versions", {
     (p4 <- suppressWarnings(upgradeParams(params.0.4))) |> expect_message()
     expect_identical(p4@rates_funcs$RDD, "noRDD")
 })
+
+test_that("upgradeParams updates `time_modified`", {
+    p <- NS_params
+    p@mizer_version <- "2.0.0"
+    p2 <- suppressMessages(upgradeParams(p))
+    expect_false(identical(p2@time_modified, p@time_modified))
+})
