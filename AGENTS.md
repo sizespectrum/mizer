@@ -42,7 +42,9 @@ devtools::clean_dll(); devtools::load_all()
 - Use snapshot tests for complex outputs
 - Run `devtools::document()` after adding or changing exports
 - Run `devtools::load_all()` before running tests
+- After modifying the `MizerParams` or `MizerSim` class (new/removed slots, changes to `@rates_funcs`, etc.), follow the steps in `.claude/skills/upgrade-mizer-data.md`. Claude Code users can invoke this as `/upgrade-mizer-data`.
 
 ## Before Submitting
 
-Update `NEWS.md` when adding features or fixing bugs.
+- After adding a new file under `R/`, add it to the `Collate:` field in `DESCRIPTION` (roxygen2 does not manage this automatically in this package).
+- Update `NEWS.md` when adding features or fixing bugs.

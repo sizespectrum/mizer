@@ -167,6 +167,16 @@ test_that("valid_species_arg works", {
                                        NS_params@species_params$species))
 })
 
+test_that("projectToSteady() converges with use_predation_diffusion", {
+    params_d <- NS_params
+    params_d@use_predation_diffusion <- TRUE
+    initialN(params_d)[1, ] <- initialN(params_d)[1, ] * 3
+    expect_message(
+        projectToSteady(params_d, tol = 10),
+        "Convergence was achieved"
+    )
+})
+
 test_that("valid_gears_arg works", {
     all_gears <- unique(NS_params@gear_params$gear)
     expect_identical(valid_gears_arg(NS_params), all_gears)

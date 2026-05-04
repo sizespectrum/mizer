@@ -106,7 +106,8 @@ get_steady_state_n <- function(params, g, mu, N0) {
     # Use get_transport_coefs to compute the coefficients with dt = 1
     # and no recruitment flux (since we handle the boundary manually)
     coefs <- get_transport_coefs(params, n, g, mu, dt = 1,
-                                 recruitment_flux = rep(0, no_sp))
+                                 recruitment_flux = rep(0, no_sp),
+                                 d = params@ext_diffusion)
 
     a <- coefs$a
     # For steady state, the diagonal term \tilde{B} is B - 1

@@ -65,8 +65,8 @@ validMizerParams <- function(object) {
                length(dim(params@maturity)),
                length(dim(params@ft_mask)),
                length(dim(params@catchability)),
-               length(dim(params@diffusion))) == 2)) {
-        msg <- "initial_n, psi, intake_max, search_vol, metab, mu_b, ext_encounter, interaction, maturity, ft_mask, catchability and diffusion must all be two dimensions"
+               length(dim(params@ext_diffusion))) == 2)) {
+        msg <- "initial_n, psi, intake_max, search_vol, metab, mu_b, ext_encounter, interaction, maturity, ft_mask, catchability and ext_diffusion must all be two dimensions"
         errors <- c(errors, msg)
     }
     # 3D arrays
@@ -89,9 +89,9 @@ validMizerParams <- function(object) {
         dim(params@interaction)[1],
         dim(params@interaction)[2],
         dim(params@ft_mask)[1],
-        dim(params@diffusion)[1]) ==
+        dim(params@ext_diffusion)[1]) ==
         dim(params@species_params)[1])) {
-        msg <- "The number of species in the model must be consistent across the species_params, psi, intake_max, search_vol, mu_b, ext_encounter, interaction (dim 1), selectivity, catchability, interaction (dim 2) and diffusion slots"
+        msg <- "The number of species in the model must be consistent across the species_params, psi, intake_max, search_vol, mu_b, ext_encounter, interaction (dim 1), selectivity, catchability, interaction (dim 2) and ext_diffusion slots"
         errors <- c(errors, msg)
     }
     # Check number of size groups
@@ -105,9 +105,9 @@ validMizerParams <- function(object) {
         dim(params@search_vol)[2],
         dim(params@metab)[2],
         dim(params@selectivity)[3],
-        dim(params@diffusion)[2]) ==
+        dim(params@ext_diffusion)[2]) ==
         no_w)) {
-        msg <- "The number of size bins in the model must be consistent across the w, initial_n, maturity, psi, mu_b, ext_encounter, intake_max, search_vol, metab, selectivity (dim 3) and diffusion slots"
+        msg <- "The number of size bins in the model must be consistent across the w, initial_n, maturity, psi, mu_b, ext_encounter, intake_max, search_vol, metab, selectivity (dim 3) and ext_diffusion slots"
         errors <- c(errors, msg)
     }
     # Check number of gears
@@ -128,8 +128,8 @@ validMizerParams <- function(object) {
         names(dimnames(params@ext_encounter))[1],
         names(dimnames(params@selectivity))[2],
         names(dimnames(params@catchability))[2],
-        names(dimnames(params@diffusion))[1]) == "sp")) {
-        msg <- "Name of first dimension of initial_n, maturity, psi, intake_max, search_vol, metab, mu_b, ext_encounter, diffusion and the second dimension of selectivity and catchability must be 'sp'"
+        names(dimnames(params@ext_diffusion))[1]) == "sp")) {
+        msg <- "Name of first dimension of initial_n, maturity, psi, intake_max, search_vol, metab, mu_b, ext_encounter, ext_diffusion and the second dimension of selectivity and catchability must be 'sp'"
         errors <- c(errors, msg)
     }
     #interaction dimension names
@@ -148,8 +148,8 @@ validMizerParams <- function(object) {
         names(dimnames(params@search_vol))[2],
         names(dimnames(params@metab))[2],
         names(dimnames(params@selectivity))[3],
-        names(dimnames(params@diffusion))[2]) == "w")) {
-        msg <- "Name of second dimension of psi, intake_max, search_vol, metab, diffusion and third dimension of selectivity must be 'w'"
+        names(dimnames(params@ext_diffusion))[2]) == "w")) {
+        msg <- "Name of second dimension of psi, intake_max, search_vol, metab, ext_diffusion and third dimension of selectivity must be 'w'"
         errors <- c(errors, msg)
     }
     if (!all(c(
@@ -171,9 +171,9 @@ validMizerParams <- function(object) {
         dimnames(params@catchability)[[2]],
         dimnames(params@interaction)[[1]],
         dimnames(params@interaction)[[2]],
-        dimnames(params@diffusion)[[1]]) ==
+        dimnames(params@ext_diffusion)[[1]]) ==
         params@species_params$species)) {
-        msg <- "The species names of species_params, psi, intake_max, search_vol, metab, mu_b, ext_encounter, selectivity, catchability, interaction and diffusion must all be the same"
+        msg <- "The species names of species_params, psi, intake_max, search_vol, metab, mu_b, ext_encounter, selectivity, catchability, interaction and ext_diffusion must all be the same"
         errors <- c(errors, msg)
     }
     # Check dimnames of w
@@ -228,6 +228,12 @@ validMizerParams <- function(object) {
     #         }
     #     }
     # }
+
+    # use_predation_diffusion must be a single logical value
+    if (!is.logical(params@use_predation_diffusion) || length(params@use_predation_diffusion) != 1) {
+        msg <- "use_predation_diffusion must be a single logical value (TRUE or FALSE)"
+        errors <- c(errors, msg)
+    }
 
     # Should not have legacy r_max column (has been renamed to R_max)
     if ("r_max" %in% names(params@species_params)) {
@@ -307,9 +313,10 @@ validMizerParams <- function(object) {
 #'   \eqn{\mu_{ext.i}(w)}. Changed with [setExtMort()].
 #' @slot ext_encounter An array (species x size) that holds the external encounter rate
 #'   \eqn{E_{ext.i}(w)}. Changed with [setExtEncounter()].
-#' @slot diffusion An array (species x size) that holds the rate at which the
+#' @slot ext_diffusion An array (species x size) that holds the external rate at
+#'   which the
 #'   abundance density is redistributed over body size due to mixing, beyond the
-#'   deterministic growth dynamics. Changed with [diffusion()].
+#'   deterministic growth dynamics. Changed with [ext_diffusion()].
 #' @slot pred_kernel An array (species x predator size x prey size) that holds
 #'   the predation coefficient of each predator at size on each prey size. If
 #'   this is NA then the following two slots will be used. Changed with
@@ -380,6 +387,10 @@ validMizerParams <- function(object) {
 #' @slot ft_mask An array (species x w_full) with zeros for weights larger than
 #'   the maximum weight of each species. Used to efficiently minimize
 #'   wrap-around errors in Fourier transform calculations.
+#' @slot use_predation_diffusion A logical flag controlling whether predation-induced
+#'   diffusion is included when calculating rates with [mizerDiffusion()].
+#'   Defaults to `FALSE` to preserve the behaviour of previous mizer versions.
+#'   Set to `TRUE` to enable the diffusion term from the jump-growth equation.
 #'
 #' @seealso [project()] [MizerSim()]
 #'   [emptyParams()] [newMultispeciesParams()]
@@ -410,7 +421,7 @@ setClass(
         ft_pred_kernel_p = "array",
         mu_b = "array",
         ext_encounter = "array",
-        diffusion = "array",
+        ext_diffusion = "array",
         rr_pp = "numeric",
         cc_pp = "numeric",
         resource_dynamics = "character",
@@ -433,7 +444,8 @@ setClass(
         A = "numeric",
         linecolour = "character",
         linetype = "character",
-        ft_mask = "array"
+        ft_mask = "array",
+        use_predation_diffusion = "logical"
     ),
 )
 
@@ -688,7 +700,7 @@ emptyParams <- function(species_params,
         metab = mat1,
         mu_b = mat1,
         ext_encounter = mat1,
-        diffusion = mat1,
+        ext_diffusion = mat1,
         ft_pred_kernel_e = ft_pred_kernel,
         ft_pred_kernel_p = ft_pred_kernel,
         pred_kernel = array(),
@@ -717,6 +729,7 @@ emptyParams <- function(species_params,
             Mort = "mizerMort",
             ERepro = "mizerERepro",
             EGrowth = "mizerEGrowth",
+            Diffusion = "mizerDiffusion",
             ResourceMort = "mizerResourceMort",
             RDI = "mizerRDI",
             RDD = "BevertonHoltRDD"),
@@ -726,7 +739,8 @@ emptyParams <- function(species_params,
         A = as.numeric(rep(NA, no_sp)),
         linecolour = linecolour,
         linetype = linetype,
-        ft_mask = ft_mask
+        ft_mask = ft_mask,
+        use_predation_diffusion = FALSE
     )
 
     return(params)
@@ -949,8 +963,8 @@ validParams.MizerParams <- function(params, info_level = 3) {
     if (!all(is.finite(params@ext_encounter))) {
         stop("ext_encounter must not contain non-finite values")
     }
-    if (!all(is.finite(params@diffusion))) {
-        stop("diffusion must not contain non-finite values")
+    if (!all(is.finite(params@ext_diffusion))) {
+        stop("ext_diffusion must not contain non-finite values")
     }
     if (!all(is.finite(params@selectivity))) {
         stop("selectivity must not contain non-finite values")

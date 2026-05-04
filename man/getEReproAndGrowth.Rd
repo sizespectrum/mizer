@@ -70,6 +70,7 @@ calculated with \code{\link[=getEGrowth]{getEGrowth()}} and the part that is inv
 reproduction is calculated with \code{\link[=getERepro]{getERepro()}}.
 
 Other rate functions: 
+\code{\link{getDiffusion}()},
 \code{\link{getEGrowth}()},
 \code{\link{getERepro}()},
 \code{\link{getEncounter}()},

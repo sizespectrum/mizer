@@ -79,7 +79,7 @@ installing a development version of mizer, click on the triangle below
 to reveal further details:
 <details>
 
-Mizer is compatible with R versions 3.1 and later. You can install R on your
+Mizer is compatible with R versions 3.5 and later. You can install R on your
 computer by following the instructions at <https://cran.r-project.org/> for your
 particular platform. 
 

@@ -79,9 +79,10 @@ for each species at size. Changed with \code{\link[=setMetabolicRate]{setMetabol
 \item{\code{ext_encounter}}{An array (species x size) that holds the external encounter rate
 \eqn{E_{ext.i}(w)}. Changed with \code{\link[=setExtEncounter]{setExtEncounter()}}.}
 
-\item{\code{diffusion}}{An array (species x size) that holds the rate at which the
+\item{\code{ext_diffusion}}{An array (species x size) that holds the external rate at
+which the
 abundance density is redistributed over body size due to mixing, beyond the
-deterministic growth dynamics. Changed with \code{\link[=diffusion]{diffusion()}}.}
+deterministic growth dynamics. Changed with \code{\link[=ext_diffusion]{ext_diffusion()}}.}
 
 \item{\code{pred_kernel}}{An array (species x predator size x prey size) that holds
 the predation coefficient of each predator at size on each prey size. If
@@ -179,6 +180,11 @@ Used to give consistent line types in plots.}
 \item{\code{ft_mask}}{An array (species x w_full) with zeros for weights larger than
 the maximum weight of each species. Used to efficiently minimize
 wrap-around errors in Fourier transform calculations.}
+
+\item{\code{use_predation_diffusion}}{A logical flag controlling whether predation-induced
+diffusion is included when calculating rates with \code{\link[=mizerDiffusion]{mizerDiffusion()}}.
+Defaults to \code{FALSE} to preserve the behaviour of previous mizer versions.
+Set to \code{TRUE} to enable the diffusion term from the jump-growth equation.}
 }}
 
 \seealso{

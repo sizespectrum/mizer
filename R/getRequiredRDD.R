@@ -19,7 +19,8 @@ getRequiredRDD.MizerParams <- function(params) {
     coefs <- get_transport_coefs(params, n = params@initial_n,
                                  g = getEGrowth(params),
                                  mu = getMort(params), dt,
-                                 recruitment_flux = numeric(no_sp))
+                                 recruitment_flux = numeric(no_sp),
+                                 d = params@ext_diffusion)
 
     reproduction <- params@species_params$erepro # vector of correct length
     names(reproduction) <- params@species_params$species

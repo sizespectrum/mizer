@@ -75,7 +75,7 @@ recalculated values would differ from the stored ones.
 \seealso{
 Other functions for setting parameters: 
 \code{\link{gear_params}()},
-\code{\link{setDiffusion}()},
+\code{\link{setExtDiffusion}()},
 \code{\link{setExtEncounter}()},
 \code{\link{setExtMort}()},
 \code{\link{setFishing}()},

@@ -59,6 +59,7 @@ getRDD(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], t = 15)
 \code{\link[=getRDI]{getRDI()}}
 
 Other rate functions: 
+\code{\link{getDiffusion}()},
 \code{\link{getEGrowth}()},
 \code{\link{getERepro}()},
 \code{\link{getEReproAndGrowth}()},

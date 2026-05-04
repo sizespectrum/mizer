@@ -24,9 +24,9 @@ test_that("getRequiredRDD handles diffusion", {
     params <- newSingleSpeciesParams()
     
     # Add diffusion
-    diffusion <- params@diffusion
-    diffusion[] <- 1e9 * params@w
-    params <- setDiffusion(params, diffusion = diffusion)
+    ext_diff <- params@ext_diffusion
+    ext_diff[] <- 1e9 * params@w
+    params <- setExtDiffusion(params, ext_diffusion = ext_diff)
     
     # Update initial_n to be the steady state solution with this diffusion
     # We need to recalculate it using get_steady_state_n

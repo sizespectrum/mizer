@@ -151,7 +151,7 @@ moves to the right (towards larger sizes) as the fish grow.
 # Adding diffusion
 
 Now let's add diffusion to the model. Diffusion is set as an array with
-dimensions species × size via `setDiffusion()`. We'll set a constant
+dimensions species × size via `setExtDiffusion()`. We'll set a constant
 diffusion rate across all sizes.
 
 We define a helper function that runs the simulation for a given
@@ -160,9 +160,9 @@ diffusion coefficient:
 ```{r}
 run_with_diffusion <- function(params_base, diff_coeff, diff_exp, t_max = 5) {
     p <- params_base
-    d <- p@diffusion
+    d <- p@ext_diffusion
     d[] <- diff_coeff * w ^ diff_exp
-    p <- setDiffusion(p, diffusion = d)
+    p <- setExtDiffusion(p, ext_diffusion = d)
     initialN(p)[] <- 0
     sim <- project(p, t_max = t_max, dt = 0.05,
                    t_save = 0.1, progress_bar = FALSE)
@@ -308,6 +308,6 @@ This vignette demonstrated:
 2.  How to implement pulsed annual reproduction using a custom RDD
     function.
 3.  How cohorts of fish grow through the size spectrum over time.
-4.  How diffusion, set via `setDiffusion()`, controls the spreading of
+4.  How diffusion, set via `setExtDiffusion()`, controls the spreading of
     cohorts — representing individual variability in growth rates.
 

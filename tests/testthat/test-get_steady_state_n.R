@@ -9,7 +9,7 @@ test_that("get_steady_state_n works with no diffusion", {
     N0_vec <- rep(100, no_sp)
 
     # Zero diffusion
-    params@diffusion[] <- 0
+    params@ext_diffusion[] <- 0
 
     n_calc <- mizer:::get_steady_state_n(params, growth, mort, N0_vec)
 
@@ -53,7 +53,7 @@ test_that("get_steady_state_n works with diffusion", {
     }
 
     # Compare with no diffusion
-    params@diffusion[] <- 0
+    params@ext_diffusion[] <- 0
     n_nodiff <- mizer:::get_steady_state_n(params, growth, mort, N0_vec)
     expect_false(isTRUE(all.equal(n_calc, n_nodiff)))
 })

@@ -15,7 +15,8 @@ test_that("get_transport_coefs works correctly", {
     getEGrowth <- mizer:::getEGrowth
     getMort <- mizer:::getMort
     
-    coefs <- get_transport_coefs(params, n, getEGrowth(params), getMort(params), dt, recruitment_flux)
+    d <- params@ext_diffusion
+    coefs <- get_transport_coefs(params, n, getEGrowth(params), getMort(params), dt, recruitment_flux, d)
     
     # Check dimensions
     expect_equal(dim(coefs$a), dim(n))
@@ -58,8 +59,8 @@ test_that("get_transport_coefs works correctly", {
     dw <- params@dw
     
     # Species 2
-    expected_b_2 <- 1 + dt * mu[2, j_start_2] + 
-        (dt / dw[j_start_2]) * (g[2, j_start_2] + 0.5 * params@diffusion[2, j_start_2] / dw[j_start_2])
+    expected_b_2 <- 1 + dt * mu[2, j_start_2] +
+        (dt / dw[j_start_2]) * (g[2, j_start_2] + 0.5 * d[2, j_start_2] / dw[j_start_2])
         
     expect_equal(coefs$b[2, j_start_2], expected_b_2, ignore_attr = TRUE)
 })

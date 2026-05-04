@@ -73,6 +73,7 @@ articles:
   - cheatsheet
   - a_multispecies_model_of_the_north_sea
   - plotting
+  - predation_diffusion
   - cohort_dynamics_and_diffusion
   - extensions
 - title: Publications
@@ -190,7 +191,7 @@ reference:
   - setInteraction
   - setMaxIntakeRate
   - setMetabolicRate
-  - setDiffusion
+  - setExtDiffusion
   - setExtMort
   - setExtEncounter
   - setReproduction

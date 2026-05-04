@@ -388,8 +388,38 @@ test_that("t_max less than effort array duration uses effort times", {
 
 test_that("project does not change the params object", {
     params <- NS_params
-    params@diffusion[] <- 1
+    params@ext_diffusion[] <- 1
     old_params <- unserialize(serialize(params, NULL))
     sim <- project(params, t_max = 1)
     expect_identical(params, old_params)
+})
+
+
+# predation diffusion ----
+test_that("Simulation gives same numerical results with predation diffusion", {
+    params_d <- NS_params
+    params_d@use_predation_diffusion <- TRUE
+    sim_d <- project(params_d, t_max = 1)
+    expect_snapshot(sim_d@n[2, 3, ])
+    expect_snapshot(sim_d@n_pp[2, ])
+})
+
+test_that("Final result the same when called with sim or params, predation diffusion on", {
+    params_d <- NS_params
+    params_d@use_predation_diffusion <- TRUE
+    sim_d <- project(params_d, t_max = 1)
+    params_d@initial_n[] <- sim_d@n[2, , ]
+    params_d@initial_n_pp[] <- sim_d@n_pp[2, ]
+    params_d@initial_n_other <- sim_d@n_other[2, ]
+    sim1 <- project(params_d, t_max = 1)
+    sim2 <- project(sim_d, t_max = 1)
+    expect_identical(sim1@n[2, 3, ], sim2@n[3, 3, ])
+})
+
+test_that("Predation diffusion changes simulation trajectory", {
+    params_d <- NS_params
+    params_d@use_predation_diffusion <- TRUE
+    sim_d <- project(params_d, t_max = 1)
+    sim_base <- project(NS_params, t_max = 1)
+    expect_false(identical(sim_d@n, sim_base@n))
 })

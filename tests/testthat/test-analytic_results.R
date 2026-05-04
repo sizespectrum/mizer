@@ -219,3 +219,65 @@ test_that("getFeedingLevel approximates analytic result", {
 #     # so we only test the others
 #     # expect_lt(max(relative_error[1:(no_w - 1)]), 0.02)
 # })
+
+
+# mizerDiffusion ----
+# The setup (p, n0, n_pp, sp, sigma, beta, gamma, q, n, lm2) is inherited from
+# the top of this file.  We only need a few extra variables:
+alpha_sp <- p@species_params$alpha[sp]
+lambda    <- p@resource_params$lambda
+lm3       <- lambda - 3  # = lambda - 3, used in D(w) analytic formula
+Dx        <- p@w[2] / p@w[1] - 1
+dx        <- log(p@w[2] / p@w[1])
+
+test_that("mizerDiffusion gives power law in w^(n+1) when feeding on resource only", {
+    p_d <- p
+    p_d@use_predation_diffusion <- TRUE
+    d <- getDiffusion(p_d, n0, n_pp)[sp, ]
+    # D(w) is proportional to w^(n+1), so D(w) / w^(n+1) should be constant
+    # (eq-dw2 in vignette predation_diffusion.qmd)
+    d_coeff <- d / p_d@w^(n + 1)
+    expect_equal(d_coeff, rep(d_coeff[1], length(d_coeff)),
+                 tolerance = 1e-3, ignore_attr = TRUE)
+})
+
+test_that("mizerDiffusion matches analytic formula (eq-dw2)", {
+    p_d <- p
+    p_d@use_predation_diffusion <- TRUE
+    d <- getDiffusion(p_d, n0, n_pp)[sp, ]
+    f0 <- getFeedingLevel(p_d, n0, n_pp)[sp, 1]
+    # Coefficient from the Gaussian integral (eq-dw2), with Dx/dx correction
+    # for the log-spaced Riemann sum used in the FFT convolution
+    diffusion_analytic <- (1 - f0) * p_d@resource_params$kappa *
+        exp(lm3^2 * sigma^2 / 2) *
+        beta^lm3 * sqrt(2 * pi) * sigma *
+        alpha_sp^2 * gamma * Dx / dx
+    d_coeff <- d / p_d@w^(n + 1)
+    # The diffusion integral uses w_p^2 weighting, making the Riemann sum
+    # slightly less accurate than for the encounter rate; 2% tolerance is adequate.
+    expect_equal(d_coeff[1], diffusion_analytic, tolerance = 2e-2, ignore_attr = TRUE)
+})
+
+test_that("mizerDiffusion satisfies D(w) = A(w) * w * alpha/beta * exp((5-2*lambda)*sigma^2/2) (eq-dw3)", {
+    # This tests the analytic relationship between diffusion and assimilation
+    # rates derived in the vignette predation_diffusion.qmd (eq-dw3).
+    p_d <- p
+    p_d@use_predation_diffusion <- TRUE
+    d  <- getDiffusion(p_d, n0, n_pp)[sp, ]
+    E  <- getEncounter(p_d, n0, n_pp)[sp, ]
+    f  <- getFeedingLevel(p_d, n0, n_pp)[sp, ]
+    # Assimilation rate A(w) = alpha * (1 - f(w)) * E(w)
+    A  <- alpha_sp * (1 - f) * E
+    ratio          <- d / (A * p_d@w)
+    expected_ratio <- alpha_sp / beta * exp((5 - 2 * lambda) * sigma^2 / 2)
+    expect_equal(ratio, rep(expected_ratio, length(ratio)),
+                 tolerance = 1e-2, ignore_attr = TRUE)
+})
+
+test_that("mizerDiffusion is zero when use_predation_diffusion is FALSE", {
+    # Default is FALSE, so only ext_diffusion (zero by default) contributes
+    p_d <- p
+    expect_false(p_d@use_predation_diffusion)
+    d <- getDiffusion(p_d, n0, n_pp)[sp, ]
+    expect_equal(unname(d), rep(0, length(d)))
+})

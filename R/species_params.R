@@ -36,6 +36,8 @@
 #'   [setExtMort()].
 #' * `E_ext` and `n` are used to set the external encounter rate, see
 #'   [setExtEncounter()].
+#' * `D_ext` and `n` are used to set the external diffusion rate, see
+#'   [setExtDiffusion()].
 #' * `w_mat`, `w_mat25`, `w_repro_max` and `m` are used to set the allocation to
 #'   reproduction, see [setReproduction()].
 #' * `pred_kernel_type` specifies the shape of the predation kernel. The default

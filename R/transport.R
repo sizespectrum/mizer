@@ -12,13 +12,10 @@
 #'
 #' @return A list with the coefficients A, B, C and S.
 #' @noRd
-get_transport_coefs <- function(params, n, g, mu, dt, recruitment_flux) {
-    
+get_transport_coefs <- function(params, n, g, mu, dt, recruitment_flux, d) {
+
     no_sp <- nrow(params@species_params)
     no_w <- length(params@w)
-    
-    # Diffusion coefficient D_i(w)
-    d <- params@diffusion # species x size
     
     # Pre-calculate some common terms
     # dw_j

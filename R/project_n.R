@@ -29,7 +29,7 @@
 project_n <- function(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
                       no_sp, no_w) {
     coefs <- get_transport_coefs(params, n, r$e_growth, r$mort, dt,
-                                 recruitment_flux = r$rdd)
+                                 recruitment_flux = r$rdd, d = r$diffusion)
     a <- coefs$a
     b <- coefs$b
     c <- coefs$c

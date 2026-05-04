@@ -9,7 +9,7 @@ test_that("getFlux works correctly", {
     
     t <- 0
     g <- getEGrowth(params, n = n, t = t)
-    d <- params@diffusion
+    d <- params@ext_diffusion
     dw <- params@dw
     rdd <- getRDD(params, n = n, t = t)
     

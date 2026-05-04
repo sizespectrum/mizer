@@ -1,5 +1,14 @@
 # Development version 2.5.4.9102
 
+- `MizerParams` gains a `use_predation_diffusion` slot (logical, default `FALSE`).
+  When `FALSE` (the default), [mizerDiffusion()] omits the predation-induced
+  diffusion term, preserving the behaviour of previous mizer versions. Set to
+  `TRUE` to enable the jump-growth diffusion term.
+
+- `diffusion()` / `diffusion<-()` / `setDiffusion()` have been renamed to
+  `ext_diffusion()` / `ext_diffusion<-()` / `setExtDiffusion()` to follow the
+  same naming convention as `setExtMort()` and `setExtEncounter()`.
+
 - The `MizerSim` accessors defined in `R/MizerSim-class.R` (`validSim()`,
   `N()`, `NResource()`, `finalN()`, `finalNResource()`, `idxFinalT()`,
   `getTimes()`, `getEffort()`, and `getParams()`) are now registered as S3
@@ -115,8 +124,8 @@
 - The numerical scheme now supports diffusion in the McKendrick-von Foerster
   equation, allowing individual variability in growth to be modelled. A new
   `diffusion` slot in `MizerParams` holds the diffusion coefficient (species x
-  size). Use `setDiffusion()` / `diffusion()` / `diffusion<-()` to set and
-  retrieve it.
+  size). Use `setExtDiffusion()` / `ext_diffusion()` / `ext_diffusion<-()` to
+  set and retrieve it.
 - New `getFlux()` function calculates the flux of individuals entering each size
   class, combining the advective flux from somatic growth and the diffusive flux.
 - `getRequiredRDD()` is now exported. It calculates the recruitment rate needed

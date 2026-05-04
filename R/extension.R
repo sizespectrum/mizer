@@ -47,6 +47,9 @@
             EGrowth =
                 f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
                   e = rates$e, e_repro = rates$e_repro),
+            Diffusion =
+                f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                  feeding_level = rates$feeding_level),
             PredRate =
                 f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
                   feeding_level = rates$feeding_level),
@@ -89,7 +92,7 @@
         }
         required <- c("encounter", "feeding_level", "pred_rate", "pred_mort",
                       "f_mort", "mort", "resource_mort", "e", "e_repro",
-                      "e_growth", "rdi", "rdd")
+                      "e_growth", "diffusion", "rdi", "rdd")
         missing  <- setdiff(required, names(result))
         if (length(missing) > 0L) {
             stop("The list returned by '", fun,
@@ -158,6 +161,7 @@
 #' * `e` from [mizerEReproAndGrowth()]
 #' * `e_repro` from [mizerERepro()]
 #' * `e_growth` from [mizerEGrowth()]
+#' * `diffusion` from [mizerDiffusion()]
 #' * `rdi` from [mizerRDI()]
 #' * `rdd` from [BevertonHoltRDD()]
 #'

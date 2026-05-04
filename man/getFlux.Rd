@@ -58,6 +58,7 @@ flux["Sprat", "2"]
 \code{\link[=getEGrowth]{getEGrowth()}}, \code{\link[=getRDD]{getRDD()}}
 
 Other rate functions: 
+\code{\link{getDiffusion}()},
 \code{\link{getEGrowth}()},
 \code{\link{getERepro}()},
 \code{\link{getEReproAndGrowth}()},
