@@ -69,6 +69,7 @@ getDiffusion.MizerParams <- function(params, n = initialN(params),
 #' @param ... Unused
 #'
 #' @return A two dimensional array (species x size) holding the diffusion rate.
+#' @export
 mizerDiffusion <- function(params, n, n_pp, n_other, t, feeding_level, ...) {
 
     if (missing(feeding_level)) {
