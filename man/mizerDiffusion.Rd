@@ -2,9 +2,15 @@
 % Please edit documentation in R/diffusion.R
 \name{mizerDiffusion}
 \alias{mizerDiffusion}
+\alias{projectDiffusion}
+\alias{projectDiffusion.MizerParams}
 \title{Calculate diffusion rate}
 \usage{
-mizerDiffusion(params, n, n_pp, n_other, t, feeding_level, ...)
+projectDiffusion(params, n, n_pp, n_other, t = 0, feeding_level, ...)
+
+\method{projectDiffusion}{MizerParams}(params, n, n_pp, n_other, t = 0, feeding_level, ...)
+
+mizerDiffusion(params, n, n_pp, n_other, t = 0, feeding_level, ...)
 }
 \arguments{
 \item{params}{A MizerParams object}

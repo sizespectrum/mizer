@@ -2,10 +2,16 @@
 % Please edit documentation in R/reproduction.R
 \name{mizerRDI}
 \alias{mizerRDI}
+\alias{projectRDI}
+\alias{projectRDI.MizerParams}
 \title{Get density-independent rate of reproduction needed to project standard
 mizer model}
 \usage{
-mizerRDI(params, n, n_pp, n_other, t, e_growth, mort, e_repro, ...)
+projectRDI(params, n, n_pp, n_other, t = 0, e_growth, mort, e_repro, ...)
+
+\method{projectRDI}{MizerParams}(params, n, n_pp, n_other, t = 0, e_growth, mort, e_repro, ...)
+
+mizerRDI(params, n, n_pp, n_other, t = 0, e_growth, mort, e_repro, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}

@@ -2,15 +2,39 @@
 % Please edit documentation in R/project_methods.R
 \name{mizerEReproAndGrowth}
 \alias{mizerEReproAndGrowth}
+\alias{projectEReproAndGrowth}
+\alias{projectEReproAndGrowth.MizerParams}
 \title{Get energy rate available for reproduction and growth  needed to project
 standard mizer model}
 \usage{
+projectEReproAndGrowth(
+  params,
+  n,
+  n_pp,
+  n_other,
+  t = 0,
+  encounter,
+  feeding_level,
+  ...
+)
+
+\method{projectEReproAndGrowth}{MizerParams}(
+  params,
+  n,
+  n_pp,
+  n_other,
+  t = 0,
+  encounter,
+  feeding_level,
+  ...
+)
+
 mizerEReproAndGrowth(
   params,
   n,
   n_pp,
   n_other,
-  t,
+  t = 0,
   encounter,
   feeding_level,
   ...

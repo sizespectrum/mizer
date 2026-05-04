@@ -2,9 +2,15 @@
 % Please edit documentation in R/project_methods.R
 \name{mizerEGrowth}
 \alias{mizerEGrowth}
+\alias{projectEGrowth}
+\alias{projectEGrowth.MizerParams}
 \title{Get energy rate available for growth needed to project standard mizer model}
 \usage{
-mizerEGrowth(params, n, n_pp, n_other, t, e_repro, e, ...)
+projectEGrowth(params, n, n_pp, n_other, t = 0, e_repro, e, ...)
+
+\method{projectEGrowth}{MizerParams}(params, n, n_pp, n_other, t = 0, e_repro, e, ...)
+
+mizerEGrowth(params, n, n_pp, n_other, t = 0, e_repro, e, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}

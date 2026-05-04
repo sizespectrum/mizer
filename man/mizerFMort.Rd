@@ -2,9 +2,15 @@
 % Please edit documentation in R/project_methods.R
 \name{mizerFMort}
 \alias{mizerFMort}
+\alias{projectFMort}
+\alias{projectFMort.MizerParams}
 \title{Get the total fishing mortality rate from all fishing gears}
 \usage{
-mizerFMort(params, n, n_pp, n_other, t, effort, e_growth, pred_mort, ...)
+projectFMort(params, n, n_pp, n_other, t = 0, effort, e_growth, pred_mort, ...)
+
+\method{projectFMort}{MizerParams}(params, n, n_pp, n_other, t = 0, effort, e_growth, pred_mort, ...)
+
+mizerFMort(params, n, n_pp, n_other, t = 0, effort, e_growth, pred_mort, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}

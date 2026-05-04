@@ -1,3 +1,11 @@
+#' @name mizerRDI
+#' @rdname mizerRDI
+#' @export
+projectRDI <- function(params, n, n_pp, n_other, t = 0,
+                       e_growth, mort, e_repro, ...) {
+    UseMethod("projectRDI")
+}
+
 #' Get density-independent rate of reproduction needed to project standard
 #' mizer model
 #'
@@ -40,16 +48,53 @@
 #'   by [getMort()]. Unused.
 #'
 #' @return A numeric vector with the rate of egg production for each species.
+#' @rdname mizerRDI
 #' @export
 #' @family mizer rate functions
-mizerRDI <- function(params, n, n_pp, n_other, t,
-                     e_growth, mort, e_repro, ...) {
+projectRDI.MizerParams <- function(params, n, n_pp, n_other, t = 0,
+                                   e_growth, mort, e_repro, ...) {
     # Calculate total energy from per capita energy
     e_repro_pop <- drop((e_repro * n) %*% params@dw)
     # Assume sex_ratio = 0.5
     rdi <- 0.5 * (e_repro_pop * params@species_params$erepro) /
         params@w[params@w_min_idx]
     return(rdi)
+}
+
+#' @rdname mizerRDI
+#' @export
+mizerRDI <- projectRDI.MizerParams
+
+#' Get density-dependent reproduction rate during projection
+#'
+#' S3 generic used by extension-aware projections to calculate the
+#' density-dependent reproduction rate. The base method calls the selected
+#' density-dependence function in `params@rates_funcs$RDD`.
+#'
+#' @inheritParams BevertonHoltRDD
+#' @param params A MizerParams object.
+#' @param t The time for which to do the calculation.
+#'
+#' @return Vector of density-dependent reproduction rates.
+#' @export
+#' @family functions calculating density-dependent reproduction rate
+projectRDD <- function(params, rdi, species_params = params@species_params,
+                       t = 0, ...) {
+    UseMethod("projectRDD")
+}
+
+#' @rdname projectRDD
+#' @export
+projectRDD.MizerParams <- function(params, rdi,
+                                   species_params = params@species_params,
+                                   t = 0, ...) {
+    if (params@rates_funcs$RDD == "getRDD") {
+        stop('"getRDD" is not a valid name for the function giving the density',
+             'dependent reproductive rate.')
+    }
+    rdd_fn <- get(params@rates_funcs$RDD)
+    rdd_fn(rdi = rdi, species_params = species_params, params = params,
+           t = t, ...)
 }
 
 #' Choose egg production to keep egg density constant

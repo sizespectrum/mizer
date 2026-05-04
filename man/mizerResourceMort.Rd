@@ -2,10 +2,16 @@
 % Please edit documentation in R/project_methods.R
 \name{mizerResourceMort}
 \alias{mizerResourceMort}
+\alias{projectResourceMort}
+\alias{projectResourceMort.MizerParams}
 \title{Get predation mortality rate for resource needed to project standard mizer
 model}
 \usage{
-mizerResourceMort(params, n, n_pp, n_other, t, pred_rate, ...)
+projectResourceMort(params, n, n_pp, n_other, t = 0, pred_rate, ...)
+
+\method{projectResourceMort}{MizerParams}(params, n, n_pp, n_other, t = 0, pred_rate, ...)
+
+mizerResourceMort(params, n, n_pp, n_other, t = 0, pred_rate, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}

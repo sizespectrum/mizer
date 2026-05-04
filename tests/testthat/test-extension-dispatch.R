@@ -37,6 +37,56 @@ test_that("getEncounter dispatches through extension chain", {
 
 test_that("projectEncounter base method is mizerEncounter", {
     expect_identical(projectEncounter.MizerParams, mizerEncounter)
+    expect_identical(projectFeedingLevel.MizerParams, mizerFeedingLevel)
+    expect_identical(projectEReproAndGrowth.MizerParams, mizerEReproAndGrowth)
+    expect_identical(projectERepro.MizerParams, mizerERepro)
+    expect_identical(projectEGrowth.MizerParams, mizerEGrowth)
+    expect_identical(projectDiffusion.MizerParams, mizerDiffusion)
+    expect_identical(projectPredRate.MizerParams, mizerPredRate)
+    expect_identical(projectPredMort.MizerParams, mizerPredMort)
+    expect_identical(projectFMort.MizerParams, mizerFMort)
+    expect_identical(projectMort.MizerParams, mizerMort)
+    expect_identical(projectRDI.MizerParams, mizerRDI)
+    expect_identical(projectResourceMort.MizerParams, mizerResourceMort)
+})
+
+test_that("getRates dispatches through all projection hooks", {
+    resetMizerSession()
+    withr::defer(resetMizerSession())
+
+    ext <- paste0("mizerTestRates", Sys.getpid())
+    chain <- setNames(NA_character_, ext)
+    registerExtensions(chain)
+
+    hooks <- c("projectEncounter", "projectFeedingLevel",
+               "projectEReproAndGrowth", "projectERepro", "projectEGrowth",
+               "projectDiffusion", "projectPredRate", "projectPredMort",
+               "projectFMort", "projectMort", "projectRDI",
+               "projectRDD", "projectResourceMort")
+    called <- new.env(parent = emptyenv())
+    for (hook in hooks) {
+        local({
+            hook_name <- hook
+            registerS3method(
+                hook_name, ext,
+                function(params, ...) {
+                    called[[hook_name]] <- TRUE
+                    NextMethod()
+                },
+                envir = asNamespace("mizer")
+            )
+        })
+    }
+
+    params <- NS_params
+    params@extensions <- chain
+    params <- coerceToExtensionClass(params)
+
+    getRates(params)
+
+    expect_true(all(vapply(hooks, function(hook) {
+        isTRUE(called[[hook]])
+    }, logical(1))))
 })
 
 test_that("getEncounter honours rates_funcs for base objects", {

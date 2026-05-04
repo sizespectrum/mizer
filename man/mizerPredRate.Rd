@@ -2,9 +2,15 @@
 % Please edit documentation in R/project_methods.R
 \name{mizerPredRate}
 \alias{mizerPredRate}
+\alias{projectPredRate}
+\alias{projectPredRate.MizerParams}
 \title{Get predation rate needed to project standard mizer model}
 \usage{
-mizerPredRate(params, n, n_pp, n_other, t, feeding_level, ...)
+projectPredRate(params, n, n_pp, n_other, t = 0, feeding_level, ...)
+
+\method{projectPredRate}{MizerParams}(params, n, n_pp, n_other, t = 0, feeding_level, ...)
+
+mizerPredRate(params, n, n_pp, n_other, t = 0, feeding_level, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}

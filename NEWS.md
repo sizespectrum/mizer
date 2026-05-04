@@ -11,6 +11,13 @@
   `projectRates()`, while models without extensions keep using the pre-resolved
   `mizerRates()` pipeline directly.
 
+- Added S3 projection hooks for the remaining standard mizer rate functions.
+  Extension-aware projections now call `projectFeedingLevel()`,
+  `projectEReproAndGrowth()`, `projectERepro()`, `projectEGrowth()`,
+  `projectDiffusion()`, `projectPredRate()`, `projectPredMort()`,
+  `projectFMort()`, `projectMort()`, `projectRDI()` and
+  `projectRDD()` and `projectResourceMort()` directly.
+
 - Extensions that do not provide a marker class now remain metadata-only and do
   not trigger the S3 projection-rate dispatch path.
 

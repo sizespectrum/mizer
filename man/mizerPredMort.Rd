@@ -2,9 +2,15 @@
 % Please edit documentation in R/project_methods.R
 \name{mizerPredMort}
 \alias{mizerPredMort}
+\alias{projectPredMort}
+\alias{projectPredMort.MizerParams}
 \title{Get total predation mortality rate needed to project standard mizer model}
 \usage{
-mizerPredMort(params, n, n_pp, n_other, t, pred_rate, ...)
+projectPredMort(params, n, n_pp, n_other, t = 0, pred_rate, ...)
+
+\method{projectPredMort}{MizerParams}(params, n, n_pp, n_other, t = 0, pred_rate, ...)
+
+mizerPredMort(params, n, n_pp, n_other, t = 0, pred_rate, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}

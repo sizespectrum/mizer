@@ -36,14 +36,27 @@ getDiffusion.MizerParams <- function(params, n = initialN(params),
                                      t = 0,
                                      ...) {
     params <- validParams(params)
-    f <- get(params@rates_funcs$Diffusion)
-    d <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-           feeding_level = getFeedingLevel(params, n = n, n_pp = n_pp,
-                                           n_other = n_other, t = t), ...)
+    feeding_level <- getFeedingLevel(params, n = n, n_pp = n_pp,
+                                     n_other = n_other, t = t)
+    if (usesExtensionDispatch(params)) {
+        d <- projectDiffusion(params, n = n, n_pp = n_pp, n_other = n_other,
+                              t = t, feeding_level = feeding_level, ...)
+    } else {
+        f <- get(params@rates_funcs$Diffusion)
+        d <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+               feeding_level = feeding_level, ...)
+    }
     ArraySpeciesBySize(d, value_name = "Diffusion rate",
                        units = "g^2/year", params = params)
 }
 
+#' @name mizerDiffusion
+#' @rdname mizerDiffusion
+#' @export
+projectDiffusion <- function(params, n, n_pp, n_other, t = 0,
+                             feeding_level, ...) {
+    UseMethod("projectDiffusion")
+}
 
 #' Calculate diffusion rate
 #'
@@ -69,8 +82,10 @@ getDiffusion.MizerParams <- function(params, n = initialN(params),
 #' @param ... Unused
 #'
 #' @return A two dimensional array (species x size) holding the diffusion rate.
+#' @rdname mizerDiffusion
 #' @export
-mizerDiffusion <- function(params, n, n_pp, n_other, t, feeding_level, ...) {
+projectDiffusion.MizerParams <- function(params, n, n_pp, n_other, t = 0,
+                                         feeding_level, ...) {
 
     if (missing(feeding_level)) {
         feeding_level <- getFeedingLevel(params, n = n, n_pp = n_pp,
@@ -114,6 +129,10 @@ mizerDiffusion <- function(params, n, n_pp, n_other, t, feeding_level, ...) {
 
     return(D)
 }
+
+#' @rdname mizerDiffusion
+#' @export
+mizerDiffusion <- projectDiffusion.MizerParams
 
 
 #' Get or set the use_predation_diffusion flag

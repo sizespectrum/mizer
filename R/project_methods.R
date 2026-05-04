@@ -140,60 +140,59 @@ projectRates.MizerParams <- function(params, n, n_pp, n_other,
     r$encounter <- projectEncounter(
         params, n = n, n_pp = n_pp, n_other = n_other, t = t, ...)
     # Calculate feeding level f_i(w)
-    r$feeding_level <- rates_fns$FeedingLevel(
+    r$feeding_level <- projectFeedingLevel(
         params, n = n, n_pp = n_pp, n_other = n_other,
         encounter = r$encounter, t = t, ...)
     # Calculate the energy available for reproduction and growth
-    r$e <- rates_fns$EReproAndGrowth(
+    r$e <- projectEReproAndGrowth(
         params, n = n, n_pp = n_pp, n_other = n_other,
         encounter = r$encounter, feeding_level = r$feeding_level, t = t, ...)
     # Calculate the energy for reproduction
-    r$e_repro <- rates_fns$ERepro(
+    r$e_repro <- projectERepro(
         params, n = n, n_pp = n_pp, n_other = n_other,
         e = r$e, t = t, ...)
     # Calculate the growth rate g_i(w)
-    r$e_growth <- rates_fns$EGrowth(
+    r$e_growth <- projectEGrowth(
         params, n = n, n_pp = n_pp, n_other = n_other,
         e_repro = r$e_repro, e = r$e, t = t, ...)
     # Calculate the diffusion rate D_i(w)
-    r$diffusion <- rates_fns$Diffusion(
+    r$diffusion <- projectDiffusion(
         params, n = n, n_pp = n_pp, n_other = n_other,
         feeding_level = r$feeding_level, t = t, ...)
 
     ## Mortality ----
     # Calculate the predation rate
-    r$pred_rate <- rates_fns$PredRate(
+    r$pred_rate <- projectPredRate(
         params, n = n, n_pp = n_pp, n_other = n_other,
         feeding_level = r$feeding_level, t = t, ...)
     # Calculate predation mortality on fish \mu_{p,i}(w)
-    r$pred_mort <- rates_fns$PredMort(
+    r$pred_mort <- projectPredMort(
         params, n = n, n_pp = n_pp, n_other = n_other,
         pred_rate = r$pred_rate, t = t, ...)
     # Calculate fishing mortality
-    r$f_mort <- rates_fns$FMort(
+    r$f_mort <- projectFMort(
         params, n = n, n_pp = n_pp, n_other = n_other,
         effort = effort, t = t,
         e_growth = r$e_growth, pred_mort = r$pred_mort, ...)
     # Calculate total mortality \mu_i(w)
-    r$mort <- rates_fns$Mort(
+    r$mort <- projectMort(
         params, n = n, n_pp = n_pp, n_other = n_other,
         f_mort = r$f_mort, pred_mort = r$pred_mort, t = t, ...)
 
     ## Reproduction ----
     # R_di
-    r$rdi <- rates_fns$RDI(
+    r$rdi <- projectRDI(
         params, n = n, n_pp = n_pp, n_other = n_other,
         e_growth = r$e_growth,
         mort = r$mort,
         e_repro = r$e_repro, t = t, ...)
     # R_dd
-    r$rdd <- rates_fns$RDD(
-        rdi = r$rdi, species_params = params@species_params,
-        params = params, t = t, ...)
+    r$rdd <- projectRDD(params, rdi = r$rdi, species_params = params@species_params,
+                        t = t, ...)
 
     ## Resource ----
     # Calculate mortality on the resource spectrum
-    r$resource_mort <- rates_fns$ResourceMort(
+    r$resource_mort <- projectResourceMort(
         params, n = n, n_pp = n_pp, n_other = n_other,
         pred_rate = r$pred_rate, t = t, ...)
 
@@ -361,6 +360,14 @@ projectEncounter.MizerParams <- function(params, n, n_pp, n_other,
 #' @export
 mizerEncounter <- projectEncounter.MizerParams
 
+#' @name mizerFeedingLevel
+#' @rdname mizerFeedingLevel
+#' @export
+projectFeedingLevel <- function(params, n, n_pp, n_other, t = 0,
+                                encounter, ...) {
+    UseMethod("projectFeedingLevel")
+}
+
 #' Get feeding level needed to project standard mizer model
 #'
 #' You would not usually call this function directly but instead use
@@ -402,10 +409,24 @@ mizerEncounter <- projectEncounter.MizerParams
 #' @return A two dimensional array (predator species x predator size) with the
 #'   feeding level.
 #'
+#' @rdname mizerFeedingLevel
 #' @export
 #' @family mizer rate functions
-mizerFeedingLevel <- function(params, n, n_pp, n_other, t, encounter, ...) {
+projectFeedingLevel.MizerParams <- function(params, n, n_pp, n_other, t = 0,
+                                            encounter, ...) {
     return(encounter / (encounter + params@intake_max))
+}
+
+#' @rdname mizerFeedingLevel
+#' @export
+mizerFeedingLevel <- projectFeedingLevel.MizerParams
+
+#' @name mizerEReproAndGrowth
+#' @rdname mizerEReproAndGrowth
+#' @export
+projectEReproAndGrowth <- function(params, n, n_pp, n_other, t = 0,
+                                   encounter, feeding_level, ...) {
+    UseMethod("projectEReproAndGrowth")
 }
 
 #' Get energy rate available for reproduction and growth  needed to project
@@ -458,14 +479,27 @@ mizerFeedingLevel <- function(params, n, n_pp, n_other, t, encounter, ...) {
 #' Your function will then be called instead of [mizerEReproAndGrowth()], with
 #' the same arguments.
 #'
+#' @rdname mizerEReproAndGrowth
 #' @export
 #' @family mizer rate functions
-mizerEReproAndGrowth <- function(params, n, n_pp, n_other, t, encounter,
-                                 feeding_level, ...) {
+projectEReproAndGrowth.MizerParams <- function(params, n, n_pp, n_other,
+                                               t = 0, encounter,
+                                               feeding_level, ...) {
 
     sweep((1 - feeding_level) * encounter, 1,
           params@species_params$alpha, "*", check.margin = FALSE) -
         params@metab
+}
+
+#' @rdname mizerEReproAndGrowth
+#' @export
+mizerEReproAndGrowth <- projectEReproAndGrowth.MizerParams
+
+#' @name mizerERepro
+#' @rdname mizerERepro
+#' @export
+projectERepro <- function(params, n, n_pp, n_other, t = 0, e, ...) {
+    UseMethod("projectERepro")
 }
 
 #' Get energy rate available for reproduction needed to project standard mizer
@@ -500,14 +534,27 @@ mizerEReproAndGrowth <- function(params, n, n_pp, n_other, t, encounter,
 #' reproduction. Negative entries in `e` are clipped to 0 before multiplying by
 #' \eqn{\psi_i(w)}. This proportion is taken from the `params` object and is set
 #' with [setReproduction()].
+#' @rdname mizerERepro
 #' @export
 #' @family mizer rate functions
-mizerERepro <- function(params, n, n_pp, n_other, t, e, ...) {
+projectERepro.MizerParams <- function(params, n, n_pp, n_other, t = 0,
+                                      e, ...) {
     # Because getEReproAndGrowth can return negative values,
     # we add an extra line here
     e[e < 0] <- 0 # Do not allow negative growth
 
     params@psi * e
+}
+
+#' @rdname mizerERepro
+#' @export
+mizerERepro <- projectERepro.MizerParams
+
+#' @name mizerEGrowth
+#' @rdname mizerEGrowth
+#' @export
+projectEGrowth <- function(params, n, n_pp, n_other, t = 0, e_repro, e, ...) {
+    UseMethod("projectEGrowth")
 }
 
 #' Get energy rate available for growth needed to project standard mizer model
@@ -542,14 +589,27 @@ mizerERepro <- function(params, n, n_pp, n_other, t, e, ...) {
 #'   [getERepro()].
 #'
 #' @return A two dimensional array (species x size) with the growth rates.
+#' @rdname mizerEGrowth
 #' @export
 #' @family mizer rate functions
-mizerEGrowth <- function(params, n, n_pp, n_other, t, e_repro, e, ...) {
+projectEGrowth.MizerParams <- function(params, n, n_pp, n_other, t = 0,
+                                       e_repro, e, ...) {
     g <- e - e_repro
     g[g < 0] <- 0 # Do not allow negative growth
     g
 }
 
+#' @rdname mizerEGrowth
+#' @export
+mizerEGrowth <- projectEGrowth.MizerParams
+
+#' @name mizerPredRate
+#' @rdname mizerPredRate
+#' @export
+projectPredRate <- function(params, n, n_pp, n_other, t = 0,
+                            feeding_level, ...) {
+    UseMethod("projectPredRate")
+}
 
 #' Get predation rate needed to project standard mizer model
 #'
@@ -580,9 +640,11 @@ mizerEGrowth <- function(params, n, n_pp, n_other, t, e_repro, e, ...) {
 #' @return A named two dimensional array (predator species x prey size) with the
 #'   predation rate, where the prey size runs over fish community plus resource
 #'   spectrum.
+#' @rdname mizerPredRate
 #' @export
 #' @family mizer rate functions
-mizerPredRate <- function(params, n, n_pp, n_other, t, feeding_level, ...) {
+projectPredRate.MizerParams <- function(params, n, n_pp, n_other, t = 0,
+                                        feeding_level, ...) {
     no_sp <- dim(params@interaction)[1]
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
@@ -622,6 +684,16 @@ mizerPredRate <- function(params, n, n_pp, n_other, t, feeding_level, ...) {
     return(pred_rate * params@ft_mask)
 }
 
+#' @rdname mizerPredRate
+#' @export
+mizerPredRate <- projectPredRate.MizerParams
+
+#' @name mizerPredMort
+#' @rdname mizerPredMort
+#' @export
+projectPredMort <- function(params, n, n_pp, n_other, t = 0, pred_rate, ...) {
+    UseMethod("projectPredMort")
+}
 
 #' Get total predation mortality rate needed to project standard mizer model
 #'
@@ -652,12 +724,18 @@ mizerPredRate <- function(params, n, n_pp, n_other, t, feeding_level, ...) {
 #' @return A two dimensional array (prey species x prey size) with the predation
 #'   mortality
 #' @family mizer rate functions
+#' @rdname mizerPredMort
 #' @export
-mizerPredMort <- function(params, n, n_pp, n_other, t, pred_rate, ...) {
+projectPredMort.MizerParams <- function(params, n, n_pp, n_other, t = 0,
+                                        pred_rate, ...) {
     idx_sp <- (length(params@w_full) -
                    length(params@w) + 1):length(params@w_full)
     return((base::t(params@interaction) %*% pred_rate[, idx_sp, drop = FALSE]))
 }
+
+#' @rdname mizerPredMort
+#' @export
+mizerPredMort <- projectPredMort.MizerParams
 
 #' Get the fishing mortality needed to project
 #' standard mizer model
@@ -682,6 +760,13 @@ mizerFMortGear <- function(params, effort) {
     return(out)
 }
 
+#' @name mizerFMort
+#' @rdname mizerFMort
+#' @export
+projectFMort <- function(params, n, n_pp, n_other, t = 0, effort,
+                         e_growth, pred_mort, ...) {
+    UseMethod("projectFMort")
+}
 
 #' Get the total fishing mortality rate from all fishing gears
 #'
@@ -713,11 +798,24 @@ mizerFMortGear <- function(params, effort) {
 #'
 #' @return An array (species x size) with the fishing mortality.
 #' @note Here: fishing mortality = catchability x selectivity x effort.
+#' @rdname mizerFMort
 #' @export
 #' @family mizer rate functions
-mizerFMort <- function(params, n, n_pp, n_other, t, effort,
-                       e_growth, pred_mort, ...) {
+projectFMort.MizerParams <- function(params, n, n_pp, n_other, t = 0,
+                                     effort, e_growth, pred_mort, ...) {
     colSums(mizerFMortGear(params, effort))
+}
+
+#' @rdname mizerFMort
+#' @export
+mizerFMort <- projectFMort.MizerParams
+
+#' @name mizerMort
+#' @rdname mizerMort
+#' @export
+projectMort <- function(params, n, n_pp, n_other, t = 0,
+                        f_mort, pred_mort, ...) {
+    UseMethod("projectMort")
 }
 
 #' Get total mortality rate needed to project standard mizer model
@@ -754,9 +852,11 @@ mizerFMort <- function(params, n, n_pp, n_other, t, effort,
 #'
 #' @return A named two dimensional array (species x size) with the total
 #'   mortality rates.
+#' @rdname mizerMort
 #' @export
 #' @family mizer rate functions
-mizerMort <- function(params, n, n_pp, n_other, t, f_mort, pred_mort, ...){
+projectMort.MizerParams <- function(params, n, n_pp, n_other, t = 0,
+                                    f_mort, pred_mort, ...) {
     mort <- pred_mort + params@mu_b + f_mort
     # Add contributions from other components
     for (i in seq_along(params@other_mort)) {
@@ -769,6 +869,17 @@ mizerMort <- function(params, n, n_pp, n_other, t, f_mort, pred_mort, ...){
     return(mort)
 }
 
+#' @rdname mizerMort
+#' @export
+mizerMort <- projectMort.MizerParams
+
+#' @name mizerResourceMort
+#' @rdname mizerResourceMort
+#' @export
+projectResourceMort <- function(params, n, n_pp, n_other, t = 0,
+                                pred_rate, ...) {
+    UseMethod("projectResourceMort")
+}
 
 #' Get predation mortality rate for resource needed to project standard mizer
 #' model
@@ -797,7 +908,13 @@ mizerMort <- function(params, n, n_pp, n_other, t, f_mort, pred_mort, ...){
 #'
 #' @return A vector of mortality rate by resource size.
 #' @family mizer rate functions
+#' @rdname mizerResourceMort
 #' @export
-mizerResourceMort <- function(params, n, n_pp, n_other, t, pred_rate, ...) {
+projectResourceMort.MizerParams <- function(params, n, n_pp, n_other, t = 0,
+                                            pred_rate, ...) {
     as.vector(params@species_params$interaction_resource %*% pred_rate)
 }
+
+#' @rdname mizerResourceMort
+#' @export
+mizerResourceMort <- projectResourceMort.MizerParams
