@@ -17,7 +17,7 @@
 # Four functions are the odd ones out because they also accept a MizerSim:
 # getFeedingLevel(object, n, n_pp,n_other, time_range, drop, ...)
 # getPredMort(object, n, n_pp,n_other, time_range, drop, ...)
-# getFMort(object, effort, time_range, drop)
+# getFMort(object, time_range, drop)
 # getFMortGear(object, effort, time_range)
 
 #' Get all rates
@@ -742,7 +742,7 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE) {
 }
 #'
 #' @export
-getFMort.MizerSim <- function(object, effort, time_range, drop = TRUE) {
+getFMort.MizerSim <- function(object, time_range, drop = TRUE) {
     sim <- object
     params <- sim@params
     f <- if (usesExtensionDispatch(params)) {
@@ -754,34 +754,25 @@ getFMort.MizerSim <- function(object, effort, time_range, drop = TRUE) {
         time_range <- dimnames(sim@effort)$time
     }
     time_elements <- get_time_elements(sim, time_range)
-    effort <- sim@effort[time_elements, , drop = FALSE]
-    n <- sim@n[time_elements, , , drop = FALSE]
-    n_pp <- sim@n_pp[time_elements, , drop = FALSE]
-    n_other <- sim@n_other[time_elements, , drop = FALSE]
-    times <- dimnames(effort)$time
-    f_mort <- array(0,
-                    dim = c(dim(effort)[[1]], dim(params@initial_n)),
-                    dimnames = c(list(time = times),
-                                 dimnames(params@initial_n)))
-    times <- as.numeric(times)
-    n_other_names <- colnames(n_other)
-    for (i in seq_len(dim(effort)[1])) {
-        n_i <- n[i, , , drop = FALSE]
-        dim(n_i) <- dim(n)[2:3]
-        dimnames(n_i) <- dimnames(n)[2:3]
-        n_other_i <- n_other[i, ]
-        names(n_other_i) <- n_other_names
+    f_mort_time <- plyr::aaply(which(time_elements), 1, function(x) {
+        n <- array(sim@n[x, , ], dim = dim(sim@n)[2:3])
+        dimnames(n) <- dimnames(sim@n)[2:3]
+        n_other <- sim@n_other[x, ]
+        names(n_other) <- dimnames(sim@n_other)$component
+        t <- as.numeric(dimnames(sim@n)$time[[x]])
+        n_pp <- sim@n_pp[x, ]
+        effort <- sim@effort[x, ]
         args <- list(
-            params = params, n = n_i, n_pp = n_pp[i, ],
-            n_other = n_other_i, effort = effort[i, ], t = times[i],
-            e_growth = getEGrowth(params, n = n_i, n_pp = n_pp[i, ],
-                                  n_other = n_other_i, t = times[i]),
-            pred_mort = getPredMort(params, n = n_i, n_pp = n_pp[i, ],
-                                    n_other = n_other_i,
-                                    time_range = times[i]))
-        f_mort[i, , ] <- do.call(f, args)
-    }
-    return(f_mort[, , , drop = drop])
+            params = params, n = n, n_pp = n_pp,
+            n_other = n_other, effort = effort, t = t,
+            e_growth = getEGrowth(params, n = n, n_pp = n_pp,
+                                  n_other = n_other, t = t),
+            pred_mort = getPredMort(params, n = n, n_pp = n_pp,
+                                    n_other = n_other, time_range = t))
+        do.call(f, args)
+    }, .drop = FALSE)
+    names(dimnames(f_mort_time))[[1]] <- "time"
+    return(f_mort_time[, , , drop = drop])
 }
 
 

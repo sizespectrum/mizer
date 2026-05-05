@@ -5,6 +5,14 @@
   resource abundance at positive consumption, the capacity is increased
   slightly with a warning instead of failing early.
 
+- Bug fix: `getFMort()` on a `MizerSim` object was silently dropping the
+  component names from `n_other` when passing it to the rate function and its
+  dependencies (`getEGrowth()`, `getPredMort()`). This caused failures whenever
+  the rate functions accessed `n_other` by component name (e.g.
+  `n_other[["resource"]]`). The internal implementation has also been
+  refactored to use the same `plyr::aaply` pattern as `getFeedingLevel()` and
+  `getPredMort()`, keeping the three methods consistent.
+
 - Added first-stage infrastructure for composable extension chains:
   `registerExtensions()`, `getRegisteredExtensions()`, and
   `coerceToExtensionClass()`. Extension classes are marker classes for S3
