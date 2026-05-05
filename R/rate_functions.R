@@ -764,17 +764,20 @@ getFMort.MizerSim <- function(object, effort, time_range, drop = TRUE) {
                     dimnames = c(list(time = times),
                                  dimnames(params@initial_n)))
     times <- as.numeric(times)
+    n_other_names <- colnames(n_other)
     for (i in seq_len(dim(effort)[1])) {
         n_i <- n[i, , , drop = FALSE]
         dim(n_i) <- dim(n)[2:3]
         dimnames(n_i) <- dimnames(n)[2:3]
+        n_other_i <- n_other[i, ]
+        names(n_other_i) <- n_other_names
         args <- list(
             params = params, n = n_i, n_pp = n_pp[i, ],
-            n_other = n_other[i, ], effort = effort[i, ], t = times[i],
+            n_other = n_other_i, effort = effort[i, ], t = times[i],
             e_growth = getEGrowth(params, n = n_i, n_pp = n_pp[i, ],
-                                  n_other = n_other[i, ], t = times[i]),
+                                  n_other = n_other_i, t = times[i]),
             pred_mort = getPredMort(params, n = n_i, n_pp = n_pp[i, ],
-                                    n_other = n_other[i, ],
+                                    n_other = n_other_i,
                                     time_range = times[i]))
         f_mort[i, , ] <- do.call(f, args)
     }

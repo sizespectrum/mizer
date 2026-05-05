@@ -254,3 +254,41 @@ test_that("initialNOther<- updates `time_modified`", {
     initialNOther(p2)$test <- 2
     expect_false(identical(p2@time_modified, p@time_modified))
 })
+
+# .MizerSim rate getters preserve n_other component names ----
+e$test_encounter_n_other <- function(params, n, n_pp, n_other, t = 0, ...) {
+    if (is.null(n_other[["my_comp"]])) stop("n_other component names were lost!")
+    mizerEncounter(params, n, n_pp, n_other, t, ...)
+}
+e$test_predrate_n_other <- function(params, n, n_pp, n_other, t = 0, ...) {
+    if (is.null(n_other[["my_comp"]])) stop("n_other component names were lost!")
+    mizerPredRate(params, n, n_pp, n_other, t, ...)
+}
+e$test_fmort_n_other <- function(params, n, n_pp, n_other, effort, t, ...) {
+    if (is.null(n_other[["my_comp"]])) stop("n_other component names were lost!")
+    mizerFMort(params, n, n_pp, n_other, effort, t, ...)
+}
+
+test_that("getFeedingLevel.MizerSim preserves n_other component names with time_range", {
+    p <- NS_params |>
+        setComponent("my_comp", 1, dynamics_fun = "test_dyn") |>
+        setRateFunction("Encounter", "test_encounter_n_other")
+    sim <- project(p, t_max = 3, dt = 1, t_save = 1)
+    expect_no_error(getFeedingLevel(sim, time_range = 2:3))
+})
+
+test_that("getPredMort.MizerSim preserves n_other component names with time_range", {
+    p <- NS_params |>
+        setComponent("my_comp", 1, dynamics_fun = "test_dyn") |>
+        setRateFunction("PredRate", "test_predrate_n_other")
+    sim <- project(p, t_max = 3, dt = 1, t_save = 1)
+    expect_no_error(getPredMort(sim, time_range = 2:3))
+})
+
+test_that("getFMort.MizerSim preserves n_other component names with time_range", {
+    p <- NS_params |>
+        setComponent("my_comp", 1, dynamics_fun = "test_dyn") |>
+        setRateFunction("FMort", "test_fmort_n_other")
+    sim <- project(p, t_max = 3, dt = 1, t_save = 1)
+    expect_no_error(getFMort(sim, time_range = 2:3))
+})
