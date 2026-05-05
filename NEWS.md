@@ -6,6 +6,11 @@
   dispatch, with `MizerSim` deriving its extension chain from
   `sim@params@extensions`.
 
+- `saveParams()` now serialises extension objects as plain `MizerParams`
+  objects while preserving their extension chain, and `readParams()` restores
+  the appropriate extension class. New `saveSim()` and `readSim()` helpers
+  provide the same lifecycle for `MizerSim` objects.
+
 - Added `projectRates()` and `projectEncounter()` as the first S3 hooks in the
   extension-chain rate pipeline. Extension-aware projections dispatch through
   `projectRates()`, while models without extensions keep using the pre-resolved
