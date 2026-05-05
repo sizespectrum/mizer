@@ -1,5 +1,15 @@
-# Helper called by setRateFunction() to verify the registered function returns
-# an array (or vector/list) of the correct dimensions.
+#' Check that a rate function returns the correct output dimensions
+#'
+#' Called by [setRateFunction()] to verify that a candidate rate function
+#' returns an array (or vector/list) of the correct dimensions for the
+#' requested rate.
+#'
+#' @param params A MizerParams object
+#' @param rate Name of the rate being replaced, e.g. `"Encounter"`.
+#' @param fun Name of the candidate function to validate.
+#' @return Invisibly `NULL`. Called for its side-effect of stopping with an
+#'   informative error if the output has the wrong shape.
+#' @keywords internal
 .checkRateFunctionOutput <- function(params, rate, fun) {
     no_sp  <- nrow(params@species_params)
     no_w   <- length(params@w)

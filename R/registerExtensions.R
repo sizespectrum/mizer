@@ -105,6 +105,12 @@ coerceToExtensionClass <- function(object, extensions = objectExtensions(object)
     methods::as(object, target_class)
 }
 
+#' Get the extension chain stored in a mizer object
+#'
+#' @param object A `MizerParams` or `MizerSim` object.
+#' @return A named character vector of extensions, or an empty character vector
+#'   if the object carries no extensions.
+#' @keywords internal
 objectExtensions <- function(object) {
     if (is(object, "MizerParams")) {
         return(object@extensions)
@@ -115,6 +121,20 @@ objectExtensions <- function(object) {
     stop("Can only get extensions for MizerParams or MizerSim objects.")
 }
 
+#' Assert that an object's extension chain is compatible with the session
+#'
+#' Stops with an informative error if the object's extension chain is not a
+#' suffix of the session's registered maximal chain, or (when `check_class` is
+#' `TRUE`) if the object does not inherit from the expected S4 marker class.
+#'
+#' @param object A `MizerParams` or `MizerSim` object.
+#' @param extensions Named character vector giving the object's extension chain.
+#'   Defaults to [objectExtensions()] applied to `object`.
+#' @param check_class Logical. If `TRUE` (default), also verify that `object`
+#'   inherits from the expected S4 marker class.
+#' @return Invisibly `TRUE`. Called for its side-effect of stopping on
+#'   incompatibility.
+#' @keywords internal
 assertExtensionChain <- function(object, extensions = objectExtensions(object),
                                  check_class = TRUE) {
     extensions <- validateExtensionsVector(extensions)
@@ -165,6 +185,14 @@ assertExtensionChain <- function(object, extensions = objectExtensions(object),
     invisible(TRUE)
 }
 
+#' Validate and normalise an extensions named character vector
+#'
+#' Checks that `extensions` is a named character vector with unique,
+#' syntactically valid names, and normalises `NULL` to `character()`.
+#'
+#' @param extensions A named character vector, or `NULL`.
+#' @return A validated named character vector (possibly length-zero).
+#' @keywords internal
 validateExtensionsVector <- function(extensions) {
     if (is.null(extensions)) {
         extensions <- character()
@@ -194,6 +222,13 @@ validateExtensionsVector <- function(extensions) {
     extensions
 }
 
+#' Compare two extension chains
+#'
+#' @param old Named character vector for the previously registered chain.
+#' @param new Named character vector for the proposed chain.
+#' @return One of `"identical"`, `"new_is_suffix"`, `"old_is_suffix"`, or
+#'   `"incompatible"`.
+#' @keywords internal
 compareExtensionChains <- function(old, new) {
     if (identical(old, new)) {
         return("identical")
@@ -207,6 +242,15 @@ compareExtensionChains <- function(old, new) {
     "incompatible"
 }
 
+#' Test whether one extension chain is a suffix of another
+#'
+#' An empty `candidate` is always a suffix. Order and values must match
+#' exactly for the overlapping tail.
+#'
+#' @param candidate Named character vector to test.
+#' @param chain Named character vector that may contain `candidate` as a tail.
+#' @return `TRUE` if `candidate` is a suffix of `chain`, `FALSE` otherwise.
+#' @keywords internal
 isSuffixChain <- function(candidate, chain) {
     candidate <- validateExtensionsVector(candidate)
     chain <- validateExtensionsVector(chain)
@@ -222,6 +266,17 @@ isSuffixChain <- function(candidate, chain) {
     identical(candidate, chain[start:length(chain)])
 }
 
+#' Define S4 marker classes for a set of dispatch extensions
+#'
+#' Creates a linear inheritance chain of S4 classes: the outermost extension
+#' extends the next, which extends the next, down to the base `MizerParams` /
+#' `MizerSim` class. Existing classes are checked for compatibility instead of
+#' being redefined.
+#'
+#' @param extensions Named character vector of extensions (full chain or
+#'   dispatch subset). Non-dispatch entries are silently ignored.
+#' @return Invisibly, the named character vector of dispatch extensions.
+#' @keywords internal
 defineExtensionClasses <- function(extensions) {
     extensions <- validateExtensionsVector(extensions)
     extensions <- dispatchExtensions(extensions)
@@ -240,6 +295,15 @@ defineExtensionClasses <- function(extensions) {
     invisible(extensions)
 }
 
+#' Filter an extension vector to those that participate in S3/S4 dispatch
+#'
+#' An extension participates in dispatch if its requirement is `NA_character_`
+#' (in-development) or if an S4 class with its name already exists.
+#'
+#' @param extensions Named character vector of extensions.
+#' @return A named character vector containing only the dispatch extensions,
+#'   preserving order.
+#' @keywords internal
 dispatchExtensions <- function(extensions) {
     extensions <- validateExtensionsVector(extensions)
     if (length(extensions) == 0) {
@@ -256,6 +320,11 @@ dispatchExtensions <- function(extensions) {
     extensions[is_dispatch_extension]
 }
 
+#' Test whether a mizer object uses extension S4 dispatch
+#'
+#' @param object A `MizerParams` or `MizerSim` object.
+#' @return `TRUE` if the object's primary class is not the plain base class.
+#' @keywords internal
 usesExtensionDispatch <- function(object) {
     if (is(object, "MizerParams")) {
         return(!identical(class(object)[[1]], "MizerParams"))
@@ -266,6 +335,16 @@ usesExtensionDispatch <- function(object) {
     stop("Can only check dispatch for MizerParams or MizerSim objects.")
 }
 
+#' Define an S4 class or verify it extends the expected parent
+#'
+#' If `class` does not yet exist, defines it as a virtual-free S4 class that
+#' contains `parent`, registered in `.GlobalEnv`. If `class` already exists,
+#' stops with an error unless it already extends `parent`.
+#'
+#' @param class Character string — the S4 class name to define or check.
+#' @param parent Character string — the required parent class.
+#' @return Invisibly, `class`.
+#' @keywords internal
 defineOrCheckClass <- function(class, parent) {
     if (!methods::isClass(class)) {
         methods::setClass(class, contains = parent, where = .GlobalEnv)
@@ -282,10 +361,27 @@ defineOrCheckClass <- function(class, parent) {
     invisible(class)
 }
 
+#' Derive the MizerSim marker class name for a given extension
+#'
+#' @param extension Character string — the extension (params) class name.
+#' @return A character string formed by appending `"Sim"` to `extension`.
+#' @keywords internal
 simExtensionClass <- function(extension) {
     paste0(extension, "Sim")
 }
 
+#' Load (and optionally install) namespaces for all non-NA extensions
+#'
+#' For each extension whose requirement is not `NA_character_`, checks that the
+#' package is installed, installs it if `install = TRUE` and it is missing,
+#' verifies the minimum version if the requirement is a version string, then
+#' calls [loadNamespace()].
+#'
+#' @param extensions Named character vector of extensions.
+#' @param install Logical. If `TRUE`, attempt to install missing packages via
+#'   [utils::install.packages()].
+#' @return Invisibly `TRUE`.
+#' @keywords internal
 ensureExtensionNamespaces <- function(extensions, install = FALSE) {
     extensions <- validateExtensionsVector(extensions)
     if (length(extensions) == 0) {
@@ -323,10 +419,21 @@ ensureExtensionNamespaces <- function(extensions, install = FALSE) {
     invisible(TRUE)
 }
 
+#' Test whether a requirement string is a dotted version number
+#'
+#' @param requirement Character string.
+#' @return `TRUE` if `requirement` matches `"X.Y.Z..."` (digits and dots only).
+#' @keywords internal
 isVersionRequirement <- function(requirement) {
     grepl("^[0-9]+(\\.[0-9]+)*$", requirement)
 }
 
+#' Format an extension chain as a human-readable string
+#'
+#' @param extensions Named character vector of extensions.
+#' @return A character string such as `"mizerExtB -> mizerExtA"`, or
+#'   `"<empty>"` for a zero-length chain.
+#' @keywords internal
 formatExtensionChain <- function(extensions) {
     if (length(extensions) == 0) {
         return("<empty>")
@@ -334,6 +441,15 @@ formatExtensionChain <- function(extensions) {
     paste(names(extensions), collapse = " -> ")
 }
 
+#' Strip extension classes from a mizer object
+#'
+#' Coerces a `MizerParams` or `MizerSim` object back to its plain base class,
+#' removing any S4 extension marker classes. For `MizerSim`, also strips the
+#' extension class from the embedded `params` slot.
+#'
+#' @param object A `MizerParams` or `MizerSim` object.
+#' @return The same object coerced to `MizerParams` or `MizerSim`.
+#' @keywords internal
 baseMizerClass <- function(object) {
     if (is(object, "MizerParams")) {
         methods::as(object, "MizerParams")
@@ -346,6 +462,13 @@ baseMizerClass <- function(object) {
     }
 }
 
+#' Reset the registered extension chain for the current R session
+#'
+#' Clears the session's extension registry. Primarily used in tests to restore
+#' a clean state between test cases.
+#'
+#' @return Invisibly, an empty character vector.
+#' @keywords internal
 resetMizerSession <- function() {
     .mizerSession$extensions <- character()
     invisible(character())
