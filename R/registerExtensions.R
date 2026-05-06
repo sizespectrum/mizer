@@ -6,19 +6,62 @@
 .mizerSession <- new.env(parent = emptyenv())
 .mizerSession$extensions <- character()
 
+#' Register a single mizer extension for this R session
+#'
+#' Prepends one extension to the front of the active extension chain, giving it
+#' the highest dispatch priority. Designed to be called from a package's
+#' `.onLoad` hook so that the chain grows naturally in load order: the last
+#' package loaded ends up outermost.
+#'
+#' The call is idempotent: if the extension is already registered at any
+#' position in the chain, the function returns silently without modifying the
+#' chain. This makes it safe to call from `devtools::load_all()`, which
+#' re-executes `.onLoad`.
+#'
+#' @param name A syntactically valid R name identifying the extension (e.g.
+#'   `"mizerExtA"`). This name is used as the S4 marker class name.
+#' @param requirement A version string, installation specification, or
+#'   `NA_character_` (the default). `NA_character_` marks an in-development
+#'   extension whose S4 marker class mizer creates automatically. A version
+#'   string such as `"1.2.0"` records the minimum required package version.
+#' @param install Logical. If `TRUE`, attempt to install a missing extension
+#'   package.
+#'
+#' @return The updated extension chain, invisibly.
+#' @seealso [registerExtensions()] for registering an explicit full chain.
+#' @export
+registerExtension <- function(name, requirement = NA_character_, install = FALSE) {
+    extension <- validateExtensionsVector(setNames(requirement, name))
+
+    current <- getRegisteredExtensions()
+
+    if (name %in% names(current)) {
+        return(invisible(current))
+    }
+
+    new_chain <- c(extension, current)
+    ensureExtensionNamespaces(new_chain, install = install)
+    defineExtensionClasses(new_chain)
+    .mizerSession$extensions <- new_chain
+
+    invisible(new_chain)
+}
+
 #' Register mizer extensions for this R session
 #'
-#' Registers the maximal extension chain that mizer should use in the current
-#' R session. The order of `extensions` is the S3 dispatch order, from
-#' outermost to innermost extension. For example
-#' `c(mizerExtB = "1.2.0", mizerExtA = "0.4.1")` dispatches to
-#' `mizerExtB` methods first, then `mizerExtA` methods, then base mizer
-#' methods.
+#' Registers an explicit full extension chain for the current R session. The
+#' order of `extensions` is the S3 dispatch order, from outermost to innermost
+#' extension. For example `c(mizerExtB = "1.2.0", mizerExtA = "0.4.1")`
+#' dispatches to `mizerExtB` methods first, then `mizerExtA` methods, then base
+#' mizer methods.
 #'
 #' A session can handle objects whose extension chain is a suffix of the
 #' registered maximal chain. For example, after registering
 #' `c(mizerExtB = "1.2.0", mizerExtA = "0.4.1")`, objects using only
 #' `c(mizerExtA = "0.4.1")` are also valid.
+#'
+#' For extension packages that register themselves incrementally from `.onLoad`,
+#' use [registerExtension()] instead.
 #'
 #' @param extensions A named character vector. Names are extension identifiers.
 #'   Values are version strings, installation specifications, or
@@ -31,6 +74,7 @@
 #'   only supports CRAN-style package installation by extension name.
 #'
 #' @return The active maximal extension chain, invisibly.
+#' @seealso [registerExtension()] for the incremental per-package variant.
 #' @export
 registerExtensions <- function(extensions, install = FALSE) {
     extensions <- validateExtensionsVector(extensions)
@@ -413,7 +457,12 @@ ensureExtensionNamespaces <- function(extensions, install = FALSE) {
             )
         }
 
-        loadNamespace(extension)
+        # Skip loadNamespace() when the namespace is already being loaded
+        # (e.g. when an extension package calls registerExtensions() from its
+        # own .onLoad hook), to avoid a cyclic namespace dependency error.
+        if (!isNamespaceLoaded(extension)) {
+            loadNamespace(extension)
+        }
     }
 
     invisible(TRUE)

@@ -22,16 +22,21 @@ only supports CRAN-style package installation by extension name.}
 The active maximal extension chain, invisibly.
 }
 \description{
-Registers the maximal extension chain that mizer should use in the current
-R session. The order of \code{extensions} is the S3 dispatch order, from
-outermost to innermost extension. For example
-\code{c(mizerExtB = "1.2.0", mizerExtA = "0.4.1")} dispatches to
-\code{mizerExtB} methods first, then \code{mizerExtA} methods, then base mizer
-methods.
+Registers an explicit full extension chain for the current R session. The
+order of \code{extensions} is the S3 dispatch order, from outermost to innermost
+extension. For example \code{c(mizerExtB = "1.2.0", mizerExtA = "0.4.1")}
+dispatches to \code{mizerExtB} methods first, then \code{mizerExtA} methods, then base
+mizer methods.
 }
 \details{
 A session can handle objects whose extension chain is a suffix of the
 registered maximal chain. For example, after registering
 \code{c(mizerExtB = "1.2.0", mizerExtA = "0.4.1")}, objects using only
 \code{c(mizerExtA = "0.4.1")} are also valid.
+
+For extension packages that register themselves incrementally from \code{.onLoad},
+use \code{\link[=registerExtension]{registerExtension()}} instead.
+}
+\seealso{
+\code{\link[=registerExtension]{registerExtension()}} for the incremental per-package variant.
 }

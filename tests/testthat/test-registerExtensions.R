@@ -129,6 +129,73 @@ test_that("classless extensions remain metadata only", {
     expect_identical(sim@params@extensions, chain)
 })
 
+test_that("registerExtension prepends to chain in load order", {
+    resetMizerSession()
+    withr::defer(resetMizerSession())
+
+    ext_a <- paste0("mizerTestIncA", Sys.getpid())
+    ext_b <- paste0("mizerTestIncB", Sys.getpid())
+
+    # A loads first (as a dependency of B would), then B prepends itself
+    registerExtension(ext_a)
+    expect_identical(getRegisteredExtensions(), setNames(NA_character_, ext_a))
+
+    registerExtension(ext_b)
+    expected <- setNames(rep(NA_character_, 2), c(ext_b, ext_a))
+    expect_identical(getRegisteredExtensions(), expected)
+
+    # B is outermost: extends A extends MizerParams
+    expect_true(methods::extends(ext_b, ext_a))
+    expect_true(methods::extends(ext_a, "MizerParams"))
+    expect_true(methods::extends(simExtensionClass(ext_b), simExtensionClass(ext_a)))
+    expect_true(methods::extends(simExtensionClass(ext_a), "MizerSim"))
+})
+
+test_that("registerExtension is idempotent", {
+    resetMizerSession()
+    withr::defer(resetMizerSession())
+
+    ext_a <- paste0("mizerTestIdemA", Sys.getpid())
+    ext_b <- paste0("mizerTestIdemB", Sys.getpid())
+
+    registerExtension(ext_a)
+    registerExtension(ext_b)
+    full_chain <- getRegisteredExtensions()
+
+    # Calling again for either extension leaves the chain unchanged
+    registerExtension(ext_a)
+    expect_identical(getRegisteredExtensions(), full_chain)
+
+    registerExtension(ext_b)
+    expect_identical(getRegisteredExtensions(), full_chain)
+})
+
+test_that("registerExtension coerces objects to correct subclass", {
+    resetMizerSession()
+    withr::defer(resetMizerSession())
+
+    ext_a <- paste0("mizerTestCoerceIncA", Sys.getpid())
+    ext_b <- paste0("mizerTestCoerceIncB", Sys.getpid())
+
+    registerExtension(ext_a)
+    registerExtension(ext_b)
+    full_chain <- getRegisteredExtensions()
+
+    # Object carrying only A's chain coerces to ext_a, not ext_b
+    params_a <- NS_params
+    params_a@extensions <- setNames(NA_character_, ext_a)
+    params_a <- coerceToExtensionClass(params_a)
+    expect_s4_class(params_a, ext_a)
+    expect_false(is(params_a, ext_b))
+
+    # Object carrying the full chain coerces to ext_b
+    params_b <- NS_params
+    params_b@extensions <- full_chain
+    params_b <- coerceToExtensionClass(params_b)
+    expect_s4_class(params_b, ext_b)
+    expect_true(is(params_b, ext_a))
+})
+
 test_that("readParams registers and coerces saved extension objects", {
     resetMizerSession()
     withr::defer(resetMizerSession())

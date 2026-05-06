@@ -322,6 +322,13 @@ change how a model object is analysed or displayed. Because mizer uses S3
 generics for many user-facing methods, you can define a formal S4 subclass and
 then write an S3 method for that subclass.
 
+This example shows the quick, script-level approach: you define classes
+directly with `setClass()` and promote objects by hand. It is useful for
+interactive exploration and one-off analyses. If you are writing an extension
+package intended for others to use — especially one that needs composable
+behaviour in the projection pipeline — see
+[Defining a dispatching extension subclass] for the recommended approach.
+
 To keep this example simple, we define subclasses without adding any new slots.
 The main purpose is just to distinguish your model type from plain
 `MizerParams` and `MizerSim` objects. For our example we will build on the
@@ -414,24 +421,34 @@ An extension subclass should be a marker class: it should not add slots. Store
 extension-specific settings in `other_params(params)`, component parameters, or
 standard mizer slots instead.
 
-In your extension package you would define classes like this:
+In your extension package define the params and sim classes with `setClass()`.
+The `contains` argument should name the immediate parent in the intended class
+hierarchy. For a standalone extension that does not build on another extension
+package, that parent is the mizer base class:
 
 ```{r eval = FALSE}
 setClass("mizerMyExtension", contains = "MizerParams")
 setClass("mizerMyExtensionSim", contains = "MizerSim")
 ```
 
-The class name should match the name used in the extension chain. For example:
+If your extension builds on top of another extension package (say
+`mizerBaseExtension`), inherit from that package's class instead:
 
 ```{r eval = FALSE}
-params@extensions <- c(mizerMyExtension = "0.1.0")
+setClass("mizerMyExtension", contains = "mizerBaseExtension")
+setClass("mizerMyExtensionSim", contains = "mizerBaseExtensionSim")
 ```
 
-When this object is validated or loaded with `readParams()`, mizer checks that
-the recorded extension chain is compatible with the current session and coerces
-the object to the appropriate marker class. If an extension recorded in
-`params@extensions` does not provide a marker class, it remains metadata-only
-and does not trigger projection dispatch.
+The class name must match the name used to register the extension (see
+[Registering your extension] below). mizer derives the sim class name by
+appending `"Sim"` to the params class name, so `"mizerMyExtension"` and
+`"mizerMyExtensionSim"` are a matching pair.
+
+When a params object is validated or loaded with `readParams()`, mizer checks
+that the recorded extension chain is compatible with the current session and
+coerces the object to the outermost applicable marker class. If an extension
+recorded in `params@extensions` does not provide a marker class, it remains
+metadata-only and does not trigger projection dispatch.
 
 ## Projection rate hooks
 
@@ -473,11 +490,34 @@ will dispatch through them in the order recorded in the extension chain. Each
 method can call `NextMethod()` to compose its change with the next extension and
 finally with the standard `MizerParams` method.
 
-## Registering an extension chain
+## Registering your extension
 
-The extension chain is a named character vector whose names are extension
-identifiers and whose values record version requirements or installation
-information. For example:
+Extension packages should register themselves with mizer from their `.onLoad`
+hook using `registerExtension()`:
+
+```{r eval = FALSE}
+.onLoad <- function(libname, pkgname) {
+    mizer::registerExtension("mizerMyExtension", requirement = "0.1.0")
+}
+```
+
+This prepends `"mizerMyExtension"` to the front of the session's extension
+chain, giving it the highest dispatch priority among currently loaded
+extensions. Because R always loads dependency packages before the package that
+depends on them, the dependent ends up outermost. For example, if
+`mizerOuterExtension` declares `mizerMyExtension` as a dependency, a user who
+calls `library(mizerOuterExtension)` will see:
+
+1. `mizerMyExtension` loads and registers → chain: `c(mizerMyExtension = "0.1.0")`
+2. `mizerOuterExtension` loads and registers → chain: `c(mizerOuterExtension = "0.2.0", mizerMyExtension = "0.1.0")`
+
+The call is idempotent: if the extension is already anywhere in the chain
+(for example because `devtools::load_all()` re-runs `.onLoad`), it returns
+silently without modifying the chain.
+
+For cases where you need explicit control over the full chain — for example
+when combining two independent extensions in a script — call
+`registerExtensions()` directly:
 
 ```{r eval = FALSE}
 registerExtensions(c(
@@ -486,20 +526,54 @@ registerExtensions(c(
 ))
 ```
 
-The order is the dispatch order, from outermost to innermost extension. A model
-using only a suffix of the registered chain can be used in the same session.
-This makes it possible to work with one model that uses both extensions and
-another model that only uses `mizerMyExtension`.
+## The `@extensions` slot in saved objects
 
-For package code, the key requirements are:
+The `@extensions` slot of a `MizerParams` object records the extension chain
+the object requires. mizer uses it to verify session compatibility and to
+coerce the object to the correct S4 class when it is loaded from disk.
 
-- define marker subclasses without extra slots if the package needs projection
-  dispatch,
-- export or register S3 methods for the relevant `project*()` generics,
-- store all extra state in ordinary mizer extension locations, not in new S4
-  slots,
-- record the extension in `params@extensions` so saved objects can be checked
-  and restored in a compatible session.
+The slot must contain the **full chain** that was active when the object was
+created, not just the topmost extension. Objects from `mizerMyExtension` (when
+loaded without any outer extension on top) should have:
+
+```{r eval = FALSE}
+params@extensions <- c(mizerMyExtension = "0.1.0")
+```
+
+Objects created in a session where `mizerOuterExtension` is also loaded should
+include both:
+
+```{r eval = FALSE}
+params@extensions <- c(mizerOuterExtension = "0.2.0", mizerMyExtension = "0.1.0")
+```
+
+A convenient way to set this when building data objects for a package is:
+
+```{r eval = FALSE}
+params@extensions <- getRegisteredExtensions()
+params <- coerceToExtensionClass(params)
+```
+
+`coerceToExtensionClass()` promotes the object to the S4 class corresponding
+to the outermost dispatch extension in `params@extensions`. An object whose
+chain is a shorter suffix of the session chain (for example, one carrying only
+`mizerMyExtension` in a session that also has `mizerOuterExtension` loaded)
+is left at the `mizerMyExtension` class — it is not promoted to
+`mizerOuterExtension` because it was not created with that extension.
+
+When a user loads a saved object with `readParams()`, mizer checks that the
+object's chain is a suffix of the registered session chain and re-coerces the
+object to the appropriate class automatically.
+
+## Checklist for package authors
+
+- Define marker subclasses with `setClass()` — no new slots.
+- Call `mizer::registerExtension()` in `.onLoad`.
+- Export or register S3 methods for the relevant `project*()` generics.
+- Store all extra state in ordinary mizer extension locations, not in new S4
+  slots.
+- Set `params@extensions <- getRegisteredExtensions()` when building data
+  objects destined for the package `data/` directory.
 
 
 # How custom rate functions are called
