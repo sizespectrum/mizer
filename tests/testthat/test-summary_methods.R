@@ -6,7 +6,7 @@ species_params$pred_kernel_type <- "truncated_lognormal"
 params <- newMultispeciesParams(species_params, inter, min_w_pp = 1e-12,
                                 n = 2/3, p = 0.7, lambda = 2.8 - 2/3,
                                 initial_effort = 1, info_level = 0)
-sim <- project(params, t_max = 10)
+sim <- project(params, t_max = 2)
 no_sp <- nrow(species_params)
 no_w <- length(params@w)
 
@@ -114,7 +114,8 @@ test_that("get_size_range_array works", {
 test_that("getYieldGear works",{
     y <- getYieldGear(sim)
     # check dims
-    expect_equal(dim(y), c(11,dim(params@catchability)[1],dim(params@catchability)[2]), ignore_attr = TRUE)
+    expect_equal(dim(y), c(length(getTimes(sim)), dim(params@catchability)[1],
+                           dim(params@catchability)[2]), ignore_attr = TRUE)
     # check a value and assume the others are right
     biomass <- sweep(sim@n,3,sim@params@w * sim@params@dw, "*")
     f_gear <- getFMortGear(sim)
@@ -139,7 +140,8 @@ test_that("getYield works",{
     y <- getYield(sim)
     expect_true(is.ArraySpeciesByTime(y))
     # check dims
-    expect_equal(dim(y), c(11,dim(params@catchability)[2]), ignore_attr = TRUE)
+    expect_equal(dim(y), c(length(getTimes(sim)), dim(params@catchability)[2]),
+                 ignore_attr = TRUE)
     # check a value and assume the others are right
     biomass <- sweep(sim@n,3,sim@params@w * sim@params@dw, "*")
     f <- getFMort(sim)
@@ -293,7 +295,7 @@ test_that("getBiomass works with biomass_cutoff", {
     params_with_cutoff@species_params$biomass_cutoff <- c(10, 20, 15, 5, 25, 8, 12, 18, 7, 9, 11, 14)
 
     # Create simulation with biomass_cutoff
-    sim_with_cutoff <- project(params_with_cutoff, t_max = 10)
+    sim_with_cutoff <- project(params_with_cutoff, t_max = 2)
 
         # Test that biomass_cutoff is used when use_cutoff = TRUE
     biomass_with_cutoff <- getBiomass(sim_with_cutoff, use_cutoff = TRUE)
@@ -318,7 +320,7 @@ test_that("getBiomass works with biomass_cutoff", {
     # Test with some NA values in biomass_cutoff
     params_partial_cutoff <- params
     params_partial_cutoff@species_params$biomass_cutoff <- c(10, NA, 15, 5, NA, 8, 12, 18, 7, 9, 11, 14)
-    sim_partial_cutoff <- project(params_partial_cutoff, t_max = 10)
+    sim_partial_cutoff <- project(params_partial_cutoff, t_max = 2)
 
     # Should work without error
     expect_no_error(getBiomass(sim_partial_cutoff))

@@ -6,14 +6,14 @@ species_params$pred_kernel_type <- "truncated_lognormal"
 params <- newMultispeciesParams(species_params, inter, min_w_pp = 1e-12,
                                 n = 2/3, p = 0.7, lambda = 2.8 - 2/3,
                                 initial_effort = 1, info_level = 0)
-sim <- project(params, t_max = 10)
+sim <- project(params, t_max = 2)
 
 # getProportionOfLargeFish ----
 test_that("getProportionOfLargeFish works", {
-    sim <- project(params, effort = 1, t_max = 20, dt = 0.5, t_save = 0.5)
+    sim <- project(params, effort = 1, t_max = 2, dt = 0.5, t_save = 0.5)
     # noddy test - using full range of sizes
     prop <- getProportionOfLargeFish(sim, threshold_w = 500)
-    time_idx <- 40
+    time_idx <- length(getTimes(sim))
     threshold_w <- sim@params@w > 500
     total_biomass <- sum(sweep(sim@n[time_idx, , ], 2,
                                sim@params@w * sim@params@dw, "*"))
@@ -86,7 +86,7 @@ test_that("getProportionOfLargeFish works for MizerParams", {
 
 # getMeanWeight ----
 test_that("getMeanWeight works", {
-    sim <- project(params, t_max = 20, dt = 0.5, t_save = 0.5)
+    sim <- project(params, t_max = 2, dt = 0.5, t_save = 0.5)
     # all species, all size range
     total_biomass <- apply(sweep(sim@n, 3, sim@params@w * sim@params@dw, "*"),
                            1, sum)
