@@ -24,6 +24,12 @@
 #'   fished by already existing gear. Should not include effort values
 #'   for existing gear. New gear for which no effort is set via this
 #'   vector will have an initial effort of 0.
+#' @param steady If `TRUE` (default), runs [steadySingleSpecies()] to
+#'   initialise the new species at their single-species steady state and
+#'   retuning their reproductive efficiencies. Set to `FALSE` when the caller
+#'   (e.g. an extension package using `NextMethod()`) needs to make further
+#'   changes to the params object before that steady-state calculation can be
+#'   run successfully.
 #' @param info_level Controls the amount of information messages that are shown
 #'   when the function sets default values for parameters. Higher levels lead
 #'   to more messages. Set to 0 to suppress all such messages.
@@ -66,7 +72,7 @@
 #' @rdname addSpecies
 addSpecies <- function(params, species_params,
                        gear_params = data.frame(), initial_effort,
-                       interaction, info_level = 3, ...) {
+                       interaction, steady = TRUE, info_level = 3, ...) {
     UseMethod("addSpecies")
 }
 
@@ -114,7 +120,7 @@ copyParamsComments <- function(params, old_params) {
 #' @export
 addSpecies.MizerParams <- function(params, species_params, gear_params = data.frame(),
                                    initial_effort = NULL, interaction = NULL,
-                                   info_level = 3, ...) {
+                                   steady = TRUE, info_level = 3, ...) {
     # check validity of parameters ----
     original_params <- params
     params <- validParams(params)
@@ -307,40 +313,43 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
 
     # initial solution ----
     p@initial_n[old_sp, old_w] <- params@initial_n
-    # Turn off self-interaction among the new species, so we can determine the
-    # growth rates, and death rates induced upon them by the pre-existing species
-    p@interaction[new_sp, new_sp] <- 0
 
-    # Compute solution for new species
-    p <- steadySingleSpecies(p, species = new_sp)
+    if (steady) {
+        # Turn off self-interaction among the new species, so we can determine the
+        # growth rates, and death rates induced upon them by the pre-existing species
+        p@interaction[new_sp, new_sp] <- 0
 
-    # set low abundance ----
-    for (i in new_sp) {
-        # Normalise solution so that it is never more than 1/100th of the
-        # Sheldon spectrum.
-        # We look at the maximum of abundance times w^lambda
-        # because that is always an increasing function at small size.
-        idx <- which.max(p@initial_n[i, ] * p@w^p@resource_params$lambda)
-        p@initial_n[i, ] <- p@initial_n[i, ] *
-            p@resource_params$kappa * p@w[idx]^(-p@resource_params$lambda) /
-            p@initial_n[i, idx] / 100
-        p@species_params$is_background[i] <- FALSE
+        # Compute solution for new species
+        p <- steadySingleSpecies(p, species = new_sp)
+
+        # set low abundance ----
+        for (i in new_sp) {
+            # Normalise solution so that it is never more than 1/100th of the
+            # Sheldon spectrum.
+            # We look at the maximum of abundance times w^lambda
+            # because that is always an increasing function at small size.
+            idx <- which.max(p@initial_n[i, ] * p@w^p@resource_params$lambda)
+            p@initial_n[i, ] <- p@initial_n[i, ] *
+                p@resource_params$kappa * p@w[idx]^(-p@resource_params$lambda) /
+                p@initial_n[i, idx] / 100
+            p@species_params$is_background[i] <- FALSE
+        }
+
+        if (any(is.infinite(p@initial_n))) {
+            stop("Candidate steady state holds infinities.")
+        }
+        if (any(is.na(p@initial_n) | is.nan(p@initial_n))) {
+            stop("Candidate steady state holds non-numeric values.")
+        }
+
+        # Turn self interaction back on
+        p@interaction[new_sp, new_sp] <- inter[new_sp, new_sp]
+
+        # Retune reproductive efficiencies of new species
+        repro_level <- rep(1 / 4, length(new_sp))
+        names(repro_level) <- p@species_params$species[new_sp]
+        p <- setBevertonHolt(p, reproduction_level = repro_level)
     }
-
-    if (any(is.infinite(p@initial_n))) {
-        stop("Candidate steady state holds infinities.")
-    }
-    if (any(is.na(p@initial_n) | is.nan(p@initial_n))) {
-        stop("Candidate steady state holds non-numeric values.")
-    }
-
-    # Turn self interaction back on
-    p@interaction[new_sp, new_sp] <- inter[new_sp, new_sp]
-
-    # Retune reproductive efficiencies of new species
-    repro_level <- rep(1 / 4, length(new_sp))
-    names(repro_level) <- p@species_params$species[new_sp]
-    p <- setBevertonHolt(p, reproduction_level = repro_level)
 
     p <- restoreParamsClass(p, target_class)
 

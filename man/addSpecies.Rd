@@ -10,6 +10,7 @@ addSpecies(
   gear_params = data.frame(),
   initial_effort,
   interaction,
+  steady = TRUE,
   info_level = 3,
   ...
 )
@@ -34,6 +35,13 @@ interaction coefficients between all species or only those between the new
 species. In the latter case all interaction between an old and a new
 species are set to 1. If this argument is missing, all interactions
 involving a new species are set to 1.}
+
+\item{steady}{If \code{TRUE} (default), runs \code{\link[=steadySingleSpecies]{steadySingleSpecies()}} to
+initialise the new species at their single-species steady state and
+retuning their reproductive efficiencies. Set to \code{FALSE} when the caller
+(e.g. an extension package using \code{NextMethod()}) needs to make further
+changes to the params object before that steady-state calculation can be
+run successfully.}
 
 \item{info_level}{Controls the amount of information messages that are shown
 when the function sets default values for parameters. Higher levels lead
