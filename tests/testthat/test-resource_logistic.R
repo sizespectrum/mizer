@@ -95,6 +95,22 @@ test_that("balance_resource_logistic validates balancing inputs", {
                  "capacity is less than the current abundance")
 })
 
+test_that("balance_resource_logistic nudges capacity to avoid division by zero", {
+    params <- NS_params
+    capacity <- initialNResource(params)
+    death <- getResourceMort(params) * capacity != 0
+
+    expect_warning(
+        balanced <- balance_resource_logistic(params,
+                                              resource_rate = NULL,
+                                              resource_capacity = capacity),
+        "division by zero"
+    )
+
+    expect_true(all(is.finite(balanced$resource_rate)))
+    expect_true(all(balanced$resource_capacity[death] > capacity[death]))
+})
+
 test_that("balance_resource_logistic keeps current capacity when unidentifiable", {
     params <- newTraitParams()
     initialN(params)[] <- 0

@@ -1,5 +1,10 @@
 # Development version 2.5.4.9102
 
+- `setResource()` now allows `resource_level = 1`. When balancing would
+  otherwise divide by zero because the resource capacity equals the current
+  resource abundance at positive consumption, the capacity is increased
+  slightly with a warning instead of failing early.
+
 - Added first-stage infrastructure for composable extension chains:
   `registerExtensions()`, `getRegisteredExtensions()`, and
   `coerceToExtensionClass()`. Extension classes are marker classes for S3

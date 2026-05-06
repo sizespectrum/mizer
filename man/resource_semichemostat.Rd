@@ -78,8 +78,9 @@ as calculated by \code{\link[=getResourceMort]{getResourceMort()}}. It should be
 \code{resource_rate} or \code{resource_capacity} and returns a named list with values
 for both. If \code{resource_rate} is supplied it must be positive wherever the
 current resource mortality is positive. If \code{resource_capacity} is supplied it
-must be greater than the current resource abundance wherever there is
-positive consumption.
+must not be less than the current resource abundance. Where it equals the
+current resource abundance and there is positive consumption, it is nudged
+upwards slightly to avoid division by zero.
 }
 \seealso{
 \code{\link[=setResource]{setResource()}}

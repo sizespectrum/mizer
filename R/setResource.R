@@ -69,10 +69,11 @@
 #' @param resource_capacity Optional. Vector of resource intrinsic carrying
 #'   capacities or coefficient in the power-law for the capacity, see
 #'   "Setting resource dynamics" below.
-#'   The resource capacity must be larger than the resource abundance.
+#'   The resource capacity must not be smaller than the resource abundance.
 #' @param resource_level Optional. The ratio between the current resource number
 #'   density and the resource capacity. Either a number used at all sizes or a
-#'   vector specifying a value for each size. Must be strictly between 0 and 1,
+#'   vector specifying a value for each size. Must be greater than 0 and at
+#'   most 1,
 #'   except at sizes where the resource is zero, where it can be `NaN`. This
 #'   determines the resource capacity, so do not specify both this and
 #'   `resource_capacity`.
@@ -172,8 +173,8 @@ setResource.MizerParams <- function(params,
             stop("The resource level must be defined everywhere where the current resource is non-vanishing.")
         }
         if (any(NR > 0 &
-                (resource_level <= 0 | resource_level >= 1))) {
-            stop("The 'resource_level' must always be strictly between 0 and 1.")
+                (resource_level <= 0 | resource_level > 1))) {
+            stop("The 'resource_level' must always be greater than 0 and at most 1.")
         }
         resource_capacity <- NR / resource_level
         resource_capacity[is.nan(resource_level)] <- 0
@@ -244,13 +245,6 @@ setResource.MizerParams <- function(params,
         if (num_args == 0) {
             # no values given, so use previous resource_rate
             resource_rate <- params@rr_pp
-        }
-
-        # For balancing the resource capacity must be above current abundance
-        # except where both are zero
-        if (!is.null(resource_capacity) &&
-            any(resource_capacity <= NR & NR > 0)) {
-            stop("The 'resource_capacity' must always be greater than current resource number density.")
         }
 
         balance_fn <- get0(paste0("balance_", params@resource_dynamics))

@@ -123,7 +123,7 @@ Must be strictly positive.}
 \item{resource_capacity}{Optional. Vector of resource intrinsic carrying
 capacities or coefficient in the power-law for the capacity, see
 "Setting resource dynamics" below.
-The resource capacity must be larger than the resource abundance.}
+The resource capacity must not be smaller than the resource abundance.}
 
 \item{lambda}{Used to set power-law exponent for resource capacity if the
 \code{resource_capacity} argument is given as a single number.}

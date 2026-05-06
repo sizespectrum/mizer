@@ -90,8 +90,26 @@ test_that("balance_resource_semichemostat validates balancing inputs", {
     expect_error(balance_resource_semichemostat(
         params,
         resource_rate = NULL,
-        resource_capacity = initialNResource(params)
-    ), "capacity is greater than the current abundance wherever there is consumption")
+        resource_capacity = initialNResource(params) * 0.9
+    ), "capacity is less than the current abundance")
+})
+
+test_that("balance_resource_semichemostat nudges capacity to avoid division by zero", {
+    params <- NS_params
+    capacity <- initialNResource(params)
+    death <- getResourceMort(params) * capacity != 0
+
+    expect_warning(
+        balanced <- balance_resource_semichemostat(
+            params,
+            resource_rate = NULL,
+            resource_capacity = capacity
+        ),
+        "division by zero"
+    )
+
+    expect_true(all(is.finite(balanced$resource_rate)))
+    expect_true(all(balanced$resource_capacity[death] > capacity[death]))
 })
 
 test_that("balance_resource_semichemostat keeps current rate when unidentifiable", {
