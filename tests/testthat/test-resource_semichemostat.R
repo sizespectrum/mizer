@@ -1,6 +1,8 @@
+trait_resource_semichemostat_params <- newTraitParams()
+
 test_that("resource_semichemostat preserves steady state", {
     # Set resource parameters so that we are at steady state
-    params <- newTraitParams()
+    params <- trait_resource_semichemostat_params
     params <- setResource(params,
                           resource_capacity = 2 * initialNResource(params),
                           resource_dynamics = "resource_semichemostat")
@@ -25,7 +27,7 @@ test_that("resource_semichemostat evolves towards steady state", {
     # a large factor s and simultaneously scaling up the plankton abundance
     # so as to keep the income of the fish constant.
     s <- 1e10
-    params <- newTraitParams()
+    params <- trait_resource_semichemostat_params
     species_params(params)$gamma <- species_params(params)$gamma / s
     initialNResource(params) <- initialNResource(params) * s
     # Set resource parameters so that we are at steady state
@@ -113,7 +115,7 @@ test_that("balance_resource_semichemostat nudges capacity to avoid division by z
 })
 
 test_that("balance_resource_semichemostat keeps current rate when unidentifiable", {
-    params <- newTraitParams()
+    params <- trait_resource_semichemostat_params
     initialN(params)[] <- 0
     keep <- params@rr_pp[1]
     capacity <- initialNResource(params)

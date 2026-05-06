@@ -1,7 +1,36 @@
 
+example_manipulate_params <- example_params()
+trait_manipulate_params <- newTraitParams()
+small_trait_manipulate_params <- newTraitParams(no_sp = 2)
+small_trait_grid_manipulate_params <- newTraitParams(no_sp = 2, no_w = 36,
+                                                     info_level = 0)
+ns_manipulate_params <- newMultispeciesParams(NS_species_params,
+                                              info_level = 0)
+ns_manipulate_params_36 <- newMultispeciesParams(
+    NS_species_params,
+    no_w = 36,
+    max_w = 39900,
+    min_w_pp = 9e-14,
+    info_level = 0
+)
+remove_ns_species <- NS_species_params$species[2:11]
+reduced_ns_species_params <-
+    NS_species_params[!(NS_species_params$species %in% remove_ns_species), ]
+reduced_ns_manipulate_params_36 <- newMultispeciesParams(
+    reduced_ns_species_params,
+    no_w = 36,
+    max_w = 39900,
+    min_w_pp = 9e-14,
+    info_level = 0
+)
+lower_ns_species_params <- NS_species_params
+lower_ns_species_params$species <- tolower(lower_ns_species_params$species)
+lower_ns_manipulate_params <- newMultispeciesParams(lower_ns_species_params,
+                                                    info_level = 0)
+
 # addSpecies ----
 test_that("addSpecies works when adding a second identical species", {
-    p <- newTraitParams()
+    p <- trait_manipulate_params
     no_sp <- nrow(p@species_params)
     species_params <- p@species_params[5, ]
     species_params$species <- "new"
@@ -16,13 +45,13 @@ test_that("addSpecies works when adding a second identical species", {
 
 })
 test_that("addSpecies does not allow duplicate species", {
-    p <- example_params()
+    p <- example_manipulate_params
     species_params <- p@species_params[3, ]
     expect_error(addSpecies(p, species_params),
                  "You can not add species that are already there.")
 })
 test_that("addSpecies handles gear params correctly", {
-    p <- newTraitParams(no_sp = 2)
+    p <- small_trait_manipulate_params
     sp <- data.frame(species = c("new1", "new2"),
                      w_max = c(10, 100),
                      k_vb = c(4, 1),
@@ -64,7 +93,7 @@ test_that("addSpecies handles gear params correctly", {
 })
 
 test_that("addSpecies handles interaction matrix correctly", {
-    p <- newTraitParams(no_sp = 2)
+    p <- small_trait_manipulate_params
     p <- setInteraction(p, interaction = matrix(1:4/8, ncol = 2))
     sp <- data.frame(species = c("new1", "new2"),
                      w_max = c(10, 100),
@@ -96,7 +125,7 @@ test_that("addSpecies works when adding a species with a larger w_max", {
     sp <- data.frame(species = "Blue whale", w_max = 5e4,
                      w_mat = 1e3, beta = 1000, sigma = 2,
                      k_vb = 0.6, gear = 'Whale hunter')
-    params <- example_params()
+    params <- example_manipulate_params
     # change a slot to test that such changes will be preserved
     params <- setMaxIntakeRate(params, 2 * getMaxIntakeRate(params))
 
@@ -133,7 +162,7 @@ test_that("addSpecies has other documented properties", {
                      k_vb = c(4, 1),
                      n = 2 / 3,
                      p = 2 / 3)
-    (p <- addSpecies(example_params(), sp)) |>
+    (p <- addSpecies(example_manipulate_params, sp)) |>
         expect_message()
 
     # New species have 0 reproduction level
@@ -148,7 +177,7 @@ test_that("addSpecies has other documented properties", {
 
 test_that("Added species stay at low abundance", {
     # Use example from man page
-    params <- newTraitParams()
+    params <- trait_manipulate_params
     species_params <- data.frame(
         species = "mullet",
         w_max = 173,
@@ -167,7 +196,7 @@ test_that("Added species stay at low abundance", {
 
 test_that("addSpecies preserves both given and other species params", {
 
-    params <- newTraitParams()
+    params <- trait_manipulate_params
     params@given_species_params$b <- 3
     params@species_params$w_mat25 <- params@species_params$w_mat25 * 1.01
     sp <- data.frame(species = "new",
@@ -206,7 +235,7 @@ randomise_upgrade_preserved_slots <- function(params) {
 
 test_that("addSpecies preserves slots recently added to upgradeParams", {
     set.seed(42)
-    params <- newTraitParams(no_sp = 2, no_w = 36, info_level = 0)
+    params <- small_trait_grid_manipulate_params
     params <- randomise_upgrade_preserved_slots(params)
 
     sp <- data.frame(species = "new", w_max = 10, k_vb = 1)
@@ -229,8 +258,7 @@ test_that("addSpecies preserves the class", {
     if (!methods::isClass("AddSpeciesTestParams")) {
         methods::setClass("AddSpeciesTestParams", contains = "MizerParams")
     }
-    params <- as(newTraitParams(no_sp = 2, no_w = 36, info_level = 0),
-                 "AddSpeciesTestParams")
+    params <- as(small_trait_grid_manipulate_params, "AddSpeciesTestParams")
     sp <- data.frame(species = "new", w_max = 10, k_vb = 1)
     p <- suppressWarnings(suppressMessages(
         addSpecies(params, sp, info_level = 0)
@@ -242,15 +270,11 @@ test_that("addSpecies preserves the class", {
 
 # removeSpecies ----
 test_that("removeSpecies works", {
-    remove <- NS_species_params$species[2:11]
-    reduced <- NS_species_params[!(NS_species_params$species %in% remove), ]
-    params <- newMultispeciesParams(NS_species_params, no_w = 36,
-                                    max_w = 39900, min_w_pp = 9e-14,
-                                    info_level = 0)
+    remove <- remove_ns_species
+    params <- ns_manipulate_params_36
     p1 <- removeSpecies(params, species = remove)
     expect_equal(nrow(p1@species_params), nrow(params@species_params) - 10)
-    p2 <- newMultispeciesParams(reduced, no_w = 36,
-                                max_w = 39900, min_w_pp = 9e-14, info_level = 0)
+    p2 <- reduced_ns_manipulate_params_36
     p2@linecolour[2] = "#a08dfb" # update line colour
     expect_equal(p1, p2, ignore_attr = TRUE)
     sim1 <- project(p1, t_max = 0.4, t_save = 0.4)
@@ -260,17 +284,17 @@ test_that("removeSpecies works", {
 test_that("removeSpecies works with 3d pred kernel", {
     # It should make no difference whether we first set full pred kernel and
     # then remove a species, or the other way around.
-    params1 <- example_params()
+    params1 <- example_manipulate_params
     sp_name <- params1@species_params$species[3]
     params1 <- setPredKernel(params1, pred_kernel = getPredKernel(params1))
     params1 <- removeSpecies(params1, sp_name)
-    params2 <- example_params()
+    params2 <- example_manipulate_params
     params2 <- removeSpecies(params2, sp_name)
     params2 <- setPredKernel(params2, pred_kernel = getPredKernel(params2))
     expect_unchanged(params1, params2)
 })
 test_that("removeSpecies works correctly on gear_params", {
-    p <- example_params()
+    p <- example_manipulate_params
     sp_name <- p@species_params$species[3]
     params <- removeSpecies(p, sp_name)
     expect_equal(nrow(params@gear_params), 1)
@@ -287,7 +311,7 @@ test_that("removeSpecies accepts numeric and logical selectors", {
 })
 
 test_that("adding and then removing species leaves params unaltered", {
-    params <- newMultispeciesParams(NS_species_params, info_level = 0)
+    params <- ns_manipulate_params
     # two arbitrary species
     sp <- data.frame(species = c("new1", "new2"),
                      w_max = c(10, 100),
@@ -322,12 +346,11 @@ test_that("adding and then removing species leaves params unaltered", {
 
 # renameSpecies ----
 test_that("renameSpecies works", {
-    sp <- NS_species_params
-    p <- newMultispeciesParams(sp, info_level = 0)
-    sp$species <- tolower(sp$species)
+    sp <- lower_ns_species_params
+    p <- ns_manipulate_params
     replace <- NS_species_params$species
     names(replace) <- sp$species
-    p2 <- newMultispeciesParams(sp, info_level = 0)
+    p2 <- lower_ns_manipulate_params
     p2 <- renameSpecies(p2, replace)
     p2@time_modified <- p@time_modified
     p2@time_created <- p@time_created
@@ -346,13 +369,14 @@ test_that("renameSpecies updates linked species names", {
     expect_true(all(replace %in% dimnames(getCatchability(p))$sp))
 })
 test_that("renameSpecies warns on wrong names", {
-    expect_error(renameSpecies(example_params(), c(Kod = "cod", Hadok = "haddock")),
+    expect_error(renameSpecies(example_manipulate_params,
+                               c(Kod = "cod", Hadok = "haddock")),
                  "Kod, Hadok do not exist")
 })
 
 # renameGear ----
 test_that("renameGear works", {
-    p <- example_params()
+    p <- example_manipulate_params
     # Get original gear names
     original_gears <- dimnames(p@selectivity)$gear
     gear1 <- original_gears[1]
@@ -396,7 +420,8 @@ test_that("renameGear works", {
 })
 
 test_that("renameGear warns on wrong names", {
-    expect_error(renameGear(example_params(), c(Trawler = "New_Trawl", NonExistent = "Other")),
+    expect_error(renameGear(example_manipulate_params,
+                            c(Trawler = "New_Trawl", NonExistent = "Other")),
                  "Trawler, NonExistent do not exist")
 })
 
@@ -420,7 +445,7 @@ test_that("expandSizeGrid preserves existing data", {
 
 test_that("expandSizeGrid preserves slots recently added to upgradeParams", {
     set.seed(42)
-    params <- newTraitParams(no_sp = 2, no_w = 36, info_level = 0)
+    params <- small_trait_grid_manipulate_params
     params <- randomise_upgrade_preserved_slots(params)
 
     p <- expandSizeGrid(params, new_max_w = max(params@w) * 10)
@@ -440,8 +465,7 @@ test_that("expandSizeGrid preserves the class", {
     if (!methods::isClass("ExpandGridTestParams")) {
         methods::setClass("ExpandGridTestParams", contains = "MizerParams")
     }
-    params <- as(newTraitParams(no_sp = 2, no_w = 36, info_level = 0),
-                 "ExpandGridTestParams")
+    params <- as(small_trait_grid_manipulate_params, "ExpandGridTestParams")
     p <- expandSizeGrid(params, new_max_w = max(params@w) * 10)
 
     expect_s4_class(p, "ExpandGridTestParams")
@@ -450,7 +474,7 @@ test_that("expandSizeGrid preserves the class", {
 
 # time_modified ----
 test_that("addSpecies updates `time_modified`", {
-    p <- newMultispeciesParams(NS_species_params, info_level = 0)
+    p <- ns_manipulate_params
     sp <- data.frame(species = "new", w_max = 100, k_vb = 1)
     p2 <- suppressMessages(addSpecies(p, sp))
     expect_false(identical(p2@time_modified, p@time_modified))
@@ -467,7 +491,7 @@ test_that("renameSpecies updates `time_modified`", {
 })
 
 test_that("renameGear updates `time_modified`", {
-    p <- example_params()
+    p <- example_manipulate_params
     gear1 <- dimnames(p@selectivity)$gear[[1]]
     p2 <- renameGear(p, setNames("new_gear", gear1))
     expect_false(identical(p2@time_modified, p@time_modified))

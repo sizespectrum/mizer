@@ -1,5 +1,13 @@
+example_animate_sim <- project(example_params(), t_max = 2, t_save = 1,
+                               effort = 1)
+example_animate_long_sim <- project(example_params(), t_max = 5, t_save = 1,
+                                    effort = 1)
+example_animate_high_effort_sim <- project(example_params(), t_max = 2,
+                                           t_save = 1, effort = 10)
+ns_animate_sim <- project(NS_params, t_max = 2, t_save = 1, effort = 1)
+
 test_that("animateSpectra does not throw error", {
-    sim <- project(example_params(), t_max = 2, t_save = 1, effort = 1)
+    sim <- example_animate_sim
     sp <- sim@params@species_params$species
     expect_error(animateSpectra(sim, species = sp[1:2],
                                 time_range = c(1, 2),
@@ -11,13 +19,13 @@ test_that("animateSpectra does not throw error", {
 })
 
 test_that("animateSpectra returns a plotly object", {
-    sim <- project(example_params(), t_max = 2, t_save = 1, effort = 1)
+    sim <- example_animate_sim
     result <- animateSpectra(sim, time_range = c(1, 2))
     expect_s3_class(result, "plotly")
 })
 
 test_that("animateSpectra handles species parameter correctly", {
-    sim <- project(example_params(), t_max = 2, t_save = 1, effort = 1)
+    sim <- example_animate_sim
 
     # Test with specific species
     sp <- sim@params@species_params$species
@@ -34,7 +42,7 @@ test_that("animateSpectra handles species parameter correctly", {
 })
 
 test_that("animateSpectra handles time_range parameter correctly", {
-    sim <- project(example_params(), t_max = 5, t_save = 1, effort = 1)
+    sim <- example_animate_long_sim
 
     # Test with min/max vector
     expect_error(animateSpectra(sim, time_range = c(1, 3)), NA)
@@ -47,7 +55,7 @@ test_that("animateSpectra handles time_range parameter correctly", {
 })
 
 test_that("animateSpectra handles wlim parameter with NA values", {
-    sim <- project(example_params(), t_max = 2, t_save = 1, effort = 1)
+    sim <- example_animate_sim
 
     # Test with both NA (should use defaults)
     expect_error(animateSpectra(sim, wlim = c(NA, NA), time_range = c(1, 2)), NA)
@@ -63,7 +71,7 @@ test_that("animateSpectra handles wlim parameter with NA values", {
 })
 
 test_that("animateSpectra handles ylim parameter with NA values", {
-    sim <- project(example_params(), t_max = 2, t_save = 1, effort = 1)
+    sim <- example_animate_sim
 
     # Test with both NA (should use defaults)
     expect_error(animateSpectra(sim, ylim = c(NA, NA), time_range = c(1, 2)), NA)
@@ -79,7 +87,7 @@ test_that("animateSpectra handles ylim parameter with NA values", {
 })
 
 test_that("animateSpectra handles power parameter correctly", {
-    sim <- project(example_params(), t_max = 2, t_save = 1, effort = 1)
+    sim <- example_animate_sim
 
     # Test with power = 0 (Number density)
     result <- animateSpectra(sim, power = 0, time_range = c(1, 2))
@@ -99,7 +107,7 @@ test_that("animateSpectra handles power parameter correctly", {
 })
 
 test_that("animateSpectra handles total parameter correctly", {
-    sim <- project(example_params(), t_max = 2, t_save = 1, effort = 1)
+    sim <- example_animate_sim
 
     # Test with total = FALSE (default)
     result <- animateSpectra(sim, total = FALSE, time_range = c(1, 2))
@@ -111,7 +119,7 @@ test_that("animateSpectra handles total parameter correctly", {
 })
 
 test_that("animateSpectra handles resource parameter correctly", {
-    sim <- project(example_params(), t_max = 2, t_save = 1, effort = 1)
+    sim <- example_animate_sim
 
     # Test with resource = TRUE (default)
     result <- animateSpectra(sim, resource = TRUE, time_range = c(1, 2))
@@ -123,7 +131,7 @@ test_that("animateSpectra handles resource parameter correctly", {
 })
 
 test_that("animateSpectra validates input parameters", {
-    sim <- project(example_params(), t_max = 2, t_save = 1, effort = 1)
+    sim <- example_animate_sim
 
     # Test invalid wlim length
     expect_error(animateSpectra(sim, wlim = c(1), time_range = c(1, 2)))
@@ -135,7 +143,7 @@ test_that("animateSpectra validates input parameters", {
 })
 
 test_that("animateSpectra uses consistent colors matching linecolour", {
-    sim <- project(example_params(), t_max = 2, t_save = 1, effort = 1)
+    sim <- example_animate_sim
 
     # Get the result
     sp <- sim@params@species_params$species
@@ -159,7 +167,7 @@ test_that("animateSpectra uses consistent colors matching linecolour", {
 
 test_that("animateSpectra maintains color consistency when species go extinct", {
     # Create a simulation where a species might have very low abundance
-    sim <- project(example_params(), t_max = 2, t_save = 1, effort = 10)
+    sim <- example_animate_high_effort_sim
 
     # Test with species selection
     sp <- sim@params@species_params$species
@@ -181,7 +189,7 @@ test_that("animateSpectra maintains color consistency when species go extinct", 
 })
 
 test_that("animateSpectra adds resource and total traces when requested", {
-    sim <- project(NS_params, t_max = 2, t_save = 1, effort = 1)
+    sim <- ns_animate_sim
 
     built_plot <- plotly::plotly_build(
         animateSpectra(sim,
@@ -219,7 +227,7 @@ test_that("animateSpectra handles background parameter correctly", {
     expect_false("Background" %in% trace_names_off)
 
     # background = TRUE on a model with no background species adds no "Background" trace
-    sim_plain <- project(NS_params, t_max = 2, t_save = 1, effort = 1)
+    sim_plain <- ns_animate_sim
     built_plain <- plotly::plotly_build(
         animateSpectra(sim_plain, species = "Cod", time_range = c(1, 2),
                        resource = FALSE, background = TRUE)
@@ -229,7 +237,7 @@ test_that("animateSpectra handles background parameter correctly", {
 })
 
 test_that("animateSpectra sets the y axis title from power", {
-    sim <- project(NS_params, t_max = 2, t_save = 1, effort = 1)
+    sim <- ns_animate_sim
 
     built0 <- plotly::plotly_build(animateSpectra(sim, species = "Cod",
                                                   time_range = c(1, 2),
