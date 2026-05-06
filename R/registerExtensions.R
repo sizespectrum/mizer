@@ -69,9 +69,11 @@ registerExtension <- function(name, requirement = NA_character_, install = FALSE
 #'   they provide an S4 marker class with the same name. `NA_character_` entries
 #'   are treated as in-development dispatch extensions and mizer creates their
 #'   marker classes automatically.
-#' @param install Logical. If `TRUE`, missing extension packages may be
-#'   installed. Installation support is intentionally conservative and currently
-#'   only supports CRAN-style package installation by extension name.
+#' @param install Logical. If `TRUE`, missing or outdated extension packages are
+#'   installed via [pak::pkg_install()]. Version strings install from CRAN;
+#'   other requirement strings (e.g. `"user/repo@v1.2.0"`) are passed directly
+#'   to pak and may refer to GitHub, local paths, or any other pak-supported
+#'   source.
 #'
 #' @return The active maximal extension chain, invisibly.
 #' @seealso [registerExtension()] for the incremental per-package variant.
@@ -417,13 +419,12 @@ simExtensionClass <- function(extension) {
 #' Load (and optionally install) namespaces for all non-NA extensions
 #'
 #' For each extension whose requirement is not `NA_character_`, checks that the
-#' package is installed, installs it if `install = TRUE` and it is missing,
-#' verifies the minimum version if the requirement is a version string, then
-#' calls [loadNamespace()].
+#' package is installed and up-to-date, installs or upgrades via
+#' [pak::pkg_install()] if `install = TRUE`, then calls [loadNamespace()].
 #'
 #' @param extensions Named character vector of extensions.
-#' @param install Logical. If `TRUE`, attempt to install missing packages via
-#'   [utils::install.packages()].
+#' @param install Logical. If `TRUE`, install or upgrade missing/outdated
+#'   packages via [pak::pkg_install()].
 #' @return Invisibly `TRUE`.
 #' @keywords internal
 ensureExtensionNamespaces <- function(extensions, install = FALSE) {
@@ -442,7 +443,12 @@ ensureExtensionNamespaces <- function(extensions, install = FALSE) {
 
         if (!requireNamespace(extension, quietly = TRUE)) {
             if (isTRUE(install)) {
-                utils::install.packages(extension)
+                pkg_spec <- if (isVersionRequirement(requirement)) {
+                    extension
+                } else {
+                    requirement
+                }
+                pak::pkg_install(pkg_spec)
             }
             if (!requireNamespace(extension, quietly = TRUE)) {
                 stop("Required extension package `", extension, "` is not installed.")
@@ -451,10 +457,14 @@ ensureExtensionNamespaces <- function(extensions, install = FALSE) {
 
         if (isVersionRequirement(requirement) &&
             utils::packageVersion(extension) < package_version(requirement)) {
-            stop(
-                "Extension package `", extension, "` must be at least ",
-                "version ", requirement, "."
-            )
+            if (isTRUE(install)) {
+                pak::pkg_install(paste0(extension, "@>=", requirement))
+            } else {
+                stop(
+                    "Extension package `", extension, "` must be at least ",
+                    "version ", requirement, ". Use `install = TRUE` to upgrade."
+                )
+            }
         }
 
         # Skip loadNamespace() when the namespace is already being loaded
