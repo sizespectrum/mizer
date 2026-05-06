@@ -70,12 +70,55 @@ addSpecies <- function(params, species_params,
     UseMethod("addSpecies")
 }
 
+getPreservedParamsClass <- function(original_params, params) {
+    original_class <- class(original_params)[[1]]
+    target_class <- class(params)[[1]]
+    if (identical(target_class, "MizerParams") &&
+        !identical(original_class, "MizerParams")) {
+        return(original_class)
+    }
+    target_class
+}
+
+restoreParamsClass <- function(params, target_class) {
+    if (target_class != "MizerParams") {
+        params <- as(params, target_class)
+    }
+    params
+}
+
+copyPreservedParamsSlots <- function(params, old_params) {
+    params@other_dynamics <- old_params@other_dynamics
+    params@initial_n_other <- old_params@initial_n_other
+    params@other_encounter <- old_params@other_encounter
+    params@other_mort <- old_params@other_mort
+    params@other_params <- old_params@other_params
+    params@rates_funcs <- old_params@rates_funcs
+    params@use_predation_diffusion <- old_params@use_predation_diffusion
+
+    params@metadata <- old_params@metadata
+    params@time_created <- old_params@time_created
+    params@mizer_version <- old_params@mizer_version
+    params@extensions <- old_params@extensions
+    params
+}
+
+copyParamsComments <- function(params, old_params) {
+    comment(params) <- comment(old_params)
+    for (slot in slotNames(params)) {
+        comment(slot(params, slot)) <- comment(slot(old_params, slot))
+    }
+    params
+}
+
 #' @export
 addSpecies.MizerParams <- function(params, species_params, gear_params = data.frame(),
                                    initial_effort = NULL, interaction = NULL,
                                    info_level = 3, ...) {
     # check validity of parameters ----
+    original_params <- params
     params <- validParams(params)
+    target_class <- getPreservedParamsClass(original_params, params)
     given_species_params <- validGivenSpeciesParams(species_params)
     species_params <- validSpeciesParams(species_params)
     gear_params <- validGearParams(gear_params, species_params)
@@ -236,10 +279,7 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
     p@resource_params <- params@resource_params
 
     # Preserve comments ----
-    comment(p) <- comment(params)
-    for (slot in (slotNames(p))) {
-        comment(slot(p, slot)) <- comment(slot(params, slot))
-    }
+    p <- copyParamsComments(p, params)
 
     # Copy old data ----
     # selector for old w bins inside new w
@@ -255,16 +295,7 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
     p@search_vol[old_sp, old_w] <- params@search_vol
     p@metab[old_sp, old_w] <- params@metab
 
-    p@other_dynamics <- params@other_dynamics
-    p@other_encounter <- params@other_encounter
-    p@other_mort <- params@other_mort
-    p@other_params <- params@other_params
-    p@rates_funcs <- params@rates_funcs
-
-    p@metadata <- params@metadata
-    p@time_created <- params@time_created
-    p@mizer_version <- params@mizer_version
-    p@extensions <- params@extensions
+    p <- copyPreservedParamsSlots(p, params)
 
     # The following does not affect the new species but preserves
     # any changes the user might have made in the original params object
@@ -311,10 +342,7 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
     names(repro_level) <- p@species_params$species[new_sp]
     p <- setBevertonHolt(p, reproduction_level = repro_level)
 
-    # Preserve subclass of params
-    if (class(params)[[1]] != "MizerParams") {
-        p <- as(p, class(params)[[1]])
-    }
+    p <- restoreParamsClass(p, target_class)
 
     return(p)
 }
@@ -532,6 +560,7 @@ expandSizeGrid.MizerParams <- function(params,
                            new_max_w = max(params@w),
                            preserve_species = params@species_params$species,
                            ...) {
+    target_class <- class(params)[[1]]
     sp_sel <- valid_species_arg(params, preserve_species, return.logical = TRUE)
     min_w <- min(params@w)
     max_w <- max(params@w)
@@ -606,6 +635,7 @@ expandSizeGrid.MizerParams <- function(params,
     p@sc[old_w] <- params@sc
     p@mu_b[sp_sel, old_w] <- params@mu_b[sp_sel, ]
     p@ext_encounter[sp_sel, old_w] <- params@ext_encounter[sp_sel, ]
+    p@ext_diffusion[sp_sel, old_w] <- params@ext_diffusion[sp_sel, ]
     p@intake_max[sp_sel, old_w] <- params@intake_max[sp_sel, ]
     p@search_vol[sp_sel, old_w] <- params@search_vol[sp_sel, ]
     p@metab[sp_sel, old_w] <- params@metab[sp_sel, ]
@@ -618,31 +648,16 @@ expandSizeGrid.MizerParams <- function(params,
 
     # Step 4: Preserve other slots and metadata ----
     p@given_species_params <- params@given_species_params
-    p@other_dynamics <- params@other_dynamics
-    p@other_encounter <- params@other_encounter
-    p@other_mort <- params@other_mort
-    p@other_params <- params@other_params
-    p@rates_funcs <- params@rates_funcs
-
-    p@metadata <- params@metadata
-    p@time_created <- params@time_created
-    p@mizer_version <- params@mizer_version
-    p@extensions <- params@extensions
+    p <- copyPreservedParamsSlots(p, params)
     p <- setColours(p, params@linecolour)
     p <- setLinetypes(p, params@linetype)
 
     # Preserve comments
-    comment(p) <- comment(params)
-    for (slot in (slotNames(p))) {
-        comment(slot(p, slot)) <- comment(slot(params, slot))
-    }
+    p <- copyParamsComments(p, params)
 
     p <- validParams(p)
 
-    # Preserve subclass of params
-    if (class(params)[[1]] != "MizerParams") {
-        p <- as(p, class(params)[[1]])
-    }
+    p <- restoreParamsClass(p, target_class)
 
     return(p)
 }

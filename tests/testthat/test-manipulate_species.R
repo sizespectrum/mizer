@@ -182,6 +182,64 @@ test_that("addSpecies preserves both given and other species params", {
     expect_in("test", names(p@given_species_params))
 })
 
+randomise_upgrade_preserved_slots <- function(params) {
+    component <- "random_component"
+    zero_rate <- function(params, n, n_pp, n_other, component, ...) {
+        params@ext_encounter * 0
+    }
+    zero_mort <- function(params, n, n_pp, n_other, component, ...) {
+        params@mu_b * 0
+    }
+
+    params@ext_diffusion[] <- runif(length(params@ext_diffusion), max = 1e-6)
+    params@initial_n_other <- stats::setNames(list(runif(4)), component)
+    params@other_dynamics <- stats::setNames(list("random_dynamics"), component)
+    params@other_encounter <- stats::setNames(list(zero_rate), component)
+    params@other_mort <- stats::setNames(list(zero_mort), component)
+    params@other_params <- stats::setNames(list(list(values = runif(3))),
+                                           component)
+    params@other_params$other <- list(values = runif(2))
+    params@use_predation_diffusion <- TRUE
+    attr(params@rates_funcs, "random") <- runif(2)
+    params
+}
+
+test_that("addSpecies preserves slots recently added to upgradeParams", {
+    set.seed(42)
+    params <- newTraitParams(no_sp = 2, no_w = 20, info_level = 0)
+    params <- randomise_upgrade_preserved_slots(params)
+
+    sp <- data.frame(species = "new", w_max = 10, k_vb = 1)
+    p <- suppressWarnings(suppressMessages(
+        addSpecies(params, sp, info_level = 0)
+    ))
+    old_sp <- seq_len(nrow(params@species_params))
+    old_w <- seq_along(params@w)
+
+    expect_equal(p@ext_diffusion[old_sp, old_w], params@ext_diffusion,
+                 ignore_attr = TRUE)
+    for (slot in c("initial_n_other", "other_dynamics", "other_encounter",
+                   "other_mort", "other_params", "rates_funcs",
+                   "use_predation_diffusion")) {
+        expect_identical(slot(p, slot), slot(params, slot))
+    }
+})
+
+test_that("addSpecies preserves the class", {
+    if (!methods::isClass("AddSpeciesTestParams")) {
+        methods::setClass("AddSpeciesTestParams", contains = "MizerParams")
+    }
+    params <- as(newTraitParams(no_sp = 2, no_w = 20, info_level = 0),
+                 "AddSpeciesTestParams")
+    sp <- data.frame(species = "new", w_max = 10, k_vb = 1)
+    p <- suppressWarnings(suppressMessages(
+        addSpecies(params, sp, info_level = 0)
+    ))
+
+    expect_s4_class(p, "AddSpeciesTestParams")
+    expect_true(validObject(p))
+})
+
 # removeSpecies ----
 test_that("removeSpecies works", {
     remove <- NS_species_params$species[2:11]
@@ -367,6 +425,36 @@ test_that("expandSizeGrid preserves existing data", {
     params@linecolour <- NS_params@linecolour
     params@linetype <- NS_params@linetype
     expect_identical(compareParams(params, NS_params), "No differences")
+})
+
+test_that("expandSizeGrid preserves slots recently added to upgradeParams", {
+    set.seed(42)
+    params <- newTraitParams(no_sp = 2, no_w = 20, info_level = 0)
+    params <- randomise_upgrade_preserved_slots(params)
+
+    p <- expandSizeGrid(params, new_max_w = max(params@w) * 10)
+    old_sp <- seq_len(nrow(params@species_params))
+    old_w <- seq_along(params@w)
+
+    expect_equal(p@ext_diffusion[old_sp, old_w], params@ext_diffusion,
+                 ignore_attr = TRUE)
+    for (slot in c("initial_n_other", "other_dynamics", "other_encounter",
+                   "other_mort", "other_params", "rates_funcs",
+                   "use_predation_diffusion")) {
+        expect_identical(slot(p, slot), slot(params, slot))
+    }
+})
+
+test_that("expandSizeGrid preserves the class", {
+    if (!methods::isClass("ExpandGridTestParams")) {
+        methods::setClass("ExpandGridTestParams", contains = "MizerParams")
+    }
+    params <- as(newTraitParams(no_sp = 2, no_w = 20, info_level = 0),
+                 "ExpandGridTestParams")
+    p <- expandSizeGrid(params, new_max_w = max(params@w) * 10)
+
+    expect_s4_class(p, "ExpandGridTestParams")
+    expect_true(validObject(p))
 })
 
 # time_modified ----
