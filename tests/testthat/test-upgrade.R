@@ -68,3 +68,23 @@ test_that("upgradeParams updates `time_modified`", {
     p2 <- suppressMessages(upgradeParams(p))
     expect_false(identical(p2@time_modified, p@time_modified))
 })
+
+test_that("upgradeParams preserves subclass information", {
+    if (!methods::isClass("TestMizerParams")) {
+        methods::setClass(
+            "TestMizerParams",
+            contains = "MizerParams",
+            slots = c(extra = "character"),
+            prototype = list(extra = "default")
+        )
+    }
+    p <- as(NS_params, "TestMizerParams")
+    p@extra <- "custom"
+    p@mizer_version <- "2.0.0"
+
+    p2 <- suppressMessages(upgradeParams(p))
+
+    expect_s4_class(p2, "TestMizerParams")
+    expect_identical(p2@extra, "custom")
+    expect_true(validObject(p2))
+})

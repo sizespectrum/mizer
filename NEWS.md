@@ -187,6 +187,8 @@
 
 - `getMeanMaxWeight()` now correctly applies the species selector to the
   denominator.
+- `upgradeParams()` now preserves `MizerParams` subclasses and their extra
+  slots when upgrading older objects.
 - `plotDataFrame()` now correctly applies custom log-scale x breaks.
 - `get_size_range_array()` no longer gives an error when no size brackets are
   selected.
