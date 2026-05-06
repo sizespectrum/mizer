@@ -206,7 +206,7 @@ randomise_upgrade_preserved_slots <- function(params) {
 
 test_that("addSpecies preserves slots recently added to upgradeParams", {
     set.seed(42)
-    params <- newTraitParams(no_sp = 2, no_w = 20, info_level = 0)
+    params <- newTraitParams(no_sp = 2, no_w = 36, info_level = 0)
     params <- randomise_upgrade_preserved_slots(params)
 
     sp <- data.frame(species = "new", w_max = 10, k_vb = 1)
@@ -229,7 +229,7 @@ test_that("addSpecies preserves the class", {
     if (!methods::isClass("AddSpeciesTestParams")) {
         methods::setClass("AddSpeciesTestParams", contains = "MizerParams")
     }
-    params <- as(newTraitParams(no_sp = 2, no_w = 20, info_level = 0),
+    params <- as(newTraitParams(no_sp = 2, no_w = 36, info_level = 0),
                  "AddSpeciesTestParams")
     sp <- data.frame(species = "new", w_max = 10, k_vb = 1)
     p <- suppressWarnings(suppressMessages(
@@ -244,12 +244,12 @@ test_that("addSpecies preserves the class", {
 test_that("removeSpecies works", {
     remove <- NS_species_params$species[2:11]
     reduced <- NS_species_params[!(NS_species_params$species %in% remove), ]
-    params <- newMultispeciesParams(NS_species_params, no_w = 20,
+    params <- newMultispeciesParams(NS_species_params, no_w = 36,
                                     max_w = 39900, min_w_pp = 9e-14,
                                     info_level = 0)
     p1 <- removeSpecies(params, species = remove)
     expect_equal(nrow(p1@species_params), nrow(params@species_params) - 10)
-    p2 <- newMultispeciesParams(reduced, no_w = 20,
+    p2 <- newMultispeciesParams(reduced, no_w = 36,
                                 max_w = 39900, min_w_pp = 9e-14, info_level = 0)
     p2@linecolour[2] = "#a08dfb" # update line colour
     expect_equal(p1, p2, ignore_attr = TRUE)
@@ -415,21 +415,12 @@ test_that("expandSizeGrid works", {
 
 test_that("expandSizeGrid preserves existing data", {
     params <- expandSizeGrid(NS_params)
-    params@time_modified <- NS_params@time_modified
-    expect_true(all(names(NS_params@linecolour) %in% names(params@linecolour)))
-    expect_identical(params@linecolour[names(NS_params@linecolour)],
-                     NS_params@linecolour)
-    expect_true(all(names(NS_params@linetype) %in% names(params@linetype)))
-    expect_identical(params@linetype[names(NS_params@linetype)],
-                     NS_params@linetype)
-    params@linecolour <- NS_params@linecolour
-    params@linetype <- NS_params@linetype
-    expect_identical(compareParams(params, NS_params), "No differences")
+    expect_unchanged(params, NS_params)
 })
 
 test_that("expandSizeGrid preserves slots recently added to upgradeParams", {
     set.seed(42)
-    params <- newTraitParams(no_sp = 2, no_w = 20, info_level = 0)
+    params <- newTraitParams(no_sp = 2, no_w = 36, info_level = 0)
     params <- randomise_upgrade_preserved_slots(params)
 
     p <- expandSizeGrid(params, new_max_w = max(params@w) * 10)
@@ -449,7 +440,7 @@ test_that("expandSizeGrid preserves the class", {
     if (!methods::isClass("ExpandGridTestParams")) {
         methods::setClass("ExpandGridTestParams", contains = "MizerParams")
     }
-    params <- as(newTraitParams(no_sp = 2, no_w = 20, info_level = 0),
+    params <- as(newTraitParams(no_sp = 2, no_w = 36, info_level = 0),
                  "ExpandGridTestParams")
     p <- expandSizeGrid(params, new_max_w = max(params@w) * 10)
 
