@@ -657,6 +657,14 @@ expandSizeGrid.MizerParams <- function(params,
 
     p <- validParams(p)
 
+    # validParams() may add recently introduced default species parameters
+    # and the constructor may reorder plot metadata. expandSizeGrid() should
+    # preserve the original user-visible metadata exactly.
+    p@species_params <- params@species_params
+    p@given_species_params <- params@given_species_params
+    p@linecolour <- params@linecolour
+    p@linetype <- params@linetype
+
     p <- restoreParamsClass(p, target_class)
 
     return(p)
