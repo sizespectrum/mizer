@@ -33,6 +33,7 @@ needs_upgrading <- function(object) {
 #' @seealso [validParams()]
 upgradeParams <- function(params) {
     if (!needs_upgrading(params)) return(params)
+    original_params <- params
 
     # Preserve time_created
     if (.hasSlot(params, "time_created")) {
@@ -374,6 +375,23 @@ upgradeParams <- function(params) {
     params <- validParams(params, info_level = 0)
     params@time_modified <- lubridate::now()
     params@time_created <- time_created
+    reinstateParamsClass(params, original_params)
+}
+
+reinstateParamsClass <- function(params, original_params) {
+    original_class <- class(original_params)[[1]]
+    if (identical(original_class, "MizerParams")) {
+        return(params)
+    }
+
+    params <- as(params, original_class)
+    extra_slots <- setdiff(slotNames(original_params), slotNames("MizerParams"))
+    for (slot in extra_slots) {
+        if (.hasSlot(params, slot)) {
+            slot(params, slot) <- slot(original_params, slot)
+        }
+    }
+    validObject(params)
     params
 }
 
