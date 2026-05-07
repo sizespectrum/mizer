@@ -30,7 +30,7 @@
 #' @return The updated extension chain, invisibly.
 #' @seealso [registerExtensions()] for registering an explicit full chain.
 #' @export
-#' @family extensions
+#' @family extension tools
 registerExtension <- function(name, requirement = NA_character_, install = FALSE) {
     extension <- validateExtensionsVector(setNames(requirement, name))
 
@@ -79,7 +79,7 @@ registerExtension <- function(name, requirement = NA_character_, install = FALSE
 #' @return The active maximal extension chain, invisibly.
 #' @seealso [registerExtension()] for the incremental per-package variant.
 #' @export
-#' @family extensions
+#' @family extension tools
 registerExtensions <- function(extensions, install = FALSE) {
     extensions <- validateExtensionsVector(extensions)
     old <- getRegisteredExtensions()
@@ -108,7 +108,7 @@ registerExtensions <- function(extensions, install = FALSE) {
 #' @return A named character vector giving the maximal extension chain
 #'   registered for this R session.
 #' @export
-#' @family extensions
+#' @family extension tools
 getRegisteredExtensions <- function() {
     .mizerSession$extensions
 }
@@ -126,7 +126,7 @@ getRegisteredExtensions <- function() {
 #' @return The same object coerced to the appropriate marker class, or to the
 #'   base class for an empty extension chain.
 #' @export
-#' @family extensions
+#' @family extension tools
 coerceToExtensionClass <- function(object, extensions = objectExtensions(object)) {
     if (is(object, "MizerParams")) {
         family <- "params"
@@ -525,14 +525,15 @@ baseMizerClass <- function(object) {
     }
 }
 
-#' Reset the registered extension chain for the current R session
+#' Clear the registered extension chain
 #'
 #' Clears the session's extension registry. You can then create a new
 #' extension chain with [registerExtensions()].
 #'
 #' @return Invisibly, an empty character vector.
-#' @family extensions
-resetMizerSession <- function() {
+#' @family extension tools
+#' @export
+clearExtensionChain <- function() {
     .mizerSession$extensions <- character()
     invisible(character())
 }
