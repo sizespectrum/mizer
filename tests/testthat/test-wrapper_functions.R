@@ -81,7 +81,6 @@ test_that("Scaling model is set up correctly", {
     (p <- newTraitParams(perfect_scaling = TRUE, sigma = 1,
                          n = 2/3, lambda = 2 + 3/4 - 2/3)) |>
         expect_message("Note: Negative resource abundances")
-    sim <- project(p, t_max = 5)
 
     # Check some dimensions
     no_sp <- length(p@species_params$species)
@@ -139,10 +138,7 @@ test_that("Scaling model is set up correctly", {
     # All erepros should be equal
     expect_equal(p@species_params$erepro, rep(p@species_params$erepro[1], no_sp))
 
-    # Check that total biomass changes little (relatively)
-    bm <- getBiomass(sim)
-    # This does not work at all yet
-    # expect_lt(max(abs(bm[1, ] - bm[6, ])), 1.3e-4)
+    # TODO: Check that total biomass changes little (relatively)
 })
 
 test_that("Sets given_species_params", {

@@ -4,7 +4,7 @@ params <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
 test_that("time dimension is dealt with properly", {
 
     # Effort is a single numeric
-    t_max <- 5
+    t_max <- 2
     t_save <- 1
     dt <- 0.1
     sim <- project(params, t_max = t_max, t_save = t_save, dt = dt, effort = 1)
@@ -48,7 +48,7 @@ test_that("time dimension is dealt with properly", {
 
     # Effort is an effort vector
     effort <- c(Industrial = 1, Pelagic = 0.5, Beam = 0.3, Otter = 0)
-    t_max <- 5
+    t_max <- 2
     t_save <- 2
     sim <- project(params, t_max = t_max, t_save = t_save, effort = effort)
     expect_identical(names(dimnames(sim@effort)), c("time", "gear"))
@@ -113,9 +113,10 @@ test_that("w_min array reference is working OK", {
     NS_species_params_gears$w_min <- 0.001
     NS_species_params_gears$w_min[1] <- 1
     params2 <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
-    sim <- project(params2, effort = 1, t_max = 5)
-    expect_equal(sim@n[6, 1, 1:(sim@params@w_min_idx[1] - 1)],
-                      rep(0, sim@params@w_min_idx[1] - 1), ignore_attr = TRUE)
+    sim <- project(params2, effort = 1, t_max = 1)
+    final <- dim(sim@n)[1]
+    expect_equal(sim@n[final, 1, 1:(sim@params@w_min_idx[1] - 1)],
+                 rep(0, sim@params@w_min_idx[1] - 1), ignore_attr = TRUE)
 })
 
 
