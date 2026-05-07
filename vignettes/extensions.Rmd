@@ -136,21 +136,21 @@ See [Worked example: adding a detritus-like component](#worked-example-adding-a-
 
 This is the most flexible extension route that still works with mizer's public
 generic functions. Although `MizerParams` and `MizerSim` are S4 classes, mizer
-registers many user-facing methods as S3 methods. That means advanced users can
-define a formal S4 subclass of these objects and then provide S3 methods for
-that subclass such as:
+registers many user-facing methods as S3 methods. That means extension package
+authors can define a formal S4 subclass of these objects and then provide S3
+methods for that subclass such as:
 
 - `plotBiomass.MyMizerSim()`,
 - `summary.MyMizerParams()`,
 - `getBiomass.MyMizerSim()`.
 
 This is especially useful if you have added extra components or metadata and
-want mizer's summaries or plots to include them.
+want mizer's summaries or plots to include them. Because multiple extension
+packages may all want to modify the same function, each method should call
+`NextMethod()` so that the contributions compose correctly.
 
-Because this route combines formal S4 inheritance with S3 dispatch, it is best
-treated as an advanced package-author technique rather than a quick
-script-level hack.
-See [Worked example: S4 subclassing with a custom `plotBiomass()` method](#worked-example-s4-subclassing-with-a-custom-plotbiomass-method).
+See `vignette("extension-packages", package = "mizer")` for a step-by-step
+guide.
 
 ## `customFunction()`
 
@@ -315,265 +315,20 @@ plotDiet(params3, species = "Cod")
 If you also want the component to contribute to mortality, add a `mort_fun`
 when calling `setComponent()`.
 
-# Worked example: S4 subclassing with a custom `plotBiomass()` method
+# S4 subclassing with S3 method dispatch
 
-For some extensions, the main need is not to change the core dynamics but to
-change how a model object is analysed or displayed. Because mizer uses S3
-generics for many user-facing methods, you can define a formal S4 subclass and
-then write an S3 method for that subclass.
+When an extension needs to change how generic mizer functions behave — for
+example making `getBiomass()` include extra components, or making `plotBiomass()`
+show additional panels — the right approach is to define a marker S4 subclass
+and register S3 methods for that class. This makes multiple extension packages
+composable: each package adds its own step and passes control to the next via
+`NextMethod()`.
 
-This example shows the quick, script-level approach: you define classes
-directly with `setClass()` and promote objects by hand. It is useful for
-interactive exploration and one-off analyses. If you are writing an extension
-package intended for others to use — especially one that needs composable
-behaviour in the projection pipeline — see
-[Defining a dispatching extension subclass] for the recommended approach.
-
-To keep this example simple, we define subclasses without adding any new slots.
-The main purpose is just to distinguish your model type from plain
-`MizerParams` and `MizerSim` objects. For our example we will build on the
-previous example with its extra detritus component. You will define new
-subclasses of the `MizerParams` and `MizerSim` classes:
-
-```{r subclass-example}
-setClass("DetritusMizerParams", contains = "MizerParams")
-setClass("DetritusMizerSim", contains = "MizerSim")
-
-newDetritusMizerParams <- function(params) {
-    new("DetritusMizerParams", params)
-}
-
-newDetritusMizerSim <- function(sim) {
-    new("DetritusMizerSim", sim)
-}
-```
-
-Note that you needed to define a formal S4 subclass with `setClass()` rather than
-changing the `class()` attribute by hand.
-
-You now can create objects of your subclasses in the usual way:
-
-```{r subclass-create}
-my_params <- newDetritusMizerParams(params3)
-my_sim <- newDetritusMizerSim(project(my_params, t_max = 2, t_save = 0.1))
-```
-
-You can then define an S3 method for one of mizer's S3 generics. For example,
-we can define a `getBiomass.DetritusMizerSim()` method then it will be dispatched
-instead of the default `getBiomass` method for objects of
-class `DetritusMizerSim`.
-
-```{r subclass-methods}
-getBiomass.DetritusMizerSim <- function(sim, ...) {
-    b <- NextMethod()
-    detritus_biomass <- vapply(
-        sim@n_other[, "Detritus"],
-        function(x) sum(x * sim@params@dw_full * sim@params@w_full),
-        numeric(1)
-    )
-    b <- cbind(unclass(b), Detritus = detritus_biomass)
-    ArraySpeciesByTime(b,
-        value_name = "Biomass", units = "g",
-        params = sim@params
-    )
-}
-```
-
-After that, `getBiomass(my_sim)` will dispatch to `getBiomass.DetritusMizerSim()`:
-
-```{r subclass-use}
-getBiomass(my_sim)
-```
-
-Note that this now also includes the detritus biomass. This works also for any mizer method that calls `getBiomass()` 
-internally, such as
-
-```{r subclass-plot}
-plotBiomass(my_sim)
-```
-
-This approach makes it possible to extend generic mizer workflows without
-rewriting the underlying package methods. 
-
-# Defining a dispatching extension subclass
-
-The subclassing example above is useful for local experiments and for methods
-such as plotting or summaries. Extension packages that want to change the
-projection rate pipeline should use the same idea in a more disciplined way:
-define a marker subclass and provide S3 methods for mizer's `project*()`
-generics.
-
-Not every extension package needs a subclass. If your package only provides
-helper functions, custom rate functions for `setRateFunction()`, extra plotting
-functions, or component dynamics for `setComponent()`, it can remain
-metadata-only. Such an extension can still be recorded in `params@extensions`,
-but because it does not add a dispatch class, mizer will keep using the normal
-pre-resolved `rates_funcs` projection path.
-
-Define a subclass only when your extension needs composable behaviour in the
-projection pipeline, for example when several extensions should all modify the
-same rate and call `NextMethod()` to pass control to the next extension in the
-chain.
-
-## Marker classes
-
-An extension subclass should be a marker class: it should not add slots. Store
-extension-specific settings in `other_params(params)`, component parameters, or
-standard mizer slots instead.
-
-In your extension package define the params and sim classes with `setClass()`.
-The `contains` argument should name the immediate parent in the intended class
-hierarchy. For a standalone extension that does not build on another extension
-package, that parent is the mizer base class:
-
-```{r eval = FALSE}
-setClass("mizerMyExtension", contains = "MizerParams")
-setClass("mizerMyExtensionSim", contains = "MizerSim")
-```
-
-If your extension builds on top of another extension package (say
-`mizerBaseExtension`), inherit from that package's class instead:
-
-```{r eval = FALSE}
-setClass("mizerMyExtension", contains = "mizerBaseExtension")
-setClass("mizerMyExtensionSim", contains = "mizerBaseExtensionSim")
-```
-
-The class name must match the name used to register the extension (see
-[Registering your extension] below). mizer derives the sim class name by
-appending `"Sim"` to the params class name, so `"mizerMyExtension"` and
-`"mizerMyExtensionSim"` are a matching pair.
-
-When a params object is validated or loaded with `readParams()`, mizer checks
-that the recorded extension chain is compatible with the current session and
-coerces the object to the outermost applicable marker class. If an extension
-recorded in `params@extensions` does not provide a marker class, it remains
-metadata-only and does not trigger projection dispatch.
-
-## Projection rate hooks
-
-The rate pipeline used by `project()` has S3 hooks corresponding to the standard
-mizer rate functions:
-
-- `projectEncounter()`
-- `projectFeedingLevel()`
-- `projectEReproAndGrowth()`
-- `projectERepro()`
-- `projectEGrowth()`
-- `projectDiffusion()`
-- `projectPredRate()`
-- `projectPredMort()`
-- `projectFMort()`
-- `projectMort()`
-- `projectRDI()`
-- `projectRDD()`
-- `projectResourceMort()`
-
-The base methods, such as `projectEncounter.MizerParams()`, contain the standard
-mizer calculation. The older names, such as `mizerEncounter()`, remain available
-as aliases to these base methods.
-
-An extension method should usually call `NextMethod()` and then modify the
-result:
-
-```{r eval = FALSE}
-projectEncounter.mizerMyExtension <- function(params, n, n_pp, n_other,
-                                              t = 0, ...) {
-    encounter <- NextMethod()
-    p <- other_params(params)$mizerMyExtension
-    encounter * p$encounter_multiplier
-}
-```
-
-If two registered extensions both provide `projectEncounter()` methods, mizer
-will dispatch through them in the order recorded in the extension chain. Each
-method can call `NextMethod()` to compose its change with the next extension and
-finally with the standard `MizerParams` method.
-
-## Registering your extension
-
-Extension packages should register themselves with mizer from their `.onLoad`
-hook using `registerExtension()`:
-
-```{r eval = FALSE}
-.onLoad <- function(libname, pkgname) {
-    mizer::registerExtension("mizerMyExtension", requirement = "0.1.0")
-}
-```
-
-This prepends `"mizerMyExtension"` to the front of the session's extension
-chain, giving it the highest dispatch priority among currently loaded
-extensions. Because R always loads dependency packages before the package that
-depends on them, the dependent ends up outermost. For example, if
-`mizerOuterExtension` declares `mizerMyExtension` as a dependency, a user who
-calls `library(mizerOuterExtension)` will see:
-
-1. `mizerMyExtension` loads and registers → chain: `c(mizerMyExtension = "0.1.0")`
-2. `mizerOuterExtension` loads and registers → chain: `c(mizerOuterExtension = "0.2.0", mizerMyExtension = "0.1.0")`
-
-The call is idempotent: if the extension is already anywhere in the chain
-(for example because `devtools::load_all()` re-runs `.onLoad`), it returns
-silently without modifying the chain.
-
-For cases where you need explicit control over the full chain — for example
-when combining two independent extensions in a script — call
-`registerExtensions()` directly:
-
-```{r eval = FALSE}
-registerExtensions(c(
-    mizerOuterExtension = "0.2.0",
-    mizerMyExtension = "0.1.0"
-))
-```
-
-## The `@extensions` slot in saved objects
-
-The `@extensions` slot of a `MizerParams` object records the extension chain
-the object requires. mizer uses it to verify session compatibility and to
-coerce the object to the correct S4 class when it is loaded from disk.
-
-The slot must contain the **full chain** that was active when the object was
-created, not just the topmost extension. Objects from `mizerMyExtension` (when
-loaded without any outer extension on top) should have:
-
-```{r eval = FALSE}
-params@extensions <- c(mizerMyExtension = "0.1.0")
-```
-
-Objects created in a session where `mizerOuterExtension` is also loaded should
-include both:
-
-```{r eval = FALSE}
-params@extensions <- c(mizerOuterExtension = "0.2.0", mizerMyExtension = "0.1.0")
-```
-
-A convenient way to set this when building data objects for a package is:
-
-```{r eval = FALSE}
-params@extensions <- getRegisteredExtensions()
-params <- coerceToExtensionClass(params)
-```
-
-`coerceToExtensionClass()` promotes the object to the S4 class corresponding
-to the outermost dispatch extension in `params@extensions`. An object whose
-chain is a shorter suffix of the session chain (for example, one carrying only
-`mizerMyExtension` in a session that also has `mizerOuterExtension` loaded)
-is left at the `mizerMyExtension` class — it is not promoted to
-`mizerOuterExtension` because it was not created with that extension.
-
-When a user loads a saved object with `readParams()`, mizer checks that the
-object's chain is a suffix of the registered session chain and re-coerces the
-object to the appropriate class automatically.
-
-## Checklist for package authors
-
-- Define marker subclasses with `setClass()` — no new slots.
-- Call `mizer::registerExtension()` in `.onLoad`.
-- Export or register S3 methods for the relevant `project*()` generics.
-- Store all extra state in ordinary mizer extension locations, not in new S4
-  slots.
-- Set `params@extensions <- getRegisteredExtensions()` when building data
-  objects destined for the package `data/` directory.
+For a step-by-step guide to writing this kind of extension package, including
+worked examples from
+[mizerStarvation](https://github.com/sizespectrum/mizerStarvation) and
+[mizerShelf](https://github.com/sizespectrum/mizerShelf), see
+`vignette("extension-packages", package = "mizer")`.
 
 
 # How custom rate functions are called

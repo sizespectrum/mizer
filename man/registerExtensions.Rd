@@ -14,9 +14,11 @@ they provide an S4 marker class with the same name. \code{NA_character_} entries
 are treated as in-development dispatch extensions and mizer creates their
 marker classes automatically.}
 
-\item{install}{Logical. If \code{TRUE}, missing extension packages may be
-installed. Installation support is intentionally conservative and currently
-only supports CRAN-style package installation by extension name.}
+\item{install}{Logical. If \code{TRUE}, missing or outdated extension packages are
+installed via \code{\link[pak:pkg_install]{pak::pkg_install()}}. Version strings install from CRAN;
+other requirement strings (e.g. \code{"user/repo@v1.2.0"}) are passed directly
+to pak and may refer to GitHub, local paths, or any other pak-supported
+source.}
 }
 \value{
 The active maximal extension chain, invisibly.
@@ -39,4 +41,15 @@ use \code{\link[=registerExtension]{registerExtension()}} instead.
 }
 \seealso{
 \code{\link[=registerExtension]{registerExtension()}} for the incremental per-package variant.
+
+Other extensions:
+\code{\link[=NOther]{NOther()}},
+\code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
+\code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
+\code{\link[=initialNOther<-]{initialNOther<-()}},
+\code{\link[=registerExtension]{registerExtension()}},
+\code{\link[=resetMizerSession]{resetMizerSession()}},
+\code{\link[=setComponent]{setComponent()}},
+\code{\link[=setRateFunction]{setRateFunction()}}
 }
+\concept{extensions}

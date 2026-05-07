@@ -21,3 +21,15 @@ Coerces a \code{MizerParams} or \code{MizerSim} object to the S4 marker class
 corresponding to the object's own extension chain. For \code{MizerSim}, the
 extension chain is read from \code{sim@params@extensions}.
 }
+\seealso{
+Other extensions:
+\code{\link[=NOther]{NOther()}},
+\code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
+\code{\link[=initialNOther<-]{initialNOther<-()}},
+\code{\link[=registerExtension]{registerExtension()}},
+\code{\link[=registerExtensions]{registerExtensions()}},
+\code{\link[=resetMizerSession]{resetMizerSession()}},
+\code{\link[=setComponent]{setComponent()}},
+\code{\link[=setRateFunction]{setRateFunction()}}
+}
+\concept{extensions}

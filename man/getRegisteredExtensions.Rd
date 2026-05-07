@@ -13,3 +13,15 @@ registered for this R session.
 \description{
 Get the registered mizer extension chain
 }
+\seealso{
+Other extensions:
+\code{\link[=NOther]{NOther()}},
+\code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
+\code{\link[=initialNOther<-]{initialNOther<-()}},
+\code{\link[=registerExtension]{registerExtension()}},
+\code{\link[=registerExtensions]{registerExtensions()}},
+\code{\link[=resetMizerSession]{resetMizerSession()}},
+\code{\link[=setComponent]{setComponent()}},
+\code{\link[=setRateFunction]{setRateFunction()}}
+}
+\concept{extensions}

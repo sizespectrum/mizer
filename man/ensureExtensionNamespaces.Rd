@@ -9,16 +9,15 @@ ensureExtensionNamespaces(extensions, install = FALSE)
 \arguments{
 \item{extensions}{Named character vector of extensions.}
 
-\item{install}{Logical. If \code{TRUE}, attempt to install missing packages via
-\code{\link[utils:install.packages]{utils::install.packages()}}.}
+\item{install}{Logical. If \code{TRUE}, install or upgrade missing/outdated
+packages via \code{\link[pak:pkg_install]{pak::pkg_install()}}.}
 }
 \value{
 Invisibly \code{TRUE}.
 }
 \description{
 For each extension whose requirement is not \code{NA_character_}, checks that the
-package is installed, installs it if \code{install = TRUE} and it is missing,
-verifies the minimum version if the requirement is a version string, then
-calls \code{\link[=loadNamespace]{loadNamespace()}}.
+package is installed and up-to-date, installs or upgrades via
+\code{\link[pak:pkg_install]{pak::pkg_install()}} if \code{install = TRUE}, then calls \code{\link[=loadNamespace]{loadNamespace()}}.
 }
 \keyword{internal}

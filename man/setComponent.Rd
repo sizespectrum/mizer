@@ -3,6 +3,7 @@
 \name{setComponent}
 \alias{setComponent}
 \alias{removeComponent}
+\alias{getComponent}
 \title{Add a dynamical ecosystem component}
 \usage{
 setComponent(
@@ -18,11 +19,14 @@ setComponent(
 )
 
 removeComponent(params, component)
+
+getComponent(params, component)
 }
 \arguments{
 \item{params}{A MizerParams object}
 
-\item{component}{Name of the component}
+\item{component}{Name of the component of interest. If missing, a list of
+all components will be returned.}
 
 \item{initial_value}{Initial value of the component}
 
@@ -45,6 +49,12 @@ functions. This could for example be a named list of parameters. Optional.}
 }
 \value{
 The updated MizerParams object
+
+For \code{getComponent}: A list with the entries \code{initial_value}, \code{dynamics_fun},
+\code{encounter_fun}, \code{mort_fun}, \code{component_params} for the requested
+component. If the requested component does not exist, \code{NULL} is returned.
+If no \code{component} argument is given, then a list of lists for all
+components is returned.
 }
 \description{
 By default, mizer models any number of size-resolved consumer species
@@ -63,3 +73,15 @@ the \code{initial_value} and \code{dynamics_fun} are overwritten, while the opti
 corresponding arguments are supplied. You can remove a component with
 \code{removeComponent()}.
 }
+\seealso{
+Other extensions:
+\code{\link[=NOther]{NOther()}},
+\code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
+\code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
+\code{\link[=initialNOther<-]{initialNOther<-()}},
+\code{\link[=registerExtension]{registerExtension()}},
+\code{\link[=registerExtensions]{registerExtensions()}},
+\code{\link[=resetMizerSession]{resetMizerSession()}},
+\code{\link[=setRateFunction]{setRateFunction()}}
+}
+\concept{extensions}

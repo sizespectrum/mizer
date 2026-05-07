@@ -2,17 +2,35 @@
 % Please edit documentation in R/extension.R
 \name{NOther}
 \alias{NOther}
+\alias{finalNOther}
 \title{Time series of other components}
 \usage{
 NOther(sim)
+
+finalNOther(sim)
 }
 \arguments{
 \item{sim}{A MizerSim object}
 }
 \value{
-A list array indexed by time and component that stores the projected
+For \code{NOther}: A list array indexed by time and component that stores the projected
 values for other ecosystem components.
+
+For \code{finalNOther}: A named list holding the values of other ecosystem components at the
+end of the simulation
 }
 \description{
 Fetch the simulation results for other components over time.
 }
+\seealso{
+Other extensions:
+\code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
+\code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
+\code{\link[=initialNOther<-]{initialNOther<-()}},
+\code{\link[=registerExtension]{registerExtension()}},
+\code{\link[=registerExtensions]{registerExtensions()}},
+\code{\link[=resetMizerSession]{resetMizerSession()}},
+\code{\link[=setComponent]{setComponent()}},
+\code{\link[=setRateFunction]{setRateFunction()}}
+}
+\concept{extensions}

@@ -26,4 +26,15 @@ Values used as starting values for simulations with \code{project()}.
 }
 \seealso{
 \code{\link[=initialNResource]{initialNResource()}}, \code{\link[=initialN]{initialN()}}
+
+Other extensions:
+\code{\link[=NOther]{NOther()}},
+\code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
+\code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
+\code{\link[=registerExtension]{registerExtension()}},
+\code{\link[=registerExtensions]{registerExtensions()}},
+\code{\link[=resetMizerSession]{resetMizerSession()}},
+\code{\link[=setComponent]{setComponent()}},
+\code{\link[=setRateFunction]{setRateFunction()}}
 }
+\concept{extensions}

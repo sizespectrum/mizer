@@ -209,6 +209,7 @@
 #' @param fun Name of the function to use to calculate the rate.
 #' @return For `setRateFunction()`: An updated MizerParams object
 #' @export
+#' @family extensions
 setRateFunction <- function(params, rate, fun) {
     params <- validParams(params)
     assert_that(is.string(rate),
@@ -306,6 +307,7 @@ other_params <- function(params) {
 #'   `"solid"`.
 #' @return The updated MizerParams object
 #' @export
+#' @family extensions
 setComponent <- function(params, component, initial_value,
                          dynamics_fun,
                          encounter_fun, mort_fun,
@@ -358,17 +360,16 @@ removeComponent <- function(params, component) {
 }
 
 
-#' Get information about other ecosystem components
-#'
 #' @param params A MizerParams object
 #' @param component Name of the component of interest. If missing, a list of
 #'   all components will be returned.
-#' @return A list with the entries `initial_value`, `dynamics_fun`,
+#' @return For `getComponent`: A list with the entries `initial_value`, `dynamics_fun`,
 #'   `encounter_fun`, `mort_fun`, `component_params` for the requested
 #'   component. If the requested component does not exist, `NULL` is returned.
 #'   If no `component` argument is given, then a list of lists for all
 #'   components is returned.
 #' @export
+#' @rdname setComponent
 getComponent <- function(params, component) {
     assert_that(is(params, "MizerParams"))
     if (missing(component)) {
@@ -397,6 +398,7 @@ getComponent <- function(params, component) {
 #' @param value A named list with the initial values of other ecosystem
 #'   components
 #' @export
+#' @family extensions
 #' @seealso [initialNResource()], [initialN()]
 `initialNOther<-` <- function(params, value) {
     assert_that(is(params, "MizerParams"),
@@ -416,8 +418,8 @@ getComponent <- function(params, component) {
     params
 }
 
-#' @param object An object of class MizerParams or MizerSim
 #' @rdname initialNOther-set
+#' @param object An object of class MizerParams or MizerSim
 #' @return A named list with the initial values of other ecosystem
 #'   components
 #' @export
@@ -438,9 +440,10 @@ initialNOther <- function(object) {
 #' Fetch the simulation results for other components over time.
 #'
 #' @param sim A MizerSim object
-#' @return A list array indexed by time and component that stores the projected
+#' @return For `NOther`: A list array indexed by time and component that stores the projected
 #'   values for other ecosystem components.
 #' @export
+#' @family extensions
 NOther <- function(sim) {
     return(sim@n_other)
 }
@@ -449,9 +452,10 @@ NOther <- function(sim) {
 #' Values of other ecosystem components at end of simulation
 #'
 #' @param sim A MizerSim object
-#' @return A named list holding the values of other ecosystem components at the
+#' @return For `finalNOther`: A named list holding the values of other ecosystem components at the
 #'   end of the simulation
 #' @export
+#' @rdname NOther
 finalNOther <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     n_other <- sim@n_other[dim(sim@n)[[1]], ]

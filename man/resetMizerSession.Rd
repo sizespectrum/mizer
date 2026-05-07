@@ -10,7 +10,18 @@ resetMizerSession()
 Invisibly, an empty character vector.
 }
 \description{
-Clears the session's extension registry. Primarily used in tests to restore
-a clean state between test cases.
+Clears the session's extension registry. You can then create a new
+extension chain with \code{\link[=registerExtensions]{registerExtensions()}}.
 }
-\keyword{internal}
+\seealso{
+Other extensions:
+\code{\link[=NOther]{NOther()}},
+\code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
+\code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
+\code{\link[=initialNOther<-]{initialNOther<-()}},
+\code{\link[=registerExtension]{registerExtension()}},
+\code{\link[=registerExtensions]{registerExtensions()}},
+\code{\link[=setComponent]{setComponent()}},
+\code{\link[=setRateFunction]{setRateFunction()}}
+}
+\concept{extensions}

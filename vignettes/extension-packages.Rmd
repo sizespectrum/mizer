@@ -1,0 +1,371 @@
+---
+title: "Creating a mizer extension package"
+output:
+  html_document:
+    toc: yes
+    fig_width: 5
+    fig_height: 5
+vignette: >
+  %\VignetteIndexEntry{Creating a mizer extension package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(mizer)
+```
+
+# Overview
+
+This vignette explains how to turn a mizer extension into a proper R package.
+It is aimed at users who are already comfortable writing custom rate functions or
+adding components with `setComponent()`, and who now want to share their
+extension with others or use it across multiple projects.
+
+There are two kinds of extension package:
+
+- A **metadata-only** extension registers itself in `params@extensions` for
+  record-keeping, but does not change how any mizer generic function behaves.
+  [mizerStarvation](https://github.com/sizespectrum/mizerStarvation) is an
+  example: it adds starvation mortality via the `other_mort` pipeline, but it
+  does not need to override any user-facing mizer functions.
+
+- A **dispatching** extension additionally defines a new object type so that
+  mizer's generic functions (such as `getBiomass()` or `plotBiomass()`) can be
+  made to behave differently for models built with that extension.
+  [mizerShelf](https://github.com/sizespectrum/mizerShelf) is an example: it
+  adds detritus and carrion components and overrides `getBiomass()` to include
+  their biomasses in the result.
+
+This vignette covers both kinds, working through concrete examples from each
+package.
+
+# Why a package?
+
+A plain R script works fine for a single project. An R package becomes
+worthwhile when you want:
+
+- **Reuse across projects**: install once, `library()` everywhere.
+- **Version tracking**: `params@extensions` records the version of each
+  extension package used to build a model. If a collaborator opens your saved
+  `MizerParams` object in a different session, mizer can warn them if the
+  required package is missing or outdated.
+- **Composability**: when two extension packages are loaded at the same time,
+  mizer can arrange their contributions to generic functions in the right order
+  automatically (see [Daisy-chaining with `NextMethod()`] below).
+- **Testing and documentation**: a package gives you a natural home for
+  `testthat` tests and roxygen2 documentation.
+
+# Metadata-only extensions: mizerStarvation
+
+[mizerStarvation](https://github.com/sizespectrum/mizerStarvation) adds
+starvation mortality — an extra per-capita mortality term that kicks in when a
+fish's energy balance is negative. It does this via the `other_mort` slot: a
+named list of function names that `getMort()` calls and sums at every time step.
+No mizer generic function needs to be overridden.
+
+## Registering in `.onLoad`
+
+Every extension package, even a metadata-only one, should announce itself to
+mizer when it is loaded. Place a `.onLoad` function in a file such as `R/zzz.R`:
+
+```r
+.onLoad <- function(libname, pkgname) {
+  mizer::registerExtension(pkgname, requirement = "owner/myExtensionPackage")
+}
+```
+
+`registerExtension()` adds the package name to the session's extension chain.
+The `requirement` string is a `pak` installation spec that mizer uses if it
+needs to install the package automatically. For packages on CRAN you can use a
+minimum version string such as `"1.2.0"` instead; for GitHub-only packages use
+the `"owner/repo"` form (e.g. `"sizespectrum/mizerStarvation"`). The call is safe to repeat: if the package is
+already registered (for example because the user called
+`devtools::load_all()` twice), it returns silently.
+
+## Recording the extension in `params@extensions`
+
+When your package creates or modifies a `MizerParams` object it should copy the
+session's registered extension chain into the `@extensions` slot:
+
+```r
+setStarvation <- function(params, starv_coef = 10) {
+    # ... set up the rate function, species parameters, etc. ...
+    params@extensions <- mizer::getRegisteredExtensions()
+    params
+}
+```
+
+`getRegisteredExtensions()` returns the full chain that `.onLoad` hooks have
+built up. Storing this in the object serves two purposes:
+
+1. **Reproducibility record.** When the object is saved with `saveParams()` and
+   later loaded with `readParams()`, mizer reads `@extensions` and warns if any
+   required package is not installed or is too old.
+2. **Class coercion.** For dispatching extensions (see below), `readParams()`
+   uses `@extensions` to restore the correct S4 class automatically.
+
+# Dispatching extensions: mizerShelf
+
+[mizerShelf](https://github.com/sizespectrum/mizerShelf) adds two dynamical
+components — detritus and carrion — to a mizer model. Beyond just computing
+them, it also needs to change what certain user-facing functions return: for
+example, `getBiomass()` should include the detritus and carrion biomasses
+alongside the species biomasses.
+
+This section explains how to achieve that without breaking the standard mizer
+behaviour, and without preventing other extension packages from also modifying
+the same function.
+
+## The problem with simply overwriting a function
+
+Suppose you define a new `getBiomass()` function in your package that adds your
+extra biomasses to the result. That works as long as your package is the only
+one that modifies `getBiomass()`. But what if a second extension package also
+wants to add its own extra components?
+
+If both packages replace `getBiomass()`, whichever one was loaded last wins, and
+the other's contribution is silently lost. There is no way for the two packages
+to compose their changes.
+
+## How R dispatches to the right function
+
+R has a built-in mechanism for exactly this situation. Every object has a
+**class** attribute — a character string (or a vector of strings) that labels
+what kind of thing it is. When you call a function like `getBiomass(params)`, R
+looks at the class of `params` and searches for a version of `getBiomass` whose
+name ends in `.` followed by that class label, such as `getBiomass.mizerShelf`.
+If it finds one, it calls it. If not, it tries the next class in the vector,
+and so on until it reaches the base class and calls the default version.
+
+This mechanism is called **S3 dispatch**, but you do not need to know that term
+to use it. What matters practically is:
+
+- Give your params objects a distinctive class label (e.g. `"mizerShelf"`).
+- Define functions named `<genericname>.<classname>` (e.g. `getBiomass.mizerShelf`).
+- Inside those functions, call `NextMethod()` to pass control to the next class
+  in the chain before or after your own modifications.
+
+## Daisy-chaining with `NextMethod()`
+
+`NextMethod()` is what makes multiple extension packages compose gracefully.
+Suppose the class of `params` is `c("mizerFoo", "mizerShelf", "MizerParams")`,
+meaning `params` is simultaneously of type `mizerFoo`, type `mizerShelf`, and
+the base type `MizerParams`. Then calling `getBiomass(params)` proceeds like
+this:
+
+1. R finds `getBiomass.mizerFoo` and calls it.
+2. `getBiomass.mizerFoo` calls `NextMethod()`.
+3. R finds `getBiomass.mizerShelf` and calls it.
+4. `getBiomass.mizerShelf` calls `NextMethod()`.
+5. R finds the standard mizer `getBiomass.MizerParams` and calls it.
+6. The standard result is returned to step 4, shelf biomasses are added, the
+   result is returned to step 2, and `mizerFoo`'s biomasses are added on top.
+
+Each extension in the chain sees and extends the result of all the extensions
+below it. The chain grows automatically as packages are loaded, so the user
+does not need to coordinate anything manually.
+
+For this to work, **every method must call `NextMethod()`** so it does not
+accidentally short-circuit the chain below it. The only exception is the base
+mizer method at the bottom of the chain.
+
+## Defining marker classes
+
+To give your params objects a distinctive class label, you need to define an
+**S4 marker class** — a formal class that extends `MizerParams` but adds no
+new data. All extension-specific data lives in `other_params(params)` or in
+component parameters; the class is just a label.
+
+Place these calls in a file such as `R/myextension-class.R`:
+
+```r
+#' @export
+setClass("mizerShelf", contains = "MizerParams")
+
+#' @export
+setClass("mizerShelfSim", contains = "MizerSim")
+```
+
+The params class name must match the name you pass to `registerExtension()`.
+The sim class name must be the params class name with `"Sim"` appended.
+`MizerSim` objects are coerced to the sim class automatically by `project()`
+once you record the extension chain in `params@extensions` (see below).
+
+If your extension is designed to stack on top of another (say `mizerBase`),
+inherit from that package's class instead:
+
+```r
+setClass("mizerOuter", contains = "mizerBase")
+setClass("mizerOuterSim", contains = "mizerBaseSim")
+```
+
+## Registering in `.onLoad`
+
+The `.onLoad` hook for a dispatching extension is the same as for a
+metadata-only one:
+
+```r
+.onLoad <- function(libname, pkgname) {
+  mizer::registerExtension(pkgname, requirement = "owner/myExtensionPackage")
+}
+```
+
+When `registerExtension()` is called, mizer prepends the extension to the
+session's chain, giving it the highest dispatch priority. Because R always
+loads dependency packages before the package that depends on them, the dependent
+package ends up outermost. For example, if `mizerOuter` depends on `mizerShelf`:
+
+1. R loads `mizerShelf`, its `.onLoad` fires → chain: `c(mizerShelf = "1.0.0")`
+2. R loads `mizerOuter`, its `.onLoad` fires → chain: `c(mizerOuter = "0.3.0", mizerShelf = "1.0.0")`
+
+The class hierarchy `c("mizerOuter", "mizerShelf", "MizerParams")` mirrors
+this chain, so dispatch proceeds in the right order automatically.
+
+## Writing methods that call `NextMethod()`
+
+Here is `getBiomass.mizerShelf` from mizerShelf. It calls `NextMethod()` first
+to get the standard mizer result, then appends the detritus and carrion
+biomasses:
+
+```r
+#' @method getBiomass mizerShelf
+#' @export
+getBiomass.mizerShelf <- function(object, ...) {
+    params <- object
+    b <- NextMethod()                       # standard species biomasses
+
+    d_biomass <- sum(params@initial_n_pp *
+                     params@dw_full * params@w_full)
+    b <- c(b, Detritus = d_biomass)
+
+    other <- params@initial_n_other
+    scalar_other <- Filter(function(x) is.numeric(x) && length(x) == 1, other)
+    if (length(scalar_other) > 0) b <- c(b, unlist(scalar_other))
+    b
+}
+```
+
+Because `plotBiomass()` calls `getBiomass()` internally, this single override
+makes biomass plots include detritus and carrion without any further changes.
+
+Always register S3 methods in your package's `NAMESPACE` file. The roxygen2
+`@method` tag does this for you automatically:
+
+```r
+#' @method getBiomass mizerShelf
+#' @export
+getBiomass.mizerShelf <- function(object, ...) { ... }
+```
+
+## Creating objects: the two commands
+
+A constructor function that returns a `mizerShelf` object must end with these
+two lines:
+
+```r
+params@extensions <- mizer::getRegisteredExtensions()
+params <- mizer::coerceToExtensionClass(params)
+```
+
+Here is how `newDetritusCarrionParams()` uses them in mizerShelf:
+
+```r
+newDetritusCarrionParams <- function(species_params, ...) {
+    params <- newMultispeciesParams(species_params, ...,
+                                    resource_dynamics = "detritus_dynamics")
+    # ... set up rate functions, components, colours ...
+
+    params@extensions <- mizer::getRegisteredExtensions()
+    params <- mizer::coerceToExtensionClass(params)
+}
+```
+
+### What `params@extensions <- getRegisteredExtensions()` does
+
+`getRegisteredExtensions()` returns the current session's extension chain —
+everything that has been registered via `.onLoad` hooks since R started.
+Storing this in the params object is like stamping the object with a bill of
+materials: it records exactly which extension packages were active when the
+object was created.
+
+mizer uses this record in two ways:
+
+- When the object is loaded from disk with `readParams()`, mizer checks that
+  all the recorded extensions are installed in the current session and warns
+  the user if any are missing or outdated.
+- `readParams()` also calls `coerceToExtensionClass()` automatically, using
+  `@extensions` to decide which S4 class to restore the object to.
+
+Note that `@extensions` records the **full chain** that was active at creation
+time, not just the outermost extension. If `mizerShelf` was the only registered
+extension, `@extensions` will be `c(mizerShelf = "1.0.0")`. If a further outer
+extension was also loaded, both appear in the chain. An object is always
+coerced to the class of the outermost extension in its own chain, so an object
+created with only `mizerShelf` registered will remain a `mizerShelf` object
+even if `mizerOuter` is also loaded in the current session.
+
+### What `coerceToExtensionClass(params)` does
+
+At this point `params` is still a plain `MizerParams` object as far as R is
+concerned. If you called `getBiomass(params)` now, R would call the standard
+mizer `getBiomass.MizerParams` rather than `getBiomass.mizerShelf`.
+
+`coerceToExtensionClass()` reads `params@extensions`, finds the outermost
+extension that provides a dispatch class, and promotes the object to that S4
+class. After the call, `params` is of class `c("mizerShelf", "MizerParams")`,
+and R will dispatch to `getBiomass.mizerShelf` automatically.
+
+This step cannot be replaced with a simple `class(params) <- "mizerShelf"`:
+because `MizerParams` is a formal S4 class, R enforces the class hierarchy
+strictly and the direct assignment would fail. `coerceToExtensionClass()` uses
+the appropriate S4 machinery internally.
+
+## What about `MizerSim` objects?
+
+You do not need to call `coerceToExtensionClass()` yourself for `MizerSim`
+objects. When `project()` creates its output it calls `MizerSim()`, which
+in turn calls `coerceToExtensionClass()` on the new sim object. Because the
+`params` slot inside the sim already has `@extensions` set, mizer knows to
+promote the sim to `mizerShelfSim` automatically.
+
+This means that after:
+
+```r
+sim <- project(NWMed_params, t_max = 3)
+```
+
+`sim` is already of class `mizerShelfSim`, and any method you have defined
+for that class — such as `getBiomass.mizerShelfSim` — will be dispatched
+automatically.
+
+# Checklist for package authors
+
+When building a dispatching extension package, verify the following:
+
+- [ ] Define both `setClass("<myExtension>", contains = "MizerParams")` and
+  `setClass("<myExtension>Sim", contains = "MizerSim")` with no new slots.
+- [ ] Call `mizer::registerExtension(pkgname, requirement = ...)` in
+  `.onLoad`.
+- [ ] End every constructor with `params@extensions <- getRegisteredExtensions()`
+  and `coerceToExtensionClass(params)`.
+- [ ] Register every S3 method in `NAMESPACE` (via `@method` + `@export`).
+- [ ] Call `NextMethod()` in every method override.
+- [ ] Store all extension-specific state in `other_params(params)` or
+  component parameters, not in new S4 slots.
+
+For metadata-only packages, only the second and third items apply (and
+`coerceToExtensionClass()` is not needed — just record
+`params@extensions <- getRegisteredExtensions()`).
+
+# See also
+
+- `vignette("extensions", package = "mizer")` for the full menu of extension
+  mechanisms (custom rate functions, components, subclassing, and more).
+- `?registerExtension`
+- `?getRegisteredExtensions`
+- `?coerceToExtensionClass`

@@ -76,6 +76,7 @@ articles:
   - predation_diffusion
   - cohort_dynamics_and_diffusion
   - extensions
+  - extension-packages
 - title: Publications
   navbar: Publications
   contents:
@@ -204,15 +205,7 @@ reference:
   - getCriticalFeedingLevel
 - title: Extending Mizer
   contents:
-  - registerExtensions
-  - getRegisteredExtensions
-  - coerceToExtensionClass
-  - setRateFunction
-  - setComponent
-  - getComponent
-  - initialNOther
-  - NOther
-  - finalNOther
+  - has_concept("extensions")
   - customFunction
 - title: Predation kernels
   contents:

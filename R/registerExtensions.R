@@ -30,6 +30,7 @@
 #' @return The updated extension chain, invisibly.
 #' @seealso [registerExtensions()] for registering an explicit full chain.
 #' @export
+#' @family extensions
 registerExtension <- function(name, requirement = NA_character_, install = FALSE) {
     extension <- validateExtensionsVector(setNames(requirement, name))
 
@@ -78,6 +79,7 @@ registerExtension <- function(name, requirement = NA_character_, install = FALSE
 #' @return The active maximal extension chain, invisibly.
 #' @seealso [registerExtension()] for the incremental per-package variant.
 #' @export
+#' @family extensions
 registerExtensions <- function(extensions, install = FALSE) {
     extensions <- validateExtensionsVector(extensions)
     old <- getRegisteredExtensions()
@@ -106,6 +108,7 @@ registerExtensions <- function(extensions, install = FALSE) {
 #' @return A named character vector giving the maximal extension chain
 #'   registered for this R session.
 #' @export
+#' @family extensions
 getRegisteredExtensions <- function() {
     .mizerSession$extensions
 }
@@ -123,6 +126,7 @@ getRegisteredExtensions <- function() {
 #' @return The same object coerced to the appropriate marker class, or to the
 #'   base class for an empty extension chain.
 #' @export
+#' @family extensions
 coerceToExtensionClass <- function(object, extensions = objectExtensions(object)) {
     if (is(object, "MizerParams")) {
         family <- "params"
@@ -523,11 +527,11 @@ baseMizerClass <- function(object) {
 
 #' Reset the registered extension chain for the current R session
 #'
-#' Clears the session's extension registry. Primarily used in tests to restore
-#' a clean state between test cases.
+#' Clears the session's extension registry. You can then create a new
+#' extension chain with [registerExtensions()].
 #'
 #' @return Invisibly, an empty character vector.
-#' @keywords internal
+#' @family extensions
 resetMizerSession <- function() {
     .mizerSession$extensions <- character()
     invisible(character())
