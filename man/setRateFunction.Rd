@@ -95,14 +95,14 @@ environment or in a package. If they are defined within a function then
 mizer will not find them.
 }
 \seealso{
-Other extensions:
+Other extension tools:
 \code{\link[=NOther]{NOther()}},
+\code{\link[=clearExtensionChain]{clearExtensionChain()}},
 \code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
 \code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
 \code{\link[=initialNOther<-]{initialNOther<-()}},
 \code{\link[=registerExtension]{registerExtension()}},
 \code{\link[=registerExtensions]{registerExtensions()}},
-\code{\link[=resetMizerSession]{resetMizerSession()}},
 \code{\link[=setComponent]{setComponent()}}
 }
-\concept{extensions}
+\concept{extension tools}

@@ -14,14 +14,14 @@ registered for this R session.
 Get the registered mizer extension chain
 }
 \seealso{
-Other extensions:
+Other extension tools:
 \code{\link[=NOther]{NOther()}},
+\code{\link[=clearExtensionChain]{clearExtensionChain()}},
 \code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
 \code{\link[=initialNOther<-]{initialNOther<-()}},
 \code{\link[=registerExtension]{registerExtension()}},
 \code{\link[=registerExtensions]{registerExtensions()}},
-\code{\link[=resetMizerSession]{resetMizerSession()}},
 \code{\link[=setComponent]{setComponent()}},
 \code{\link[=setRateFunction]{setRateFunction()}}
 }
-\concept{extensions}
+\concept{extension tools}

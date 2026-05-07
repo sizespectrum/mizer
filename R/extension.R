@@ -209,7 +209,7 @@
 #' @param fun Name of the function to use to calculate the rate.
 #' @return For `setRateFunction()`: An updated MizerParams object
 #' @export
-#' @family extensions
+#' @family extension tools
 setRateFunction <- function(params, rate, fun) {
     params <- validParams(params)
     assert_that(is.string(rate),
@@ -307,7 +307,7 @@ other_params <- function(params) {
 #'   `"solid"`.
 #' @return The updated MizerParams object
 #' @export
-#' @family extensions
+#' @family extension tools
 setComponent <- function(params, component, initial_value,
                          dynamics_fun,
                          encounter_fun, mort_fun,
@@ -398,7 +398,7 @@ getComponent <- function(params, component) {
 #' @param value A named list with the initial values of other ecosystem
 #'   components
 #' @export
-#' @family extensions
+#' @family extension tools
 #' @seealso [initialNResource()], [initialN()]
 `initialNOther<-` <- function(params, value) {
     assert_that(is(params, "MizerParams"),
@@ -443,7 +443,7 @@ initialNOther <- function(object) {
 #' @return For `NOther`: A list array indexed by time and component that stores the projected
 #'   values for other ecosystem components.
 #' @export
-#' @family extensions
+#' @family extension tools
 NOther <- function(sim) {
     return(sim@n_other)
 }

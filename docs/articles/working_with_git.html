@@ -17,7 +17,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -31,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.4.9125</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,13 +54,21 @@
     <li><a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a></li>
     <li><a class="dropdown-item" href="../articles/running_a_simulation.html">Running a Simulation</a></li>
     <li><a class="dropdown-item" href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a></li>
+    <li><a class="dropdown-item" href="../articles/cheatsheet.html">Cheatsheet: Analysis and Plotting</a></li>
     <li><a class="dropdown-item" href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a></li>
     <li><a class="dropdown-item" href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/predation_diffusion.html">Incorporating predation diffusion</a></li>
+    <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
+    <li><a class="dropdown-item" href="../articles/extensions.html">Extending mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/extension-packages.html">Creating a mizer extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Publications</h6></li>
     <li><a class="dropdown-item" href="../articles/publications.html">Publications</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>For developers</h6></li>
+    <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/mathematical_details.html">Mathematical Details of the Mizer Implementation</a></li>
+    <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><a class="dropdown-item" href="../articles/developer_vignette.html">Developer Guide</a></li>
     <li><a class="dropdown-item" href="../articles/working_with_git.html">Working with git and GitHub</a></li>
     <li><a class="dropdown-item" href="../articles/developer_FAQ.html">Developer FAQ</a></li>
@@ -73,6 +81,7 @@
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
+<li class="nav-item"><a class="external-link nav-link" href="https://notebooklm.google.com/notebook/6aa51f75-d1a8-4140-9180-84532ef5f821"><span class="fa fa-robot"></span> Ask AI</a></li>
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
@@ -142,7 +151,9 @@ To create the new branch, first make sure you have selected the master
 branch on the “Switch branch” dropdown in RStudio Git panel and then
 click the button to the left of that dropdown.
 <center>
-<img src="images/new_branch_button.png" style="width:30.0%">
+<div class="float">
+<img src="images/new_branch_button.png" style="width:30.0%" alt="New branch button"><div class="figcaption">New branch button</div>
+</div>
 </center>
 <p>In the dialog box enter the name for your new branch: “add_my_info”.
 Leave the remote as “origin” and make sure the “Sync branch with remote”
@@ -164,7 +175,9 @@ A good way to navigate within files is to use the document outline which
 will be displayed when you hit the right-most icon on the editor pane
 toolbar.
 <center>
-<img src="images/outline.png" style="width:30.0%">
+<div class="float">
+<img src="images/outline.png" style="width:30.0%" alt="Markdown outline in RStudio"><div class="figcaption">Markdown outline in RStudio</div>
+</div>
 </center>
 <p>You will find the subheading “People with a mizer fork” towards the
 bottom of the outline. Clicking on it will move to the corresponding
@@ -187,11 +200,15 @@ So far you have only saved your changes to your local disc, but have not
 yet committed it to your local repository. To do that you click on the
 “Commit” button on the toolbar in the “Git” pane in RStudio:
 <center>
-<img src="images/commit_button.png" style="width:40.0%">
+<div class="float">
+<img src="images/commit_button.png" style="width:40.0%" alt="Commit button in Git tab"><div class="figcaption">Commit button in Git tab</div>
+</div>
 </center>
 This will pop up a screen like the following:
 <center>
-<img src="images/commit.png" style="width:70.0%">
+<div class="float">
+<img src="images/commit.png" style="width:70.0%" alt="Commit dialog box"><div class="figcaption">Commit dialog box</div>
+</div>
 </center>
 <p>The blue M to the left of the file vignettes/developer_vignette.Rmd
 indicates that this file has been modified on your hard disc. The files
@@ -223,7 +240,9 @@ After you have pushed your changes, you will be able to see them also on
 GitHub. If you go to the home page of your GitHub repository you will
 see a comment that you made a commit a little while ago:
 <center>
-<img src="images/recently_pushed.png" style="width:80.0%">
+<div class="float">
+<img src="images/recently_pushed.png" style="width:80.0%" alt="Recently pushed branches on GitHub"><div class="figcaption">Recently pushed branches on GitHub</div>
+</div>
 </center>
 <p>It may be that you have several computers on which you work an you
 can have a local repository on every one of them. In that scenario, it

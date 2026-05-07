@@ -23,14 +23,14 @@ end of the simulation
 Fetch the simulation results for other components over time.
 }
 \seealso{
-Other extensions:
+Other extension tools:
+\code{\link[=clearExtensionChain]{clearExtensionChain()}},
 \code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
 \code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
 \code{\link[=initialNOther<-]{initialNOther<-()}},
 \code{\link[=registerExtension]{registerExtension()}},
 \code{\link[=registerExtensions]{registerExtensions()}},
-\code{\link[=resetMizerSession]{resetMizerSession()}},
 \code{\link[=setComponent]{setComponent()}},
 \code{\link[=setRateFunction]{setRateFunction()}}
 }
-\concept{extensions}
+\concept{extension tools}

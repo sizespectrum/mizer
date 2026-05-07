@@ -22,14 +22,14 @@ corresponding to the object's own extension chain. For \code{MizerSim}, the
 extension chain is read from \code{sim@params@extensions}.
 }
 \seealso{
-Other extensions:
+Other extension tools:
 \code{\link[=NOther]{NOther()}},
+\code{\link[=clearExtensionChain]{clearExtensionChain()}},
 \code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
 \code{\link[=initialNOther<-]{initialNOther<-()}},
 \code{\link[=registerExtension]{registerExtension()}},
 \code{\link[=registerExtensions]{registerExtensions()}},
-\code{\link[=resetMizerSession]{resetMizerSession()}},
 \code{\link[=setComponent]{setComponent()}},
 \code{\link[=setRateFunction]{setRateFunction()}}
 }
-\concept{extensions}
+\concept{extension tools}

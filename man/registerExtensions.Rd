@@ -42,14 +42,14 @@ use \code{\link[=registerExtension]{registerExtension()}} instead.
 \seealso{
 \code{\link[=registerExtension]{registerExtension()}} for the incremental per-package variant.
 
-Other extensions:
+Other extension tools:
 \code{\link[=NOther]{NOther()}},
+\code{\link[=clearExtensionChain]{clearExtensionChain()}},
 \code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
 \code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
 \code{\link[=initialNOther<-]{initialNOther<-()}},
 \code{\link[=registerExtension]{registerExtension()}},
-\code{\link[=resetMizerSession]{resetMizerSession()}},
 \code{\link[=setComponent]{setComponent()}},
 \code{\link[=setRateFunction]{setRateFunction()}}
 }
-\concept{extensions}
+\concept{extension tools}

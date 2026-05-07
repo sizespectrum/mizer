@@ -36,14 +36,14 @@ re-executes \code{.onLoad}.
 \seealso{
 \code{\link[=registerExtensions]{registerExtensions()}} for registering an explicit full chain.
 
-Other extensions:
+Other extension tools:
 \code{\link[=NOther]{NOther()}},
+\code{\link[=clearExtensionChain]{clearExtensionChain()}},
 \code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
 \code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
 \code{\link[=initialNOther<-]{initialNOther<-()}},
 \code{\link[=registerExtensions]{registerExtensions()}},
-\code{\link[=resetMizerSession]{resetMizerSession()}},
 \code{\link[=setComponent]{setComponent()}},
 \code{\link[=setRateFunction]{setRateFunction()}}
 }
-\concept{extensions}
+\concept{extension tools}

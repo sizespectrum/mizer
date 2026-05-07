@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Get the total fishing mortality rate from all fishing gears by time, species and size. — getFMort"><meta name="description" content="Calculates the total fishing mortality  (in units 1/year) from all gears by
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Get the total fishing mortality rate from all fishing gears by time, species and size. — getFMort"><meta name="description" content="Calculates the total fishing mortality  (in units 1/year) from all gears by
 species and size and possibly time. See setFishing() for details of
 how fishing gears are set up."><meta property="og:description" content="Calculates the total fishing mortality  (in units 1/year) from all gears by
 species and size and possibly time. See setFishing() for details of
@@ -17,7 +17,7 @@ how fishing gears are set up."><meta property="og:image" content="https://sizesp
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.4.9125</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,13 +38,21 @@ how fishing gears are set up."><meta property="og:image" content="https://sizesp
     <li><a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a></li>
     <li><a class="dropdown-item" href="../articles/running_a_simulation.html">Running a Simulation</a></li>
     <li><a class="dropdown-item" href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a></li>
+    <li><a class="dropdown-item" href="../articles/cheatsheet.html">Cheatsheet: Analysis and Plotting</a></li>
     <li><a class="dropdown-item" href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a></li>
     <li><a class="dropdown-item" href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/predation_diffusion.html">Incorporating predation diffusion</a></li>
+    <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
+    <li><a class="dropdown-item" href="../articles/extensions.html">Extending mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/extension-packages.html">Creating a mizer extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Publications</h6></li>
     <li><a class="dropdown-item" href="../articles/publications.html">Publications</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>For developers</h6></li>
+    <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/mathematical_details.html">Mathematical Details of the Mizer Implementation</a></li>
+    <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><a class="dropdown-item" href="../articles/developer_vignette.html">Developer Guide</a></li>
     <li><a class="dropdown-item" href="../articles/working_with_git.html">Working with git and GitHub</a></li>
     <li><a class="dropdown-item" href="../articles/developer_FAQ.html">Developer FAQ</a></li>
@@ -54,7 +62,8 @@ how fishing gears are set up."><meta property="og:image" content="https://sizesp
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
+      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://notebooklm.google.com/notebook/6aa51f75-d1a8-4140-9180-84532ef5f821"><span class="fa fa-robot"></span> Ask AI</a></li>
+<li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://blog.mizer.sizespectrum.org">Blog</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://twitter.com/mizer_model" aria-label="Twitter"><span class="fa fab fa-twitter fa-lg"></span></a></li>
@@ -116,10 +125,11 @@ species it might make presentation of results easier. Default is TRUE.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An array. If the effort argument has a time dimension, or object is
-of class <code>MizerSim</code>, the output array has three dimensions (time x
-species x size). If the effort argument does not have a time dimension, the
-output array has two dimensions (species x size).</p>
+    <p>If a <code>MizerParams</code> object is passed in without a time-dimensioned
+effort, returns an <code>ArraySpeciesBySize</code> object (species x size) with the fishing
+mortality rates. If the effort argument has a time dimension, or a
+<code>MizerSim</code> object is passed in, returns a three-dimensional array
+(time x species x size).</p>
 <p>The <code>effort</code> argument is only used if a <code>MizerParams</code> object is
 passed in. The <code>effort</code> argument can be a two dimensional array (time x
 gear), a vector of length equal to the number of gears (each gear has a
@@ -153,12 +163,14 @@ same arguments.</p>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other rate functions:
+<code><a href="getDiffusion.html">getDiffusion()</a></code>,
 <code><a href="getEGrowth.html">getEGrowth()</a></code>,
 <code><a href="getERepro.html">getERepro()</a></code>,
 <code><a href="getEReproAndGrowth.html">getEReproAndGrowth()</a></code>,
 <code><a href="getEncounter.html">getEncounter()</a></code>,
 <code><a href="getFMortGear.html">getFMortGear()</a></code>,
 <code><a href="getFeedingLevel.html">getFeedingLevel()</a></code>,
+<code><a href="getFlux.html">getFlux()</a></code>,
 <code><a href="getMort.html">getMort()</a></code>,
 <code><a href="getPredMort.html">getPredMort()</a></code>,
 <code><a href="getPredRate.html">getPredRate()</a></code>,
@@ -175,10 +187,195 @@ same arguments.</p>
 <span class="r-in"><span><span class="co"># Get the total fishing mortality in the initial state</span></span></span>
 <span class="r-in"><span><span class="cn">F</span> <span class="op">&lt;-</span> <span class="fu">getFMort</span><span class="op">(</span><span class="va">params</span>, effort <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="cn">F</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  num [1:12, 1:100] 0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  'ArraySpeciesBySize' num [1:12, 1:100] 0 0 0 0 0 0 0 0 0 0 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "dimnames")=List of 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "value_name")= chr "Fishing mortality"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "units")= chr "1/year"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 46 slots</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ metadata               : list()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ mizer_version          :Classes 'package_version', 'numeric_version'  hidden list of 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : int [1:4] 2 5 4 9123</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ extensions             : chr(0) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ time_created           : POSIXct[1:1], format: "2021-09-03 20:29:38"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ time_modified          : POSIXct[1:1], format: "2026-04-12 11:31:45"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ w                      : num [1:100] 0.001 0.00119 0.00142 0.0017 0.00203 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ dw                     : num [1:100] 0.000193 0.000231 0.000275 0.000329 0.000392 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ w_full                 : num [1:226] 2.12e-13 2.53e-13 3.02e-13 3.61e-13 4.30e-13 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ dw_full                : num [1:226] 4.10e-14 4.90e-14 5.84e-14 6.97e-14 8.32e-14 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ w_min_idx              : Named num [1:12] 1 1 1 1 1 1 1 1 1 1 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "names")= chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ maturity               : num [1:12, 1:100] 0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ psi                    : num [1:12, 1:100] 0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ initial_n              : num [1:12, 1:100] 1.84e+13 6.86e+12 1.44e+14 1.45e+13 1.71e+11 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ intake_max             : num [1:12, 1:100] 0.182 0.275 0.328 0.35 0.307 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ search_vol             : num [1:12, 1:100] 1.27e-13 6.00e-14 3.44e-13 4.49e-14 1.86e-13 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ metab                  : num [1:12, 1:100] 0.0289 0.0437 0.0522 0.0557 0.0487 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ pred_kernel            : logi [1(1d)] NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ ft_pred_kernel_e       : cplx [1:12, 1:226] 11.3+0i 26.9+0i 20.8+0i ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ k : chr [1:226] "1" "2" "3" "4" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ ft_pred_kernel_p       : cplx [1:12, 1:226] 11.3+0i 26.9+0i 20.8+0i ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ k : chr [1:226] "1" "2" "3" "4" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ mu_b                   : num [1:12, 1:100] 0.1871 0.1817 0.1293 0.0865 0.0874 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ ext_encounter          : num [1:12, 1:100] 0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ ext_diffusion          : num [1:12, 1:100] 0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ rr_pp                  : Named num [1:226] 167660 158066 149021 140494 132455 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "names")= chr [1:226] "2.12e-13" "2.53e-13" "3.02e-13" "3.61e-13" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ cc_pp                  : Named num [1:226] 1.09e+38 7.46e+37 5.11e+37 3.51e+37 2.41e+37 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "names")= chr [1:226] "2.12e-13" "2.53e-13" "3.02e-13" "3.61e-13" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ resource_dynamics      : chr "resource_semichemostat"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ resource_params        :List of 5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ kappa      : num 1e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ lambda     : num 2.13</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ r_pp       : num 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ n          : num 0.667</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ w_pp_cutoff: num 9.82</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ other_dynamics         : list()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ other_params           : list()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ other_encounter        : list()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ other_mort             : list()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ rates_funcs            :List of 14</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ Rates          : chr "mizerRates"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ Encounter      : chr "mizerEncounter"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ PredRate       : chr "mizerPredRate"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ PredMort       : chr "mizerPredMort"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ FMort          : chr "mizerFMort"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ Mort           : chr "mizerMort"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ ERepro         : chr "mizerERepro"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ EGrowth        : chr "mizerEGrowth"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ ResourceMort   : chr "mizerResourceMort"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ RDI            : chr "mizerRDI"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ RDD            : chr "BevertonHoltRDD"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ Diffusion      : chr "mizerDiffusion"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ sc                     : num [1:100] 0.001 0.00119 0.00142 0.0017 0.00203 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ initial_n_pp           : Named num [1:226] 1.09e+38 7.46e+37 5.11e+37 3.51e+37 2.41e+37 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "names")= chr [1:226] "2.12e-13" "2.53e-13" "3.02e-13" "3.61e-13" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ initial_n_other        : list()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ species_params         :'data.frame':	12 obs. of  34 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ species             : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ w_max               : num [1:12] 33 36 100 334 324 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ w_mat               : int [1:12] 13 4 23 99 21 75 78 39 105 165 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ beta                : int [1:12] 51076 398849 22 280540 191 22 381 283 113 558 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ sigma               : num [1:12] 0.8 1.9 1.5 3.2 1.9 1.5 1.9 1.8 1.6 2.1 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ k_vb                : num [1:12] 0.681 1 0.849 0.606 0.536 0.323 0.284 0.266 0.122 0.271 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ gear                : chr [1:12] "Industrial" "Industrial" "Industrial" "Pelagic" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ w_min               : num [1:12] 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ alpha               : num [1:12] 0.6 0.6 0.6 0.6 0.6 0.6 0.6 0.6 0.6 0.6 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ pred_kernel_type    : chr [1:12] "lognormal" "lognormal" "lognormal" "lognormal" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ h                   : num [1:12] 18.2 27.5 32.8 35 30.7 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ k                   : num [1:12] 0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ ks                  : num [1:12] 3.64 5.5 6.57 7.01 6.14 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ z0                  : num [1:12] 0.1871 0.1817 0.1293 0.0865 0.0874 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ gamma               : num [1:12] 3.20e-11 1.51e-11 8.63e-11 1.13e-11 4.67e-11 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ m                   : num [1:12] 1 1 1 1 1 1 1 1 1 1 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ erepro              : num [1:12] 1 1 1 1 1 1 1 1 1 1 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ R_max               : num [1:12] 7.38e+11 4.10e+11 1.05e+13 1.11e+12 1.12e+10 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ sel_func            : chr [1:12] "knife_edge" "knife_edge" "knife_edge" "knife_edge" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ knife_edge_size     : int [1:12] 13 4 23 99 21 75 78 39 105 165 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ catchability        : num [1:12] 1 1 1 1 1 1 1 1 1 1 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ p                   : num [1:12] 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ q                   : num [1:12] 0.8 0.8 0.8 0.8 0.8 0.8 0.8 0.8 0.8 0.8 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ n                   : num [1:12] 0.667 0.667 0.667 0.667 0.667 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ f0                  : num [1:12] 0.6 0.6 0.6 0.6 0.6 0.6 0.6 0.6 0.6 0.6 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ interaction_resource: num [1:12] 1 1 1 1 1 1 1 1 1 1 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ w_inf               : num [1:12] 33 36 100 334 324 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ w_mat25             : num [1:12] 11.65 3.58 20.61 88.7 18.82 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ w_repro_max         : num [1:12] 33 36 100 334 324 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ is_background       : logi [1:12] FALSE FALSE FALSE FALSE FALSE FALSE ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ z_ext               : num [1:12] 0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ d                   : num [1:12] -0.333 -0.333 -0.333 -0.333 -0.333 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ E_ext               : num [1:12] 0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ D_ext               : num [1:12] 0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ given_species_params   :'data.frame':	12 obs. of  27 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ species             : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ w_max               : num [1:12] 33 36 100 334 324 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ w_mat               : int [1:12] 13 4 23 99 21 75 78 39 105 165 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ beta                : int [1:12] 51076 398849 22 280540 191 22 381 283 113 558 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ sigma               : num [1:12] 0.8 1.9 1.5 3.2 1.9 1.5 1.9 1.8 1.6 2.1 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ k_vb                : num [1:12] 0.681 1 0.849 0.606 0.536 0.323 0.284 0.266 0.122 0.271 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ gear                : chr [1:12] "Industrial" "Industrial" "Industrial" "Pelagic" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ w_min               : num [1:12] 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ alpha               : num [1:12] 0.6 0.6 0.6 0.6 0.6 0.6 0.6 0.6 0.6 0.6 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ pred_kernel_type    : chr [1:12] "lognormal" "lognormal" "lognormal" "lognormal" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ h                   : num [1:12] 18.2 27.5 32.8 35 30.7 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ k                   : num [1:12] 0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ ks                  : num [1:12] 3.64 5.5 6.57 7.01 6.14 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ z0                  : num [1:12] 0.1871 0.1817 0.1293 0.0865 0.0874 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ gamma               : num [1:12] 3.20e-11 1.51e-11 8.63e-11 1.13e-11 4.67e-11 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ m                   : num [1:12] 1 1 1 1 1 1 1 1 1 1 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ erepro              : num [1:12] 1 1 1 1 1 1 1 1 1 1 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ R_max               : num [1:12] 7.38e+11 4.10e+11 1.05e+13 1.11e+12 1.12e+10 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ sel_func            : chr [1:12] "knife_edge" "knife_edge" "knife_edge" "knife_edge" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ knife_edge_size     : int [1:12] 13 4 23 99 21 75 78 39 105 165 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ catchability        : num [1:12] 1 1 1 1 1 1 1 1 1 1 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ p                   : num [1:12] 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ q                   : num [1:12] 0.8 0.8 0.8 0.8 0.8 0.8 0.8 0.8 0.8 0.8 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ n                   : num [1:12] 0.667 0.667 0.667 0.667 0.667 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ f0                  : num [1:12] 0.6 0.6 0.6 0.6 0.6 0.6 0.6 0.6 0.6 0.6 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ interaction_resource: num [1:12] 1 1 1 1 1 1 1 1 1 1 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ w_inf               : num [1:12] 33 36 100 334 324 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ interaction            : num [1:12, 1:12] 0.7291 0.0341 0.0635 0.2742 0.3624 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ predator: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ prey    : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ gear_params            :'data.frame':	12 obs. of  5 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ gear           : chr [1:12] "Industrial" "Industrial" "Industrial" "Pelagic" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ species        : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ sel_func       : chr [1:12] "knife_edge" "knife_edge" "knife_edge" "knife_edge" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ knife_edge_size: int [1:12] 13 4 23 99 21 75 78 39 105 165 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ catchability   : num [1:12] 1 1 1 1 1 1 1 1 1 1 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ selectivity            : num [1:4, 1:12, 1:100] 0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ gear: chr [1:4] "Industrial" "Pelagic" "Beam" "Otter"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp  : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ w   : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ catchability           : num [1:4, 1:12] 1 0 0 0 1 0 0 0 1 0 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ gear: chr [1:4] "Industrial" "Pelagic" "Beam" "Otter"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp  : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ initial_effort         : Named num [1:4] 0 1 0.5 0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "names")= chr [1:4] "Industrial" "Pelagic" "Beam" "Otter"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ A                      : num [1:12] 1 1 1 1 1 1 1 1 1 1 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ linecolour             : Named chr [1:17] "#815f00" "#6237e2" "#8da600" "#de53ff" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "names")= chr [1:17] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ linetype               : Named chr [1:16] "solid" "solid" "solid" "solid" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "names")= chr [1:16] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ ft_mask                : logi [1:12, 1:226] TRUE TRUE TRUE TRUE TRUE TRUE ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ use_predation_diffusion: logi FALSE</span>
 <span class="r-in"><span><span class="co"># Get the initial total fishing mortality when effort is different</span></span></span>
 <span class="r-in"><span><span class="co"># between the four gears:</span></span></span>
 <span class="r-in"><span><span class="cn">F</span> <span class="op">&lt;-</span> <span class="fu">getFMort</span><span class="op">(</span><span class="va">params</span>, effort <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>,<span class="fl">1</span>,<span class="fl">1.5</span>,<span class="fl">0.75</span><span class="op">)</span><span class="op">)</span></span></span>

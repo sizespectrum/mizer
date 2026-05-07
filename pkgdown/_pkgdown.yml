@@ -28,9 +28,6 @@ template:
       site: "@mizer_model"
       card: summary
 
-development:
-  mode: auto
-
 toc:
   depth: 3
 
@@ -205,7 +202,11 @@ reference:
   - getCriticalFeedingLevel
 - title: Extending Mizer
   contents:
-  - has_concept("extensions")
+  - setRateFunction
+  - setComponent
+  - initialNOther<-
+  - NOther
+  - has_concept("extension tools")
   - customFunction
 - title: Predation kernels
   contents:

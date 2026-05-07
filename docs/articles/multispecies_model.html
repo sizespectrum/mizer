@@ -17,7 +17,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -31,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.4.9125</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,13 +54,21 @@
     <li><a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a></li>
     <li><a class="dropdown-item" href="../articles/running_a_simulation.html">Running a Simulation</a></li>
     <li><a class="dropdown-item" href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a></li>
+    <li><a class="dropdown-item" href="../articles/cheatsheet.html">Cheatsheet: Analysis and Plotting</a></li>
     <li><a class="dropdown-item" href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a></li>
     <li><a class="dropdown-item" href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/predation_diffusion.html">Incorporating predation diffusion</a></li>
+    <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
+    <li><a class="dropdown-item" href="../articles/extensions.html">Extending mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/extension-packages.html">Creating a mizer extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Publications</h6></li>
     <li><a class="dropdown-item" href="../articles/publications.html">Publications</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>For developers</h6></li>
+    <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/mathematical_details.html">Mathematical Details of the Mizer Implementation</a></li>
+    <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><a class="dropdown-item" href="../articles/developer_vignette.html">Developer Guide</a></li>
     <li><a class="dropdown-item" href="../articles/working_with_git.html">Working with git and GitHub</a></li>
     <li><a class="dropdown-item" href="../articles/developer_FAQ.html">Developer FAQ</a></li>
@@ -73,6 +81,7 @@
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
+<li class="nav-item"><a class="external-link nav-link" href="https://notebooklm.google.com/notebook/6aa51f75-d1a8-4140-9180-84532ef5f821"><span class="fa fa-robot"></span> Ask AI</a></li>
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
@@ -362,32 +371,45 @@ data frame that we provided. We can look at it with
 <span><span class="co">## Haddock Haddock  3485   165    558   2.1 1.84e+12 0.271 0.6666667 0.7  3485</span></span>
 <span><span class="co">## Cod         Cod 40044  1606     66   1.3 8.26e+09 0.216 0.6666667 0.7 40044</span></span>
 <span><span class="co">## Saithe   Saithe 16856  1076     40   1.1 1.12e+11 0.175 0.6666667 0.7 16856</span></span>
-<span><span class="co">##         w_min w_repro_max alpha interaction_resource pred_kernel_type        h</span></span>
-<span><span class="co">## Sprat   0.001          33   0.6                    1        lognormal 14.51026</span></span>
-<span><span class="co">## Sandeel 0.001          36   0.6                    1        lognormal 28.36951</span></span>
-<span><span class="co">## N.pout  0.001         100   0.6                    1        lognormal 30.69918</span></span>
-<span><span class="co">## Herring 0.001         334   0.6                    1        lognormal 31.20041</span></span>
-<span><span class="co">## Dab     0.001         324   0.6                    1        lognormal 34.68295</span></span>
-<span><span class="co">## Whiting 0.001        1192   0.6                    1        lognormal 32.78322</span></span>
-<span><span class="co">## Sole    0.001         866   0.6                    1        lognormal 24.90951</span></span>
-<span><span class="co">## Gurnard 0.001         668   0.6                    1        lognormal 22.29126</span></span>
-<span><span class="co">## Plaice  0.001        2976   0.6                    1        lognormal 17.71691</span></span>
-<span><span class="co">## Haddock 0.001        3485   0.6                    1        lognormal 40.62144</span></span>
-<span><span class="co">## Cod     0.001       40044   0.6                    1        lognormal 74.81794</span></span>
-<span><span class="co">## Saithe  0.001       16856   0.6                    1        lognormal 43.50194</span></span>
-<span><span class="co">##         k       ks         z0         q        gamma     w_mat25 m erepro</span></span>
-<span><span class="co">## Sprat   0 1.598545 0.18705957 0.7166667 5.765885e-11   11.647460 1      1</span></span>
-<span><span class="co">## Sandeel 0 3.250607 0.18171206 0.7166667 4.267142e-11    3.583834 1      1</span></span>
-<span><span class="co">## N.pout  0 3.318311 0.12926608 0.7166667 9.749884e-11   20.607045 1      1</span></span>
-<span><span class="co">## Herring 0 3.212332 0.08647736 0.7166667 2.812559e-11   88.699888 1      1</span></span>
-<span><span class="co">## Dab     0 3.760307 0.08735805 0.7166667 7.663981e-11   18.815128 1      1</span></span>
-<span><span class="co">## Whiting 0 3.406676 0.05658819 0.7166667 1.041177e-10   67.196884 1      1</span></span>
-<span><span class="co">## Sole    0 2.585095 0.06294752 0.7166667 5.308445e-11   69.884760 1      1</span></span>
-<span><span class="co">## Gurnard 0 2.367448 0.06863713 0.7166667 5.091838e-11   34.942380 1      1</span></span>
-<span><span class="co">## Plaice  0 1.820523 0.04171321 0.7166667 4.774060e-11   94.075638 1      1</span></span>
-<span><span class="co">## Haddock 0 4.111691 0.03957464 0.7166667 7.679024e-11  147.833146 1      1</span></span>
-<span><span class="co">## Cod     0 7.019866 0.01753768 0.7166667 2.549664e-10 1438.909287 1      1</span></span>
-<span><span class="co">## Saithe  0 4.136466 0.02340093 0.7166667 1.797143e-10  964.051303 1      1</span></span></code></pre>
+<span><span class="co">##         w_min w_repro_max alpha interaction_resource z_ext          d E_ext</span></span>
+<span><span class="co">## Sprat   0.001          33   0.6                    1     0 -0.3333333     0</span></span>
+<span><span class="co">## Sandeel 0.001          36   0.6                    1     0 -0.3333333     0</span></span>
+<span><span class="co">## N.pout  0.001         100   0.6                    1     0 -0.3333333     0</span></span>
+<span><span class="co">## Herring 0.001         334   0.6                    1     0 -0.3333333     0</span></span>
+<span><span class="co">## Dab     0.001         324   0.6                    1     0 -0.3333333     0</span></span>
+<span><span class="co">## Whiting 0.001        1192   0.6                    1     0 -0.3333333     0</span></span>
+<span><span class="co">## Sole    0.001         866   0.6                    1     0 -0.3333333     0</span></span>
+<span><span class="co">## Gurnard 0.001         668   0.6                    1     0 -0.3333333     0</span></span>
+<span><span class="co">## Plaice  0.001        2976   0.6                    1     0 -0.3333333     0</span></span>
+<span><span class="co">## Haddock 0.001        3485   0.6                    1     0 -0.3333333     0</span></span>
+<span><span class="co">## Cod     0.001       40044   0.6                    1     0 -0.3333333     0</span></span>
+<span><span class="co">## Saithe  0.001       16856   0.6                    1     0 -0.3333333     0</span></span>
+<span><span class="co">##         D_ext is_background pred_kernel_type        h k       ks         z0</span></span>
+<span><span class="co">## Sprat       0         FALSE        lognormal 14.51026 0 1.598545 0.18705957</span></span>
+<span><span class="co">## Sandeel     0         FALSE        lognormal 28.36951 0 3.250607 0.18171206</span></span>
+<span><span class="co">## N.pout      0         FALSE        lognormal 30.69918 0 3.318311 0.12926608</span></span>
+<span><span class="co">## Herring     0         FALSE        lognormal 31.20041 0 3.212332 0.08647736</span></span>
+<span><span class="co">## Dab         0         FALSE        lognormal 34.68295 0 3.760307 0.08735805</span></span>
+<span><span class="co">## Whiting     0         FALSE        lognormal 32.78322 0 3.406676 0.05658819</span></span>
+<span><span class="co">## Sole        0         FALSE        lognormal 24.90951 0 2.585095 0.06294752</span></span>
+<span><span class="co">## Gurnard     0         FALSE        lognormal 22.29126 0 2.367448 0.06863713</span></span>
+<span><span class="co">## Plaice      0         FALSE        lognormal 17.71691 0 1.820523 0.04171321</span></span>
+<span><span class="co">## Haddock     0         FALSE        lognormal 40.62144 0 4.111691 0.03957464</span></span>
+<span><span class="co">## Cod         0         FALSE        lognormal 74.81794 0 7.019866 0.01753768</span></span>
+<span><span class="co">## Saithe      0         FALSE        lognormal 43.50194 0 4.136466 0.02340093</span></span>
+<span><span class="co">##                 q        gamma     w_mat25 m erepro</span></span>
+<span><span class="co">## Sprat   0.7166667 5.765885e-11   11.647460 1      1</span></span>
+<span><span class="co">## Sandeel 0.7166667 4.267142e-11    3.583834 1      1</span></span>
+<span><span class="co">## N.pout  0.7166667 9.749884e-11   20.607045 1      1</span></span>
+<span><span class="co">## Herring 0.7166667 2.812559e-11   88.699888 1      1</span></span>
+<span><span class="co">## Dab     0.7166667 7.663981e-11   18.815128 1      1</span></span>
+<span><span class="co">## Whiting 0.7166667 1.041177e-10   67.196884 1      1</span></span>
+<span><span class="co">## Sole    0.7166667 5.308445e-11   69.884760 1      1</span></span>
+<span><span class="co">## Gurnard 0.7166667 5.091838e-11   34.942380 1      1</span></span>
+<span><span class="co">## Plaice  0.7166667 4.774060e-11   94.075638 1      1</span></span>
+<span><span class="co">## Haddock 0.7166667 7.679024e-11  147.833146 1      1</span></span>
+<span><span class="co">## Cod     0.7166667 2.549664e-10 1438.909287 1      1</span></span>
+<span><span class="co">## Saithe  0.7166667 1.797143e-10  964.051303 1      1</span></span></code></pre>
 <p>We can see that this returns the original species data.frame (with
 <code>w_max</code> and so on), plus any default values that may not have
 been included in the original data.frame. For example, we can see that
@@ -437,6 +459,9 @@ objects which prints a useful summary of the model parameters:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## An object of class "MizerParams" </span></span>
+<span><span class="co">## mizer version: 2.5.4.9125</span></span>
+<span><span class="co">## Created: 2026-05-07 18:49:15</span></span>
+<span><span class="co">## Modified: 2026-05-07 18:49:15</span></span>
 <span><span class="co">## Consumer size spectrum:</span></span>
 <span><span class="co">##  minimum size:   0.001</span></span>
 <span><span class="co">##  maximum size:   40044</span></span>
@@ -497,7 +522,7 @@ model area.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/getInteraction.html">getInteraction</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Warning: `getInteraction()` was deprecated in mizer 2.4.0.</span></span>
 <span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Please use `interaction_matrix()` instead.</span></span>
-<span><span class="co">## <span style="color: #555555;">This warning is displayed once every 8 hours.</span></span></span>
+<span><span class="co">## <span style="color: #555555;">This warning is displayed once per session.</span></span></span>
 <span><span class="co">## <span style="color: #555555;">Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span></span>
 <span><span class="co">## <span style="color: #555555;">generated.</span></span></span></code></pre>
 <pre><code><span><span class="co">##          prey</span></span>
@@ -650,6 +675,9 @@ combinations of species. We can achieve that by only changing the
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## An object of class "MizerParams" </span></span>
+<span><span class="co">## mizer version: 2.5.4.9125</span></span>
+<span><span class="co">## Created: 2026-05-07 18:49:15</span></span>
+<span><span class="co">## Modified: 2026-05-07 18:49:16</span></span>
 <span><span class="co">## Consumer size spectrum:</span></span>
 <span><span class="co">##  minimum size:   0.001</span></span>
 <span><span class="co">##  maximum size:   40044</span></span>

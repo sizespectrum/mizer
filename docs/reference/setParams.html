@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Set or change any model parameters — setParams"><meta name="description" content="This is a convenient wrapper function calling each of the following
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Set or change any model parameters — setParams"><meta name="description" content="This is a convenient wrapper function calling each of the following
 functions
 setPredKernel()
 setSearchVolume()
@@ -35,7 +35,7 @@ See the Details section below for a discussion of how to use this function."><me
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.4.9125</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,13 +56,21 @@ See the Details section below for a discussion of how to use this function."><me
     <li><a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a></li>
     <li><a class="dropdown-item" href="../articles/running_a_simulation.html">Running a Simulation</a></li>
     <li><a class="dropdown-item" href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a></li>
+    <li><a class="dropdown-item" href="../articles/cheatsheet.html">Cheatsheet: Analysis and Plotting</a></li>
     <li><a class="dropdown-item" href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a></li>
     <li><a class="dropdown-item" href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/predation_diffusion.html">Incorporating predation diffusion</a></li>
+    <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
+    <li><a class="dropdown-item" href="../articles/extensions.html">Extending mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/extension-packages.html">Creating a mizer extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Publications</h6></li>
     <li><a class="dropdown-item" href="../articles/publications.html">Publications</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>For developers</h6></li>
+    <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/mathematical_details.html">Mathematical Details of the Mizer Implementation</a></li>
+    <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><a class="dropdown-item" href="../articles/developer_vignette.html">Developer Guide</a></li>
     <li><a class="dropdown-item" href="../articles/working_with_git.html">Working with git and GitHub</a></li>
     <li><a class="dropdown-item" href="../articles/developer_FAQ.html">Developer FAQ</a></li>
@@ -72,7 +80,8 @@ See the Details section below for a discussion of how to use this function."><me
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
+      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://notebooklm.google.com/notebook/6aa51f75-d1a8-4140-9180-84532ef5f821"><span class="fa fa-robot"></span> Ask AI</a></li>
+<li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://blog.mizer.sizespectrum.org">Blog</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://twitter.com/mizer_model" aria-label="Twitter"><span class="fa fab fa-twitter fa-lg"></span></a></li>
@@ -111,14 +120,14 @@ functions</p><ul><li><p><code><a href="setPredKernel.html">setPredKernel()</a></
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">setParams</span><span class="op">(</span><span class="va">params</span>, interaction <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">setParams</span><span class="op">(</span><span class="va">object</span>, interaction <span class="op">=</span> <span class="cn">NULL</span>, info_level <span class="op">=</span> <span class="fl">3</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-params">params<a class="anchor" aria-label="anchor" href="#arg-params"></a></dt>
+<dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
 <dd><p>A <a href="MizerParams-class.html">MizerParams</a> object</p></dd>
 
 
@@ -128,12 +137,23 @@ species x prey species). By default all entries are 1. See "Setting
 interaction matrix" section below.</p></dd>
 
 
+<dt id="arg-info-level">info_level<a class="anchor" aria-label="anchor" href="#arg-info-level"></a></dt>
+<dd><p>Controls the amount of information messages that are shown.
+Higher levels lead to more messages.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Arguments passed on to <code><a href="setPredKernel.html">setPredKernel</a></code>, <code><a href="setSearchVolume.html">setSearchVolume</a></code>, <code><a href="setMaxIntakeRate.html">setMaxIntakeRate</a></code>, <code><a href="setMetabolicRate.html">setMetabolicRate</a></code>, <code><a href="setExtMort.html">setExtMort</a></code>, <code><a href="setReproduction.html">setReproduction</a></code>, <code><a href="setFishing.html">setFishing</a></code></p><dl><dt><code>pred_kernel</code></dt>
+<dd><p>Arguments passed on to <code><a href="setPredKernel.html">setPredKernel</a></code>, <code><a href="setSearchVolume.html">setSearchVolume</a></code>, <code><a href="setMaxIntakeRate.html">setMaxIntakeRate</a></code>, <code><a href="setMetabolicRate.html">setMetabolicRate</a></code>, <code><a href="setExtMort.html">setExtMort</a></code>, <code><a href="setExtEncounter.html">setExtEncounter</a></code>, <code><a href="setReproduction.html">setReproduction</a></code>, <code><a href="setFishing.html">setFishing</a></code></p><dl><dt><code>params</code></dt>
+<dd><p>A MizerParams object</p></dd>
+
+    <dt><code>pred_kernel</code></dt>
 <dd><p>Optional. An array (species x predator size x prey size)
 that holds the predation coefficient of each predator at size on each prey
 size. If not supplied, a default is set as described in section "Setting
 predation kernel".</p></dd>
+
+    <dt><code>value</code></dt>
+<dd><p>pred_kernel</p></dd>
 
     <dt><code>search_vol</code></dt>
 <dd><p>Optional. An array (species x size) holding the search volume
@@ -174,6 +194,12 @@ Default value is <code>n-1</code>.</p></dd>
 <dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Use <code>ext_mort</code> instead. Not to
 be confused with the species_parameter <code>z0</code>.</p></dd>
 
+    <dt><code>ext_encounter</code></dt>
+<dd><p>Optional. An array (species x size) holding the external
+encounter rate.  If not supplied, a default is calculated from the <code>E_ext</code>
+and <code>n</code> species parameters as described in the section "Setting external
+encounter rate".</p></dd>
+
     <dt><code>maturity</code></dt>
 <dd><p>Optional. An array (species x size) that holds the proportion
 of individuals of each species at size that are mature. If not supplied, a
@@ -181,9 +207,10 @@ default is set as described in the section "Setting reproduction".</p></dd>
 
     <dt><code>repro_prop</code></dt>
 <dd><p>Optional. An array (species x size) that holds the
-proportion of consumed energy that a mature individual allocates to
-reproduction for each species at size. If not supplied, a default is set as
-described in the section "Setting reproduction".</p></dd>
+proportion of the energy available for growth and reproduction that a mature
+individual allocates to reproduction for each species at size. If not
+supplied, a default is set as described in the section "Setting
+reproduction".</p></dd>
 
     <dt><code>RDD</code></dt>
 <dd><p>The name of the function calculating the density-dependent
@@ -290,7 +317,9 @@ stores it in the <code>interaction</code> slot of the <code>params</code> object
 <p>The order of the columns and rows of the <code>interaction</code> argument should be
 the same as the order in the species params data frame in the <code>params</code>
 object. If you supply a named array then the function will check the order
-and warn if it is different. One way of creating your own interaction
+and message if it is different before ignoring the supplied dimnames. If
+you supply only column names then these are also used as the row names. One
+way of creating your own interaction
 matrix is to enter the data using a spreadsheet program and saving it as a
 .csv file. The data can then be read into R using the command <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv()</a></code>.</p>
 <p>The interaction of the species with the resource are set via a column
@@ -363,9 +392,13 @@ The values of \(\gamma_i\) (the search volume at 1g) and \(q_i\) (the
 allometric exponent of the search volume) are taken from the <code>gamma</code> and
 <code>q</code> columns in the species parameter dataframe. If the <code>gamma</code>
 column is not supplied in the species parameter dataframe, a default is
-calculated by the <code><a href="get_gamma_default.html">get_gamma_default()</a></code> function. Note that only
+calculated by the <code><a href="get_gamma_default.html">get_gamma_default()</a></code> function. If the <code>q</code> column is not
+supplied, a default of <code>lambda - 2 + n</code> is used. Note that only
 for predators of size \(w = 1\) gram is the value of the species parameter
 \(\gamma_i\) the same as the value of the search volume \(\gamma_i(w)\).</p>
+<p>If the <code>search_vol</code> slot has a comment and <code>reset = FALSE</code>, then a
+recalculation from the species parameters is suppressed and a message is
+issued if the recalculated values would differ from the stored ones.</p>
     </div>
     <div class="section level2">
     <h2 id="setting-maximum-intake-rate">Setting maximum intake rate<a class="anchor" aria-label="anchor" href="#setting-maximum-intake-rate"></a></h2>
@@ -380,9 +413,13 @@ The values of \(h_i\) (the maximum intake rate of an individual of size 1
 gram) and \(n_i\) (the allometric exponent for the intake rate) are taken
 from the <code>h</code> and <code>n</code> columns in the species parameter dataframe. If
 the <code>h</code> column is not supplied in the species parameter dataframe, it is
-calculated by the <code><a href="get_h_default.html">get_h_default()</a></code> function.</p>
+calculated by the <code><a href="get_h_default.html">get_h_default()</a></code> function. If the <code>n</code> column is not
+supplied, a default of \(n_i = 3/4\) is used.</p>
 <p>If \(h_i\) is set to <code>Inf</code>, fish of species i will consume all encountered
 food.</p>
+<p>If the <code>intake_max</code> slot has a comment and <code>reset = FALSE</code>, then a
+recalculation from the species parameters is suppressed and a message is
+issued if the recalculated values would differ from the stored ones.</p>
     </div>
     <div class="section level2">
     <h2 id="setting-metabolic-rate">Setting metabolic rate<a class="anchor" aria-label="anchor" href="#setting-metabolic-rate"></a></h2>
@@ -398,11 +435,14 @@ where \(k_s w^p\) represents the rate of standard metabolism and \(k w\)
 is the rate at which energy is expended on activity and movement. The values
 of \(k_s\), \(p\) and \(k\) are taken from the <code>ks</code>, <code>p</code> and
 <code>k</code> columns in the species parameter dataframe. If any of these
-parameters are not supplied, the defaults are \(k = 0\), \(p = n\) and
+parameters are not supplied, the defaults are \(k = 0\), \(p = 3/4\) and
 $$k_s = f_c h \alpha w_{mat}^{n-p},$$
 where \(f_c\) is the critical feeding level taken from the <code>fc</code> column
 in the species parameter data frame. If the critical feeding level is not
 specified, a default of \(f_c = 0.2\) is used.</p>
+<p>If the <code>metab</code> slot has a comment and <code>reset = FALSE</code>, then a recalculation
+from the species parameters is suppressed and a message is issued if the
+recalculated values would differ from the stored ones.</p>
     </div>
     <div class="section level2">
     <h2 id="setting-external-mortality-rate">Setting external mortality rate<a class="anchor" aria-label="anchor" href="#setting-external-mortality-rate"></a></h2>
@@ -417,11 +457,14 @@ with units 1/year.</p>
 that depends on species and body size. You can see an example of this in
 the Examples section of the help page for <code><a href="setExtMort.html">setExtMort()</a></code>.</p>
 <p>If the <code>ext_mort</code> argument is not supplied, then the external mortality is
-assumed to depend only on the species, not on the size of the individual:
-\(\mu_{ext.i}(w) = z_{0.i}\). The value of the constant \(z_0\) for each
-species is taken from the <code>z0</code> column of the species parameter data frame, if
-that column exists. Otherwise it is calculated as
-$$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$</p>
+taken from the species parameters as
+$$\mu_{ext.i}(w) = z_{0.i} + z_{ext.i} w^{d_i}.$$
+The value of the constant \(z_0\) for each species is taken from the <code>z0</code>
+column of the species parameter data frame, if that column exists.
+Otherwise it is calculated as
+$$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$
+Missing values of <code>z_ext</code> are set to 0 and missing values of <code>d</code> are set to
+<code>n - 1</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="setting-external-encounter-rate">Setting external encounter rate<a class="anchor" aria-label="anchor" href="#setting-external-encounter-rate"></a></h2>
@@ -432,6 +475,34 @@ food that is not explicitly modelled. It is a rate with units mass/year.</p>
 <p>The <code>ext_encounter</code> argument allows you to specify an external encounter rate
 that depends on species and body size. You can see an example of this in
 the Examples section of the help page for <code><a href="setExtEncounter.html">setExtEncounter()</a></code>.</p>
+<p>If the <code>ext_encounter</code> argument is not supplied, then the external encounter
+rate is calculated as a power law:
+$$E_{ext.i}(w) = E_{ext.i}\, w^{n_i}.$$
+The coefficient \(E_{ext.i}\) is taken from the <code>E_ext</code> column of the
+species parameter data frame, which defaults to 0. The exponent \(n_i\) is
+taken from the <code>n</code> column of the species parameter data frame.</p>
+<p>If the <code>ext_encounter</code> slot has a comment and <code>reset = FALSE</code>, then a
+recalculation from the species parameters is suppressed and a message is
+issued if the recalculated values would differ from the stored ones.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="setting-external-diffusion-rate">Setting external diffusion rate<a class="anchor" aria-label="anchor" href="#setting-external-diffusion-rate"></a></h2>
+
+
+<p>The external diffusion rate allows you to impose additional diffusion of
+abundance density over body size beyond the predation-driven diffusion
+computed by <code><a href="mizerDiffusion.html">mizerDiffusion()</a></code>.</p>
+<p>The <code>ext_diffusion</code> argument allows you to specify a diffusion rate that
+depends on species and body size.</p>
+<p>If the <code>ext_diffusion</code> argument is not supplied, then the external diffusion
+rate is calculated as a power law:
+$$D_{ext.i}(w) = D_{ext.i}\, w^{n_i+1}.$$
+The coefficient \(D_{ext.i}\) is taken from the <code>D_ext</code> column of the
+species parameter data frame, which defaults to 0. The exponent
+\(n_i + 1\) uses the <code>n</code> column of the species parameter data frame.</p>
+<p>If the <code>ext_diffusion</code> slot has a comment and <code>reset = FALSE</code>, then a
+recalculation from the species parameters is suppressed and a message is
+issued if the recalculated values would differ from the stored ones.</p>
     </div>
     <div class="section level2">
     <h2 id="setting-reproduction">Setting reproduction<a class="anchor" aria-label="anchor" href="#setting-reproduction"></a></h2>
@@ -465,10 +536,8 @@ including a column <code>w_mat25</code> in the species parameter dataframe that
 specifies the weight at which 25% of individuals are mature, which sets
 \(U = \log(3) / \log(w_{mat} / w_{mat25}).\)</p>
 <p>The sigmoidal function given above would strictly reach 1 only
-asymptotically. Mizer instead sets the function equal to 1 already at a size
-taken from the <code>w_repro_max</code> column in the species parameter data frame, if it
-exists, or otherwise from the <code>w_max</code> column. Also, for computational
-simplicity, any proportion smaller than <code>1e-8</code> is set to <code>0</code>.</p>
+asymptotically. For computational simplicity, any proportion smaller than
+<code>1e-8</code> is set to <code>0</code>.</p>
 </div>
 
 <div class="section">
@@ -476,7 +545,8 @@ simplicity, any proportion smaller than <code>1e-8</code> is set to <code>0</cod
 <p>If the the energy available to a mature individual that is
 invested into reproduction is not supplied via the <code>repro_prop</code> argument,
 it is set to the allometric form
-$${\tt repro\_prop}(w) = \left(\frac{w}{w_{\tt{repro\_max}}}\right)^{m-n}.$$
+$${\tt repro\_prop}(w) =
+  \left(\frac{w}{w_{\tt{repro\_max}}}\right)^{m-n}.$$
 Here \(n\) is the scaling exponent of the energy income rate. Hence
 the exponent \(m\) determines the scaling of the investment into
 reproduction for mature individuals. By default it is chosen to be
@@ -487,7 +557,12 @@ from the <code>w_repro_max</code> column in the species parameter data frame, if
 exists, or otherwise from the <code>w_max</code> column.</p>
 <p>The total proportion of energy invested into reproduction of an individual
 of size \(w\) is then
-$$\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)$$</p>
+$$\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)$$
+In mizer edition 1, at sizes above <code>w_repro_max</code> the value of \(\psi\)
+is additionally forced to 1, so that all available energy is invested into
+reproduction and growth stops. In edition 2 and above this forcing is not
+applied, and \(\psi\) is determined entirely by the maturity ogive and the
+reproductive proportion.</p>
 </div>
 
 <div class="section">
@@ -610,6 +685,7 @@ an effort that varies through time.</p>
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other functions for setting parameters:
 <code><a href="gear_params.html">gear_params()</a></code>,
+<code><a href="setExtDiffusion.html">setExtDiffusion()</a></code>,
 <code><a href="setExtEncounter.html">setExtEncounter()</a></code>,
 <code><a href="setExtMort.html">setExtMort()</a></code>,
 <code><a href="setFishing.html">setFishing()</a></code>,
@@ -620,7 +696,8 @@ an effort that varies through time.</p>
 <code><a href="setPredKernel.html">setPredKernel()</a></code>,
 <code><a href="setReproduction.html">setReproduction()</a></code>,
 <code><a href="setSearchVolume.html">setSearchVolume()</a></code>,
-<code><a href="species_params.html">species_params()</a></code></p></div>
+<code><a href="species_params.html">species_params()</a></code>,
+<code><a href="use_predation_diffusion.html">use_predation_diffusion()</a></code></p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
