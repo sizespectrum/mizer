@@ -1,4 +1,10 @@
-# Development version 2.5.4.9102
+# Development version (will become mizer 3.0.0)
+
+- `setRateFunction()` now works correctly even when an extension package is
+  loaded and S3 dispatch is active. Previously, custom rate functions registered
+  via `setRateFunction()` were silently ignored whenever `usesExtensionDispatch()`
+  returned `TRUE`. The fix resolves which functions to call once before the
+  time-step loop (in `projectRateFunctions()`), so there is no per-step overhead.
 
 - `setResource()` now allows `resource_level = 1`. When balancing would
   otherwise divide by zero because the resource capacity equals the current

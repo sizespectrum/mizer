@@ -134,62 +134,62 @@ projectRates.MizerParams <- function(params, n, n_pp, n_other,
 
     ## Growth ----
     # Calculate rate E_{e,i}(w) of encountered food
-    r$encounter <- projectEncounter(
+    r$encounter <- rates_fns$Encounter(
         params, n = n, n_pp = n_pp, n_other = n_other, t = t, ...)
     # Calculate feeding level f_i(w)
-    r$feeding_level <- projectFeedingLevel(
+    r$feeding_level <- rates_fns$FeedingLevel(
         params, n = n, n_pp = n_pp, n_other = n_other,
         encounter = r$encounter, t = t, ...)
     # Calculate the energy available for reproduction and growth
-    r$e <- projectEReproAndGrowth(
+    r$e <- rates_fns$EReproAndGrowth(
         params, n = n, n_pp = n_pp, n_other = n_other,
         encounter = r$encounter, feeding_level = r$feeding_level, t = t, ...)
     # Calculate the energy for reproduction
-    r$e_repro <- projectERepro(
+    r$e_repro <- rates_fns$ERepro(
         params, n = n, n_pp = n_pp, n_other = n_other,
         e = r$e, t = t, ...)
     # Calculate the growth rate g_i(w)
-    r$e_growth <- projectEGrowth(
+    r$e_growth <- rates_fns$EGrowth(
         params, n = n, n_pp = n_pp, n_other = n_other,
         e_repro = r$e_repro, e = r$e, t = t, ...)
     # Calculate the diffusion rate D_i(w)
-    r$diffusion <- projectDiffusion(
+    r$diffusion <- rates_fns$Diffusion(
         params, n = n, n_pp = n_pp, n_other = n_other,
         feeding_level = r$feeding_level, t = t, ...)
 
     ## Mortality ----
     # Calculate the predation rate
-    r$pred_rate <- projectPredRate(
+    r$pred_rate <- rates_fns$PredRate(
         params, n = n, n_pp = n_pp, n_other = n_other,
         feeding_level = r$feeding_level, t = t, ...)
     # Calculate predation mortality on fish \mu_{p,i}(w)
-    r$pred_mort <- projectPredMort(
+    r$pred_mort <- rates_fns$PredMort(
         params, n = n, n_pp = n_pp, n_other = n_other,
         pred_rate = r$pred_rate, t = t, ...)
     # Calculate fishing mortality
-    r$f_mort <- projectFMort(
+    r$f_mort <- rates_fns$FMort(
         params, n = n, n_pp = n_pp, n_other = n_other,
         effort = effort, t = t,
         e_growth = r$e_growth, pred_mort = r$pred_mort, ...)
     # Calculate total mortality \mu_i(w)
-    r$mort <- projectMort(
+    r$mort <- rates_fns$Mort(
         params, n = n, n_pp = n_pp, n_other = n_other,
         f_mort = r$f_mort, pred_mort = r$pred_mort, t = t, ...)
 
     ## Reproduction ----
     # R_di
-    r$rdi <- projectRDI(
+    r$rdi <- rates_fns$RDI(
         params, n = n, n_pp = n_pp, n_other = n_other,
         e_growth = r$e_growth,
         mort = r$mort,
         e_repro = r$e_repro, t = t, ...)
     # R_dd
-    r$rdd <- projectRDD(params, rdi = r$rdi, species_params = params@species_params,
-                        t = t, ...)
+    r$rdd <- rates_fns$RDD(params, rdi = r$rdi, species_params = params@species_params,
+                           t = t, ...)
 
     ## Resource ----
     # Calculate mortality on the resource spectrum
-    r$resource_mort <- projectResourceMort(
+    r$resource_mort <- rates_fns$ResourceMort(
         params, n = n, n_pp = n_pp, n_other = n_other,
         pred_rate = r$pred_rate, t = t, ...)
 
@@ -208,6 +208,27 @@ projectRateFunctions <- function(params) {
     rates_fns <- lapply(params@rates_funcs, get)
 
     if (usesExtensionDispatch(params)) {
+        # For rates still at their defaults, swap in the S3 generics so that
+        # projectRates.MizerParams (and any subclass override) can dispatch
+        # through the extension chain via NextMethod(). Rates overridden by the
+        # user via setRateFunction() keep their resolved custom function and are
+        # called directly, bypassing S3 dispatch for that rate.
+        rf <- params@rates_funcs
+        if (rf$Encounter       == "mizerEncounter")       rates_fns$Encounter       <- projectEncounter
+        if (rf$FeedingLevel    == "mizerFeedingLevel")    rates_fns$FeedingLevel    <- projectFeedingLevel
+        if (rf$EReproAndGrowth == "mizerEReproAndGrowth") rates_fns$EReproAndGrowth <- projectEReproAndGrowth
+        if (rf$ERepro          == "mizerERepro")          rates_fns$ERepro          <- projectERepro
+        if (rf$EGrowth         == "mizerEGrowth")         rates_fns$EGrowth         <- projectEGrowth
+        if (rf$Diffusion       == "mizerDiffusion")       rates_fns$Diffusion       <- projectDiffusion
+        if (rf$PredRate        == "mizerPredRate")        rates_fns$PredRate        <- projectPredRate
+        if (rf$PredMort        == "mizerPredMort")        rates_fns$PredMort        <- projectPredMort
+        if (rf$FMort           == "mizerFMort")           rates_fns$FMort           <- projectFMort
+        if (rf$Mort            == "mizerMort")            rates_fns$Mort            <- projectMort
+        if (rf$RDI             == "mizerRDI")             rates_fns$RDI             <- projectRDI
+        if (rf$ResourceMort    == "mizerResourceMort")    rates_fns$ResourceMort    <- projectResourceMort
+        # RDD is special: projectRDD.MizerParams already dispatches internally
+        # via params@rates_funcs$RDD, so always use the S3 generic here.
+        rates_fns$RDD   <- projectRDD
         rates_fns$Rates <- projectRates
     }
 

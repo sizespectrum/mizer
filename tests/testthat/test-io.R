@@ -37,8 +37,8 @@ test_that("saveSim/readSim round-trip", {
 })
 
 test_that("saveSim stores base classes and readSim restores extension classes", {
-    resetMizerSession()
-    withr::defer(resetMizerSession())
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
 
     ext_a <- paste0("mizerTestSimReadA", Sys.getpid())
     chain <- setNames(NA_character_, ext_a)
@@ -58,7 +58,7 @@ test_that("saveSim stores base classes and readSim restores extension classes", 
     expect_s4_class(saved@params, "MizerParams")
     expect_identical(saved@params@extensions, chain)
 
-    resetMizerSession()
+    clearExtensionChain()
     sim2 <- readSim(tmp)
 
     expect_identical(getRegisteredExtensions(), chain)

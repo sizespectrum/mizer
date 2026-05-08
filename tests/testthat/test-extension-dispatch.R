@@ -1,6 +1,6 @@
 test_that("getEncounter dispatches through extension chain", {
-    resetMizerSession()
-    withr::defer(resetMizerSession())
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
 
     ext <- paste0("mizerTestEncounter", Sys.getpid())
     chain <- setNames(NA_character_, ext)
@@ -51,8 +51,8 @@ test_that("projectEncounter base method is mizerEncounter", {
 })
 
 test_that("getRates dispatches through all projection hooks", {
-    resetMizerSession()
-    withr::defer(resetMizerSession())
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
 
     ext <- paste0("mizerTestRates", Sys.getpid())
     chain <- setNames(NA_character_, ext)
@@ -103,9 +103,33 @@ test_that("getEncounter honours rates_funcs for base objects", {
                  ignore_attr = TRUE)
 })
 
+test_that("setRateFunction is honoured when extension dispatch is active", {
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
+
+    ext <- paste0("mizerTestSetRateFunc", Sys.getpid())
+    chain <- setNames(NA_character_, ext)
+    registerExtensions(chain)
+
+    params <- NS_params
+    params@extensions <- chain
+    params <- coerceToExtensionClass(params)
+
+    assign("constant_encounter_for_dispatch_test",
+           function(params, n, n_pp, n_other, t = 0, ...) {
+               params@initial_n * 0 + 42
+           }, envir = .GlobalEnv)
+    withr::defer(rm("constant_encounter_for_dispatch_test", envir = .GlobalEnv))
+
+    params <- setRateFunction(params, "Encounter", "constant_encounter_for_dispatch_test")
+
+    expect_equal(getRates(params)$encounter, params@initial_n * 0 + 42,
+                 ignore_attr = TRUE)
+})
+
 test_that("classless extensions do not trigger project dispatch", {
-    resetMizerSession()
-    withr::defer(resetMizerSession())
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
 
     chain <- c(stats = "0.0")
     registerExtensions(chain)

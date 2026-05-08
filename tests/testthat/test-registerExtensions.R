@@ -1,6 +1,6 @@
 test_that("registerExtensions creates marker class chains in dispatch order", {
-    resetMizerSession()
-    withr::defer(resetMizerSession())
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
 
     ext_a <- paste0("mizerTestA", Sys.getpid())
     ext_b <- paste0("mizerTestB", Sys.getpid())
@@ -21,8 +21,8 @@ test_that("registerExtensions creates marker class chains in dispatch order", {
 })
 
 test_that("registerExtensions accepts suffixes and prepended superchains", {
-    resetMizerSession()
-    withr::defer(resetMizerSession())
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
 
     ext_a <- paste0("mizerTestSuffixA", Sys.getpid())
     ext_b <- paste0("mizerTestSuffixB", Sys.getpid())
@@ -45,8 +45,8 @@ test_that("registerExtensions accepts suffixes and prepended superchains", {
 })
 
 test_that("coercion uses the object's own suffix chain", {
-    resetMizerSession()
-    withr::defer(resetMizerSession())
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
 
     ext_a <- paste0("mizerTestCoerceA", Sys.getpid())
     ext_b <- paste0("mizerTestCoerceB", Sys.getpid())
@@ -66,8 +66,8 @@ test_that("coercion uses the object's own suffix chain", {
 })
 
 test_that("S3 dispatch follows registered extension order", {
-    resetMizerSession()
-    withr::defer(resetMizerSession())
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
 
     ext_a <- paste0("mizerTestDispatchA", Sys.getpid())
     ext_b <- paste0("mizerTestDispatchB", Sys.getpid())
@@ -96,8 +96,8 @@ test_that("S3 dispatch follows registered extension order", {
 })
 
 test_that("base objects remain valid in extension sessions", {
-    resetMizerSession()
-    withr::defer(resetMizerSession())
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
 
     ext_a <- paste0("mizerTestBaseA", Sys.getpid())
     registerExtensions(setNames(NA_character_, ext_a))
@@ -110,8 +110,8 @@ test_that("base objects remain valid in extension sessions", {
 })
 
 test_that("classless extensions remain metadata only", {
-    resetMizerSession()
-    withr::defer(resetMizerSession())
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
 
     chain <- c(stats = "0.0")
     registerExtensions(chain)
@@ -130,8 +130,8 @@ test_that("classless extensions remain metadata only", {
 })
 
 test_that("registerExtension prepends to chain in load order", {
-    resetMizerSession()
-    withr::defer(resetMizerSession())
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
 
     ext_a <- paste0("mizerTestIncA", Sys.getpid())
     ext_b <- paste0("mizerTestIncB", Sys.getpid())
@@ -152,8 +152,8 @@ test_that("registerExtension prepends to chain in load order", {
 })
 
 test_that("registerExtension is idempotent", {
-    resetMizerSession()
-    withr::defer(resetMizerSession())
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
 
     ext_a <- paste0("mizerTestIdemA", Sys.getpid())
     ext_b <- paste0("mizerTestIdemB", Sys.getpid())
@@ -171,8 +171,8 @@ test_that("registerExtension is idempotent", {
 })
 
 test_that("registerExtension coerces objects to correct subclass", {
-    resetMizerSession()
-    withr::defer(resetMizerSession())
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
 
     ext_a <- paste0("mizerTestCoerceIncA", Sys.getpid())
     ext_b <- paste0("mizerTestCoerceIncB", Sys.getpid())
@@ -197,8 +197,8 @@ test_that("registerExtension coerces objects to correct subclass", {
 })
 
 test_that("readParams registers and coerces saved extension objects", {
-    resetMizerSession()
-    withr::defer(resetMizerSession())
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
 
     ext_a <- paste0("mizerTestReadA", Sys.getpid())
     chain <- setNames(NA_character_, ext_a)
@@ -216,7 +216,7 @@ test_that("readParams registers and coerces saved extension objects", {
     expect_s4_class(saved, "MizerParams")
     expect_identical(saved@extensions, chain)
 
-    resetMizerSession()
+    clearExtensionChain()
     params2 <- readParams(tmp)
     expect_identical(getRegisteredExtensions(), chain)
     expect_s4_class(params2, ext_a)
