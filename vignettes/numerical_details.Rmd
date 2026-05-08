@@ -173,6 +173,85 @@ O(\Delta t) + O(\Delta w_j)
 $$
 locally, or $O(\Delta t + \log\beta)$ on the logarithmic grid.
 
+## Predictor-Corrector Time Stepping
+
+A straightforward way to make the time discretisation second order is to combine a predictor step for the rates with a Crank-Nicolson corrector for the densities. The aim is to keep the useful property that, once the rates are fixed, the density update is still a tridiagonal linear solve.
+
+Let $L(r)$ denote the spatial operator for the consumer spectrum when the rates
+$$
+r = (g, d, \mu)
+$$
+are fixed, and let $q(R_{dd})$ denote the recruitment source at the lower boundary. The semi-implicit Euler method used above can be written schematically as
+$$
+\frac{N^{t+1} - N^t}{\Delta t} = L(r^t) N^{t+1} + q(R_{dd}^t).
+$$
+This is first order because the rates and recruitment are only evaluated at the start of the time step.
+
+The predictor-corrector method proceeds as follows:
+
+1.  **Predict:** Use the existing semi-implicit Euler scheme with rates $r^t$ to get a provisional value $\hat{N}^{t+1}$.
+2.  **Recalculate rates:** Evaluate provisional end-of-step rates $\hat{r}^{t+1}$ and recruitment $\hat{R}_{dd}^{t+1}$ from $\hat{N}^{t+1}$.
+3.  **Approximate midpoint rates:** Use
+    $$
+    r^{t+1/2} = \frac{1}{2}\left(r^t + \hat{r}^{t+1}\right),
+    $$
+    so in particular
+    $$
+    g_j^{t+1/2} = \frac{1}{2}\left(g_j^t + \hat{g}_j^{t+1}\right), \quad
+    d_j^{t+1/2} = \frac{1}{2}\left(d_j^t + \hat{d}_j^{t+1}\right), \quad
+    \mu_j^{t+1/2} = \frac{1}{2}\left(\mu_j^t + \hat{\mu}_j^{t+1}\right).
+    $$
+    The recruitment flux is averaged in the same way:
+    $$
+    R_{dd}^{t+1/2} = \frac{1}{2}\left(R_{dd}^t + \hat{R}_{dd}^{t+1}\right).
+    $$
+4.  **Correct:** Do a Crank-Nicolson update using the midpoint rates:
+    $$
+    \frac{N^{t+1} - N^t}{\Delta t}
+    = \frac{1}{2}\left(L(r^{t+1/2})N^t + L(r^{t+1/2})N^{t+1}\right)
+    + q(R_{dd}^{t+1/2}).
+    $$
+
+In flux form, the corrector equation for an interior bin is
+$$
+\begin{aligned}
+\frac{N_j^{t+1} - N_j^t}{\Delta t}
+&+ \frac{1}{2\Delta w_j}
+\left[
+\left(J_{j+1}^{t+1} - J_j^{t+1}\right)
++ \left(J_{j+1}^t - J_j^t\right)
+\right] \\
+&= -\frac{1}{2}\mu_j^{t+1/2}\left(N_j^{t+1} + N_j^t\right),
+\end{aligned}
+$$
+where all fluxes use the midpoint rates. For example,
+$$
+J_j^{t+1}
+= g_{j-1}^{t+1/2} N_{j-1}^{t+1}
+- \frac{1}{2}\frac{
+d_j^{t+1/2} N_j^{t+1}
+- d_{j-1}^{t+1/2} N_{j-1}^{t+1}
+}{\Delta w_{j-1}},
+$$
+and $J_j^t$ is the same expression with $N^t$ instead of $N^{t+1}$. The lower boundary uses
+$$
+J_{j_{min}}^{t+1} = J_{j_{min}}^t = R_{dd}^{t+1/2}.
+$$
+
+Because the midpoint rates are fixed during the corrector step, the unknowns still enter only through $N_{j-1}^{t+1}$, $N_j^{t+1}$ and $N_{j+1}^{t+1}$. The corrector is therefore again a tridiagonal system. The difference from the first-order scheme is that the old-time fluxes and mortality terms are moved to the right-hand side, while the new-time terms supply the tridiagonal matrix.
+
+If the provisional predictor has the usual one-step accuracy, the averaged rates approximate the true midpoint rates to second order. The Crank-Nicolson corrector is then second order in $\Delta t$ for smooth solutions:
+$$
+\text{time error} = O(\Delta t^2).
+$$
+This does not change the spatial order of the scheme, which remains first order because of the upwind advective flux. The combined order would therefore be
+$$
+O(\Delta t^2) + O(\Delta w_j),
+$$
+or $O(\Delta t^2 + \log\beta)$ on the logarithmic grid.
+
+There are two practical cautions. First, this doubles the number of rate evaluations per time step. Second, Crank-Nicolson-type methods are less damping than backward Euler, so for large time steps they can show oscillations even when they are formally stable. Positivity and robustness would therefore need to be checked carefully before using this as the default time stepper.
+
 ## Steady-State Solution
 
 When solving the steady-state ODE instead of the time-dependent PDE, we are looking for a state where the population densities do not change over time, meaning $N_j^{t+1} = N_j^t = N_j^*$.
