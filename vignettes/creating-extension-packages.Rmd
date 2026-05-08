@@ -44,6 +44,11 @@ There are two kinds of extension package:
 This vignette covers both kinds, working through concrete examples from each
 package.
 
+To get started quickly, clone or fork
+[mizerExtensionTemplate](https://github.com/sizespectrum/mizerExtensionTemplate),
+a minimal working package that illustrates all the mechanisms described here
+with inline comments explaining each step.
+
 # Why a package?
 
 A plain R script works fine for a single project. An R package becomes
@@ -454,6 +459,9 @@ For metadata-only packages, only the second and third items apply (and
 
 # See also
 
+- [mizerExtensionTemplate](https://github.com/sizespectrum/mizerExtensionTemplate)
+  — a template package that puts all the mechanisms described here into a
+  minimal, working package you can clone and adapt.
 - `vignette("extending-mizer", package = "mizer")` for the full menu of
   extension mechanisms (custom rate functions, components, subclassing, and
   more).
