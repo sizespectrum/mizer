@@ -74,6 +74,7 @@ articles:
   - cohort_dynamics_and_diffusion
   - extensions
   - extension-packages
+  - extension-chain
 - title: Publications
   navbar: Publications
   contents:

@@ -61,6 +61,7 @@
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/extensions.html">Extending mizer</a></li>
     <li><a class="dropdown-item" href="../articles/extension-packages.html">Creating a mizer extension package</a></li>
+    <li><a class="dropdown-item" href="../articles/extension-chain.html">Using mizer extension packages</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Publications</h6></li>
     <li><a class="dropdown-item" href="../articles/publications.html">Publications</a></li>
@@ -129,14 +130,14 @@ multiple projects.</p>
 <ul>
 <li><p>A <strong>metadata-only</strong> extension registers itself in
 <code>params@extensions</code> for record-keeping, but does not change
-how any mizer generic function behaves. <a href="https://github.com/sizespectrum/mizerStarvation" class="external-link">mizerStarvation</a>
-is an example: it adds starvation mortality via the
-<code>other_mort</code> pipeline, but it does not need to override any
-user-facing mizer functions.</p></li>
+how any mizer generic function behaves. <a href="https://sizespectrum.org/mizerStarvation/">mizerStarvation</a> is
+an example: it adds starvation mortality via the <code>other_mort</code>
+pipeline, but it does not need to override any user-facing mizer
+functions.</p></li>
 <li><p>A <strong>dispatching</strong> extension additionally defines a
 new object type so that mizer’s generic functions (such as
 <code><a href="../reference/getBiomass.html">getBiomass()</a></code> or <code><a href="../reference/plotBiomass.html">plotBiomass()</a></code>) can be made to
-behave differently for models built with that extension. <a href="https://github.com/sizespectrum/mizerShelf" class="external-link">mizerShelf</a> is an
+behave differently for models built with that extension. <a href="https://sizespectrum.org/mizerShelf/">mizerShelf</a> is an
 example: it adds detritus and carrion components and overrides
 <code><a href="../reference/getBiomass.html">getBiomass()</a></code> to include their biomasses in the
 result.</p></li>
@@ -154,20 +155,20 @@ becomes worthwhile when you want:</p>
 <strong>Reuse across projects</strong>: install once,
 <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> everywhere.</li>
 <li>
-<strong>Version tracking</strong>: <code>params@extensions</code>
-records the version of each extension package used to build a model. If
-a collaborator opens your saved <code>MizerParams</code> object in a
-different session, mizer can warn them if the required package is
-missing or outdated.</li>
-<li>
 <strong>Composability</strong>: when two extension packages are
 loaded at the same time, mizer can arrange their contributions to
 generic functions in the right order automatically (see <a href="#daisy-chaining-with-nextmethod">Daisy-chaining with
 <code>NextMethod()</code></a> below).</li>
 <li>
 <strong>Testing and documentation</strong>: a package gives you a
-natural home for <code>testthat</code> tests and roxygen2
-documentation.</li>
+natural home for <code>testthat</code> tests, roxygen2 documentation and
+a pkgdown website.</li>
+<li>
+<strong>Version tracking</strong>: <code>params@extensions</code>
+records the version of each extension package used to build a model. If
+a collaborator opens your saved <code>MizerParams</code> object in a
+different session, mizer can warn them if the required package is
+missing or outdated.</li>
 </ul>
 </div>
 <div class="section level2">
@@ -176,9 +177,10 @@ documentation.</li>
 <p><a href="https://github.com/sizespectrum/mizerStarvation" class="external-link">mizerStarvation</a>
 adds starvation mortality — an extra per-capita mortality term that
 kicks in when a fish’s energy balance is negative. It does this via the
-<code>other_mort</code> slot: a named list of function names that
-<code><a href="../reference/getMort.html">getMort()</a></code> calls and sums at every time step. No mizer
-generic function needs to be overridden.</p>
+<code>other_mort</code> argument in <code><a href="../reference/setComponent.html">setComponent()</a></code>:
+supplying a function that <code><a href="../reference/getMort.html">getMort()</a></code> calls and adds to the
+mizer mortality at every time step. No mizer generic function needs to
+be overridden.</p>
 <div class="section level3">
 <h3 id="registering-in--onload">Registering in <code>.onLoad</code><a class="anchor" aria-label="anchor" href="#registering-in--onload"></a>
 </h3>
@@ -195,10 +197,11 @@ session’s extension chain. The <code>requirement</code> string is a
 install the package automatically. For packages on CRAN you can use a
 minimum version string such as <code>"1.2.0"</code> instead; for
 GitHub-only packages use the <code>"owner/repo"</code> form
-(e.g. <code>"sizespectrum/mizerStarvation"</code>). The call is safe to
-repeat: if the package is already registered (for example because the
-user called <code><a href="https://devtools.r-lib.org/reference/load_all.html" class="external-link">devtools::load_all()</a></code> twice), it returns
-silently.</p>
+(e.g. <code>"sizespectrum/mizerStarvation"</code>). You can also specify
+a specific branch or version of the package, using the same syntax that
+the <a href="https://pak.r-lib.org/" class="external-link">pak</a> package uses. The call is safe to repeat: if the
+package is already registered (for example because the user called
+<code><a href="https://devtools.r-lib.org/reference/load_all.html" class="external-link">devtools::load_all()</a></code> twice), it returns silently.</p>
 </div>
 <div class="section level3">
 <h3 id="recording-the-extension-in-paramsextensions">Recording the extension in <code>params@extensions</code><a class="anchor" aria-label="anchor" href="#recording-the-extension-in-paramsextensions"></a>

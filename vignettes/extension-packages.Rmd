@@ -30,14 +30,14 @@ There are two kinds of extension package:
 
 - A **metadata-only** extension registers itself in `params@extensions` for
   record-keeping, but does not change how any mizer generic function behaves.
-  [mizerStarvation](https://github.com/sizespectrum/mizerStarvation) is an
+  [mizerStarvation](https://sizespectrum.org/mizerStarvation/) is an
   example: it adds starvation mortality via the `other_mort` pipeline, but it
   does not need to override any user-facing mizer functions.
 
 - A **dispatching** extension additionally defines a new object type so that
   mizer's generic functions (such as `getBiomass()` or `plotBiomass()`) can be
   made to behave differently for models built with that extension.
-  [mizerShelf](https://github.com/sizespectrum/mizerShelf) is an example: it
+  [mizerShelf](https://sizespectrum.org/mizerShelf/) is an example: it
   adds detritus and carrion components and overrides `getBiomass()` to include
   their biomasses in the result.
 
@@ -50,22 +50,22 @@ A plain R script works fine for a single project. An R package becomes
 worthwhile when you want:
 
 - **Reuse across projects**: install once, `library()` everywhere.
-- **Version tracking**: `params@extensions` records the version of each
-  extension package used to build a model. If a collaborator opens your saved
-  `MizerParams` object in a different session, mizer can warn them if the
-  required package is missing or outdated.
 - **Composability**: when two extension packages are loaded at the same time,
   mizer can arrange their contributions to generic functions in the right order
   automatically (see [Daisy-chaining with `NextMethod()`] below).
 - **Testing and documentation**: a package gives you a natural home for
-  `testthat` tests and roxygen2 documentation.
+  `testthat` tests, roxygen2 documentation and a pkgdown website.
+- **Version tracking**: `params@extensions` records the version of each
+  extension package used to build a model. If a collaborator opens your saved
+  `MizerParams` object in a different session, mizer can warn them if the
+  required package is missing or outdated.
 
 # Metadata-only extensions: mizerStarvation
 
 [mizerStarvation](https://github.com/sizespectrum/mizerStarvation) adds
 starvation mortality — an extra per-capita mortality term that kicks in when a
-fish's energy balance is negative. It does this via the `other_mort` slot: a
-named list of function names that `getMort()` calls and sums at every time step.
+fish's energy balance is negative. It does this via the `other_mort` argument in `setComponent()`: supplying a
+function that `getMort()` calls and adds to the mizer mortality at every time step.
 No mizer generic function needs to be overridden.
 
 ## Registering in `.onLoad`
@@ -83,7 +83,7 @@ mizer when it is loaded. Place a `.onLoad` function in a file such as `R/zzz.R`:
 The `requirement` string is a `pak` installation spec that mizer uses if it
 needs to install the package automatically. For packages on CRAN you can use a
 minimum version string such as `"1.2.0"` instead; for GitHub-only packages use
-the `"owner/repo"` form (e.g. `"sizespectrum/mizerStarvation"`). The call is safe to repeat: if the package is
+the `"owner/repo"` form (e.g. `"sizespectrum/mizerStarvation"`). You can also specify a specific branch or version of the package, using the same syntax that the `{pak}` package uses. The call is safe to repeat: if the package is
 already registered (for example because the user called
 `devtools::load_all()` twice), it returns silently.
 
