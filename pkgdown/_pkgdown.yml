@@ -72,9 +72,12 @@ articles:
   - plotting
   - predation_diffusion
   - cohort_dynamics_and_diffusion
-  - extensions
-  - extension-packages
-  - extension-chain
+- title: Extending mizer
+  navbar: Extending mizer
+  contents:
+  - extending-mizer
+  - using-extension-packages
+  - creating-extension-packages
 - title: Publications
   navbar: Publications
   contents:
@@ -202,6 +205,9 @@ reference:
   - has_concept("rate functions")
   - getCriticalFeedingLevel
 - title: Extending Mizer
+  desc: See [Extending mizer](https://sizespectrum.org/mizer/articles/extending-mizer.html),
+   [Using mizer extension packages](https://sizespectrum.org/mizer/articles/using-extension-packages.html)
+    and [Creating a mizer extension package](https://sizespectrum.org/mizer/articles/creating-extension-packages.html) for more details.
   contents:
   - setRateFunction
   - setComponent

@@ -14,6 +14,9 @@ Clears the session's extension registry. You can then create a new
 extension chain with \code{\link[=registerExtensions]{registerExtensions()}}.
 }
 \seealso{
+"Using mizer extension packages":
+\code{vignette("using-extension-packages", package = "mizer")}
+
 Other extension tools:
 \code{\link[=NOther]{NOther()}},
 \code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},

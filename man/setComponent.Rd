@@ -74,6 +74,9 @@ corresponding arguments are supplied. You can remove a component with
 \code{removeComponent()}.
 }
 \seealso{
+"Extending mizer":
+\code{vignette("extending-mizer", package = "mizer")}
+
 Other extension tools:
 \code{\link[=NOther]{NOther()}},
 \code{\link[=clearExtensionChain]{clearExtensionChain()}},

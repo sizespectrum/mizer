@@ -95,6 +95,9 @@ environment or in a package. If they are defined within a function then
 mizer will not find them.
 }
 \seealso{
+"Extending mizer":
+\code{vignette("extending-mizer", package = "mizer")}
+
 Other extension tools:
 \code{\link[=NOther]{NOther()}},
 \code{\link[=clearExtensionChain]{clearExtensionChain()}},

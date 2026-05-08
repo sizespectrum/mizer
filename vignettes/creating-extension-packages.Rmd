@@ -288,26 +288,19 @@ newDetritusCarrionParams <- function(species_params, ...) {
 ### What `params@extensions <- getRegisteredExtensions()` does
 
 `getRegisteredExtensions()` returns the current session's extension chain —
-everything that has been registered via `.onLoad` hooks since R started.
+everything that has been registered via `.onLoad` hooks or with `registerExtension()nce R started.
 Storing this in the params object is like stamping the object with a bill of
 materials: it records exactly which extension packages were active when the
 object was created.
 
-mizer uses this record in two ways:
-
-- When the object is loaded from disk with `readParams()`, mizer checks that
-  all the recorded extensions are installed in the current session and warns
-  the user if any are missing or outdated.
-- `readParams()` also calls `coerceToExtensionClass()` automatically, using
-  `@extensions` to decide which S4 class to restore the object to.
-
 Note that `@extensions` records the **full chain** that was active at creation
 time, not just the outermost extension. If `mizerShelf` was the only registered
 extension, `@extensions` will be `c(mizerShelf = "1.0.0")`. If a further outer
-extension was also loaded, both appear in the chain. An object is always
-coerced to the class of the outermost extension in its own chain, so an object
-created with only `mizerShelf` registered will remain a `mizerShelf` object
-even if `mizerOuter` is also loaded in the current session.
+extension was also loaded, both appear in the chain.
+
+When the object is later loaded from disk with `readParams()`, mizer reads
+`@extensions` to check that all the recorded extensions are installed in the
+current session and warns the user if any are missing or outdated.
 
 ### What `coerceToExtensionClass(params)` does
 
@@ -316,9 +309,16 @@ concerned. If you called `getBiomass(params)` now, R would call the standard
 mizer `getBiomass.MizerParams` rather than `getBiomass.mizerShelf`.
 
 `coerceToExtensionClass()` reads `params@extensions`, finds the outermost
-extension that provides a dispatch class, and promotes the object to that S4
-class. After the call, `params` is of class `c("mizerShelf", "MizerParams")`,
-and R will dispatch to `getBiomass.mizerShelf` automatically.
+extension in the object's own recorded chain that provides a dispatch class,
+and promotes the object to that S4 class. In our example, `params` becomes
+`c("mizerShelf", "MizerParams")` and R will dispatch to
+`getBiomass.mizerShelf` automatically. `readParams()` calls this automatically
+when restoring an object from disk.
+
+Note that coercion is driven by the object's recorded chain, not by what
+extensions happen to be loaded in the current session. An object created with
+only `mizerShelf` registered will remain a `mizerShelf` object even if
+`mizerOuter` is also loaded.
 
 This step cannot be replaced with a simple `class(params) <- "mizerShelf"`:
 because `MizerParams` is a formal S4 class, R enforces the class hierarchy
@@ -355,8 +355,8 @@ When building a dispatching extension package, verify the following:
   and `coerceToExtensionClass(params)`.
 - [ ] Register every S3 method in `NAMESPACE` (via `@method` + `@export`).
 - [ ] Call `NextMethod()` in every method override.
-- [ ] Store all extension-specific state in `other_params(params)` or
-  component parameters, not in new S4 slots.
+- [ ] Store all extension-specific state in `other_params(params)` or in 
+  new components created with `setComponent()`, never in new S4 slots. 
 
 For metadata-only packages, only the second and third items apply (and
 `coerceToExtensionClass()` is not needed — just record
@@ -364,8 +364,12 @@ For metadata-only packages, only the second and third items apply (and
 
 # See also
 
-- `vignette("extensions", package = "mizer")` for the full menu of extension
-  mechanisms (custom rate functions, components, subclassing, and more).
+- `vignette("extending-mizer", package = "mizer")` for the full menu of
+  extension mechanisms (custom rate functions, components, subclassing, and
+  more).
+- `vignette("using-extension-packages", package = "mizer")` which explains the
+  extension chaining from the package user's perspective, and how to check or
+  change which extensions are active in a session or in a model object.
 - `?registerExtension`
 - `?getRegisteredExtensions`
 - `?coerceToExtensionClass`

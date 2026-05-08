@@ -195,7 +195,7 @@ library, this is seamless.
 
 ## Saving and loading simulation objects
 
-`MizerSim` objects (produced by `project()`) carry the params object inside
+`MizerSim` objects (produced for example by `project()`) carry the params object inside
 them, so the extension chain is embedded there too. Use `saveSim()` and
 `readSim()`:
 
@@ -270,11 +270,11 @@ same order when you source the script fresh.
 
 # See also
 
-- `vignette("extensions", package = "mizer")` — the full catalogue of extension
-  mechanisms available to extension authors (custom rate functions, components,
-  subclassing).
-- `vignette("extension-packages", package = "mizer")` — how to package your own
-  extension and make it composable with others.
+- `vignette("extending-mizer", package = "mizer")` — the full catalogue of
+  extension mechanisms available to extension authors (custom rate functions,
+  components, subclassing).
+- `vignette("creating-extension-packages", package = "mizer")` — how to package
+  your own extension and make it composable with others.
 - `?registerExtension`
 - `?registerExtensions`
 - `?getRegisteredExtensions`

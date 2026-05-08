@@ -22,6 +22,9 @@ corresponding to the object's own extension chain. For \code{MizerSim}, the
 extension chain is read from \code{sim@params@extensions}.
 }
 \seealso{
+"Creating a mizer extension package":
+\code{vignette("creating-extension-packages", package = "mizer")}
+
 Other extension tools:
 \code{\link[=NOther]{NOther()}},
 \code{\link[=clearExtensionChain]{clearExtensionChain()}},

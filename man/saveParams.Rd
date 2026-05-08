@@ -43,3 +43,7 @@ Issues a warning if the model you are saving relies on some custom functions.
 Before saving a model you may want to set its metadata with
 \code{\link[=setMetadata]{setMetadata()}}.
 }
+\seealso{
+"Using mizer extension packages":
+\code{vignette("using-extension-packages", package = "mizer")}
+}

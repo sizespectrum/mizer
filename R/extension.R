@@ -208,6 +208,8 @@
 #' @param rate Name of the rate for which a new function is to be set.
 #' @param fun Name of the function to use to calculate the rate.
 #' @return For `setRateFunction()`: An updated MizerParams object
+#' @seealso "Extending mizer":
+#'   \code{vignette("extending-mizer", package = "mizer")}
 #' @export
 #' @family extension tools
 setRateFunction <- function(params, rate, fun) {
@@ -306,6 +308,8 @@ other_params <- function(params) {
 #' @param linetype Line type to use for the component in plots. Defaults to
 #'   `"solid"`.
 #' @return The updated MizerParams object
+#' @seealso "Extending mizer":
+#'   \code{vignette("extending-mizer", package = "mizer")}
 #' @export
 #' @family extension tools
 setComponent <- function(params, component, initial_value,

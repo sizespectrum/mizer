@@ -66,7 +66,7 @@
   applies them via `setColours()` and `setLinetypes()` so added components can
   be styled directly in plots.
 
-- New "Extending mizer" vignette (`vignette("extensions")`) documents when
+- New "Extending mizer" vignette (`vignette("extending-mizer")`) documents when
   to use `setRateFunction()`, `setComponent()`, and `customFunction()`,
   summarises the required signatures and return shapes for custom rate
   functions, and gives worked examples for both a custom encounter function

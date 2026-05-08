@@ -18,6 +18,8 @@
 #' @return `saveParams()` and `saveSim()` return NULL invisibly.
 #'   `readParams()` returns a MizerParams object. `readSim()` returns a MizerSim
 #'   object.
+#' @seealso "Using mizer extension packages":
+#'   \code{vignette("using-extension-packages", package = "mizer")}
 #' @export
 saveParams <- function(params, file) {
     UseMethod("saveParams")

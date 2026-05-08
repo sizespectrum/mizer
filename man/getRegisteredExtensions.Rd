@@ -14,6 +14,9 @@ registered for this R session.
 Get the registered mizer extension chain
 }
 \seealso{
+"Using mizer extension packages":
+\code{vignette("using-extension-packages", package = "mizer")}
+
 Other extension tools:
 \code{\link[=NOther]{NOther()}},
 \code{\link[=clearExtensionChain]{clearExtensionChain()}},

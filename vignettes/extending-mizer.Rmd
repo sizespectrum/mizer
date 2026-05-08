@@ -149,8 +149,8 @@ want mizer's summaries or plots to include them. Because multiple extension
 packages may all want to modify the same function, each method should call
 `NextMethod()` so that the contributions compose correctly.
 
-See `vignette("extension-packages", package = "mizer")` for a step-by-step
-guide.
+See `vignette("creating-extension-packages", package = "mizer")` for a
+step-by-step guide.
 
 ## `customFunction()`
 
@@ -328,7 +328,7 @@ For a step-by-step guide to writing this kind of extension package, including
 worked examples from
 [mizerStarvation](https://github.com/sizespectrum/mizerStarvation) and
 [mizerShelf](https://github.com/sizespectrum/mizerShelf), see
-`vignette("extension-packages", package = "mizer")`.
+`vignette("creating-extension-packages", package = "mizer")`.
 
 
 # How custom rate functions are called
@@ -467,9 +467,6 @@ committing to an interface.
 
 # See also
 
-- `vignette("developer_vignette")` for a broader guide to working with the
-  mizer code base,
-- `?setRateFunction`,
-- `?setComponent`,
-- `?customFunction`,
-- `?getRates`.
+- [Using mizer extension packages](https://sizespectrum.org/mizer/articles/using-extension-packages.html)
+- [Creating a mizer extension package](https://sizespectrum.org/mizer/articles/creating-extension-packages.html)
+

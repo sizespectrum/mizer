@@ -29,6 +29,10 @@
 #'
 #' @return The updated extension chain, invisibly.
 #' @seealso [registerExtensions()] for registering an explicit full chain.
+#'   "Using mizer extension packages":
+#'   \code{vignette("using-extension-packages", package = "mizer")}.
+#'   "Creating a mizer extension package":
+#'   \code{vignette("creating-extension-packages", package = "mizer")}
 #' @export
 #' @family extension tools
 registerExtension <- function(name, requirement = NA_character_, install = FALSE) {
@@ -78,6 +82,10 @@ registerExtension <- function(name, requirement = NA_character_, install = FALSE
 #'
 #' @return The active maximal extension chain, invisibly.
 #' @seealso [registerExtension()] for the incremental per-package variant.
+#'   "Using mizer extension packages":
+#'   \code{vignette("using-extension-packages", package = "mizer")}.
+#'   "Creating a mizer extension package":
+#'   \code{vignette("creating-extension-packages", package = "mizer")}
 #' @export
 #' @family extension tools
 registerExtensions <- function(extensions, install = FALSE) {
@@ -107,6 +115,8 @@ registerExtensions <- function(extensions, install = FALSE) {
 #'
 #' @return A named character vector giving the maximal extension chain
 #'   registered for this R session.
+#' @seealso "Using mizer extension packages":
+#'   \code{vignette("using-extension-packages", package = "mizer")}
 #' @export
 #' @family extension tools
 getRegisteredExtensions <- function() {
@@ -125,6 +135,8 @@ getRegisteredExtensions <- function() {
 #'
 #' @return The same object coerced to the appropriate marker class, or to the
 #'   base class for an empty extension chain.
+#' @seealso "Creating a mizer extension package":
+#'   \code{vignette("creating-extension-packages", package = "mizer")}
 #' @export
 #' @family extension tools
 coerceToExtensionClass <- function(object, extensions = objectExtensions(object)) {
@@ -531,6 +543,8 @@ baseMizerClass <- function(object) {
 #' extension chain with [registerExtensions()].
 #'
 #' @return Invisibly, an empty character vector.
+#' @seealso "Using mizer extension packages":
+#'   \code{vignette("using-extension-packages", package = "mizer")}
 #' @family extension tools
 #' @export
 clearExtensionChain <- function() {
