@@ -76,11 +76,11 @@ No mizer generic function needs to be overridden.
 ## Registering in `.onLoad`
 
 Every extension package, even a metadata-only one, should announce itself to
-mizer when it is loaded. Place a `.onLoad` function in a file such as `R/zzz.R`:
+mizer when it is loaded. Place a `.onLoad` function in a file such as `R/mizerMyExtension-package.R`:
 
 ```r
 .onLoad <- function(libname, pkgname) {
-  mizer::registerExtension(pkgname, requirement = "owner/myExtensionPackage")
+  mizer::registerExtension(pkgname, requirement = "owner/mizerMyExtension")
 }
 ```
 
