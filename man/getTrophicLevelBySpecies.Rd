@@ -21,6 +21,8 @@ getTrophicLevelBySpecies(
 
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
+
+\item{...}{Unused}
 }
 \value{
 A named vector with the mean trophic level for each species.

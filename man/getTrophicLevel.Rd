@@ -21,6 +21,8 @@ getTrophicLevel(
 
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
+
+\item{...}{Unused}
 }
 \value{
 An \code{ArraySpeciesBySize} object (species x size) with the trophic

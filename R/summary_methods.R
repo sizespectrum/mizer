@@ -232,6 +232,7 @@ getDiet.MizerParams <- function(params,
 #' \eqn{T_i(w)}.
 #'
 #' @inheritParams getDiet
+#' @param ... Unused
 #'
 #' @return An `ArraySpeciesBySize` object (species x size) with the trophic
 #'   level of individuals at each size. Entries below the egg size of each
@@ -336,7 +337,7 @@ getTrophicLevel.MizerParams <- function(params,
 #' abundance density, and \eqn{T_i(w)} is the size-resolved trophic level
 #' from [getTrophicLevel()].
 #'
-#' @inheritParams getDiet
+#' @inheritParams getTrophicLevel
 #'
 #' @return A named vector with the mean trophic level for each species.
 #'
