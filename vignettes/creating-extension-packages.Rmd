@@ -262,6 +262,93 @@ Always register S3 methods in your package's `NAMESPACE` file. The roxygen2
 getBiomass.mizerShelf <- function(object, ...) { ... }
 ```
 
+## Replacing `setRateFunction()` with method dispatch
+
+Users who write mizer extensions often start by replacing one of the built-in
+rate functions with `setRateFunction()`:
+
+```r
+myEncounter <- function(params, n, n_pp, n_other, t = 0, ...) {
+    enc <- mizerEncounter(params, n = n, n_pp = n_pp, n_other = n_other, t = t, ...)
+    enc + extraEncounter(params, n, n_pp, n_other, t, ...)
+}
+params <- setRateFunction(params, "Encounter", "myEncounter")
+```
+
+This works well for a single user's workflow, but it is not composable: if two
+extension packages both call `setRateFunction(params, "Encounter", ...)`,
+whichever runs last silently overwrites the other. When you turn your extension
+into a package, **replace `setRateFunction()` calls with `project*` methods**
+for your marker class. These methods participate in the daisy-chain via
+`NextMethod()`, so two packages can both modify the same rate without conflict.
+
+### The `project*` generics
+
+Every standard mizer rate function has a corresponding S3 generic that
+extension-aware projections call during `project()`. Define a method for whichever
+rate your extension modifies:
+
+| `setRateFunction()` key | S3 generic to override |
+|------------------------|------------------------|
+| `"Encounter"` | `projectEncounter()` |
+| `"FeedingLevel"` | `projectFeedingLevel()` |
+| `"EReproAndGrowth"` | `projectEReproAndGrowth()` |
+| `"ERepro"` | `projectERepro()` |
+| `"EGrowth"` | `projectEGrowth()` |
+| `"Diffusion"` | `projectDiffusion()` |
+| `"PredRate"` | `projectPredRate()` |
+| `"PredMort"` | `projectPredMort()` |
+| `"FMort"` | `projectFMort()` |
+| `"Mort"` | `projectMort()` |
+| `"RDI"` | `projectRDI()` |
+| `"RDD"` | `projectRDD()` |
+| `"ResourceMort"` | `projectResourceMort()` |
+
+### Converting an existing custom rate function
+
+Remove the `setRateFunction()` call from your constructor and define a method
+for your marker class instead:
+
+```r
+#' @method projectEncounter mizerMyExtension
+#' @export
+projectEncounter.mizerMyExtension <- function(params, n, n_pp, n_other,
+                                              t = 0, ...) {
+    enc <- NextMethod()
+    enc + extraEncounter(params, n, n_pp, n_other, t, ...)
+}
+```
+
+`NextMethod()` replaces the explicit call to `mizerEncounter()`. It passes
+control down the chain — first to any lower extension's `projectEncounter`
+method, and ultimately to `projectEncounter.MizerParams`, which performs the
+standard mizer calculation. Each extension in the chain adds its contribution
+on top of the one below it, in load order.
+
+Three rules:
+
+1. **Always call `NextMethod()`** — omitting it silently drops all contributions
+   from lower extensions in the chain.
+2. **Keep the same argument signature** as the generic, and include `...` so
+   extra arguments pass through.
+3. **Do not call `setRateFunction()`** in your constructor for any rate that
+   your package handles via a `project*` method. The two mechanisms are
+   separate and should not be mixed for the same rate within an extension
+   package.
+
+### How `setRateFunction()` and `project*` methods interact
+
+A user who calls `setRateFunction(params, "Encounter", "myFn")` is asking for
+their function to completely replace the encounter calculation for that specific
+`params` object. Mizer honours this: when `myFn` is set, `projectEncounter()`
+is not called at all for the Encounter rate, so no extension package's
+`projectEncounter` method will run for that rate either.
+
+This means that if a user applies `setRateFunction()` to a rate that your
+extension package modifies via `projectEncounter.mizerMyExtension`, your
+method will be silently bypassed for that object. It is worth documenting this
+limitation for your users.
+
 ## Creating objects: the two commands
 
 A constructor function that returns a `mizerShelf` object must end with these
@@ -355,8 +442,11 @@ When building a dispatching extension package, verify the following:
   and `coerceToExtensionClass(params)`.
 - [ ] Register every S3 method in `NAMESPACE` (via `@method` + `@export`).
 - [ ] Call `NextMethod()` in every method override.
-- [ ] Store all extension-specific state in `other_params(params)` or in 
-  new components created with `setComponent()`, never in new S4 slots. 
+- [ ] For each rate the package modifies during projection, define a
+  `project*` method (e.g. `projectEncounter.mizerMyExtension`) rather than
+  calling `setRateFunction()`. See [Replacing `setRateFunction()` with method dispatch].
+- [ ] Store all extension-specific state in `other_params(params)` or in
+  new components created with `setComponent()`, never in new S4 slots.
 
 For metadata-only packages, only the second and third items apply (and
 `coerceToExtensionClass()` is not needed — just record
