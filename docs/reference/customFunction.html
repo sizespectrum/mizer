@@ -47,8 +47,11 @@ the standard mizer extension mechanism to achieve your goal."><meta property="og
     <li><a class="dropdown-item" href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a></li>
     <li><a class="dropdown-item" href="../articles/predation_diffusion.html">Incorporating predation diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
-    <li><a class="dropdown-item" href="../articles/extensions.html">Extending mizer</a></li>
-    <li><a class="dropdown-item" href="../articles/extension-packages.html">Creating a mizer extension package</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
+    <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/using-extension-packages.html">Using mizer extension packages</a></li>
+    <li><a class="dropdown-item" href="../articles/creating-extension-packages.html">Creating a mizer extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Publications</h6></li>
     <li><a class="dropdown-item" href="../articles/publications.html">Publications</a></li>
@@ -140,6 +143,11 @@ compatible with mizer. Calling this function can totally break mizer.
 However you can always undo the effect by reloading mizer with</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">detach</span>(package<span class="sc">:</span>mizer, <span class="at">unload =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(mizer)</span></code></pre><p></p></div>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>"Extending mizer":
+<code><a href="../articles/extending-mizer.html">vignette("extending-mizer", package = "mizer")</a></code></p></div>
     </div>
 
     <div class="section level2">

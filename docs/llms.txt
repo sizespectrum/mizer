@@ -1,5 +1,4 @@
-![mizer
-logo](reference/figures/mizer.png "mizer logo created by Kira Askaroff (www.kiraaskaroff.com)")
+![](reference/figures/mizer.png "mizer logo created by Kira Askaroff (www.kiraaskaroff.com)")
 
 [![CRAN
 Status](https://www.r-pkg.org/badges/version-ago/mizer)](https://cran.r-project.org/package=mizer)
@@ -26,8 +25,7 @@ and calculations of community indicators such as the slope of the size
 spectrum. Size-based models can be complicated, so mizer contains many
 default options that you can however change when needed.
 
-[![mizer
-workflow](reference/figures/mizer_workflow.png "mizer workflow")](https://sizespectrum.org/mizer/reference/figures/mizer_workflow.png)
+[![](reference/figures/mizer_workflow.png "mizer workflow")](https://sizespectrum.org/mizer/reference/figures/mizer_workflow.png)
 
 Mizer has been supporting research in marine ecology and fisheries
 science since 2014 ([see
@@ -37,7 +35,11 @@ user-friendliness and the flexibility of the framework. Contributions
 from the user community are very welcome. There is a sister package
 called [mizerExperimental](https://sizespectrum.org/mizerExperimental/)
 where user contributions can be checked out and receive feedback from
-the community. Example mizer models can be contributed to
+the community. A growing number of other extension packages add new
+biology such as temperature dependence, starvation mortality, seasonal
+dynamics, and more — see the [list of extension
+packages](https://sizespectrum.org/mizer/articles/using-extension-packages.html).
+Example mizer models can be contributed to
 [mizerExamples](https://sizespectrum.org/mizerExamples/). Follow us on
 [twitter](https://x.com/mizer_model) and read our
 [blog](https://blog.mizer.sizespectrum.org) to stay up-to-date with new
@@ -83,15 +85,13 @@ plots:
 plot(sim)
 ```
 
-![Plot showing simulation
-results](reference/figures/unnamed-chunk-4-1.png)
+![](reference/figures/unnamed-chunk-4-1.png)
 
 See the accompanying [Get
 started](https://sizespectrum.org/mizer/articles/mizer.html) page for
 more details on how the package works, including detailed examples.
 
-[![Size spectrum
-dynamics](reference/figures/size.png "Size spectrum dynamics")](https://sizespectrum.org/mizer/reference/figures/size_spectrum.png)
+[![](reference/figures/size.png "Size spectrum dynamics")](https://sizespectrum.org/mizer/reference/figures/size_spectrum.png)
 
 ## Dynamic multi-species size-spectrum model
 
@@ -129,8 +129,7 @@ populations and ecosystems, and for developing effective fisheries
 management strategies that account for the complex interactions among
 species and their environment.
 
-![Effect of size-selective
-fishing](reference/figures/size_selective_fishing.png "Effect of size-selective fishing")
+![](reference/figures/size_selective_fishing.png "Effect of size-selective fishing")
 
 A mizer model captures the interactions between species. The growth
 rates of fish are determined by the availability of prey and the death
@@ -177,8 +176,7 @@ traffic jams.
 
 An analogy with road traffic may be helpful:
 
-[![Fish growth traffic
-jam](reference/figures/traffic.png "Fish growth traffic jam")](https://sizespectrum.org/mizer/reference/figures/traffic_jam.png)
+[![](reference/figures/traffic.png "Fish growth traffic jam")](https://sizespectrum.org/mizer/reference/figures/traffic_jam.png)
 
 In road traffic, if traffic density gets too high in a section of the
 highway, drivers slow down, which leads to a pile-up producing even
@@ -580,6 +578,14 @@ and gear parameters with your own rate arrays.
   : Get critical feeding level
 
 ## Extending Mizer
+
+See [Extending
+mizer](https://sizespectrum.org/mizer/articles/extending-mizer.html),
+[Using mizer extension
+packages](https://sizespectrum.org/mizer/articles/using-extension-packages.html)
+and [Creating a mizer extension
+package](https://sizespectrum.org/mizer/articles/creating-extension-packages.html)
+for more details.
 
 - [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
   [`getRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
@@ -1006,11 +1012,14 @@ versions of mizer
 - [Cohort dynamics and
   diffusion](https://sizespectrum.org/mizer/articles/cohort_dynamics_and_diffusion.md):
 
-- [Extending
-  mizer](https://sizespectrum.org/mizer/articles/extensions.md):
+### Extending mizer
 
+- [Extending
+  mizer](https://sizespectrum.org/mizer/articles/extending-mizer.md):
+- [Using mizer extension
+  packages](https://sizespectrum.org/mizer/articles/using-extension-packages.md):
 - [Creating a mizer extension
-  package](https://sizespectrum.org/mizer/articles/extension-packages.md):
+  package](https://sizespectrum.org/mizer/articles/creating-extension-packages.md):
 
 ### Publications
 

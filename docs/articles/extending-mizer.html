@@ -59,8 +59,11 @@
     <li><a class="dropdown-item" href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a></li>
     <li><a class="dropdown-item" href="../articles/predation_diffusion.html">Incorporating predation diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
-    <li><a class="dropdown-item" href="../articles/extensions.html">Extending mizer</a></li>
-    <li><a class="dropdown-item" href="../articles/extension-packages.html">Creating a mizer extension package</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
+    <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/using-extension-packages.html">Using mizer extension packages</a></li>
+    <li><a class="dropdown-item" href="../articles/creating-extension-packages.html">Creating a mizer extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Publications</h6></li>
     <li><a class="dropdown-item" href="../articles/publications.html">Publications</a></li>
@@ -111,8 +114,8 @@
       <img src="../logo.png" class="logo" alt=""><h1>Extending mizer</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/HEAD/vignettes/extensions.Rmd" class="external-link"><code>vignettes/extensions.Rmd</code></a></small>
-      <div class="d-none name"><code>extensions.Rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/HEAD/vignettes/extending-mizer.Rmd" class="external-link"><code>vignettes/extending-mizer.Rmd</code></a></small>
+      <div class="d-none name"><code>extending-mizer.Rmd</code></div>
     </div>
 
     
@@ -299,7 +302,8 @@ metadata and want mizer’s summaries or plots to include them. Because
 multiple extension packages may all want to modify the same function,
 each method should call <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code> so that the
 contributions compose correctly.</p>
-<p>See <code><a href="../articles/extension-packages.html">vignette("extension-packages", package = "mizer")</a></code>
+<p>See
+<code><a href="../articles/creating-extension-packages.html">vignette("creating-extension-packages", package = "mizer")</a></code>
 for a step-by-step guide.</p>
 </div>
 <div class="section level3">
@@ -379,7 +383,7 @@ rate.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params2</span>, t_max <span class="op">=</span> <span class="fl">2</span>, t_save <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plotBiomass.html">plotBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span></code></pre></div>
-<p><img src="extensions_files/figure-html/seasonal-biomass-1.png" class="r-plt" alt="" width="700"></p>
+<p><img src="extending-mizer_files/figure-html/seasonal-biomass-1.png" class="r-plt" alt="" width="700"></p>
 <p>This pattern is often the easiest way to extend mizer safely:</p>
 <ul>
 <li>fetch custom parameters from <code>other_params(params)</code>,</li>
@@ -455,7 +459,7 @@ spectrum.</p>
 <p>For example:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotDiet.html">plotDiet</a></span><span class="op">(</span><span class="va">params3</span>, species <span class="op">=</span> <span class="st">"Cod"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="extensions_files/figure-html/detritus-diet-1.png" class="r-plt" alt="" width="700"></p>
+<p><img src="extending-mizer_files/figure-html/detritus-diet-1.png" class="r-plt" alt="" width="700"></p>
 <p>If you also want the component to contribute to mortality, add a
 <code>mort_fun</code> when calling <code><a href="../reference/setComponent.html">setComponent()</a></code>.</p>
 </div>
@@ -472,7 +476,8 @@ package adds its own step and passes control to the next via
 <p>For a step-by-step guide to writing this kind of extension package,
 including worked examples from <a href="https://github.com/sizespectrum/mizerStarvation" class="external-link">mizerStarvation</a>
 and <a href="https://github.com/sizespectrum/mizerShelf" class="external-link">mizerShelf</a>,
-see <code><a href="../articles/extension-packages.html">vignette("extension-packages", package = "mizer")</a></code>.</p>
+see
+<code><a href="../articles/creating-extension-packages.html">vignette("creating-extension-packages", package = "mizer")</a></code>.</p>
 </div>
 <div class="section level2">
 <h2 id="how-custom-rate-functions-are-called">How custom rate functions are called<a class="anchor" aria-label="anchor" href="#how-custom-rate-functions-are-called"></a>
@@ -687,17 +692,10 @@ tracker</a> before committing to an interface.</p>
 <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a>
 </h2>
 <ul>
-<li>
-<code><a href="../articles/developer_vignette.html">vignette("developer_vignette")</a></code> for a broader guide to
-working with the mizer code base,</li>
-<li>
-<code><a href="../reference/setRateFunction.html">?setRateFunction</a></code>,</li>
-<li>
-<code><a href="../reference/setComponent.html">?setComponent</a></code>,</li>
-<li>
-<code><a href="../reference/customFunction.html">?customFunction</a></code>,</li>
-<li>
-<code><a href="../reference/getRates.html">?getRates</a></code>.</li>
+<li><a href="using-extension-packages.html">Using mizer extension
+packages</a></li>
+<li><a href="creating-extension-packages.html">Creating a mizer
+extension package</a></li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

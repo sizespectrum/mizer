@@ -59,9 +59,11 @@
     <li><a class="dropdown-item" href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a></li>
     <li><a class="dropdown-item" href="../articles/predation_diffusion.html">Incorporating predation diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
-    <li><a class="dropdown-item" href="../articles/extensions.html">Extending mizer</a></li>
-    <li><a class="dropdown-item" href="../articles/extension-packages.html">Creating a mizer extension package</a></li>
-    <li><a class="dropdown-item" href="../articles/extension-chain.html">Using mizer extension packages</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
+    <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/using-extension-packages.html">Using mizer extension packages</a></li>
+    <li><a class="dropdown-item" href="../articles/creating-extension-packages.html">Creating a mizer extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Publications</h6></li>
     <li><a class="dropdown-item" href="../articles/publications.html">Publications</a></li>
@@ -112,8 +114,8 @@
       <img src="../logo.png" class="logo" alt=""><h1>Using mizer extension packages</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/HEAD/vignettes/extension-chain.Rmd" class="external-link"><code>vignettes/extension-chain.Rmd</code></a></small>
-      <div class="d-none name"><code>extension-chain.Rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/HEAD/vignettes/using-extension-packages.Rmd" class="external-link"><code>vignettes/using-extension-packages.Rmd</code></a></small>
+      <div class="d-none name"><code>using-extension-packages.Rmd</code></div>
     </div>
 
     
@@ -124,12 +126,57 @@
 <p>This vignette explains what happens when you load one or more mizer
 extension packages, why the order in which you load them can matter, and
 how to save and share models that use extensions.</p>
-<p>Extension packages such as <a href="https://github.com/sizespectrum/mizerShelf" class="external-link">mizerShelf</a> or <a href="https://github.com/sizespectrum/mizerStarvation" class="external-link">mizerStarvation</a>
-add new biology to mizer — extra mortality terms, additional components
-such as detritus and carrion, overridden plotting functions, and so on.
-You do not need to know how those packages are built to use them, but
-you do need to understand a few things about how mizer keeps track of
-them.</p>
+<p>Here are some available extension packages:</p>
+<ul>
+<li>
+<strong><a href="https://github.com/sizespectrum/mizerExperimental" class="external-link">mizerExperimental</a></strong>
+— A community-driven collection of experimental features being refined
+before potential inclusion in the core mizer package.</li>
+<li>
+<strong><a href="https://github.com/gustavdelius/mizerShiny" class="external-link">mizerShiny</a></strong>
+— Provides a web-based Shiny interface for running and exploring mizer
+models without writing R code.</li>
+<li>
+<strong><a href="https://github.com/sizespectrum/therMizer" class="external-link">therMizer</a></strong>
+— Incorporates temperature-dependent metabolic rates and aerobic scope
+into mizer, with support for size- and depth-varying thermal
+exposure.</li>
+<li>
+<strong><a href="https://github.com/gustavdelius/mizerEcopath" class="external-link">mizerEcopath</a></strong>
+— Provides tools for calibrating mizer models using Ecopath biomass
+estimates, bridging the two modelling frameworks.</li>
+<li>
+<strong><a href="https://github.com/sizespectrum/mizerStarvation" class="external-link">mizerStarvation</a></strong>
+— Implements starvation mortality, allowing fish to die when food
+availability is insufficient to sustain their metabolic needs.</li>
+<li>
+<strong><a href="https://github.com/sizespectrum/mizerMR" class="external-link">mizerMR</a></strong> —
+Supports multiple size-structured background resource spectra, enabling
+species to have different prey preferences and ontogenetic dietary
+shifts.</li>
+<li>
+<strong><a href="https://github.com/sizespectrum/mizerShelf" class="external-link">mizerShelf</a></strong>
+— Adds detritus and carrion components for more realistic benthic
+ecosystem modelling on continental shelves.</li>
+<li>
+<strong><a href="https://github.com/baldrech/MizerEvolution" class="external-link">MizerEvolution</a></strong>
+— Enables simulation of evolutionary trait changes and species invasions
+by treating species as pools of phenotypes subject to natural
+selection.</li>
+<li>
+<strong><a href="https://github.com/gustavdelius/mizerSeasonal" class="external-link">mizerSeasonal</a></strong>
+— Introduces seasonal dynamics by simulating gonadal mass accumulation
+and spawning events over the course of a year.</li>
+<li>
+<strong><a href="https://github.com/gustavdelius/mizerStomach" class="external-link">mizerStomach</a></strong>
+— Helps determine predator size-selectivity functions by fitting them to
+stomach content data.</li>
+</ul>
+<p>Extension packages such as these add new biology to mizer — extra
+mortality terms, additional components such as detritus and carrion,
+overridden plotting functions, and so on. You do not need to know how
+those packages are built to use them, but you do need to understand a
+few things about how mizer keeps track of them.</p>
 </div>
 <div class="section level2">
 <h2 id="the-extension-chain">The extension chain<a class="anchor" aria-label="anchor" href="#the-extension-chain"></a>
@@ -171,7 +218,7 @@ chain.</p>
 <code><a href="../reference/getBiomass.html">getBiomass()</a></code>, and <code>mizerFoo</code> adds some other
 component. If you load them as:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerShelf</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sizespectrum.org/mizerShelf/">mizerShelf</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerFoo</span><span class="op">)</span></span></code></pre></div>
 <p>then <code>mizerFoo</code> is outermost. When
 <code><a href="../reference/getBiomass.html">getBiomass()</a></code> is called, <code>mizerFoo</code>’s version
@@ -181,7 +228,7 @@ mizerFoo’s additions.</p>
 <p>If instead you load them in the opposite order:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerFoo</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerShelf</span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sizespectrum.org/mizerShelf/">mizerShelf</a></span><span class="op">)</span></span></code></pre></div>
 <p>then <code>mizerShelf</code> is outermost. The result is still
 composed of both contributions, but <code>mizerShelf</code> sees the
 result first and can wrap around everything <code>mizerFoo</code>
@@ -248,7 +295,7 @@ builds itself.</p>
 </h3>
 <p>When an extension package creates a new <code>MizerParams</code>
 object (for example, when you call
-<code>mizerShelf::newDetritusCarrionParams()</code>), it stamps the
+<code><a href="https://sizespectrum.org/mizerShelf/reference/newDetritusCarrionParams.html">mizerShelf::newDetritusCarrionParams()</a></code>), it stamps the
 object with the full extension chain that was active at that moment.
 This snapshot is stored in the <code>@extensions</code> slot of the
 params object.</p>
@@ -295,9 +342,10 @@ your R library, this is seamless.</p>
 <div class="section level3">
 <h3 id="saving-and-loading-simulation-objects">Saving and loading simulation objects<a class="anchor" aria-label="anchor" href="#saving-and-loading-simulation-objects"></a>
 </h3>
-<p><code>MizerSim</code> objects (produced by <code><a href="../reference/project.html">project()</a></code>)
-carry the params object inside them, so the extension chain is embedded
-there too. Use <code><a href="../reference/saveParams.html">saveSim()</a></code> and <code><a href="../reference/saveParams.html">readSim()</a></code>:</p>
+<p><code>MizerSim</code> objects (produced for example by
+<code><a href="../reference/project.html">project()</a></code>) carry the params object inside them, so the
+extension chain is embedded there too. Use <code><a href="../reference/saveParams.html">saveSim()</a></code> and
+<code><a href="../reference/saveParams.html">readSim()</a></code>:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/saveParams.html">saveSim</a></span><span class="op">(</span><span class="va">sim</span>, <span class="st">"my_simulation.rds"</span><span class="op">)</span></span>
@@ -350,7 +398,7 @@ each one.</p>
 want. You do not need to restart R.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/clearExtensionChain.html">clearExtensionChain</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerShelf</span><span class="op">)</span>   <span class="co"># innermost (loaded first)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sizespectrum.org/mizerShelf/">mizerShelf</a></span><span class="op">)</span>   <span class="co"># innermost (loaded first)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerFoo</span><span class="op">)</span>     <span class="co"># outermost (loaded last)</span></span></code></pre></div>
 <p>After reloading, create or re-read your params objects so they pick
 up the new chain.</p>
@@ -369,12 +417,13 @@ you source the script fresh.</p>
 </h2>
 <ul>
 <li>
-<code><a href="../articles/extensions.html">vignette("extensions", package = "mizer")</a></code> — the full
-catalogue of extension mechanisms available to extension authors (custom
-rate functions, components, subclassing).</li>
+<code><a href="../articles/extending-mizer.html">vignette("extending-mizer", package = "mizer")</a></code> — the
+full catalogue of extension mechanisms available to extension authors
+(custom rate functions, components, subclassing).</li>
 <li>
-<code><a href="../articles/extension-packages.html">vignette("extension-packages", package = "mizer")</a></code> — how
-to package your own extension and make it composable with others.</li>
+<code><a href="../articles/creating-extension-packages.html">vignette("creating-extension-packages", package = "mizer")</a></code>
+— how to package your own extension and make it composable with
+others.</li>
 <li><code><a href="../reference/registerExtension.html">?registerExtension</a></code></li>
 <li><code><a href="../reference/registerExtensions.html">?registerExtensions</a></code></li>
 <li><code><a href="../reference/getRegisteredExtensions.html">?getRegisteredExtensions</a></code></li>
