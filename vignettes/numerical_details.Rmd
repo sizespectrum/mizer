@@ -43,41 +43,46 @@ $$
 where $g(w)$ is the somatic growth rate, $d(w)$ is the diffusion coefficient and $\mu(w)$ is the total mortality rate.
 
 We discretise this equation using a finite volume scheme.
+On the grid we write $g_j = g(w_j)$, $d_j = d(w_j)$, and $\mu_j = \mu(w_j)$.
 
 ## Discretisation of the Fluxes
 
 The term inside the derivative with respect to $w$ is the flux $J(w)$:
 $$ J(w) = g(w) N(w) - \frac{1}{2}\frac{\partial(d(w) N(w))}{\partial w} $$
 We consider the $j$-th size bin $[w_j, w_{j+1}]$. Integrating the conservation equation over this bin gives:
-$$ \Delta w_j \frac{\partial N_j}{\partial t} + J(w_{j+1}) - J(w_j) = -\int_{w_j}^{w_{j+1}} \mu(w) N(w) dw $$
+$$ \int_{w_j}^{w_{j+1}} \frac{\partial N_j}{\partial t}dw + J(w_{j+1}) - J(w_j) = -\int_{w_j}^{w_{j+1}} \mu(w) N(w) dw $$
 Approximating the integral and dividing by $\Delta w_j$:
-$$ \frac{N_j^{t+1} - N_j^t}{\Delta t} + \frac{J_{j+1} - J_j}{\Delta w_j} = -\mu(w_j) N_j^{t+1} $$
+$$ \frac{\partial N_j}{\partial t}+ \frac{J_{j+1} - J_j}{\Delta w_j} = -\mu_j N_j^{t+1} $$
 where $J_j$ represents the flux at the boundary $w_j$.
 
 ### Advective Flux
 For the advective part of the flux $g N$, we use an **upwind** approximation. Since fish grow from smaller to larger sizes ($g > 0$), the flux at boundary $w_j$ is determined by the density in the bin below ($j-1$):
-$$ J_j^{adv} = g(w_{j-1}) N_{j-1} $$
+$$ J_j^{adv} = g_{j-1} N_{j-1} $$
 (Note: for $j=j_{min}$, this boundary flux is the recruitment $R_{dd}$).
 
 ### Diffusive Flux
 For the diffusive part of the flux $-\frac{1}{2}\frac{\partial(d N)}{\partial w}$, we use a **central difference** approximation at the boundary $w_j$. We approximate the gradient using the densities in the adjacent bins $j-1$ and $j$:
-$$ J_j^{diff} \approx -\frac{1}{2} \frac{(d N)_j - (d N)_{j-1}}{w_j - w_{j-1}} = -\frac{1}{2} \frac{d(w_j) N_j - d(w_{j-1}) N_{j-1}}{\Delta w_{j-1}} $$
+$$ J_j^{diff} \approx -\frac{1}{2} \frac{(d N)_j - (d N)_{j-1}}{w_j - w_{j-1}} = -\frac{1}{2} \frac{d_j N_j - d_{j-1} N_{j-1}}{\Delta w_{j-1}} $$
 Note the use of $N_j$ (density in bin $j$) and $N_{j-1}$ (density in bin $j-1$) to estimate the value at the interface $w_j$.
 
 The total flux at boundary $w_j$ is:
-$$ J_j = g(w_{j-1}) N_{j-1} - \frac{1}{2} \frac{d(w_j) N_j - d(w_{j-1}) N_{j-1}}{\Delta w_{j-1}} $$
+$$ J_j = g_{j-1} N_{j-1} - \frac{1}{2} \frac{d_j N_j - d_{j-1} N_{j-1}}{\Delta w_{j-1}} $$
 And similarly at boundary $w_{j+1}$:
-$$ J_{j+1} = g(w_j) N_j - \frac{1}{2} \frac{d(w_{j+1}) N_{j+1} - d(w_j) N_j}{\Delta w_j} $$
+$$ J_{j+1} = g_j N_j - \frac{1}{2} \frac{d_{j+1} N_{j+1} - d_j N_j}{\Delta w_j} $$
 
-## Limitation on Time Step
+## Semi-Implicit Time Discretisation
 
-With the diffusion term, an explicit time discretisation would require a very small time step for stability ($\Delta t \sim \Delta w^2$). Therefore, we use a semi-implicit scheme where the densities $N$ are evaluated at time $t+1$, but the rates ($g$, $\mu$, $d$) are evaluated at time $t$.
-
-## Discretised Equation
-
-Substituting the fluxes into the conservation equation:
+With the diffusion term, an explicit time discretisation would require a very small time step for stability ($\Delta t \sim \Delta w^2$). Therefore, we use a semi-implicit scheme where the densities $N$ are evaluated at time $t+1$, but the rates ($g$, $\mu$, $d$) are evaluated at time $t$. Using a fully implicit scheme would require solving a nonlinear system at each time step, which is more computationally expensive.
+Thus, the discretised equation becomes:
 $$
-\frac{N_j^{t+1} - N_j^t}{\Delta t} + \frac{1}{\Delta w_j} \left( J_{j+1}^{t+1} - J_j^{t+1} \right) = -\mu(w_j) N_j^{t+1}
+\frac{N_j^{t+1} - N_j^t}{\Delta t} + \frac{1}{\Delta w_j} \left( J_{j+1}^{t+1} - J_j^{t+1} \right) = -\mu_j N_j^{t+1}
+$$
+where the fluxes $J_j^{t+1}$ are calculated using the densities at time $t+1$ but the rates at time $t$. To simplify the notation we will drop the explicit time indices on the rates, but it is important to remember that they are evaluated at time $t$. The fluxes at time $t+1$ are:
+$$
+\begin{aligned}
+J_{j+1}^{t+1} &= g_j N_j^{t+1} - \frac{1}{2} \frac{d_{j+1} N_{j+1}^{t+1} - d_j N_j^{t+1}}{\Delta w_j} \\
+J_j^{t+1} &= g_{j-1} N_{j-1}^{t+1} - \frac{1}{2} \frac{d_j N_j^{t+1} - d_{j-1} N_{j-1}^{t+1}}{\Delta w_{j-1}}.
+\end{aligned}
 $$
 This leads to a linear system of the form:
 $$
@@ -89,26 +94,26 @@ This is a **tridiagonal system** for each species, which can be solved efficient
 The coefficients are:
 $$
 \begin{aligned}
-A_j &= -\frac{\Delta t}{\Delta w_j} \left( g(w_{j-1}) + \frac{1}{2} \frac{d(w_{j-1})}{\Delta w_{j-1}} \right) \\
-C_j &= -\frac{\Delta t}{\Delta w_j} \left( \frac{1}{2} \frac{d(w_{j+1})}{\Delta w_j} \right) \\
-B_j &= 1 + \Delta t \mu(w_j) + \frac{\Delta t}{\Delta w_j} \left( g(w_j) + \frac{1}{2} \frac{d(w_j)}{\Delta w_j} + \frac{1}{2} \frac{d(w_j)}{\Delta w_{j-1}} \right)
+A_j &= -\frac{\Delta t}{\Delta w_j} \left( g_{j-1} + \frac{1}{2} \frac{d_{j-1}}{\Delta w_{j-1}} \right) \\
+C_j &= -\frac{\Delta t}{\Delta w_j} \left( \frac{1}{2} \frac{d_{j+1}}{\Delta w_j} \right) \\
+B_j &= 1 + \Delta t \mu_j + \frac{\Delta t}{\Delta w_j} \left( g_j + \frac{1}{2} \frac{d_j}{\Delta w_j} + \frac{1}{2} \frac{d_j}{\Delta w_{j-1}} \right)
 \end{aligned}
 $$
 
 ## Boundary Conditions
 
 **At the smallest size ($j=j_{min}$):**
-The flux entering the grid is determined by recruitment.
-$$ J_{j_{min}} = R_{dd} $$
+The flux entering the grid is determined by recruitment:
+$$ J_{j_{min}}^{t+1} = R_{dd} $$
 (We assume diffusive flux at the lower boundary is negligible or incorporated into $R_{dd}$).
 The equation for the first bin becomes:
-$$ \frac{N_{j_{min}}^{t+1} - N_{j_{min}}^t}{\Delta t} + \frac{J_{j_{min}+1}^{t+1} - R_{dd}}{\Delta w_{j_{min}}} = -\mu(w_{j_{min}}) N_{j_{min}}^{t+1} $$
+$$ \frac{N_{j_{min}}^{t+1} - N_{j_{min}}^t}{\Delta t} + \frac{J_{j_{min}+1}^{t+1} - R_{dd}}{\Delta w_{j_{min}}} = -\mu_{j_{min}} N_{j_{min}}^{t+1} $$
 This involves $N_{j_{min}}^{t+1}$ and $N_{j_{min}+1}^{t+1}$.
 Comparing this to the general discretised equation translates to modifying the first row ($j=j_{min}$) of our tri-diagonal matrices:
 
 *   The $j_{min}-1$ term does not exist, so $A_{j_{min}} = 0$.
-*   The upward diffusion term from below the boundary is omitted, so $B_{j_{min}}$ does not have the $\frac{1}{2} \frac{d(w_{j_{min}})}{\Delta w_{j_{min}-1}}$ component:
-    $$ B_{j_{min}} = 1 + \Delta t \mu(w_{j_{min}}) + \frac{\Delta t}{\Delta w_{j_{min}}} \left( g(w_{j_{min}}) + \frac{1}{2} \frac{d(w_{j_{min}})}{\Delta w_{j_{min}}} \right) $$
+*   The upward diffusion term from below the boundary is omitted, so $B_{j_{min}}$ does not have the $\frac{1}{2} \frac{d_{j_{min}}}{\Delta w_{j_{min}-1}}$ component:
+    $$ B_{j_{min}} = 1 + \Delta t \mu_{j_{min}} + \frac{\Delta t}{\Delta w_{j_{min}}} \left( g_{j_{min}} + \frac{1}{2} \frac{d_{j_{min}}}{\Delta w_{j_{min}}} \right) $$
 *   The coefficient $C_{j_{min}}$ remains unchanged from the general formula.
 *   The recruitment flux enters as a source term, so it is added to the right-hand side $S_{j_{min}}$:
     $$ S_{j_{min}} = N_{j_{min}}^t + \frac{\Delta t}{\Delta w_{j_{min}}} R_{dd} $$
@@ -118,7 +123,7 @@ Comparing this to the general discretised equation translates to modifying the f
 **At the largest size ($j=j_{max}$):**
 We typically assume that densities drop to zero beyond the maximum size, $N_{j_{max}+1} = 0$.
 The flux leaving the grid is:
-$$ J_{j_{max}+1} = g(w_{j_{max}}) N_{j_{max}} - \frac{1}{2} \frac{0 - d(w_{j_{max}}) N_{j_{max}}}{\Delta w_{j_{max}}} $$
+$$ J_{j_{max}+1}^{t+1} = g_{j_{max}} N_{j_{max}}^{t+1} - \frac{1}{2} \frac{0 - d_{j_{max}} N_{j_{max}}^{t+1}}{\Delta w_{j_{max}}} $$
 This means the term $C_{j_{max}}$ multiplying $N_{j_{max}+1}^{t+1}$ is not needed, so $C_{j_{max}} = 0$. The coefficients $A_{j_{max}}$ and $B_{j_{max}}$ use the standard formulas.
 
 ## Numerical Diffusion
@@ -137,6 +142,36 @@ $$ d_{num}(w) \approx g(w) \Delta w (1 + C(w)) $$
 Since $\Delta w \approx w \ln(\beta)$, this is:
 $$ d_{num}(w) \approx g(w) w \ln(\beta) \left( 1 + \frac{g(w) \Delta t}{w \ln(\beta)} \right) = g(w) w \ln(\beta) + g(w)^2 \Delta t $$
 This means the numerical scheme behaves as if there is a diffusion $d_{num}$. This numerical diffusion has two components: one from spatial discretisation (scaling with $\Delta w$) and one from time stepping (scaling with $\Delta t$).
+
+## Order of Accuracy
+
+The scheme is first order in time. To see this, expand the backward difference around the new time level:
+$$
+\frac{N_j^{t+1} - N_j^t}{\Delta t}
+= \frac{\partial N_j}{\partial t}(t+\Delta t)
+- \frac{\Delta t}{2}\frac{\partial^2 N_j}{\partial t^2}(t+\Delta t)
++ O(\Delta t^2).
+$$
+Thus the time discretisation has a truncation error of order $O(\Delta t)$. Evaluating the rates $g$, $d$ and $\mu$ at time $t$ instead of $t+1$ also introduces only an $O(\Delta t)$ error, provided the rates vary smoothly in time. The semi-implicit scheme is therefore first order in $\Delta t$.
+
+For the spatial discretisation, the upwind advective flux is the limiting term. For smooth $gN$,
+$$
+\frac{(gN)_j - (gN)_{j-1}}{\Delta w_{j-1}}
+= \frac{\partial(gN)}{\partial w}(w_j)
+- \frac{\Delta w_{j-1}}{2}\frac{\partial^2(gN)}{\partial w^2}(w_j)
++ O(\Delta w_{j-1}^2),
+$$
+so the advective part has an $O(\Delta w_j)$ spatial truncation error. The diffusive part uses a centred difference for the flux and is of higher order on a locally uniform grid, but the overall spatial order is still set by the upwind advective term.
+
+On the logarithmic grid, writing $\beta = w_{j+1}/w_j$, we have
+$$
+\Delta w_j = w_j(\beta - 1) = w_j\left(\log\beta + O((\log\beta)^2)\right).
+$$
+Thus, at fixed body size $w_j$, first order in $\Delta w_j$ is equivalently first order in $\log\beta$. Combining the time and space errors, the scheme is
+$$
+O(\Delta t) + O(\Delta w_j)
+$$
+locally, or $O(\Delta t + \log\beta)$ on the logarithmic grid.
 
 ## Steady-State Solution
 
@@ -158,9 +193,9 @@ $$
 To eliminate the explicit dependence on the time step $\Delta t$, we can divide the equation by $\Delta t$. The modified coefficients $\tilde{A}, \tilde{B}, \tilde{C}$ defining the new tri-diagonal system are:
 $$
 \begin{aligned}
-\tilde{A}_j &= \frac{A_j}{\Delta t} = -\frac{1}{\Delta w_j} \left( g(w_{j-1}) + \frac{1}{2} \frac{d(w_{j-1})}{\Delta w_{j-1}} \right) \\
-\tilde{C}_j &= \frac{C_j}{\Delta t} = -\frac{1}{\Delta w_j} \left( \frac{1}{2} \frac{d(w_{j+1})}{\Delta w_j} \right) \\
-\tilde{B}_j &= \frac{B_j - 1}{\Delta t} = \mu(w_j) + \frac{1}{\Delta w_j} \left( g(w_j) + \frac{1}{2} \frac{d(w_j)}{\Delta w_j} + \frac{1}{2} \frac{d(w_j)}{\Delta w_{j-1}} \right)
+\tilde{A}_j &= \frac{A_j}{\Delta t} = -\frac{1}{\Delta w_j} \left( g_{j-1} + \frac{1}{2} \frac{d_{j-1}}{\Delta w_{j-1}} \right) \\
+\tilde{C}_j &= \frac{C_j}{\Delta t} = -\frac{1}{\Delta w_j} \left( \frac{1}{2} \frac{d_{j+1}}{\Delta w_j} \right) \\
+\tilde{B}_j &= \frac{B_j - 1}{\Delta t} = \mu_j + \frac{1}{\Delta w_j} \left( g_j + \frac{1}{2} \frac{d_j}{\Delta w_j} + \frac{1}{2} \frac{d_j}{\Delta w_{j-1}} \right)
 \end{aligned}
 $$
 Notice that $\tilde{A}_j$ and $\tilde{C}_j$ are exactly the expressions for $A_j$ and $C_j$ evaluated at $\Delta t = 1$. Similarly, $\tilde{B}_j$ is exactly the expression for $B_j - 1$ evaluated at $\Delta t = 1$.
