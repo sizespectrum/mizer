@@ -19,7 +19,7 @@ Authors@R: c(person("Gustav", "Delius", email="gustav.delius@york.ac.uk",
                     comment = c(ORCID = "0000-0002-8478-3430")),
              person("Richard", "Southwell", email="richard.southwell@york.ac.uk",
                     role=c("ctb", "cph")))
-Version: 2.5.4.9124
+Version: 2.5.4.9125
 License: GPL-3
 Imports:
     assertthat,
@@ -36,7 +36,8 @@ Imports:
     Rcpp,
     reshape2,
     rlang,
-    lifecycle
+    lifecycle,
+    pak
 LinkingTo: Rcpp
 Depends:
     R (>= 3.5)
@@ -56,6 +57,7 @@ Collate:
     'helpers.R'
     'MizerParams-class.R'
     'MizerSim-class.R'
+    'registerExtensions.R'
     'ArraySpeciesBySize-class.R'
     'ArraySpeciesByTime-class.R'
     'background.R'

@@ -1,4 +1,5 @@
 params <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
+short_ns_sim <- project(NS_params, t_max = 0.2, t_save = 0.1)
 
 # basic constructor sets dimensions properly ----
 test_that("basic constructor sets dimensions properly", {
@@ -48,7 +49,7 @@ test_that("basic constructor sets dimensions properly", {
 })
 
 test_that("validSim works", {
-    sim <- project(NS_params, t_max = 0.2, t_save = 0.1)
+    sim <- short_ns_sim
     sim@n[3, 1, 1] <- Inf
     expect_warning(simt <- validSim(sim),
                    "The simulation failed to work beyond time = 0.1")
@@ -62,7 +63,7 @@ test_that("validSim works", {
 })
 
 test_that("validSim also validates embedded params", {
-    sim <- project(NS_params, t_max = 0.2, t_save = 0.1)
+    sim <- short_ns_sim
     sim@params@species_params$w_min[1] <- 1e-10
     expect_warning(sim2 <- validSim(sim), "smaller than the minimum")
     expect_equal(sim2@params@w_min_idx[[1]], 1)

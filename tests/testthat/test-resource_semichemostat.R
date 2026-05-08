@@ -1,6 +1,8 @@
+trait_resource_semichemostat_params <- newTraitParams()
+
 test_that("resource_semichemostat preserves steady state", {
     # Set resource parameters so that we are at steady state
-    params <- newTraitParams()
+    params <- trait_resource_semichemostat_params
     params <- setResource(params,
                           resource_capacity = 2 * initialNResource(params),
                           resource_dynamics = "resource_semichemostat")
@@ -25,7 +27,7 @@ test_that("resource_semichemostat evolves towards steady state", {
     # a large factor s and simultaneously scaling up the plankton abundance
     # so as to keep the income of the fish constant.
     s <- 1e10
-    params <- newTraitParams()
+    params <- trait_resource_semichemostat_params
     species_params(params)$gamma <- species_params(params)$gamma / s
     initialNResource(params) <- initialNResource(params) * s
     # Set resource parameters so that we are at steady state
@@ -90,12 +92,30 @@ test_that("balance_resource_semichemostat validates balancing inputs", {
     expect_error(balance_resource_semichemostat(
         params,
         resource_rate = NULL,
-        resource_capacity = initialNResource(params)
-    ), "capacity is greater than the current abundance wherever there is consumption")
+        resource_capacity = initialNResource(params) * 0.9
+    ), "capacity is less than the current abundance")
+})
+
+test_that("balance_resource_semichemostat nudges capacity to avoid division by zero", {
+    params <- NS_params
+    capacity <- initialNResource(params)
+    death <- getResourceMort(params) * capacity != 0
+
+    expect_warning(
+        balanced <- balance_resource_semichemostat(
+            params,
+            resource_rate = NULL,
+            resource_capacity = capacity
+        ),
+        "division by zero"
+    )
+
+    expect_true(all(is.finite(balanced$resource_rate)))
+    expect_true(all(balanced$resource_capacity[death] > capacity[death]))
 })
 
 test_that("balance_resource_semichemostat keeps current rate when unidentifiable", {
-    params <- newTraitParams()
+    params <- trait_resource_semichemostat_params
     initialN(params)[] <- 0
     keep <- params@rr_pp[1]
     capacity <- initialNResource(params)

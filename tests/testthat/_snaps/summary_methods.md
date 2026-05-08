@@ -6,194 +6,98 @@
       , , sp = Sprat
       
           gear
-      time   Industrial Pelagic Beam Otter
-        0      38044416       0    0     0
-        1     558316006       0    0     0
-        2    8229795127       0    0     0
-        3   16058989646       0    0     0
-        4   84325094857       0    0     0
-        5  220212693088       0    0     0
-        6  203621711108       0    0     0
-        7  126537188612       0    0     0
-        8  103313111309       0    0     0
-        9   76522697786       0    0     0
-        10  42658404945       0    0     0
+      time Industrial Pelagic Beam Otter
+         0   38044416       0    0     0
+         1  558316006       0    0     0
+         2 8229795127       0    0     0
       
       , , sp = Sandeel
       
           gear
       time   Industrial Pelagic Beam Otter
-        0  6.335333e+07       0    0     0
-        1  2.807324e+11       0    0     0
-        2  7.195382e+11       0    0     0
-        3  6.294512e+11       0    0     0
-        4  8.923957e+11       0    0     0
-        5  1.173624e+12       0    0     0
-        6  1.196270e+12       0    0     0
-        7  1.125332e+12       0    0     0
-        8  1.105297e+12       0    0     0
-        9  1.057050e+12       0    0     0
-        10 1.000944e+12       0    0     0
+         0     63353332       0    0     0
+         1 280732384345       0    0     0
+         2 719538179316       0    0     0
       
       , , sp = N.pout
       
           gear
       time   Industrial Pelagic Beam Otter
-        0      50722662       0    0     0
-        1  211366746964       0    0     0
-        2  279313741500       0    0     0
-        3   32400674242       0    0     0
-        4   36414157660       0    0     0
-        5   94203749139       0    0     0
-        6  112115105533       0    0     0
-        7   86795893755       0    0     0
-        8   93190701456       0    0     0
-        9   92635220566       0    0     0
-        10  91443894802       0    0     0
+         0     50722662       0    0     0
+         1 211366746964       0    0     0
+         2 279313741500       0    0     0
       
       , , sp = Herring
       
           gear
       time Industrial      Pelagic Beam Otter
-        0           0     30658037    0     0
-        1           0   5477035839    0     0
-        2           0 240269222872    0     0
-        3           0 235093127613    0     0
-        4           0  76831870661    0     0
-        5           0 128476347684    0     0
-        6           0 355665239270    0     0
-        7           0 398695209111    0     0
-        8           0 295869946271    0     0
-        9           0 282052687956    0     0
-        10          0 276057839734    0     0
+         0          0     30658037    0     0
+         1          0   5477035839    0     0
+         2          0 240269222872    0     0
       
       , , sp = Dab
       
           gear
       time Industrial Pelagic        Beam Otter
-        0           0       0    45365320     0
-        1           0       0 22400577006     0
-        2           0       0 57675462778     0
-        3           0       0 18780950158     0
-        4           0       0 11895946615     0
-        5           0       0 19121152098     0
-        6           0       0 19328258770     0
-        7           0       0 15198687290     0
-        8           0       0 12828931523     0
-        9           0       0  9618321181     0
-        10          0       0  7652198488     0
+         0          0       0    45365320     0
+         1          0       0 22400577006     0
+         2          0       0 57675462778     0
       
       , , sp = Whiting
       
           gear
       time Industrial Pelagic Beam        Otter
-        0           0       0    0     43093552
-        1           0       0    0   7240286452
-        2           0       0    0 109460814009
-        3           0       0    0  61917376550
-        4           0       0    0  39948194825
-        5           0       0    0 118403971086
-        6           0       0    0 164075894541
-        7           0       0    0 133905073930
-        8           0       0    0 127357779567
-        9           0       0    0 120665336278
-        10          0       0    0 116817508835
+         0          0       0    0     43093552
+         1          0       0    0   7240286452
+         2          0       0    0 109460814009
       
       , , sp = Sole
       
           gear
-      time Industrial Pelagic         Beam Otter
-        0           0       0     42294188     0
-        1           0       0    843009366     0
-        2           0       0  25800180144     0
-        3           0       0  82833388096     0
-        4           0       0  86869817350     0
-        5           0       0 117785662356     0
-        6           0       0 178627553633     0
-        7           0       0 183203100846     0
-        8           0       0 139592183973     0
-        9           0       0 112279353114     0
-        10          0       0 103421881515     0
+      time Industrial Pelagic        Beam Otter
+         0          0       0    42294188     0
+         1          0       0   843009366     0
+         2          0       0 25800180144     0
       
       , , sp = Gurnard
       
           gear
       time Industrial Pelagic Beam       Otter
-        0           0       0    0    41047176
-        1           0       0    0  1631749055
-        2           0       0    0 12238303048
-        3           0       0    0  4724782150
-        4           0       0    0  4383508244
-        5           0       0    0 17317077547
-        6           0       0    0 38324622639
-        7           0       0    0 38547946693
-        8           0       0    0 35567923285
-        9           0       0    0 40503456595
-        10          0       0    0 41969161780
+         0          0       0    0    41047176
+         1          0       0    0  1631749055
+         2          0       0    0 12238303048
       
       , , sp = Plaice
       
           gear
-      time Industrial Pelagic         Beam Otter
-        0           0       0     37989527     0
-        1           0       0     18734282     0
-        2           0       0    157323296     0
-        3           0       0    758391480     0
-        4           0       0    884584319     0
-        5           0       0   2047420621     0
-        6           0       0  13379631135     0
-        7           0       0  39170803422     0
-        8           0       0  70604173632     0
-        9           0       0 169757646571     0
-        10          0       0 393502381428     0
+      time Industrial Pelagic      Beam Otter
+         0          0       0  37989527     0
+         1          0       0  18734282     0
+         2          0       0 157323296     0
       
       , , sp = Haddock
       
           gear
       time Industrial Pelagic Beam        Otter
-        0           0       0    0 3.550657e+07
-        1           0       0    0 4.693011e+10
-        2           0       0    0 1.318105e+12
-        3           0       0    0 1.360711e+12
-        4           0       0    0 6.469540e+11
-        5           0       0    0 3.490267e+11
-        6           0       0    0 3.727775e+11
-        7           0       0    0 4.299409e+11
-        8           0       0    0 3.611812e+11
-        9           0       0    0 3.517122e+11
-        10          0       0    0 3.959557e+11
+         0          0       0    0 3.550657e+07
+         1          0       0    0 4.693011e+10
+         2          0       0    0 1.318105e+12
       
       , , sp = Cod
       
           gear
       time Industrial Pelagic Beam        Otter
-        0           0       0    0     28430360
-        1           0       0    0    346033675
-        2           0       0    0 101364440036
-        3           0       0    0 412920782014
-        4           0       0    0 493468900737
-        5           0       0    0 447568478029
-        6           0       0    0 474874102324
-        7           0       0    0 550299321303
-        8           0       0    0 585450761600
-        9           0       0    0 576043900031
-        10          0       0    0 558075401042
+         0          0       0    0     28430360
+         1          0       0    0    346033675
+         2          0       0    0 101364440036
       
       , , sp = Saithe
       
           gear
-      time Industrial Pelagic Beam        Otter
-        0           0       0    0     24170110
-        1           0       0    0     21712974
-        2           0       0    0   3378214617
-        3           0       0    0  27617463179
-        4           0       0    0 362749754076
-        5           0       0    0 775185663285
-        6           0       0    0 639993286233
-        7           0       0    0 564958065619
-        8           0       0    0 575572485756
-        9           0       0    0 555930832387
-        10          0       0    0 543246652629
+      time Industrial Pelagic Beam      Otter
+         0          0       0    0   24170110
+         1          0       0    0   21712974
+         2          0       0    0 3378214617
       
 
 # getYield works
@@ -201,19 +105,19 @@
     Code
       y
     Output
-      Yield rate (11 times x 12 species) [g/year] 
-        Sprat: min=3.8e+07 mean=8.02e+10 max=2.2e+11
-        Sandeel: min=63400000 mean=8.35e+11 max=1.2e+12
-        N.pout: min=50700000 mean=1.03e+11 max=2.79e+11
-        Herring: min=30700000 mean=2.09e+11 max=3.99e+11
-        Dab: min=45400000 mean=1.77e+10 max=5.77e+10
-        Whiting: min=43100000 mean=9.09e+10 max=1.64e+11
-        Sole: min=42300000 mean=9.38e+10 max=1.83e+11
-        Gurnard: min=4.1e+07 mean=2.14e+10 max=4.2e+10
-        Plaice: min=18700000 mean=6.28e+10 max=3.94e+11
-        Haddock: min=35500000 mean=5.12e+11 max=1.36e+12
-        Cod: min=28400000 mean=3.82e+11 max=5.85e+11
-        Saithe: min=21700000 mean=3.68e+11 max=7.75e+11
+      Yield rate (3 times x 12 species) [g/year] 
+        Sprat: min=3.8e+07 mean=2.94e+09 max=8.23e+09
+        Sandeel: min=63400000 mean=3.33e+11 max=7.2e+11
+        N.pout: min=50700000 mean=1.64e+11 max=2.79e+11
+        Herring: min=30700000 mean=8.19e+10 max=2.4e+11
+        Dab: min=45400000 mean=2.67e+10 max=5.77e+10
+        Whiting: min=43100000 mean=3.89e+10 max=1.09e+11
+        Sole: min=42300000 mean=8.9e+09 max=2.58e+10
+        Gurnard: min=4.1e+07 mean=4.64e+09 max=1.22e+10
+        Plaice: min=18700000 mean=71300000 max=1.57e+08
+        Haddock: min=35500000 mean=4.55e+11 max=1.32e+12
+        Cod: min=28400000 mean=3.39e+10 max=1.01e+11
+        Saithe: min=21700000 mean=1.14e+09 max=3.38e+09
 
 # getDiet works with proportion = FALSE
 
@@ -4034,55 +3938,55 @@
     Code
       ssb
     Output
-      Spawning stock biomass (11 times x 12 species) [g] 
-        Sprat: min=37100000 mean=7.59e+10 max=2.07e+11
-        Sandeel: min=62700000 mean=8.15e+11 max=1.17e+12
-        N.pout: min=49700000 mean=9.57e+10 max=2.71e+11
-        Herring: min=31600000 mean=2.31e+11 max=4.32e+11
-        Dab: min=45400000 mean=1.78e+10 max=5.76e+10
-        Whiting: min=4.3e+07 mean=9.01e+10 max=1.62e+11
-        Sole: min=42100000 mean=8.88e+10 max=1.74e+11
-        Gurnard: min=40900000 mean=1.99e+10 max=3.92e+10
-        Plaice: min=19900000 mean=6.51e+10 max=4.03e+11
-        Haddock: min=35400000 mean=4.88e+11 max=1.33e+12
-        Cod: min=28300000 mean=3.76e+11 max=5.78e+11
-        Saithe: min=2.3e+07 mean=3.65e+11 max=7.65e+11
+      Spawning stock biomass (3 times x 12 species) [g] 
+        Sprat: min=37100000 mean=2.81e+09 max=7.81e+09
+        Sandeel: min=62700000 mean=3.21e+11 max=7.02e+11
+        N.pout: min=49700000 mean=1.54e+11 max=2.71e+11
+        Herring: min=31600000 mean=9.28e+10 max=2.71e+11
+        Dab: min=45400000 mean=2.69e+10 max=5.76e+10
+        Whiting: min=4.3e+07 mean=3.84e+10 max=1.08e+11
+        Sole: min=42100000 mean=8.43e+09 max=2.44e+10
+        Gurnard: min=40900000 mean=4.26e+09 max=1.12e+10
+        Plaice: min=19900000 mean=86500000 max=2.02e+08
+        Haddock: min=35400000 mean=4.14e+11 max=1.2e+12
+        Cod: min=28300000 mean=3.18e+10 max=9.51e+10
+        Saithe: min=2.3e+07 mean=1.12e+09 max=3.33e+09
 
 # getBiomass works
 
     Code
       biomass
     Output
-      Biomass (11 times x 12 species) [g] 
-        Sprat: min=65500000 mean=2.4e+11 max=5.86e+11
-        Sandeel: min=70700000 mean=9.63e+11 max=1.34e+12
-        N.pout: min=64100000 mean=3.87e+11 max=8.84e+11
-        Herring: min=47300000 mean=7.44e+11 max=1.29e+12
-        Dab: min=4.9e+07 mean=2.71e+10 max=6.93e+10
-        Whiting: min=45900000 mean=1.89e+11 max=2.95e+11
-        Sole: min=46400000 mean=2.22e+11 max=3.87e+11
-        Gurnard: min=43800000 mean=1.15e+11 max=1.83e+11
-        Plaice: min=39400000 mean=5.03e+11 max=2.08e+12
-        Haddock: min=36900000 mean=9.59e+11 max=2.12e+12
-        Cod: min=29500000 mean=4.52e+11 max=6.67e+11
-        Saithe: min=24900000 mean=5.78e+11 max=9.41e+11
+      Biomass (3 times x 12 species) [g] 
+        Sprat: min=65500000 mean=2.79e+10 max=6.99e+10
+        Sandeel: min=70700000 mean=4.26e+11 max=8.33e+11
+        N.pout: min=64100000 mean=4.27e+11 max=8.84e+11
+        Herring: min=47300000 mean=2.77e+11 max=6.63e+11
+        Dab: min=4.9e+07 mean=4.05e+10 max=6.93e+10
+        Whiting: min=45900000 mean=8.19e+10 max=1.73e+11
+        Sole: min=46400000 mean=7.07e+10 max=1.79e+11
+        Gurnard: min=43800000 mean=2.16e+10 max=4.08e+10
+        Plaice: min=39400000 mean=3.64e+09 max=7.14e+09
+        Haddock: min=36900000 mean=8.93e+11 max=2.12e+12
+        Cod: min=29500000 mean=7.72e+10 max=2.23e+11
+        Saithe: min=24900000 mean=2.19e+10 max=6.52e+10
 
 # getN works
 
     Code
       N
     Output
-      Abundance (11 times x 12 species) 
-        Sprat: min=23700000 mean=2.29e+11 max=3.82e+11
-        Sandeel: min=21900000 mean=2.49e+11 max=3.06e+11
-        N.pout: min=7620000 mean=1.08e+12 max=1.27e+12
-        Herring: min=2140000 mean=1.96e+11 max=2.7e+11
-        Dab: min=2220000 mean=3.79e+09 max=7.91e+09
-        Whiting: min=569000 mean=8.54e+10 max=1.15e+11
-        Sole: min=794000 mean=1.83e+10 max=2.68e+10
-        Gurnard: min=1040000 mean=1.86e+11 max=2.73e+11
-        Plaice: min=216000 mean=1.53e+12 max=8.28e+12
-        Haddock: min=145000 mean=2.05e+11 max=2.63e+11
-        Cod: min=13700 mean=1.49e+09 max=1.89e+09
-        Saithe: min=13700 mean=1.99e+10 max=2.66e+10
+      Abundance (3 times x 12 species) 
+        Sprat: min=23700000 mean=8.82e+10 max=2.3e+11
+        Sandeel: min=21900000 mean=1.63e+11 max=2.48e+11
+        N.pout: min=7620000 mean=8.38e+11 max=1.27e+12
+        Herring: min=2140000 mean=1.06e+11 max=1.98e+11
+        Dab: min=2220000 mean=4.33e+09 max=7.91e+09
+        Whiting: min=569000 mean=5.09e+10 max=8.79e+10
+        Sole: min=794000 mean=1.21e+10 max=2.42e+10
+        Gurnard: min=1040000 mean=6.86e+10 max=1.74e+11
+        Plaice: min=216000 mean=1.99e+09 max=3.94e+09
+        Haddock: min=145000 mean=1.29e+11 max=2e+11
+        Cod: min=13700 mean=8.08e+08 max=1.57e+09
+        Saithe: min=13700 mean=5.94e+09 max=1.77e+10
 

@@ -2,9 +2,15 @@
 % Please edit documentation in R/project_methods.R
 \name{mizerEncounter}
 \alias{mizerEncounter}
-\title{Get encounter rate needed to project standard mizer model}
+\alias{projectEncounter}
+\alias{projectEncounter.MizerParams}
+\title{Get encounter rate during projection}
 \usage{
-mizerEncounter(params, n, n_pp, n_other, t, ...)
+projectEncounter(params, n, n_pp, n_other, t = 0, ...)
+
+\method{projectEncounter}{MizerParams}(params, n, n_pp, n_other, t = 0, ...)
+
+mizerEncounter(params, n, n_pp, n_other, t = 0, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -72,12 +78,21 @@ If your model contains additional components that you added with
 the encounters of these components will be included in the returned value.
 }
 
+\section{Extension hook}{
+
+\code{projectEncounter()} is the S3 generic used by extension-aware projections.
+Extension packages can add methods for their marker classes and call
+\code{NextMethod()} to compose encounter-rate changes. The \code{MizerParams} method
+contains the standard mizer calculation and is also exported as
+\code{mizerEncounter()} for compatibility.
+}
+
 \section{Your own encounter function}{
 
-By default \code{\link[=getEncounter]{getEncounter()}} calls \code{\link[=mizerEncounter]{mizerEncounter()}}. However you can
-replace this with your own alternative encounter function. If
-your function is called \code{"myEncounter"} then you register it in a MizerParams
-object \code{params} with
+By default \code{\link[=getEncounter]{getEncounter()}} calls \code{\link[=mizerEncounter]{mizerEncounter()}} on models without
+extensions. However you can replace this with your own alternative encounter
+function. If your function is called \code{"myEncounter"} then you register it in
+a MizerParams object \code{params} with
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{params <- setRateFunction(params, "Encounter", "myEncounter")
 }\if{html}{\out{</div>}}

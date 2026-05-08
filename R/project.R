@@ -287,7 +287,7 @@ project.MizerParams <- function(object, effort,
     # get functions
     resource_dynamics_fn <- get(params@resource_dynamics)
     other_dynamics_fns <- lapply(params@other_dynamics, get)
-    rates_fns <- lapply(params@rates_funcs, get)
+    rates_fns <- projectRateFunctions(params)
 
     # Set up progress bar
     if (is(progress_bar, "Progress")) {
@@ -454,7 +454,7 @@ project_simple.MizerParams <-
              t = 0, dt = 0.1, steps,
              resource_dynamics_fn = get(params@resource_dynamics),
              other_dynamics_fns = lapply(params@other_dynamics, get),
-             rates_fns = lapply(params@rates_funcs, get), ...) {
+             rates_fns = projectRateFunctions(params), ...) {
         # Handy things ----
         no_sp <- nrow(params@species_params) # number of species
         no_w <- length(params@w) # number of fish size bins

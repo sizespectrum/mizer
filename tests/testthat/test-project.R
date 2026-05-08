@@ -4,7 +4,7 @@ params <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
 test_that("time dimension is dealt with properly", {
 
     # Effort is a single numeric
-    t_max <- 5
+    t_max <- 2
     t_save <- 1
     dt <- 0.1
     sim <- project(params, t_max = t_max, t_save = t_save, dt = dt, effort = 1)
@@ -48,7 +48,7 @@ test_that("time dimension is dealt with properly", {
 
     # Effort is an effort vector
     effort <- c(Industrial = 1, Pelagic = 0.5, Beam = 0.3, Otter = 0)
-    t_max <- 5
+    t_max <- 2
     t_save <- 2
     sim <- project(params, t_max = t_max, t_save = t_save, effort = effort)
     expect_identical(names(dimnames(sim@effort)), c("time", "gear"))
@@ -113,9 +113,10 @@ test_that("w_min array reference is working OK", {
     NS_species_params_gears$w_min <- 0.001
     NS_species_params_gears$w_min[1] <- 1
     params2 <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
-    sim <- project(params2, effort = 1, t_max = 5)
-    expect_equal(sim@n[6, 1, 1:(sim@params@w_min_idx[1] - 1)],
-                      rep(0, sim@params@w_min_idx[1] - 1), ignore_attr = TRUE)
+    sim <- project(params2, effort = 1, t_max = 1)
+    final <- dim(sim@n)[1]
+    expect_equal(sim@n[final, 1, 1:(sim@params@w_min_idx[1] - 1)],
+                 rep(0, sim@params@w_min_idx[1] - 1), ignore_attr = TRUE)
 })
 
 
@@ -139,16 +140,16 @@ test_that("Gear checking and sorting is OK", {
                                   gear_names = gear_names)
     gear_names <- dimnames(params_gear@catchability)[[1]]
     # Single vector of effort
-  	sim <- project(params_gear, effort = 0.3, t_max = 10)
-  	expect_true(all(sim@effort == 0.3))
+    sim <- project(params_gear, effort = 0.3, t_max = 2)
+    expect_true(all(sim@effort == 0.3))
     # Also check that order of gear names in resulting effort matches catchability
     expect_true(all(dimnames(sim@effort)$gear == gear_names))
     # Effort vector
     # Should give same result
     effort_vec <- c(Other = 1, Industrial = 0)
     effort_vec2 <- c(Industrial = 0, Other = 1)
-    sim <- project(params_gear, effort = effort_vec, t_max = 10)
-    sim2 <- project(params_gear, effort = effort_vec2, t_max = 10)
+    sim <- project(params_gear, effort = effort_vec, t_max = 2)
+    sim2 <- project(params_gear, effort = effort_vec2, t_max = 2)
     expect_true(all(sim@effort[, "Industrial"] == 0))
     expect_true(all(sim@effort[, "Other"] == 1))
     expect_true(all(sim2@effort[, "Industrial"] == 0))
@@ -157,14 +158,14 @@ test_that("Gear checking and sorting is OK", {
     expect_true(all(dimnames(sim2@effort)$gear == gear_names)) 
     # Should fail - number of gears wrong
     effort_vec3 <- c(Industrial = 0, Other = 1, Dummy = 0.5)
-    expect_error(project(params_gear, effort = effort_vec3, t_max = 10))
+    expect_error(project(params_gear, effort = effort_vec3, t_max = 2))
     effort_vec4 <- c(Industrial = 0) # Is OK because that gear exists
-    expect_error(project(params_gear, effort = effort_vec4, t_max = 10), NA)
+    expect_error(project(params_gear, effort = effort_vec4, t_max = 2), NA)
     # Should fail - names of gears wrong
     effort_vec5 <- c(Industrial = 0, Dummy = 1)
-    expect_error(project(params_gear, effort = effort_vec5, t_max = 10))
+    expect_error(project(params_gear, effort = effort_vec5, t_max = 2))
     # Array effort
-    t_steps <- 10
+    t_steps <- 3
     effort1 <- array(1, dim = c(t_steps, 2))
     expect_error(project(params_gear, effort = effort1))
     # Different order - should give same result

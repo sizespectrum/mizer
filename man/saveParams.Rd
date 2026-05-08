@@ -3,28 +3,47 @@
 \name{saveParams}
 \alias{saveParams}
 \alias{readParams}
-\title{Save a MizerParams object to file, and restore it}
+\alias{saveSim}
+\alias{readSim}
+\title{Save and restore mizer objects}
 \usage{
 saveParams(params, file)
 
-readParams(file)
+readParams(file, install_extensions = FALSE)
+
+saveSim(sim, file)
+
+readSim(file, install_extensions = FALSE)
 }
 \arguments{
 \item{params}{A MizerParams object}
 
-\item{file}{The name of the file or a connection where the MizerParams object
-is saved to or read from.}
+\item{file}{The name of the file or a connection where the object is saved
+to or read from.}
+
+\item{install_extensions}{Logical. Should \code{\link[=readParams]{readParams()}} or \code{\link[=readSim]{readSim()}}
+attempt to install missing extension packages before registering the saved
+extension chain?}
+
+\item{sim}{A MizerSim object}
 }
 \value{
-NULL invisibly
+\code{saveParams()} and \code{saveSim()} return NULL invisibly.
+\code{readParams()} returns a MizerParams object. \code{readSim()} returns a MizerSim
+object.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 \code{saveParams()} saves a MizerParams object to a file. This can then be
-restored with \code{readParams()}.
+restored with \code{readParams()}. \code{saveSim()} and \code{readSim()} provide the same
+lifecycle for MizerSim objects.
 }
 \details{
 Issues a warning if the model you are saving relies on some custom functions.
 Before saving a model you may want to set its metadata with
 \code{\link[=setMetadata]{setMetadata()}}.
+}
+\seealso{
+"Using mizer extension packages":
+\code{vignette("using-extension-packages", package = "mizer")}
 }

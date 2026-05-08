@@ -44,7 +44,10 @@ with \code{\link[=validSim]{validSim()}}.
 \section{Slots}{
 
 \describe{
-\item{\code{params}}{An object of type \linkS4class{MizerParams}.}
+\item{\code{params}}{An object of type \linkS4class{MizerParams}.
+If this params object uses extensions, the \code{MizerSim} object uses the same
+extension chain via \code{params@extensions}; \code{MizerSim} has no separate
+extension slot.}
 
 \item{\code{n}}{Three-dimensional array (time x species x size) that stores the
 projected community number densities.}

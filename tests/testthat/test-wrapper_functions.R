@@ -52,11 +52,12 @@ test_that("Multiple gears work correctly in trait-based model", {
     expect_identical(params@gear_params$knife_edge_size,
                      knife_edges)
     # All gears fire
-    sim1 <- project(params, t_max = 10, effort = 1)
+    sim1 <- project(params, t_max = 2, effort = 1)
     fmg <- getFMortGear(sim1)
+    final <- dim(fmg)[1]
     for (i in 1:no_sp) {
-        expect_true(all(fmg[10,1,i,params@w < knife_edges[i]] == 0))
-        expect_true(all(fmg[10,1,i,params@w >= knife_edges[i]] == 1))
+        expect_true(all(fmg[final, 1, i, params@w < knife_edges[i]] == 0))
+        expect_true(all(fmg[final, 1, i, params@w >= knife_edges[i]] == 1))
     }
     # Only the 4th gear fires
     params <- newTraitParams(no_sp = no_sp,
@@ -66,11 +67,12 @@ test_that("Multiple gears work correctly in trait-based model", {
                              gear_names = 1:no_sp)
     effort <- c(0,0,0,1,0,0,0,0,0,0)
     names(effort) <- 1:no_sp
-    sim2 <- project(params, t_max = 10, effort = effort)
+    sim2 <- project(params, t_max = 2, effort = effort)
     fmg <- getFMortGear(sim2)
-    expect_true(all(fmg[10, c(1:3,5:10),c(1:3,5:10),] == 0))
-    expect_true(all(fmg[10, 4, 4, params@w < knife_edges[4]] == 0))
-    expect_true(all(fmg[10, 4, 4, params@w >= knife_edges[4]] == 1))
+    final <- dim(fmg)[1]
+    expect_true(all(fmg[final, c(1:3, 5:10), c(1:3, 5:10), ] == 0))
+    expect_true(all(fmg[final, 4, 4, params@w < knife_edges[4]] == 0))
+    expect_true(all(fmg[final, 4, 4, params@w >= knife_edges[4]] == 1))
 
 })
 
@@ -79,7 +81,6 @@ test_that("Scaling model is set up correctly", {
     (p <- newTraitParams(perfect_scaling = TRUE, sigma = 1,
                          n = 2/3, lambda = 2 + 3/4 - 2/3)) |>
         expect_message("Note: Negative resource abundances")
-    sim <- project(p, t_max = 5)
 
     # Check some dimensions
     no_sp <- length(p@species_params$species)
@@ -137,10 +138,7 @@ test_that("Scaling model is set up correctly", {
     # All erepros should be equal
     expect_equal(p@species_params$erepro, rep(p@species_params$erepro[1], no_sp))
 
-    # Check that total biomass changes little (relatively)
-    bm <- getBiomass(sim)
-    # This does not work at all yet
-    # expect_lt(max(abs(bm[1, ] - bm[6, ])), 1.3e-4)
+    # TODO: Check that total biomass changes little (relatively)
 })
 
 test_that("Sets given_species_params", {

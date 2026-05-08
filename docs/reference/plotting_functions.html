@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Description of the plotting functions — plotting_functions"><meta name="description" content="Mizer provides a range of plotting functions for visualising the results
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Description of the plotting functions — plotting_functions"><meta name="description" content="Mizer provides a range of plotting functions for visualising the results
 of running a simulation, stored in a MizerSim object, or the initial state
 stored in a MizerParams object.
 Every plotting function exists in two versions, plotSomething and
@@ -23,7 +23,7 @@ suitable for inclusion in documents."><meta property="og:image" content="https:/
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.4.9125</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,13 +44,21 @@ suitable for inclusion in documents."><meta property="og:image" content="https:/
     <li><a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a></li>
     <li><a class="dropdown-item" href="../articles/running_a_simulation.html">Running a Simulation</a></li>
     <li><a class="dropdown-item" href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a></li>
+    <li><a class="dropdown-item" href="../articles/cheatsheet.html">Cheatsheet: Analysis and Plotting</a></li>
     <li><a class="dropdown-item" href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a></li>
     <li><a class="dropdown-item" href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/predation_diffusion.html">Incorporating predation diffusion</a></li>
+    <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
+    <li><a class="dropdown-item" href="../articles/extensions.html">Extending mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/extension-packages.html">Creating a mizer extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Publications</h6></li>
     <li><a class="dropdown-item" href="../articles/publications.html">Publications</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>For developers</h6></li>
+    <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/mathematical_details.html">Mathematical Details of the Mizer Implementation</a></li>
+    <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><a class="dropdown-item" href="../articles/developer_vignette.html">Developer Guide</a></li>
     <li><a class="dropdown-item" href="../articles/working_with_git.html">Working with git and GitHub</a></li>
     <li><a class="dropdown-item" href="../articles/developer_FAQ.html">Developer FAQ</a></li>
@@ -60,7 +68,8 @@ suitable for inclusion in documents."><meta property="og:image" content="https:/
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
+      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://notebooklm.google.com/notebook/6aa51f75-d1a8-4140-9180-84532ef5f821"><span class="fa fa-robot"></span> Ask AI</a></li>
+<li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://blog.mizer.sizespectrum.org">Blog</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://twitter.com/mizer_model" aria-label="Twitter"><span class="fa fab fa-twitter fa-lg"></span></a></li>
@@ -95,12 +104,25 @@ suitable for inclusion in documents.</p>
 
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>This table shows the available plotting functions.</p><table class="table table"><tr><td>Plot</td><td>Description</td></tr><tr><td><code><a href="plotBiomass.html">plotBiomass()</a></code></td><td>Plots the total biomass of each species through time. A time range to be plotted can be specified. The size range of the community can be specified in the same way as for <code><a href="getBiomass.html">getBiomass()</a></code>.</td></tr><tr><td><code><a href="plotSpectra.html">plotSpectra()</a></code></td><td>Plots the abundance (biomass or numbers) spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot.</td></tr><tr><td><code><a href="plotFeedingLevel.html">plotFeedingLevel()</a></code></td><td>Plots the feeding level of each species against size.</td></tr><tr><td><code><a href="plotPredMort.html">plotPredMort()</a></code></td><td>Plots the predation mortality of each species against size.</td></tr><tr><td><code><a href="plotFMort.html">plotFMort()</a></code></td><td>Plots the total fishing mortality of each species against size.</td></tr><tr><td><code><a href="plotYield.html">plotYield()</a></code></td><td>Plots the total yield of each species across all fishing gears against time.</td></tr><tr><td><code><a href="plotYieldGear.html">plotYieldGear()</a></code></td><td>Plots the total yield of each species by gear against time.</td></tr><tr><td><code><a href="plotDiet.html">plotDiet()</a></code></td><td>Plots the diet composition at size for a given predator species.</td></tr><tr><td><code><a href="plotGrowthCurves.html">plotGrowthCurves()</a></code></td><td>Plots the size as a function of age.</td></tr><tr><td><code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code></td><td>Produces 5 plots (<code><a href="plotFeedingLevel.html">plotFeedingLevel()</a></code>, <code><a href="plotBiomass.html">plotBiomass()</a></code>, <code><a href="plotPredMort.html">plotPredMort()</a></code>, <code><a href="plotFMort.html">plotFMort()</a></code> and <code><a href="plotSpectra.html">plotSpectra()</a></code>) in the same window.</td></tr></table><p>These functions use the ggplot2 package and return the plot as a ggplot
+    <p>This table shows the available plotting functions.</p><table class="table table"><tr><td>Plot</td><td>Description</td></tr><tr><td><code><a href="plotBiomass.html">plotBiomass()</a></code></td><td>Plots the total biomass of each species through time. A time range to be plotted can be specified. The size range of the community can be specified in the same way as for <code><a href="getBiomass.html">getBiomass()</a></code>.</td></tr><tr><td><code><a href="plotSpectra.html">plotSpectra()</a></code></td><td>Plots the abundance (biomass or numbers) spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot.</td></tr><tr><td><code><a href="plotFeedingLevel.html">plotFeedingLevel()</a></code></td><td>Plots the feeding level of each species against size.</td></tr><tr><td><code><a href="plotPredMort.html">plotPredMort()</a></code></td><td>Plots the predation mortality of each species against size.</td></tr><tr><td><code><a href="plotFMort.html">plotFMort()</a></code></td><td>Plots the total fishing mortality of each species against size.</td></tr><tr><td><code><a href="plotYield.html">plotYield()</a></code></td><td>Plots the total yield of each species across all fishing gears against time.</td></tr><tr><td><code><a href="plotYieldGear.html">plotYieldGear()</a></code></td><td>Plots the total yield of each species by gear against time.</td></tr><tr><td><code><a href="plotDiet.html">plotDiet()</a></code></td><td>Plots the diet composition at size for a given predator species.</td></tr><tr><td><code><a href="plotGrowthCurves.html">plotGrowthCurves()</a></code></td><td>Plots the size as a function of age.</td></tr><tr><td><code><a href="plot.html">plot()</a></code></td><td>Produces 5 plots (<code><a href="plotFeedingLevel.html">plotFeedingLevel()</a></code>, <code><a href="plotBiomass.html">plotBiomass()</a></code>, <code><a href="plotPredMort.html">plotPredMort()</a></code>, <code><a href="plotFMort.html">plotFMort()</a></code> and <code><a href="plotSpectra.html">plotSpectra()</a></code>) in the same window.</td></tr></table><p>These functions use the ggplot2 package and return the plot as a ggplot
 object. This means that you can manipulate the plot further after its
 creation using the ggplot grammar of graphics. The corresponding function
 names with <code>plot</code> replaced by <code>plotly</code> produce interactive plots
 with the help of the plotly package.</p>
-<p>While most plot functions take their data from a MizerSim object, some of
+<p>In addition to the named plot functions above, mizer provides generic
+<code><a href="plot.html">plot()</a></code> methods and <code><a href="https://rdrr.io/pkg/plotly/man/ggplotly.html" class="external-link">ggplotly()</a></code> methods for the array classes
+returned by the
+rate and summary functions:</p><ul><li><p><code>plot(&lt;ArraySpeciesBySize&gt;)</code> — plots any species-by-size array (such as
+those returned by <code><a href="getEncounter.html">getEncounter()</a></code>, <code><a href="getFeedingLevel.html">getFeedingLevel()</a></code>, <code><a href="getPredMort.html">getPredMort()</a></code>,
+<code><a href="getFMort.html">getFMort()</a></code>, <code><a href="setSearchVolume.html">getSearchVolume()</a></code>, etc.) as lines of value against body
+size, one line per species.</p></li>
+<li><p><code>plot(&lt;ArraySpeciesByTime&gt;)</code> — plots any time-by-species array (such as
+those returned by <code><a href="getBiomass.html">getBiomass()</a></code>, <code><a href="getSSB.html">getSSB()</a></code>, <code><a href="getYield.html">getYield()</a></code>, and <code><a href="getN.html">getN()</a></code>
+on a <code>MizerSim</code>) as lines of value against time, one line per species.</p></li>
+<li><p><code><a href="https://rdrr.io/pkg/plotly/man/ggplotly.html" class="external-link">ggplotly()</a></code> is similar to <code><a href="plot.html">plot()</a></code> but produces an interactive
+figure. Call it as <code>ggplotly(getEncounter(params))</code> or
+<code>ggplotly(getBiomass(sim))</code>.</p></li>
+</ul><p>While most plot functions take their data from a MizerSim object, some of
 those that make plots representing data at a single time can also take their
 data from the initial values in a MizerParams object.</p>
 <p>Where plots show results for species, the line colour and line type for each
@@ -120,13 +142,14 @@ the species parameter data frame.</p>
     <div class="dont-index"><p><a href="summary_functions.html">summary_functions</a>, <a href="indicator_functions.html">indicator_functions</a></p>
 <p>Other plotting functions:
 <code><a href="animateSpectra.html">animateSpectra()</a></code>,
-<code><a href="plot-MizerParams-missing-method.html">plot,MizerParams,missing-method</a></code>,
-<code><a href="plotMizerSim.html">plot,MizerSim,missing-method</a></code>,
+<code><a href="plot.html">plot</a></code>,
 <code><a href="plotBiomass.html">plotBiomass()</a></code>,
 <code><a href="plotDiet.html">plotDiet()</a></code>,
 <code><a href="plotFMort.html">plotFMort()</a></code>,
 <code><a href="plotFeedingLevel.html">plotFeedingLevel()</a></code>,
 <code><a href="plotGrowthCurves.html">plotGrowthCurves()</a></code>,
+<code><a href="plotMizerParams.html">plotMizerParams</a></code>,
+<code><a href="plotMizerSim.html">plotMizerSim</a></code>,
 <code><a href="plotPredMort.html">plotPredMort()</a></code>,
 <code><a href="plotSpectra.html">plotSpectra()</a></code>,
 <code><a href="plotYield.html">plotYield()</a></code>,

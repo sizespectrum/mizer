@@ -1,4 +1,49 @@
-# Development version 2.5.4.9102
+# Development version (will become mizer 3.0.0)
+
+- `setRateFunction()` now works correctly even when an extension package is
+  loaded and S3 dispatch is active. Previously, custom rate functions registered
+  via `setRateFunction()` were silently ignored whenever `usesExtensionDispatch()`
+  returned `TRUE`. The fix resolves which functions to call once before the
+  time-step loop (in `projectRateFunctions()`), so there is no per-step overhead.
+
+- `setResource()` now allows `resource_level = 1`. When balancing would
+  otherwise divide by zero because the resource capacity equals the current
+  resource abundance at positive consumption, the capacity is increased
+  slightly with a warning instead of failing early.
+
+- Bug fix: `getFMort()` on a `MizerSim` object was silently dropping the
+  component names from `n_other` when passing it to the rate function and its
+  dependencies (`getEGrowth()`, `getPredMort()`). This caused failures whenever
+  the rate functions accessed `n_other` by component name (e.g.
+  `n_other[["resource"]]`). The internal implementation has also been
+  refactored to use the same `plyr::aaply` pattern as `getFeedingLevel()` and
+  `getPredMort()`, keeping the three methods consistent.
+
+- Added first-stage infrastructure for composable extension chains:
+  `registerExtensions()`, `getRegisteredExtensions()`, and
+  `coerceToExtensionClass()`. Extension classes are marker classes for S3
+  dispatch, with `MizerSim` deriving its extension chain from
+  `sim@params@extensions`.
+
+- `saveParams()` now serialises extension objects as plain `MizerParams`
+  objects while preserving their extension chain, and `readParams()` restores
+  the appropriate extension class. New `saveSim()` and `readSim()` helpers
+  provide the same lifecycle for `MizerSim` objects.
+
+- Added `projectRates()` and `projectEncounter()` as the first S3 hooks in the
+  extension-chain rate pipeline. Extension-aware projections dispatch through
+  `projectRates()`, while models without extensions keep using the pre-resolved
+  `mizerRates()` pipeline directly.
+
+- Added S3 projection hooks for the remaining standard mizer rate functions.
+  Extension-aware projections now call `projectFeedingLevel()`,
+  `projectEReproAndGrowth()`, `projectERepro()`, `projectEGrowth()`,
+  `projectDiffusion()`, `projectPredRate()`, `projectPredMort()`,
+  `projectFMort()`, `projectMort()`, `projectRDI()` and
+  `projectRDD()` and `projectResourceMort()` directly.
+
+- Extensions that do not provide a marker class now remain metadata-only and do
+  not trigger the S3 projection-rate dispatch path.
 
 - New `scaleRates(params, factor)` function that rescales all rates in a model
   by a given factor. This is equivalent to a time rescaling: it speeds up or
@@ -27,7 +72,7 @@
   applies them via `setColours()` and `setLinetypes()` so added components can
   be styled directly in plots.
 
-- New "Extending mizer" vignette (`vignette("extensions")`) documents when
+- New "Extending mizer" vignette (`vignette("extending-mizer")`) documents when
   to use `setRateFunction()`, `setComponent()`, and `customFunction()`,
   summarises the required signatures and return shapes for custom rate
   functions, and gives worked examples for both a custom encounter function

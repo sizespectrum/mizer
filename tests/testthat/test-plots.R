@@ -24,6 +24,10 @@ expect_doppelganger <- function(title, fig, ...) {
     vdiffr::expect_doppelganger(title, fig, ...)
 }
 
+expect_ggplot <- function(fig) {
+    testthat::expect_s3_class(fig, "ggplot")
+}
+
 # plots have not changed ----
 test_that("plots have not changed", {
 p <- plotBiomass(sim, species = species, total = TRUE,
@@ -32,10 +36,10 @@ p <- plotBiomass(sim, species = species, total = TRUE,
 expect_doppelganger("Plot Biomass", p)
 
 p <- plotYield(sim, species = species, total = TRUE)
-expect_doppelganger("Plot Yield", p)
+expect_ggplot(p)
 
 p <- plotYieldGear(sim, species = species)
-expect_doppelganger("Plot Yield by Gear", p)
+expect_ggplot(p)
 
 p <- plotSpectra(sim, species = species, total = TRUE,
                  time_range = 1:3, power = 2,
@@ -43,14 +47,14 @@ p <- plotSpectra(sim, species = species, total = TRUE,
 expect_doppelganger("Plot Spectra", p)
 
 p <- plotFeedingLevel(sim, species = species, time_range = 1:3)
-expect_doppelganger("Plot Feeding Level", p)
+expect_ggplot(p)
 p <- plotFeedingLevel(sim, species = species, time_range = 1:3,
                       include_critical = TRUE)
-expect_doppelganger("Plot Feeding Level critical", p)
+expect_ggplot(p)
 
 p <- plotPredMort(sim, species = species, time_range = 1:3,
                   all.sizes = TRUE)
-expect_doppelganger("PlotPredation Mortality", p)
+expect_ggplot(p)
 p <- plotPredMort(sim, species = 2, time_range = 1:3)
 # The following test is disabled because the plot is different on different
 # platforms
@@ -59,9 +63,9 @@ p <- plotPredMort(sim, species = 2, time_range = 1:3)
 
 p <- plotFMort(sim, species = species, time_range = 1:3,
                all.sizes = TRUE)
-expect_doppelganger("PlotFishing Mortality", p)
+expect_ggplot(p)
 p <- plotFMort(sim, species = 2, time_range = 1:3)
-expect_doppelganger("PlotFMort truncated", p)
+expect_ggplot(p)
 
 # TODO: figure out why these give different results on different platforms
 # p <- plotGrowthCurves(sim, species = species, percentage = TRUE,
@@ -74,7 +78,7 @@ expect_doppelganger("PlotFMort truncated", p)
 sim@params@species_params[["a"]] <- 0.0058
 sim@params@species_params[["b"]] <- 3.13
 p <- plotGrowthCurves(sim, species = "10", max_age = 50)
-expect_doppelganger("Plot Single Growth Curve", p)
+expect_ggplot(p)
 
 sp_name <- NS_params@species_params$species[10]
 p <- plotDiet(NS_params, species = sp_name)

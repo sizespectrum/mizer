@@ -151,6 +151,9 @@ valid_MizerSim <- function(object) {
 #' with [validSim()].
 #'
 #' @slot params An object of type \linkS4class{MizerParams}.
+#'   If this params object uses extensions, the `MizerSim` object uses the same
+#'   extension chain via `params@extensions`; `MizerSim` has no separate
+#'   extension slot.
 #' @slot n Three-dimensional array (time x species x size) that stores the
 #'   projected community number densities.
 #' @slot n_pp An array (time x size) that stores the projected resource number
@@ -238,7 +241,7 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
                n_pp = array_n_pp,
                n_other = list_n_other,
                effort = array_effort)
-    return(sim)
+    coerceToExtensionClass(sim)
 }
 
 #' Validate MizerSim object and upgrade if necessary
@@ -300,6 +303,7 @@ validSim.MizerSim <- function(sim) {
         }
         sim <- truncateSim(sim, end_time = max_t)
     }
+    sim <- coerceToExtensionClass(sim)
     validObject(sim)
     sim
 }

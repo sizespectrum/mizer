@@ -58,3 +58,7 @@ customFunction("project", project)
 mizer::project(NS_params) # This will again use the old project()
 }
 }
+\seealso{
+"Extending mizer":
+\code{vignette("extending-mizer", package = "mizer")}
+}

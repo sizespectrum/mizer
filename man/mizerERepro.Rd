@@ -2,10 +2,16 @@
 % Please edit documentation in R/project_methods.R
 \name{mizerERepro}
 \alias{mizerERepro}
+\alias{projectERepro}
+\alias{projectERepro.MizerParams}
 \title{Get energy rate available for reproduction needed to project standard mizer
 model}
 \usage{
-mizerERepro(params, n, n_pp, n_other, t, e, ...)
+projectERepro(params, n, n_pp, n_other, t = 0, e, ...)
+
+\method{projectERepro}{MizerParams}(params, n, n_pp, n_other, t = 0, e, ...)
+
+mizerERepro(params, n, n_pp, n_other, t = 0, e, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}

@@ -28,9 +28,6 @@ template:
       site: "@mizer_model"
       card: summary
 
-development:
-  mode: auto
-
 toc:
   depth: 3
 
@@ -75,7 +72,12 @@ articles:
   - plotting
   - predation_diffusion
   - cohort_dynamics_and_diffusion
-  - extensions
+- title: Extending mizer
+  navbar: Extending mizer
+  contents:
+  - extending-mizer
+  - using-extension-packages
+  - creating-extension-packages
 - title: Publications
   navbar: Publications
   contents:
@@ -118,6 +120,7 @@ reference:
   - initial_effort
   - renameGear
   - expandSizeGrid
+  - use_predation_diffusion
 - title: Steady state tuning
   description: The first task after creating a multi-species model is to tune
     the model parameters so that in its steady state the model reproduces
@@ -133,6 +136,7 @@ reference:
   - matchNumbers
   - plotYieldObservedVsModel
   - scaleModel
+  - scaleRates
 - title: Dynamics tuning
   description: After tuning the steady state, you need to tune the sensitivity
     of the dynamics to perturbations away from the steady state. The following
@@ -201,13 +205,15 @@ reference:
   - has_concept("rate functions")
   - getCriticalFeedingLevel
 - title: Extending Mizer
+  desc: See [Extending mizer](https://sizespectrum.org/mizer/articles/extending-mizer.html),
+   [Using mizer extension packages](https://sizespectrum.org/mizer/articles/using-extension-packages.html)
+    and [Creating a mizer extension package](https://sizespectrum.org/mizer/articles/creating-extension-packages.html) for more details.
   contents:
   - setRateFunction
   - setComponent
-  - getComponent
-  - initialNOther
+  - initialNOther<-
   - NOther
-  - finalNOther
+  - has_concept("extension tools")
   - customFunction
 - title: Predation kernels
   contents:

@@ -35,6 +35,8 @@
 #' @param name Name of mizer function to replace
 #' @param fun The custom function to use as replacement
 #' @return No return value, called for side effects
+#' @seealso "Extending mizer":
+#'   \code{vignette("extending-mizer", package = "mizer")}
 #' @export
 #' @examples
 #' \dontrun{

@@ -1,5 +1,7 @@
+example_calibrate_params <- example_params()
+
 test_that("calibrateBiomass works", {
-    params <- example_params()
+    params <- example_calibrate_params
     # Does nothing when no observed biomass
     expect_identical(calibrateBiomass(params), params)
     species_params(params)$biomass_observed <- NA
@@ -23,7 +25,7 @@ test_that("calibrateBiomass works", {
 
 
 test_that("calibrateNumber works", {
-    params <- example_params()
+    params <- example_calibrate_params
     # Does nothing when no observed Number
     expect_identical(calibrateNumber(params), params)
     species_params(params)$number_observed <- NA

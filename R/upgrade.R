@@ -217,6 +217,8 @@ upgradeParams <- function(params) {
         }
         if (.hasSlot(params, "diffusion")) {
             pnew@ext_diffusion[] <- slot(params, "diffusion")
+        } else if (.hasSlot(params, "ext_diffusion")) {
+            pnew@ext_diffusion <- params@ext_diffusion
         }
         if (.hasSlot(params, "initial_n_other")) {
             pnew@initial_n_other <- params@initial_n_other
@@ -234,6 +236,8 @@ upgradeParams <- function(params) {
         }
         if (.hasSlot(params, "other_pred_mort")) {
             pnew@other_mort <- params@other_pred_mort
+        } else if (.hasSlot(params, "other_mort")) {
+            pnew@other_mort <- params@other_mort
         }
         if (.hasSlot(params, "plankton_dynamics")) {
             if (is.function(params@plankton_dynamics)) {
@@ -248,6 +252,8 @@ upgradeParams <- function(params) {
                     pnew@resource_dynamics <- params@plankton_dynamics
                 }
             }
+        } else if (.hasSlot(params, "resource_dynamics")) {
+            pnew@resource_dynamics <- params@resource_dynamics
         }
         if (.hasSlot(params, "plankton_params")) {
             pnew@resource_params <- params@plankton_params
@@ -294,6 +300,22 @@ upgradeParams <- function(params) {
             pnew@metadata <- params@metadata
             pnew@time_created <- params@time_created
             pnew@extensions <- params@extensions
+        }
+
+        if (.hasSlot(params, "rates_funcs")) {
+            pnew@rates_funcs <- params@rates_funcs
+        }
+        if (.hasSlot(params, "given_species_params")) {
+            pnew@given_species_params <- params@given_species_params
+        }
+        if (.hasSlot(params, "selectivity")) {
+            pnew@selectivity <- params@selectivity
+        }
+        if (.hasSlot(params, "catchability")) {
+            pnew@catchability <- params@catchability
+        }
+        if (.hasSlot(params, "use_predation_diffusion")) {
+            pnew@use_predation_diffusion <- params@use_predation_diffusion
         }
 
         # renaming catch_observed to yield_observed in mizer 2.3

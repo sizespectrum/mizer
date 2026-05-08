@@ -17,7 +17,7 @@
 # Four functions are the odd ones out because they also accept a MizerSim:
 # getFeedingLevel(object, n, n_pp,n_other, time_range, drop, ...)
 # getPredMort(object, n, n_pp,n_other, time_range, drop, ...)
-# getFMort(object, effort, time_range, drop)
+# getFMort(object, time_range, drop)
 # getFMortGear(object, effort, time_range)
 
 #' Get all rates
@@ -46,10 +46,11 @@ getRates.MizerParams <- function(params, n = initialN(params),
         effort <- params@initial_effort
     }
     
-    get(params@rates_funcs$Rates)(
+    rates_fns <- projectRateFunctions(params)
+    rates_fns$Rates(
         params, n = n, n_pp = n_pp, n_other = n_other,
         t = t, effort = effort, 
-        rates_fns = lapply(params@rates_funcs, get), ...)
+        rates_fns = rates_fns, ...)
 }
 
 #' Get encounter rate
@@ -86,8 +87,14 @@ getEncounter.MizerParams <- function(params, n = initialN(params),
                 identical(length(n_pp), length(params@initial_n_pp)),
                 identical(length(n_other), length(params@initial_n_other))
     )
-    f <- get(params@rates_funcs$Encounter)
-    encounter <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
+    if (usesExtensionDispatch(params)) {
+        encounter <- projectEncounter(params, n = n, n_pp = n_pp,
+                                      n_other = n_other, t = t, ...)
+    } else {
+        encounter_fn <- get(params@rates_funcs$Encounter)
+        encounter <- encounter_fn(params, n = n, n_pp = n_pp,
+                                  n_other = n_other, t = t, ...)
+    }
     ArraySpeciesBySize(encounter, value_name = "Encounter rate",
              units = "g/year", params = params)
 }
@@ -144,11 +151,16 @@ getFeedingLevel.MizerParams <- function(object, n, n_pp, n_other,
     if (missing(n_pp)) n_pp <- params@initial_n_pp
     if (missing(n_other)) n_other <- params@initial_n_other
     # calculate feeding level
-    f <- get(params@rates_funcs$FeedingLevel)
-    feeding_level <- f(params, n = n, n_pp = n_pp, n_other = n_other,
-                       encounter = getEncounter(params, n, n_pp, n_other, 
-                                                t = t), 
-                           t = t)
+    encounter <- getEncounter(params, n, n_pp, n_other, t = t)
+    if (usesExtensionDispatch(params)) {
+        feeding_level <- projectFeedingLevel(
+            params, n = n, n_pp = n_pp, n_other = n_other,
+            encounter = encounter, t = t)
+    } else {
+        f <- get(params@rates_funcs$FeedingLevel)
+        feeding_level <- f(params, n = n, n_pp = n_pp, n_other = n_other,
+                           encounter = encounter, t = t)
+    }
     return(ArraySpeciesBySize(feeding_level, value_name = "Feeding level",
                      params = params))
 }
@@ -248,11 +260,17 @@ getEReproAndGrowth.MizerParams <- function(params, n = initialN(params),
                                n_other = initialNOther(params),
                                t = 0, ...) {
     params <- validParams(params)
-    f <- get(params@rates_funcs$EReproAndGrowth)
-    e <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-           encounter = getEncounter(params, n, n_pp, n_other, t = t), 
-           feeding_level = getFeedingLevel(params, n, n_pp, n_other, 
-                                           time_range = t))
+    encounter <- getEncounter(params, n, n_pp, n_other, t = t)
+    feeding_level <- getFeedingLevel(params, n, n_pp, n_other, time_range = t)
+    if (usesExtensionDispatch(params)) {
+        e <- projectEReproAndGrowth(
+            params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+            encounter = encounter, feeding_level = feeding_level)
+    } else {
+        f <- get(params@rates_funcs$EReproAndGrowth)
+        e <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+               encounter = encounter, feeding_level = feeding_level)
+    }
     ArraySpeciesBySize(e, value_name = "Energy for growth and reproduction",
              units = "g/year", params = params)
 }
@@ -300,11 +318,17 @@ getPredRate.MizerParams <- function(params, n = initialN(params),
                         n_other = initialNOther(params),
                         t = 0, ...) {
     params <- validParams(params)
-    f <- get(params@rates_funcs$PredRate)
-    pred_rate <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-                   feeding_level = getFeedingLevel(params, n = n, n_pp = n_pp,  
-                                                   n_other = n_other, 
-                                                   time_range = t))
+    feeding_level <- getFeedingLevel(params, n = n, n_pp = n_pp,
+                                     n_other = n_other, time_range = t)
+    if (usesExtensionDispatch(params)) {
+        pred_rate <- projectPredRate(
+            params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+            feeding_level = feeding_level)
+    } else {
+        f <- get(params@rates_funcs$PredRate)
+        pred_rate <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                       feeding_level = feeding_level)
+    }
     dimnames(pred_rate) <- list(sp = dimnames(params@initial_n)$sp,
                                 w_prey = as.character(signif(params@w_full, 3)))
     pred_rate
@@ -361,10 +385,17 @@ getPredMort.MizerParams <- function(object, n, n_pp, n_other,
     if (missing(time_range)) time_range <- 0
     t <- min(time_range)
     
-    f <- get(params@rates_funcs$PredMort)
-    pred_mort <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-                   pred_rate = getPredRate(params, n = n, n_pp = n_pp, 
-                                           n_other = n_other, t = t))
+    pred_rate <- getPredRate(params, n = n, n_pp = n_pp, n_other = n_other,
+                             t = t)
+    if (usesExtensionDispatch(params)) {
+        pred_mort <- projectPredMort(
+            params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+            pred_rate = pred_rate)
+    } else {
+        f <- get(params@rates_funcs$PredMort)
+        pred_mort <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                       pred_rate = pred_rate)
+    }
     ArraySpeciesBySize(pred_mort, value_name = "Predation mortality",
              units = "1/year", params = params)
 }
@@ -437,10 +468,17 @@ getResourceMort.MizerParams <- function(params, n = initialN(params),
              t = 0, ...) {
     params <- validParams(params)
     
-    f <- get(params@rates_funcs$ResourceMort)
-    mort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
-              t = t, pred_rate = getPredRate(params, n = n, n_pp = n_pp, 
-                                             n_other = n_other, t = t))
+    pred_rate <- getPredRate(params, n = n, n_pp = n_pp, n_other = n_other,
+                             t = t)
+    if (usesExtensionDispatch(params)) {
+        mort <- projectResourceMort(
+            params, n = n, n_pp = n_pp, n_other = n_other,
+            t = t, pred_rate = pred_rate)
+    } else {
+        f <- get(params@rates_funcs$ResourceMort)
+        mort <- f(params, n = n, n_pp = n_pp, n_other = n_other,
+                  t = t, pred_rate = pred_rate)
+    }
     names(mort) <- names(params@initial_n_pp)
     mort
 }
@@ -650,7 +688,11 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE) {
     n_pp <- params@initial_n_pp
     n_other <- params@initial_n_other
     no_gears <- dim(params@catchability)[[1]]
-    f <- get(params@rates_funcs$FMort)
+    f <- if (usesExtensionDispatch(params)) {
+        projectFMort
+    } else {
+        get(params@rates_funcs$FMort)
+    }
     if (length(dim(effort)) == 2) {
         times <- dimnames(effort)$time
         f_mort <- array(0,
@@ -659,35 +701,38 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE) {
                                          dimnames(params@initial_n)))
         times <- as.numeric(times)
         for (i in seq_len(dim(effort)[1])) {
-            f_mort[i, , ] <- 
-                f(params, n = n, n_pp = n_pp, n_other = n_other,
-                  effort = effort[i, ], t = times[i],
-                  e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
-                                        n_other = n_other, t = times[i]), 
-                  pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
-                                          n_other = n_other,
-                                          time_range = times[i]))
+            args <- list(
+                params = params, n = n, n_pp = n_pp, n_other = n_other,
+                effort = effort[i, ], t = times[i],
+                e_growth = getEGrowth(params, n = n, n_pp = n_pp,
+                                      n_other = n_other, t = times[i]),
+                pred_mort = getPredMort(params, n = n, n_pp = n_pp,
+                                        n_other = n_other,
+                                        time_range = times[i]))
+            f_mort[i, , ] <- do.call(f, args)
         }
         return(f_mort)
     } else if (length(effort) <= 1) {
-        fmort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
-                   effort = rep(effort, no_gears), t = t,
-                   e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
-                                         n_other = n_other, t = t), 
-                   pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
-                                           n_other = n_other, 
-                                           time_range = t))
+        args <- list(
+            params = params, n = n, n_pp = n_pp, n_other = n_other,
+            effort = rep(effort, no_gears), t = t,
+            e_growth = getEGrowth(params, n = n, n_pp = n_pp,
+                                  n_other = n_other, t = t),
+            pred_mort = getPredMort(params, n = n, n_pp = n_pp,
+                                    n_other = n_other, time_range = t))
+        fmort <- do.call(f, args)
         fmort <- ArraySpeciesBySize(fmort, value_name = "Fishing mortality",
                            units = "1/year", params = params)
         return(fmort)
     } else if (length(effort) == no_gears) {
-        fmort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
-                   effort = effort, t = t,
-                   e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
-                                         n_other = n_other, t = t), 
-                   pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
-                                           n_other = n_other, 
-                                           time_range = t))
+        args <- list(
+            params = params, n = n, n_pp = n_pp, n_other = n_other,
+            effort = effort, t = t,
+            e_growth = getEGrowth(params, n = n, n_pp = n_pp,
+                                  n_other = n_other, t = t),
+            pred_mort = getPredMort(params, n = n, n_pp = n_pp,
+                                    n_other = n_other, time_range = t))
+        fmort <- do.call(f, args)
         fmort <- ArraySpeciesBySize(fmort, value_name = "Fishing mortality",
                            units = "1/year", params = params)
         return(fmort)
@@ -697,36 +742,37 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE) {
 }
 #'
 #' @export
-getFMort.MizerSim <- function(object, effort, time_range, drop = TRUE) {
+getFMort.MizerSim <- function(object, time_range, drop = TRUE) {
     sim <- object
     params <- sim@params
-    f <- get(params@rates_funcs$FMort)
+    f <- if (usesExtensionDispatch(params)) {
+        projectFMort
+    } else {
+        get(params@rates_funcs$FMort)
+    }
     if (missing(time_range)) {
         time_range <- dimnames(sim@effort)$time
     }
     time_elements <- get_time_elements(sim, time_range)
-    effort <- sim@effort[time_elements, , drop = FALSE]
-    n <- sim@n[time_elements, , , drop = FALSE]
-    n_pp <- sim@n_pp[time_elements, , drop = FALSE]
-    n_other <- sim@n_other[time_elements, , drop = FALSE]
-    times <- dimnames(effort)$time
-    f_mort <- array(0,
-                    dim = c(dim(effort)[[1]], dim(params@initial_n)),
-                    dimnames = c(list(time = times),
-                                 dimnames(params@initial_n)))
-    times <- as.numeric(times)
-    for (i in seq_len(dim(effort)[1])) {
-        f_mort[i, , ] <- 
-            f(params, n = n[i, , ], n_pp = n_pp[i, ], 
-              n_other = n_other[i, ], effort = effort[i, ], t = times[i],
-              e_growth = getEGrowth(params, n = n[i, , ], n_pp = n_pp[i, ],
-                                    n_other = n_other[i, ], t = times[i]), 
-              pred_mort = getPredMort(params, n = n[i, , ], 
-                                      n_pp = n_pp[i, ], 
-                                      n_other = n_other[i, ],
-                                      time_range = times[i]))
-    }
-    return(f_mort[, , , drop = drop])
+    f_mort_time <- plyr::aaply(which(time_elements), 1, function(x) {
+        n <- array(sim@n[x, , ], dim = dim(sim@n)[2:3])
+        dimnames(n) <- dimnames(sim@n)[2:3]
+        n_other <- sim@n_other[x, ]
+        names(n_other) <- dimnames(sim@n_other)$component
+        t <- as.numeric(dimnames(sim@n)$time[[x]])
+        n_pp <- sim@n_pp[x, ]
+        effort <- sim@effort[x, ]
+        args <- list(
+            params = params, n = n, n_pp = n_pp,
+            n_other = n_other, effort = effort, t = t,
+            e_growth = getEGrowth(params, n = n, n_pp = n_pp,
+                                  n_other = n_other, t = t),
+            pred_mort = getPredMort(params, n = n, n_pp = n_pp,
+                                    n_other = n_other, time_range = t))
+        do.call(f, args)
+    }, .drop = FALSE)
+    names(dimnames(f_mort_time))[[1]] <- "time"
+    return(f_mort_time[, , , drop = drop])
 }
 
 
@@ -775,11 +821,17 @@ getMort.MizerParams <- function(params,
                     t = 0, ...) {
     params <- validParams(params)
   
-    f <- get(params@rates_funcs$Mort)
-    z <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-           f_mort = getFMort(params, effort), 
-           pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
-                                   n_other = n_other, time_range = t))
+    f_mort <- getFMort(params, effort)
+    pred_mort <- getPredMort(params, n = n, n_pp = n_pp,
+                             n_other = n_other, time_range = t)
+    if (usesExtensionDispatch(params)) {
+        z <- projectMort(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                         f_mort = f_mort, pred_mort = pred_mort)
+    } else {
+        f <- get(params@rates_funcs$Mort)
+        z <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+               f_mort = f_mort, pred_mort = pred_mort)
+    }
     return(ArraySpeciesBySize(z, value_name = "Total mortality",
                      units = "1/year", params = params))
 }
@@ -835,10 +887,16 @@ getERepro.MizerParams <- function(params, n = initialN(params),
                       n_other = initialNOther(params),
                       t = 0, ...) {
     params <- validParams(params)
-    f <- get(params@rates_funcs$ERepro)
-    erepro <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t, 
-                e = getEReproAndGrowth(params, n = n, n_pp = n_pp,
-                                       n_other = n_other, t = t))
+    e <- getEReproAndGrowth(params, n = n, n_pp = n_pp, n_other = n_other,
+                            t = t)
+    if (usesExtensionDispatch(params)) {
+        erepro <- projectERepro(params, n = n, n_pp = n_pp, n_other = n_other,
+                                t = t, e = e)
+    } else {
+        f <- get(params@rates_funcs$ERepro)
+        erepro <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                    e = e)
+    }
     ArraySpeciesBySize(erepro, value_name = "Energy for reproduction",
              units = "g/year", params = params)
 }
@@ -890,12 +948,18 @@ getEGrowth.MizerParams <- function(params, n = initialN(params),
                        n_other = initialNOther(params),
                        t = 0, ...) {
     params <- validParams(params)
-    f <- get(params@rates_funcs$EGrowth)
-    g <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t, 
-           e_repro = getERepro(params, n = n, n_pp = n_pp, 
-                               n_other = n_other, t = t), 
-           e = getEReproAndGrowth(params, n = n, n_pp = n_pp, 
-                                  n_other = n_other, t = t))
+    e_repro <- getERepro(params, n = n, n_pp = n_pp, n_other = n_other,
+                         t = t)
+    e <- getEReproAndGrowth(params, n = n, n_pp = n_pp,
+                            n_other = n_other, t = t)
+    if (usesExtensionDispatch(params)) {
+        g <- projectEGrowth(params, n = n, n_pp = n_pp, n_other = n_other,
+                            t = t, e_repro = e_repro, e = e)
+    } else {
+        f <- get(params@rates_funcs$EGrowth)
+        g <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+               e_repro = e_repro, e = e)
+    }
     ArraySpeciesBySize(g, value_name = "Growth rate",
              units = "g/year", params = params)
 }
@@ -934,14 +998,19 @@ getRDI.MizerParams <- function(params, n = initialN(params),
                    n_other = initialNOther(params),
                    t = 0, ...) {
     params <- validParams(params)
-    f <- get(params@rates_funcs$RDI)
-    rdi <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t, 
-             e_repro = getERepro(params, n = n, n_pp = n_pp, 
-                                 n_other = n_other, t = t), 
-             e_growth = getEGrowth(params, n = n, n_pp = n_pp, 
-                                   n_other = n_other, t = t), 
-             mort = getMort(params, n = n, n_pp = n_pp, 
-                            n_other = n_other, t = t))
+    e_repro <- getERepro(params, n = n, n_pp = n_pp, n_other = n_other,
+                         t = t)
+    e_growth <- getEGrowth(params, n = n, n_pp = n_pp, n_other = n_other,
+                           t = t)
+    mort <- getMort(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
+    if (usesExtensionDispatch(params)) {
+        rdi <- projectRDI(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                          e_repro = e_repro, e_growth = e_growth, mort = mort)
+    } else {
+        f <- get(params@rates_funcs$RDI)
+        rdi <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                 e_repro = e_repro, e_growth = e_growth, mort = mort)
+    }
     names(rdi) <- params@species_params$species
     rdi
 }
@@ -991,14 +1060,19 @@ getRDD.MizerParams <- function(params, n = initialN(params),
                    rdi = getRDI(params, n = n, n_pp = n_pp, 
                                 n_other = n_other, t = t), ...) {
     params <- validParams(params)
-    # Avoid getting into infinite loops
-    if (params@rates_funcs$RDD == "getRDD") {
-        stop('"getRDD" is not a valid name for the function giving the density',
-             'dependent reproductive rate.')
+    if (usesExtensionDispatch(params)) {
+        rdd <- projectRDD(params, rdi = rdi, species_params = params@species_params,
+                          t = t, ...)
+    } else {
+        # Avoid getting into infinite loops
+        if (params@rates_funcs$RDD == "getRDD") {
+            stop('"getRDD" is not a valid name for the function giving the density',
+                 'dependent reproductive rate.')
+        }
+        f <- get(params@rates_funcs$RDD)
+        rdd <- f(rdi = rdi, species_params = params@species_params,
+                 params = params, t = t)
     }
-    f <- get(params@rates_funcs$RDD)
-    rdd <- f(rdi = rdi, species_params = params@species_params, 
-             params = params, t = t)
     names(rdd) <- params@species_params$species
     rdd
 }

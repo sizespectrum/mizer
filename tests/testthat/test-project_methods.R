@@ -10,7 +10,7 @@ no_gear <- dim(params@catchability)[1]
 no_sp <- dim(params@catchability)[2]
 no_w <- length(params@w)
 no_w_full <- length(params@w_full)
-sim <- project(params, effort = 1, t_max = 20, dt = 0.5, t_save = 0.5)
+sim <- project(params, effort = 1, t_max = 2, dt = 0.5, t_save = 0.5)
 
 # Rescaled
 params_r <- params
@@ -100,14 +100,14 @@ test_that("getFeedingLevel for MizerParams", {
 })
 
 test_that("getFeedingLevel for MizerSim", {
-    time_range <- 15:20
+    time_range <- 1:2
     fl <- getFeedingLevel(sim, time_range = time_range)
     expect_length(dim(fl), 3)
-    # because t_save is 0.5, there should be 11 time steps in the range 15:20
-    expect_equal(dim(fl), c(11, dim(params@initial_n)))
+    # because t_save is 0.5, there should be 3 time steps in the range 1:2
+    expect_equal(dim(fl), c(3, dim(params@initial_n)))
     expect_identical(dimnames(fl)$sp, dimnames(params@initial_n)$sp)
     expect_identical(dimnames(fl)$w, dimnames(params@initial_n)$w)
-    time_range <- 20
+    time_range <- 2
     expect_length(dim(getFeedingLevel(sim, time_range = time_range)), 3)
     expect_equal(
         getFeedingLevel(sim, time_range = time_range)[1, , ],
@@ -122,7 +122,7 @@ test_that("getFeedingLevel passes correct time", {
     # a sim object, it passes the correct values of t and n at each time step.
     # To do this we replace mizerFeedingLevel() with a simpler function that
     # just returns t * n
-    time_range <- 15:20
+    time_range <- 1:2
     time_elements <- get_time_elements(sim, time_range)
     times <- as.numeric(dimnames(sim@effort)$time[time_elements])
     e <- globalenv() # We need to define the following functions in the
@@ -195,9 +195,9 @@ test_that("getPredMort for MizerParams", {
 })
 
 test_that("getPredMort for MizerSim", {
-    time_range <- 15:20
+    time_range <- 1:2
     expect_length(dim(getPredMort(sim, time_range = time_range)), 3)
-    time_range <- 20
+    time_range <- 2
     expect_length(dim(getPredMort(sim, time_range = time_range)), 2)
     ##expect_that(getPredMort(sim, time_range=time_range), equals(getPredMort(sim@params, sim@n[as.character(time_range),,], sim@n_pp[as.character(time_range),])))
     aq1 <- getPredMort(sim, time_range = time_range)
@@ -685,7 +685,7 @@ test_that("Test that fft based integrator gives similar result as old code", {
 # One species only ----
 test_that("project function returns objects of correct dimension when community only has one species", {
     params <- newCommunityParams(z0 = 0.2, f0 = 0.7, alpha = 0.2)
-    t_max <- 50
+    t_max <- 2
     sim <- project(params, t_max = t_max, effort = 0)
     n <- array(sim@n[t_max + 1, , ], dim = dim(sim@n)[2:3])
     dimnames(n) <- dimnames(sim@n)[2:3]

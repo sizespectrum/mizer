@@ -3,7 +3,7 @@ params <- newMultispeciesParams(NS_species_params_gears[12, ], info_level = 0)
 n <- params@initial_n
 npp <- params@initial_n_pp
 effort <- array(abs(rnorm(10)), dim = c(10, 1))
-sim1 <- project(params, effort = 1, t_max = 10)
+sim1 <- project(params, effort = 1, t_max = 2)
 
 test_that("project methods return arrays of correct dimension", {
     expect_length(dim(getEncounter(params, n, npp)), 2)

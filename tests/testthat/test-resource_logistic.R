@@ -1,6 +1,8 @@
+trait_resource_logistic_params <- newTraitParams()
+
 test_that("resource_logistic preserves steady state", {
     # Set resource parameters so that we are at steady state
-    params <- newTraitParams()
+    params <- trait_resource_logistic_params
     params <- setResource(
         params,
         resource_dynamics = "resource_logistic",
@@ -27,7 +29,7 @@ test_that("resource_logistic evolves towards steady state", {
     # a large factor s and simultaneously scaling up the plankton abundance
     # so as to keep the income of the fish constant.
     s <- 1e10
-    params <- newTraitParams()
+    params <- trait_resource_logistic_params
     species_params(params)$gamma <- species_params(params)$gamma / s
     initialNResource(params) <- initialNResource(params) * s
     # Set resource parameters so that we are at steady state
@@ -95,8 +97,24 @@ test_that("balance_resource_logistic validates balancing inputs", {
                  "capacity is less than the current abundance")
 })
 
+test_that("balance_resource_logistic nudges capacity to avoid division by zero", {
+    params <- NS_params
+    capacity <- initialNResource(params)
+    death <- getResourceMort(params) * capacity != 0
+
+    expect_warning(
+        balanced <- balance_resource_logistic(params,
+                                              resource_rate = NULL,
+                                              resource_capacity = capacity),
+        "division by zero"
+    )
+
+    expect_true(all(is.finite(balanced$resource_rate)))
+    expect_true(all(balanced$resource_capacity[death] > capacity[death]))
+})
+
 test_that("balance_resource_logistic keeps current capacity when unidentifiable", {
-    params <- newTraitParams()
+    params <- trait_resource_logistic_params
     initialN(params)[] <- 0
     keep <- params@cc_pp[1]
     rate <- getResourceMort(params)

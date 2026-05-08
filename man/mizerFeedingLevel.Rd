@@ -2,9 +2,15 @@
 % Please edit documentation in R/project_methods.R
 \name{mizerFeedingLevel}
 \alias{mizerFeedingLevel}
+\alias{projectFeedingLevel}
+\alias{projectFeedingLevel.MizerParams}
 \title{Get feeding level needed to project standard mizer model}
 \usage{
-mizerFeedingLevel(params, n, n_pp, n_other, t, encounter, ...)
+projectFeedingLevel(params, n, n_pp, n_other, t = 0, encounter, ...)
+
+\method{projectFeedingLevel}{MizerParams}(params, n, n_pp, n_other, t = 0, encounter, ...)
+
+mizerFeedingLevel(params, n, n_pp, n_other, t = 0, encounter, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}

@@ -27,16 +27,25 @@ test_that("knife-edge selectivity function is working properly", {
     expect_true(all(params@selectivity["Otter",otter_trawl_species,params@w >= 1000] == 1))
     expect_true(all(params@selectivity["Otter",otter_trawl_species,params@w < 1000] == 0))
     
-    sim <- project(params, t_max = 10, effort = 1)
+    sim <- project(params, t_max = 2, effort = 1)
     fm <- getFMortGear(sim)
-    expect_true(all(fm[10,"Industrial",industrial_species,sim@params@w < 500] == 0))
-    expect_true(all(fm[10,"Industrial",industrial_species,sim@params@w >= 500] > 0))
-    expect_true(all(fm[10,"Pelagic",pelagic_species,sim@params@w >= 1000] > 0))
-    expect_true(all(fm[10,"Pelagic",pelagic_species,sim@params@w < 1000] == 0))
-    expect_true(all(fm[10,"Beam",beam_trawl_species,sim@params@w >= 1000] > 0))
-    expect_true(all(fm[10,"Beam",beam_trawl_species,sim@params@w < 1000] == 0))
-    expect_true(all(fm[10,"Otter",otter_trawl_species,sim@params@w >= 1000] > 0))
-    expect_true(all(fm[10,"Otter",otter_trawl_species,sim@params@w < 1000] == 0))
+    final <- dim(fm)[1]
+    expect_true(all(fm[final, "Industrial", industrial_species,
+                       sim@params@w < 500] == 0))
+    expect_true(all(fm[final, "Industrial", industrial_species,
+                       sim@params@w >= 500] > 0))
+    expect_true(all(fm[final, "Pelagic", pelagic_species,
+                       sim@params@w >= 1000] > 0))
+    expect_true(all(fm[final, "Pelagic", pelagic_species,
+                       sim@params@w < 1000] == 0))
+    expect_true(all(fm[final, "Beam", beam_trawl_species,
+                       sim@params@w >= 1000] > 0))
+    expect_true(all(fm[final, "Beam", beam_trawl_species,
+                       sim@params@w < 1000] == 0))
+    expect_true(all(fm[final, "Otter", otter_trawl_species,
+                       sim@params@w >= 1000] > 0))
+    expect_true(all(fm[final, "Otter", otter_trawl_species,
+                       sim@params@w < 1000] == 0))
 })
 
 # sigmoid_length ----

@@ -94,3 +94,18 @@ Note that your own rate functions need to be defined in the global
 environment or in a package. If they are defined within a function then
 mizer will not find them.
 }
+\seealso{
+"Extending mizer":
+\code{vignette("extending-mizer", package = "mizer")}
+
+Other extension tools:
+\code{\link[=NOther]{NOther()}},
+\code{\link[=clearExtensionChain]{clearExtensionChain()}},
+\code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
+\code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
+\code{\link[=initialNOther<-]{initialNOther<-()}},
+\code{\link[=registerExtension]{registerExtension()}},
+\code{\link[=registerExtensions]{registerExtensions()}},
+\code{\link[=setComponent]{setComponent()}}
+}
+\concept{extension tools}

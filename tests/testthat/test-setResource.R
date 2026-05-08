@@ -99,6 +99,18 @@ test_that("Can get and set resource_level slot", {
     expect_equal(resource_capacity(params), expected_capacity,
                  ignore_attr = TRUE)
 })
+
+test_that("resource_level can be set to 1", {
+    params <- NS_params
+    expect_warning(
+        params_new <- setResource(params, resource_level = 1),
+        "division by zero"
+    )
+
+    expect_true(all(is.finite(resource_rate(params_new))))
+    expect_true(all(resource_capacity(params_new) >= initialNResource(params)))
+})
+
 test_that("Can get and set resource_dynamics slot", {
     params <- NS_params
     new <- "resource_constant"
