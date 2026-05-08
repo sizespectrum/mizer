@@ -25,13 +25,44 @@ This vignette explains what happens when you load one or more mizer extension
 packages, why the order in which you load them can matter, and how to save and
 share models that use extensions.
 
-Extension packages such as
-[mizerShelf](https://github.com/sizespectrum/mizerShelf) or
-[mizerStarvation](https://github.com/sizespectrum/mizerStarvation) add new
-biology to mizer — extra mortality terms, additional components such as detritus
-and carrion, overridden plotting functions, and so on. You do not need to know
-how those packages are built to use them, but you do need to understand a few
-things about how mizer keeps track of them.
+Here are some available extension packages:
+
+- **[mizerExperimental](https://github.com/sizespectrum/mizerExperimental)** —
+  A community-driven collection of experimental features being refined before
+  potential inclusion in the core mizer package.
+- **[mizerShiny](https://github.com/gustavdelius/mizerShiny)** — Provides a
+  web-based Shiny interface for running and exploring mizer models without
+  writing R code.
+- **[therMizer](https://github.com/sizespectrum/therMizer)** — Incorporates
+  temperature-dependent metabolic rates and aerobic scope into mizer, with
+  support for size- and depth-varying thermal exposure.
+- **[mizerEcopath](https://github.com/gustavdelius/mizerEcopath)** — Provides
+  tools for calibrating mizer models using Ecopath biomass estimates, bridging
+  the two modelling frameworks.
+- **[mizerStarvation](https://github.com/sizespectrum/mizerStarvation)** —
+  Implements starvation mortality, allowing fish to die when food availability
+  is insufficient to sustain their metabolic needs.
+- **[mizerMR](https://github.com/sizespectrum/mizerMR)** — Supports multiple
+  size-structured background resource spectra, enabling species to have
+  different prey preferences and ontogenetic dietary shifts.
+- **[mizerShelf](https://github.com/sizespectrum/mizerShelf)** — Adds detritus
+  and carrion components for more realistic benthic ecosystem modelling on
+  continental shelves.
+- **[MizerEvolution](https://github.com/baldrech/MizerEvolution)** — Enables
+  simulation of evolutionary trait changes and species invasions by treating
+  species as pools of phenotypes subject to natural selection.
+- **[mizerSeasonal](https://github.com/gustavdelius/mizerSeasonal)** —
+  Introduces seasonal dynamics by simulating gonadal mass accumulation and
+  spawning events over the course of a year.
+- **[mizerStomach](https://github.com/gustavdelius/mizerStomach)** — Helps
+  determine predator size-selectivity functions by fitting them to stomach
+  content data.
+
+Extension packages such as these add new biology to mizer — extra mortality
+terms, additional components such as detritus and carrion, overridden plotting
+functions, and so on. You do not need to know how those packages are built to
+use them, but you do need to understand a few things about how mizer keeps track
+of them.
 
 # The extension chain
 

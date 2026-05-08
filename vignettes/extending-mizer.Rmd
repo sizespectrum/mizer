@@ -467,6 +467,6 @@ committing to an interface.
 
 # See also
 
-- [Using mizer extension packages](https://sizespectrum.org/mizer/articles/using-extension-packages.html)
-- [Creating a mizer extension package](https://sizespectrum.org/mizer/articles/creating-extension-packages.html)
+- [Using mizer extension packages](using-extension-packages.html)
+- [Creating a mizer extension package](creating-extension-packages.html)
 
