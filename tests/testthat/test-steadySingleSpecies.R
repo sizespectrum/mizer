@@ -66,6 +66,12 @@ test_that("steadySingleSpecies produces steady state with diffusion", {
     valid_idx <- initial_n > 1e-20
     max_rel_error <- max(rel_error[valid_idx], na.rm = TRUE)
     expect_lt(max_rel_error, 1e-10)
+
+    sim_pc <- project(params, t_max = 5, method = "predictor-corrector")
+    final_n_pc <- finalN(sim_pc)[species, ]
+    rel_error_pc <- abs(initial_n - final_n_pc) / initial_n
+    max_rel_error_pc <- max(rel_error_pc[valid_idx], na.rm = TRUE)
+    expect_lt(max_rel_error_pc, 1e-10)
 })
 
 test_that("steadySingleSpecies errors when growth stops before maturity", {
