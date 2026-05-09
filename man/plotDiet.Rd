@@ -8,7 +8,7 @@
 \usage{
 plotDiet(object, ...)
 
-\method{plotDiet}{MizerSim}(object, species = NULL, time_range, return_data = FALSE, ...)
+\method{plotDiet}{MizerSim}(object, species = NULL, return_data = FALSE, ...)
 
 \method{plotDiet}{MizerParams}(object, species = NULL, return_data = FALSE, ...)
 }
@@ -22,11 +22,6 @@ plotDiet(object, ...)
 species are selected. A vector of species names, or a
 numeric vector with the species indices, or a logical vector indicating for
 each species whether it is to be selected (TRUE) or not.}
-
-\item{time_range}{The time range (either a vector of values, a vector of min
-and max time, or a single value) to average the abundances over. Default is
-the final time step. Ignored when called with a \linkS4class{MizerParams}
-object.}
 
 \item{return_data}{A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default value is FALSE}

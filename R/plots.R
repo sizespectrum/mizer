@@ -1493,43 +1493,8 @@ plotDiet <- function(object, ...) {
 #' @rdname plotDiet
 #' @export
 plotDiet.MizerSim <- function(object, species = NULL,
-                              time_range, return_data = FALSE, ...) {
-    assert_that(is.flag(return_data))
-    if (missing(time_range)) {
-        time_range  <- max(as.numeric(dimnames(object@n)$time))
-    }
-    params <- object@params
-    # Calculate average abundances over time range
-    time_elements <- get_time_elements(object, time_range)
-    n <- apply(object@n[time_elements, , , drop = FALSE], c(2, 3), mean)
-    n_pp <- apply(object@n_pp[time_elements, , drop = FALSE], 2, mean)
-    n_other <- object@n_other[time_elements, , drop = FALSE]
-    if (length(dim(n_other)) == 2) {
-        if (ncol(n_other) > 0) {
-            n_other <- apply(n_other, 2, mean)
-        } else {
-            n_other <- numeric(0)
-        }
-    } else {
-        # If n_other is a list or has different structure, handling might be complex.
-        # But usually it's a matrix [time, component]
-        # If it's a list of arrays?
-        # For now assume standard structure or that getDiet handles it.
-        # Actually getDiet expects n_other to be passed.
-        # Let's check how getDiet handles n_other.
-        # In getDiet: n_other = initialNOther(params) default.
-        # We should pass the averaged n_other.
-        # If n_other is a list, we need to average each component.
-        if (is.list(n_other)) {
-             n_other <- lapply(n_other, function(x) {
-                 if (length(dim(x)) == 2) apply(x, 2, mean) else mean(x)
-             })
-        }
-    }
-
-    diet <- getDiet(params, n = n, n_pp = n_pp, n_other = n_other)
-    plot_diet(params, n = n, diet = diet, species = species,
-              return_data = return_data)
+                              return_data = FALSE, ...) {
+    plotDiet(object@params, species = species, return_data = return_data, ...)
 }
 
 #' @rdname plotDiet
