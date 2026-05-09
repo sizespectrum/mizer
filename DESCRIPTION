@@ -60,6 +60,7 @@ Collate:
     'registerExtensions.R'
     'ArraySpeciesBySize-class.R'
     'ArraySpeciesByTime-class.R'
+    'ArrayTimeBySpeciesBySize-class.R'
     'background.R'
     'reproduction.R'
     'saveParams.R'

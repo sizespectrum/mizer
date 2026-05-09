@@ -1,62 +1,62 @@
-#' Animation of the abundance spectra
+#' Animate size spectra or rates through time
 #'
 #' `r lifecycle::badge("experimental")`
 #'
-#' @param sim A MizerSim object
+#' Creates a plotly animation showing how a quantity changes over time.
+#' Dispatches on the class of `x`:
+#' * For a `MizerSim` object, animates the abundance spectra.
+#' * For an `ArrayTimeBySpeciesBySize` object (e.g. the output of
+#'   [getFMort()], [getFeedingLevel()], or [getPredMort()]), animates the
+#'   per-species rate through time.
+#'
+#' @param x A `MizerSim` or `ArrayTimeBySpeciesBySize` object.
 #' @param species Name or vector of names of the species to be plotted. By
 #'   default all species are plotted.
 #' @param time_range The time range to animate over. Either a vector of values
-#'   or a vector of min and max time. Default is the entire time range of the
-#'   simulation.
+#'   or a vector of min and max time. Default is the entire time range.
 #' @param wlim A numeric vector of length two providing lower and upper limits
 #'   for the w axis. Use NA to refer to the existing minimum or maximum.
 #' @param ylim A numeric vector of length two providing lower and upper limits
-#'   for the y axis. Use NA to refer to the existing minimum or maximum. Any
-#'   values below 1e-20 are always cut off.
-#' @param power The abundance is plotted as the number density times the weight
-#' raised to \code{power}. The default \code{power = 1} gives the biomass
-#' density, whereas \code{power = 2} gives the biomass density with respect
-#' to logarithmic size bins.
-#' @param total A boolean value that determines whether the total over all
-#'   species in the system is plotted as an additional trace called `"Total"`.
-#'   Default is FALSE.
-#' @param resource A boolean value that determines whether resource is included.
-#'   If `TRUE`, the resource spectrum is plotted as an additional trace called
-#'   `"Resource"`. Default is TRUE.
-#' @param background A boolean value that determines whether background species
-#'   are included. Ignored if the model does not contain background species.
-#'   Default is TRUE.
+#'   for the y axis. Use NA to refer to the existing minimum or maximum.
 #' @param ... Additional arguments passed to the method.
 #'
-#' @return A plotly object with one animated line trace per plotted group. The
-#'   y-axis title depends on `power`.
+#' @return A plotly object with one animated line trace per plotted group.
 #' @export
 #' @family plotting functions
 #' @examples
 #' \donttest{
-#' animateSpectra(NS_sim, power = 2, wlim = c(0.1, NA), time_range = 1997:2007)
+#' animate(NS_sim, power = 2, wlim = c(0.1, NA), time_range = 1997:2007)
+#' animate(getFMort(NS_sim))
 #' }
-animateSpectra <- function(sim, species, time_range,
-                           wlim,
-                           ylim,
-                           power,
-                           total,
-                           resource,
-                           background, ...)
-    UseMethod("animateSpectra")
+animate <- function(x, ...) UseMethod("animate")
 
+#' @rdname animate
+#' @param power The abundance is plotted as the number density times the weight
+#'   raised to \code{power}. The default \code{power = 1} gives the biomass
+#'   density, whereas \code{power = 2} gives the biomass density with respect
+#'   to logarithmic size bins. Only applies to `MizerSim`.
+#' @param total A boolean value that determines whether the total over all
+#'   species in the system is plotted as an additional trace called `"Total"`.
+#'   Default is FALSE. Only applies to `MizerSim`.
+#' @param resource A boolean value that determines whether resource is included.
+#'   If `TRUE`, the resource spectrum is plotted as an additional trace called
+#'   `"Resource"`. Default is TRUE. Only applies to `MizerSim`.
+#' @param background A boolean value that determines whether background species
+#'   are included. Ignored if the model does not contain background species.
+#'   Default is TRUE. Only applies to `MizerSim`.
 #' @export
-animateSpectra.MizerSim <- function(sim, species = NULL, time_range = NULL,
-                                    wlim = c(NA, NA), ylim = c(NA, NA),
-                                    power = 1, total = FALSE, resource = TRUE,
-                                    background = TRUE, ...) {
+animate.MizerSim <- function(x, species = NULL, time_range = NULL,
+                              wlim = c(NA, NA), ylim = c(NA, NA),
+                              power = 1, total = FALSE, resource = TRUE,
+                              background = TRUE, ...) {
+    sim <- x
     assert_that(is.flag(total), is.flag(resource), is.flag(background),
                 is.number(power),
                 length(wlim) == 2,
                 length(ylim) == 2)
 
     species <- valid_species_arg(sim, species)
-    if (missing(time_range)) {
+    if (is.null(time_range)) {
         time_range  <- as.numeric(dimnames(sim@n)$time)
     }
     time_elements <- get_time_elements(sim, time_range)
@@ -155,3 +155,9 @@ animateSpectra.MizerSim <- function(sim, species = NULL, time_range = NULL,
                                 title = y_label),
                    legend = list(traceorder = "normal"))
 }
+
+#' @rdname animate
+#' @description `animateSpectra()` is an alias for `animate()` provided for
+#'   backward compatibility.
+#' @export
+animateSpectra <- function(sim, ...) animate(sim, ...)

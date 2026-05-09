@@ -251,6 +251,7 @@ reference:
   - validParams
   - MizerSim-class
   - summary.MizerSim
+  - getSimParams
   - validSim
   - MizerSim
   - getParams
@@ -258,6 +259,8 @@ reference:
   - is.ArraySpeciesBySize
   - ArraySpeciesByTime
   - is.ArraySpeciesByTime
+  - ArrayTimeBySpeciesBySize
+  - is.ArrayTimeBySpeciesBySize
 - title: Example parameter sets
   desc: More example parameter sets are available via
     <https://sizespectrum.org/mizerExamples>

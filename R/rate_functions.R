@@ -187,10 +187,17 @@ getFeedingLevel.MizerSim <- function(object, n, n_pp, n_other,
                                     time_range = t)
             return(feed)
         }, .drop = FALSE)
-    # Before we drop dimensions we want to set the time dimname
     names(dimnames(feed_time))[[1]] <- "time"
-    feed_time <- feed_time[, , , drop = drop]
-    return(feed_time)
+    result <- feed_time[, , , drop = drop]
+    if (is.array(result) && length(dim(result)) == 3) {
+        result <- ArrayTimeBySpeciesBySize(result,
+                                          value_name = "Feeding level",
+                                          params = sim@params)
+    } else if (is.matrix(result)) {
+        result <- ArraySpeciesBySize(result, value_name = "Feeding level",
+                                     params = sim@params)
+    }
+    return(result)
 }
 
 
@@ -418,10 +425,19 @@ getPredMort.MizerSim <- function(object, n, n_pp, n_other,
             return(getPredMort(sim@params, n = n, n_pp = n_pp, 
                                n_other = n_other, time_range = t))
         }, .drop = FALSE)
-        # Before we drop dimensions we want to set the time dimname
         names(dimnames(pred_mort_time))[[1]] <- "time"
-        pred_mort_time <- pred_mort_time[, , , drop = drop]
-        return(pred_mort_time)
+        result <- pred_mort_time[, , , drop = drop]
+        if (is.array(result) && length(dim(result)) == 3) {
+            result <- ArrayTimeBySpeciesBySize(result,
+                                              value_name = "Predation mortality",
+                                              units = "1/year",
+                                              params = sim@params)
+        } else if (is.matrix(result)) {
+            result <- ArraySpeciesBySize(result,
+                                        value_name = "Predation mortality",
+                                        units = "1/year", params = sim@params)
+        }
+        return(result)
 }
 
 #' Alias for `getPredMort()`
@@ -772,7 +788,16 @@ getFMort.MizerSim <- function(object, time_range, drop = TRUE) {
         do.call(f, args)
     }, .drop = FALSE)
     names(dimnames(f_mort_time))[[1]] <- "time"
-    return(f_mort_time[, , , drop = drop])
+    result <- f_mort_time[, , , drop = drop]
+    if (is.array(result) && length(dim(result)) == 3) {
+        result <- ArrayTimeBySpeciesBySize(result,
+                                          value_name = "Fishing mortality",
+                                          units = "1/year", params = params)
+    } else if (is.matrix(result)) {
+        result <- ArraySpeciesBySize(result, value_name = "Fishing mortality",
+                                     units = "1/year", params = params)
+    }
+    return(result)
 }
 
 

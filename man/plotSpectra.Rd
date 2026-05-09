@@ -147,7 +147,7 @@ str(fr)
 \link{plotting_functions}
 
 Other plotting functions:
-\code{\link[=animateSpectra]{animateSpectra()}},
+\code{\link[=animateSpectra.ArrayTimeBySpeciesBySize]{animateSpectra.ArrayTimeBySpeciesBySize()}},
 \code{\link{plot}},
 \code{\link[=plotBiomass]{plotBiomass()}},
 \code{\link[=plotDiet]{plotDiet()}},
