@@ -45,6 +45,93 @@ project_n <- function(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
     n
 }
 
+#' Project values with a predictor-corrector method
+#'
+#' This is an experimental second-order time stepping variant of [project_n()].
+#' It first predicts the new consumer densities with [project_n()], optionally
+#' recalculates rates from that prediction, and then applies a Crank-Nicolson
+#' corrector using midpoint rates.
+#'
+#' If the rate recalculation arguments are not supplied, the corrector uses the
+#' supplied rates as fixed rates. In that case the corrector is second order only
+#' for the frozen-rate transport problem, not for the full nonlinear mizer
+#' dynamics.
+#'
+#' @inheritParams project_n
+#' @param rates_fns Optional named list of rate functions, as used by
+#'   [mizerRates()]. If supplied together with `n_pp`, `n_other` and `effort`,
+#'   provisional end-of-step rates are calculated from the predicted densities.
+#' @param n_pp Resource abundance used when recalculating provisional rates.
+#' @param n_other Other ecosystem components used when recalculating provisional
+#'   rates.
+#' @param t Current time.
+#' @param effort Fishing effort used when recalculating provisional rates.
+#' @param r_hat Optional provisional end-of-step rates. If supplied, these are
+#'   used instead of recalculating them.
+#' @param r_mid Optional midpoint rates. If supplied, these are used directly in
+#'   the Crank-Nicolson corrector.
+#' @param ... Further arguments passed to the rate functions.
+#'
+#' @return The updated abundance density matrix `n`.
+#' @seealso \code{\link{project_n}}
+#' @concept helper
+#' @export
+project_n_2 <- function(params, r, n, dt, a, b, c, S, idx,
+                        w_min_idx_array_ref, no_sp, no_w, rates_fns = NULL,
+                        n_pp = NULL, n_other = NULL, t = 0, effort = NULL,
+                        r_hat = NULL, r_mid = NULL, ...) {
+    if (is.null(r_mid)) {
+        if (is.null(r_hat) && !is.null(rates_fns) && !is.null(n_pp) &&
+            !is.null(n_other) && !is.null(effort)) {
+            n_hat <- project_n(params, r, n, dt, a, b, c, S, idx,
+                               w_min_idx_array_ref, no_sp, no_w)
+            r_hat <- rates_fns$Rates(
+                params,
+                n = n_hat, n_pp = n_pp, n_other = n_other,
+                t = t + dt, effort = effort, rates_fns = rates_fns, ...
+            )
+        }
+
+        if (is.null(r_hat)) {
+            r_mid <- r
+        } else {
+            r_mid <- r
+            r_mid$e_growth <- 0.5 * (r$e_growth + r_hat$e_growth)
+            r_mid$mort <- 0.5 * (r$mort + r_hat$mort)
+            r_mid$diffusion <- 0.5 * (r$diffusion + r_hat$diffusion)
+            r_mid$rdd <- 0.5 * (r$rdd + r_hat$rdd)
+        }
+    }
+
+    coefs <- get_transport_coefs(params, n, r_mid$e_growth, r_mid$mort,
+                                 dt / 2, recruitment_flux = r_mid$rdd,
+                                 d = r_mid$diffusion)
+    a <- coefs$a
+    b <- coefs$b
+    c <- coefs$c
+    S <- project_n_2_rhs(params, n, a, b, c, dt, r_mid$rdd)
+
+    project_n_loop(n, a, b, c, S, params@w_min_idx)
+}
+
+project_n_2_rhs <- function(params, n, a, b, c, dt, recruitment_flux) {
+    no_sp <- nrow(n)
+    no_w <- ncol(n)
+
+    matrix_n <- b * n
+    idx <- 2:no_w
+    matrix_n[, idx] <- matrix_n[, idx] + a[, idx] * n[, idx - 1, drop = FALSE]
+    idx <- 1:(no_w - 1)
+    matrix_n[, idx] <- matrix_n[, idx] + c[, idx] * n[, idx + 1, drop = FALSE]
+
+    source <- matrix(0, nrow = no_sp, ncol = no_w, dimnames = dimnames(n))
+    j_start <- params@w_min_idx
+    idxs <- cbind(seq_len(no_sp), j_start)
+    source[idxs] <- recruitment_flux / params@dw[j_start]
+
+    2 * n + dt * source - matrix_n
+}
+
 #' @rdname project_n
 project_n_no_diffusion <- function(params, r, n, dt, a, b, S, idx, w_min_idx_array_ref,
                                    no_sp, no_w) {

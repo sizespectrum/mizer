@@ -129,10 +129,12 @@ difference equations are solved.</p>
 <h2 id="the-weight-grid">The weight grid<a class="anchor" aria-label="anchor" href="#the-weight-grid"></a>
 </h2>
 <p>The model dynamics are described by partial differential equations
-(PDEs) for the species number densities <span class="math inline">\(N_i(w)\)</span> and the resource number density
-<span class="math inline">\(N_R(w)\)</span>. These depend on the
-individual weight <span class="math inline">\(w\)</span>. To solve these
-equations numerically, we discretise the weight axis.</p>
+(PDEs) for the consumer number density <span class="math inline">\(N(w)\)</span> of each species and the resource
+number density <span class="math inline">\(N_R(w)\)</span>. These depend
+on the individual weight <span class="math inline">\(w\)</span>. To
+solve these equations numerically, we discretise the weight axis. In
+this vignette we suppress the species index and write the equations for
+one species; the same scheme is applied to each species.</p>
 <p>We choose a grid of weights <span class="math inline">\(w_1, w_2,
 \ldots, w_K\)</span>. The grid is logarithmically spaced, meaning that
 the ratio of consecutive weights is constant: <span class="math display">\[ w_{j+1} / w_j = 10^{\Delta x} = \text{const}.
@@ -143,99 +145,99 @@ span many orders of magnitude, from milligrams to megagrams.</p>
 that <span class="math inline">\(\Delta w_j\)</span> increases with
 <span class="math inline">\(w_j\)</span>, which is appropriate for a
 logarithmic grid.</p>
-<p>The number density <span class="math inline">\(N_i(w)\)</span> is
-approximated by a constant value <span class="math inline">\(N_{i,j}\)</span> within each bin. Thus <span class="math inline">\(N_{i,j}\)</span> represents the density at the
-start of the bin <span class="math inline">\(w_j\)</span>. The number of
+<p>The number density <span class="math inline">\(N(w)\)</span> is
+approximated by a constant value <span class="math inline">\(N_j\)</span> within each bin. Thus <span class="math inline">\(N_j\)</span> represents the density at the start
+of the bin <span class="math inline">\(w_j\)</span>. The number of
 individuals in the <span class="math inline">\(j\)</span>-th bin is
-<span class="math inline">\(N_{i,j} \Delta w_j\)</span>.</p>
+<span class="math inline">\(N_j \Delta w_j\)</span>.</p>
 </div>
 <div class="section level2">
 <h2 id="the-transport-equation">The Transport Equation<a class="anchor" aria-label="anchor" href="#the-transport-equation"></a>
 </h2>
-<p>The time evolution of the number density <span class="math inline">\(N_i(w)\)</span> is described by the McKendrick-von
+<p>The time evolution of the number density <span class="math inline">\(N(w)\)</span> is described by the McKendrick-von
 Foerster equation with an added diffusion term: <span class="math display">\[
-\frac{\partial N_i}{\partial t} + \frac{\partial}{\partial w} \left( g_i
-N_i - \frac{1}{2}\frac{\partial(d_i N_i)}{\partial w} \right) = -\mu_i
-N_i
-\]</span> where <span class="math inline">\(g_i(w)\)</span> is the
-somatic growth rate, <span class="math inline">\(d_i(w)\)</span> is the
-diffusion coefficient and <span class="math inline">\(\mu_i(w)\)</span>
-is the total mortality rate.</p>
-<p>We discretise this equation using a finite volume scheme.</p>
+\frac{\partial N}{\partial t} + \frac{\partial}{\partial w} \left( g N -
+\frac{1}{2}\frac{\partial(d N)}{\partial w} \right) = -\mu N
+\]</span> where <span class="math inline">\(g(w)\)</span> is the somatic
+growth rate, <span class="math inline">\(d(w)\)</span> is the diffusion
+coefficient and <span class="math inline">\(\mu(w)\)</span> is the total
+mortality rate.</p>
+<p>We discretise this equation using a finite volume scheme. On the grid
+we write <span class="math inline">\(g_j = g(w_j)\)</span>, <span class="math inline">\(d_j = d(w_j)\)</span>, and <span class="math inline">\(\mu_j = \mu(w_j)\)</span>.</p>
 <div class="section level3">
 <h3 id="discretisation-of-the-fluxes">Discretisation of the Fluxes<a class="anchor" aria-label="anchor" href="#discretisation-of-the-fluxes"></a>
 </h3>
-<p>The term inside the derivative with respect to <span class="math inline">\(w\)</span> is the flux <span class="math inline">\(J_i(w)\)</span>: <span class="math display">\[
-J_i(w) = g_i(w) N_i(w) - \frac{1}{2}\frac{\partial(d_i(w)
-N_i(w))}{\partial w} \]</span> We consider the <span class="math inline">\(j\)</span>-th size bin <span class="math inline">\([w_j, w_{j+1}]\)</span>. Integrating the
+<p>The term inside the derivative with respect to <span class="math inline">\(w\)</span> is the flux <span class="math inline">\(J(w)\)</span>: <span class="math display">\[ J(w)
+= g(w) N(w) - \frac{1}{2}\frac{\partial(d(w) N(w))}{\partial w}
+\]</span> We consider the <span class="math inline">\(j\)</span>-th size
+bin <span class="math inline">\([w_j, w_{j+1}]\)</span>. Integrating the
 conservation equation over this bin gives: <span class="math display">\[
-\Delta w_j \frac{\partial N_{i,j}}{\partial t} + J_i(w_{j+1}) - J_i(w_j)
-= -\int_{w_j}^{w_{j+1}} \mu_i(w) N_i(w) dw \]</span> Approximating the
-integral and dividing by <span class="math inline">\(\Delta
-w_j\)</span>: <span class="math display">\[ \frac{N_{i,j}^{t+1} -
-N_{i,j}^t}{\Delta t} + \frac{J_{i,j+1} - J_{i,j}}{\Delta w_j} =
--\mu_i(w_j) N_{i,j}^{t+1} \]</span> where <span class="math inline">\(J_{i,j}\)</span> represents the flux at the
+\int_{w_j}^{w_{j+1}} \frac{\partial N_j}{\partial t}dw + J(w_{j+1}) -
+J(w_j) = -\int_{w_j}^{w_{j+1}} \mu(w) N(w) dw \]</span> Approximating
+the integral and dividing by <span class="math inline">\(\Delta
+w_j\)</span>: <span class="math display">\[ \frac{\partial N_j}{\partial
+t}+ \frac{J_{j+1} - J_j}{\Delta w_j} = -\mu_j N_j^{t+1} \]</span> where
+<span class="math inline">\(J_j\)</span> represents the flux at the
 boundary <span class="math inline">\(w_j\)</span>.</p>
 <div class="section level4">
 <h4 id="advective-flux">Advective Flux<a class="anchor" aria-label="anchor" href="#advective-flux"></a>
 </h4>
-<p>For the advective part of the flux <span class="math inline">\(g_i
-N_i\)</span>, we use an <strong>upwind</strong> approximation. Since
-fish grow from smaller to larger sizes (<span class="math inline">\(g_i
-&gt; 0\)</span>), the flux at boundary <span class="math inline">\(w_j\)</span> is determined by the density in the
-bin below (<span class="math inline">\(j-1\)</span>): <span class="math display">\[ J_{i,j}^{adv} = g_i(w_{j-1}) N_{i,j-1} \]</span>
-(Note: for <span class="math inline">\(j=j_{min}\)</span>, this boundary
-flux is the recruitment <span class="math inline">\(R_{dd,i}\)</span>).</p>
+<p>For the advective part of the flux <span class="math inline">\(g
+N\)</span>, we use an <strong>upwind</strong> approximation. Since fish
+grow from smaller to larger sizes (<span class="math inline">\(g &gt;
+0\)</span>), the flux at boundary <span class="math inline">\(w_j\)</span> is determined by the density in the
+bin below (<span class="math inline">\(j-1\)</span>): <span class="math display">\[ J_j^{adv} = g_{j-1} N_{j-1} \]</span> (Note: for
+<span class="math inline">\(j=j_{min}\)</span>, this boundary flux is
+the recruitment <span class="math inline">\(R_{dd}\)</span>).</p>
 </div>
 <div class="section level4">
 <h4 id="diffusive-flux">Diffusive Flux<a class="anchor" aria-label="anchor" href="#diffusive-flux"></a>
 </h4>
-<p>For the diffusive part of the flux <span class="math inline">\(-\frac{1}{2}\frac{\partial(d_i N_i)}{\partial
+<p>For the diffusive part of the flux <span class="math inline">\(-\frac{1}{2}\frac{\partial(d N)}{\partial
 w}\)</span>, we use a <strong>central difference</strong> approximation
 at the boundary <span class="math inline">\(w_j\)</span>. We approximate
 the gradient using the densities in the adjacent bins <span class="math inline">\(j-1\)</span> and <span class="math inline">\(j\)</span>: <span class="math display">\[
-J_{i,j}^{diff} \approx -\frac{1}{2} \frac{(d_i N_i)_j - (d_i
-N_i)_{j-1}}{w_j - w_{j-1}} = -\frac{1}{2} \frac{d_i(w_j) N_{i,j} -
-d_i(w_{j-1}) N_{i,j-1}}{\Delta w_{j-1}} \]</span> Note the use of <span class="math inline">\(N_{i,j}\)</span> (density in bin <span class="math inline">\(j\)</span>) and <span class="math inline">\(N_{i,j-1}\)</span> (density in bin <span class="math inline">\(j-1\)</span>) to estimate the value at the
+J_j^{diff} \approx -\frac{1}{2} \frac{(d N)_j - (d N)_{j-1}}{w_j -
+w_{j-1}} = -\frac{1}{2} \frac{d_j N_j - d_{j-1} N_{j-1}}{\Delta w_{j-1}}
+\]</span> Note the use of <span class="math inline">\(N_j\)</span>
+(density in bin <span class="math inline">\(j\)</span>) and <span class="math inline">\(N_{j-1}\)</span> (density in bin <span class="math inline">\(j-1\)</span>) to estimate the value at the
 interface <span class="math inline">\(w_j\)</span>.</p>
 <p>The total flux at boundary <span class="math inline">\(w_j\)</span>
-is: <span class="math display">\[ J_{i,j} = g_i(w_{j-1}) N_{i,j-1} -
-\frac{1}{2} \frac{d_i(w_j) N_{i,j} - d_i(w_{j-1}) N_{i,j-1}}{\Delta
-w_{j-1}} \]</span> And similarly at boundary <span class="math inline">\(w_{j+1}\)</span>: <span class="math display">\[
-J_{i,j+1} = g_i(w_j) N_{i,j} - \frac{1}{2} \frac{d_i(w_{j+1}) N_{i,j+1}
-- d_i(w_j) N_{i,j}}{\Delta w_j} \]</span></p>
+is: <span class="math display">\[ J_j = g_{j-1} N_{j-1} - \frac{1}{2}
+\frac{d_j N_j - d_{j-1} N_{j-1}}{\Delta w_{j-1}} \]</span> And similarly
+at boundary <span class="math inline">\(w_{j+1}\)</span>: <span class="math display">\[ J_{j+1} = g_j N_j - \frac{1}{2} \frac{d_{j+1}
+N_{j+1} - d_j N_j}{\Delta w_j} \]</span></p>
 </div>
 </div>
 <div class="section level3">
-<h3 id="limitation-on-time-step">Limitation on Time Step<a class="anchor" aria-label="anchor" href="#limitation-on-time-step"></a>
+<h3 id="semi-implicit-time-discretisation">Semi-Implicit Time Discretisation<a class="anchor" aria-label="anchor" href="#semi-implicit-time-discretisation"></a>
 </h3>
 <p>With the diffusion term, an explicit time discretisation would
 require a very small time step for stability (<span class="math inline">\(\Delta t \sim \Delta w^2\)</span>). Therefore, we
-use a semi-implicit scheme where the densities <span class="math inline">\(N_i\)</span> are evaluated at time <span class="math inline">\(t+1\)</span>, but the rates (<span class="math inline">\(g_i, \mu_i, d_i\)</span>) are evaluated at time
-<span class="math inline">\(t\)</span>.</p>
-</div>
-<div class="section level3">
-<h3 id="discretised-equation">Discretised Equation<a class="anchor" aria-label="anchor" href="#discretised-equation"></a>
-</h3>
-<p>Substituting the fluxes into the conservation equation: <span class="math display">\[
-\frac{N_{i,j}^{t+1} - N_{i,j}^t}{\Delta t} + \frac{1}{\Delta w_j} \left(
-J_{i,j+1}^{t+1} - J_{i,j}^{t+1} \right) = -\mu_i(w_j) N_{i,j}^{t+1}
+use a semi-implicit scheme where the densities <span class="math inline">\(N\)</span> are evaluated at time <span class="math inline">\(t+1\)</span>, but the rates (<span class="math inline">\(g\)</span>, <span class="math inline">\(\mu\)</span>, <span class="math inline">\(d\)</span>) are evaluated at time <span class="math inline">\(t\)</span>. Using a fully implicit scheme would
+require solving a nonlinear system at each time step, which is more
+computationally expensive. Thus, the discretised equation becomes: <span class="math display">\[
+\frac{N_j^{t+1} - N_j^t}{\Delta t} + \frac{1}{\Delta w_j} \left(
+J_{j+1}^{t+1} - J_j^{t+1} \right) = -\mu_j N_j^{t+1}
+\]</span> where the fluxes <span class="math inline">\(J_j^{t+1}\)</span> are calculated using the
+densities at time <span class="math inline">\(t+1\)</span> but the rates
+at time <span class="math inline">\(t\)</span>: <span class="math display">\[
+J_j^{t+1} = g_{j-1} N_{j-1}^{t+1} - \frac{1}{2} \frac{d_j N_j^{t+1} -
+d_{j-1} N_{j-1}^{t+1}}{\Delta w_{j-1}}.
 \]</span> This leads to a linear system of the form: <span class="math display">\[
-A_{i,j} N_{i,j-1}^{t+1} + B_{i,j} N_{i,j}^{t+1} + C_{i,j}
-N_{i,j+1}^{t+1} = S_{i,j}
-\]</span> where <span class="math inline">\(S_{i,j} =
-N_{i,j}^t\)</span>. This is a <strong>tridiagonal system</strong> for
-each species <span class="math inline">\(i\)</span>, which can be solved
-efficiently (e.g., using the Thomas algorithm).</p>
+A_j N_{j-1}^{t+1} + B_j N_j^{t+1} + C_j N_{j+1}^{t+1} = S_j
+\]</span> where <span class="math inline">\(S_j = N_j^t\)</span>. This
+is a <strong>tridiagonal system</strong> for each species, which can be
+solved efficiently (e.g., using the Thomas algorithm).</p>
 <p>The coefficients are: <span class="math display">\[
 \begin{aligned}
-A_{i,j} &amp;= -\frac{\Delta t}{\Delta w_j} \left( g_i(w_{j-1}) +
-\frac{1}{2} \frac{d_i(w_{j-1})}{\Delta w_{j-1}} \right) \\
-C_{i,j} &amp;= -\frac{\Delta t}{\Delta w_j} \left( \frac{1}{2}
-\frac{d_i(w_{j+1})}{\Delta w_j} \right) \\
-B_{i,j} &amp;= 1 + \Delta t \mu_i(w_j) + \frac{\Delta t}{\Delta w_j}
-\left( g_i(w_j) + \frac{1}{2} \frac{d_i(w_j)}{\Delta w_j} + \frac{1}{2}
-\frac{d_i(w_j)}{\Delta w_{j-1}} \right)
+A_j &amp;= -\frac{\Delta t}{\Delta w_j} \left( g_{j-1} + \frac{1}{2}
+\frac{d_{j-1}}{\Delta w_{j-1}} \right) \\
+C_j &amp;= -\frac{\Delta t}{\Delta w_j} \left( \frac{1}{2}
+\frac{d_{j+1}}{\Delta w_j} \right) \\
+B_j &amp;= 1 + \Delta t \mu_j + \frac{\Delta t}{\Delta w_j} \left( g_j +
+\frac{1}{2} \frac{d_j}{\Delta w_j} + \frac{1}{2} \frac{d_j}{\Delta
+w_{j-1}} \right)
 \end{aligned}
 \]</span></p>
 </div>
@@ -244,33 +246,30 @@ B_{i,j} &amp;= 1 + \Delta t \mu_i(w_j) + \frac{\Delta t}{\Delta w_j}
 </h3>
 <p><strong>At the smallest size (<span class="math inline">\(j=j_{min}\)</span>):</strong> The flux entering
 the grid is determined by recruitment. <span class="math display">\[
-J_{i, j_{min}} = R_{dd, i} \]</span> (We assume diffusive flux at the
-lower boundary is negligible or incorporated into <span class="math inline">\(R_{dd}\)</span>). The equation for the first bin
-becomes: <span class="math display">\[ \frac{N_{i,j_{min}}^{t+1} -
-N_{i,j_{min}}^t}{\Delta t} + \frac{J_{i, j_{min}+1}^{t+1} -
-R_{dd,i}}{\Delta w_{j_{min}}} = -\mu_i(w_{j_{min}}) N_{i,j_{min}}^{t+1}
-\]</span> This involves <span class="math inline">\(N_{i,
-j_{min}}^{t+1}\)</span> and <span class="math inline">\(N_{i,
-j_{min}+1}^{t+1}\)</span>. Comparing this to the general discretised
-equation translates to modifying the first row (<span class="math inline">\(j=j_{min}\)</span>) of our tri-diagonal
+J_{j_{min}} = R_{dd} \]</span> (We assume diffusive flux at the lower
+boundary is negligible or incorporated into <span class="math inline">\(R_{dd}\)</span>). The equation for the first bin
+becomes: <span class="math display">\[ \frac{N_{j_{min}}^{t+1} -
+N_{j_{min}}^t}{\Delta t} + \frac{J_{j_{min}+1}^{t+1} - R_{dd}}{\Delta
+w_{j_{min}}} = -\mu_{j_{min}} N_{j_{min}}^{t+1} \]</span> This involves
+<span class="math inline">\(N_{j_{min}}^{t+1}\)</span> and <span class="math inline">\(N_{j_{min}+1}^{t+1}\)</span>. Comparing this to
+the general discretised equation translates to modifying the first row
+(<span class="math inline">\(j=j_{min}\)</span>) of our tri-diagonal
 matrices:</p>
 <ul>
 <li>The <span class="math inline">\(j_{min}-1\)</span> term does not
-exist, so <span class="math inline">\(A_{i,j_{min}} = 0\)</span>.</li>
+exist, so <span class="math inline">\(A_{j_{min}} = 0\)</span>.</li>
 <li>The upward diffusion term from below the boundary is omitted, so
-<span class="math inline">\(B_{i, j_{min}}\)</span> does not have the
-<span class="math inline">\(\frac{1}{2} \frac{d_i(w_{j_{min}})}{\Delta
+<span class="math inline">\(B_{j_{min}}\)</span> does not have the <span class="math inline">\(\frac{1}{2} \frac{d_{j_{min}}}{\Delta
 w_{j_{min}-1}}\)</span> component: <span class="math display">\[
-B_{i,j_{min}} = 1 + \Delta t \mu_i(w_{j_{min}}) + \frac{\Delta t}{\Delta
-w_{j_{min}}} \left( g_i(w_{j_{min}}) + \frac{1}{2}
-\frac{d_i(w_{j_{min}})}{\Delta w_{j_{min}}} \right) \]</span>
+B_{j_{min}} = 1 + \Delta t \mu_{j_{min}} + \frac{\Delta t}{\Delta
+w_{j_{min}}} \left( g_{j_{min}} + \frac{1}{2} \frac{d_{j_{min}}}{\Delta
+w_{j_{min}}} \right) \]</span>
 </li>
-<li>The coefficient <span class="math inline">\(C_{i, j_{min}}\)</span>
+<li>The coefficient <span class="math inline">\(C_{j_{min}}\)</span>
 remains unchanged from the general formula.</li>
 <li>The recruitment flux enters as a source term, so it is added to the
-right-hand side <span class="math inline">\(S_{i, j_{min}}\)</span>:
-<span class="math display">\[ S_{i,j_{min}} = N_{i,j_{min}}^t +
-\frac{\Delta t}{\Delta w_{j_{min}}} R_{dd, i} \]</span>
+right-hand side <span class="math inline">\(S_{j_{min}}\)</span>: <span class="math display">\[ S_{j_{min}} = N_{j_{min}}^t + \frac{\Delta
+t}{\Delta w_{j_{min}}} R_{dd} \]</span>
 </li>
 </ul>
 <p>(Additionally, for any size classes below the recruitment size <span class="math inline">\(j &lt; j_{min}\)</span>, we set all coefficients
@@ -278,13 +277,12 @@ in the matrices <span class="math inline">\(A\)</span>, <span class="math inline
 and vector <span class="math inline">\(S\)</span> to <span class="math inline">\(0\)</span> to avoid any dynamics in that
 range).</p>
 <p><strong>At the largest size (<span class="math inline">\(j=j_{max}\)</span>):</strong> We typically assume
-that densities drop to zero beyond the maximum size, <span class="math inline">\(N_{i, j_{max}+1} = 0\)</span>. The flux leaving
-the grid is: <span class="math display">\[ J_{i, j_{max}+1} =
-g_i(w_{j_{max}}) N_{i, j_{max}} - \frac{1}{2} \frac{0 - d_i(w_{j_{max}})
-N_{i, j_{max}}}{\Delta w_{j_{max}}} \]</span> This means the term <span class="math inline">\(C_{i, j_{max}}\)</span> multiplying <span class="math inline">\(N_{i, j_{max}+1}^{t+1}\)</span> is not needed, so
-<span class="math inline">\(C_{i, j_{max}} = 0\)</span>. The
-coefficients <span class="math inline">\(A_{i, j_{max}}\)</span> and
-<span class="math inline">\(B_{i, j_{max}}\)</span> use the standard
+that densities drop to zero beyond the maximum size, <span class="math inline">\(N_{j_{max}+1} = 0\)</span>. The flux leaving the
+grid is: <span class="math display">\[ J_{j_{max}+1} = g_{j_{max}}
+N_{j_{max}} - \frac{1}{2} \frac{0 - d_{j_{max}} N_{j_{max}}}{\Delta
+w_{j_{max}}} \]</span> This means the term <span class="math inline">\(C_{j_{max}}\)</span> multiplying <span class="math inline">\(N_{j_{max}+1}^{t+1}\)</span> is not needed, so
+<span class="math inline">\(C_{j_{max}} = 0\)</span>. The coefficients
+<span class="math inline">\(A_{j_{max}}\)</span> and <span class="math inline">\(B_{j_{max}}\)</span> use the standard
 formulas.</p>
 </div>
 <div class="section level3">
@@ -321,60 +319,58 @@ components: one from spatial discretisation (scaling with <span class="math inli
 </h3>
 <p>When solving the steady-state ODE instead of the time-dependent PDE,
 we are looking for a state where the population densities do not change
-over time, meaning <span class="math inline">\(N_{i,j}^{t+1} = N_{i,j}^t
-= N_{i,j}^*\)</span>.</p>
+over time, meaning <span class="math inline">\(N_j^{t+1} = N_j^t =
+N_j^*\)</span>.</p>
 <p>Substituting this into our discretised linear system: <span class="math display">\[
-A_{i,j} N_{i,j-1}^* + B_{i,j} N_{i,j}^* + C_{i,j} N_{i,j+1}^* = S_{i,j}
+A_j N_{j-1}^* + B_j N_j^* + C_j N_{j+1}^* = S_j
 \]</span> Recall that for <span class="math inline">\(j &gt;
-j_{min}\)</span>, <span class="math inline">\(S_{i,j} =
-N_{i,j}^t\)</span>. The equation simplifies to: <span class="math display">\[
-A_{i,j} N_{i,j-1}^* + (B_{i,j} - 1) N_{i,j}^* + C_{i,j} N_{i,j+1}^* = 0
+j_{min}\)</span>, <span class="math inline">\(S_j = N_j^t\)</span>. The
+equation simplifies to: <span class="math display">\[
+A_j N_{j-1}^* + (B_j - 1) N_j^* + C_j N_{j+1}^* = 0
 \]</span></p>
 <p>To find the steady-state population densities <span class="math inline">\(N^*\)</span>, we formulate a new time-independent
 tridiagonal system: <span class="math display">\[
-\tilde{A}_{i,j} N_{i,j-1}^* + \tilde{B}_{i,j} N_{i,j}^* +
-\tilde{C}_{i,j} N_{i,j+1}^* = \tilde{S}_{i,j}
+\tilde{A}_j N_{j-1}^* + \tilde{B}_j N_j^* + \tilde{C}_j N_{j+1}^* =
+\tilde{S}_j
 \]</span> To eliminate the explicit dependence on the time step <span class="math inline">\(\Delta t\)</span>, we can divide the equation by
 <span class="math inline">\(\Delta t\)</span>. The modified coefficients
 <span class="math inline">\(\tilde{A}, \tilde{B}, \tilde{C}\)</span>
 defining the new tri-diagonal system are: <span class="math display">\[
 \begin{aligned}
-\tilde{A}_{i,j} &amp;= \frac{A_{i,j}}{\Delta t} = -\frac{1}{\Delta w_j}
-\left( g_i(w_{j-1}) + \frac{1}{2} \frac{d_i(w_{j-1})}{\Delta w_{j-1}}
-\right) \\
-\tilde{C}_{i,j} &amp;= \frac{C_{i,j}}{\Delta t} = -\frac{1}{\Delta w_j}
-\left( \frac{1}{2} \frac{d_i(w_{j+1})}{\Delta w_j} \right) \\
-\tilde{B}_{i,j} &amp;= \frac{B_{i,j} - 1}{\Delta t} = \mu_i(w_j) +
-\frac{1}{\Delta w_j} \left( g_i(w_j) + \frac{1}{2}
-\frac{d_i(w_j)}{\Delta w_j} + \frac{1}{2} \frac{d_i(w_j)}{\Delta
-w_{j-1}} \right)
+\tilde{A}_j &amp;= \frac{A_j}{\Delta t} = -\frac{1}{\Delta w_j} \left(
+g_{j-1} + \frac{1}{2} \frac{d_{j-1}}{\Delta w_{j-1}} \right) \\
+\tilde{C}_j &amp;= \frac{C_j}{\Delta t} = -\frac{1}{\Delta w_j} \left(
+\frac{1}{2} \frac{d_{j+1}}{\Delta w_j} \right) \\
+\tilde{B}_j &amp;= \frac{B_j - 1}{\Delta t} = \mu_j + \frac{1}{\Delta
+w_j} \left( g_j + \frac{1}{2} \frac{d_j}{\Delta w_j} + \frac{1}{2}
+\frac{d_j}{\Delta w_{j-1}} \right)
 \end{aligned}
-\]</span> Notice that <span class="math inline">\(\tilde{A}_{i,j}\)</span> and <span class="math inline">\(\tilde{C}_{i,j}\)</span> are exactly the
-expressions for <span class="math inline">\(A_{i,j}\)</span> and <span class="math inline">\(C_{i,j}\)</span> evaluated at <span class="math inline">\(\Delta t = 1\)</span>. Similarly, <span class="math inline">\(\tilde{B}_{i,j}\)</span> is exactly the expression
-for <span class="math inline">\(B_{i,j} - 1\)</span> evaluated at <span class="math inline">\(\Delta t = 1\)</span>.</p>
+\]</span> Notice that <span class="math inline">\(\tilde{A}_j\)</span>
+and <span class="math inline">\(\tilde{C}_j\)</span> are exactly the
+expressions for <span class="math inline">\(A_j\)</span> and <span class="math inline">\(C_j\)</span> evaluated at <span class="math inline">\(\Delta t = 1\)</span>. Similarly, <span class="math inline">\(\tilde{B}_j\)</span> is exactly the expression for
+<span class="math inline">\(B_j - 1\)</span> evaluated at <span class="math inline">\(\Delta t = 1\)</span>.</p>
 <p><strong>Boundary conditions for the steady state:</strong></p>
 <p>For the smallest size (<span class="math inline">\(j=j_{min}\)</span>), the original equation had a
 source term due to recruitment: <span class="math display">\[
-S_{i, j_{min}} = N_{i,j_{min}}^t + \frac{\Delta t}{\Delta w_{j_{min}}}
-R_{dd, i}
+S_{j_{min}} = N_{j_{min}}^t + \frac{\Delta t}{\Delta w_{j_{min}}} R_{dd}
 \]</span> Following the same logic of setting <span class="math inline">\(N^{t+1} = N^t = N^*\)</span> and dividing by <span class="math inline">\(\Delta t\)</span>, the right-hand side vector
-<span class="math inline">\(\tilde{S}_{i,j}\)</span> for the
-steady-state system becomes purely the recruitment flux term. If we
-again observe the original term <span class="math inline">\(\frac{\Delta
-t}{\Delta w_{j_{min}}} R_{dd, i}\)</span> when evaluated at <span class="math inline">\(\Delta t = 1\)</span>, we get our new source
+<span class="math inline">\(\tilde{S}_j\)</span> for the steady-state
+system becomes purely the recruitment flux term. If we again observe the
+original term <span class="math inline">\(\frac{\Delta t}{\Delta
+w_{j_{min}}} R_{dd}\)</span> when evaluated at <span class="math inline">\(\Delta t = 1\)</span>, we get our new source
 vector: <span class="math display">\[
-\tilde{S}_{i, j_{min}} = \frac{R_{dd, i}}{\Delta w_{j_{min}}}
+\tilde{S}_{j_{min}} = \frac{R_{dd}}{\Delta w_{j_{min}}}
 \]</span> For all other <span class="math inline">\(j &gt;
-j_{min}\)</span>, <span class="math inline">\(\tilde{S}_{i,j} =
+j_{min}\)</span>, <span class="math inline">\(\tilde{S}_j =
 0\)</span>.</p>
 <p>The boundary condition modifications at the edges of the grid remain
-the same conceptually: <span class="math inline">\(\tilde{A}_{i,j_{min}}
-= 0\)</span>, the upward diffusion term is omitted from <span class="math inline">\(\tilde{B}_{i, j_{min}}\)</span>, and <span class="math inline">\(\tilde{C}_{i, j_{max}} = 0\)</span>. For any <span class="math inline">\(j &lt; j_{min}\)</span>, all matrix entries remain
+the same conceptually: <span class="math inline">\(\tilde{A}_{j_{min}} =
+0\)</span>, the upward diffusion term is omitted from <span class="math inline">\(\tilde{B}_{j_{min}}\)</span>, and <span class="math inline">\(\tilde{C}_{j_{max}} = 0\)</span>. For any <span class="math inline">\(j &lt; j_{min}\)</span>, all matrix entries remain
 zero.</p>
 <p>In code, this means that the steady-state coefficients for the matrix
 multiplication (<span class="math inline">\(\tilde{A}, \tilde{B},
 \tilde{C}\)</span>) and the constant vector (<span class="math inline">\(\tilde{S}\)</span>) can be calculated by calling
-the standard coefficient function but simply setting <span class="math inline">\(\Delta t = 1\)</span>, and dropping the <span class="math inline">\(+1\)</span> and <span class="math inline">\(+N_{i,j}^t\)</span> from the resulting <span class="math inline">\(B\)</span> and <span class="math inline">\(S\)</span> variables respectively.</p>
+the standard coefficient function but simply setting <span class="math inline">\(\Delta t = 1\)</span>, and dropping the <span class="math inline">\(+1\)</span> and <span class="math inline">\(+N_j^t\)</span> from the resulting <span class="math inline">\(B\)</span> and <span class="math inline">\(S\)</span> variables respectively.</p>
 <p>With these modified matrices, the steady-state densities can be
 calculated directly by solving the linear system avoiding the need to
 iterate step by step over time.</p>
@@ -403,19 +399,17 @@ t (r_R(w_j) + \mu_R(w_j))}.
 <ol style="list-style-type: decimal">
 <li>
 <strong>Calculate Rates</strong>: Calculate the biological rates
-(growth <span class="math inline">\(g_i\)</span>, mortality <span class="math inline">\(\mu_i\)</span>, recruitment <span class="math inline">\(R_{dd, i}\)</span>) and diffusion coefficients
-<span class="math inline">\(d_i\)</span> based on the current population
+(growth <span class="math inline">\(g\)</span>, mortality <span class="math inline">\(\mu\)</span>, recruitment <span class="math inline">\(R_{dd}\)</span>) and diffusion coefficients <span class="math inline">\(d\)</span> based on the current population
 densities <span class="math inline">\(N^t\)</span>.</li>
 <li>
 <strong>Resource Update</strong>: Update the resource density <span class="math inline">\(N_R^{t+1}\)</span> using the explicit rates and
 implicit density.</li>
 <li>
 <strong>Consumer Update</strong>: Update the consumer densities
-<span class="math inline">\(N_i^{t+1}\)</span> by solving the
-tridiagonal system for each species.
+<span class="math inline">\(N^{t+1}\)</span> by solving the tridiagonal
+system for each species.
 <ul>
-<li>Combine the recruitment flux <span class="math inline">\(R_{dd,
-i}\)</span> with the boundary conditions.</li>
+<li>Combine the recruitment flux <span class="math inline">\(R_{dd}\)</span> with the boundary conditions.</li>
 <li>Use a tridiagonal solver (e.g., Thomas algorithm).</li>
 </ul>
 </li>

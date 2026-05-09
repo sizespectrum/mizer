@@ -1,0 +1,273 @@
+---
+title: "Comparing the First- and Second-Order Consumer Time Steppers"
+output:
+  html_document:
+    toc: yes
+    fig_width: 6
+    fig_height: 4
+vignette: >
+  %\VignetteIndexEntry{Comparing the First- and Second-Order Consumer Time Steppers}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(mizer)
+```
+
+This vignette compares the current first-order consumer density update,
+`project_n()`, with the predictor-corrector update, `project_n_2()`, on the
+North Sea example model `NS_params`.
+
+The comparison is intentionally modest. It is meant as a reproducible smoke
+test for speed and time-step sensitivity, not as a comprehensive benchmark.
+
+# Projection Helpers
+
+The public `project()` function currently uses `project_n()`. To compare the
+two consumer updates directly, we define a small projection loop modelled on
+`project_simple()`, with the consumer update as the only switch.
+
+For this comparison we call `project_n()` for the old method even when
+diffusion is zero. This isolates the time-stepping comparison with
+`project_n_2()`; the production `project()` function may use the separate
+`project_n_no_diffusion()` shortcut when diffusion is absent.
+
+```{r}
+project_with_consumer_step <- function(params, dt, t_max,
+                                       method = c("euler", "predictor_corrector"),
+                                       effort = params@initial_effort) {
+    method <- match.arg(method)
+    steps <- as.integer(round(t_max / dt))
+    dt <- t_max / steps
+
+    n <- params@initial_n
+    n_pp <- params@initial_n_pp
+    n_other <- params@initial_n_other
+    t <- 0
+
+    no_sp <- nrow(params@species_params)
+    no_w <- length(params@w)
+    idx <- 2:no_w
+    w_min_idx_array_ref <- (params@w_min_idx - 1) * no_sp + seq_len(no_sp)
+
+    a <- matrix(0, nrow = no_sp, ncol = no_w)
+    b <- matrix(0, nrow = no_sp, ncol = no_w)
+    c <- matrix(0, nrow = no_sp, ncol = no_w)
+    S <- matrix(0, nrow = no_sp, ncol = no_w)
+
+    resource_dynamics_fn <- get(params@resource_dynamics)
+    other_dynamics_fns <- lapply(params@other_dynamics, get)
+    rates_fns <- lapply(params@rates_funcs, get)
+
+    for (step in seq_len(steps)) {
+        rates <- rates_fns$Rates(
+            params,
+            n = n, n_pp = n_pp, n_other = n_other,
+            t = t, effort = effort, rates_fns = rates_fns
+        )
+
+        n_other_new <- list()
+        for (component in names(params@other_dynamics)) {
+            n_other_new[[component]] <- other_dynamics_fns[[component]](
+                params,
+                n = n, n_pp = n_pp, n_other = n_other,
+                rates = rates, t = t, dt = dt, component = component
+            )
+        }
+
+        n_pp_new <- resource_dynamics_fn(
+            params,
+            n = n, n_pp = n_pp, n_other = n_other,
+            rates = rates, t = t, dt = dt,
+            resource_rate = params@rr_pp,
+            resource_capacity = params@cc_pp
+        )
+
+        if (method == "euler") {
+            n_new <- project_n(
+                params, rates, n, dt, a, b, c, S, idx,
+                w_min_idx_array_ref, no_sp, no_w
+            )
+        } else {
+            n_new <- project_n_2(
+                params, rates, n, dt, a, b, c, S, idx,
+                w_min_idx_array_ref, no_sp, no_w,
+                rates_fns = rates_fns,
+                n_pp = n_pp_new,
+                n_other = n_other_new,
+                t = t,
+                effort = effort
+            )
+        }
+
+        n <- n_new
+        n_pp <- n_pp_new
+        n_other <- n_other_new
+        t <- t + dt
+    }
+
+    list(n = n, n_pp = n_pp, n_other = n_other, t = t)
+}
+
+relative_l2_error <- function(x, reference) {
+    sqrt(sum((x - reference)^2)) / sqrt(sum(reference^2))
+}
+```
+
+# Accuracy
+
+We compare final consumer spectra against a smaller-time-step reference
+solution from the predictor-corrector method. Because both methods use the same
+spatial discretisation, this test is only about the time discretisation error
+on the fixed `NS_params` weight grid.
+
+```{r accuracy}
+t_max <- 16
+dt_values <- c(0.4, 0.2, 0.1, 0.05, 0.025)
+reference_dt <- 0.2/2^7
+
+params <- NS_params
+initial_effort(params) <- 4
+
+reference <- project_with_consumer_step(
+    params,
+    dt = reference_dt,
+    t_max = t_max,
+    method = "predictor_corrector"
+)
+
+accuracy <- do.call(rbind, lapply(dt_values, function(dt) {
+    euler <- project_with_consumer_step(params, dt, t_max, method = "euler")
+    pc <- project_with_consumer_step(params, dt, t_max,
+                                     method = "predictor_corrector")
+
+    data.frame(
+        dt = dt,
+        method = c("project_n", "project_n_2"),
+        relative_error_n = c(
+            relative_l2_error(euler$n, reference$n),
+            relative_l2_error(pc$n, reference$n)
+        ),
+        relative_error_n_pp = c(
+            relative_l2_error(euler$n_pp, reference$n_pp),
+            relative_l2_error(pc$n_pp, reference$n_pp)
+        )
+    )
+}))
+
+accuracy
+```
+
+The consumer spectrum error is the primary comparison here. The resource error
+is included as a useful diagnostic, but the resource update is not changed by
+`project_n_2()`.
+
+```{r}
+plot(
+    relative_error_n ~ dt,
+    data = accuracy[accuracy$method == "project_n", ],
+    log = "xy",
+    type = "b",
+    pch = 16,
+    xlab = expression(Delta * t),
+    ylab = "relative error in final consumer spectrum",
+    ylim = range(accuracy$relative_error_n)
+)
+lines(
+    relative_error_n ~ dt,
+    data = accuracy[accuracy$method == "project_n_2", ],
+    type = "b",
+    pch = 17,
+    col = 2
+)
+legend(
+    "bottomright",
+    legend = c("project_n", "project_n_2"),
+    pch = c(16, 17),
+    col = c(1, 2),
+    lty = 1,
+    bty = "n"
+)
+```
+
+# Speed
+
+The second-order method does more work per time step. In the full
+predictor-corrector form it performs one predictor solve and then recalculates
+the rates before doing the corrector solve.
+
+The timings below use base R `system.time()`. They are not a replacement for a
+proper benchmarking package, but they are enough to show the order of magnitude
+of the overhead in this model.
+
+```{r}
+timing_reps <- 0
+
+time_projection <- function(method, dt) {
+    elapsed <- replicate(
+        timing_reps,
+        system.time(
+            project_with_consumer_step(params, dt, t_max, method = method)
+        )[["elapsed"]]
+    )
+    median(elapsed)
+}
+
+timings <- do.call(rbind, lapply(dt_values, function(dt) {
+    data.frame(
+        dt = dt,
+        method = c("project_n", "project_n_2"),
+        elapsed_seconds = c(
+            time_projection("euler", dt),
+            time_projection("predictor_corrector", dt)
+        )
+    )
+}))
+
+timings
+```
+
+```{r}
+speed_summary <- merge(
+    timings[timings$method == "project_n_2", c("dt", "elapsed_seconds")],
+    timings[timings$method == "project_n", c("dt", "elapsed_seconds")],
+    by = "dt",
+    suffixes = c("_project_n_2", "_project_n")
+)
+speed_summary$slowdown <- with(
+    speed_summary,
+    elapsed_seconds_project_n_2 / elapsed_seconds_project_n
+)
+speed_summary
+```
+
+# Interpretation
+
+On short runs the predictor-corrector method may not always show a clean
+second-order convergence slope because the comparison is affected by the fixed
+spatial grid, the first-order resource update, nonlinear rate feedbacks and
+ordinary timing noise. The useful things to check are:
+
+* whether `project_n_2()` reduces the consumer-spectrum error for a given
+  `dt`;
+* how much extra time the predictor and rate recalculation cost;
+* whether the results remain finite and non-negative.
+
+```{r}
+final_check <- project_with_consumer_step(
+    params,
+    dt = min(dt_values),
+    t_max = t_max,
+    method = "predictor_corrector"
+)
+
+c(
+    all_finite = all(is.finite(final_check$n)),
+    all_non_negative = all(final_check$n >= 0)
+)
+```
