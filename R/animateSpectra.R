@@ -91,14 +91,13 @@ animate.MizerSim <- function(x, species = NULL, time_range = NULL,
     nf <- melt(sim@n[time_elements,
                      as.character(dimnames(sim@n)$sp) %in% species,
                                , drop = FALSE])
-    # legend_name drives the legend entry and colour lookup; sp drives trace splitting.
-    # For regular species these are identical.
-    nf$legend_name <- as.character(nf$sp)
+    names(nf)[names(nf) == "sp"] <- "Species"
+    nf$legend_name <- as.character(nf$Species)
 
     # Add resource ----
     if (resource) {
         nf_pp <- melt(sim@n_pp[time_elements, , drop = FALSE])
-        nf_pp$sp <- "Resource"
+        nf_pp$Species <- "Resource"
         nf_pp$legend_name <- "Resource"
         nf <- rbind(nf, nf_pp)
     }
@@ -108,6 +107,7 @@ animate.MizerSim <- function(x, species = NULL, time_range = NULL,
     if (background && any(sim@params@species_params$is_background)) {
         back_n <- sim@n[time_elements, sim@params@species_params$is_background, , drop = FALSE]
         nf_back <- melt(back_n)
+        names(nf_back)[names(nf_back) == "sp"] <- "Species"
         nf_back$legend_name <- "Background"
         nf <- rbind(nf, nf_back)
     }
@@ -120,7 +120,7 @@ animate.MizerSim <- function(x, species = NULL, time_range = NULL,
         total_n[, fish_idx] <- total_n[, fish_idx] +
             rowSums(aperm(sim@n, c(1, 3, 2)), dims = 2)
         nf_total <- melt(total_n[time_elements, , drop = FALSE])
-        nf_total$sp <- "Total"
+        nf_total$Species <- "Total"
         nf_total$legend_name <- "Total"
         nf <- rbind(nf, nf_total)
     }
@@ -145,23 +145,27 @@ animate.MizerSim <- function(x, species = NULL, time_range = NULL,
                w >= wlim[1],
                w <= wlim[2])
 
-    # Determine trace order: follow linecolour order for legend_names, then
-    # within each legend_name group follow linecolour order for individual sp.
-    legend_name_order <- intersect(names(sim@params@linecolour),
-                                   unique(nf$legend_name))
-    sp_order <- unlist(lapply(legend_name_order, function(ln) {
-        intersect(names(sim@params@linecolour),
-                  unique(nf$sp[nf$legend_name == ln]))
-    }))
+    animate_plotly(nf, sim@params, log_x, log_y, y_label)
+}
 
-    # Build one trace per sp; background species share a legend group so only
-    # the first one gets a visible legend entry.
+# Build a plotly animation from a prepared long-format data frame.
+# df must have columns: Species, legend_name, w, time, value.
+# Traces are ordered by legend_name first (following params@linecolour), then
+# by individual Species within each legend group — so background species always
+# appear together and share a single legend entry.
+animate_plotly <- function(df, params, log_x, log_y, y_label) {
+    legend_name_order <- intersect(names(params@linecolour),
+                                   unique(df$legend_name))
+    sp_order <- unlist(lapply(legend_name_order, function(ln) {
+        intersect(names(params@linecolour),
+                  unique(df$Species[df$legend_name == ln]))
+    }))
     p <- plotly::plot_ly()
     shown_legend_names <- character(0)
-    for (sp_lev in sp_order) {
-        df_sp <- nf[nf$sp == sp_lev, , drop = FALSE]
+    for (sp in sp_order) {
+        df_sp <- df[df$Species == sp, , drop = FALSE]
         ln <- unique(df_sp$legend_name)
-        col <- sim@params@linecolour[[ln]]
+        col <- params@linecolour[[ln]]
         showlegend <- !(ln %in% shown_legend_names)
         shown_legend_names <- c(shown_legend_names, ln)
         p <- plotly::add_lines(

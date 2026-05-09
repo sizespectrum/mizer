@@ -207,9 +207,6 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
             stop("None of the selected species are in the array.")
         }
     }
-    if (!background) {
-        species <- setdiff(species, bkgrd_sp)
-    }
 
     times <- as.numeric(dimnames(x)[[1]])
     arr <- unclass(x)
@@ -231,17 +228,22 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
                       stringsAsFactors = FALSE)
     df$value <- c(sub)
 
-    # Compute total across all selected species before legend grouping
+    # Compute total across ALL selected species (including background) before
+    # any background filtering, matching the behaviour of plot.ArraySpeciesBySize
     if (total) {
         total_sums <- aggregate(value ~ time + w, data = df, FUN = sum,
                                 na.rm = TRUE)
         total_sums$Species <- "Total"
     }
 
-    # Group background species under a shared legend entry
+    # Now handle background: exclude rows or group under "Background" legend
     df$legend_name <- df$Species
     if (length(bkgrd_sp) > 0) {
-        df$legend_name[df$Species %in% bkgrd_sp] <- "Background"
+        if (background) {
+            df$legend_name[df$Species %in% bkgrd_sp] <- "Background"
+        } else {
+            df <- df[!df$Species %in% bkgrd_sp, ]
+        }
     }
 
     if (total) {
@@ -260,36 +262,7 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
         y_label <- paste0(value_name, " [", units_str, "]")
     }
 
-    # One trace per Species; background species share a legend group
-    sp_order <- intersect(names(params@linecolour), unique(df$Species))
-    p <- plotly::plot_ly()
-    shown_legend_names <- character(0)
-    for (sp in sp_order) {
-        df_sp <- df[df$Species == sp, ]
-        ln <- unique(df_sp$legend_name)
-        col <- params@linecolour[[ln]]
-        showlegend <- !(ln %in% shown_legend_names)
-        shown_legend_names <- c(shown_legend_names, ln)
-        p <- plotly::add_lines(
-            p,
-            data = df_sp,
-            x = ~w, y = ~value,
-            frame = ~time,
-            name = ln,
-            legendgroup = ln,
-            line = list(color = col, simplify = FALSE),
-            showlegend = showlegend
-        )
-    }
-
-    plotly::layout(p,
-                   xaxis = list(type = if (log_x) "log" else "-",
-                                exponentformat = "power",
-                                title = "Size [g]"),
-                   yaxis = list(type = if (log_y) "log" else "-",
-                                exponentformat = "power",
-                                title = y_label),
-                   legend = list(traceorder = "normal"))
+    animate_plotly(df, params, log_x, log_y, y_label)
 }
 
 #' @export
