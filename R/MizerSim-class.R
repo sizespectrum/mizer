@@ -331,8 +331,8 @@ truncateSim <- function(sim, end_time) {
 #' Fetch the simulation results for the size spectra over time.
 #'
 #' @param sim A MizerSim object
-#' @return For `N()`: A three-dimensional array (time x species x size) with the
-#'   number density of consumers
+#' @return For `N()`: An `ArrayTimeBySpeciesBySize` object (time x species x
+#'   size) with the number density of consumers.
 #' @export
 #' @examples
 #' str(N(NS_sim))
@@ -343,7 +343,8 @@ N <- function(sim) {
 #' @export
 N.MizerSim <- function(sim) {
     assert_that(is(sim, "MizerSim"))
-    sim@n
+    ArrayTimeBySpeciesBySize(sim@n, value_name = "Number density",
+                             units = "1/g", params = sim@params)
 }
 
 #' @rdname N
