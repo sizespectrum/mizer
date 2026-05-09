@@ -13,7 +13,8 @@ steady(
   return_sim = FALSE,
   preserve = c("reproduction_level", "erepro", "R_max"),
   progress_bar = TRUE,
-  info_level = 3
+  info_level = 3,
+  method = c("euler", "predictor_corrector")
 )
 }
 \arguments{
@@ -46,6 +47,9 @@ shiny app. Default FALSE.}
 
 \item{info_level}{Controls the amount of information messages that are shown.
 Higher levels lead to more messages.}
+
+\item{method}{The numerical method to use for the consumer density update.
+See \code{\link[=project]{project()}}.}
 }
 \value{
 If \code{return_sim = FALSE}, a \code{MizerParams} object with the initial

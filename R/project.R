@@ -49,6 +49,10 @@ NULL
 #' @param progress_bar Either a boolean value to determine whether a progress
 #'   bar should be shown in the console, or a shiny Progress object to implement
 #'   a progress bar in a shiny app.
+#' @param method The numerical method to use for the consumer density update.
+#'   Currently `"euler"` uses the existing semi-implicit Euler update, while
+#'   `"predictor_corrector"` uses a predictor-corrector Crank-Nicolson update
+#'   with midpoint rates.
 #' @param ... Other arguments will be passed to rate functions.
 #'
 #' @note The `effort` argument specifies the level of fishing effort during the
@@ -139,7 +143,8 @@ project <- function(object, effort,
                     t_max = 100, dt = 0.1, t_save = 1, t_start = 0,
                     initial_n, initial_n_pp,
                     append = TRUE,
-                    progress_bar = TRUE, ...) {
+                    progress_bar = TRUE,
+                    method = c("euler", "predictor_corrector"), ...) {
     UseMethod("project")
 }
 
@@ -149,8 +154,11 @@ project.MizerParams <- function(object, effort,
                                 t_max = 100, dt = 0.1, t_save = 1, t_start = 0,
                                 initial_n, initial_n_pp,
                                 append = TRUE,
-                                progress_bar = TRUE, ...) {
+                                progress_bar = TRUE,
+                                method = c("euler", "predictor_corrector"),
+                                ...) {
     params <- validParams(object)
+    method <- match.arg(method)
     # Set and check initial values ----
     assert_that(t_max > 0)
     if (!missing(initial_n)) params@initial_n[] <- initial_n
@@ -320,7 +328,8 @@ project.MizerParams <- function(object, effort,
             effort = effort[i - 1, ],
             resource_dynamics_fn = resource_dynamics_fn,
             other_dynamics_fns = other_dynamics_fns,
-            rates_fns = rates_fns, ...
+            rates_fns = rates_fns,
+            method = method, ...
         )
         # Calculate start time for next iteration
         # The reason we don't simply use the next entry in `times` is that
@@ -348,7 +357,10 @@ project.MizerSim <- function(object, effort,
                              t_max = 100, dt = 0.1, t_save = 1, t_start = 0,
                              initial_n, initial_n_pp,
                              append = TRUE,
-                             progress_bar = TRUE, ...) {
+                             progress_bar = TRUE,
+                             method = c("euler", "predictor_corrector"),
+                             ...) {
+    method <- match.arg(method)
     validObject(object)
     params <- setInitialValues(object@params, object)
     t_start <- getTimes(object)[idxFinalT(object)]
@@ -357,7 +369,8 @@ project.MizerSim <- function(object, effort,
         effort = effort, t_max = t_max, dt = dt,
         t_save = t_save, t_start = t_start,
         initial_n = initial_n, initial_n_pp = initial_n_pp,
-        progress_bar = progress_bar, ...
+        progress_bar = progress_bar,
+        method = method, ...
     )
 
     if (append) {
@@ -432,6 +445,8 @@ project.MizerSim <- function(object, effort,
 #'   dynamics of the other components. See Details.
 #' @param rates_fns List with the functions for calculating
 #'   the rates. See Details.
+#' @param method The numerical method to use for the consumer density update.
+#'   See [project()].
 #' @param ... Other arguments that are passed on to the rate functions.
 #' @return List with the final values of `n`, `n_pp`, and `n_other`, together
 #'   with `rates`, the rates calculated at the start of the final update step.
@@ -440,7 +455,8 @@ project.MizerSim <- function(object, effort,
 #' @concept helper
 project_simple <- function(params, n, n_pp, n_other, effort, t, dt, steps,
                            resource_dynamics_fn, other_dynamics_fns,
-                           rates_fns, ...) {
+                           rates_fns,
+                           method = c("euler", "predictor_corrector"), ...) {
     UseMethod("project_simple")
 }
 
@@ -454,7 +470,9 @@ project_simple.MizerParams <-
              t = 0, dt = 0.1, steps,
              resource_dynamics_fn = get(params@resource_dynamics),
              other_dynamics_fns = lapply(params@other_dynamics, get),
-             rates_fns = projectRateFunctions(params), ...) {
+             rates_fns = projectRateFunctions(params),
+             method = c("euler", "predictor_corrector"), ...) {
+        method <- match.arg(method)
         # Handy things ----
         no_sp <- nrow(params@species_params) # number of species
         no_w <- length(params@w) # number of fish size bins
@@ -506,7 +524,15 @@ project_simple.MizerParams <-
             )
 
             # * Update species ----
-            if (any(r$diffusion > 0)) {
+            if (method == "predictor_corrector") {
+                n <- project_n_2(params, r, n, dt, a, b, c, S, idx,
+                                 w_min_idx_array_ref, no_sp, no_w,
+                                 rates_fns = rates_fns,
+                                 n_pp = n_pp,
+                                 n_other = n_other_new,
+                                 t = t,
+                                 effort = effort, ...)
+            } else if (any(r$diffusion > 0)) {
                 n <- project_n(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
                                no_sp, no_w)
             } else {

@@ -1,5 +1,10 @@
 # Development version (will become mizer 3.0.0)
 
+- `project()`, `projectToSteady()` and `steady()` gain a `method` argument for
+  choosing the consumer density time-stepper. The default `"euler"` preserves
+  the existing semi-implicit update, while `"predictor_corrector"` uses the new
+  second-order predictor-corrector update from `project_n_2()`.
+
 - `setRateFunction()` now works correctly even when an extension package is
   loaded and S3 dispatch is active. Previously, custom rate functions registered
   via `setRateFunction()` were silently ignored whenever `usesExtensionDispatch()`

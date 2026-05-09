@@ -64,6 +64,23 @@ test_that("projectToSteady accepts the documented effort forms", {
     expect_equal(p2@initial_effort, expected)
 })
 
+test_that("projectToSteady accepts consumer update method", {
+    params <- small_steady_params()
+
+    pc <- suppressMessages(projectToSteady(params, t_per = 1, dt = 1,
+                                           t_max = 1, tol = 1000,
+                                           method = "predictor_corrector"))
+    expect_s4_class(pc, "MizerParams")
+    expect_true(all(is.finite(pc@initial_n)))
+    expect_true(all(pc@initial_n >= 0))
+
+    expect_error(
+        projectToSteady(params, t_per = 1, dt = 1, t_max = 1,
+                        method = "bogus"),
+        "should be one of"
+    )
+})
+
 # steady ----
 test_that("steady works", {
     params <- small_steady_params()
@@ -78,6 +95,20 @@ test_that("steady works", {
         suppressMessages()
     expect_s4_class(sim, "MizerSim")
     expect_snapshot_value(getRDD(sim@params), style = "deparse")
+})
+
+test_that("steady accepts consumer update method", {
+    params <- small_steady_params()
+    params@species_params$gamma[2] <- 2000
+    params <- setSearchVolume(params)
+
+    p <- steady(params, t_per = 1, t_max = 1, dt = 1, tol = 10,
+                method = "predictor_corrector") |>
+        suppressMessages()
+
+    expect_s4_class(p, "MizerParams")
+    expect_true(all(is.finite(p@initial_n)))
+    expect_true(all(p@initial_n >= 0))
 })
 
 test_that("steady() preserves reproduction function", {

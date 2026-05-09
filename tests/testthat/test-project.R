@@ -80,6 +80,35 @@ test_that("time dimension is dealt with properly", {
     expect_equal(dimnames(sim@n)$time, c("2019", "2020", "2021"))
 })
 
+test_that("project method selects consumer time stepper", {
+    params_small <- newMultispeciesParams(NS_species_params_gears[12, , drop = FALSE],
+                                          info_level = 0)
+
+    sim_default <- project(params_small, t_max = 0.2, t_save = 0.2,
+                           dt = 0.1, effort = 1, progress_bar = FALSE)
+    sim_euler <- project(params_small, t_max = 0.2, t_save = 0.2,
+                         dt = 0.1, effort = 1, progress_bar = FALSE,
+                         method = "euler")
+    sim_pc <- project(params_small, t_max = 0.2, t_save = 0.2,
+                      dt = 0.1, effort = 1, progress_bar = FALSE,
+                      method = "predictor_corrector")
+
+    expect_equal(sim_default@n, sim_euler@n)
+    expect_true(all(is.finite(sim_pc@n)))
+    expect_true(all(sim_pc@n >= 0))
+    expect_error(
+        project(params_small, t_max = 0.2, t_save = 0.2, dt = 0.1,
+                effort = 1, progress_bar = FALSE, method = "bogus"),
+        "should be one of"
+    )
+
+    sim_appended <- project(sim_default, t_max = 0.2, t_save = 0.2,
+                            dt = 0.1, effort = 1, progress_bar = FALSE,
+                            method = "predictor_corrector")
+    expect_s4_class(sim_appended, "MizerSim")
+    expect_equal(dim(sim_appended@n)[1], 3)
+})
+
 
 # pass in initial species ----
 test_that("Can pass in initial species", {

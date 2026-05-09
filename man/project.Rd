@@ -17,6 +17,7 @@ project(
   initial_n_pp,
   append = TRUE,
   progress_bar = TRUE,
+  method = c("euler", "predictor_corrector"),
   ...
 )
 
@@ -31,6 +32,7 @@ project(
   initial_n_pp,
   append = TRUE,
   progress_bar = TRUE,
+  method = c("euler", "predictor_corrector"),
   ...
 )
 
@@ -45,6 +47,7 @@ project(
   initial_n_pp,
   append = TRUE,
   progress_bar = TRUE,
+  method = c("euler", "predictor_corrector"),
   ...
 )
 }
@@ -86,6 +89,11 @@ are appended to the previous ones. Only relevant if \code{object} is a
 \item{progress_bar}{Either a boolean value to determine whether a progress
 bar should be shown in the console, or a shiny Progress object to implement
 a progress bar in a shiny app.}
+
+\item{method}{The numerical method to use for the consumer density update.
+Currently \code{"euler"} uses the existing semi-implicit Euler update, while
+\code{"predictor_corrector"} uses a predictor-corrector Crank-Nicolson update
+with midpoint rates.}
 
 \item{...}{Other arguments will be passed to rate functions.}
 }

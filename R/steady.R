@@ -81,6 +81,8 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'   own distance function.
 #' @param info_level Controls the amount of information messages that are shown.
 #'   Higher levels lead to more messages.
+#' @param method The numerical method to use for the consumer density update.
+#'   See [project()].
 #' @param ... Further arguments will be passed on to your distance function.
 #' 
 #' @return If `return_sim = FALSE`, a `MizerParams` object with the initial
@@ -98,7 +100,8 @@ projectToSteady <- function(params,
                             tol = 0.1 * t_per,
                             return_sim = FALSE,
                             progress_bar = TRUE,
-                            info_level = 3, ...) {
+                            info_level = 3,
+                            method = c("euler", "predictor_corrector"), ...) {
     UseMethod("projectToSteady")
 }
 #' @export
@@ -111,8 +114,10 @@ projectToSteady.MizerParams <- function(params,
                             tol = 0.1 * t_per,
                             return_sim = FALSE,
                             progress_bar = TRUE,
-                            info_level = 3, ...) {
+                            info_level = 3,
+                            method = c("euler", "predictor_corrector"), ...) {
     params <- validParams(params)
+    method <- match.arg(method)
     effort <- validEffortVector(effort, params = params)
     params@initial_effort <- effort
     assert_that(t_max >= t_per,
@@ -164,7 +169,8 @@ projectToSteady.MizerParams <- function(params,
                                   effort = params@initial_effort,
                                   resource_dynamics_fn = resource_dynamics_fn,
                                   other_dynamics_fns = other_dynamics_fns,
-                                  rates_fns = rates_fns)
+                                  rates_fns = rates_fns,
+                                  method = method)
         if (return_sim) {
             # Store result
             sim@n[i, , ] <- current$n
@@ -255,6 +261,8 @@ projectToSteady.MizerParams <- function(params,
 #'   shiny app. Default FALSE.
 #' @param info_level Controls the amount of information messages that are shown.
 #'   Higher levels lead to more messages.
+#' @param method The numerical method to use for the consumer density update.
+#'   See [project()].
 #' @return If `return_sim = FALSE`, a `MizerParams` object with the initial
 #'   state replaced by the steady state. If `return_sim = TRUE`, a `MizerSim`
 #'   object containing the intermediate states saved every `t_per` years.
@@ -270,7 +278,8 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
                    tol = 0.1 * dt, return_sim = FALSE,
                    preserve = c("reproduction_level", "erepro", "R_max"),
                    progress_bar = TRUE,
-                   info_level = 3) {
+                   info_level = 3,
+                   method = c("euler", "predictor_corrector")) {
     UseMethod("steady")
 }
 
@@ -279,7 +288,9 @@ steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
                    tol = 0.1 * dt, return_sim = FALSE,
                    preserve = c("reproduction_level", "erepro", "R_max"),
                    progress_bar = TRUE,
-                   info_level = 3) {
+                   info_level = 3,
+                   method = c("euler", "predictor_corrector")) {
+    method <- match.arg(method)
     
     if (params@rates_funcs$RDD == "BevertonHoltRDD") {
         preserve <- match.arg(preserve)
@@ -311,7 +322,8 @@ steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
                               tol = tol,
                               return_sim = return_sim,
                               progress_bar = progress_bar,
-                              info_level = info_level)
+                              info_level = info_level,
+                              method = method)
     if (return_sim) {
         params <- object@params
     } else {

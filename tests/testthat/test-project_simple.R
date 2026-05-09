@@ -78,3 +78,29 @@ test_that("project_simple returns rates from the final update step", {
     expect_equal(out$rates$encounter, expected_rates$encounter)
     expect_equal(out$rates$rdd, expected_rates$rdd)
 })
+
+test_that("project_simple accepts predictor-corrector method", {
+    params <- NS_params
+    effort <- getInitialEffort(params)
+    res_fn <- get(params@resource_dynamics)
+    other_fns <- lapply(params@other_dynamics, get)
+    rates_fns <- lapply(params@rates_funcs, get)
+
+    out <- project_simple(
+        params,
+        n = params@initial_n,
+        n_pp = params@initial_n_pp,
+        n_other = params@initial_n_other,
+        t = 0,
+        dt = 0.1,
+        steps = 1,
+        effort = effort,
+        resource_dynamics_fn = res_fn,
+        other_dynamics_fns = other_fns,
+        rates_fns = rates_fns,
+        method = "predictor_corrector"
+    )
+
+    expect_true(all(is.finite(out$n)))
+    expect_true(all(out$n >= 0))
+})

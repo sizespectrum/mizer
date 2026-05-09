@@ -16,6 +16,7 @@ project_simple(
   resource_dynamics_fn,
   other_dynamics_fns,
   rates_fns,
+  method = c("euler", "predictor_corrector"),
   ...
 )
 }
@@ -48,6 +49,9 @@ dynamics of the other components. See Details.}
 
 \item{rates_fns}{List with the functions for calculating
 the rates. See Details.}
+
+\item{method}{The numerical method to use for the consumer density update.
+See \code{\link[=project]{project()}}.}
 
 \item{...}{Other arguments that are passed on to the rate functions.}
 }
