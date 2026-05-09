@@ -297,6 +297,96 @@ In code, this means that the steady-state coefficients for the matrix multiplica
 
 With these modified matrices, the steady-state densities can be calculated directly by solving the linear system avoiding the need to iterate step by step over time.
 
+## Steady-State Solution for the Predictor-Corrector Method
+
+The predictor-corrector method changes the time stepping, but it does not change the steady state that is obtained when the rates are evaluated at that steady state. To see this, write the Crank-Nicolson corrector with fixed midpoint rates as
+$$
+\frac{N^{t+1} - N^t}{\Delta t}
+= \frac{1}{2}\left(L N^t + L N^{t+1}\right) + q,
+$$
+where $L$ is the spatial transport-and-mortality operator built from the midpoint rates and $q$ is the recruitment source at the lower boundary. At a steady state, $N^{t+1} = N^t = N^*$, so this becomes simply
+$$
+0 = L N^* + q.
+$$
+
+Thus the predictor-corrector method has the same fixed-point equation as the first-order method. The predictor step also becomes irrelevant at the fixed point: if $N^t = N^*$, then the predicted $\hat{N}^{t+1}$ is also $N^*$ up to the residual of the steady-state equation, so
+$$
+r^t = \hat{r}^{t+1} = r^{t+1/2}, \qquad
+R_{dd}^t = \hat{R}_{dd}^{t+1} = R_{dd}^{t+1/2}.
+$$
+The rates used in the steady-state calculation are therefore just the rates evaluated at $N^*$.
+
+It is nevertheless useful to work out the coefficient form starting from the predictor-corrector linear system. Let
+$$
+A_j^{CN} N_{j-1}^{t+1} + B_j^{CN} N_j^{t+1} + C_j^{CN} N_{j+1}^{t+1} = S_j^{CN}
+$$
+denote the Crank-Nicolson corrector matrix. Because only half of the spatial operator is placed on the left-hand side, these coefficients are the same as the semi-implicit Euler coefficients evaluated with time step $\Delta t / 2$:
+$$
+\begin{aligned}
+A_j^{CN} &= -\frac{\Delta t}{2\Delta w_j} \left( g_{j-1} + \frac{1}{2} \frac{d_{j-1}}{\Delta w_{j-1}} \right) \\
+C_j^{CN} &= -\frac{\Delta t}{2\Delta w_j} \left( \frac{1}{2} \frac{d_{j+1}}{\Delta w_j} \right) \\
+B_j^{CN} &= 1 + \frac{\Delta t}{2}\mu_j
++ \frac{\Delta t}{2\Delta w_j} \left( g_j + \frac{1}{2} \frac{d_j}{\Delta w_j} + \frac{1}{2} \frac{d_j}{\Delta w_{j-1}} \right).
+\end{aligned}
+$$
+
+For an interior bin, the right-hand side of the Crank-Nicolson corrector is the old density plus the explicit half of the transport-and-mortality operator. Written in terms of the same matrix coefficients, it is
+$$
+S_j^{CN}
+= 2N_j^t
+- \left(
+A_j^{CN}N_{j-1}^t + B_j^{CN}N_j^t + C_j^{CN}N_{j+1}^t
+\right).
+$$
+At the recruitment boundary, the recruitment source appears once over the full time step:
+$$
+S_{j_{min}}^{CN}
+= 2N_{j_{min}}^t
+- \left(
+B_{j_{min}}^{CN}N_{j_{min}}^t + C_{j_{min}}^{CN}N_{j_{min}+1}^t
+\right)
++ \frac{\Delta t}{\Delta w_{j_{min}}}R_{dd}.
+$$
+
+Now set $N^{t+1}=N^t=N^*$. For an interior bin we get
+$$
+A_j^{CN}N_{j-1}^* + B_j^{CN}N_j^* + C_j^{CN}N_{j+1}^*
+= 2N_j^*
+- \left(
+A_j^{CN}N_{j-1}^* + B_j^{CN}N_j^* + C_j^{CN}N_{j+1}^*
+\right).
+$$
+Moving terms to the left gives
+$$
+2A_j^{CN}N_{j-1}^*
++ 2(B_j^{CN}-1)N_j^*
++ 2C_j^{CN}N_{j+1}^* = 0.
+$$
+Dividing by $\Delta t$ gives the time-independent steady-state coefficients
+$$
+\begin{aligned}
+\bar{A}_j &= \frac{2A_j^{CN}}{\Delta t}
+= -\frac{1}{\Delta w_j} \left( g_{j-1} + \frac{1}{2} \frac{d_{j-1}}{\Delta w_{j-1}} \right) \\
+\bar{C}_j &= \frac{2C_j^{CN}}{\Delta t}
+= -\frac{1}{\Delta w_j} \left( \frac{1}{2} \frac{d_{j+1}}{\Delta w_j} \right) \\
+\bar{B}_j &= \frac{2(B_j^{CN}-1)}{\Delta t}
+= \mu_j + \frac{1}{\Delta w_j} \left( g_j + \frac{1}{2} \frac{d_j}{\Delta w_j} + \frac{1}{2} \frac{d_j}{\Delta w_{j-1}} \right).
+\end{aligned}
+$$
+These are exactly the same coefficients $\tilde{A}_j$, $\tilde{B}_j$ and $\tilde{C}_j$ obtained above for the first-order scheme.
+
+At the lower boundary the same calculation gives
+$$
+\bar{S}_{j_{min}} = \frac{R_{dd}}{\Delta w_{j_{min}}},
+$$
+with $\bar{A}_{j_{min}} = 0$ and the upward diffusion term omitted from $\bar{B}_{j_{min}}$, just as before. For all other $j > j_{min}$, $\bar{S}_j = 0$, and at the upper boundary $\bar{C}_{j_{max}} = 0$.
+
+So, to calculate a steady state for the predictor-corrector method, no new steady-state matrix is needed. One solves the same tridiagonal steady-state system
+$$
+\bar{A}_j N_{j-1}^* + \bar{B}_j N_j^* + \bar{C}_j N_{j+1}^* = \bar{S}_j.
+$$
+In code this means that the existing steady-state coefficient calculation remains valid. The predictor-corrector method affects the transient path to the steady state, not the steady state itself.
+
 
 # Resource Dynamics
 
