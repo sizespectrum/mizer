@@ -37,7 +37,7 @@ getDiffusion.MizerParams <- function(params, n = initialN(params),
                                      ...) {
     params <- validParams(params)
     feeding_level <- getFeedingLevel(params, n = n, n_pp = n_pp,
-                                     n_other = n_other, t = t)
+                                     n_other = n_other, time_range = t)
     if (usesExtensionDispatch(params)) {
         d <- projectDiffusion(params, n = n, n_pp = n_pp, n_other = n_other,
                               t = t, feeding_level = feeding_level, ...)
@@ -48,6 +48,19 @@ getDiffusion.MizerParams <- function(params, n = initialN(params),
     }
     ArraySpeciesBySize(d, value_name = "Diffusion rate",
                        units = "g^2/year", params = params)
+}
+
+#' @export
+getDiffusion.MizerSim <- function(params, n, n_pp, n_other, t = 0,
+                                  time_range, drop = FALSE, ...) {
+    sim <- params
+    get_species_size_rate_from_sim(
+        sim, time_range, drop,
+        function(slice) {
+            getDiffusion(sim@params, n = slice$n, n_pp = slice$n_pp,
+                         n_other = slice$n_other, t = slice$t, ...)
+        },
+        value_name = "Diffusion rate", units = "g^2/year")
 }
 
 #' @name mizerDiffusion

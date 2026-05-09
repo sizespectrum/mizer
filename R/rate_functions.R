@@ -14,11 +14,18 @@
 # getEGrowth, getERepro, getEReproAndGrowth, getRDI
 # Some have these arguments and in addition the effort argument:
 #   getRates, getMort
-# Four functions are the odd ones out because they also accept a MizerSim:
-# getFeedingLevel(object, n, n_pp,n_other, time_range, drop, ...)
-# getPredMort(object, n, n_pp,n_other, time_range, drop, ...)
-# getFMort(object, time_range, drop)
-# getFMortGear(object, effort, time_range)
+# Some functions also accept a MizerSim and return the rate at the saved times:
+# getEncounter(object, n, n_pp, n_other, time_range, drop, ...)
+# getFeedingLevel(object, n, n_pp, n_other, time_range, drop, ...)
+# getEReproAndGrowth(object, n, n_pp, n_other, time_range, drop, ...)
+# getPredMort(object, n, n_pp, n_other, time_range, drop, ...)
+# getFMort(object, effort, time_range, drop, n, n_pp, n_other, t, ...)
+# getFMortGear(object, effort, time_range, n, n_pp, n_other, t, ...)
+# getMort(object, n, n_pp, n_other, effort, time_range, drop, ...)
+# getERepro(object, n, n_pp, n_other, time_range, drop, ...)
+# getEGrowth(object, n, n_pp, n_other, time_range, drop, ...)
+# getDiffusion(object, n, n_pp, n_other, t, time_range, drop, ...)
+# getFlux(object, n, n_pp, n_other, time_range, drop, ...)
 
 #' Get all rates
 #' 
@@ -99,6 +106,118 @@ getEncounter.MizerParams <- function(params, n = initialN(params),
              units = "g/year", params = params)
 }
 
+#' @export
+getEncounter.MizerSim <- function(params, n, n_pp, n_other,
+                                  time_range, drop = FALSE, ...) {
+    sim <- params
+    get_species_size_rate_from_sim(
+        sim, time_range, drop,
+        function(slice) {
+            getEncounter(sim@params, n = slice$n, n_pp = slice$n_pp,
+                         n_other = slice$n_other, t = slice$t, ...)
+        },
+        value_name = "Encounter rate", units = "g/year")
+}
+
+
+#' Get selected saved time steps for a simulation rate
+#'
+#' Internal helper used by `MizerSim` rate methods. If `time_range` is missing,
+#' all saved simulation times are selected; otherwise the request is delegated to
+#' [get_time_elements()].
+#'
+#' @param sim A `MizerSim` object.
+#' @param time_range A numeric or character vector of times.
+#'
+#' @return A named logical vector indicating the selected saved time steps.
+#' @keywords internal
+get_sim_rate_time_elements <- function(sim, time_range) {
+    # A missing time range means "all saved times", matching the public
+    # MizerSim rate methods.
+    if (missing(time_range)) {
+        time_range <- dimnames(sim@n)$time
+    }
+    get_time_elements(sim, time_range)
+}
+
+#' Extract one saved simulation state for a rate calculation
+#'
+#' Internal helper used by `MizerSim` rate methods to rebuild the single-time
+#' inputs expected by `MizerParams` rate methods.
+#'
+#' @param sim A `MizerSim` object.
+#' @param time_idx Integer index of the saved time step to extract.
+#'
+#' @return A list with entries `n`, `n_pp`, `n_other`, `effort`, and `t`.
+#' @keywords internal
+get_sim_rate_slice <- function(sim, time_idx) {
+    # Rebuild `n` explicitly so that a one-species simulation still gives a
+    # species x size matrix rather than a vector.
+    n <- array(sim@n[time_idx, , ], dim = dim(sim@n)[2:3])
+    dimnames(n) <- dimnames(sim@n)[2:3]
+
+    # The `n_other` slot is a time x component list-array. A single row needs
+    # its component names restored before passing it to rate functions.
+    n_other <- sim@n_other[time_idx, ]
+    names(n_other) <- dimnames(sim@n_other)$component
+
+    list(
+        n = n,
+        n_pp = sim@n_pp[time_idx, ],
+        n_other = n_other,
+        effort = sim@effort[time_idx, ],
+        t = as.numeric(dimnames(sim@n)$time[[time_idx]])
+    )
+}
+
+#' Apply a species-by-size rate function over saved simulation times
+#'
+#' Internal helper used by `MizerSim` rate methods whose one-time result is an
+#' `ArraySpeciesBySize`. The helper applies the supplied rate function to each
+#' selected time slice, stacks the results, and restores the appropriate mizer
+#' array class when dimensions have not been dropped.
+#'
+#' @param sim A `MizerSim` object.
+#' @param time_range A numeric or character vector of times.
+#' @param drop If `TRUE`, dimensions of length 1 are dropped from the result.
+#' @param rate_fun A function accepting a single simulation slice as returned by
+#'   `get_sim_rate_slice()`.
+#' @param value_name Name of the value stored in the returned array.
+#' @param units Optional units of the value stored in the returned array.
+#'
+#' @return A time x species x size array, possibly with dimensions dropped.
+#' @keywords internal
+get_species_size_rate_from_sim <- function(sim, time_range, drop,
+                                           rate_fun, value_name,
+                                           units = NULL) {
+    time_elements <- get_sim_rate_time_elements(sim, time_range)
+
+    # Apply the one-time rate calculation to each selected saved time. The
+    # result from each call is species x size, so `aaply()` stacks them into a
+    # time x species x size array.
+    rate_time <- plyr::aaply(which(time_elements), 1, function(time_idx) {
+        rate_fun(get_sim_rate_slice(sim, time_idx))
+    }, .drop = FALSE)
+    names(dimnames(rate_time))[[1]] <- "time"
+
+    result <- rate_time[, , , drop = drop]
+
+    # Restore the richer array classes when the requested dropping has left the
+    # dimensions in a shape those classes represent. With a single species and
+    # `drop = TRUE`, the result is time x size and should stay a plain matrix.
+    if (is.array(result) && length(dim(result)) == 3) {
+        result <- ArrayTimeBySpeciesBySize(result,
+                                          value_name = value_name,
+                                          units = units,
+                                          params = sim@params)
+    } else if (is.matrix(result) &&
+               names(dimnames(result))[[1]] == "sp") {
+        result <- ArraySpeciesBySize(result, value_name = value_name,
+                                     units = units, params = sim@params)
+    }
+    result
+}
+
 
 #' Get feeding level
 #'
@@ -169,35 +288,14 @@ getFeedingLevel.MizerParams <- function(object, n, n_pp, n_other,
 getFeedingLevel.MizerSim <- function(object, n, n_pp, n_other,
                             time_range, drop = FALSE, ...) {
     sim <- object
-    if (missing(time_range)) {
-        time_range <- dimnames(sim@n)$time
-    }
-    time_elements <- get_time_elements(sim, time_range)
-    feed_time <- plyr::aaply(which(time_elements), 1, function(x) {
-        # Necessary as we only want single time step but may only have 1
-        # species which makes using drop impossible
-        n <- array(sim@n[x, , ], dim = dim(sim@n)[2:3])
-            dimnames(n) <- dimnames(sim@n)[2:3]
-            n_other <- sim@n_other[x, ]
-            names(n_other) <- dimnames(sim@n_other)$component
-            t <- as.numeric(dimnames(sim@n)$time[[x]])
-            feed <- getFeedingLevel(sim@params, n = n,
-                                    n_pp = sim@n_pp[x, ],
-                                    n_other = n_other,
-                                    time_range = t)
-            return(feed)
-        }, .drop = FALSE)
-    names(dimnames(feed_time))[[1]] <- "time"
-    result <- feed_time[, , , drop = drop]
-    if (is.array(result) && length(dim(result)) == 3) {
-        result <- ArrayTimeBySpeciesBySize(result,
-                                          value_name = "Feeding level",
-                                          params = sim@params)
-    } else if (is.matrix(result)) {
-        result <- ArraySpeciesBySize(result, value_name = "Feeding level",
-                                     params = sim@params)
-    }
-    return(result)
+    get_species_size_rate_from_sim(
+        sim, time_range, drop,
+        function(slice) {
+            getFeedingLevel(sim@params, n = slice$n, n_pp = slice$n_pp,
+                            n_other = slice$n_other, time_range = slice$t,
+                            ...)
+        },
+        value_name = "Feeding level")
 }
 
 
@@ -280,6 +378,19 @@ getEReproAndGrowth.MizerParams <- function(params, n = initialN(params),
     }
     ArraySpeciesBySize(e, value_name = "Energy for growth and reproduction",
              units = "g/year", params = params)
+}
+
+#' @export
+getEReproAndGrowth.MizerSim <- function(params, n, n_pp, n_other,
+                                        time_range, drop = FALSE, ...) {
+    sim <- params
+    get_species_size_rate_from_sim(
+        sim, time_range, drop,
+        function(slice) {
+            getEReproAndGrowth(sim@params, n = slice$n, n_pp = slice$n_pp,
+                               n_other = slice$n_other, t = slice$t, ...)
+        },
+        value_name = "Energy for growth and reproduction", units = "g/year")
 }
 
 #' Get predation rate
@@ -411,33 +522,13 @@ getPredMort.MizerParams <- function(object, n, n_pp, n_other,
 getPredMort.MizerSim <- function(object, n, n_pp, n_other,
                         time_range, drop = TRUE, ...) {
     sim <- object
-    if (missing(time_range)) {
-            time_range <- dimnames(sim@n)$time
-        }
-        time_elements <- get_time_elements(sim, time_range)
-        pred_mort_time <- plyr::aaply(which(time_elements), 1, function(x) {
-            n <- array(sim@n[x, , ], dim = dim(sim@n)[2:3])
-            dimnames(n) <- dimnames(sim@n)[2:3]
-            n_other <- sim@n_other[x, ]
-            names(n_other) <- dimnames(sim@n_other)$component
-            t <- as.numeric(dimnames(sim@n)$time[[x]])
-            n_pp <- sim@n_pp[x, ]
-            return(getPredMort(sim@params, n = n, n_pp = n_pp, 
-                               n_other = n_other, time_range = t))
-        }, .drop = FALSE)
-        names(dimnames(pred_mort_time))[[1]] <- "time"
-        result <- pred_mort_time[, , , drop = drop]
-        if (is.array(result) && length(dim(result)) == 3) {
-            result <- ArrayTimeBySpeciesBySize(result,
-                                              value_name = "Predation mortality",
-                                              units = "1/year",
-                                              params = sim@params)
-        } else if (is.matrix(result)) {
-            result <- ArraySpeciesBySize(result,
-                                        value_name = "Predation mortality",
-                                        units = "1/year", params = sim@params)
-        }
-        return(result)
+    get_species_size_rate_from_sim(
+        sim, time_range, drop,
+        function(slice) {
+            getPredMort(sim@params, n = slice$n, n_pp = slice$n_pp,
+                        n_other = slice$n_other, time_range = slice$t, ...)
+        },
+        value_name = "Predation mortality", units = "1/year")
 }
 
 #' Alias for `getPredMort()`
@@ -516,10 +607,12 @@ getM2Background <- getResourceMort
 #' 
 #' @param object A `MizerParams` object or a `MizerSim` object.
 #' @param effort The effort for each fishing gear. See notes below.
+#' @inheritParams mizerRates
 #' @param time_range Subset the returned fishing mortalities by time. The time
 #'   range is either a vector of values, a vector of min and max time, or a
-#'   single value. Default is the whole time range. Only used if the
-#'   `object` argument is of type `MizerSim`.
+#'   single value. For a `MizerSim`, the default is the whole time range. For a
+#'   `MizerParams`, this is retained for backwards compatibility as an
+#'   alternative way to supply `t` when `t` is not supplied.
 #'   
 #' @return An array. If the effort argument has a time dimension, or a
 #'   `MizerSim` is passed in, the output array has four dimensions (time x
@@ -566,12 +659,14 @@ getM2Background <- getResourceMort
 #' F <- getFMortGear(sim, time_range = c(10, 20))
 #' }
 #' 
-getFMortGear <- function(object, effort, time_range) {
+getFMortGear <- function(object, effort, time_range,
+                         n, n_pp, n_other, t = 0, ...) {
     UseMethod("getFMortGear")
 }
 
 #' @export
-getFMortGear.MizerParams <- function(object, effort, time_range) {
+getFMortGear.MizerParams <- function(object, effort, time_range,
+                                     n, n_pp, n_other, t = 0, ...) {
     params <- validParams(object)
     if (missing(effort)) {
         effort <- params@initial_effort
@@ -609,14 +704,22 @@ getFMortGear.MizerParams <- function(object, effort, time_range) {
 }
 
 #' @export
-getFMortGear.MizerSim <- function(object, effort, time_range) {
+getFMortGear.MizerSim <- function(object, effort, time_range,
+                                  n, n_pp, n_other, t = 0, ...) {
     sim <- object
-    if (missing(time_range)) {
-        time_range <- dimnames(sim@effort)$time
-    }
-    time_elements <- get_time_elements(sim, time_range)
-    f_mort_gear <- getFMortGear(sim@params, sim@effort)
-    return(f_mort_gear[time_elements, , , , drop = FALSE])
+    time_elements <- get_sim_rate_time_elements(sim, time_range)
+
+    # Work slice by slice, like the other MizerSim rate methods, so any future
+    # state-aware gear mortality calculation receives the matching simulation
+    # state and time rather than only the effort matrix.
+    f_mort_gear <- plyr::aaply(which(time_elements), 1, function(time_idx) {
+        slice <- get_sim_rate_slice(sim, time_idx)
+        getFMortGear(sim@params, effort = slice$effort, n = slice$n,
+                     n_pp = slice$n_pp, n_other = slice$n_other,
+                     t = slice$t, ...)
+    }, .drop = FALSE)
+    names(dimnames(f_mort_gear))[[1]] <- "time"
+    f_mort_gear
 }
 
 #' Get the total fishing mortality rate from all fishing gears by time, species
@@ -634,6 +737,7 @@ getFMortGear.MizerSim <- function(object, effort, time_range) {
 #' @param object A `MizerParams` object or a `MizerSim` object
 #' @param effort The effort of each fishing gear. Only used if the object
 #'   argument is of class `MizerParams`. See notes below.
+#' @inheritParams mizerRates
 #' @param time_range Subset the returned fishing mortalities by time. The time
 #'   range is either a vector of values, a vector of min and max time, or a
 #'   single value. Default is the whole time range. Only used if the
@@ -688,21 +792,28 @@ getFMortGear.MizerSim <- function(object, effort, time_range) {
 #' F <- getFMort(sim)
 #' F <- getFMort(sim, time_range = c(10, 20))
 #' }
-getFMort <- function(object, effort, time_range, drop = TRUE) {
+getFMort <- function(object, effort, time_range, drop = TRUE,
+                     n, n_pp, n_other, t, ...) {
     UseMethod("getFMort")
 }
 
 #' @export
-getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE) {
+getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE,
+                                 n, n_pp, n_other, t, ...) {
     params <- validParams(object)
     if (missing(effort)) {
         effort <- params@initial_effort
     }
-    if (missing(time_range)) time_range <- 0
-    t <- min(time_range)
-    n <- params@initial_n
-    n_pp <- params@initial_n_pp
-    n_other <- params@initial_n_other
+    if (missing(t)) {
+        # Legacy support: before `getFMort()` accepted `t` directly,
+        # `time_range` was used to set the time passed to custom FMort
+        # functions. New code should pass `t`.
+        if (missing(time_range)) time_range <- 0
+        t <- min(time_range)
+    }
+    if (missing(n)) n <- params@initial_n
+    if (missing(n_pp)) n_pp <- params@initial_n_pp
+    if (missing(n_other)) n_other <- params@initial_n_other
     no_gears <- dim(params@catchability)[[1]]
     f <- if (usesExtensionDispatch(params)) {
         projectFMort
@@ -725,7 +836,7 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE) {
                 pred_mort = getPredMort(params, n = n, n_pp = n_pp,
                                         n_other = n_other,
                                         time_range = times[i]))
-            f_mort[i, , ] <- do.call(f, args)
+            f_mort[i, , ] <- do.call(f, c(args, list(...)))
         }
         return(f_mort)
     } else if (length(effort) <= 1) {
@@ -736,7 +847,7 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE) {
                                   n_other = n_other, t = t),
             pred_mort = getPredMort(params, n = n, n_pp = n_pp,
                                     n_other = n_other, time_range = t))
-        fmort <- do.call(f, args)
+        fmort <- do.call(f, c(args, list(...)))
         fmort <- ArraySpeciesBySize(fmort, value_name = "Fishing mortality",
                            units = "1/year", params = params)
         return(fmort)
@@ -748,7 +859,7 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE) {
                                   n_other = n_other, t = t),
             pred_mort = getPredMort(params, n = n, n_pp = n_pp,
                                     n_other = n_other, time_range = t))
-        fmort <- do.call(f, args)
+        fmort <- do.call(f, c(args, list(...)))
         fmort <- ArraySpeciesBySize(fmort, value_name = "Fishing mortality",
                            units = "1/year", params = params)
         return(fmort)
@@ -758,46 +869,17 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE) {
 }
 #'
 #' @export
-getFMort.MizerSim <- function(object, time_range, drop = TRUE) {
+getFMort.MizerSim <- function(object, effort, time_range, drop = TRUE,
+                              n, n_pp, n_other, t, ...) {
     sim <- object
-    params <- sim@params
-    f <- if (usesExtensionDispatch(params)) {
-        projectFMort
-    } else {
-        get(params@rates_funcs$FMort)
-    }
-    if (missing(time_range)) {
-        time_range <- dimnames(sim@effort)$time
-    }
-    time_elements <- get_time_elements(sim, time_range)
-    f_mort_time <- plyr::aaply(which(time_elements), 1, function(x) {
-        n <- array(sim@n[x, , ], dim = dim(sim@n)[2:3])
-        dimnames(n) <- dimnames(sim@n)[2:3]
-        n_other <- sim@n_other[x, ]
-        names(n_other) <- dimnames(sim@n_other)$component
-        t <- as.numeric(dimnames(sim@n)$time[[x]])
-        n_pp <- sim@n_pp[x, ]
-        effort <- sim@effort[x, ]
-        args <- list(
-            params = params, n = n, n_pp = n_pp,
-            n_other = n_other, effort = effort, t = t,
-            e_growth = getEGrowth(params, n = n, n_pp = n_pp,
-                                  n_other = n_other, t = t),
-            pred_mort = getPredMort(params, n = n, n_pp = n_pp,
-                                    n_other = n_other, time_range = t))
-        do.call(f, args)
-    }, .drop = FALSE)
-    names(dimnames(f_mort_time))[[1]] <- "time"
-    result <- f_mort_time[, , , drop = drop]
-    if (is.array(result) && length(dim(result)) == 3) {
-        result <- ArrayTimeBySpeciesBySize(result,
-                                          value_name = "Fishing mortality",
-                                          units = "1/year", params = params)
-    } else if (is.matrix(result)) {
-        result <- ArraySpeciesBySize(result, value_name = "Fishing mortality",
-                                     units = "1/year", params = params)
-    }
-    return(result)
+    get_species_size_rate_from_sim(
+        sim, time_range, drop,
+        function(slice) {
+            getFMort(sim@params, effort = slice$effort, n = slice$n,
+                     n_pp = slice$n_pp, n_other = slice$n_other,
+                     t = slice$t, ...)
+        },
+        value_name = "Fishing mortality", units = "1/year")
 }
 
 
@@ -846,7 +928,8 @@ getMort.MizerParams <- function(params,
                     t = 0, ...) {
     params <- validParams(params)
   
-    f_mort <- getFMort(params, effort)
+    f_mort <- getFMort(params, effort = effort, n = n, n_pp = n_pp,
+                       n_other = n_other, t = t)
     pred_mort <- getPredMort(params, n = n, n_pp = n_pp,
                              n_other = n_other, time_range = t)
     if (usesExtensionDispatch(params)) {
@@ -859,6 +942,20 @@ getMort.MizerParams <- function(params,
     }
     return(ArraySpeciesBySize(z, value_name = "Total mortality",
                      units = "1/year", params = params))
+}
+
+#' @export
+getMort.MizerSim <- function(params, n, n_pp, n_other, effort,
+                             time_range, drop = TRUE, ...) {
+    sim <- params
+    get_species_size_rate_from_sim(
+        sim, time_range, drop,
+        function(slice) {
+            getMort(sim@params, n = slice$n, n_pp = slice$n_pp,
+                    n_other = slice$n_other, effort = slice$effort,
+                    t = slice$t, ...)
+        },
+        value_name = "Total mortality", units = "1/year")
 }
 
 #' Alias for `getMort()`
@@ -926,6 +1023,19 @@ getERepro.MizerParams <- function(params, n = initialN(params),
              units = "g/year", params = params)
 }
 
+#' @export
+getERepro.MizerSim <- function(params, n, n_pp, n_other,
+                               time_range, drop = FALSE, ...) {
+    sim <- params
+    get_species_size_rate_from_sim(
+        sim, time_range, drop,
+        function(slice) {
+            getERepro(sim@params, n = slice$n, n_pp = slice$n_pp,
+                      n_other = slice$n_other, t = slice$t, ...)
+        },
+        value_name = "Energy for reproduction", units = "g/year")
+}
+
 #' Alias for `getERepro()`
 #' 
 #' `r lifecycle::badge("deprecated")` 
@@ -987,6 +1097,19 @@ getEGrowth.MizerParams <- function(params, n = initialN(params),
     }
     ArraySpeciesBySize(g, value_name = "Growth rate",
              units = "g/year", params = params)
+}
+
+#' @export
+getEGrowth.MizerSim <- function(params, n, n_pp, n_other,
+                                time_range, drop = FALSE, ...) {
+    sim <- params
+    get_species_size_rate_from_sim(
+        sim, time_range, drop,
+        function(slice) {
+            getEGrowth(sim@params, n = slice$n, n_pp = slice$n_pp,
+                       n_other = slice$n_other, t = slice$t, ...)
+        },
+        value_name = "Growth rate", units = "g/year")
 }
 
 
@@ -1180,6 +1303,19 @@ getFlux.MizerParams <- function(params, n = initialN(params),
     
     ArraySpeciesBySize(flux, value_name = "Flux",
              units = "1/year", params = params)
+}
+
+#' @export
+getFlux.MizerSim <- function(params, n, n_pp, n_other,
+                             time_range, drop = FALSE, ...) {
+    sim <- params
+    get_species_size_rate_from_sim(
+        sim, time_range, drop,
+        function(slice) {
+            getFlux(sim@params, n = slice$n, n_pp = slice$n_pp,
+                    n_other = slice$n_other, t = slice$t, ...)
+        },
+        value_name = "Flux", units = "1/year")
 }
 
 

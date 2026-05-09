@@ -132,14 +132,82 @@ test_that("getFeedingLevel passes correct time", {
     }
     sim@params <- setRateFunction(sim@params, "FeedingLevel", 
                                   "testFeedingLevel")
-    expect_identical(getFeedingLevel(sim, time_range = time_range),
-                     sweep(sim@n[time_elements, , ], 1, times, "*"))
+    expect_equal(getFeedingLevel(sim, time_range = time_range),
+                 sweep(sim@n[time_elements, , ], 1, times, "*"),
+                 ignore_attr = TRUE)
 })
 
 test_that("getFeedingLevel is independent of volume", {
     fl <- getFeedingLevel(params)
     fl_r <- getFeedingLevel(params_r)
     expect_equal(fl, fl_r, ignore_attr = "params")
+})
+
+test_that("species-size rate getters work for MizerSim", {
+    time_range <- 1:2
+    time_elements <- get_time_elements(sim, time_range)
+    time_idx <- which(time_elements)[1]
+    t <- as.numeric(dimnames(sim@n)$time[[time_idx]])
+    n_slice <- array(sim@n[time_idx, , ], dim = dim(sim@n)[2:3])
+    dimnames(n_slice) <- dimnames(sim@n)[2:3]
+    n_other_slice <- sim@n_other[time_idx, ]
+    names(n_other_slice) <- dimnames(sim@n_other)$component
+    n_pp_slice <- sim@n_pp[time_idx, ]
+    effort_slice <- sim@effort[time_idx, ]
+
+    rates <- list(
+        list(
+            sim = function() getEncounter(sim, time_range = time_range),
+            params = function() getEncounter(sim@params, n = n_slice,
+                                             n_pp = n_pp_slice,
+                                             n_other = n_other_slice, t = t)
+        ),
+        list(
+            sim = function() getEReproAndGrowth(sim, time_range = time_range),
+            params = function() getEReproAndGrowth(sim@params, n = n_slice,
+                                                   n_pp = n_pp_slice,
+                                                   n_other = n_other_slice,
+                                                   t = t)
+        ),
+        list(
+            sim = function() getMort(sim, time_range = time_range),
+            params = function() getMort(sim@params, n = n_slice,
+                                        n_pp = n_pp_slice,
+                                        n_other = n_other_slice,
+                                        effort = effort_slice, t = t)
+        ),
+        list(
+            sim = function() getERepro(sim, time_range = time_range),
+            params = function() getERepro(sim@params, n = n_slice,
+                                          n_pp = n_pp_slice,
+                                          n_other = n_other_slice, t = t)
+        ),
+        list(
+            sim = function() getEGrowth(sim, time_range = time_range),
+            params = function() getEGrowth(sim@params, n = n_slice,
+                                           n_pp = n_pp_slice,
+                                           n_other = n_other_slice, t = t)
+        ),
+        list(
+            sim = function() getDiffusion(sim, time_range = time_range),
+            params = function() getDiffusion(sim@params, n = n_slice,
+                                             n_pp = n_pp_slice,
+                                             n_other = n_other_slice, t = t)
+        ),
+        list(
+            sim = function() getFlux(sim, time_range = time_range),
+            params = function() getFlux(sim@params, n = n_slice,
+                                        n_pp = n_pp_slice,
+                                        n_other = n_other_slice, t = t)
+        )
+    )
+
+    for (rate in rates) {
+        sim_rate <- rate$sim()
+        expect_s3_class(sim_rate, "ArrayTimeBySpeciesBySize")
+        expect_equal(dim(sim_rate), c(sum(time_elements), dim(params@initial_n)))
+        expect_equal(sim_rate[1, , ], rate$params(), ignore_attr = TRUE)
+    }
 })
 
 test_that("getCriticalFeedingLevel matches metab over intake_max times alpha", {
@@ -225,8 +293,9 @@ test_that("getPredMort passes correct time", {
     }
     sim@params <- setRateFunction(sim@params, "PredMort", 
                                   "testPredMort")
-    expect_identical(unname(getPredMort(sim)),
-                     unname(sweep(sim@n, 1, times, "*")))
+    expect_equal(unname(getPredMort(sim)),
+                 unname(sweep(sim@n, 1, times, "*")),
+                 ignore_attr = TRUE)
 })
 
 test_that("interaction is right way round in getPredMort function", {
@@ -328,9 +397,25 @@ test_that("getFmortGear", {
     # expect_known_value(f3, "values/getFMortGear")
     # expect_snapshot(f3)
     expect_snapshot_value(f3, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
-    
+
     expect_equal(getFMortGear(sim)[1, 1, 1, ], 
                  getFMortGear(sim@params, effort = sim@effort[1, ])[1, 1, ])
+
+    time_range <- 1:2
+    time_elements <- get_time_elements(sim, time_range)
+    f_sim <- getFMortGear(sim, time_range = time_range)
+    expected <- plyr::aaply(which(time_elements), 1, function(time_idx) {
+        n_slice <- array(sim@n[time_idx, , ], dim = dim(sim@n)[2:3])
+        dimnames(n_slice) <- dimnames(sim@n)[2:3]
+        n_other_slice <- sim@n_other[time_idx, ]
+        names(n_other_slice) <- dimnames(sim@n_other)$component
+        getFMortGear(sim@params, effort = sim@effort[time_idx, ],
+                     n = n_slice, n_pp = sim@n_pp[time_idx, ],
+                     n_other = n_other_slice,
+                     t = as.numeric(dimnames(sim@n)$time[[time_idx]]))
+    }, .drop = FALSE)
+    names(dimnames(expected))[[1]] <- "time"
+    expect_equal(f_sim, expected)
 })
 
 
@@ -392,8 +477,9 @@ test_that("getFMort passes correct time", {
         n * t
     }
     sim@params <- setRateFunction(sim@params, "FMort", "testFMort")
-    expect_identical(getFMort(sim),
-                     sweep(sim@n, 1, times, "*"))
+    expect_equal(getFMort(sim),
+                 sweep(sim@n, 1, times, "*"),
+                 ignore_attr = TRUE)
 })
 
 test_that("getFMort passes correct time", {
@@ -412,8 +498,9 @@ test_that("getFMort passes correct time", {
     }
     sim@params <- setRateFunction(sim@params, "EGrowth", "testEGrowth")
     sim@params <- setRateFunction(sim@params, "FMort", "testFMort")
-    expect_identical(getFMort(sim),
-                     sweep(sim@n, 1, times, "*"))
+    expect_equal(getFMort(sim),
+                 sweep(sim@n, 1, times, "*"),
+                 ignore_attr = TRUE)
     
     # Now we do the same for when getFMort() calls getPredMort()
     e$testPredMort <- function(params, n, t, ...) {
@@ -424,8 +511,9 @@ test_that("getFMort passes correct time", {
     }
     sim@params <- setRateFunction(sim@params, "PredMort", "testPredMort")
     sim@params <- setRateFunction(sim@params, "FMort", "testFMort")
-    expect_identical(getFMort(sim),
-                     sweep(sim@n, 1, times, "*"))
+    expect_equal(getFMort(sim),
+                 sweep(sim@n, 1, times, "*"),
+                 ignore_attr = TRUE)
 })
 
 
@@ -454,6 +542,21 @@ test_that("getMort is independent of volume", {
     m <- getMort(params, effort = 1)
     m_r <- getMort(params_r, effort = 1)
     expect_equal(m, m_r, ignore_attr = "params")
+})
+
+test_that("getMort passes state through to getFMort", {
+    e <- globalenv()
+    e$testFMort <- function(params, n, t, ...) {
+        n * t
+    }
+    e$testMort <- function(params, f_mort, ...) {
+        f_mort
+    }
+    params_f <- setRateFunction(params, "FMort", "testFMort")
+    params_f <- setRateFunction(params_f, "Mort", "testMort")
+    expect_equal(getMort(params_f, n = n, n_pp = n_full, effort = 1, t = 3),
+                 n * 3,
+                 ignore_attr = TRUE)
 })
 
 test_that("getM2 and getM2Background are aliases", {
