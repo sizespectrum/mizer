@@ -24,7 +24,7 @@ devtools::clean_dll(); devtools::load_all()
 
 **`MizerSim`** (S4) — stores simulation output: arrays `n` (time × species × size), `n_pp`, `n_other`, `effort`, and the `MizerParams` used.
 
-**`ArraySpeciesBySize`** / **`ArraySpeciesByTime`** (S3) — wrap 2D arrays with metadata. When assigning back to S4 slots, use `slot[] <- value` (not `slot <- value`) to strip the class.
+**`ArraySpeciesBySize`** / **`ArraySpeciesByTime`** / **`ArrayTimeBySpeciesBySize`** (S3) — wrap some arrays with metadata. When assigning back to S4 slots, use `slot[] <- value` (not `slot <- value`) to strip the class.
 
 **Customisable rate functions**: users replace rate functions by storing a custom function name in `params@rates_funcs`. Dispatch via `get(params@rates_funcs$FunctionName)(params, ...)`.
 
@@ -47,4 +47,5 @@ devtools::clean_dll(); devtools::load_all()
 ## Before Submitting
 
 - After adding a new file under `R/`, add it to the `Collate:` field in `DESCRIPTION` (roxygen2 does not manage this automatically in this package).
+- After adding or renaming exported functions, add them to the `appropriate` section in `pkgdown/_pkgdown.yml` so they appear on the reference page of the website.
 - Update `NEWS.md` when adding features or fixing bugs.
