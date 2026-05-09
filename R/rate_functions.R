@@ -26,6 +26,8 @@
 # getERepro(object, n, n_pp, n_other, time_range, drop, ...)
 # getEGrowth(object, n, n_pp, n_other, time_range, drop, ...)
 # getDiffusion(object, n, n_pp, n_other, t, time_range, drop, ...)
+# getRDI(object, n, n_pp, n_other, time_range, ...)
+# getRDD(object, n, n_pp, n_other, time_range, ...)
 # getFlux(object, n, n_pp, n_other, time_range, drop, ...)
 
 #' Get all rates
@@ -217,6 +219,37 @@ get_species_size_rate_from_sim <- function(sim, time_range, drop,
                                      units = units, params = sim@params)
     }
     result
+}
+
+#' Apply a species rate function over saved simulation times
+#'
+#' Internal helper used by `MizerSim` rate methods whose one-time result is a
+#' named vector with one value for each species.
+#'
+#' @param sim A `MizerSim` object.
+#' @param time_range A numeric or character vector of times.
+#' @param rate_fun A function accepting a single simulation slice as returned by
+#'   `get_sim_rate_slice()`.
+#' @param value_name Name of the value stored in the returned array.
+#' @param units Optional units of the value stored in the returned array.
+#'
+#' @return An `ArraySpeciesByTime` object with dimensions time x species.
+#' @keywords internal
+get_species_time_rate_from_sim <- function(sim, time_range, rate_fun,
+                                           value_name, units = NULL) {
+    time_elements <- get_sim_rate_time_elements(sim, time_range)
+    time_idx <- which(time_elements)
+    species <- sim@params@species_params$species
+
+    # Each one-time rate is a species vector. `vapply()` stacks these as
+    # species x time, so transpose to the ArraySpeciesByTime convention.
+    rate_time <- t(vapply(time_idx, function(idx) {
+        rate_fun(get_sim_rate_slice(sim, idx))
+    }, numeric(length(species))))
+    dimnames(rate_time) <- list(time = names(time_elements)[time_elements],
+                                sp = species)
+    ArraySpeciesByTime(rate_time, value_name = value_name, units = units,
+                       params = sim@params)
 }
 
 
@@ -1135,8 +1168,11 @@ getEGrowth.MizerSim <- function(params, n, n_pp, n_other,
 #'
 #' @inherit mizerRDI
 #' @inheritParams mizerRates
+#' @inheritParams get_time_elements
 #'   
-#' @return A numeric vector the length of the number of species.
+#' @return If a `MizerParams` object is passed in, a numeric vector the length
+#'   of the number of species. If a `MizerSim` object is passed in, an
+#'   `ArraySpeciesByTime` object with dimensions time x species.
 #' @export
 #' @seealso [getRDD()]
 #' @family rate functions
@@ -1178,6 +1214,20 @@ getRDI.MizerParams <- function(params, n = initialN(params),
     rdi
 }
 
+#' @export
+getRDI.MizerSim <- function(params, n, n_pp, n_other, t = 0,
+                            time_range, ...) {
+    sim <- params
+    get_species_time_rate_from_sim(
+        sim, time_range,
+        function(slice) {
+            getRDI(sim@params, n = slice$n, n_pp = slice$n_pp,
+                   n_other = slice$n_other, t = slice$t, ...)
+        },
+        value_name = "Density-independent reproduction rate",
+        units = "1/year")
+}
+
 
 #' Get density dependent reproduction rate
 #'
@@ -1190,11 +1240,14 @@ getRDI.MizerParams <- function(params, n = initialN(params),
 #' [setReproduction()] for more details.
 #' 
 #' @inheritParams mizerRates
+#' @inheritParams get_time_elements
 #' @param rdi A vector of density-independent reproduction rates for each
 #'   species. If not specified, rdi is calculated internally using
 #'   [getRDI()].
 #'   
-#' @return A numeric vector the length of the number of species. 
+#' @return If a `MizerParams` object is passed in, a numeric vector the length
+#'   of the number of species. If a `MizerSim` object is passed in, an
+#'   `ArraySpeciesByTime` object with dimensions time x species.
 #' @export
 #' @seealso [getRDI()]
 #' @family rate functions
@@ -1238,6 +1291,20 @@ getRDD.MizerParams <- function(params, n = initialN(params),
     }
     names(rdd) <- params@species_params$species
     rdd
+}
+
+#' @export
+getRDD.MizerSim <- function(params, n, n_pp, n_other, t = 0,
+                            rdi, time_range, ...) {
+    sim <- params
+    get_species_time_rate_from_sim(
+        sim, time_range,
+        function(slice) {
+            getRDD(sim@params, n = slice$n, n_pp = slice$n_pp,
+                   n_other = slice$n_other, t = slice$t, ...)
+        },
+        value_name = "Density-dependent reproduction rate",
+        units = "1/year")
 }
 
 #' Get flux into size bins

@@ -699,6 +699,29 @@ test_that("getRDI is proportional to volume", {
     expect_equal(rdi * volume, rdi_r)
 })
 
+test_that("getRDI for MizerSim", {
+    time_range <- 1:2
+    time_elements <- get_time_elements(sim, time_range)
+    time_idx <- which(time_elements)[1]
+    t <- as.numeric(dimnames(sim@n)$time[[time_idx]])
+    n_slice <- array(sim@n[time_idx, , ], dim = dim(sim@n)[2:3])
+    dimnames(n_slice) <- dimnames(sim@n)[2:3]
+    n_other_slice <- sim@n_other[time_idx, ]
+    names(n_other_slice) <- dimnames(sim@n_other)$component
+    n_pp_slice <- sim@n_pp[time_idx, ]
+
+    rdi <- getRDI(sim, time_range = time_range)
+    expect_s3_class(rdi, "ArraySpeciesByTime")
+    expect_equal(dim(rdi), c(sum(time_elements), no_sp))
+    expect_identical(dimnames(rdi)$sp, params@species_params$species)
+    expect_equal(
+        rdi[1, ],
+        getRDI(sim@params, n = n_slice, n_pp = n_pp_slice,
+               n_other = n_other_slice, t = t),
+        ignore_attr = TRUE
+    )
+})
+
 
 # getRDD ------------------------------------------------------------------
 
@@ -721,6 +744,29 @@ test_that("getRDD is proportional to volume", {
     rdd <- getRDD(params)
     rdd_r <- getRDD(params_r)
     expect_equal(rdd * volume, rdd_r)
+})
+
+test_that("getRDD for MizerSim", {
+    time_range <- 1:2
+    time_elements <- get_time_elements(sim, time_range)
+    time_idx <- which(time_elements)[1]
+    t <- as.numeric(dimnames(sim@n)$time[[time_idx]])
+    n_slice <- array(sim@n[time_idx, , ], dim = dim(sim@n)[2:3])
+    dimnames(n_slice) <- dimnames(sim@n)[2:3]
+    n_other_slice <- sim@n_other[time_idx, ]
+    names(n_other_slice) <- dimnames(sim@n_other)$component
+    n_pp_slice <- sim@n_pp[time_idx, ]
+
+    rdd <- getRDD(sim, time_range = time_range)
+    expect_s3_class(rdd, "ArraySpeciesByTime")
+    expect_equal(dim(rdd), c(sum(time_elements), no_sp))
+    expect_identical(dimnames(rdd)$sp, params@species_params$species)
+    expect_equal(
+        rdd[1, ],
+        getRDD(sim@params, n = n_slice, n_pp = n_pp_slice,
+               n_other = n_other_slice, t = t),
+        ignore_attr = TRUE
+    )
 })
 
 

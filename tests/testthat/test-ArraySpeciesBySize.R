@@ -90,6 +90,28 @@ test_that("plot.ArraySpeciesBySize returns ggplot", {
     expect_true(all(c("w", "value", "Species") %in% names(df)))
 })
 
+test_that("plot.ArraySpeciesBySize supports full size grid", {
+    pred_rate <- getPredRate(NS_params)
+
+    df <- plot(pred_rate, return_data = TRUE, all.sizes = TRUE)
+    expect_equal(sort(unique(df$w)), NS_params@w_full)
+
+    p <- plot(pred_rate)
+    expect_s3_class(p, "ggplot")
+})
+
+test_that("plot.ArraySpeciesBySize errors for unknown size grid", {
+    mat <- matrix(1, nrow = nrow(NS_params@initial_n), ncol = 3,
+                  dimnames = list(sp = dimnames(NS_params@initial_n)$sp,
+                                  w = as.character(1:3)))
+    x <- ArraySpeciesBySize(mat, params = NS_params)
+
+    expect_error(
+        plot(x, return_data = TRUE),
+        "Can not determine the size grid"
+    )
+})
+
 test_that("ArraySpeciesBySize has interactive plotly methods", {
     enc <- getEncounter(NS_params)
 
@@ -102,6 +124,10 @@ test_that("as.data.frame.ArraySpeciesBySize works", {
     expect_true(is.data.frame(df))
     expect_true(all(c("w", "value", "Species") %in% names(df)))
     expect_equal(nrow(df), prod(dim(enc)))
+
+    pred_rate <- getPredRate(NS_params)
+    df_pr <- as.data.frame(pred_rate)
+    expect_equal(sort(unique(df_pr$w)), NS_params@w_full)
 })
 
 test_that("ArraySpeciesBySize subsetting preserves class for 2D", {
