@@ -18,6 +18,7 @@
 # getEncounter(object, n, n_pp, n_other, time_range, drop, ...)
 # getFeedingLevel(object, n, n_pp, n_other, time_range, drop, ...)
 # getEReproAndGrowth(object, n, n_pp, n_other, time_range, drop, ...)
+# getPredRate(object, n, n_pp, n_other, time_range, drop, ...)
 # getPredMort(object, n, n_pp, n_other, time_range, drop, ...)
 # getFMort(object, effort, time_range, drop, n, n_pp, n_other, t, ...)
 # getFMortGear(object, effort, time_range, n, n_pp, n_other, t, ...)
@@ -407,7 +408,7 @@ getEReproAndGrowth.MizerSim <- function(params, n, n_pp, n_other,
 #'
 #' @inheritParams mizerRates
 #'   
-#' @return A two dimensional array (predator species x prey size), 
+#' @return An `ArraySpeciesBySize` object (predator species x prey size),
 #'   where the prey size runs over fish community plus resource spectrum.
 #' @export
 #' @family rate functions
@@ -449,7 +450,21 @@ getPredRate.MizerParams <- function(params, n = initialN(params),
     }
     dimnames(pred_rate) <- list(sp = dimnames(params@initial_n)$sp,
                                 w_prey = as.character(signif(params@w_full, 3)))
-    pred_rate
+    ArraySpeciesBySize(pred_rate, value_name = "Predation rate",
+                       units = "1/year", params = params)
+}
+
+#' @export
+getPredRate.MizerSim <- function(params, n, n_pp, n_other,
+                                 time_range, drop = FALSE, ...) {
+    sim <- params
+    get_species_size_rate_from_sim(
+        sim, time_range, drop,
+        function(slice) {
+            getPredRate(sim@params, n = slice$n, n_pp = slice$n_pp,
+                        n_other = slice$n_other, t = slice$t, ...)
+        },
+        value_name = "Predation rate", units = "1/year")
 }
 
 #' Get total predation mortality rate

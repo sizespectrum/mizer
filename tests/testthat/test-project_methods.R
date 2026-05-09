@@ -220,6 +220,7 @@ test_that("getCriticalFeedingLevel matches metab over intake_max times alpha", {
 
 test_that("getPredRate for MizerParams", {
     pr <- getPredRate(params, n, n_full)
+    expect_s3_class(pr, "ArraySpeciesBySize")
     # test dim
     expect_identical(dim(pr), c(no_sp, no_w_full))
     expect_identical(dimnames(pr)$sp, dimnames(params@initial_n)$sp)
@@ -227,13 +228,38 @@ test_that("getPredRate for MizerParams", {
     # test value
     # expect_known_value(pr, "values/getPredRate")
     # expect_snapshot(pr)
-    expect_snapshot_value(pr, style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
+    expect_snapshot_value(drop_params(pr), style = 'json2', tolerance = 1e-5) # round to take into account different rounding errors depending on OS
+})
+
+test_that("getPredRate for MizerSim", {
+    time_range <- 1:2
+    time_elements <- get_time_elements(sim, time_range)
+    time_idx <- which(time_elements)[1]
+    t <- as.numeric(dimnames(sim@n)$time[[time_idx]])
+    n_slice <- array(sim@n[time_idx, , ], dim = dim(sim@n)[2:3])
+    dimnames(n_slice) <- dimnames(sim@n)[2:3]
+    n_other_slice <- sim@n_other[time_idx, ]
+    names(n_other_slice) <- dimnames(sim@n_other)$component
+    n_pp_slice <- sim@n_pp[time_idx, ]
+
+    pr <- getPredRate(sim, time_range = time_range)
+    expect_s3_class(pr, "ArrayTimeBySpeciesBySize")
+    expect_equal(dim(pr), c(sum(time_elements), no_sp, no_w_full))
+    expect_identical(dimnames(pr)$sp, dimnames(params@initial_n)$sp)
+    expect_identical(dimnames(pr)$w_prey,
+                     as.character(signif(params@w_full, 3)))
+    expect_equal(
+        pr[1, , ],
+        getPredRate(sim@params, n = n_slice, n_pp = n_pp_slice,
+                    n_other = n_other_slice, t = t),
+        ignore_attr = TRUE
+    )
 })
 
 test_that("getPredRate is independent of volume", {
     pr <- getPredRate(params)
     pr_r <- getPredRate(params_r)
-    expect_equal(pr, pr_r)
+    expect_equal(pr, pr_r, ignore_attr = "params")
 })
 
 

@@ -37,7 +37,7 @@ ArraySpeciesBySize <- function(x, value_name = NULL, units = NULL,
     if (!is.matrix(x)) {
         stop("`x` must be a matrix.")
     }
-    if (!is.null(params)) {
+    if (!is.null(params) && identical(dim(x), dim(params@metab))) {
         dimnames(x) <- dimnames(params@metab)
     }
     structure(x,
@@ -186,6 +186,7 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
     value_name <- attr(x, "value_name") %||% "Rate"
     units_str <- attr(x, "units")
     params <- attr(x, "params")
+    w <- get_ArraySpeciesBySize_w(x)
 
     all_species <- rownames(x)
     if (is.null(species)) {
@@ -206,7 +207,7 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
     }
 
     plot_dat <- data.frame(
-        w = rep(params@w, each = sum(sel)),
+        w = rep(w, each = sum(sel)),
         value = c(mat),
         Species = rownames(mat)
     )
@@ -242,7 +243,7 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
     # Add total line
     if (total) {
         total_dat <- data.frame(
-            w = params@w,
+            w = w,
             value = total_row,
             Species = "Total",
             Legend = "Total"
@@ -280,10 +281,7 @@ ggplotly.ArraySpeciesBySize <- function(x, ...) {
 #' @export
 as.data.frame.ArraySpeciesBySize <- function(x, row.names = NULL,
                                      optional = FALSE, ...) {
-    w <- as.numeric(colnames(x))
-    if (any(is.na(w))) {
-        w <- seq_len(ncol(x))
-    }
+    w <- get_ArraySpeciesBySize_w(x)
     sp_names <- rownames(x)
     mat <- unclass(x)
     data.frame(
@@ -292,6 +290,37 @@ as.data.frame.ArraySpeciesBySize <- function(x, row.names = NULL,
         Species = sp_names,
         stringsAsFactors = FALSE
     )
+}
+
+#' Get the size grid for an ArraySpeciesBySize object
+#'
+#' Internal helper that returns the consumer size grid `params@w` or the full
+#' prey/resource size grid `params@w_full`, depending on the number of columns
+#' in the array.
+#'
+#' @param x An `ArraySpeciesBySize` object.
+#'
+#' @return A numeric vector giving the size represented by each column.
+#' @keywords internal
+get_ArraySpeciesBySize_w <- function(x) {
+    params <- attr(x, "params")
+    if (is.null(params)) {
+        w <- as.numeric(colnames(x))
+        if (any(is.na(w))) {
+            w <- seq_len(ncol(x))
+        }
+        return(w)
+    }
+    if (ncol(x) == length(params@w)) {
+        return(params@w)
+    }
+    if (ncol(x) == length(params@w_full)) {
+        return(params@w_full)
+    }
+    stop("Can not determine the size grid for this ArraySpeciesBySize object. ",
+         "The number of columns is ", ncol(x), ", but the params object has ",
+         length(params@w), " consumer sizes and ", length(params@w_full),
+         " full-spectrum sizes.")
 }
 
 #' @export
