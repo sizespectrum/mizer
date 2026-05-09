@@ -52,7 +52,7 @@ NULL
 #' @param method The numerical method to use for the consumer density update.
 #'   Currently `"euler"` uses the existing semi-implicit Euler update, while
 #'   `"predictor_corrector"` uses a predictor-corrector Crank-Nicolson update
-#'   with midpoint rates.
+#'   with midpoint rates. `"predictor-corrector"` is accepted as an alias.
 #' @param ... Other arguments will be passed to rate functions.
 #'
 #' @note The `effort` argument specifies the level of fishing effort during the
@@ -148,6 +148,18 @@ project <- function(object, effort,
     UseMethod("project")
 }
 
+normalise_project_method <- function(method) {
+    if (length(method) != 1) {
+        method <- method[[1]]
+    }
+    method <- match.arg(method, c("euler", "predictor_corrector",
+                                  "predictor-corrector"))
+    if (method == "predictor-corrector") {
+        method <- "predictor_corrector"
+    }
+    method
+}
+
 #' @rdname project
 #' @export
 project.MizerParams <- function(object, effort,
@@ -158,7 +170,7 @@ project.MizerParams <- function(object, effort,
                                 method = c("euler", "predictor_corrector"),
                                 ...) {
     params <- validParams(object)
-    method <- match.arg(method)
+    method <- normalise_project_method(method)
     # Set and check initial values ----
     assert_that(t_max > 0)
     if (!missing(initial_n)) params@initial_n[] <- initial_n
@@ -360,7 +372,7 @@ project.MizerSim <- function(object, effort,
                              progress_bar = TRUE,
                              method = c("euler", "predictor_corrector"),
                              ...) {
-    method <- match.arg(method)
+    method <- normalise_project_method(method)
     validObject(object)
     params <- setInitialValues(object@params, object)
     t_start <- getTimes(object)[idxFinalT(object)]
@@ -472,7 +484,7 @@ project_simple.MizerParams <-
              other_dynamics_fns = lapply(params@other_dynamics, get),
              rates_fns = projectRateFunctions(params),
              method = c("euler", "predictor_corrector"), ...) {
-        method <- match.arg(method)
+        method <- normalise_project_method(method)
         # Handy things ----
         no_sp <- nrow(params@species_params) # number of species
         no_w <- length(params@w) # number of fish size bins

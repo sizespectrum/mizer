@@ -117,7 +117,7 @@ projectToSteady.MizerParams <- function(params,
                             info_level = 3,
                             method = c("euler", "predictor_corrector"), ...) {
     params <- validParams(params)
-    method <- match.arg(method)
+    method <- normalise_project_method(method)
     effort <- validEffortVector(effort, params = params)
     params@initial_effort <- effort
     assert_that(t_max >= t_per,
@@ -290,7 +290,7 @@ steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
                    progress_bar = TRUE,
                    info_level = 3,
                    method = c("euler", "predictor_corrector")) {
-    method <- match.arg(method)
+    method <- normalise_project_method(method)
     
     if (params@rates_funcs$RDD == "BevertonHoltRDD") {
         preserve <- match.arg(preserve)

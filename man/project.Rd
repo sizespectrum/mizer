@@ -93,7 +93,7 @@ a progress bar in a shiny app.}
 \item{method}{The numerical method to use for the consumer density update.
 Currently \code{"euler"} uses the existing semi-implicit Euler update, while
 \code{"predictor_corrector"} uses a predictor-corrector Crank-Nicolson update
-with midpoint rates.}
+with midpoint rates. \code{"predictor-corrector"} is accepted as an alias.}
 
 \item{...}{Other arguments will be passed to rate functions.}
 }
