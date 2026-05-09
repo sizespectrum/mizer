@@ -178,9 +178,6 @@ ggplotly.ArrayTimeBySpeciesBySize <- function(x, ...) {
 }
 
 #' @rdname animate
-#'
-#' @param log_y If `TRUE` (default), use a log10 y-axis. Only applies to
-#'   `ArrayTimeBySpeciesBySize`.
 #' @export
 animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
                                              time_range = NULL,
@@ -188,12 +185,20 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
                                              wlim = c(NA, NA),
                                              ylim = c(NA, NA),
                                              log_y = TRUE,
+                                             total = FALSE,
+                                             background = TRUE,
                                              ...) {
     params <- attr(x, "params")
     value_name <- attr(x, "value_name") %||% "Value"
     units_str <- attr(x, "units")
 
     all_species <- dimnames(x)[[2]]
+
+    bkgrd_sp <- character(0)
+    if (!is.null(params) && isTRUE(any(params@species_params$is_background))) {
+        bkgrd_sp <- params@species_params$species[params@species_params$is_background]
+    }
+
     if (is.null(species)) {
         species <- all_species
     } else {
@@ -201,6 +206,9 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
         if (length(species) == 0) {
             stop("None of the selected species are in the array.")
         }
+    }
+    if (!background) {
+        species <- setdiff(species, bkgrd_sp)
     }
 
     times <- as.numeric(dimnames(x)[[1]])
@@ -223,6 +231,24 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
                       stringsAsFactors = FALSE)
     df$value <- c(sub)
 
+    # Compute total across all selected species before legend grouping
+    if (total) {
+        total_sums <- aggregate(value ~ time + w, data = df, FUN = sum,
+                                na.rm = TRUE)
+        total_sums$Species <- "Total"
+    }
+
+    # Group background species under a shared legend entry
+    df$legend_name <- df$Species
+    if (length(bkgrd_sp) > 0) {
+        df$legend_name[df$Species %in% bkgrd_sp] <- "Background"
+    }
+
+    if (total) {
+        total_sums$legend_name <- "Total"
+        df <- rbind(df, total_sums[, names(df)])
+    }
+
     if (!is.na(wlim[1])) df <- df[df$w >= wlim[1], ]
     if (!is.na(wlim[2])) df <- df[df$w <= wlim[2], ]
     if (!is.na(ylim[1])) df <- df[df$value >= ylim[1], ]
@@ -234,21 +260,25 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
         y_label <- paste0(value_name, " [", units_str, "]")
     }
 
-    sp_order <- intersect(names(params@linecolour), species)
-
+    # One trace per Species; background species share a legend group
+    sp_order <- intersect(names(params@linecolour), unique(df$Species))
     p <- plotly::plot_ly()
+    shown_legend_names <- character(0)
     for (sp in sp_order) {
         df_sp <- df[df$Species == sp, ]
-        col <- params@linecolour[[sp]]
+        ln <- unique(df_sp$legend_name)
+        col <- params@linecolour[[ln]]
+        showlegend <- !(ln %in% shown_legend_names)
+        shown_legend_names <- c(shown_legend_names, ln)
         p <- plotly::add_lines(
             p,
             data = df_sp,
             x = ~w, y = ~value,
             frame = ~time,
-            name = sp,
-            legendgroup = sp,
+            name = ln,
+            legendgroup = ln,
             line = list(color = col, simplify = FALSE),
-            showlegend = TRUE
+            showlegend = showlegend
         )
     }
 

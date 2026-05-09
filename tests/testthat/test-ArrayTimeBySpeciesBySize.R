@@ -125,6 +125,29 @@ test_that("animate.ArrayTimeBySpeciesBySize respects time_range argument", {
     expect_s3_class(p, "plotly")
 })
 
+test_that("animate.ArrayTimeBySpeciesBySize respects total argument", {
+    fmort <- getFMort(NS_sim)
+    trace_names <- function(p) {
+        vapply(plotly::plotly_build(p)$x$data, function(t) t$name, character(1))
+    }
+    expect_true("Total" %in% trace_names(animate(fmort, total = TRUE,
+                                                  time_range = c(2000, 2001))))
+    expect_false("Total" %in% trace_names(animate(fmort, total = FALSE,
+                                                   time_range = c(2000, 2001))))
+})
+
+test_that("animate.ArrayTimeBySpeciesBySize respects background argument", {
+    # Use Herring so the background species has non-zero fishing mortality
+    params_bkgrd <- markBackground(NS_params, species = "Herring")
+    sim_bkgrd <- project(params_bkgrd, t_max = 5, t_save = 1)
+    fmort <- getFMort(sim_bkgrd)
+    trace_names <- function(p) {
+        vapply(plotly::plotly_build(p)$x$data, function(t) t$name, character(1))
+    }
+    expect_true("Background" %in% trace_names(animate(fmort, background = TRUE)))
+    expect_false("Background" %in% trace_names(animate(fmort, background = FALSE)))
+})
+
 test_that("animateSpectra is a backward-compatible alias for animate", {
     fmort <- getFMort(NS_sim)
     expect_s3_class(animateSpectra(fmort), "plotly")

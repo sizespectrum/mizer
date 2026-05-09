@@ -1,7 +1,5 @@
 #' Animate size spectra or rates through time
 #'
-#' `r lifecycle::badge("experimental")`
-#'
 #' Creates an interactive plotly animation in which a play button steps through
 #' time, drawing one line per species at each frame.
 #'
@@ -12,15 +10,16 @@
 #'   community total can be added via the `resource`, `background`, and `total`
 #'   arguments. The `power` argument controls whether the y-axis shows number
 #'   density (`power = 0`), biomass density (`power = 1`, default), or biomass
-#'   density in logarithmic size bins (`power = 2`). The y-axis is always log10;
-#'   the x-axis (body size) is log10 by default and can be switched to linear
-#'   with `log_x = FALSE`.
+#'   density in logarithmic size bins (`power = 2`). Both axes are log10 by
+#'   default and can each be switched to linear with `log_x = FALSE` or
+#'   `log_y = FALSE`.
 #'
 #' * **`ArrayTimeBySpeciesBySize`** — animates any per-species, size-resolved
 #'   rate returned by a `MizerSim` accessor, such as [getFMort()],
 #'   [getFeedingLevel()], or [getPredMort()]. Both axes are log10 by default
 #'   and can each be switched to linear with `log_x = FALSE` or `log_y = FALSE`.
-#'   Species colours follow `params@linecolour`.
+#'   Species colours follow `params@linecolour`. Background species and a
+#'   species total can be added via the `background` and `total` arguments.
 #'
 #' `animateSpectra()` is retained as a backward-compatible alias.
 #'
@@ -31,6 +30,13 @@
 #'   values to include, or a length-two vector giving the min and max of the
 #'   range. Default is the entire time range of `x`.
 #' @param log_x If `TRUE` (default), use a log10 x-axis for body size.
+#' @param log_y If `TRUE` (default), use a log10 y-axis.
+#' @param total A boolean value that determines whether the total over all
+#'   selected species is plotted as an additional trace called `"Total"`.
+#'   Default is `FALSE`.
+#' @param background A boolean value that determines whether background species
+#'   are included. Ignored if the model does not contain background species.
+#'   Default is `TRUE`.
 #' @param wlim A numeric vector of length two providing lower and upper limits
 #'   for the body-size (x) axis. Use `NA` to refer to the existing minimum or
 #'   maximum.
@@ -61,18 +67,12 @@ animate <- function(x, ...) UseMethod("animate")
 #'   raised to \code{power}. The default \code{power = 1} gives the biomass
 #'   density, whereas \code{power = 2} gives the biomass density with respect
 #'   to logarithmic size bins. Only applies to `MizerSim`.
-#' @param total A boolean value that determines whether the total over all
-#'   species in the system is plotted as an additional trace called `"Total"`.
-#'   Default is FALSE. Only applies to `MizerSim`.
 #' @param resource A boolean value that determines whether resource is included.
 #'   If `TRUE`, the resource spectrum is plotted as an additional trace called
-#'   `"Resource"`. Default is TRUE. Only applies to `MizerSim`.
-#' @param background A boolean value that determines whether background species
-#'   are included. Ignored if the model does not contain background species.
-#'   Default is TRUE. Only applies to `MizerSim`.
+#'   `"Resource"`. Default is `TRUE`. Only applies to `MizerSim`.
 #' @export
 animate.MizerSim <- function(x, species = NULL, time_range = NULL,
-                              log_x = TRUE,
+                              log_x = TRUE, log_y = TRUE,
                               wlim = c(NA, NA), ylim = c(NA, NA),
                               power = 1, total = FALSE, resource = TRUE,
                               background = TRUE, ...) {
@@ -179,13 +179,12 @@ animate.MizerSim <- function(x, species = NULL, time_range = NULL,
                    xaxis = list(type = if (log_x) "log" else "-",
                                 exponentformat = "power",
                                 title = "Size [g]"),
-                   yaxis = list(type = "log", exponentformat = "power",
+                   yaxis = list(type = if (log_y) "log" else "-",
+                                exponentformat = "power",
                                 title = y_label),
                    legend = list(traceorder = "normal"))
 }
 
 #' @rdname animate
-#' @description `animateSpectra()` is an alias for `animate()` provided for
-#'   backward compatibility.
 #' @export
 animateSpectra <- function(sim, ...) animate(sim, ...)
