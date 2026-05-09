@@ -60,5 +60,8 @@ values for other ecosystem components.}
 
 \item{\code{effort}}{An array (time x gear) that stores the fishing effort by time
 and gear.}
+
+\item{\code{sim_params}}{A named list of the parameters passed to \code{\link[=project]{project()}} or
+\code{\link[=projectToSteady]{projectToSteady()}} to produce this simulation, such as \code{method} and \code{dt}.}
 }}
 

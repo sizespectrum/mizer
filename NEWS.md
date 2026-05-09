@@ -1,5 +1,11 @@
 # Development version (will become mizer 3.0.0)
 
+- `MizerSim` objects now have a `sim_params` slot (a named list) that records
+  the projection parameters — currently `method` and `dt` — passed to
+  `project()` or `projectToSteady()`. The new `getSimParams()` accessor
+  retrieves this list. Older objects are upgraded automatically by `validSim()`,
+  with `sim_params` set to an empty list.
+
 - `project()`, `projectToSteady()` and `steady()` gain a `method` argument for
   choosing the consumer density time-stepper. The default `"euler"` preserves
   the existing semi-implicit update, while `"predictor_corrector"` uses the new

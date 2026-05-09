@@ -17,7 +17,7 @@ needs_upgrading <- function(object) {
         stop("The object you supplied is neither a MizerParams nor a MizerSim object.")
     }
     !.hasSlot(params, "mizer_version") ||
-        params@mizer_version < "2.5.4.9123"
+        params@mizer_version < "2.5.4.9126"
 }
 
 #' Upgrade MizerParams object from earlier mizer versions
@@ -444,6 +444,9 @@ upgradeSim <- function(sim) {
     }
     if (.hasSlot(sim, "n_other")) {
         new_sim@n_other <- sim@n_other
+    }
+    if (.hasSlot(sim, "sim_params")) {
+        new_sim@sim_params <- sim@sim_params
     }
     comment(new_sim) <- comment(sim)
     comment(new_sim@effort) <- comment(sim@effort)

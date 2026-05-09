@@ -162,6 +162,8 @@ valid_MizerSim <- function(object) {
 #'   values for other ecosystem components.
 #' @slot effort An array (time x gear) that stores the fishing effort by time
 #'   and gear.
+#' @slot sim_params A named list of the parameters passed to [project()] or
+#'   [projectToSteady()] to produce this simulation, such as `method` and `dt`.
 #'
 #' @export
 setClass(
@@ -171,7 +173,8 @@ setClass(
         n = "array",
         effort = "array",
         n_pp = "array",
-        n_other = "array"
+        n_other = "array",
+        sim_params = "list"
     )
 )
 
@@ -240,7 +243,8 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
                n = array_n,
                n_pp = array_n_pp,
                n_other = list_n_other,
-               effort = array_effort)
+               effort = array_effort,
+               sim_params = list())
     coerceToExtensionClass(sim)
 }
 
@@ -482,4 +486,24 @@ getParams <- function(sim) {
 getParams.MizerSim <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     sim@params
+}
+
+#' Extract the projection parameters used to produce a simulation
+#'
+#' Returns the named list of arguments passed to [project()] or
+#' [projectToSteady()] when producing this `MizerSim` object, such as
+#' `method` and `dt`. Returns an empty list for simulations produced by
+#' older versions of mizer.
+#'
+#' @param sim A MizerSim object
+#' @return A named list of projection parameters.
+#' @export
+getSimParams <- function(sim) {
+    UseMethod("getSimParams")
+}
+
+#' @export
+getSimParams.MizerSim <- function(sim) {
+    assert_that(is(sim, "MizerSim"))
+    sim@sim_params
 }

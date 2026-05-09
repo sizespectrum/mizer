@@ -136,6 +136,7 @@ projectToSteady.MizerParams <- function(params,
     if (return_sim) {
         # create MizerSim object
         sim <- MizerSim(params, t_dimnames =  t_dimnames)
+        sim@sim_params <- list(method = method, dt = dt)
         sim@n[1, , ] <- params@initial_n
         sim@n_pp[1, ] <- params@initial_n_pp
         sim@n_other[1, ] <- params@initial_n_other

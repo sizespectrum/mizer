@@ -297,6 +297,7 @@ project.MizerParams <- function(object, effort,
     # Make the MizerSim object with the right size ----
     # We only save every t_save years
     sim <- MizerSim(params, t_dimnames = times)
+    sim@sim_params <- list(method = method, dt = dt)
     # Set initial population and effort
     sim@n[1, , ] <- initial_n
     sim@n_pp[1, ] <- initial_n_pp
@@ -404,6 +405,7 @@ project.MizerSim <- function(object, effort,
         new_sim@n_other[new_indices, ] <- sim@n_other[2:no_t, ]
         new_sim@effort[old_indices, ] <- object@effort
         new_sim@effort[new_indices, ] <- sim@effort[2:no_t, ]
+        new_sim@sim_params <- sim@sim_params
         return(new_sim)
     }
     return(sim)
