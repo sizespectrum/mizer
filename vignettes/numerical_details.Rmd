@@ -252,6 +252,66 @@ or $O(\Delta t^2 + \log\beta)$ on the logarithmic grid.
 
 There are two practical cautions. First, this doubles the number of rate evaluations per time step. Second, Crank-Nicolson-type methods are less damping than backward Euler, so for large time steps they can show oscillations even when they are formally stable. Positivity and robustness would therefore need to be checked carefully before using this as the default time stepper.
 
+## Numerical Diffusion for the Predictor-Corrector Method
+
+The predictor-corrector method uses the same upwind approximation in size as the first-order method, so it still has numerical diffusion. However, the Crank-Nicolson corrector changes the time-stepping contribution to that diffusion.
+
+To see this, again consider the advection-only problem with constant growth rate $g$ on a locally uniform grid with spacing $\Delta w$:
+$$
+\frac{\partial N}{\partial t} + g\frac{\partial N}{\partial w} = 0.
+$$
+With fixed rates, the corrector step reduces to the Crank-Nicolson upwind scheme
+$$
+\frac{N_j^{t+1} - N_j^t}{\Delta t}
++ \frac{g}{2}
+\left[
+\frac{N_j^{t+1} - N_{j-1}^{t+1}}{\Delta w}
++ \frac{N_j^t - N_{j-1}^t}{\Delta w}
+\right] = 0.
+$$
+
+Expand this equation about the midpoint $(w_j, t + \Delta t / 2)$. The centred time difference gives
+$$
+\frac{N_j^{t+1} - N_j^t}{\Delta t}
+= \frac{\partial N}{\partial t}
++ O(\Delta t^2).
+$$
+The average of the two upwind spatial differences gives
+$$
+\frac{1}{2}
+\left[
+\frac{N_j^{t+1} - N_{j-1}^{t+1}}{\Delta w}
++ \frac{N_j^t - N_{j-1}^t}{\Delta w}
+\right]
+= \frac{\partial N}{\partial w}
+- \frac{\Delta w}{2}\frac{\partial^2 N}{\partial w^2}
++ O(\Delta w^2) + O(\Delta t^2).
+$$
+Substituting these expansions into the scheme gives the modified equation
+$$
+\frac{\partial N}{\partial t} + g\frac{\partial N}{\partial w}
+= \frac{g\Delta w}{2}\frac{\partial^2 N}{\partial w^2}
++ O(\Delta w^2) + O(\Delta t^2).
+$$
+Thus the numerical diffusivity in the usual advection-diffusion form is
+$$
+D_{num}^{PC} = \frac{g\Delta w}{2}.
+$$
+In the mizer notation, where the diffusion term is written with a factor $1/2$ inside the flux, this corresponds to the effective diffusion parameter
+$$
+d_{num}^{PC}(w) \approx g(w)\Delta w.
+$$
+On the logarithmic grid this becomes
+$$
+d_{num}^{PC}(w) \approx g(w)w\log\beta.
+$$
+
+Compared with the first-order semi-implicit scheme,
+$$
+d_{num}^{Euler}(w) \approx g(w)\Delta w + g(w)^2\Delta t,
+$$
+the predictor-corrector method removes the leading artificial diffusion proportional to $\Delta t$. The remaining numerical diffusion is the spatial upwind diffusion, proportional to $\Delta w$ or equivalently to $\log\beta$ on the logarithmic grid. This is why decreasing $\Delta t$ eventually stops improving the error much: once the time-stepping error is small, the spatial upwind error and other fixed discretisation errors dominate.
+
 ## Steady-State Solution
 
 When solving the steady-state ODE instead of the time-dependent PDE, we are looking for a state where the population densities do not change over time, meaning $N_j^{t+1} = N_j^t = N_j^*$.
