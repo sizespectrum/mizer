@@ -2,31 +2,57 @@
 #'
 #' `r lifecycle::badge("experimental")`
 #'
-#' Creates a plotly animation showing how a quantity changes over time.
-#' Dispatches on the class of `x`:
-#' * For a `MizerSim` object, animates the abundance spectra.
-#' * For an `ArrayTimeBySpeciesBySize` object (e.g. the output of
-#'   [getFMort()], [getFeedingLevel()], or [getPredMort()]), animates the
-#'   per-species rate through time.
+#' Creates an interactive plotly animation in which a play button steps through
+#' time, drawing one line per species at each frame.
+#'
+#' The function dispatches on the class of `x`:
+#'
+#' * **`MizerSim`** — animates the community abundance spectra (number density
+#'   or biomass density vs body size). Resource, background species, and a
+#'   community total can be added via the `resource`, `background`, and `total`
+#'   arguments. The `power` argument controls whether the y-axis shows number
+#'   density (`power = 0`), biomass density (`power = 1`, default), or biomass
+#'   density in logarithmic size bins (`power = 2`). The y-axis is always log10;
+#'   the x-axis (body size) is log10 by default and can be switched to linear
+#'   with `log_x = FALSE`.
+#'
+#' * **`ArrayTimeBySpeciesBySize`** — animates any per-species, size-resolved
+#'   rate returned by a `MizerSim` accessor, such as [getFMort()],
+#'   [getFeedingLevel()], or [getPredMort()]. Both axes are log10 by default
+#'   and can each be switched to linear with `log_x = FALSE` or `log_y = FALSE`.
+#'   Species colours follow `params@linecolour`.
+#'
+#' `animateSpectra()` is retained as a backward-compatible alias.
 #'
 #' @param x A `MizerSim` or `ArrayTimeBySpeciesBySize` object.
 #' @param species Name or vector of names of the species to be plotted. By
 #'   default all species are plotted.
-#' @param time_range The time range to animate over. Either a vector of values
-#'   or a vector of min and max time. Default is the entire time range.
+#' @param time_range The time range to animate over. Either a vector of time
+#'   values to include, or a length-two vector giving the min and max of the
+#'   range. Default is the entire time range of `x`.
+#' @param log_x If `TRUE` (default), use a log10 x-axis for body size.
 #' @param wlim A numeric vector of length two providing lower and upper limits
-#'   for the w axis. Use NA to refer to the existing minimum or maximum.
+#'   for the body-size (x) axis. Use `NA` to refer to the existing minimum or
+#'   maximum.
 #' @param ylim A numeric vector of length two providing lower and upper limits
-#'   for the y axis. Use NA to refer to the existing minimum or maximum.
+#'   for the value (y) axis. Use `NA` to refer to the existing minimum or
+#'   maximum. Values below `1e-20` are always cut off on log scales.
 #' @param ... Additional arguments passed to the method.
 #'
-#' @return A plotly object with one animated line trace per plotted group.
+#' @return A plotly object with one animated line trace per plotted group. Use
+#'   the play button or the slider to step through time.
 #' @export
 #' @family plotting functions
 #' @examples
 #' \donttest{
+#' # Animate biomass density spectra, showing only sizes above 0.1 g
 #' animate(NS_sim, power = 2, wlim = c(0.1, NA), time_range = 1997:2007)
+#'
+#' # Animate fishing mortality through time
 #' animate(getFMort(NS_sim))
+#'
+#' # Animate feeding level for two species only
+#' animate(getFeedingLevel(NS_sim), species = c("Cod", "Herring"))
 #' }
 animate <- function(x, ...) UseMethod("animate")
 
@@ -46,6 +72,7 @@ animate <- function(x, ...) UseMethod("animate")
 #'   Default is TRUE. Only applies to `MizerSim`.
 #' @export
 animate.MizerSim <- function(x, species = NULL, time_range = NULL,
+                              log_x = TRUE,
                               wlim = c(NA, NA), ylim = c(NA, NA),
                               power = 1, total = FALSE, resource = TRUE,
                               background = TRUE, ...) {
@@ -149,7 +176,8 @@ animate.MizerSim <- function(x, species = NULL, time_range = NULL,
         )
     }
     plotly::layout(p,
-                   xaxis = list(type = "log", exponentformat = "power",
+                   xaxis = list(type = if (log_x) "log" else "-",
+                                exponentformat = "power",
                                 title = "Size [g]"),
                    yaxis = list(type = "log", exponentformat = "power",
                                 title = y_label),

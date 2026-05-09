@@ -184,6 +184,7 @@ ggplotly.ArrayTimeBySpeciesBySize <- function(x, ...) {
 #' @export
 animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
                                              time_range = NULL,
+                                             log_x = TRUE,
                                              wlim = c(NA, NA),
                                              ylim = c(NA, NA),
                                              log_y = TRUE,
@@ -252,7 +253,8 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
     }
 
     plotly::layout(p,
-                   xaxis = list(type = "log", exponentformat = "power",
+                   xaxis = list(type = if (log_x) "log" else "-",
+                                exponentformat = "power",
                                 title = "Size [g]"),
                    yaxis = list(type = if (log_y) "log" else "-",
                                 exponentformat = "power",
