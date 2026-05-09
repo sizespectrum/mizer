@@ -102,13 +102,40 @@ test_that("project method selects consumer time stepper", {
         "should be one of"
     )
 
-    sim_appended <- project(sim_default, t_max = 0.2, t_save = 0.2,
-                            dt = 0.1, effort = 1, progress_bar = FALSE,
-                            method = "predictor_corrector")
+    expect_warning(
+        sim_appended <- project(sim_default, t_max = 0.2, t_save = 0.2,
+                                dt = 0.1, effort = 1, progress_bar = FALSE,
+                                method = "predictor_corrector"),
+        "method"
+    )
     expect_s4_class(sim_appended, "MizerSim")
     expect_equal(dim(sim_appended@n)[1], 3)
 })
 
+test_that("project.MizerSim defaults dt and method from sim_params", {
+    params_small <- newMultispeciesParams(NS_species_params_gears[12, , drop = FALSE],
+                                          info_level = 0)
+    sim_pc <- project(params_small, t_max = 0.2, t_save = 0.2, dt = 0.05,
+                      effort = 1, progress_bar = FALSE,
+                      method = "predictor_corrector")
+    # Continuing without supplying dt or method should use stored values
+    sim_cont <- project(sim_pc, t_max = 0.2, t_save = 0.2,
+                        effort = 1, progress_bar = FALSE)
+    expect_equal(getSimParams(sim_cont)$dt, 0.05)
+    expect_equal(getSimParams(sim_cont)$method, "predictor_corrector")
+    # Mismatched dt should warn
+    expect_warning(
+        project(sim_pc, t_max = 0.2, t_save = 0.2, dt = 0.1,
+                effort = 1, progress_bar = FALSE),
+        "dt"
+    )
+    # No warning when dt and method match
+    expect_no_warning(
+        project(sim_pc, t_max = 0.2, t_save = 0.2, dt = 0.05,
+                method = "predictor_corrector", effort = 1,
+                progress_bar = FALSE)
+    )
+})
 
 # pass in initial species ----
 test_that("Can pass in initial species", {

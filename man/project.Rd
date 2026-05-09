@@ -62,7 +62,8 @@ is 100. When an effort array is supplied, this argument can be used to
 extend the simulation beyond the times specified in the effort array.
 See notes below.}
 
-\item{dt}{Time step of the solver. The default value is 0.1.}
+\item{dt}{Time step of the solver. The default value is 0.1. When \code{object}
+is a \code{MizerSim}, defaults to the value used to produce that simulation.}
 
 \item{t_save}{The frequency with which the output is stored. The default
 value is 1. When an effort array is supplied, this argument can be used
@@ -93,7 +94,10 @@ a progress bar in a shiny app.}
 \item{method}{The numerical method to use for the consumer density update.
 Currently \code{"euler"} uses the existing semi-implicit Euler update, while
 \code{"predictor_corrector"} uses a predictor-corrector Crank-Nicolson update
-with midpoint rates. \code{"predictor-corrector"} is accepted as an alias.}
+with midpoint rates. \code{"predictor-corrector"} is accepted as an alias.
+When \code{object} is a \code{MizerSim}, defaults to the value used to produce that
+simulation. A warning is issued if \code{append = TRUE} and the supplied value
+differs from the stored one.}
 
 \item{...}{Other arguments will be passed to rate functions.}
 }

@@ -28,7 +28,8 @@ NULL
 #'   is 100. When an effort array is supplied, this argument can be used to
 #'   extend the simulation beyond the times specified in the effort array.
 #'   See notes below.
-#' @param dt Time step of the solver. The default value is 0.1.
+#' @param dt Time step of the solver. The default value is 0.1. When `object`
+#'   is a `MizerSim`, defaults to the value used to produce that simulation.
 #' @param t_save The frequency with which the output is stored. The default
 #'   value is 1. When an effort array is supplied, this argument can be used
 #'   to control the times at which the simulation results are saved.
@@ -53,6 +54,9 @@ NULL
 #'   Currently `"euler"` uses the existing semi-implicit Euler update, while
 #'   `"predictor_corrector"` uses a predictor-corrector Crank-Nicolson update
 #'   with midpoint rates. `"predictor-corrector"` is accepted as an alias.
+#'   When `object` is a `MizerSim`, defaults to the value used to produce that
+#'   simulation. A warning is issued if `append = TRUE` and the supplied value
+#'   differs from the stored one.
 #' @param ... Other arguments will be passed to rate functions.
 #'
 #' @note The `effort` argument specifies the level of fishing effort during the
@@ -373,8 +377,30 @@ project.MizerSim <- function(object, effort,
                              progress_bar = TRUE,
                              method = c("euler", "predictor_corrector"),
                              ...) {
-    method <- normalise_project_method(method)
     validObject(object)
+    stored <- object@sim_params
+    dt_provided <- !missing(dt)
+    method_provided <- !missing(method)
+    # Default dt and method to values used in the existing simulation
+    if (!dt_provided && !is.null(stored$dt)) {
+        dt <- stored$dt
+    }
+    if (!method_provided && !is.null(stored$method)) {
+        method <- stored$method
+    }
+    method <- normalise_project_method(method)
+    # Warn when appending with different numerical parameters
+    if (append && length(stored) > 0) {
+        if (!is.null(stored$dt) && !isTRUE(all.equal(dt, stored$dt))) {
+            warning("Appending a simulation run with dt = ", dt,
+                    " to one that used dt = ", stored$dt, ".")
+        }
+        if (!is.null(stored$method) &&
+                method != normalise_project_method(stored$method)) {
+            warning("Appending a simulation run with method = '", method,
+                    "' to one that used method = '", stored$method, "'.")
+        }
+    }
     params <- setInitialValues(object@params, object)
     t_start <- getTimes(object)[idxFinalT(object)]
 
