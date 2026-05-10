@@ -13,48 +13,62 @@
 #' Mizer provides a range of plotting functions for visualising the results
 #' of running a simulation, stored in a MizerSim object, or the initial state
 #' stored in a MizerParams object.
-#' Every plotting function exists in two versions, `plotSomething` and
-#' `plotlySomething`. The plotly version is more interactive but not
-#' suitable for inclusion in documents.
 #'
-#' This table shows the available plotting functions.
+#' The quickest way to make a standard plot is often to call `plot()` directly.
+#' mizer provides `plot()` methods for `MizerSim` and `MizerParams` objects, and
+#' also for the array classes returned by many summary and rate functions:
+#'
+#' * `plot(<MizerSim>)` produces a five-panel summary plot with
+#'   [plotFeedingLevel()], [plotBiomass()], [plotPredMort()], [plotFMort()] and
+#'   [plotSpectra()].
+#'
+#' * `plot(<MizerParams>)` produces a three-panel summary plot with
+#'   [plotFeedingLevel()], [plotPredMort()] and [plotSpectra()] from the initial
+#'   state.
+#'
+#' * `plot(<ArrayTimeBySpecies>)` plots any time-by-species array, such as
+#'   those returned by [getBiomass()], [getSSB()], [getYield()] and [getN()] on
+#'   a `MizerSim`, as lines of value against time.
+#'
+#' * `plot(<ArraySpeciesBySize>)` plots any species-by-size array, such as
+#'   those returned by [getEncounter()], [getFeedingLevel()], [getPredMort()],
+#'   [getFMort()] and [getSearchVolume()], as lines of value against body size.
+#'
+#' * `plot(<ArrayTimeBySpeciesBySize>)` plots a time slice from a
+#'   time-by-species-by-size array, such as those returned by [getFMort()] or
+#'   [getPredMort()] on a `MizerSim`.
+#'
+#' The same array objects can be passed to [ggplotly()] to produce interactive
+#' versions, for example `ggplotly(getBiomass(sim))` or
+#' `ggplotly(getEncounter(params))`. To add another compatible array to an
+#' existing ggplot, use [addPlot()]. This is useful for comparing two simulations
+#' or two parameter sets on the same axes. To visualise how spectra or rates
+#' change through time, use [animate()] on a `MizerSim` or an
+#' `ArrayTimeBySpeciesBySize` object.
+#'
+#' The named plotting functions give more specialised control. This table shows
+#' the available named plotting functions.
 #' \tabular{ll}{
 #'   Plot \tab Description \cr
 #'   [plotBiomass()] \tab Plots the total biomass of each species through time. A time range to be plotted can be specified. The size range of the community can be specified in the same way as for [getBiomass()]. \cr
+#'   [plotYield()] \tab Plots the total yield of each species across all fishing gears against time. \cr
+#'   [plotYieldGear()] \tab Plots the total yield of each species by gear against time. \cr
 #'   [plotSpectra()] \tab Plots the abundance (biomass or numbers) spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot. \cr
 #'   [plotFeedingLevel()] \tab Plots the feeding level of each species against size. \cr
 #'   [plotPredMort()] \tab Plots the predation mortality of each species against size. \cr
 #'   [plotFMort()] \tab Plots the total fishing mortality of each species against size. \cr
-#'   [plotYield()] \tab Plots the total yield of each species across all fishing gears against time. \cr
-#'   [plotYieldGear()] \tab Plots the total yield of each species by gear against time. \cr
-#'   [plotDiet()] \tab Plots the diet composition at size for a given predator species. \cr
 #'   [plotGrowthCurves()] \tab Plots the size as a function of age. \cr
-#'   [plot()] \tab Produces 5 plots ([plotFeedingLevel()], [plotBiomass()], [plotPredMort()], [plotFMort()] and [plotSpectra()]) in the same window. \cr
+#'   [plotDiet()] \tab Plots the diet composition at size for a given predator species. \cr
+#'   [plotBiomassObservedVsModel()] \tab Compares observed biomass with model biomass. \cr
+#'   [plotYieldObservedVsModel()] \tab Compares observed yield with model yield. \cr
+#'   [animate()] \tab Animates spectra or rate arrays through time. The older [animateSpectra()] name is retained as an alias. \cr
 #' }
 #'
-#' These functions use the ggplot2 package and return the plot as a ggplot
-#' object. This means that you can manipulate the plot further after its
-#' creation using the ggplot grammar of graphics. The corresponding function
-#' names with `plot` replaced by `plotly` produce interactive plots
-#' with the help of the plotly package.
-#'
-#' In addition to the named plot functions above, mizer provides generic
-#' `plot()` methods and [ggplotly()] methods for the array classes
-#' returned by the
-#' rate and summary functions:
-#'
-#' * `plot(<ArraySpeciesBySize>)` — plots any species-by-size array (such as
-#'   those returned by [getEncounter()], [getFeedingLevel()], [getPredMort()],
-#'   [getFMort()], [getSearchVolume()], etc.) as lines of value against body
-#'   size, one line per species.
-#'
-#' * `plot(<ArrayTimeBySpecies>)` — plots any time-by-species array (such as
-#'   those returned by [getBiomass()], [getSSB()], [getYield()], and [getN()]
-#'   on a `MizerSim`) as lines of value against time, one line per species.
-#'
-#' * [ggplotly()] is similar to `plot()` but produces an interactive
-#'   figure. Call it as `ggplotly(getEncounter(params))` or
-#'   `ggplotly(getBiomass(sim))`.
+#' The static plotting functions use ggplot2 and return a ggplot object. This
+#' means that you can manipulate the plot further after its creation using the
+#' ggplot grammar of graphics. Many named plot functions also have a plotly
+#' counterpart, for example [plotlyBiomass()] or [plotlySpectra()], for
+#' interactive exploration.
 #'
 #' While most plot functions take their data from a MizerSim object, some of
 #' those that make plots representing data at a single time can also take their
@@ -81,11 +95,20 @@
 #' \donttest{
 #' sim <- NS_sim
 #'
-#' # Some example plots
+#' # Generic plot methods
+#' plot(sim)
+#' plot(getBiomass(sim), species = c("Cod", "Herring"))
+#' ggplotly(getBiomass(sim))
+#'
+#' # Named plot functions
 #' plotFeedingLevel(sim)
 #'
 #' # Plotting only a subset of species
 #' plotFeedingLevel(sim, species = c("Cod", "Herring"))
+#'
+#' # Adding another compatible array to an existing plot
+#' p <- plot(getBiomass(sim), species = "Cod")
+#' addPlot(p, getBiomass(sim), species = "Herring", linetype = "dashed")
 #'
 #' # Specifying new colours and linetypes for some species
 #' sim@params@linetype["Cod"] <- "dashed"

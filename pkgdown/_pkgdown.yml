@@ -71,7 +71,6 @@ articles:
   - running_a_simulation
   - exploring_the_simulation_results
   - a_multispecies_model_of_the_north_sea
-  - plotting
 - title: Cheat sheets
   navbar:
   contents:
@@ -94,6 +93,7 @@ articles:
   contents:
   - mizer_vignette
   - publications
+  - plotting
 
 reference:
 - title: Creating a new model
