@@ -24,6 +24,39 @@ test_that("animateSpectra returns a plotly object", {
     expect_s3_class(result, "plotly")
 })
 
+test_that("animateSpectra sets axis ranges without dropping vertices", {
+    sim <- example_animate_sim
+    result <- animateSpectra(sim, species = "Cod", time_range = c(1, 2),
+                             resource = FALSE, wlim = c(1, 1000),
+                             ylim = c(1e6, 1e9))
+    built_plot <- plotly::plotly_build(result)
+    frame_lengths <- lengths(lapply(built_plot$x$frames, function(frame) {
+        frame$data[[1]]$x
+    }))
+
+    expect_equal(built_plot$x$layout$xaxis$range, log10(c(1, 1000)))
+    expect_equal(built_plot$x$layout$yaxis$range, log10(c(1e6, 1e9)))
+    expect_equal(frame_lengths, rep(length(sim@params@w), length(frame_lengths)))
+})
+
+test_that("animateSpectra derives missing x-axis limits from plotted data", {
+    result <- animateSpectra(NS_sim, species = "Cod",
+                             time_range = c(2000, 2001),
+                             resource = FALSE, wlim = c(NA, 1000))
+    built_plot <- plotly::plotly_build(result)
+    first_frame <- built_plot$x$frames[[1]]$data[[1]]
+
+    expect_equal(built_plot$x$layout$xaxis$range,
+                 log10(c(min(first_frame$x), 1000)))
+})
+
+test_that("animateSpectra can disable interpolation between frames", {
+    sim <- example_animate_sim
+    result <- animateSpectra(sim, time_range = c(1, 2),
+                             interpolate = FALSE)
+    expect_identical(result$animation$transition$duration, 0)
+})
+
 test_that("animateSpectra handles species parameter correctly", {
     sim <- example_animate_sim
 

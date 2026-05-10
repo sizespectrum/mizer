@@ -125,6 +125,26 @@ test_that("animate.ArrayTimeBySpeciesBySize respects time_range argument", {
     expect_s3_class(p, "plotly")
 })
 
+test_that("animate.ArrayTimeBySpeciesBySize sets axis ranges without dropping vertices", {
+    fmort <- getFMort(NS_sim)
+    p <- animate(fmort, species = "Cod", time_range = c(2000, 2001),
+                 wlim = c(1, 1000), ylim = c(1e-3, 1))
+    built_plot <- plotly::plotly_build(p)
+    frame_lengths <- lengths(lapply(built_plot$x$frames, function(frame) {
+        frame$data[[1]]$x
+    }))
+
+    expect_equal(built_plot$x$layout$xaxis$range, log10(c(1, 1000)))
+    expect_equal(built_plot$x$layout$yaxis$range, log10(c(1e-3, 1)))
+    expect_equal(frame_lengths, rep(dim(fmort)[[3]], length(frame_lengths)))
+})
+
+test_that("animate.ArrayTimeBySpeciesBySize can disable interpolation between frames", {
+    fmort <- getFMort(NS_sim)
+    p <- animate(fmort, time_range = c(2000, 2001), interpolate = FALSE)
+    expect_identical(p$animation$transition$duration, 0)
+})
+
 test_that("animate.ArrayTimeBySpeciesBySize respects total argument", {
     fmort <- getFMort(NS_sim)
     trace_names <- function(p) {

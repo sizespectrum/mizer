@@ -42,7 +42,12 @@
 #'   maximum.
 #' @param ylim A numeric vector of length two providing lower and upper limits
 #'   for the value (y) axis. Use `NA` to refer to the existing minimum or
-#'   maximum. Values below `1e-20` are always cut off on log scales.
+#'   maximum. Limits are applied as Plotly axis ranges, so points outside the
+#'   limits are clipped by the viewport rather than removed from the animation
+#'   frames.
+#' @param interpolate If `TRUE` (default), Plotly interpolates smoothly between
+#'   saved frames. If `FALSE`, the animation steps directly from one saved frame
+#'   to the next.
 #' @param ... Additional arguments passed to the method.
 #'
 #' @return A plotly object with one animated line trace per plotted group. Use
@@ -75,9 +80,10 @@ animate.MizerSim <- function(x, species = NULL, time_range = NULL,
                               log_x = TRUE, log_y = TRUE,
                               wlim = c(NA, NA), ylim = c(NA, NA),
                               power = 1, total = FALSE, resource = TRUE,
-                              background = TRUE, ...) {
+                              background = TRUE, interpolate = TRUE, ...) {
     sim <- x
     assert_that(is.flag(total), is.flag(resource), is.flag(background),
+                is.flag(interpolate),
                 is.number(power),
                 length(wlim) == 2,
                 length(ylim) == 2)
@@ -134,18 +140,8 @@ animate.MizerSim <- function(x, species = NULL, time_range = NULL,
     }
     nf <- mutate(nf, value = value * w^power)
 
-    # Impose limits ----
-    if (is.na(wlim[1])) wlim[1] <- min(sim@params@w) / 100
-    if (is.na(wlim[2])) wlim[2] <- max(sim@params@w_full)
-    if (is.na(ylim[1])) ylim[1] <- 10^-20
-    if (is.na(ylim[2])) ylim[2] <- 10^20
-    nf <- nf %>%
-        filter(value >= ylim[1],
-               value <= ylim[2],
-               w >= wlim[1],
-               w <= wlim[2])
-
-    animate_plotly(nf, sim@params, log_x, log_y, y_label)
+    animate_plotly(nf, sim@params, log_x, log_y, y_label, wlim, ylim,
+                   interpolate)
 }
 
 # Build a plotly animation from a prepared long-format data frame.
@@ -153,7 +149,9 @@ animate.MizerSim <- function(x, species = NULL, time_range = NULL,
 # Traces are ordered by legend_name first (following params@linecolour), then
 # by individual Species within each legend group — so background species always
 # appear together and share a single legend entry.
-animate_plotly <- function(df, params, log_x, log_y, y_label) {
+animate_plotly <- function(df, params, log_x, log_y, y_label,
+                           wlim = c(NA, NA), ylim = c(NA, NA),
+                           interpolate = TRUE) {
     legend_name_order <- intersect(names(params@linecolour),
                                    unique(df$legend_name))
     sp_order <- unlist(lapply(legend_name_order, function(ln) {
@@ -179,14 +177,56 @@ animate_plotly <- function(df, params, log_x, log_y, y_label) {
             showlegend = showlegend
         )
     }
-    plotly::layout(p,
-                   xaxis = list(type = if (log_x) "log" else "-",
-                                exponentformat = "power",
-                                title = "Size [g]"),
-                   yaxis = list(type = if (log_y) "log" else "-",
-                                exponentformat = "power",
-                                title = y_label),
-                   legend = list(traceorder = "normal"))
+    p <- plotly::layout(p,
+                        xaxis = plotly_axis(df$w, wlim, log_x, "Size [g]"),
+                        yaxis = plotly_axis(df$value, ylim, log_y, y_label),
+                        legend = list(traceorder = "normal"))
+    if (!interpolate) {
+        p <- plotly::animation_opts(p, transition = 0)
+    }
+    p
+}
+
+plotly_axis <- function(values, limits, log_axis, title) {
+    axis <- list(type = if (log_axis) "log" else "-",
+                 exponentformat = "power",
+                 title = title)
+    range <- plotly_axis_range(values, limits, log_axis)
+    if (!is.null(range)) axis$range <- range
+    axis
+}
+
+plotly_axis_range <- function(values, limits, log_axis) {
+    if (all(is.na(limits))) return(NULL)
+
+    finite_values <- values[is.finite(values)]
+    if (log_axis) finite_values <- finite_values[finite_values > 0]
+
+    if (is.na(limits[1]) && length(finite_values) > 0) {
+        limits[1] <- min(finite_values)
+    }
+    if (is.na(limits[2]) && length(finite_values) > 0) {
+        limits[2] <- max(finite_values)
+    }
+    if (any(is.na(limits))) return(NULL)
+
+    if (log_axis) {
+        if (limits[1] <= 0 && length(finite_values) > 0) {
+            limits[1] <- min(finite_values)
+        }
+        if (limits[2] <= 0 && length(finite_values) > 0) {
+            limits[2] <- max(finite_values)
+        }
+        if (any(limits <= 0)) return(NULL)
+        limits <- log10(limits)
+    }
+
+    if (!all(is.finite(limits))) return(NULL)
+    if (limits[1] == limits[2]) {
+        delta <- if (log_axis) 0.5 else max(abs(limits[1]) * 0.05, 1)
+        limits <- limits + c(-1, 1) * delta
+    }
+    limits
 }
 
 #' @rdname animate

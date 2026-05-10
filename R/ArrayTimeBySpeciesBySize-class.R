@@ -187,7 +187,10 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
                                              log_y = TRUE,
                                              total = FALSE,
                                              background = TRUE,
+                                             interpolate = TRUE,
                                              ...) {
+    assert_that(is.flag(total), is.flag(background), is.flag(interpolate),
+                length(wlim) == 2, length(ylim) == 2)
     params <- attr(x, "params")
     value_name <- attr(x, "value_name") %||% "Value"
     units_str <- attr(x, "units")
@@ -251,18 +254,12 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
         df <- rbind(df, total_sums[, names(df)])
     }
 
-    if (!is.na(wlim[1])) df <- df[df$w >= wlim[1], ]
-    if (!is.na(wlim[2])) df <- df[df$w <= wlim[2], ]
-    if (!is.na(ylim[1])) df <- df[df$value >= ylim[1], ]
-    if (!is.na(ylim[2])) df <- df[df$value <= ylim[2], ]
-    if (log_y) df <- df[is.finite(df$value) & df$value > 0, ]
-
     y_label <- value_name
     if (!is.null(units_str) && nzchar(units_str)) {
         y_label <- paste0(value_name, " [", units_str, "]")
     }
 
-    animate_plotly(df, params, log_x, log_y, y_label)
+    animate_plotly(df, params, log_x, log_y, y_label, wlim, ylim, interpolate)
 }
 
 #' @export
