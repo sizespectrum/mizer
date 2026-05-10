@@ -64,6 +64,21 @@ test_that("plot.ArrayTimeBySpecies returns ggplot", {
     expect_true(all(c("Year", "Biomass", "Species") %in% names(df)))
 })
 
+test_that("addPlot.ArrayTimeBySpecies adds lines to an existing ggplot", {
+    bio <- getBiomass(NS_sim)
+
+    p <- plot(bio, species = "Cod")
+    p2 <- addPlot(p, bio, species = "Cod", linetype = "dashed", alpha = 0.5)
+
+    expect_s3_class(p2, "ggplot")
+    expect_equal(length(p2$layers), length(p$layers) + 1)
+    expect_identical(p2$layers[[length(p2$layers)]]$aes_params$linetype,
+                     "dashed")
+    expect_identical(p2$layers[[length(p2$layers)]]$aes_params$alpha,
+                     0.5)
+    expect_error(addPlot("not a plot", bio), "ggplot")
+})
+
 test_that("ArrayTimeBySpecies has interactive plotly methods", {
     bio <- getBiomass(NS_sim)
 

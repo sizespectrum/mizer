@@ -148,6 +148,91 @@ plot.ArrayTimeBySpecies <- function(x, species = NULL,
     units_str <- attr(x, "units")
     params <- attr(x, "params")
 
+    # Construct y_label
+    y_label <- value_name
+    if (!is.null(units_str) && nzchar(units_str)) {
+        y_label <- paste0(value_name, " [", units_str, "]")
+    }
+    plot_dat <- prepare_ArrayTimeBySpecies_plot_data(
+        x, species = species, start_time = start_time, end_time = end_time,
+        ylim = ylim, total = total, background = background)
+
+    if (return_data) return(plot_dat)
+
+    plotDataFrame(plot_dat, params, xlab = "Year", ylab = y_label,
+                  ytrans = if (log_y) "log10" else "identity", ylim = ylim,
+                  y_ticks = y_ticks, highlight = highlight,
+                  legend_var = "Legend")
+}
+
+#' @rdname addPlot
+#' @inheritParams plot
+#' @param colour Optional fixed colour for the added lines. If `NULL`, the
+#'   species colours from the existing plot are used.
+#' @param linetype Optional fixed line type for the added lines. If `NULL`, the
+#'   species line types from the existing plot are used.
+#' @param linewidth Width of the added lines.
+#' @param alpha Transparency of the added lines.
+#' @export
+addPlot.ArrayTimeBySpecies <- function(plot, x, species = NULL,
+                                       start_time = NULL,
+                                       end_time = NULL,
+                                       ylim = c(NA, NA),
+                                       total = FALSE,
+                                       background = TRUE,
+                                       colour = NULL,
+                                       linetype = "dashed",
+                                       linewidth = 0.8,
+                                       alpha = 1,
+                                       ...) {
+    if (!inherits(plot, "ggplot")) {
+        stop("The `plot` argument must be a ggplot object.")
+    }
+    assert_that(is.number(linewidth),
+                is.number(alpha),
+                alpha >= 0,
+                alpha <= 1)
+
+    plot_dat <- prepare_ArrayTimeBySpecies_plot_data(
+        x, species = species, start_time = start_time, end_time = end_time,
+        ylim = ylim, total = total, background = background)
+    y_var <- names(plot_dat)[[2]]
+
+    mapping <- aes(x = .data[["Year"]], y = .data[[y_var]],
+                   group = .data[["Species"]])
+    if (is.null(colour)) {
+        mapping$colour <- rlang::quo(.data[["Legend"]])
+    }
+    if (is.null(linetype)) {
+        mapping$linetype <- rlang::quo(.data[["Legend"]])
+    }
+
+    layer_args <- list(
+        data = plot_dat,
+        mapping = mapping,
+        linewidth = linewidth,
+        alpha = alpha,
+        inherit.aes = FALSE
+    )
+    if (!is.null(colour)) {
+        layer_args$colour <- colour
+    }
+    if (!is.null(linetype)) {
+        layer_args$linetype <- linetype
+    }
+
+    plot + do.call(geom_line, layer_args)
+}
+
+prepare_ArrayTimeBySpecies_plot_data <- function(x, species = NULL,
+                                                 start_time = NULL,
+                                                 end_time = NULL,
+                                                 ylim = c(NA, NA),
+                                                 total = FALSE,
+                                                 background = TRUE) {
+    value_name <- attr(x, "value_name") %||% "Value"
+    params <- attr(x, "params")
+
     # Filter to time range
     t <- as.numeric(rownames(x))
     if (any(is.na(t))) t <- seq_len(nrow(x))
@@ -160,7 +245,6 @@ plot.ArrayTimeBySpecies <- function(x, species = NULL,
     }
     if (!is.null(end_time)) {
         x <- x[t <= end_time, , drop = FALSE]
-        t <- t[t <= end_time]
     }
 
     all_species <- colnames(x)
@@ -181,12 +265,6 @@ plot.ArrayTimeBySpecies <- function(x, species = NULL,
     }
 
     bm <- reshape2::melt(bm)
-
-    # Construct y_label
-    y_label <- value_name
-    if (!is.null(units_str) && nzchar(units_str)) {
-        y_label <- paste0(value_name, " [", units_str, "]")
-    }
 
     # Implement ylim and a minimal cutoff; bring columns in desired order
     min_value <- 1e-20
@@ -209,12 +287,7 @@ plot.ArrayTimeBySpecies <- function(x, species = NULL,
         }
     }
 
-    if (return_data) return(plot_dat)
-
-    plotDataFrame(plot_dat, params, xlab = "Year", ylab = y_label,
-                  ytrans = if (log_y) "log10" else "identity", ylim = ylim,
-                  y_ticks = y_ticks, highlight = highlight,
-                  legend_var = "Legend")
+    plot_dat
 }
 
 #' @rdname plot

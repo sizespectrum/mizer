@@ -1,7 +1,8 @@
 # Development version (will become mizer 3.0.0)
 
-- New `addPlot()` generic, with an initial method for adding
-  `ArraySpeciesBySize` values as extra lines on an existing compatible ggplot.
+- New `addPlot()` generic, with initial methods for adding
+  `ArraySpeciesBySize` and `ArrayTimeBySpecies` values as extra lines on an
+  existing compatible ggplot.
 
 - `MizerSim` objects now have a `sim_params` slot (a named list) that records
   the projection parameters — currently `method` and `dt` — passed to
