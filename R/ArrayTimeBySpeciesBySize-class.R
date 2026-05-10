@@ -187,10 +187,16 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
                                              log_y = TRUE,
                                              total = FALSE,
                                              background = TRUE,
-                                             interpolate = TRUE,
+                                             frame_duration = 500,
+                                             transition_duration = frame_duration,
+                                             easing = "linear",
                                              ...) {
-    assert_that(is.flag(total), is.flag(background), is.flag(interpolate),
+    assert_that(is.flag(total), is.flag(background),
+                is.number(frame_duration), frame_duration >= 0,
+                is.number(transition_duration), transition_duration >= 0,
+                is.string(easing),
                 length(wlim) == 2, length(ylim) == 2)
+
     params <- attr(x, "params")
     value_name <- attr(x, "value_name") %||% "Value"
     units_str <- attr(x, "units")
@@ -259,7 +265,8 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
         y_label <- paste0(value_name, " [", units_str, "]")
     }
 
-    animate_plotly(df, params, log_x, log_y, y_label, wlim, ylim, interpolate)
+    animate_plotly(df, params, log_x, log_y, y_label, wlim, ylim,
+                   frame_duration, transition_duration, easing)
 }
 
 #' @export

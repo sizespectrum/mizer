@@ -53,8 +53,20 @@ test_that("animateSpectra derives missing x-axis limits from plotted data", {
 test_that("animateSpectra can disable interpolation between frames", {
     sim <- example_animate_sim
     result <- animateSpectra(sim, time_range = c(1, 2),
-                             interpolate = FALSE)
+                             transition_duration = 0)
     expect_identical(result$animation$transition$duration, 0)
+})
+
+test_that("animateSpectra exposes plotly animation timing controls", {
+    sim <- example_animate_sim
+    result <- animateSpectra(sim, time_range = c(1, 2),
+                             frame_duration = 800,
+                             transition_duration = 120,
+                             easing = "cubic-in-out")
+
+    expect_identical(result$animation$frame$duration, 800)
+    expect_identical(result$animation$transition$duration, 120)
+    expect_identical(result$animation$transition$easing, "cubic-in-out")
 })
 
 test_that("animateSpectra handles species parameter correctly", {

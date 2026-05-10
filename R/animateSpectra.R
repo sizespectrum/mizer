@@ -45,9 +45,16 @@
 #'   maximum. Limits are applied as Plotly axis ranges, so points outside the
 #'   limits are clipped by the viewport rather than removed from the animation
 #'   frames.
-#' @param interpolate If `TRUE` (default), Plotly interpolates smoothly between
-#'   saved frames. If `FALSE`, the animation steps directly from one saved frame
-#'   to the next.
+#' @param frame_duration Duration in milliseconds for which each saved frame is
+#'   displayed. Default is 500.
+#' @param transition_duration Duration in milliseconds of the interpolation
+#'   between frames. Use `transition_duration = 0` to step directly from one
+#'   saved frame to the next. Default is `frame_duration`.
+#' @param easing The Plotly easing function to use when interpolating between
+#'   frames. Default is `"linear"`. Available options are `"linear"`, `"quad"`,
+#'   `"cubic"`, `"sin"`, `"exp"`, `"circle"`, `"elastic"`, `"back"`,
+#'   `"bounce"`, and each of those with suffix `"-in"`, `"-out"`, or
+#'   `"-in-out"` appended, for example `"cubic-in-out"`.
 #' @param ... Additional arguments passed to the method.
 #'
 #' @return A plotly object with one animated line trace per plotted group. Use
@@ -80,11 +87,16 @@ animate.MizerSim <- function(x, species = NULL, time_range = NULL,
                               log_x = TRUE, log_y = TRUE,
                               wlim = c(NA, NA), ylim = c(NA, NA),
                               power = 1, total = FALSE, resource = TRUE,
-                              background = TRUE, interpolate = TRUE, ...) {
+                              background = TRUE,
+                              frame_duration = 500,
+                              transition_duration = frame_duration,
+                              easing = "linear", ...) {
     sim <- x
     assert_that(is.flag(total), is.flag(resource), is.flag(background),
-                is.flag(interpolate),
                 is.number(power),
+                is.number(frame_duration), frame_duration >= 0,
+                is.number(transition_duration), transition_duration >= 0,
+                is.string(easing),
                 length(wlim) == 2,
                 length(ylim) == 2)
 
@@ -141,7 +153,7 @@ animate.MizerSim <- function(x, species = NULL, time_range = NULL,
     nf <- mutate(nf, value = value * w^power)
 
     animate_plotly(nf, sim@params, log_x, log_y, y_label, wlim, ylim,
-                   interpolate)
+                   frame_duration, transition_duration, easing)
 }
 
 # Build a plotly animation from a prepared long-format data frame.
@@ -151,7 +163,8 @@ animate.MizerSim <- function(x, species = NULL, time_range = NULL,
 # appear together and share a single legend entry.
 animate_plotly <- function(df, params, log_x, log_y, y_label,
                            wlim = c(NA, NA), ylim = c(NA, NA),
-                           interpolate = TRUE) {
+                           frame_duration = 500, transition_duration = 500,
+                           easing = "linear") {
     legend_name_order <- intersect(names(params@linecolour),
                                    unique(df$legend_name))
     sp_order <- unlist(lapply(legend_name_order, function(ln) {
@@ -181,10 +194,9 @@ animate_plotly <- function(df, params, log_x, log_y, y_label,
                         xaxis = plotly_axis(df$w, wlim, log_x, "Size [g]"),
                         yaxis = plotly_axis(df$value, ylim, log_y, y_label),
                         legend = list(traceorder = "normal"))
-    if (!interpolate) {
-        p <- plotly::animation_opts(p, transition = 0)
-    }
-    p
+    plotly::animation_opts(p, frame = frame_duration,
+                           transition = transition_duration,
+                           easing = easing)
 }
 
 plotly_axis <- function(values, limits, log_axis, title) {

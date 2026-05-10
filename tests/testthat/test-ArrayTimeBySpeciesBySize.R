@@ -141,8 +141,20 @@ test_that("animate.ArrayTimeBySpeciesBySize sets axis ranges without dropping ve
 
 test_that("animate.ArrayTimeBySpeciesBySize can disable interpolation between frames", {
     fmort <- getFMort(NS_sim)
-    p <- animate(fmort, time_range = c(2000, 2001), interpolate = FALSE)
+    p <- animate(fmort, time_range = c(2000, 2001), transition_duration = 0)
     expect_identical(p$animation$transition$duration, 0)
+})
+
+test_that("animate.ArrayTimeBySpeciesBySize exposes plotly animation timing controls", {
+    fmort <- getFMort(NS_sim)
+    p <- animate(fmort, time_range = c(2000, 2001),
+                 frame_duration = 800,
+                 transition_duration = 120,
+                 easing = "cubic-in-out")
+
+    expect_identical(p$animation$frame$duration, 800)
+    expect_identical(p$animation$transition$duration, 120)
+    expect_identical(p$animation$transition$easing, "cubic-in-out")
 })
 
 test_that("animate.ArrayTimeBySpeciesBySize respects total argument", {
