@@ -34,7 +34,7 @@
 #' @param search_vol Optional. An array (species x size) holding the search volume
 #'   for each species at size. If not supplied, a default is set as described in
 #'   the section "Setting search volume".
-#' @param reset `r lifecycle::badge("experimental")`
+#' @param reset
 #'   If set to TRUE, then the search volume will be reset to the
 #'   value calculated from the species parameters, even if it was previously
 #'   overwritten with a custom value. If set to FALSE (default) then a

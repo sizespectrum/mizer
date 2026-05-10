@@ -88,6 +88,7 @@ maximum.}
 A ggplot2 object.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 \code{addPlot()} adds another set of values to an existing ggplot. The first
 method supports adding an \code{ArraySpeciesBySize} object to a compatible plot,
 for example to compare the same rate before and after a model change.

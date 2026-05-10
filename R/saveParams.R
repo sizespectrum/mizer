@@ -1,14 +1,13 @@
 #' Save and restore mizer objects
-#' 
-#' `r lifecycle::badge("experimental")`
+#'
 #' `saveParams()` saves a MizerParams object to a file. This can then be
 #' restored with `readParams()`. `saveSim()` and `readSim()` provide the same
 #' lifecycle for MizerSim objects.
-#' 
+#'
 #' Issues a warning if the model you are saving relies on some custom functions.
 #' Before saving a model you may want to set its metadata with
 #' [setMetadata()].
-#' 
+#'
 #' @param params A MizerParams object
 #' @param file The name of the file or a connection where the object is saved
 #'   to or read from.
@@ -47,7 +46,7 @@ readParams <- function(file, install_extensions = FALSE) {
 
     params <- coerceToExtensionClass(params)
     params <- validParams(params)
-    
+
     # # Check for missing packages
     # packages <- names(params@extensions)
     # missing <- !sapply(packages, require, quietly = TRUE)
@@ -60,9 +59,9 @@ readParams <- function(file, install_extensions = FALSE) {
     #     if (ans != 1) return(FALSE)
     #     sapply(packages[missing], remotes::install_github)
     # }
-    # 
+    #
     # # Check for missing functions
-    # funs <- c(params@rates_funcs, 
+    # funs <- c(params@rates_funcs,
     #           params@resource_dynamics,
     #           params@other_dynamics,
     #           params@other_encounter,
@@ -77,7 +76,7 @@ readParams <- function(file, install_extensions = FALSE) {
     #             ". You need an R script or R Markdown file ",
     #             "defining these functions.")
     # }
-    
+
     params
 }
 
@@ -171,7 +170,7 @@ requiredExtensionPackages <- function(params) {
 }
 
 is_custom <- function(name, packages) {
-    !any(sapply(packages, 
+    !any(sapply(packages,
                 function(x, fun) {
                     exists(fun, where = paste0("package:", x),
                            mode = "function")

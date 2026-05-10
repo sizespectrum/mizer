@@ -25,7 +25,7 @@
 #'   external diffusion rate. If not supplied, a default is calculated from the
 #'   `D_ext` and `n` species parameters as described in the section "Setting
 #'   external diffusion rate".
-#' @param reset `r lifecycle::badge("experimental")`
+#' @param reset
 #'   If set to TRUE, then the external diffusion rate will be reset to the
 #'   value calculated from the species parameters, even if it was previously
 #'   overwritten with a custom value. If set to FALSE (default) then a

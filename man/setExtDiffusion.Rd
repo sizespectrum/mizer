@@ -23,8 +23,7 @@ external diffusion rate. If not supplied, a default is calculated from the
 \code{D_ext} and \code{n} species parameters as described in the section "Setting
 external diffusion rate".}
 
-\item{reset}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-If set to TRUE, then the external diffusion rate will be reset to the
+\item{reset}{If set to TRUE, then the external diffusion rate will be reset to the
 value calculated from the species parameters, even if it was previously
 overwritten with a custom value. If set to FALSE (default) then a
 recalculation from the species parameters will take place only if no

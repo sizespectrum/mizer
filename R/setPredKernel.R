@@ -62,7 +62,7 @@
 #'   that holds the predation coefficient of each predator at size on each prey
 #'   size. If not supplied, a default is set as described in section "Setting
 #'   predation kernel".
-#' @param reset `r lifecycle::badge("experimental")`
+#' @param reset
 #'   If set to TRUE, then the predation kernel will be reset to the
 #'   value calculated from the species parameters, even if it was previously
 #'   overwritten with a custom value. If set to FALSE (default) then a

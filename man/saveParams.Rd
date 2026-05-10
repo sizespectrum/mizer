@@ -33,7 +33,6 @@ extension chain?}
 object.
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 \code{saveParams()} saves a MizerParams object to a file. This can then be
 restored with \code{readParams()}. \code{saveSim()} and \code{readSim()} provide the same
 lifecycle for MizerSim objects.
