@@ -25,6 +25,7 @@
 #'   and size ranges in the `plot()` method.
 #'
 #' @return An `ArraySpeciesBySize` object (inherits from `matrix` and `array`).
+#' @seealso [print()], [summary()], [as.data.frame()], [plot()]
 #' @export
 #' @examples
 #' \donttest{

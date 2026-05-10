@@ -27,6 +27,7 @@
 #'
 #' @return An `ArrayTimeBySpecies` object (inherits from `matrix` and `array`).
 #'
+#' @seealso [print()], [summary()], [as.data.frame()], [plot()]
 #' @export
 #' @examples
 #' \donttest{

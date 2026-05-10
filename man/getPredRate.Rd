@@ -36,8 +36,8 @@ where the prey size runs over fish community plus resource spectrum.
 \description{
 Calculates the potential rate (in units 1/year) at which a prey individual of
 a given size \eqn{w} is killed by predators from species \eqn{j}. In formulas
-\deqn{{\tt pred\_rate}_j(w_p) = \int \phi_j(w,w_p) (1-f_j(w)) 
-  \gamma_j(w) N_j(w) \, dw.}{pred_rate_j(w_p) = \int\phi_i(w,w_p) (1-f_i(w)) 
+\deqn{{\tt pred\_rate}_j(w_p) = \int \phi_j(w,w_p) (1-f_j(w))
+  \gamma_j(w) N_j(w) \, dw.}{pred_rate_j(w_p) = \int\phi_i(w,w_p) (1-f_i(w))
   \gamma_i(w) N_i(w) dw.}
 This potential rate is used in \code{\link[=getPredMort]{getPredMort()}} to
 calculate the realised predation mortality rate on the prey individual.
@@ -65,7 +65,7 @@ str(pred_rate)
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the feeding level at one time step
-pred_rate <- getPredRate(params, n = N(sim)[15, , ], 
+pred_rate <- getPredRate(params, n = N(sim)[15, , ],
                          n_pp = NResource(sim)[15, ], t = 15)
 }
 }

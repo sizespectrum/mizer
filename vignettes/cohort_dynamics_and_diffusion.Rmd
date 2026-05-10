@@ -80,8 +80,9 @@ pulse_width <- 0.1  # Reproduce during first 10% of each year
 annual_pulse_RDD <- function(rdi, species_params, t, ...) {
     frac <- t %% 1
     if (frac < pulse_width) {
+        rdd <- 1 - cos(frac / pulse_width * 2 * pi) * species_params$rdd_steady
         # Scale up to maintain total annual reproduction
-        return(species_params$rdd_steady / pulse_width)
+        return(rdd / pulse_width)
     } else {
         return(0 * rdi)
     }
@@ -97,6 +98,12 @@ species_params(params_pulse)$rdd_steady <- rdd_steady
 params_pulse <- setRateFunction(params_pulse, "RDD", "annual_pulse_RDD")
 ```
 
+Of course this is not a realistic way to model seasonal reproduction. A more
+realistic approach is being developed in 
+[mizerSeasonal](https://gustavdelius.github.io/mizerSeasonal/). But it is
+good enough for our purpose here of studying the evolution of yearly cohorts
+over time.
+
 # Simulating cohort dynamics without diffusion
 
 We start from an empty spectrum (no fish) and let the pulsed
@@ -106,49 +113,126 @@ reproduction create cohorts from scratch.
 params_empty <- params_pulse
 initialN(params_empty)[] <- 0
 
-sim_no_diff <- project(params_empty, t_max = 5, dt = 0.05,
-                       t_save = 0.1, progress_bar = FALSE)
+sim_no_diff <- project(params_empty, t_max = 5, dt = 0.01,
+                       t_save = 0.1, progress_bar = FALSE,
+                       method = "predictor-corrector")
+
+animate(sim_no_diff, log_x = TRUE, log_y = FALSE, power = 2,
+        time_range = c(0, 5), resource = FALSE, interpolate = FALSE)
 ```
 
 Let's visualise the size spectrum at different time points to see the
 cohorts:
 
 ```{r fig.height=6}
-times_to_plot <- c(0.5, 1, 1.5, 2, 3, 4)
-w <- params_pulse@w
+plot_cohort_evolution <- function(sim, times_to_plot, species = 1,
+                                  title = "Cohort evolution",
+                                  y_label = "Biomass density [g]",
+                                  interactive = TRUE) {
+    w <- sim@params@w
+    sim_times <- as.numeric(dimnames(sim@n)$time)
+    plot_list <- list()
+    labels <- character()
 
-plot_list <- list()
-for (tt in times_to_plot) {
-    idx <- which.min(abs(as.numeric(dimnames(sim_no_diff@n)$time) - tt))
-    actual_time <- as.numeric(dimnames(sim_no_diff@n)$time[idx])
-    n_at_t <- as.numeric(sim_no_diff@n[idx, 1, ])
-    pos <- n_at_t > 0
-    if (any(pos)) {
-        plot_list[[length(plot_list) + 1]] <- data.frame(
-            w = w[pos], n = n_at_t[pos] * w[pos]^2,
-            time = factor(paste0("t = ", actual_time))
+    for (tt in times_to_plot) {
+        idx <- which.min(abs(sim_times - tt))
+        actual_time <- sim_times[idx]
+        n_at_t <- as.numeric(sim@n[idx, species, ])
+        pos <- n_at_t > 0
+        if (any(pos)) {
+            label <- paste0("t = ", actual_time)
+            labels <- c(labels, label)
+            plot_list[[length(plot_list) + 1]] <- data.frame(
+                w = w[pos],
+                n = n_at_t[pos] * w[pos]^2,
+                time = label
+            )
+        }
+    }
+
+    if (length(plot_list) > 0) {
+        plot_data <- do.call(rbind, plot_list)
+        plot_data$time <- factor(plot_data$time, levels = unique(labels))
+    } else {
+        plot_data <- data.frame(
+            w = numeric(),
+            n = numeric(),
+            time = factor(character())
         )
     }
+
+    p <- ggplot(plot_data, aes(x = w, y = n, colour = time)) +
+        geom_line(linewidth = 0.8) +
+        scale_x_log10(limits = c(1e-3, 100)) +
+        # scale_y_log10() +
+        labs(x = "Weight [g]", y = y_label,
+             title = title,
+             colour = "Time") +
+        theme_minimal(base_size = 14)
+
+    if (interactive) {
+        return(ggplotly(p))
+    } else {
+        return(p)
+    }
 }
-plot_data <- do.call(rbind, plot_list)
 
-p <- ggplot(plot_data, aes(x = w, y = n, colour = time)) +
-    geom_line(linewidth = 0.8) +
-    scale_x_log10(limits = c(1e-3, 100)) +
-    # scale_y_log10() +
-    labs(x = "Weight [g]", y = "Biomass density [g]",
-         title = "Cohort evolution without diffusion",
-         colour = "Time") +
-    theme_minimal(base_size = 14)
+plot_cohort_evolution(
+    sim_no_diff,
+    times_to_plot = c(0.5, 1, 1.5, 2, 3, 4),
+    title = "Cohort evolution without diffusion"
+)
+```
 
-ggplotly(p)
+```{r}
+
+sim_corr <- project(params_empty, t_max = 5, dt = 0.02,
+                       t_save = 0.1, progress_bar = FALSE,
+                       method = "predictor-corrector")
+
+plot_cohort_evolution(
+    sim_corr,
+    times_to_plot = c(0.5, 1, 1.5, 2, 3, 4),
+    title = "Cohort evolution without diffusion"
+)
+```
+
+```{r}
+animate(sim_corr, log_x = TRUE, log_y = FALSE, power = 2,
+        time_range = c(0.5, 5), resource = FALSE)
 ```
 
 
 Without diffusion, each cohort appears as a relatively sharp peak that
 moves to the right (towards larger sizes) as the fish grow.
 
-# Adding diffusion
+# Adding predation diffusion
+
+```{r}
+params_pred_diff <- params_empty
+use_predation_diffusion(params_pred_diff) <- TRUE
+sim_pred_diff <- project(params_pred_diff, t_max = 5, dt = 0.02,
+                         t_save = 0.1, progress_bar = FALSE,
+                         method = "predictor-corrector")
+
+```
+
+```{r}
+animate(sim_pred_diff, log_x = TRUE, log_y = FALSE, power = 2,
+        time_range = c(0.5, 5), resource = FALSE)
+
+```
+
+```{r}
+plot_cohort_evolution(
+    sim_pred_diff,
+    times_to_plot = c(0.5, 1, 1.5, 2, 3, 4),
+    title = "Cohort evolution with predation diffusion"
+)
+```
+
+
+# Adding external diffusion
 
 Now let's add diffusion to the model. Diffusion is set as an array with
 dimensions species × size via `setExtDiffusion()`. We'll set a constant
@@ -160,12 +244,14 @@ diffusion coefficient:
 ```{r}
 run_with_diffusion <- function(params_base, diff_coeff, diff_exp, t_max = 5) {
     p <- params_base
+    w <- p@w
     d <- p@ext_diffusion
     d[] <- diff_coeff * w ^ diff_exp
     p <- setExtDiffusion(p, ext_diffusion = d)
     initialN(p)[] <- 0
-    sim <- project(p, t_max = t_max, dt = 0.05,
-                   t_save = 0.1, progress_bar = FALSE)
+    sim <- project(p, t_max = t_max, dt = 0.02,
+                   t_save = 0.1, progress_bar = FALSE,
+                   method = "predictor-corrector")
     return(sim)
 }
 ```
@@ -177,9 +263,9 @@ diffusion:
 
 ```{r}
 diff_exp <- params_pulse@species_params$n + 1
-sim_d0 <- run_with_diffusion(params_pulse, diff_coeff = 0, diff_exp = diff_exp)
-sim_d_low <- run_with_diffusion(params_pulse, diff_coeff = 0.1, diff_exp = diff_exp)
-sim_d_high <- run_with_diffusion(params_pulse, diff_coeff = 0.5, diff_exp = diff_exp)
+sim_d0 <- run_with_diffusion(params_empty, diff_coeff = 0, diff_exp = diff_exp)
+sim_d_low <- run_with_diffusion(params_empty, diff_coeff = 0.1, diff_exp = diff_exp)
+sim_d_high <- run_with_diffusion(params_empty, diff_coeff = 0.5, diff_exp = diff_exp)
 ```
 
 Now let's visualise the cohorts at a specific time point to see how
@@ -203,10 +289,11 @@ build_snapshot <- function(sim, label) {
 snapshot_data <- rbind(
     build_snapshot(sim_d0, "D = 0 (no diffusion)"),
     build_snapshot(sim_d_low, "D = 0.1 (low)"),
-    build_snapshot(sim_d_high, "D = 0.5 (high)")
+    build_snapshot(sim_d_high, "D = 0.5 (high)"),
+    build_snapshot(sim_pred_diff, "Predation diffusion")
 )
 
-ggplot(snapshot_data, aes(x = w, y = n * w^2, colour = diffusion)) +
+p <- ggplot(snapshot_data, aes(x = w, y = n * w^2, colour = diffusion)) +
     geom_line(linewidth = 0.8) +
     scale_x_log10(limits = c(1e-3, 100)) +
     # scale_y_log10() +
@@ -215,6 +302,8 @@ ggplot(snapshot_data, aes(x = w, y = n * w^2, colour = diffusion)) +
                         snapshot_time),
          colour = "Diffusion rate") +
     theme_minimal(base_size = 14)
+
+ggplotly(p)
 ```
 
 We can see that diffusion has a large effect on the speed at which the cohort
@@ -229,31 +318,13 @@ moderate diffusion to see how cohorts spread over time:
 diff_exp <- params_pulse@species_params$n + 1
 sim_d_med <- run_with_diffusion(params_pulse, diff_coeff = 0.05, diff_exp = diff_exp)
 
-times_to_plot <- c(0.5, 1, 2, 3, 4, 5)
-
-plot_list_diff <- list()
-for (tt in times_to_plot) {
-    idx <- which.min(abs(as.numeric(dimnames(sim_d_med@n)$time) - tt))
-    actual_time <- as.numeric(dimnames(sim_d_med@n)$time[idx])
-    n_at_t <- as.numeric(sim_d_med@n[idx, 1, ])
-    pos <- n_at_t > 0
-    if (any(pos)) {
-        plot_list_diff[[length(plot_list_diff) + 1]] <- data.frame(
-            w = w[pos], n = n_at_t[pos] * w[pos]^2,
-            time = factor(paste0("t = ", actual_time))
-        )
-    }
-}
-plot_data_diff <- do.call(rbind, plot_list_diff)
-
-ggplot(plot_data_diff, aes(x = w, y = n, colour = time)) +
-    geom_line(linewidth = 0.8) +
-    scale_x_log10(limits = c(1e-3, 100)) +
-    # scale_y_log10() +
-    labs(x = "Weight [g]", y = "Number density [1/g]",
-         title = "Cohort evolution with moderate diffusion (D = 0.05)",
-         colour = "Time") +
-    theme_minimal(base_size = 14)
+plot_cohort_evolution(
+    sim_d_med,
+    times_to_plot = c(0.5, 1, 2, 3, 4, 5),
+    title = "Cohort evolution with moderate diffusion (D = 0.05)",
+    y_label = "Number density [1/g]",
+    interactive = FALSE
+)
 ```
 
 As time progresses, we see that:
@@ -272,6 +343,7 @@ the size spectrum evolves continuously over time:
 
 ```{r fig.height=5, fig.width=9}
 all_times <- as.numeric(dimnames(sim_d_med@n)$time)
+w <- sim_d_med@params@w
 
 heatmap_list <- list()
 for (i in seq_along(all_times)) {
@@ -310,4 +382,3 @@ This vignette demonstrated:
 3.  How cohorts of fish grow through the size spectrum over time.
 4.  How diffusion, set via `setExtDiffusion()`, controls the spreading of
     cohorts — representing individual variability in growth rates.
-

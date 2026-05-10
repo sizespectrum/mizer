@@ -75,8 +75,8 @@ projectDiffusion <- function(params, n, n_pp, n_other, t = 0,
 #'
 #' @description
 #' Calculates the diffusion rate \eqn{D_i(w)} (grams^2/year) for each species.
-#' This diffusion rate has two components: 
-#' 1. Thethe diffusion due due to the variability in prey sizes. This is the
+#' This diffusion rate has two components:
+#' 1. The diffusion due due to the variability in prey sizes. This is the
 #'    diffusion term from the jump-growth equation.
 #' 2. Any externally specified diffusion, which is added via [setExtDiffusion()]
 #'

@@ -33,7 +33,7 @@ toc:
 
 navbar:
   structure:
-    left: [intro, course, articles, reference, news, publications]
+    left: [intro, articles, reference, course, news, publications]
     right: [ai, search, blog, twitter, github, lightswitch]
   components:
     home: ~
@@ -56,18 +56,18 @@ navbar:
       href: https://notebooklm.google.com/notebook/6aa51f75-d1a8-4140-9180-84532ef5f821
 
 articles:
-- title: Model description
-  navbar: ~
+- title: Model types
+  navbar: Model types
   contents:
   - model_description
-- title: Tutorials
-  navbar: Tutorials
-  contents:
-  - mizer
   - single_species_size-spectrum_dynamics
   - community_model
   - trait_model
   - multispecies_model
+- title: Tutorials
+  navbar: Tutorials
+  contents:
+  - mizer
   - running_a_simulation
   - exploring_the_simulation_results
   - a_multispecies_model_of_the_north_sea
@@ -87,7 +87,7 @@ articles:
   - predation_diffusion
   - cohort_dynamics_and_diffusion
   - numerical_details
-  - mathematical_details
+  - fft
   - analytic_test
 - title: internal
   contents:
@@ -255,6 +255,9 @@ reference:
   - validSim
   - MizerSim
   - getParams
+  - print
+  - summary
+  - as.data.frame
   - ArraySpeciesBySize
   - is.ArraySpeciesBySize
   - ArrayTimeBySpecies

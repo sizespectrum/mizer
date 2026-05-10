@@ -27,6 +27,11 @@ calculate the various ecological rates in the model (all collected together in
 `mizerRates()`) because the help pages of these functions will provide useful
 additional details.
 
+This is probably not the best place to start learning about the mizer model.
+Mizer is complicated because at the same time it introduces dynamical size-spectrum modelling, where the size-distribution of the population is shaped by the the 
+size-dependent growth and mortality rates of individuals, and it describes how multi-species interactions determine those density-dependent rates. If you are new to dynamical size-spectrum models,
+we suggest you start by reading about [the single-species model](single_species_size-spectrum_dynamics.html).
+
 We will not go into detail of how this model is 
 realised in code. Such detail will be provided in the [developer guide](https://sizespectrum.org/mizer/articles/developer_vignette.html). However some details are hidden on this page
 and you can see them by clicking on links like the following:
@@ -109,17 +114,23 @@ that fish can die while they are growing up, and this death rate is also
 dependent on the density of other fish. 
 
 The time evolution of the number density $N_i(w)$ is described by the 
-McKendrick-von Foerster equation, which is a transport equation (as one would
+McKendrick-von Foerster equation with diffusion, which is a transport equation (as one would
 use for traffic density) but with an additional loss term due to fish 
 mortality:
 
 $$
-  \label{eq:MvF}
-  \frac{\partial N_i(w)}{\partial t} + \frac{\partial g_i(w) N_i(w)}{\partial w} 
-  = -\mu_i(w) N_i(w),
+  \frac{\partial N_i(t,w)}{\partial t} + \frac{J_i(t,w)}{\partial w} 
+  = -\mu_i(t,w) N_i(t,w),
+$$
+where $J_i(w)$ is the rate at which individuals of species $i$ grow from sizes
+smaller than $w$ to sizes larger than $w$. This is also know as the _flux_ and
+is given in terms of the growth and diffusion rates:
+$$
+J_i(t,w)= g_i(t,w) N_i(t,w) - 
+\frac12 \frac{\partial D_i(t,w)N_i(t,w)}{\partial w}.
 $$
 
-where individual growth $g_i(w)$ is described below in the [Growth](#growth)
+The growth rate $g_i(t, w)$ and diffusion rate $D_i(t, w)$ are described below in the [Growth](#growth)
 section and mortality $\mu_i(w)$ is described in the [Mortality](#mortality)
 section.
 
@@ -277,6 +288,14 @@ $$
 (1-f_i(w))E_{i}(w)=f_i(w)\, h_i(w).
 $$
 Furthermore only a proportion $\alpha_i$ of the consumed food is absorbed.
+
+## Diffusion
+
+The rate at which an individual fish consumes prey biomass is somewhat random.
+Sometimes fish are lucky and encounter many large fish, sometimes they are 
+unlucky. There are may unknown environmental effects that contribute to this
+randomness and it is impossible to model them in detail. However there is one
+cause of randomness that mizer models: 
 
 ## Metabolic losses
 

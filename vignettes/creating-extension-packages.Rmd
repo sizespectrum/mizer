@@ -380,7 +380,7 @@ newDetritusCarrionParams <- function(species_params, ...) {
 ### What `params@extensions <- getRegisteredExtensions()` does
 
 `getRegisteredExtensions()` returns the current session's extension chain —
-everything that has been registered via `.onLoad` hooks or with `registerExtension()nce R started.
+everything that has been registered via `.onLoad` hooks or with `registerExtension()` once R started.
 Storing this in the params object is like stamping the object with a bill of
 materials: it records exactly which extension packages were active when the
 object was created.

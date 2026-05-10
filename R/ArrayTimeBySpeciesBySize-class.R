@@ -3,13 +3,13 @@
 # Copyright 2026 Gustav Delius.
 # Distributed under the GPL 3 or later.
 
-#' S3 class for time x species x size rate arrays
+#' S3 class for time x species x size arrays
 #'
 #' Some functions in mizer return three-dimensional arrays (time x species x
-#' size) holding rates like fishing mortality, feeding level, or predation
+#' size) holding quantities like fishing mortality, feeding level, or predation
 #' mortality through time. The `ArrayTimeBySpeciesBySize` class wraps these
 #' arrays to provide convenient `print()`, `summary()`, `plot()`,
-#' `animateSpectra()`, and `as.data.frame()` methods.
+#' `animate()`, and `as.data.frame()` methods.
 #'
 #' An `ArrayTimeBySpeciesBySize` object behaves just like a regular array for
 #' arithmetic operations and subsetting. It carries these lightweight attributes:
@@ -27,6 +27,8 @@
 #'   and size ranges in the `plot()` and `animateSpectra()` methods.
 #'
 #' @return An `ArrayTimeBySpeciesBySize` object (inherits from `array`).
+#' @seealso [print()], [summary()], [as.data.frame()], [plot()],
+#'   [animateSpectra()]
 #' @export
 #' @examples
 #' \donttest{

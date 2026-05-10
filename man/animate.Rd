@@ -6,7 +6,7 @@
 \alias{animate}
 \alias{animate.MizerSim}
 \alias{animateSpectra}
-\title{Animate size spectra or rates through time}
+\title{Animate size-dependent quantities through time}
 \usage{
 \method{animate}{ArrayTimeBySpeciesBySize}(
   x,
@@ -122,12 +122,15 @@ density in logarithmic size bins (\code{power = 2}). Both axes are log10 by
 default and can each be switched to linear with \code{log_x = FALSE} or
 \code{log_y = FALSE}.
 \item \strong{\code{ArrayTimeBySpeciesBySize}} — animates any per-species, size-resolved
-rate returned by a \code{MizerSim} accessor, such as \code{\link[=getFMort]{getFMort()}},
+quantity returned by a \code{MizerSim} accessor, such as \code{\link[=getFMort]{getFMort()}},
 \code{\link[=getFeedingLevel]{getFeedingLevel()}}, or \code{\link[=getPredMort]{getPredMort()}}. Both axes are log10 by default
 and can each be switched to linear with \code{log_x = FALSE} or \code{log_y = FALSE}.
-Species colours follow \code{params@linecolour}. Background species and a
-species total can be added via the \code{background} and \code{total} arguments.
+Background species and a species total can be added via the \code{background}
+and \code{total} arguments.
 }
+
+Species linecolours and linetypes follow \code{params@linecolour} and
+\code{params@linetype}.
 
 \code{animateSpectra()} is retained as a backward-compatible alias.
 }

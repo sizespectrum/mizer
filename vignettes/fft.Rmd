@@ -1,5 +1,5 @@
 ---
-title: "Mathematical Details of the Mizer Implementation"
+title: "Fast Fourier Transform for Mizer rate"
 output:
   html_document:
     toc: yes

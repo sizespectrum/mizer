@@ -1,4 +1,4 @@
-#' Animate size spectra or rates through time
+#' Animate size-dependent quantities through time
 #'
 #' Creates an interactive plotly animation in which a play button steps through
 #' time, drawing one line per species at each frame.
@@ -15,11 +15,14 @@
 #'   `log_y = FALSE`.
 #'
 #' * **`ArrayTimeBySpeciesBySize`** — animates any per-species, size-resolved
-#'   rate returned by a `MizerSim` accessor, such as [getFMort()],
+#'   quantity returned by a `MizerSim` accessor, such as [getFMort()],
 #'   [getFeedingLevel()], or [getPredMort()]. Both axes are log10 by default
 #'   and can each be switched to linear with `log_x = FALSE` or `log_y = FALSE`.
-#'   Species colours follow `params@linecolour`. Background species and a
-#'   species total can be added via the `background` and `total` arguments.
+#'   Background species and a species total can be added via the `background`
+#'   and `total` arguments.
+#'
+#' Species linecolours and linetypes follow `params@linecolour` and
+#' `params@linetype`.
 #'
 #' `animateSpectra()` is retained as a backward-compatible alias.
 #'

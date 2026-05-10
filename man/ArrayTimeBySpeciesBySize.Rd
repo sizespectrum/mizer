@@ -2,7 +2,7 @@
 % Please edit documentation in R/ArrayTimeBySpeciesBySize-class.R
 \name{ArrayTimeBySpeciesBySize}
 \alias{ArrayTimeBySpeciesBySize}
-\title{S3 class for time x species x size rate arrays}
+\title{S3 class for time x species x size arrays}
 \usage{
 ArrayTimeBySpeciesBySize(x, value_name = NULL, units = NULL, params = NULL)
 }
@@ -21,10 +21,10 @@ An \code{ArrayTimeBySpeciesBySize} object (inherits from \code{array}).
 }
 \description{
 Some functions in mizer return three-dimensional arrays (time x species x
-size) holding rates like fishing mortality, feeding level, or predation
+size) holding quantities like fishing mortality, feeding level, or predation
 mortality through time. The \code{ArrayTimeBySpeciesBySize} class wraps these
 arrays to provide convenient \code{print()}, \code{summary()}, \code{plot()},
-\code{animateSpectra()}, and \code{as.data.frame()} methods.
+\code{animate()}, and \code{as.data.frame()} methods.
 }
 \details{
 An \code{ArrayTimeBySpeciesBySize} object behaves just like a regular array for
@@ -43,4 +43,8 @@ is.ArrayTimeBySpeciesBySize(fmort)
 summary(fmort)
 plot(fmort, time = 2007)
 }
+}
+\seealso{
+\code{\link[=print]{print()}}, \code{\link[=summary]{summary()}}, \code{\link[=as.data.frame]{as.data.frame()}}, \code{\link[=plot]{plot()}},
+\code{\link[=animateSpectra]{animateSpectra()}}
 }

@@ -97,7 +97,7 @@ effort[, 3] <- seq(from = 1, to = 2, length = 20)
 effort[, 4] <- seq(from = 2, to = 1, length = 20)
 F <- getFMort(params, effort = effort)
 str(F)
-# Get the total fishing mortality using the effort already held in a 
+# Get the total fishing mortality using the effort already held in a
 # MizerSim object.
 sim <- project(params, t_max = 20, effort = 0.5)
 F <- getFMort(sim)

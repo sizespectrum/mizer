@@ -42,3 +42,6 @@ is.ArrayTimeBySpecies(bio)
 summary(bio)
 }
 }
+\seealso{
+\code{\link[=print]{print()}}, \code{\link[=summary]{summary()}}, \code{\link[=as.data.frame]{as.data.frame()}}, \code{\link[=plot]{plot()}}
+}

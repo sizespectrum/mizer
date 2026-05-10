@@ -36,7 +36,7 @@ A two dimensional array (species x size) holding the diffusion rate.
 Calculates the diffusion rate \eqn{D_i(w)} (grams^2/year) for each species.
 This diffusion rate has two components:
 \enumerate{
-\item Thethe diffusion due due to the variability in prey sizes. This is the
+\item The diffusion due due to the variability in prey sizes. This is the
 diffusion term from the jump-growth equation.
 \item Any externally specified diffusion, which is added via \code{\link[=setExtDiffusion]{setExtDiffusion()}}
 }
