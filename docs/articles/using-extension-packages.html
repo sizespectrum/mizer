@@ -17,7 +17,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -31,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.4.9125</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.4.9126</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -218,7 +218,7 @@ chain.</p>
 <code><a href="../reference/getBiomass.html">getBiomass()</a></code>, and <code>mizerFoo</code> adds some other
 component. If you load them as:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sizespectrum.org/mizerShelf/">mizerShelf</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerShelf</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerFoo</span><span class="op">)</span></span></code></pre></div>
 <p>then <code>mizerFoo</code> is outermost. When
 <code><a href="../reference/getBiomass.html">getBiomass()</a></code> is called, <code>mizerFoo</code>’s version
@@ -228,7 +228,7 @@ mizerFoo’s additions.</p>
 <p>If instead you load them in the opposite order:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerFoo</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sizespectrum.org/mizerShelf/">mizerShelf</a></span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerShelf</span><span class="op">)</span></span></code></pre></div>
 <p>then <code>mizerShelf</code> is outermost. The result is still
 composed of both contributions, but <code>mizerShelf</code> sees the
 result first and can wrap around everything <code>mizerFoo</code>
@@ -295,7 +295,7 @@ builds itself.</p>
 </h3>
 <p>When an extension package creates a new <code>MizerParams</code>
 object (for example, when you call
-<code><a href="https://sizespectrum.org/mizerShelf/reference/newDetritusCarrionParams.html">mizerShelf::newDetritusCarrionParams()</a></code>), it stamps the
+<code>mizerShelf::newDetritusCarrionParams()</code>), it stamps the
 object with the full extension chain that was active at that moment.
 This snapshot is stored in the <code>@extensions</code> slot of the
 params object.</p>
@@ -398,7 +398,7 @@ each one.</p>
 want. You do not need to restart R.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/clearExtensionChain.html">clearExtensionChain</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sizespectrum.org/mizerShelf/">mizerShelf</a></span><span class="op">)</span>   <span class="co"># innermost (loaded first)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerShelf</span><span class="op">)</span>   <span class="co"># innermost (loaded first)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerFoo</span><span class="op">)</span>     <span class="co"># outermost (loaded last)</span></span></code></pre></div>
 <p>After reloading, create or re-read your params objects so they pick
 up the new chain.</p>

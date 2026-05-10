@@ -335,7 +335,7 @@ worked examples from
 
 Each overridable rate has its own expected function signature and return shape.
 The most important point is that custom rate functions should return plain
-numeric objects, not `ArraySpeciesBySize` or `ArraySpeciesByTime` objects. The
+numeric objects, not `ArraySpeciesBySize` or `ArrayTimeBySpecies` objects. The
 `get*()` wrappers add those classes afterwards where appropriate.
 
 The table below summarises the required inputs and outputs.

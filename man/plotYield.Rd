@@ -84,7 +84,8 @@ str(fr)
 \link{plotting_functions},  \code{\link[=getYield]{getYield()}}
 
 Other plotting functions:
-\code{\link[=animateSpectra.ArrayTimeBySpeciesBySize]{animateSpectra.ArrayTimeBySpeciesBySize()}},
+\code{\link[=addPlot]{addPlot()}},
+\code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
 \code{\link{plot}},
 \code{\link[=plotBiomass]{plotBiomass()}},
 \code{\link[=plotDiet]{plotDiet()}},

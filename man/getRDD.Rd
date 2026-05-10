@@ -35,7 +35,9 @@ species. If not specified, rdi is calculated internally using
 \item{...}{Unused}
 }
 \value{
-A numeric vector the length of the number of species.
+If a \code{MizerParams} object is passed in, a numeric vector the length
+of the number of species. If a \code{MizerSim} object is passed in, an
+\code{ArrayTimeBySpecies} object with dimensions time x species.
 }
 \description{
 Calculates the density dependent rate of egg production \eqn{R_i} (units

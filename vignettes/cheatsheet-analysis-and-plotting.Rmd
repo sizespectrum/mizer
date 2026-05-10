@@ -1,0 +1,282 @@
+---
+title: "Cheatsheet: Analysis and Plotting"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    fig_width: 5
+    fig_height: 4
+---
+
+```{r include=FALSE}
+library(mizer)
+sim <- NS_sim
+params <- NS_params
+```
+
+This cheatsheet gives a quick overview of the functions available in mizer for
+analysing the results of simulations and creating plots. For full documentation
+of each function, follow the links.
+
+Most functions accept either a `MizerSim` object (returning a **time series**)
+or a `MizerParams` object (returning a **single value** from the initial state).
+
+---
+
+## Accessing simulation arrays
+
+These functions extract raw arrays from a `MizerSim` object.
+
+| Function | Returns | Dimensions |
+|---|---|---|
+| [`N(sim)`](../reference/N.html) | species abundance density | time × species × size |
+| [`NResource(sim)`](../reference/NResource.html) | resource abundance density | time × size |
+| [`finalN(sim)`](../reference/finalN.html) | species abundance at last time | species × size |
+| [`finalNResource(sim)`](../reference/finalNResource.html) | resource abundance at last time | size |
+| [`getEffort(sim)`](../reference/getEffort.html) | fishing effort | time × gear |
+| [`getTimes(sim)`](../reference/getTimes.html) | saved time steps | vector |
+
+**Example:** Pull out Cod abundance:
+```{r eval=FALSE}
+N(sim)[, "Cod", ]          # time × size for Cod
+N(sim)["2010", "Cod", ]    # size vector for Cod in year 2010
+finalN(sim)["Cod", ]       # size vector for Cod at the final time step
+```
+
+---
+
+## Summary functions
+
+These compute derived quantities from abundances. All accept `MizerSim` or
+`MizerParams`. See [`?summary_functions`](../reference/summary_functions.html)
+for the full list.
+
+| Function | Returns | Dimensions |
+|---|---|---|
+| [`getBiomass(sim, min_w, max_w)`](../reference/getBiomass.html) | total biomass | time × species |
+| [`getSSB(sim)`](../reference/getSSB.html) | spawning stock biomass | time × species |
+| [`getN(sim, min_w, max_w)`](../reference/getN.html) | total abundance | time × species |
+| [`getYield(sim)`](../reference/getYield.html) | total yield across gears | time × species |
+| [`getYieldGear(sim)`](../reference/getYieldGear.html) | yield by gear | time × gear × species |
+| [`getFeedingLevel(sim)`](../reference/getFeedingLevel.html) | feeding level at size | time × species × size |
+| [`getPredMort(sim)`](../reference/getPredMort.html) | predation mortality at size | time × species × size |
+| [`getFMort(sim)`](../reference/getFMort.html) | fishing mortality at size | time × species × size |
+| [`getFMortGear(sim)`](../reference/getFMortGear.html) | fishing mortality by gear | time × gear × species × size |
+| [`getDiet(params)`](../reference/getDiet.html) | diet resolved by prey at size | predator × size × prey |
+| [`getTrophicLevel(params)`](../reference/getTrophicLevel.html) | trophic level at size | species × size |
+| [`getTrophicLevelBySpecies(params)`](../reference/getTrophicLevelBySpecies.html) | mean trophic level per species | species |
+
+**Size range:** `getBiomass()` and `getN()` accept `min_w`, `max_w`, `min_l`,
+`max_l` to restrict the calculation to a size range.
+
+**Example:**
+```{r eval=FALSE}
+getSSB(sim)                              # SSB of all species over time
+getBiomass(sim, min_w = 10, max_w = 1e4) # biomass of 10g–10kg fish
+getYield(sim)["2010", ]                  # yield in year 2010
+```
+
+The result is an `ArrayTimeBySpecies` (time × species) or `ArraySpeciesBySize`
+(species × size), which can be plotted directly with `plot()` — see
+[Plotting arrays directly](#plotting-arrays-directly) below.
+
+---
+
+## Indicator functions
+
+These compute community-level indicators. All accept `MizerSim` (time series)
+or `MizerParams` (single value from initial state). See
+[`?indicator_functions`](../reference/indicator_functions.html).
+
+| Function | Key arguments | Returns |
+|---|---|---|
+| [`getProportionOfLargeFish(sim)`](../reference/getProportionOfLargeFish.html) | `threshold_w = 100`, `biomass_proportion` | proportion of large fish through time |
+| [`getMeanWeight(sim)`](../reference/getMeanWeight.html) | `min_w`, `max_w`, `species` | mean community weight through time |
+| [`getMeanMaxWeight(sim)`](../reference/getMeanMaxWeight.html) | `measure = "both"/"numbers"/"biomass"` | mean asymptotic weight through time |
+| [`getCommunitySlope(sim)`](../reference/getCommunitySlope.html) | `min_w`, `max_w`, `species` | slope, intercept, R² through time |
+
+**Example:**
+```{r eval=FALSE}
+lfi <- getProportionOfLargeFish(sim, min_w = 10, max_w = 5000, threshold_w = 500)
+lfi[c("1972", "2010")]
+
+slope <- getCommunitySlope(sim, min_w = 10, max_w = 5000)
+head(slope)
+```
+
+---
+
+## Plotting functions
+
+All plotting functions return a `ggplot2` object that can be further modified.
+Each has a `plotly` counterpart (e.g. `plotlyBiomass()`) for interactive use.
+See [`?plotting_functions`](../reference/plotting_functions.html).
+
+### Plots against time
+
+These show how a quantity changes over the course of the simulation.
+
+| Function | Key arguments | Shows |
+|---|---|---|
+| [`plotBiomass(sim)`](../reference/plotBiomass.html) | `species`, `total`, `start_time`, `end_time`, `log` | total biomass per species |
+| [`plotYield(sim)`](../reference/plotYield.html) | `species`, `total`, `log` | total yield per species |
+| [`plotYieldGear(sim)`](../reference/plotYieldGear.html) | `species`, `total` | yield per species faceted by gear |
+
+```{r eval=FALSE}
+plotBiomass(sim)
+plotBiomass(sim, species = c("Cod", "Herring"), total = TRUE)
+plotBiomass(sim, start_time = 1980, end_time = 1990)
+plotYield(sim, log = FALSE)
+```
+
+### Plots against body size
+
+These show how a quantity varies with body size, by default at the final time
+step. Use `time_range` to average over a time period.
+
+| Function | Key arguments | Shows |
+|---|---|---|
+| [`plotSpectra(sim)`](../reference/plotSpectra.html) | `power`, `time_range`, `wlim`, `species` | abundance (or biomass) spectra |
+| [`plotFeedingLevel(sim)`](../reference/plotFeedingLevel.html) | `time_range`, `species`, `highlight` | feeding level (0–1) at size |
+| [`plotPredMort(sim)`](../reference/plotPredMort.html) | `time_range`, `species`, `highlight` | predation mortality at size |
+| [`plotFMort(sim)`](../reference/plotFMort.html) | `time_range`, `species`, `highlight` | fishing mortality at size |
+| [`plotGrowthCurves(sim)`](../reference/plotGrowthCurves.html) | `species`, `max_age`, `percentage`, `species_panel` | size at age |
+| [`plotDiet(params)`](../reference/plotDiet.html) | `species` | diet composition at size |
+
+```{r eval=FALSE}
+plotSpectra(sim, power = 2, time_range = 1990:2000)
+plotFeedingLevel(sim, highlight = c("Cod", "Haddock"))
+plotGrowthCurves(sim, species = "Cod", max_age = 20)
+plotDiet(params, species = "Cod")
+```
+
+### Summary plot
+
+```{r eval=FALSE}
+plot(sim)   # 5-panel summary: feeding level, biomass, predation mort, fishing mort, spectra
+```
+
+---
+
+## Plotting arrays directly
+
+The arrays returned by summary functions carry class `ArraySpeciesBySize` or
+`ArrayTimeBySpecies` and have `plot()` and `ggplotly()` methods. This makes it
+easy to plot any quantity without a dedicated plot function.
+
+| Class | Typical source | `plot()` shows |
+|---|---|---|
+| `ArrayTimeBySpecies` | `getBiomass(sim)`, `getSSB(sim)`, `getYield(sim)`, `getN(sim)` | value vs time, one line per species |
+| `ArraySpeciesBySize` | `getFeedingLevel(params)`, `getPredMort(params)`, `getEncounter(params)` | value vs size, one line per species |
+
+```{r eval=FALSE}
+plot(getBiomass(sim))          # equivalent to plotBiomass(sim)
+plot(getSSB(sim))
+plot(getFeedingLevel(params))  # same as plotFeedingLevel(params)
+
+# Interactive versions
+ggplotly(getBiomass(sim))
+ggplotly(getEncounter(params))
+```
+
+`plot(<ArrayTimeBySpecies>)` accepts: `species`, `start_time`, `end_time`,
+`total`, `background`, `highlight`, `log`, `ylim`.
+
+`plot(<ArraySpeciesBySize>)` accepts: `species`, `highlight`, `log_x`, `log_y`,
+`wlim`, `ylim`, `all.sizes`.
+
+---
+
+## Common arguments
+
+Most analysis and plotting functions share these optional arguments:
+
+| Argument | Effect |
+|---|---|
+| `species` | character vector — restrict to a subset of species |
+| `min_w`, `max_w` | restrict size range (by weight, in grams) |
+| `min_l`, `max_l` | restrict size range (by length, in cm) |
+| `time_range` | numeric vector — average over this time period (plot functions) |
+| `start_time`, `end_time` | restrict time axis (time-series plots) |
+| `highlight` | character vector — draw named species with thicker lines |
+| `total` | logical — add a line for the community total |
+| `log` | logical — log-scale y axis |
+
+---
+
+## Working with ggplot2
+
+All `plot*()` functions return a `ggplot2` object, so you can customise them:
+
+```{r eval=FALSE}
+library(ggplot2)
+p <- plotBiomass(sim, species = c("Cod", "Herring"))
+p + theme_bw() + labs(title = "Biomass through time")
+p + geom_hline(aes(yintercept = 1e10), linetype = "dashed")
+```
+
+Change species colours and line types via the `MizerParams` object:
+
+```{r eval=FALSE}
+params@linecolour["Cod"] <- "darkblue"
+params@linetype["Cod"]   <- "dashed"
+```
+
+---
+
+## Quick reference
+
+```{r eval=FALSE}
+# ── Accessing raw arrays ───────────────────────────────────────────────────────
+N(sim)                  # time × species × size
+NResource(sim)          # time × size
+finalN(sim)             # species × size  (last time step)
+finalNResource(sim)     # size            (last time step)
+
+# ── Species biomass / abundance / yield (time × species) ──────────────────────
+getBiomass(sim)         # total biomass
+getSSB(sim)             # spawning stock biomass
+getN(sim)               # total abundance (numbers)
+getYield(sim)           # catch in weight
+getYieldGear(sim)       # catch by gear (time × gear × species)
+
+# ── Rates at size (time × species × size) ─────────────────────────────────────
+getFeedingLevel(sim)    # satiation (0 = starving, 1 = full)
+getPredMort(sim)        # predation mortality
+getFMort(sim)           # fishing mortality
+getFMortGear(sim)       # fishing mortality by gear (time × gear × species × size)
+
+# ── Diet and trophic (species × size × …) ────────────────────────────────────
+getDiet(params)                 # proportion of diet from each prey (predator × size × prey)
+getTrophicLevel(params)         # trophic level at size (species × size)
+getTrophicLevelBySpecies(params) # mean trophic level (species)
+
+# ── Community indicators (time series) ────────────────────────────────────────
+getProportionOfLargeFish(sim, threshold_w = 100)
+getMeanWeight(sim)
+getMeanMaxWeight(sim)
+getCommunitySlope(sim)          # returns data.frame with slope, intercept, R²
+
+# ── Dedicated plot functions ───────────────────────────────────────────────────
+plot(sim)               # 5-panel summary
+plotBiomass(sim)        # biomass vs time
+plotYield(sim)          # yield vs time
+plotYieldGear(sim)      # yield vs time, faceted by gear
+plotSpectra(sim)        # abundance spectra vs size
+plotFeedingLevel(sim)   # feeding level vs size
+plotPredMort(sim)       # predation mortality vs size
+plotFMort(sim)          # fishing mortality vs size
+plotGrowthCurves(sim)   # size vs age
+plotDiet(params, species = "Cod")  # diet composition vs size
+
+# ── Plot any summary array directly ───────────────────────────────────────────
+plot(getBiomass(sim))           # ArrayTimeBySpecies → value vs time
+plot(getFeedingLevel(params))   # ArraySpeciesBySize → value vs size
+ggplotly(getBiomass(sim))       # interactive version
+
+# ── Add plotly interactivity to any named plot function ───────────────────────
+plotlyBiomass(sim)
+plotlySpectra(sim)
+plotlyFeedingLevel(sim)
+# … etc.
+```

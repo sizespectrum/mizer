@@ -5,7 +5,7 @@
 \title{Get the total fishing mortality rate from all fishing gears by time, species
 and size.}
 \usage{
-getFMort(object, effort, time_range, drop = TRUE)
+getFMort(object, effort, time_range, drop = TRUE, n, n_pp, n_other, t, ...)
 }
 \arguments{
 \item{object}{A \code{MizerParams} object or a \code{MizerSim} object}
@@ -21,6 +21,19 @@ single value. Default is the whole time range. Only used if the
 \item{drop}{Only used when object is of type \code{MizerSim}. Should
 dimensions of length 1 be dropped, e.g. if your community only has one
 species it might make presentation of results easier. Default is TRUE.}
+
+\item{n}{A matrix of species abundances (species x size).}
+
+\item{n_pp}{A vector of the resource abundance by size}
+
+\item{n_other}{A list of abundances for other dynamical components of the
+ecosystem}
+
+\item{t}{The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)}
+
+\item{...}{Unused}
 }
 \value{
 If a \code{MizerParams} object is passed in without a time-dimensioned

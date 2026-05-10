@@ -41,5 +41,6 @@ arithmetic operations and subsetting. It carries these lightweight attributes:
 fmort <- getFMort(NS_sim)
 is.ArrayTimeBySpeciesBySize(fmort)
 summary(fmort)
+plot(fmort, time = 2007)
 }
 }

@@ -4,7 +4,7 @@
 \alias{getFMortGear}
 \title{Get the fishing mortality by time, gear, species and size}
 \usage{
-getFMortGear(object, effort, time_range)
+getFMortGear(object, effort, time_range, n, n_pp, n_other, t = 0, ...)
 }
 \arguments{
 \item{object}{A \code{MizerParams} object or a \code{MizerSim} object.}
@@ -13,8 +13,22 @@ getFMortGear(object, effort, time_range)
 
 \item{time_range}{Subset the returned fishing mortalities by time. The time
 range is either a vector of values, a vector of min and max time, or a
-single value. Default is the whole time range. Only used if the
-\code{object} argument is of type \code{MizerSim}.}
+single value. For a \code{MizerSim}, the default is the whole time range. For a
+\code{MizerParams}, this is retained for backwards compatibility as an
+alternative way to supply \code{t} when \code{t} is not supplied.}
+
+\item{n}{A matrix of species abundances (species x size).}
+
+\item{n_pp}{A vector of the resource abundance by size}
+
+\item{n_other}{A list of abundances for other dynamical components of the
+ecosystem}
+
+\item{t}{The time for which to do the calculation (Not used by standard
+mizer rate functions but useful for extensions with time-dependent
+parameters.)}
+
+\item{...}{Unused}
 }
 \value{
 An array. If the effort argument has a time dimension, or a

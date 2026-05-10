@@ -13,8 +13,8 @@ NResource(sim)
 \item{sim}{A MizerSim object}
 }
 \value{
-For \code{N()}: A three-dimensional array (time x species x size) with the
-number density of consumers
+For \code{N()}: An \code{ArrayTimeBySpeciesBySize} object (time x species x
+size) with the number density of consumers.
 
 For \code{NResource()}: An array (time x size) with the number density of resource
 }

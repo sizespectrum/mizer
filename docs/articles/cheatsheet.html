@@ -17,7 +17,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -31,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.4.9125</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.4.9126</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -273,7 +273,7 @@ size range.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/getSSB.html">getSSB</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>                              <span class="co"># SSB of all species over time</span></span>
 <span><span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span>, min_w <span class="op">=</span> <span class="fl">10</span>, max_w <span class="op">=</span> <span class="fl">1e4</span><span class="op">)</span> <span class="co"># biomass of 10g–10kg fish</span></span>
 <span><span class="fu"><a href="../reference/getYield.html">getYield</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">[</span><span class="st">"2010"</span>, <span class="op">]</span>                  <span class="co"># yield in year 2010</span></span></code></pre></div>
-<p>The result is an <code>ArraySpeciesByTime</code> (time × species) or
+<p>The result is an <code>ArrayTimeBySpecies</code> (time × species) or
 <code>ArraySpeciesBySize</code> (species × size), which can be plotted
 directly with <code><a href="../reference/plot.html">plot()</a></code> — see <a href="#plotting-arrays-directly">Plotting arrays directly</a> below.</p>
 <hr>
@@ -469,7 +469,7 @@ period.</p>
 <h2 id="plotting-arrays-directly">Plotting arrays directly<a class="anchor" aria-label="anchor" href="#plotting-arrays-directly"></a>
 </h2>
 <p>The arrays returned by summary functions carry class
-<code>ArraySpeciesBySize</code> or <code>ArraySpeciesByTime</code> and
+<code>ArraySpeciesBySize</code> or <code>ArrayTimeBySpecies</code> and
 have <code><a href="../reference/plot.html">plot()</a></code> and <code><a href="https://rdrr.io/pkg/plotly/man/ggplotly.html" class="external-link">ggplotly()</a></code> methods. This makes
 it easy to plot any quantity without a dedicated plot function.</p>
 <table class="table">
@@ -486,7 +486,7 @@ it easy to plot any quantity without a dedicated plot function.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>ArraySpeciesByTime</code></td>
+<td><code>ArrayTimeBySpecies</code></td>
 <td>
 <code>getBiomass(sim)</code>, <code>getSSB(sim)</code>,
 <code>getYield(sim)</code>, <code>getN(sim)</code>
@@ -511,7 +511,7 @@ it easy to plot any quantity without a dedicated plot function.</p>
 <span><span class="co"># Interactive versions</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/plotly/man/ggplotly.html" class="external-link">ggplotly</a></span><span class="op">(</span><span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/plotly/man/ggplotly.html" class="external-link">ggplotly</a></span><span class="op">(</span><span class="fu"><a href="../reference/getEncounter.html">getEncounter</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><code>plot(&lt;ArraySpeciesByTime&gt;)</code> accepts:
+<p><code>plot(&lt;ArrayTimeBySpecies&gt;)</code> accepts:
 <code>species</code>, <code>start_time</code>, <code>end_time</code>,
 <code>total</code>, <code>background</code>, <code>highlight</code>,
 <code>log</code>, <code>ylim</code>.</p>
@@ -642,7 +642,7 @@ object, so you can customise them:</p>
 <span><span class="fu"><a href="../reference/plotDiet.html">plotDiet</a></span><span class="op">(</span><span class="va">params</span>, species <span class="op">=</span> <span class="st">"Cod"</span><span class="op">)</span>  <span class="co"># diet composition vs size</span></span>
 <span></span>
 <span><span class="co"># ── Plot any summary array directly ───────────────────────────────────────────</span></span>
-<span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span>           <span class="co"># ArraySpeciesByTime → value vs time</span></span>
+<span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span>           <span class="co"># ArrayTimeBySpecies → value vs time</span></span>
 <span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/getFeedingLevel.html">getFeedingLevel</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span>   <span class="co"># ArraySpeciesBySize → value vs size</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/plotly/man/ggplotly.html" class="external-link">ggplotly</a></span><span class="op">(</span><span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span>       <span class="co"># interactive version</span></span>
 <span></span>

@@ -122,7 +122,8 @@ str(fr)
 \link{plotting_functions}, \code{\link[=getBiomass]{getBiomass()}}
 
 Other plotting functions:
-\code{\link[=animateSpectra.ArrayTimeBySpeciesBySize]{animateSpectra.ArrayTimeBySpeciesBySize()}},
+\code{\link[=addPlot]{addPlot()}},
+\code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
 \code{\link{plot}},
 \code{\link[=plotDiet]{plotDiet()}},
 \code{\link[=plotFMort]{plotFMort()}},

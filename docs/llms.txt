@@ -393,13 +393,16 @@ state.
 - [`plotting_functions`](https://sizespectrum.org/mizer/reference/plotting_functions.md)
   : Description of the plotting functions
 
-- [`animateSpectra()`](https://sizespectrum.org/mizer/reference/animateSpectra.md)
-  **\[experimental\]** : Animation of the abundance spectra
+- [`animate()`](https://sizespectrum.org/mizer/reference/animate.md)
+  [`animateSpectra()`](https://sizespectrum.org/mizer/reference/animate.md)
+  : Animate size spectra or rates through time
 
 - [`plot(`*`<ArraySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/plot.md)
   [`ggplotly(`*`<ArraySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/plot.md)
-  [`plot(`*`<ArraySpeciesByTime>`*`)`](https://sizespectrum.org/mizer/reference/plot.md)
-  [`ggplotly(`*`<ArraySpeciesByTime>`*`)`](https://sizespectrum.org/mizer/reference/plot.md)
+  [`plot(`*`<ArrayTimeBySpecies>`*`)`](https://sizespectrum.org/mizer/reference/plot.md)
+  [`ggplotly(`*`<ArrayTimeBySpecies>`*`)`](https://sizespectrum.org/mizer/reference/plot.md)
+  [`plot(`*`<ArrayTimeBySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/plot.md)
+  [`ggplotly(`*`<ArrayTimeBySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/plot.md)
   : Plotting outputs
 
 - [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md)
@@ -799,6 +802,9 @@ mizer…() functions.
   [`project_n_no_diffusion()`](https://sizespectrum.org/mizer/reference/project_n.md)
   : Project values for first time step of Euler method
 
+- [`project_n_2()`](https://sizespectrum.org/mizer/reference/project_n_2.md)
+  : Project values with a predictor-corrector method
+
 - [`project_simple()`](https://sizespectrum.org/mizer/reference/project_simple.md)
   : Project abundances by a given number of time steps into the future
 
@@ -844,6 +850,9 @@ mizer…() functions.
 - [`summary(`*`<MizerSim>`*`)`](https://sizespectrum.org/mizer/reference/summary.MizerSim.md)
   : Summarize MizerSim object
 
+- [`getSimParams()`](https://sizespectrum.org/mizer/reference/getSimParams.md)
+  : Extract the projection parameters used to produce a simulation
+
 - [`validSim()`](https://sizespectrum.org/mizer/reference/validSim.md) :
   Validate MizerSim object and upgrade if necessary
 
@@ -860,11 +869,17 @@ mizer…() functions.
 - [`is.ArraySpeciesBySize()`](https://sizespectrum.org/mizer/reference/is.ArraySpeciesBySize.md)
   : Test if an object is a ArraySpeciesBySize
 
-- [`ArraySpeciesByTime()`](https://sizespectrum.org/mizer/reference/ArraySpeciesByTime.md)
+- [`ArrayTimeBySpecies()`](https://sizespectrum.org/mizer/reference/ArrayTimeBySpecies.md)
   : S3 class for time x species arrays
 
-- [`is.ArraySpeciesByTime()`](https://sizespectrum.org/mizer/reference/is.ArraySpeciesByTime.md)
-  : Test if an object is a ArraySpeciesByTime
+- [`is.ArrayTimeBySpecies()`](https://sizespectrum.org/mizer/reference/is.ArrayTimeBySpecies.md)
+  : Test if an object is a ArrayTimeBySpecies
+
+- [`ArrayTimeBySpeciesBySize()`](https://sizespectrum.org/mizer/reference/ArrayTimeBySpeciesBySize.md)
+  : S3 class for time x species x size rate arrays
+
+- [`is.ArrayTimeBySpeciesBySize()`](https://sizespectrum.org/mizer/reference/is.ArrayTimeBySpeciesBySize.md)
+  : Test if an object is an ArrayTimeBySpeciesBySize
 
 ## Example parameter sets
 

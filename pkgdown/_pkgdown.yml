@@ -33,10 +33,13 @@ toc:
 
 navbar:
   structure:
-    left: [intro, course, articles, reference, news]
+    left: [intro, course, articles, reference, news, publications]
     right: [ai, search, blog, twitter, github, lightswitch]
   components:
     home: ~
+    publications:
+      text: Publications
+      href: articles/publications.html
     course:
       text: Course
       href: https://mizer.course.sizespectrum.org
@@ -67,34 +70,30 @@ articles:
   - multispecies_model
   - running_a_simulation
   - exploring_the_simulation_results
-  - cheatsheet
   - a_multispecies_model_of_the_north_sea
   - plotting
-  - predation_diffusion
-  - cohort_dynamics_and_diffusion
+- title: Cheat sheets
+  navbar:
+  contents:
+  - cheatsheet-analysis-and-plotting
 - title: Extending mizer
   navbar: Extending mizer
   contents:
   - extending-mizer
   - using-extension-packages
   - creating-extension-packages
-- title: Publications
-  navbar: Publications
+- title: Technical articles
+  navbar: Technical articles
   contents:
-  - publications
-- title: Developer Guide
-  navbar: For developers
-  contents:
+  - predation_diffusion
+  - cohort_dynamics_and_diffusion
   - numerical_details
   - mathematical_details
   - analytic_test
-  - developer_vignette
-  - working_with_git
-  - developer_FAQ
-  - editing_website
 - title: internal
   contents:
   - mizer_vignette
+  - publications
 
 reference:
 - title: Creating a new model
@@ -258,8 +257,8 @@ reference:
   - getParams
   - ArraySpeciesBySize
   - is.ArraySpeciesBySize
-  - ArraySpeciesByTime
-  - is.ArraySpeciesByTime
+  - ArrayTimeBySpecies
+  - is.ArrayTimeBySpecies
   - ArrayTimeBySpeciesBySize
   - is.ArrayTimeBySpeciesBySize
 - title: Example parameter sets
@@ -276,4 +275,3 @@ reference:
     versions of mizer
   contents:
   - has_concept("deprecated")
-

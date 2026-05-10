@@ -12,7 +12,7 @@ getSSB(object)
 \value{
 If called with a MizerParams object, a named vector with the SSB in
 grams for each species in the model. If called with a MizerSim object, a
-\code{ArraySpeciesByTime} object (time x species) containing the SSB in grams
+\code{ArrayTimeBySpecies} object (time x species) containing the SSB in grams
 at each time step for all species.
 }
 \description{

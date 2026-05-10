@@ -42,7 +42,7 @@ rate and summary functions:
 those returned by \code{\link[=getEncounter]{getEncounter()}}, \code{\link[=getFeedingLevel]{getFeedingLevel()}}, \code{\link[=getPredMort]{getPredMort()}},
 \code{\link[=getFMort]{getFMort()}}, \code{\link[=getSearchVolume]{getSearchVolume()}}, etc.) as lines of value against body
 size, one line per species.
-\item \verb{plot(<ArraySpeciesByTime>)} — plots any time-by-species array (such as
+\item \verb{plot(<ArrayTimeBySpecies>)} — plots any time-by-species array (such as
 those returned by \code{\link[=getBiomass]{getBiomass()}}, \code{\link[=getSSB]{getSSB()}}, \code{\link[=getYield]{getYield()}}, and \code{\link[=getN]{getN()}}
 on a \code{MizerSim}) as lines of value against time, one line per species.
 \item \code{\link[=ggplotly]{ggplotly()}} is similar to \code{plot()} but produces an interactive
@@ -95,7 +95,8 @@ p
 \link{summary_functions}, \link{indicator_functions}
 
 Other plotting functions:
-\code{\link[=animateSpectra.ArrayTimeBySpeciesBySize]{animateSpectra.ArrayTimeBySpeciesBySize()}},
+\code{\link[=addPlot]{addPlot()}},
+\code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
 \code{\link{plot}},
 \code{\link[=plotBiomass]{plotBiomass()}},
 \code{\link[=plotDiet]{plotDiet()}},

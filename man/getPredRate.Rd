@@ -30,7 +30,7 @@ parameters.)}
 \item{...}{Unused}
 }
 \value{
-A two dimensional array (predator species x prey size),
+An \code{ArraySpeciesBySize} object (predator species x prey size),
 where the prey size runs over fish community plus resource spectrum.
 }
 \description{
