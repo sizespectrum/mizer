@@ -197,6 +197,8 @@ addPlot.ArrayTimeBySpecies <- function(plot, x, species = NULL,
         x, species = species, start_time = start_time, end_time = end_time,
         ylim = ylim, total = total, background = background)
     y_var <- names(plot_dat)[[2]]
+    check_addPlot_compatible(plot, x_var = "Year", y_var = y_var,
+                             units = attr(x, "units"))
 
     mapping <- aes(x = .data[["Year"]], y = .data[[y_var]],
                    group = .data[["Species"]])

@@ -91,6 +91,8 @@ A ggplot2 object.
 \code{addPlot()} adds another set of values to an existing ggplot. The first
 method supports adding an \code{ArraySpeciesBySize} object to a compatible plot,
 for example to compare the same rate before and after a model change.
+The method checks whether the existing plot uses a compatible x variable,
+and warns if the y variable or y-axis units appear to differ.
 }
 \examples{
 \donttest{

@@ -66,6 +66,7 @@ test_that("plot.ArrayTimeBySpecies returns ggplot", {
 
 test_that("addPlot.ArrayTimeBySpecies adds lines to an existing ggplot", {
     bio <- getBiomass(NS_sim)
+    yield <- getYield(NS_sim)
 
     p <- plot(bio, species = "Cod")
     p2 <- addPlot(p, bio, species = "Cod", linetype = "dashed", alpha = 0.5)
@@ -77,6 +78,18 @@ test_that("addPlot.ArrayTimeBySpecies adds lines to an existing ggplot", {
     expect_identical(p2$layers[[length(p2$layers)]]$aes_params$alpha,
                      0.5)
     expect_error(addPlot("not a plot", bio), "ggplot")
+    expect_error(addPlot(plot(getEncounter(NS_params)), bio), "x variable `Year`")
+
+    warnings <- character()
+    withCallingHandlers(
+        addPlot(p, yield, species = "Cod"),
+        warning = function(w) {
+            warnings <<- c(warnings, conditionMessage(w))
+            invokeRestart("muffleWarning")
+        }
+    )
+    expect_true(any(grepl("y variable", warnings)))
+    expect_true(any(grepl("y units", warnings)))
 })
 
 test_that("ArrayTimeBySpecies has interactive plotly methods", {

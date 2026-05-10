@@ -209,6 +209,8 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
 #' `addPlot()` adds another set of values to an existing ggplot. The first
 #' method supports adding an `ArraySpeciesBySize` object to a compatible plot,
 #' for example to compare the same rate before and after a model change.
+#' The method checks whether the existing plot uses a compatible x variable,
+#' and warns if the y variable or y-axis units appear to differ.
 #'
 #' @param plot A ggplot2 object to which the new values should be added.
 #' @param x An object containing the values to add.
@@ -257,6 +259,8 @@ addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
     plot_dat <- prepare_ArraySpeciesBySize_plot_data(
         x, species = species, all.sizes = all.sizes, wlim = wlim,
         total = total, background = background)
+    check_addPlot_compatible(plot, x_var = "w", y_var = "value",
+                             units = attr(x, "units"))
 
     mapping <- aes(x = .data[["w"]], y = .data[["value"]],
                    group = .data[["Species"]])
@@ -282,6 +286,81 @@ addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
     }
 
     plot + do.call(geom_line, layer_args)
+}
+
+check_addPlot_compatible <- function(plot, x_var, y_var, units = NULL) {
+    mapping <- plot$mapping
+    if (length(plot$layers) > 0) {
+        layer_mapping <- plot$layers[[1]]$mapping
+        if (!is.null(layer_mapping$x)) {
+            mapping$x <- layer_mapping$x
+        }
+        if (!is.null(layer_mapping$y)) {
+            mapping$y <- layer_mapping$y
+        }
+    }
+
+    plot_x_var <- plot_mapping_var(mapping$x)
+    if (!is.null(plot_x_var) && !identical(plot_x_var, x_var)) {
+        stop("The data can only be added to a plot with x variable `", x_var,
+             "`. The existing plot uses x variable `", plot_x_var, "`.")
+    }
+
+    plot_y_var <- plot_mapping_var(mapping$y)
+    if (!is.null(plot_y_var) && !identical(plot_y_var, y_var)) {
+        warning("The existing plot appears to use y variable `", plot_y_var,
+                "`, but the added data uses `", y_var, "`.")
+    }
+
+    plot_units <- plot_y_units(plot)
+    if (!is.null(plot_units) && !is.null(units) &&
+            nzchar(plot_units) && nzchar(units) &&
+            !identical(plot_units, units)) {
+        warning("The existing plot appears to use y units `", plot_units,
+                "`, but the added data uses `", units, "`.")
+    }
+}
+
+plot_mapping_var <- function(mapping) {
+    if (is.null(mapping)) {
+        return(NULL)
+    }
+
+    label <- rlang::as_label(mapping)
+    match <- regmatches(label, regexec("\\.data\\[\\[\"([^\"]+)\"\\]\\]", label))[[1]]
+    if (length(match) == 2) {
+        return(match[[2]])
+    }
+    match <- regmatches(label, regexec("\\.data\\$([^ ]+)$", label))[[1]]
+    if (length(match) == 2) {
+        return(match[[2]])
+    }
+    if (grepl("^[[:alnum:]_.]+$", label)) {
+        return(label)
+    }
+
+    NULL
+}
+
+plot_y_units <- function(plot) {
+    scales <- plot$scales$scales
+    for (scale in scales) {
+        if ("y" %in% scale$aesthetics && is.character(scale$name)) {
+            return(label_units(scale$name))
+        }
+    }
+    label_units(plot$labels$y)
+}
+
+label_units <- function(label) {
+    if (is.null(label) || !is.character(label) || !nzchar(label)) {
+        return(NULL)
+    }
+    match <- regmatches(label, regexec("\\[([^]]+)\\]\\s*$", label))[[1]]
+    if (length(match) == 2) {
+        return(match[[2]])
+    }
+    NULL
 }
 
 prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,
