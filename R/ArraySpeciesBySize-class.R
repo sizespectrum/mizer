@@ -135,13 +135,13 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #'
 #' This works because the mizer functions that give values that depend on
 #' species and size return an `ArraySpeciesBySize` object and those that
-#' give values that depend on species and time return an `ArraySpeciesByTime`
+#' give values that depend on species and time return an `ArrayTimeBySpecies`
 #' object. These objects have attributes that store the name of the value,
 #' its units, and a reference to the `MizerParams` object that the value was
 #' computed from. This allows the plots to be automatically labelled and
 #' coloured appropriately.
 #'
-#' @param x An `ArraySpeciesBySize` or `ArraySpeciesByTime` object.
+#' @param x An `ArraySpeciesBySize` or `ArrayTimeBySpecies` object.
 #' @param species Character vector of species to include. `NULL` (default) means
 #'   all species.
 #' @param all.sizes If `FALSE` (default), values outside a species' size range
@@ -151,7 +151,7 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #' @param log_x If `TRUE` (default), use a log10 x-axis. Only applies to
 #'   `ArraySpeciesBySize`.
 #' @param log_y If `TRUE`, use a log10 y-axis. Default is `FALSE` for
-#'   `ArraySpeciesBySize` and `TRUE` for `ArraySpeciesByTime`.
+#'   `ArraySpeciesBySize` and `TRUE` for `ArrayTimeBySpecies`.
 #' @param wlim A numeric vector of length two providing lower and upper limits
 #'   for the weight (x) axis. Use `NA` to refer to the existing minimum or
 #'   maximum. Only applies to `ArraySpeciesBySize`.
@@ -186,6 +186,110 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
     value_name <- attr(x, "value_name") %||% "Rate"
     units_str <- attr(x, "units")
     params <- attr(x, "params")
+    plot_dat <- prepare_ArraySpeciesBySize_plot_data(
+        x, species = species, all.sizes = all.sizes, wlim = wlim,
+        total = total, background = background)
+
+    if (return_data) return(plot_dat)
+
+    y_label <- value_name
+    if (!is.null(units_str)) {
+        y_label <- paste0(value_name, " [", units_str, "]")
+    }
+
+    plotDataFrame(plot_dat, params, xlab = "Size [g]", ylab = y_label,
+                  xtrans = if (log_x) "log10" else "identity",
+                  ytrans = if (log_y) "log10" else "identity",
+                  xlim = wlim, ylim = ylim, highlight = highlight,
+                  y_ticks = y_ticks, legend_var = "Legend")
+}
+
+#' Add values to an existing plot
+#'
+#' `addPlot()` adds another set of values to an existing ggplot. The first
+#' method supports adding an `ArraySpeciesBySize` object to a compatible plot,
+#' for example to compare the same rate before and after a model change.
+#'
+#' @param plot A ggplot2 object to which the new values should be added.
+#' @param x An object containing the values to add.
+#' @param ... Further arguments passed to methods.
+#'
+#' @return A ggplot2 object.
+#' @export
+#' @family plotting functions
+#'
+#' @examples
+#' \donttest{
+#' p <- plot(getEncounter(NS_params), species = "Cod")
+#' addPlot(p, getEncounter(NS_params), species = "Cod")
+#' }
+addPlot <- function(plot, x, ...) {
+    UseMethod("addPlot", x)
+}
+
+#' @rdname addPlot
+#' @inheritParams plot
+#' @param colour Optional fixed colour for the added lines. If `NULL`, the
+#'   species colours from the existing plot are used.
+#' @param linetype Optional fixed line type for the added lines. If `NULL`, the
+#'   species line types from the existing plot are used.
+#' @param linewidth Width of the added lines.
+#' @param alpha Transparency of the added lines.
+#' @export
+addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
+                                       all.sizes = FALSE,
+                                       wlim = c(NA, NA),
+                                       total = FALSE,
+                                       background = TRUE,
+                                       colour = NULL,
+                                       linetype = "dashed",
+                                       linewidth = 0.8,
+                                       alpha = 1,
+                                       ...) {
+    if (!inherits(plot, "ggplot")) {
+        stop("The `plot` argument must be a ggplot object.")
+    }
+    assert_that(is.number(linewidth),
+                is.number(alpha),
+                alpha >= 0,
+                alpha <= 1)
+
+    plot_dat <- prepare_ArraySpeciesBySize_plot_data(
+        x, species = species, all.sizes = all.sizes, wlim = wlim,
+        total = total, background = background)
+
+    mapping <- aes(x = .data[["w"]], y = .data[["value"]],
+                   group = .data[["Species"]])
+    if (is.null(colour)) {
+        mapping$colour <- rlang::quo(.data[["Legend"]])
+    }
+    if (is.null(linetype)) {
+        mapping$linetype <- rlang::quo(.data[["Legend"]])
+    }
+
+    layer_args <- list(
+        data = plot_dat,
+        mapping = mapping,
+        linewidth = linewidth,
+        alpha = alpha,
+        inherit.aes = FALSE
+    )
+    if (!is.null(colour)) {
+        layer_args$colour <- colour
+    }
+    if (!is.null(linetype)) {
+        layer_args$linetype <- linetype
+    }
+
+    plot + do.call(geom_line, layer_args)
+}
+
+prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,
+                                                 all.sizes = FALSE,
+                                                 wlim = c(NA, NA),
+                                                 total = FALSE,
+                                                 background = TRUE) {
+    params <- attr(x, "params")
     w <- get_ArraySpeciesBySize_w(x)
 
     all_species <- rownames(x)
@@ -212,7 +316,7 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
         Species = rownames(mat)
     )
 
-    if (!all.sizes) {
+    if (!all.sizes && !is.null(params)) {
         sp_params <- params@species_params
         for (sp in species) {
             if (sp %in% sp_params$species) {
@@ -253,18 +357,7 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
         plot_dat <- rbind(plot_dat, total_dat)
     }
 
-    if (return_data) return(plot_dat)
-
-    y_label <- value_name
-    if (!is.null(units_str)) {
-        y_label <- paste0(value_name, " [", units_str, "]")
-    }
-
-    plotDataFrame(plot_dat, params, xlab = "Size [g]", ylab = y_label,
-                  xtrans = if (log_x) "log10" else "identity",
-                  ytrans = if (log_y) "log10" else "identity",
-                  xlim = wlim, ylim = ylim, highlight = highlight,
-                  y_ticks = y_ticks, legend_var = "Legend")
+    plot_dat
 }
 
 #' @rdname plot

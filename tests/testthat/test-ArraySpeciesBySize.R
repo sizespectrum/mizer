@@ -90,6 +90,21 @@ test_that("plot.ArraySpeciesBySize returns ggplot", {
     expect_true(all(c("w", "value", "Species") %in% names(df)))
 })
 
+test_that("addPlot.ArraySpeciesBySize adds lines to an existing ggplot", {
+    enc <- getEncounter(NS_params)
+
+    p <- plot(enc, species = "Cod")
+    p2 <- addPlot(p, enc, species = "Cod", linetype = "dashed", alpha = 0.5)
+
+    expect_s3_class(p2, "ggplot")
+    expect_equal(length(p2$layers), length(p$layers) + 1)
+    expect_identical(p2$layers[[length(p2$layers)]]$aes_params$linetype,
+                     "dashed")
+    expect_identical(p2$layers[[length(p2$layers)]]$aes_params$alpha,
+                     0.5)
+    expect_error(addPlot("not a plot", enc), "ggplot")
+})
+
 test_that("plot.ArraySpeciesBySize supports full size grid", {
     pred_rate <- getPredRate(NS_params)
 

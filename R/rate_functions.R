@@ -233,7 +233,7 @@ get_species_size_rate_from_sim <- function(sim, time_range, drop,
 #' @param value_name Name of the value stored in the returned array.
 #' @param units Optional units of the value stored in the returned array.
 #'
-#' @return An `ArraySpeciesByTime` object with dimensions time x species.
+#' @return An `ArrayTimeBySpecies` object with dimensions time x species.
 #' @keywords internal
 get_species_time_rate_from_sim <- function(sim, time_range, rate_fun,
                                            value_name, units = NULL) {
@@ -242,13 +242,13 @@ get_species_time_rate_from_sim <- function(sim, time_range, rate_fun,
     species <- sim@params@species_params$species
 
     # Each one-time rate is a species vector. `vapply()` stacks these as
-    # species x time, so transpose to the ArraySpeciesByTime convention.
+    # species x time, so transpose to the ArrayTimeBySpecies convention.
     rate_time <- t(vapply(time_idx, function(idx) {
         rate_fun(get_sim_rate_slice(sim, idx))
     }, numeric(length(species))))
     dimnames(rate_time) <- list(time = names(time_elements)[time_elements],
                                 sp = species)
-    ArraySpeciesByTime(rate_time, value_name = value_name, units = units,
+    ArrayTimeBySpecies(rate_time, value_name = value_name, units = units,
                        params = sim@params)
 }
 
@@ -1172,7 +1172,7 @@ getEGrowth.MizerSim <- function(params, n, n_pp, n_other,
 #'   
 #' @return If a `MizerParams` object is passed in, a numeric vector the length
 #'   of the number of species. If a `MizerSim` object is passed in, an
-#'   `ArraySpeciesByTime` object with dimensions time x species.
+#'   `ArrayTimeBySpecies` object with dimensions time x species.
 #' @export
 #' @seealso [getRDD()]
 #' @family rate functions
@@ -1247,7 +1247,7 @@ getRDI.MizerSim <- function(params, n, n_pp, n_other, t = 0,
 #'   
 #' @return If a `MizerParams` object is passed in, a numeric vector the length
 #'   of the number of species. If a `MizerSim` object is passed in, an
-#'   `ArraySpeciesByTime` object with dimensions time x species.
+#'   `ArrayTimeBySpecies` object with dimensions time x species.
 #' @export
 #' @seealso [getRDI()]
 #' @family rate functions

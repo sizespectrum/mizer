@@ -1,4 +1,4 @@
-# ArraySpeciesByTime S3 class for time x species arrays
+# ArrayTimeBySpecies S3 class for time x species arrays
 #
 # Copyright 2026 Gustav Delius.
 # Distributed under the GPL 3 or later.
@@ -7,10 +7,10 @@
 #'
 #' Some functions in mizer return two-dimensional arrays (time x species)
 #' holding quantities like biomass, abundance, or yield rate through time.
-#' The `ArraySpeciesByTime` class wraps these arrays to provide convenient
+#' The `ArrayTimeBySpecies` class wraps these arrays to provide convenient
 #' `print()`, `summary()`, `plot()`, and `as.data.frame()` methods.
 #'
-#' An `ArraySpeciesByTime` object behaves just like a regular matrix for
+#' An `ArrayTimeBySpecies` object behaves just like a regular matrix for
 #' arithmetic operations and subsetting. It carries these lightweight attributes:
 #' \itemize{
 #'   \item `value_name` – a human-readable name for the value
@@ -25,43 +25,43 @@
 #' @param params A `MizerParams` object holding the model that created the
 #'   values.
 #'
-#' @return An `ArraySpeciesByTime` object (inherits from `matrix` and `array`).
+#' @return An `ArrayTimeBySpecies` object (inherits from `matrix` and `array`).
 #'
 #' @export
 #' @examples
 #' \donttest{
 #' bio <- getBiomass(NS_sim)
-#' is.ArraySpeciesByTime(bio)
+#' is.ArrayTimeBySpecies(bio)
 #' summary(bio)
 #' }
-ArraySpeciesByTime <- function(x, value_name = NULL, units = NULL,
+ArrayTimeBySpecies <- function(x, value_name = NULL, units = NULL,
                                params = NULL) {
     if (!is.matrix(x)) {
         stop("`x` must be a matrix.")
     }
     structure(x,
-        class = c("ArraySpeciesByTime", "matrix", "array"),
+        class = c("ArrayTimeBySpecies", "matrix", "array"),
         value_name = value_name,
         units = units,
         params = params
     )
 }
 
-#' Test if an object is a ArraySpeciesByTime
+#' Test if an object is a ArrayTimeBySpecies
 #'
 #' @param x An object to test.
-#' @return `TRUE` if `x` is an `ArraySpeciesByTime` object, `FALSE` otherwise.
+#' @return `TRUE` if `x` is an `ArrayTimeBySpecies` object, `FALSE` otherwise.
 #' @export
 #' @examples
-#' is.ArraySpeciesByTime(getBiomass(NS_sim))
-#' is.ArraySpeciesByTime(matrix(1:4, nrow = 2))
-is.ArraySpeciesByTime <- function(x) {
-    inherits(x, "ArraySpeciesByTime")
+#' is.ArrayTimeBySpecies(getBiomass(NS_sim))
+#' is.ArrayTimeBySpecies(matrix(1:4, nrow = 2))
+is.ArrayTimeBySpecies <- function(x) {
+    inherits(x, "ArrayTimeBySpecies")
 }
 
 #' @export
-print.ArraySpeciesByTime <- function(x, ...) {
-    value_name <- attr(x, "value_name") %||% "ArraySpeciesByTime"
+print.ArrayTimeBySpecies <- function(x, ...) {
+    value_name <- attr(x, "value_name") %||% "ArrayTimeBySpecies"
     units_str <- attr(x, "units")
     dims <- dim(x)
     header <- paste0(value_name, " (", dims[1], " times x ", dims[2],
@@ -87,8 +87,8 @@ print.ArraySpeciesByTime <- function(x, ...) {
 }
 
 #' @export
-summary.ArraySpeciesByTime <- function(object, ...) {
-    value_name <- attr(object, "value_name") %||% "ArraySpeciesByTime"
+summary.ArrayTimeBySpecies <- function(object, ...) {
+    value_name <- attr(object, "value_name") %||% "ArrayTimeBySpecies"
     units_str <- attr(object, "units")
     sp_names <- colnames(object)
     mat <- unclass(object)
@@ -108,12 +108,12 @@ summary.ArraySpeciesByTime <- function(object, ...) {
         dims = dim(object),
         per_species = df
     )
-    class(result) <- "summary.ArraySpeciesByTime"
+    class(result) <- "summary.ArrayTimeBySpecies"
     result
 }
 
 #' @export
-print.summary.ArraySpeciesByTime <- function(x, ...) {
+print.summary.ArrayTimeBySpecies <- function(x, ...) {
     header <- x$value_name
     if (!is.null(x$units) && nzchar(x$units)) {
         header <- paste0(header, " [", x$units, "]")
@@ -127,9 +127,9 @@ print.summary.ArraySpeciesByTime <- function(x, ...) {
 #' @rdname plot
 #'
 #' @param start_time The first time to be plotted. Default (`NULL`) is the
-#'   beginning of the time series. Only applies to `ArraySpeciesByTime`.
+#'   beginning of the time series. Only applies to `ArrayTimeBySpecies`.
 #' @param end_time The last time to be plotted. Default (`NULL`) is the end of
-#'   the time series. Only applies to `ArraySpeciesByTime`.
+#'   the time series. Only applies to `ArrayTimeBySpecies`.
 #' @export
 #' @examples
 #' \donttest{
@@ -137,7 +137,7 @@ print.summary.ArraySpeciesByTime <- function(x, ...) {
 #' plot(getBiomass(NS_sim), species = c("Cod", "Herring"), total = TRUE)
 #' plot(getYield(NS_sim), species = c("Cod", "Herring"))
 #' }
-plot.ArraySpeciesByTime <- function(x, species = NULL,
+plot.ArrayTimeBySpecies <- function(x, species = NULL,
                                     start_time = NULL, end_time = NULL,
                                     y_ticks = 6, ylim = c(NA, NA),
                                     total = FALSE, background = TRUE,
@@ -223,12 +223,12 @@ plot.ArraySpeciesByTime <- function(x, species = NULL,
 #' \donttest{
 #' ggplotly(getBiomass(NS_sim))
 #' }
-ggplotly.ArraySpeciesByTime <- function(x, ...) {
+ggplotly.ArrayTimeBySpecies <- function(x, ...) {
     ggplotly(plot(x, ...))
 }
 
 #' @export
-as.data.frame.ArraySpeciesByTime <- function(x, row.names = NULL,
+as.data.frame.ArrayTimeBySpecies <- function(x, row.names = NULL,
                                              optional = FALSE, ...) {
     t <- as.numeric(rownames(x))
     if (any(is.na(t))) {
@@ -245,28 +245,28 @@ as.data.frame.ArraySpeciesByTime <- function(x, row.names = NULL,
 }
 
 #' @export
-`[.ArraySpeciesByTime` <- function(x, i, j, ..., drop = TRUE) {
+`[.ArrayTimeBySpecies` <- function(x, i, j, ..., drop = TRUE) {
     result <- NextMethod()
     # Preserve class only if result is still a 2D matrix
     if (is.matrix(result) && length(dim(result)) == 2) {
         attr(result, "value_name") <- attr(x, "value_name")
         attr(result, "units") <- attr(x, "units")
         attr(result, "params") <- attr(x, "params")
-        class(result) <- c("ArraySpeciesByTime", "matrix", "array")
+        class(result) <- c("ArrayTimeBySpecies", "matrix", "array")
     }
     result
 }
 
 #' @export
-Ops.ArraySpeciesByTime <- function(e1, e2) {
-    # Strip ArraySpeciesByTime class so that arithmetic returns a plain matrix.
-    if (is.ArraySpeciesByTime(e1)) e1 <- unclass_time(e1)
-    if (!missing(e2) && is.ArraySpeciesByTime(e2)) e2 <- unclass_time(e2)
+Ops.ArrayTimeBySpecies <- function(e1, e2) {
+    # Strip ArrayTimeBySpecies class so that arithmetic returns a plain matrix.
+    if (is.ArrayTimeBySpecies(e1)) e1 <- unclass_time(e1)
+    if (!missing(e2) && is.ArrayTimeBySpecies(e2)) e2 <- unclass_time(e2)
     op <- match.fun(.Generic)
     if (missing(e2)) op(e1) else op(e1, e2)
 }
 
-# Helper to strip all ArraySpeciesByTime attributes
+# Helper to strip all ArrayTimeBySpecies attributes
 unclass_time <- function(x) {
     x <- unclass(x)
     attr(x, "value_name") <- NULL

@@ -59,7 +59,7 @@ Collate:
     'MizerSim-class.R'
     'registerExtensions.R'
     'ArraySpeciesBySize-class.R'
-    'ArraySpeciesByTime-class.R'
+    'ArrayTimeBySpecies-class.R'
     'ArrayTimeBySpeciesBySize-class.R'
     'background.R'
     'reproduction.R'

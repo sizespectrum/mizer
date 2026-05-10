@@ -387,7 +387,7 @@ getTrophicLevelBySpecies.MizerParams <- function(params,
 #'
 #' @return If called with a MizerParams object, a named vector with the SSB in
 #'   grams for each species in the model. If called with a MizerSim object, a
-#'   `ArraySpeciesByTime` object (time x species) containing the SSB in grams
+#'   `ArrayTimeBySpecies` object (time x species) containing the SSB in grams
 #'   at each time step for all species.
 #' @export
 #' @family summary functions
@@ -403,7 +403,7 @@ getSSB.MizerSim <- function(object) {
     sim <- object
     result <- apply(sweep(sweep(sim@n, c(2, 3), sim@params@maturity, "*"), 3,
                           sim@params@w * sim@params@dw, "*"), c(1, 2), sum)
-    ArraySpeciesByTime(result, value_name = "Spawning stock biomass",
+    ArrayTimeBySpecies(result, value_name = "Spawning stock biomass",
                        units = "g", params = sim@params)
 }
 #' @export
@@ -441,7 +441,7 @@ getSSB.MizerParams <- function(object) {
 #'
 #' @return If called with a MizerParams object, a named vector with the biomass
 #'   in grams for each species in the model. If called with a MizerSim object,
-#'   an `ArraySpeciesByTime` object (time x species) containing the biomass in
+#'   an `ArrayTimeBySpecies` object (time x species) containing the biomass in
 #'   grams at each time step for all species.
 #' @export
 #' @family summary functions
@@ -475,7 +475,7 @@ getBiomass.MizerSim <- function(object, use_cutoff = FALSE, ...) {
         }
     result <- apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
                           sim@params@w * sim@params@dw, "*"), c(1, 2), sum)
-    ArraySpeciesByTime(result, value_name = "Biomass", units = "g",
+    ArrayTimeBySpecies(result, value_name = "Biomass", units = "g",
                        params = sim@params)
 }
 #' @export
@@ -508,7 +508,7 @@ getBiomass.MizerParams <- function(object, use_cutoff = FALSE, ...) {
 #'
 #' @return If called with a MizerParams object, a named vector with the numbers
 #'   for each species in the model. If called with a MizerSim object, a
-#'   `ArraySpeciesByTime` object (time x species) containing the numbers at
+#'   `ArrayTimeBySpecies` object (time x species) containing the numbers at
 #'   each time step for all species.
 #' @export
 #' @family summary functions
@@ -529,7 +529,7 @@ getN.MizerSim <- function(object, ...) {
     size_range <- get_size_range_array(sim@params, ...)
     result <- apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
                           sim@params@dw, "*"), c(1, 2), sum)
-    ArraySpeciesByTime(result, value_name = "Abundance",
+    ArrayTimeBySpecies(result, value_name = "Abundance",
                        params = sim@params)
 }
 #' @export
@@ -610,7 +610,7 @@ getYieldGear.MizerParams <- function(object) {
 #'
 #' @return If called with a `MizerParams` object, a named numeric vector with
 #'   the yield rate in grams per year for each species in the model. If called
-#'   with a `MizerSim` object, an `ArraySpeciesByTime` object (time x species)
+#'   with a `MizerSim` object, an `ArrayTimeBySpecies` object (time x species)
 #'   containing the yield rate in grams per year at each saved time step.
 #' @export
 #' @family summary functions
@@ -637,7 +637,7 @@ getYield.MizerSim <- function(object) {
     biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
     f <- getFMort(sim, drop = FALSE)
     result <- apply(f * biomass, c(1, 2), sum)
-    ArraySpeciesByTime(result, value_name = "Yield rate", units = "g/year",
+    ArrayTimeBySpecies(result, value_name = "Yield rate", units = "g/year",
                        params = sim@params)
 }
 #' @export

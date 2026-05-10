@@ -1,5 +1,8 @@
 # Development version (will become mizer 3.0.0)
 
+- New `addPlot()` generic, with an initial method for adding
+  `ArraySpeciesBySize` values as extra lines on an existing compatible ggplot.
+
 - `MizerSim` objects now have a `sim_params` slot (a named list) that records
   the projection parameters — currently `method` and `dt` — passed to
   `project()` or `projectToSteady()`. The new `getSimParams()` accessor
@@ -144,19 +147,19 @@
   `value_name` and `units` attribute and provides enhanced `print()`,
   `summary()`, `plot()`, and `as.data.frame()` methods.
 
-- New `ArraySpeciesByTime` S3 class for the time x species arrays returned by
+- New `ArrayTimeBySpecies` S3 class for the time x species arrays returned by
   `getBiomass()`, `getSSB()`, `getN()`, and `getYield()` when called on a
   `MizerSim` object. Like `ArraySpeciesBySize`, it carries `value_name` and
   `units` attributes and provides enhanced `print()`, `summary()`, `plot()`,
   and `as.data.frame()` methods.
 
 - New `ggplotly()` methods for `ArraySpeciesBySize` and
-  `ArraySpeciesByTime` that convert the `ggplot2` output of `plot()` into an
+  `ArrayTimeBySpecies` that convert the `ggplot2` output of `plot()` into an
   interactive plotly figure via `plotly::ggplotly()`.
 
 - The `plot()` method for `ArraySpeciesBySize` gains `log_y`, `wlim`, and
   `ylim` arguments for controlling the y-axis scale and axis limits. The
-  `plot()` method for `ArraySpeciesByTime` gains `log` and `ylim` arguments.
+  `plot()` method for `ArrayTimeBySpecies` gains `log` and `ylim` arguments.
 
 - New `getTrophicLevel()` function returns a matrix (species × size) with the
   trophic level of individuals at each size, accounting for ontogenetic diet

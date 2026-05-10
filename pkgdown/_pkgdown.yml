@@ -172,6 +172,7 @@ reference:
   contents:
   - plotting_functions
   - has_concept("plotting functions")
+  - addPlot
   - starts_with("animate")
   - starts_with("plot")
   - -plotM2

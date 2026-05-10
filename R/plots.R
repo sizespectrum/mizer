@@ -48,7 +48,7 @@
 #'   [getFMort()], [getSearchVolume()], etc.) as lines of value against body
 #'   size, one line per species.
 #'
-#' * `plot(<ArraySpeciesByTime>)` — plots any time-by-species array (such as
+#' * `plot(<ArrayTimeBySpecies>)` — plots any time-by-species array (such as
 #'   those returned by [getBiomass()], [getSSB()], [getYield()], and [getN()]
 #'   on a `MizerSim`) as lines of value against time, one line per species.
 #'
