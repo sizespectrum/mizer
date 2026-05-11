@@ -19,6 +19,7 @@
   return_data = FALSE,
   log_x = TRUE,
   log_y = FALSE,
+  log = NULL,
   wlim = c(NA, NA),
   ylim = c(NA, NA),
   total = FALSE,
@@ -39,7 +40,9 @@
   total = FALSE,
   background = TRUE,
   highlight = NULL,
+  log_x = FALSE,
   log_y = TRUE,
+  log = NULL,
   return_data = FALSE,
   ...
 )
@@ -55,6 +58,7 @@
   return_data = FALSE,
   log_x = TRUE,
   log_y = FALSE,
+  log = NULL,
   wlim = c(NA, NA),
   ylim = c(NA, NA),
   total = FALSE,
@@ -78,11 +82,15 @@ all species.}
 
 \item{return_data}{If \code{TRUE}, return the data frame instead of the plot.}
 
-\item{log_x}{If \code{TRUE} (default), use a log10 x-axis. Only applies to
-\code{ArraySpeciesBySize}.}
+\item{log_x}{If \code{TRUE}, use a log10 x-axis. Default is \code{TRUE} for size
+spectra and \code{FALSE} for time series.}
 
 \item{log_y}{If \code{TRUE}, use a log10 y-axis. Default is \code{FALSE} for
 \code{ArraySpeciesBySize} and \code{TRUE} for \code{ArrayTimeBySpecies}.}
+
+\item{log}{Character string specifying which axes should use log10 scales,
+in the same form as the base \code{\link[=plot]{plot()}} argument. For example, \code{"x"},
+\code{"y"}, \code{"xy"} or \code{""}. If supplied, this overrides \code{log_x} and \code{log_y}.}
 
 \item{wlim}{A numeric vector of length two providing lower and upper limits
 for the weight (x) axis. Use \code{NA} to refer to the existing minimum or

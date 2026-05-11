@@ -90,6 +90,24 @@ test_that("plot.ArraySpeciesBySize returns ggplot", {
     expect_true(all(c("w", "value", "Species") %in% names(df)))
 })
 
+test_that("plot.ArraySpeciesBySize supports base plot log argument", {
+    enc <- getEncounter(NS_params)
+
+    p_y <- plot(enc, log = "y")
+    expect_identical(p_y$scales$get_scales("x")$trans$name, "identity")
+    expect_identical(p_y$scales$get_scales("y")$trans$name, "log-10")
+
+    p_xy <- plot(enc, log = "xy")
+    expect_identical(p_xy$scales$get_scales("x")$trans$name, "log-10")
+    expect_identical(p_xy$scales$get_scales("y")$trans$name, "log-10")
+
+    p_none <- plot(enc, log = "")
+    expect_identical(p_none$scales$get_scales("x")$trans$name, "identity")
+    expect_identical(p_none$scales$get_scales("y")$trans$name, "identity")
+
+    expect_error(plot(enc, log = "z"), "`log` must be a character string")
+})
+
 test_that("addPlot.ArraySpeciesBySize adds lines to an existing ggplot", {
     enc <- getEncounter(NS_params)
     pred_mort <- getPredMort(NS_params)

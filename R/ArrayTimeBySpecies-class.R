@@ -142,9 +142,14 @@ plot.ArrayTimeBySpecies <- function(x, species = NULL,
                                     start_time = NULL, end_time = NULL,
                                     y_ticks = 6, ylim = c(NA, NA),
                                     total = FALSE, background = TRUE,
-                                    highlight = NULL, log_y = TRUE,
+                                    highlight = NULL, log_x = FALSE,
+                                    log_y = TRUE, log = NULL,
                                     return_data = FALSE,
                                     ...) {
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
+    log_x <- log_axes$log_x
+    log_y <- log_axes$log_y
+
     value_name <- attr(x, "value_name") %||% "Value"
     units_str <- attr(x, "units")
     params <- attr(x, "params")
@@ -161,8 +166,9 @@ plot.ArrayTimeBySpecies <- function(x, species = NULL,
     if (return_data) return(plot_dat)
 
     plotDataFrame(plot_dat, params, xlab = "Year", ylab = y_label,
-                  ytrans = if (log_y) "log10" else "identity", ylim = ylim,
-                  y_ticks = y_ticks, highlight = highlight,
+                  xtrans = if (log_x) "log10" else "identity",
+                  ytrans = if (log_y) "log10" else "identity",
+                  ylim = ylim, y_ticks = y_ticks, highlight = highlight,
                   legend_var = "Legend")
 }
 

@@ -64,6 +64,20 @@ test_that("plot.ArrayTimeBySpecies returns ggplot", {
     expect_true(all(c("Year", "Biomass", "Species") %in% names(df)))
 })
 
+test_that("plot.ArrayTimeBySpecies supports base plot log argument", {
+    bio <- getBiomass(NS_sim)
+
+    p_xy <- plot(bio, log = "xy")
+    expect_identical(p_xy$scales$get_scales("x")$trans$name, "log-10")
+    expect_identical(p_xy$scales$get_scales("y")$trans$name, "log-10")
+
+    p_none <- plot(bio, log = "")
+    expect_identical(p_none$scales$get_scales("x")$trans$name, "identity")
+    expect_identical(p_none$scales$get_scales("y")$trans$name, "identity")
+
+    expect_error(plot(bio, log = TRUE), "`log` must be a character string")
+})
+
 test_that("addPlot.ArrayTimeBySpecies adds lines to an existing ggplot", {
     bio <- getBiomass(NS_sim)
     yield <- getYield(NS_sim)

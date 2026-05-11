@@ -149,10 +149,13 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #'   (`w_min` to `w_max`) are removed. Only applies to `ArraySpeciesBySize`.
 #' @param highlight Name or vector of names of the species to be highlighted.
 #' @param return_data If `TRUE`, return the data frame instead of the plot.
-#' @param log_x If `TRUE` (default), use a log10 x-axis. Only applies to
-#'   `ArraySpeciesBySize`.
+#' @param log_x If `TRUE`, use a log10 x-axis. Default is `TRUE` for size
+#'   spectra and `FALSE` for time series.
 #' @param log_y If `TRUE`, use a log10 y-axis. Default is `FALSE` for
 #'   `ArraySpeciesBySize` and `TRUE` for `ArrayTimeBySpecies`.
+#' @param log Character string specifying which axes should use log10 scales,
+#'   in the same form as the base [plot()] argument. For example, `"x"`,
+#'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
 #' @param wlim A numeric vector of length two providing lower and upper limits
 #'   for the weight (x) axis. Use `NA` to refer to the existing minimum or
 #'   maximum. Only applies to `ArraySpeciesBySize`.
@@ -181,9 +184,14 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 plot.ArraySpeciesBySize <- function(x, species = NULL,
                             all.sizes = FALSE, highlight = NULL,
                             return_data = FALSE, log_x = TRUE, log_y = FALSE,
+                            log = NULL,
                             wlim = c(NA, NA), ylim = c(NA, NA),
                             total = FALSE, background = TRUE,
                             y_ticks = 6, ...) {
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
+    log_x <- log_axes$log_x
+    log_y <- log_axes$log_y
+
     value_name <- attr(x, "value_name") %||% "Rate"
     units_str <- attr(x, "units")
     params <- attr(x, "params")
@@ -203,6 +211,21 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
                   ytrans = if (log_y) "log10" else "identity",
                   xlim = wlim, ylim = ylim, highlight = highlight,
                   y_ticks = y_ticks, legend_var = "Legend")
+}
+
+parsePlotLog <- function(log, log_x = FALSE, log_y = FALSE) {
+    if (is.null(log)) {
+        return(list(log_x = log_x, log_y = log_y))
+    }
+    if (!is.character(log) || length(log) != 1 || is.na(log) ||
+        grepl("[^xy]", log)) {
+        stop("`log` must be a character string containing only \"x\" ",
+             "and/or \"y\".")
+    }
+    list(
+        log_x = grepl("x", log, fixed = TRUE),
+        log_y = grepl("y", log, fixed = TRUE)
+    )
 }
 
 #' Add values to an existing plot

@@ -67,6 +67,18 @@ test_that("plot.ArrayTimeBySpeciesBySize returns a ggplot", {
     expect_s3_class(p, "ggplot")
 })
 
+test_that("plot.ArrayTimeBySpeciesBySize supports base plot log argument", {
+    fmort <- getFMort(NS_sim)
+
+    p_y <- plot(fmort, log = "y")
+    expect_identical(p_y$scales$get_scales("x")$trans$name, "identity")
+    expect_identical(p_y$scales$get_scales("y")$trans$name, "log-10")
+
+    p_xy <- plot(fmort, log = "xy")
+    expect_identical(p_xy$scales$get_scales("x")$trans$name, "log-10")
+    expect_identical(p_xy$scales$get_scales("y")$trans$name, "log-10")
+})
+
 test_that("plot.ArrayTimeBySpeciesBySize time argument selects correct slice", {
     fmort <- getFMort(NS_sim)
     times <- as.numeric(dimnames(fmort)[[1]])

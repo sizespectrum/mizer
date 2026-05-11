@@ -142,7 +142,7 @@ print.summary.ArrayTimeBySpeciesBySize <- function(x, ...) {
 plot.ArrayTimeBySpeciesBySize <- function(x, species = NULL, time = NULL,
                                           all.sizes = FALSE, highlight = NULL,
                                           return_data = FALSE, log_x = TRUE,
-                                          log_y = FALSE,
+                                          log_y = FALSE, log = NULL,
                                           wlim = c(NA, NA), ylim = c(NA, NA),
                                           total = FALSE, background = TRUE,
                                           y_ticks = 6, ...) {
@@ -164,9 +164,9 @@ plot.ArrayTimeBySpeciesBySize <- function(x, species = NULL, time = NULL,
 
     plot.ArraySpeciesBySize(slice, species = species, all.sizes = all.sizes,
                             highlight = highlight, return_data = return_data,
-                            log_x = log_x, log_y = log_y, wlim = wlim,
-                            ylim = ylim, total = total, background = background,
-                            y_ticks = y_ticks, ...)
+                            log_x = log_x, log_y = log_y, log = log,
+                            wlim = wlim, ylim = ylim, total = total,
+                            background = background, y_ticks = y_ticks, ...)
 }
 
 #' @rdname plot
