@@ -145,10 +145,12 @@ ext_diffusion(params)[1, ] <- K * w(params)^(p + 1)
 # RDD (Constant Flux)
 params@species_params$constant_reproduction <- getRequiredRDD(params)
 params <- setRateFunction(params, "RDD", "constantRDD")
+```
 
+```{r}
 # Run project
 # We verify that N stays constant.
-sim <- project(params, t_max = 1, dt = 0.01, method = "predictor-corrector")
+sim <- project(params, t_max = 1, dt = 0.1, method = "predictor-corrector")
 
 # Compare final N with initial N
 n0 <- initialN(params)[1, ]
@@ -164,10 +166,11 @@ legend("topright", legend=c("Analytical", "Numerical"),
 
 # Calculate relative error
 rel_err <- abs(n1 - n0) / n0
-max_rel_err <- max(rel_err)
+# ignore last 100 bins because they are affected by the right boundary
+max_rel_err <- max(rel_err[1:985])
 print(paste("Maximum relative error:", max_rel_err))
 
-if (max_rel_err < 0.05) {
+if (max_rel_err < 0.01) {
   print("Test passed: Numerical solution stays close to analytical steady state.")
 } else {
   print("Test failed: Numerical solution deviates from analytical steady state.")
@@ -185,10 +188,7 @@ $$ \tilde{N}(x, t) = N(w, t) \frac{dw}{dx} = N(w, t) w^p $$
 
 Substituting this into the transport equation and simplifying leads to a PDE of the form:
 $$ \frac{\partial \tilde{N}}{\partial t} = V x \frac{\partial^2 \tilde{N}}{\partial x^2} + (V - U) \frac{\partial \tilde{N}}{\partial x} - \frac{b}{x} \tilde{N} $$
-where:
-* $U = A - \frac{1}{2}K$
-* $V = \frac{1}{2} K (1-p)$
-* $b = \frac{B}{1-p}$
+where $U = A - \frac{1}{2}K$, $V = \frac{1}{2} K (1-p)$, $b = \frac{B}{1-p}$.
 
 The fundamental solution (Green's function) for this equation, describing the evolution of an initial Dirac delta distribution $\tilde{N}(x, 0) = \delta(x - x_0)$, is given by:
 $$ G(x, t; x_0) = \frac{1}{Vt} \left( \frac{x}{x_0} \right)^{\frac{U}{2V}} \exp\left( -\frac{x+x_0}{Vt} \right) I_\nu \left( \frac{2\sqrt{xx_0}}{Vt} \right) $$
