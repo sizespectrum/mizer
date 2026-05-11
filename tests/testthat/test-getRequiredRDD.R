@@ -52,3 +52,55 @@ test_that("getRequiredRDD handles diffusion", {
     params_no_diff <- newSingleSpeciesParams()
     expect_true(rdd_req != getRequiredRDD(params_no_diff))
 })
+
+test_that("getRequiredRDD uses total diffusion", {
+    params <- newSingleSpeciesParams()
+    species <- params@species_params$species[1]
+    params@use_predation_diffusion <- TRUE
+
+    idx <- params@w_min_idx[species]
+    next_idx <- idx + 1
+    dw <- params@dw[idx]
+    diffusion <- getDiffusion(params)
+
+    expected <- initialN(params)[species, idx] *
+        (getEGrowth(params)[species, idx] +
+             getMort(params)[species, idx] * dw) +
+        0.5 * (diffusion[species, idx] * initialN(params)[species, idx] -
+                   diffusion[species, next_idx] *
+                   initialN(params)[species, next_idx]) / dw
+
+    expect_equal(getRequiredRDD(params)[species], expected,
+                 ignore_attr = TRUE)
+})
+
+test_that("getRequiredRDD keeps egg density constant with diffusion", {
+    params <- newSingleSpeciesParams()
+    species <- params@species_params$species[1]
+    n <- params@species_params[species, "n"]
+    ext_diffusion(params)[species, ] <- 0.1 * params@w^(n + 1)
+    params <- steadySingleSpecies(params, species = species)
+    params@species_params$constant_reproduction <- getRequiredRDD(params)
+    params <- setRateFunction(params, "RDD", "constantRDD")
+
+    sim <- project(params, t_max = 1, t_save = 1, progress_bar = FALSE)
+    idx <- params@w_min_idx[species]
+    expect_equal(finalN(sim)[species, idx], initialN(params)[species, idx],
+                 tolerance = 1e-12)
+})
+
+test_that("getRequiredRDD works with predictor-corrector project method", {
+    params <- newSingleSpeciesParams()
+    species <- params@species_params$species[1]
+    n <- params@species_params[species, "n"]
+    ext_diffusion(params)[species, ] <- 0.1 * params@w^(n + 1)
+    params <- steadySingleSpecies(params, species = species)
+    params@species_params$constant_reproduction <- getRequiredRDD(params)
+    params <- setRateFunction(params, "RDD", "constantRDD")
+
+    sim <- project(params, t_max = 1, t_save = 1,
+                   method = "predictor-corrector", progress_bar = FALSE)
+    idx <- params@w_min_idx[species]
+    expect_equal(finalN(sim)[species, idx], initialN(params)[species, idx],
+                 tolerance = 1e-12)
+})

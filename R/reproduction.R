@@ -111,6 +111,8 @@ projectRDD.MizerParams <- function(params, rdi,
 #'   available for growth as calculated by [mizerEGrowth()].
 #' @param mort A two dimensional array (species x size) holding the mortality
 #'   rate as calculated by [mizerMort()].
+#' @param diffusion A two dimensional array (species x size) holding the
+#'   diffusion rate as calculated by [mizerDiffusion()].
 #' @param ... Unused
 #' @return Vector with the value for each species
 #' @export
@@ -131,12 +133,26 @@ projectRDD.MizerParams <- function(params, rdi,
 #' # Now we can check equality between egg densities at the start and the end
 #' all.equal(finalN(sim)[idx], initialN(params)[idx])
 #' }
-constantEggRDI <- function(params, n, e_growth, mort, ...) {
+constantEggRDI <- function(params, n, e_growth, mort,
+                           diffusion = params@ext_diffusion, ...) {
     no_sp <- nrow(params@species_params) # number of species
     # Hacky shortcut to access the correct element of a 2D array
     # using 1D notation
     idx <- (params@w_min_idx - 1) * no_sp + (1:no_sp)
-    rdi <- n[idx] * (e_growth[idx] + mort[idx] * params@dw[params@w_min_idx])
+    dw <- params@dw[params@w_min_idx]
+
+    rdi <- n[idx] * (e_growth[idx] + mort[idx] * dw) +
+        0.5 * diffusion[idx] * n[idx] / dw
+
+    # The boundary flux also includes diffusion between the egg size bin and
+    # the next size bin.
+    no_w <- length(params@w)
+    has_next <- params@w_min_idx < no_w
+    if (any(has_next)) {
+        next_idx <- idx[has_next] + no_sp
+        rdi[has_next] <- rdi[has_next] -
+            0.5 * diffusion[next_idx] * n[next_idx] / dw[has_next]
+    }
     rdi
 }
 

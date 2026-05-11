@@ -20,7 +20,7 @@ getRequiredRDD.MizerParams <- function(params) {
                                  g = getEGrowth(params),
                                  mu = getMort(params), dt,
                                  recruitment_flux = numeric(no_sp),
-                                 d = params@ext_diffusion)
+                                 d = getDiffusion(params))
 
     reproduction <- params@species_params$erepro # vector of correct length
     names(reproduction) <- params@species_params$species

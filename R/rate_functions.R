@@ -1213,14 +1213,18 @@ getRDI.MizerParams <- function(params, n = initialN(params),
                          t = t)
     e_growth <- getEGrowth(params, n = n, n_pp = n_pp, n_other = n_other,
                            t = t)
+    diffusion <- getDiffusion(params, n = n, n_pp = n_pp, n_other = n_other,
+                              t = t)
     mort <- getMort(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
     if (usesExtensionDispatch(params)) {
         rdi <- projectRDI(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-                          e_repro = e_repro, e_growth = e_growth, mort = mort)
+                          e_repro = e_repro, e_growth = e_growth, mort = mort,
+                          diffusion = diffusion)
     } else {
         f <- get(params@rates_funcs$RDI)
         rdi <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-                 e_repro = e_repro, e_growth = e_growth, mort = mort)
+                 e_repro = e_repro, e_growth = e_growth, mort = mort,
+                 diffusion = diffusion)
     }
     names(rdi) <- params@species_params$species
     rdi

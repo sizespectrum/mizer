@@ -98,6 +98,7 @@ mizerRates <- function(params, n, n_pp, n_other,
         params, n = n, n_pp = n_pp, n_other = n_other,
         e_growth = r$e_growth,
         mort = r$mort,
+        diffusion = r$diffusion,
         e_repro = r$e_repro, t = t, ...)
     # R_dd
     r$rdd <- rates_fns$RDD(
@@ -182,6 +183,7 @@ projectRates.MizerParams <- function(params, n, n_pp, n_other,
         params, n = n, n_pp = n_pp, n_other = n_other,
         e_growth = r$e_growth,
         mort = r$mort,
+        diffusion = r$diffusion,
         e_repro = r$e_repro, t = t, ...)
     # R_dd
     r$rdd <- rates_fns$RDD(params, rdi = r$rdi, species_params = params@species_params,

@@ -16,6 +16,37 @@ test_that("constantEggRDI() keeps egg density constant", {
     expect_equal(finalN(sim)[idx], initialN(params)[idx])
 })
 
+test_that("constantEggRDI() keeps egg density constant with diffusion", {
+    params <- newSingleSpeciesParams()
+    species <- params@species_params$species[1]
+    n <- params@species_params[species, "n"]
+    ext_diffusion(params)[species, ] <- 0.1 * params@w^(n + 1)
+    params <- steadySingleSpecies(params, species = species)
+    params <- setRateFunction(params, "RDI", "constantEggRDI")
+    params <- setRateFunction(params, "RDD", "noRDD")
+
+    sim <- project(params, t_max = 1, t_save = 1, progress_bar = FALSE)
+    idx <- params@w_min_idx[species]
+    expect_equal(finalN(sim)[species, idx], initialN(params)[species, idx],
+                 tolerance = 1e-12)
+})
+
+test_that("constantEggRDI() works with predictor-corrector project method", {
+    params <- newSingleSpeciesParams()
+    species <- params@species_params$species[1]
+    n <- params@species_params[species, "n"]
+    ext_diffusion(params)[species, ] <- 0.1 * params@w^(n + 1)
+    params <- steadySingleSpecies(params, species = species)
+    params <- setRateFunction(params, "RDI", "constantEggRDI")
+    params <- setRateFunction(params, "RDD", "noRDD")
+
+    sim <- project(params, t_max = 1, t_save = 1,
+                   method = "predictor-corrector", progress_bar = FALSE)
+    idx <- params@w_min_idx[species]
+    expect_equal(finalN(sim)[species, idx], initialN(params)[species, idx],
+                 tolerance = 1e-12)
+})
+
 test_that("constantEggRDI returns loss from the egg size bin", {
     expected <- {
         no_sp <- nrow(params@species_params)
