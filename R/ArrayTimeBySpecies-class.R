@@ -200,6 +200,7 @@ addPlot.ArrayTimeBySpecies <- function(plot, x, species = NULL,
                 alpha >= 0,
                 alpha <= 1)
 
+    plot <- deep_copy(plot)
     plot_dat <- prepare_ArrayTimeBySpecies_plot_data(
         x, species = species, start_time = start_time, end_time = end_time,
         ylim = ylim, total = total, background = background)

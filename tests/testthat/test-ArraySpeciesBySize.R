@@ -121,6 +121,8 @@ test_that("addPlot.ArraySpeciesBySize adds lines to an existing ggplot", {
                      "dashed")
     expect_identical(p2$layers[[length(p2$layers)]]$aes_params$alpha,
                      0.5)
+    p2$layers[[1]]$aes_params$alpha <- 0.25
+    expect_null(p$layers[[1]]$aes_params$alpha)
     expect_error(addPlot("not a plot", enc), "ggplot")
     expect_error(addPlot(plot(getBiomass(NS_sim)), enc), "x variable `w`")
     expect_warning(addPlot(p, pred_mort, species = "Cod"), "y units")

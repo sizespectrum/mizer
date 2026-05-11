@@ -91,6 +91,8 @@ test_that("addPlot.ArrayTimeBySpecies adds lines to an existing ggplot", {
                      "dashed")
     expect_identical(p2$layers[[length(p2$layers)]]$aes_params$alpha,
                      0.5)
+    p2$layers[[1]]$aes_params$alpha <- 0.25
+    expect_null(p$layers[[1]]$aes_params$alpha)
     expect_error(addPlot("not a plot", bio), "ggplot")
     expect_error(addPlot(plot(getEncounter(NS_params)), bio), "x variable `Year`")
 

@@ -281,6 +281,7 @@ addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
                 alpha >= 0,
                 alpha <= 1)
 
+    plot <- deep_copy(plot)
     plot_dat <- prepare_ArraySpeciesBySize_plot_data(
         x, species = species, all.sizes = all.sizes, wlim = wlim,
         total = total, background = background)
@@ -311,6 +312,10 @@ addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
     }
 
     plot + do.call(geom_line, layer_args)
+}
+
+deep_copy <- function(x) {
+    unserialize(serialize(x, NULL))
 }
 
 check_addPlot_compatible <- function(plot, x_var, y_var, units = NULL) {
