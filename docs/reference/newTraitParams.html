@@ -65,7 +65,7 @@ details and examples of the trait-based model."><meta property="og:image" conten
     <li><a class="dropdown-item" href="../articles/predation_diffusion.html">Incorporating predation diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
-    <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Mizer rate</a></li>
+    <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
@@ -355,6 +355,7 @@ Otherwise all species have the same egg size.</p>
 initial condition that is close to steady state.</p>
 <p>The search rate coefficient <code>gamma</code> is calculated using the expected
 feeding level, <code>f0</code>.</p>
+<p>The diffusion rate is set to <code>0</code>.</p>
 <p>The option of including fishing is given, but the steady state may loose its
 natural stability if too much fishing is included. In such a case the user
 may wish to include stabilising effects (like <code>reproduction_level</code>) to ensure

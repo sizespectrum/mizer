@@ -55,7 +55,7 @@ function unless an alternative function has been registered, see below."><meta p
     <li><a class="dropdown-item" href="../articles/predation_diffusion.html">Incorporating predation diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
-    <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Mizer rate</a></li>
+    <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
@@ -98,12 +98,45 @@ function unless an alternative function has been registered, see below.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">projectRDI</span><span class="op">(</span><span class="va">params</span>, <span class="va">n</span>, <span class="va">n_pp</span>, <span class="va">n_other</span>, t <span class="op">=</span> <span class="fl">0</span>, <span class="va">e_growth</span>, <span class="va">mort</span>, <span class="va">e_repro</span>, <span class="va">...</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">projectRDI</span><span class="op">(</span></span>
+<span>  <span class="va">params</span>,</span>
+<span>  <span class="va">n</span>,</span>
+<span>  <span class="va">n_pp</span>,</span>
+<span>  <span class="va">n_other</span>,</span>
+<span>  t <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  <span class="va">e_growth</span>,</span>
+<span>  <span class="va">mort</span>,</span>
+<span>  <span class="va">e_repro</span>,</span>
+<span>  diffusion <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'MizerParams'</span></span>
-<span><span class="fu">projectRDI</span><span class="op">(</span><span class="va">params</span>, <span class="va">n</span>, <span class="va">n_pp</span>, <span class="va">n_other</span>, t <span class="op">=</span> <span class="fl">0</span>, <span class="va">e_growth</span>, <span class="va">mort</span>, <span class="va">e_repro</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">projectRDI</span><span class="op">(</span></span>
+<span>  <span class="va">params</span>,</span>
+<span>  <span class="va">n</span>,</span>
+<span>  <span class="va">n_pp</span>,</span>
+<span>  <span class="va">n_other</span>,</span>
+<span>  t <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  <span class="va">e_growth</span>,</span>
+<span>  <span class="va">mort</span>,</span>
+<span>  <span class="va">e_repro</span>,</span>
+<span>  diffusion <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">mizerRDI</span><span class="op">(</span><span class="va">params</span>, <span class="va">n</span>, <span class="va">n_pp</span>, <span class="va">n_other</span>, t <span class="op">=</span> <span class="fl">0</span>, <span class="va">e_growth</span>, <span class="va">mort</span>, <span class="va">e_repro</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">mizerRDI</span><span class="op">(</span></span>
+<span>  <span class="va">params</span>,</span>
+<span>  <span class="va">n</span>,</span>
+<span>  <span class="va">n_pp</span>,</span>
+<span>  <span class="va">n_other</span>,</span>
+<span>  t <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  <span class="va">e_growth</span>,</span>
+<span>  <span class="va">mort</span>,</span>
+<span>  <span class="va">e_repro</span>,</span>
+<span>  diffusion <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -146,6 +179,12 @@ by <code><a href="getMort.html">getMort()</a></code>. Unused.</p></dd>
 <dt id="arg-e-repro">e_repro<a class="anchor" aria-label="anchor" href="#arg-e-repro"></a></dt>
 <dd><p>An array (species x size) with the energy available for
 reproduction as calculated by <code><a href="getERepro.html">getERepro()</a></code>.</p></dd>
+
+
+<dt id="arg-diffusion">diffusion<a class="anchor" aria-label="anchor" href="#arg-diffusion"></a></dt>
+<dd><p>An array (species x size) with the diffusion rate as
+calculated by <code><a href="getDiffusion.html">getDiffusion()</a></code>. Unused by the default function but supplied
+to custom RDI functions.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

@@ -51,7 +51,7 @@ tri-diagonal system and solves it."><meta property="og:image" content="https://s
     <li><a class="dropdown-item" href="../articles/predation_diffusion.html">Incorporating predation diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
-    <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Mizer rate</a></li>
+    <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
@@ -92,7 +92,7 @@ tri-diagonal system and solves it.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_steady_state_n</span><span class="op">(</span><span class="va">params</span>, <span class="va">g</span>, <span class="va">mu</span>, <span class="va">N0</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_steady_state_n</span><span class="op">(</span><span class="va">params</span>, <span class="va">g</span>, <span class="va">mu</span>, <span class="va">D</span>, <span class="va">N0</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -109,6 +109,10 @@ tri-diagonal system and solves it.</p>
 
 <dt id="arg-mu">mu<a class="anchor" aria-label="anchor" href="#arg-mu"></a></dt>
 <dd><p>A matrix of mortality rates (species x size)</p></dd>
+
+
+<dt id="arg-d">D<a class="anchor" aria-label="anchor" href="#arg-d"></a></dt>
+<dd><p>A matrix of diffusion rates (species x size)</p></dd>
 
 
 <dt id="arg-n-">N0<a class="anchor" aria-label="anchor" href="#arg-n-"></a></dt>

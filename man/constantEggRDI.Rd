@@ -4,14 +4,7 @@
 \alias{constantEggRDI}
 \title{Choose egg production to keep egg density constant}
 \usage{
-constantEggRDI(
-  params,
-  n,
-  e_growth,
-  mort,
-  diffusion = getDiffusion(params, n = n, ...),
-  ...
-)
+constantEggRDI(params, n, e_growth, mort, diffusion, ...)
 }
 \arguments{
 \item{params}{A MizerParams object}

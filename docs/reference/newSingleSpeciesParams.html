@@ -63,7 +63,7 @@ many arguments, all of which have default values."><meta property="og:image" con
     <li><a class="dropdown-item" href="../articles/predation_diffusion.html">Incorporating predation diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
-    <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Mizer rate</a></li>
+    <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
@@ -132,8 +132,8 @@ many arguments, all of which have default values.</p>
 <span>  ext_mort_prop <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  reproduction_level <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  R_factor <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  w_inf <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  k_vb <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span></span>
+<span>  w_inf <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  k_vb <span class="op">=</span> <span class="cn">NA</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -247,7 +247,7 @@ renamed to <code>w_max</code>.</p></dd>
 
 
 <dt id="arg-k-vb">k_vb<a class="anchor" aria-label="anchor" href="#arg-k-vb"></a></dt>
-<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> The von Bertalanffy growth
+<dd><p>The von Bertalanffy growth
 parameter.</p></dd>
 
 </dl></div>
@@ -273,6 +273,7 @@ predation mortality. The initial species spectrum is scaled so that its
 maximum abundance is half the background abundance at the corresponding
 size, and <code>erepro</code> is then adjusted so the initial state satisfies the egg
 boundary condition.</p>
+<p>The diffusion rate is set to <code>0</code></p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

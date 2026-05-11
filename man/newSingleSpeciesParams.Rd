@@ -26,8 +26,8 @@ newSingleSpeciesParams(
   ext_mort_prop = 0,
   reproduction_level = 0,
   R_factor = deprecated(),
-  w_inf = deprecated(),
-  k_vb = deprecated()
+  w_inf = NA,
+  k_vb = NA
 )
 }
 \arguments{
@@ -92,7 +92,7 @@ level of density dependence in reproduction, see \code{\link[=setBevertonHolt]{s
 \item{w_inf}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The argument has been
 renamed to \code{w_max}.}
 
-\item{k_vb}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The von Bertalanffy growth
+\item{k_vb}{The von Bertalanffy growth
 parameter.}
 }
 \value{
@@ -129,6 +129,8 @@ predation mortality. The initial species spectrum is scaled so that its
 maximum abundance is half the background abundance at the corresponding
 size, and \code{erepro} is then adjusted so the initial state satisfies the egg
 boundary condition.
+
+The diffusion rate is set to \code{0}
 }
 \examples{
 params <- newSingleSpeciesParams()

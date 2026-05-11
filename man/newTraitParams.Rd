@@ -188,6 +188,8 @@ initial condition that is close to steady state.
 The search rate coefficient \code{gamma} is calculated using the expected
 feeding level, \code{f0}.
 
+The diffusion rate is set to \code{0}.
+
 The option of including fishing is given, but the steady state may loose its
 natural stability if too much fishing is included. In such a case the user
 may wish to include stabilising effects (like \code{reproduction_level}) to ensure
