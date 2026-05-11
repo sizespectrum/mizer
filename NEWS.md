@@ -275,6 +275,10 @@ the mathematical details.
   resource abundance at positive consumption, the capacity is increased
   slightly with a warning instead of failing early.
   
+- `project()` now warns when `t_max` is not a multiple of `t_save` and ensures
+  that the state at `t_max` is always saved, even if the final save interval is
+  shorter than `t_save`. (#341)
+  
 - New function `psi()` returns an `ArraySpeciesBySize` with the population-level
   reproductive proportion.
 
