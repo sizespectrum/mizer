@@ -7,7 +7,7 @@
 ^\.travis\.yml$
 ^cran-comments\.md$
 ^README\.Rmd$
-^dev_scripts\.R$
+^dev_scripts
 ^.vscode$
 ^.github$
 ^\.github$
