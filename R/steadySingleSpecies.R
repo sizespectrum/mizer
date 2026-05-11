@@ -41,10 +41,10 @@ steadySingleSpecies.MizerParams <- function(params, species = NULL,
     biomass <- getBiomass(params, use_cutoff = TRUE)
     number <- getN(params)
 
-    # Use growth and mortality from current abundances
-    # Use growth and mortality from current abundances
+    # Use rates from current abundances.
     growth_all <- getEGrowth(params)
     mort_all <- getMort(params)
+    diffusion_all <- getDiffusion(params)
 
     # Loop over species to make checks
     N0_vec <- numeric(nrow(params@species_params))
@@ -71,7 +71,8 @@ steadySingleSpecies.MizerParams <- function(params, species = NULL,
     }
 
     # Calculate steady state for all species at once
-    n_exact_matrix <- get_steady_state_n(params, growth_all, mort_all, N0_vec)
+    n_exact_matrix <- get_steady_state_n(params, growth_all, mort_all,
+                                         diffusion_all, N0_vec)
 
     # Update initial_n for selected species
     for (sp in species) {

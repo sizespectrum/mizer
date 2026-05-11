@@ -76,7 +76,7 @@
             RDI =
                 f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
                   e_growth = rates$e_growth, mort = rates$mort,
-                  e_repro = rates$e_repro),
+                  e_repro = rates$e_repro, diffusion = rates$diffusion),
             RDD =
                 f(rdi = rates$rdi, species_params = params@species_params,
                   params = params, t = t),

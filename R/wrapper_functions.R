@@ -194,6 +194,8 @@ newCommunityParams <- function(max_w = 1e6,
 #' The search rate coefficient `gamma` is calculated using the expected
 #' feeding level, `f0`.
 #'
+#' The diffusion rate is set to `0`.
+#'
 #' The option of including fishing is given, but the steady state may loose its
 #' natural stability if too much fishing is included. In such a case the user
 #' may wish to include stabilising effects (like `reproduction_level`) to ensure
@@ -536,18 +538,20 @@ newTraitParams <- function(no_sp = 11,
     initial_n[, ] <- 0
     mumu <- mu0 * w^(n - 1)  # Death rate
     g_matrix <- matrix(0, nrow = no_sp, ncol = length(w))
+    D_matrix <- g_matrix
     mu_matrix <- matrix(mumu, nrow = no_sp, ncol = length(w), byrow = TRUE)
     for (i in 1:no_sp) {
         g_matrix[i, ] <- hbar * w^n * (1 - params@psi[i, ])
     }
-    n_exact_matrix <- get_steady_state_n(params, g_matrix, mu_matrix, rep(1, no_sp))
+    n_exact_matrix <- get_steady_state_n(params, g_matrix, mu_matrix,
+                                         D_matrix, rep(1, no_sp))
 
     i_inf <- min_i_inf  # index of maximum size
     i_min <- 1  # index of natural egg size
     for (i in 1:no_sp) {
         # n_exact corresponding to size bins w_min_idx[i] to i_inf - 1
         n_exact <- n_exact_matrix[i, w_min_idx[i]:(i_inf - 1)]
-        
+
         # Use the first species for normalisation
         if (i == 1) {
             dist_sp <- bins_per_sp * dx

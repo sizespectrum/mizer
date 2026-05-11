@@ -39,6 +39,19 @@ test_that("setRateFunction works", {
     expect_true(all(r$e_growth == 111))
 })
 
+test_that("setRateFunction validates RDI functions with diffusion", {
+    assign("rdi_needs_diffusion",
+           function(params, diffusion, ...) {
+               rowSums(diffusion)
+           }, envir = .GlobalEnv)
+    withr::defer(rm("rdi_needs_diffusion", envir = .GlobalEnv))
+
+    p <- setRateFunction(params, "RDI", "rdi_needs_diffusion")
+
+    expect_identical(p@rates_funcs[["RDI"]], "rdi_needs_diffusion")
+    expect_equal(getRDI(p), rowSums(getDiffusion(p)), ignore_attr = TRUE)
+})
+
 test_that("Time is passed correctly to rate functions", {
     params@rates_funcs$Encounter <- "nt"
     expect_equal(getEncounter(params, t = 2), nt(params, 2),

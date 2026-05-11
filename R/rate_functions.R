@@ -1368,7 +1368,7 @@ getFlux.MizerParams <- function(params, n = initialN(params),
     no_w <- length(params@w)
 
     g <- getEGrowth(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
-    d <- params@ext_diffusion
+    d <- getDiffusion(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
     dw <- params@dw
 
     flux <- matrix(0, nrow = no_sp, ncol = no_w,

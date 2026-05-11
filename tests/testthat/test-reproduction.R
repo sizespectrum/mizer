@@ -59,6 +59,28 @@ test_that("constantEggRDI returns loss from the egg size bin", {
                  expected)
 })
 
+test_that("constantEggRDI direct calls use total diffusion by default", {
+    params <- newSingleSpeciesParams()
+    species <- params@species_params$species[1]
+    params@use_predation_diffusion <- TRUE
+
+    idx <- params@w_min_idx[species]
+    next_idx <- idx + 1
+    dw <- params@dw[idx]
+    n <- initialN(params)
+    e_growth <- getEGrowth(params)
+    mort <- getMort(params)
+    diffusion <- getDiffusion(params)
+    expected <- n[species, idx] *
+        (e_growth[species, idx] + mort[species, idx] * dw) +
+        0.5 * (diffusion[species, idx] * n[species, idx] -
+                   diffusion[species, next_idx] *
+                   n[species, next_idx]) / dw
+
+    expect_equal(constantEggRDI(params, n, e_growth, mort)[1],
+                 expected, ignore_attr = TRUE)
+})
+
 test_that("mizerRDI integrates reproductive energy with erepro and egg size", {
     e_repro <- getERepro(params)
     expected <- 0.5 * drop((e_repro * params@initial_n) %*% params@dw) *

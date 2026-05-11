@@ -11,7 +11,8 @@ test_that("get_steady_state_n works with no diffusion", {
     # Zero diffusion
     params@ext_diffusion[] <- 0
 
-    n_calc <- mizer:::get_steady_state_n(params, growth, mort, N0_vec)
+    n_calc <- mizer:::get_steady_state_n(params, growth, mort,
+                                         params@ext_diffusion, N0_vec)
 
     expect_equal(dim(n_calc), c(no_sp, no_w))
 
@@ -41,7 +42,8 @@ test_that("get_steady_state_n works with diffusion", {
     mort <- matrix(0.1, nrow = no_sp, ncol = no_w)
     N0_vec <- rep(100, no_sp)
 
-    n_calc <- mizer:::get_steady_state_n(params, growth, mort, N0_vec)
+    D <- getDiffusion(params)
+    n_calc <- mizer:::get_steady_state_n(params, growth, mort, D, N0_vec)
 
     expect_equal(dim(n_calc), c(no_sp, no_w))
 
@@ -53,7 +55,28 @@ test_that("get_steady_state_n works with diffusion", {
     }
 
     # Compare with no diffusion
-    params@ext_diffusion[] <- 0
-    n_nodiff <- mizer:::get_steady_state_n(params, growth, mort, N0_vec)
+    zero_D <- D
+    zero_D[] <- 0
+    n_nodiff <- mizer:::get_steady_state_n(params, growth, mort, zero_D,
+                                           N0_vec)
     expect_false(isTRUE(all.equal(n_calc, n_nodiff)))
+})
+
+test_that("get_steady_state_n uses supplied diffusion array", {
+    params <- example_params()
+    params@ext_diffusion[] <- 0
+    no_sp <- nrow(params@species_params)
+    no_w <- length(params@w)
+
+    growth <- matrix(1, nrow = no_sp, ncol = no_w)
+    mort <- matrix(0.1, nrow = no_sp, ncol = no_w)
+    N0_vec <- rep(100, no_sp)
+    D <- params@ext_diffusion
+    D[1, ] <- 0.1 * params@w^(params@species_params$n[1] + 1)
+
+    n_with_D <- mizer:::get_steady_state_n(params, growth, mort, D, N0_vec)
+    D[] <- 0
+    n_without_D <- mizer:::get_steady_state_n(params, growth, mort, D, N0_vec)
+
+    expect_false(isTRUE(all.equal(n_with_D, n_without_D)))
 })

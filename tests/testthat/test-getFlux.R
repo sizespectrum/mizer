@@ -9,7 +9,7 @@ test_that("getFlux works correctly", {
     
     t <- 0
     g <- getEGrowth(params, n = n, t = t)
-    d <- params@ext_diffusion
+    d <- getDiffusion(params, n = n, t = t)
     dw <- params@dw
     rdd <- getRDD(params, n = n, t = t)
     
@@ -41,4 +41,24 @@ test_that("getFlux works correctly", {
     expected_flux_2_j <- g[2, j - 1] * n[2, j - 1] - 0.5 * (d[2, j] * n[2, j] - d[2, j - 1] * n[2, j - 1]) / dw[j - 1]
     
     expect_equal(flux[2, j], expected_flux_2_j, ignore_attr = TRUE)
+})
+
+test_that("getFlux uses total diffusion", {
+    params <- newSingleSpeciesParams()
+    params@use_predation_diffusion <- TRUE
+    species <- params@species_params$species[1]
+
+    n <- params@initial_n
+    t <- 0
+    g <- getEGrowth(params, n = n, t = t)
+    d <- getDiffusion(params, n = n, t = t)
+    flux <- getFlux(params, n = n, t = t)
+
+    j <- params@w_min_idx[species] + 5
+    expected <- g[species, j - 1] * n[species, j - 1] -
+        0.5 * (d[species, j] * n[species, j] -
+                   d[species, j - 1] * n[species, j - 1]) /
+        params@dw[j - 1]
+
+    expect_equal(flux[species, j], expected, ignore_attr = TRUE)
 })

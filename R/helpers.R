@@ -94,10 +94,11 @@ w2l <- function(w, species_params) {
 #' @param params A MizerParams object
 #' @param g A matrix of growth rates (species x size)
 #' @param mu A matrix of mortality rates (species x size)
+#' @param D A matrix of diffusion rates (species x size)
 #' @param N0 A vector with the abundance at the smallest size for each species
 #' @return A matrix with the steady state abundance
 #' @concept helper
-get_steady_state_n <- function(params, g, mu, N0) {
+get_steady_state_n <- function(params, g, mu, D, N0) {
     no_sp <- nrow(params@species_params)
     no_w <- length(params@w)
     n <- matrix(0, nrow = no_sp, ncol = no_w,
@@ -107,7 +108,7 @@ get_steady_state_n <- function(params, g, mu, N0) {
     # and no recruitment flux (since we handle the boundary manually)
     coefs <- get_transport_coefs(params, n, g, mu, dt = 1,
                                  recruitment_flux = rep(0, no_sp),
-                                 d = params@ext_diffusion)
+                                 d = D)
 
     a <- coefs$a
     # For steady state, the diagonal term \tilde{B} is B - 1

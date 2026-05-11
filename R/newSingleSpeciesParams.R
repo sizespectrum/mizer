@@ -32,6 +32,8 @@
 #' size, and `erepro` is then adjusted so the initial state satisfies the egg
 #' boundary condition.
 #'
+#' The diffusion rate is set to `0`
+#'
 #' @param species_name A string with a name for the species. Will be used in
 #'   plot legends.
 #' @param w_max Maximum size of species
@@ -219,7 +221,10 @@ newSingleSpeciesParams <-
     # Steady state solution of the upwind-difference scheme used in project
     growth_matrix <- matrix(gg, nrow = 1)
     mort_matrix <- matrix(mumu, nrow = 1)
-    n_exact <- get_steady_state_n(params, growth_matrix, mort_matrix, c(1))
+    diffusion_matrix <- growth_matrix
+    diffusion_matrix[] <- 0
+    n_exact <- get_steady_state_n(params, growth_matrix, mort_matrix,
+                                  diffusion_matrix, c(1))
     initial_n[1, idxs] <- n_exact[1, idxs]
 
     # The resource was already set up by newMultispeciesParams()
