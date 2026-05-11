@@ -7,11 +7,44 @@
 \title{Get density-independent rate of reproduction needed to project standard
 mizer model}
 \usage{
-projectRDI(params, n, n_pp, n_other, t = 0, e_growth, mort, e_repro, ...)
+projectRDI(
+  params,
+  n,
+  n_pp,
+  n_other,
+  t = 0,
+  e_growth,
+  mort,
+  e_repro,
+  diffusion = NULL,
+  ...
+)
 
-\method{projectRDI}{MizerParams}(params, n, n_pp, n_other, t = 0, e_growth, mort, e_repro, ...)
+\method{projectRDI}{MizerParams}(
+  params,
+  n,
+  n_pp,
+  n_other,
+  t = 0,
+  e_growth,
+  mort,
+  e_repro,
+  diffusion = NULL,
+  ...
+)
 
-mizerRDI(params, n, n_pp, n_other, t = 0, e_growth, mort, e_repro, ...)
+mizerRDI(
+  params,
+  n,
+  n_pp,
+  n_other,
+  t = 0,
+  e_growth,
+  mort,
+  e_repro,
+  diffusion = NULL,
+  ...
+)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -35,6 +68,10 @@ by \code{\link[=getMort]{getMort()}}. Unused.}
 
 \item{e_repro}{An array (species x size) with the energy available for
 reproduction as calculated by \code{\link[=getERepro]{getERepro()}}.}
+
+\item{diffusion}{An array (species x size) with the diffusion rate as
+calculated by \code{\link[=getDiffusion]{getDiffusion()}}. Unused by the default function but supplied
+to custom RDI functions.}
 
 \item{...}{Unused}
 }

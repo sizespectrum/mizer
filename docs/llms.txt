@@ -325,7 +325,7 @@ state.
   [`readParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)
   [`saveSim()`](https://sizespectrum.org/mizer/reference/saveParams.md)
   [`readSim()`](https://sizespectrum.org/mizer/reference/saveParams.md)
-  **\[experimental\]** : Save and restore mizer objects
+  : Save and restore mizer objects
 
 ## Running simulations
 
@@ -393,9 +393,12 @@ state.
 - [`plotting_functions`](https://sizespectrum.org/mizer/reference/plotting_functions.md)
   : Description of the plotting functions
 
+- [`addPlot()`](https://sizespectrum.org/mizer/reference/addPlot.md)
+  **\[experimental\]** : Add values to an existing plot
+
 - [`animate()`](https://sizespectrum.org/mizer/reference/animate.md)
   [`animateSpectra()`](https://sizespectrum.org/mizer/reference/animate.md)
-  : Animate size spectra or rates through time
+  : Animate size-dependent quantities through time
 
 - [`plot(`*`<ArraySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/plot.md)
   [`ggplotly(`*`<ArraySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/plot.md)
@@ -863,6 +866,26 @@ mizer…() functions.
 - [`getParams()`](https://sizespectrum.org/mizer/reference/getParams.md)
   : Extract the parameter object underlying a simulation
 
+- [`print(`*`<ArraySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/print.md)
+  [`print(`*`<ArrayTimeBySpecies>`*`)`](https://sizespectrum.org/mizer/reference/print.md)
+  [`print(`*`<ArrayTimeBySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/print.md)
+  [`print(`*`<summary.ArraySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/print.md)
+  [`print(`*`<summary.ArrayTimeBySpecies>`*`)`](https://sizespectrum.org/mizer/reference/print.md)
+  [`print(`*`<summary.ArrayTimeBySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/print.md)
+  : Print mizer objects
+
+- [`summary(`*`<MizerParams>`*`)`](https://sizespectrum.org/mizer/reference/summary.md)
+  [`summary(`*`<MizerSim>`*`)`](https://sizespectrum.org/mizer/reference/summary.md)
+  [`summary(`*`<ArraySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/summary.md)
+  [`summary(`*`<ArrayTimeBySpecies>`*`)`](https://sizespectrum.org/mizer/reference/summary.md)
+  [`summary(`*`<ArrayTimeBySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/summary.md)
+  : Summarise mizer objects
+
+- [`as.data.frame(`*`<ArraySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/as.data.frame.md)
+  [`as.data.frame(`*`<ArrayTimeBySpecies>`*`)`](https://sizespectrum.org/mizer/reference/as.data.frame.md)
+  [`as.data.frame(`*`<ArrayTimeBySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/as.data.frame.md)
+  : Convert mizer arrays to data frames
+
 - [`ArraySpeciesBySize()`](https://sizespectrum.org/mizer/reference/ArraySpeciesBySize.md)
   : S3 class for species x size rate arrays
 
@@ -876,7 +899,7 @@ mizer…() functions.
   : Test if an object is a ArrayTimeBySpecies
 
 - [`ArrayTimeBySpeciesBySize()`](https://sizespectrum.org/mizer/reference/ArrayTimeBySpeciesBySize.md)
-  : S3 class for time x species x size rate arrays
+  : S3 class for time x species x size arrays
 
 - [`is.ArrayTimeBySpeciesBySize()`](https://sizespectrum.org/mizer/reference/is.ArrayTimeBySpeciesBySize.md)
   : Test if an object is an ArrayTimeBySpeciesBySize
@@ -980,52 +1003,34 @@ versions of mizer
 
 # Articles
 
-### Model description
+### Model types
 
 - [The General Mizer Size-spectrum
   Model](https://sizespectrum.org/mizer/articles/model_description.md):
+- [The Single-Species
+  Model](https://sizespectrum.org/mizer/articles/single_species_size-spectrum_dynamics.md):
+- [The Community
+  Model](https://sizespectrum.org/mizer/articles/community_model.md):
+- [The Trait-Based
+  Model](https://sizespectrum.org/mizer/articles/trait_model.md):
+- [The Multi Species
+  Model](https://sizespectrum.org/mizer/articles/multispecies_model.md):
 
 ### Tutorials
 
 - [Getting started with
   mizer](https://sizespectrum.org/mizer/articles/mizer.md):
-
-- [Single-species size-spectrum
-  dynamics](https://sizespectrum.org/mizer/articles/single_species_size-spectrum_dynamics.md):
-
-  In this tutorial you will gain an understanding of size-spectrum
-  dynamics. To separate the size-spectrum effects from the multi-species
-  effects, we will concentrate on a single species.
-
-- [The Community
-  Model](https://sizespectrum.org/mizer/articles/community_model.md):
-
-- [The Trait-Based
-  Model](https://sizespectrum.org/mizer/articles/trait_model.md):
-
-- [The Multi Species
-  Model](https://sizespectrum.org/mizer/articles/multispecies_model.md):
-
 - [Running a
   Simulation](https://sizespectrum.org/mizer/articles/running_a_simulation.md):
-
 - [Exploring the Simulation
   Results](https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.md):
-
-- [Cheatsheet: Analysis and
-  Plotting](https://sizespectrum.org/mizer/articles/cheatsheet.md):
-
 - [A Multi-Species Model of the North
   Sea](https://sizespectrum.org/mizer/articles/a_multispecies_model_of_the_north_sea.md):
 
-- [Using ggplot2 and plotly with
-  mizer](https://sizespectrum.org/mizer/articles/plotting.md):
+### Cheat sheets
 
-- [Incorporating predation
-  diffusion](https://sizespectrum.org/mizer/articles/predation_diffusion.md):
-
-- [Cohort dynamics and
-  diffusion](https://sizespectrum.org/mizer/articles/cohort_dynamics_and_diffusion.md):
+- [Cheatsheet: Analysis and
+  Plotting](https://sizespectrum.org/mizer/articles/cheatsheet-analysis-and-plotting.md):
 
 ### Extending mizer
 
@@ -1036,23 +1041,15 @@ versions of mizer
 - [Creating a mizer extension
   package](https://sizespectrum.org/mizer/articles/creating-extension-packages.md):
 
-### Publications
+### Technical articles
 
-- [Publications](https://sizespectrum.org/mizer/articles/publications.md):
-
-### Developer Guide
-
+- [Incorporating predation
+  diffusion](https://sizespectrum.org/mizer/articles/predation_diffusion.md):
+- [Cohort dynamics and
+  diffusion](https://sizespectrum.org/mizer/articles/cohort_dynamics_and_diffusion.md):
 - [The Numerical Scheme used in
   Mizer](https://sizespectrum.org/mizer/articles/numerical_details.md):
-- [Mathematical Details of the Mizer
-  Implementation](https://sizespectrum.org/mizer/articles/mathematical_details.md):
+- [Fast Fourier Transform for Mizer
+  rate](https://sizespectrum.org/mizer/articles/fft.md):
 - [Analytic
   Test](https://sizespectrum.org/mizer/articles/analytic_test.md):
-- [Developer
-  Guide](https://sizespectrum.org/mizer/articles/developer_vignette.md):
-- [Working with git and
-  GitHub](https://sizespectrum.org/mizer/articles/working_with_git.md):
-- [Developer
-  FAQ](https://sizespectrum.org/mizer/articles/developer_FAQ.md):
-- [Editing the Mizer
-  Website](https://sizespectrum.org/mizer/articles/editing_website.md):

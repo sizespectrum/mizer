@@ -4,7 +4,14 @@
 \alias{constantEggRDI}
 \title{Choose egg production to keep egg density constant}
 \usage{
-constantEggRDI(params, n, e_growth, mort, ...)
+constantEggRDI(
+  params,
+  n,
+  e_growth,
+  mort,
+  diffusion = getDiffusion(params, n = n, ...),
+  ...
+)
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -16,6 +23,9 @@ available for growth as calculated by \code{\link[=mizerEGrowth]{mizerEGrowth()}
 
 \item{mort}{A two dimensional array (species x size) holding the mortality
 rate as calculated by \code{\link[=mizerMort]{mizerMort()}}.}
+
+\item{diffusion}{A two dimensional array (species x size) holding the
+diffusion rate as calculated by \code{\link[=mizerDiffusion]{mizerDiffusion()}}.}
 
 \item{...}{Unused}
 }

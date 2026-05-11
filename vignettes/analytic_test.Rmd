@@ -84,7 +84,13 @@ The positive root is $\frac{(2A-K) + \text{larger}}{2K} > 0$.
 The negative root is $\frac{(2A-K) - \text{larger}}{2K} < 0$.
 So we need the negative root.
 
-$$ \lambda = p - \frac{(2A - K) - \sqrt{(2A - K)^2 + 8KB}}{2K} $$
+$$
+\begin{split}
+\lambda &= p + \frac{(2A - K) - \sqrt{(2A - K)^2 + 8KB}}{2K}\\
+&=p - \frac{4B}{(2A - K) + \sqrt{(2A - K)^2 + 8KB}}
+\end{split}
+$$
+The second expression above is better for numerical evaluation because it avoids the subtraction of two similarly sized numbers.
 
 ## Numerical verification
 
@@ -106,56 +112,43 @@ b_quad <- -(2*A - K)
 c_quad <- -2*B
 
 det <- b_quad^2 - 4 * a_quad * c_quad
-x <- (-b_quad - sqrt(det)) / (2 * a_quad)
-lambda <- p - x
+x <- 4 * B / (-b_quad + sqrt(det))
+lambda <- p + x
 
 # Set up mizer params
 # We create a dummy species
-params <- newMultispeciesParams(data.frame(species = "Test", 
-                                           w_inf = 1000, 
-                                           w_mat = 100, 
-                                           beta = 100, 
-                                           sigma = 1, 
-                                           k_vb = 0.1), 
-                                no_w = 1000, min_w = 1e-3)
+sp <- data.frame(species = "Test",
+                 w_max = 1000,
+                 w_mat = 100)
+params <- newMultispeciesParams(sp, no_w = 1000, min_w = 1e-3,
+                                info_level = 0)
+
+# Set initial N to analytical solution
+initialN(params) <- matrix(w(params)^(-lambda), nrow = 1, byrow = TRUE)
 
 # Define custom rate functions
 # Growth
 start_growth <- function(params, ...) {
     matrix(A * params@w^p, nrow = 1, byrow = TRUE)
 }
+params <- setRateFunction(params, "EGrowth", "start_growth")
+
 # Mort
 start_mort <- function(params, ...) {
     matrix(B * params@w^(p-1), nrow = 1, byrow = TRUE)
 }
-# RDD (Constant Flux)
-constant_rdd <- function(rdi, species_params, params, ...) {
-    w_min <- 1e-3 # Use the strict lower boundary of the system
-    # Flux J = N(w) * (g(w) - 0.5 * d/dw D(w))
-    # J = C * w^(p-lambda) * (A - 0.5 * K (p + 1 - lambda))
-    # C = 1 (from initial N)
-    J_min <- w_min^(p - lambda) * (A - 0.5 * K * (p + 1 - lambda))
-    structure(rep(J_min, length(rdi)), names = names(rdi))
-}
-
-# Assign to params
-params <- setRateFunction(params, "EGrowth", "start_growth")
 params <- setRateFunction(params, "Mort", "start_mort")
-params <- setRateFunction(params, "RDD", "constant_rdd")
 
-# Set diffusion
+# Diffusion
 ext_diffusion(params)[1, ] <- K * w(params)^(p + 1)
 
-# We also need to switch off resource dynamics and other things to avoid interference
-params <- setResource(params, resource_dynamics = "resource_constant")
-initialNResource(params) <- 0
-
-# Set initial N to analytical solution
-initialN(params) <- matrix(w(params)^(-lambda), nrow = 1, byrow = TRUE)
+# RDD (Constant Flux)
+params@species_params$constant_reproduction <- getRequiredRDD(params)
+params <- setRateFunction(params, "RDD", "constantRDD")
 
 # Run project
 # We verify that N stays constant.
-sim <- project(params, t_max = 1, dt = 0.001)
+sim <- project(params, t_max = 1, dt = 0.01, method = "predictor-corrector")
 
 # Compare final N with initial N
 n0 <- initialN(params)[1, ]
@@ -170,11 +163,9 @@ legend("topright", legend=c("Analytical", "Numerical"),
        col=c("blue", "red"), lty=c(1, 2))
 
 # Calculate relative error
-# Ignore the boundaries where boundary conditions apply
-idx <- 10:(length(w(params))-10)
-rel_err <- abs(n1[idx] - n0[idx]) / n0[idx]
+rel_err <- abs(n1 - n0) / n0
 max_rel_err <- max(rel_err)
-print(paste("Maximum relative error (excluding boundaries):", max_rel_err))
+print(paste("Maximum relative error:", max_rel_err))
 
 if (max_rel_err < 0.05) {
   print("Test passed: Numerical solution stays close to analytical steady state.")

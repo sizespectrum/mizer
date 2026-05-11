@@ -5,11 +5,17 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Add values to an existing plot — addPlot"><meta name="description" content="addPlot() adds another set of values to an existing ggplot. The first
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><meta property="og:title" content="Add values to an existing plot — addPlot"><meta name="description" content="
+addPlot() adds another set of values to an existing ggplot. The first
 method supports adding an ArraySpeciesBySize object to a compatible plot,
-for example to compare the same rate before and after a model change."><meta property="og:description" content="addPlot() adds another set of values to an existing ggplot. The first
+for example to compare the same rate before and after a model change.
+The method checks whether the existing plot uses a compatible x variable,
+and warns if the y variable or y-axis units appear to differ."><meta property="og:description" content="
+addPlot() adds another set of values to an existing ggplot. The first
 method supports adding an ArraySpeciesBySize object to a compatible plot,
-for example to compare the same rate before and after a model change."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
+for example to compare the same rate before and after a model change.
+The method checks whether the existing plot uses a compatible x variable,
+and warns if the y variable or y-axis units appear to differ."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -26,20 +32,20 @@ for example to compare the same rate before and after a model change."><meta pro
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/mizer.html">Get started</a></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://mizer.course.sizespectrum.org">Course</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Tutorials</h6></li>
-    <li><a class="dropdown-item" href="../articles/single_species_size-spectrum_dynamics.html">Single-species size-spectrum dynamics</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Model types</h6></li>
+    <li><a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
+    <li><a class="dropdown-item" href="../articles/single_species_size-spectrum_dynamics.html">The Single-Species Model</a></li>
     <li><a class="dropdown-item" href="../articles/community_model.html">The Community Model</a></li>
     <li><a class="dropdown-item" href="../articles/trait_model.html">The Trait-Based Model</a></li>
     <li><a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Tutorials</h6></li>
     <li><a class="dropdown-item" href="../articles/running_a_simulation.html">Running a Simulation</a></li>
     <li><a class="dropdown-item" href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a></li>
     <li><a class="dropdown-item" href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a></li>
-    <li><a class="dropdown-item" href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
@@ -51,12 +57,13 @@ for example to compare the same rate before and after a model change."><meta pro
     <li><a class="dropdown-item" href="../articles/predation_diffusion.html">Incorporating predation diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
-    <li><a class="dropdown-item" href="../articles/mathematical_details.html">Mathematical Details of the Mizer Implementation</a></li>
+    <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Mizer rate</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://mizer.course.sizespectrum.org">Course</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/publications.html">Publications</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://notebooklm.google.com/notebook/6aa51f75-d1a8-4140-9180-84532ef5f821"><span class="fa fa-robot"></span> Ask AI</a></li>
@@ -79,14 +86,17 @@ for example to compare the same rate before and after a model change."><meta pro
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Add values to an existing plot</h1>
-      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/HEAD/R/ArraySpeciesBySize-class.R" class="external-link"><code>R/ArraySpeciesBySize-class.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/HEAD/R/ArraySpeciesBySize-class.R" class="external-link"><code>R/ArraySpeciesBySize-class.R</code></a>, <a href="https://github.com/sizespectrum/mizer/blob/HEAD/R/ArrayTimeBySpecies-class.R" class="external-link"><code>R/ArrayTimeBySpecies-class.R</code></a></small>
       <div class="d-none name"><code>addPlot.Rd</code></div>
     </div>
 
     <div class="ref-description section level2">
-    <p><code>addPlot()</code> adds another set of values to an existing ggplot. The first
+    <p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="figures/lifecycle-experimental.svg" alt="[Experimental]"></a>
+<code>addPlot()</code> adds another set of values to an existing ggplot. The first
 method supports adding an <code>ArraySpeciesBySize</code> object to a compatible plot,
-for example to compare the same rate before and after a model change.</p>
+for example to compare the same rate before and after a model change.
+The method checks whether the existing plot uses a compatible x variable,
+and warns if the y variable or y-axis units appear to differ.</p>
     </div>
 
     <div class="section level2">
@@ -100,6 +110,23 @@ for example to compare the same rate before and after a model change.</p>
 <span>  species <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  all.sizes <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  wlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
+<span>  total <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  background <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  colour <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  linetype <span class="op">=</span> <span class="st">"dashed"</span>,</span>
+<span>  linewidth <span class="op">=</span> <span class="fl">0.8</span>,</span>
+<span>  alpha <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'ArrayTimeBySpecies'</span></span>
+<span><span class="fu">addPlot</span><span class="op">(</span></span>
+<span>  <span class="va">plot</span>,</span>
+<span>  <span class="va">x</span>,</span>
+<span>  species <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  start_time <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  end_time <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
 <span>  total <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  background <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  colour <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -169,6 +196,22 @@ species line types from the existing plot are used.</p></dd>
 
 <dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
 <dd><p>Transparency of the added lines.</p></dd>
+
+
+<dt id="arg-start-time">start_time<a class="anchor" aria-label="anchor" href="#arg-start-time"></a></dt>
+<dd><p>The first time to be plotted. Default (<code>NULL</code>) is the
+beginning of the time series. Only applies to <code>ArrayTimeBySpecies</code>.</p></dd>
+
+
+<dt id="arg-end-time">end_time<a class="anchor" aria-label="anchor" href="#arg-end-time"></a></dt>
+<dd><p>The last time to be plotted. Default (<code>NULL</code>) is the end of
+the time series. Only applies to <code>ArrayTimeBySpecies</code>.</p></dd>
+
+
+<dt id="arg-ylim">ylim<a class="anchor" aria-label="anchor" href="#arg-ylim"></a></dt>
+<dd><p>A numeric vector of length two providing lower and upper limits
+for the value (y) axis. Use <code>NA</code> to refer to the existing minimum or
+maximum.</p></dd>
 
 </dl></div>
     <div class="section level2">

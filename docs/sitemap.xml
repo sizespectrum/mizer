@@ -5,17 +5,14 @@
 <url><loc>https://sizespectrum.org/mizer/CONTRIBUTING.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/articles/a_multispecies_model_of_the_north_sea.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/articles/analytic_test.html</loc></url>
-<url><loc>https://sizespectrum.org/mizer/articles/cheatsheet.html</loc></url>
+<url><loc>https://sizespectrum.org/mizer/articles/cheatsheet-analysis-and-plotting.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/articles/cohort_dynamics_and_diffusion.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/articles/community_model.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/articles/creating-extension-packages.html</loc></url>
-<url><loc>https://sizespectrum.org/mizer/articles/developer_FAQ.html</loc></url>
-<url><loc>https://sizespectrum.org/mizer/articles/developer_vignette.html</loc></url>
-<url><loc>https://sizespectrum.org/mizer/articles/editing_website.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/articles/extending-mizer.html</loc></url>
+<url><loc>https://sizespectrum.org/mizer/articles/fft.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/articles/index.html</loc></url>
-<url><loc>https://sizespectrum.org/mizer/articles/mathematical_details.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/articles/mizer.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/articles/mizer_vignette.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/articles/model_description.html</loc></url>
@@ -28,7 +25,6 @@
 <url><loc>https://sizespectrum.org/mizer/articles/single_species_size-spectrum_dynamics.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/articles/trait_model.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/articles/using-extension-packages.html</loc></url>
-<url><loc>https://sizespectrum.org/mizer/articles/working_with_git.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/authors.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/index.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/news/index.html</loc></url>
@@ -49,10 +45,12 @@
 <url><loc>https://sizespectrum.org/mizer/reference/NS_species_params_gears.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/RickerRDD.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/SheperdRDD.html</loc></url>
+<url><loc>https://sizespectrum.org/mizer/reference/addPlot.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/addSpecies.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/age_mat.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/age_mat_vB.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/animate.html</loc></url>
+<url><loc>https://sizespectrum.org/mizer/reference/as.data.frame.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/assertExtensionChain.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/baseMizerClass.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/box_pred_kernel.html</loc></url>
@@ -204,6 +202,7 @@
 <url><loc>https://sizespectrum.org/mizer/reference/plotYieldObservedVsModel.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/plotting_functions.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/power_law_pred_kernel.html</loc></url>
+<url><loc>https://sizespectrum.org/mizer/reference/print.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/project.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/projectRDD.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/projectToSteady.html</loc></url>
@@ -255,6 +254,7 @@
 <url><loc>https://sizespectrum.org/mizer/reference/steadySingleSpecies.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/summary.MizerParams.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/summary.MizerSim.html</loc></url>
+<url><loc>https://sizespectrum.org/mizer/reference/summary.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/summary_functions.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/truncated_lognormal_pred_kernel.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/upgradeParams.html</loc></url>

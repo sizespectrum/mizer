@@ -1,12 +1,12 @@
 ---
-title: "Fast Fourier Transform for Mizer rate"
+title: "Fast Fourier Transform for Rates"
 output:
   html_document:
     toc: yes
     fig_width: 5
     fig_height: 5
 vignette: >
-  %\VignetteIndexEntry{Mathematical Details of the Mizer Implementation}
+  %\VignetteIndexEntry{Fast Fourier Transform for Rates}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

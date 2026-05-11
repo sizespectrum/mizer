@@ -4,7 +4,7 @@
 \alias{get_steady_state_n}
 \title{Calculate steady state abundance}
 \usage{
-get_steady_state_n(params, g, mu, N0)
+get_steady_state_n(params, g, mu, D, N0)
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -12,6 +12,8 @@ get_steady_state_n(params, g, mu, N0)
 \item{g}{A matrix of growth rates (species x size)}
 
 \item{mu}{A matrix of mortality rates (species x size)}
+
+\item{D}{A matrix of diffusion rates (species x size)}
 
 \item{N0}{A vector with the abundance at the smallest size for each species}
 }
