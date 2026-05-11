@@ -274,6 +274,9 @@ the mathematical details.
   otherwise divide by zero because the resource capacity equals the current
   resource abundance at positive consumption, the capacity is increased
   slightly with a warning instead of failing early.
+  
+- New function `psi()` returns an `ArraySpeciesBySize` with the population-level
+  reproductive proportion.
 
 - `age_mat_vB()` is now exported.
 

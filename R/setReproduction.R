@@ -424,3 +424,11 @@ repro_prop <- function(params) {
 `repro_prop<-` <- function(params, value) {
     setReproduction(params, repro_prop = value)
 }
+
+#' @rdname setReproduction
+#' @export
+psi <- function(params) {
+    ArraySpeciesBySize(params@psi,
+                       value_name = "Population-level reproductive proportion",
+                       params = params)
+}

@@ -8,6 +8,7 @@
 \alias{getReproductionProportion}
 \alias{repro_prop}
 \alias{repro_prop<-}
+\alias{psi}
 \title{Set reproduction parameters}
 \usage{
 setReproduction(
@@ -30,6 +31,8 @@ getReproductionProportion(params)
 repro_prop(params)
 
 repro_prop(params) <- value
+
+psi(params)
 }
 \arguments{
 \item{params}{A MizerParams object}
