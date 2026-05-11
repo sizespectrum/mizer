@@ -18,6 +18,7 @@ authors:
 
 template:
   bootstrap: 5
+  bootswatch: cerulean
   light-switch: true
   math-rendering: mathjax
   opengraph:
