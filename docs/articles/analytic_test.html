@@ -68,7 +68,7 @@
     <li><a class="dropdown-item" href="../articles/predation_diffusion.html">Incorporating predation diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
-    <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Mizer rate</a></li>
+    <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
@@ -125,53 +125,52 @@ solver used in mizer.</p>
 Foerster equation with an added diffusion term:</p>
 <p><span class="math display">\[\begin{equation}
   \frac{\partial N}{\partial t} + \frac{\partial}{\partial w} \left( g N
-- \frac{1}{2}\frac{\partial(D N)}{\partial w} \right) = -\mu N
+- \frac{1}{2}\frac{\partial(D N)}{\partial w} \right) = -\mu N,
 \end{equation}\]</span></p>
 <p>where <span class="math inline">\(g(w)\)</span> is the growth rate,
 <span class="math inline">\(\mu(w)\)</span> is the mortality rate and
 <span class="math inline">\(D(w)\)</span> is the diffusion rate.</p>
-</div>
-<div class="section level2">
-<h2 id="analytical-solution-for-power-law-rates">Analytical solution for power-law rates<a class="anchor" aria-label="anchor" href="#analytical-solution-for-power-law-rates"></a>
-</h2>
-<p>We look for a steady state solution <span class="math inline">\(N(w)\)</span> when the rates are power laws of the
+<p>We will look for a solutions when the rates are power laws of the
 form:</p>
 <p><span class="math display">\[\begin{align}
-g(w) &amp;= A w^p \\
-\mu(w) &amp;= B w^{p-1} \\
-D(w) &amp;= K w^{p+1}
+g(w) &amp;= A w^p, \\
+\mu(w) &amp;= B w^{p-1}, \\
+D(w) &amp;= K w^{p+1}.
 \end{align}\]</span></p>
-<p>We try a power-law ansatz for the solution: <span class="math display">\[ N(w) = C w^{-\lambda} \]</span> Substituting
+</div>
+<div class="section level2">
+<h2 id="analytical-steady-state-solution">Analytical steady-state solution<a class="anchor" aria-label="anchor" href="#analytical-steady-state-solution"></a>
+</h2>
+<p>We try a power-law ansatz for the solution: <span class="math display">\[ N(w) = C w^{-\lambda}. \]</span> Substituting
 these forms into the transport equation at steady state (<span class="math inline">\(\partial N / \partial t = 0\)</span>):</p>
 <p><span class="math display">\[ \frac{\partial}{\partial w} \left( A
 w^p C w^{-\lambda} - \frac{1}{2}\frac{\partial}{\partial w}(K w^{p+1} C
-w^{-\lambda}) \right) = - B w^{p-1} C w^{-\lambda} \]</span></p>
-<p>Simplifying the term inside the derivative: <span class="math display">\[ D N = K C w^{p+1-\lambda} \]</span> <span class="math display">\[ \frac{\partial(D N)}{\partial w} = K C
-(p+1-\lambda) w^{p-\lambda} \]</span> <span class="math display">\[ g N
+w^{-\lambda}) \right) = - B w^{p-1} C w^{-\lambda}. \]</span></p>
+<p>We simplify the term inside the derivative: <span class="math display">\[ D N = K C w^{p+1-\lambda}, \]</span> <span class="math display">\[ \frac{\partial(D N)}{\partial w} = K C
+(p+1-\lambda) w^{p-\lambda}, \]</span> <span class="math display">\[ g N
 - \frac{1}{2}\frac{\partial(D N)}{\partial w} = \left( A - \frac{1}{2} K
-(p+1-\lambda) \right) C w^{p-\lambda} \]</span> Let <span class="math inline">\(J_0 = C \left( A - \frac{1}{2} K (p+1-\lambda)
-\right)\)</span>. Then the flux is <span class="math inline">\(J = J_0
-w^{p-\lambda}\)</span>.</p>
-<p>Differentiating flux with respect to <span class="math inline">\(w\)</span>: <span class="math display">\[
-\frac{\partial J}{\partial w} = J_0 (p-\lambda) w^{p-\lambda-1}
+(p+1-\lambda) \right) C w^{p-\lambda}.\]</span> Thus the flux is <span class="math inline">\(J = J_0 w^{p-\lambda}\)</span> with <span class="math inline">\(J_0 = C \left( A - \frac{1}{2} K (p+1-\lambda)
+\right)\)</span>.</p>
+<p>Differentiating the flux with respect to <span class="math inline">\(w\)</span> gives <span class="math display">\[
+\frac{\partial J}{\partial w} = J_0 (p-\lambda) w^{p-\lambda-1}.
 \]</span></p>
-<p>The RHS is: <span class="math display">\[ -\mu N = - B C
-w^{p-1-\lambda} \]</span></p>
-<p>Equating LHS and RHS: <span class="math display">\[ C \left( A -
+<p>The RHS is <span class="math display">\[ -\mu N = - B C
+w^{p-1-\lambda}. \]</span></p>
+<p>Equating LHS and RHS gives <span class="math display">\[ C \left( A -
 \frac{1}{2} K (p+1-\lambda) \right) (p-\lambda) w^{p-\lambda-1} = - B C
-w^{p-\lambda-1} \]</span></p>
+w^{p-\lambda-1}. \]</span></p>
 <p>Dividing by <span class="math inline">\(C w^{p-\lambda-1}\)</span>
 (assuming <span class="math inline">\(C \neq 0\)</span> and <span class="math inline">\(w \neq 0\)</span>): <span class="math display">\[
-\left( A - \frac{1}{2} K (p+1-\lambda) \right) (p-\lambda) + B = 0
+\left( A - \frac{1}{2} K (p+1-\lambda) \right) (p-\lambda) + B = 0.
 \]</span></p>
 <p>Let <span class="math inline">\(x = p - \lambda\)</span>. Then <span class="math inline">\(p + 1 - \lambda = x + 1\)</span>. The equation
 becomes: <span class="math display">\[ \left( A - \frac{1}{2} K (x+1)
-\right) x + B = 0 \]</span> <span class="math display">\[ Ax -
-\frac{1}{2} K x^2 - \frac{1}{2} K x + B = 0 \]</span> Multiply by -2:
-<span class="math display">\[ K x^2 - (2A - K) x - 2B = 0 \]</span></p>
+\right) x + B = 0. \]</span> or, equivalently, <span class="math display">\[ Ax - \frac{1}{2} K x^2 - \frac{1}{2} K x + B =
+0. \]</span> We multiply by -2: <span class="math display">\[ K x^2 -
+(2A - K) x - 2B = 0. \]</span></p>
 <p>This is a quadratic equation for <span class="math inline">\(x = p -
 \lambda\)</span>. The solutions are: <span class="math display">\[ x =
-\frac{(2A - K) \pm \sqrt{(2A - K)^2 + 8KB}}{2K} \]</span></p>
+\frac{(2A - K) \pm \sqrt{(2A - K)^2 + 8KB}}{2K}.\]</span></p>
 <p>We are interested in the solution that corresponds to the limit of
 small diffusion <span class="math inline">\(K \to 0\)</span>. In that
 limit, <span class="math inline">\(g N \sim C A w^{p-\lambda}\)</span>
@@ -179,20 +178,25 @@ and <span class="math inline">\(\frac{\partial (gN)}{\partial w} \sim C
 A (p-\lambda) w^{p-\lambda-1}\)</span>. The transport equation without
 diffusion is <span class="math inline">\(\frac{\partial (gN)}{\partial
 w} = -\mu N\)</span>. <span class="math display">\[ A (p-\lambda) = -B
-\implies x = p-\lambda = -B/A \]</span> Since <span class="math inline">\(A, B &gt; 0\)</span>, <span class="math inline">\(x\)</span> should be negative. Let’s check the
+\implies x = p-\lambda = -B/A. \]</span> Since <span class="math inline">\(A, B &gt; 0\)</span>, <span class="math inline">\(x\)</span> should be negative. Let’s check the
 roots. <span class="math inline">\((2A-K)^2 + 8KB &gt;
 (2A-K)^2\)</span>, so the square root is larger than <span class="math inline">\(|2A-K|\)</span>. The term <span class="math inline">\((2A-K)\)</span> is positive for small <span class="math inline">\(K\)</span>. The positive root is <span class="math inline">\(\frac{(2A-K) + \text{larger}}{2K} &gt; 0\)</span>.
 The negative root is <span class="math inline">\(\frac{(2A-K) -
-\text{larger}}{2K} &lt; 0\)</span>. So we need the negative root.</p>
-<p><span class="math display">\[ \lambda = p - \frac{(2A - K) -
-\sqrt{(2A - K)^2 + 8KB}}{2K} \]</span></p>
-</div>
-<div class="section level2">
-<h2 id="numerical-verification">Numerical verification<a class="anchor" aria-label="anchor" href="#numerical-verification"></a>
-</h2>
+\text{larger}}{2K} &lt; 0\)</span>. So we need the negative root:</p>
+<p><span class="math display">\[
+\begin{split}
+\lambda &amp;= p + \frac{(2A - K) - \sqrt{(2A - K)^2 + 8KB}}{2K}\\
+&amp;=p - \frac{4B}{(2A - K) + \sqrt{(2A - K)^2 + 8KB}}.
+\end{split}
+\]</span> The second expression above is better for numerical evaluation
+because it avoids the subtraction of two similarly sized numbers.</p>
+<div class="section level3">
+<h3 id="numerical-verification">Numerical verification<a class="anchor" aria-label="anchor" href="#numerical-verification"></a>
+</h3>
 <p>We verify this analytical solution by considering a single species in
 mizer and checking if the <code><a href="../reference/project.html">project()</a></code> function keeps the
-system in this steady state.</p>
+system in this steady state. First we set up a mizer model with the
+power law rates:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sizespectrum.org/mizer/">mizer</a></span><span class="op">)</span></span>
 <span></span>
@@ -209,70 +213,45 @@ system in this steady state.</p>
 <span><span class="va">c_quad</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">2</span><span class="op">*</span><span class="va">B</span></span>
 <span></span>
 <span><span class="va">det</span> <span class="op">&lt;-</span> <span class="va">b_quad</span><span class="op">^</span><span class="fl">2</span> <span class="op">-</span> <span class="fl">4</span> <span class="op">*</span> <span class="va">a_quad</span> <span class="op">*</span> <span class="va">c_quad</span></span>
-<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="op">-</span><span class="va">b_quad</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">det</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">a_quad</span><span class="op">)</span></span>
-<span><span class="va">lambda</span> <span class="op">&lt;-</span> <span class="va">p</span> <span class="op">-</span> <span class="va">x</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fl">4</span> <span class="op">*</span> <span class="va">B</span> <span class="op">/</span> <span class="op">(</span><span class="op">-</span><span class="va">b_quad</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">det</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">lambda</span> <span class="op">&lt;-</span> <span class="va">p</span> <span class="op">+</span> <span class="va">x</span></span>
 <span></span>
 <span><span class="co"># Set up mizer params</span></span>
 <span><span class="co"># We create a dummy species</span></span>
-<span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Test"</span>, </span>
-<span>                                           w_inf <span class="op">=</span> <span class="fl">1000</span>, </span>
-<span>                                           w_mat <span class="op">=</span> <span class="fl">100</span>, </span>
-<span>                                           beta <span class="op">=</span> <span class="fl">100</span>, </span>
-<span>                                           sigma <span class="op">=</span> <span class="fl">1</span>, </span>
-<span>                                           k_vb <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>, </span>
-<span>                                no_w <span class="op">=</span> <span class="fl">1000</span>, min_w <span class="op">=</span> <span class="fl">1e-3</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in validGivenSpeciesParams(species_params): The species parameter data</span></span>
-<span><span class="co">#&gt; frame is missing a `w_max` column. I am copying over the values from the</span></span>
-<span><span class="co">#&gt; `w_inf` column. But note that `w_max` should be the maximum size of the largest</span></span>
-<span><span class="co">#&gt; individual, not the asymptotic size of an average indivdidual.</span></span>
-<span><span class="co">#&gt; Warning in validGivenSpeciesParams(species_params): The species parameter data</span></span>
-<span><span class="co">#&gt; frame is missing a `w_max` column. I am copying over the values from the</span></span>
-<span><span class="co">#&gt; `w_inf` column. But note that `w_max` should be the maximum size of the largest</span></span>
-<span><span class="co">#&gt; individual, not the asymptotic size of an average indivdidual.</span></span>
-<span><span class="co">#&gt; Because you have n != p, the default value for `h` is not very good.</span></span>
-<span><span class="co">#&gt; Because the age at maturity is not known, I need to fall back to using</span></span>
-<span><span class="co">#&gt; von Bertalanffy parameters, where available, and this is not reliable.</span></span>
-<span><span class="co">#&gt; No ks column so calculating from critical feeding level.</span></span>
-<span><span class="co">#&gt; Using z0 = z0pre * w_max ^ z0exp for missing z0 values.</span></span>
-<span><span class="co">#&gt; Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</span></span>
+<span><span class="va">sp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Test"</span>,</span>
+<span>                 w_max <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>                 w_mat <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">sp</span>, no_w <span class="op">=</span> <span class="fl">1000</span>, min_w <span class="op">=</span> <span class="fl">1e-3</span>,</span>
+<span>                                info_level <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Set initial N to analytical solution</span></span>
+<span><span class="fu"><a href="../reference/initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">^</span><span class="op">(</span><span class="op">-</span><span class="va">lambda</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Define custom rate functions</span></span>
 <span><span class="co"># Growth</span></span>
 <span><span class="va">start_growth</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">params</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">A</span> <span class="op">*</span> <span class="va">params</span><span class="op">@</span><span class="va">w</span><span class="op">^</span><span class="va">p</span>, nrow <span class="op">=</span> <span class="fl">1</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
+<span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"EGrowth"</span>, <span class="st">"start_growth"</span><span class="op">)</span></span>
+<span></span>
 <span><span class="co"># Mort</span></span>
 <span><span class="va">start_mort</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">params</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">B</span> <span class="op">*</span> <span class="va">params</span><span class="op">@</span><span class="va">w</span><span class="op">^</span><span class="op">(</span><span class="va">p</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">B</span> <span class="op">*</span> <span class="va">params</span><span class="op">@</span><span class="va">w</span><span class="op">^</span><span class="op">(</span><span class="va">p</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
-<span><span class="co"># RDD (Constant Flux)</span></span>
-<span><span class="va">constant_rdd</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">rdi</span>, <span class="va">species_params</span>, <span class="va">params</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">w_min</span> <span class="op">&lt;-</span> <span class="fl">1e-3</span> <span class="co"># Use the strict lower boundary of the system</span></span>
-<span>    <span class="co"># Flux J = N(w) * (g(w) - 0.5 * d/dw D(w))</span></span>
-<span>    <span class="co"># J = C * w^(p-lambda) * (A - 0.5 * K (p + 1 - lambda))</span></span>
-<span>    <span class="co"># C = 1 (from initial N)</span></span>
-<span>    <span class="va">J_min</span> <span class="op">&lt;-</span> <span class="va">w_min</span><span class="op">^</span><span class="op">(</span><span class="va">p</span> <span class="op">-</span> <span class="va">lambda</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="va">A</span> <span class="op">-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">K</span> <span class="op">*</span> <span class="op">(</span><span class="va">p</span> <span class="op">+</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">lambda</span><span class="op">)</span><span class="op">)</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/structure.html" class="external-link">structure</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">J_min</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">rdi</span><span class="op">)</span><span class="op">)</span>, names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">rdi</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="co"># Assign to params</span></span>
-<span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"EGrowth"</span>, <span class="st">"start_growth"</span><span class="op">)</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"Mort"</span>, <span class="st">"start_mort"</span><span class="op">)</span></span>
-<span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"RDD"</span>, <span class="st">"constant_rdd"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Set diffusion</span></span>
+<span><span class="co"># Diffusion</span></span>
 <span><span class="fu"><a href="../reference/setExtDiffusion.html">ext_diffusion</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">K</span> <span class="op">*</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">^</span><span class="op">(</span><span class="va">p</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># We also need to switch off resource dynamics and other things to avoid interference</span></span>
-<span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setResource.html">setResource</a></span><span class="op">(</span><span class="va">params</span>, resource_dynamics <span class="op">=</span> <span class="st">"resource_constant"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
-<span></span>
-<span><span class="co"># Set initial N to analytical solution</span></span>
-<span><span class="fu"><a href="../reference/initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">^</span><span class="op">(</span><span class="op">-</span><span class="va">lambda</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Run project</span></span>
+<span><span class="co"># RDD (Constant Flux)</span></span>
+<span><span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">constant_reproduction</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getRequiredRDD.html">getRequiredRDD</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
+<span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"RDD"</span>, <span class="st">"constantRDD"</span><span class="op">)</span></span></code></pre></div>
+<p>We can now project this forward in time and check that the result
+stays the same.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Run project</span></span>
 <span><span class="co"># We verify that N stays constant.</span></span>
-<span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">1</span>, dt <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span></span>
+<span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">1</span>, dt <span class="op">=</span> <span class="fl">0.1</span>, method <span class="op">=</span> <span class="st">"predictor-corrector"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Compare final N with initial N</span></span>
 <span><span class="va">n0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span></span>
@@ -285,50 +264,52 @@ system in this steady state.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="va">n1</span>, col<span class="op">=</span><span class="st">"red"</span>, lty<span class="op">=</span><span class="fl">2</span>, lwd<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, legend<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Analytical"</span>, <span class="st">"Numerical"</span><span class="op">)</span>, </span>
 <span>       col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"blue"</span>, <span class="st">"red"</span><span class="op">)</span>, lty<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="analytic_test_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" alt="" width="700"></p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<p><img src="analytic_test_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="700"></p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Calculate relative error</span></span>
-<span><span class="co"># Ignore the boundaries where boundary conditions apply</span></span>
-<span><span class="va">idx</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">:</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span><span class="op">-</span><span class="fl">10</span><span class="op">)</span></span>
-<span><span class="va">rel_err</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">n1</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span> <span class="op">-</span> <span class="va">n0</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span><span class="op">)</span> <span class="op">/</span> <span class="va">n0</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span></span>
-<span><span class="va">max_rel_err</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">rel_err</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Maximum relative error (excluding boundaries):"</span>, <span class="va">max_rel_err</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Maximum relative error (excluding boundaries): 0.0384619887553153"</span></span>
+<span><span class="va">rel_err</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">n1</span> <span class="op">-</span> <span class="va">n0</span><span class="op">)</span> <span class="op">/</span> <span class="va">n0</span></span>
+<span><span class="co"># ignore last 100 bins because they are affected by the right boundary</span></span>
+<span><span class="va">max_rel_err</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">rel_err</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">980</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Maximum relative error:"</span>, <span class="va">max_rel_err</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Maximum relative error: 0.00596547751519771"</span></span>
 <span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="va">max_rel_err</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span> <span class="op">{</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="va">max_rel_err</span> <span class="op">&lt;</span> <span class="fl">0.01</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="st">"Test passed: Numerical solution stays close to analytical steady state."</span><span class="op">)</span></span>
 <span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="st">"Test failed: Numerical solution deviates from analytical steady state."</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="co">#&gt; [1] "Test passed: Numerical solution stays close to analytical steady state."</span></span></code></pre></div>
 </div>
+</div>
 <div class="section level2">
 <h2 id="time-dependent-analytical-solution">Time-dependent analytical solution<a class="anchor" aria-label="anchor" href="#time-dependent-analytical-solution"></a>
 </h2>
 <p>To facilitate an analytical solution for time-dependent problems, we
 first transform the size variable <span class="math inline">\(w\)</span>
-to a new variable <span class="math inline">\(x\)</span>: <span class="math display">\[ x = \frac{w^{1-p}}{1-p} \]</span> Assuming <span class="math inline">\(p \neq 1\)</span>. Then <span class="math inline">\(w = ((1-p)x)^{\frac{1}{1-p}}\)</span> and <span class="math inline">\(\frac{dx}{dw} = w^{-p}\)</span>.</p>
-<p>We define the density in <span class="math inline">\(x\)</span>-space, <span class="math inline">\(\tilde{N}(x, t)\)</span>, such that <span class="math inline">\(\tilde{N}(x, t) dx = N(w, t) dw\)</span>. Thus:
+to a new variable <span class="math inline">\(x\)</span>: <span class="math display">\[ x = \frac{w^{1-p}}{1-p}. \]</span> Assuming
+<span class="math inline">\(p \neq 1\)</span>. Then <span class="math inline">\(w = ((1-p)x)^{\frac{1}{1-p}}\)</span> and <span class="math inline">\(\frac{dx}{dw} = w^{-p}\)</span>.</p>
+<p>We define the density in <span class="math inline">\(x\)</span>-space, <span class="math inline">\(\tilde{N}(x, t)\)</span>, such that <span class="math inline">\(\tilde{N}(x, t) dx = N(w, t) dw\)</span>. Thus
 <span class="math display">\[ \tilde{N}(x, t) = N(w, t) \frac{dw}{dx} =
-N(w, t) w^p \]</span></p>
+N(w, t) w^p. \]</span></p>
 <p>Substituting this into the transport equation and simplifying leads
 to a PDE of the form: <span class="math display">\[ \frac{\partial
 \tilde{N}}{\partial t} = V x \frac{\partial^2 \tilde{N}}{\partial x^2} +
 (V - U) \frac{\partial \tilde{N}}{\partial x} - \frac{b}{x} \tilde{N}
-\]</span> where: * <span class="math inline">\(U = A -
-\frac{1}{2}K\)</span> * <span class="math inline">\(V = \frac{1}{2} K
-(1-p)\)</span> * <span class="math inline">\(b =
-\frac{B}{1-p}\)</span></p>
+,\]</span> where <span class="math inline">\(U = A -
+\frac{1}{2}K\)</span>, <span class="math inline">\(V = \frac{1}{2} K
+(1-p)\)</span>, <span class="math inline">\(b =
+\frac{B}{1-p}\)</span>.</p>
 <p>The fundamental solution (Green’s function) for this equation,
 describing the evolution of an initial Dirac delta distribution <span class="math inline">\(\tilde{N}(x, 0) = \delta(x - x_0)\)</span>, is
-given by: <span class="math display">\[ G(x, t; x_0) = \frac{1}{Vt}
+given by <span class="math display">\[ G(x, t; x_0) = \frac{1}{Vt}
 \left( \frac{x}{x_0} \right)^{\frac{U}{2V}} \exp\left( -\frac{x+x_0}{Vt}
-\right) I_\nu \left( \frac{2\sqrt{xx_0}}{Vt} \right) \]</span> where
+\right) I_\nu \left( \frac{2\sqrt{xx_0}}{Vt} \right), \]</span> where
 <span class="math inline">\(I_\nu\)</span> is the modified Bessel
-function of the first kind of order <span class="math inline">\(\nu\)</span>, given by: <span class="math display">\[ \nu = \frac{1}{V} \sqrt{U^2 + 4Vb} \]</span></p>
-<p>The solution in terms of the original size distribution <span class="math inline">\(N(w, t)\)</span> is then: <span class="math display">\[ N(w, t) = G(x(w), t; x(w_0)) w^{-p}
-\]</span></p>
+function of the first kind of order <span class="math inline">\(\nu\)</span>, given by <span class="math display">\[ \nu = \frac{1}{V} \sqrt{U^2 + 4Vb}
+.\]</span></p>
+<p>The solution in terms of the original size distribution <span class="math inline">\(N(w, t)\)</span> is then <span class="math display">\[ N(w, t) = G(x(w), t; x(w_0)) w^{-p}
+.\]</span></p>
 <div class="section level3">
 <h3 id="numerical-verification-1">Numerical verification<a class="anchor" aria-label="anchor" href="#numerical-verification-1"></a>
 </h3>
@@ -336,18 +317,17 @@ function of the first kind of order <span class="math inline">\(\nu\)</span>, gi
 with the analytical distribution at a small time <span class="math inline">\(t_{start} &gt; 0\)</span> (to avoid the
 singularity at <span class="math inline">\(t=0\)</span>) and projecting
 it to a later time <span class="math inline">\(t_{end}\)</span>.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Function to calculate N analytic</span></span>
-<span><span class="va">N_analytic</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">w</span>, <span class="va">t</span>, <span class="va">w0</span>, <span class="va">t0</span>, <span class="va">params</span><span class="op">)</span> <span class="op">{</span></span>
+<span><span class="va">N_analytic</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">w</span>, <span class="va">t</span>, <span class="va">w0</span>, <span class="va">t0</span>, <span class="va">K_eff</span> <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># Parameters</span></span>
 <span>  <span class="va">p</span> <span class="op">&lt;-</span> <span class="fl">0.7</span></span>
 <span>  <span class="va">A</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span>  <span class="va">B</span> <span class="op">&lt;-</span> <span class="fl">0.5</span></span>
-<span>  <span class="va">K</span> <span class="op">&lt;-</span> <span class="fl">0.1</span></span>
 <span>  </span>
 <span>  <span class="co"># Transformed parameters</span></span>
-<span>  <span class="va">U</span> <span class="op">&lt;-</span> <span class="va">A</span> <span class="op">-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">K</span> </span>
-<span>  <span class="va">V</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">K</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">p</span><span class="op">)</span></span>
+<span>  <span class="va">U</span> <span class="op">&lt;-</span> <span class="va">A</span> <span class="op">-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">K_eff</span></span>
+<span>  <span class="va">V</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">K_eff</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">p</span><span class="op">)</span></span>
 <span>  <span class="va">b</span> <span class="op">&lt;-</span> <span class="va">B</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">p</span><span class="op">)</span></span>
 <span>  <span class="va">nu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="op">(</span><span class="va">U</span><span class="op">/</span><span class="va">V</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="fl">4</span> <span class="op">*</span> <span class="va">b</span> <span class="op">/</span> <span class="va">V</span><span class="op">)</span></span>
 <span></span>
@@ -377,93 +357,45 @@ it to a later time <span class="math inline">\(t_{end}\)</span>.</p>
 <span>  <span class="va">N</span> <span class="op">&lt;-</span> <span class="va">N_tilde</span> <span class="op">*</span> <span class="va">w</span><span class="op">^</span><span class="op">(</span><span class="op">-</span><span class="va">p</span><span class="op">)</span></span>
 <span>  </span>
 <span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="co"># Initial Condition</span></span>
-<span><span class="va">w0</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
-<span><span class="va">t_start</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Initial Condition</span></span>
+<span><span class="va">w0</span> <span class="op">&lt;-</span> <span class="fl">1e-2</span></span>
+<span><span class="va">t_start</span> <span class="op">&lt;-</span> <span class="fl">0.1</span></span>
 <span><span class="va">t_end</span> <span class="op">&lt;-</span> <span class="fl">2</span></span>
 <span></span>
-<span><span class="co"># Set RDD to exact analytical flux</span></span>
-<span><span class="va">time_dep_rdd</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">rdi</span>, <span class="va">species_params</span>, <span class="va">params</span>, <span class="va">t</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="co"># Parameters (must match those used in N_analytic)</span></span>
-<span>    <span class="va">p</span> <span class="op">&lt;-</span> <span class="fl">0.7</span></span>
-<span>    <span class="va">A</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
-<span>    <span class="va">B</span> <span class="op">&lt;-</span> <span class="fl">0.5</span></span>
-<span>    <span class="va">K</span> <span class="op">&lt;-</span> <span class="fl">0.1</span></span>
-<span>    <span class="va">w0</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
-<span>    <span class="va">t0</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
-<span>    </span>
-<span>    <span class="co"># Transformed parameters</span></span>
-<span>    <span class="va">U</span> <span class="op">&lt;-</span> <span class="va">A</span> <span class="op">-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">K</span> </span>
-<span>    <span class="va">V</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">K</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">p</span><span class="op">)</span></span>
-<span>    <span class="va">b</span> <span class="op">&lt;-</span> <span class="va">B</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">p</span><span class="op">)</span></span>
-<span>    <span class="va">nu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="op">(</span><span class="va">U</span><span class="op">/</span><span class="va">V</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="fl">4</span> <span class="op">*</span> <span class="va">b</span> <span class="op">/</span> <span class="va">V</span><span class="op">)</span></span>
-<span>    </span>
-<span>    <span class="co"># Time elapsed</span></span>
-<span>    <span class="va">dt</span> <span class="op">&lt;-</span> <span class="va">t</span> <span class="op">-</span> <span class="va">t0</span></span>
-<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">dt</span> <span class="op">&lt;=</span> <span class="fl">0</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/structure.html" class="external-link">structure</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">rdi</span><span class="op">)</span><span class="op">)</span>, names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">rdi</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span>    </span>
-<span>    <span class="co"># Boundary w_min</span></span>
-<span>    <span class="va">w_min</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">params</span><span class="op">@</span><span class="va">w</span><span class="op">)</span></span>
-<span>    <span class="va">x</span> <span class="op">&lt;-</span> <span class="va">w_min</span><span class="op">^</span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">p</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">p</span><span class="op">)</span></span>
-<span>    <span class="va">x0</span> <span class="op">&lt;-</span> <span class="va">w0</span><span class="op">^</span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">p</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">p</span><span class="op">)</span></span>
-<span>    </span>
-<span>    <span class="co"># Argument for Bessel</span></span>
-<span>    <span class="va">z</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">x</span> <span class="op">*</span> <span class="va">x0</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">V</span> <span class="op">*</span> <span class="va">dt</span><span class="op">)</span></span>
-<span>    </span>
-<span>    <span class="co"># Calculate scaled Bessel ratio I_{nu+1}/I_nu</span></span>
-<span>    <span class="co"># besselI returns I_nu * exp(-z) with expon.scaled=TRUE</span></span>
-<span>    <span class="va">I_nu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Bessel.html" class="external-link">besselI</a></span><span class="op">(</span><span class="va">z</span>, <span class="va">nu</span>, expon.scaled <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span>    <span class="va">I_nu_plus_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Bessel.html" class="external-link">besselI</a></span><span class="op">(</span><span class="va">z</span>, <span class="va">nu</span> <span class="op">+</span> <span class="fl">1</span>, expon.scaled <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span>    </span>
-<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">I_nu</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span>        <span class="va">J</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
-<span>    <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>        <span class="va">ratio</span> <span class="op">&lt;-</span> <span class="va">I_nu_plus_1</span> <span class="op">/</span> <span class="va">I_nu</span></span>
-<span>        </span>
-<span>        <span class="co"># Calculate G (N_tilde) at boundary</span></span>
-<span>        <span class="co"># log(G) = ...</span></span>
-<span>        <span class="va">log_G</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">V</span> <span class="op">*</span> <span class="va">dt</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>                 <span class="op">(</span><span class="va">U</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">V</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">x</span> <span class="op">/</span> <span class="va">x0</span><span class="op">)</span> <span class="op">-</span> </span>
-<span>                 <span class="op">(</span><span class="va">x</span> <span class="op">+</span> <span class="va">x0</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">V</span> <span class="op">*</span> <span class="va">dt</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>                 <span class="va">z</span> <span class="op">+</span> </span>
-<span>                 <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">I_nu</span><span class="op">)</span> <span class="co"># I_nu is already scaled, so we add z back... wait.</span></span>
-<span>                 <span class="co"># The formula in N_analytic: log_N_tilde = ... + z + log(bessel_scaled)</span></span>
-<span>                 <span class="co"># This reconstructs the unscaled log value. Correct.</span></span>
-<span>        </span>
-<span>        <span class="va">G</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">log_G</span><span class="op">)</span></span>
-<span>        </span>
-<span>        <span class="co"># Flux J = G * [ U/2 + x/dt - (V*z/2) * ratio - (V*nu/2) ]</span></span>
-<span>        <span class="va">term</span> <span class="op">&lt;-</span> <span class="va">U</span><span class="op">/</span><span class="fl">2</span> <span class="op">+</span> <span class="va">x</span><span class="op">/</span><span class="va">dt</span> <span class="op">-</span> <span class="op">(</span><span class="va">V</span> <span class="op">*</span> <span class="va">z</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="va">ratio</span> <span class="op">-</span> <span class="op">(</span><span class="va">V</span> <span class="op">*</span> <span class="va">nu</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span></span>
-<span>        <span class="va">J</span> <span class="op">&lt;-</span> <span class="va">G</span> <span class="op">*</span> <span class="va">term</span></span>
-<span>    <span class="op">}</span></span>
-<span>    </span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/structure.html" class="external-link">structure</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">J</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">rdi</span><span class="op">)</span><span class="op">)</span>, names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">rdi</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"RDD"</span>, <span class="st">"time_dep_rdd"</span><span class="op">)</span></span>
-<span></span>
 <span><span class="co"># Set initial N from analytical solution</span></span>
-<span><span class="va">initial_n</span> <span class="op">&lt;-</span> <span class="fu">N_analytic</span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="va">t_start</span>, <span class="va">w0</span>, <span class="fl">0</span>, <span class="va">params</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">initial_n</span>, nrow <span class="op">=</span> <span class="fl">1</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Run project</span></span>
-<span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="va">t_end</span> <span class="op">-</span> <span class="va">t_start</span>, dt <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span></span>
+<span><span class="va">initial_n</span> <span class="op">&lt;-</span> <span class="fu">N_analytic</span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="va">t_start</span>, <span class="va">w0</span>, <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">initial_n</span>, nrow <span class="op">=</span> <span class="fl">1</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p>We can simplify the left boundary condition because it is far enough
+away from the Gaussian for us to set the solution to 0 there.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Set RDD to 0</span></span>
+<span><span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">constant_reproduction</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"RDD"</span>, <span class="st">"constantRDD"</span><span class="op">)</span></span></code></pre></div>
+<p>Now we project forward in time.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Run project</span></span>
+<span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="va">t_end</span> <span class="op">-</span> <span class="va">t_start</span>, dt <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>               t_save <span class="op">=</span> <span class="va">t_end</span> <span class="op">-</span> <span class="va">t_start</span>,</span>
+<span>               method <span class="op">=</span> <span class="st">"predictor-corrector"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Compare</span></span>
 <span><span class="va">final_n_num</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/finalN.html">finalN</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span></span>
-<span><span class="va">final_n_ana</span> <span class="op">&lt;-</span> <span class="fu">N_analytic</span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="va">t_end</span>, <span class="va">w0</span>, <span class="fl">0</span>, <span class="va">params</span><span class="op">)</span></span>
+<span><span class="va">final_n_ana</span> <span class="op">&lt;-</span> <span class="fu">N_analytic</span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="va">t_end</span>, <span class="va">w0</span>, <span class="fl">0</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Plot</span></span>
-<span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="va">final_n_num</span>, log<span class="op">=</span><span class="st">"xy"</span>, type<span class="op">=</span><span class="st">"l"</span>, col<span class="op">=</span><span class="st">"red"</span>, lwd<span class="op">=</span><span class="fl">2</span>, </span>
-<span>     main<span class="op">=</span><span class="st">"Time Dependent Check"</span>, xlab<span class="op">=</span><span class="st">"Size"</span>, ylab<span class="op">=</span><span class="st">"Density"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="va">final_n_ana</span>, col<span class="op">=</span><span class="st">"blue"</span>, lty<span class="op">=</span><span class="fl">2</span>, lwd<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, legend<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Numerical"</span>, <span class="st">"Analytical"</span><span class="op">)</span>, col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"blue"</span><span class="op">)</span>, lty<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="analytic_test_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="700"></p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="co"># Robust comparison metrics</span></span>
+<span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="va">final_n_num</span>, log <span class="op">=</span> <span class="st">"x"</span>, type <span class="op">=</span> <span class="st">"l"</span>, col <span class="op">=</span> <span class="st">"red"</span>, lwd <span class="op">=</span> <span class="fl">2</span>, </span>
+<span>     main <span class="op">=</span> <span class="st">"Time Dependent Check"</span>, xlab <span class="op">=</span> <span class="st">"Size"</span>, ylab <span class="op">=</span> <span class="st">"Density"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="va">final_n_ana</span>, col <span class="op">=</span> <span class="st">"blue"</span>, lty <span class="op">=</span> <span class="fl">2</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Numerical"</span>, <span class="st">"Analytical"</span><span class="op">)</span>,</span>
+<span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"blue"</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="analytic_test_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="700"></p>
+<p>This looks good but let us also look at the agreement
+quantitatively:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Robust comparison metrics</span></span>
 <span><span class="co"># 1. Total Abundance (Conservation)</span></span>
 <span><span class="va">total_n_num</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">final_n_num</span> <span class="op">*</span> <span class="va">params</span><span class="op">@</span><span class="va">dw</span><span class="op">)</span></span>
 <span><span class="va">total_n_ana</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">final_n_ana</span> <span class="op">*</span> <span class="va">params</span><span class="op">@</span><span class="va">dw</span><span class="op">)</span></span>
@@ -482,14 +414,19 @@ it to a later time <span class="math inline">\(t_{end}\)</span>.</p>
 <span><span class="va">rel_err_peak_val</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">peak_val_num</span> <span class="op">-</span> <span class="va">peak_val_ana</span><span class="op">)</span> <span class="op">/</span> <span class="va">peak_val_ana</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Total Abundance Error:"</span>, <span class="va">rel_err_total</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Total Abundance Error: 7.06656338230903e-05"</span></span>
+<span><span class="co">#&gt; [1] "Total Abundance Error: 0.00480520170128005"</span></span>
 <span><span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Peak Location Error:"</span>, <span class="va">rel_err_peak_loc</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Peak Location Error: 0.013734153868719"</span></span>
+<span><span class="co">#&gt; [1] "Peak Location Error: 0.0406391712906862"</span></span>
 <span><span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Peak Height Error:"</span>, <span class="va">rel_err_peak_val</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Peak Height Error: 0.0301244310252145"</span></span>
+<span><span class="co">#&gt; [1] "Peak Height Error: 0.0323776398076434"</span></span>
 <span></span>
-<span><span class="co"># Pass conditions: &lt; 5% mass error, &lt; 5% location shift, &lt; 40% height difference (diffusive flattening)</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="va">rel_err_total</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;&amp;</span> <span class="va">rel_err_peak_loc</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;&amp;</span> <span class="va">rel_err_peak_val</span> <span class="op">&lt;</span> <span class="fl">0.4</span><span class="op">)</span> <span class="op">{</span></span>
+<span><span class="co"># Pass conditions: </span></span>
+<span><span class="co">#   &lt; 0.5% abundance error, </span></span>
+<span><span class="co">#   &lt; 5% location shift, </span></span>
+<span><span class="co">#   &lt; 4% height difference (diffusive flattening)</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="va">rel_err_total</span> <span class="op">&lt;</span> <span class="fl">0.005</span> <span class="op">&amp;&amp;</span> </span>
+<span>    <span class="va">rel_err_peak_loc</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;&amp;</span> </span>
+<span>    <span class="va">rel_err_peak_val</span> <span class="op">&lt;</span> <span class="fl">0.04</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="st">"Time-dependent test passed."</span><span class="op">)</span></span>
 <span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="st">"Time-dependent test failed."</span><span class="op">)</span></span>
@@ -498,162 +435,209 @@ it to a later time <span class="math inline">\(t_{end}\)</span>.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="numerical-diffusion-test">Numerical Diffusion Test<a class="anchor" aria-label="anchor" href="#numerical-diffusion-test"></a>
+<h2 id="numerical-diffusion">Numerical diffusion<a class="anchor" aria-label="anchor" href="#numerical-diffusion"></a>
 </h2>
-<p>The upwind scheme introduces a numerical diffusion <span class="math inline">\(D_{num} \approx g(w) \Delta w\)</span>. We verify
-this by running the projection with <em>zero</em> physical diffusion and
-comparing the result to the analytical steady state solution for a
-system <em>with</em> diffusion <span class="math inline">\(D(w) = g(w)
-\Delta w\)</span>.</p>
-<p>In this test, we use the same power law rates: <span class="math inline">\(g(w) = A w^p\)</span>. <span class="math inline">\(\Delta w \approx w \delta\)</span> where <span class="math inline">\(\delta = \ln(10^{\Delta x}) = \ln(\beta)\)</span>.
-So <span class="math inline">\(D_{num} = g(w) \Delta w + g(w)^2 \Delta
-t\)</span>. For power law rates <span class="math inline">\(g(w) = A
-w^p\)</span>, and grid spacing <span class="math inline">\(\Delta w
-\approx w \delta\)</span>, this becomes: <span class="math inline">\(D_{num} \approx A w^p \cdot w \delta + (A w^p)^2
-\Delta t = (A \delta) w^{p+1} + A^2 \Delta t w^{2p}\)</span>. To allow
-an analytic solution with a simple power-law diffusion <span class="math inline">\(D = K w^{p+1}\)</span>, we set <span class="math inline">\(p=1\)</span> for this test. Then <span class="math inline">\(D_{num} \approx (A \delta + A^2 \Delta t)
-w^2\)</span>. This corresponds to <span class="math inline">\(K = A
-\delta + A^2 \Delta t\)</span>.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Parameters for the test</span></span>
-<span><span class="va">p_test</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="co"># Use p=1 to match diffusion scaling</span></span>
-<span><span class="va">A_test</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
-<span><span class="va">B_test</span> <span class="op">&lt;-</span> <span class="fl">0.5</span></span>
+<div class="section level3">
+<h3 id="in-the-euler-method">In the Euler method<a class="anchor" aria-label="anchor" href="#in-the-euler-method"></a>
+</h3>
+<p>The Euler method uses a first-order upwind treatment of the advective
+growth term. This introduces numerical diffusion. For locally constant
+growth rate and grid spacing, the expected numerical diffusion is <span class="math display">\[ D_\mathrm{num} \approx g(w) \Delta w + g(w)^2
+\Delta t. \]</span></p>
+<p>On the logarithmic mizer grid we have approximately <span class="math inline">\(\Delta w = (\beta_\mathrm{grid} - 1)w\)</span>. To
+keep the analytical solution in the same power-law family, we use the
+special case <span class="math inline">\(p = 1\)</span>. Then <span class="math inline">\(g(w) = A w\)</span> and both numerical diffusion
+terms scale like <span class="math inline">\(w^2\)</span>: <span class="math display">\[
+D_\mathrm{num}(w) \approx
+\left(A(\beta_\mathrm{grid} - 1) + A^2 \Delta t\right)w^2.
+\]</span> So the Euler method with physical diffusion <span class="math inline">\(K w^2\)</span> should behave like the continuous
+equation with <span class="math display">\[ K_\mathrm{eff} = K +
+A(\beta_\mathrm{grid} - 1) + A^2 \Delta t. \]</span></p>
+<p>For <span class="math inline">\(p = 1\)</span> the transformed
+variable is <span class="math inline">\(x = \log w\)</span>. The density
+<span class="math inline">\(\tilde N(x, t) = w N(w, t)\)</span>
+satisfies an advection-diffusion equation with constant diffusion and
+constant mortality. The Green’s function is therefore a lognormal
+density: <span class="math display">\[
+N(w,t) = \frac{\exp[-B(t-t_0)]}{w}
+  \phi\left(\log w;\,
+            \log w_0 + \left(A - \frac{K_\mathrm{eff}}{2}\right)(t-t_0),
+            K_\mathrm{eff}(t-t_0)\right),
+\]</span> where <span class="math inline">\(\phi(x; m, v)\)</span> is
+the normal density with mean <span class="math inline">\(m\)</span> and
+variance <span class="math inline">\(v\)</span>.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Parameters for the Euler numerical diffusion check</span></span>
+<span><span class="va">p_euler</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="va">A_euler</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="va">B_euler</span> <span class="op">&lt;-</span> <span class="fl">0.5</span></span>
+<span><span class="va">K_euler</span> <span class="op">&lt;-</span> <span class="fl">0.1</span></span>
+<span><span class="va">dt_euler</span> <span class="op">&lt;-</span> <span class="fl">0.01</span></span>
 <span></span>
-<span><span class="co"># Helper: Growth rate</span></span>
-<span><span class="va">start_growth_test</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">params</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">A_test</span> <span class="op">*</span> <span class="va">params</span><span class="op">@</span><span class="va">w</span><span class="op">^</span><span class="va">p_test</span>, nrow <span class="op">=</span> <span class="fl">1</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">N_lognormal</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">w</span>, <span class="va">t</span>, <span class="va">w0</span>, <span class="va">t0</span>, <span class="va">K_eff</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">dt</span> <span class="op">&lt;-</span> <span class="va">t</span> <span class="op">-</span> <span class="va">t0</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">dt</span> <span class="op">&lt;=</span> <span class="fl">0</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="st">"t must be greater than t0"</span><span class="op">)</span></span>
+<span>    </span>
+<span>    <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">w</span><span class="op">)</span></span>
+<span>    <span class="va">mean_x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">w0</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span><span class="va">A_euler</span> <span class="op">-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">K_eff</span><span class="op">)</span> <span class="op">*</span> <span class="va">dt</span></span>
+<span>    </span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">B_euler</span> <span class="op">*</span> <span class="va">dt</span><span class="op">)</span> <span class="op">*</span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">x</span>, mean <span class="op">=</span> <span class="va">mean_x</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">K_eff</span> <span class="op">*</span> <span class="va">dt</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="va">w</span></span>
 <span><span class="op">}</span></span>
 <span></span>
-<span><span class="co"># Helper: Mortality rate</span></span>
-<span><span class="va">start_mort_test</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">params</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">B_test</span> <span class="op">*</span> <span class="va">params</span><span class="op">@</span><span class="va">w</span><span class="op">^</span><span class="op">(</span><span class="va">p_test</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">start_growth_euler</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">params</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">A_euler</span> <span class="op">*</span> <span class="va">params</span><span class="op">@</span><span class="va">w</span><span class="op">^</span><span class="va">p_euler</span>, nrow <span class="op">=</span> <span class="fl">1</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
-<span><span class="co"># Helper: RDD</span></span>
-<span><span class="co"># We need to calculate K_num inside because it depends on params (resolution)</span></span>
-<span><span class="va">constant_rdd_test</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">rdi</span>, <span class="va">species_params</span>, <span class="va">params</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="co"># Calculate effective K based on grid resolution</span></span>
-<span>    <span class="va">beta_grid</span> <span class="op">&lt;-</span> <span class="va">params</span><span class="op">@</span><span class="va">w</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">/</span> <span class="va">params</span><span class="op">@</span><span class="va">w</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
-<span>    </span>
-<span>    <span class="co"># Grid spacing beta approx 1+delta</span></span>
-<span>    <span class="co"># K_spatial = A * (beta - 1)</span></span>
-<span>    <span class="co"># K_time = A^2 * dt</span></span>
-<span>    <span class="co"># We use dt = 0.01 in the project call below</span></span>
-<span>    <span class="va">dt</span> <span class="op">&lt;-</span> <span class="fl">0.01</span></span>
-<span>    </span>
-<span>    <span class="va">K_loc</span> <span class="op">&lt;-</span> <span class="va">A_test</span> <span class="op">*</span> <span class="op">(</span><span class="va">beta_grid</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="va">A_test</span><span class="op">^</span><span class="fl">2</span> <span class="op">*</span> <span class="va">dt</span></span>
-<span>    </span>
-<span>    <span class="co"># Calculate lambda for this K</span></span>
-<span>    <span class="co"># Solve quadratic: K x^2 - (2A - K) x - 2B = 0</span></span>
-<span>    <span class="va">a_q</span> <span class="op">&lt;-</span> <span class="va">K_loc</span></span>
-<span>    <span class="va">b_q</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="op">(</span><span class="fl">2</span><span class="op">*</span><span class="va">A_test</span> <span class="op">-</span> <span class="va">K_loc</span><span class="op">)</span></span>
-<span>    <span class="va">c_q</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">2</span><span class="op">*</span><span class="va">B_test</span></span>
-<span>    <span class="va">det</span> <span class="op">&lt;-</span> <span class="va">b_q</span><span class="op">^</span><span class="fl">2</span> <span class="op">-</span> <span class="fl">4</span> <span class="op">*</span> <span class="va">a_q</span> <span class="op">*</span> <span class="va">c_q</span></span>
-<span>    <span class="va">x</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="op">-</span><span class="va">b_q</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">det</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">a_q</span><span class="op">)</span></span>
-<span>    <span class="va">lam</span> <span class="op">&lt;-</span> <span class="va">p_test</span> <span class="op">-</span> <span class="va">x</span></span>
-<span>    </span>
-<span>    <span class="va">w_min</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">params</span><span class="op">@</span><span class="va">w</span><span class="op">)</span></span>
-<span>    <span class="va">J_min</span> <span class="op">&lt;-</span> <span class="va">w_min</span><span class="op">^</span><span class="op">(</span><span class="va">p_test</span> <span class="op">-</span> <span class="va">lam</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="va">A_test</span> <span class="op">-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">K_loc</span> <span class="op">*</span> <span class="op">(</span><span class="va">p_test</span> <span class="op">+</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">lam</span><span class="op">)</span><span class="op">)</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/structure.html" class="external-link">structure</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">J_min</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">rdi</span><span class="op">)</span><span class="op">)</span>, names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">rdi</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">start_mort_euler</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">params</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">B_euler</span> <span class="op">*</span> <span class="va">params</span><span class="op">@</span><span class="va">w</span><span class="op">^</span><span class="op">(</span><span class="va">p_euler</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
-<span><span class="co"># Function to perform the numerical diffusion test</span></span>
-<span><span class="va">run_numerical_diffusion_test</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">no_w</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="co"># Create params</span></span>
-<span>    <span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Test"</span>, </span>
-<span>                                               w_inf <span class="op">=</span> <span class="fl">1000</span>, </span>
-<span>                                               w_mat <span class="op">=</span> <span class="fl">100</span>, </span>
-<span>                                               beta <span class="op">=</span> <span class="fl">100</span>, </span>
-<span>                                               sigma <span class="op">=</span> <span class="fl">1</span>, </span>
-<span>                                               k_vb <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>, </span>
-<span>                                    no_w <span class="op">=</span> <span class="va">no_w</span>, min_w <span class="op">=</span> <span class="fl">1e-3</span>, max_w <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
-<span>    </span>
-<span>    <span class="co"># Set rates</span></span>
-<span>    <span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"EGrowth"</span>, <span class="st">"start_growth_test"</span><span class="op">)</span></span>
-<span>    <span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"Mort"</span>, <span class="st">"start_mort_test"</span><span class="op">)</span></span>
-<span>    <span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"RDD"</span>, <span class="st">"constant_rdd_test"</span><span class="op">)</span></span>
-<span>    </span>
-<span>    <span class="co"># NO physical diffusion</span></span>
-<span>    <span class="co"># We set the diffusion matrix to zero</span></span>
-<span>    <span class="fu"><a href="../reference/setExtDiffusion.html">ext_diffusion</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
-<span>    </span>
-<span>    <span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setResource.html">setResource</a></span><span class="op">(</span><span class="va">params</span>, resource_dynamics <span class="op">=</span> <span class="st">"resource_constant"</span><span class="op">)</span></span>
-<span>    <span class="fu"><a href="../reference/initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
-<span>    </span>
-<span>    <span class="co"># Calculate analytic initial condition to start close to steady state</span></span>
-<span>    <span class="co"># We use the same logic as in constant_rdd_test to get lambda</span></span>
-<span>    <span class="va">beta_grid</span> <span class="op">&lt;-</span> <span class="va">params</span><span class="op">@</span><span class="va">w</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">/</span> <span class="va">params</span><span class="op">@</span><span class="va">w</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
-<span>    <span class="va">K_loc</span> <span class="op">&lt;-</span> <span class="va">A_test</span> <span class="op">*</span> <span class="op">(</span><span class="va">beta_grid</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span></span>
-<span>    </span>
-<span>    <span class="va">a_q</span> <span class="op">&lt;-</span> <span class="va">K_loc</span></span>
-<span>    <span class="va">b_q</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="op">(</span><span class="fl">2</span><span class="op">*</span><span class="va">A_test</span> <span class="op">-</span> <span class="va">K_loc</span><span class="op">)</span></span>
-<span>    <span class="va">c_q</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">2</span><span class="op">*</span><span class="va">B_test</span></span>
-<span>    <span class="va">det</span> <span class="op">&lt;-</span> <span class="va">b_q</span><span class="op">^</span><span class="fl">2</span> <span class="op">-</span> <span class="fl">4</span> <span class="op">*</span> <span class="va">a_q</span> <span class="op">*</span> <span class="va">c_q</span></span>
-<span>    <span class="va">x</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="op">-</span><span class="va">b_q</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">det</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">a_q</span><span class="op">)</span></span>
-<span>    <span class="va">lam</span> <span class="op">&lt;-</span> <span class="va">p_test</span> <span class="op">-</span> <span class="va">x</span></span>
-<span>    </span>
-<span>    <span class="co"># Initialize </span></span>
-<span>    <span class="fu"><a href="../reference/initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">params</span><span class="op">@</span><span class="va">w</span><span class="op">^</span><span class="op">(</span><span class="op">-</span><span class="va">lam</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span>    </span>
-<span>    <span class="co"># Project</span></span>
-<span>    <span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">5</span>, dt <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
-<span>    </span>
-<span>    <span class="va">n0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span></span>
-<span>    <span class="va">n1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/finalN.html">finalN</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span></span>
-<span>    </span>
-<span>    <span class="co"># Compare (ignore boundaries)</span></span>
-<span>    <span class="va">idx</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">:</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">params</span><span class="op">@</span><span class="va">w</span><span class="op">)</span><span class="op">-</span><span class="fl">10</span><span class="op">)</span></span>
-<span>    </span>
-<span>    <span class="co"># Calculate error</span></span>
-<span>    <span class="va">err</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">n1</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span> <span class="op">-</span> <span class="va">n0</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span><span class="op">)</span> <span class="op">/</span> <span class="va">n0</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">err</span><span class="op">)</span></span>
+<span><span class="va">params_euler</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">sp</span>, no_w <span class="op">=</span> <span class="fl">1000</span>, min_w <span class="op">=</span> <span class="fl">1e-3</span>,</span>
+<span>                                      info_level <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">params_euler</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">params_euler</span>, <span class="st">"EGrowth"</span>,</span>
+<span>                                <span class="st">"start_growth_euler"</span><span class="op">)</span></span>
+<span><span class="va">params_euler</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">params_euler</span>, <span class="st">"Mort"</span>, <span class="st">"start_mort_euler"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/setExtDiffusion.html">ext_diffusion</a></span><span class="op">(</span><span class="va">params_euler</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">K_euler</span> <span class="op">*</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params_euler</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span></span>
+<span></span>
+<span><span class="co"># The pulse stays well away from the left boundary, so no recruitment enters.</span></span>
+<span><span class="va">params_euler</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">constant_reproduction</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span><span class="va">params_euler</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">params_euler</span>, <span class="st">"RDD"</span>, <span class="st">"constantRDD"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">beta_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params_euler</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">/</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params_euler</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
+<span><span class="va">K_num</span> <span class="op">&lt;-</span> <span class="va">A_euler</span> <span class="op">*</span> <span class="op">(</span><span class="va">beta_grid</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="va">A_euler</span><span class="op">^</span><span class="fl">2</span> <span class="op">*</span> <span class="va">dt_euler</span></span>
+<span><span class="va">K_eff</span> <span class="op">&lt;-</span> <span class="va">K_euler</span> <span class="op">+</span> <span class="va">K_num</span></span>
+<span></span>
+<span><span class="va">w0_euler</span> <span class="op">&lt;-</span> <span class="fl">1e-2</span></span>
+<span><span class="va">t_start_euler</span> <span class="op">&lt;-</span> <span class="fl">0.1</span></span>
+<span><span class="va">t_end_euler</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span></span>
+<span><span class="va">initial_n_euler</span> <span class="op">&lt;-</span> <span class="fu">N_lognormal</span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params_euler</span><span class="op">)</span>, <span class="va">t_start_euler</span>, <span class="va">w0_euler</span>,</span>
+<span>                               <span class="fl">0</span>, <span class="va">K_eff</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">params_euler</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">initial_n_euler</span>, nrow <span class="op">=</span> <span class="fl">1</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p>We project with the Euler method and compare against the exact
+solution with the effective diffusion coefficient.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sim_euler</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params_euler</span>,</span>
+<span>                     t_max <span class="op">=</span> <span class="va">t_end_euler</span> <span class="op">-</span> <span class="va">t_start_euler</span>,</span>
+<span>                     dt <span class="op">=</span> <span class="va">dt_euler</span>,</span>
+<span>                     t_save <span class="op">=</span> <span class="va">t_end_euler</span> <span class="op">-</span> <span class="va">t_start_euler</span>,</span>
+<span>                     t_start <span class="op">=</span> <span class="va">t_start_euler</span>,</span>
+<span>                     method <span class="op">=</span> <span class="st">"euler"</span>,</span>
+<span>                     progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">final_n_euler</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/finalN.html">finalN</a></span><span class="op">(</span><span class="va">sim_euler</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span></span>
+<span><span class="va">final_n_euler_ana</span> <span class="op">&lt;-</span> <span class="fu">N_lognormal</span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params_euler</span><span class="op">)</span>, <span class="va">t_end_euler</span>, <span class="va">w0_euler</span>,</span>
+<span>                                 <span class="fl">0</span>, <span class="va">K_eff</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params_euler</span><span class="op">)</span>, <span class="va">final_n_euler</span>, log <span class="op">=</span> <span class="st">"x"</span>, type <span class="op">=</span> <span class="st">"l"</span>, col <span class="op">=</span> <span class="st">"red"</span>,</span>
+<span>     lwd <span class="op">=</span> <span class="fl">2</span>, main <span class="op">=</span> <span class="st">"Euler Check with Numerical Diffusion"</span>,</span>
+<span>     xlab <span class="op">=</span> <span class="st">"Size"</span>, ylab <span class="op">=</span> <span class="st">"Density"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params_euler</span><span class="op">)</span>, <span class="va">final_n_euler_ana</span>, col <span class="op">=</span> <span class="st">"blue"</span>, lty <span class="op">=</span> <span class="fl">2</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Euler"</span>, <span class="st">"Analytical with K_eff"</span><span class="op">)</span>,</span>
+<span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"blue"</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="analytic_test_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="700"></p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">total_euler</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">final_n_euler</span> <span class="op">*</span> <span class="va">params_euler</span><span class="op">@</span><span class="va">dw</span><span class="op">)</span></span>
+<span><span class="va">total_euler_ana</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">final_n_euler_ana</span> <span class="op">*</span> <span class="va">params_euler</span><span class="op">@</span><span class="va">dw</span><span class="op">)</span></span>
+<span><span class="va">rel_err_total_euler</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">total_euler</span> <span class="op">-</span> <span class="va">total_euler_ana</span><span class="op">)</span> <span class="op">/</span> <span class="va">total_euler_ana</span></span>
+<span></span>
+<span><span class="va">peak_idx_euler</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.max</a></span><span class="op">(</span><span class="va">final_n_euler</span><span class="op">)</span></span>
+<span><span class="va">peak_idx_euler_ana</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.max</a></span><span class="op">(</span><span class="va">final_n_euler_ana</span><span class="op">)</span></span>
+<span><span class="va">peak_w_euler</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params_euler</span><span class="op">)</span><span class="op">[</span><span class="va">peak_idx_euler</span><span class="op">]</span></span>
+<span><span class="va">peak_w_euler_ana</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params_euler</span><span class="op">)</span><span class="op">[</span><span class="va">peak_idx_euler_ana</span><span class="op">]</span></span>
+<span><span class="va">rel_err_peak_loc_euler</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">peak_w_euler</span> <span class="op">-</span> <span class="va">peak_w_euler_ana</span><span class="op">)</span> <span class="op">/</span></span>
+<span>    <span class="va">peak_w_euler_ana</span></span>
+<span></span>
+<span><span class="va">peak_val_euler</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">final_n_euler</span><span class="op">)</span></span>
+<span><span class="va">peak_val_euler_ana</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">final_n_euler_ana</span><span class="op">)</span></span>
+<span><span class="va">rel_err_peak_val_euler</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">peak_val_euler</span> <span class="op">-</span> <span class="va">peak_val_euler_ana</span><span class="op">)</span> <span class="op">/</span></span>
+<span>    <span class="va">peak_val_euler_ana</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Expected numerical diffusion coefficient:"</span>, <span class="va">K_num</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Expected numerical diffusion coefficient: 0.0239254075588153"</span></span>
+<span><span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Effective diffusion coefficient:"</span>, <span class="va">K_eff</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Effective diffusion coefficient: 0.123925407558815"</span></span>
+<span><span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Total Abundance Error:"</span>, <span class="va">rel_err_total_euler</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Total Abundance Error: 0.00112189285798662"</span></span>
+<span><span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Peak Location Error:"</span>, <span class="va">rel_err_peak_loc_euler</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Peak Location Error: 0"</span></span>
+<span><span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Peak Height Error:"</span>, <span class="va">rel_err_peak_val_euler</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Peak Height Error: 0.0245757881629701"</span></span>
+<span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="va">rel_err_total_euler</span> <span class="op">&lt;</span> <span class="fl">0.005</span> <span class="op">&amp;&amp;</span></span>
+<span>    <span class="va">rel_err_peak_loc_euler</span> <span class="op">&lt;</span> <span class="fl">0.005</span> <span class="op">&amp;&amp;</span></span>
+<span>    <span class="va">rel_err_peak_val_euler</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="st">"Euler numerical diffusion test passed."</span><span class="op">)</span></span>
+<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="st">"Euler numerical diffusion test failed."</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
+<span><span class="co">#&gt; [1] "Euler numerical diffusion test passed."</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="in-the-predictor-corrector-method">In the predictor-corrector method<a class="anchor" aria-label="anchor" href="#in-the-predictor-corrector-method"></a>
+</h3>
+<p>The first-order upwind discretisation of the growth term introduces
+numerical diffusion even when the predictor-corrector time step is used.
+For this method the leading-order time discretisation diffusion is
+removed, so the expected additional diffusion is only the spatial
+contribution <span class="math display">\[D_\mathrm{num}(w) \approx g(w)
+\Delta w.\]</span> On the logarithmic mizer grid this has the same
+power-law form as the physical diffusion: <span class="math display">\[
+D_\mathrm{num}(w) \approx A(\beta_\mathrm{grid} - 1) w^{p+1}.
+\]</span> We can therefore check whether the agreement improves if the
+exact solution is evaluated with <span class="math display">\[K_\mathrm{eff} = K + A(\beta_\mathrm{grid} -
+1).\]</span></p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">beta_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">/</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
+<span><span class="va">K_num_pc</span> <span class="op">&lt;-</span> <span class="va">A</span> <span class="op">*</span> <span class="op">(</span><span class="va">beta_grid</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">K_eff_pc</span> <span class="op">&lt;-</span> <span class="va">K</span> <span class="op">+</span> <span class="va">K_num_pc</span></span>
 <span></span>
-<span><span class="co"># Run the test</span></span>
-<span><span class="va">err_100</span> <span class="op">&lt;-</span> <span class="fu">run_numerical_diffusion_test</span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in validGivenSpeciesParams(species_params): The species parameter data</span></span>
-<span><span class="co">#&gt; frame is missing a `w_max` column. I am copying over the values from the</span></span>
-<span><span class="co">#&gt; `w_inf` column. But note that `w_max` should be the maximum size of the largest</span></span>
-<span><span class="co">#&gt; individual, not the asymptotic size of an average indivdidual.</span></span>
-<span><span class="co">#&gt; Warning in validGivenSpeciesParams(species_params): The species parameter data</span></span>
-<span><span class="co">#&gt; frame is missing a `w_max` column. I am copying over the values from the</span></span>
-<span><span class="co">#&gt; `w_inf` column. But note that `w_max` should be the maximum size of the largest</span></span>
-<span><span class="co">#&gt; individual, not the asymptotic size of an average indivdidual.</span></span>
-<span><span class="co">#&gt; Because you have n != p, the default value for `h` is not very good.</span></span>
-<span><span class="co">#&gt; Because the age at maturity is not known, I need to fall back to using</span></span>
-<span><span class="co">#&gt; von Bertalanffy parameters, where available, and this is not reliable.</span></span>
-<span><span class="co">#&gt; No ks column so calculating from critical feeding level.</span></span>
-<span><span class="co">#&gt; Using z0 = z0pre * w_max ^ z0exp for missing z0 values.</span></span>
-<span><span class="co">#&gt; Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</span></span>
-<span><span class="va">err_400</span> <span class="op">&lt;-</span> <span class="fu">run_numerical_diffusion_test</span><span class="op">(</span><span class="fl">400</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in validGivenSpeciesParams(species_params): The species parameter data</span></span>
-<span><span class="co">#&gt; frame is missing a `w_max` column. I am copying over the values from the</span></span>
-<span><span class="co">#&gt; `w_inf` column. But note that `w_max` should be the maximum size of the largest</span></span>
-<span><span class="co">#&gt; individual, not the asymptotic size of an average indivdidual.</span></span>
-<span><span class="co">#&gt; Warning in validGivenSpeciesParams(species_params): The species parameter data</span></span>
-<span><span class="co">#&gt; frame is missing a `w_max` column. I am copying over the values from the</span></span>
-<span><span class="co">#&gt; `w_inf` column. But note that `w_max` should be the maximum size of the largest</span></span>
-<span><span class="co">#&gt; individual, not the asymptotic size of an average indivdidual.</span></span>
-<span><span class="co">#&gt; Because you have n != p, the default value for `h` is not very good.</span></span>
-<span><span class="co">#&gt; Because the age at maturity is not known, I need to fall back to using</span></span>
-<span><span class="co">#&gt; von Bertalanffy parameters, where available, and this is not reliable.</span></span>
-<span><span class="co">#&gt; No ks column so calculating from critical feeding level.</span></span>
-<span><span class="co">#&gt; Using z0 = z0pre * w_max ^ z0exp for missing z0 values.</span></span>
-<span><span class="co">#&gt; Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</span></span>
+<span><span class="va">final_n_ana_pc</span> <span class="op">&lt;-</span> <span class="fu">N_analytic</span><span class="op">(</span><span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="va">t_end</span>, <span class="va">w0</span>, <span class="fl">0</span>, <span class="va">K_eff_pc</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Mean relative error with 100 bins:"</span>, <span class="va">err_100</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Mean relative error with 100 bins: 0.0335390242331932"</span></span>
-<span><span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Mean relative error with 400 bins:"</span>, <span class="va">err_400</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Mean relative error with 400 bins: 0.00716983337814119"</span></span>
+<span><span class="va">total_n_ana_pc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">final_n_ana_pc</span> <span class="op">*</span> <span class="va">params</span><span class="op">@</span><span class="va">dw</span><span class="op">)</span></span>
+<span><span class="va">rel_err_total_pc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">total_n_num</span> <span class="op">-</span> <span class="va">total_n_ana_pc</span><span class="op">)</span> <span class="op">/</span> <span class="va">total_n_ana_pc</span></span>
 <span></span>
-<span><span class="co"># Check success</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="va">err_400</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="st">"Numerical diffusion test passed: Numerical solution (D=0) matches Analytic solution (D=D_num)."</span><span class="op">)</span></span>
+<span><span class="va">peak_idx_ana_pc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.max</a></span><span class="op">(</span><span class="va">final_n_ana_pc</span><span class="op">)</span></span>
+<span><span class="va">peak_w_ana_pc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="va">peak_idx_ana_pc</span><span class="op">]</span></span>
+<span><span class="va">rel_err_peak_loc_pc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">peak_w_num</span> <span class="op">-</span> <span class="va">peak_w_ana_pc</span><span class="op">)</span> <span class="op">/</span> <span class="va">peak_w_ana_pc</span></span>
+<span></span>
+<span><span class="va">peak_val_ana_pc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">final_n_ana_pc</span><span class="op">)</span></span>
+<span><span class="va">rel_err_peak_val_pc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">peak_val_num</span> <span class="op">-</span> <span class="va">peak_val_ana_pc</span><span class="op">)</span> <span class="op">/</span> <span class="va">peak_val_ana_pc</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Predictor-corrector numerical diffusion coefficient:"</span>, <span class="va">K_num_pc</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Predictor-corrector numerical diffusion coefficient: 0.0139254075588153"</span></span>
+<span><span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Predictor-corrector effective diffusion coefficient:"</span>, <span class="va">K_eff_pc</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Predictor-corrector effective diffusion coefficient: 0.113925407558815"</span></span>
+<span><span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Adjusted Total Abundance Error:"</span>, <span class="va">rel_err_total_pc</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Adjusted Total Abundance Error: 0.00066753836710786"</span></span>
+<span><span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Adjusted Peak Location Error:"</span>, <span class="va">rel_err_peak_loc_pc</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Adjusted Peak Location Error: 0"</span></span>
+<span><span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Adjusted Peak Height Error:"</span>, <span class="va">rel_err_peak_val_pc</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Adjusted Peak Height Error: 0.0226085133793947"</span></span>
+<span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="va">rel_err_total_pc</span> <span class="op">&lt;</span> <span class="va">rel_err_total</span> <span class="op">&amp;&amp;</span></span>
+<span>    <span class="va">rel_err_peak_loc_pc</span> <span class="op">&lt;=</span> <span class="va">rel_err_peak_loc</span> <span class="op">&amp;&amp;</span></span>
+<span>    <span class="va">rel_err_peak_val_pc</span> <span class="op">&lt;</span> <span class="va">rel_err_peak_val</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="st">"Accounting for numerical diffusion improves the agreement."</span><span class="op">)</span></span>
+<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="st">"Accounting for numerical diffusion does not improve all metrics."</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt; [1] "Accounting for numerical diffusion improves the agreement."</span></span>
+<span></span>
+<span><span class="co"># Pass conditions: </span></span>
+<span><span class="co">#   &lt; 0.5% abundance error, </span></span>
+<span><span class="co">#   &lt; 5% location shift, </span></span>
+<span><span class="co">#   &lt; 4% height difference (diffusive flattening)</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="va">rel_err_total_pc</span> <span class="op">&lt;</span> <span class="fl">0.001</span> <span class="op">&amp;&amp;</span> </span>
+<span>    <span class="va">rel_err_peak_loc_pc</span> <span class="op">&lt;</span> <span class="fl">1e-6</span> <span class="op">&amp;&amp;</span> </span>
+<span>    <span class="va">rel_err_peak_val_pc</span> <span class="op">&lt;</span> <span class="fl">0.03</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="st">"Numerical diffusion test passed."</span><span class="op">)</span></span>
 <span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="st">"Numerical diffusion test failed."</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
-<span><span class="co">#&gt; [1] "Numerical diffusion test passed: Numerical solution (D=0) matches Analytic solution (D=D_num)."</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "Numerical diffusion test passed."</span></span></code></pre></div>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
