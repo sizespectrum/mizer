@@ -283,8 +283,14 @@ test_that("axis limits are set correctly", {
     p <- plotSpectra(sim, species = species, wlim = c(10, NA), ylim = c(NA, 1e8))
     expect_equal(p$scales$scales[[2]]$limits[1], 1)
     expect_equal(p$scales$scales[[2]]$limits[2], log10(max(params@w_full)))
-    expect_equal(p$scales$scales[[1]]$limits[1], -20)
+    expect_true(is.na(p$scales$scales[[1]]$limits[1]))
     expect_equal(p$scales$scales[[1]]$limits[2], 8)
+
+    # Default wlim lower depends on resource argument
+    p_res <- plotSpectra(sim, species = species, return_data = TRUE)
+    p_nores <- plotSpectra(sim, species = species, resource = FALSE, return_data = TRUE)
+    expect_true(min(p_res$w) < min(params@w))
+    expect_equal(min(p_nores$w), min(params@w))
 })
 
 test_that("plotDiet works with MizerSim", {

@@ -297,6 +297,11 @@ the mathematical details.
 - `getFMort.MizerSim()` was not passing the time argument `t` to user-defined
   fishing mortality functions.
 
+- `plotSpectra()` was incorrectly forcing the y-axis lower limit to 1e-20
+  (instead of auto-scaling to the data) and was using `min(params@w) / 100`
+  as the default lower w-axis limit even when `resource = FALSE`, where
+  `min(params@w)` is more appropriate.
+
 - `upgradeParams()` was silently dropping some slots (e.g. `resource_dynamics`)
   and was not preserving `MizerParams` subclasses and their extra slots when
   upgrading older objects.
