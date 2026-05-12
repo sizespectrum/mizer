@@ -103,6 +103,23 @@ test_that("plot2.ArrayTimeBySpeciesBySize compares selected time slices", {
     expect_error(plot2(fmort, getBiomass(NS_sim)), "Both objects must be")
 })
 
+test_that("plotRelative.ArrayTimeBySpeciesBySize compares selected time slices", {
+    fmort <- getFMort(NS_sim)
+    fmort2 <- fmort
+    fmort2[] <- unclass(fmort) * 2
+    times <- as.numeric(dimnames(fmort)[[1]])
+
+    p <- plotRelative(fmort, fmort2, species = "Cod", time = times[5],
+                      total = TRUE, wlim = c(1, NA))
+    expect_s3_class(p, "ggplot")
+    expect_true(all(p$data$Species %in% c("Cod", "Total")))
+    expect_true(all(p$data$w >= 1))
+    expect_true(all(abs(p$data$rel_diff - 2 / 3) < 1e-12))
+    expect_identical(p$scales$get_scales("x")$trans$name, "log-10")
+
+    expect_error(plotRelative(fmort, getBiomass(NS_sim)), "Both objects must be")
+})
+
 test_that("plot.ArrayTimeBySpeciesBySize preserves single species dimension", {
     arr <- array(seq_len(6), dim = c(2, 1, 3),
                  dimnames = list(time = c("2000", "2001"),

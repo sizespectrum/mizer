@@ -134,6 +134,11 @@ individual variability in growth to be modelled.
   linetype. The `plotSpectra2()` helper has moved from `mizerExperimental` into
   mizer for comparing two abundance spectra.
 
+- New `plotRelative()` generic with methods for plotting the symmetric relative
+  difference between two compatible mizer array objects. The
+  `plotSpectraRelative()` and `plotlySpectraRelative()` helpers have moved from
+  `mizerExperimental` into mizer.
+
 - `plotSpectra()` now accepts `log_x`, `log_y`, and `log` arguments for
   controlling axis scaling, matching the mizer array `plot()` methods.
 

@@ -198,6 +198,30 @@ plot2.ArrayTimeBySpeciesBySize <- function(x, y, name1 = "First",
                              background = background, y_ticks = y_ticks, ...)
 }
 
+#' @rdname plotRelative
+#'
+#' @param time The time to display. Default (`NULL`) is the final time step.
+#'   Only applies to `ArrayTimeBySpeciesBySize`.
+#' @export
+plotRelative.ArrayTimeBySpeciesBySize <- function(x, y, species = NULL,
+                                                  time = NULL,
+                                                  all.sizes = FALSE,
+                                                  log_x = TRUE,
+                                                  wlim = c(NA, NA),
+                                                  ylim = c(NA, NA),
+                                                  total = FALSE,
+                                                  background = TRUE, ...) {
+    check_plot2_compatible(x, y, "ArrayTimeBySpeciesBySize")
+    slice1 <- ArrayTimeBySpeciesBySize_slice(x, time = time)
+    slice2 <- ArrayTimeBySpeciesBySize_slice(y, time = time)
+
+    plotRelative.ArraySpeciesBySize(slice1, slice2, species = species,
+                                    all.sizes = all.sizes, log_x = log_x,
+                                    wlim = wlim, ylim = ylim,
+                                    total = total, background = background,
+                                    ...)
+}
+
 ArrayTimeBySpeciesBySize_slice <- function(x, time = NULL) {
     params <- attr(x, "params")
     value_name <- attr(x, "value_name")

@@ -106,6 +106,8 @@ test_that("plotly functions do not throw error", {
 
 test_that("plotly wrappers return plotly objects for spectra and rate plots", {
     expect_s3_class(plotlySpectra(params, species = species), "plotly")
+    expect_s3_class(plotlySpectraRelative(params, params, species = species,
+                                          resource = FALSE), "plotly")
     expect_s3_class(plotlyPredMort(sim, species = species), "plotly")
     expect_s3_class(plotlyFMort(sim, species = species), "plotly")
     expect_s3_class(plotlyGrowthCurves(sim, species = species), "plotly")
@@ -145,6 +147,26 @@ test_that("plotSpectra2 supports base plot log argument", {
 
     expect_error(plotSpectra2(params, sim0, species = species, log = "z"),
                  "`log` must be a character string")
+})
+
+test_that("plotSpectraRelative plots symmetric relative difference", {
+    params2 <- params
+    params2@initial_n[] <- params@initial_n * 2
+
+    p <- plotSpectraRelative(params, params2, species = species,
+                             resource = FALSE)
+    expect_s3_class(p, "ggplot")
+    expect_true(all(abs(p$data$rel_diff - 2 / 3) < 1e-12))
+    expect_identical(p$scales$get_scales("x")$trans$name, "log-10")
+
+    p_linear <- plotSpectraRelative(params, params2, species = species,
+                                    resource = FALSE, log_x = FALSE)
+    expect_identical(p_linear$scales$get_scales("x")$trans$name, "identity")
+
+    expect_s3_class(plotSpectraRelative(sim, sim0, species = species,
+                                        resource = FALSE), "ggplot")
+    expect_s3_class(plotSpectraRelative(params, sim, species = species,
+                                        resource = FALSE), "ggplot")
 })
 
 test_that("yield plotting helpers validate comparison and gear selection", {

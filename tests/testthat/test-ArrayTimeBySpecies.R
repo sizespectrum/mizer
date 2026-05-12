@@ -110,6 +110,27 @@ test_that("plot2.ArrayTimeBySpecies compares compatible arrays", {
     expect_error(plot2(bio, getEncounter(NS_params)), "Both objects must be")
 })
 
+test_that("plotRelative.ArrayTimeBySpecies plots symmetric relative difference", {
+    bio <- getBiomass(NS_sim)
+    bio2 <- bio
+    bio2[] <- unclass(bio) * 2
+    years <- as.numeric(rownames(bio))
+
+    p <- plotRelative(bio, bio2, species = "Cod", total = TRUE,
+                      start_time = years[2], end_time = years[5])
+    expect_s3_class(p, "ggplot")
+    expect_true(all(p$data$Species %in% c("Cod", "Total")))
+    expect_true(all(p$data$Year >= years[2]))
+    expect_true(all(p$data$Year <= years[5]))
+    expect_true(all(abs(p$data$rel_diff - 2 / 3) < 1e-12))
+    expect_identical(p$scales$get_scales("x")$trans$name, "identity")
+
+    p_log <- plotRelative(bio, bio2, species = "Cod", log_x = TRUE)
+    expect_identical(p_log$scales$get_scales("x")$trans$name, "log-10")
+
+    expect_error(plotRelative(bio, getEncounter(NS_params)), "Both objects must be")
+})
+
 test_that("addPlot.ArrayTimeBySpecies adds lines to an existing ggplot", {
     bio <- getBiomass(NS_sim)
     yield <- getYield(NS_sim)

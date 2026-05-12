@@ -267,6 +267,31 @@ plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
                             legend_var = "Legend")
 }
 
+#' @rdname plotRelative
+#' @export
+plotRelative.ArrayTimeBySpecies <- function(x, y, species = NULL,
+                                            start_time = NULL,
+                                            end_time = NULL,
+                                            ylim = c(NA, NA),
+                                            total = FALSE,
+                                            background = TRUE,
+                                            log_x = FALSE, ...) {
+    check_plot2_compatible(x, y, "ArrayTimeBySpecies")
+    compare_array_metadata(x, y)
+    params <- attr(x, "params")
+    plot_dat1 <- prepare_ArrayTimeBySpecies_plot_data(
+        x, species = species, start_time = start_time, end_time = end_time,
+        total = total, background = background)
+    plot_dat2 <- prepare_ArrayTimeBySpecies_plot_data(
+        y, species = species, start_time = start_time, end_time = end_time,
+        total = total, background = background)
+
+    plotRelativeDataFrame(plot_dat1, plot_dat2, params,
+                          xlab = "Year",
+                          xtrans = if (log_x) "log10" else "identity",
+                          ylim = ylim, legend_var = "Legend")
+}
+
 prepare_ArrayTimeBySpecies_plot_data <- function(x, species = NULL,
                                                  start_time = NULL,
                                                  end_time = NULL,

@@ -130,7 +130,7 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
                          "x", "y", "Year", "Yield", "Biomass", "Size",
                          "Proportion", "Prey", "Legend", "Type", "Gear",
                          "Predator", "weight", "a", "b", "age", "w_max",
-                         "Model"))
+                         "Model", "rel_diff"))
 
 #' Make a plot from a data frame
 #'
@@ -302,6 +302,59 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                       linetype = .data[["Model"]])) +
         scale_colour_manual(values = linecolour) +
         scale_linetype_discrete(drop = FALSE)
+}
+
+plotRelativeDataFrame <- function(frame1, frame2, params,
+                                  xlab = waiver(),
+                                  xtrans = "identity",
+                                  xlim = c(NA, NA),
+                                  ylim = c(NA, NA),
+                                  legend_var = "Legend") {
+    assert_that(is.data.frame(frame1),
+                is.data.frame(frame2),
+                is(params, "MizerParams"))
+
+    names(frame2)[seq_len(min(3, ncol(frame2)))] <-
+        names(frame1)[seq_len(min(3, ncol(frame1)))]
+    var_names <- names(frame1)
+    x_var <- var_names[[1]]
+    y_var <- var_names[[2]]
+    group_var <- var_names[[3]]
+    if (!(legend_var %in% var_names)) {
+        stop("The `legend_var` argument must be the name of a variable ",
+             "in the data frame.")
+    }
+
+    by_vars <- c(x_var, group_var, legend_var)
+    frame <- dplyr::inner_join(frame1, frame2, by = by_vars,
+                               suffix = c(".x", ".y"))
+    frame$rel_diff <- relative_difference(frame[[paste0(y_var, ".x")]],
+                                          frame[[paste0(y_var, ".y")]])
+    frame <- frame[is.finite(frame$rel_diff), ]
+
+    legend_levels <- intersect(names(params@linecolour), frame[[legend_var]])
+    frame[[legend_var]] <- factor(frame[[legend_var]], levels = legend_levels)
+    if (sum(is.na(frame[[legend_var]]))) {
+        warning("missing legend in params@linecolour, some groups won't be displayed")
+    }
+    linecolour <- params@linecolour[legend_levels]
+
+    xbreaks <- waiver()
+    if (xtrans == "log10") xbreaks <- log_breaks()
+
+    ggplot(frame, aes(group = .data[[group_var]])) +
+        scale_y_continuous(name = "Relative difference", limits = ylim) +
+        scale_x_continuous(trans = xtrans, breaks = xbreaks, name = xlab,
+                           limits = xlim) +
+        geom_hline(yintercept = 0, linetype = 1,
+                   colour = "dark grey", linewidth = 0.75) +
+        geom_line(aes(x = .data[[x_var]], y = .data[["rel_diff"]],
+                      colour = .data[[legend_var]])) +
+        scale_colour_manual(values = linecolour)
+}
+
+relative_difference <- function(first, second) {
+    2 * (second - first) / (first + second)
 }
 
 #' Helper function to produce nice breaks on logarithmic axes
@@ -945,6 +998,69 @@ spectra_y_label <- function(power) {
                  "Biomass density [g]")[power + 1])
     }
     paste0("Number density * w^", power)
+}
+
+#' Plot the relative difference between two spectra
+#'
+#' `plotSpectraRelative()` plots the difference between the spectra relative to
+#' their average. If we denote the number density from the first object as
+#' \eqn{N_1(w)} and that from the second object as \eqn{N_2(w)}, then this plot
+#' shows
+#' \deqn{2 (N_2(w) - N_1(w)) / (N_2(w) + N_1(w)).}
+#'
+#' The individual spectra are calculated by [plotSpectra()], to which all
+#' additional arguments are passed. For example, you can determine a time range
+#' over which to average simulation results via `time_range`. See
+#' [plotSpectra()] for more options.
+#'
+#' Note that it does not matter whether the relative difference is calculated
+#' for number density, biomass density, or biomass density in log weight,
+#' because the factors of \eqn{w} by which the densities differ cancel out in
+#' the relative difference.
+#'
+#' @param object1 First `MizerParams` or `MizerSim` object.
+#' @param object2 Second `MizerParams` or `MizerSim` object.
+#' @param log_x If `TRUE` (default), use a log10 x-axis.
+#' @param ylim A numeric vector of length two providing lower and upper limits
+#'   for the relative difference (y) axis. Use `NA` to refer to the existing
+#'   minimum or maximum.
+#' @param ... Arguments passed to [plotSpectra()] for preparing the spectra
+#'   data, for example `species`, `time_range`, `wlim`, `resource`,
+#'   `background` or `total`.
+#'
+#' @return A ggplot2 object.
+#' @export
+#' @family plotting functions
+#'
+#' @examples
+#' \donttest{
+#' sim1 <- project(NS_params, t_max = 10, progress_bar = FALSE)
+#' sim2 <- project(NS_params, effort = 0.5, t_max = 10, progress_bar = FALSE)
+#' plotSpectraRelative(sim1, sim2)
+#' }
+plotSpectraRelative <- function(object1, object2, log_x = TRUE,
+                                ylim = c(NA, NA), ...) {
+    args <- list(...)
+    wlim <- args$wlim %||% c(NA, NA)
+
+    sf1 <- plotSpectra(object1, return_data = TRUE, ...)
+    sf2 <- plotSpectra(object2, return_data = TRUE, ...)
+    params <- if (is(object1, "MizerSim")) object1@params else object1
+
+    plotRelativeDataFrame(sf1, sf2, validParams(params),
+                          xlab = "Size [g]",
+                          xtrans = if (log_x) "log10" else "identity",
+                          xlim = wlim, ylim = ylim,
+                          legend_var = "Legend")
+}
+
+#' @rdname plotSpectraRelative
+#' @export
+plotlySpectraRelative <- function(object1, object2, log_x = TRUE,
+                                  ylim = c(NA, NA), ...) {
+    ggplotly(plotSpectraRelative(object1, object2, log_x = log_x,
+                                  ylim = ylim, ...),
+             tooltip = c("Legend", "w", "rel_diff"))
 }
 
 #' @rdname plotSpectra

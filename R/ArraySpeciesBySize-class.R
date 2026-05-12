@@ -284,6 +284,56 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
                             y_ticks = y_ticks, legend_var = "Legend")
 }
 
+#' Plot the relative difference between two mizer array objects
+#'
+#' `plotRelative()` plots the difference between two compatible mizer array
+#' objects relative to their average. If the values in the first object are
+#' \eqn{N_1} and the values in the second are \eqn{N_2}, it plots
+#' \deqn{2 (N_2 - N_1) / (N_1 + N_2).}
+#'
+#' @inheritParams plot2
+#' @param log_x If `TRUE`, use a log10 x-axis. Default is `TRUE` for size
+#'   spectra and `FALSE` for time series.
+#'
+#' @return A ggplot2 object.
+#' @export
+#' @family plotting functions
+#'
+#' @examples
+#' \donttest{
+#' enc <- getEncounter(NS_params)
+#' plotRelative(enc, enc, species = "Cod")
+#' plotRelative(getBiomass(NS_sim), getBiomass(NS_sim), species = "Cod")
+#' }
+plotRelative <- function(x, y, ...) {
+    UseMethod("plotRelative", x)
+}
+
+#' @rdname plotRelative
+#' @export
+plotRelative.ArraySpeciesBySize <- function(x, y, species = NULL,
+                                            all.sizes = FALSE,
+                                            log_x = TRUE,
+                                            wlim = c(NA, NA),
+                                            ylim = c(NA, NA),
+                                            total = FALSE,
+                                            background = TRUE, ...) {
+    check_plot2_compatible(x, y, "ArraySpeciesBySize")
+    compare_array_metadata(x, y)
+    params <- attr(x, "params")
+    plot_dat1 <- prepare_ArraySpeciesBySize_plot_data(
+        x, species = species, all.sizes = all.sizes, wlim = wlim,
+        total = total, background = background)
+    plot_dat2 <- prepare_ArraySpeciesBySize_plot_data(
+        y, species = species, all.sizes = all.sizes, wlim = wlim,
+        total = total, background = background)
+
+    plotRelativeDataFrame(plot_dat1, plot_dat2, params,
+                          xlab = "Size [g]",
+                          xtrans = if (log_x) "log10" else "identity",
+                          xlim = wlim, ylim = ylim, legend_var = "Legend")
+}
+
 check_plot2_compatible <- function(x, y, class) {
     if (!inherits(y, class)) {
         stop("Both objects must be of class `", class, "`.")
