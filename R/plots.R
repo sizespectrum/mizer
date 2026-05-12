@@ -70,9 +70,11 @@
 #'
 #' The static plotting functions use ggplot2 and return a ggplot object. This
 #' means that you can manipulate the plot further after its creation using the
-#' ggplot grammar of graphics. Many named plot functions also have a plotly
-#' counterpart, for example [plotlyBiomass()] or [plotlySpectra()], for
-#' interactive exploration.
+#' ggplot grammar of graphics. The named high-level plot functions have plotly
+#' counterparts, for example [plotlyBiomass()] or [plotlySpectra()], for
+#' interactive exploration. Generic and compositional plotting APIs, such as
+#' [plot()], [plot2()], [plotRelative()] and [addPlot()], do not have separate
+#' plotly wrappers. Use [ggplotly()] on the ggplot object they return.
 #'
 #' While most plot functions take their data from a MizerSim object, some of
 #' those that make plots representing data at a single time can also take their
@@ -1220,6 +1222,18 @@ spectra_y_label <- function(power) {
     paste0("Number density * w^", power)
 }
 
+#' @rdname plotSpectra2
+#' @return `plotlySpectra2()` returns a plotly object.
+#' @export
+plotlySpectra2 <- function(object1, object2, name1 = "First",
+                           name2 = "Second", power = 1,
+                           log_x = TRUE, log_y = TRUE, log = NULL, ...) {
+    ggplotly(plotSpectra2(object1, object2, name1 = name1, name2 = name2,
+                          power = power, log_x = log_x, log_y = log_y,
+                          log = log, ...),
+             tooltip = c("Species", "w", "value", "Model"))
+}
+
 #' Plot the relative difference between two spectra
 #'
 #' `plotSpectraRelative()` plots the difference between the spectra relative to
@@ -2086,6 +2100,14 @@ plot_diet <- function(params, n, diet, species, return_data) {
         p <- p + facet_wrap(vars(Predator))
     }
     p
+}
+
+#' @rdname plotDiet
+#' @return `plotlyDiet()` returns a plotly object.
+#' @export
+plotlyDiet <- function(object, species = NULL, ...) {
+    ggplotly(plotDiet(object, species = species, ...),
+             tooltip = c("Predator", "w", "Proportion", "Prey"))
 }
 
 

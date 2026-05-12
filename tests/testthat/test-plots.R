@@ -98,14 +98,17 @@ test_that("plotly functions do not throw error", {
     expect_error(plotlyYield(sim, sim), NA)
     expect_error(plotlyYieldGear(sim, species = species), NA)
     expect_error(plotlySpectra(params, species = species), NA)
+    expect_error(plotlySpectra2(params, sim, species = species), NA)
     expect_error(plotlyPredMort(sim, species = species), NA)
     expect_error(plotlyFMort(sim, species = species), NA)
     expect_error(plotlyGrowthCurves(sim, species = species), NA)
     expect_error(plotlyGrowthCurves(params, species = species), NA)
+    expect_error(plotlyDiet(params, species = species[[1]]), NA)
 })
 
 test_that("plotly wrappers return plotly objects for spectra and rate plots", {
     expect_s3_class(plotlySpectra(params, species = species), "plotly")
+    expect_s3_class(plotlySpectra2(params, sim, species = species), "plotly")
     expect_s3_class(plotlyCDF(params, species = species,
                               resource = FALSE), "plotly")
     expect_s3_class(plotlyCDF2(params, params, species = species,
@@ -117,6 +120,7 @@ test_that("plotly wrappers return plotly objects for spectra and rate plots", {
     expect_s3_class(plotlyGrowthCurves(sim, species = species), "plotly")
     expect_s3_class(plotlyFeedingLevel(sim, species = species,
                                        include_critical = TRUE), "plotly")
+    expect_s3_class(plotlyDiet(params, species = species[[1]]), "plotly")
 })
 
 test_that("plotSpectra2 compares spectra from params and sims", {
