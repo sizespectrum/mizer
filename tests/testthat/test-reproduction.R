@@ -55,7 +55,8 @@ test_that("constantEggRDI returns loss from the egg size bin", {
             (getEGrowth(params)[idx] + getMort(params)[idx] * params@dw[params@w_min_idx])
     }
     expect_equal(constantEggRDI(params, params@initial_n,
-                                getEGrowth(params), getMort(params)),
+                                getEGrowth(params), getMort(params),
+                                getDiffusion(params)),
                  expected)
 })
 
@@ -77,7 +78,7 @@ test_that("constantEggRDI direct calls use total diffusion by default", {
                    diffusion[species, next_idx] *
                    n[species, next_idx]) / dw
 
-    expect_equal(constantEggRDI(params, n, e_growth, mort)[1],
+    expect_equal(constantEggRDI(params, n, e_growth, mort, diffusion)[1],
                  expected, ignore_attr = TRUE)
 })
 
