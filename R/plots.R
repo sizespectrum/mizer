@@ -600,12 +600,15 @@ plotlyYieldGear <- function(sim, species = NULL,
 #'   If TRUE then the average of the abundances over the
 #'   time range is a geometric mean instead of the default arithmetic mean.
 #' @param wlim A numeric vector of length two providing lower and upper limits
-#'   for the w axis. Use NA to refer to the existing minimum or maximum. Data
-#'   is filtered to this range and the axis limits are set accordingly.
+#'   for the w axis. Use NA for the default: the lower default is
+#'   `min(params@w) / 100` when `resource = TRUE` (to show some resource below
+#'   the fish grid) or `min(params@w)` when `resource = FALSE`; the upper
+#'   default is `max(params@w_full)`. Data is filtered to this range and the
+#'   axis limits are set accordingly.
 #' @param ylim A numeric vector of length two providing lower and upper limits
-#'   for the y axis. Use NA to refer to the existing minimum or maximum. Any
-#'   values below 1e-20 are always cut off. Data is filtered to this range and
-#'   the axis limits are set accordingly.
+#'   for the y axis. Use NA to auto-scale to the data range. Values below 1e-20
+#'   are always filtered out from the data regardless of `ylim[1]`. Data above
+#'   `ylim[2]` is filtered and the upper axis limit is set accordingly.
 #' @param power The abundance is plotted as the number density times the weight
 #' raised to `power`. The default \code{power = 1} gives the biomass
 #' density, whereas \code{power = 2} gives the biomass density with respect
@@ -732,7 +735,7 @@ plot_spectra <- function(params, n, n_pp,
                          highlight, return_data) {
     params <- validParams(params)
     if (is.na(wlim[1])) {
-        wlim[1] <- min(params@w) / 100
+        wlim[1] <- if (resource) min(params@w) / 100 else min(params@w)
     }
     if (is.na(wlim[2])) {
         wlim[2] <- max(params@w_full)
@@ -804,10 +807,8 @@ plot_spectra <- function(params, n, n_pp,
     if (!is.na(ylim[2])) {
         plot_dat <- plot_dat[plot_dat$value <= ylim[2], ]
     }
-    if (is.na(ylim[1])) {
-        ylim[1] <- 1e-20
-    }
-    plot_dat <- plot_dat[plot_dat$value > ylim[1], ]
+    filter_min <- if (is.na(ylim[1])) 1e-20 else ylim[1]
+    plot_dat <- plot_dat[plot_dat$value > filter_min, ]
 
     if (return_data) return(plot_dat)
 
