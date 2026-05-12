@@ -80,6 +80,24 @@ test_that("time dimension is dealt with properly", {
     expect_equal(dimnames(sim@n)$time, c("2019", "2020", "2021"))
 })
 
+test_that("warns and includes t_max when not a multiple of t_save", {
+    # Scalar effort path
+    expect_warning(
+        sim <- project(params, t_max = 10, t_save = 3, effort = 1,
+                       progress_bar = FALSE),
+        "`t_max`.*`t_save`"
+    )
+    t_dims <- as.numeric(dimnames(sim@n)$time)
+    expect_equal(tail(t_dims, 1), 10)
+    expect_equal(t_dims, c(0, 3, 6, 9, 10))
+
+    # No warning when t_max is exactly a multiple of t_save
+    expect_no_warning(
+        project(params, t_max = 9, t_save = 3, effort = 1,
+                progress_bar = FALSE)
+    )
+})
+
 test_that("project method selects consumer time stepper", {
     params_small <- newMultispeciesParams(NS_species_params_gears[12, , drop = FALSE],
                                           info_level = 0)

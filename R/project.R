@@ -219,6 +219,14 @@ project.MizerParams <- function(object, effort,
             t_save <- t_max
         }
         times <- seq(t_start, t_start + t_max, by = t_save)
+        t_end <- t_start + t_max
+        if (!isTRUE(all.equal(times[length(times)], t_end))) {
+            warning("`t_max` (", t_max, ") is not a multiple of `t_save` (",
+                    t_save, "). Results will be saved at `t_max` but the ",
+                    "final save interval will be shorter than `t_save`.",
+                    call. = FALSE)
+            times <- c(times, t_end)
+        }
         effort <- validEffortVector(effort, params)
         effort <- t(array(effort,
             dim = c(length(effort), length(times)),
@@ -271,6 +279,14 @@ project.MizerParams <- function(object, effort,
 
             # Generate new time points
             times <- seq(t_start_effort, t_end, by = save_freq)
+            if (t_max_provided &&
+                !isTRUE(all.equal(times[length(times)], t_end))) {
+                warning("`t_max` (", t_max, ") is not a multiple of `t_save` (",
+                        save_freq, "). Results will be saved at `t_max` but the ",
+                        "final save interval will be shorter than `t_save`.",
+                        call. = FALSE)
+                times <- c(times, t_end)
+            }
 
             # Interpolate effort values for the new time points
             gear_names <- dimnames(effort)[[2]]
