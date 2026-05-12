@@ -203,6 +203,27 @@ test_that("plotSpectra validates empty selection and can return total only", {
     expect_true(all(df$Legend == "Total"))
 })
 
+test_that("plotSpectra supports base plot log argument", {
+    p_y <- plotSpectra(params, species = species, log = "y")
+    expect_identical(p_y$scales$get_scales("x")$trans$name, "identity")
+    expect_identical(p_y$scales$get_scales("y")$trans$name, "log-10")
+
+    p_xy <- plotSpectra(params, species = species, log = "xy")
+    expect_identical(p_xy$scales$get_scales("x")$trans$name, "log-10")
+    expect_identical(p_xy$scales$get_scales("y")$trans$name, "log-10")
+
+    p_none <- plotSpectra(params, species = species, log = "")
+    expect_identical(p_none$scales$get_scales("x")$trans$name, "identity")
+    expect_identical(p_none$scales$get_scales("y")$trans$name, "identity")
+
+    p_sim <- plotSpectra(sim, species = species, log_x = FALSE, log_y = FALSE)
+    expect_identical(p_sim$scales$get_scales("x")$trans$name, "identity")
+    expect_identical(p_sim$scales$get_scales("y")$trans$name, "identity")
+
+    expect_error(plotSpectra(params, species = species, log = "z"),
+                 "`log` must be a character string")
+})
+
 test_that("plotPredMort and plotFMort trim to species size range by default", {
     pred_trimmed <- plotPredMort(params, species = 2, return_data = TRUE)
     pred_full <- plotPredMort(params, species = 2, all.sizes = TRUE, return_data = TRUE)

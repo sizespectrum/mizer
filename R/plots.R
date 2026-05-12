@@ -627,6 +627,11 @@ plotlyYieldGear <- function(sim, species = NULL,
 #'   are included. Ignored if the model does not contain background species.
 #'   Default is TRUE.
 #' @param highlight Name or vector of names of the species to be highlighted.
+#' @param log_x If `TRUE` (default), use a log10 x-axis.
+#' @param log_y If `TRUE` (default), use a log10 y-axis.
+#' @param log Character string specifying which axes should use log10 scales,
+#'   in the same form as the base [plot()] argument. For example, `"x"`,
+#'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
 #' @param return_data A boolean value that determines whether the formatted data
 #' used for the plot is returned instead of the plot itself. Default value is FALSE
 #' @param ... Other arguments (currently unused)
@@ -666,11 +671,16 @@ plotSpectra.MizerSim <- function(object, species = NULL,
                         power = 1, biomass = TRUE,
                         total = FALSE, resource = TRUE,
                         background = TRUE,
-                        highlight = NULL, return_data = FALSE, ...) {
+                        highlight = NULL, log_x = TRUE, log_y = TRUE,
+                        log = NULL, return_data = FALSE, ...) {
     # to deal with old-type biomass argument
     if (missing(power)) {
         power <- as.numeric(biomass)
     }
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
+    log_x <- log_axes$log_x
+    log_y <- log_axes$log_y
+
     assert_that(is.flag(total), is.flag(resource),
                 is.flag(background),
                 is.number(power),
@@ -696,6 +706,7 @@ plotSpectra.MizerSim <- function(object, species = NULL,
                  species = species, wlim = wlim, ylim = ylim,
                  power = power, total = total, resource = resource,
                  background = background, highlight = highlight,
+                 log_x = log_x, log_y = log_y,
                  return_data = return_data)
 }
 
@@ -706,11 +717,16 @@ plotSpectra.MizerParams <- function(object, species = NULL,
                         power = 1, biomass = TRUE,
                         total = FALSE, resource = TRUE,
                         background = TRUE,
-                        highlight = NULL, return_data = FALSE, ...) {
+                        highlight = NULL, log_x = TRUE, log_y = TRUE,
+                        log = NULL, return_data = FALSE, ...) {
     # to deal with old-type biomass argument
     if (missing(power)) {
         power <- as.numeric(biomass)
     }
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
+    log_x <- log_axes$log_x
+    log_y <- log_axes$log_y
+
     assert_that(is.flag(total), is.flag(resource),
                 is.flag(background),
                 is.number(power),
@@ -725,6 +741,7 @@ plotSpectra.MizerParams <- function(object, species = NULL,
                  species = species, wlim = wlim, ylim = ylim,
                  power = power, total = total, resource = resource,
                  background = background, highlight = highlight,
+                 log_x = log_x, log_y = log_y,
                  return_data = return_data)
 }
 
@@ -732,7 +749,7 @@ plotSpectra.MizerParams <- function(object, species = NULL,
 plot_spectra <- function(params, n, n_pp,
                          species, wlim, ylim, power,
                          total, resource, background,
-                         highlight, return_data) {
+                         highlight, log_x, log_y, return_data) {
     params <- validParams(params)
     if (is.na(wlim[1])) {
         wlim[1] <- if (resource) min(params@w) / 100 else min(params@w)
@@ -813,7 +830,8 @@ plot_spectra <- function(params, n, n_pp,
     if (return_data) return(plot_dat)
 
     plotDataFrame(plot_dat, params, xlab = "Size [g]", ylab = y_label,
-                  xtrans = "log10", ytrans = "log10",
+                  xtrans = if (log_x) "log10" else "identity",
+                  ytrans = if (log_y) "log10" else "identity",
                   xlim = wlim, ylim = ylim,
                   highlight = highlight, legend_var = "Legend")
 }
@@ -826,7 +844,8 @@ plotlySpectra <- function(object, species = NULL,
                         power = 1, biomass = TRUE,
                         total = FALSE, resource = TRUE,
                         background = TRUE,
-                        highlight = NULL, ...) {
+                        highlight = NULL, log_x = TRUE, log_y = TRUE,
+                        log = NULL, ...) {
     argg <- as.list(environment())
     ggplotly(do.call("plotSpectra", argg),
              tooltip = c("Species", "w", "value"))

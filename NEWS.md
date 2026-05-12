@@ -129,6 +129,9 @@ individual variability in growth to be modelled.
 - New `addPlot()` generic with methods for adding `ArraySpeciesBySize` and
   `ArrayTimeBySpecies` values as extra lines on an existing compatible ggplot.
 
+- `plotSpectra()` now accepts `log_x`, `log_y`, and `log` arguments for
+  controlling axis scaling, matching the mizer array `plot()` methods.
+
 - The `plot()` and `summary()` methods for `MizerParams`, `MizerSim`, and the
   mizer array classes are now registered as S3 methods rather than S4 methods,
   so `plot()` and `summary()` remain plain S3 generics when mizer is loaded,
