@@ -169,6 +169,68 @@ test_that("plotSpectraRelative plots symmetric relative difference", {
                                         resource = FALSE), "ggplot")
 })
 
+test_that("plotCDF plots cumulative spectra from small to large sizes", {
+    p <- plotCDF(params, species = species, resource = FALSE, power = 0,
+                 wlim = c(1, NA), return_data = TRUE)
+    expect_true(all(p$w >= 1))
+    expect_true(all(p$value >= 0))
+    for (sp in unique(p$Species)) {
+        sp_dat <- p[p$Species == sp, ]
+        expect_equal(max(sp_dat$value), 1)
+        expect_true(all(diff(sp_dat$value) >= -1e-12))
+    }
+
+    spectra <- plotSpectra(params, species = species, resource = FALSE,
+                           power = 1, wlim = c(1, NA), return_data = TRUE)
+    cdf <- plotCDF(params, species = species, resource = FALSE,
+                   power = 1, wlim = c(1, NA), normalise = FALSE,
+                   return_data = TRUE)
+    widths <- params@dw_full[match(spectra$w, params@w_full)]
+    expected <- sum(spectra$value[spectra$Species == species[[1]]] *
+                        widths[spectra$Species == species[[1]]])
+    observed <- max(cdf$value[cdf$Species == species[[1]]])
+    expect_equal(observed, expected)
+
+    p_plot <- plotCDF(params, species = species, resource = FALSE)
+    expect_s3_class(p_plot, "ggplot")
+    expect_identical(p_plot$scales$get_scales("x")$trans$name, "log-10")
+    expect_match(p_plot$scales$get_scales("y")$name, "biomass",
+                 ignore.case = TRUE)
+
+    p_linear <- plotCDF(params, species = species, resource = FALSE,
+                        log_x = FALSE)
+    expect_identical(p_linear$scales$get_scales("x")$trans$name, "identity")
+
+    p_log_none <- plotCDF(params, species = species, resource = FALSE,
+                          log = "")
+    expect_identical(p_log_none$scales$get_scales("x")$trans$name,
+                     "identity")
+
+    p_log_x <- plotCDF(params, species = species, resource = FALSE,
+                       log = "x")
+    expect_identical(p_log_x$scales$get_scales("x")$trans$name, "log-10")
+    expect_error(plotCDF(params, species = species, resource = FALSE,
+                         log = "y"),
+                 "only supports log scaling on the x axis")
+
+    p_abundance <- plotCDF(params, species = species, resource = FALSE,
+                           power = 0)
+    expect_match(p_abundance$scales$get_scales("y")$name, "abundance",
+                 ignore.case = TRUE)
+})
+
+test_that("plotCDF supports simulations, resource, total and unnormalised output", {
+    p <- plotCDF(sim, species = species, time_range = 1:3,
+                 total = TRUE, resource = TRUE, normalise = FALSE,
+                 return_data = TRUE)
+    expect_true(all(c("Resource", "Total") %in% p$Legend))
+    expect_true(max(p$value) > 1)
+
+    p_plot <- plotCDF(sim, species = species, time_range = 1:3,
+                      total = TRUE, resource = TRUE, normalise = FALSE)
+    expect_s3_class(p_plot, "ggplot")
+})
+
 test_that("yield plotting helpers validate comparison and gear selection", {
     sim_shifted <- sim
     dimnames(sim_shifted@n)$time <- as.character(10:13)

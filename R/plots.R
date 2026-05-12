@@ -42,8 +42,9 @@
 #' versions, for example `ggplotly(getBiomass(sim))` or
 #' `ggplotly(getEncounter(params))`. To add another compatible array to an
 #' existing ggplot, use [addPlot()]. To compare two compatible mizer arrays
-#' directly, use [plot2()]. To visualise how spectra or rates
-#' change through time, use [animate()] on a `MizerSim` or an
+#' directly, use [plot2()]. To plot cumulative distributions over body size,
+#' use [plotCDF()]. To visualise how spectra or rates change through time, use
+#' [animate()] on a `MizerSim` or an
 #' `ArrayTimeBySpeciesBySize` object.
 #'
 #' The named plotting functions give more specialised control. This table shows
@@ -54,6 +55,7 @@
 #'   [plotYield()] \tab Plots the total yield of each species across all fishing gears against time. \cr
 #'   [plotYieldGear()] \tab Plots the total yield of each species by gear against time. \cr
 #'   [plotSpectra()] \tab Plots the abundance (biomass or numbers) spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot. \cr
+#'   [plotCDF()] \tab Plots cumulative distributions of abundance or biomass over size. \cr
 #'   [plotSpectra2()] \tab Compares the spectra from two simulations or parameter objects in one plot. \cr
 #'   [plotFeedingLevel()] \tab Plots the feeding level of each species against size. \cr
 #'   [plotPredMort()] \tab Plots the predation mortality of each species against size. \cr
@@ -936,6 +938,173 @@ plot_spectra <- function(params, n, n_pp,
                   ytrans = if (log_y) "log10" else "identity",
                   xlim = wlim, ylim = ylim,
                   highlight = highlight, legend_var = "Legend")
+}
+
+#' Plot cumulative abundance or biomass distributions
+#'
+#' `plotCDF()` plots the cumulative distribution over body size from small to
+#' large sizes. It uses the same spectra data preparation as [plotSpectra()].
+#' The density is first multiplied by `w^power`, then integrated over size.
+#' With `normalise = TRUE`, each curve is divided by its final value so that it
+#' ends at 1.
+#'
+#' @inheritParams plotSpectra
+#' @param normalise If `TRUE` (default), plot the cumulative proportion. If
+#'   `FALSE`, plot the cumulative abundance, biomass, or other unnormalised
+#'   integral.
+#' @param log_x If `TRUE` (default), use a log10 x-axis.
+#' @param log Character string specifying whether the x-axis should use a log10
+#'   scale, in the same form as the base [plot()] argument. For `plotCDF()`,
+#'   only `"x"` and `""` are supported. If supplied, this overrides `log_x`.
+#'
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
+#'   frame with the four variables 'w', 'value', 'Species', 'Legend' is
+#'   returned.
+#' @export
+#' @family plotting functions
+#' @seealso [plotSpectra()]
+#' @examples
+#' \donttest{
+#' plotCDF(NS_params, species = c("Cod", "Herring"))
+#' plotCDF(NS_sim, power = 0, normalise = FALSE)
+#' }
+plotCDF <- function(object, ...) {
+    UseMethod("plotCDF")
+}
+
+#' @rdname plotCDF
+#' @export
+plotCDF.MizerSim <- function(object, species = NULL,
+                             time_range,
+                             geometric_mean = FALSE,
+                             wlim = c(NA, NA), ylim = c(NA, NA),
+                             power = 1, biomass = TRUE,
+                             total = FALSE, resource = TRUE,
+                             background = TRUE,
+                             highlight = NULL, normalise = TRUE,
+                             log_x = TRUE, log = NULL,
+                             return_data = FALSE, ...) {
+    if (missing(power)) {
+        power <- as.numeric(biomass)
+    }
+    log_x <- parsePlotCDFLog(log, log_x)
+    assert_that(is.flag(total), is.flag(resource),
+                is.flag(background), is.flag(normalise),
+                is.number(power),
+                length(wlim) == 2,
+                length(ylim) == 2)
+
+    args <- list(object = object, species = species,
+                 geometric_mean = geometric_mean,
+                 wlim = wlim, ylim = c(NA, NA),
+                 power = power, total = total,
+                 resource = resource, background = background,
+                 return_data = TRUE)
+    if (!missing(time_range)) {
+        args$time_range <- time_range
+    }
+    plot_dat <- do.call(plotSpectra, args)
+    plot_cdf(plot_dat, object@params, power = power, normalise = normalise,
+             log_x = log_x, wlim = wlim, ylim = ylim,
+             highlight = highlight, return_data = return_data)
+}
+
+#' @rdname plotCDF
+#' @export
+plotCDF.MizerParams <- function(object, species = NULL,
+                                wlim = c(NA, NA), ylim = c(NA, NA),
+                                power = 1, biomass = TRUE,
+                                total = FALSE, resource = TRUE,
+                                background = TRUE,
+                                highlight = NULL, normalise = TRUE,
+                                log_x = TRUE, log = NULL,
+                                return_data = FALSE, ...) {
+    if (missing(power)) {
+        power <- as.numeric(biomass)
+    }
+    log_x <- parsePlotCDFLog(log, log_x)
+    assert_that(is.flag(total), is.flag(resource),
+                is.flag(background), is.flag(normalise),
+                is.number(power),
+                length(wlim) == 2,
+                length(ylim) == 2)
+
+    plot_dat <- plotSpectra(object, species = species,
+                            wlim = wlim, ylim = c(NA, NA),
+                            power = power, total = total,
+                            resource = resource, background = background,
+                            return_data = TRUE)
+    plot_cdf(plot_dat, object, power = power, normalise = normalise,
+             log_x = log_x, wlim = wlim, ylim = ylim,
+             highlight = highlight, return_data = return_data)
+}
+
+plot_cdf <- function(plot_dat, params, power, normalise, log_x, wlim, ylim,
+                     highlight, return_data) {
+    cdf_dat <- prepare_spectra_cdf_data(plot_dat, params,
+                                        normalise = normalise)
+    if (return_data) return(cdf_dat)
+
+    plotDataFrame(cdf_dat, validParams(params),
+                  xlab = "Size [g]", ylab = cdf_y_label(power, normalise),
+                  xtrans = if (log_x) "log10" else "identity",
+                  ytrans = "identity",
+                  xlim = wlim, ylim = ylim,
+                  highlight = highlight, legend_var = "Legend")
+}
+
+prepare_spectra_cdf_data <- function(plot_dat, params, normalise = TRUE) {
+    params <- validParams(params)
+    plot_dat <- plot_dat[order(plot_dat$Species, plot_dat$w), ]
+    plot_dat$value <- plot_dat$value * spectra_bin_width(plot_dat$w, params)
+    plot_dat$value <- ave(plot_dat$value, plot_dat$Species, FUN = cumsum)
+    if (normalise) {
+        totals <- ave(plot_dat$value, plot_dat$Species, FUN = max)
+        plot_dat$value <- plot_dat$value / totals
+    }
+    plot_dat
+}
+
+spectra_bin_width <- function(w, params) {
+    idx <- match(w, params@w_full)
+    if (anyNA(idx)) {
+        missing <- which(is.na(idx))
+        for (i in missing) {
+            idx[i] <- which.min(abs(params@w_full - w[i]))
+        }
+        if (!isTRUE(all.equal(w, params@w_full[idx], scale = 1))) {
+            stop("Could not determine size-bin widths for the spectra data.")
+        }
+    }
+    params@dw_full[idx]
+}
+
+cdf_y_label <- function(power, normalise) {
+    if (normalise) {
+        if (power == 0) {
+            return("Cumulative proportion of abundance")
+        }
+        if (power == 1) {
+            return("Cumulative proportion of biomass")
+        }
+        return("Cumulative proportion")
+    }
+    if (power == 0) {
+        return("Cumulative abundance")
+    }
+    if (power == 1) {
+        return("Cumulative biomass [g]")
+    }
+    paste0("Cumulative number density * w^", power)
+}
+
+parsePlotCDFLog <- function(log, log_x) {
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = FALSE)
+    if (log_axes$log_y) {
+        stop("`plotCDF()` only supports log scaling on the x axis. ",
+             "Use `log = \"x\"` or `log = \"\"`.")
+    }
+    log_axes$log_x
 }
 
 #' Compare two size spectra in the same plot
