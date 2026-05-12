@@ -86,6 +86,21 @@ test_that("plot.ArrayTimeBySpeciesBySize time argument selects correct slice", {
     expect_true(is.data.frame(p))
 })
 
+test_that("plot.ArrayTimeBySpeciesBySize preserves single species dimension", {
+    arr <- array(seq_len(6), dim = c(2, 1, 3),
+                 dimnames = list(time = c("2000", "2001"),
+                                 sp = "Cod",
+                                 w = c("1", "10", "100")))
+    rate <- ArrayTimeBySpeciesBySize(arr, value_name = "Test rate",
+                                     units = "1/year")
+
+    p <- plot(rate, time = 2001, return_data = TRUE)
+
+    expect_true(is.data.frame(p))
+    expect_identical(p$Species, rep("Cod", 3))
+    expect_equal(p$value, unname(arr["2001", "Cod", ]))
+})
+
 test_that("as.data.frame.ArrayTimeBySpeciesBySize returns correct structure", {
     fmort <- getFMort(NS_sim)
     df <- as.data.frame(fmort)

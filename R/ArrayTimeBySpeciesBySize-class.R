@@ -158,7 +158,9 @@ plot.ArrayTimeBySpeciesBySize <- function(x, species = NULL, time = NULL,
     }
 
     arr <- unclass(x)
-    slice <- arr[tidx, , ]
+    slice <- matrix(arr[tidx, , , drop = FALSE],
+                    nrow = dim(arr)[2],
+                    dimnames = dimnames(arr)[2:3])
     slice <- ArraySpeciesBySize(slice, value_name = value_name,
                                 units = units, params = params)
 
