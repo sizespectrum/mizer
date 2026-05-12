@@ -56,6 +56,7 @@
 #'   [plotYieldGear()] \tab Plots the total yield of each species by gear against time. \cr
 #'   [plotSpectra()] \tab Plots the abundance (biomass or numbers) spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot. \cr
 #'   [plotCDF()] \tab Plots cumulative distributions of abundance or biomass over size. \cr
+#'   [plotCDF2()] \tab Compares cumulative distributions from two simulations or parameter objects in one plot. \cr
 #'   [plotSpectra2()] \tab Compares the spectra from two simulations or parameter objects in one plot. \cr
 #'   [plotFeedingLevel()] \tab Plots the feeding level of each species against size. \cr
 #'   [plotPredMort()] \tab Plots the predation mortality of each species against size. \cr
@@ -1107,6 +1108,56 @@ parsePlotCDFLog <- function(log, log_x) {
     log_axes$log_x
 }
 
+#' Compare two cumulative abundance or biomass distributions
+#'
+#' `plotCDF2()` compares cumulative distributions from two `MizerParams` or
+#' `MizerSim` objects in a single plot. Colours identify species or groups and
+#' linetype identifies the object.
+#'
+#' @param object1 First `MizerParams` or `MizerSim` object.
+#' @param object2 Second `MizerParams` or `MizerSim` object.
+#' @param name1,name2 Labels for the two objects, used in the linetype legend.
+#' @inheritParams plotCDF
+#' @param ... Arguments passed to [plotCDF()] for preparing the cumulative
+#'   distribution data, for example `species`, `time_range`, `wlim`,
+#'   `resource`, `background` or `total`.
+#'
+#' @return A ggplot2 object.
+#' @export
+#' @family plotting functions
+#'
+#' @examples
+#' \donttest{
+#' sim1 <- project(NS_params, t_max = 10, progress_bar = FALSE)
+#' sim2 <- project(NS_params, effort = 0.5, t_max = 10, progress_bar = FALSE)
+#' plotCDF2(sim1, sim2, "Original", "Effort = 0.5")
+#' }
+plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
+                     power = 1, normalise = TRUE, log_x = TRUE, log = NULL,
+                     ...) {
+    log_x <- parsePlotCDFLog(log, log_x)
+    assert_that(is.number(power), is.flag(normalise))
+
+    args <- list(...)
+    wlim <- args$wlim %||% c(NA, NA)
+    ylim <- args$ylim %||% c(NA, NA)
+
+    cf1 <- plotCDF(object1, power = power, normalise = normalise,
+                   return_data = TRUE, ...)
+    cf2 <- plotCDF(object2, power = power, normalise = normalise,
+                   return_data = TRUE, ...)
+    params <- if (is(object1, "MizerSim")) object1@params else object1
+
+    plotComparisonDataFrame(cf1, cf2, validParams(params),
+                            name1 = name1, name2 = name2,
+                            xlab = "Size [g]",
+                            ylab = cdf_y_label(power, normalise),
+                            xtrans = if (log_x) "log10" else "identity",
+                            ytrans = "identity",
+                            xlim = wlim, ylim = ylim,
+                            legend_var = "Legend")
+}
+
 #' Compare two size spectra in the same plot
 #'
 #' `plotSpectra2()` compares the abundance spectra from two `MizerParams` or
@@ -1230,6 +1281,50 @@ plotlySpectraRelative <- function(object1, object2, log_x = TRUE,
     ggplotly(plotSpectraRelative(object1, object2, log_x = log_x,
                                   ylim = ylim, ...),
              tooltip = c("Legend", "w", "rel_diff"))
+}
+
+#' @rdname plotCDF
+#' @return `plotlyCDF()` returns a plotly object.
+#' @export
+plotlyCDF <- function(object, species = NULL,
+                      time_range, geometric_mean = FALSE,
+                      wlim = c(NA, NA), ylim = c(NA, NA),
+                      power = 1, biomass = TRUE,
+                      total = FALSE, resource = TRUE,
+                      background = TRUE,
+                      highlight = NULL, normalise = TRUE,
+                      log_x = TRUE, log = NULL, ...) {
+    args <- list(object = object, species = species,
+                 geometric_mean = geometric_mean,
+                 wlim = wlim, ylim = ylim,
+                 biomass = biomass, total = total,
+                 resource = resource, background = background,
+                 highlight = highlight, normalise = normalise,
+                 log_x = log_x, log = log, ...)
+    if (!missing(time_range)) {
+        args$time_range <- time_range
+    }
+    if (!missing(power)) {
+        args$power <- power
+    }
+    ggplotly(do.call("plotCDF", args),
+             tooltip = c("Species", "w", "value"))
+}
+
+#' @rdname plotCDF2
+#' @return `plotlyCDF2()` returns a plotly object.
+#' @export
+plotlyCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
+                       power = 1, normalise = TRUE,
+                       log_x = TRUE, log = NULL, ...) {
+    args <- list(object1 = object1, object2 = object2,
+                 name1 = name1, name2 = name2,
+                 normalise = normalise, log_x = log_x, log = log, ...)
+    if (!missing(power)) {
+        args$power <- power
+    }
+    ggplotly(do.call("plotCDF2", args),
+             tooltip = c("Species", "w", "value", "Model"))
 }
 
 #' @rdname plotSpectra

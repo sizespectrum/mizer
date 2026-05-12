@@ -106,6 +106,10 @@ test_that("plotly functions do not throw error", {
 
 test_that("plotly wrappers return plotly objects for spectra and rate plots", {
     expect_s3_class(plotlySpectra(params, species = species), "plotly")
+    expect_s3_class(plotlyCDF(params, species = species,
+                              resource = FALSE), "plotly")
+    expect_s3_class(plotlyCDF2(params, params, species = species,
+                               resource = FALSE), "plotly")
     expect_s3_class(plotlySpectraRelative(params, params, species = species,
                                           resource = FALSE), "plotly")
     expect_s3_class(plotlyPredMort(sim, species = species), "plotly")
@@ -229,6 +233,28 @@ test_that("plotCDF supports simulations, resource, total and unnormalised output
     p_plot <- plotCDF(sim, species = species, time_range = 1:3,
                       total = TRUE, resource = TRUE, normalise = FALSE)
     expect_s3_class(p_plot, "ggplot")
+})
+
+test_that("plotCDF2 compares cumulative distributions", {
+    p <- plotCDF2(params, params, name1 = "Original", name2 = "Changed",
+                  species = species, total = TRUE, resource = FALSE,
+                  wlim = c(1, NA), normalise = FALSE, log = "")
+    expect_s3_class(p, "ggplot")
+    expect_identical(levels(p$data$Model), c("Original", "Changed"))
+    expect_true("Total" %in% p$data$Legend)
+    expect_true(all(p$data$w >= 1))
+    expect_identical(p$scales$get_scales("x")$trans$name, "identity")
+
+    p_log <- plotCDF2(params, sim, species = species, resource = FALSE,
+                      log = "x")
+    expect_s3_class(p_log, "ggplot")
+    expect_identical(p_log$scales$get_scales("x")$trans$name, "log-10")
+
+    expect_s3_class(plotCDF2(sim, sim0, species = species,
+                             time_range = 1:3, resource = FALSE),
+                    "ggplot")
+    expect_error(plotCDF2(params, sim, species = species, log = "y"),
+                 "only supports log scaling on the x axis")
 })
 
 test_that("yield plotting helpers validate comparison and gear selection", {

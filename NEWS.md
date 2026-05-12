@@ -139,8 +139,9 @@ individual variability in growth to be modelled.
   `plotSpectraRelative()` and `plotlySpectraRelative()` helpers have moved from
   `mizerExperimental` into mizer.
 
-- New `plotCDF()` generic for plotting cumulative abundance or biomass
-  distributions from `MizerParams` and `MizerSim` objects.
+- New `plotCDF()` and `plotCDF2()` generics for plotting cumulative abundance
+  or biomass distributions from `MizerParams` and `MizerSim` objects, together
+  with `plotlyCDF()` and `plotlyCDF2()` wrappers.
 
 - `plotSpectra()` now accepts `log_x`, `log_y`, and `log` arguments for
   controlling axis scaling, matching the mizer array `plot()` methods.
