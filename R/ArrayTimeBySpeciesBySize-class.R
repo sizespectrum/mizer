@@ -171,6 +171,53 @@ plot.ArrayTimeBySpeciesBySize <- function(x, species = NULL, time = NULL,
                             background = background, y_ticks = y_ticks, ...)
 }
 
+#' @rdname plot2
+#'
+#' @param time The time to display. Default (`NULL`) is the final time step.
+#'   Only applies to `ArrayTimeBySpeciesBySize`.
+#' @export
+plot2.ArrayTimeBySpeciesBySize <- function(x, y, name1 = "First",
+                                           name2 = "Second",
+                                           species = NULL, time = NULL,
+                                           all.sizes = FALSE,
+                                           log_x = TRUE, log_y = FALSE,
+                                           log = NULL,
+                                           wlim = c(NA, NA),
+                                           ylim = c(NA, NA),
+                                           total = FALSE,
+                                           background = TRUE,
+                                           y_ticks = 6, ...) {
+    check_plot2_compatible(x, y, "ArrayTimeBySpeciesBySize")
+    slice1 <- ArrayTimeBySpeciesBySize_slice(x, time = time)
+    slice2 <- ArrayTimeBySpeciesBySize_slice(y, time = time)
+
+    plot2.ArraySpeciesBySize(slice1, slice2, name1 = name1, name2 = name2,
+                             species = species, all.sizes = all.sizes,
+                             log_x = log_x, log_y = log_y, log = log,
+                             wlim = wlim, ylim = ylim, total = total,
+                             background = background, y_ticks = y_ticks, ...)
+}
+
+ArrayTimeBySpeciesBySize_slice <- function(x, time = NULL) {
+    params <- attr(x, "params")
+    value_name <- attr(x, "value_name")
+    units <- attr(x, "units")
+
+    times <- as.numeric(dimnames(x)[[1]])
+    if (is.null(time)) {
+        tidx <- dim(x)[1]
+    } else {
+        tidx <- which.min(abs(times - time))
+    }
+
+    arr <- unclass(x)
+    slice <- matrix(arr[tidx, , , drop = FALSE],
+                    nrow = dim(arr)[2],
+                    dimnames = dimnames(arr)[2:3])
+    ArraySpeciesBySize(slice, value_name = value_name,
+                       units = units, params = params)
+}
+
 #' @rdname plot
 #' @exportS3Method plotly::ggplotly
 #' @examples

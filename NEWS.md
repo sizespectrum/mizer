@@ -129,6 +129,11 @@ individual variability in growth to be modelled.
 - New `addPlot()` generic with methods for adding `ArraySpeciesBySize` and
   `ArrayTimeBySpecies` values as extra lines on an existing compatible ggplot.
 
+- New `plot2()` generic with methods for comparing two compatible mizer array
+  objects in one plot, with species or group shown by colour and model by
+  linetype. The `plotSpectra2()` helper has moved from `mizerExperimental` into
+  mizer for comparing two abundance spectra.
+
 - `plotSpectra()` now accepts `log_x`, `log_y`, and `log` arguments for
   controlling axis scaling, matching the mizer array `plot()` methods.
 

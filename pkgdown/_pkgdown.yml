@@ -171,10 +171,10 @@ reference:
 - title: Plotting results
   contents:
   - plotting_functions
-  - has_concept("plotting functions")
-  - addPlot
   - starts_with("animate")
   - starts_with("plot")
+  - addPlot
+  - has_concept("plotting functions")
   - -plotM2
   - setColours
   - setLinetypes

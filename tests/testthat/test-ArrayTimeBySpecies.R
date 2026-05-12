@@ -78,6 +78,38 @@ test_that("plot.ArrayTimeBySpecies supports base plot log argument", {
     expect_error(plot(bio, log = TRUE), "`log` must be a character string")
 })
 
+test_that("plot2.ArrayTimeBySpecies compares compatible arrays", {
+    bio <- getBiomass(NS_sim)
+    years <- as.numeric(rownames(bio))
+
+    p <- plot2(bio, bio, name1 = "Original", name2 = "Changed",
+               species = "Cod", total = TRUE, start_time = years[2],
+               end_time = years[5], log = "xy")
+    expect_s3_class(p, "ggplot")
+    expect_identical(levels(p$data$Model), c("Original", "Changed"))
+    expect_true(all(p$data$Species %in% c("Cod", "Total")))
+    expect_true(all(p$data$Year >= years[2]))
+    expect_true(all(p$data$Year <= years[5]))
+    expect_identical(p$scales$get_scales("x")$trans$name, "log-10")
+    expect_identical(p$scales$get_scales("y")$trans$name, "log-10")
+
+    p_none <- plot2(bio, bio, species = "Cod", log = "")
+    expect_identical(p_none$scales$get_scales("x")$trans$name, "identity")
+    expect_identical(p_none$scales$get_scales("y")$trans$name, "identity")
+
+    warnings <- character()
+    withCallingHandlers(
+        plot2(bio, getYield(NS_sim), species = "Cod"),
+        warning = function(w) {
+            warnings <<- c(warnings, conditionMessage(w))
+            invokeRestart("muffleWarning")
+        }
+    )
+    expect_true(any(grepl("value name", warnings)))
+    expect_true(any(grepl("y units", warnings)))
+    expect_error(plot2(bio, getEncounter(NS_params)), "Both objects must be")
+})
+
 test_that("addPlot.ArrayTimeBySpecies adds lines to an existing ggplot", {
     bio <- getBiomass(NS_sim)
     yield <- getYield(NS_sim)

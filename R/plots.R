@@ -41,8 +41,8 @@
 #' The same array objects can be passed to [ggplotly()] to produce interactive
 #' versions, for example `ggplotly(getBiomass(sim))` or
 #' `ggplotly(getEncounter(params))`. To add another compatible array to an
-#' existing ggplot, use [addPlot()]. This is useful for comparing two simulations
-#' or two parameter sets on the same axes. To visualise how spectra or rates
+#' existing ggplot, use [addPlot()]. To compare two compatible mizer arrays
+#' directly, use [plot2()]. To visualise how spectra or rates
 #' change through time, use [animate()] on a `MizerSim` or an
 #' `ArrayTimeBySpeciesBySize` object.
 #'
@@ -54,6 +54,7 @@
 #'   [plotYield()] \tab Plots the total yield of each species across all fishing gears against time. \cr
 #'   [plotYieldGear()] \tab Plots the total yield of each species by gear against time. \cr
 #'   [plotSpectra()] \tab Plots the abundance (biomass or numbers) spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot. \cr
+#'   [plotSpectra2()] \tab Compares the spectra from two simulations or parameter objects in one plot. \cr
 #'   [plotFeedingLevel()] \tab Plots the feeding level of each species against size. \cr
 #'   [plotPredMort()] \tab Plots the predation mortality of each species against size. \cr
 #'   [plotFMort()] \tab Plots the total fishing mortality of each species against size. \cr
@@ -128,7 +129,8 @@ NULL
 utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
                          "x", "y", "Year", "Yield", "Biomass", "Size",
                          "Proportion", "Prey", "Legend", "Type", "Gear",
-                         "Predator", "weight", "a", "b", "age", "w_max"))
+                         "Predator", "weight", "a", "b", "age", "w_max",
+                         "Model"))
 
 #' Make a plot from a data frame
 #'
@@ -248,6 +250,58 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
     }
 
     p
+}
+
+plotComparisonDataFrame <- function(frame1, frame2, params,
+                                    name1 = "First", name2 = "Second",
+                                    xlab = waiver(), ylab = waiver(),
+                                    xtrans = "identity", ytrans = "identity",
+                                    xlim = c(NA, NA), ylim = c(NA, NA),
+                                    y_ticks = 6, legend_var = "Legend") {
+    assert_that(is.data.frame(frame1),
+                is.data.frame(frame2),
+                is(params, "MizerParams"))
+
+    names(frame2)[seq_len(min(3, ncol(frame2)))] <-
+        names(frame1)[seq_len(min(3, ncol(frame1)))]
+    frame1$Model <- name1
+    frame2$Model <- name2
+    frame <- rbind(frame1, frame2)
+    frame$Model <- factor(frame$Model, levels = c(name1, name2))
+
+    var_names <- names(frame)
+    x_var <- var_names[[1]]
+    y_var <- var_names[[2]]
+    group_var <- var_names[[3]]
+    if (!(legend_var %in% var_names)) {
+        stop("The `legend_var` argument must be the name of a variable ",
+             "in the data frame.")
+    }
+
+    legend_levels <- intersect(names(params@linecolour), frame[[legend_var]])
+    frame[[legend_var]] <- factor(frame[[legend_var]], levels = legend_levels)
+    if (sum(is.na(frame[[legend_var]]))) {
+        warning("missing legend in params@linecolour, some groups won't be displayed")
+    }
+    linecolour <- params@linecolour[legend_levels]
+
+    xbreaks <- waiver()
+    if (xtrans == "log10") xbreaks <- log_breaks()
+    ybreaks <- waiver()
+    if (ytrans == "log10") ybreaks <- log_breaks(n = y_ticks)
+
+    ggplot(frame,
+           aes(group = interaction(.data[[group_var]], .data[["Model"]]))) +
+        scale_y_continuous(trans = ytrans, breaks = ybreaks,
+                           labels = prettyNum, name = ylab,
+                           limits = ylim) +
+        scale_x_continuous(trans = xtrans, breaks = xbreaks, name = xlab,
+                           limits = xlim) +
+        geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
+                      colour = .data[[legend_var]],
+                      linetype = .data[["Model"]])) +
+        scale_colour_manual(values = linecolour) +
+        scale_linetype_discrete(drop = FALSE)
 }
 
 #' Helper function to produce nice breaks on logarithmic axes
@@ -767,12 +821,7 @@ plot_spectra <- function(params, n, n_pp,
     }
     species <- valid_species_arg(params, species)
     # Deal with power argument
-    if (power %in% c(0, 1, 2)) {
-        y_label <- c("Number density [1/g]", "Biomass density",
-                    "Biomass density [g]")[power + 1]
-    } else {
-        y_label <- paste0("Number density * w^", power)
-    }
+    y_label <- spectra_y_label(power)
     n <- sweep(n, 2, params@w^power, "*")
     # Select only the desired species
     spec_n <- n[as.character(dimnames(n)[[1]]) %in% species, , drop = FALSE]
@@ -834,6 +883,68 @@ plot_spectra <- function(params, n, n_pp,
                   ytrans = if (log_y) "log10" else "identity",
                   xlim = wlim, ylim = ylim,
                   highlight = highlight, legend_var = "Legend")
+}
+
+#' Compare two size spectra in the same plot
+#'
+#' `plotSpectra2()` compares the abundance spectra from two `MizerParams` or
+#' `MizerSim` objects in a single plot. Colours identify species or groups and
+#' linetype identifies the object.
+#'
+#' @param object1 First `MizerParams` or `MizerSim` object.
+#' @param object2 Second `MizerParams` or `MizerSim` object.
+#' @param name1,name2 Labels for the two objects, used in the linetype legend.
+#' @inheritParams plotSpectra
+#' @param log_x If `TRUE` (default), use a log10 x-axis.
+#' @param log_y If `TRUE` (default), use a log10 y-axis.
+#' @param log Character string specifying which axes should use log10 scales,
+#'   in the same form as the base [plot()] argument. For example, `"x"`,
+#'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
+#' @param ... Arguments passed to [plotSpectra()] for preparing the spectra
+#'   data, for example `species`, `time_range`, `wlim`, `ylim`, `resource`,
+#'   `background` or `total`.
+#'
+#' @return A ggplot2 object.
+#' @export
+#' @family plotting functions
+#'
+#' @examples
+#' \donttest{
+#' sim1 <- project(NS_params, t_max = 10, progress_bar = FALSE)
+#' sim2 <- project(NS_params, effort = 0.5, t_max = 10, progress_bar = FALSE)
+#' plotSpectra2(sim1, sim2, "Original", "Effort = 0.5")
+#' }
+plotSpectra2 <- function(object1, object2, name1 = "First", name2 = "Second",
+                         power = 1, log_x = TRUE, log_y = TRUE,
+                         log = NULL, ...) {
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
+    log_x <- log_axes$log_x
+    log_y <- log_axes$log_y
+
+    args <- list(...)
+    wlim <- args$wlim %||% c(NA, NA)
+    ylim <- args$ylim %||% c(NA, NA)
+
+    sf1 <- plotSpectra(object1, power = power, return_data = TRUE, ...)
+    sf2 <- plotSpectra(object2, power = power, return_data = TRUE, ...)
+    params <- if (is(object1, "MizerSim")) object1@params else object1
+
+    plotComparisonDataFrame(sf1, sf2, validParams(params),
+                            name1 = name1, name2 = name2,
+                            xlab = "Size [g]",
+                            ylab = spectra_y_label(power),
+                            xtrans = if (log_x) "log10" else "identity",
+                            ytrans = if (log_y) "log10" else "identity",
+                            xlim = wlim, ylim = ylim,
+                            legend_var = "Legend")
+}
+
+spectra_y_label <- function(power) {
+    if (power %in% c(0, 1, 2)) {
+        return(c("Number density [1/g]", "Biomass density",
+                 "Biomass density [g]")[power + 1])
+    }
+    paste0("Number density * w^", power)
 }
 
 #' @rdname plotSpectra

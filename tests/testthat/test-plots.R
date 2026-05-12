@@ -113,6 +113,40 @@ test_that("plotly wrappers return plotly objects for spectra and rate plots", {
                                        include_critical = TRUE), "plotly")
 })
 
+test_that("plotSpectra2 compares spectra from params and sims", {
+    p_params <- plotSpectra2(params, params, name1 = "Original",
+                             name2 = "Changed", species = species,
+                             total = TRUE)
+    expect_s3_class(p_params, "ggplot")
+    expect_identical(levels(p_params$data$Model), c("Original", "Changed"))
+    expect_true("Total" %in% p_params$data$Legend)
+
+    expect_s3_class(plotSpectra2(sim, sim0, species = species), "ggplot")
+    expect_s3_class(plotSpectra2(params, sim, species = species), "ggplot")
+})
+
+test_that("plotSpectra2 supports base plot log argument", {
+    p_y <- plotSpectra2(params, sim0, species = species, log = "y")
+    expect_identical(p_y$scales$get_scales("x")$trans$name, "identity")
+    expect_identical(p_y$scales$get_scales("y")$trans$name, "log-10")
+
+    p_xy <- plotSpectra2(params, sim0, species = species, log = "xy")
+    expect_identical(p_xy$scales$get_scales("x")$trans$name, "log-10")
+    expect_identical(p_xy$scales$get_scales("y")$trans$name, "log-10")
+
+    p_none <- plotSpectra2(params, sim0, species = species, log = "")
+    expect_identical(p_none$scales$get_scales("x")$trans$name, "identity")
+    expect_identical(p_none$scales$get_scales("y")$trans$name, "identity")
+
+    p_flags <- plotSpectra2(params, sim0, species = species,
+                            log_x = FALSE, log_y = FALSE)
+    expect_identical(p_flags$scales$get_scales("x")$trans$name, "identity")
+    expect_identical(p_flags$scales$get_scales("y")$trans$name, "identity")
+
+    expect_error(plotSpectra2(params, sim0, species = species, log = "z"),
+                 "`log` must be a character string")
+})
+
 test_that("yield plotting helpers validate comparison and gear selection", {
     sim_shifted <- sim
     dimnames(sim_shifted@n)$time <- as.character(10:13)

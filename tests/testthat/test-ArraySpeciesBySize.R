@@ -108,6 +108,27 @@ test_that("plot.ArraySpeciesBySize supports base plot log argument", {
     expect_error(plot(enc, log = "z"), "`log` must be a character string")
 })
 
+test_that("plot2.ArraySpeciesBySize compares compatible arrays", {
+    enc <- getEncounter(NS_params)
+
+    p <- plot2(enc, enc, name1 = "Original", name2 = "Changed",
+               species = "Cod", total = TRUE, background = FALSE,
+               wlim = c(1, NA), log = "xy")
+    expect_s3_class(p, "ggplot")
+    expect_identical(levels(p$data$Model), c("Original", "Changed"))
+    expect_true(all(p$data$Species %in% c("Cod", "Total")))
+    expect_true(all(p$data$w >= 1))
+    expect_identical(p$scales$get_scales("x")$trans$name, "log-10")
+    expect_identical(p$scales$get_scales("y")$trans$name, "log-10")
+
+    p_none <- plot2(enc, enc, species = "Cod", log = "")
+    expect_identical(p_none$scales$get_scales("x")$trans$name, "identity")
+    expect_identical(p_none$scales$get_scales("y")$trans$name, "identity")
+
+    expect_error(plot2(enc, getBiomass(NS_sim)), "Both objects must be")
+    expect_error(plot2(enc, enc, log = "z"), "`log` must be a character string")
+})
+
 test_that("addPlot.ArraySpeciesBySize adds lines to an existing ggplot", {
     enc <- getEncounter(NS_params)
     pred_mort <- getPredMort(NS_params)

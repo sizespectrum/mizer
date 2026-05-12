@@ -234,6 +234,39 @@ addPlot.ArrayTimeBySpecies <- function(plot, x, species = NULL,
     plot + do.call(geom_line, layer_args)
 }
 
+#' @rdname plot2
+#' @export
+plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
+                                     species = NULL,
+                                     start_time = NULL, end_time = NULL,
+                                     y_ticks = 6, ylim = c(NA, NA),
+                                     total = FALSE, background = TRUE,
+                                     log_x = FALSE, log_y = TRUE,
+                                     log = NULL, ...) {
+    check_plot2_compatible(x, y, "ArrayTimeBySpecies")
+    compare_array_metadata(x, y)
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
+    log_x <- log_axes$log_x
+    log_y <- log_axes$log_y
+
+    params <- attr(x, "params")
+    y_label <- array_y_label(x, default = "Value")
+    plot_dat1 <- prepare_ArrayTimeBySpecies_plot_data(
+        x, species = species, start_time = start_time, end_time = end_time,
+        ylim = ylim, total = total, background = background)
+    plot_dat2 <- prepare_ArrayTimeBySpecies_plot_data(
+        y, species = species, start_time = start_time, end_time = end_time,
+        ylim = ylim, total = total, background = background)
+
+    plotComparisonDataFrame(plot_dat1, plot_dat2, params,
+                            name1 = name1, name2 = name2,
+                            xlab = "Year", ylab = y_label,
+                            xtrans = if (log_x) "log10" else "identity",
+                            ytrans = if (log_y) "log10" else "identity",
+                            ylim = ylim, y_ticks = y_ticks,
+                            legend_var = "Legend")
+}
+
 prepare_ArrayTimeBySpecies_plot_data <- function(x, species = NULL,
                                                  start_time = NULL,
                                                  end_time = NULL,
