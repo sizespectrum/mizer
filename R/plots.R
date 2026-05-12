@@ -254,7 +254,34 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
         p <- p + facet_wrap(wrap_var, scales = wrap_scale)
     }
 
-    p
+    make_mizer_plot(p, mizer_tooltip_vars(frame, group_var, x_var, y_var,
+                                          legend_var))
+}
+
+make_mizer_plot <- function(plot, tooltip) {
+    attr(plot, "mizer_tooltip") <- tooltip
+    class(plot) <- unique(c("mizer_plot", class(plot)))
+    plot
+}
+
+mizer_tooltip_vars <- function(frame, group_var, x_var, y_var,
+                               legend_var = NULL, extra = NULL) {
+    tooltip <- c(group_var, x_var, y_var)
+    if (!is.null(legend_var) && legend_var %in% names(frame) &&
+            !identical(legend_var, group_var) &&
+            any(as.character(frame[[legend_var]]) !=
+                    as.character(frame[[group_var]]), na.rm = TRUE)) {
+        tooltip <- c(tooltip, legend_var)
+    }
+    unique(c(tooltip, extra))
+}
+
+#' @exportS3Method plotly::ggplotly
+ggplotly.mizer_plot <- function(p = ggplot2::last_plot(), ...,
+                                tooltip = attr(p, "mizer_tooltip") %||%
+                                    "all") {
+    class(p) <- setdiff(class(p), "mizer_plot")
+    ggplotly(p, ..., tooltip = tooltip)
 }
 
 plotComparisonDataFrame <- function(frame1, frame2, params,
@@ -295,8 +322,8 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
     ybreaks <- waiver()
     if (ytrans == "log10") ybreaks <- log_breaks(n = y_ticks)
 
-    ggplot(frame,
-           aes(group = interaction(.data[[group_var]], .data[["Model"]]))) +
+    p <- ggplot(frame,
+                aes(group = interaction(.data[[group_var]], .data[["Model"]]))) +
         scale_y_continuous(trans = ytrans, breaks = ybreaks,
                            labels = prettyNum, name = ylab,
                            limits = ylim) +
@@ -307,6 +334,8 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                       linetype = .data[["Model"]])) +
         scale_colour_manual(values = linecolour) +
         scale_linetype_discrete(drop = FALSE)
+    make_mizer_plot(p, mizer_tooltip_vars(frame, group_var, x_var, y_var,
+                                          legend_var, extra = "Model"))
 }
 
 plotRelativeDataFrame <- function(frame1, frame2, params,
@@ -347,7 +376,7 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
     xbreaks <- waiver()
     if (xtrans == "log10") xbreaks <- log_breaks()
 
-    ggplot(frame, aes(group = .data[[group_var]])) +
+    p <- ggplot(frame, aes(group = .data[[group_var]])) +
         scale_y_continuous(name = "Relative difference", limits = ylim) +
         scale_x_continuous(trans = xtrans, breaks = xbreaks, name = xlab,
                            limits = xlim) +
@@ -356,6 +385,8 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
         geom_line(aes(x = .data[[x_var]], y = .data[["rel_diff"]],
                       colour = .data[[legend_var]])) +
         scale_colour_manual(values = linecolour)
+    make_mizer_plot(p, mizer_tooltip_vars(frame, group_var, x_var, "rel_diff",
+                                          legend_var))
 }
 
 relative_difference <- function(first, second) {

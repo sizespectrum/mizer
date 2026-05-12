@@ -123,6 +123,22 @@ test_that("plotly wrappers return plotly objects for spectra and rate plots", {
     expect_s3_class(plotlyDiet(params, species = species[[1]]), "plotly")
 })
 
+test_that("ggplotly(plot(...)) uses concise mizer tooltips", {
+    p <- plot(getEncounter(NS_params), species = "Cod")
+    expect_s3_class(p, "mizer_plot")
+    gp <- ggplotly(p)
+    first_tip <- gp$x$data[[1]]$text[[1]]
+    expect_true(grepl("Species: Cod", first_tip, fixed = TRUE))
+    expect_true(grepl("w:", first_tip, fixed = TRUE))
+    expect_true(grepl("value:", first_tip, fixed = TRUE))
+    legend_matches <- gregexpr("Legend:", first_tip, fixed = TRUE)[[1]]
+    expect_lte(sum(legend_matches > 0), 1)
+
+    ggplot2::set_last_plot(p)
+    gp_last <- ggplotly()
+    expect_identical(gp_last$x$data[[1]]$text[[1]], first_tip)
+})
+
 test_that("plotSpectra2 compares spectra from params and sims", {
     p_params <- plotSpectra2(params, params, name1 = "Original",
                              name2 = "Changed", species = species,
