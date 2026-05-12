@@ -112,6 +112,10 @@ individual variability in growth to be modelled.
   `ArrayTimeBySpeciesBySize`. An `animate()` method allows interactive
   playback.
 
+- Subsetting an `ArrayTimeBySpeciesBySize` object returns an
+  `ArraySpeciesBySize` object when a single time is selected, and an
+  `ArrayTimeBySpecies` object when a single size is selected.
+
 - New `ggplotly()` methods for `ArraySpeciesBySize`, `ArrayTimeBySpecies`, and
   `ArrayTimeBySpeciesBySize` convert the `ggplot2` output of `plot()` into
   interactive plotly figures.

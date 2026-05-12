@@ -296,6 +296,22 @@ as.data.frame.ArrayTimeBySpeciesBySize <- function(x, row.names = NULL,
         attr(result, "units") <- attr(x, "units")
         attr(result, "params") <- attr(x, "params")
         class(result) <- c("ArrayTimeBySpeciesBySize", "array")
+    } else if (is.matrix(result)) {
+        dim_names <- names(dimnames(result))
+        attrs <- list(value_name = attr(x, "value_name"),
+                      units = attr(x, "units"),
+                      params = attr(x, "params"))
+        if (identical(dim_names, c("sp", "w"))) {
+            result <- ArraySpeciesBySize(result,
+                                         value_name = attrs$value_name,
+                                         units = attrs$units,
+                                         params = attrs$params)
+        } else if (identical(dim_names, c("time", "sp"))) {
+            result <- ArrayTimeBySpecies(result,
+                                         value_name = attrs$value_name,
+                                         units = attrs$units,
+                                         params = attrs$params)
+        }
     }
     result
 }

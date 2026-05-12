@@ -117,10 +117,28 @@ test_that("[.ArrayTimeBySpeciesBySize preserves class for 3D result", {
     expect_identical(attr(sub, "value_name"), "Fishing mortality")
 })
 
-test_that("[.ArrayTimeBySpeciesBySize drops class for 2D result", {
+test_that("[.ArrayTimeBySpeciesBySize returns ArraySpeciesBySize when time is dropped", {
     fmort <- getFMort(NS_sim)
     slice <- fmort[1, , ]
     expect_false(is.ArrayTimeBySpeciesBySize(slice))
+    expect_true(is.ArraySpeciesBySize(slice))
+    expect_identical(attr(slice, "value_name"), "Fishing mortality")
+})
+
+test_that("[.ArrayTimeBySpeciesBySize returns ArrayTimeBySpecies when size is dropped", {
+    fmort <- getFMort(NS_sim)
+    slice <- fmort[, , 1]
+    expect_false(is.ArrayTimeBySpeciesBySize(slice))
+    expect_true(is.ArrayTimeBySpecies(slice))
+    expect_identical(attr(slice, "value_name"), "Fishing mortality")
+})
+
+test_that("[.ArrayTimeBySpeciesBySize leaves time by size matrices plain", {
+    fmort <- getFMort(NS_sim)
+    slice <- fmort[, 1, ]
+    expect_false(is.ArrayTimeBySpeciesBySize(slice))
+    expect_false(is.ArraySpeciesBySize(slice))
+    expect_false(is.ArrayTimeBySpecies(slice))
     expect_true(is.matrix(slice))
 })
 
