@@ -414,10 +414,6 @@ get_gamma_default <- function(params) {
         params <- setSearchVolume(params)
         # and setting a power-law prey spectrum
         params@initial_n[] <- 0
-        if (defaults_edition() < 2) {
-            # See issue #238
-            params@species_params$interaction_resource <- 1
-        }
         params@initial_n_pp[] <- params@resource_params$kappa *
             params@w_full^(-params@resource_params$lambda)
         avail_energy <- getEncounter(params)[, length(params@w)] /

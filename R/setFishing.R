@@ -447,8 +447,7 @@ getInitialEffort.MizerParams <- function(params) {
 #' * a named vector in which the gear names have a different order than in the
 #'   params object. This is then sorted correctly.
 #' * a named vector which only supplies values for some of the gears.
-#'   The effort for the other gears is then set to the default effort returned
-#'   by [validEffortVector()], which depends on the defaults edition.
+#'   The effort for the other gears is then set to the default effort of 1.
 #'
 #' These conversions are done by the function `validEffortVector()`.
 #'
@@ -515,7 +514,7 @@ initial_effort <- function(params) {
 #' @export
 validGearParams <- function(gear_params, species_params) {
 
-    catchability_default <- ifelse(defaults_edition() < 2, 1, 0.3)
+    catchability_default <- 0.3
 
     # if no gear parameters are given, set up knife-edge gear
     if (is.null(gear_params) &&
@@ -684,7 +683,7 @@ validEffortVector <- function(effort, params) {
     }
 
     # Set any missing efforts to default
-    effort_default <- ifelse(defaults_edition() < 2, 0, 1)
+    effort_default <- 1
     missing <- setdiff(gear_names, names(effort))
     new <- rep(effort_default, length(missing))
     names(new) <- missing

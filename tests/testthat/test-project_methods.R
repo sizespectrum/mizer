@@ -1,7 +1,4 @@
 # Initialise --------------------------------------------------------------
-# Snapshots recorded with edition 1; lock params creation to edition 1
-withr::local_options(mizer_defaults_edition = 1)
-
 # North sea
 params <- newMultispeciesParams(NS_species_params_gears, inter,
                                 n = 2/3, p = 0.7, lambda = 2.8 - 2/3,
@@ -854,7 +851,8 @@ test_that("Test that fft based integrator gives similar result as old code", {
     pr <- getPredRate(params2, params@initial_n, params@initial_n_pp)
     # Due to problem with fft on M1mac, skip this test on CRAN
     skip_on_cran()
-    expect_equal(prfft, pr, tolerance = 1e-15, ignore_attr = TRUE)
+    expect_equal(dim(prfft), dim(pr))
+    expect_lt(max(abs(prfft - pr)), 1e-15)
 })
 
 # One species only ----

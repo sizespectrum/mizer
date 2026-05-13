@@ -61,10 +61,7 @@
 #' of size \eqn{w} is then
 #' \deqn{\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)}{
 #'   psi(w) = maturity(w) * repro_prop(w)}
-#' In mizer edition 1, at sizes above `w_repro_max` the value of \eqn{\psi}
-#' is additionally forced to 1, so that all available energy is invested into
-#' reproduction and growth stops. In edition 2 and above this forcing is not
-#' applied, and \eqn{\psi} is determined entirely by the maturity ogive and the
+#' The value of \eqn{\psi} is determined entirely by the maturity ogive and the
 #' reproductive proportion.
 #' }
 #'
@@ -311,10 +308,6 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
     psi <- params@maturity * repro_prop
     # psi should never be larger than 1
     psi[psi > 1] <- 1
-    if (defaults_edition() < 2) {
-        # Set psi for all w > w_repro_max to 1
-        psi[outer(species_params$w_repro_max, params@w, "<")] <- 1
-    }
     assert_that(all(psi >= 0 & psi <= 1))
 
     # if the slot is protected and the user did not supply a new repro_prop

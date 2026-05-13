@@ -1,52 +1,60 @@
-#' Default editions
+#' Retired defaults editions
 #' 
-#' Function to set and get which edition of default choices is being used.
+#' `r lifecycle::badge("deprecated")`
 #'
-#' The mizer functions for creating new models make a lot of choices for default
-#' values for parameters that are not provided by the user. Sometimes we find
-#' better ways to choose the defaults and update mizer accordingly. When we do
-#' this, we will increase the edition number. 
+#' The `defaults_edition()` mechanism has been retired. Mizer now always uses
+#' the newer defaults introduced for defaults edition 2. This function remains
+#' temporarily as a deprecated compatibility shim for old scripts.
 #' 
-#' If you call `defaults_edition()` without an argument it returns the 
-#' currently active edition. Otherwise it sets the active edition to the 
-#' given value.
+#' @details
+#' Calls to `defaults_edition()` no longer change any behaviour. Instead,
+#' model setup code that needs the old defaults should spell them out
+#' explicitly.
 #' 
-#' Users who want their existing code for creating models not to change 
-#' behaviour when run with future versions of mizer should explicitly set the
-#' desired defaults edition at the top of their code.
-#' 
-#' The most recent edition is edition 2. It will become the default in the
-#' next release. The current default is edition 1. The following defaults
-#' are changed in edition 2:
+#' The defaults that are now always used are:
 #' 
 #' * `catchability` = 0.3 instead of 1
-#' * `initial effort` = 1 instead of 0
+#' * initial fishing effort = 1 instead of 0
 #' * `gamma` is set to ensure a feeding level of `f0` for larvae with the
-#'   current value of `interaction_resource` instead of
-#'   interaction_resource = 1`.
+#'   current value of `interaction_resource`
 #' * `initial_n` is set using [get_steady_state_n()] instead of the rather
 #'   arbitrary old choice.
 #' * In [setReproduction()], `psi` is no longer forced to 1 above
 #'   `w_repro_max`; its value is determined entirely by the maturity ogive
 #'   and the reproductive proportion.
 #' 
-#' @param edition NULL or a numerical value.
-#' @return If `edition` is `NULL`, the currently active edition number. If
-#'   `edition` is supplied, the function sets the global
-#'   `mizer_defaults_edition` option, emits a message, and returns the supplied
-#'   value invisibly.
+#' To reproduce old model setup behaviour:
+#'
+#' * add `catchability = 1` explicitly to `gear_params` or to the gear columns
+#'   in `species_params`
+#' * set old zero fishing effort explicitly with `initial_effort(params) <- 0`
+#'   and provide full effort vectors or arrays to [project()] when missing
+#'   values should mean zero
+#' * if the old `gamma` behaviour matters, calculate or supply `gamma`
+#'   explicitly before setting non-default `interaction_resource`
+#' * if the old initial abundances matter, set `initialN(params) <- ...`
+#'   explicitly. The old formula was
+#'   `N = N0 * w_max^(2 * n - q - 2 + a) * w^(-n - a)`, with densities outside
+#'   the species size range set to zero
+#' * if the old reproduction allocation matters, set a custom
+#'   `repro_prop`/`psi` explicitly rather than relying on forcing above
+#'   `w_repro_max`
+#'
+#' @param edition Ignored. It is only kept so old calls do not fail.
+#' @return The number 2, invisibly if an edition was supplied.
 #' @export
+#' @concept deprecated
 defaults_edition <- function(edition = NULL) {
-    current_edition <- 1
-    # if called without argument or with NULL, return the current edition
+    lifecycle::deprecate_warn(
+        "3.0.0",
+        "defaults_edition()",
+        details = paste(
+            "Mizer now always uses the newer defaults.",
+            "Old model setup code should set any old default values explicitly."
+        )
+    )
     if (is.null(edition)) {
-        edition <- getOption("mizer_defaults_edition")
-        return(ifelse(is.null(edition), current_edition, edition))
+        return(2)
     }
-    # else check validity and set option
-    assert_that(is.numeric(edition),
-                edition >= 1)
-    options(mizer_defaults_edition = edition)
-    message("Mizer parameter defaults are now at edition ", edition, ".")
-    return(invisible(edition))
+    invisible(2)
 }

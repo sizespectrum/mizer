@@ -2,15 +2,15 @@
 #'
 #' This function uses the model parameters and other parameters to calculate
 #' initial values for the species number densities. These initial
-#' abundances are currently quite arbitrary and not close to the steady state.
-#' We intend to improve this in the future.
+#' abundances are calculated from the steady state of a simplified version of
+#' the model.
 #'
 #' @param params The model parameters. An object of type
 #'   \linkS4class{MizerParams}.
-#' @param a A parameter with a default value of 0.35.
-#' @param n0_mult Multiplier for the abundance at size 0 when using defaults
-#'   edition 1. If not supplied, `kappa / 1000` is used. This argument is
-#'   ignored for defaults edition 2 and later.
+#' @param a `r lifecycle::badge("deprecated")` This argument was used only by
+#'   the retired defaults edition 1 calculation and is now ignored.
+#' @param n0_mult `r lifecycle::badge("deprecated")` This argument was used
+#'   only by the retired defaults edition 1 calculation and is now ignored.
 #' @export
 #' @concept helper
 #' @return An `ArraySpeciesBySize` object (species x size) of population abundances.
@@ -19,36 +19,21 @@
 get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
     if (!is(params,"MizerParams"))
         stop("params argument must of type MizerParams")
-    no_sp <- nrow(params@species_params)
-    no_w <- length(params@w)
-    initial_n <- params@initial_n
-
-    if (defaults_edition() < 2) {
-        # N = N0 * Winf^(2*n-q-2+a) * w^(-n-a)
-        # Reverse calc n and q from intake_max and search_vol slots (could add get_n function)
-        n <- params@species_params[[1, "n"]]
-        q <- params@species_params[[1, "q"]]
-        # Guessing at a suitable n0 value based on kappa - this was figured out
-        # using trial and error and should be updated
-        if (is.null(n0_mult)) {
-            lambda <- 2 + q - n
-            kappa <- params@cc_pp[1] / (params@w_full[1]^(-lambda))
-            n0_mult <- kappa / 1000
-        }
-        initial_n[] <- unlist(tapply(params@w, 1:no_w, function(wx,n0_mult,w_max,a,n,q)
-            n0_mult * w_max^(2 * n - q - 2 + a) * wx^(-n - a),
-            n0_mult = n0_mult, w_max = params@species_params$w_max, a=a, n=n, q=q))
-        #set densities at w > w_max to 0
-        initial_n[unlist(tapply(params@w,1:no_w,function(wx,w_max) w_max<wx, w_max=params@species_params$w_max))] <- 0
-        # Also any densities at w < w_min set to 0
-        initial_n[unlist(tapply(params@w, 1:no_w,
-                                function(wx, w_min) w_min > wx,
-                                w_min = params@species_params$w_min)
-                         )
-                  ] <- 0
-        return(ArraySpeciesBySize(initial_n, value_name = "Number density",
-                                  params = params))
+    if (!missing(a)) {
+        lifecycle::deprecate_warn(
+            "3.0.0",
+            "get_initial_n(a)",
+            details = "`a` was used only by the retired defaults edition 1 calculation and is now ignored."
+        )
     }
+    if (!is.null(n0_mult)) {
+        lifecycle::deprecate_warn(
+            "3.0.0",
+            "get_initial_n(n0_mult)",
+            details = "`n0_mult` was used only by the retired defaults edition 1 calculation and is now ignored."
+        )
+    }
+    no_sp <- nrow(params@species_params)
 
     p <- params
     p@initial_n[] <- 0

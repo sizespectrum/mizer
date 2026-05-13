@@ -70,8 +70,7 @@ NULL
 #'  The values in the vector specify the constant fishing effort for those
 #'  fishing gears, i.e. the effort is constant through time. The
 #'   effort for gears that are not included in the effort vector is set to the
-#'   default effort value, which is 1 in defaults edition 2 and later and 0 in
-#'   earlier defaults editions. Missing (`NA`) effort entries are replaced in
+#'   default effort value of 1. Missing (`NA`) effort entries are replaced in
 #'   the same way.
 #' \item A numerical vector which has the same length as the number of fishing
 #' gears. The values in the vector specify the
@@ -638,8 +637,7 @@ validEffortArray <- function(effort, params) {
     }
 
     # Replace any NA's with default value
-    effort_default <- ifelse(defaults_edition() < 2, 0, 1)
-    effort[is.na(effort)] <- effort_default
+    effort[is.na(effort)] <- 1
 
     names(dimnames(effort)) <- c("time", "gear")
     effort

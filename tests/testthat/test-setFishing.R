@@ -31,16 +31,14 @@ test_that("validGearParams works", {
     expect_identical(gp$sel_func, c("knife_edge", "knife_edge"))
     expect_identical(gp$knife_edge_size, c(25, 250))
     # There must be a catchability column
-    expect_identical(gp$catchability,
-                     rep(ifelse(defaults_edition() < 2, 1, 0.3), 2))
+    expect_identical(gp$catchability, rep(0.3, 2))
     # Defaults for NAs
     gp$gear[[1]] <- NA
     expect_identical(validGearParams(gp, sp)$gear[[1]], "species1")
     gp$sel_func[[1]] <- NA
     expect_identical(validGearParams(gp, sp)$sel_func[[1]], "knife_edge")
     gp$catchability[[2]] <- NA
-    expect_identical(validGearParams(gp, sp)$catchability[[2]],
-                     ifelse(defaults_edition() < 2, 1, 0.3))
+    expect_identical(validGearParams(gp, sp)$catchability[[2]], 0.3)
     gp$knife_edge_size[[2]] <- NA
     expect_identical(validGearParams(gp, sp)$knife_edge_size[[2]], 250)
     
@@ -68,17 +66,16 @@ test_that("validEffort works", {
     # A scrambled vector is put in the right order
     ies <- ie[c(2,3,1,4)]
     expect_identical(validEffortVector(ies, params), ie)
-    # NA's are replaced by the edition-specific default
-    ie[2] <- ifelse(defaults_edition() < 2, 0, 1)
+    # NA's are replaced by the default
+    ie[2] <- 1
     iesn <- ie
     iesn[2] <- NA
     expect_identical(validEffortVector(iesn, params), ie)
     # A single number is converted into a constant vector
     ie[] <- 2
     expect_identical(validEffortVector(2, params), ie)
-    # A shortened vector is expanded with the edition-specific default
-    expect_identical(validEffortVector(ie[c(1,2,4)], params)[[3]],
-                     ifelse(defaults_edition() < 2, 0, 1))
+    # A shortened vector is expanded with the default
+    expect_identical(validEffortVector(ie[c(1,2,4)], params)[[3]], 1)
                 
     # The names are checked
     names(ie)[[1]] <- "test"
@@ -251,8 +248,8 @@ test_that("Dimensions after number of gears has increased", {
                      params@species_params$species)
     expect_identical(dimnames(params@selectivity)[[1]],
                      params@species_params$species)
-    # The initial effort has also changed to the edition-specific default
-    effort <- rep(ifelse(defaults_edition() < 2, 0, 1), no_gears)
+    # The initial effort has also changed to the default
+    effort <- rep(1, no_gears)
     names(effort) <- params@species_params$species
     expect_identical(params@initial_effort, effort)
 })

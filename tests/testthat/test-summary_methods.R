@@ -1,6 +1,4 @@
 ## Initialisation ----
-# Snapshots recorded with edition 1; lock params creation to edition 1
-withr::local_options(mizer_defaults_edition = 1)
 species_params <- NS_species_params_gears
 species_params$pred_kernel_type <- "truncated_lognormal"
 params <- newMultispeciesParams(species_params, inter, min_w_pp = 1e-12,

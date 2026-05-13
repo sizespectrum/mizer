@@ -1,5 +1,15 @@
 # Development version (will become mizer 3.0.0)
 
+## Defaults
+
+- The `defaults_edition()` mechanism has been retired. Mizer now always uses
+  the newer defaults: catchability defaults to 0.3, missing initial effort
+  defaults to 1, `gamma` defaults use the current `interaction_resource`,
+  initial species abundances are based on a steady-state calculation, and
+  `setReproduction()` no longer forces `psi` to 1 above `w_repro_max`.
+  `defaults_edition()` remains temporarily as a deprecated compatibility shim.
+  Old model setup code should set any old default values explicitly.
+
 ## Diffusion in mizer
 
 The McKendrick-von Foerster equation now supports a diffusion term, allowing

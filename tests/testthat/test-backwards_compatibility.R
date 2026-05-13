@@ -5,9 +5,6 @@ data(NS_species_params_gears)
 data(inter)
 
 test_that("MizerParams() works as in version 2.5.1", {
-  old <- getOption("mizer_defaults_edition")
-  on.exit(options(mizer_defaults_edition = old), add = TRUE)
-  options(mizer_defaults_edition = 1)
   # expect_warning(params <- MizerParams(NS_species_params_gears, inter), "deprecated")
   # warning no longer thrown - NS_species_params_gears is now 2.5.1 (see `params@mizer_version`)
   params <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
@@ -69,9 +66,6 @@ test_that("MizerParams() works as in version 2.5.1", {
 })
 
 test_that("set_trait_model() works as in version 1", {
-  old <- getOption("mizer_defaults_edition")
-  on.exit(options(mizer_defaults_edition = old), add = TRUE)
-  options(mizer_defaults_edition = 1)
   # expect_warning(params <- set_trait_model(), "deprecated")
   # warning no longer thrown - default params are now 2.5.1 (see `params@mizer_version`)
   params <- newTraitParams()
@@ -138,9 +132,6 @@ test_that("set_trait_model uses documented grid arguments", {
 })
 
 test_that("set_community_model() works as in version 1", {
-  old <- getOption("mizer_defaults_edition")
-  on.exit(options(mizer_defaults_edition = old), add = TRUE)
-  options(mizer_defaults_edition = 1)
   # expect_warning(params <- set_community_model(), "deprecated")
   # warning no longer thrown - default params are now 2.5.1 (see `params@mizer_version`)
   params <- newCommunityParams()

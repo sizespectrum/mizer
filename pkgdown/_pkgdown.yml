@@ -108,7 +108,6 @@ reference:
   - newTraitParams
   - newMultispeciesParams
   - mizer-package
-  - defaults_edition
 - title: Changing model parameters
   description: After you have created a model, you will want to make changes to it
     while tuning the model and for investigating the impact of changes in parameters.

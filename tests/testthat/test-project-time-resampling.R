@@ -23,12 +23,16 @@ test_that("Time resampling in project behaves as documented", {
     #     save_freq <- effort_times[2] - effort_times[1]
     # }
     # So save_freq becomes 9.
-    # New times: seq(1, 13, by = 9) -> 1, 10.
+    # New regular times would be 1, 10, 19..., and the final short interval
+    # is saved at 14.
     # Time 11 is lost.
-    sim <- project(params, effort = effort, t_max = 13, dt = 1)
+    expect_warning(
+        sim <- project(params, effort = effort, t_max = 13, dt = 1),
+        "`t_max`"
+    )
     saved_times <- as.numeric(dimnames(sim@n)[[1]])
 
-    expect_equal(saved_times, c(1, 10))
+    expect_equal(saved_times, c(1, 10, 14))
     expect_false(11 %in% saved_times)
 
     # Case 3: t_save provided explicitly
@@ -41,7 +45,11 @@ test_that("Time resampling in project behaves as documented", {
     # t_save = 5. Times: 1, 6, 11, 16, 21...
     # Here 11 IS captured by coincidence (1 + 2*5 = 11).
     # Let's try t_save = 4. Times: 1, 5, 9, 13... 11 is lost.
-    sim <- project(params, effort = effort, t_max = 13, t_save = 4, dt = 1)
+    expect_warning(
+        sim <- project(params, effort = effort, t_max = 13, t_save = 4,
+                       dt = 1),
+        "`t_max`"
+    )
     saved_times <- as.numeric(dimnames(sim@n)[[1]])
     expect_false(11 %in% saved_times)
 })
