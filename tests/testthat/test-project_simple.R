@@ -26,7 +26,9 @@ test_that("project_simple matches project for one saved step", {
         rates_fns = rates_fns
     )
     sim <- project(params, t_max = t_save, dt = dt, t_save = t_save, progress_bar = FALSE)
-    expect_equal(out$n, N(sim)[2, , ], tolerance = 1e-12)
+    expected_n <- params@initial_n
+    expected_n[] <- N(sim)[2, , ]
+    expect_equal(out$n, expected_n, tolerance = 1e-12)
     expect_equal(out$n_pp, NResource(sim)[2, ], tolerance = 1e-12)
 })
 
