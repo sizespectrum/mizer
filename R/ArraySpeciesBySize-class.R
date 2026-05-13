@@ -228,6 +228,145 @@ parsePlotLog <- function(log, log_x = FALSE, log_y = FALSE) {
     )
 }
 
+#' Compare two mizer array objects in one plot
+#'
+#' `plot2()` compares two compatible mizer array objects in a single ggplot.
+#' Colours identify species or groups, and linetype identifies which object the
+#' values came from.
+#'
+#' @param x,y Two compatible mizer array objects of the same class.
+#' @param name1,name2 Labels for the two objects, used in the linetype legend.
+#' @inheritParams plot
+#'
+#' @return A ggplot2 object.
+#' @export
+#' @family plotting functions
+#'
+#' @examples
+#' \donttest{
+#' enc <- getEncounter(NS_params)
+#' plot2(enc, enc, name1 = "Original", name2 = "Changed")
+#' plot2(getBiomass(NS_sim), getBiomass(NS_sim), species = "Cod")
+#' }
+plot2 <- function(x, y, ...) {
+    UseMethod("plot2", x)
+}
+
+#' @rdname plot2
+#' @export
+plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
+                                     species = NULL, all.sizes = FALSE,
+                                     log_x = TRUE, log_y = FALSE, log = NULL,
+                                     wlim = c(NA, NA), ylim = c(NA, NA),
+                                     total = FALSE, background = TRUE,
+                                     y_ticks = 6, ...) {
+    check_plot2_compatible(x, y, "ArraySpeciesBySize")
+    compare_array_metadata(x, y)
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
+    log_x <- log_axes$log_x
+    log_y <- log_axes$log_y
+
+    params <- attr(x, "params")
+    y_label <- array_y_label(x, default = "Rate")
+    plot_dat1 <- prepare_ArraySpeciesBySize_plot_data(
+        x, species = species, all.sizes = all.sizes, wlim = wlim,
+        total = total, background = background)
+    plot_dat2 <- prepare_ArraySpeciesBySize_plot_data(
+        y, species = species, all.sizes = all.sizes, wlim = wlim,
+        total = total, background = background)
+
+    plotComparisonDataFrame(plot_dat1, plot_dat2, params,
+                            name1 = name1, name2 = name2,
+                            xlab = "Size [g]", ylab = y_label,
+                            xtrans = if (log_x) "log10" else "identity",
+                            ytrans = if (log_y) "log10" else "identity",
+                            xlim = wlim, ylim = ylim,
+                            y_ticks = y_ticks, legend_var = "Legend")
+}
+
+#' Plot the relative difference between two mizer array objects
+#'
+#' `plotRelative()` plots the difference between two compatible mizer array
+#' objects relative to their average. If the values in the first object are
+#' \eqn{N_1} and the values in the second are \eqn{N_2}, it plots
+#' \deqn{2 (N_2 - N_1) / (N_1 + N_2).}
+#'
+#' @inheritParams plot2
+#' @param log_x If `TRUE`, use a log10 x-axis. Default is `TRUE` for size
+#'   spectra and `FALSE` for time series.
+#'
+#' @return A ggplot2 object.
+#' @export
+#' @family plotting functions
+#'
+#' @examples
+#' \donttest{
+#' enc <- getEncounter(NS_params)
+#' plotRelative(enc, enc, species = "Cod")
+#' plotRelative(getBiomass(NS_sim), getBiomass(NS_sim), species = "Cod")
+#' }
+plotRelative <- function(x, y, ...) {
+    UseMethod("plotRelative", x)
+}
+
+#' @rdname plotRelative
+#' @export
+plotRelative.ArraySpeciesBySize <- function(x, y, species = NULL,
+                                            all.sizes = FALSE,
+                                            log_x = TRUE,
+                                            wlim = c(NA, NA),
+                                            ylim = c(NA, NA),
+                                            total = FALSE,
+                                            background = TRUE, ...) {
+    check_plot2_compatible(x, y, "ArraySpeciesBySize")
+    compare_array_metadata(x, y)
+    params <- attr(x, "params")
+    plot_dat1 <- prepare_ArraySpeciesBySize_plot_data(
+        x, species = species, all.sizes = all.sizes, wlim = wlim,
+        total = total, background = background)
+    plot_dat2 <- prepare_ArraySpeciesBySize_plot_data(
+        y, species = species, all.sizes = all.sizes, wlim = wlim,
+        total = total, background = background)
+
+    plotRelativeDataFrame(plot_dat1, plot_dat2, params,
+                          xlab = "Size [g]",
+                          xtrans = if (log_x) "log10" else "identity",
+                          xlim = wlim, ylim = ylim, legend_var = "Legend")
+}
+
+check_plot2_compatible <- function(x, y, class) {
+    if (!inherits(y, class)) {
+        stop("Both objects must be of class `", class, "`.")
+    }
+}
+
+compare_array_metadata <- function(x, y) {
+    value_name1 <- attr(x, "value_name")
+    value_name2 <- attr(y, "value_name")
+    if (!is.null(value_name1) && !is.null(value_name2) &&
+            !identical(value_name1, value_name2)) {
+        warning("The first array has value name `", value_name1,
+                "`, but the second array has value name `", value_name2, "`.")
+    }
+    units1 <- attr(x, "units")
+    units2 <- attr(y, "units")
+    if (!is.null(units1) && !is.null(units2) &&
+            nzchar(units1) && nzchar(units2) &&
+            !identical(units1, units2)) {
+        warning("The first array has y units `", units1,
+                "`, but the second array has y units `", units2, "`.")
+    }
+}
+
+array_y_label <- function(x, default = "Value") {
+    value_name <- attr(x, "value_name") %||% default
+    units_str <- attr(x, "units")
+    if (!is.null(units_str) && nzchar(units_str)) {
+        value_name <- paste0(value_name, " [", units_str, "]")
+    }
+    value_name
+}
+
 #' Add values to an existing plot
 #'
 #' `r lifecycle::badge("experimental")`

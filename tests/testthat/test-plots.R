@@ -98,19 +98,183 @@ test_that("plotly functions do not throw error", {
     expect_error(plotlyYield(sim, sim), NA)
     expect_error(plotlyYieldGear(sim, species = species), NA)
     expect_error(plotlySpectra(params, species = species), NA)
+    expect_error(plotlySpectra2(params, sim, species = species), NA)
     expect_error(plotlyPredMort(sim, species = species), NA)
     expect_error(plotlyFMort(sim, species = species), NA)
     expect_error(plotlyGrowthCurves(sim, species = species), NA)
     expect_error(plotlyGrowthCurves(params, species = species), NA)
+    expect_error(plotlyDiet(params, species = species[[1]]), NA)
 })
 
 test_that("plotly wrappers return plotly objects for spectra and rate plots", {
     expect_s3_class(plotlySpectra(params, species = species), "plotly")
+    expect_s3_class(plotlySpectra2(params, sim, species = species), "plotly")
+    expect_s3_class(plotlyCDF(params, species = species,
+                              resource = FALSE), "plotly")
+    expect_s3_class(plotlyCDF2(params, params, species = species,
+                               resource = FALSE), "plotly")
+    expect_s3_class(plotlySpectraRelative(params, params, species = species,
+                                          resource = FALSE), "plotly")
     expect_s3_class(plotlyPredMort(sim, species = species), "plotly")
     expect_s3_class(plotlyFMort(sim, species = species), "plotly")
     expect_s3_class(plotlyGrowthCurves(sim, species = species), "plotly")
     expect_s3_class(plotlyFeedingLevel(sim, species = species,
                                        include_critical = TRUE), "plotly")
+    expect_s3_class(plotlyDiet(params, species = species[[1]]), "plotly")
+})
+
+test_that("ggplotly(plot(...)) uses concise mizer tooltips", {
+    p <- plot(getEncounter(NS_params), species = "Cod")
+    expect_s3_class(p, "mizer_plot")
+    gp <- ggplotly(p)
+    first_tip <- gp$x$data[[1]]$text[[1]]
+    expect_true(grepl("Species: Cod", first_tip, fixed = TRUE))
+    expect_true(grepl("w:", first_tip, fixed = TRUE))
+    expect_true(grepl("value:", first_tip, fixed = TRUE))
+    legend_matches <- gregexpr("Legend:", first_tip, fixed = TRUE)[[1]]
+    expect_lte(sum(legend_matches > 0), 1)
+
+    ggplot2::set_last_plot(p)
+    gp_last <- ggplotly()
+    expect_identical(gp_last$x$data[[1]]$text[[1]], first_tip)
+})
+
+test_that("plotSpectra2 compares spectra from params and sims", {
+    p_params <- plotSpectra2(params, params, name1 = "Original",
+                             name2 = "Changed", species = species,
+                             total = TRUE)
+    expect_s3_class(p_params, "ggplot")
+    expect_identical(levels(p_params$data$Model), c("Original", "Changed"))
+    expect_true("Total" %in% p_params$data$Legend)
+
+    expect_s3_class(plotSpectra2(sim, sim0, species = species), "ggplot")
+    expect_s3_class(plotSpectra2(params, sim, species = species), "ggplot")
+})
+
+test_that("plotSpectra2 supports base plot log argument", {
+    p_y <- plotSpectra2(params, sim0, species = species, log = "y")
+    expect_identical(p_y$scales$get_scales("x")$trans$name, "identity")
+    expect_identical(p_y$scales$get_scales("y")$trans$name, "log-10")
+
+    p_xy <- plotSpectra2(params, sim0, species = species, log = "xy")
+    expect_identical(p_xy$scales$get_scales("x")$trans$name, "log-10")
+    expect_identical(p_xy$scales$get_scales("y")$trans$name, "log-10")
+
+    p_none <- plotSpectra2(params, sim0, species = species, log = "")
+    expect_identical(p_none$scales$get_scales("x")$trans$name, "identity")
+    expect_identical(p_none$scales$get_scales("y")$trans$name, "identity")
+
+    p_flags <- plotSpectra2(params, sim0, species = species,
+                            log_x = FALSE, log_y = FALSE)
+    expect_identical(p_flags$scales$get_scales("x")$trans$name, "identity")
+    expect_identical(p_flags$scales$get_scales("y")$trans$name, "identity")
+
+    expect_error(plotSpectra2(params, sim0, species = species, log = "z"),
+                 "`log` must be a character string")
+})
+
+test_that("plotSpectraRelative plots symmetric relative difference", {
+    params2 <- params
+    params2@initial_n[] <- params@initial_n * 2
+
+    p <- plotSpectraRelative(params, params2, species = species,
+                             resource = FALSE)
+    expect_s3_class(p, "ggplot")
+    expect_true(all(abs(p$data$rel_diff - 2 / 3) < 1e-12))
+    expect_identical(p$scales$get_scales("x")$trans$name, "log-10")
+
+    p_linear <- plotSpectraRelative(params, params2, species = species,
+                                    resource = FALSE, log_x = FALSE)
+    expect_identical(p_linear$scales$get_scales("x")$trans$name, "identity")
+
+    expect_s3_class(plotSpectraRelative(sim, sim0, species = species,
+                                        resource = FALSE), "ggplot")
+    expect_s3_class(plotSpectraRelative(params, sim, species = species,
+                                        resource = FALSE), "ggplot")
+})
+
+test_that("plotCDF plots cumulative spectra from small to large sizes", {
+    p <- plotCDF(params, species = species, resource = FALSE, power = 0,
+                 wlim = c(1, NA), return_data = TRUE)
+    expect_true(all(p$w >= 1))
+    expect_true(all(p$value >= 0))
+    for (sp in unique(p$Species)) {
+        sp_dat <- p[p$Species == sp, ]
+        expect_equal(max(sp_dat$value), 1)
+        expect_true(all(diff(sp_dat$value) >= -1e-12))
+    }
+
+    spectra <- plotSpectra(params, species = species, resource = FALSE,
+                           power = 1, wlim = c(1, NA), return_data = TRUE)
+    cdf <- plotCDF(params, species = species, resource = FALSE,
+                   power = 1, wlim = c(1, NA), normalise = FALSE,
+                   return_data = TRUE)
+    widths <- params@dw_full[match(spectra$w, params@w_full)]
+    expected <- sum(spectra$value[spectra$Species == species[[1]]] *
+                        widths[spectra$Species == species[[1]]])
+    observed <- max(cdf$value[cdf$Species == species[[1]]])
+    expect_equal(observed, expected)
+
+    p_plot <- plotCDF(params, species = species, resource = FALSE)
+    expect_s3_class(p_plot, "ggplot")
+    expect_identical(p_plot$scales$get_scales("x")$trans$name, "log-10")
+    expect_match(p_plot$scales$get_scales("y")$name, "biomass",
+                 ignore.case = TRUE)
+
+    p_linear <- plotCDF(params, species = species, resource = FALSE,
+                        log_x = FALSE)
+    expect_identical(p_linear$scales$get_scales("x")$trans$name, "identity")
+
+    p_log_none <- plotCDF(params, species = species, resource = FALSE,
+                          log = "")
+    expect_identical(p_log_none$scales$get_scales("x")$trans$name,
+                     "identity")
+
+    p_log_x <- plotCDF(params, species = species, resource = FALSE,
+                       log = "x")
+    expect_identical(p_log_x$scales$get_scales("x")$trans$name, "log-10")
+    expect_error(plotCDF(params, species = species, resource = FALSE,
+                         log = "y"),
+                 "only supports log scaling on the x axis")
+
+    p_abundance <- plotCDF(params, species = species, resource = FALSE,
+                           power = 0)
+    expect_match(p_abundance$scales$get_scales("y")$name, "abundance",
+                 ignore.case = TRUE)
+})
+
+test_that("plotCDF supports simulations, resource, total and unnormalised output", {
+    p <- plotCDF(sim, species = species, time_range = 1:3,
+                 total = TRUE, resource = TRUE, normalise = FALSE,
+                 return_data = TRUE)
+    expect_true(all(c("Resource", "Total") %in% p$Legend))
+    expect_true(max(p$value) > 1)
+
+    p_plot <- plotCDF(sim, species = species, time_range = 1:3,
+                      total = TRUE, resource = TRUE, normalise = FALSE)
+    expect_s3_class(p_plot, "ggplot")
+})
+
+test_that("plotCDF2 compares cumulative distributions", {
+    p <- plotCDF2(params, params, name1 = "Original", name2 = "Changed",
+                  species = species, total = TRUE, resource = FALSE,
+                  wlim = c(1, NA), normalise = FALSE, log = "")
+    expect_s3_class(p, "ggplot")
+    expect_identical(levels(p$data$Model), c("Original", "Changed"))
+    expect_true("Total" %in% p$data$Legend)
+    expect_true(all(p$data$w >= 1))
+    expect_identical(p$scales$get_scales("x")$trans$name, "identity")
+
+    p_log <- plotCDF2(params, sim, species = species, resource = FALSE,
+                      log = "x")
+    expect_s3_class(p_log, "ggplot")
+    expect_identical(p_log$scales$get_scales("x")$trans$name, "log-10")
+
+    expect_s3_class(plotCDF2(sim, sim0, species = species,
+                             time_range = 1:3, resource = FALSE),
+                    "ggplot")
+    expect_error(plotCDF2(params, sim, species = species, log = "y"),
+                 "only supports log scaling on the x axis")
 })
 
 test_that("yield plotting helpers validate comparison and gear selection", {
@@ -201,6 +365,27 @@ test_that("plotSpectra validates empty selection and can return total only", {
     df <- plotSpectra(params, species = rep(FALSE, nrow(species_params(params))),
                       total = TRUE, resource = FALSE, return_data = TRUE)
     expect_true(all(df$Legend == "Total"))
+})
+
+test_that("plotSpectra supports base plot log argument", {
+    p_y <- plotSpectra(params, species = species, log = "y")
+    expect_identical(p_y$scales$get_scales("x")$trans$name, "identity")
+    expect_identical(p_y$scales$get_scales("y")$trans$name, "log-10")
+
+    p_xy <- plotSpectra(params, species = species, log = "xy")
+    expect_identical(p_xy$scales$get_scales("x")$trans$name, "log-10")
+    expect_identical(p_xy$scales$get_scales("y")$trans$name, "log-10")
+
+    p_none <- plotSpectra(params, species = species, log = "")
+    expect_identical(p_none$scales$get_scales("x")$trans$name, "identity")
+    expect_identical(p_none$scales$get_scales("y")$trans$name, "identity")
+
+    p_sim <- plotSpectra(sim, species = species, log_x = FALSE, log_y = FALSE)
+    expect_identical(p_sim$scales$get_scales("x")$trans$name, "identity")
+    expect_identical(p_sim$scales$get_scales("y")$trans$name, "identity")
+
+    expect_error(plotSpectra(params, species = species, log = "z"),
+                 "`log` must be a character string")
 })
 
 test_that("plotPredMort and plotFMort trim to species size range by default", {

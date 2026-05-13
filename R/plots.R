@@ -41,9 +41,10 @@
 #' The same array objects can be passed to [ggplotly()] to produce interactive
 #' versions, for example `ggplotly(getBiomass(sim))` or
 #' `ggplotly(getEncounter(params))`. To add another compatible array to an
-#' existing ggplot, use [addPlot()]. This is useful for comparing two simulations
-#' or two parameter sets on the same axes. To visualise how spectra or rates
-#' change through time, use [animate()] on a `MizerSim` or an
+#' existing ggplot, use [addPlot()]. To compare two compatible mizer arrays
+#' directly, use [plot2()]. To plot cumulative distributions over body size,
+#' use [plotCDF()]. To visualise how spectra or rates change through time, use
+#' [animate()] on a `MizerSim` or an
 #' `ArrayTimeBySpeciesBySize` object.
 #'
 #' The named plotting functions give more specialised control. This table shows
@@ -54,6 +55,9 @@
 #'   [plotYield()] \tab Plots the total yield of each species across all fishing gears against time. \cr
 #'   [plotYieldGear()] \tab Plots the total yield of each species by gear against time. \cr
 #'   [plotSpectra()] \tab Plots the abundance (biomass or numbers) spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot. \cr
+#'   [plotCDF()] \tab Plots cumulative distributions of abundance or biomass over size. \cr
+#'   [plotCDF2()] \tab Compares cumulative distributions from two simulations or parameter objects in one plot. \cr
+#'   [plotSpectra2()] \tab Compares the spectra from two simulations or parameter objects in one plot. \cr
 #'   [plotFeedingLevel()] \tab Plots the feeding level of each species against size. \cr
 #'   [plotPredMort()] \tab Plots the predation mortality of each species against size. \cr
 #'   [plotFMort()] \tab Plots the total fishing mortality of each species against size. \cr
@@ -66,9 +70,11 @@
 #'
 #' The static plotting functions use ggplot2 and return a ggplot object. This
 #' means that you can manipulate the plot further after its creation using the
-#' ggplot grammar of graphics. Many named plot functions also have a plotly
-#' counterpart, for example [plotlyBiomass()] or [plotlySpectra()], for
-#' interactive exploration.
+#' ggplot grammar of graphics. The named high-level plot functions have plotly
+#' counterparts, for example [plotlyBiomass()] or [plotlySpectra()], for
+#' interactive exploration. Generic and compositional plotting APIs, such as
+#' [plot()], [plot2()], [plotRelative()] and [addPlot()], do not have separate
+#' plotly wrappers. Use [ggplotly()] on the ggplot object they return.
 #'
 #' While most plot functions take their data from a MizerSim object, some of
 #' those that make plots representing data at a single time can also take their
@@ -128,7 +134,8 @@ NULL
 utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
                          "x", "y", "Year", "Yield", "Biomass", "Size",
                          "Proportion", "Prey", "Legend", "Type", "Gear",
-                         "Predator", "weight", "a", "b", "age", "w_max"))
+                         "Predator", "weight", "a", "b", "age", "w_max",
+                         "Model", "rel_diff"))
 
 #' Make a plot from a data frame
 #'
@@ -247,7 +254,143 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
         p <- p + facet_wrap(wrap_var, scales = wrap_scale)
     }
 
-    p
+    make_mizer_plot(p, mizer_tooltip_vars(frame, group_var, x_var, y_var,
+                                          legend_var))
+}
+
+make_mizer_plot <- function(plot, tooltip) {
+    attr(plot, "mizer_tooltip") <- tooltip
+    class(plot) <- unique(c("mizer_plot", class(plot)))
+    plot
+}
+
+mizer_tooltip_vars <- function(frame, group_var, x_var, y_var,
+                               legend_var = NULL, extra = NULL) {
+    tooltip <- c(group_var, x_var, y_var)
+    if (!is.null(legend_var) && legend_var %in% names(frame) &&
+            !identical(legend_var, group_var) &&
+            any(as.character(frame[[legend_var]]) !=
+                    as.character(frame[[group_var]]), na.rm = TRUE)) {
+        tooltip <- c(tooltip, legend_var)
+    }
+    unique(c(tooltip, extra))
+}
+
+#' @exportS3Method plotly::ggplotly
+ggplotly.mizer_plot <- function(p = ggplot2::last_plot(), ...,
+                                tooltip = attr(p, "mizer_tooltip") %||%
+                                    "all") {
+    class(p) <- setdiff(class(p), "mizer_plot")
+    ggplotly(p, ..., tooltip = tooltip)
+}
+
+plotComparisonDataFrame <- function(frame1, frame2, params,
+                                    name1 = "First", name2 = "Second",
+                                    xlab = waiver(), ylab = waiver(),
+                                    xtrans = "identity", ytrans = "identity",
+                                    xlim = c(NA, NA), ylim = c(NA, NA),
+                                    y_ticks = 6, legend_var = "Legend") {
+    assert_that(is.data.frame(frame1),
+                is.data.frame(frame2),
+                is(params, "MizerParams"))
+
+    names(frame2)[seq_len(min(3, ncol(frame2)))] <-
+        names(frame1)[seq_len(min(3, ncol(frame1)))]
+    frame1$Model <- name1
+    frame2$Model <- name2
+    frame <- rbind(frame1, frame2)
+    frame$Model <- factor(frame$Model, levels = c(name1, name2))
+
+    var_names <- names(frame)
+    x_var <- var_names[[1]]
+    y_var <- var_names[[2]]
+    group_var <- var_names[[3]]
+    if (!(legend_var %in% var_names)) {
+        stop("The `legend_var` argument must be the name of a variable ",
+             "in the data frame.")
+    }
+
+    legend_levels <- intersect(names(params@linecolour), frame[[legend_var]])
+    frame[[legend_var]] <- factor(frame[[legend_var]], levels = legend_levels)
+    if (sum(is.na(frame[[legend_var]]))) {
+        warning("missing legend in params@linecolour, some groups won't be displayed")
+    }
+    linecolour <- params@linecolour[legend_levels]
+
+    xbreaks <- waiver()
+    if (xtrans == "log10") xbreaks <- log_breaks()
+    ybreaks <- waiver()
+    if (ytrans == "log10") ybreaks <- log_breaks(n = y_ticks)
+
+    p <- ggplot(frame,
+                aes(group = interaction(.data[[group_var]], .data[["Model"]]))) +
+        scale_y_continuous(trans = ytrans, breaks = ybreaks,
+                           labels = prettyNum, name = ylab,
+                           limits = ylim) +
+        scale_x_continuous(trans = xtrans, breaks = xbreaks, name = xlab,
+                           limits = xlim) +
+        geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
+                      colour = .data[[legend_var]],
+                      linetype = .data[["Model"]])) +
+        scale_colour_manual(values = linecolour) +
+        scale_linetype_discrete(drop = FALSE)
+    make_mizer_plot(p, mizer_tooltip_vars(frame, group_var, x_var, y_var,
+                                          legend_var, extra = "Model"))
+}
+
+plotRelativeDataFrame <- function(frame1, frame2, params,
+                                  xlab = waiver(),
+                                  xtrans = "identity",
+                                  xlim = c(NA, NA),
+                                  ylim = c(NA, NA),
+                                  legend_var = "Legend") {
+    assert_that(is.data.frame(frame1),
+                is.data.frame(frame2),
+                is(params, "MizerParams"))
+
+    names(frame2)[seq_len(min(3, ncol(frame2)))] <-
+        names(frame1)[seq_len(min(3, ncol(frame1)))]
+    var_names <- names(frame1)
+    x_var <- var_names[[1]]
+    y_var <- var_names[[2]]
+    group_var <- var_names[[3]]
+    if (!(legend_var %in% var_names)) {
+        stop("The `legend_var` argument must be the name of a variable ",
+             "in the data frame.")
+    }
+
+    by_vars <- c(x_var, group_var, legend_var)
+    frame <- dplyr::inner_join(frame1, frame2, by = by_vars,
+                               suffix = c(".x", ".y"))
+    frame$rel_diff <- relative_difference(frame[[paste0(y_var, ".x")]],
+                                          frame[[paste0(y_var, ".y")]])
+    frame <- frame[is.finite(frame$rel_diff), ]
+
+    legend_levels <- intersect(names(params@linecolour), frame[[legend_var]])
+    frame[[legend_var]] <- factor(frame[[legend_var]], levels = legend_levels)
+    if (sum(is.na(frame[[legend_var]]))) {
+        warning("missing legend in params@linecolour, some groups won't be displayed")
+    }
+    linecolour <- params@linecolour[legend_levels]
+
+    xbreaks <- waiver()
+    if (xtrans == "log10") xbreaks <- log_breaks()
+
+    p <- ggplot(frame, aes(group = .data[[group_var]])) +
+        scale_y_continuous(name = "Relative difference", limits = ylim) +
+        scale_x_continuous(trans = xtrans, breaks = xbreaks, name = xlab,
+                           limits = xlim) +
+        geom_hline(yintercept = 0, linetype = 1,
+                   colour = "dark grey", linewidth = 0.75) +
+        geom_line(aes(x = .data[[x_var]], y = .data[["rel_diff"]],
+                      colour = .data[[legend_var]])) +
+        scale_colour_manual(values = linecolour)
+    make_mizer_plot(p, mizer_tooltip_vars(frame, group_var, x_var, "rel_diff",
+                                          legend_var))
+}
+
+relative_difference <- function(first, second) {
+    2 * (second - first) / (first + second)
 }
 
 #' Helper function to produce nice breaks on logarithmic axes
@@ -627,6 +770,11 @@ plotlyYieldGear <- function(sim, species = NULL,
 #'   are included. Ignored if the model does not contain background species.
 #'   Default is TRUE.
 #' @param highlight Name or vector of names of the species to be highlighted.
+#' @param log_x If `TRUE` (default), use a log10 x-axis.
+#' @param log_y If `TRUE` (default), use a log10 y-axis.
+#' @param log Character string specifying which axes should use log10 scales,
+#'   in the same form as the base [plot()] argument. For example, `"x"`,
+#'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
 #' @param return_data A boolean value that determines whether the formatted data
 #' used for the plot is returned instead of the plot itself. Default value is FALSE
 #' @param ... Other arguments (currently unused)
@@ -666,11 +814,16 @@ plotSpectra.MizerSim <- function(object, species = NULL,
                         power = 1, biomass = TRUE,
                         total = FALSE, resource = TRUE,
                         background = TRUE,
-                        highlight = NULL, return_data = FALSE, ...) {
+                        highlight = NULL, log_x = TRUE, log_y = TRUE,
+                        log = NULL, return_data = FALSE, ...) {
     # to deal with old-type biomass argument
     if (missing(power)) {
         power <- as.numeric(biomass)
     }
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
+    log_x <- log_axes$log_x
+    log_y <- log_axes$log_y
+
     assert_that(is.flag(total), is.flag(resource),
                 is.flag(background),
                 is.number(power),
@@ -696,6 +849,7 @@ plotSpectra.MizerSim <- function(object, species = NULL,
                  species = species, wlim = wlim, ylim = ylim,
                  power = power, total = total, resource = resource,
                  background = background, highlight = highlight,
+                 log_x = log_x, log_y = log_y,
                  return_data = return_data)
 }
 
@@ -706,11 +860,16 @@ plotSpectra.MizerParams <- function(object, species = NULL,
                         power = 1, biomass = TRUE,
                         total = FALSE, resource = TRUE,
                         background = TRUE,
-                        highlight = NULL, return_data = FALSE, ...) {
+                        highlight = NULL, log_x = TRUE, log_y = TRUE,
+                        log = NULL, return_data = FALSE, ...) {
     # to deal with old-type biomass argument
     if (missing(power)) {
         power <- as.numeric(biomass)
     }
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
+    log_x <- log_axes$log_x
+    log_y <- log_axes$log_y
+
     assert_that(is.flag(total), is.flag(resource),
                 is.flag(background),
                 is.number(power),
@@ -725,6 +884,7 @@ plotSpectra.MizerParams <- function(object, species = NULL,
                  species = species, wlim = wlim, ylim = ylim,
                  power = power, total = total, resource = resource,
                  background = background, highlight = highlight,
+                 log_x = log_x, log_y = log_y,
                  return_data = return_data)
 }
 
@@ -732,7 +892,7 @@ plotSpectra.MizerParams <- function(object, species = NULL,
 plot_spectra <- function(params, n, n_pp,
                          species, wlim, ylim, power,
                          total, resource, background,
-                         highlight, return_data) {
+                         highlight, log_x, log_y, return_data) {
     params <- validParams(params)
     if (is.na(wlim[1])) {
         wlim[1] <- if (resource) min(params@w) / 100 else min(params@w)
@@ -750,12 +910,7 @@ plot_spectra <- function(params, n, n_pp,
     }
     species <- valid_species_arg(params, species)
     # Deal with power argument
-    if (power %in% c(0, 1, 2)) {
-        y_label <- c("Number density [1/g]", "Biomass density",
-                    "Biomass density [g]")[power + 1]
-    } else {
-        y_label <- paste0("Number density * w^", power)
-    }
+    y_label <- spectra_y_label(power)
     n <- sweep(n, 2, params@w^power, "*")
     # Select only the desired species
     spec_n <- n[as.character(dimnames(n)[[1]]) %in% species, , drop = FALSE]
@@ -813,9 +968,408 @@ plot_spectra <- function(params, n, n_pp,
     if (return_data) return(plot_dat)
 
     plotDataFrame(plot_dat, params, xlab = "Size [g]", ylab = y_label,
-                  xtrans = "log10", ytrans = "log10",
+                  xtrans = if (log_x) "log10" else "identity",
+                  ytrans = if (log_y) "log10" else "identity",
                   xlim = wlim, ylim = ylim,
                   highlight = highlight, legend_var = "Legend")
+}
+
+#' Plot cumulative abundance or biomass distributions
+#'
+#' `plotCDF()` plots the cumulative distribution over body size from small to
+#' large sizes. It uses the same spectra data preparation as [plotSpectra()].
+#' The density is first multiplied by `w^power`, then integrated over size.
+#' With `normalise = TRUE`, each curve is divided by its final value so that it
+#' ends at 1.
+#'
+#' @inheritParams plotSpectra
+#' @param normalise If `TRUE` (default), plot the cumulative proportion. If
+#'   `FALSE`, plot the cumulative abundance, biomass, or other unnormalised
+#'   integral.
+#' @param log_x If `TRUE` (default), use a log10 x-axis.
+#' @param log Character string specifying whether the x-axis should use a log10
+#'   scale, in the same form as the base [plot()] argument. For `plotCDF()`,
+#'   only `"x"` and `""` are supported. If supplied, this overrides `log_x`.
+#'
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
+#'   frame with the four variables 'w', 'value', 'Species', 'Legend' is
+#'   returned.
+#' @export
+#' @family plotting functions
+#' @seealso [plotSpectra()]
+#' @examples
+#' \donttest{
+#' plotCDF(NS_params, species = c("Cod", "Herring"))
+#' plotCDF(NS_sim, power = 0, normalise = FALSE)
+#' }
+plotCDF <- function(object, ...) {
+    UseMethod("plotCDF")
+}
+
+#' @rdname plotCDF
+#' @export
+plotCDF.MizerSim <- function(object, species = NULL,
+                             time_range,
+                             geometric_mean = FALSE,
+                             wlim = c(NA, NA), ylim = c(NA, NA),
+                             power = 1, biomass = TRUE,
+                             total = FALSE, resource = TRUE,
+                             background = TRUE,
+                             highlight = NULL, normalise = TRUE,
+                             log_x = TRUE, log = NULL,
+                             return_data = FALSE, ...) {
+    if (missing(power)) {
+        power <- as.numeric(biomass)
+    }
+    log_x <- parsePlotCDFLog(log, log_x)
+    assert_that(is.flag(total), is.flag(resource),
+                is.flag(background), is.flag(normalise),
+                is.number(power),
+                length(wlim) == 2,
+                length(ylim) == 2)
+
+    args <- list(object = object, species = species,
+                 geometric_mean = geometric_mean,
+                 wlim = wlim, ylim = c(NA, NA),
+                 power = power, total = total,
+                 resource = resource, background = background,
+                 return_data = TRUE)
+    if (!missing(time_range)) {
+        args$time_range <- time_range
+    }
+    plot_dat <- do.call(plotSpectra, args)
+    plot_cdf(plot_dat, object@params, power = power, normalise = normalise,
+             log_x = log_x, wlim = wlim, ylim = ylim,
+             highlight = highlight, return_data = return_data)
+}
+
+#' @rdname plotCDF
+#' @export
+plotCDF.MizerParams <- function(object, species = NULL,
+                                wlim = c(NA, NA), ylim = c(NA, NA),
+                                power = 1, biomass = TRUE,
+                                total = FALSE, resource = TRUE,
+                                background = TRUE,
+                                highlight = NULL, normalise = TRUE,
+                                log_x = TRUE, log = NULL,
+                                return_data = FALSE, ...) {
+    if (missing(power)) {
+        power <- as.numeric(biomass)
+    }
+    log_x <- parsePlotCDFLog(log, log_x)
+    assert_that(is.flag(total), is.flag(resource),
+                is.flag(background), is.flag(normalise),
+                is.number(power),
+                length(wlim) == 2,
+                length(ylim) == 2)
+
+    plot_dat <- plotSpectra(object, species = species,
+                            wlim = wlim, ylim = c(NA, NA),
+                            power = power, total = total,
+                            resource = resource, background = background,
+                            return_data = TRUE)
+    plot_cdf(plot_dat, object, power = power, normalise = normalise,
+             log_x = log_x, wlim = wlim, ylim = ylim,
+             highlight = highlight, return_data = return_data)
+}
+
+plot_cdf <- function(plot_dat, params, power, normalise, log_x, wlim, ylim,
+                     highlight, return_data) {
+    cdf_dat <- prepare_spectra_cdf_data(plot_dat, params,
+                                        normalise = normalise)
+    if (return_data) return(cdf_dat)
+
+    plotDataFrame(cdf_dat, validParams(params),
+                  xlab = "Size [g]", ylab = cdf_y_label(power, normalise),
+                  xtrans = if (log_x) "log10" else "identity",
+                  ytrans = "identity",
+                  xlim = wlim, ylim = ylim,
+                  highlight = highlight, legend_var = "Legend")
+}
+
+prepare_spectra_cdf_data <- function(plot_dat, params, normalise = TRUE) {
+    params <- validParams(params)
+    plot_dat <- plot_dat[order(plot_dat$Species, plot_dat$w), ]
+    plot_dat$value <- plot_dat$value * spectra_bin_width(plot_dat$w, params)
+    plot_dat$value <- ave(plot_dat$value, plot_dat$Species, FUN = cumsum)
+    if (normalise) {
+        totals <- ave(plot_dat$value, plot_dat$Species, FUN = max)
+        plot_dat$value <- plot_dat$value / totals
+    }
+    plot_dat
+}
+
+spectra_bin_width <- function(w, params) {
+    idx <- match(w, params@w_full)
+    if (anyNA(idx)) {
+        missing <- which(is.na(idx))
+        for (i in missing) {
+            idx[i] <- which.min(abs(params@w_full - w[i]))
+        }
+        if (!isTRUE(all.equal(w, params@w_full[idx], scale = 1))) {
+            stop("Could not determine size-bin widths for the spectra data.")
+        }
+    }
+    params@dw_full[idx]
+}
+
+cdf_y_label <- function(power, normalise) {
+    if (normalise) {
+        if (power == 0) {
+            return("Cumulative proportion of abundance")
+        }
+        if (power == 1) {
+            return("Cumulative proportion of biomass")
+        }
+        return("Cumulative proportion")
+    }
+    if (power == 0) {
+        return("Cumulative abundance")
+    }
+    if (power == 1) {
+        return("Cumulative biomass [g]")
+    }
+    paste0("Cumulative number density * w^", power)
+}
+
+parsePlotCDFLog <- function(log, log_x) {
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = FALSE)
+    if (log_axes$log_y) {
+        stop("`plotCDF()` only supports log scaling on the x axis. ",
+             "Use `log = \"x\"` or `log = \"\"`.")
+    }
+    log_axes$log_x
+}
+
+#' Compare two cumulative abundance or biomass distributions
+#'
+#' `plotCDF2()` compares cumulative distributions from two `MizerParams` or
+#' `MizerSim` objects in a single plot. Colours identify species or groups and
+#' linetype identifies the object.
+#'
+#' @param object1 First `MizerParams` or `MizerSim` object.
+#' @param object2 Second `MizerParams` or `MizerSim` object.
+#' @param name1,name2 Labels for the two objects, used in the linetype legend.
+#' @inheritParams plotCDF
+#' @param ... Arguments passed to [plotCDF()] for preparing the cumulative
+#'   distribution data, for example `species`, `time_range`, `wlim`,
+#'   `resource`, `background` or `total`.
+#'
+#' @return A ggplot2 object.
+#' @export
+#' @family plotting functions
+#'
+#' @examples
+#' \donttest{
+#' sim1 <- project(NS_params, t_max = 10, progress_bar = FALSE)
+#' sim2 <- project(NS_params, effort = 0.5, t_max = 10, progress_bar = FALSE)
+#' plotCDF2(sim1, sim2, "Original", "Effort = 0.5")
+#' }
+plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
+                     power = 1, normalise = TRUE, log_x = TRUE, log = NULL,
+                     ...) {
+    log_x <- parsePlotCDFLog(log, log_x)
+    assert_that(is.number(power), is.flag(normalise))
+
+    args <- list(...)
+    wlim <- args$wlim %||% c(NA, NA)
+    ylim <- args$ylim %||% c(NA, NA)
+
+    cf1 <- plotCDF(object1, power = power, normalise = normalise,
+                   return_data = TRUE, ...)
+    cf2 <- plotCDF(object2, power = power, normalise = normalise,
+                   return_data = TRUE, ...)
+    params <- if (is(object1, "MizerSim")) object1@params else object1
+
+    plotComparisonDataFrame(cf1, cf2, validParams(params),
+                            name1 = name1, name2 = name2,
+                            xlab = "Size [g]",
+                            ylab = cdf_y_label(power, normalise),
+                            xtrans = if (log_x) "log10" else "identity",
+                            ytrans = "identity",
+                            xlim = wlim, ylim = ylim,
+                            legend_var = "Legend")
+}
+
+#' Compare two size spectra in the same plot
+#'
+#' `plotSpectra2()` compares the abundance spectra from two `MizerParams` or
+#' `MizerSim` objects in a single plot. Colours identify species or groups and
+#' linetype identifies the object.
+#'
+#' @param object1 First `MizerParams` or `MizerSim` object.
+#' @param object2 Second `MizerParams` or `MizerSim` object.
+#' @param name1,name2 Labels for the two objects, used in the linetype legend.
+#' @inheritParams plotSpectra
+#' @param log_x If `TRUE` (default), use a log10 x-axis.
+#' @param log_y If `TRUE` (default), use a log10 y-axis.
+#' @param log Character string specifying which axes should use log10 scales,
+#'   in the same form as the base [plot()] argument. For example, `"x"`,
+#'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
+#' @param ... Arguments passed to [plotSpectra()] for preparing the spectra
+#'   data, for example `species`, `time_range`, `wlim`, `ylim`, `resource`,
+#'   `background` or `total`.
+#'
+#' @return A ggplot2 object.
+#' @export
+#' @family plotting functions
+#'
+#' @examples
+#' \donttest{
+#' sim1 <- project(NS_params, t_max = 10, progress_bar = FALSE)
+#' sim2 <- project(NS_params, effort = 0.5, t_max = 10, progress_bar = FALSE)
+#' plotSpectra2(sim1, sim2, "Original", "Effort = 0.5")
+#' }
+plotSpectra2 <- function(object1, object2, name1 = "First", name2 = "Second",
+                         power = 1, log_x = TRUE, log_y = TRUE,
+                         log = NULL, ...) {
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
+    log_x <- log_axes$log_x
+    log_y <- log_axes$log_y
+
+    args <- list(...)
+    wlim <- args$wlim %||% c(NA, NA)
+    ylim <- args$ylim %||% c(NA, NA)
+
+    sf1 <- plotSpectra(object1, power = power, return_data = TRUE, ...)
+    sf2 <- plotSpectra(object2, power = power, return_data = TRUE, ...)
+    params <- if (is(object1, "MizerSim")) object1@params else object1
+
+    plotComparisonDataFrame(sf1, sf2, validParams(params),
+                            name1 = name1, name2 = name2,
+                            xlab = "Size [g]",
+                            ylab = spectra_y_label(power),
+                            xtrans = if (log_x) "log10" else "identity",
+                            ytrans = if (log_y) "log10" else "identity",
+                            xlim = wlim, ylim = ylim,
+                            legend_var = "Legend")
+}
+
+spectra_y_label <- function(power) {
+    if (power %in% c(0, 1, 2)) {
+        return(c("Number density [1/g]", "Biomass density",
+                 "Biomass density [g]")[power + 1])
+    }
+    paste0("Number density * w^", power)
+}
+
+#' @rdname plotSpectra2
+#' @return `plotlySpectra2()` returns a plotly object.
+#' @export
+plotlySpectra2 <- function(object1, object2, name1 = "First",
+                           name2 = "Second", power = 1,
+                           log_x = TRUE, log_y = TRUE, log = NULL, ...) {
+    ggplotly(plotSpectra2(object1, object2, name1 = name1, name2 = name2,
+                          power = power, log_x = log_x, log_y = log_y,
+                          log = log, ...),
+             tooltip = c("Species", "w", "value", "Model"))
+}
+
+#' Plot the relative difference between two spectra
+#'
+#' `plotSpectraRelative()` plots the difference between the spectra relative to
+#' their average. If we denote the number density from the first object as
+#' \eqn{N_1(w)} and that from the second object as \eqn{N_2(w)}, then this plot
+#' shows
+#' \deqn{2 (N_2(w) - N_1(w)) / (N_2(w) + N_1(w)).}
+#'
+#' The individual spectra are calculated by [plotSpectra()], to which all
+#' additional arguments are passed. For example, you can determine a time range
+#' over which to average simulation results via `time_range`. See
+#' [plotSpectra()] for more options.
+#'
+#' Note that it does not matter whether the relative difference is calculated
+#' for number density, biomass density, or biomass density in log weight,
+#' because the factors of \eqn{w} by which the densities differ cancel out in
+#' the relative difference.
+#'
+#' @param object1 First `MizerParams` or `MizerSim` object.
+#' @param object2 Second `MizerParams` or `MizerSim` object.
+#' @param log_x If `TRUE` (default), use a log10 x-axis.
+#' @param ylim A numeric vector of length two providing lower and upper limits
+#'   for the relative difference (y) axis. Use `NA` to refer to the existing
+#'   minimum or maximum.
+#' @param ... Arguments passed to [plotSpectra()] for preparing the spectra
+#'   data, for example `species`, `time_range`, `wlim`, `resource`,
+#'   `background` or `total`.
+#'
+#' @return A ggplot2 object.
+#' @export
+#' @family plotting functions
+#'
+#' @examples
+#' \donttest{
+#' sim1 <- project(NS_params, t_max = 10, progress_bar = FALSE)
+#' sim2 <- project(NS_params, effort = 0.5, t_max = 10, progress_bar = FALSE)
+#' plotSpectraRelative(sim1, sim2)
+#' }
+plotSpectraRelative <- function(object1, object2, log_x = TRUE,
+                                ylim = c(NA, NA), ...) {
+    args <- list(...)
+    wlim <- args$wlim %||% c(NA, NA)
+
+    sf1 <- plotSpectra(object1, return_data = TRUE, ...)
+    sf2 <- plotSpectra(object2, return_data = TRUE, ...)
+    params <- if (is(object1, "MizerSim")) object1@params else object1
+
+    plotRelativeDataFrame(sf1, sf2, validParams(params),
+                          xlab = "Size [g]",
+                          xtrans = if (log_x) "log10" else "identity",
+                          xlim = wlim, ylim = ylim,
+                          legend_var = "Legend")
+}
+
+#' @rdname plotSpectraRelative
+#' @export
+plotlySpectraRelative <- function(object1, object2, log_x = TRUE,
+                                  ylim = c(NA, NA), ...) {
+    ggplotly(plotSpectraRelative(object1, object2, log_x = log_x,
+                                  ylim = ylim, ...),
+             tooltip = c("Legend", "w", "rel_diff"))
+}
+
+#' @rdname plotCDF
+#' @return `plotlyCDF()` returns a plotly object.
+#' @export
+plotlyCDF <- function(object, species = NULL,
+                      time_range, geometric_mean = FALSE,
+                      wlim = c(NA, NA), ylim = c(NA, NA),
+                      power = 1, biomass = TRUE,
+                      total = FALSE, resource = TRUE,
+                      background = TRUE,
+                      highlight = NULL, normalise = TRUE,
+                      log_x = TRUE, log = NULL, ...) {
+    args <- list(object = object, species = species,
+                 geometric_mean = geometric_mean,
+                 wlim = wlim, ylim = ylim,
+                 biomass = biomass, total = total,
+                 resource = resource, background = background,
+                 highlight = highlight, normalise = normalise,
+                 log_x = log_x, log = log, ...)
+    if (!missing(time_range)) {
+        args$time_range <- time_range
+    }
+    if (!missing(power)) {
+        args$power <- power
+    }
+    ggplotly(do.call("plotCDF", args),
+             tooltip = c("Species", "w", "value"))
+}
+
+#' @rdname plotCDF2
+#' @return `plotlyCDF2()` returns a plotly object.
+#' @export
+plotlyCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
+                       power = 1, normalise = TRUE,
+                       log_x = TRUE, log = NULL, ...) {
+    args <- list(object1 = object1, object2 = object2,
+                 name1 = name1, name2 = name2,
+                 normalise = normalise, log_x = log_x, log = log, ...)
+    if (!missing(power)) {
+        args$power <- power
+    }
+    ggplotly(do.call("plotCDF2", args),
+             tooltip = c("Species", "w", "value", "Model"))
 }
 
 #' @rdname plotSpectra
@@ -826,7 +1380,8 @@ plotlySpectra <- function(object, species = NULL,
                         power = 1, biomass = TRUE,
                         total = FALSE, resource = TRUE,
                         background = TRUE,
-                        highlight = NULL, ...) {
+                        highlight = NULL, log_x = TRUE, log_y = TRUE,
+                        log = NULL, ...) {
     argg <- as.list(environment())
     ggplotly(do.call("plotSpectra", argg),
              tooltip = c("Species", "w", "value"))
@@ -1576,6 +2131,14 @@ plot_diet <- function(params, n, diet, species, return_data) {
         p <- p + facet_wrap(vars(Predator))
     }
     p
+}
+
+#' @rdname plotDiet
+#' @return `plotlyDiet()` returns a plotly object.
+#' @export
+plotlyDiet <- function(object, species = NULL, ...) {
+    ggplotly(plotDiet(object, species = species, ...),
+             tooltip = c("Predator", "w", "Proportion", "Prey"))
 }
 
 

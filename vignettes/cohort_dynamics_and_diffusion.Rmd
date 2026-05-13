@@ -43,11 +43,11 @@ library(plotly)
 
 We start by creating a single-species model using
 `newSingleSpeciesParams()`. This sets up a species embedded in a
-power-law background community.
+power-law background community, so that the encounter rate scales as $w^{3/4}$
+and the mortality rate scales as $w^{-1/4}.
 
 ```{r}
 params <- newSingleSpeciesParams(h = 10, no_w = 400)
-params <- steady(params)
 ```
 
 # Pulsed reproduction
@@ -57,15 +57,6 @@ short bursts rather than continuously. We achieve this by writing a
 custom density-dependent reproduction rate function (RDD function) that
 only allows reproduction during a brief window at the start of each
 year.
-
-First, we calculate the steady-state reproduction rate. This tells us
-the total egg production rate needed to maintain the population. We will
-use this value as the magnitude of our annual pulse.
-
-```{r}
-rdd_steady <- getRDD(params)
-cat("Steady-state RDD:", rdd_steady, "\n")
-```
 
 The RDD function receives the current time `t` as an argument. We use
 this to turn reproduction on only during a short window at the start of
@@ -80,22 +71,14 @@ pulse_width <- 0.1  # Reproduce during first 10% of each year
 annual_pulse_RDD <- function(rdi, species_params, t, ...) {
     frac <- t %% 1
     if (frac < pulse_width) {
-        rdd <- 1 - cos(frac / pulse_width * 2 * pi) * species_params$rdd_steady
-        # Scale up to maintain total annual reproduction
-        return(rdd / pulse_width)
+        rdd <- rdi # to get vector of right length
+        rdd[] <- 1 - cos(frac / pulse_width * 2 * pi)
+        return(rdd)
     } else {
         return(0 * rdi)
     }
 }
-```
-
-We store the steady-state RDD value in the species parameters so our
-function can access it, and then register the function:
-
-```{r}
-params_pulse <- params
-species_params(params_pulse)$rdd_steady <- rdd_steady
-params_pulse <- setRateFunction(params_pulse, "RDD", "annual_pulse_RDD")
+params <- setRateFunction(params, "RDD", "annual_pulse_RDD")
 ```
 
 Of course this is not a realistic way to model seasonal reproduction. A more
@@ -110,221 +93,112 @@ We start from an empty spectrum (no fish) and let the pulsed
 reproduction create cohorts from scratch.
 
 ```{r}
-params_empty <- params_pulse
-initialN(params_empty)[] <- 0
+initialN(params)[] <- 0
 
-sim_no_diff <- project(params_empty, t_max = 5, dt = 0.01,
-                       t_save = 0.1, progress_bar = FALSE,
+sim_no_diff <- project(params, t_max = 5, dt = 0.01,
+                       t_save = 0.05, progress_bar = FALSE,
                        method = "predictor-corrector")
 
-animate(sim_no_diff, log_x = TRUE, log_y = FALSE, power = 2,
-        time_range = c(0, 5), resource = FALSE, interpolate = FALSE)
-```
-
-Let's visualise the size spectrum at different time points to see the
-cohorts:
-
-```{r fig.height=6}
-plot_cohort_evolution <- function(sim, times_to_plot, species = 1,
-                                  title = "Cohort evolution",
-                                  y_label = "Biomass density [g]",
-                                  interactive = TRUE) {
-    w <- sim@params@w
-    sim_times <- as.numeric(dimnames(sim@n)$time)
-    plot_list <- list()
-    labels <- character()
-
-    for (tt in times_to_plot) {
-        idx <- which.min(abs(sim_times - tt))
-        actual_time <- sim_times[idx]
-        n_at_t <- as.numeric(sim@n[idx, species, ])
-        pos <- n_at_t > 0
-        if (any(pos)) {
-            label <- paste0("t = ", actual_time)
-            labels <- c(labels, label)
-            plot_list[[length(plot_list) + 1]] <- data.frame(
-                w = w[pos],
-                n = n_at_t[pos] * w[pos]^2,
-                time = label
-            )
-        }
-    }
-
-    if (length(plot_list) > 0) {
-        plot_data <- do.call(rbind, plot_list)
-        plot_data$time <- factor(plot_data$time, levels = unique(labels))
-    } else {
-        plot_data <- data.frame(
-            w = numeric(),
-            n = numeric(),
-            time = factor(character())
-        )
-    }
-
-    p <- ggplot(plot_data, aes(x = w, y = n, colour = time)) +
-        geom_line(linewidth = 0.8) +
-        scale_x_log10(limits = c(1e-3, 100)) +
-        # scale_y_log10() +
-        labs(x = "Weight [g]", y = y_label,
-             title = title,
-             colour = "Time") +
-        theme_minimal(base_size = 14)
-
-    if (interactive) {
-        return(ggplotly(p))
-    } else {
-        return(p)
-    }
-}
-
-plot_cohort_evolution(
-    sim_no_diff,
-    times_to_plot = c(0.5, 1, 1.5, 2, 3, 4),
-    title = "Cohort evolution without diffusion"
-)
-```
-
-```{r}
-
-sim_corr <- project(params_empty, t_max = 5, dt = 0.02,
-                       t_save = 0.1, progress_bar = FALSE,
-                       method = "predictor-corrector")
-
-plot_cohort_evolution(
-    sim_corr,
-    times_to_plot = c(0.5, 1, 1.5, 2, 3, 4),
-    title = "Cohort evolution without diffusion"
-)
-```
-
-```{r}
-animate(sim_corr, log_x = TRUE, log_y = FALSE, power = 2,
-        time_range = c(0.5, 5), resource = FALSE)
+animate(sim_no_diff, log_x = TRUE, log_y = FALSE, power = 2, resource = FALSE,
+        transition_duration = 0, frame_duration = 200)
 ```
 
 
-Without diffusion, each cohort appears as a relatively sharp peak that
-moves to the right (towards larger sizes) as the fish grow.
+Without diffusion, each cohort peak 
+moves to the right (towards larger sizes) as the fish grow. The width of the cohort stays constant on the logarithmic axis. The growth on
+the logarithmic axis slows down towards larger sizes and so eventually
+the older cohorts start to merge.
 
 # Adding predation diffusion
 
+As discussed elsewhere, some of the randomness in the growth rate comes from the randomness in the size of prey
+encountered by the predator. We refer to this as the predation diffusion, even though there are other sources
+of randomness associated with predation, arising for example from the patchiness in the spatial distribution of
+prey. So the predation diffusion can be seen as a lower bound on the amount of diffusion arising from randomness
+in growth.
+
 ```{r}
-params_pred_diff <- params_empty
+params_pred_diff <- params
 use_predation_diffusion(params_pred_diff) <- TRUE
-sim_pred_diff <- project(params_pred_diff, t_max = 5, dt = 0.02,
-                         t_save = 0.1, progress_bar = FALSE,
+sim_pred_diff <- project(params_pred_diff, t_max = 5, dt = 0.01,
+                         t_save = 0.05, progress_bar = FALSE,
                          method = "predictor-corrector")
 
+animate(sim_pred_diff, log_x = TRUE, log_y = FALSE, power = 2, resource = FALSE,
+        transition_duration = 0, frame_duration = 200)
+
 ```
+
+We see that there is a slight broadening of the cohorts as they grow up, which is most noticeable at larger
+sizes where they merge together sooner. To see this more clearly we plot the biomass density at
+time $t=5$ for both cases:
 
 ```{r}
-animate(sim_pred_diff, log_x = TRUE, log_y = FALSE, power = 2,
-        time_range = c(0.5, 5), resource = FALSE)
-
+plotSpectra2(sim_no_diff, sim_pred_diff,
+             name1 = "No diffusion", name2 = "Predation diffusion",
+             resource = FALSE, power = 2, log = "x")
 ```
 
+The diffusion rate is a power law in $w$ with exponent $7/4$. The coefficient is
 ```{r}
-plot_cohort_evolution(
-    sim_pred_diff,
-    times_to_plot = c(0.5, 1, 1.5, 2, 3, 4),
-    title = "Cohort evolution with predation diffusion"
-)
+(getDiffusion(params_pred_diff) / w(params)^(7/4))[1]
 ```
-
 
 # Adding external diffusion
 
-Now let's add diffusion to the model. Diffusion is set as an array with
-dimensions species × size via `setExtDiffusion()`. We'll set a constant
-diffusion rate across all sizes.
+The predation diffusion is the only part of the diffusion that is explicitly modelled in mizer. We refer to all non-modelled diffusion as "external" to the model. We assume that it follows the same power law but with an a priory unknown coefficient that will need to be determined by looking at the rate at which cohort size distributions widen
+in the real world. The coefficient of external diffusion is set with the species parameter `D_ext`.
 
-We define a helper function that runs the simulation for a given
-diffusion coefficient:
-
-```{r}
-run_with_diffusion <- function(params_base, diff_coeff, diff_exp, t_max = 5) {
-    p <- params_base
-    w <- p@w
-    d <- p@ext_diffusion
-    d[] <- diff_coeff * w ^ diff_exp
-    p <- setExtDiffusion(p, ext_diffusion = d)
-    initialN(p)[] <- 0
-    sim <- project(p, t_max = t_max, dt = 0.02,
-                   t_save = 0.1, progress_bar = FALSE,
-                   method = "predictor-corrector")
-    return(sim)
-}
-```
 
 # Comparing different diffusion rates
 
-Let's compare simulations with no diffusion, low diffusion, and high
-diffusion:
+We now run the model with two different levels of external diffusion in order to
+compare the effects.
 
 ```{r}
-diff_exp <- params_pulse@species_params$n + 1
-sim_d0 <- run_with_diffusion(params_empty, diff_coeff = 0, diff_exp = diff_exp)
-sim_d_low <- run_with_diffusion(params_empty, diff_coeff = 0.1, diff_exp = diff_exp)
-sim_d_high <- run_with_diffusion(params_empty, diff_coeff = 0.5, diff_exp = diff_exp)
+species_params(params)$D_ext <- 0.1
+sim_medium_diff <- project(params, t_max = 5, dt = 0.01,
+                      t_save = 0.05, progress_bar = FALSE,
+                      method = "predictor-corrector")
+
+species_params(params)$D_ext <- 0.5
+sim_high_diff <- project(params, t_max = 5, dt = 0.01,
+                     t_save = 0.05, progress_bar = FALSE,
+                     method = "predictor-corrector")
 ```
 
-Now let's visualise the cohorts at a specific time point to see how
-diffusion affects their shape:
+Let's compare simulations with no diffusion, only predation diffusion, a medium level of diffusion and a level of diffusion at time $t=5$:
 
 ```{r fig.height=5, fig.width=9}
-snapshot_time <- 3
-
-build_snapshot <- function(sim, label) {
-    idx <- which.min(abs(as.numeric(dimnames(sim@n)$time) - snapshot_time))
-    n_at_t <- as.numeric(sim@n[idx, 1, ])
-    w <- sim@params@w
-    pos <- n_at_t > 0
-    if (any(pos)) {
-        data.frame(w = w[pos], n = n_at_t[pos], diffusion = label)
-    } else {
-        data.frame(w = numeric(0), n = numeric(0), diffusion = character(0))
-    }
-}
-
+w <- w(params)
 snapshot_data <- rbind(
-    build_snapshot(sim_d0, "D = 0 (no diffusion)"),
-    build_snapshot(sim_d_low, "D = 0.1 (low)"),
-    build_snapshot(sim_d_high, "D = 0.5 (high)"),
-    build_snapshot(sim_pred_diff, "Predation diffusion")
+    data.frame(x = w, y = finalN(sim_no_diff)[1, ] * w^2,
+               label = "D = 0 (no diffusion)"),
+    data.frame(x = w, y = finalN(sim_pred_diff)[1, ] * w^2,
+               label = "D = 0.02 (predation)"),
+    data.frame(x = w, y = finalN(sim_medium_diff)[1, ] * w^2,
+               label = "D = 0.1 (medium)"),
+    data.frame(x = w, y = finalN(sim_high_diff)[1, ] * w^2,
+               label = "D = 0.5 (high)")
 )
 
-p <- ggplot(snapshot_data, aes(x = w, y = n * w^2, colour = diffusion)) +
-    geom_line(linewidth = 0.8) +
-    scale_x_log10(limits = c(1e-3, 100)) +
-    # scale_y_log10() +
-    labs(x = "Weight [g]", y = "Biomass density [g]",
-         title = paste0("Effect of diffusion on cohorts at t = ",
-                        snapshot_time),
-         colour = "Diffusion rate") +
-    theme_minimal(base_size = 14)
+p <- ggplot(snapshot_data, aes(x = x, y = y, colour = label)) +
+     geom_line(linewidth = 0.8) +
+     scale_x_log10(limits = c(1e-3, 100)) +
+     labs(x = "Weight [g]", y = "Biomass density [g]",
+          title = "Effect of diffusion on cohorts at t = 5",
+          colour = "Diffusion rate") +
+     theme_minimal(base_size = 14)
 
 ggplotly(p)
 ```
 
-We can see that diffusion has a large effect on the speed at which the cohort
-peaks are moving but not so much effect on the broadening of the peaks.
+We can see that diffusion has a large effect on how quickly the cohorts widen and
+merge into each other. Let us look at an animation of the high-diffusion case:
 
-# Time evolution with diffusion
-
-Let's look at the full time evolution of the size spectrum with
-moderate diffusion to see how cohorts spread over time:
-
-```{r fig.height=6}
-diff_exp <- params_pulse@species_params$n + 1
-sim_d_med <- run_with_diffusion(params_pulse, diff_coeff = 0.05, diff_exp = diff_exp)
-
-plot_cohort_evolution(
-    sim_d_med,
-    times_to_plot = c(0.5, 1, 2, 3, 4, 5),
-    title = "Cohort evolution with moderate diffusion (D = 0.05)",
-    y_label = "Number density [1/g]",
-    interactive = FALSE
-)
+```{r}
+animate(sim_high_diff, log_x = TRUE, log_y = FALSE, power = 2, resource = FALSE,
+        transition_duration = 0, frame_duration = 200)
 ```
 
 As time progresses, we see that:
@@ -339,15 +213,18 @@ As time progresses, we see that:
 # Heatmap visualisation
 
 A heatmap provides a compact view of the entire dynamics, showing how
-the size spectrum evolves continuously over time:
+the size spectrum evolves continuously over time. Here we look at the case 
+of high diffusion:
 
 ```{r fig.height=5, fig.width=9}
-all_times <- as.numeric(dimnames(sim_d_med@n)$time)
-w <- sim_d_med@params@w
+sim <- sim_high_diff
+all_times <- getTimes(sim)
+w <- params@w
+n <- N(sim)
 
 heatmap_list <- list()
 for (i in seq_along(all_times)) {
-    n_at_t <- as.numeric(sim_d_med@n[i, 1, ])
+    n_at_t <- as.numeric(n[i, 1, ])
     pos <- n_at_t > 0
     if (any(pos)) {
         heatmap_list[[length(heatmap_list) + 1]] <- data.frame(
@@ -364,12 +241,12 @@ ggplot(heatmap_data, aes(x = time, y = w, fill = log_n)) +
     scale_y_log10() +
     scale_fill_viridis_c(name = expression(log[10](N))) +
     labs(x = "Time [years]", y = "Weight [g]",
-         title = "Size spectrum over time (D = 0.05)") +
+         title = "Biomass density over time (D = 0.5)") +
     theme_minimal(base_size = 14)
 ```
 
 In the heatmap, the diagonal bands represent individual cohorts growing
-through the size spectrum. The broadening of these bands with time is
+through the size spectrum. The curving of these bands is due to the slowing down and the broadening of these bands with time is
 the effect of diffusion.
 
 # Summary

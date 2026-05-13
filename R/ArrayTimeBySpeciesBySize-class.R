@@ -158,7 +158,9 @@ plot.ArrayTimeBySpeciesBySize <- function(x, species = NULL, time = NULL,
     }
 
     arr <- unclass(x)
-    slice <- arr[tidx, , ]
+    slice <- matrix(arr[tidx, , , drop = FALSE],
+                    nrow = dim(arr)[2],
+                    dimnames = dimnames(arr)[2:3])
     slice <- ArraySpeciesBySize(slice, value_name = value_name,
                                 units = units, params = params)
 
@@ -167,6 +169,77 @@ plot.ArrayTimeBySpeciesBySize <- function(x, species = NULL, time = NULL,
                             log_x = log_x, log_y = log_y, log = log,
                             wlim = wlim, ylim = ylim, total = total,
                             background = background, y_ticks = y_ticks, ...)
+}
+
+#' @rdname plot2
+#'
+#' @param time The time to display. Default (`NULL`) is the final time step.
+#'   Only applies to `ArrayTimeBySpeciesBySize`.
+#' @export
+plot2.ArrayTimeBySpeciesBySize <- function(x, y, name1 = "First",
+                                           name2 = "Second",
+                                           species = NULL, time = NULL,
+                                           all.sizes = FALSE,
+                                           log_x = TRUE, log_y = FALSE,
+                                           log = NULL,
+                                           wlim = c(NA, NA),
+                                           ylim = c(NA, NA),
+                                           total = FALSE,
+                                           background = TRUE,
+                                           y_ticks = 6, ...) {
+    check_plot2_compatible(x, y, "ArrayTimeBySpeciesBySize")
+    slice1 <- ArrayTimeBySpeciesBySize_slice(x, time = time)
+    slice2 <- ArrayTimeBySpeciesBySize_slice(y, time = time)
+
+    plot2.ArraySpeciesBySize(slice1, slice2, name1 = name1, name2 = name2,
+                             species = species, all.sizes = all.sizes,
+                             log_x = log_x, log_y = log_y, log = log,
+                             wlim = wlim, ylim = ylim, total = total,
+                             background = background, y_ticks = y_ticks, ...)
+}
+
+#' @rdname plotRelative
+#'
+#' @param time The time to display. Default (`NULL`) is the final time step.
+#'   Only applies to `ArrayTimeBySpeciesBySize`.
+#' @export
+plotRelative.ArrayTimeBySpeciesBySize <- function(x, y, species = NULL,
+                                                  time = NULL,
+                                                  all.sizes = FALSE,
+                                                  log_x = TRUE,
+                                                  wlim = c(NA, NA),
+                                                  ylim = c(NA, NA),
+                                                  total = FALSE,
+                                                  background = TRUE, ...) {
+    check_plot2_compatible(x, y, "ArrayTimeBySpeciesBySize")
+    slice1 <- ArrayTimeBySpeciesBySize_slice(x, time = time)
+    slice2 <- ArrayTimeBySpeciesBySize_slice(y, time = time)
+
+    plotRelative.ArraySpeciesBySize(slice1, slice2, species = species,
+                                    all.sizes = all.sizes, log_x = log_x,
+                                    wlim = wlim, ylim = ylim,
+                                    total = total, background = background,
+                                    ...)
+}
+
+ArrayTimeBySpeciesBySize_slice <- function(x, time = NULL) {
+    params <- attr(x, "params")
+    value_name <- attr(x, "value_name")
+    units <- attr(x, "units")
+
+    times <- as.numeric(dimnames(x)[[1]])
+    if (is.null(time)) {
+        tidx <- dim(x)[1]
+    } else {
+        tidx <- which.min(abs(times - time))
+    }
+
+    arr <- unclass(x)
+    slice <- matrix(arr[tidx, , , drop = FALSE],
+                    nrow = dim(arr)[2],
+                    dimnames = dimnames(arr)[2:3])
+    ArraySpeciesBySize(slice, value_name = value_name,
+                       units = units, params = params)
 }
 
 #' @rdname plot
@@ -294,6 +367,22 @@ as.data.frame.ArrayTimeBySpeciesBySize <- function(x, row.names = NULL,
         attr(result, "units") <- attr(x, "units")
         attr(result, "params") <- attr(x, "params")
         class(result) <- c("ArrayTimeBySpeciesBySize", "array")
+    } else if (is.matrix(result)) {
+        dim_names <- names(dimnames(result))
+        attrs <- list(value_name = attr(x, "value_name"),
+                      units = attr(x, "units"),
+                      params = attr(x, "params"))
+        if (identical(dim_names, c("sp", "w"))) {
+            result <- ArraySpeciesBySize(result,
+                                         value_name = attrs$value_name,
+                                         units = attrs$units,
+                                         params = attrs$params)
+        } else if (identical(dim_names, c("time", "sp"))) {
+            result <- ArrayTimeBySpecies(result,
+                                         value_name = attrs$value_name,
+                                         units = attrs$units,
+                                         params = attrs$params)
+        }
     }
     result
 }

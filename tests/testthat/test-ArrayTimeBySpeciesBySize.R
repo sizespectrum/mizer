@@ -86,6 +86,55 @@ test_that("plot.ArrayTimeBySpeciesBySize time argument selects correct slice", {
     expect_true(is.data.frame(p))
 })
 
+test_that("plot2.ArrayTimeBySpeciesBySize compares selected time slices", {
+    fmort <- getFMort(NS_sim)
+    times <- as.numeric(dimnames(fmort)[[1]])
+
+    p <- plot2(fmort, fmort, name1 = "Original", name2 = "Changed",
+               species = "Cod", time = times[5], total = TRUE,
+               wlim = c(1, NA), log = "xy")
+    expect_s3_class(p, "ggplot")
+    expect_identical(levels(p$data$Model), c("Original", "Changed"))
+    expect_true(all(p$data$Species %in% c("Cod", "Total")))
+    expect_true(all(p$data$w >= 1))
+    expect_identical(p$scales$get_scales("x")$trans$name, "log-10")
+    expect_identical(p$scales$get_scales("y")$trans$name, "log-10")
+
+    expect_error(plot2(fmort, getBiomass(NS_sim)), "Both objects must be")
+})
+
+test_that("plotRelative.ArrayTimeBySpeciesBySize compares selected time slices", {
+    fmort <- getFMort(NS_sim)
+    fmort2 <- fmort
+    fmort2[] <- unclass(fmort) * 2
+    times <- as.numeric(dimnames(fmort)[[1]])
+
+    p <- plotRelative(fmort, fmort2, species = "Cod", time = times[5],
+                      total = TRUE, wlim = c(1, NA))
+    expect_s3_class(p, "ggplot")
+    expect_true(all(p$data$Species %in% c("Cod", "Total")))
+    expect_true(all(p$data$w >= 1))
+    expect_true(all(abs(p$data$rel_diff - 2 / 3) < 1e-12))
+    expect_identical(p$scales$get_scales("x")$trans$name, "log-10")
+
+    expect_error(plotRelative(fmort, getBiomass(NS_sim)), "Both objects must be")
+})
+
+test_that("plot.ArrayTimeBySpeciesBySize preserves single species dimension", {
+    arr <- array(seq_len(6), dim = c(2, 1, 3),
+                 dimnames = list(time = c("2000", "2001"),
+                                 sp = "Cod",
+                                 w = c("1", "10", "100")))
+    rate <- ArrayTimeBySpeciesBySize(arr, value_name = "Test rate",
+                                     units = "1/year")
+
+    p <- plot(rate, time = 2001, return_data = TRUE)
+
+    expect_true(is.data.frame(p))
+    expect_identical(p$Species, rep("Cod", 3))
+    expect_equal(p$value, unname(arr["2001", "Cod", ]))
+})
+
 test_that("as.data.frame.ArrayTimeBySpeciesBySize returns correct structure", {
     fmort <- getFMort(NS_sim)
     df <- as.data.frame(fmort)
@@ -102,10 +151,28 @@ test_that("[.ArrayTimeBySpeciesBySize preserves class for 3D result", {
     expect_identical(attr(sub, "value_name"), "Fishing mortality")
 })
 
-test_that("[.ArrayTimeBySpeciesBySize drops class for 2D result", {
+test_that("[.ArrayTimeBySpeciesBySize returns ArraySpeciesBySize when time is dropped", {
     fmort <- getFMort(NS_sim)
     slice <- fmort[1, , ]
     expect_false(is.ArrayTimeBySpeciesBySize(slice))
+    expect_true(is.ArraySpeciesBySize(slice))
+    expect_identical(attr(slice, "value_name"), "Fishing mortality")
+})
+
+test_that("[.ArrayTimeBySpeciesBySize returns ArrayTimeBySpecies when size is dropped", {
+    fmort <- getFMort(NS_sim)
+    slice <- fmort[, , 1]
+    expect_false(is.ArrayTimeBySpeciesBySize(slice))
+    expect_true(is.ArrayTimeBySpecies(slice))
+    expect_identical(attr(slice, "value_name"), "Fishing mortality")
+})
+
+test_that("[.ArrayTimeBySpeciesBySize leaves time by size matrices plain", {
+    fmort <- getFMort(NS_sim)
+    slice <- fmort[, 1, ]
+    expect_false(is.ArrayTimeBySpeciesBySize(slice))
+    expect_false(is.ArraySpeciesBySize(slice))
+    expect_false(is.ArrayTimeBySpecies(slice))
     expect_true(is.matrix(slice))
 })
 

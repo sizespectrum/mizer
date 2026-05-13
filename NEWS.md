@@ -112,6 +112,10 @@ individual variability in growth to be modelled.
   `ArrayTimeBySpeciesBySize`. An `animate()` method allows interactive
   playback.
 
+- Subsetting an `ArrayTimeBySpeciesBySize` object returns an
+  `ArraySpeciesBySize` object when a single time is selected, and an
+  `ArrayTimeBySpecies` object when a single size is selected.
+
 - New `ggplotly()` methods for `ArraySpeciesBySize`, `ArrayTimeBySpecies`, and
   `ArrayTimeBySpeciesBySize` convert the `ggplot2` output of `plot()` into
   interactive plotly figures.
@@ -124,6 +128,23 @@ individual variability in growth to be modelled.
 
 - New `addPlot()` generic with methods for adding `ArraySpeciesBySize` and
   `ArrayTimeBySpecies` values as extra lines on an existing compatible ggplot.
+
+- New `plot2()` generic with methods for comparing two compatible mizer array
+  objects in one plot, with species or group shown by colour and model by
+  linetype. The `plotSpectra2()` helper has moved from `mizerExperimental` into
+  mizer for comparing two abundance spectra.
+
+- New `plotRelative()` generic with methods for plotting the symmetric relative
+  difference between two compatible mizer array objects. The
+  `plotSpectraRelative()` and `plotlySpectraRelative()` helpers have moved from
+  `mizerExperimental` into mizer.
+
+- New `plotCDF()` and `plotCDF2()` generics for plotting cumulative abundance
+  or biomass distributions from `MizerParams` and `MizerSim` objects, together
+  with `plotlyCDF()` and `plotlyCDF2()` wrappers.
+
+- `plotSpectra()` now accepts `log_x`, `log_y`, and `log` arguments for
+  controlling axis scaling, matching the mizer array `plot()` methods.
 
 - The `plot()` and `summary()` methods for `MizerParams`, `MizerSim`, and the
   mizer array classes are now registered as S3 methods rather than S4 methods,
