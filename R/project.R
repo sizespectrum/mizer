@@ -31,9 +31,7 @@ NULL
 #' @param dt Time step of the solver. The default value is 0.1. When `object`
 #'   is a `MizerSim`, defaults to the value used to produce that simulation.
 #' @param t_save The frequency with which the output is stored. The default
-#'   value is 1. When an effort array is supplied, this argument can be used
-#'   to control the times at which the simulation results are saved.
-#'   See notes below.
+#'   value is 1. See notes below.
 #' @param t_start The the year of the start of the simulation. The simulation
 #'   will cover the period from `t_start` to \code{t_start + t_max}.
 #'   Defaults to 0. Ignored if an array is used for the `effort`
@@ -277,16 +275,8 @@ project.MizerParams <- function(object, effort,
                 save_freq <- duration
             }
 
-            # Generate new time points
+            # Generate new time points on the requested save grid.
             times <- seq(t_start_effort, t_end, by = save_freq)
-            if (t_max_provided &&
-                !isTRUE(all.equal(times[length(times)], t_end))) {
-                warning("`t_max` (", t_max, ") is not a multiple of `t_save` (",
-                        save_freq, "). Results will be saved at `t_max` but the ",
-                        "final save interval will be shorter than `t_save`.",
-                        call. = FALSE)
-                times <- c(times, t_end)
-            }
 
             # Interpolate effort values for the new time points
             gear_names <- dimnames(effort)[[2]]
