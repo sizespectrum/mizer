@@ -42,21 +42,19 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/mizer.html">Get started</a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://mizer.course.sizespectrum.org">Course</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Model types</h6></li>
-    <li><a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
     <li><a class="dropdown-item" href="../articles/single_species_size-spectrum_dynamics.html">The Single-Species Model</a></li>
     <li><a class="dropdown-item" href="../articles/community_model.html">The Community Model</a></li>
     <li><a class="dropdown-item" href="../articles/trait_model.html">The Trait-Based Model</a></li>
     <li><a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a></li>
+    <li><a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Tutorials</h6></li>
-    <li><a class="dropdown-item" href="../articles/running_a_simulation.html">Running a Simulation</a></li>
-    <li><a class="dropdown-item" href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a></li>
-    <li><a class="dropdown-item" href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Cheat sheets</h6></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
@@ -68,14 +66,13 @@
     <li><a class="dropdown-item" href="../articles/predation_diffusion.html">Incorporating predation diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
-    <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Mizer rate</a></li>
+    <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://mizer.course.sizespectrum.org">Course</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/publications.html">Publications</a></li>
       </ul>
@@ -289,31 +286,29 @@ section on exploring the simulation results.</a></p>
 <p>Size spectrum models have emerged as a conceptually simple way to
 model a large community of individuals which grow and change trophic
 level during life. There is now a growing literature describing
-different types of size spectrum models <span class="citation">(e.g. <a href="#ref-benoit_continuous_2004">Benoît and Rochet 2004</a>; <a href="#ref-andersen_asymptotic_2006">K. H. Andersen and Beyer 2006</a>;
-<a href="#ref-andersen_life-history_2008">K. H. Andersen et al.
-2008</a>; <a href="#ref-law_size-spectra_2009">Law et al. 2009</a>; <a href="#ref-hartvig_food_2011">Hartvig 2011</a>; <a href="#ref-hartvig_food_2011-1">Hartvig, Andersen, and Beyer
-2011</a>)</span>. The models can be used to understand how marine
-communities are organised <span class="citation">(<a href="#ref-andersen_asymptotic_2006">K. H. Andersen and Beyer 2006</a>;
-<a href="#ref-andersen_trophic_2009">K. H. Andersen, Beyer, and Lundberg
+different types of size spectrum models <span class="citation">(e.g. <a href="#ref-benoit_continuous_2004">Benoît and Rochet 2004</a>; <a href="#ref-andersen_asymptotic_2006">Andersen and Beyer 2006</a>; <a href="#ref-andersen_life-history_2008">Andersen et al. 2008</a>; <a href="#ref-law_size-spectra_2009">Law et al. 2009</a>; <a href="#ref-hartvig_food_2011">Hartvig 2011</a>; <a href="#ref-hartvig_food_2011-1">Hartvig et al. 2011</a>)</span>. The
+models can be used to understand how marine communities are organised
+<span class="citation">(<a href="#ref-andersen_asymptotic_2006">Andersen
+and Beyer 2006</a>; <a href="#ref-andersen_trophic_2009">Andersen et al.
 2009</a>; <a href="#ref-blanchard_how_2009">Blanchard et al.
-2009</a>)</span> and how they respond to fishing <span class="citation">(<a href="#ref-andersen_direct_2010">K. H. Andersen and
-Rice 2010</a>; <a href="#ref-andersen_damped_2010">K. H. Andersen and
-Pedersen 2010</a>)</span>. This section introduces the central
-assumptions, concepts, processes, equations and parameters of size
-spectrum models.</p>
+2009</a>)</span> and how they respond to fishing <span class="citation">(<a href="#ref-andersen_direct_2010">Andersen and Rice
+2010</a>; <a href="#ref-andersen_damped_2010">Andersen and Pedersen
+2010</a>)</span>. This section introduces the central assumptions,
+concepts, processes, equations and parameters of size spectrum
+models.</p>
 <p>Roughly speaking there are four versions of the size spectrum
 modelling framework of increasing complexity: The <a href="https://sizespectrum.org/mizer/articles/single_species_size-spectrum_dynamics.html">single-species
 model</a>, the <a href="#community-model">community model</a> <span class="citation">(<a href="#ref-benoit_continuous_2004">Benoît and
 Rochet 2004</a>; <a href="#ref-maury_modeling_2007">Maury et al.
 2007</a>; <a href="#ref-blanchard_how_2009">Blanchard et al. 2009</a>;
-<a href="#ref-law_size-spectra_2009">Law et al. 2009</a>)</span>, the <a href="#trait-based-model">trait-based model</a> <span class="citation">(<a href="#ref-andersen_asymptotic_2006">K. H. Andersen
-and Beyer 2006</a>; <a href="#ref-andersen_damped_2010">K. H. Andersen
-and Pedersen 2010</a>)</span>, and the <a href="#multispecies-model">multispecies model</a> <span class="citation">(<a href="#ref-hartvig_food_2011-1">Hartvig, Andersen,
-and Beyer 2011</a>)</span>. The single-species, community and
-trait-based models can be considered as simplifications of the
-multispecies model. This section focuses on the multispecies model but
-is also applicable to the other types of models. Mizer is able to
-implement all types of model using similar commands.</p>
+<a href="#ref-law_size-spectra_2009">Law et al. 2009</a>)</span>, the <a href="#trait-based-model">trait-based model</a> <span class="citation">(<a href="#ref-andersen_asymptotic_2006">Andersen and
+Beyer 2006</a>; <a href="#ref-andersen_damped_2010">Andersen and
+Pedersen 2010</a>)</span>, and the <a href="#multispecies-model">multispecies model</a> <span class="citation">(<a href="#ref-hartvig_food_2011-1">Hartvig et al.
+2011</a>)</span>. The single-species, community and trait-based models
+can be considered as simplifications of the multispecies model. This
+section focuses on the multispecies model but is also applicable to the
+other types of models. Mizer is able to implement all types of model
+using similar commands.</p>
 <p>Size spectrum models are a subset of physiologically structured
 models <span class="citation">(<a href="#ref-metz_dynamics_1986">Metz
 and Diekmann 1986</a>; <a href="#ref-de_roos_physiologically_2001">De
@@ -449,7 +444,7 @@ thinking.</p>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-andersen_asymptotic_2006" class="csl-entry">
 Andersen, K. H., and J. E. Beyer. 2006. <span>“Asymptotic Size
 Determines Species Abundance in the Marine Size Spectrum.”</span>
@@ -484,10 +479,10 @@ on Them.”</span> <em>Journal of Theoretical Biology</em> 226 (1): 9–21.
 <a href="https://doi.org/10.1016/S0022-5193(03)00290-X" class="external-link">https://doi.org/10.1016/S0022-5193(03)00290-X</a>.
 </div>
 <div id="ref-blanchard_how_2009" class="csl-entry">
-Blanchard, Julia L., Simon Jennings, Richard Law, Matthew D. Castle,
-Paul McCloghrie, Marie-Joëlle Rochet, and Eric Benoît. 2009. <span>“How
-Does Abundance Scale with Body Size in Coupled Size-Structured Food
-Webs?”</span> <em>Journal of Animal Ecology</em> 78 (1): 270–80. <a href="https://doi.org/10.1111/j.1365-2656.2008.01466.x" class="external-link">https://doi.org/10.1111/j.1365-2656.2008.01466.x</a>.
+Blanchard, Julia L., Simon Jennings, Richard Law, et al. 2009.
+<span>“How Does Abundance Scale with Body Size in Coupled
+Size-Structured Food Webs?”</span> <em>Journal of Animal Ecology</em> 78
+(1): 270–80. <a href="https://doi.org/10.1111/j.1365-2656.2008.01466.x" class="external-link">https://doi.org/10.1111/j.1365-2656.2008.01466.x</a>.
 </div>
 <div id="ref-de_roos_physiologically_2001" class="csl-entry">
 De Roos, André M., and Lennart Persson. 2001. <span>“Physiologically

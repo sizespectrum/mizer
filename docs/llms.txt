@@ -58,6 +58,7 @@ The package is on [CRAN](https://cran.r-project.org/package=mizer) and
 therefore available from R’s built-in package manager.
 
 ``` r
+
 # Install latest released version from CRAN
 install.packages("mizer")
 
@@ -73,6 +74,7 @@ up the parameters for the mizer model, and runs a simulation for 10
 years.
 
 ``` r
+
 library(mizer)
 params <- newMultispeciesParams(NS_species_params, NS_interaction)
 sim <- project(params, t_max = 10, effort = 0)
@@ -82,6 +84,7 @@ The results of the simulation can then be analysed, for example via
 plots:
 
 ``` r
+
 plot(sim)
 ```
 
@@ -393,9 +396,6 @@ state.
 - [`plotting_functions`](https://sizespectrum.org/mizer/reference/plotting_functions.md)
   : Description of the plotting functions
 
-- [`addPlot()`](https://sizespectrum.org/mizer/reference/addPlot.md)
-  **\[experimental\]** : Add values to an existing plot
-
 - [`animate()`](https://sizespectrum.org/mizer/reference/animate.md)
   [`animateSpectra()`](https://sizespectrum.org/mizer/reference/animate.md)
   : Animate size-dependent quantities through time
@@ -408,11 +408,27 @@ state.
   [`ggplotly(`*`<ArrayTimeBySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/plot.md)
   : Plotting outputs
 
+- [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md) :
+  Compare two mizer array objects in one plot
+
 - [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md)
   [`plotlyBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md)
   : Plot the biomass of species through time
 
+- [`plotBiomassObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotBiomassObservedVsModel.md)
+  [`plotlyBiomassObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotBiomassObservedVsModel.md)
+  **\[experimental\]** : Plotting observed vs. model biomass data
+
+- [`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md)
+  [`plotlyCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md) :
+  Plot cumulative abundance or biomass distributions
+
+- [`plotCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md)
+  [`plotlyCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md)
+  : Compare two cumulative abundance or biomass distributions
+
 - [`plotDiet()`](https://sizespectrum.org/mizer/reference/plotDiet.md)
+  [`plotlyDiet()`](https://sizespectrum.org/mizer/reference/plotDiet.md)
   **\[experimental\]** : Plot diet, resolved by prey species, as
   function of predator at size.
 
@@ -442,9 +458,20 @@ state.
   [`plotlyPredMort()`](https://sizespectrum.org/mizer/reference/plotPredMort.md)
   : Plot predation mortality rate of each species against size
 
+- [`plotRelative()`](https://sizespectrum.org/mizer/reference/plotRelative.md)
+  : Plot the relative difference between two mizer array objects
+
 - [`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md)
   [`plotlySpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md)
   : Plot the abundance spectra
+
+- [`plotSpectra2()`](https://sizespectrum.org/mizer/reference/plotSpectra2.md)
+  [`plotlySpectra2()`](https://sizespectrum.org/mizer/reference/plotSpectra2.md)
+  : Compare two size spectra in the same plot
+
+- [`plotSpectraRelative()`](https://sizespectrum.org/mizer/reference/plotSpectraRelative.md)
+  [`plotlySpectraRelative()`](https://sizespectrum.org/mizer/reference/plotSpectraRelative.md)
+  : Plot the relative difference between two spectra
 
 - [`plotYield()`](https://sizespectrum.org/mizer/reference/plotYield.md)
   [`plotlyYield()`](https://sizespectrum.org/mizer/reference/plotYield.md)
@@ -454,13 +481,12 @@ state.
   [`plotlyYieldGear()`](https://sizespectrum.org/mizer/reference/plotYieldGear.md)
   : Plot the total yield of each species by gear through time
 
-- [`plotBiomassObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotBiomassObservedVsModel.md)
-  [`plotlyBiomassObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotBiomassObservedVsModel.md)
-  **\[experimental\]** : Plotting observed vs. model biomass data
-
 - [`plotYieldObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotYieldObservedVsModel.md)
   [`plotlyYieldObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotYieldObservedVsModel.md)
   **\[experimental\]** : Plotting observed vs. model yields
+
+- [`addPlot()`](https://sizespectrum.org/mizer/reference/addPlot.md)
+  **\[experimental\]** : Add values to an existing plot
 
 - [`setColours()`](https://sizespectrum.org/mizer/reference/setColours.md)
   [`getColours()`](https://sizespectrum.org/mizer/reference/setColours.md)
@@ -534,6 +560,7 @@ and gear parameters with your own rate arrays.
   [`getReproductionProportion()`](https://sizespectrum.org/mizer/reference/setReproduction.md)
   [`repro_prop()`](https://sizespectrum.org/mizer/reference/setReproduction.md)
   [`` `repro_prop<-`() ``](https://sizespectrum.org/mizer/reference/setReproduction.md)
+  [`psi()`](https://sizespectrum.org/mizer/reference/setReproduction.md)
   : Set reproduction parameters
 - [`setFishing()`](https://sizespectrum.org/mizer/reference/setFishing.md)
   [`getCatchability()`](https://sizespectrum.org/mizer/reference/setFishing.md)
@@ -1005,8 +1032,6 @@ versions of mizer
 
 ### Model types
 
-- [The General Mizer Size-spectrum
-  Model](https://sizespectrum.org/mizer/articles/model_description.md):
 - [The Single-Species
   Model](https://sizespectrum.org/mizer/articles/single_species_size-spectrum_dynamics.md):
 - [The Community
@@ -1015,17 +1040,8 @@ versions of mizer
   Model](https://sizespectrum.org/mizer/articles/trait_model.md):
 - [The Multi Species
   Model](https://sizespectrum.org/mizer/articles/multispecies_model.md):
-
-### Tutorials
-
-- [Getting started with
-  mizer](https://sizespectrum.org/mizer/articles/mizer.md):
-- [Running a
-  Simulation](https://sizespectrum.org/mizer/articles/running_a_simulation.md):
-- [Exploring the Simulation
-  Results](https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.md):
-- [A Multi-Species Model of the North
-  Sea](https://sizespectrum.org/mizer/articles/a_multispecies_model_of_the_north_sea.md):
+- [The General Mizer Size-spectrum
+  Model](https://sizespectrum.org/mizer/articles/model_description.md):
 
 ### Cheat sheets
 
@@ -1049,7 +1065,7 @@ versions of mizer
   diffusion](https://sizespectrum.org/mizer/articles/cohort_dynamics_and_diffusion.md):
 - [The Numerical Scheme used in
   Mizer](https://sizespectrum.org/mizer/articles/numerical_details.md):
-- [Fast Fourier Transform for Mizer
-  rate](https://sizespectrum.org/mizer/articles/fft.md):
+- [Fast Fourier Transform for
+  Rates](https://sizespectrum.org/mizer/articles/fft.md):
 - [Analytic
   Test](https://sizespectrum.org/mizer/articles/analytic_test.md):

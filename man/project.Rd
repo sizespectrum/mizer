@@ -66,9 +66,7 @@ See notes below.}
 is a \code{MizerSim}, defaults to the value used to produce that simulation.}
 
 \item{t_save}{The frequency with which the output is stored. The default
-value is 1. When an effort array is supplied, this argument can be used
-to control the times at which the simulation results are saved.
-See notes below.}
+value is 1. See notes below.}
 
 \item{t_start}{The the year of the start of the simulation. The simulation
 will cover the period from \code{t_start} to \code{t_start + t_max}.

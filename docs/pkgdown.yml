@@ -1,14 +1,12 @@
-pandoc: 3.6.3
+pandoc: 3.8.3
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
-  a_multispecies_model_of_the_north_sea: a_multispecies_model_of_the_north_sea.html
   analytic_test: analytic_test.html
   cheatsheet-analysis-and-plotting: cheatsheet-analysis-and-plotting.html
   cohort_dynamics_and_diffusion: cohort_dynamics_and_diffusion.html
   community_model: community_model.html
   creating-extension-packages: creating-extension-packages.html
-  exploring_the_simulation_results: exploring_the_simulation_results.html
   extending-mizer: extending-mizer.html
   fft: fft.html
   mizer_vignette: mizer_vignette.html
@@ -19,11 +17,10 @@ articles:
   plotting: plotting.html
   predation_diffusion: predation_diffusion.html
   publications: publications.html
-  running_a_simulation: running_a_simulation.html
   single_species_size-spectrum_dynamics: single_species_size-spectrum_dynamics.html
   trait_model: trait_model.html
   using-extension-packages: using-extension-packages.html
-last_built: 2026-05-11T05:49Z
+last_built: 2026-05-13T13:12Z
 urls:
   reference: https://sizespectrum.org/mizer/reference
   article: https://sizespectrum.org/mizer/articles

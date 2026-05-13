@@ -22,6 +22,9 @@ plotSpectra(object, ...)
   resource = TRUE,
   background = TRUE,
   highlight = NULL,
+  log_x = TRUE,
+  log_y = TRUE,
+  log = NULL,
   return_data = FALSE,
   ...
 )
@@ -37,6 +40,9 @@ plotSpectra(object, ...)
   resource = TRUE,
   background = TRUE,
   highlight = NULL,
+  log_x = TRUE,
+  log_y = TRUE,
+  log = NULL,
   return_data = FALSE,
   ...
 )
@@ -54,6 +60,9 @@ plotlySpectra(
   resource = TRUE,
   background = TRUE,
   highlight = NULL,
+  log_x = TRUE,
+  log_y = TRUE,
+  log = NULL,
   ...
 )
 }
@@ -78,13 +87,16 @@ If TRUE then the average of the abundances over the
 time range is a geometric mean instead of the default arithmetic mean.}
 
 \item{wlim}{A numeric vector of length two providing lower and upper limits
-for the w axis. Use NA to refer to the existing minimum or maximum. Data
-is filtered to this range and the axis limits are set accordingly.}
+for the w axis. Use NA for the default: the lower default is
+\code{min(params@w) / 100} when \code{resource = TRUE} (to show some resource below
+the fish grid) or \code{min(params@w)} when \code{resource = FALSE}; the upper
+default is \code{max(params@w_full)}. Data is filtered to this range and the
+axis limits are set accordingly.}
 
 \item{ylim}{A numeric vector of length two providing lower and upper limits
-for the y axis. Use NA to refer to the existing minimum or maximum. Any
-values below 1e-20 are always cut off. Data is filtered to this range and
-the axis limits are set accordingly.}
+for the y axis. Use NA to auto-scale to the data range. Values below 1e-20
+are always filtered out from the data regardless of \code{ylim[1]}. Data above
+\code{ylim[2]} is filtered and the upper axis limit is set accordingly.}
 
 \item{power}{The abundance is plotted as the number density times the weight
 raised to \code{power}. The default \code{power = 1} gives the biomass
@@ -109,6 +121,14 @@ are included. Ignored if the model does not contain background species.
 Default is TRUE.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
+
+\item{log_x}{If \code{TRUE} (default), use a log10 x-axis.}
+
+\item{log_y}{If \code{TRUE} (default), use a log10 y-axis.}
+
+\item{log}{Character string specifying which axes should use log10 scales,
+in the same form as the base \code{\link[=plot]{plot()}} argument. For example, \code{"x"},
+\code{"y"}, \code{"xy"} or \code{""}. If supplied, this overrides \code{log_x} and \code{log_y}.}
 
 \item{return_data}{A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default value is FALSE}
@@ -150,7 +170,10 @@ Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
 \code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
 \code{\link{plot}},
+\code{\link[=plot2]{plot2()}},
 \code{\link[=plotBiomass]{plotBiomass()}},
+\code{\link[=plotCDF]{plotCDF()}},
+\code{\link[=plotCDF2]{plotCDF2()}},
 \code{\link[=plotDiet]{plotDiet()}},
 \code{\link[=plotFMort]{plotFMort()}},
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}},
@@ -158,6 +181,9 @@ Other plotting functions:
 \code{\link{plotMizerParams}},
 \code{\link{plotMizerSim}},
 \code{\link[=plotPredMort]{plotPredMort()}},
+\code{\link[=plotRelative]{plotRelative()}},
+\code{\link[=plotSpectra2]{plotSpectra2()}},
+\code{\link[=plotSpectraRelative]{plotSpectraRelative()}},
 \code{\link[=plotYield]{plotYield()}},
 \code{\link[=plotYieldGear]{plotYieldGear()}},
 \code{\link{plotting_functions}}

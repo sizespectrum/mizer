@@ -34,7 +34,7 @@ toc:
 
 navbar:
   structure:
-    left: [intro, articles, reference, course, news, publications]
+    left: [intro, course, articles, reference, news, publications]
     right: [ai, search, blog, twitter, github, lightswitch]
   components:
     home: ~
@@ -60,20 +60,13 @@ articles:
 - title: Model types
   navbar: Model types
   contents:
-  - model_description
   - single_species_size-spectrum_dynamics
   - community_model
   - trait_model
   - multispecies_model
-- title: Tutorials
-  navbar: Tutorials
-  contents:
-  - mizer
-  - running_a_simulation
-  - exploring_the_simulation_results
-  - a_multispecies_model_of_the_north_sea
+  - model_description
 - title: Cheat sheets
-  navbar:
+  navbar: Cheat sheets
   contents:
   - cheatsheet-analysis-and-plotting
 - title: Extending mizer

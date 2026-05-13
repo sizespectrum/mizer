@@ -185,8 +185,11 @@
 <url><loc>https://sizespectrum.org/mizer/reference/noRDD.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/objectExtensions.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/plot.html</loc></url>
+<url><loc>https://sizespectrum.org/mizer/reference/plot2.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/plotBiomass.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/plotBiomassObservedVsModel.html</loc></url>
+<url><loc>https://sizespectrum.org/mizer/reference/plotCDF.html</loc></url>
+<url><loc>https://sizespectrum.org/mizer/reference/plotCDF2.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/plotDataFrame.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/plotDiet.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/plotFMort.html</loc></url>
@@ -196,7 +199,10 @@
 <url><loc>https://sizespectrum.org/mizer/reference/plotMizerParams.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/plotMizerSim.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/plotPredMort.html</loc></url>
+<url><loc>https://sizespectrum.org/mizer/reference/plotRelative.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/plotSpectra.html</loc></url>
+<url><loc>https://sizespectrum.org/mizer/reference/plotSpectra2.html</loc></url>
+<url><loc>https://sizespectrum.org/mizer/reference/plotSpectraRelative.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/plotYield.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/plotYieldGear.html</loc></url>
 <url><loc>https://sizespectrum.org/mizer/reference/plotYieldObservedVsModel.html</loc></url>

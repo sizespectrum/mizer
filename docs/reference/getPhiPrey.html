@@ -28,20 +28,18 @@ a function of predator size."><meta property="og:image" content="https://sizespe
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/mizer.html">Get started</a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://mizer.course.sizespectrum.org">Course</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Model types</h6></li>
-    <li><a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
     <li><a class="dropdown-item" href="../articles/single_species_size-spectrum_dynamics.html">The Single-Species Model</a></li>
     <li><a class="dropdown-item" href="../articles/community_model.html">The Community Model</a></li>
     <li><a class="dropdown-item" href="../articles/trait_model.html">The Trait-Based Model</a></li>
     <li><a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a></li>
+    <li><a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Tutorials</h6></li>
-    <li><a class="dropdown-item" href="../articles/running_a_simulation.html">Running a Simulation</a></li>
-    <li><a class="dropdown-item" href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a></li>
-    <li><a class="dropdown-item" href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model of the North Sea</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Cheat sheets</h6></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
@@ -59,7 +57,6 @@ a function of predator size."><meta property="og:image" content="https://sizespe
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://mizer.course.sizespectrum.org">Course</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/publications.html">Publications</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://notebooklm.google.com/notebook/6aa51f75-d1a8-4140-9180-84532ef5f821"><span class="fa fa-robot"></span> Ask AI</a></li>
@@ -150,6 +147,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 2.674783e+12 2.609164e+12 2.544908e+12 2.481982e+12 2.420359e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  2.074646e+12 2.022596e+12 1.971619e+12 1.921695e+12 1.872802e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 3.463425e+12 3.379590e+12 3.297529e+12 3.217197e+12 3.138554e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     1.548712e+12 1.509212e+12 1.470530e+12 1.432651e+12 1.395560e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  1.212534e+12 1.181125e+12 1.150375e+12 1.120270e+12 1.090799e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp             0.00242      0.00289      0.00345      0.00411      0.00491</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   2.089731e+12 2.040966e+12 1.993323e+12 1.946774e+12 1.901290e+12</span>
@@ -162,6 +161,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 2.360008e+12 2.300904e+12 2.243019e+12 2.186327e+12 2.130804e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  1.824921e+12 1.778031e+12 1.732115e+12 1.687152e+12 1.643125e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 3.061559e+12 2.986173e+12 2.912358e+12 2.840079e+12 2.769300e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     1.359244e+12 1.323687e+12 1.288874e+12 1.254791e+12 1.221420e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  1.061949e+12 1.033706e+12 1.006057e+12 9.789881e+11 9.524826e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp             0.00586      0.00699      0.00834      0.00995       0.0119</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   1.856845e+12 1.813409e+12 1.770958e+12 1.729463e+12 1.688899e+12</span>
@@ -174,6 +175,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 2.076425e+12 2.023165e+12 1.971001e+12 1.919909e+12 1.869865e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  1.600013e+12 1.557799e+12 1.516463e+12 1.475988e+12 1.436355e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 2.699986e+12 2.632106e+12 2.565627e+12 2.500517e+12 2.436746e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     1.188747e+12 1.156753e+12 1.125421e+12 1.094734e+12 1.064672e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  9.265242e+11 9.010950e+11 8.761753e+11 8.517439e+11 8.277784e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp              0.0142       0.0169       0.0202       0.0241       0.0288</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   1.649239e+12 1.610458e+12 1.572530e+12 1.535430e+12 1.499134e+12</span>
@@ -186,6 +189,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 1.820846e+12 1.772827e+12 1.725787e+12 1.679700e+12 1.634544e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  1.397545e+12 1.359542e+12 1.322328e+12 1.285888e+12 1.250207e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 2.374285e+12 2.313103e+12 2.253173e+12 2.194467e+12 2.136957e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     1.035216e+12 1.006346e+12 9.780433e+11 9.502885e+11 9.230637e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  8.042553e+11 7.811502e+11 7.584390e+11 7.360984e+11 7.141067e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp              0.0343       0.0409       0.0489       0.0583       0.0696</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   1.463617e+12 1.428857e+12 1.394830e+12 1.361515e+12 1.328890e+12</span>
@@ -198,6 +203,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 1.590295e+12 1.546931e+12 1.504430e+12 1.462770e+12 1.421930e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  1.215273e+12 1.181074e+12 1.147602e+12 1.114853e+12 1.082826e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 2.080617e+12 2.025420e+12 1.971342e+12 1.918358e+12 1.866446e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     8.963528e+11 8.701419e+11 8.444204e+11 8.191815e+11 7.944229e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  6.924451e+11 6.710980e+11 6.500546e+11 6.293089e+11 6.088604e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp               0.083       0.0991        0.118        0.141        0.168</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   1.296937e+12 1.265635e+12 1.234968e+12 1.204918e+12 1.175473e+12</span>
@@ -210,6 +217,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 1.381893e+12 1.342640e+12 1.304156e+12 1.266429e+12 1.229449e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  1.051521e+12 1.020948e+12 9.911168e+11 9.620446e+11 9.337531e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 1.815583e+12 1.765748e+12 1.716924e+12 1.669094e+12 1.622241e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     7.701476e+11 7.463644e+11 7.230879e+11 7.003391e+11 6.781451e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  5.887145e+11 5.688819e+11 5.493788e+11 5.302263e+11 5.114496e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp               0.201         0.24        0.286        0.342        0.408</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   1.146617e+12 1.118338e+12 1.090626e+12 1.063470e+12 1.036861e+12</span>
@@ -222,6 +231,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 1.193209e+12 1.157704e+12 1.122936e+12 1.088908e+12 1.055627e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  9.062692e+11 8.796243e+11 8.538547e+11 8.290007e+11 8.051058e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 1.576354e+12 1.531424e+12 1.487442e+12 1.444406e+12 1.402313e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     6.565386e+11 6.355579e+11 6.152459e+11 5.956493e+11 5.768177e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  4.930772e+11 4.751402e+11 4.576712e+11 4.407036e+11 4.242708e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp               0.486         0.58        0.693        0.827        0.987</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   1.010792e+12 9.852540e+11 9.602399e+11 9.357423e+11 9.117535e+11</span>
@@ -234,6 +245,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 1.023106e+12 9.913603e+11 9.604099e+11 9.302782e+11 9.009922e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  7.822161e+11 7.603797e+11 7.396450e+11 7.200601e+11 7.016715e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 1.361168e+12 1.320975e+12 1.281745e+12 1.243491e+12 1.206230e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     5.588027e+11 5.416561e+11 5.254297e+11 5.101735e+11 4.959349e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  4.084053e+11 3.931381e+11 3.784982e+11 3.645120e+11 3.512029e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp                1.18          1.4         1.68            2         2.39</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   8.882657e+11 8.652706e+11 8.427595e+11 8.207235e+11 7.991533e+11</span>
@@ -246,6 +259,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 8.725817e+11 8.450797e+11 8.185210e+11 7.929425e+11 7.683822e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  6.845234e+11 6.686560e+11 6.541051e+11 6.409013e+11 6.290692e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 1.169984e+12 1.134776e+12 1.100635e+12 1.067593e+12 1.035683e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     4.827575e+11 4.706808e+11 4.597388e+11 4.499603e+11 4.413681e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  3.385911e+11 3.266932e+11 3.155220e+11 3.050866e+11 2.953922e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp                2.85          3.4         4.06         4.84         5.78</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   7.780400e+11 7.573744e+11 7.371479e+11 7.173522e+11 6.979791e+11</span>
@@ -258,6 +273,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 7.448789e+11 7.224720e+11 7.012017e+11 6.811112e+11 6.622456e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  6.186276e+11 6.095894e+11 6.019644e+11 5.957646e+11 5.910047e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 1.004945e+12 9.754200e+11 9.471535e+11 9.202015e+11 8.946276e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     4.339798e+11 4.278078e+11 4.228619e+11 4.191540e+11 4.166994e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  2.864407e+11 2.782303e+11 2.707569e+11 2.640145e+11 2.579962e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp                 6.9         8.23         9.82         11.7           14</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   6.790203e+11 6.604670e+11 6.423092e+11 6.245352e+11 6.071314e+11</span>
@@ -270,6 +287,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 6.446427e+11 6.283394e+11 6.133736e+11 5.997844e+11 5.875512e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  5.876824e+11 5.857940e+11 5.853419e+11 5.863363e+11 5.886962e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 8.704826e+11 8.478184e+11 8.266929e+11 8.071678e+11 7.892205e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     4.155072e+11 4.155910e+11 4.169741e+11 4.196937e+11 4.237535e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  2.526939e+11 2.481003e+11 2.442101e+11 2.410215e+11 2.384982e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp                16.7         19.9         23.8         28.4         33.8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   5.900816e+11 5.733673e+11 5.569677e+11 5.408608e+11 5.250242e+11</span>
@@ -282,6 +301,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 5.767658e+11 5.674610e+11 5.596463e+11 5.533457e+11 5.485907e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  5.925551e+11 5.979323e+11 6.047615e+11 6.130242e+11 6.227448e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 7.729873e+11 7.585265e+11 7.458835e+11 7.351208e+11 7.262972e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     4.292679e+11 4.363178e+11 4.449634e+11 4.552986e+11 4.674432e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  2.366638e+11 2.355201e+11 2.350707e+11 2.353228e+11 2.362827e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp                40.4         48.2         57.5         68.7         81.9</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   5.094370e+11 4.940806e+11 4.789413e+11 4.640111e+11 4.492895e+11</span>
@@ -294,6 +315,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 5.453954e+11 5.437727e+11 5.437690e+11 5.454144e+11 5.487378e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  6.339508e+11 6.466693e+11 6.609948e+11 6.769838e+11 6.946868e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 7.194211e+11 7.145042e+11 7.116429e+11 7.109011e+11 7.123369e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     4.815106e+11 4.976128e+11 5.158982e+11 5.364802e+11 5.594442e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  2.379432e+11 2.402913e+11 2.433128e+11 2.469831e+11 2.512682e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp                97.8          117          139          166          198</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   4.347834e+11 4.205079e+11 4.064852e+11 3.927441e+11 3.793186e+11</span>
@@ -306,6 +329,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 5.537809e+11 5.606398e+11 5.693511e+11 5.798005e+11 5.918696e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  7.141731e+11 7.356241e+11 7.590464e+11 7.841567e+11 8.106607e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 7.160313e+11 7.221628e+11 7.308121e+11 7.417986e+11 7.549462e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     5.848560e+11 6.128133e+11 6.433001e+11 6.760657e+11 7.107888e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  2.561301e+11 2.615420e+11 2.674680e+11 2.738382e+11 2.805818e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp                 237          282          337          402          480</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   3.662464e+11 3.535678e+11 3.413245e+11 3.295580e+11 3.183092e+11</span>
@@ -318,6 +343,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 6.055159e+11 6.207024e+11 6.373796e+11 6.554735e+11 6.748790e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  8.384066e+11 8.672551e+11 8.970341e+11 9.275200e+11 9.584312e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 7.702321e+11 7.876476e+11 8.071832e+11 8.288073e+11 8.524518e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     7.471770e+11 7.848967e+11 8.235591e+11 8.627180e+11 9.018726e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  2.876507e+11 2.950024e+11 3.025949e+11 3.103776e+11 3.182817e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp                 573          683          816          973         1160</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   3.076174e+11 2.975195e+11 2.880495e+11 2.792375e+11 2.711097e+11</span>
@@ -330,6 +357,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 6.954563e+11 7.170335e+11 7.394094e+11 7.623533e+11 7.856065e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  9.894268e+11 1.020115e+12 1.050062e+12 1.078798e+12 1.105824e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 8.780089e+11 9.053355e+11 9.342591e+11 9.645770e+11 9.960579e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     9.404738e+11 9.779342e+11 1.013638e+12 1.046943e+12 1.077185e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  3.262095e+11 3.340258e+11 3.415512e+11 3.485594e+11 3.547814e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp                1390         1650         1970         2360         2810</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   2.636875e+11 2.569872e+11 2.510193e+11 2.457886e+11 2.412939e+11</span>
@@ -342,6 +371,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 8.088820e+11 8.318686e+11 8.542342e+11 8.756284e+11 8.956841e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  1.130614e+12 1.152634e+12 1.171346e+12 1.186225e+12 1.196757e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 1.028438e+12 1.061425e+12 1.094698e+12 1.127911e+12 1.160687e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     1.103681e+12 1.125734e+12 1.142652e+12 1.153761e+12 1.158432e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  3.599109e+11 3.636217e+11 3.655907e+11 3.655312e+11 3.632240e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp                3350         4000         4780         5700         6800</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   2.375283e+11 2.344795e+11 2.321306e+11 2.304612e+11 2.294488e+11</span>
@@ -354,6 +385,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 9.140291e+11 9.302940e+11 9.441203e+11 9.551689e+11 9.631300e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  1.202473e+12 1.202965e+12 1.197900e+12 1.187043e+12 1.170269e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 1.192636e+12 1.223354e+12 1.252434e+12 1.279468e+12 1.304059e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     1.156122e+12 1.146421e+12 1.129101e+12 1.104157e+12 1.071843e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  3.585510e+11 3.515231e+11 3.422980e+11 3.311854e+11 3.186363e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp                8120         9690        11600        13800        16500</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   2.290708e+11 2.293064e+11 2.301399e+11 2.315626e+11 2.335766e+11</span>
@@ -366,6 +399,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 9.677320e+11 9.687513e+11 9.660210e+11 9.594390e+11 9.489736e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  1.147583e+12 1.119121e+12 1.085165e+12 1.046134e+12 1.002582e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 1.325821e+12 1.344393e+12 1.359441e+12 1.370674e+12 1.377842e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     1.032697e+12 9.875383e+11 9.374543e+11 8.837555e+11 8.279149e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  3.052168e+11 2.915675e+11 2.783542e+11 2.662137e+11 2.557018e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp               19600        23400        28000        33400        39900</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   2.361982e+11 2.394611e+11 2.434196e+11 2.481525e+11 2.537644e+11</span>
@@ -378,7 +413,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 9.346682e+11 9.166434e+11 8.950973e+11 8.703031e+11 8.426049e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  9.551774e+11 9.046900e+11 8.519607e+11 7.978767e+11 7.433407e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 1.380750e+12 1.379261e+12 1.373300e+12 1.362865e+12 1.348021e+12</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [ reached 'max' / getOption("max.print") -- omitted 2 rows ]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     7.714905e+11 7.160396e+11 6.630314e+11 6.137684e+11 5.693207e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  2.472494e+11 2.411299e+11 2.374426e+11 2.361103e+11 2.368920e+11</span>
 <span class="r-in"><span><span class="co"># -&gt;</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="getEncounter.html">getEncounter</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="setSearchVolume.html">getSearchVolume</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
@@ -393,6 +429,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 2.651205e+12 2.583464e+12 2.517021e+12 2.451858e+12 2.387964e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  2.043473e+12 1.989174e+12 1.935963e+12 1.883841e+12 1.832812e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 3.442482e+12 3.356698e+12 3.272603e+12 3.190165e+12 3.109350e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     1.517225e+12 1.475680e+12 1.435022e+12 1.395260e+12 1.356406e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  1.180392e+12 1.147297e+12 1.114987e+12 1.083472e+12 1.052763e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp             0.00242      0.00289      0.00345      0.00411      0.00491</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   2.089730e+12 2.040958e+12 1.993304e+12 1.946738e+12 1.901230e+12</span>
@@ -405,6 +443,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 2.325327e+12 2.263940e+12 2.203796e+12 2.144891e+12 2.087223e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  1.782881e+12 1.734051e+12 1.686329e+12 1.639718e+12 1.594222e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 3.030132e+12 2.952483e+12 2.876382e+12 2.801808e+12 2.728744e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     1.318470e+12 1.281460e+12 1.245385e+12 1.210247e+12 1.176047e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  1.022866e+12 9.937864e+11 9.655236e+11 9.380744e+11 9.114307e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp             0.00586      0.00699      0.00834      0.00995       0.0119</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   1.856753e+12 1.813275e+12 1.770768e+12 1.729202e+12 1.688548e+12</span>
@@ -417,6 +457,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 2.030789e+12 1.975588e+12 1.921617e+12 1.868875e+12 1.817358e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  1.549841e+12 1.506577e+12 1.464425e+12 1.423380e+12 1.383435e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 2.657173e+12 2.587081e+12 2.518456e+12 2.451285e+12 2.385559e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     1.142785e+12 1.110452e+12 1.079038e+12 1.048530e+12 1.018906e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  8.855797e+11 8.605034e+11 8.361784e+11 8.125759e+11 7.896621e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp              0.0142       0.0169       0.0202       0.0241       0.0288</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   1.648776e+12 1.609856e+12 1.571758e+12 1.534451e+12 1.497905e+12</span>
@@ -429,6 +471,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 1.767061e+12 1.717975e+12 1.670094e+12 1.623403e+12 1.577890e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  1.344578e+12 1.306795e+12 1.270070e+12 1.234384e+12 1.199715e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 2.321267e+12 2.258397e+12 2.196941e+12 2.136885e+12 2.078218e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     9.901445e+11 9.622164e+11 9.350908e+11 9.087336e+11 8.831084e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  7.673983e+11 7.457416e+11 7.246465e+11 7.040652e+11 6.839499e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp              0.0343       0.0409       0.0489       0.0583       0.0696</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   1.462090e+12 1.426975e+12 1.392531e+12 1.358727e+12 1.325537e+12</span>
@@ -441,6 +485,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 1.533536e+12 1.490322e+12 1.448226e+12 1.407222e+12 1.367284e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  1.166041e+12 1.133340e+12 1.101586e+12 1.070759e+12 1.040838e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 2.020926e+12 1.964995e+12 1.910409e+12 1.857151e+12 1.805202e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     8.581782e+11 8.339058e+11 8.102557e+11 7.871954e+11 7.646965e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  6.642540e+11 6.449341e+11 6.259511e+11 6.072720e+11 5.888712e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp               0.083       0.0991        0.118        0.141        0.168</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   1.292934e+12 1.260894e+12 1.229393e+12 1.198413e+12 1.167936e+12</span>
@@ -453,6 +499,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 1.328383e+12 1.290490e+12 1.253575e+12 1.217607e+12 1.182559e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  1.011803e+12 9.836404e+11 9.563395e+11 9.298945e+11 9.043048e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 1.754541e+12 1.705148e+12 1.657001e+12 1.610076e+12 1.564351e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     7.427360e+11 7.212976e+11 7.003725e+11 6.799601e+11 6.600681e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  5.707310e+11 5.528422e+11 5.352042e+11 5.178245e+11 5.007185e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp               0.201         0.24        0.286        0.342        0.408</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   1.137951e+12 1.108448e+12 1.079421e+12 1.050869e+12 1.022793e+12</span>
@@ -465,6 +513,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 1.148403e+12 1.115113e+12 1.082668e+12 1.051048e+12 1.020239e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  8.795759e+11 8.557189e+11 8.327510e+11 8.106946e+11 7.895772e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 1.519803e+12 1.476410e+12 1.434149e+12 1.393002e+12 1.352950e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     6.407129e+11 6.219186e+11 6.037171e+11 5.861466e+11 5.692509e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  4.839079e+11 4.674202e+11 4.512870e+11 4.355431e+11 4.202248e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp               0.486         0.58        0.693        0.827        0.987</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   9.952004e+11 9.680989e+11 9.415002e+11 9.154176e+11 8.898659e+11</span>
@@ -477,6 +527,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 9.902308e+11 9.610175e+11 9.325985e+11 9.049782e+11 8.781660e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  7.694305e+11 7.502894e+11 7.321908e+11 7.151726e+11 6.992723e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 1.313976e+12 1.276069e+12 1.239218e+12 1.203417e+12 1.168663e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     5.530774e+11 5.376762e+11 5.230983e+11 5.093939e+11 4.966114e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  4.053690e+11 3.910120e+11 3.771886e+11 3.639312e+11 3.512690e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp                1.18          1.4         1.68            2         2.39</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   8.648604e+11 8.404162e+11 8.165474e+11 7.932670e+11 7.705861e+11</span>
@@ -489,6 +541,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 8.521757e+11 8.270259e+11 8.027388e+11 7.793405e+11 7.568597e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  6.845254e+11 6.709646e+11 6.586183e+11 6.475098e+11 6.376564e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 1.134957e+12 1.102305e+12 1.070718e+12 1.040208e+12 1.010795e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     4.847956e+11 4.739865e+11 4.642189e+11 4.555211e+11 4.479151e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  3.392279e+11 3.278294e+11 3.170910e+11 3.070257e+11 2.976421e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp                2.85          3.4         4.06         4.84         5.78</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   7.485138e+11 7.270567e+11 7.062193e+11 6.860036e+11 6.664090e+11</span>
@@ -501,6 +555,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 7.353276e+11 7.147772e+11 6.952439e+11 6.767678e+11 6.593935e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  6.290694e+11 6.217539e+11 6.157113e+11 6.109481e+11 6.074755e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 9.825007e+11 9.553532e+11 9.293857e+11 9.046444e+11 8.811874e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     4.414163e+11 4.360343e+11 4.317753e+11 4.286481e+11 4.266666e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  2.889446e+11 2.809337e+11 2.736066e+11 2.669588e+11 2.609844e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp                 6.9         8.23         9.82         11.7           14</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   6.474320e+11 6.290660e+11 6.113004e+11 5.941205e+11 5.775062e+11</span>
@@ -513,6 +569,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 6.431606e+11 6.281099e+11 6.142864e+11 6.017406e+11 5.904691e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  6.052925e+11 6.044005e+11 6.048138e+11 6.065654e+11 6.096118e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 8.590644e+11 8.383299e+11 8.190503e+11 8.013038e+11 7.850956e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     4.258411e+11 4.261894e+11 4.277454e+11 4.305656e+11 4.346871e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  2.556765e+11 2.510291e+11 2.470394e+11 2.437089e+11 2.410071e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp                16.7         19.9         23.8         28.4         33.8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   5.614321e+11 5.458669e+11 5.307737e+11 5.161108e+11 5.018333e+11</span>
@@ -525,6 +583,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 5.805965e+11 5.722056e+11 5.653614e+11 5.601518e+11 5.566919e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  6.141721e+11 6.204037e+11 6.283847e+11 6.382426e+11 6.501905e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 7.706089e+11 7.579717e+11 7.473169e+11 7.388211e+11 7.326894e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     4.402892e+11 4.475578e+11 4.566862e+11 4.679360e+11 4.816545e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  2.389672e+11 2.376061e+11 2.369487e+11 2.370342e+11 2.379143e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp                40.4         48.2         57.5         68.7         81.9</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   4.878945e+11 4.742494e+11 4.608566e+11 4.476815e+11 4.346985e+11</span>
@@ -537,6 +597,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 5.550945e+11 5.550534e+11 5.567148e+11 5.603452e+11 5.660490e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  6.644866e+11 6.804479e+11 6.984115e+11 7.189749e+11 7.423572e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 7.290876e+11 7.272324e+11 7.273702e+11 7.300150e+11 7.352941e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     4.982469e+11 5.175729e+11 5.400832e+11 5.664048e+11 5.969463e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  2.396426e+11 2.422104e+11 2.456730e+11 2.501057e+11 2.555590e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp                97.8          117          139          166          198</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   4.218928e+11 4.092611e+11 3.968118e+11 3.845640e+11 3.725461e+11</span>
@@ -549,6 +611,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 5.739464e+11 5.842129e+11 5.968882e+11 6.119368e+11 6.293554e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  7.687936e+11 7.986207e+11 8.318412e+11 8.682405e+11 9.076348e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 7.433573e+11 7.544467e+11 7.685707e+11 7.856370e+11 8.056243e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     6.320979e+11 6.722583e+11 7.175664e+11 7.679187e+11 8.230738e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  2.620794e+11 2.697175e+11 2.784755e+11 2.883157e+11 2.991680e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp                 237          282          337          402          480</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   3.607942e+11 3.493499e+11 3.382583e+11 3.275666e+11 3.173217e+11</span>
@@ -561,6 +625,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 6.491934e+11 6.714676e+11 6.961458e+11 7.231397e+11 7.522995e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  9.499075e+11 9.948489e+11 1.042115e+12 1.091218e+12 1.141535e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 8.286297e+11 8.547128e+11 8.838892e+11 9.161230e+11 9.513230e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     8.826528e+11 9.460278e+11 1.012295e+12 1.080278e+12 1.148551e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  3.109309e+11 3.234447e+11 3.364839e+11 3.497529e+11 3.628892e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp                 573          683          816          973         1160</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   3.075696e+11 2.983535e+11 2.897130e+11 2.816830e+11 2.742930e+11</span>
@@ -573,6 +639,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 7.834121e+11 8.161990e+11 8.503144e+11 8.853461e+11 9.208195e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  1.192317e+12 1.242705e+12 1.291747e+12 1.338430e+12 1.381701e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 9.893429e+11 1.029980e+12 1.072974e+12 1.118004e+12 1.164689e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     1.215485e+12 1.279308e+12 1.338184e+12 1.390300e+12 1.433953e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  3.754724e+11 3.870409e+11 3.971143e+11 4.052217e+11 4.109342e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp                1390         1650         1970         2360         2810</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   2.675661e+11 2.615190e+11 2.561610e+11 2.514939e+11 2.475125e+11</span>
@@ -585,6 +653,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 9.562027e+11 9.909167e+11 1.024348e+12 1.055860e+12 1.084806e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  1.420508e+12 1.453835e+12 1.480742e+12 1.500393e+12 1.512088e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 1.212589e+12 1.261207e+12 1.309995e+12 1.358363e+12 1.405674e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     1.467644e+12 1.490152e+12 1.500606e+12 1.498519e+12 1.483810e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  4.138921e+11 4.138331e+11 4.106146e+11 4.042338e+11 3.948341e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp                3350         4000         4780         5700         6800</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   2.442045e+11 2.415515e+11 2.395299e+11 2.381126e+11 2.372709e+11</span>
@@ -597,6 +667,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 1.110556e+12 1.132511e+12 1.150124e+12 1.162920e+12 1.170512e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  1.515294e+12 1.509671e+12 1.495087e+12 1.471626e+12 1.439583e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 1.451273e+12 1.494494e+12 1.534674e+12 1.571173e+12 1.603381e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     1.456810e+12 1.418244e+12 1.369192e+12 1.311038e+12 1.245406e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  3.827061e+11 3.682788e+11 3.521008e+11 3.348143e+11 3.171210e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp                8120         9690        11600        13800        16500</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   2.369764e+11 2.372041e+11 2.379352e+11 2.391600e+11 2.408820e+11</span>
@@ -609,6 +681,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 1.172615e+12 1.169054e+12 1.159777e+12 1.144854e+12 1.124478e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  1.399461e+12 1.351946e+12 1.297894e+12 1.238292e+12 1.174230e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 1.630740e+12 1.652749e+12 1.668985e+12 1.679113e+12 1.682894e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     1.174096e+12 1.099006e+12 1.022066e+12 9.451635e+11 8.700828e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  2.997431e+11 2.833815e+11 2.686750e+11 2.561623e+11 2.462513e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          w</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sp               19600        23400        28000        33400        39900</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat   2.431210e+11 2.459176e+11 2.493375e+11 2.534767e+11 2.584665e+11</span>
@@ -621,7 +695,8 @@ equal to <code>getEncounter(object, n, n_pp) / getSearchVolume(object)</code>.</
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Gurnard 1.098961e+12 1.068720e+12 1.034269e+12 9.962018e+11 9.551771e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  1.106863e+12 1.037373e+12 9.669326e+11 8.966738e+11 8.276575e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Haddock 1.680191e+12 1.670977e+12 1.655336e+12 1.633460e+12 1.605653e+12</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [ reached 'max' / getOption("max.print") -- omitted 2 rows ]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cod     7.984432e+11 7.316491e+11 6.708506e+11 6.169156e+11 5.704166e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe  2.391969e+11 2.350898e+11 2.338548e+11 2.352600e+11 2.389343e+11</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

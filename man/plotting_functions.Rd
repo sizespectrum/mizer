@@ -33,9 +33,10 @@ time-by-species-by-size array, such as those returned by \code{\link[=getFMort]{
 The same array objects can be passed to \code{\link[=ggplotly]{ggplotly()}} to produce interactive
 versions, for example \code{ggplotly(getBiomass(sim))} or
 \code{ggplotly(getEncounter(params))}. To add another compatible array to an
-existing ggplot, use \code{\link[=addPlot]{addPlot()}}. This is useful for comparing two simulations
-or two parameter sets on the same axes. To visualise how spectra or rates
-change through time, use \code{\link[=animate]{animate()}} on a \code{MizerSim} or an
+existing ggplot, use \code{\link[=addPlot]{addPlot()}}. To compare two compatible mizer arrays
+directly, use \code{\link[=plot2]{plot2()}}. To plot cumulative distributions over body size,
+use \code{\link[=plotCDF]{plotCDF()}}. To visualise how spectra or rates change through time, use
+\code{\link[=animate]{animate()}} on a \code{MizerSim} or an
 \code{ArrayTimeBySpeciesBySize} object.
 
 The named plotting functions give more specialised control. This table shows
@@ -46,6 +47,9 @@ Plot \tab Description \cr
 \code{\link[=plotYield]{plotYield()}} \tab Plots the total yield of each species across all fishing gears against time. \cr
 \code{\link[=plotYieldGear]{plotYieldGear()}} \tab Plots the total yield of each species by gear against time. \cr
 \code{\link[=plotSpectra]{plotSpectra()}} \tab Plots the abundance (biomass or numbers) spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot. \cr
+\code{\link[=plotCDF]{plotCDF()}} \tab Plots cumulative distributions of abundance or biomass over size. \cr
+\code{\link[=plotCDF2]{plotCDF2()}} \tab Compares cumulative distributions from two simulations or parameter objects in one plot. \cr
+\code{\link[=plotSpectra2]{plotSpectra2()}} \tab Compares the spectra from two simulations or parameter objects in one plot. \cr
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}} \tab Plots the feeding level of each species against size. \cr
 \code{\link[=plotPredMort]{plotPredMort()}} \tab Plots the predation mortality of each species against size. \cr
 \code{\link[=plotFMort]{plotFMort()}} \tab Plots the total fishing mortality of each species against size. \cr
@@ -58,9 +62,11 @@ Plot \tab Description \cr
 
 The static plotting functions use ggplot2 and return a ggplot object. This
 means that you can manipulate the plot further after its creation using the
-ggplot grammar of graphics. Many named plot functions also have a plotly
-counterpart, for example \code{\link[=plotlyBiomass]{plotlyBiomass()}} or \code{\link[=plotlySpectra]{plotlySpectra()}}, for
-interactive exploration.
+ggplot grammar of graphics. The named high-level plot functions have plotly
+counterparts, for example \code{\link[=plotlyBiomass]{plotlyBiomass()}} or \code{\link[=plotlySpectra]{plotlySpectra()}}, for
+interactive exploration. Generic and compositional plotting APIs, such as
+\code{\link[=plot]{plot()}}, \code{\link[=plot2]{plot2()}}, \code{\link[=plotRelative]{plotRelative()}} and \code{\link[=addPlot]{addPlot()}}, do not have separate
+plotly wrappers. Use \code{\link[=ggplotly]{ggplotly()}} on the ggplot object they return.
 
 While most plot functions take their data from a MizerSim object, some of
 those that make plots representing data at a single time can also take their
@@ -119,7 +125,10 @@ Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
 \code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
 \code{\link{plot}},
+\code{\link[=plot2]{plot2()}},
 \code{\link[=plotBiomass]{plotBiomass()}},
+\code{\link[=plotCDF]{plotCDF()}},
+\code{\link[=plotCDF2]{plotCDF2()}},
 \code{\link[=plotDiet]{plotDiet()}},
 \code{\link[=plotFMort]{plotFMort()}},
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}},
@@ -127,7 +136,10 @@ Other plotting functions:
 \code{\link{plotMizerParams}},
 \code{\link{plotMizerSim}},
 \code{\link[=plotPredMort]{plotPredMort()}},
+\code{\link[=plotRelative]{plotRelative()}},
 \code{\link[=plotSpectra]{plotSpectra()}},
+\code{\link[=plotSpectra2]{plotSpectra2()}},
+\code{\link[=plotSpectraRelative]{plotSpectraRelative()}},
 \code{\link[=plotYield]{plotYield()}},
 \code{\link[=plotYieldGear]{plotYieldGear()}}
 }

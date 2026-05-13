@@ -4,6 +4,7 @@
 \alias{plotDiet}
 \alias{plotDiet.MizerSim}
 \alias{plotDiet.MizerParams}
+\alias{plotlyDiet}
 \title{Plot diet, resolved by prey species, as function of predator at size.}
 \usage{
 plotDiet(object, ...)
@@ -11,6 +12,8 @@ plotDiet(object, ...)
 \method{plotDiet}{MizerSim}(object, species = NULL, return_data = FALSE, ...)
 
 \method{plotDiet}{MizerParams}(object, species = NULL, return_data = FALSE, ...)
+
+plotlyDiet(object, species = NULL, ...)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or
@@ -30,6 +33,8 @@ used for the plot is returned instead of the plot itself. Default value is FALSE
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
 frame with the four variables 'Predator', 'w', 'Proportion', 'Prey' is
 returned.
+
+\code{plotlyDiet()} returns a plotly object.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Plots the proportions with which each
@@ -63,14 +68,20 @@ Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
 \code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
 \code{\link{plot}},
+\code{\link[=plot2]{plot2()}},
 \code{\link[=plotBiomass]{plotBiomass()}},
+\code{\link[=plotCDF]{plotCDF()}},
+\code{\link[=plotCDF2]{plotCDF2()}},
 \code{\link[=plotFMort]{plotFMort()}},
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}},
 \code{\link[=plotGrowthCurves]{plotGrowthCurves()}},
 \code{\link{plotMizerParams}},
 \code{\link{plotMizerSim}},
 \code{\link[=plotPredMort]{plotPredMort()}},
+\code{\link[=plotRelative]{plotRelative()}},
 \code{\link[=plotSpectra]{plotSpectra()}},
+\code{\link[=plotSpectra2]{plotSpectra2()}},
+\code{\link[=plotSpectraRelative]{plotSpectraRelative()}},
 \code{\link[=plotYield]{plotYield()}},
 \code{\link[=plotYieldGear]{plotYieldGear()}},
 \code{\link{plotting_functions}}

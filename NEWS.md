@@ -149,9 +149,7 @@ individual variability in growth to be modelled.
 - The `plot()` and `summary()` methods for `MizerParams`, `MizerSim`, and the
   mizer array classes are now registered as S3 methods rather than S4 methods,
   so `plot()` and `summary()` remain plain S3 generics when mizer is loaded,
-  avoiding interference with S4 method dispatch for other packages. See the
-  [cheatsheet](../articles/cheatsheet-analysis-and-plotting.html) and
-  [plotting](../articles/plotting.html) vignettes for examples.
+  avoiding interference with S4 method dispatch for other packages.
 
 ## New extension mechanism allowing extension chains
 
