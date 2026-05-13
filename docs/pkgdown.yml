@@ -15,12 +15,11 @@ articles:
   multispecies_model: multispecies_model.html
   numerical_details: numerical_details.html
   plotting: plotting.html
-  predation_diffusion: predation_diffusion.html
   publications: publications.html
   single_species_size-spectrum_dynamics: single_species_size-spectrum_dynamics.html
   trait_model: trait_model.html
   using-extension-packages: using-extension-packages.html
-last_built: 2026-05-13T13:12Z
+last_built: 2026-05-13T16:49Z
 urls:
   reference: https://sizespectrum.org/mizer/reference
   article: https://sizespectrum.org/mizer/articles

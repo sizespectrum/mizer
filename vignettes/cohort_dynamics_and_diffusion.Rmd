@@ -111,11 +111,11 @@ the older cohorts start to merge.
 
 # Adding predation diffusion
 
-As discussed elsewhere, some of the randomness in the growth rate comes from the randomness in the size of prey
+Some of the randomness in the growth rate comes from the randomness in the size of prey
 encountered by the predator. We refer to this as the predation diffusion, even though there are other sources
 of randomness associated with predation, arising for example from the patchiness in the spatial distribution of
 prey. So the predation diffusion can be seen as a lower bound on the amount of diffusion arising from randomness
-in growth.
+in growth. You can find some details in the [Diffusion section](model_description.html#diffusion) of the general mizer model description.
 
 ```{r}
 params_pred_diff <- params

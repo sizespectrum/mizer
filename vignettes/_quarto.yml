@@ -1,2 +1,5 @@
 project:
   render: ['*.qmd']
+
+toc: true
+toc-depth: 3

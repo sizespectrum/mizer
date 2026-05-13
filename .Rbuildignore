@@ -38,7 +38,7 @@
 ^vignettes/inter.csv$
 ^vignettes/NS_f_history.csv$
 ^vignettes/NS_species_params.csv$
-^vignettes/model_description.Rmd$
+^vignettes/model_description.qmd$
 ^vignettes/Growth_curve.pdf$
 ^vignettes/publications.Rmd$
 ^vignettes/*.pdf$

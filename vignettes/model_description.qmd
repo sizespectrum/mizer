@@ -1,14 +1,9 @@
 ---
 title: "The General Mizer Size-spectrum Model"
-output:
-  html_document:
-    toc: yes
-    fig_width: 5
-    fig_height: 5
-vignette: >
-  %\VignetteIndexEntry{The General Mizer Size-spectrum Model}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+bibliography: diffusion_references.bib
+toc: true
+crossref:
+  eq-prefix: Eq.
 ---
 
 ```{r setup, include = FALSE}
@@ -172,7 +167,6 @@ semi-chemostat equation.
 <details>
 The semichemostat dynamics are given by
 $$
-  \label{eq:nb}
   \frac{\partial N_R(w,t)}{\partial t} 
   = r_R(w) \Big[ c_R (w) - N_R(w,t) \Big] - \mu_R(w) N_R(w,t).
 $$
@@ -217,12 +211,12 @@ The rate at which a predator of species $i$ and weight $w$ encounters food
 determined by summing over all prey species and the resource spectrum and
 integrating over all prey sizes $w_p$, weighted by the selectivity factors:
 $$
-  \label{eq:1}
   E_{i}(w) = \gamma_i(w) \int \left(\sum_{j} \theta_{ij} N_j(w_p) +
    \theta_{iR} N_R(w_p) \right) 
-  \phi_i(w,w_p) w_p \, dw_p.
+  \phi_i(w,w_p) w_p \, dw_p + E_{ext.i}(w).
 $$
-This is calculated by `getEncounter()`.
+This is calculated by `getEncounter()`. The external encounter rate $E_{ext.i}(w)$ describes the encounter of food that
+is not explicitly modelled by mizer.
 The overall prefactor $\gamma_i(w)$ sets the predation power of the predator. It
 could be interpreted as a search volume. It is set by `setSearchVolume()`. By 
 default it is assumed to scale allometrically as
@@ -242,7 +236,6 @@ $$\phi_i(w, w_p)=\tilde{\phi}_i(w/w_p).$$
 This is assumed by default but can be overruled.
 The default for the predation kernel is the truncated log-normal function
 $$
-  \label{eq:4}
   \tilde{\phi}_i(x) = \begin{cases}
   \exp \left[ \dfrac{-(\ln(x / \beta_i))^2}{2\sigma_i^2} \right]
   &\text{ if }x\in\left[0,\beta_i\exp(3\sigma_i)\right]\\
@@ -260,7 +253,7 @@ $$
   \phi_i\left(w[a],w[k]\right) w[k]\, dw[k].
 $$
 In the case of a predation kernel that depends on $w/w_p$ only, this becomes
-a convolution sum and can be evaluated efficiently via fast Fourier transform.
+a convolution sum and can be [evaluated efficiently via fast Fourier transform](fft.html).
 
 </details>
 
@@ -274,7 +267,6 @@ response type II to represent satiation. This determines the
 encountered food that is consumed. The feeding level is given by
 
 $$
-  \label{eq:f}
   f_i(w) = \frac{E_i(w)}{E_i(w) + h_i(w)},
 $$
 
@@ -283,11 +275,11 @@ where $h_i(w)$ is the maximum consumption rate. This is changed with
 $h_i(w) = h_i\, w^n.$
 The feeding level is calculated with the function `getFeedingLevel()`.
 
-The rate at which food is consumed is then 
+The rate at which food is consumed and then also absorbed is
 $$
-(1-f_i(w))E_{i}(w)=f_i(w)\, h_i(w).
+A_i(w)= \alpha_i(1-f_i(w))E_{i}(w)=\alpha_i\,f_i(w)\, h_i(w),
 $$
-Furthermore only a proportion $\alpha_i$ of the consumed food is absorbed.
+where $\alpha_i$ is the proportion of the consumed food that is absorbed.
 
 ## Diffusion
 
@@ -295,7 +287,100 @@ The rate at which an individual fish consumes prey biomass is somewhat random.
 Sometimes fish are lucky and encounter many large fish, sometimes they are 
 unlucky. There are may unknown environmental effects that contribute to this
 randomness and it is impossible to model them in detail. However there is one
-cause of randomness that mizer models: 
+cause of randomness that mizer can model (since version 3.0): the variability
+in prey size. As was derived in [@datta2010], this leads to a diffusion rate
+$$
+D_{pred.i}(w) = (1-f_i(w))\,\gamma_i(w) \int \left(\sum_{j} \theta_{ij} N_j(w_p) +
+   \theta_{iR} N_R(w_p) \right)\phi_i(w/w_p)(\alpha_i\,w_p)^2\,dw_p.
+$$
+This has exactly the same form as the rate at which prey biomass is absorbed, as described above,
+except that in the expression for the diffusion rate the factor $\alpha_i\,w_p$
+is squared.
+
+
+
+This diffusion rate captures only the randomness in the size of encountered prey. There will be many other sources of stochasticity that we do not model explicitly in mizer. They should be added as external diffusion $D_{ext.i}$ (that you can set with `ext_diffusion()`), so $$D_i(w)=D_{pred.i}(w)+D_{ext.i}(w).$$
+This is calculated with `getDiffusion()`.
+
+<details>
+
+The increase $\alpha\,w_p$ in predator mass is typically only a small proportion of the predator mass because the preferred prey are typically much smaller than the predator and also $\alpha$ is smaller than $1$. Because this factor is squared in the expression for $D_{pred.i}(w)$ it might be expected that that rate is small. However it is worth testing this intuition. We will do this by determining that diffusion rate in a model with allometric encounter and mortality rates.
+
+Let us assume that the prey abundance is given by a power law: $N_c(w)=N_0w^{-\lambda}$ and that the predation kernel is
+$$
+\phi(w/w_p) = \exp\left(-\frac{\log(w/w_p/\beta)^2}{2\sigma^2}\right).
+$$ {#eq-phi}
+
+and hence the integral in the expression for the assimilation rate $A(w)$ becomes
+$$
+\begin{split}
+I_A&:=\int N_c(w_p)\phi(w/w_p)\alpha\,w_p\,dw_p\\
+&=\alpha\int w_p^{1-\lambda}\exp\left(-\frac{\log(w/w_p/\beta)^2}{2\sigma^2}\right)dw_p.
+\end{split}
+$$ {#eq-Ig}
+This integral can be evaluated most easily by changing integration variable to $x=\log(w_p/w_0)$ for an arbitrary reference weight $w_0$ and then recognising the resulting integral
+$$
+I_A=\alpha\, w_0^{2-\lambda}\int e^{(2-\lambda)x}\exp\left(-\frac{(x-\log(w/w_0)+\log(\beta))^2}{2\sigma^2}\right)dx
+$$ {#eq-Ig2}
+as a Gaussian integral. Using the general result that
+$$
+\int e^{ax}\exp\left(-\frac{(x-\mu)^2}{2\sigma^2}\right)dx = \sqrt{\frac{2\pi}{\sigma^2}}\exp\left(a\mu+\frac{a^2\sigma^2}{2}\right)
+$$ {#eq-gaussian}
+with $a = 2-\lambda$ and $\mu = \log(w/w_0)-\log(\beta)$ we find that 
+$$
+\begin{split}
+I_A&=
+\alpha\, w_0^{2-\lambda}\sqrt{\frac{2\pi}{\sigma^2}}\exp\left((2-\lambda)(\log(w/w_0)-\log(\beta))+\frac{(2-\lambda)^2\sigma^2}{2}\right)\\
+&=\alpha w^{2-\lambda}\sqrt{\frac{2\pi}{\sigma^2}}\beta^{\lambda - 2}\exp\left(\frac{(2-\lambda)^2\sigma^2}{2}\right)
+\end{split}
+$$ {#eq-Ig3}
+
+Assuming an allometric search volume $\gamma(w)=\gamma w^q$ with an exponent of $q = n - 2 + \lambda$ we obtain
+$$
+A(w) = (1-f(w))\,\gamma  \alpha \sqrt{\frac{2\pi}{\sigma^2}}\beta^{\lambda - 2}\exp\left(\frac{(2-\lambda)^2\sigma^2}{2}\right) w^{n}.
+$$ {#eq-gw2}
+
+We can evaluate the diffusion rate $D(w)$ in the same manner. The extra factor of $w_p$ changes $a$ from $2-\lambda$ to $3-\lambda$ and we obtain
+$$
+D_{pred}(w) = (1-f(w))\gamma \alpha^2 \sqrt{\frac{2\pi}{\sigma^2}}\beta^{\lambda - 3}\exp\left(\frac{(3-\lambda)^2\sigma^2}{2}\right) w^{n+1}.
+$$ {#eq-dw2}
+Comparing this to the expression @eq-gw2 for $A(w)$ we find that
+$$
+D(w) = A(w)w\frac{\alpha}{\beta}\exp\left(\frac{(5-2\lambda)\sigma^2}{2}\right).
+$$ {#eq-dw3}
+
+To get a feel for the typical magnitude of the factor let's consider concrete values 
+$$
+f=0.6, \qquad\alpha = 0.8, \qquad\beta = 10, \qquad\sigma = 2, \qquad\lambda = 2.
+$$ {#eq-params}
+```{r}
+#| include: false
+feeding_coeff <- 0.6
+alpha <- 0.8
+beta <- 10
+sigma <- 2
+lambda <- 2
+factor <- alpha / beta * exp((5 - 2 * lambda) * sigma^2 / 2)
+```
+
+Then
+$$
+D(w) \approx `r round(factor, digits = 2)` A(w)w.
+$$ {#eq-dw4}
+
+```{r}
+#| include: false
+sigma <- 1
+beta <- 100
+factor_1 <- alpha / beta * exp((5 - 2 * lambda) * sigma^2 / 2)
+```
+
+However we see that the value of $D(w)/A(w)$ is strongly influenced by the location and width of the feeding kernel. It decreases with increasing $\beta$ and decreasing $\sigma$ If we choose $\beta = 100$ and $\sigma = 1$ then $D(w)\approx `r round(factor_1, digits = 2)` A(w)w$. This relative decrease in the diffusion rate with increasing $\beta$ and decreasing $\sigma$ may explains the result from [@datta2010a] about how the stability of the system depends on these parameters.
+
+For an illustration of the effect of the diffusion on the solution of the model see the article
+[Cohort dynamics and diffusion](cohort_dynamics_and_diffusion.html)
+
+</details>
 
 ## Metabolic losses
 
@@ -323,7 +408,6 @@ $w_{m.i}$ of maturation to one at the maximum weight $w_{max.i}$, where
 all available energy is used for reproduction. This function is changed with
 `setReproduction()`. Mizer provides a default form for the function which you
 can however overrule.
-
 
 
 ## Growth

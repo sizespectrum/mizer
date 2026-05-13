@@ -1059,8 +1059,6 @@ versions of mizer
 
 ### Technical articles
 
-- [Incorporating predation
-  diffusion](https://sizespectrum.org/mizer/articles/predation_diffusion.md):
 - [Cohort dynamics and
   diffusion](https://sizespectrum.org/mizer/articles/cohort_dynamics_and_diffusion.md):
 - [The Numerical Scheme used in

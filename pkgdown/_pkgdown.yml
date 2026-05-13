@@ -78,7 +78,6 @@ articles:
 - title: Technical articles
   navbar: Technical articles
   contents:
-  - predation_diffusion
   - cohort_dynamics_and_diffusion
   - numerical_details
   - fft

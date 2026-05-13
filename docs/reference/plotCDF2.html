@@ -46,7 +46,6 @@ linetype identifies the object."><meta property="og:image" content="https://size
     <li><a class="dropdown-item" href="../articles/creating-extension-packages.html">Creating a mizer extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
-    <li><a class="dropdown-item" href="../articles/predation_diffusion.html">Incorporating predation diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
@@ -98,6 +97,7 @@ linetype identifies the object.</p>
 <span>  normalise <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  log_x <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  log <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  resource <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -110,6 +110,7 @@ linetype identifies the object.</p>
 <span>  normalise <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  log_x <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  log <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  resource <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -151,6 +152,11 @@ integral.</p></dd>
 <dd><p>Character string specifying whether the x-axis should use a log10
 scale, in the same form as the base <code><a href="plot.html">plot()</a></code> argument. For <code><a href="plotCDF.html">plotCDF()</a></code>,
 only <code>"x"</code> and <code>""</code> are supported. If supplied, this overrides <code>log_x</code>.</p></dd>
+
+
+<dt id="arg-resource">resource<a class="anchor" aria-label="anchor" href="#arg-resource"></a></dt>
+<dd><p>A boolean value that determines whether resource is included.
+Default is FALSE.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
