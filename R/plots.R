@@ -983,6 +983,8 @@ plot_spectra <- function(params, n, n_pp,
 #' ends at 1.
 #'
 #' @inheritParams plotSpectra
+#' @param resource A boolean value that determines whether resource is included.
+#'   Default is FALSE.
 #' @param normalise If `TRUE` (default), plot the cumulative proportion. If
 #'   `FALSE`, plot the cumulative abundance, biomass, or other unnormalised
 #'   integral.
@@ -1013,7 +1015,7 @@ plotCDF.MizerSim <- function(object, species = NULL,
                              geometric_mean = FALSE,
                              wlim = c(NA, NA), ylim = c(NA, NA),
                              power = 1, biomass = TRUE,
-                             total = FALSE, resource = TRUE,
+                             total = FALSE, resource = FALSE,
                              background = TRUE,
                              highlight = NULL, normalise = TRUE,
                              log_x = TRUE, log = NULL,
@@ -1048,7 +1050,7 @@ plotCDF.MizerSim <- function(object, species = NULL,
 plotCDF.MizerParams <- function(object, species = NULL,
                                 wlim = c(NA, NA), ylim = c(NA, NA),
                                 power = 1, biomass = TRUE,
-                                total = FALSE, resource = TRUE,
+                                total = FALSE, resource = FALSE,
                                 background = TRUE,
                                 highlight = NULL, normalise = TRUE,
                                 log_x = TRUE, log = NULL,
@@ -1167,7 +1169,7 @@ parsePlotCDFLog <- function(log, log_x) {
 #' }
 plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
                      power = 1, normalise = TRUE, log_x = TRUE, log = NULL,
-                     ...) {
+                     resource = FALSE, ...) {
     log_x <- parsePlotCDFLog(log, log_x)
     assert_that(is.number(power), is.flag(normalise))
 
@@ -1335,7 +1337,7 @@ plotlyCDF <- function(object, species = NULL,
                       time_range, geometric_mean = FALSE,
                       wlim = c(NA, NA), ylim = c(NA, NA),
                       power = 1, biomass = TRUE,
-                      total = FALSE, resource = TRUE,
+                      total = FALSE, resource = FALSE,
                       background = TRUE,
                       highlight = NULL, normalise = TRUE,
                       log_x = TRUE, log = NULL, ...) {
@@ -1361,7 +1363,7 @@ plotlyCDF <- function(object, species = NULL,
 #' @export
 plotlyCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
                        power = 1, normalise = TRUE,
-                       log_x = TRUE, log = NULL, ...) {
+                       log_x = TRUE, log = NULL, resource = FALSE, ...) {
     args <- list(object1 = object1, object2 = object2,
                  name1 = name1, name2 = name2,
                  normalise = normalise, log_x = log_x, log = log, ...)
