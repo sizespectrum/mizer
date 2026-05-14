@@ -332,6 +332,8 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
             p@initial_n[i, ] <- p@initial_n[i, ] *
                 p@resource_params$kappa * p@w[idx]^(-p@resource_params$lambda) /
                 p@initial_n[i, idx] / 100
+            # TODO: remove next line after release of mizer 3.0
+            p@A[i] <- sum(p@initial_n[i, ] * p@w * p@dw * p@maturity[i, ])
             p@species_params$is_background[i] <- FALSE
         }
 

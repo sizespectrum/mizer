@@ -479,9 +479,8 @@ issued if the recalculated values would differ from the stored ones.
 
 \section{Setting external diffusion rate}{
 
-The external diffusion rate allows you to impose additional diffusion of
-abundance density over body size beyond the predation-driven diffusion
-computed by \code{\link[=mizerDiffusion]{mizerDiffusion()}}.
+The external diffusion rate allows you to impose additional diffusion
+beyond the predation-driven diffusion that can be internally modelled by mizer.
 
 The \code{ext_diffusion} argument allows you to specify a diffusion rate that
 depends on species and body size.
