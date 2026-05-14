@@ -102,7 +102,7 @@ projectDiffusion.MizerParams <- function(params, n, n_pp, n_other, t = 0,
 
     if (missing(feeding_level)) {
         feeding_level <- getFeedingLevel(params, n = n, n_pp = n_pp,
-                                         n_other = n_other, t = t)
+                                         n_other = n_other, time_range = t)
     }
 
     # idx_sp are the indices into w_full that correspond to consumer sizes w

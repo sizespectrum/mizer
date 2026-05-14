@@ -101,6 +101,8 @@ to logarithmic size bins. Only applies to \code{MizerSim}.}
 \item{resource}{A boolean value that determines whether resource is included.
 If \code{TRUE}, the resource spectrum is plotted as an additional trace called
 \code{"Resource"}. Default is \code{TRUE}. Only applies to \code{MizerSim}.}
+
+\item{sim}{A \code{MizerSim} object.}
 }
 \value{
 A plotly object with one animated line trace per plotted group. Use

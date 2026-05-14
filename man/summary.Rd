@@ -7,8 +7,6 @@
 \alias{summary.ArrayTimeBySpeciesBySize}
 \title{Summarise mizer objects}
 \usage{
-\method{summary}{MizerParams}(object, ...)
-\method{summary}{MizerSim}(object, ...)
 \method{summary}{ArraySpeciesBySize}(object, ...)
 \method{summary}{ArrayTimeBySpecies}(object, ...)
 \method{summary}{ArrayTimeBySpeciesBySize}(object, ...)

@@ -248,8 +248,17 @@ ArrayTimeBySpeciesBySize_slice <- function(x, time = NULL) {
 #' \donttest{
 #' ggplotly(getFMort(NS_sim))
 #' }
-ggplotly.ArrayTimeBySpeciesBySize <- function(x, ...) {
-    ggplotly(plot(x, ...))
+ggplotly.ArrayTimeBySpeciesBySize <- function(p = ggplot2::last_plot(),
+                                              width = NULL, height = NULL,
+                                              tooltip = "all",
+                                              dynamicTicks = FALSE,
+                                              layerData = 1,
+                                              originalData = TRUE,
+                                              source = "A", ...) {
+    plotly::ggplotly(plot(p, ...), width = width, height = height,
+                     tooltip = tooltip, dynamicTicks = dynamicTicks,
+                     layerData = layerData, originalData = originalData,
+                     source = source)
 }
 
 #' @rdname animate
@@ -315,8 +324,8 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
     # Compute total across ALL selected species (including background) before
     # any background filtering, matching the behaviour of plot.ArraySpeciesBySize
     if (total) {
-        total_sums <- aggregate(value ~ time + w, data = df, FUN = sum,
-                                na.rm = TRUE)
+        total_sums <- stats::aggregate(value ~ time + w, data = df, FUN = sum,
+                                       na.rm = TRUE)
         total_sums$Species <- "Total"
     }
 

@@ -33,6 +33,9 @@
 ^vignettes/trait_model.Rmd$
 ^vignettes/working_with_git.Rmd$
 ^vignettes/mizer_vignette.pdf$
+^vignettes/cheatsheet-analysis-and-plotting\.Rmd$
+^vignettes/numerical_details\.qmd$
+^vignettes/\.quarto$
 ^vignettes/images$
 ^vignettes/Lysekil$
 ^vignettes/inter.csv$
@@ -45,6 +48,7 @@
 ^vignettes/mizer.Rmd
 ^doc$
 ^Meta$
+^Rplots\.pdf$
 ^\.positai$
 ^\.claude$
 ^CLAUDE\.md$

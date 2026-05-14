@@ -43,6 +43,7 @@ Depends:
     R (>= 3.5)
 Suggests:
     testthat (>= 3.0.0),
+    withr,
     vdiffr,
     diffviewer,
     roxygen2,

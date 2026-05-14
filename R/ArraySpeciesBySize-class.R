@@ -610,13 +610,26 @@ prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,
 
 #' @rdname plot
 #' @return `ggplotly()` returns a plotly object.
+#' @param p An `ArraySpeciesBySize`, `ArrayTimeBySpecies` or
+#'   `ArrayTimeBySpeciesBySize` object passed to `ggplotly()`.
+#' @param width,height,tooltip,dynamicTicks,layerData,originalData,source
+#'   Arguments passed to [plotly::ggplotly()].
 #' @examples
 #' \donttest{
 #' ggplotly(getEncounter(NS_params))
 #' }
 #' @exportS3Method plotly::ggplotly
-ggplotly.ArraySpeciesBySize <- function(x, ...) {
-    ggplotly(plot(x, ...))
+ggplotly.ArraySpeciesBySize <- function(p = ggplot2::last_plot(),
+                                        width = NULL, height = NULL,
+                                        tooltip = "all",
+                                        dynamicTicks = FALSE,
+                                        layerData = 1,
+                                        originalData = TRUE,
+                                        source = "A", ...) {
+    plotly::ggplotly(plot(p, ...), width = width, height = height,
+                     tooltip = tooltip, dynamicTicks = dynamicTicks,
+                     layerData = layerData, originalData = originalData,
+                     source = source)
 }
 
 #' @export

@@ -1093,9 +1093,10 @@ prepare_spectra_cdf_data <- function(plot_dat, params, normalise = TRUE) {
     params <- validParams(params)
     plot_dat <- plot_dat[order(plot_dat$Species, plot_dat$w), ]
     plot_dat$value <- plot_dat$value * spectra_bin_width(plot_dat$w, params)
-    plot_dat$value <- ave(plot_dat$value, plot_dat$Species, FUN = cumsum)
+    plot_dat$value <- stats::ave(plot_dat$value, plot_dat$Species,
+                                 FUN = cumsum)
     if (normalise) {
-        totals <- ave(plot_dat$value, plot_dat$Species, FUN = max)
+        totals <- stats::ave(plot_dat$value, plot_dat$Species, FUN = max)
         plot_dat$value <- plot_dat$value / totals
     }
     plot_dat

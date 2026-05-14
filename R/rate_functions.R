@@ -122,9 +122,10 @@ getEncounter.MizerParams <- function(params, n = initialN(params),
 }
 
 #' @export
-getEncounter.MizerSim <- function(params, n, n_pp, n_other,
-                                  time_range, drop = FALSE, ...) {
+getEncounter.MizerSim <- function(params, n, n_pp, n_other, t, ...,
+                                  time_range, drop = FALSE) {
     sim <- params
+    if (missing(time_range) && !missing(t)) time_range <- t
     get_species_size_rate_from_sim(
         sim, time_range, drop,
         function(slice) {
@@ -427,9 +428,10 @@ getEReproAndGrowth.MizerParams <- function(params, n = initialN(params),
 }
 
 #' @export
-getEReproAndGrowth.MizerSim <- function(params, n, n_pp, n_other,
-                                        time_range, drop = FALSE, ...) {
+getEReproAndGrowth.MizerSim <- function(params, n, n_pp, n_other, t, ...,
+                                        time_range, drop = FALSE) {
     sim <- params
+    if (missing(time_range) && !missing(t)) time_range <- t
     get_species_size_rate_from_sim(
         sim, time_range, drop,
         function(slice) {
@@ -500,9 +502,10 @@ getPredRate.MizerParams <- function(params, n = initialN(params),
 }
 
 #' @export
-getPredRate.MizerSim <- function(params, n, n_pp, n_other,
-                                 time_range, drop = FALSE, ...) {
+getPredRate.MizerSim <- function(params, n, n_pp, n_other, t, ...,
+                                 time_range, drop = FALSE) {
     sim <- params
+    if (missing(time_range) && !missing(t)) time_range <- t
     get_species_size_rate_from_sim(
         sim, time_range, drop,
         function(slice) {
@@ -1005,9 +1008,10 @@ getMort.MizerParams <- function(params,
 }
 
 #' @export
-getMort.MizerSim <- function(params, n, n_pp, n_other, effort,
-                             time_range, drop = TRUE, ...) {
+getMort.MizerSim <- function(params, n, n_pp, n_other, effort, t, ...,
+                             time_range, drop = TRUE) {
     sim <- params
+    if (missing(time_range) && !missing(t)) time_range <- t
     get_species_size_rate_from_sim(
         sim, time_range, drop,
         function(slice) {
@@ -1084,9 +1088,10 @@ getERepro.MizerParams <- function(params, n = initialN(params),
 }
 
 #' @export
-getERepro.MizerSim <- function(params, n, n_pp, n_other,
-                               time_range, drop = FALSE, ...) {
+getERepro.MizerSim <- function(params, n, n_pp, n_other, t, ...,
+                               time_range, drop = FALSE) {
     sim <- params
+    if (missing(time_range) && !missing(t)) time_range <- t
     get_species_size_rate_from_sim(
         sim, time_range, drop,
         function(slice) {
@@ -1160,9 +1165,10 @@ getEGrowth.MizerParams <- function(params, n = initialN(params),
 }
 
 #' @export
-getEGrowth.MizerSim <- function(params, n, n_pp, n_other,
-                                time_range, drop = FALSE, ...) {
+getEGrowth.MizerSim <- function(params, n, n_pp, n_other, t, ...,
+                                time_range, drop = FALSE) {
     sim <- params
+    if (missing(time_range) && !missing(t)) time_range <- t
     get_species_size_rate_from_sim(
         sim, time_range, drop,
         function(slice) {
@@ -1404,9 +1410,10 @@ getFlux.MizerParams <- function(params, n = initialN(params),
 }
 
 #' @export
-getFlux.MizerSim <- function(params, n, n_pp, n_other,
-                             time_range, drop = FALSE, ...) {
+getFlux.MizerSim <- function(params, n, n_pp, n_other, t, ...,
+                             time_range, drop = FALSE) {
     sim <- params
+    if (missing(time_range) && !missing(t)) time_range <- t
     get_species_size_rate_from_sim(
         sim, time_range, drop,
         function(slice) {

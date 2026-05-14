@@ -245,5 +245,6 @@ plotly_axis_range <- function(values, limits, log_axis) {
 }
 
 #' @rdname animate
+#' @param sim A `MizerSim` object.
 #' @export
 animateSpectra <- function(sim, ...) animate(sim, ...)

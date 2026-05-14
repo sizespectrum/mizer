@@ -28,7 +28,17 @@
   ...
 )
 
-\method{ggplotly}{ArraySpeciesBySize}(x, ...)
+\method{ggplotly}{ArraySpeciesBySize}(
+  p = ggplot2::last_plot(),
+  width = NULL,
+  height = NULL,
+  tooltip = "all",
+  dynamicTicks = FALSE,
+  layerData = 1,
+  originalData = TRUE,
+  source = "A",
+  ...
+)
 
 \method{plot}{ArrayTimeBySpecies}(
   x,
@@ -47,7 +57,17 @@
   ...
 )
 
-\method{ggplotly}{ArrayTimeBySpecies}(x, ...)
+\method{ggplotly}{ArrayTimeBySpecies}(
+  p = ggplot2::last_plot(),
+  width = NULL,
+  height = NULL,
+  tooltip = "all",
+  dynamicTicks = FALSE,
+  layerData = 1,
+  originalData = TRUE,
+  source = "A",
+  ...
+)
 
 \method{plot}{ArrayTimeBySpeciesBySize}(
   x,
@@ -67,7 +87,17 @@
   ...
 )
 
-\method{ggplotly}{ArrayTimeBySpeciesBySize}(x, ...)
+\method{ggplotly}{ArrayTimeBySpeciesBySize}(
+  p = ggplot2::last_plot(),
+  width = NULL,
+  height = NULL,
+  tooltip = "all",
+  dynamicTicks = FALSE,
+  layerData = 1,
+  originalData = TRUE,
+  source = "A",
+  ...
+)
 }
 \arguments{
 \item{x}{An \code{ArraySpeciesBySize} or \code{ArrayTimeBySpecies} object.}
@@ -110,6 +140,11 @@ Default is \code{TRUE}.}
 \item{y_ticks}{The approximate number of ticks desired on the y axis.}
 
 \item{...}{Further arguments (currently unused).}
+
+\item{p}{An \code{ArraySpeciesBySize}, \code{ArrayTimeBySpecies} or
+\code{ArrayTimeBySpeciesBySize} object passed to \code{ggplotly()}.}
+
+\item{width, height, tooltip, dynamicTicks, layerData, originalData, source}{Arguments passed to \code{\link[plotly:ggplotly]{plotly::ggplotly()}}.}
 
 \item{start_time}{The first time to be plotted. Default (\code{NULL}) is the
 beginning of the time series. Only applies to \code{ArrayTimeBySpecies}.}
