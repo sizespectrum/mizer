@@ -328,4 +328,27 @@ modelling is to get away from single-species thinking.
 <!-- up and exploring models. Here is an example of an online app to  -->
 <!-- [explore the effect of increased gear selectivity](https://mizer.shinyapps.io/selectivity/).  -->
 
+## Using AI coding agents with mizer
+
+The [mizerAgents](https://sizespectrum.org/mizerAgents/) package makes it easy
+to set up AI coding agents — such as Claude Code, GitHub Copilot, Codex, or
+Gemini — to work effectively with mizer. It bundles a curated mizer reference
+card and complete API documentation optimised for large language models, and
+deploys them into your mizer project with a single function call.
+
+First install the package from GitHub:
+
+```{r, eval=FALSE}
+pak::pak("sizespectrum/mizerAgents")
+```
+
+Then, from the root of your mizer project, run:
+
+```{r, eval=FALSE}
+mizerAgents::setup_mizer_agent()
+```
+
+See [Using AI Agents with Mizer](https://sizespectrum.org/mizerAgents/articles/mizerAgents.html)
+for more detail.
+
 ## References

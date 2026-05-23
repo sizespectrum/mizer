@@ -444,6 +444,24 @@ thinking.</p>
 <!-- [explore the effect of increased gear selectivity](https://mizer.shinyapps.io/selectivity/).  -->
 </div>
 </div>
+<div class="section level2">
+<h2 id="using-ai-coding-agents-with-mizer">Using AI coding agents with mizer<a class="anchor" aria-label="anchor" href="#using-ai-coding-agents-with-mizer"></a>
+</h2>
+<p>The <a href="https://sizespectrum.org/mizerAgents/">mizerAgents</a>
+package makes it easy to set up AI coding agents — such as Claude Code,
+GitHub Copilot, Codex, or Gemini — to work effectively with mizer. It
+bundles a curated mizer reference card and complete API documentation
+optimised for large language models, and deploys them into your mizer
+project with a single function call.</p>
+<p>First install the package from GitHub:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"sizespectrum/mizerAgents"</span><span class="op">)</span></span></code></pre></div>
+<p>Then, from the root of your mizer project, run:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">mizerAgents</span><span class="fu">::</span><span class="fu"><a href="https://sizespectrum.github.io/mizerAgents/reference/setup_mizer_agent.html" class="external-link">setup_mizer_agent</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>See <a href="https://sizespectrum.org/mizerAgents/articles/mizerAgents.html">Using
+AI Agents with Mizer</a> for more detail.</p>
+</div>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
