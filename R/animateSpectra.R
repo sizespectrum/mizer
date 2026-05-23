@@ -93,8 +93,8 @@ animate <- function(x, ...) UseMethod("animate")
 #' @export
 animate.MizerSim <- function(x, species = NULL, time_range = NULL,
                               log_x = TRUE, log_y = TRUE,
-                              wlim = c(NA, NA), ylim = c(NA, NA),
-                              llim = c(NA, NA),
+                              wlim = c(NA, NA), llim = c(NA, NA),
+                              ylim = c(NA, NA),
                               size_axis = c("w", "l"),
                               power = 1, total = FALSE, resource = TRUE,
                               background = TRUE,
@@ -164,8 +164,8 @@ animate.MizerSim <- function(x, species = NULL, time_range = NULL,
     }
     nf <- mutate(nf, value = value * w^power)
 
-    animate_plotly(nf, sim@params, log_x, log_y, y_label, wlim, ylim,
-                   llim = llim,
+    animate_plotly(nf, sim@params, log_x, log_y, y_label, wlim, llim,
+                   ylim,
                    size_axis = size_axis,
                    frame_duration = frame_duration,
                    transition_duration = transition_duration,
@@ -178,8 +178,8 @@ animate.MizerSim <- function(x, species = NULL, time_range = NULL,
 # by individual Species within each legend group — so background species always
 # appear together and share a single legend entry.
 animate_plotly <- function(df, params, log_x, log_y, y_label,
-                           wlim = c(NA, NA), ylim = c(NA, NA),
-                           llim = c(NA, NA),
+                           wlim = c(NA, NA), llim = c(NA, NA),
+                           ylim = c(NA, NA),
                            size_axis = "w",
                            frame_duration = 500, transition_duration = 500,
                            easing = "linear") {

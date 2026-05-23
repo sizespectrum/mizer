@@ -901,8 +901,8 @@ plotSpectra <- function(object, ...) {
 plotSpectra.MizerSim <- function(object, species = NULL,
                         time_range,
                         geometric_mean = FALSE,
-                        wlim = c(NA, NA), ylim = c(NA, NA),
-                        llim = c(NA, NA),
+                        wlim = c(NA, NA), llim = c(NA, NA),
+                        ylim = c(NA, NA),
                         power = 1, biomass = TRUE,
                         total = FALSE, resource = TRUE,
                         background = TRUE,
@@ -953,8 +953,8 @@ plotSpectra.MizerSim <- function(object, species = NULL,
 #' @rdname plotSpectra
 #' @export
 plotSpectra.MizerParams <- function(object, species = NULL,
-                        wlim = c(NA, NA), ylim = c(NA, NA),
-                        llim = c(NA, NA),
+                        wlim = c(NA, NA), llim = c(NA, NA),
+                        ylim = c(NA, NA),
                         power = 1, biomass = TRUE,
                         total = FALSE, resource = TRUE,
                         background = TRUE,
@@ -993,7 +993,7 @@ plotSpectra.MizerParams <- function(object, species = NULL,
 
 
 plot_spectra <- function(params, n, n_pp,
-                         species, wlim, ylim, llim, power,
+                         species, wlim, llim, ylim, power,
                          total, resource, background,
                          highlight, log_x, log_y, size_axis, return_data) {
     params <- validParams(params)
@@ -1122,8 +1122,8 @@ plotCDF <- function(object, ...) {
 plotCDF.MizerSim <- function(object, species = NULL,
                              time_range,
                              geometric_mean = FALSE,
-                             wlim = c(NA, NA), ylim = c(NA, NA),
-                             llim = c(NA, NA),
+                             wlim = c(NA, NA), llim = c(NA, NA),
+                             ylim = c(NA, NA),
                              power = 1, biomass = TRUE,
                              total = FALSE, resource = FALSE,
                              background = TRUE,
@@ -1145,7 +1145,7 @@ plotCDF.MizerSim <- function(object, species = NULL,
 
     args <- list(object = object, species = species,
                  geometric_mean = geometric_mean,
-                 wlim = wlim, ylim = c(NA, NA), llim = llim,
+                 wlim = wlim, llim = llim, ylim = c(NA, NA),
                  power = power, total = total,
                  resource = resource, background = background,
                  size_axis = "w",
@@ -1163,8 +1163,8 @@ plotCDF.MizerSim <- function(object, species = NULL,
 #' @rdname plotCDF
 #' @export
 plotCDF.MizerParams <- function(object, species = NULL,
-                                wlim = c(NA, NA), ylim = c(NA, NA),
-                                llim = c(NA, NA),
+                                wlim = c(NA, NA), llim = c(NA, NA),
+                                ylim = c(NA, NA),
                                 power = 1, biomass = TRUE,
                                 total = FALSE, resource = FALSE,
                                 background = TRUE,
@@ -1197,8 +1197,8 @@ plotCDF.MizerParams <- function(object, species = NULL,
              return_data = return_data)
 }
 
-plot_cdf <- function(plot_dat, params, power, normalise, log_x, wlim, ylim,
-                     llim, highlight, size_axis, return_data) {
+plot_cdf <- function(plot_dat, params, power, normalise, log_x, wlim, llim,
+                     ylim, highlight, size_axis, return_data) {
     size_axis <- plot_size_axis(size_axis)
     if (identical(size_axis, "l")) {
         plot_dat_l <- convert_plot_size_axis(plot_dat, params, size_axis,
@@ -1495,13 +1495,13 @@ plotlySpectraRelative <- function(object1, object2, log_x = TRUE,
 #' @export
 plotlyCDF <- function(object, species = NULL,
                       time_range, geometric_mean = FALSE,
-                      wlim = c(NA, NA), ylim = c(NA, NA),
+                      wlim = c(NA, NA), llim = c(NA, NA),
+                      ylim = c(NA, NA),
                       power = 1, biomass = TRUE,
                       total = FALSE, resource = FALSE,
                       background = TRUE,
                       highlight = NULL, normalise = TRUE,
                       log_x = TRUE, log = NULL,
-                      llim = c(NA, NA),
                       size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
     args <- list(object = object, species = species,
@@ -1548,12 +1548,13 @@ plotlyCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
 #' @export
 plotlySpectra <- function(object, species = NULL,
                         time_range, geometric_mean = FALSE,
-                        wlim = c(NA, NA), ylim = c(NA, NA),
+                        wlim = c(NA, NA), llim = c(NA, NA),
+                        ylim = c(NA, NA),
                         power = 1, biomass = TRUE,
                         total = FALSE, resource = TRUE,
                         background = TRUE,
                         highlight = NULL, log_x = TRUE, log_y = TRUE,
-                        log = NULL, llim = c(NA, NA),
+                        log = NULL,
                         size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
     argg <- as.list(environment())

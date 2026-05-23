@@ -17,8 +17,8 @@ plotRelative(x, y, ...)
   all.sizes = FALSE,
   log_x = TRUE,
   wlim = c(NA, NA),
-  ylim = c(NA, NA),
   llim = c(NA, NA),
+  ylim = c(NA, NA),
   size_axis = c("w", "l"),
   total = FALSE,
   background = TRUE,
@@ -46,8 +46,8 @@ plotRelative(x, y, ...)
   all.sizes = FALSE,
   log_x = TRUE,
   wlim = c(NA, NA),
-  ylim = c(NA, NA),
   llim = c(NA, NA),
+  ylim = c(NA, NA),
   size_axis = c("w", "l"),
   total = FALSE,
   background = TRUE,
@@ -72,13 +72,13 @@ spectra and \code{FALSE} for time series.}
 for the weight (x) axis. Use \code{NA} to refer to the existing minimum or
 maximum. Only applies to \code{ArraySpeciesBySize}.}
 
-\item{ylim}{A numeric vector of length two providing lower and upper limits
-for the value (y) axis. Use \code{NA} to refer to the existing minimum or
-maximum.}
-
 \item{llim}{A numeric vector of length two providing lower and upper limits
 for the length (x) axis when \code{size_axis = "l"}. Use \code{NA} to refer to the
 existing minimum or maximum. Only applies to \code{ArraySpeciesBySize}.}
+
+\item{ylim}{A numeric vector of length two providing lower and upper limits
+for the value (y) axis. Use \code{NA} to refer to the existing minimum or
+maximum.}
 
 \item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
 (\code{"l"}), using the allometric weight-length relationship.}
