@@ -16,6 +16,7 @@ plotCDF(object, ...)
   geometric_mean = FALSE,
   wlim = c(NA, NA),
   ylim = c(NA, NA),
+  llim = c(NA, NA),
   power = 1,
   biomass = TRUE,
   total = FALSE,
@@ -35,6 +36,7 @@ plotCDF(object, ...)
   species = NULL,
   wlim = c(NA, NA),
   ylim = c(NA, NA),
+  llim = c(NA, NA),
   power = 1,
   biomass = TRUE,
   total = FALSE,
@@ -65,6 +67,7 @@ plotlyCDF(
   normalise = TRUE,
   log_x = TRUE,
   log = NULL,
+  llim = c(NA, NA),
   size_axis = c("w", "l"),
   ...
 )
@@ -100,6 +103,11 @@ axis limits are set accordingly.}
 for the y axis. Use NA to auto-scale to the data range. Values below 1e-20
 are always filtered out from the data regardless of \code{ylim[1]}. Data above
 \code{ylim[2]} is filtered and the upper axis limit is set accordingly.}
+
+\item{llim}{A numeric vector of length two providing lower and upper limits
+for the length axis when \code{size_axis = "l"}. Use \code{NA} to auto-scale to the
+data range. Data is filtered to this range and the axis limits are set
+accordingly.}
 
 \item{power}{The abundance is plotted as the number density times the weight
 raised to \code{power}. The default \code{power = 1} gives the biomass

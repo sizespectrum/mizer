@@ -138,6 +138,10 @@ individual variability in growth to be modelled.
   size axis instead of weight in grams, using the species' allometric
   weight-length relationship.
 
+- Size-based plots with a `size_axis` argument now accept `llim`, the
+  length-axis equivalent of `wlim`, for filtering and limiting plots when
+  `size_axis = "l"`.
+
 - The `plot()` and `summary()` methods for `MizerParams`, `MizerSim`, and the
   mizer array classes are now registered as S3 methods rather than S4 methods,
   so `plot()` and `summary()` remain plain S3 generics when mizer is loaded,

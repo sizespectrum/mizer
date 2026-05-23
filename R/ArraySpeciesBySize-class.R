@@ -159,6 +159,9 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #' @param wlim A numeric vector of length two providing lower and upper limits
 #'   for the weight (x) axis. Use `NA` to refer to the existing minimum or
 #'   maximum. Only applies to `ArraySpeciesBySize`.
+#' @param llim A numeric vector of length two providing lower and upper limits
+#'   for the length (x) axis when `size_axis = "l"`. Use `NA` to refer to the
+#'   existing minimum or maximum. Only applies to `ArraySpeciesBySize`.
 #' @param size_axis Whether to plot size as weight (`"w"`, default) or length
 #'   (`"l"`), using the allometric weight-length relationship.
 #' @param ylim A numeric vector of length two providing lower and upper limits
@@ -190,6 +193,7 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
                             return_data = FALSE, log_x = TRUE, log_y = FALSE,
                             log = NULL,
                             wlim = c(NA, NA), ylim = c(NA, NA),
+                            llim = c(NA, NA),
                             size_axis = c("w", "l"),
                             total = FALSE, background = TRUE,
                             y_ticks = 6, ...) {
@@ -198,6 +202,9 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
 
+    assert_that(length(wlim) == 2,
+                length(llim) == 2,
+                length(ylim) == 2)
     value_name <- attr(x, "value_name") %||% "Rate"
     units_str <- attr(x, "units")
     params <- attr(x, "params")
@@ -205,6 +212,9 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
         x, species = species, all.sizes = all.sizes, wlim = wlim,
         total = total, background = background)
     plot_dat <- convert_plot_size_axis(plot_dat, params, size_axis)
+    if (identical(size_axis, "l")) {
+        plot_dat <- filter_plot_length_limits(plot_dat, llim)
+    }
 
     if (return_data) return(plot_dat)
 
@@ -217,7 +227,7 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
                   ylab = y_label,
                   xtrans = if (log_x) "log10" else "identity",
                   ytrans = if (log_y) "log10" else "identity",
-                  xlim = plot_size_xlim(wlim, size_axis), ylim = ylim,
+                  xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
                   highlight = highlight, y_ticks = y_ticks,
                   legend_var = "Legend")
 }
@@ -267,6 +277,7 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
                                      species = NULL, all.sizes = FALSE,
                                      log_x = TRUE, log_y = FALSE, log = NULL,
                                      wlim = c(NA, NA), ylim = c(NA, NA),
+                                     llim = c(NA, NA),
                                      size_axis = c("w", "l"),
                                      total = FALSE, background = TRUE,
                                      y_ticks = 6, ...) {
@@ -276,6 +287,9 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
+    assert_that(length(wlim) == 2,
+                length(llim) == 2,
+                length(ylim) == 2)
 
     params <- attr(x, "params")
     y_label <- array_y_label(x, default = "Rate")
@@ -291,7 +305,8 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
                             xlab = plot_size_xlab(size_axis), ylab = y_label,
                             xtrans = if (log_x) "log10" else "identity",
                             ytrans = if (log_y) "log10" else "identity",
-                            xlim = plot_size_xlim(wlim, size_axis), ylim = ylim,
+                            xlim = plot_size_xlim(wlim, size_axis, llim),
+                            ylim = ylim,
                             y_ticks = y_ticks, legend_var = "Legend",
                             size_axis = size_axis)
 }
@@ -328,12 +343,16 @@ plotRelative.ArraySpeciesBySize <- function(x, y, species = NULL,
                                             log_x = TRUE,
                                             wlim = c(NA, NA),
                                             ylim = c(NA, NA),
+                                            llim = c(NA, NA),
                                             size_axis = c("w", "l"),
                                             total = FALSE,
                                             background = TRUE, ...) {
     check_plot2_compatible(x, y, "ArraySpeciesBySize")
     compare_array_metadata(x, y)
     size_axis <- plot_size_axis(size_axis)
+    assert_that(length(wlim) == 2,
+                length(llim) == 2,
+                length(ylim) == 2)
     params <- attr(x, "params")
     plot_dat1 <- prepare_ArraySpeciesBySize_plot_data(
         x, species = species, all.sizes = all.sizes, wlim = wlim,
@@ -345,7 +364,8 @@ plotRelative.ArraySpeciesBySize <- function(x, y, species = NULL,
     plotRelativeDataFrame(plot_dat1, plot_dat2, params,
                           xlab = plot_size_xlab(size_axis),
                           xtrans = if (log_x) "log10" else "identity",
-                          xlim = plot_size_xlim(wlim, size_axis), ylim = ylim,
+                          xlim = plot_size_xlim(wlim, size_axis, llim),
+                          ylim = ylim,
                           legend_var = "Legend", size_axis = size_axis)
 }
 
@@ -420,6 +440,7 @@ addPlot <- function(plot, x, ...) {
 addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
                                        all.sizes = FALSE,
                                        wlim = c(NA, NA),
+                                       llim = c(NA, NA),
                                        size_axis = c("w", "l"),
                                        total = FALSE,
                                        background = TRUE,
@@ -436,6 +457,8 @@ addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
                 alpha >= 0,
                 alpha <= 1)
     size_axis <- plot_size_axis(size_axis)
+    assert_that(length(wlim) == 2,
+                length(llim) == 2)
 
     plot <- deep_copy(plot)
     plot_dat <- prepare_ArraySpeciesBySize_plot_data(
@@ -443,6 +466,9 @@ addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
         total = total, background = background)
     params <- attr(x, "params")
     plot_dat <- convert_plot_size_axis(plot_dat, params, size_axis)
+    if (identical(size_axis, "l")) {
+        plot_dat <- filter_plot_length_limits(plot_dat, llim)
+    }
     x_var <- plot_size_x_var(size_axis)
     check_addPlot_compatible(plot, x_var = x_var, y_var = "value",
                              units = attr(x, "units"))

@@ -15,6 +15,8 @@ plotFMort(object, ...)
   time_range,
   all.sizes = FALSE,
   highlight = NULL,
+  wlim = c(NA, NA),
+  llim = c(NA, NA),
   size_axis = c("w", "l"),
   return_data = FALSE,
   ...
@@ -25,6 +27,8 @@ plotFMort(object, ...)
   species = NULL,
   all.sizes = FALSE,
   highlight = NULL,
+  wlim = c(NA, NA),
+  llim = c(NA, NA),
   size_axis = c("w", "l"),
   return_data = FALSE,
   ...
@@ -35,6 +39,8 @@ plotlyFMort(
   species = NULL,
   time_range,
   highlight = NULL,
+  wlim = c(NA, NA),
+  llim = c(NA, NA),
   size_axis = c("w", "l"),
   ...
 )
@@ -59,6 +65,18 @@ object.}
 outside a species' size range. Default FALSE.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
+
+\item{wlim}{A numeric vector of length two providing lower and upper limits
+for the w axis. Use NA for the default: the lower default is
+\code{min(params@w) / 100} when \code{resource = TRUE} (to show some resource below
+the fish grid) or \code{min(params@w)} when \code{resource = FALSE}; the upper
+default is \code{max(params@w_full)}. Data is filtered to this range and the
+axis limits are set accordingly.}
+
+\item{llim}{A numeric vector of length two providing lower and upper limits
+for the length axis when \code{size_axis = "l"}. Use \code{NA} to auto-scale to the
+data range. Data is filtered to this range and the axis limits are set
+accordingly.}
 
 \item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
 (\code{"l"}), using the allometric weight-length relationship.}

@@ -15,6 +15,7 @@ plotCDF2(
   log_x = TRUE,
   log = NULL,
   resource = FALSE,
+  llim = c(NA, NA),
   size_axis = c("w", "l"),
   ...
 )
@@ -29,6 +30,7 @@ plotlyCDF2(
   log_x = TRUE,
   log = NULL,
   resource = FALSE,
+  llim = c(NA, NA),
   size_axis = c("w", "l"),
   ...
 )
@@ -57,6 +59,11 @@ only \code{"x"} and \code{""} are supported. If supplied, this overrides \code{l
 
 \item{resource}{A boolean value that determines whether resource is included.
 Default is FALSE.}
+
+\item{llim}{A numeric vector of length two providing lower and upper limits
+for the length axis when \code{size_axis = "l"}. Use \code{NA} to auto-scale to the
+data range. Data is filtered to this range and the axis limits are set
+accordingly.}
 
 \item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
 (\code{"l"}), using the allometric weight-length relationship.}

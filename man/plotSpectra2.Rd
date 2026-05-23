@@ -14,6 +14,7 @@ plotSpectra2(
   log_x = TRUE,
   log_y = TRUE,
   log = NULL,
+  llim = c(NA, NA),
   size_axis = c("w", "l"),
   ...
 )
@@ -27,6 +28,7 @@ plotlySpectra2(
   log_x = TRUE,
   log_y = TRUE,
   log = NULL,
+  llim = c(NA, NA),
   size_axis = c("w", "l"),
   ...
 )
@@ -50,6 +52,11 @@ to logarithmic size bins.}
 \item{log}{Character string specifying which axes should use log10 scales,
 in the same form as the base \code{\link[=plot]{plot()}} argument. For example, \code{"x"},
 \code{"y"}, \code{"xy"} or \code{""}. If supplied, this overrides \code{log_x} and \code{log_y}.}
+
+\item{llim}{A numeric vector of length two providing lower and upper limits
+for the length axis when \code{size_axis = "l"}. Use \code{NA} to auto-scale to the
+data range. Data is filtered to this range and the axis limits are set
+accordingly.}
 
 \item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
 (\code{"l"}), using the allometric weight-length relationship.}

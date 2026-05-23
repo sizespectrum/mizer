@@ -310,6 +310,14 @@ test_that("size-based plots support length axes", {
                       params_len@species_params[sp_idx, , drop = FALSE])
     expect_equal(spectra_l$l, expected_l)
 
+    llim <- stats::quantile(spectra_l$l, c(0.25, 0.75), names = FALSE)
+    spectra_l_limited <- plotSpectra(params_len, species = species,
+                                     resource = FALSE, total = FALSE,
+                                     size_axis = "l", llim = llim,
+                                     return_data = TRUE)
+    expect_true(all(spectra_l_limited$l >= llim[1]))
+    expect_true(all(spectra_l_limited$l <= llim[2]))
+
     spectra_hidden <- plotSpectra(params_len, species = species,
                                   resource = TRUE, total = TRUE,
                                   size_axis = "l", return_data = TRUE)
@@ -323,6 +331,13 @@ test_that("size-based plots support length axes", {
     expect_true("l" %in% names(plotCDF(params_len, species = species,
                                        resource = FALSE, size_axis = "l",
                                        return_data = TRUE)))
+    cdf_l_limited <- plotCDF(params_len, species = species, resource = FALSE,
+                             size_axis = "l", llim = llim,
+                             return_data = TRUE)
+    expect_true(all(cdf_l_limited$l >= llim[1]))
+    expect_true(all(cdf_l_limited$l <= llim[2]))
+    expect_equal(stats::aggregate(value ~ Species, cdf_l_limited, max)$value,
+                 rep(1, length(unique(cdf_l_limited$Species))))
     expect_true("l" %in% names(plotSpectra2(params_len, params_len,
                                             species = species,
                                             resource = FALSE,
@@ -348,9 +363,17 @@ test_that("size-based plots support length axes", {
     expect_true("l" %in% names(plotDiet(params_len, species = species[[1]],
                                         size_axis = "l",
                                         return_data = TRUE)))
+    expect_true(all(plotDiet(params_len, species = species[[1]],
+                             size_axis = "l", llim = llim,
+                             return_data = TRUE)$l >= llim[1]))
     expect_true("l" %in% names(plot(getPredMort(params_len),
                                     species = species, size_axis = "l",
                                     return_data = TRUE)))
+    rate_l_limited <- plot(getPredMort(params_len), species = species,
+                           size_axis = "l", llim = llim,
+                           return_data = TRUE)
+    expect_true(all(rate_l_limited$l >= llim[1]))
+    expect_true(all(rate_l_limited$l <= llim[2]))
     expect_true("l" %in% names(plot(getFMort(sim_len), species = species,
                                     size_axis = "l", return_data = TRUE)))
 })
@@ -548,6 +571,10 @@ test_that("axis limits are set correctly", {
     expect_equal(p$scales$scales[[2]]$limits[2], log10(max(params@w_full)))
     expect_true(is.na(p$scales$scales[[1]]$limits[1]))
     expect_equal(p$scales$scales[[1]]$limits[2], 8)
+
+    p <- plotSpectra(sim, species = species, resource = FALSE,
+                     size_axis = "l", llim = c(10, 100))
+    expect_equal(p$scales$scales[[2]]$limits, c(1, 2))
 
     # Default wlim lower depends on resource argument
     p_res <- plotSpectra(sim, species = species, return_data = TRUE)

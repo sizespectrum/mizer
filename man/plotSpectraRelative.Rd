@@ -10,6 +10,7 @@ plotSpectraRelative(
   object2,
   log_x = TRUE,
   ylim = c(NA, NA),
+  llim = c(NA, NA),
   size_axis = c("w", "l"),
   ...
 )
@@ -19,6 +20,7 @@ plotlySpectraRelative(
   object2,
   log_x = TRUE,
   ylim = c(NA, NA),
+  llim = c(NA, NA),
   size_axis = c("w", "l"),
   ...
 )

@@ -45,6 +45,9 @@
 #' @param wlim A numeric vector of length two providing lower and upper limits
 #'   for the body-size (x) axis. Use `NA` to refer to the existing minimum or
 #'   maximum.
+#' @param llim A numeric vector of length two providing lower and upper limits
+#'   for the length (x) axis when `size_axis = "l"`. Use `NA` to refer to the
+#'   existing minimum or maximum.
 #' @param ylim A numeric vector of length two providing lower and upper limits
 #'   for the value (y) axis. Use `NA` to refer to the existing minimum or
 #'   maximum. Limits are applied as Plotly axis ranges, so points outside the
@@ -91,6 +94,7 @@ animate <- function(x, ...) UseMethod("animate")
 animate.MizerSim <- function(x, species = NULL, time_range = NULL,
                               log_x = TRUE, log_y = TRUE,
                               wlim = c(NA, NA), ylim = c(NA, NA),
+                              llim = c(NA, NA),
                               size_axis = c("w", "l"),
                               power = 1, total = FALSE, resource = TRUE,
                               background = TRUE,
@@ -105,6 +109,7 @@ animate.MizerSim <- function(x, species = NULL, time_range = NULL,
                 is.number(transition_duration), transition_duration >= 0,
                 is.string(easing),
                 length(wlim) == 2,
+                length(llim) == 2,
                 length(ylim) == 2)
 
     species <- valid_species_arg(sim, species)
@@ -160,6 +165,7 @@ animate.MizerSim <- function(x, species = NULL, time_range = NULL,
     nf <- mutate(nf, value = value * w^power)
 
     animate_plotly(nf, sim@params, log_x, log_y, y_label, wlim, ylim,
+                   llim = llim,
                    size_axis = size_axis,
                    frame_duration = frame_duration,
                    transition_duration = transition_duration,
@@ -173,6 +179,7 @@ animate.MizerSim <- function(x, species = NULL, time_range = NULL,
 # appear together and share a single legend entry.
 animate_plotly <- function(df, params, log_x, log_y, y_label,
                            wlim = c(NA, NA), ylim = c(NA, NA),
+                           llim = c(NA, NA),
                            size_axis = "w",
                            frame_duration = 500, transition_duration = 500,
                            easing = "linear") {
@@ -206,7 +213,8 @@ animate_plotly <- function(df, params, log_x, log_y, y_label,
     }
     p <- plotly::layout(p,
                         xaxis = plotly_axis(
-                            df[[x_var]], plot_size_xlim(wlim, size_axis),
+                            df[[x_var]],
+                            plot_size_xlim(wlim, size_axis, llim),
                             log_x, plot_size_xlab(size_axis)),
                         yaxis = plotly_axis(df$value, ylim, log_y, y_label),
                         legend = list(traceorder = "normal"))

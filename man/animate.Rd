@@ -14,6 +14,7 @@
   time_range = NULL,
   log_x = TRUE,
   wlim = c(NA, NA),
+  llim = c(NA, NA),
   ylim = c(NA, NA),
   log_y = TRUE,
   size_axis = c("w", "l"),
@@ -35,6 +36,7 @@ animate(x, ...)
   log_y = TRUE,
   wlim = c(NA, NA),
   ylim = c(NA, NA),
+  llim = c(NA, NA),
   size_axis = c("w", "l"),
   power = 1,
   total = FALSE,
@@ -63,6 +65,10 @@ range. Default is the entire time range of \code{x}.}
 \item{wlim}{A numeric vector of length two providing lower and upper limits
 for the body-size (x) axis. Use \code{NA} to refer to the existing minimum or
 maximum.}
+
+\item{llim}{A numeric vector of length two providing lower and upper limits
+for the length (x) axis when \code{size_axis = "l"}. Use \code{NA} to refer to the
+existing minimum or maximum.}
 
 \item{ylim}{A numeric vector of length two providing lower and upper limits
 for the value (y) axis. Use \code{NA} to refer to the existing minimum or

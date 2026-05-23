@@ -12,6 +12,8 @@ plotDiet(object, ...)
 \method{plotDiet}{MizerSim}(
   object,
   species = NULL,
+  wlim = c(NA, NA),
+  llim = c(NA, NA),
   size_axis = c("w", "l"),
   return_data = FALSE,
   ...
@@ -20,12 +22,21 @@ plotDiet(object, ...)
 \method{plotDiet}{MizerParams}(
   object,
   species = NULL,
+  wlim = c(NA, NA),
+  llim = c(NA, NA),
   size_axis = c("w", "l"),
   return_data = FALSE,
   ...
 )
 
-plotlyDiet(object, species = NULL, size_axis = c("w", "l"), ...)
+plotlyDiet(
+  object,
+  species = NULL,
+  wlim = c(NA, NA),
+  llim = c(NA, NA),
+  size_axis = c("w", "l"),
+  ...
+)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or
@@ -37,6 +48,18 @@ plotlyDiet(object, species = NULL, size_axis = c("w", "l"), ...)
 species are selected. A vector of species names, or a
 numeric vector with the species indices, or a logical vector indicating for
 each species whether it is to be selected (TRUE) or not.}
+
+\item{wlim}{A numeric vector of length two providing lower and upper limits
+for the w axis. Use NA for the default: the lower default is
+\code{min(params@w) / 100} when \code{resource = TRUE} (to show some resource below
+the fish grid) or \code{min(params@w)} when \code{resource = FALSE}; the upper
+default is \code{max(params@w_full)}. Data is filtered to this range and the
+axis limits are set accordingly.}
+
+\item{llim}{A numeric vector of length two providing lower and upper limits
+for the length axis when \code{size_axis = "l"}. Use \code{NA} to auto-scale to the
+data range. Data is filtered to this range and the axis limits are set
+accordingly.}
 
 \item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
 (\code{"l"}), using the allometric weight-length relationship.}
