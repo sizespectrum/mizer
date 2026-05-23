@@ -22,6 +22,7 @@ plot2(x, y, ...)
   log = NULL,
   wlim = c(NA, NA),
   ylim = c(NA, NA),
+  size_axis = c("w", "l"),
   total = FALSE,
   background = TRUE,
   y_ticks = 6,
@@ -59,6 +60,7 @@ plot2(x, y, ...)
   log = NULL,
   wlim = c(NA, NA),
   ylim = c(NA, NA),
+  size_axis = c("w", "l"),
   total = FALSE,
   background = TRUE,
   y_ticks = 6,
@@ -95,6 +97,9 @@ maximum. Only applies to \code{ArraySpeciesBySize}.}
 \item{ylim}{A numeric vector of length two providing lower and upper limits
 for the value (y) axis. Use \code{NA} to refer to the existing minimum or
 maximum.}
+
+\item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
+(\code{"l"}), using the allometric weight-length relationship.}
 
 \item{total}{A boolean value that determines whether the total over all
 selected species is plotted as well. Default is \code{FALSE}.}

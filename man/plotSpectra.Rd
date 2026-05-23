@@ -25,6 +25,7 @@ plotSpectra(object, ...)
   log_x = TRUE,
   log_y = TRUE,
   log = NULL,
+  size_axis = c("w", "l"),
   return_data = FALSE,
   ...
 )
@@ -43,6 +44,7 @@ plotSpectra(object, ...)
   log_x = TRUE,
   log_y = TRUE,
   log = NULL,
+  size_axis = c("w", "l"),
   return_data = FALSE,
   ...
 )
@@ -63,6 +65,7 @@ plotlySpectra(
   log_x = TRUE,
   log_y = TRUE,
   log = NULL,
+  size_axis = c("w", "l"),
   ...
 )
 }
@@ -130,13 +133,16 @@ Default is TRUE.}
 in the same form as the base \code{\link[=plot]{plot()}} argument. For example, \code{"x"},
 \code{"y"}, \code{"xy"} or \code{""}. If supplied, this overrides \code{log_x} and \code{log_y}.}
 
+\item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
+(\code{"l"}), using the allometric weight-length relationship.}
+
 \item{return_data}{A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default value is FALSE}
 }
 \value{
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
-frame with the four variables 'w', 'value', 'Species', 'Legend' is
-returned.
+frame with the four variables 'w' (or 'l' if \code{size_axis = "l"}), 'value',
+'Species', 'Legend' is returned.
 }
 \description{
 Plots the number density multiplied by a power of the weight, with the power
@@ -157,6 +163,7 @@ plotSpectra(sim, wlim = c(1e-6, NA))
 plotSpectra(sim, time_range = 10:20)
 plotSpectra(sim, time_range = 10:20, power = 0)
 plotSpectra(sim, species = c("Cod", "Herring"), power = 1)
+plotSpectra(sim, species = c("Cod", "Herring"), size_axis = "l")
 
 # Returning the data frame
 fr <- plotSpectra(sim, return_data = TRUE)

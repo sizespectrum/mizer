@@ -173,6 +173,19 @@ test_that("plotSpectra2 supports base plot log argument", {
                  "`log` must be a character string")
 })
 
+test_that("comparison helpers preserve non-size x variables", {
+    p <- plot2(getBiomass(NS_sim), getBiomass(NS_sim), species = "Cod")
+    expect_s3_class(p, "ggplot")
+    expect_true("Year" %in% names(p$data))
+    expect_error(ggplot2::ggplot_build(p), NA)
+
+    p_rel <- plotRelative(getBiomass(NS_sim), getBiomass(NS_sim),
+                          species = "Cod")
+    expect_s3_class(p_rel, "ggplot")
+    expect_true("Year" %in% names(p_rel$data))
+    expect_error(ggplot2::ggplot_build(p_rel), NA)
+})
+
 test_that("plotSpectraRelative plots symmetric relative difference", {
     params2 <- params
     params2@initial_n[] <- params@initial_n * 2
@@ -275,6 +288,71 @@ test_that("plotCDF2 compares cumulative distributions", {
                     "ggplot")
     expect_error(plotCDF2(params, sim, species = species, log = "y"),
                  "only supports log scaling on the x axis")
+})
+
+test_that("size-based plots support length axes", {
+    params_len <- params
+    params_len@species_params$a <- 0.01
+    params_len@species_params$b <- 3
+    sim_len <- sim
+    sim_len@params <- params_len
+
+    spectra_w <- plotSpectra(params_len, species = species, resource = FALSE,
+                             total = FALSE, return_data = TRUE)
+    spectra_l <- plotSpectra(params_len, species = species, resource = FALSE,
+                             total = FALSE, size_axis = "l",
+                             return_data = TRUE)
+    expect_true("l" %in% names(spectra_l))
+    expect_false("w" %in% names(spectra_l))
+    sp_idx <- match(as.character(spectra_w$Species),
+                    as.character(params_len@species_params$species))
+    expected_l <- w2l(spectra_w$w,
+                      params_len@species_params[sp_idx, , drop = FALSE])
+    expect_equal(spectra_l$l, expected_l)
+
+    spectra_hidden <- plotSpectra(params_len, species = species,
+                                  resource = TRUE, total = TRUE,
+                                  size_axis = "l", return_data = TRUE)
+    expect_false(any(spectra_hidden$Legend %in% c("Resource", "Total")))
+
+    p <- plotSpectra(params_len, species = species, resource = FALSE,
+                     size_axis = "l")
+    expect_identical(p$scales$get_scales("x")$name, "Length [cm]")
+    expect_identical(p$scales$get_scales("x")$trans$name, "log-10")
+
+    expect_true("l" %in% names(plotCDF(params_len, species = species,
+                                       resource = FALSE, size_axis = "l",
+                                       return_data = TRUE)))
+    expect_true("l" %in% names(plotSpectra2(params_len, params_len,
+                                            species = species,
+                                            resource = FALSE,
+                                            size_axis = "l")$data))
+    expect_true("l" %in% names(plotCDF2(params_len, params_len,
+                                        species = species,
+                                        resource = FALSE,
+                                        size_axis = "l")$data))
+    expect_true("l" %in% names(plotSpectraRelative(params_len, params_len,
+                                                   species = species,
+                                                   resource = FALSE,
+                                                   size_axis = "l")$data))
+
+    expect_true("l" %in% names(plotFeedingLevel(params_len, species = species,
+                                                size_axis = "l",
+                                                return_data = TRUE)))
+    expect_true("l" %in% names(plotPredMort(params_len, species = species,
+                                            size_axis = "l",
+                                            return_data = TRUE)))
+    expect_true("l" %in% names(plotFMort(params_len, species = species,
+                                         size_axis = "l",
+                                         return_data = TRUE)))
+    expect_true("l" %in% names(plotDiet(params_len, species = species[[1]],
+                                        size_axis = "l",
+                                        return_data = TRUE)))
+    expect_true("l" %in% names(plot(getPredMort(params_len),
+                                    species = species, size_axis = "l",
+                                    return_data = TRUE)))
+    expect_true("l" %in% names(plot(getFMort(sim_len), species = species,
+                                    size_axis = "l", return_data = TRUE)))
 })
 
 test_that("yield plotting helpers validate comparison and gear selection", {

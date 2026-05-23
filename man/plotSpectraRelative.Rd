@@ -5,9 +5,23 @@
 \alias{plotlySpectraRelative}
 \title{Plot the relative difference between two spectra}
 \usage{
-plotSpectraRelative(object1, object2, log_x = TRUE, ylim = c(NA, NA), ...)
+plotSpectraRelative(
+  object1,
+  object2,
+  log_x = TRUE,
+  ylim = c(NA, NA),
+  size_axis = c("w", "l"),
+  ...
+)
 
-plotlySpectraRelative(object1, object2, log_x = TRUE, ylim = c(NA, NA), ...)
+plotlySpectraRelative(
+  object1,
+  object2,
+  log_x = TRUE,
+  ylim = c(NA, NA),
+  size_axis = c("w", "l"),
+  ...
+)
 }
 \arguments{
 \item{object1}{First \code{MizerParams} or \code{MizerSim} object.}
@@ -19,6 +33,9 @@ plotlySpectraRelative(object1, object2, log_x = TRUE, ylim = c(NA, NA), ...)
 \item{ylim}{A numeric vector of length two providing lower and upper limits
 for the relative difference (y) axis. Use \code{NA} to refer to the existing
 minimum or maximum.}
+
+\item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
+(\code{"l"}), using the allometric weight-length relationship.}
 
 \item{...}{Arguments passed to \code{\link[=plotSpectra]{plotSpectra()}} for preparing the spectra
 data, for example \code{species}, \code{time_range}, \code{wlim}, \code{resource},

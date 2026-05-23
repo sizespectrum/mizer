@@ -15,6 +15,7 @@ plotCDF2(
   log_x = TRUE,
   log = NULL,
   resource = FALSE,
+  size_axis = c("w", "l"),
   ...
 )
 
@@ -28,6 +29,7 @@ plotlyCDF2(
   log_x = TRUE,
   log = NULL,
   resource = FALSE,
+  size_axis = c("w", "l"),
   ...
 )
 }
@@ -55,6 +57,9 @@ only \code{"x"} and \code{""} are supported. If supplied, this overrides \code{l
 
 \item{resource}{A boolean value that determines whether resource is included.
 Default is FALSE.}
+
+\item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
+(\code{"l"}), using the allometric weight-length relationship.}
 
 \item{...}{Arguments passed to \code{\link[=plotCDF]{plotCDF()}} for preparing the cumulative
 distribution data, for example \code{species}, \code{time_range}, \code{wlim},

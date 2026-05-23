@@ -15,6 +15,7 @@ plotPredMort(object, ...)
   time_range,
   all.sizes = FALSE,
   highlight = NULL,
+  size_axis = c("w", "l"),
   return_data = FALSE,
   ...
 )
@@ -24,11 +25,19 @@ plotPredMort(object, ...)
   species = NULL,
   all.sizes = FALSE,
   highlight = NULL,
+  size_axis = c("w", "l"),
   return_data = FALSE,
   ...
 )
 
-plotlyPredMort(object, species = NULL, time_range, highlight = NULL, ...)
+plotlyPredMort(
+  object,
+  species = NULL,
+  time_range,
+  highlight = NULL,
+  size_axis = c("w", "l"),
+  ...
+)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or
@@ -51,12 +60,16 @@ outside a species' size range. Default FALSE.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 
+\item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
+(\code{"l"}), using the allometric weight-length relationship.}
+
 \item{return_data}{A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default value is FALSE}
 }
 \value{
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
-frame with the three variables 'w', 'value', 'Species' is returned.
+frame with the three variables 'w' (or 'l' if \code{size_axis = "l"}), 'value',
+'Species' is returned.
 }
 \description{
 After running a projection, plot the predation mortality rate of each species

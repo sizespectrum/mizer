@@ -14,7 +14,8 @@ plotM2(object, ...)
 }
 \value{
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
-frame with the three variables 'w', 'value', 'Species' is returned.
+frame with the three variables 'w' (or 'l' if \code{size_axis = "l"}), 'value',
+'Species' is returned.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}

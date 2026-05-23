@@ -16,6 +16,7 @@
   wlim = c(NA, NA),
   ylim = c(NA, NA),
   log_y = TRUE,
+  size_axis = c("w", "l"),
   total = FALSE,
   background = TRUE,
   frame_duration = 500,
@@ -34,6 +35,7 @@ animate(x, ...)
   log_y = TRUE,
   wlim = c(NA, NA),
   ylim = c(NA, NA),
+  size_axis = c("w", "l"),
   power = 1,
   total = FALSE,
   resource = TRUE,
@@ -69,6 +71,9 @@ limits are clipped by the viewport rather than removed from the animation
 frames.}
 
 \item{log_y}{If \code{TRUE} (default), use a log10 y-axis.}
+
+\item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
+(\code{"l"}), using the allometric weight-length relationship.}
 
 \item{total}{A boolean value that determines whether the total over all
 selected species is plotted as an additional trace called \code{"Total"}.

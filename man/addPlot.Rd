@@ -15,6 +15,7 @@ addPlot(plot, x, ...)
   species = NULL,
   all.sizes = FALSE,
   wlim = c(NA, NA),
+  size_axis = c("w", "l"),
   total = FALSE,
   background = TRUE,
   colour = NULL,
@@ -56,6 +57,9 @@ all species.}
 \item{wlim}{A numeric vector of length two providing lower and upper limits
 for the weight (x) axis. Use \code{NA} to refer to the existing minimum or
 maximum. Only applies to \code{ArraySpeciesBySize}.}
+
+\item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
+(\code{"l"}), using the allometric weight-length relationship.}
 
 \item{total}{A boolean value that determines whether the total over all
 selected species is plotted as well. Default is \code{FALSE}.}
