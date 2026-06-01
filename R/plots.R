@@ -206,9 +206,7 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
 
     linecolour <- params@linecolour[legend_levels]
     linetype <- params@linetype[legend_levels]
-    linesize <- rep_len(0.8, length(legend_levels))
-    names(linesize) <- legend_levels
-    linesize[highlight] <- 1.6
+    linesize <- make_linesize(legend_levels, highlight)
 
     xbreaks <- waiver()
     if (xtrans == "log10") xbreaks <- log_breaks()
@@ -256,6 +254,13 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
 
     make_mizer_plot(p, mizer_tooltip_vars(frame, group_var, x_var, y_var,
                                           legend_var))
+}
+
+make_linesize <- function(levels, highlight) {
+    linesize <- rep(0.8, length(levels))
+    names(linesize) <- levels
+    linesize[highlight] <- 1.6
+    linesize
 }
 
 make_mizer_plot <- function(plot, tooltip) {
@@ -702,9 +707,7 @@ plotYieldGear.MizerSim <- function(sim,
     # Need to keep species in order for legend
     species_levels <- intersect(names(params@linecolour), ym$Species)
     ym$Species <- factor(ym$Species, levels = species_levels)
-    linesize <- rep(0.8, length(species_levels))
-    names(linesize) <- names(params@linetype[species_levels])
-    linesize[highlight] <- 1.6
+    linesize <- make_linesize(species_levels, highlight)
     ggplot(ym) +
         geom_line(aes(x = Year, y = Yield, colour = Species,
                       linetype = Gear, linewidth = Species)) +
@@ -1515,9 +1518,7 @@ plot_feeding_level <- function(params, feed, species, highlight,
     legend_levels <-
         intersect(names(params@linecolour), plot_dat$Species)
     plot_dat$Legend <- factor(plot_dat$Species, levels = legend_levels)
-    linesize <- rep(0.8, length(legend_levels))
-    names(linesize) <- names(params@linetype[legend_levels])
-    linesize[highlight] <- 1.6
+    linesize <- make_linesize(legend_levels, highlight)
 
     # We do not use `plotDataFrame()` to create the plot because it would not
     # handle the alpha transparency for the critical feeding level.
@@ -1954,9 +1955,7 @@ plot_growth_curves <- function(params, species,
                     "Background", "Resource", "Total"),
                   plot_dat$Species)
     plot_dat$Species <- factor(plot_dat$Species, levels = legend_levels)
-    linesize <- rep(0.8, length(legend_levels))
-    names(linesize) <- names(params@linetype[legend_levels])
-    linesize[highlight] <- 1.6
+    linesize <- make_linesize(legend_levels, highlight)
     p <- p + scale_x_continuous(name = "Age [Years]") +
         scale_y_continuous(name = y_label) +
         scale_colour_manual(values = params@linecolour[legend_levels]) +
