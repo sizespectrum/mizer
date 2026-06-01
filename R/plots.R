@@ -989,9 +989,10 @@ plot_spectra <- function(params, n, n_pp,
 #'   `FALSE`, plot the cumulative abundance, biomass, or other unnormalised
 #'   integral.
 #' @param log_x If `TRUE` (default), use a log10 x-axis.
-#' @param log Character string specifying whether the x-axis should use a log10
-#'   scale, in the same form as the base [plot()] argument. For `plotCDF()`,
-#'   only `"x"` and `""` are supported. If supplied, this overrides `log_x`.
+#' @param log_y If `TRUE`, use a log10 y-axis. Default is `FALSE`.
+#' @param log Character string specifying which axes should use a log10 scale,
+#'   in the same form as the base [plot()] argument. If supplied, this overrides
+#'   `log_x` and `log_y`.
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the four variables 'w', 'value', 'Species', 'Legend' is
@@ -1018,12 +1019,12 @@ plotCDF.MizerSim <- function(object, species = NULL,
                              total = FALSE, resource = FALSE,
                              background = TRUE,
                              highlight = NULL, normalise = TRUE,
-                             log_x = TRUE, log = NULL,
+                             log_x = TRUE, log_y = FALSE, log = NULL,
                              return_data = FALSE, ...) {
     if (missing(power)) {
         power <- as.numeric(biomass)
     }
-    log_x <- parsePlotCDFLog(log, log_x)
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is.flag(total), is.flag(resource),
                 is.flag(background), is.flag(normalise),
                 is.number(power),
@@ -1041,7 +1042,8 @@ plotCDF.MizerSim <- function(object, species = NULL,
     }
     plot_dat <- do.call(plotSpectra, args)
     plot_cdf(plot_dat, object@params, power = power, normalise = normalise,
-             log_x = log_x, wlim = wlim, ylim = ylim,
+             log_x = log_axes$log_x, log_y = log_axes$log_y,
+             wlim = wlim, ylim = ylim,
              highlight = highlight, return_data = return_data)
 }
 
@@ -1053,12 +1055,12 @@ plotCDF.MizerParams <- function(object, species = NULL,
                                 total = FALSE, resource = FALSE,
                                 background = TRUE,
                                 highlight = NULL, normalise = TRUE,
-                                log_x = TRUE, log = NULL,
+                                log_x = TRUE, log_y = FALSE, log = NULL,
                                 return_data = FALSE, ...) {
     if (missing(power)) {
         power <- as.numeric(biomass)
     }
-    log_x <- parsePlotCDFLog(log, log_x)
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is.flag(total), is.flag(resource),
                 is.flag(background), is.flag(normalise),
                 is.number(power),
@@ -1071,12 +1073,13 @@ plotCDF.MizerParams <- function(object, species = NULL,
                             resource = resource, background = background,
                             return_data = TRUE)
     plot_cdf(plot_dat, object, power = power, normalise = normalise,
-             log_x = log_x, wlim = wlim, ylim = ylim,
+             log_x = log_axes$log_x, log_y = log_axes$log_y,
+             wlim = wlim, ylim = ylim,
              highlight = highlight, return_data = return_data)
 }
 
-plot_cdf <- function(plot_dat, params, power, normalise, log_x, wlim, ylim,
-                     highlight, return_data) {
+plot_cdf <- function(plot_dat, params, power, normalise, log_x, log_y, wlim,
+                     ylim, highlight, return_data) {
     cdf_dat <- prepare_spectra_cdf_data(plot_dat, params,
                                         normalise = normalise)
     if (return_data) return(cdf_dat)
@@ -1084,7 +1087,7 @@ plot_cdf <- function(plot_dat, params, power, normalise, log_x, wlim, ylim,
     plotDataFrame(cdf_dat, validParams(params),
                   xlab = "Size [g]", ylab = cdf_y_label(power, normalise),
                   xtrans = if (log_x) "log10" else "identity",
-                  ytrans = "identity",
+                  ytrans = if (log_y) "log10" else "identity",
                   xlim = wlim, ylim = ylim,
                   highlight = highlight, legend_var = "Legend")
 }
@@ -1135,14 +1138,6 @@ cdf_y_label <- function(power, normalise) {
     paste0("Cumulative number density * w^", power)
 }
 
-parsePlotCDFLog <- function(log, log_x) {
-    log_axes <- parsePlotLog(log, log_x = log_x, log_y = FALSE)
-    if (log_axes$log_y) {
-        stop("`plotCDF()` only supports log scaling on the x axis. ",
-             "Use `log = \"x\"` or `log = \"\"`.")
-    }
-    log_axes$log_x
-}
 
 #' Compare two cumulative abundance or biomass distributions
 #'
@@ -1169,9 +1164,9 @@ parsePlotCDFLog <- function(log, log_x) {
 #' plotCDF2(sim1, sim2, "Original", "Effort = 0.5")
 #' }
 plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
-                     power = 1, normalise = TRUE, log_x = TRUE, log = NULL,
-                     resource = FALSE, ...) {
-    log_x <- parsePlotCDFLog(log, log_x)
+                     power = 1, normalise = TRUE, log_x = TRUE, log_y = FALSE,
+                     log = NULL, resource = FALSE, ...) {
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is.number(power), is.flag(normalise))
 
     args <- list(...)
@@ -1188,8 +1183,8 @@ plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
                             name1 = name1, name2 = name2,
                             xlab = "Size [g]",
                             ylab = cdf_y_label(power, normalise),
-                            xtrans = if (log_x) "log10" else "identity",
-                            ytrans = "identity",
+                            xtrans = if (log_axes$log_x) "log10" else "identity",
+                            ytrans = if (log_axes$log_y) "log10" else "identity",
                             xlim = wlim, ylim = ylim,
                             legend_var = "Legend")
 }

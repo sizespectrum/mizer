@@ -24,6 +24,7 @@ plotCDF(object, ...)
   highlight = NULL,
   normalise = TRUE,
   log_x = TRUE,
+  log_y = FALSE,
   log = NULL,
   return_data = FALSE,
   ...
@@ -42,6 +43,7 @@ plotCDF(object, ...)
   highlight = NULL,
   normalise = TRUE,
   log_x = TRUE,
+  log_y = FALSE,
   log = NULL,
   return_data = FALSE,
   ...
@@ -128,9 +130,11 @@ integral.}
 
 \item{log_x}{If \code{TRUE} (default), use a log10 x-axis.}
 
-\item{log}{Character string specifying whether the x-axis should use a log10
-scale, in the same form as the base \code{\link[=plot]{plot()}} argument. For \code{plotCDF()},
-only \code{"x"} and \code{""} are supported. If supplied, this overrides \code{log_x}.}
+\item{log_y}{If \code{TRUE}, use a log10 y-axis. Default is \code{FALSE}.}
+
+\item{log}{Character string specifying which axes should use a log10 scale,
+in the same form as the base \code{\link[=plot]{plot()}} argument. If supplied, this overrides
+\code{log_x} and \code{log_y}.}
 
 \item{return_data}{A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default value is FALSE}

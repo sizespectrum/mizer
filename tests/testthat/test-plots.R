@@ -233,9 +233,15 @@ test_that("plotCDF plots cumulative spectra from small to large sizes", {
     p_log_x <- plotCDF(params, species = species, resource = FALSE,
                        log = "x")
     expect_identical(p_log_x$scales$get_scales("x")$trans$name, "log-10")
-    expect_error(plotCDF(params, species = species, resource = FALSE,
-                         log = "y"),
-                 "only supports log scaling on the x axis")
+
+    p_log_y <- plotCDF(params, species = species, resource = FALSE,
+                       log_y = TRUE)
+    expect_identical(p_log_y$scales$get_scales("y")$trans$name, "log-10")
+
+    p_log_xy <- plotCDF(params, species = species, resource = FALSE,
+                        log = "xy")
+    expect_identical(p_log_xy$scales$get_scales("x")$trans$name, "log-10")
+    expect_identical(p_log_xy$scales$get_scales("y")$trans$name, "log-10")
 
     p_abundance <- plotCDF(params, species = species, resource = FALSE,
                            power = 0)
@@ -273,8 +279,9 @@ test_that("plotCDF2 compares cumulative distributions", {
     expect_s3_class(plotCDF2(sim, sim0, species = species,
                              time_range = 1:3, resource = FALSE),
                     "ggplot")
-    expect_error(plotCDF2(params, sim, species = species, log = "y"),
-                 "only supports log scaling on the x axis")
+    p_log_y2 <- plotCDF2(params, sim, species = species, resource = FALSE,
+                         log = "y")
+    expect_identical(p_log_y2$scales$get_scales("y")$trans$name, "log-10")
 })
 
 test_that("yield plotting helpers validate comparison and gear selection", {
