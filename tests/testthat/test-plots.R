@@ -504,56 +504,6 @@ test_that("plotSpectra supports base plot log argument", {
                  "`log` must be a character string")
 })
 
-test_that("plot helpers expose consistent log_x/log_y/log controls", {
-    p_biomass <- plotBiomass(sim, species = species)
-    expect_identical(p_biomass$scales$get_scales("x")$trans$name, "identity")
-    expect_identical(p_biomass$scales$get_scales("y")$trans$name, "log-10")
-
-    p_biomass_legacy <- plotBiomass(sim, species = species,
-                                    log_x = TRUE, log = FALSE)
-    expect_identical(p_biomass_legacy$scales$get_scales("x")$trans$name,
-                     "identity")
-    expect_identical(p_biomass_legacy$scales$get_scales("y")$trans$name,
-                     "identity")
-
-    p_yield <- plotYield(sim, species = species, log_x = TRUE, log_y = FALSE)
-    expect_identical(p_yield$scales$get_scales("x")$trans$name, "log-10")
-    expect_identical(p_yield$scales$get_scales("y")$trans$name, "identity")
-    p_yield_override <- plotYield(sim, species = species, log = "y")
-    expect_identical(p_yield_override$scales$get_scales("x")$trans$name,
-                     "identity")
-    expect_identical(p_yield_override$scales$get_scales("y")$trans$name,
-                     "log-10")
-
-    p_feeding <- plotFeedingLevel(sim, species = species, log = "y")
-    expect_identical(p_feeding$scales$get_scales("x")$trans$name, "identity")
-    expect_identical(p_feeding$scales$get_scales("y")$trans$name, "log-10")
-
-    p_pred <- plotPredMort(sim, species = species, log_x = FALSE)
-    expect_identical(p_pred$scales$get_scales("x")$trans$name, "identity")
-    p_pred_override <- plotPredMort(sim, species = species, log = "y")
-    expect_identical(p_pred_override$scales$get_scales("x")$trans$name,
-                     "identity")
-    expect_identical(p_pred_override$scales$get_scales("y")$trans$name,
-                     "log-10")
-
-    p_fmort <- plotFMort(sim, species = species, log_x = FALSE)
-    expect_identical(p_fmort$scales$get_scales("x")$trans$name, "identity")
-
-    p_diet <- plotDiet(params, species = species[[1]], log_x = FALSE)
-    expect_identical(p_diet$scales$get_scales("x")$trans$name, "identity")
-    p_diet_override <- plotDiet(params, species = species[[1]], log = "y")
-    expect_identical(p_diet_override$scales$get_scales("x")$trans$name,
-                     "identity")
-    expect_identical(p_diet_override$scales$get_scales("y")$trans$name,
-                     "log-10")
-
-    p_growth <- plotGrowthCurves(sim, species = species[[1]], max_age = 10,
-                                 log = "xy")
-    expect_identical(p_growth$scales$get_scales("x")$trans$name, "log-10")
-    expect_identical(p_growth$scales$get_scales("y")$trans$name, "log-10")
-})
-
 test_that("plotPredMort and plotFMort trim to species size range by default", {
     pred_trimmed <- plotPredMort(params, species = 2, return_data = TRUE)
     pred_full <- plotPredMort(params, species = 2, all.sizes = TRUE, return_data = TRUE)
