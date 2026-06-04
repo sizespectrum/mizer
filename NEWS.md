@@ -114,6 +114,11 @@ individual variability in growth to be modelled.
   `animateSpectra()` also gains a `background` argument (default `TRUE`) to
   include background species, consistent with `plotSpectra()`.
 
+- Plotting functions now consistently expose `log_x`, `log_y` and `log`
+  arguments. In all cases, when supplied, `log` overrides `log_x` and `log_y`.
+  `plotBiomass()` and `plotYield()` keep support for logical `log` values for
+  backward compatibility.
+
 - New `addPlot()` generic with methods for adding `ArraySpeciesBySize` and
   `ArrayTimeBySpecies` values as extra lines on an existing compatible ggplot.
 

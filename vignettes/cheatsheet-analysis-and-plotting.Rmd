@@ -118,15 +118,15 @@ These show how a quantity changes over the course of the simulation.
 
 | Function | Key arguments | Shows |
 |---|---|---|
-| [`plotBiomass(sim)`](../reference/plotBiomass.html) | `species`, `total`, `start_time`, `end_time`, `log` | total biomass per species |
-| [`plotYield(sim)`](../reference/plotYield.html) | `species`, `total`, `log` | total yield per species |
+| [`plotBiomass(sim)`](../reference/plotBiomass.html) | `species`, `total`, `start_time`, `end_time`, `log_x`, `log_y` | total biomass per species |
+| [`plotYield(sim)`](../reference/plotYield.html) | `species`, `total`, `log_x`, `log_y` | total yield per species |
 | [`plotYieldGear(sim)`](../reference/plotYieldGear.html) | `species`, `total` | yield per species faceted by gear |
 
 ```{r eval=FALSE}
 plotBiomass(sim)
 plotBiomass(sim, species = c("Cod", "Herring"), total = TRUE)
 plotBiomass(sim, start_time = 1980, end_time = 1990)
-plotYield(sim, log = FALSE)
+plotYield(sim, log_y = FALSE)
 ```
 
 ### Plots against body size
@@ -137,11 +137,11 @@ step. Use `time_range` to average over a time period.
 | Function | Key arguments | Shows |
 |---|---|---|
 | [`plotSpectra(sim)`](../reference/plotSpectra.html) | `power`, `time_range`, `wlim`, `species` | abundance (or biomass) spectra |
-| [`plotFeedingLevel(sim)`](../reference/plotFeedingLevel.html) | `time_range`, `species`, `highlight` | feeding level (0–1) at size |
-| [`plotPredMort(sim)`](../reference/plotPredMort.html) | `time_range`, `species`, `highlight` | predation mortality at size |
-| [`plotFMort(sim)`](../reference/plotFMort.html) | `time_range`, `species`, `highlight` | fishing mortality at size |
-| [`plotGrowthCurves(sim)`](../reference/plotGrowthCurves.html) | `species`, `max_age`, `percentage`, `species_panel` | size at age |
-| [`plotDiet(params)`](../reference/plotDiet.html) | `species` | diet composition at size |
+| [`plotFeedingLevel(sim)`](../reference/plotFeedingLevel.html) | `time_range`, `species`, `highlight`, `log_x`, `log_y` | feeding level (0–1) at size |
+| [`plotPredMort(sim)`](../reference/plotPredMort.html) | `time_range`, `species`, `highlight`, `log_x`, `log_y` | predation mortality at size |
+| [`plotFMort(sim)`](../reference/plotFMort.html) | `time_range`, `species`, `highlight`, `log_x`, `log_y` | fishing mortality at size |
+| [`plotGrowthCurves(sim)`](../reference/plotGrowthCurves.html) | `species`, `max_age`, `percentage`, `species_panel`, `log_x`, `log_y` | size at age |
+| [`plotDiet(params)`](../reference/plotDiet.html) | `species`, `log_x`, `log_y` | diet composition at size |
 
 ```{r eval=FALSE}
 plotSpectra(sim, power = 2, time_range = 1990:2000)
