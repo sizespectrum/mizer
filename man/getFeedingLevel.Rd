@@ -26,13 +26,13 @@ from the returned array.}
 \item{...}{Unused}
 }
 \value{
-If a \code{MizerParams} object is passed in, returns an \code{ArraySpeciesBySize} object
-(predator species x predator size) with the feeding level.
-If a \code{MizerSim} object is passed in, returns a three-dimensional array
-(time step x predator species x predator size) with the feeding level at
-every time step.
-If \code{drop = TRUE} then dimensions of length 1 will be removed from
-the returned array.
+\itemize{
+\item \code{MizerParams}: An \code{ArraySpeciesBySize} object (predator species x predator
+size) with the feeding level.
+\item \code{MizerSim}: An \code{ArrayTimeBySpeciesBySize} object (time step x predator
+species x predator size) with the feeding level at every time step.
+If \code{drop = TRUE} then dimensions of length 1 will be removed.
+}
 }
 \description{
 Returns the feeding level.

@@ -129,14 +129,13 @@ from the returned array.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>If a <code>MizerParams</code> object is passed in, returns an <code>ArraySpeciesBySize</code> object
-(predator species x predator size) with the feeding level.
-If a <code>MizerSim</code> object is passed in, returns a three-dimensional array
-(time step x predator species x predator size) with the feeding level at
-every time step.
-If <code>drop = TRUE</code> then dimensions of length 1 will be removed from
-the returned array.</p>
-    </div>
+
+<ul><li><p><code>MizerParams</code>: An <code>ArraySpeciesBySize</code> object (predator species x predator
+size) with the feeding level.</p></li>
+<li><p><code>MizerSim</code>: An <code>ArrayTimeBySpeciesBySize</code> object (time step x predator
+species x predator size) with the feeding level at every time step.
+If <code>drop = TRUE</code> then dimensions of length 1 will be removed.</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="feeding-level">Feeding level<a class="anchor" aria-label="anchor" href="#feeding-level"></a></h2>
 

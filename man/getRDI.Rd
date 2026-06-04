@@ -5,17 +5,15 @@
 \title{Get density independent rate of egg production}
 \usage{
 getRDI(
-  params,
-  n = initialN(params),
-  n_pp = initialNResource(params),
-  n_other = initialNOther(params),
+  object,
+  n = initialN(object),
+  n_pp = initialNResource(object),
+  n_other = initialNOther(object),
   t = 0,
   ...
 )
 }
 \arguments{
-\item{params}{A \linkS4class{MizerParams} object}
-
 \item{n}{A matrix of species abundances (species x size).}
 
 \item{n_pp}{A vector of the resource abundance by size}
@@ -30,9 +28,10 @@ parameters.)}
 \item{...}{Unused}
 }
 \value{
-If a \code{MizerParams} object is passed in, a numeric vector the length
-of the number of species. If a \code{MizerSim} object is passed in, an
-\code{ArrayTimeBySpecies} object with dimensions time x species.
+\itemize{
+\item \code{MizerParams}: A numeric vector the length of the number of species.
+\item \code{MizerSim}: An \code{ArrayTimeBySpecies} object (time x species).
+}
 }
 \description{
 Calculates the density-independent rate of total egg production

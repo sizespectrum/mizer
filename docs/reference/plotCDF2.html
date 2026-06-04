@@ -96,6 +96,7 @@ linetype identifies the object.</p>
 <span>  power <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  normalise <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  log_x <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  log_y <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  log <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  resource <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -148,10 +149,14 @@ integral.</p></dd>
 <dd><p>If <code>TRUE</code> (default), use a log10 x-axis.</p></dd>
 
 
+<dt id="arg-log-y">log_y<a class="anchor" aria-label="anchor" href="#arg-log-y"></a></dt>
+<dd><p>If <code>TRUE</code>, use a log10 y-axis. Default is <code>FALSE</code>.</p></dd>
+
+
 <dt id="arg-log">log<a class="anchor" aria-label="anchor" href="#arg-log"></a></dt>
-<dd><p>Character string specifying whether the x-axis should use a log10
-scale, in the same form as the base <code><a href="plot.html">plot()</a></code> argument. For <code><a href="plotCDF.html">plotCDF()</a></code>,
-only <code>"x"</code> and <code>""</code> are supported. If supplied, this overrides <code>log_x</code>.</p></dd>
+<dd><p>Character string specifying which axes should use a log10 scale,
+in the same form as the base <code><a href="plot.html">plot()</a></code> argument. If supplied, this overrides
+<code>log_x</code> and <code>log_y</code>.</p></dd>
 
 
 <dt id="arg-resource">resource<a class="anchor" aria-label="anchor" href="#arg-resource"></a></dt>

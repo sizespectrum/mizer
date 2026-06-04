@@ -5,17 +5,15 @@
 \title{Get energy rate available for growth}
 \usage{
 getEGrowth(
-  params,
-  n = initialN(params),
-  n_pp = initialNResource(params),
-  n_other = initialNOther(params),
+  object,
+  n = initialN(object),
+  n_pp = initialNResource(object),
+  n_other = initialNOther(object),
   t = 0,
   ...
 )
 }
 \arguments{
-\item{params}{A \linkS4class{MizerParams} object}
-
 \item{n}{A matrix of species abundances (species x size).}
 
 \item{n_pp}{A vector of the resource abundance by size}
@@ -28,10 +26,18 @@ mizer rate functions but useful for extensions with time-dependent
 parameters.)}
 
 \item{...}{Unused}
+
+\item{drop}{If \code{TRUE} then any dimension of length 1 will be removed
+from the returned array.}
 }
 \value{
-An \code{ArraySpeciesBySize} object (species x size) with the somatic growth rates
-(grams/year).
+\itemize{
+\item \code{MizerParams}: An \code{ArraySpeciesBySize} object (species x size) with the
+somatic growth rates (grams/year).
+\item \code{MizerSim}: An \code{ArrayTimeBySpeciesBySize} object (time step x species x
+size) with the growth rates at every time step. If \code{drop = TRUE} then
+dimensions of length 1 will be removed.
+}
 }
 \description{
 Calculates the energy rate \eqn{g_i(w)} (grams/year) available by species and

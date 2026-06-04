@@ -86,10 +86,10 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getRDI</span><span class="op">(</span></span>
-<span>  <span class="va">params</span>,</span>
-<span>  n <span class="op">=</span> <span class="fu"><a href="initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>,</span>
-<span>  n_pp <span class="op">=</span> <span class="fu"><a href="initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>,</span>
-<span>  n_other <span class="op">=</span> <span class="fu"><a href="initialNOther-set.html">initialNOther</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>,</span>
+<span>  <span class="va">object</span>,</span>
+<span>  n <span class="op">=</span> <span class="fu"><a href="initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">object</span><span class="op">)</span>,</span>
+<span>  n_pp <span class="op">=</span> <span class="fu"><a href="initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">object</span><span class="op">)</span>,</span>
+<span>  n_other <span class="op">=</span> <span class="fu"><a href="initialNOther-set.html">initialNOther</a></span><span class="op">(</span><span class="va">object</span><span class="op">)</span>,</span>
 <span>  t <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -99,11 +99,7 @@
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-params">params<a class="anchor" aria-label="anchor" href="#arg-params"></a></dt>
-<dd><p>A <a href="MizerParams-class.html">MizerParams</a> object</p></dd>
-
-
-<dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
+<dl><dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
 <dd><p>A matrix of species abundances (species x size).</p></dd>
 
 
@@ -128,10 +124,10 @@ parameters.)</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>If a <code>MizerParams</code> object is passed in, a numeric vector the length
-of the number of species. If a <code>MizerSim</code> object is passed in, an
-<code>ArrayTimeBySpecies</code> object with dimensions time x species.</p>
-    </div>
+
+<ul><li><p><code>MizerParams</code>: A numeric vector the length of the number of species.</p></li>
+<li><p><code>MizerSim</code>: An <code>ArrayTimeBySpecies</code> object (time x species).</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This rate is obtained by taking the per capita rate \(E_r(w)\psi(w)\) at

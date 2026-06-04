@@ -86,10 +86,10 @@ An alias provided for backward compatibility with mizer version &lt;= 1.0</p>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getESpawning</span><span class="op">(</span></span>
-<span>  <span class="va">params</span>,</span>
-<span>  n <span class="op">=</span> <span class="fu"><a href="initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>,</span>
-<span>  n_pp <span class="op">=</span> <span class="fu"><a href="initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>,</span>
-<span>  n_other <span class="op">=</span> <span class="fu"><a href="initialNOther-set.html">initialNOther</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>,</span>
+<span>  <span class="va">object</span>,</span>
+<span>  n <span class="op">=</span> <span class="fu"><a href="initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">object</span><span class="op">)</span>,</span>
+<span>  n_pp <span class="op">=</span> <span class="fu"><a href="initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">object</span><span class="op">)</span>,</span>
+<span>  n_other <span class="op">=</span> <span class="fu"><a href="initialNOther-set.html">initialNOther</a></span><span class="op">(</span><span class="va">object</span><span class="op">)</span>,</span>
 <span>  t <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -99,11 +99,7 @@ An alias provided for backward compatibility with mizer version &lt;= 1.0</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-params">params<a class="anchor" aria-label="anchor" href="#arg-params"></a></dt>
-<dd><p>A <a href="MizerParams-class.html">MizerParams</a> object</p></dd>
-
-
-<dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
+<dl><dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
 <dd><p>A matrix of species abundances (species x size).</p></dd>
 
 
@@ -128,15 +124,19 @@ parameters.)</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An <code>ArraySpeciesBySize</code> object (species x size) holding
+
+<ul><li><p><code>MizerParams</code>: An <code>ArraySpeciesBySize</code> object (species x size) holding
 $$\psi_i(w)\max(0, E_{r.i}(w))$$
 where \(E_{r.i}(w)\) is the rate at which energy becomes available for
 growth and reproduction, calculated with <code><a href="getEReproAndGrowth.html">getEReproAndGrowth()</a></code>,
 and \(\psi_i(w)\) is the proportion of this energy that is used for
 reproduction. Negative values of \(E_{r.i}(w)\) are clipped to 0 before
 multiplying by \(\psi_i(w)\). This proportion is taken from the <code>params</code>
-object and is set with <code><a href="setReproduction.html">setReproduction()</a></code>.</p>
-    </div>
+object and is set with <code><a href="setReproduction.html">setReproduction()</a></code>.</p></li>
+<li><p><code>MizerSim</code>: An <code>ArrayTimeBySpeciesBySize</code> object (time step x species x
+size) with the energy for reproduction at every time step. If <code>drop = TRUE</code>
+then dimensions of length 1 will be removed.</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="your-own-reproduction-rate-function">Your own reproduction rate function<a class="anchor" aria-label="anchor" href="#your-own-reproduction-rate-function"></a></h2>
 

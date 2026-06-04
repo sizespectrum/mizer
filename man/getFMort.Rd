@@ -36,11 +36,12 @@ parameters.)}
 \item{...}{Unused}
 }
 \value{
-If a \code{MizerParams} object is passed in without a time-dimensioned
-effort, returns an \code{ArraySpeciesBySize} object (species x size) with the fishing
-mortality rates. If the effort argument has a time dimension, or a
-\code{MizerSim} object is passed in, returns a three-dimensional array
-(time x species x size).
+\itemize{
+\item \code{MizerParams} with vector effort: An \code{ArraySpeciesBySize} object
+(species x size) with the fishing mortality rates.
+\item \code{MizerParams} with time-dimensioned effort or \code{MizerSim}: An
+\code{ArrayTimeBySpeciesBySize} object (time x species x size).
+}
 
 The \code{effort} argument is only used if a \code{MizerParams} object is
 passed in. The \code{effort} argument can be a two dimensional array (time x

@@ -142,12 +142,12 @@ parameters.)</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>If a <code>MizerParams</code> object is passed in without a time-dimensioned
-effort, returns an <code>ArraySpeciesBySize</code> object (species x size) with the fishing
-mortality rates. If the effort argument has a time dimension, or a
-<code>MizerSim</code> object is passed in, returns a three-dimensional array
-(time x species x size).</p>
-<p>The <code>effort</code> argument is only used if a <code>MizerParams</code> object is
+
+<ul><li><p><code>MizerParams</code> with vector effort: An <code>ArraySpeciesBySize</code> object
+(species x size) with the fishing mortality rates.</p></li>
+<li><p><code>MizerParams</code> with time-dimensioned effort or <code>MizerSim</code>: An
+<code>ArrayTimeBySpeciesBySize</code> object (time x species x size).</p></li>
+</ul><p>The <code>effort</code> argument is only used if a <code>MizerParams</code> object is
 passed in. The <code>effort</code> argument can be a two dimensional array (time x
 gear), a vector of length equal to the number of gears (each gear has a
 different effort that is constant in time), or a single numeric value (each

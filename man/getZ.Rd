@@ -5,18 +5,16 @@
 \title{Alias for \code{getMort()}}
 \usage{
 getZ(
-  params,
-  n = initialN(params),
-  n_pp = initialNResource(params),
-  n_other = initialNOther(params),
-  effort = getInitialEffort(params),
+  object,
+  n = initialN(object),
+  n_pp = initialNResource(object),
+  n_other = initialNOther(object),
+  effort = getInitialEffort(object),
   t = 0,
   ...
 )
 }
 \arguments{
-\item{params}{A \linkS4class{MizerParams} object}
-
 \item{n}{A matrix of species abundances (species x size).}
 
 \item{n_pp}{A vector of the resource abundance by size}
@@ -34,7 +32,13 @@ parameters.)}
 \item{...}{Unused}
 }
 \value{
-An \code{ArraySpeciesBySize} object (species x size) with the total mortality rates.
+\itemize{
+\item \code{MizerParams}: An \code{ArraySpeciesBySize} object (species x size) with the
+total mortality rates.
+\item \code{MizerSim}: An \code{ArrayTimeBySpeciesBySize} object (time step x species x
+size) with the total mortality rates at every time step. If \code{drop = TRUE}
+then dimensions of length 1 will be removed.
+}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}

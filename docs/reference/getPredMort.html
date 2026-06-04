@@ -132,13 +132,13 @@ from the returned array.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>If a <code>MizerParams</code> object is passed in, returns an <code>ArraySpeciesBySize</code> object
-(prey species x prey size) with the predation mortality rates.
-If a <code>MizerSim</code> object is passed in, returns a three-dimensional array
-(time step x prey species x prey size) with the predation mortality at
-every time step. Dimensions may be dropped if they have length 1 unless
-<code>drop = FALSE</code>.</p>
-    </div>
+
+<ul><li><p><code>MizerParams</code>: An <code>ArraySpeciesBySize</code> object (prey species x prey size)
+with the predation mortality rates.</p></li>
+<li><p><code>MizerSim</code>: An <code>ArrayTimeBySpeciesBySize</code> object (time step x prey species
+x prey size) with the predation mortality at every time step.
+If <code>drop = TRUE</code> then dimensions of length 1 will be removed.</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="your-own-predation-mortality-function">Your own predation mortality function<a class="anchor" aria-label="anchor" href="#your-own-predation-mortality-function"></a></h2>
 

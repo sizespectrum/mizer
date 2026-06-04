@@ -5,18 +5,16 @@
 \title{Get total mortality rate}
 \usage{
 getMort(
-  params,
-  n = initialN(params),
-  n_pp = initialNResource(params),
-  n_other = initialNOther(params),
-  effort = getInitialEffort(params),
+  object,
+  n = initialN(object),
+  n_pp = initialNResource(object),
+  n_other = initialNOther(object),
+  effort = getInitialEffort(object),
   t = 0,
   ...
 )
 }
 \arguments{
-\item{params}{A \linkS4class{MizerParams} object}
-
 \item{n}{A matrix of species abundances (species x size).}
 
 \item{n_pp}{A vector of the resource abundance by size}
@@ -32,9 +30,18 @@ mizer rate functions but useful for extensions with time-dependent
 parameters.)}
 
 \item{...}{Unused}
+
+\item{drop}{If \code{TRUE} then any dimension of length 1 will be removed
+from the returned array.}
 }
 \value{
-An \code{ArraySpeciesBySize} object (species x size) with the total mortality rates.
+\itemize{
+\item \code{MizerParams}: An \code{ArraySpeciesBySize} object (species x size) with the
+total mortality rates.
+\item \code{MizerSim}: An \code{ArrayTimeBySpeciesBySize} object (time step x species x
+size) with the total mortality rates at every time step. If \code{drop = TRUE}
+then dimensions of length 1 will be removed.
+}
 }
 \description{
 Calculates the total mortality rate \eqn{\mu_i(w)}  (in units 1/year) on each

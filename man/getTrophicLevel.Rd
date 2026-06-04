@@ -13,8 +13,6 @@ getTrophicLevel(
 )
 }
 \arguments{
-\item{params}{A \linkS4class{MizerParams} object}
-
 \item{n}{A matrix of species abundances (species x size).}
 
 \item{n_pp}{A vector of the resource abundance by size}

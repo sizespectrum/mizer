@@ -26,12 +26,13 @@ from the returned array.}
 \item{...}{Unused}
 }
 \value{
-If a \code{MizerParams} object is passed in, returns an \code{ArraySpeciesBySize} object
-(prey species x prey size) with the predation mortality rates.
-If a \code{MizerSim} object is passed in, returns a three-dimensional array
-(time step x prey species x prey size) with the predation mortality at
-every time step. Dimensions may be dropped if they have length 1 unless
-\code{drop = FALSE}.
+\itemize{
+\item \code{MizerParams}: An \code{ArraySpeciesBySize} object (prey species x prey size)
+with the predation mortality rates.
+\item \code{MizerSim}: An \code{ArrayTimeBySpeciesBySize} object (time step x prey species
+x prey size) with the predation mortality at every time step.
+If \code{drop = TRUE} then dimensions of length 1 will be removed.
+}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}

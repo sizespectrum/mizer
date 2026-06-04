@@ -82,25 +82,32 @@ getRates.MizerParams <- function(params, n = initialN(params),
 #'
 #' @inherit mizerEncounter
 #'
-#' @return An `ArraySpeciesBySize` object (predator species x predator size) with the
-#'   encounter rates.
+#' @inheritParams get_time_elements
+#' @param drop If `TRUE` then any dimension of length 1 will be removed
+#'   from the returned array.
+#' @return
+#' * `MizerParams`: An `ArraySpeciesBySize` object (predator species x predator
+#'   size) with the encounter rates.
+#' * `MizerSim`: An `ArrayTimeBySpeciesBySize` object (time step x predator
+#'   species x predator size) with the encounter rates at every time step.
+#'   If `drop = TRUE` then dimensions of length 1 will be removed.
 #' @export
 #' @family rate functions
 #' @examples
 #' encounter <- getEncounter(NS_params)
 #' str(encounter)
-getEncounter <- function(params, n = initialN(params),
-                         n_pp = initialNResource(params),
-                         n_other = initialNOther(params),
+getEncounter <- function(object, n = initialN(object),
+                         n_pp = initialNResource(object),
+                         n_other = initialNOther(object),
                          t = 0, ...) {
     UseMethod("getEncounter")
 }
 #' @export
-getEncounter.MizerParams <- function(params, n = initialN(params),
-                         n_pp = initialNResource(params),
-                         n_other = initialNOther(params),
+getEncounter.MizerParams <- function(object, n = initialN(object),
+                         n_pp = initialNResource(object),
+                         n_other = initialNOther(object),
                          t = 0, ...) {
-    params <- validParams(params)
+    params <- validParams(object)
     assert_that(is.array(n),
                 is.numeric(n_pp),
                 is.list(n_other),
@@ -122,9 +129,9 @@ getEncounter.MizerParams <- function(params, n = initialN(params),
 }
 
 #' @export
-getEncounter.MizerSim <- function(params, n, n_pp, n_other, t, ...,
+getEncounter.MizerSim <- function(object, n, n_pp, n_other, t, ...,
                                   time_range, drop = FALSE) {
-    sim <- params
+    sim <- object
     if (missing(time_range) && !missing(t)) time_range <- t
     get_species_size_rate_from_sim(
         sim, time_range, drop,
@@ -280,13 +287,12 @@ get_species_time_rate_from_sim <- function(sim, time_range, rate_fun,
 #' @param drop If `TRUE` then any dimension of length 1 will be removed
 #'   from the returned array.
 #'
-#' @return If a `MizerParams` object is passed in, returns an `ArraySpeciesBySize` object
-#'   (predator species x predator size) with the feeding level.
-#'   If a `MizerSim` object is passed in, returns a three-dimensional array
-#'   (time step x predator species x predator size) with the feeding level at
-#'   every time step.
-#'   If \code{drop = TRUE} then dimensions of length 1 will be removed from
-#'   the returned array.
+#' @return
+#' * `MizerParams`: An `ArraySpeciesBySize` object (predator species x predator
+#'   size) with the feeding level.
+#' * `MizerSim`: An `ArrayTimeBySpeciesBySize` object (time step x predator
+#'   species x predator size) with the feeding level at every time step.
+#'   If `drop = TRUE` then dimensions of length 1 will be removed.
 #'
 #' @export
 #' @family rate functions
@@ -381,8 +387,16 @@ getCriticalFeedingLevel.MizerParams <- function(params) {
 #'
 #' @inherit mizerEReproAndGrowth
 #'
-#' @return An `ArraySpeciesBySize` object (species x size) with the energy rate
-#'   \eqn{E_{r.i}(w)} available for growth and reproduction (grams/year).
+#' @inheritParams get_time_elements
+#' @param drop If `TRUE` then any dimension of length 1 will be removed
+#'   from the returned array.
+#' @return
+#' * `MizerParams`: An `ArraySpeciesBySize` object (species x size) with the
+#'   energy rate \eqn{E_{r.i}(w)} available for growth and reproduction
+#'   (grams/year).
+#' * `MizerSim`: An `ArrayTimeBySpeciesBySize` object (time step x species x
+#'   size) with the energy rate at every time step. If `drop = TRUE` then
+#'   dimensions of length 1 will be removed.
 #' @export
 #' @seealso The part of this energy rate that is invested into growth is
 #'   calculated with [getEGrowth()] and the part that is invested into
@@ -399,19 +413,19 @@ getCriticalFeedingLevel.MizerParams <- function(params) {
 #' # Rate at this time for Sprat of size 2g
 #' e["Sprat", "2"]
 #' }
-getEReproAndGrowth <- function(params, n = initialN(params),
-                               n_pp = initialNResource(params),
-                               n_other = initialNOther(params),
+getEReproAndGrowth <- function(object, n = initialN(object),
+                               n_pp = initialNResource(object),
+                               n_other = initialNOther(object),
                                t = 0, ...) {
     UseMethod("getEReproAndGrowth")
 }
 
 #' @export
-getEReproAndGrowth.MizerParams <- function(params, n = initialN(params),
-                               n_pp = initialNResource(params),
-                               n_other = initialNOther(params),
+getEReproAndGrowth.MizerParams <- function(object, n = initialN(object),
+                               n_pp = initialNResource(object),
+                               n_other = initialNOther(object),
                                t = 0, ...) {
-    params <- validParams(params)
+    params <- validParams(object)
     encounter <- getEncounter(params, n, n_pp, n_other, t = t)
     feeding_level <- getFeedingLevel(params, n, n_pp, n_other, time_range = t)
     if (usesExtensionDispatch(params)) {
@@ -428,9 +442,9 @@ getEReproAndGrowth.MizerParams <- function(params, n = initialN(params),
 }
 
 #' @export
-getEReproAndGrowth.MizerSim <- function(params, n, n_pp, n_other, t, ...,
+getEReproAndGrowth.MizerSim <- function(object, n, n_pp, n_other, t, ...,
                                         time_range, drop = FALSE) {
-    sim <- params
+    sim <- object
     if (missing(time_range) && !missing(t)) time_range <- t
     get_species_size_rate_from_sim(
         sim, time_range, drop,
@@ -455,8 +469,15 @@ getEReproAndGrowth.MizerSim <- function(params, n, n_pp, n_other, t, ...,
 #'
 #' @inheritParams mizerRates
 #'
-#' @return An `ArraySpeciesBySize` object (predator species x prey size),
-#'   where the prey size runs over fish community plus resource spectrum.
+#' @inheritParams get_time_elements
+#' @param drop If `TRUE` then any dimension of length 1 will be removed
+#'   from the returned array.
+#' @return
+#' * `MizerParams`: An `ArraySpeciesBySize` object (predator species x prey
+#'   size), where the prey size runs over fish community plus resource spectrum.
+#' * `MizerSim`: An `ArrayTimeBySpeciesBySize` object (time step x predator
+#'   species x prey size) with the predation rates at every time step.
+#'   If `drop = TRUE` then dimensions of length 1 will be removed.
 #' @export
 #' @family rate functions
 #' @examples
@@ -471,19 +492,19 @@ getEReproAndGrowth.MizerSim <- function(params, n, n_pp, n_other, t, ...,
 #' pred_rate <- getPredRate(params, n = N(sim)[15, , ],
 #'                          n_pp = NResource(sim)[15, ], t = 15)
 #' }
-getPredRate <- function(params, n = initialN(params),
-                        n_pp = initialNResource(params),
-                        n_other = initialNOther(params),
+getPredRate <- function(object, n = initialN(object),
+                        n_pp = initialNResource(object),
+                        n_other = initialNOther(object),
                         t = 0, ...) {
     UseMethod("getPredRate")
 }
 
 #' @export
-getPredRate.MizerParams <- function(params, n = initialN(params),
-                        n_pp = initialNResource(params),
-                        n_other = initialNOther(params),
+getPredRate.MizerParams <- function(object, n = initialN(object),
+                        n_pp = initialNResource(object),
+                        n_other = initialNOther(object),
                         t = 0, ...) {
-    params <- validParams(params)
+    params <- validParams(object)
     feeding_level <- getFeedingLevel(params, n = n, n_pp = n_pp,
                                      n_other = n_other, time_range = t)
     if (usesExtensionDispatch(params)) {
@@ -502,9 +523,9 @@ getPredRate.MizerParams <- function(params, n = initialN(params),
 }
 
 #' @export
-getPredRate.MizerSim <- function(params, n, n_pp, n_other, t, ...,
+getPredRate.MizerSim <- function(object, n, n_pp, n_other, t, ...,
                                  time_range, drop = FALSE) {
-    sim <- params
+    sim <- object
     if (missing(time_range) && !missing(t)) time_range <- t
     get_species_size_rate_from_sim(
         sim, time_range, drop,
@@ -527,12 +548,11 @@ getPredRate.MizerSim <- function(params, n, n_pp, n_other, t, ...,
 #' @inheritParams getFeedingLevel
 #'
 #' @return
-#'   If a `MizerParams` object is passed in, returns an `ArraySpeciesBySize` object
-#'   (prey species x prey size) with the predation mortality rates.
-#'   If a `MizerSim` object is passed in, returns a three-dimensional array
-#'   (time step x prey species x prey size) with the predation mortality at
-#'   every time step. Dimensions may be dropped if they have length 1 unless
-#'   `drop = FALSE`.
+#' * `MizerParams`: An `ArraySpeciesBySize` object (prey species x prey size)
+#'   with the predation mortality rates.
+#' * `MizerSim`: An `ArrayTimeBySpeciesBySize` object (time step x prey species
+#'   x prey size) with the predation mortality at every time step.
+#'   If `drop = TRUE` then dimensions of length 1 will be removed.
 #' @family rate functions
 #' @export
 #' @examples
@@ -809,11 +829,11 @@ getFMortGear.MizerSim <- function(object, effort, time_range,
 #'   dimensions of length 1 be dropped, e.g. if your community only has one
 #'   species it might make presentation of results easier. Default is TRUE.
 #'
-#' @return If a `MizerParams` object is passed in without a time-dimensioned
-#'   effort, returns an `ArraySpeciesBySize` object (species x size) with the fishing
-#'   mortality rates. If the effort argument has a time dimension, or a
-#'   `MizerSim` object is passed in, returns a three-dimensional array
-#'   (time x species x size).
+#' @return
+#' * `MizerParams` with vector effort: An `ArraySpeciesBySize` object
+#'   (species x size) with the fishing mortality rates.
+#' * `MizerParams` with time-dimensioned effort or `MizerSim`: An
+#'   `ArrayTimeBySpeciesBySize` object (time x species x size).
 #'
 #' The `effort` argument is only used if a `MizerParams` object is
 #' passed in. The `effort` argument can be a two dimensional array (time x
@@ -957,7 +977,15 @@ getFMort.MizerSim <- function(object, effort, time_range, drop = TRUE,
 #' @param effort A numeric vector of the effort by gear or a single numeric
 #'   effort value which is used for all gears.
 #'
-#' @return An `ArraySpeciesBySize` object (species x size) with the total mortality rates.
+#' @inheritParams get_time_elements
+#' @param drop If `TRUE` then any dimension of length 1 will be removed
+#'   from the returned array.
+#' @return
+#' * `MizerParams`: An `ArraySpeciesBySize` object (species x size) with the
+#'   total mortality rates.
+#' * `MizerSim`: An `ArrayTimeBySpeciesBySize` object (time step x species x
+#'   size) with the total mortality rates at every time step. If `drop = TRUE`
+#'   then dimensions of length 1 will be removed.
 #'
 #' @export
 #' @seealso [getPredMort()], [getFMort()]
@@ -973,23 +1001,23 @@ getFMort.MizerSim <- function(object, effort, time_range, drop = TRUE,
 #' # Mortality rate at this time for Sprat of size 2g
 #' mort["Sprat", "2"]
 #' }
-getMort <- function(params,
-                    n = initialN(params),
-                    n_pp = initialNResource(params),
-                    n_other = initialNOther(params),
-                    effort = getInitialEffort(params),
+getMort <- function(object,
+                    n = initialN(object),
+                    n_pp = initialNResource(object),
+                    n_other = initialNOther(object),
+                    effort = getInitialEffort(object),
                     t = 0, ...) {
     UseMethod("getMort")
 }
 
 #' @export
-getMort.MizerParams <- function(params,
-                    n = initialN(params),
-                    n_pp = initialNResource(params),
-                    n_other = initialNOther(params),
-                    effort = getInitialEffort(params),
+getMort.MizerParams <- function(object,
+                    n = initialN(object),
+                    n_pp = initialNResource(object),
+                    n_other = initialNOther(object),
+                    effort = getInitialEffort(object),
                     t = 0, ...) {
-    params <- validParams(params)
+    params <- validParams(object)
 
     f_mort <- getFMort(params, effort = effort, n = n, n_pp = n_pp,
                        n_other = n_other, t = t)
@@ -1008,9 +1036,9 @@ getMort.MizerParams <- function(params,
 }
 
 #' @export
-getMort.MizerSim <- function(params, n, n_pp, n_other, effort, t, ...,
+getMort.MizerSim <- function(object, n, n_pp, n_other, effort, t, ...,
                              time_range, drop = TRUE) {
-    sim <- params
+    sim <- object
     if (missing(time_range) && !missing(t)) time_range <- t
     get_species_size_rate_from_sim(
         sim, time_range, drop,
@@ -1040,14 +1068,21 @@ getZ <- getMort
 #' @inherit mizerERepro
 #' @inheritParams mizerRates
 #'
-#' @return An `ArraySpeciesBySize` object (species x size) holding
-#' \deqn{\psi_i(w)\max(0, E_{r.i}(w))}
-#' where \eqn{E_{r.i}(w)} is the rate at which energy becomes available for
-#' growth and reproduction, calculated with [getEReproAndGrowth()],
-#' and \eqn{\psi_i(w)} is the proportion of this energy that is used for
-#' reproduction. Negative values of \eqn{E_{r.i}(w)} are clipped to 0 before
-#' multiplying by \eqn{\psi_i(w)}. This proportion is taken from the `params`
-#' object and is set with [setReproduction()].
+#' @inheritParams get_time_elements
+#' @param drop If `TRUE` then any dimension of length 1 will be removed
+#'   from the returned array.
+#' @return
+#' * `MizerParams`: An `ArraySpeciesBySize` object (species x size) holding
+#'   \deqn{\psi_i(w)\max(0, E_{r.i}(w))}
+#'   where \eqn{E_{r.i}(w)} is the rate at which energy becomes available for
+#'   growth and reproduction, calculated with [getEReproAndGrowth()],
+#'   and \eqn{\psi_i(w)} is the proportion of this energy that is used for
+#'   reproduction. Negative values of \eqn{E_{r.i}(w)} are clipped to 0 before
+#'   multiplying by \eqn{\psi_i(w)}. This proportion is taken from the `params`
+#'   object and is set with [setReproduction()].
+#' * `MizerSim`: An `ArrayTimeBySpeciesBySize` object (time step x species x
+#'   size) with the energy for reproduction at every time step. If `drop = TRUE`
+#'   then dimensions of length 1 will be removed.
 #' @export
 #' @family rate functions
 #' @examples
@@ -1060,19 +1095,19 @@ getZ <- getMort
 #' # Rate at this time for Sprat of size 2g
 #' erepro["Sprat", "2"]
 #' }
-getERepro <- function(params, n = initialN(params),
-                      n_pp = initialNResource(params),
-                      n_other = initialNOther(params),
+getERepro <- function(object, n = initialN(object),
+                      n_pp = initialNResource(object),
+                      n_other = initialNOther(object),
                       t = 0, ...) {
     UseMethod("getERepro")
 }
 
 #' @export
-getERepro.MizerParams <- function(params, n = initialN(params),
-                      n_pp = initialNResource(params),
-                      n_other = initialNOther(params),
+getERepro.MizerParams <- function(object, n = initialN(object),
+                      n_pp = initialNResource(object),
+                      n_other = initialNOther(object),
                       t = 0, ...) {
-    params <- validParams(params)
+    params <- validParams(object)
     e <- getEReproAndGrowth(params, n = n, n_pp = n_pp, n_other = n_other,
                             t = t)
     if (usesExtensionDispatch(params)) {
@@ -1088,9 +1123,9 @@ getERepro.MizerParams <- function(params, n = initialN(params),
 }
 
 #' @export
-getERepro.MizerSim <- function(params, n, n_pp, n_other, t, ...,
+getERepro.MizerSim <- function(object, n, n_pp, n_other, t, ...,
                                time_range, drop = FALSE) {
-    sim <- params
+    sim <- object
     if (missing(time_range) && !missing(t)) time_range <- t
     get_species_size_rate_from_sim(
         sim, time_range, drop,
@@ -1120,8 +1155,15 @@ getESpawning <- getERepro
 #' @inherit mizerEGrowth
 #' @inheritParams mizerRates
 #'
-#' @return An `ArraySpeciesBySize` object (species x size) with the somatic growth rates
-#'   (grams/year).
+#' @inheritParams get_time_elements
+#' @param drop If `TRUE` then any dimension of length 1 will be removed
+#'   from the returned array.
+#' @return
+#' * `MizerParams`: An `ArraySpeciesBySize` object (species x size) with the
+#'   somatic growth rates (grams/year).
+#' * `MizerSim`: An `ArrayTimeBySpeciesBySize` object (time step x species x
+#'   size) with the growth rates at every time step. If `drop = TRUE` then
+#'   dimensions of length 1 will be removed.
 #' @export
 #' @seealso [getERepro()], [getEReproAndGrowth()]
 #' @family rate functions
@@ -1135,19 +1177,19 @@ getESpawning <- getERepro
 #' # Growth rate at this time for Sprat of size 2g
 #' growth["Sprat", "2"]
 #' }
-getEGrowth <- function(params, n = initialN(params),
-                       n_pp = initialNResource(params),
-                       n_other = initialNOther(params),
+getEGrowth <- function(object, n = initialN(object),
+                       n_pp = initialNResource(object),
+                       n_other = initialNOther(object),
                        t = 0, ...) {
     UseMethod("getEGrowth")
 }
 
 #' @export
-getEGrowth.MizerParams <- function(params, n = initialN(params),
-                       n_pp = initialNResource(params),
-                       n_other = initialNOther(params),
+getEGrowth.MizerParams <- function(object, n = initialN(object),
+                       n_pp = initialNResource(object),
+                       n_other = initialNOther(object),
                        t = 0, ...) {
-    params <- validParams(params)
+    params <- validParams(object)
     e_repro <- getERepro(params, n = n, n_pp = n_pp, n_other = n_other,
                          t = t)
     e <- getEReproAndGrowth(params, n = n, n_pp = n_pp,
@@ -1165,9 +1207,9 @@ getEGrowth.MizerParams <- function(params, n = initialN(params),
 }
 
 #' @export
-getEGrowth.MizerSim <- function(params, n, n_pp, n_other, t, ...,
+getEGrowth.MizerSim <- function(object, n, n_pp, n_other, t, ...,
                                 time_range, drop = FALSE) {
-    sim <- params
+    sim <- object
     if (missing(time_range) && !missing(t)) time_range <- t
     get_species_size_rate_from_sim(
         sim, time_range, drop,
@@ -1188,9 +1230,9 @@ getEGrowth.MizerSim <- function(params, n, n_pp, n_other, t, ...,
 #' @inheritParams mizerRates
 #' @inheritParams get_time_elements
 #'
-#' @return If a `MizerParams` object is passed in, a numeric vector the length
-#'   of the number of species. If a `MizerSim` object is passed in, an
-#'   `ArrayTimeBySpecies` object with dimensions time x species.
+#' @return
+#' * `MizerParams`: A numeric vector the length of the number of species.
+#' * `MizerSim`: An `ArrayTimeBySpecies` object (time x species).
 #' @export
 #' @seealso [getRDD()]
 #' @family rate functions
@@ -1202,19 +1244,19 @@ getEGrowth.MizerSim <- function(params, n, n_pp, n_other, t, ...,
 #' # Get the density-independent reproduction rate at a particular time step
 #' getRDI(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], t = 15)
 #' }
-getRDI <- function(params, n = initialN(params),
-                   n_pp = initialNResource(params),
-                   n_other = initialNOther(params),
+getRDI <- function(object, n = initialN(object),
+                   n_pp = initialNResource(object),
+                   n_other = initialNOther(object),
                    t = 0, ...) {
     UseMethod("getRDI")
 }
 
 #' @export
-getRDI.MizerParams <- function(params, n = initialN(params),
-                   n_pp = initialNResource(params),
-                   n_other = initialNOther(params),
+getRDI.MizerParams <- function(object, n = initialN(object),
+                   n_pp = initialNResource(object),
+                   n_other = initialNOther(object),
                    t = 0, ...) {
-    params <- validParams(params)
+    params <- validParams(object)
     e_repro <- getERepro(params, n = n, n_pp = n_pp, n_other = n_other,
                          t = t)
     e_growth <- getEGrowth(params, n = n, n_pp = n_pp, n_other = n_other,
@@ -1237,9 +1279,9 @@ getRDI.MizerParams <- function(params, n = initialN(params),
 }
 
 #' @export
-getRDI.MizerSim <- function(params, n, n_pp, n_other, t = 0,
+getRDI.MizerSim <- function(object, n, n_pp, n_other, t = 0,
                             time_range, ...) {
-    sim <- params
+    sim <- object
     get_species_time_rate_from_sim(
         sim, time_range,
         function(slice) {
@@ -1267,9 +1309,9 @@ getRDI.MizerSim <- function(params, n, n_pp, n_other, t = 0,
 #'   species. If not specified, rdi is calculated internally using
 #'   [getRDI()].
 #'
-#' @return If a `MizerParams` object is passed in, a numeric vector the length
-#'   of the number of species. If a `MizerSim` object is passed in, an
-#'   `ArrayTimeBySpecies` object with dimensions time x species.
+#' @return
+#' * `MizerParams`: A numeric vector the length of the number of species.
+#' * `MizerSim`: An `ArrayTimeBySpecies` object (time x species).
 #' @export
 #' @seealso [getRDI()]
 #' @family rate functions
@@ -1281,23 +1323,23 @@ getRDI.MizerSim <- function(params, n, n_pp, n_other, t = 0,
 #' # Get the rate at a particular time step
 #' getRDD(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], t = 15)
 #' }
-getRDD <- function(params, n = initialN(params),
-                   n_pp = initialNResource(params),
-                   n_other = initialNOther(params),
+getRDD <- function(object, n = initialN(object),
+                   n_pp = initialNResource(object),
+                   n_other = initialNOther(object),
                    t = 0,
-                   rdi = getRDI(params, n = n, n_pp = n_pp,
+                   rdi = getRDI(object, n = n, n_pp = n_pp,
                                 n_other = n_other, t = t), ...) {
     UseMethod("getRDD")
 }
 
 #' @export
-getRDD.MizerParams <- function(params, n = initialN(params),
-                   n_pp = initialNResource(params),
-                   n_other = initialNOther(params),
+getRDD.MizerParams <- function(object, n = initialN(object),
+                   n_pp = initialNResource(object),
+                   n_other = initialNOther(object),
                    t = 0,
-                   rdi = getRDI(params, n = n, n_pp = n_pp,
+                   rdi = getRDI(object, n = n, n_pp = n_pp,
                                 n_other = n_other, t = t), ...) {
-    params <- validParams(params)
+    params <- validParams(object)
     if (usesExtensionDispatch(params)) {
         rdd <- projectRDD(params, rdi = rdi, species_params = params@species_params,
                           t = t, ...)
@@ -1316,9 +1358,9 @@ getRDD.MizerParams <- function(params, n = initialN(params),
 }
 
 #' @export
-getRDD.MizerSim <- function(params, n, n_pp, n_other, t = 0,
+getRDD.MizerSim <- function(object, n, n_pp, n_other, t = 0,
                             rdi, time_range, ...) {
-    sim <- params
+    sim <- object
     get_species_time_rate_from_sim(
         sim, time_range,
         function(slice) {
@@ -1341,8 +1383,15 @@ getRDD.MizerSim <- function(params, n, n_pp, n_other, t = 0,
 #'
 #' @inheritParams mizerRates
 #'
-#' @return An `ArraySpeciesBySize` object (species x size) with the flux of individuals
-#'   entering each size class (numbers/year).
+#' @inheritParams get_time_elements
+#' @param drop If `TRUE` then any dimension of length 1 will be removed
+#'   from the returned array.
+#' @return
+#' * `MizerParams`: An `ArraySpeciesBySize` object (species x size) with the
+#'   flux of individuals entering each size class (numbers/year).
+#' * `MizerSim`: An `ArrayTimeBySpeciesBySize` object (time step x species x
+#'   size) with the flux at every time step. If `drop = TRUE` then dimensions
+#'   of length 1 will be removed.
 #' @export
 #' @seealso [getEGrowth()], [getRDD()]
 #' @family rate functions
@@ -1356,19 +1405,19 @@ getRDD.MizerSim <- function(params, n, n_pp, n_other, t = 0,
 #' # Flux for Sprat of size 2g
 #' flux["Sprat", "2"]
 #' }
-getFlux <- function(params, n = initialN(params),
-                    n_pp = initialNResource(params),
-                    n_other = initialNOther(params),
+getFlux <- function(object, n = initialN(object),
+                    n_pp = initialNResource(object),
+                    n_other = initialNOther(object),
                     t = 0, ...) {
     UseMethod("getFlux")
 }
 
 #' @export
-getFlux.MizerParams <- function(params, n = initialN(params),
-                    n_pp = initialNResource(params),
-                    n_other = initialNOther(params),
+getFlux.MizerParams <- function(object, n = initialN(object),
+                    n_pp = initialNResource(object),
+                    n_other = initialNOther(object),
                     t = 0, ...) {
-    params <- validParams(params)
+    params <- validParams(object)
 
     no_sp <- nrow(params@species_params)
     no_w <- length(params@w)
@@ -1410,9 +1459,9 @@ getFlux.MizerParams <- function(params, n = initialN(params),
 }
 
 #' @export
-getFlux.MizerSim <- function(params, n, n_pp, n_other, t, ...,
+getFlux.MizerSim <- function(object, n, n_pp, n_other, t, ...,
                              time_range, drop = FALSE) {
-    sim <- params
+    sim <- object
     if (missing(time_range) && !missing(t)) time_range <- t
     get_species_size_rate_from_sim(
         sim, time_range, drop,

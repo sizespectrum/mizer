@@ -251,8 +251,6 @@ Royal Society, 276, 109-114</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">set_community_model</span><span class="op">(</span>f0<span class="op">=</span><span class="fl">0.7</span>, z0<span class="op">=</span><span class="fl">0.2</span>, recruitment<span class="op">=</span><span class="fl">3e7</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`set_community_model()` was deprecated in mizer 2.0.0.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Please use `newCommunityParams()` instead.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Note: No m column in species data frame so using m = 1.</span>
 <span class="r-in"><span><span class="co"># This is now achieved with</span></span></span>
 <span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="newCommunityParams.html">newCommunityParams</a></span><span class="op">(</span>f0 <span class="op">=</span> <span class="fl">0.7</span>, z0 <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span></span>
