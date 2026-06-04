@@ -812,6 +812,7 @@ plotYieldGear.MizerSim <- function(object,
 #' @usage NULL
 #' @export
 plotlyYieldGear <- function(object, species = NULL,
+                            gears = NULL,
                             total = FALSE, ylim = c(NA, NA),
                             highlight = NULL, ...) {
     argg <- as.list(environment())
@@ -1515,7 +1516,7 @@ plotlyCDF <- function(object, species = NULL,
                       total = FALSE, resource = FALSE,
                       background = TRUE,
                       highlight = NULL, normalise = TRUE,
-                      log_x = TRUE, log = NULL,
+                      log_x = TRUE, log_y = FALSE, log = NULL,
                       size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
     args <- list(object = object, species = species,
@@ -1524,7 +1525,7 @@ plotlyCDF <- function(object, species = NULL,
                  biomass = biomass, total = total,
                  resource = resource, background = background,
                  highlight = highlight, normalise = normalise,
-                 log_x = log_x, log = log, llim = llim,
+                 log_x = log_x, log_y = log_y, log = log, llim = llim,
                  size_axis = size_axis, ...)
     if (!missing(time_range)) {
         args$time_range <- time_range
@@ -1770,6 +1771,7 @@ plot_feeding_level <- function(params, feed, species, highlight,
 plotlyFeedingLevel <- function(object,
                              species = NULL,
                              time_range,
+                             all.sizes = FALSE,
                              highlight = NULL,
                              include_critical = FALSE,
                              wlim = c(NA, NA), llim = c(NA, NA),
