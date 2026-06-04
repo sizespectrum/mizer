@@ -132,7 +132,7 @@ test_that("plot.ArrayTimeBySpeciesBySize preserves single species dimension", {
 
     expect_true(is.data.frame(p))
     expect_identical(p$Species, rep("Cod", 3))
-    expect_equal(p$value, unname(arr["2001", "Cod", ]))
+    expect_equal(p[[2]], unname(arr["2001", "Cod", ]))
 })
 
 test_that("as.data.frame.ArrayTimeBySpeciesBySize returns correct structure", {

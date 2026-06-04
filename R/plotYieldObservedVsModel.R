@@ -170,7 +170,7 @@ plotYieldObservedVsModel.MizerParams <- function(object, species = NULL, ratio =
             max.overlaps = Inf,
             seed = 42)
     }
-    gg
+    make_mizer_plot(gg, "all")
 }
 #' @export
 plotYieldObservedVsModel.MizerSim <- function(object, species = NULL, ratio = FALSE,

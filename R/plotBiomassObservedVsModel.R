@@ -187,7 +187,7 @@ plotBiomassObservedVsModel.MizerParams <- function(object, species = NULL, ratio
             max.overlaps = Inf,
             seed = 42)
     }
-    gg
+    make_mizer_plot(gg, "all")
 }
 #' @export
 plotBiomassObservedVsModel.MizerSim <- function(object, species = NULL, ratio = FALSE,

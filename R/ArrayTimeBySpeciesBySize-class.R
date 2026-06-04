@@ -260,17 +260,8 @@ ArrayTimeBySpeciesBySize_slice <- function(x, time = NULL) {
 #' plotHover(getFMort(NS_sim))
 #' }
 #' @export
-plotHover.ArrayTimeBySpeciesBySize <- function(x,
-                                                width = NULL, height = NULL,
-                                                tooltip = "all",
-                                                dynamicTicks = FALSE,
-                                                layerData = 1,
-                                                originalData = TRUE,
-                                                source = "A", ...) {
-    plotly::ggplotly(plot(x, ...), width = width, height = height,
-                     tooltip = tooltip, dynamicTicks = dynamicTicks,
-                     layerData = layerData, originalData = originalData,
-                     source = source)
+plotHover.ArrayTimeBySpeciesBySize <- function(x, ...) {
+    plotHover(plot(x, ...), ...)
 }
 
 #' @rdname animate

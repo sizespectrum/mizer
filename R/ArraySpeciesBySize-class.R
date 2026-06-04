@@ -464,10 +464,11 @@ addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
         plot_dat <- filter_plot_length_limits(plot_dat, llim)
     }
     x_var <- plot_size_x_var(size_axis)
-    check_addPlot_compatible(plot, x_var = x_var, y_var = "value",
+    y_var <- names(plot_dat)[2]
+    check_addPlot_compatible(plot, x_var = x_var, y_var = y_var,
                              units = attr(x, "units"))
 
-    mapping <- aes(x = .data[[x_var]], y = .data[["value"]],
+    mapping <- aes(x = .data[[x_var]], y = .data[[y_var]],
                    group = .data[["Species"]])
     if (is.null(colour)) {
         mapping$colour <- rlang::quo(.data[["Legend"]])
@@ -596,6 +597,7 @@ prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,
         }
     }
 
+    value_name <- attr(x, "value_name") %||% "value"
     sel <- all_species %in% species
     mat <- unclass(x)[sel, , drop = FALSE]
 
@@ -649,28 +651,19 @@ prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,
         plot_dat <- rbind(plot_dat, total_dat)
     }
 
+    names(plot_dat)[2] <- value_name
+
     plot_dat
 }
 
 #' @rdname plotHover
-#' @param width,height,tooltip,dynamicTicks,layerData,originalData,source
-#'   Arguments passed to [plotly::ggplotly()].
 #' @examples
 #' \donttest{
 #' plotHover(getEncounter(NS_params))
 #' }
 #' @export
-plotHover.ArraySpeciesBySize <- function(x,
-                                         width = NULL, height = NULL,
-                                         tooltip = "all",
-                                         dynamicTicks = FALSE,
-                                         layerData = 1,
-                                         originalData = TRUE,
-                                         source = "A", ...) {
-    plotly::ggplotly(plot(x, ...), width = width, height = height,
-                     tooltip = tooltip, dynamicTicks = dynamicTicks,
-                     layerData = layerData, originalData = originalData,
-                     source = source)
+plotHover.ArraySpeciesBySize <- function(x, ...) {
+    plotHover(plot(x, ...), ...)
 }
 
 #' @export

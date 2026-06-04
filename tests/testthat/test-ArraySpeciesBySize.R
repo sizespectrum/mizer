@@ -87,7 +87,9 @@ test_that("plot.ArraySpeciesBySize returns ggplot", {
     # return_data works
     df <- plot(enc, return_data = TRUE)
     expect_true(is.data.frame(df))
-    expect_true(all(c("w", "value", "Species") %in% names(df)))
+    expect_true(all(c("w", "Species") %in% names(df)))
+    # 2nd column is the named value (e.g. "Encounter rate")
+    expect_true(is.numeric(df[[2]]))
 })
 
 test_that("plot.ArraySpeciesBySize supports base plot log argument", {
@@ -193,7 +195,7 @@ test_that("plot.ArraySpeciesBySize errors for unknown size grid", {
 test_that("ArraySpeciesBySize has interactive plotly methods", {
     enc <- getEncounter(NS_params)
 
-    expect_s3_class(ggplotly(enc), "plotly")
+    expect_s3_class(plotHover(enc), "plotly")
 })
 
 test_that("as.data.frame.ArraySpeciesBySize works", {
