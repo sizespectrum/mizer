@@ -329,6 +329,11 @@ the mathematical details.
 
 ## Breaking changes
 
+- The default `ratio` argument in `plotBiomassObservedVsModel()` and
+  `plotlyBiomassObservedVsModel()` is now consistently `FALSE` for all object
+  types. Calls that relied on the previous default ratio plot should now set
+  `ratio = TRUE`.
+
 - The first argument of `plotBiomass()`, `plotYield()`, `plotYieldGear()` and
   their `MizerSim` methods and `plotly*` wrappers has been renamed from `sim`
   to `object` for consistency with other plot generics. Calls using
