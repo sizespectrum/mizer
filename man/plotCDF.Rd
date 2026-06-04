@@ -25,6 +25,7 @@ plotCDF(object, ...)
   highlight = NULL,
   normalise = TRUE,
   log_x = TRUE,
+  log_y = FALSE,
   log = NULL,
   size_axis = c("w", "l"),
   return_data = FALSE,
@@ -45,6 +46,7 @@ plotCDF(object, ...)
   highlight = NULL,
   normalise = TRUE,
   log_x = TRUE,
+  log_y = FALSE,
   log = NULL,
   size_axis = c("w", "l"),
   return_data = FALSE,
@@ -139,9 +141,11 @@ integral.}
 
 \item{log_x}{If \code{TRUE} (default), use a log10 x-axis.}
 
-\item{log}{Character string specifying whether the x-axis should use a log10
-scale, in the same form as the base \code{\link[=plot]{plot()}} argument. For \code{plotCDF()},
-only \code{"x"} and \code{""} are supported. If supplied, this overrides \code{log_x}.}
+\item{log_y}{If \code{TRUE}, use a log10 y-axis. Default is \code{FALSE}.}
+
+\item{log}{Character string specifying which axes should use a log10 scale,
+in the same form as the base \code{\link[=plot]{plot()}} argument. If supplied, this overrides
+\code{log_x} and \code{log_y}.}
 
 \item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
 (\code{"l"}), using the allometric weight-length relationship.}

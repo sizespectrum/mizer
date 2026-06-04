@@ -578,6 +578,12 @@ label_units <- function(label) {
     NULL
 }
 
+apply_wlim <- function(data, wlim) {
+    if (!is.na(wlim[1])) data <- data[data$w >= wlim[1], ]
+    if (!is.na(wlim[2])) data <- data[data$w <= wlim[2], ]
+    data
+}
+
 prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,
                                                  all.sizes = FALSE,
                                                  wlim = c(NA, NA),
@@ -623,8 +629,7 @@ prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
 
-    if (!is.na(wlim[1])) plot_dat <- plot_dat[plot_dat$w >= wlim[1], ]
-    if (!is.na(wlim[2])) plot_dat <- plot_dat[plot_dat$w <= wlim[2], ]
+    plot_dat <- apply_wlim(plot_dat, wlim)
 
     plot_dat$Legend <- plot_dat$Species
 
@@ -646,8 +651,7 @@ prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,
             Species = "Total",
             Legend = "Total"
         )
-        if (!is.na(wlim[1])) total_dat <- total_dat[total_dat$w >= wlim[1], ]
-        if (!is.na(wlim[2])) total_dat <- total_dat[total_dat$w <= wlim[2], ]
+        total_dat <- apply_wlim(total_dat, wlim)
         plot_dat <- rbind(plot_dat, total_dat)
     }
 

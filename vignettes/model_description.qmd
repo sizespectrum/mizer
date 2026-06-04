@@ -551,9 +551,8 @@ mizer also provides alternatives `RickerRDD()`, `SheperdRDD()`, `constantRDD()`
 and `noRDD()`. Also, users are able to write their own functions, e.g.
 *hockey-stick*. See `setReproduction()` for details.
 
-## Abundance at egg size
+## Flux at egg size
 
-The reproduction rate $R_i$ determines the abundance density of species $i$
-at egg size. Intuitively, the rate at which individuals of size $w_0$ is produced
-must equal the rate at which they grow away from size $w_0$, which gives
-$$N_i(w_{0.i}) = \frac{R_i}{g_i(w_{0.i})}.$$
+The reproduction rate $R_i$ determines the flux of individuals into the smallest size class:
+$$J_i(w_{0.i}) = R_i.$$
+See the [section on boundary conditions](https://sizespectrum.org/mizer/articles/numerical_details.html#boundary-conditions) in the vignette on the numerical scheme for the details on how this is implemented.

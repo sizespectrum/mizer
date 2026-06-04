@@ -206,9 +206,7 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
 
     linecolour <- params@linecolour[legend_levels]
     linetype <- params@linetype[legend_levels]
-    linesize <- rep_len(0.8, length(legend_levels))
-    names(linesize) <- legend_levels
-    linesize[highlight] <- 1.6
+    linesize <- make_linesize(legend_levels, highlight)
 
     xbreaks <- waiver()
     if (xtrans == "log10") xbreaks <- log_breaks()
@@ -256,6 +254,13 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
 
     make_mizer_plot(p, mizer_tooltip_vars(frame, group_var, x_var, y_var,
                                           legend_var))
+}
+
+make_linesize <- function(levels, highlight) {
+    linesize <- rep(0.8, length(levels))
+    names(linesize) <- levels
+    linesize[highlight] <- 1.6
+    linesize
 }
 
 make_mizer_plot <- function(plot, tooltip) {
@@ -786,9 +791,7 @@ plotYieldGear.MizerSim <- function(sim,
     # Need to keep species in order for legend
     species_levels <- intersect(names(params@linecolour), ym$Species)
     ym$Species <- factor(ym$Species, levels = species_levels)
-    linesize <- rep(0.8, length(species_levels))
-    names(linesize) <- names(params@linetype[species_levels])
-    linesize[highlight] <- 1.6
+    linesize <- make_linesize(species_levels, highlight)
     ggplot(ym) +
         geom_line(aes(x = Year, y = Yield, colour = Species,
                       linetype = Gear, linewidth = Species)) +
@@ -1098,9 +1101,10 @@ plot_spectra <- function(params, n, n_pp,
 #'   `FALSE`, plot the cumulative abundance, biomass, or other unnormalised
 #'   integral.
 #' @param log_x If `TRUE` (default), use a log10 x-axis.
-#' @param log Character string specifying whether the x-axis should use a log10
-#'   scale, in the same form as the base [plot()] argument. For `plotCDF()`,
-#'   only `"x"` and `""` are supported. If supplied, this overrides `log_x`.
+#' @param log_y If `TRUE`, use a log10 y-axis. Default is `FALSE`.
+#' @param log Character string specifying which axes should use a log10 scale,
+#'   in the same form as the base [plot()] argument. If supplied, this overrides
+#'   `log_x` and `log_y`.
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the four variables 'w' (or 'l' if `size_axis = "l"`), 'value',
@@ -1128,14 +1132,14 @@ plotCDF.MizerSim <- function(object, species = NULL,
                              total = FALSE, resource = FALSE,
                              background = TRUE,
                              highlight = NULL, normalise = TRUE,
-                             log_x = TRUE, log = NULL,
+                             log_x = TRUE, log_y = FALSE, log = NULL,
                              size_axis = c("w", "l"),
                              return_data = FALSE, ...) {
     size_axis <- plot_size_axis(size_axis)
     if (missing(power)) {
         power <- as.numeric(biomass)
     }
-    log_x <- parsePlotCDFLog(log, log_x)
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is.flag(total), is.flag(resource),
                 is.flag(background), is.flag(normalise),
                 is.number(power),
@@ -1155,7 +1159,8 @@ plotCDF.MizerSim <- function(object, species = NULL,
     }
     plot_dat <- do.call(plotSpectra, args)
     plot_cdf(plot_dat, object@params, power = power, normalise = normalise,
-             log_x = log_x, wlim = wlim, ylim = ylim,
+             log_x = log_axes$log_x, log_y = log_axes$log_y,
+             wlim = wlim, ylim = ylim,
              llim = llim, highlight = highlight, size_axis = size_axis,
              return_data = return_data)
 }
@@ -1169,14 +1174,14 @@ plotCDF.MizerParams <- function(object, species = NULL,
                                 total = FALSE, resource = FALSE,
                                 background = TRUE,
                                 highlight = NULL, normalise = TRUE,
-                                log_x = TRUE, log = NULL,
+                                log_x = TRUE, log_y = FALSE, log = NULL,
                                 size_axis = c("w", "l"),
                                 return_data = FALSE, ...) {
     size_axis <- plot_size_axis(size_axis)
     if (missing(power)) {
         power <- as.numeric(biomass)
     }
-    log_x <- parsePlotCDFLog(log, log_x)
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is.flag(total), is.flag(resource),
                 is.flag(background), is.flag(normalise),
                 is.number(power),
@@ -1192,12 +1197,13 @@ plotCDF.MizerParams <- function(object, species = NULL,
                             size_axis = "w",
                             return_data = TRUE)
     plot_cdf(plot_dat, object, power = power, normalise = normalise,
-             log_x = log_x, wlim = wlim, ylim = ylim,
+             log_x = log_axes$log_x, log_y = log_axes$log_y,
+             wlim = wlim, ylim = ylim,
              llim = llim, highlight = highlight, size_axis = size_axis,
              return_data = return_data)
 }
 
-plot_cdf <- function(plot_dat, params, power, normalise, log_x, wlim, llim,
+plot_cdf <- function(plot_dat, params, power, normalise, log_x, log_y, wlim, llim,
                      ylim, highlight, size_axis, return_data) {
     size_axis <- plot_size_axis(size_axis)
     if (identical(size_axis, "l")) {
@@ -1216,7 +1222,7 @@ plot_cdf <- function(plot_dat, params, power, normalise, log_x, wlim, llim,
                   xlab = plot_size_xlab(size_axis),
                   ylab = cdf_y_label(power, normalise),
                   xtrans = if (log_x) "log10" else "identity",
-                  ytrans = "identity",
+                  ytrans = if (log_y) "log10" else "identity",
                   xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
                   highlight = highlight, legend_var = "Legend")
 }
@@ -1267,14 +1273,6 @@ cdf_y_label <- function(power, normalise) {
     paste0("Cumulative number density * w^", power)
 }
 
-parsePlotCDFLog <- function(log, log_x) {
-    log_axes <- parsePlotLog(log, log_x = log_x, log_y = FALSE)
-    if (log_axes$log_y) {
-        stop("`plotCDF()` only supports log scaling on the x axis. ",
-             "Use `log = \"x\"` or `log = \"\"`.")
-    }
-    log_axes$log_x
-}
 
 #' Compare two cumulative abundance or biomass distributions
 #'
@@ -1301,11 +1299,11 @@ parsePlotCDFLog <- function(log, log_x) {
 #' plotCDF2(sim1, sim2, "Original", "Effort = 0.5")
 #' }
 plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
-                     power = 1, normalise = TRUE, log_x = TRUE, log = NULL,
-                     resource = FALSE, llim = c(NA, NA),
+                     power = 1, normalise = TRUE, log_x = TRUE, log_y = FALSE,
+                     log = NULL, resource = FALSE, llim = c(NA, NA),
                      size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
-    log_x <- parsePlotCDFLog(log, log_x)
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is.number(power), is.flag(normalise), length(llim) == 2)
 
     args <- list(...)
@@ -1324,8 +1322,8 @@ plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
                             name1 = name1, name2 = name2,
                             xlab = plot_size_xlab(size_axis),
                             ylab = cdf_y_label(power, normalise),
-                            xtrans = if (log_x) "log10" else "identity",
-                            ytrans = "identity",
+                            xtrans = if (log_axes$log_x) "log10" else "identity",
+                            ytrans = if (log_axes$log_y) "log10" else "identity",
                             xlim = plot_size_xlim(wlim, size_axis, llim),
                             ylim = ylim, legend_var = "Legend",
                             size_axis = size_axis)
@@ -1716,9 +1714,7 @@ plot_feeding_level <- function(params, feed, species, highlight,
     legend_levels <-
         intersect(names(params@linecolour), plot_dat$Species)
     plot_dat$Legend <- factor(plot_dat$Species, levels = legend_levels)
-    linesize <- rep(0.8, length(legend_levels))
-    names(linesize) <- names(params@linetype[legend_levels])
-    linesize[highlight] <- 1.6
+    linesize <- make_linesize(legend_levels, highlight)
 
     # We do not use `plotDataFrame()` to create the plot because it would not
     # handle the alpha transparency for the critical feeding level.
@@ -2192,9 +2188,7 @@ plot_growth_curves <- function(params, species,
                     "Background", "Resource", "Total"),
                   plot_dat$Species)
     plot_dat$Species <- factor(plot_dat$Species, levels = legend_levels)
-    linesize <- rep(0.8, length(legend_levels))
-    names(linesize) <- names(params@linetype[legend_levels])
-    linesize[highlight] <- 1.6
+    linesize <- make_linesize(legend_levels, highlight)
     p <- p + scale_x_continuous(name = "Age [Years]") +
         scale_y_continuous(name = y_label) +
         scale_colour_manual(values = params@linecolour[legend_levels]) +

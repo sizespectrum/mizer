@@ -17,7 +17,7 @@ library(mizer)
 
 In this vignette we explain the numerical scheme used in mizer. We will not go into the details of the model itself, which is described in the [model description vignette](model_description.html). We will focus on how the model is discretised and how the resulting difference equations are solved.
 
-# Summary of simulation algorithm
+## Summary of simulation algorithm
 
 In each time step $\Delta t$, the `project()` function performs the following steps:
 
@@ -30,26 +30,26 @@ In each time step $\Delta t$, the `project()` function performs the following st
 
 This split between calculating rates explicitly and solving densities implicitly is what makes the scheme "semi-implicit".
 
-# The weight grid
+## The weight grid
 
 The model dynamics are described by partial differential equations (PDEs) for the consumer number density $N(w)$ of each species and the resource number density $N_R(w)$. These depend on the individual weight $w$. To solve these equations numerically, we discretise the weight axis. In this vignette we suppress the species index and write the equations for one species; the same scheme is applied to each species.
 
 We choose a grid of weights $w_1, w_2, \ldots, w_K$. The grid is logarithmically spaced, meaning that the ratio of consecutive weights is constant:
-$$ w_{j+1} / w_j = 10^{\Delta x} = \text{const}. $$
+$$ w_{j+1} / w_j = 10^{\Delta x} = \text{const}. $$ {#eq-log-spacing}
 The logarithmic spacing is chosen because the weights of fish span many orders of magnitude, from milligrams to megagrams.
 
 This grid defines a set of bins. The $j$-th bin is the interval $[w_j, w_{j+1})$. The width of the $j$-th bin is
-$$ \Delta w_j = w_{j+1} - w_j = w_j (10^{\Delta x} - 1). $$
+$$ \Delta w_j = w_{j+1} - w_j = w_j (10^{\Delta x} - 1). $$ {#eq-bin-width}
 Note that $\Delta w_j$ increases with $w_j$, which is appropriate for a logarithmic grid.
 
 The number density $N(w)$ is approximated by a constant value $N_j$ within each bin. Thus $N_j$ represents the density at the start of the bin $w_j$. The number of individuals in the $j$-th bin is $N_j \Delta w_j$.
 
-# The Transport Equation
+## The Transport Equation
 
 The time evolution of the number density $N(w)$ is described by the McKendrick-von Foerster equation with an added diffusion term:
 $$
 \frac{\partial N}{\partial t} + \frac{\partial}{\partial w} \left( g N - \frac{1}{2}\frac{\partial(d N)}{\partial w} \right) = -\mu N
-$$
+$$ {#eq-transport}
 where $g(w)$ is the somatic growth rate, $d(w)$ is the diffusion coefficient and $\mu(w)$ is the total mortality rate.
 
 We discretise this equation using a finite volume scheme.
@@ -58,27 +58,27 @@ On the grid we write $g_j = g(w_j)$, $d_j = d(w_j)$, and $\mu_j = \mu(w_j)$.
 ## Discretisation of the Fluxes
 
 The term inside the derivative with respect to $w$ is the flux $J(w)$:
-$$ J(w) = g(w) N(w) - \frac{1}{2}\frac{\partial(d(w) N(w))}{\partial w} $$
+$$ J(w) = g(w) N(w) - \frac{1}{2}\frac{\partial(d(w) N(w))}{\partial w} $$ {#eq-flux}
 We consider the $j$-th size bin $[w_j, w_{j+1}]$. Integrating the conservation equation over this bin gives:
-$$ \int_{w_j}^{w_{j+1}} \frac{\partial N_j}{\partial t}dw + J(w_{j+1}) - J(w_j) = -\int_{w_j}^{w_{j+1}} \mu(w) N(w) dw $$
+$$ \int_{w_j}^{w_{j+1}} \frac{\partial N_j}{\partial t}dw + J(w_{j+1}) - J(w_j) = -\int_{w_j}^{w_{j+1}} \mu(w) N(w) dw $$ {#eq-integrated-conservation}
 Approximating the integral and dividing by $\Delta w_j$:
-$$ \frac{\partial N_j}{\partial t}+ \frac{J_{j+1} - J_j}{\Delta w_j} = -\mu_j N_j^{t+1} $$
+$$ \frac{\partial N_j}{\partial t}+ \frac{J_{j+1} - J_j}{\Delta w_j} = -\mu_j N_j $$ {#eq-discretised-conservation}
 where $J_j$ represents the flux at the boundary $w_j$.
 
 ### Advective Flux
 For the advective part of the flux $g N$, we use an **upwind** approximation. Since fish grow from smaller to larger sizes ($g > 0$), the flux at boundary $w_j$ is determined by the density in the bin below ($j-1$):
-$$ J_j^{adv} = g_{j-1} N_{j-1} $$
+$$ J_j^{adv} = g_{j-1} N_{j-1} $$ {#eq-advective-flux}
 (Note: for $j=j_{min}$, this boundary flux is the recruitment $R_{dd}$).
 
 ### Diffusive Flux
 For the diffusive part of the flux $-\frac{1}{2}\frac{\partial(d N)}{\partial w}$, we use a **central difference** approximation at the boundary $w_j$. We approximate the gradient using the densities in the adjacent bins $j-1$ and $j$:
-$$ J_j^{diff} \approx -\frac{1}{2} \frac{(d N)_j - (d N)_{j-1}}{w_j - w_{j-1}} = -\frac{1}{2} \frac{d_j N_j - d_{j-1} N_{j-1}}{\Delta w_{j-1}} $$
+$$ J_j^{diff} \approx -\frac{1}{2} \frac{(d N)_j - (d N)_{j-1}}{w_j - w_{j-1}} = -\frac{1}{2} \frac{d_j N_j - d_{j-1} N_{j-1}}{\Delta w_{j-1}} $$ {#eq-diffusive-flux}
 Note the use of $N_j$ (density in bin $j$) and $N_{j-1}$ (density in bin $j-1$) to estimate the value at the interface $w_j$.
 
 The total flux at boundary $w_j$ is:
-$$ J_j = g_{j-1} N_{j-1} - \frac{1}{2} \frac{d_j N_j - d_{j-1} N_{j-1}}{\Delta w_{j-1}} $$
+$$ J_j = g_{j-1} N_{j-1} - \frac{1}{2} \frac{d_j N_j - d_{j-1} N_{j-1}}{\Delta w_{j-1}} $$ {#eq-total-flux-j}
 And similarly at boundary $w_{j+1}$:
-$$ J_{j+1} = g_j N_j - \frac{1}{2} \frac{d_{j+1} N_{j+1} - d_j N_j}{\Delta w_j} $$
+$$ J_{j+1} = g_j N_j - \frac{1}{2} \frac{d_{j+1} N_{j+1} - d_j N_j}{\Delta w_j} $$ {#eq-total-flux-jp1}
 
 ## Semi-Implicit Time Discretisation
 
@@ -86,18 +86,18 @@ With the diffusion term, an explicit time discretisation would require a very sm
 Thus, the discretised equation becomes:
 $$
 \frac{N_j^{t+1} - N_j^t}{\Delta t} + \frac{1}{\Delta w_j} \left( J_{j+1}^{t+1} - J_j^{t+1} \right) = -\mu_j N_j^{t+1}
-$$
+$$ {#eq-semi-implicit}
 where the fluxes $J_j^{t+1}$ are calculated using the densities at time $t+1$ but the rates at time $t$. To simplify the notation we will drop the explicit time indices on the rates, but it is important to remember that they are evaluated at time $t$. The fluxes at time $t+1$ are:
 $$
 \begin{aligned}
 J_{j+1}^{t+1} &= g_j N_j^{t+1} - \frac{1}{2} \frac{d_{j+1} N_{j+1}^{t+1} - d_j N_j^{t+1}}{\Delta w_j} \\
 J_j^{t+1} &= g_{j-1} N_{j-1}^{t+1} - \frac{1}{2} \frac{d_j N_j^{t+1} - d_{j-1} N_{j-1}^{t+1}}{\Delta w_{j-1}}.
 \end{aligned}
-$$
+$$ {#eq-fluxes-tp1}
 This leads to a linear system of the form:
 $$
 A_j N_{j-1}^{t+1} + B_j N_j^{t+1} + C_j N_{j+1}^{t+1} = S_j
-$$
+$$ {#eq-tridiagonal}
 where $S_j = N_j^t$.
 This is a **tridiagonal system** for each species, which can be solved efficiently (e.g., using the Thomas algorithm).
 
@@ -108,32 +108,32 @@ A_j &= -\frac{\Delta t}{\Delta w_j} \left( g_{j-1} + \frac{1}{2} \frac{d_{j-1}}{
 C_j &= -\frac{\Delta t}{\Delta w_j} \left( \frac{1}{2} \frac{d_{j+1}}{\Delta w_j} \right) \\
 B_j &= 1 + \Delta t \mu_j + \frac{\Delta t}{\Delta w_j} \left( g_j + \frac{1}{2} \frac{d_j}{\Delta w_j} + \frac{1}{2} \frac{d_j}{\Delta w_{j-1}} \right)
 \end{aligned}
-$$
+$$ {#eq-coefficients}
 
 ## Boundary Conditions
 
 **At the smallest size ($j=j_{min}$):**
 The flux entering the grid is determined by recruitment:
-$$ J_{j_{min}}^{t+1} = R_{dd} $$
+$$ J_{j_{min}}^{t+1} = R_{dd} $$ {#eq-lower-bc-flux}
 (We assume diffusive flux at the lower boundary is negligible or incorporated into $R_{dd}$).
 The equation for the first bin becomes:
-$$ \frac{N_{j_{min}}^{t+1} - N_{j_{min}}^t}{\Delta t} + \frac{J_{j_{min}+1}^{t+1} - R_{dd}}{\Delta w_{j_{min}}} = -\mu_{j_{min}} N_{j_{min}}^{t+1} $$
+$$ \frac{N_{j_{min}}^{t+1} - N_{j_{min}}^t}{\Delta t} + \frac{J_{j_{min}+1}^{t+1} - R_{dd}}{\Delta w_{j_{min}}} = -\mu_{j_{min}} N_{j_{min}}^{t+1} $$ {#eq-first-bin}
 This involves $N_{j_{min}}^{t+1}$ and $N_{j_{min}+1}^{t+1}$.
 Comparing this to the general discretised equation translates to modifying the first row ($j=j_{min}$) of our tri-diagonal matrices:
 
 *   The $j_{min}-1$ term does not exist, so $A_{j_{min}} = 0$.
 *   The upward diffusion term from below the boundary is omitted, so $B_{j_{min}}$ does not have the $\frac{1}{2} \frac{d_{j_{min}}}{\Delta w_{j_{min}-1}}$ component:
-    $$ B_{j_{min}} = 1 + \Delta t \mu_{j_{min}} + \frac{\Delta t}{\Delta w_{j_{min}}} \left( g_{j_{min}} + \frac{1}{2} \frac{d_{j_{min}}}{\Delta w_{j_{min}}} \right) $$
+    $$ B_{j_{min}} = 1 + \Delta t \mu_{j_{min}} + \frac{\Delta t}{\Delta w_{j_{min}}} \left( g_{j_{min}} + \frac{1}{2} \frac{d_{j_{min}}}{\Delta w_{j_{min}}} \right) $$ {#eq-lower-bc-B}
 *   The coefficient $C_{j_{min}}$ remains unchanged from the general formula.
 *   The recruitment flux enters as a source term, so it is added to the right-hand side $S_{j_{min}}$:
-    $$ S_{j_{min}} = N_{j_{min}}^t + \frac{\Delta t}{\Delta w_{j_{min}}} R_{dd} $$
+    $$ S_{j_{min}} = N_{j_{min}}^t + \frac{\Delta t}{\Delta w_{j_{min}}} R_{dd} $$ {#eq-lower-bc-S}
 
 (Additionally, for any size classes below the recruitment size $j < j_{min}$, we set all coefficients in the matrices $A$, $B$, $C$ and vector $S$ to $0$ to avoid any dynamics in that range).
 
 **At the largest size ($j=j_{max}$):**
 We typically assume that densities drop to zero beyond the maximum size, $N_{j_{max}+1} = 0$.
 The flux leaving the grid is:
-$$ J_{j_{max}+1}^{t+1} = g_{j_{max}} N_{j_{max}}^{t+1} - \frac{1}{2} \frac{0 - d_{j_{max}} N_{j_{max}}^{t+1}}{\Delta w_{j_{max}}} $$
+$$ J_{j_{max}+1}^{t+1} = g_{j_{max}} N_{j_{max}}^{t+1} - \frac{1}{2} \frac{0 - d_{j_{max}} N_{j_{max}}^{t+1}}{\Delta w_{j_{max}}} $$ {#eq-upper-bc-flux}
 This means the term $C_{j_{max}}$ multiplying $N_{j_{max}+1}^{t+1}$ is not needed, so $C_{j_{max}} = 0$. The coefficients $A_{j_{max}}$ and $B_{j_{max}}$ use the standard formulas.
 
 ## Numerical Diffusion
@@ -141,16 +141,16 @@ This means the term $C_{j_{max}}$ multiplying $N_{j_{max}+1}^{t+1}$ is not neede
 The upwind scheme used for the advective term introduces numerical diffusion. This is a well-known property of first-order upwind schemes. We can estimate the magnitude of this diffusion by expanding the discretised term using a Taylor series.
 
 The discretised equation for the transport (advection only, with constant rates for simplicity) is:
-$$ \frac{N_j^{t+1} - N_j^t}{\Delta t} + g \frac{N_j^{t+1} - N_{j-1}^{t+1}}{\Delta w} = 0 $$
+$$ \frac{N_j^{t+1} - N_j^t}{\Delta t} + g \frac{N_j^{t+1} - N_{j-1}^{t+1}}{\Delta w} = 0 $$ {#eq-upwind-advection}
 Expanding $N(w, t)$ around $(w_j, t+\Delta t)$ leads to the following leading order error terms:
-$$ \frac{\partial N}{\partial t} + g \frac{\partial N}{\partial w} = \frac{g \Delta w}{2} \left( 1 + \frac{g \Delta t}{\Delta w} \right) \frac{\partial^2 N}{\partial w^2} $$
+$$ \frac{\partial N}{\partial t} + g \frac{\partial N}{\partial w} = \frac{g \Delta w}{2} \left( 1 + \frac{g \Delta t}{\Delta w} \right) \frac{\partial^2 N}{\partial w^2} $$ {#eq-modified-eqn-euler}
 The coefficient of the second derivative represents the numerical diffusivity:
-$$ D_{num} = \frac{g \Delta w}{2} (1 + C) $$
+$$ D_{num} = \frac{g \Delta w}{2} (1 + C) $$ {#eq-num-diffusivity-euler}
 where $C = \frac{g \Delta t}{\Delta w}$ is the Courant-Friedrichs-Lewy (CFL) number.
 Comparing this to the Mizer diffusion equation form (where the diffusion term is $\frac{\partial}{\partial w} ( \frac{1}{2} \frac{\partial (D N)}{\partial w} )$), the effective diffusion parameter is:
-$$ d_{num}(w) \approx g(w) \Delta w (1 + C(w)) $$
+$$ d_{num}(w) \approx g(w) \Delta w (1 + C(w)) $$ {#eq-d-num-euler}
 Since $\Delta w \approx w \ln(\beta)$, this is:
-$$ d_{num}(w) \approx g(w) w \ln(\beta) \left( 1 + \frac{g(w) \Delta t}{w \ln(\beta)} \right) = g(w) w \ln(\beta) + g(w)^2 \Delta t $$
+$$ d_{num}(w) \approx g(w) w \ln(\beta) \left( 1 + \frac{g(w) \Delta t}{w \ln(\beta)} \right) = g(w) w \ln(\beta) + g(w)^2 \Delta t $$ {#eq-d-num-euler-log}
 This means the numerical scheme behaves as if there is a diffusion $d_{num}$. This numerical diffusion has two components: one from spatial discretisation (scaling with $\Delta w$) and one from time stepping (scaling with $\Delta t$).
 
 ## Order of Accuracy
@@ -161,7 +161,7 @@ $$
 = \frac{\partial N_j}{\partial t}(t+\Delta t)
 - \frac{\Delta t}{2}\frac{\partial^2 N_j}{\partial t^2}(t+\Delta t)
 + O(\Delta t^2).
-$$
+$$ {#eq-time-truncation}
 Thus the time discretisation has a truncation error of order $O(\Delta t)$. Evaluating the rates $g$, $d$ and $\mu$ at time $t$ instead of $t+1$ also introduces only an $O(\Delta t)$ error, provided the rates vary smoothly in time. The semi-implicit scheme is therefore first order in $\Delta t$.
 
 For the spatial discretisation, the upwind advective flux is the limiting term. For smooth $gN$,
@@ -170,17 +170,17 @@ $$
 = \frac{\partial(gN)}{\partial w}(w_j)
 - \frac{\Delta w_{j-1}}{2}\frac{\partial^2(gN)}{\partial w^2}(w_j)
 + O(\Delta w_{j-1}^2),
-$$
+$$ {#eq-space-truncation}
 so the advective part has an $O(\Delta w_j)$ spatial truncation error. The diffusive part uses a centred difference for the flux and is of higher order on a locally uniform grid, but the overall spatial order is still set by the upwind advective term.
 
 On the logarithmic grid, writing $\beta = w_{j+1}/w_j$, we have
 $$
 \Delta w_j = w_j(\beta - 1) = w_j\left(\log\beta + O((\log\beta)^2)\right).
-$$
+$$  {#eq-dw-log}
 Thus, at fixed body size $w_j$, first order in $\Delta w_j$ is equivalently first order in $\log\beta$. Combining the time and space errors, the scheme is
 $$
 O(\Delta t) + O(\Delta w_j)
-$$
+$$ {#eq-order-euler}
 locally, or $O(\Delta t + \log\beta)$ on the logarithmic grid.
 
 ## Predictor-Corrector Time Stepping
@@ -190,11 +190,11 @@ A straightforward way to make the time discretisation second order is to combine
 Let $L(r)$ denote the spatial operator for the consumer spectrum when the rates
 $$
 r = (g, d, \mu)
-$$
+$$  {#eq-rates-vector}
 are fixed, and let $q(R_{dd})$ denote the recruitment source at the lower boundary. The semi-implicit Euler method used above can be written schematically as
 $$
 \frac{N^{t+1} - N^t}{\Delta t} = L(r^t) N^{t+1} + q(R_{dd}^t).
-$$
+$$ {#eq-euler-scheme}
 This is first order because the rates and recruitment are only evaluated at the start of the time step.
 
 The predictor-corrector method proceeds as follows:
@@ -204,23 +204,23 @@ The predictor-corrector method proceeds as follows:
 3.  **Approximate midpoint rates:** Use
     $$
     r^{t+1/2} = \frac{1}{2}\left(r^t + \hat{r}^{t+1}\right),
-    $$
+    $$ {#eq-midpoint-rates}
     so in particular
     $$
     g_j^{t+1/2} = \frac{1}{2}\left(g_j^t + \hat{g}_j^{t+1}\right), \quad
     d_j^{t+1/2} = \frac{1}{2}\left(d_j^t + \hat{d}_j^{t+1}\right), \quad
     \mu_j^{t+1/2} = \frac{1}{2}\left(\mu_j^t + \hat{\mu}_j^{t+1}\right).
-    $$
+    $$ {#eq-midpoint-rates-components}
     The recruitment flux is averaged in the same way:
     $$
     R_{dd}^{t+1/2} = \frac{1}{2}\left(R_{dd}^t + \hat{R}_{dd}^{t+1}\right).
-    $$
+    $$ {#eq-midpoint-recruitment}
 4.  **Correct:** Do a Crank-Nicolson update using the midpoint rates:
     $$
     \frac{N^{t+1} - N^t}{\Delta t}
     = \frac{1}{2}\left(L(r^{t+1/2})N^t + L(r^{t+1/2})N^{t+1}\right)
     + q(R_{dd}^{t+1/2}).
-    $$
+    $$ {#eq-cn-corrector}
 
 In flux form, the corrector equation for an interior bin is
 $$
@@ -233,7 +233,7 @@ $$
 \right] \\
 &= -\frac{1}{2}\mu_j^{t+1/2}\left(N_j^{t+1} + N_j^t\right),
 \end{aligned}
-$$
+$$ {#eq-cn-flux-form}
 where all fluxes use the midpoint rates. For example,
 $$
 J_j^{t+1}
@@ -242,22 +242,22 @@ J_j^{t+1}
 d_j^{t+1/2} N_j^{t+1}
 - d_{j-1}^{t+1/2} N_{j-1}^{t+1}
 }{\Delta w_{j-1}},
-$$
+$$ {#eq-cn-flux}
 and $J_j^t$ is the same expression with $N^t$ instead of $N^{t+1}$. The lower boundary uses
 $$
 J_{j_{min}}^{t+1} = J_{j_{min}}^t = R_{dd}^{t+1/2}.
-$$
+$$ {#eq-cn-lower-bc}
 
 Because the midpoint rates are fixed during the corrector step, the unknowns still enter only through $N_{j-1}^{t+1}$, $N_j^{t+1}$ and $N_{j+1}^{t+1}$. The corrector is therefore again a tridiagonal system. The difference from the first-order scheme is that the old-time fluxes and mortality terms are moved to the right-hand side, while the new-time terms supply the tridiagonal matrix.
 
 If the provisional predictor has the usual one-step accuracy, the averaged rates approximate the true midpoint rates to second order. The Crank-Nicolson corrector is then second order in $\Delta t$ for smooth solutions:
 $$
 \text{time error} = O(\Delta t^2).
-$$
+$$ {#eq-cn-time-order}
 This does not change the spatial order of the scheme, which remains first order because of the upwind advective flux. The combined order would therefore be
 $$
 O(\Delta t^2) + O(\Delta w_j),
-$$
+$$ {#eq-order-pc}
 or $O(\Delta t^2 + \log\beta)$ on the logarithmic grid.
 
 There are two practical cautions. First, this doubles the number of rate evaluations per time step. Second, Crank-Nicolson-type methods are less damping than backward Euler, so for large time steps they can show oscillations even when they are formally stable. Positivity and robustness would therefore need to be checked carefully before using this as the default time stepper.
@@ -372,7 +372,7 @@ The predictor-corrector method uses the same upwind approximation in size as the
 To see this, again consider the advection-only problem with constant growth rate $g$ on a locally uniform grid with spacing $\Delta w$:
 $$
 \frac{\partial N}{\partial t} + g\frac{\partial N}{\partial w} = 0.
-$$
+$$ {#eq-advection-only}
 With fixed rates, the corrector step reduces to the Crank-Nicolson upwind scheme
 $$
 \frac{N_j^{t+1} - N_j^t}{\Delta t}
@@ -381,14 +381,14 @@ $$
 \frac{N_j^{t+1} - N_{j-1}^{t+1}}{\Delta w}
 + \frac{N_j^t - N_{j-1}^t}{\Delta w}
 \right] = 0.
-$$
+$$ {#eq-cn-upwind}
 
 Expand this equation about the midpoint $(w_j, t + \Delta t / 2)$. The centred time difference gives
 $$
 \frac{N_j^{t+1} - N_j^t}{\Delta t}
 = \frac{\partial N}{\partial t}
 + O(\Delta t^2).
-$$
+$$ {#eq-cn-time-expansion}
 The average of the two upwind spatial differences gives
 $$
 \frac{1}{2}
@@ -399,30 +399,30 @@ $$
 = \frac{\partial N}{\partial w}
 - \frac{\Delta w}{2}\frac{\partial^2 N}{\partial w^2}
 + O(\Delta w^2) + O(\Delta t^2).
-$$
+$$ {#eq-cn-space-expansion}
 Substituting these expansions into the scheme gives the modified equation
 $$
 \frac{\partial N}{\partial t} + g\frac{\partial N}{\partial w}
 = \frac{g\Delta w}{2}\frac{\partial^2 N}{\partial w^2}
 + O(\Delta w^2) + O(\Delta t^2).
-$$
+$$ {#eq-modified-eqn-pc}
 Thus the numerical diffusivity in the usual advection-diffusion form is
 $$
 D_{num}^{PC} = \frac{g\Delta w}{2}.
-$$
+$$ {#eq-num-diffusivity-pc}
 In the mizer notation, where the diffusion term is written with a factor $1/2$ inside the flux, this corresponds to the effective diffusion parameter
 $$
 d_{num}^{PC}(w) \approx g(w)\Delta w.
-$$
+$$ {#eq-d-num-pc}
 On the logarithmic grid this becomes
 $$
 d_{num}^{PC}(w) \approx g(w)w\log\beta.
-$$
+$$ {#eq-d-num-pc-log}
 
 Compared with the first-order semi-implicit scheme,
 $$
 d_{num}^{Euler}(w) \approx g(w)\Delta w + g(w)^2\Delta t,
-$$
+$$ {#eq-d-num-euler-compare}
 the predictor-corrector method removes the leading artificial diffusion proportional to $\Delta t$. The remaining numerical diffusion is the spatial upwind diffusion, proportional to $\Delta w$ or equivalently to $\log\beta$ on the logarithmic grid. This is why decreasing $\Delta t$ eventually stops improving the error much: once the time-stepping error is small, the spatial upwind error and other fixed discretisation errors dominate.
 
 ## Steady-State Solution
@@ -432,16 +432,16 @@ When solving the steady-state ODE instead of the time-dependent PDE, we are look
 Substituting this into our discretised linear system:
 $$
 A_j N_{j-1}^* + B_j N_j^* + C_j N_{j+1}^* = S_j
-$$
+$$ {#eq-ss-substitution}
 Recall that for $j > j_{min}$, $S_j = N_j^t$. The equation simplifies to:
 $$
 A_j N_{j-1}^* + (B_j - 1) N_j^* + C_j N_{j+1}^* = 0
-$$
+$$ {#eq-ss-simplified}
 
 To find the steady-state population densities $N^*$, we formulate a new time-independent tridiagonal system:
 $$
 \tilde{A}_j N_{j-1}^* + \tilde{B}_j N_j^* + \tilde{C}_j N_{j+1}^* = \tilde{S}_j
-$$
+$$ {#eq-ss-tridiagonal}
 To eliminate the explicit dependence on the time step $\Delta t$, we can divide the equation by $\Delta t$. The modified coefficients $\tilde{A}, \tilde{B}, \tilde{C}$ defining the new tri-diagonal system are:
 $$
 \begin{aligned}
@@ -449,7 +449,7 @@ $$
 \tilde{C}_j &= \frac{C_j}{\Delta t} = -\frac{1}{\Delta w_j} \left( \frac{1}{2} \frac{d_{j+1}}{\Delta w_j} \right) \\
 \tilde{B}_j &= \frac{B_j - 1}{\Delta t} = \mu_j + \frac{1}{\Delta w_j} \left( g_j + \frac{1}{2} \frac{d_j}{\Delta w_j} + \frac{1}{2} \frac{d_j}{\Delta w_{j-1}} \right)
 \end{aligned}
-$$
+$$ {#eq-ss-coefficients}
 Notice that $\tilde{A}_j$ and $\tilde{C}_j$ are exactly the expressions for $A_j$ and $C_j$ evaluated at $\Delta t = 1$. Similarly, $\tilde{B}_j$ is exactly the expression for $B_j - 1$ evaluated at $\Delta t = 1$.
 
 **Boundary conditions for the steady state:**
@@ -457,11 +457,11 @@ Notice that $\tilde{A}_j$ and $\tilde{C}_j$ are exactly the expressions for $A_j
 For the smallest size ($j=j_{min}$), the original equation had a source term due to recruitment:
 $$
 S_{j_{min}} = N_{j_{min}}^t + \frac{\Delta t}{\Delta w_{j_{min}}} R_{dd}
-$$
+$$ {#eq-ss-lower-bc-S}
 Following the same logic of setting $N^{t+1} = N^t = N^*$ and dividing by $\Delta t$, the right-hand side vector $\tilde{S}_j$ for the steady-state system becomes purely the recruitment flux term. If we again observe the original term $\frac{\Delta t}{\Delta w_{j_{min}}} R_{dd}$ when evaluated at $\Delta t = 1$, we get our new source vector:
 $$
 \tilde{S}_{j_{min}} = \frac{R_{dd}}{\Delta w_{j_{min}}}
-$$
+$$ {#eq-ss-lower-bc-Stilde}
 For all other $j > j_{min}$, $\tilde{S}_j = 0$.
 
 The boundary condition modifications at the edges of the grid remain the same conceptually: $\tilde{A}_{j_{min}} = 0$, the upward diffusion term is omitted from $\tilde{B}_{j_{min}}$, and $\tilde{C}_{j_{max}} = 0$. For any $j < j_{min}$, all matrix entries remain zero.
@@ -476,33 +476,16 @@ The predictor-corrector method changes the time stepping, but it does not change
 $$
 \frac{N^{t+1} - N^t}{\Delta t}
 = \frac{1}{2}\left(L N^t + L N^{t+1}\right) + q,
-$$
+$$ {#eq-cn-corrector-fixed}
 where $L$ is the spatial transport-and-mortality operator built from the midpoint rates and $q$ is the recruitment source at the lower boundary. At a steady state, $N^{t+1} = N^t = N^*$, so this becomes simply
 $$
 0 = L N^* + q.
-$$
+$$ {#eq-ss-fixed-point}
 
 Thus the predictor-corrector method has the same fixed-point equation as the first-order method. The predictor step also becomes irrelevant at the fixed point: if $N^t = N^*$, then the predicted $\hat{N}^{t+1}$ is also $N^*$ up to the residual of the steady-state equation, so
 $$
 r^t = \hat{r}^{t+1} = r^{t+1/2}, \qquad
 R_{dd}^t = \hat{R}_{dd}^{t+1} = R_{dd}^{t+1/2}.
-$$
+$$ {#eq-ss-rates-equal}
 The rates used in the steady-state calculation are therefore just the rates evaluated at $N^*$.
 The predictor-corrector method affects the transient path to the steady state, not the steady state itself.
-
-
-# Resource Dynamics
-
-The resource spectrum $N_R(w)$ is also updated using a similar Euler method, but often with a different equation. For example, if semi-chemostat dynamics are used:
-$$
-\frac{\partial N_R}{\partial t} = r_R(c_R - N_R) - \mu_R N_R.
-$$
-The discretised update is:
-$$
-\frac{N_{R,j}^{t+1} - N_{R,j}^t}{\Delta t} = r_R(w_j) (c_R(w_j) - N_{R,j}^{t+1}) - \mu_R(w_j) N_{R,j}^{t+1}.
-$$
-Solving for $N_{R,j}^{t+1}$:
-$$
-N_{R,j}^{t+1} = \frac{N_{R,j}^t + \Delta t r_R(w_j) c_R(w_j)}{1 + \Delta t (r_R(w_j) + \mu_R(w_j))}.
-$$
-
