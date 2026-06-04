@@ -7,23 +7,11 @@
 \title{Plot the total yield of each species by gear through time}
 \usage{
 plotYieldGear(object, ...)
-
-\method{plotYieldGear}{MizerSim}(
-  object,
-  species = NULL,
-  gears = NULL,
-  total = FALSE,
-  highlight = NULL,
-  return_data = FALSE,
-  ...
-)
-
-plotlyYieldGear(object, species = NULL, total = FALSE, highlight = NULL, ...)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim}}
 
-\item{...}{Other arguments (currently unused)}
+\item{...}{.}
 
 \item{species}{The species to be selected. Optional. By default all target
 species are selected. A vector of species names, or a
@@ -37,6 +25,13 @@ all gears.}
 species in the system is plotted as well. Note that even if the plot
 only shows a selection of species, the total is including all species.
 Default is FALSE.}
+
+\item{ylim}{A numeric vector of length two providing lower and upper limits
+for the y axis. Use NA to auto-scale to the data range. Values below 1e-20
+are always filtered out from the data regardless of \code{ylim[1]}. Data above
+\code{ylim[2]} is filtered and the upper axis limit is set accordingly. For
+\code{plotSpectraRelative()}, the y axis is the relative difference and \code{NA}
+refers to the existing minimum or maximum.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 
@@ -77,10 +72,8 @@ Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
 \code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
 \code{\link{plot}},
-\code{\link[=plot2]{plot2()}},
 \code{\link[=plotBiomass]{plotBiomass()}},
 \code{\link[=plotCDF]{plotCDF()}},
-\code{\link[=plotCDF2]{plotCDF2()}},
 \code{\link[=plotDiet]{plotDiet()}},
 \code{\link[=plotFMort]{plotFMort()}},
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}},
@@ -88,10 +81,7 @@ Other plotting functions:
 \code{\link{plotMizerParams}},
 \code{\link{plotMizerSim}},
 \code{\link[=plotPredMort]{plotPredMort()}},
-\code{\link[=plotRelative]{plotRelative()}},
 \code{\link[=plotSpectra]{plotSpectra()}},
-\code{\link[=plotSpectra2]{plotSpectra2()}},
-\code{\link[=plotSpectraRelative]{plotSpectraRelative()}},
 \code{\link[=plotYield]{plotYield()}},
 \code{\link{plotting_functions}}
 }

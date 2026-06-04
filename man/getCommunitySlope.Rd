@@ -4,10 +4,10 @@
 \alias{getCommunitySlope}
 \title{Calculate the slope of the community abundance}
 \usage{
-getCommunitySlope(sim, species = NULL, biomass = TRUE, ...)
+getCommunitySlope(object, species = NULL, biomass = TRUE, ...)
 }
 \arguments{
-\item{sim}{A \linkS4class{MizerSim} or \linkS4class{MizerParams} object}
+\item{object}{A \linkS4class{MizerSim} or \linkS4class{MizerParams} object}
 
 \item{species}{The species to be selected. Optional. By default all target
 species are selected. A vector of species names, or a

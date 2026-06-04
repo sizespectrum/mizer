@@ -8,51 +8,12 @@
 \title{Plot the feeding level of species by size}
 \usage{
 plotFeedingLevel(object, ...)
-
-\method{plotFeedingLevel}{MizerSim}(
-  object,
-  species = NULL,
-  time_range,
-  highlight = NULL,
-  all.sizes = FALSE,
-  include_critical = FALSE,
-  wlim = c(NA, NA),
-  llim = c(NA, NA),
-  size_axis = c("w", "l"),
-  return_data = FALSE,
-  ...
-)
-
-\method{plotFeedingLevel}{MizerParams}(
-  object,
-  species = NULL,
-  highlight = NULL,
-  all.sizes = FALSE,
-  include_critical = FALSE,
-  wlim = c(NA, NA),
-  llim = c(NA, NA),
-  size_axis = c("w", "l"),
-  return_data = FALSE,
-  ...
-)
-
-plotlyFeedingLevel(
-  object,
-  species = NULL,
-  time_range,
-  highlight = NULL,
-  include_critical = FALSE,
-  wlim = c(NA, NA),
-  llim = c(NA, NA),
-  size_axis = c("w", "l"),
-  ...
-)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or
 \linkS4class{MizerParams}.}
 
-\item{...}{Other arguments (currently unused)}
+\item{...}{.}
 
 \item{species}{The species to be selected. Optional. By default all target
 species are selected. A vector of species names, or a
@@ -64,10 +25,10 @@ and max time, or a single value) to average the abundances over. Default is
 the final time step. Ignored when called with a \linkS4class{MizerParams}
 object.}
 
-\item{highlight}{Name or vector of names of the species to be highlighted.}
-
 \item{all.sizes}{If TRUE, then feeding level is plotted also for sizes
 outside a species' size range. Default FALSE.}
+
+\item{highlight}{Name or vector of names of the species to be highlighted.}
 
 \item{include_critical}{If TRUE, then the critical feeding level is also
 plotted. Default FALSE.}
@@ -134,20 +95,15 @@ Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
 \code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
 \code{\link{plot}},
-\code{\link[=plot2]{plot2()}},
 \code{\link[=plotBiomass]{plotBiomass()}},
 \code{\link[=plotCDF]{plotCDF()}},
-\code{\link[=plotCDF2]{plotCDF2()}},
 \code{\link[=plotDiet]{plotDiet()}},
 \code{\link[=plotFMort]{plotFMort()}},
 \code{\link[=plotGrowthCurves]{plotGrowthCurves()}},
 \code{\link{plotMizerParams}},
 \code{\link{plotMizerSim}},
 \code{\link[=plotPredMort]{plotPredMort()}},
-\code{\link[=plotRelative]{plotRelative()}},
 \code{\link[=plotSpectra]{plotSpectra()}},
-\code{\link[=plotSpectra2]{plotSpectra2()}},
-\code{\link[=plotSpectraRelative]{plotSpectraRelative()}},
 \code{\link[=plotYield]{plotYield()}},
 \code{\link[=plotYieldGear]{plotYieldGear()}},
 \code{\link{plotting_functions}}

@@ -4,10 +4,10 @@
 \alias{getMeanWeight}
 \title{Calculate the mean weight of the community}
 \usage{
-getMeanWeight(sim, species = NULL, ...)
+getMeanWeight(object, species = NULL, ...)
 }
 \arguments{
-\item{sim}{A \linkS4class{MizerSim} or \linkS4class{MizerParams} object}
+\item{object}{A \linkS4class{MizerSim} or \linkS4class{MizerParams} object}
 
 \item{species}{The species to be selected. Optional. By default all target
 species are selected. A vector of species names, or a

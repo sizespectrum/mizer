@@ -88,41 +88,19 @@ fishing gears can be plotted against time. The yield is obtained with
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plotYield</span><span class="op">(</span><span class="va">sim</span>, <span class="va">...</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># S3 method for class 'MizerSim'</span></span>
-<span><span class="fu">plotYield</span><span class="op">(</span></span>
-<span>  <span class="va">sim</span>,</span>
-<span>  <span class="va">sim2</span>,</span>
-<span>  species <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  total <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  log <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  highlight <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  return_data <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  <span class="va">...</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">plotlyYield</span><span class="op">(</span></span>
-<span>  <span class="va">sim</span>,</span>
-<span>  <span class="va">sim2</span>,</span>
-<span>  species <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  total <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  log <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  highlight <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  <span class="va">...</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plotYield</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-sim">sim<a class="anchor" aria-label="anchor" href="#arg-sim"></a></dt>
+<dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
 <dd><p>An object of class <a href="MizerSim-class.html">MizerSim</a></p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Other arguments (currently unused)</p></dd>
+<dd><p>.</p></dd>
 
 
 <dt id="arg-sim-">sim2<a class="anchor" aria-label="anchor" href="#arg-sim-"></a></dt>
@@ -149,6 +127,15 @@ Default is FALSE.</p></dd>
 Defaults to true.</p></dd>
 
 
+<dt id="arg-ylim">ylim<a class="anchor" aria-label="anchor" href="#arg-ylim"></a></dt>
+<dd><p>A numeric vector of length two providing lower and upper limits
+for the y axis. Use NA to auto-scale to the data range. Values below 1e-20
+are always filtered out from the data regardless of <code>ylim[1]</code>. Data above
+<code>ylim[2]</code> is filtered and the upper axis limit is set accordingly. For
+<code><a href="plotSpectra.html">plotSpectraRelative()</a></code>, the y axis is the relative difference and <code>NA</code>
+refers to the existing minimum or maximum.</p></dd>
+
+
 <dt id="arg-highlight">highlight<a class="anchor" aria-label="anchor" href="#arg-highlight"></a></dt>
 <dd><p>Name or vector of names of the species to be highlighted.</p></dd>
 
@@ -170,10 +157,8 @@ frame with the three variables 'Year', 'Yield', 'Species' is returned.</p>
 <code><a href="addPlot.html">addPlot()</a></code>,
 <code><a href="animate.html">animate.ArrayTimeBySpeciesBySize()</a></code>,
 <code><a href="plot.html">plot</a></code>,
-<code><a href="plot2.html">plot2()</a></code>,
 <code><a href="plotBiomass.html">plotBiomass()</a></code>,
 <code><a href="plotCDF.html">plotCDF()</a></code>,
-<code><a href="plotCDF2.html">plotCDF2()</a></code>,
 <code><a href="plotDiet.html">plotDiet()</a></code>,
 <code><a href="plotFMort.html">plotFMort()</a></code>,
 <code><a href="plotFeedingLevel.html">plotFeedingLevel()</a></code>,
@@ -181,10 +166,7 @@ frame with the three variables 'Year', 'Yield', 'Species' is returned.</p>
 <code><a href="plotMizerParams.html">plotMizerParams</a></code>,
 <code><a href="plotMizerSim.html">plotMizerSim</a></code>,
 <code><a href="plotPredMort.html">plotPredMort()</a></code>,
-<code><a href="plotRelative.html">plotRelative()</a></code>,
 <code><a href="plotSpectra.html">plotSpectra()</a></code>,
-<code><a href="plotSpectra2.html">plotSpectra2()</a></code>,
-<code><a href="plotSpectraRelative.html">plotSpectraRelative()</a></code>,
 <code><a href="plotYieldGear.html">plotYieldGear()</a></code>,
 <code><a href="plotting_functions.html">plotting_functions</a></code></p></div>
     </div>

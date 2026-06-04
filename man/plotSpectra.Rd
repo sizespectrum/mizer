@@ -4,70 +4,47 @@
 \alias{plotSpectra}
 \alias{plotSpectra.MizerSim}
 \alias{plotSpectra.MizerParams}
+\alias{plotSpectra2}
+\alias{plotlySpectra2}
+\alias{plotSpectraRelative}
+\alias{plotlySpectraRelative}
 \alias{plotlySpectra}
-\title{Plot the abundance spectra}
+\title{Plot abundance and biomass spectra and compare between objects}
 \usage{
 plotSpectra(object, ...)
 
-\method{plotSpectra}{MizerSim}(
-  object,
+plotSpectra2(
+  object1,
+  object2,
+  name1 = "First",
+  name2 = "Second",
   species = NULL,
-  time_range,
-  geometric_mean = FALSE,
   wlim = c(NA, NA),
   llim = c(NA, NA),
   ylim = c(NA, NA),
   power = 1,
-  biomass = TRUE,
   total = FALSE,
   resource = TRUE,
   background = TRUE,
-  highlight = NULL,
   log_x = TRUE,
   log_y = TRUE,
   log = NULL,
   size_axis = c("w", "l"),
-  return_data = FALSE,
   ...
 )
 
-\method{plotSpectra}{MizerParams}(
-  object,
+plotSpectraRelative(
+  object1,
+  object2,
   species = NULL,
   wlim = c(NA, NA),
   llim = c(NA, NA),
   ylim = c(NA, NA),
   power = 1,
-  biomass = TRUE,
   total = FALSE,
   resource = TRUE,
   background = TRUE,
-  highlight = NULL,
   log_x = TRUE,
-  log_y = TRUE,
-  log = NULL,
-  size_axis = c("w", "l"),
-  return_data = FALSE,
-  ...
-)
-
-plotlySpectra(
-  object,
-  species = NULL,
-  time_range,
-  geometric_mean = FALSE,
-  wlim = c(NA, NA),
-  llim = c(NA, NA),
-  ylim = c(NA, NA),
-  power = 1,
-  biomass = TRUE,
-  total = FALSE,
-  resource = TRUE,
-  background = TRUE,
-  highlight = NULL,
-  log_x = TRUE,
-  log_y = TRUE,
-  log = NULL,
   size_axis = c("w", "l"),
   ...
 )
@@ -76,7 +53,10 @@ plotlySpectra(
 \item{object}{An object of class \linkS4class{MizerSim} or
 \linkS4class{MizerParams}.}
 
-\item{...}{Other arguments (currently unused)}
+\item{...}{For \code{plotSpectra2()} and \code{plotSpectraRelative()}, additional
+arguments passed to \code{\link[=plotSpectra]{plotSpectra()}} for preparing the spectra data, for
+example \code{time_range} or \code{geometric_mean} for \code{MizerSim} objects.
+Otherwise unused.}
 
 \item{species}{The species to be selected. Optional. By default all target
 species are selected. A vector of species names, or a
@@ -107,7 +87,9 @@ accordingly.}
 \item{ylim}{A numeric vector of length two providing lower and upper limits
 for the y axis. Use NA to auto-scale to the data range. Values below 1e-20
 are always filtered out from the data regardless of \code{ylim[1]}. Data above
-\code{ylim[2]} is filtered and the upper axis limit is set accordingly.}
+\code{ylim[2]} is filtered and the upper axis limit is set accordingly. For
+\code{plotSpectraRelative()}, the y axis is the relative difference and \code{NA}
+refers to the existing minimum or maximum.}
 
 \item{power}{The abundance is plotted as the number density times the weight
 raised to \code{power}. The default \code{power = 1} gives the biomass
@@ -135,7 +117,8 @@ Default is TRUE.}
 
 \item{log_x}{If \code{TRUE} (default), use a log10 x-axis.}
 
-\item{log_y}{If \code{TRUE} (default), use a log10 y-axis.}
+\item{log_y}{If \code{TRUE} (default), use a log10 y-axis. Not used by
+\code{plotSpectraRelative()}.}
 
 \item{log}{Character string specifying which axes should use log10 scales,
 in the same form as the base \code{\link[=plot]{plot()}} argument. For example, \code{"x"},
@@ -146,21 +129,46 @@ in the same form as the base \code{\link[=plot]{plot()}} argument. For example, 
 
 \item{return_data}{A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default value is FALSE}
+
+\item{object1}{First \code{MizerParams} or \code{MizerSim} object.}
+
+\item{object2}{Second \code{MizerParams} or \code{MizerSim} object.}
+
+\item{name1, name2}{Labels for the two objects, used in the linetype legend.}
 }
 \value{
-A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
-frame with the four variables 'w' (or 'l' if \code{size_axis = "l"}), 'value',
-'Species', 'Legend' is returned.
+\code{plotSpectra()} returns a ggplot2 object, unless \code{return_data = TRUE}, in which case a data frame with the four variables 'w' (or 'l' if
+\code{size_axis = "l"}), 'value', 'Species', 'Legend' is returned.
+
+\code{plotSpectra2()} and \code{plotSpectraRelative()} return a ggplot2 object.
+
+\code{plotlySpectra()}, \code{plotlySpectra2()} and \code{plotlySpectraRelative()} return
+plotly objects.
 }
 \description{
-Plots the number density multiplied by a power of the weight, with the power
-specified by the \code{power} argument.
+\code{plotSpectra()} plots the number density multiplied by a power of the
+weight, with the power specified by the \code{power} argument. When called with a
+\link{MizerSim} object, the abundance is averaged over the specified time range
+(a single value for the time range can be used to plot a single time step).
+When called with a \link{MizerParams} object the initial abundance is plotted.
 }
 \details{
-When called with a \linkS4class{MizerSim} object, the abundance is averaged
-over the specified time range (a single value for the time range can be used
-to plot a single time step). When called with a \linkS4class{MizerParams}
-object the initial abundance is plotted.
+\code{plotSpectra2()} compares the abundance spectra from two \code{MizerParams} or
+\code{MizerSim} objects in a single plot. Colours identify species or groups and
+linetype identifies the object.
+
+\code{plotSpectraRelative()} plots the difference between the spectra relative to
+their average. If we denote the number density from the first object as
+\eqn{N_1(w)} and that from the second object as \eqn{N_2(w)}, then this
+plot shows
+\deqn{2 (N_2(w) - N_1(w)) / (N_2(w) + N_1(w)).}
+Note that it does not matter whether the relative difference is calculated
+for number density, biomass density, or biomass density in log weight,
+because the factors of \eqn{w} by which the densities differ cancel out in
+the relative difference.
+
+\code{plotlySpectra()}, \code{plotlySpectra2()} and \code{plotlySpectraRelative()} are the
+interactive plotly versions.
 }
 \examples{
 \donttest{
@@ -176,6 +184,11 @@ plotSpectra(sim, species = c("Cod", "Herring"), size_axis = "l")
 # Returning the data frame
 fr <- plotSpectra(sim, return_data = TRUE)
 str(fr)
+
+sim1 <- project(NS_params, t_max = 10, progress_bar = FALSE)
+sim2 <- project(NS_params, effort = 0.5, t_max = 10, progress_bar = FALSE)
+plotSpectra2(sim1, sim2, "Original", "Effort = 0.5")
+plotSpectraRelative(sim1, sim2)
 }
 }
 \seealso{
@@ -185,10 +198,8 @@ Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
 \code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
 \code{\link{plot}},
-\code{\link[=plot2]{plot2()}},
 \code{\link[=plotBiomass]{plotBiomass()}},
 \code{\link[=plotCDF]{plotCDF()}},
-\code{\link[=plotCDF2]{plotCDF2()}},
 \code{\link[=plotDiet]{plotDiet()}},
 \code{\link[=plotFMort]{plotFMort()}},
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}},
@@ -196,9 +207,6 @@ Other plotting functions:
 \code{\link{plotMizerParams}},
 \code{\link{plotMizerSim}},
 \code{\link[=plotPredMort]{plotPredMort()}},
-\code{\link[=plotRelative]{plotRelative()}},
-\code{\link[=plotSpectra2]{plotSpectra2()}},
-\code{\link[=plotSpectraRelative]{plotSpectraRelative()}},
 \code{\link[=plotYield]{plotYield()}},
 \code{\link[=plotYieldGear]{plotYieldGear()}},
 \code{\link{plotting_functions}}

@@ -4,71 +4,29 @@
 \alias{plotCDF}
 \alias{plotCDF.MizerSim}
 \alias{plotCDF.MizerParams}
+\alias{plotCDF2}
 \alias{plotlyCDF}
-\title{Plot cumulative abundance or biomass distributions}
+\alias{plotlyCDF2}
+\title{Plot and compare cumulative abundance or biomass distributions}
 \usage{
 plotCDF(object, ...)
 
-\method{plotCDF}{MizerSim}(
-  object,
+plotCDF2(
+  object1,
+  object2,
+  name1 = "First",
+  name2 = "Second",
   species = NULL,
-  time_range,
-  geometric_mean = FALSE,
   wlim = c(NA, NA),
   llim = c(NA, NA),
   ylim = c(NA, NA),
   power = 1,
-  biomass = TRUE,
   total = FALSE,
   resource = FALSE,
   background = TRUE,
-  highlight = NULL,
   normalise = TRUE,
   log_x = TRUE,
   log_y = FALSE,
-  log = NULL,
-  size_axis = c("w", "l"),
-  return_data = FALSE,
-  ...
-)
-
-\method{plotCDF}{MizerParams}(
-  object,
-  species = NULL,
-  wlim = c(NA, NA),
-  llim = c(NA, NA),
-  ylim = c(NA, NA),
-  power = 1,
-  biomass = TRUE,
-  total = FALSE,
-  resource = FALSE,
-  background = TRUE,
-  highlight = NULL,
-  normalise = TRUE,
-  log_x = TRUE,
-  log_y = FALSE,
-  log = NULL,
-  size_axis = c("w", "l"),
-  return_data = FALSE,
-  ...
-)
-
-plotlyCDF(
-  object,
-  species = NULL,
-  time_range,
-  geometric_mean = FALSE,
-  wlim = c(NA, NA),
-  llim = c(NA, NA),
-  ylim = c(NA, NA),
-  power = 1,
-  biomass = TRUE,
-  total = FALSE,
-  resource = FALSE,
-  background = TRUE,
-  highlight = NULL,
-  normalise = TRUE,
-  log_x = TRUE,
   log = NULL,
   size_axis = c("w", "l"),
   ...
@@ -78,7 +36,9 @@ plotlyCDF(
 \item{object}{An object of class \linkS4class{MizerSim} or
 \linkS4class{MizerParams}.}
 
-\item{...}{Other arguments (currently unused)}
+\item{...}{For \code{plotCDF2()}, additional arguments passed to \code{\link[=plotCDF]{plotCDF()}} for
+preparing the cumulative distribution data, for example \code{time_range} or
+\code{geometric_mean} for \code{MizerSim} objects. Otherwise unused.}
 
 \item{species}{The species to be selected. Optional. By default all target
 species are selected. A vector of species names, or a
@@ -109,7 +69,9 @@ accordingly.}
 \item{ylim}{A numeric vector of length two providing lower and upper limits
 for the y axis. Use NA to auto-scale to the data range. Values below 1e-20
 are always filtered out from the data regardless of \code{ylim[1]}. Data above
-\code{ylim[2]} is filtered and the upper axis limit is set accordingly.}
+\code{ylim[2]} is filtered and the upper axis limit is set accordingly. For
+\code{plotSpectraRelative()}, the y axis is the relative difference and \code{NA}
+refers to the existing minimum or maximum.}
 
 \item{power}{The abundance is plotted as the number density times the weight
 raised to \code{power}. The default \code{power = 1} gives the biomass
@@ -152,13 +114,21 @@ in the same form as the base \code{\link[=plot]{plot()}} argument. If supplied, 
 
 \item{return_data}{A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default value is FALSE}
+
+\item{object1}{First \code{MizerParams} or \code{MizerSim} object.}
+
+\item{object2}{Second \code{MizerParams} or \code{MizerSim} object.}
+
+\item{name1, name2}{Labels for the two objects, used in the linetype legend.}
 }
 \value{
-A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
-frame with the four variables 'w' (or 'l' if \code{size_axis = "l"}), 'value',
-'Species', 'Legend' is returned.
+\code{plotCDF()} returns a ggplot2 object, unless \code{return_data = TRUE},
+in which case a data frame with the four variables 'w' (or 'l' if
+\code{size_axis = "l"}), 'value', 'Species', 'Legend' is returned.
 
-\code{plotlyCDF()} returns a plotly object.
+\code{plotCDF2()} returns a ggplot2 object.
+
+\code{plotlyCDF()} and \code{plotlyCDF2()} return plotly objects.
 }
 \description{
 \code{plotCDF()} plots the cumulative distribution over body size from small to
@@ -167,10 +137,21 @@ The density is first multiplied by \code{w^power}, then integrated over size.
 With \code{normalise = TRUE}, each curve is divided by its final value so that it
 ends at 1.
 }
+\details{
+\code{plotCDF2()} compares cumulative distributions from two \code{MizerParams} or
+\code{MizerSim} objects in a single plot. Colours identify species or groups and
+linetype identifies the object.
+
+\code{plotlyCDF()} and \code{plotlyCDF2()} are the interactive plotly versions.
+}
 \examples{
 \donttest{
 plotCDF(NS_params, species = c("Cod", "Herring"))
 plotCDF(NS_sim, power = 0, normalise = FALSE)
+
+sim1 <- project(NS_params, t_max = 10, progress_bar = FALSE)
+sim2 <- project(NS_params, effort = 0.5, t_max = 10, progress_bar = FALSE)
+plotCDF2(sim1, sim2, "Original", "Effort = 0.5")
 }
 }
 \seealso{
@@ -180,9 +161,7 @@ Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
 \code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
 \code{\link{plot}},
-\code{\link[=plot2]{plot2()}},
 \code{\link[=plotBiomass]{plotBiomass()}},
-\code{\link[=plotCDF2]{plotCDF2()}},
 \code{\link[=plotDiet]{plotDiet()}},
 \code{\link[=plotFMort]{plotFMort()}},
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}},
@@ -190,10 +169,7 @@ Other plotting functions:
 \code{\link{plotMizerParams}},
 \code{\link{plotMizerSim}},
 \code{\link[=plotPredMort]{plotPredMort()}},
-\code{\link[=plotRelative]{plotRelative()}},
 \code{\link[=plotSpectra]{plotSpectra()}},
-\code{\link[=plotSpectra2]{plotSpectra2()}},
-\code{\link[=plotSpectraRelative]{plotSpectraRelative()}},
 \code{\link[=plotYield]{plotYield()}},
 \code{\link[=plotYieldGear]{plotYieldGear()}},
 \code{\link{plotting_functions}}

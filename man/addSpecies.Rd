@@ -47,7 +47,7 @@ run successfully.}
 when the function sets default values for parameters. Higher levels lead
 to more messages. Set to 0 to suppress all such messages.}
 
-\item{...}{Additional arguments}
+\item{...}{Currently unused.}
 }
 \value{
 An object of type \linkS4class{MizerParams}

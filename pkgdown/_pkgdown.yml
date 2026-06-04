@@ -166,6 +166,7 @@ reference:
   - plot
   - animate
   - plotSpectra
+  - plotCDF
   - starts_with("animate")
   - starts_with("plot")
   - addPlot

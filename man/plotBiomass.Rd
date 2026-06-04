@@ -7,44 +7,6 @@
 \title{Plot the biomass of species through time}
 \usage{
 plotBiomass(object, ...)
-
-\method{plotBiomass}{MizerSim}(
-  object,
-  species = NULL,
-  start_time = NULL,
-  end_time = NULL,
-  y_ticks = 6,
-  ylim = c(NA, NA),
-  total = FALSE,
-  background = TRUE,
-  highlight = NULL,
-  log = TRUE,
-  return_data = FALSE,
-  use_cutoff = FALSE,
-  min_w = min(object@params@w),
-  max_w = max(object@params@w),
-  min_l = NULL,
-  max_l = NULL,
-  ...
-)
-
-plotlyBiomass(
-  object,
-  species = NULL,
-  start_time = NULL,
-  end_time = NULL,
-  y_ticks = 6,
-  ylim = c(NA, NA),
-  total = FALSE,
-  background = TRUE,
-  highlight = NULL,
-  log = TRUE,
-  use_cutoff = FALSE,
-  min_w = min(object@params@w),
-  max_w = max(object@params@w),
-  min_l = NULL,
-  max_l = NULL
-)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim}}
@@ -125,9 +87,7 @@ Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
 \code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
 \code{\link{plot}},
-\code{\link[=plot2]{plot2()}},
 \code{\link[=plotCDF]{plotCDF()}},
-\code{\link[=plotCDF2]{plotCDF2()}},
 \code{\link[=plotDiet]{plotDiet()}},
 \code{\link[=plotFMort]{plotFMort()}},
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}},
@@ -135,10 +95,7 @@ Other plotting functions:
 \code{\link{plotMizerParams}},
 \code{\link{plotMizerSim}},
 \code{\link[=plotPredMort]{plotPredMort()}},
-\code{\link[=plotRelative]{plotRelative()}},
 \code{\link[=plotSpectra]{plotSpectra()}},
-\code{\link[=plotSpectra2]{plotSpectra2()}},
-\code{\link[=plotSpectraRelative]{plotSpectraRelative()}},
 \code{\link[=plotYield]{plotYield()}},
 \code{\link[=plotYieldGear]{plotYieldGear()}},
 \code{\link{plotting_functions}}

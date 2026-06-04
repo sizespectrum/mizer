@@ -8,48 +8,12 @@
 \title{Plot predation mortality rate of each species against size}
 \usage{
 plotPredMort(object, ...)
-
-\method{plotPredMort}{MizerSim}(
-  object,
-  species = NULL,
-  time_range,
-  all.sizes = FALSE,
-  highlight = NULL,
-  wlim = c(NA, NA),
-  llim = c(NA, NA),
-  size_axis = c("w", "l"),
-  return_data = FALSE,
-  ...
-)
-
-\method{plotPredMort}{MizerParams}(
-  object,
-  species = NULL,
-  all.sizes = FALSE,
-  highlight = NULL,
-  wlim = c(NA, NA),
-  llim = c(NA, NA),
-  size_axis = c("w", "l"),
-  return_data = FALSE,
-  ...
-)
-
-plotlyPredMort(
-  object,
-  species = NULL,
-  time_range,
-  highlight = NULL,
-  wlim = c(NA, NA),
-  llim = c(NA, NA),
-  size_axis = c("w", "l"),
-  ...
-)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or
 \linkS4class{MizerParams}.}
 
-\item{...}{Other arguments (currently unused)}
+\item{...}{.}
 
 \item{species}{The species to be selected. Optional. By default all target
 species are selected. A vector of species names, or a
@@ -113,20 +77,15 @@ Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
 \code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
 \code{\link{plot}},
-\code{\link[=plot2]{plot2()}},
 \code{\link[=plotBiomass]{plotBiomass()}},
 \code{\link[=plotCDF]{plotCDF()}},
-\code{\link[=plotCDF2]{plotCDF2()}},
 \code{\link[=plotDiet]{plotDiet()}},
 \code{\link[=plotFMort]{plotFMort()}},
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}},
 \code{\link[=plotGrowthCurves]{plotGrowthCurves()}},
 \code{\link{plotMizerParams}},
 \code{\link{plotMizerSim}},
-\code{\link[=plotRelative]{plotRelative()}},
 \code{\link[=plotSpectra]{plotSpectra()}},
-\code{\link[=plotSpectra2]{plotSpectra2()}},
-\code{\link[=plotSpectraRelative]{plotSpectraRelative()}},
 \code{\link[=plotYield]{plotYield()}},
 \code{\link[=plotYieldGear]{plotYieldGear()}},
 \code{\link{plotting_functions}}

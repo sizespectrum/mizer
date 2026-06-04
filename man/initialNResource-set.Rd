@@ -10,10 +10,6 @@
 initialNResource(params) <- value
 
 initialNResource(object)
-
-\method{initialNResource}{MizerParams}(object)
-
-\method{initialNResource}{MizerSim}(object)
 }
 \arguments{
 \item{params}{A MizerParams object}
