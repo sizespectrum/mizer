@@ -276,6 +276,7 @@ ggplotly.ArrayTimeBySpeciesBySize <- function(p = ggplot2::last_plot(),
 animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
                                              time_range = NULL,
                                              log_x = TRUE,
+                                             log = NULL,
                                              wlim = c(NA, NA),
                                              llim = c(NA, NA),
                                              ylim = c(NA, NA),
@@ -293,6 +294,9 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
                 is.string(easing),
                 length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
     size_axis <- plot_size_axis(size_axis)
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
+    log_x <- log_axes$log_x
+    log_y <- log_axes$log_y
 
     params <- attr(x, "params")
     value_name <- attr(x, "value_name") %||% "Value"
