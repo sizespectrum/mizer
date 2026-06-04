@@ -107,8 +107,8 @@ reference:
   contents:
   - species_params
   - gear_params
-  - initialN
-  - initialNResource
+  - "N<-"
+  - "NResource<-"
   - initial_effort
   - renameGear
   - expandSizeGrid
@@ -149,6 +149,8 @@ reference:
   contents:
   - "N"
   - NResource
+  - initialN
+  - initialNResource
   - finalN
   - getEffort
   - getTimes

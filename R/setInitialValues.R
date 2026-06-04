@@ -109,57 +109,16 @@ setInitialValues.MizerParams <- function(params, sim, time_range, geometric_mean
     params
 }
 
-#' Initial values for fish spectra
-#'
-#' Values used as starting values for simulations with `project()`.
-#'
-#' @param params A MizerParams object
-#' @param value A matrix with dimensions species x size holding the initial
-#'   number densities for the fish spectra.
+#' @rdname N
 #' @export
-`initialN<-` <- function(params, value) {
-    UseMethod("initialN<-")
-}
-#' @export
-`initialN<-.MizerParams` <- function(params, value) {
-    assert_that(identical(dim(value), dim(params@initial_n)),
-                all(value >= 0))
-    if (!is.null(dimnames(value)) &&
-        !identical(dimnames(value), dimnames(params@initial_n))) {
-        warning("The dimnames do not match. I will ignore them.")
-    }
-    params@initial_n[] <- value
+initialN <- function(object) UseMethod("initialN")
 
-    params@time_modified <- lubridate::now()
-    params
-}
-
-#' @rdname initialN-set
-#' @param object An object of class MizerParams or MizerSim
-#' @return An `ArraySpeciesBySize` object with dimensions species x size holding
-#'   the initial number densities for the fish spectra.
-#' @export
-#' @seealso [initialNResource()], [initialNOther()]
-#' @examples
-#' # Doubling abundance of Cod in the initial state of the North Sea model
-#' params <- NS_params
-#' initialN(params)["Cod", ] <- 2 * initialN(params)["Cod", ]
-#' # Calculating the corresponding initial biomass
-#' biomass <- initialN(params)["Cod", ] * dw(NS_params) * w(NS_params)
-#' # Of course this initial state will no longer be a steady state
-#' params <- steady(params)
-initialN <- function(object) {
-    UseMethod("initialN")
-}
-#' @rdname initialN-set
+#' @rdname N
 #' @usage NULL
 #' @export
-initialN.MizerParams <- function(object) {
-    params <- validParams(object)
-    ArraySpeciesBySize(params@initial_n, value_name = "Number density",
-                       params = params)
-}
-#' @rdname initialN-set
+initialN.MizerParams <- N.MizerParams
+
+#' @rdname N
 #' @usage NULL
 #' @export
 initialN.MizerSim <- function(object) {
@@ -168,56 +127,26 @@ initialN.MizerSim <- function(object) {
                        params = object@params)
 }
 
-#' Initial value for resource spectrum
-#'
-#' Value used as starting value for simulations with `project()`.
-#'
-#' @param params A MizerParams object
-#' @param value A vector with the initial number densities for the resource
-#'   spectrum
+#' @rdname N
 #' @export
-#' @seealso [initialN()], [initialNOther()]
-#' @examples
-#' # Doubling resource abundance in the initial state of the North Sea model
-#' params <- NS_params
-#' initialNResource(params) <- 2 * initialNResource(params)
-#' # Of course this initial state will no longer be a steady state
-#' params <- steady(params)
-`initialNResource<-` <- function(params, value) {
-    UseMethod("initialNResource<-")
-}
-#' @export
-`initialNResource<-.MizerParams` <- function(params, value) {
-    assert_that(identical(dim(value), dim(params@initial_n_pp)),
-                all(value >= 0))
-    if (!is.null(dimnames(value)) &&
-        !identical(dimnames(value), dimnames(params@initial_n_pp))) {
-        warning("The dimnames do not match. I will ignore them.")
-    }
-    params@initial_n_pp[] <- value
+`initialN<-` <- `N<-`
 
-    params@time_modified <- lubridate::now()
-    params
-}
-
-#' @rdname initialNResource-set
-#' @param object An object of class MizerParams or MizerSim
-#' @return A vector with the initial number densities for the resource
-#'   spectrum
+#' @rdname N
 #' @export
-initialNResource <- function(object) {
-    UseMethod("initialNResource")
-}
-#' @rdname initialNResource-set
+initialNResource <- function(object) UseMethod("initialNResource")
+
+#' @rdname N
 #' @usage NULL
 #' @export
-initialNResource.MizerParams <- function(object) {
-    params <- validParams(object)
-    return(params@initial_n_pp)
-}
-#' @rdname initialNResource-set
+initialNResource.MizerParams <- NResource.MizerParams
+
+#' @rdname N
 #' @usage NULL
 #' @export
 initialNResource.MizerSim <- function(object) {
-    return(object@params@initial_n_pp)
+    object@params@initial_n_pp
 }
+
+#' @rdname N
+#' @export
+`initialNResource<-` <- `NResource<-`

@@ -326,40 +326,118 @@ truncateSim <- function(sim, end_time) {
     sim
 }
 
-#' Time series of size spectra
+#' Consumer and resource size spectra
 #'
-#' Fetch the simulation results for the size spectra over time.
+#' Get or set the consumer or resource number densities. For a `MizerSim`
+#' object, `N()` and `NResource()` return the full time series. For a
+#' `MizerParams` object they return (and `N<-` / `NResource<-` set) the
+#' initial spectra used as starting values for [project()].
 #'
-#' @param sim A MizerSim object
-#' @return For `N()`: An `ArrayTimeBySpeciesBySize` object (time x species x
-#'   size) with the number density of consumers.
+#' `initialN()`, `initialN<-()`, `initialNResource()`, and
+#' `initialNResource<-()` are plain aliases provided for backwards
+#' compatibility.
+#'
+#' @param object A MizerSim or MizerParams object
+#' @return For `N()` on a `MizerSim`: An `ArrayTimeBySpeciesBySize` object
+#'   (time x species x size) with the number density of consumers.
+#' @return For `N()` on a `MizerParams`: An `ArraySpeciesBySize` object
+#'   (species x size) with the initial number densities of consumers.
 #' @export
+#' @seealso [NResource()], [initialNOther()]
 #' @examples
 #' str(N(NS_sim))
-N <- function(sim) {
+#' str(N(NS_params))
+N <- function(object) {
     UseMethod("N")
 }
 
 #' @export
-N.MizerSim <- function(sim) {
-    assert_that(is(sim, "MizerSim"))
-    ArrayTimeBySpeciesBySize(sim@n, value_name = "Number density",
-                             units = "1/g", params = sim@params)
+N.MizerSim <- function(object) {
+    assert_that(is(object, "MizerSim"))
+    ArrayTimeBySpeciesBySize(object@n, value_name = "Number density",
+                             units = "1/g", params = object@params)
 }
 
 #' @rdname N
-#' @return For `NResource()`: An array (time x size) with the number density of resource
+#' @usage NULL
+#' @export
+N.MizerParams <- function(object) {
+    params <- validParams(object)
+    ArraySpeciesBySize(params@initial_n, value_name = "Number density",
+                       params = params)
+}
+
+#' @rdname N
+#' @param value A matrix (species x size) with the initial number densities
+#'   for the consumer spectra.
+#' @export
+`N<-` <- function(object, value) {
+    UseMethod("N<-")
+}
+
+#' @rdname N
+#' @usage NULL
+#' @export
+`N<-.MizerParams` <- function(object, value) {
+    assert_that(identical(dim(value), dim(object@initial_n)),
+                all(value >= 0))
+    if (!is.null(dimnames(value)) &&
+        !identical(dimnames(value), dimnames(object@initial_n))) {
+        warning("The dimnames do not match. I will ignore them.")
+    }
+    object@initial_n[] <- value
+    object@time_modified <- lubridate::now()
+    object
+}
+
+#' @rdname N
+#' @return For `NResource()` on a `MizerSim`: An array (time x size) with the
+#'   number density of resource.
+#' @return For `NResource()` on a `MizerParams`: A vector with the initial
+#'   number densities for the resource spectrum.
 #' @export
 #' @examples
 #' str(NResource(NS_sim))
-NResource <- function(sim) {
+#' str(NResource(NS_params))
+NResource <- function(object) {
     UseMethod("NResource")
 }
 
 #' @export
-NResource.MizerSim <- function(sim) {
-    assert_that(is(sim, "MizerSim"))
-    sim@n_pp
+NResource.MizerSim <- function(object) {
+    assert_that(is(object, "MizerSim"))
+    object@n_pp
+}
+
+#' @rdname N
+#' @usage NULL
+#' @export
+NResource.MizerParams <- function(object) {
+    params <- validParams(object)
+    params@initial_n_pp
+}
+
+#' @rdname N
+#' @param value A vector with the initial number densities for the resource
+#'   spectrum.
+#' @export
+`NResource<-` <- function(object, value) {
+    UseMethod("NResource<-")
+}
+
+#' @rdname N
+#' @usage NULL
+#' @export
+`NResource<-.MizerParams` <- function(object, value) {
+    assert_that(identical(dim(value), dim(object@initial_n_pp)),
+                all(value >= 0))
+    if (!is.null(dimnames(value)) &&
+        !identical(dimnames(value), dimnames(object@initial_n_pp))) {
+        warning("The dimnames do not match. I will ignore them.")
+    }
+    object@initial_n_pp[] <- value
+    object@time_modified <- lubridate::now()
+    object
 }
 
 

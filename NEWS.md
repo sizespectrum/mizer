@@ -220,6 +220,12 @@ the mathematical details.
   registered as S3 generics with `MizerSim` methods, making extension-specific
   methods possible. `validParams()` is also now an S3 generic.
 
+- `N()` and `NResource()` now also have `MizerParams` methods, returning the
+  initial consumer and resource spectra stored in the params object. The new
+  `N<-` and `NResource<-` replacement functions set those initial spectra.
+  `initialN()`, `initialNResource()`, `initialN<-`, and `initialNResource<-`
+  are kept as aliases for backwards compatibility.
+
 - New `scaleRates(params, factor)` function that rescales all rates in a model
   by a given factor. This is equivalent to a time rescaling: it speeds up or
   slows down all dynamics without affecting the steady state. All rate slots

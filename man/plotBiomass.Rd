@@ -39,10 +39,18 @@ Default is TRUE.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 
-\item{log}{If \code{TRUE} (default), use a log10 y-axis.}
+\item{log}{Character string specifying which axes should use log10 scales,
+in the same form as the base \code{\link[=plot]{plot()}} argument. For example, \code{"x"},
+\code{"y"}, \code{"xy"} or \code{""}. If supplied, this overrides \code{log_x} and \code{log_y}.
+For backward compatibility, \code{TRUE} and \code{FALSE} are interpreted as setting
+only \code{log_y}.}
 
 \item{return_data}{A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default is FALSE.}
+
+\item{log_x}{If \code{TRUE}, use a log10 x-axis. Default is \code{FALSE}.}
+
+\item{log_y}{If \code{TRUE}, use a log10 y-axis. Default is \code{TRUE}.}
 
 \item{use_cutoff}{If TRUE, the \code{biomass_cutoff} column in the species
 parameters is used as the minimum weight for each species.}
