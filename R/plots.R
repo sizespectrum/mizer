@@ -749,6 +749,8 @@ plotlyYield <- function(object, sim2,
              tooltip = c("Species", "Year", "Yield"))
 }
 
+# For time-series plots, keep backward compatibility with the historical
+# logical `log` argument while supporting the newer `log_x` / `log_y` form.
 parseTimePlotLog <- function(log, log_x, log_y) {
     if (is.null(log)) {
         return(list(log_x = log_x, log_y = log_y))
@@ -1781,6 +1783,7 @@ plot_feeding_level <- function(params, feed, species, highlight,
         plot_dat <- filter_plot_length_limits(plot_dat, llim)
     }
     if (log_y) {
+        # Remove non-positive values because log scales cannot represent them.
         plot_dat <- subset(plot_dat, value > 0)
     }
 
@@ -1815,6 +1818,7 @@ plot_feeding_level <- function(params, feed, species, highlight,
                            limits = plot_size_xlim(wlim, size_axis, llim)) +
         scale_y_continuous(name = "Feeding Level",
                            trans = if (log_y) "log10" else "identity") +
+        # Feeding level is naturally bounded in [0, 1] on linear scale.
         coord_cartesian(ylim = if (log_y) NULL else c(0, 1)) +
         scale_colour_manual(values = params@linecolour[legend_levels]) +
         scale_linetype_manual(values = params@linetype[legend_levels]) +
