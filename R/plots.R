@@ -294,7 +294,8 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                                     xlab = waiver(), ylab = waiver(),
                                     xtrans = "identity", ytrans = "identity",
                                     xlim = c(NA, NA), ylim = c(NA, NA),
-                                    y_ticks = 6, legend_var = "Legend",
+                                    y_ticks = 6, highlight = NULL,
+                                    legend_var = "Legend",
                                     size_axis = NULL) {
     assert_that(is.data.frame(frame1),
                 is.data.frame(frame2),
@@ -328,6 +329,7 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
         warning("missing legend in params@linecolour, some groups won't be displayed")
     }
     linecolour <- params@linecolour[legend_levels]
+    linesize <- make_linesize(legend_levels, highlight)
 
     xbreaks <- waiver()
     if (xtrans == "log10") xbreaks <- log_breaks()
@@ -343,9 +345,11 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                            limits = xlim) +
         geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
                       colour = .data[[legend_var]],
-                      linetype = .data[["Model"]])) +
+                      linetype = .data[["Model"]],
+                      linewidth = .data[[legend_var]])) +
         scale_colour_manual(values = linecolour) +
-        scale_linetype_discrete(drop = FALSE)
+        scale_linetype_discrete(drop = FALSE) +
+        scale_discrete_manual("linewidth", values = linesize)
     make_mizer_plot(p, mizer_tooltip_vars(frame, group_var, x_var, y_var,
                                           legend_var, extra = "Model"))
 }
@@ -355,6 +359,7 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
                                   xtrans = "identity",
                                   xlim = c(NA, NA),
                                   ylim = c(NA, NA),
+                                  highlight = NULL,
                                   legend_var = "Legend",
                                   size_axis = NULL) {
     assert_that(is.data.frame(frame1),
@@ -391,6 +396,7 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
         warning("missing legend in params@linecolour, some groups won't be displayed")
     }
     linecolour <- params@linecolour[legend_levels]
+    linesize <- make_linesize(legend_levels, highlight)
 
     xbreaks <- waiver()
     if (xtrans == "log10") xbreaks <- log_breaks()
@@ -402,8 +408,10 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
         geom_hline(yintercept = 0, linetype = 1,
                    colour = "dark grey", linewidth = 0.75) +
         geom_line(aes(x = .data[[x_var]], y = .data[["rel_diff"]],
-                      colour = .data[[legend_var]])) +
-        scale_colour_manual(values = linecolour)
+                      colour = .data[[legend_var]],
+                      linewidth = .data[[legend_var]])) +
+        scale_colour_manual(values = linecolour) +
+        scale_discrete_manual("linewidth", values = linesize)
     make_mizer_plot(p, mizer_tooltip_vars(frame, group_var, x_var, "rel_diff",
                                           legend_var))
 }
@@ -1351,13 +1359,17 @@ plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
                      species = NULL,
                      wlim = c(NA, NA), llim = c(NA, NA),
                      ylim = c(NA, NA),
-                     power = 1,
+                     power = 1, biomass = TRUE,
                      total = FALSE, resource = FALSE,
                      background = TRUE,
+                     highlight = NULL,
                      normalise = TRUE,
                      log_x = TRUE, log_y = FALSE,
                      log = NULL, size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
+    if (missing(power)) {
+        power <- as.numeric(biomass)
+    }
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is.number(power), is.flag(normalise),
                 length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
@@ -1379,7 +1391,8 @@ plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
                             xtrans = if (log_axes$log_x) "log10" else "identity",
                             ytrans = if (log_axes$log_y) "log10" else "identity",
                             xlim = plot_size_xlim(wlim, size_axis, llim),
-                            ylim = ylim, legend_var = "Legend",
+                            ylim = ylim, highlight = highlight,
+                            legend_var = "Legend",
                             size_axis = size_axis)
 }
 
@@ -1389,12 +1402,16 @@ plotSpectra2 <- function(object1, object2, name1 = "First", name2 = "Second",
                          species = NULL,
                          wlim = c(NA, NA), llim = c(NA, NA),
                          ylim = c(NA, NA),
-                         power = 1,
+                         power = 1, biomass = TRUE,
                          total = FALSE, resource = TRUE,
                          background = TRUE,
+                         highlight = NULL,
                          log_x = TRUE, log_y = TRUE,
                          log = NULL, size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
+    if (missing(power)) {
+        power <- as.numeric(biomass)
+    }
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
@@ -1417,7 +1434,8 @@ plotSpectra2 <- function(object1, object2, name1 = "First", name2 = "Second",
                             xtrans = if (log_x) "log10" else "identity",
                             ytrans = if (log_y) "log10" else "identity",
                             xlim = plot_size_xlim(wlim, size_axis, llim),
-                            ylim = ylim, legend_var = "Legend",
+                            ylim = ylim, highlight = highlight,
+                            legend_var = "Legend",
                             size_axis = size_axis)
 }
 
@@ -1437,18 +1455,24 @@ plotlySpectra2 <- function(object1, object2, name1 = "First",
                            species = NULL,
                            wlim = c(NA, NA), llim = c(NA, NA),
                            ylim = c(NA, NA),
-                           power = 1,
+                           power = 1, biomass = TRUE,
                            total = FALSE, resource = TRUE,
                            background = TRUE,
+                           highlight = NULL,
                            log_x = TRUE, log_y = TRUE, log = NULL,
                            size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
-    ggplotly(plotSpectra2(object1, object2, name1 = name1, name2 = name2,
-                          species = species, wlim = wlim, llim = llim,
-                          ylim = ylim, power = power, total = total,
-                          resource = resource, background = background,
-                          log_x = log_x, log_y = log_y,
-                          log = log, size_axis = size_axis, ...),
+    args <- list(object1 = object1, object2 = object2,
+                 name1 = name1, name2 = name2,
+                 species = species, wlim = wlim, llim = llim,
+                 ylim = ylim, biomass = biomass, total = total,
+                 resource = resource, background = background,
+                 highlight = highlight, log_x = log_x, log_y = log_y,
+                 log = log, size_axis = size_axis, ...)
+    if (!missing(power)) {
+        args$power <- power
+    }
+    ggplotly(do.call("plotSpectra2", args),
              tooltip = plot_size_tooltip(size_axis, before = "Species",
                                          after = c("value", "Model")))
 }
@@ -1459,12 +1483,16 @@ plotSpectraRelative <- function(object1, object2,
                                 species = NULL,
                                 wlim = c(NA, NA), llim = c(NA, NA),
                                 ylim = c(NA, NA),
-                                power = 1,
+                                power = 1, biomass = TRUE,
                                 total = FALSE, resource = TRUE,
                                 background = TRUE,
+                                highlight = NULL,
                                 log_x = TRUE,
                                 size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
+    if (missing(power)) {
+        power <- as.numeric(biomass)
+    }
     assert_that(length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
 
     sf1 <- plotSpectra(object1, species = species, wlim = wlim,
@@ -1482,6 +1510,7 @@ plotSpectraRelative <- function(object1, object2,
                           xtrans = if (log_x) "log10" else "identity",
                           xlim = plot_size_xlim(wlim, size_axis, llim),
                           ylim = ylim,
+                          highlight = highlight,
                           legend_var = "Legend", size_axis = size_axis)
 }
 
@@ -1492,17 +1521,23 @@ plotlySpectraRelative <- function(object1, object2,
                                   species = NULL,
                                   wlim = c(NA, NA), llim = c(NA, NA),
                                   ylim = c(NA, NA),
-                                  power = 1,
+                                  power = 1, biomass = TRUE,
                                   total = FALSE, resource = TRUE,
                                   background = TRUE,
+                                  highlight = NULL,
                                   log_x = TRUE,
                                   size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
-    ggplotly(plotSpectraRelative(object1, object2, species = species,
-                                  wlim = wlim, llim = llim, ylim = ylim,
-                                  power = power, total = total,
-                                  resource = resource, background = background,
-                                  log_x = log_x, size_axis = size_axis, ...),
+    args <- list(object1 = object1, object2 = object2,
+                 species = species, wlim = wlim, llim = llim, ylim = ylim,
+                 biomass = biomass, total = total,
+                 resource = resource, background = background,
+                 highlight = highlight, log_x = log_x,
+                 size_axis = size_axis, ...)
+    if (!missing(power)) {
+        args$power <- power
+    }
+    ggplotly(do.call("plotSpectraRelative", args),
              tooltip = plot_size_tooltip(size_axis, before = "Legend",
                                          after = "rel_diff"))
 }
@@ -1547,19 +1582,26 @@ plotlyCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
                        species = NULL,
                        wlim = c(NA, NA), llim = c(NA, NA),
                        ylim = c(NA, NA),
-                       power = 1,
+                       power = 1, biomass = TRUE,
                        total = FALSE, resource = FALSE,
                        background = TRUE,
+                       highlight = NULL,
                        normalise = TRUE,
                        log_x = TRUE, log_y = FALSE,
                        log = NULL, size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
-    ggplotly(plotCDF2(object1, object2, name1 = name1, name2 = name2,
-                      species = species, wlim = wlim, llim = llim,
-                      ylim = ylim, power = power, total = total,
-                      resource = resource, background = background,
-                      normalise = normalise, log_x = log_x, log_y = log_y,
-                      log = log, size_axis = size_axis, ...),
+    args <- list(object1 = object1, object2 = object2,
+                 name1 = name1, name2 = name2,
+                 species = species, wlim = wlim, llim = llim,
+                 ylim = ylim, biomass = biomass, total = total,
+                 resource = resource, background = background,
+                 highlight = highlight, normalise = normalise,
+                 log_x = log_x, log_y = log_y,
+                 log = log, size_axis = size_axis, ...)
+    if (!missing(power)) {
+        args$power <- power
+    }
+    ggplotly(do.call("plotCDF2", args),
              tooltip = plot_size_tooltip(size_axis, before = "Species",
                                          after = c("value", "Model")))
 }
