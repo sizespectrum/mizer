@@ -163,6 +163,9 @@ reference:
 - title: Plotting results
   contents:
   - plotting_functions
+  - plot
+  - animate
+  - plotSpectra
   - starts_with("animate")
   - starts_with("plot")
   - addPlot
