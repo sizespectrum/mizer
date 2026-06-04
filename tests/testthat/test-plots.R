@@ -170,7 +170,7 @@ test_that("plotSpectra2 supports base plot log argument", {
     expect_identical(p_flags$scales$get_scales("y")$trans$name, "identity")
 
     expect_error(plotSpectra2(params, sim0, species = species, log = "z"),
-                 "`log` must be a character string")
+                 "containing only")
 })
 
 test_that("comparison helpers preserve non-size x variables", {
@@ -403,10 +403,10 @@ test_that("yield plotly wrappers return plotly objects", {
 
 test_that("yield plotting helpers accept ylim", {
     p <- plotYield(sim, species = species, ylim = c(1e-5, 1))
-    expect_equal(p$scales$get_scales("y")$limits, c(1e-5, 1))
+    expect_equal(p$scales$get_scales("y")$limits, log10(c(1e-5, 1)))
 
     p_gear <- plotYieldGear(sim, species = species, ylim = c(1e-5, 1))
-    expect_equal(p_gear$scales$get_scales("y")$limits, c(1e-5, 1))
+    expect_equal(p_gear$scales$get_scales("y")$limits, log10(c(1e-5, 1)))
 })
 
 
@@ -501,7 +501,7 @@ test_that("plotSpectra supports base plot log argument", {
     expect_identical(p_sim$scales$get_scales("y")$trans$name, "identity")
 
     expect_error(plotSpectra(params, species = species, log = "z"),
-                 "`log` must be a character string")
+                 "containing only")
 })
 
 test_that("plotPredMort and plotFMort trim to species size range by default", {

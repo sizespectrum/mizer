@@ -536,7 +536,13 @@ convert_plot_size_axis <- function(plot_dat, params, size_axis,
 #'   are included. Ignored if the model does not contain background species.
 #'   Default is TRUE.
 #' @param highlight Name or vector of names of the species to be highlighted.
-#' @param log If `TRUE` (default), use a log10 y-axis.
+#' @param log_x If `TRUE`, use a log10 x-axis. Default is `FALSE`.
+#' @param log_y If `TRUE`, use a log10 y-axis. Default is `TRUE`.
+#' @param log Character string specifying which axes should use log10 scales,
+#'   in the same form as the base [plot()] argument. For example, `"x"`,
+#'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
+#'   For backward compatibility, `TRUE` and `FALSE` are interpreted as setting
+#'   only `log_y`.
 #' @param return_data A boolean value that determines whether the formatted data
 #'   used for the plot is returned instead of the plot itself. Default is FALSE.
 #' @param use_cutoff If TRUE, the `biomass_cutoff` column in the species
@@ -572,12 +578,14 @@ plotBiomass.MizerSim <- function(object, species = NULL,
                         start_time = NULL, end_time = NULL,
                         y_ticks = 6, ylim = c(NA, NA),
                         total = FALSE, background = TRUE,
-                        highlight = NULL, log = TRUE,
-                        return_data = FALSE,
+                        highlight = NULL,
+                        log = NULL, return_data = FALSE,
+                        log_x = FALSE, log_y = TRUE,
                         use_cutoff = FALSE,
                         min_w = min(object@params@w),
                         max_w = max(object@params@w),
                         min_l = NULL, max_l = NULL, ...) {
+    log_axes <- parseTimePlotLog(log, log_x = log_x, log_y = log_y)
     bm <- getBiomass(object, use_cutoff = use_cutoff,
                      min_w = min_w, max_w = max_w,
                      min_l = min_l, max_l = max_l)
@@ -585,7 +593,8 @@ plotBiomass.MizerSim <- function(object, species = NULL,
          start_time = start_time, end_time = end_time,
          y_ticks = y_ticks, ylim = ylim,
          total = total, background = background,
-         highlight = highlight, log_y = log,
+         highlight = highlight,
+         log_x = log_axes$log_x, log_y = log_axes$log_y,
          return_data = return_data)
 }
 
@@ -601,7 +610,7 @@ plotlyBiomass <- function(object,
              total = FALSE,
              background = TRUE,
              highlight = NULL,
-             log = TRUE,
+             log = NULL, log_x = FALSE, log_y = TRUE,
              use_cutoff = FALSE,
              min_w = min(object@params@w),
              max_w = max(object@params@w),
@@ -623,9 +632,13 @@ plotlyBiomass <- function(object,
 #' @param sim2 An optional second object of class \linkS4class{MizerSim}. If
 #'   this is provided its yields will be shown on the same plot in bolder lines.
 #' @inheritParams plotSpectra
-#' @param log Boolean whether yield should be plotted on a logarithmic axis.
-#'   Defaults to true.
-#' @param ... .
+#' @param log_x If `TRUE`, use a log10 x-axis. Default is `FALSE`.
+#' @param log_y If `TRUE`, use a log10 y-axis. Default is `TRUE`.
+#' @param log Character string specifying which axes should use log10 scales,
+#'   in the same form as the base [plot()] argument. For example, `"x"`,
+#'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
+#'   For backward compatibility, `TRUE` and `FALSE` are interpreted as setting
+#'   only `log_y`.
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the three variables 'Year', 'Yield', 'Species' is returned.
@@ -658,12 +671,17 @@ plotYield <- function(object, ...) {
 #' @export
 plotYield.MizerSim <- function(object, sim2,
                       species = NULL,
-                      total = FALSE, log = TRUE, ylim = c(NA, NA),
+                      total = FALSE,
+                      log = NULL,
+                      ylim = c(NA, NA),
                       highlight = NULL, return_data = FALSE,
+                      log_x = FALSE, log_y = TRUE,
                       ...) {
+    log_axes <- parseTimePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is(object, "MizerSim"),
                 is.flag(total),
-                is.flag(log),
+                is.flag(log_axes$log_x),
+                is.flag(log_axes$log_y),
                 is.flag(return_data))
     params <- object@params
     species <- valid_species_arg(object, species, error_on_empty = TRUE)
@@ -689,7 +707,8 @@ plotYield.MizerSim <- function(object, sim2,
 
         plotDataFrame(plot_dat, params,
                       ylab = "Yield [g/year]",
-                      ytrans = ifelse(log, "log10", "identity"),
+                      xtrans = ifelse(log_axes$log_x, "log10", "identity"),
+                      ytrans = ifelse(log_axes$log_y, "log10", "identity"),
                       ylim = ylim,
                       highlight = highlight)
     } else {
@@ -698,10 +717,14 @@ plotYield.MizerSim <- function(object, sim2,
             stop("The two simulations do not have the same times")
         }
         ym <- plotYield(object, species = species,
-                            total = total, log = log, ylim = ylim,
+                            total = total,
+                            log_x = log_axes$log_x, log_y = log_axes$log_y,
+                            ylim = ylim,
                             highlight = highlight, return_data = TRUE, ...)
         ym2 <- plotYield(sim2, species = species,
-                            total = total, log = log, ylim = ylim,
+                            total = total,
+                            log_x = log_axes$log_x, log_y = log_axes$log_y,
+                            ylim = ylim,
                             highlight = highlight, return_data = TRUE, ...)
         ym$Simulation <- rep(1, nrow(ym)) # We don't use recycling because that
                                           # fails when there are zero rows.
@@ -712,7 +735,8 @@ plotYield.MizerSim <- function(object, sim2,
 
         plotDataFrame(ym, params,
                       ylab = "Yield [g/year]",
-                      ytrans = ifelse(log, "log10", "identity"),
+                      xtrans = ifelse(log_axes$log_x, "log10", "identity"),
+                      ytrans = ifelse(log_axes$log_y, "log10", "identity"),
                       ylim = ylim,
                       highlight = highlight, wrap_var = "Simulation")
     }
@@ -723,11 +747,34 @@ plotYield.MizerSim <- function(object, sim2,
 #' @export
 plotlyYield <- function(object, sim2,
                         species = NULL,
-                        total = FALSE, log = TRUE, ylim = c(NA, NA),
-                        highlight = NULL, ...) {
+                        total = FALSE,
+                        log = NULL,
+                        ylim = c(NA, NA),
+                        highlight = NULL,
+                        log_x = FALSE, log_y = TRUE, ...) {
     argg <- as.list(environment())
     ggplotly(do.call("plotYield", argg),
              tooltip = c("Species", "Year", "Yield"))
+}
+
+# For time-series plots, keep backward compatibility with the historical
+# logical `log` argument while supporting the newer `log_x` / `log_y` form.
+parseTimePlotLog <- function(log, log_x, log_y) {
+    if (is.null(log)) {
+        return(list(log_x = log_x, log_y = log_y))
+    }
+    if (is.logical(log)) {
+        if (length(log) != 1 || is.na(log)) {
+            stop("`log` must be `NULL`, a single logical value, or a ",
+                 "character string containing only \"x\" and/or \"y\".")
+        }
+        return(list(log_x = FALSE, log_y = isTRUE(log)))
+    }
+    if (!is.character(log)) {
+        stop("`log` must be `NULL`, a single logical value, or a ",
+             "character string containing only \"x\" and/or \"y\".")
+    }
+    parsePlotLog(log, log_x = log_x, log_y = log_y)
 }
 
 
@@ -1132,7 +1179,6 @@ plot_spectra <- function(params, n, n_pp,
     if (identical(size_axis, "l")) {
         plot_dat <- filter_plot_length_limits(plot_dat, llim)
     }
-
     if (return_data) return(plot_dat)
 
     plotDataFrame(plot_dat, params, xlab = plot_size_xlab(size_axis),
@@ -1684,8 +1730,10 @@ plotFeedingLevel.MizerSim <- function(object, species = NULL,
             highlight = NULL, include_critical = FALSE,
             wlim = c(NA, NA), llim = c(NA, NA),
             size_axis = c("w", "l"),
-            return_data = FALSE, ...) {
+            return_data = FALSE,
+            log_x = TRUE, log_y = FALSE, log = NULL, ...) {
     size_axis <- plot_size_axis(size_axis)
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is.flag(all.sizes),
                 is.flag(include_critical),
                 length(wlim) == 2,
@@ -1703,6 +1751,7 @@ plotFeedingLevel.MizerSim <- function(object, species = NULL,
     plot_feeding_level(params, feed, species = species,
                        highlight = highlight, all.sizes = all.sizes,
                        include_critical = include_critical,
+                       log_x = log_axes$log_x, log_y = log_axes$log_y,
                        wlim = wlim, llim = llim,
                        size_axis = size_axis,
                        return_data = return_data)
@@ -1716,8 +1765,10 @@ plotFeedingLevel.MizerParams <- function(object, species = NULL,
             highlight = NULL, include_critical = FALSE,
             wlim = c(NA, NA), llim = c(NA, NA),
             size_axis = c("w", "l"),
-            return_data = FALSE, ...) {
+            return_data = FALSE,
+            log_x = TRUE, log_y = FALSE, log = NULL, ...) {
     size_axis <- plot_size_axis(size_axis)
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is.flag(all.sizes),
                 is.flag(include_critical),
                 length(wlim) == 2,
@@ -1728,6 +1779,7 @@ plotFeedingLevel.MizerParams <- function(object, species = NULL,
     plot_feeding_level(params, feed, species = species,
                        highlight = highlight, all.sizes = all.sizes,
                        include_critical = include_critical,
+                       log_x = log_axes$log_x, log_y = log_axes$log_y,
                        wlim = wlim, llim = llim,
                        size_axis = size_axis,
                        return_data = return_data)
@@ -1735,6 +1787,7 @@ plotFeedingLevel.MizerParams <- function(object, species = NULL,
 
 plot_feeding_level <- function(params, feed, species, highlight,
                                all.sizes, include_critical,
+                               log_x, log_y,
                                wlim, llim, size_axis, return_data) {
     size_axis <- plot_size_axis(size_axis)
 
@@ -1774,6 +1827,10 @@ plot_feeding_level <- function(params, feed, species, highlight,
     if (identical(size_axis, "l")) {
         plot_dat <- filter_plot_length_limits(plot_dat, llim)
     }
+    if (log_y) {
+        # Remove non-positive values because log scales cannot represent them.
+        plot_dat <- subset(plot_dat, value > 0)
+    }
 
     if (return_data) return(plot_dat)
     x_var <- plot_size_x_var(size_axis)
@@ -1801,10 +1858,13 @@ plot_feeding_level <- function(params, feed, species, highlight,
     }
     p + geom_line(aes(x = .data[[x_var]], y = value,
                       colour = Legend, linetype = Legend, linewidth = Legend)) +
-        scale_x_continuous(name = plot_size_xlab(size_axis), trans = "log10",
+        scale_x_continuous(name = plot_size_xlab(size_axis),
+                           trans = if (log_x) "log10" else "identity",
                            limits = plot_size_xlim(wlim, size_axis, llim)) +
-        scale_y_continuous(name = "Feeding Level") +
-        coord_cartesian(ylim = c(0, 1)) +
+        scale_y_continuous(name = "Feeding Level",
+                           trans = if (log_y) "log10" else "identity") +
+        # Feeding level is naturally bounded in [0, 1] on linear scale.
+        coord_cartesian(ylim = if (log_y) NULL else c(0, 1)) +
         scale_colour_manual(values = params@linecolour[legend_levels]) +
         scale_linetype_manual(values = params@linetype[legend_levels]) +
         scale_discrete_manual("linewidth", values = linesize)
@@ -1820,7 +1880,8 @@ plotlyFeedingLevel <- function(object,
                              highlight = NULL,
                              include_critical = FALSE,
                              wlim = c(NA, NA), llim = c(NA, NA),
-                             size_axis = c("w", "l"), ...) {
+                             size_axis = c("w", "l"),
+                             log_x = TRUE, log_y = FALSE, log = NULL, ...) {
     size_axis <- plot_size_axis(size_axis)
     argg <- as.list(environment())
     p <- ggplotly(do.call("plotFeedingLevel", argg),
@@ -1937,6 +1998,7 @@ plotPredMort.MizerSim <- function(object, species = NULL,
                          wlim = c(NA, NA), llim = c(NA, NA),
                          size_axis = c("w", "l"),
                          return_data = FALSE,
+                         log_x = TRUE, log_y = FALSE, log = NULL,
                          ...) {
     size_axis <- plot_size_axis(size_axis)
     if (missing(time_range)) {
@@ -1952,6 +2014,7 @@ plotPredMort.MizerSim <- function(object, species = NULL,
                                     params = object@params)
     plot(pred_mort, species = species, all.sizes = all.sizes,
          highlight = highlight, wlim = wlim, llim = llim,
+         log_x = log_x, log_y = log_y, log = log,
          size_axis = size_axis,
          return_data = return_data,
          ylim = c(0, NA))
@@ -1966,10 +2029,12 @@ plotPredMort.MizerParams <- function(object, species = NULL,
                          wlim = c(NA, NA), llim = c(NA, NA),
                          size_axis = c("w", "l"),
                          return_data = FALSE,
+                         log_x = TRUE, log_y = FALSE, log = NULL,
                          ...) {
     size_axis <- plot_size_axis(size_axis)
     plot(getPredMort(validParams(object)), species = species,
          all.sizes = all.sizes, highlight = highlight,
+         log_x = log_x, log_y = log_y, log = log,
          wlim = wlim, llim = llim, size_axis = size_axis,
          return_data = return_data, ylim = c(0, NA))
 }
@@ -1990,7 +2055,8 @@ plotlyPredMort <- function(object, species = NULL,
                            time_range,
                            highlight = NULL,
                            wlim = c(NA, NA), llim = c(NA, NA),
-                           size_axis = c("w", "l"), ...) {
+                           size_axis = c("w", "l"),
+                           log_x = TRUE, log_y = FALSE, log = NULL, ...) {
     size_axis <- plot_size_axis(size_axis)
     argg <- as.list(environment())
     ggplotly(do.call("plotPredMort", argg),
@@ -2041,6 +2107,7 @@ plotFMort.MizerSim <- function(object, species = NULL,
                       wlim = c(NA, NA), llim = c(NA, NA),
                       size_axis = c("w", "l"),
                       return_data = FALSE,
+                      log_x = TRUE, log_y = FALSE, log = NULL,
                       ...) {
     size_axis <- plot_size_axis(size_axis)
     if (missing(time_range)) {
@@ -2054,6 +2121,7 @@ plotFMort.MizerSim <- function(object, species = NULL,
                             units = "1/year", params = object@params)
     plot(f, species = species, all.sizes = all.sizes,
          highlight = highlight, wlim = wlim, llim = llim,
+         log_x = log_x, log_y = log_y, log = log,
          size_axis = size_axis,
          return_data = return_data)
 }
@@ -2067,10 +2135,12 @@ plotFMort.MizerParams <- function(object, species = NULL,
                       wlim = c(NA, NA), llim = c(NA, NA),
                       size_axis = c("w", "l"),
                       return_data = FALSE,
+                      log_x = TRUE, log_y = FALSE, log = NULL,
                       ...) {
     size_axis <- plot_size_axis(size_axis)
     plot(getFMort(validParams(object)), species = species,
          all.sizes = all.sizes, highlight = highlight,
+         log_x = log_x, log_y = log_y, log = log,
          wlim = wlim, llim = llim, size_axis = size_axis,
          return_data = return_data)
 }
@@ -2082,7 +2152,8 @@ plotlyFMort <- function(object, species = NULL,
                         time_range,
                         highlight = NULL,
                         wlim = c(NA, NA), llim = c(NA, NA),
-                        size_axis = c("w", "l"), ...) {
+                        size_axis = c("w", "l"),
+                        log_x = TRUE, log_y = FALSE, log = NULL, ...) {
     size_axis <- plot_size_axis(size_axis)
     argg <- as.list(environment())
     ggplotly(do.call("plotFMort", argg),
@@ -2155,7 +2226,9 @@ plotGrowthCurves.MizerSim <- function(object, species = NULL,
                              max_age = 20, percentage = FALSE,
                              species_panel = FALSE, highlight = NULL,
                              size_at_age = NULL,
-                             return_data = FALSE, ...) {
+                             return_data = FALSE,
+                             log_x = FALSE, log_y = FALSE, log = NULL, ...) {
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is.flag(percentage),
                 is.flag(species_panel),
                 is.flag(return_data),
@@ -2165,6 +2238,7 @@ plotGrowthCurves.MizerSim <- function(object, species = NULL,
     plot_growth_curves(params, species = species,
                        max_age = max_age, percentage = percentage,
                        species_panel = species_panel, highlight = highlight,
+                       log_x = log_axes$log_x, log_y = log_axes$log_y,
                        size_at_age = size_at_age,
                        return_data = return_data)
 }
@@ -2176,7 +2250,9 @@ plotGrowthCurves.MizerParams <- function(object, species = NULL,
                              max_age = 20, percentage = FALSE,
                              species_panel = FALSE, highlight = NULL,
                              size_at_age = NULL,
-                             return_data = FALSE, ...) {
+                             return_data = FALSE,
+                             log_x = FALSE, log_y = FALSE, log = NULL, ...) {
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is.flag(percentage),
                 is.flag(species_panel),
                 is.flag(return_data),
@@ -2185,6 +2261,7 @@ plotGrowthCurves.MizerParams <- function(object, species = NULL,
     plot_growth_curves(params, species = species,
                        max_age = max_age, percentage = percentage,
                        species_panel = species_panel, highlight = highlight,
+                       log_x = log_axes$log_x, log_y = log_axes$log_y,
                        size_at_age = size_at_age,
                        return_data = return_data)
 }
@@ -2192,6 +2269,7 @@ plotGrowthCurves.MizerParams <- function(object, species = NULL,
 plot_growth_curves <- function(params, species,
                                max_age, percentage,
                                species_panel, highlight,
+                               log_x, log_y,
                                size_at_age,
                                return_data) {
     sp <- params@species_params
@@ -2270,8 +2348,10 @@ plot_growth_curves <- function(params, species,
                   plot_dat$Species)
     plot_dat$Species <- factor(plot_dat$Species, levels = legend_levels)
     linesize <- make_linesize(legend_levels, highlight)
-    p <- p + scale_x_continuous(name = "Age [Years]") +
-        scale_y_continuous(name = y_label) +
+    p <- p + scale_x_continuous(name = "Age [Years]",
+                                trans = if (log_x) "log10" else "identity") +
+        scale_y_continuous(name = y_label,
+                           trans = if (log_y) "log10" else "identity") +
         scale_colour_manual(values = params@linecolour[legend_levels]) +
         scale_linetype_manual(values = params@linetype[legend_levels]) +
         scale_discrete_manual("linewidth", values = linesize)
@@ -2303,8 +2383,10 @@ plot_growth_curves <- function(params, species,
             # for VB or create a panel without VB
             p <- ggplot(plot_dat) +
                 geom_line(aes(x = Age, y = value, colour = Legend)) +
-                scale_x_continuous(name = "Age [years]") +
-                scale_y_continuous(name = "Size [g]") +
+                scale_x_continuous(name = "Age [years]",
+                                   trans = if (log_x) "log10" else "identity") +
+                scale_y_continuous(name = "Size [g]",
+                                   trans = if (log_y) "log10" else "identity") +
                 geom_hline(aes(yintercept = w_mat),
                            data = tibble(Species = factor(legend_levels),
                                          w_mat = sp$w_mat[sp_sel]),
@@ -2336,7 +2418,8 @@ plotlyGrowthCurves <- function(object, species = NULL,
                                max_age = 20,
                                percentage = FALSE,
                                species_panel = FALSE,
-                               highlight = NULL) {
+                               highlight = NULL,
+                               log_x = FALSE, log_y = FALSE, log = NULL) {
     argg <- as.list(environment())
     ggplotly(do.call("plotGrowthCurves", argg),
              tooltip = c("Species", "Age", "value"))
@@ -2388,9 +2471,11 @@ plotDiet <- function(object, ...) {
 plotDiet.MizerSim <- function(object, species = NULL,
                               wlim = c(NA, NA), llim = c(NA, NA),
                               size_axis = c("w", "l"),
-                              return_data = FALSE, ...) {
+                              return_data = FALSE,
+                              log_x = TRUE, log_y = FALSE, log = NULL, ...) {
     size_axis <- plot_size_axis(size_axis)
     plotDiet(object@params, species = species, wlim = wlim, llim = llim,
+             log_x = log_x, log_y = log_y, log = log,
              size_axis = size_axis,
              return_data = return_data, ...)
 }
@@ -2401,7 +2486,9 @@ plotDiet.MizerSim <- function(object, species = NULL,
 plotDiet.MizerParams <- function(object, species = NULL,
                                  wlim = c(NA, NA), llim = c(NA, NA),
                                  size_axis = c("w", "l"),
-                                 return_data = FALSE, ...) {
+                                 return_data = FALSE,
+                                 log_x = TRUE, log_y = FALSE, log = NULL, ...) {
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     size_axis <- plot_size_axis(size_axis)
     assert_that(is.flag(return_data),
                 length(wlim) == 2,
@@ -2409,11 +2496,12 @@ plotDiet.MizerParams <- function(object, species = NULL,
     params <- validParams(object)
     diet <- getDiet(params)
     plot_diet(params, n = params@initial_n, diet = diet, species = species,
+              log_x = log_axes$log_x, log_y = log_axes$log_y,
               wlim = wlim, llim = llim, size_axis = size_axis,
               return_data = return_data)
 }
 
-plot_diet <- function(params, n, diet, species, wlim, llim,
+plot_diet <- function(params, n, diet, species, log_x, log_y, wlim, llim,
                       size_axis, return_data) {
     size_axis <- plot_size_axis(size_axis)
     species <- valid_species_arg(params, species, return.logical = TRUE)
@@ -2460,7 +2548,9 @@ plot_diet <- function(params, n, diet, species, wlim, llim,
         intersect(names(params@linecolour), plot_dat$Prey)
     p <- ggplot(plot_dat) +
         geom_area(aes(x = .data[[x_var]], y = Proportion, fill = Prey)) +
-        scale_x_log10(limits = plot_size_xlim(wlim, size_axis, llim)) +
+        scale_x_continuous(trans = if (log_x) "log10" else "identity",
+                           limits = plot_size_xlim(wlim, size_axis, llim)) +
+        scale_y_continuous(trans = if (log_y) "log10" else "identity") +
         labs(x = plot_size_xlab(size_axis), y = "Proportion") +
         scale_fill_manual(values = params@linecolour[legend_levels],
                           limits = legend_levels)
@@ -2476,12 +2566,14 @@ plot_diet <- function(params, n, diet, species, wlim, llim,
 #' @export
 plotlyDiet <- function(object, species = NULL,
                        wlim = c(NA, NA), llim = c(NA, NA),
-                       size_axis = c("w", "l"), ...) {
+                       size_axis = c("w", "l"),
+                       log_x = TRUE, log_y = FALSE, log = NULL, ...) {
     size_axis <- plot_size_axis(size_axis)
     ggplotly(plotDiet(object, species = species, wlim = wlim, llim = llim,
+                      log_x = log_x, log_y = log_y, log = log,
                       size_axis = size_axis, ...),
              tooltip = plot_size_tooltip(size_axis, before = "Predator",
-                                         after = c("Proportion", "Prey")))
+                                        after = c("Proportion", "Prey")))
 }
 
 

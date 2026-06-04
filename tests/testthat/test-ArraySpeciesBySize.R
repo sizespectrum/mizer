@@ -105,7 +105,7 @@ test_that("plot.ArraySpeciesBySize supports base plot log argument", {
     expect_identical(p_none$scales$get_scales("x")$trans$name, "identity")
     expect_identical(p_none$scales$get_scales("y")$trans$name, "identity")
 
-    expect_error(plot(enc, log = "z"), "`log` must be a character string")
+    expect_error(plot(enc, log = "z"), "containing only")
 })
 
 test_that("plot2.ArraySpeciesBySize compares compatible arrays", {
@@ -126,7 +126,7 @@ test_that("plot2.ArraySpeciesBySize compares compatible arrays", {
     expect_identical(p_none$scales$get_scales("y")$trans$name, "identity")
 
     expect_error(plot2(enc, getBiomass(NS_sim)), "Both objects must be")
-    expect_error(plot2(enc, enc, log = "z"), "`log` must be a character string")
+    expect_error(plot2(enc, enc, log = "z"), "containing only")
 })
 
 test_that("plotRelative.ArraySpeciesBySize plots symmetric relative difference", {

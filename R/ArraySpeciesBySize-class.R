@@ -256,10 +256,18 @@ parsePlotLog <- function(log, log_x = FALSE, log_y = FALSE) {
     if (is.null(log)) {
         return(list(log_x = log_x, log_y = log_y))
     }
+    # Backward compatibility: legacy logical `log` toggles only the y-axis.
+    if (is.logical(log)) {
+        if (length(log) != 1 || is.na(log)) {
+            stop("`log` must be a single logical value or a character string ",
+                 "containing only \"x\" and/or \"y\".")
+        }
+        return(list(log_x = FALSE, log_y = isTRUE(log)))
+    }
     if (!is.character(log) || length(log) != 1 || is.na(log) ||
         grepl("[^xy]", log)) {
-        stop("`log` must be a character string containing only \"x\" ",
-             "and/or \"y\".")
+        stop("`log` must be a single logical value or a character string ",
+             "containing only \"x\" and/or \"y\".")
     }
     list(
         log_x = grepl("x", log, fixed = TRUE),
