@@ -6,10 +6,10 @@
 \alias{plotlyBiomass}
 \title{Plot the biomass of species through time}
 \usage{
-plotBiomass(sim, ...)
+plotBiomass(object, ...)
 
 \method{plotBiomass}{MizerSim}(
-  sim,
+  object,
   species = NULL,
   start_time = NULL,
   end_time = NULL,
@@ -21,15 +21,15 @@ plotBiomass(sim, ...)
   log = TRUE,
   return_data = FALSE,
   use_cutoff = FALSE,
-  min_w = min(sim@params@w),
-  max_w = max(sim@params@w),
+  min_w = min(object@params@w),
+  max_w = max(object@params@w),
   min_l = NULL,
   max_l = NULL,
   ...
 )
 
 plotlyBiomass(
-  sim,
+  object,
   species = NULL,
   start_time = NULL,
   end_time = NULL,
@@ -40,14 +40,14 @@ plotlyBiomass(
   highlight = NULL,
   log = TRUE,
   use_cutoff = FALSE,
-  min_w = min(sim@params@w),
-  max_w = max(sim@params@w),
+  min_w = min(object@params@w),
+  max_w = max(object@params@w),
   min_l = NULL,
   max_l = NULL
 )
 }
 \arguments{
-\item{sim}{An object of class \linkS4class{MizerSim}}
+\item{object}{An object of class \linkS4class{MizerSim}}
 
 \item{...}{Unused}
 

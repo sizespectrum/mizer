@@ -329,6 +329,11 @@ the mathematical details.
 
 ## Breaking changes
 
+- The first argument of `plotBiomass()`, `plotYield()`, `plotYieldGear()` and
+  their `MizerSim` methods and `plotly*` wrappers has been renamed from `sim`
+  to `object` for consistency with other plot generics. Calls using
+  `sim = ...` as a named argument must be updated to `object = ...`.
+
 - The names of the dimnames of the arrays returned by `getMort()`, 
   `getPredRate()` are now `sp` and `w` to be in line with other
   functions like `getFMort()`.
