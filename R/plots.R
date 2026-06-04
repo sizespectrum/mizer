@@ -1642,8 +1642,8 @@ plotFeedingLevel <- function(object, ...) {
 #' @rdname plotFeedingLevel
 #' @export
 plotFeedingLevel.MizerSim <- function(object, species = NULL,
-            time_range, highlight = NULL,
-            all.sizes = FALSE, include_critical = FALSE,
+            time_range, all.sizes = FALSE,
+            highlight = NULL, include_critical = FALSE,
             wlim = c(NA, NA), llim = c(NA, NA),
             size_axis = c("w", "l"),
             return_data = FALSE, ...) {
@@ -1673,8 +1673,8 @@ plotFeedingLevel.MizerSim <- function(object, species = NULL,
 #' @rdname plotFeedingLevel
 #' @export
 plotFeedingLevel.MizerParams <- function(object, species = NULL,
-            highlight = NULL,
-            all.sizes = FALSE, include_critical = FALSE,
+            all.sizes = FALSE,
+            highlight = NULL, include_critical = FALSE,
             wlim = c(NA, NA), llim = c(NA, NA),
             size_axis = c("w", "l"),
             return_data = FALSE, ...) {

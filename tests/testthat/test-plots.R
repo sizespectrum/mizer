@@ -522,6 +522,13 @@ test_that("plotFeedingLevel trims by size and can include critical levels", {
     expect_setequal(unique(fl_critical$Type), c("actual", "critical"))
 })
 
+test_that("all.sizes and highlight have consistent positional order", {
+    expect_no_error(plotPredMort(sim, species, 1:3, TRUE, species[[1]]))
+    expect_no_error(plotFMort(sim, species, 1:3, TRUE, species[[1]]))
+    expect_no_error(plotFeedingLevel(sim, species, 1:3, TRUE, species[[1]]))
+    expect_no_error(plotFeedingLevel(params, species, TRUE, species[[1]]))
+})
+
 test_that("plotGrowthCurves validates size_at_age input", {
     expect_error(plotGrowthCurves(params, size_at_age = data.frame(age = 1, weight = 2)),
                  "needs to have a 'species' column")
