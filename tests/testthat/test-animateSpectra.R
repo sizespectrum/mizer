@@ -10,7 +10,7 @@ test_that("animateSpectra does not throw error", {
     sim <- example_animate_sim
     sp <- sim@params@species_params$species
     expect_error(animateSpectra(sim, species = sp[1:2],
-                                time_range = c(1, 2),
+                                tlim = c(1, 2),
                                 wlim = c(1, 1000),
                                 ylim = c(1e6, 1e9),
                                 power = 1,
@@ -20,13 +20,13 @@ test_that("animateSpectra does not throw error", {
 
 test_that("animateSpectra returns a plotly object", {
     sim <- example_animate_sim
-    result <- animateSpectra(sim, time_range = c(1, 2))
+    result <- animateSpectra(sim, tlim = c(1, 2))
     expect_s3_class(result, "plotly")
 })
 
 test_that("animateSpectra sets axis ranges without dropping vertices", {
     sim <- example_animate_sim
-    result <- animateSpectra(sim, species = "Cod", time_range = c(1, 2),
+    result <- animateSpectra(sim, species = "Cod", tlim = c(1, 2),
                              resource = FALSE, wlim = c(1, 1000),
                              ylim = c(1e6, 1e9))
     built_plot <- plotly::plotly_build(result)
@@ -41,7 +41,7 @@ test_that("animateSpectra sets axis ranges without dropping vertices", {
 
 test_that("animateSpectra derives missing x-axis limits from plotted data", {
     result <- animateSpectra(NS_sim, species = "Cod",
-                             time_range = c(2000, 2001),
+                             tlim = c(2000, 2001),
                              resource = FALSE, wlim = c(NA, 1000))
     built_plot <- plotly::plotly_build(result)
     first_frame <- built_plot$x$frames[[1]]$data[[1]]
@@ -52,14 +52,14 @@ test_that("animateSpectra derives missing x-axis limits from plotted data", {
 
 test_that("animateSpectra can disable interpolation between frames", {
     sim <- example_animate_sim
-    result <- animateSpectra(sim, time_range = c(1, 2),
+    result <- animateSpectra(sim, tlim = c(1, 2),
                              transition_duration = 0)
     expect_identical(result$animation$transition$duration, 0)
 })
 
 test_that("animateSpectra exposes plotly animation timing controls", {
     sim <- example_animate_sim
-    result <- animateSpectra(sim, time_range = c(1, 2),
+    result <- animateSpectra(sim, tlim = c(1, 2),
                              frame_duration = 800,
                              transition_duration = 120,
                              easing = "cubic-in-out")
@@ -74,80 +74,80 @@ test_that("animateSpectra handles species parameter correctly", {
 
     # Test with specific species
     sp <- sim@params@species_params$species
-    result <- animateSpectra(sim, species = sp[1], time_range = c(1, 2))
+    result <- animateSpectra(sim, species = sp[1], tlim = c(1, 2))
     expect_s3_class(result, "plotly")
 
     # Test with multiple species
-    result <- animateSpectra(sim, species = sp[1:2], time_range = c(1, 2))
+    result <- animateSpectra(sim, species = sp[1:2], tlim = c(1, 2))
     expect_s3_class(result, "plotly")
 
     # Test with NULL (default - all species)
-    result <- animateSpectra(sim, species = NULL, time_range = c(1, 2))
+    result <- animateSpectra(sim, species = NULL, tlim = c(1, 2))
     expect_s3_class(result, "plotly")
 })
 
-test_that("animateSpectra handles time_range parameter correctly", {
+test_that("animateSpectra handles tlim parameter correctly", {
     sim <- example_animate_long_sim
 
     # Test with min/max vector
-    expect_error(animateSpectra(sim, time_range = c(1, 3)), NA)
+    expect_error(animateSpectra(sim, tlim = c(1, 3)), NA)
 
-    # Test with full vector of values
-    expect_error(animateSpectra(sim, time_range = 1:3), NA)
-
-    # Test with missing time_range (should use entire range)
+    # Test with no time limit (should use entire range)
     expect_error(animateSpectra(sim), NA)
+
+    # Test that deprecated time_range still works but warns
+    expect_warning(animateSpectra(sim, time_range = c(1, 3)), "deprecated")
 })
 
 test_that("animateSpectra handles wlim parameter with NA values", {
     sim <- example_animate_sim
 
     # Test with both NA (should use defaults)
-    expect_error(animateSpectra(sim, wlim = c(NA, NA), time_range = c(1, 2)), NA)
+    expect_error(animateSpectra(sim, wlim = c(NA, NA), tlim = c(1, 2)), NA)
 
     # Test with lower NA
-    expect_error(animateSpectra(sim, wlim = c(NA, 1000), time_range = c(1, 2)), NA)
+    expect_error(animateSpectra(sim, wlim = c(NA, 1000), tlim = c(1, 2)), NA)
 
     # Test with upper NA
-    expect_error(animateSpectra(sim, wlim = c(0.1, NA), time_range = c(1, 2)), NA)
+    expect_error(animateSpectra(sim, wlim = c(0.1, NA), tlim = c(1, 2)), NA)
 
     # Test with specific values
-    expect_error(animateSpectra(sim, wlim = c(1, 1000), time_range = c(1, 2)), NA)
+    expect_error(animateSpectra(sim, wlim = c(1, 1000), tlim = c(1, 2)), NA)
 })
 
 test_that("animateSpectra handles ylim parameter with NA values", {
     sim <- example_animate_sim
 
     # Test with both NA (should use defaults)
-    expect_error(animateSpectra(sim, ylim = c(NA, NA), time_range = c(1, 2)), NA)
+    expect_error(animateSpectra(sim, ylim = c(NA, NA), tlim = c(1, 2)), NA)
 
     # Test with lower NA
-    expect_error(animateSpectra(sim, ylim = c(NA, 1e9), time_range = c(1, 2)), NA)
+    expect_error(animateSpectra(sim, ylim = c(NA, 1e9), tlim = c(1, 2)), NA)
 
     # Test with upper NA
-    expect_error(animateSpectra(sim, ylim = c(1e6, NA), time_range = c(1, 2)), NA)
+    expect_error(animateSpectra(sim, ylim = c(1e6, NA), tlim = c(1, 2)), NA)
 
     # Test with specific values
-    expect_error(animateSpectra(sim, ylim = c(1e6, 1e9), time_range = c(1, 2)), NA)
+    expect_error(animateSpectra(sim, ylim = c(1e6, 1e9), tlim = c(1, 2)), NA)
 })
 
 test_that("animateSpectra handles power parameter correctly", {
     sim <- example_animate_sim
 
     # Test with power = 0 (Number density)
-    result <- animateSpectra(sim, power = 0, time_range = c(1, 2))
+    result <- animateSpectra(sim, power = 0, tlim = c(1, 2))
     expect_s3_class(result, "plotly")
 
     # Test with power = 1 (Biomass density - default)
-    result <- animateSpectra(sim, power = 1, time_range = c(1, 2))
+    result <- animateSpectra(sim, power = 1, tlim = c(1, 2))
     expect_s3_class(result, "plotly")
 
     # Test with power = 2 (Biomass density with respect to logarithmic size bins)
-    result <- animateSpectra(sim, power = 2, time_range = c(1, 2))
+    result <- animateSpectra(sim, power = 2, tlim = c(1, 2))
     expect_s3_class(result, "plotly")
 
     # Test with custom power value
-    result <- animateSpectra(sim, power = 1.5, time_range = c(1, 2))
+    result <- animateSpectra(sim, power = 1.5, tlim = c(1, 2))
     expect_s3_class(result, "plotly")
 })
 
@@ -155,11 +155,11 @@ test_that("animateSpectra handles total parameter correctly", {
     sim <- example_animate_sim
 
     # Test with total = FALSE (default)
-    result <- animateSpectra(sim, total = FALSE, time_range = c(1, 2))
+    result <- animateSpectra(sim, total = FALSE, tlim = c(1, 2))
     expect_s3_class(result, "plotly")
 
     # Test with total = TRUE (should include total line)
-    result <- animateSpectra(sim, total = TRUE, time_range = c(1, 2))
+    result <- animateSpectra(sim, total = TRUE, tlim = c(1, 2))
     expect_s3_class(result, "plotly")
 })
 
@@ -167,11 +167,11 @@ test_that("animateSpectra handles resource parameter correctly", {
     sim <- example_animate_sim
 
     # Test with resource = TRUE (default)
-    result <- animateSpectra(sim, resource = TRUE, time_range = c(1, 2))
+    result <- animateSpectra(sim, resource = TRUE, tlim = c(1, 2))
     expect_s3_class(result, "plotly")
 
     # Test with resource = FALSE (should exclude resource)
-    result <- animateSpectra(sim, resource = FALSE, time_range = c(1, 2))
+    result <- animateSpectra(sim, resource = FALSE, tlim = c(1, 2))
     expect_s3_class(result, "plotly")
 })
 
@@ -179,12 +179,12 @@ test_that("animateSpectra validates input parameters", {
     sim <- example_animate_sim
 
     # Test invalid wlim length
-    expect_error(animateSpectra(sim, wlim = c(1), time_range = c(1, 2)))
-    expect_error(animateSpectra(sim, wlim = c(1, 10, 100), time_range = c(1, 2)))
+    expect_error(animateSpectra(sim, wlim = c(1), tlim = c(1, 2)))
+    expect_error(animateSpectra(sim, wlim = c(1, 10, 100), tlim = c(1, 2)))
 
     # Test invalid ylim length
-    expect_error(animateSpectra(sim, ylim = c(1), time_range = c(1, 2)))
-    expect_error(animateSpectra(sim, ylim = c(1, 10, 100), time_range = c(1, 2)))
+    expect_error(animateSpectra(sim, ylim = c(1), tlim = c(1, 2)))
+    expect_error(animateSpectra(sim, ylim = c(1, 10, 100), tlim = c(1, 2)))
 })
 
 test_that("animateSpectra uses consistent colors matching linecolour", {
@@ -193,7 +193,7 @@ test_that("animateSpectra uses consistent colors matching linecolour", {
     # Get the result
     sp <- sim@params@species_params$species
     result <- animateSpectra(sim, species = sp[1:2],
-                            time_range = c(1, 2))
+                            tlim = c(1, 2))
 
     # The plotly object should be created
     expect_s3_class(result, "plotly")
@@ -217,7 +217,7 @@ test_that("animateSpectra maintains color consistency when species go extinct", 
     # Test with species selection
     sp <- sim@params@species_params$species
     result <- animateSpectra(sim, species = sp[1:2],
-                            time_range = c(1, 2))
+                            tlim = c(1, 2))
 
     expect_s3_class(result, "plotly")
 
@@ -239,7 +239,7 @@ test_that("animateSpectra adds resource and total traces when requested", {
     built_plot <- plotly::plotly_build(
         animateSpectra(sim,
                        species = c("Cod", "Haddock"),
-                       time_range = c(1, 2),
+                       tlim = c(1, 2),
                        total = TRUE,
                        resource = TRUE)
     )
@@ -257,7 +257,7 @@ test_that("animateSpectra handles background parameter correctly", {
 
     # background = TRUE (default) includes a "Background" trace
     built_on <- plotly::plotly_build(
-        animateSpectra(sim_bkgrd, species = "Cod", time_range = c(1, 2),
+        animateSpectra(sim_bkgrd, species = "Cod", tlim = c(1, 2),
                        resource = FALSE, background = TRUE)
     )
     trace_names_on <- vapply(built_on$x$data, `[[`, character(1), "name")
@@ -265,7 +265,7 @@ test_that("animateSpectra handles background parameter correctly", {
 
     # background = FALSE excludes the "Background" trace
     built_off <- plotly::plotly_build(
-        animateSpectra(sim_bkgrd, species = "Cod", time_range = c(1, 2),
+        animateSpectra(sim_bkgrd, species = "Cod", tlim = c(1, 2),
                        resource = FALSE, background = FALSE)
     )
     trace_names_off <- vapply(built_off$x$data, `[[`, character(1), "name")
@@ -274,7 +274,7 @@ test_that("animateSpectra handles background parameter correctly", {
     # background = TRUE on a model with no background species adds no "Background" trace
     sim_plain <- ns_animate_sim
     built_plain <- plotly::plotly_build(
-        animateSpectra(sim_plain, species = "Cod", time_range = c(1, 2),
+        animateSpectra(sim_plain, species = "Cod", tlim = c(1, 2),
                        resource = FALSE, background = TRUE)
     )
     trace_names_plain <- vapply(built_plain$x$data, `[[`, character(1), "name")
@@ -285,16 +285,16 @@ test_that("animateSpectra sets the y axis title from power", {
     sim <- ns_animate_sim
 
     built0 <- plotly::plotly_build(animateSpectra(sim, species = "Cod",
-                                                  time_range = c(1, 2),
+                                                  tlim = c(1, 2),
                                                   power = 0))
     built1 <- plotly::plotly_build(animateSpectra(sim, species = "Cod",
-                                                  time_range = c(1, 2),
+                                                  tlim = c(1, 2),
                                                   power = 1))
     built2 <- plotly::plotly_build(animateSpectra(sim, species = "Cod",
-                                                  time_range = c(1, 2),
+                                                  tlim = c(1, 2),
                                                   power = 2))
     built_custom <- plotly::plotly_build(animateSpectra(sim, species = "Cod",
-                                                         time_range = c(1, 2),
+                                                         tlim = c(1, 2),
                                                          power = 1.5))
 
     expect_identical(built0$x$layout$yaxis$title, "Number density [1/g]")
@@ -307,19 +307,19 @@ test_that("animateSpectra sets the y axis title from power", {
 test_that("animate supports the log argument", {
     sim <- example_animate_sim
     built_xy <- plotly::plotly_build(
-        animateSpectra(sim, species = "Cod", time_range = c(1, 2), log = "xy")
+        animateSpectra(sim, species = "Cod", tlim = c(1, 2), log = "xy")
     )
     expect_identical(built_xy$x$layout$xaxis$type, "log")
     expect_identical(built_xy$x$layout$yaxis$type, "log")
 
     built_none <- plotly::plotly_build(
-        animateSpectra(sim, species = "Cod", time_range = c(1, 2), log = "")
+        animateSpectra(sim, species = "Cod", tlim = c(1, 2), log = "")
     )
     expect_identical(built_none$x$layout$xaxis$type, "-")
     expect_identical(built_none$x$layout$yaxis$type, "-")
 
     built_array <- plotly::plotly_build(
-        animate(getFMort(sim), species = "Cod", time_range = c(1, 2), log = "y")
+        animate(getFMort(sim), species = "Cod", tlim = c(1, 2), log = "y")
     )
     expect_identical(built_array$x$layout$xaxis$type, "-")
     expect_identical(built_array$x$layout$yaxis$type, "log")

@@ -29,9 +29,9 @@
 #' @param x A `MizerSim` or `ArrayTimeBySpeciesBySize` object.
 #' @param species Name or vector of names of the species to be plotted. By
 #'   default all species are plotted.
-#' @param time_range The time range to animate over. Either a vector of time
-#'   values to include, or a length-two vector giving the min and max of the
-#'   range. Default is the entire time range of `x`.
+#' @param tlim A numeric vector of length two providing lower and upper limits
+#'   for the animated time window, e.g. `c(1997, 2007)`. Use `NA` to apply no
+#'   limit at that end. Default is `c(NA, NA)`.
 #' @param log_x If `TRUE` (default), use a log10 x-axis for body size.
 #' @param log_y If `TRUE` (default), use a log10 y-axis.
 #' @param log A character string specifying which axes to log-transform:
@@ -75,7 +75,7 @@
 #' @examples
 #' \donttest{
 #' # Animate biomass density spectra, showing only sizes above 0.1 g
-#' animate(NS_sim, power = 2, wlim = c(0.1, NA), time_range = 1997:2007)
+#' animate(NS_sim, power = 2, wlim = c(0.1, NA), tlim = c(1997, 2007))
 #'
 #' # Animate fishing mortality through time
 #' animate(getFMort(NS_sim))
@@ -95,17 +95,23 @@ animate <- function(x, ...) UseMethod("animate")
 #'   If `TRUE`, the resource spectrum is plotted as an additional trace called
 #'   `"Resource"`. Default is `TRUE`. Only applies to `MizerSim`.
 #' @export
-animate.MizerSim <- function(x, species = NULL, time_range = NULL,
+animate.MizerSim <- function(x, species = NULL,
                               log_x = TRUE, log_y = TRUE,
                               log = NULL,
                               wlim = c(NA, NA), llim = c(NA, NA),
                               ylim = c(NA, NA),
+                              tlim = c(NA, NA),
+                              time_range = lifecycle::deprecated(),
                               size_axis = c("w", "l"),
                               power = 1, total = FALSE, resource = TRUE,
                               background = TRUE,
                               frame_duration = 500,
                               transition_duration = frame_duration,
                               easing = "linear", ...) {
+    if (lifecycle::is_present(time_range)) {
+        lifecycle::deprecate_warn("2.6.0", "animate(time_range)", "animate(tlim)")
+        tlim <- c(min(time_range), max(time_range))
+    }
     sim <- x
     size_axis <- plot_size_axis(size_axis)
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
@@ -121,10 +127,10 @@ animate.MizerSim <- function(x, species = NULL, time_range = NULL,
                 length(ylim) == 2)
 
     species <- valid_species_arg(sim, species)
-    if (is.null(time_range)) {
-        time_range  <- as.numeric(dimnames(sim@n)$time)
-    }
-    time_elements <- get_time_elements(sim, time_range)
+    all_times <- as.numeric(dimnames(sim@n)$time)
+    if (!is.na(tlim[1])) all_times <- all_times[all_times >= tlim[1]]
+    if (!is.na(tlim[2])) all_times <- all_times[all_times <= tlim[2]]
+    time_elements <- get_time_elements(sim, all_times)
 
     nf <- melt(sim@n[time_elements,
                      as.character(dimnames(sim@n)$sp) %in% species,

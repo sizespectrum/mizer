@@ -31,7 +31,7 @@ expect_ggplot <- function(fig) {
 # plots have not changed ----
 test_that("plots have not changed", {
 p <- plotBiomass(sim, species = species, total = TRUE,
-                 start_time = 0, end_time = 2.8,
+                 tlim = c(0, 2.8),
                  y_ticks = 4)
 expect_doppelganger("Plot Biomass", p)
 
@@ -413,7 +413,7 @@ test_that("yield plotting helpers accept ylim", {
 # testing the plot outputs
 test_that("return_data is identical",{
     expect_equal(dim(plotBiomass(sim, species = species, total = TRUE,
-                                 start_time = 0, end_time = 2.8, y_ticks = 4, return_data = TRUE)), c(9,4))
+                                 tlim = c(0, 2.8), y_ticks = 4, return_data = TRUE)), c(9,4))
     expect_warning(p <- plotYield(sim, sim0, species = species, return_data = TRUE))
     expect_equal(dim(p), c(8,4))
 
@@ -440,6 +440,34 @@ test_that("return_data is identical",{
     #                           return_data = TRUE)), c(717,3))
 }
 )
+
+# tlim parameter ----
+test_that("tlim filters time axis correctly", {
+    # plotBiomass: deprecated start_time/end_time triggers warning
+    expect_warning(plotBiomass(sim, start_time = 0), "deprecated")
+    expect_warning(plotBiomass(sim, end_time = 2), "deprecated")
+
+    # plotBiomass: tlim reduces number of rows
+    all_rows <- nrow(plotBiomass(sim, species = species, return_data = TRUE))
+    limited_rows <- nrow(plotBiomass(sim, species = species,
+                                     tlim = c(1, 3), return_data = TRUE))
+    expect_lt(limited_rows, all_rows)
+
+    # plotYield: tlim reduces number of rows
+    all_rows <- nrow(plotYield(sim, species = species, return_data = TRUE))
+    limited_rows <- nrow(plotYield(sim, species = species,
+                                   tlim = c(1, 3), return_data = TRUE))
+    expect_lt(limited_rows, all_rows)
+
+    # plotYieldGear: tlim reduces number of rows
+    all_rows <- nrow(plotYieldGear(sim, species = species, return_data = TRUE))
+    limited_rows <- nrow(plotYieldGear(sim, species = species,
+                                       tlim = c(1, 3), return_data = TRUE))
+    expect_lt(limited_rows, all_rows)
+
+    # animate: deprecated time_range triggers warning
+    expect_warning(animate(sim, time_range = 1:3), "deprecated")
+})
 
 # Legends have the correct entries ----
 test_that("Legends have correct entries", {
