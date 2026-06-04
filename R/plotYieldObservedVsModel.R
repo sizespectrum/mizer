@@ -35,7 +35,8 @@
 #'   shown as if their observed yield was equal to the model yield.
 #' @param return_data Whether to return the data frame for the plot (TRUE) or
 #'   not (FALSE). Default is FALSE.
-#' @param ... Additional arguments passed to the generic function.
+#' @param ... For [plotlyYieldObservedVsModel()], additional arguments passed
+#'   to [ggplotly()]. Otherwise unused.
 #' 
 #' @return A ggplot2 object with the plot of model yield by species compared
 #'   to observed yield. If `return_data = TRUE`, the data frame used to

@@ -617,6 +617,7 @@ plotlyBiomass <- function(object,
 #' @inheritParams plotSpectra
 #' @param log Boolean whether yield should be plotted on a logarithmic axis.
 #'   Defaults to true.
+#' @param ... .
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the three variables 'Year', 'Yield', 'Species' is returned.
@@ -736,6 +737,7 @@ plotlyYield <- function(object, sim2,
 #' @inheritParams plotSpectra
 #' @param gears A vector of gear names to be included in the plot. Default is
 #'  all gears.
+#' @param ... .
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the four variables 'Year', 'Yield', 'Species' and 'Gear' is
@@ -820,7 +822,7 @@ plotlyYieldGear <- function(object, species = NULL,
              tooltip = c("Species", "Year", "Yield"))
 }
 
-#' Plot abundance spectra and compare between objects
+#' Plot abundance and biomass spectra and compare between objects
 #'
 #' `plotSpectra()` plots the number density multiplied by a power of the
 #' weight, with the power specified by the `power` argument. When called with a
@@ -1604,6 +1606,7 @@ plotlySpectra <- function(object, species = NULL,
 #'   outside a species' size range. Default FALSE.
 #' @param include_critical If TRUE, then the critical feeding level is also
 #'   plotted. Default FALSE.
+#' @param ... .
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the variables 'w' (or 'l' if `size_axis = "l"`), 'value' and
@@ -1858,6 +1861,7 @@ plotlyFeedingLevel <- function(object,
 #' @inheritParams plotSpectra
 #' @param all.sizes If TRUE, then predation mortality is plotted also for sizes
 #'   outside a species' size range. Default FALSE.
+#' @param ... .
 #'
 #' @return  A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the three variables 'w' (or 'l' if `size_axis = "l"`), 'value',
@@ -1962,6 +1966,7 @@ plotlyPredMort <- function(object, species = NULL,
 #' @inheritParams plotSpectra
 #' @param all.sizes If TRUE, then fishing mortality is plotted also for sizes
 #'   outside a species' size range. Default FALSE.
+#' @param ... .
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the three variables 'w' (or 'l' if `size_axis = "l"`), 'value',
 #'   'Species' is returned.
@@ -2078,6 +2083,7 @@ plotlyFMort <- function(object, species = NULL,
 #'   name as used in the model), `age` (in years) and either `weight` (in grams)
 #'   or `length` (in cm). If both `weight` and `length` are provided, only
 #'   `weight` is used.
+#' @param ... .
 #' @return A ggplot2 object
 #' @export
 #' @family plotting functions
@@ -2311,6 +2317,7 @@ plotlyGrowthCurves <- function(object, species = NULL,
 #' facet for each species.
 #'
 #' @inheritParams plotSpectra
+#' @param ... .
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the four variables 'Predator', 'w' (or 'l' if

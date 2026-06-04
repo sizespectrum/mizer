@@ -14,7 +14,7 @@
 #' missing. If `w_inf` is missing, `w_max` is used instead.
 #'
 #' @param object A MizerParams object or a species_params data frame
-#' @param ... Additional arguments
+#' @param ... Currently unused.
 #'
 #' @return A named vector. The names are the species names and the values are
 #'   the ages at maturity.
@@ -65,7 +65,7 @@ age_mat_vB.default <- function(object, ...) {
 #' summing `dw / g(w)` over all size bins with `w < w_mat`.
 #'
 #' @param params A MizerParams object
-#' @param ... Additional arguments
+#' @param ... Currently unused.
 #'
 #' @return A named vector. The names are the species names and the values are
 #'   the ages at maturity.
