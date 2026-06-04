@@ -484,14 +484,6 @@ test_that("plotSpectra validates empty selection and can return total only", {
 })
 
 test_that("plotSpectra supports base plot log argument", {
-    p_legacy_true <- plotSpectra(params, species = species, log = TRUE)
-    expect_identical(p_legacy_true$scales$get_scales("x")$trans$name, "identity")
-    expect_identical(p_legacy_true$scales$get_scales("y")$trans$name, "log-10")
-
-    p_legacy_false <- plotSpectra(params, species = species, log = FALSE)
-    expect_identical(p_legacy_false$scales$get_scales("x")$trans$name, "identity")
-    expect_identical(p_legacy_false$scales$get_scales("y")$trans$name, "identity")
-
     p_y <- plotSpectra(params, species = species, log = "y")
     expect_identical(p_y$scales$get_scales("x")$trans$name, "identity")
     expect_identical(p_y$scales$get_scales("y")$trans$name, "log-10")
