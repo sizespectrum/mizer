@@ -130,6 +130,7 @@ print.summary.ArrayTimeBySpeciesBySize <- function(x, ...) {
 }
 
 #' @rdname plot
+#' @usage NULL
 #'
 #' @param time The time to display. Default (`NULL`) is the final time step.
 #'   Only applies to `ArrayTimeBySpeciesBySize`.
@@ -175,7 +176,7 @@ plot.ArrayTimeBySpeciesBySize <- function(x, species = NULL, time = NULL,
                             y_ticks = y_ticks, ...)
 }
 
-#' @rdname plot2
+#' @rdname plot
 #' @usage NULL
 #'
 #' @param time The time to display. Default (`NULL`) is the final time step.
@@ -206,7 +207,7 @@ plot2.ArrayTimeBySpeciesBySize <- function(x, y, name1 = "First",
                              background = background, y_ticks = y_ticks, ...)
 }
 
-#' @rdname plotRelative
+#' @rdname plot
 #' @usage NULL
 #'
 #' @param time The time to display. Default (`NULL`) is the final time step.
@@ -255,6 +256,7 @@ ArrayTimeBySpeciesBySize_slice <- function(x, time = NULL) {
 }
 
 #' @rdname plot
+#' @usage NULL
 #' @exportS3Method plotly::ggplotly
 #' @examples
 #' \donttest{

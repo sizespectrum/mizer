@@ -127,12 +127,21 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
     invisible(x)
 }
 
-#' Plotting outputs
+#' Plot, compare or show relative difference of mizer arrays
 #'
 #' Many mizer functions return values that depend on species and either size or
 #' time. `plot()` creates a ggplot2 figure with one line for each species
 #' showing the values against size or against time (depending on the type of
 #' output). `ggplotly()` creates an interactive version of the same figure.
+#'
+#' `plot2()` compares two compatible mizer array objects in a single ggplot.
+#' Colours identify species or groups, and linetype identifies which object
+#' the values came from.
+#'
+#' `plotRelative()` plots the difference between two compatible mizer array
+#' objects relative to their average. If the values in the first object are
+#' \eqn{N_1} and the values in the second are \eqn{N_2}, it plots
+#' \deqn{2 (N_2 - N_1) / (N_1 + N_2).}
 #'
 #' This works because the mizer functions that give values that depend on
 #' species and size return an `ArraySpeciesBySize` object and those that
@@ -142,7 +151,14 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #' computed from. This allows the plots to be automatically labelled and
 #' coloured appropriately.
 #'
-#' @param x An `ArraySpeciesBySize` or `ArrayTimeBySpecies` object.
+#' @usage plot(x, ...)
+#' @param x For `plot()`, an `ArraySpeciesBySize`, `ArrayTimeBySpecies`, or
+#'   `ArrayTimeBySpeciesBySize` object. For `plot2()` and `plotRelative()`,
+#'   the first of two compatible mizer array objects to compare.
+#' @param y For `plot2()` and `plotRelative()`, the second mizer array object,
+#'   compatible with `x`.
+#' @param name1,name2 Labels for the two objects, used in the linetype legend
+#'   of `plot2()`.
 #' @param species Character vector of species to include. `NULL` (default) means
 #'   all species.
 #' @param all.sizes If `FALSE` (default), values outside a species' size range
@@ -178,6 +194,10 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #' @return `plot()` returns a ggplot2 object, unless `return_data = TRUE`, in
 #'   which case a data frame is returned.
 #'
+#'   `plot2()` and `plotRelative()` return a ggplot2 object.
+#'
+#'   `ggplotly()` returns a plotly object.
+#'
 #' @name plot
 #' @family plotting functions
 #' @export
@@ -187,6 +207,16 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #' plot(getFeedingLevel(NS_params), species = c("Cod", "Herring"))
 #' plot(getPredMort(NS_params), species = c("Cod", "Herring"),
 #'      size_axis = "l")
+#' }
+#' \donttest{
+#' enc <- getEncounter(NS_params)
+#' plot2(enc, enc, name1 = "Original", name2 = "Changed")
+#' plot2(getBiomass(NS_sim), getBiomass(NS_sim), species = "Cod")
+#' }
+#' \donttest{
+#' enc <- getEncounter(NS_params)
+#' plotRelative(enc, enc, species = "Cod")
+#' plotRelative(getBiomass(NS_sim), getBiomass(NS_sim), species = "Cod")
 #' }
 plot.ArraySpeciesBySize <- function(x, species = NULL,
                             all.sizes = FALSE, highlight = NULL,
@@ -247,31 +277,13 @@ parsePlotLog <- function(log, log_x = FALSE, log_y = FALSE) {
     )
 }
 
-#' Compare two mizer array objects in one plot
-#'
-#' `plot2()` compares two compatible mizer array objects in a single ggplot.
-#' Colours identify species or groups, and linetype identifies which object the
-#' values came from.
-#'
-#' @param x,y Two compatible mizer array objects of the same class.
-#' @param name1,name2 Labels for the two objects, used in the linetype legend.
-#' @inheritParams plot
-#'
-#' @return A ggplot2 object.
+#' @rdname plot
 #' @export
-#' @family plotting functions
-#'
-#' @examples
-#' \donttest{
-#' enc <- getEncounter(NS_params)
-#' plot2(enc, enc, name1 = "Original", name2 = "Changed")
-#' plot2(getBiomass(NS_sim), getBiomass(NS_sim), species = "Cod")
-#' }
 plot2 <- function(x, y, ...) {
     UseMethod("plot2", x)
 }
 
-#' @rdname plot2
+#' @rdname plot
 #' @usage NULL
 #' @export
 plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
@@ -312,32 +324,13 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
                             size_axis = size_axis)
 }
 
-#' Plot the relative difference between two mizer array objects
-#'
-#' `plotRelative()` plots the difference between two compatible mizer array
-#' objects relative to their average. If the values in the first object are
-#' \eqn{N_1} and the values in the second are \eqn{N_2}, it plots
-#' \deqn{2 (N_2 - N_1) / (N_1 + N_2).}
-#'
-#' @inheritParams plot2
-#' @param log_x If `TRUE`, use a log10 x-axis. Default is `TRUE` for size
-#'   spectra and `FALSE` for time series.
-#'
-#' @return A ggplot2 object.
+#' @rdname plot
 #' @export
-#' @family plotting functions
-#'
-#' @examples
-#' \donttest{
-#' enc <- getEncounter(NS_params)
-#' plotRelative(enc, enc, species = "Cod")
-#' plotRelative(getBiomass(NS_sim), getBiomass(NS_sim), species = "Cod")
-#' }
 plotRelative <- function(x, y, ...) {
     UseMethod("plotRelative", x)
 }
 
-#' @rdname plotRelative
+#' @rdname plot
 #' @usage NULL
 #' @export
 plotRelative.ArraySpeciesBySize <- function(x, y, species = NULL,
@@ -662,7 +655,7 @@ prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,
 }
 
 #' @rdname plot
-#' @return `ggplotly()` returns a plotly object.
+#' @usage NULL
 #' @param p An `ArraySpeciesBySize`, `ArrayTimeBySpecies` or
 #'   `ArrayTimeBySpeciesBySize` object passed to `ggplotly()`.
 #' @param width,height,tooltip,dynamicTicks,layerData,originalData,source

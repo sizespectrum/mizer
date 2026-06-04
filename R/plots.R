@@ -815,18 +815,36 @@ plotlyYieldGear <- function(object, species = NULL,
              tooltip = c("Species", "Year", "Yield"))
 }
 
-#' Plot the abundance spectra
+#' Plot abundance spectra and compare between objects
 #'
-#' Plots the number density multiplied by a power of the weight, with the power
-#' specified by the `power` argument.
+#' `plotSpectra()` plots the number density multiplied by a power of the
+#' weight, with the power specified by the `power` argument. When called with a
+#' [MizerSim] object, the abundance is averaged over the specified time range
+#' (a single value for the time range can be used to plot a single time step).
+#' When called with a [MizerParams] object the initial abundance is plotted.
 #'
-#' When called with a \linkS4class{MizerSim} object, the abundance is averaged
-#' over the specified time range (a single value for the time range can be used
-#' to plot a single time step). When called with a \linkS4class{MizerParams}
-#' object the initial abundance is plotted.
+#' `plotSpectra2()` compares the abundance spectra from two `MizerParams` or
+#' `MizerSim` objects in a single plot. Colours identify species or groups and
+#' linetype identifies the object.
+#'
+#' `plotSpectraRelative()` plots the difference between the spectra relative to
+#' their average. If we denote the number density from the first object as
+#' \eqn{N_1(w)} and that from the second object as \eqn{N_2(w)}, then this
+#' plot shows
+#' \deqn{2 (N_2(w) - N_1(w)) / (N_2(w) + N_1(w)).}
+#' Note that it does not matter whether the relative difference is calculated
+#' for number density, biomass density, or biomass density in log weight,
+#' because the factors of \eqn{w} by which the densities differ cancel out in
+#' the relative difference.
+#'
+#' `plotlySpectra()`, `plotlySpectra2()` and `plotlySpectraRelative()` are the
+#' interactive plotly versions.
 #'
 #' @param object An object of class \linkS4class{MizerSim} or
 #'   \linkS4class{MizerParams}.
+#' @param object1 First `MizerParams` or `MizerSim` object.
+#' @param object2 Second `MizerParams` or `MizerSim` object.
+#' @param name1,name2 Labels for the two objects, used in the linetype legend.
 #' @inheritParams valid_species_arg
 #' @param time_range The time range (either a vector of values, a vector of min
 #'   and max time, or a single value) to average the abundances over. Default is
@@ -848,7 +866,9 @@ plotlyYieldGear <- function(object, species = NULL,
 #' @param ylim A numeric vector of length two providing lower and upper limits
 #'   for the y axis. Use NA to auto-scale to the data range. Values below 1e-20
 #'   are always filtered out from the data regardless of `ylim[1]`. Data above
-#'   `ylim[2]` is filtered and the upper axis limit is set accordingly.
+#'   `ylim[2]` is filtered and the upper axis limit is set accordingly. For
+#'   `plotSpectraRelative()`, the y axis is the relative difference and `NA`
+#'   refers to the existing minimum or maximum.
 #' @param power The abundance is plotted as the number density times the weight
 #' raised to `power`. The default \code{power = 1} gives the biomass
 #' density, whereas \code{power = 2} gives the biomass density with respect
@@ -868,7 +888,8 @@ plotlyYieldGear <- function(object, species = NULL,
 #'   Default is TRUE.
 #' @param highlight Name or vector of names of the species to be highlighted.
 #' @param log_x If `TRUE` (default), use a log10 x-axis.
-#' @param log_y If `TRUE` (default), use a log10 y-axis.
+#' @param log_y If `TRUE` (default), use a log10 y-axis. Not used by
+#'   `plotSpectraRelative()`.
 #' @param log Character string specifying which axes should use log10 scales,
 #'   in the same form as the base [plot()] argument. For example, `"x"`,
 #'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
@@ -876,11 +897,19 @@ plotlyYieldGear <- function(object, species = NULL,
 #'   (`"l"`), using the allometric weight-length relationship.
 #' @param return_data A boolean value that determines whether the formatted data
 #' used for the plot is returned instead of the plot itself. Default value is FALSE
-#' @param ... Other arguments (currently unused)
+#' @param ... For `plotSpectra2()` and `plotSpectraRelative()`, additional
+#'   arguments passed to [plotSpectra()] for preparing the spectra data, for
+#'   example `time_range` or `geometric_mean` for `MizerSim` objects.
+#'   Otherwise unused.
 #'
-#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
-#'   frame with the four variables 'w' (or 'l' if `size_axis = "l"`), 'value',
-#'   'Species', 'Legend' is returned.
+#' @return `plotSpectra()` returns a ggplot2 object, unless `return_data =
+#'   TRUE`, in which case a data frame with the four variables 'w' (or 'l' if
+#'   `size_axis = "l"`), 'value', 'Species', 'Legend' is returned.
+#'
+#'   `plotSpectra2()` and `plotSpectraRelative()` return a ggplot2 object.
+#'
+#'   `plotlySpectra()`, `plotlySpectra2()` and `plotlySpectraRelative()` return
+#'   plotly objects.
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions]
@@ -898,6 +927,11 @@ plotlyYieldGear <- function(object, species = NULL,
 #' # Returning the data frame
 #' fr <- plotSpectra(sim, return_data = TRUE)
 #' str(fr)
+#'
+#' sim1 <- project(NS_params, t_max = 10, progress_bar = FALSE)
+#' sim2 <- project(NS_params, effort = 0.5, t_max = 10, progress_bar = FALSE)
+#' plotSpectra2(sim1, sim2, "Original", "Effort = 0.5")
+#' plotSpectraRelative(sim1, sim2)
 #' }
 #' @rdname plotSpectra
 #' @export
@@ -1094,7 +1128,7 @@ plot_spectra <- function(params, n, n_pp,
                   highlight = highlight, legend_var = "Legend")
 }
 
-#' Plot cumulative abundance or biomass distributions
+#' Plot and compare cumulative abundance or biomass distributions
 #'
 #' `plotCDF()` plots the cumulative distribution over body size from small to
 #' large sizes. It uses the same spectra data preparation as [plotSpectra()].
@@ -1102,6 +1136,15 @@ plot_spectra <- function(params, n, n_pp,
 #' With `normalise = TRUE`, each curve is divided by its final value so that it
 #' ends at 1.
 #'
+#' `plotCDF2()` compares cumulative distributions from two `MizerParams` or
+#' `MizerSim` objects in a single plot. Colours identify species or groups and
+#' linetype identifies the object.
+#'
+#' `plotlyCDF()` and `plotlyCDF2()` are the interactive plotly versions.
+#'
+#' @param object1 First `MizerParams` or `MizerSim` object.
+#' @param object2 Second `MizerParams` or `MizerSim` object.
+#' @param name1,name2 Labels for the two objects, used in the linetype legend.
 #' @inheritParams plotSpectra
 #' @param resource A boolean value that determines whether resource is included.
 #'   Default is FALSE.
@@ -1113,10 +1156,17 @@ plot_spectra <- function(params, n, n_pp,
 #' @param log Character string specifying which axes should use a log10 scale,
 #'   in the same form as the base [plot()] argument. If supplied, this overrides
 #'   `log_x` and `log_y`.
+#' @param ... For `plotCDF2()`, additional arguments passed to [plotCDF()] for
+#'   preparing the cumulative distribution data, for example `time_range` or
+#'   `geometric_mean` for `MizerSim` objects. Otherwise unused.
 #'
-#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
-#'   frame with the four variables 'w' (or 'l' if `size_axis = "l"`), 'value',
-#'   'Species', 'Legend' is returned.
+#' @return `plotCDF()` returns a ggplot2 object, unless `return_data = TRUE`,
+#'   in which case a data frame with the four variables 'w' (or 'l' if
+#'   `size_axis = "l"`), 'value', 'Species', 'Legend' is returned.
+#'
+#'   `plotCDF2()` returns a ggplot2 object.
+#'
+#'   `plotlyCDF()` and `plotlyCDF2()` return plotly objects.
 #' @export
 #' @family plotting functions
 #' @seealso [plotSpectra()]
@@ -1124,6 +1174,10 @@ plot_spectra <- function(params, n, n_pp,
 #' \donttest{
 #' plotCDF(NS_params, species = c("Cod", "Herring"))
 #' plotCDF(NS_sim, power = 0, normalise = FALSE)
+#'
+#' sim1 <- project(NS_params, t_max = 10, progress_bar = FALSE)
+#' sim2 <- project(NS_params, effort = 0.5, t_max = 10, progress_bar = FALSE)
+#' plotCDF2(sim1, sim2, "Original", "Effort = 0.5")
 #' }
 plotCDF <- function(object, ...) {
     UseMethod("plotCDF")
@@ -1284,30 +1338,8 @@ cdf_y_label <- function(power, normalise) {
 }
 
 
-#' Compare two cumulative abundance or biomass distributions
-#'
-#' `plotCDF2()` compares cumulative distributions from two `MizerParams` or
-#' `MizerSim` objects in a single plot. Colours identify species or groups and
-#' linetype identifies the object.
-#'
-#' @param object1 First `MizerParams` or `MizerSim` object.
-#' @param object2 Second `MizerParams` or `MizerSim` object.
-#' @param name1,name2 Labels for the two objects, used in the linetype legend.
-#' @inheritParams plotCDF
-#' @param ... Arguments passed to [plotCDF()] for preparing the cumulative
-#'   distribution data, for example `time_range` or `geometric_mean` for
-#'   `MizerSim` objects.
-#'
-#' @return A ggplot2 object.
+#' @rdname plotCDF
 #' @export
-#' @family plotting functions
-#'
-#' @examples
-#' \donttest{
-#' sim1 <- project(NS_params, t_max = 10, progress_bar = FALSE)
-#' sim2 <- project(NS_params, effort = 0.5, t_max = 10, progress_bar = FALSE)
-#' plotCDF2(sim1, sim2, "Original", "Effort = 0.5")
-#' }
 plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
                      species = NULL,
                      wlim = c(NA, NA), llim = c(NA, NA),
@@ -1344,34 +1376,8 @@ plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
                             size_axis = size_axis)
 }
 
-#' Compare two size spectra in the same plot
-#'
-#' `plotSpectra2()` compares the abundance spectra from two `MizerParams` or
-#' `MizerSim` objects in a single plot. Colours identify species or groups and
-#' linetype identifies the object.
-#'
-#' @param object1 First `MizerParams` or `MizerSim` object.
-#' @param object2 Second `MizerParams` or `MizerSim` object.
-#' @param name1,name2 Labels for the two objects, used in the linetype legend.
-#' @inheritParams plotSpectra
-#' @param log_x If `TRUE` (default), use a log10 x-axis.
-#' @param log_y If `TRUE` (default), use a log10 y-axis.
-#' @param log Character string specifying which axes should use log10 scales,
-#'   in the same form as the base [plot()] argument. For example, `"x"`,
-#'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
-#' @param ... Arguments passed to [plotSpectra()] for preparing the spectra
-#'   data, for example `time_range` or `geometric_mean` for `MizerSim` objects.
-#'
-#' @return A ggplot2 object.
+#' @rdname plotSpectra
 #' @export
-#' @family plotting functions
-#'
-#' @examples
-#' \donttest{
-#' sim1 <- project(NS_params, t_max = 10, progress_bar = FALSE)
-#' sim2 <- project(NS_params, effort = 0.5, t_max = 10, progress_bar = FALSE)
-#' plotSpectra2(sim1, sim2, "Original", "Effort = 0.5")
-#' }
 plotSpectra2 <- function(object1, object2, name1 = "First", name2 = "Second",
                          species = NULL,
                          wlim = c(NA, NA), llim = c(NA, NA),
@@ -1416,9 +1422,8 @@ spectra_y_label <- function(power) {
     paste0("Number density * w^", power)
 }
 
-#' @rdname plotSpectra2
+#' @rdname plotSpectra
 #' @usage NULL
-#' @return `plotlySpectra2()` returns a plotly object.
 #' @export
 plotlySpectra2 <- function(object1, object2, name1 = "First",
                            name2 = "Second",
@@ -1441,39 +1446,8 @@ plotlySpectra2 <- function(object1, object2, name1 = "First",
                                          after = c("value", "Model")))
 }
 
-#' Plot the relative difference between two spectra
-#'
-#' `plotSpectraRelative()` plots the difference between the spectra relative to
-#' their average. If we denote the number density from the first object as
-#' \eqn{N_1(w)} and that from the second object as \eqn{N_2(w)}, then this plot
-#' shows
-#' \deqn{2 (N_2(w) - N_1(w)) / (N_2(w) + N_1(w)).}
-#'
-#' Note that it does not matter whether the relative difference is calculated
-#' for number density, biomass density, or biomass density in log weight,
-#' because the factors of \eqn{w} by which the densities differ cancel out in
-#' the relative difference.
-#'
-#' @param object1 First `MizerParams` or `MizerSim` object.
-#' @param object2 Second `MizerParams` or `MizerSim` object.
-#' @inheritParams plotSpectra
-#' @param log_x If `TRUE` (default), use a log10 x-axis.
-#' @param ylim A numeric vector of length two providing lower and upper limits
-#'   for the relative difference (y) axis. Use `NA` to refer to the existing
-#'   minimum or maximum.
-#' @param ... Arguments passed to [plotSpectra()] for preparing the spectra
-#'   data, for example `time_range` or `geometric_mean` for `MizerSim` objects.
-#'
-#' @return A ggplot2 object.
+#' @rdname plotSpectra
 #' @export
-#' @family plotting functions
-#'
-#' @examples
-#' \donttest{
-#' sim1 <- project(NS_params, t_max = 10, progress_bar = FALSE)
-#' sim2 <- project(NS_params, effort = 0.5, t_max = 10, progress_bar = FALSE)
-#' plotSpectraRelative(sim1, sim2)
-#' }
 plotSpectraRelative <- function(object1, object2,
                                 species = NULL,
                                 wlim = c(NA, NA), llim = c(NA, NA),
@@ -1504,7 +1478,7 @@ plotSpectraRelative <- function(object1, object2,
                           legend_var = "Legend", size_axis = size_axis)
 }
 
-#' @rdname plotSpectraRelative
+#' @rdname plotSpectra
 #' @usage NULL
 #' @export
 plotlySpectraRelative <- function(object1, object2,
@@ -1528,7 +1502,6 @@ plotlySpectraRelative <- function(object1, object2,
 
 #' @rdname plotCDF
 #' @usage NULL
-#' @return `plotlyCDF()` returns a plotly object.
 #' @export
 plotlyCDF <- function(object, species = NULL,
                       time_range, geometric_mean = FALSE,
@@ -1560,9 +1533,8 @@ plotlyCDF <- function(object, species = NULL,
                                          after = "value"))
 }
 
-#' @rdname plotCDF2
+#' @rdname plotCDF
 #' @usage NULL
-#' @return `plotlyCDF2()` returns a plotly object.
 #' @export
 plotlyCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
                        species = NULL,

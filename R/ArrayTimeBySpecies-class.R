@@ -126,6 +126,7 @@ print.summary.ArrayTimeBySpecies <- function(x, ...) {
 }
 
 #' @rdname plot
+#' @usage NULL
 #'
 #' @param start_time The first time to be plotted. Default (`NULL`) is the
 #'   beginning of the time series. Only applies to `ArrayTimeBySpecies`.
@@ -235,7 +236,7 @@ addPlot.ArrayTimeBySpecies <- function(plot, x, species = NULL,
     plot + do.call(geom_line, layer_args)
 }
 
-#' @rdname plot2
+#' @rdname plot
 #' @usage NULL
 #' @export
 plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
@@ -269,7 +270,7 @@ plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
                             legend_var = "Legend")
 }
 
-#' @rdname plotRelative
+#' @rdname plot
 #' @usage NULL
 #' @export
 plotRelative.ArrayTimeBySpecies <- function(x, y, species = NULL,
@@ -362,6 +363,7 @@ prepare_ArrayTimeBySpecies_plot_data <- function(x, species = NULL,
 }
 
 #' @rdname plot
+#' @usage NULL
 #' @exportS3Method plotly::ggplotly
 #' @examples
 #' \donttest{
