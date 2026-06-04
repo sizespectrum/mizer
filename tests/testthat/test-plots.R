@@ -523,10 +523,34 @@ test_that("plotFeedingLevel trims by size and can include critical levels", {
 })
 
 test_that("all.sizes and highlight have consistent positional order", {
-    expect_no_error(plotPredMort(sim, species, 1:3, TRUE, species[[1]]))
-    expect_no_error(plotFMort(sim, species, 1:3, TRUE, species[[1]]))
-    expect_no_error(plotFeedingLevel(sim, species, 1:3, TRUE, species[[1]]))
-    expect_no_error(plotFeedingLevel(params, species, TRUE, species[[1]]))
+    pred_pos <- plotPredMort(sim, species, 1:3, TRUE, species[[1]],
+                             return_data = TRUE)
+    pred_named <- plotPredMort(sim, species = species, time_range = 1:3,
+                               all.sizes = TRUE, highlight = species[[1]],
+                               return_data = TRUE)
+    expect_equal(pred_pos, pred_named)
+
+    f_pos <- plotFMort(sim, species, 1:3, TRUE, species[[1]],
+                       return_data = TRUE)
+    f_named <- plotFMort(sim, species = species, time_range = 1:3,
+                         all.sizes = TRUE, highlight = species[[1]],
+                         return_data = TRUE)
+    expect_equal(f_pos, f_named)
+
+    fl_pos <- plotFeedingLevel(sim, species, 1:3, TRUE, species[[1]],
+                               return_data = TRUE)
+    fl_named <- plotFeedingLevel(sim, species = species, time_range = 1:3,
+                                 all.sizes = TRUE, highlight = species[[1]],
+                                 return_data = TRUE)
+    expect_equal(fl_pos, fl_named)
+
+    fl_params_pos <- plotFeedingLevel(params, species, TRUE, species[[1]],
+                                      return_data = TRUE)
+    fl_params_named <- plotFeedingLevel(params, species = species,
+                                        all.sizes = TRUE,
+                                        highlight = species[[1]],
+                                        return_data = TRUE)
+    expect_equal(fl_params_pos, fl_params_named)
 })
 
 test_that("plotGrowthCurves validates size_at_age input", {
