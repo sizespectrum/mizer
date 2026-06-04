@@ -428,7 +428,7 @@ log_breaks <- function(n = 6) {
 #' against time. The biomass is calculated within user defined size limits
 #' (see [getBiomass()]).
 #'
-#' @param sim An object of class \linkS4class{MizerSim}
+#' @param object An object of class \linkS4class{MizerSim}
 #' @inheritParams valid_species_arg
 #' @param start_time The first time to be plotted. Default (`NULL`) is the
 #'   beginning of the time series.
@@ -469,23 +469,23 @@ log_breaks <- function(n = 6) {
 #' }
 #' @rdname plotBiomass
 #' @export
-plotBiomass <- function(sim, ...) {
+plotBiomass <- function(object, ...) {
     UseMethod("plotBiomass")
 }
 
 #' @rdname plotBiomass
 #' @export
-plotBiomass.MizerSim <- function(sim, species = NULL,
+plotBiomass.MizerSim <- function(object, species = NULL,
                         start_time = NULL, end_time = NULL,
                         y_ticks = 6, ylim = c(NA, NA),
                         total = FALSE, background = TRUE,
                         highlight = NULL, log = TRUE,
                         return_data = FALSE,
                         use_cutoff = FALSE,
-                        min_w = min(sim@params@w),
-                        max_w = max(sim@params@w),
+                        min_w = min(object@params@w),
+                        max_w = max(object@params@w),
                         min_l = NULL, max_l = NULL, ...) {
-    bm <- getBiomass(sim, use_cutoff = use_cutoff,
+    bm <- getBiomass(object, use_cutoff = use_cutoff,
                      min_w = min_w, max_w = max_w,
                      min_l = min_l, max_l = max_l)
     plot(bm, species = species,
@@ -498,7 +498,7 @@ plotBiomass.MizerSim <- function(sim, species = NULL,
 
 #' @rdname plotBiomass
 #' @export
-plotlyBiomass <- function(sim,
+plotlyBiomass <- function(object,
              species = NULL,
              start_time = NULL,
              end_time = NULL,
@@ -509,8 +509,8 @@ plotlyBiomass <- function(sim,
              highlight = NULL,
              log = TRUE,
              use_cutoff = FALSE,
-             min_w = min(sim@params@w),
-             max_w = max(sim@params@w),
+             min_w = min(object@params@w),
+             max_w = max(object@params@w),
              min_l = NULL,
              max_l = NULL) {
     argg <- as.list(environment())
@@ -525,7 +525,7 @@ plotlyBiomass <- function(sim,
 #' fishing gears can be plotted against time. The yield is obtained with
 #' [getYield()].
 #'
-#' @param sim An object of class \linkS4class{MizerSim}
+#' @param object An object of class \linkS4class{MizerSim}
 #' @param sim2 An optional second object of class \linkS4class{MizerSim}. If
 #'   this is provided its yields will be shown on the same plot in bolder lines.
 #' @inheritParams plotSpectra
@@ -554,25 +554,25 @@ plotlyBiomass <- function(sim,
 #' }
 #' @rdname plotYield
 #' @export
-plotYield <- function(sim, ...) {
+plotYield <- function(object, ...) {
     UseMethod("plotYield")
 }
 
 #' @rdname plotYield
 #' @export
-plotYield.MizerSim <- function(sim, sim2,
+plotYield.MizerSim <- function(object, sim2,
                       species = NULL,
                       total = FALSE, log = TRUE,
                       highlight = NULL, return_data = FALSE,
                       ...) {
-    assert_that(is(sim, "MizerSim"),
+    assert_that(is(object, "MizerSim"),
                 is.flag(total),
                 is.flag(log),
                 is.flag(return_data))
-    params <- sim@params
-    species <- valid_species_arg(sim, species, error_on_empty = TRUE)
+    params <- object@params
+    species <- valid_species_arg(object, species, error_on_empty = TRUE)
     if (missing(sim2)) {
-        y <- getYield(sim, ...)
+        y <- getYield(object, ...)
         y_total <- rowSums(y)
         y <- y[, (as.character(dimnames(y)[[2]]) %in% species),
                drop = FALSE]
@@ -597,10 +597,10 @@ plotYield.MizerSim <- function(sim, sim2,
                       highlight = highlight)
     } else {
         # We need to combine two plots
-        if (!all(dimnames(sim@n)$time == dimnames(sim2@n)$time)) {
+        if (!all(dimnames(object@n)$time == dimnames(sim2@n)$time)) {
             stop("The two simulations do not have the same times")
         }
-        ym <- plotYield(sim, species = species,
+        ym <- plotYield(object, species = species,
                             total = total, log = log,
                             highlight = highlight, return_data = TRUE, ...)
         ym2 <- plotYield(sim2, species = species,
@@ -622,7 +622,7 @@ plotYield.MizerSim <- function(sim, sim2,
 
 #' @rdname plotYield
 #' @export
-plotlyYield <- function(sim, sim2,
+plotlyYield <- function(object, sim2,
                         species = NULL,
                         total = FALSE, log = TRUE,
                         highlight = NULL, ...) {
@@ -642,7 +642,7 @@ plotlyYield <- function(sim, sim2,
 #' the ggplot2 package. You can then fiddle about with colours and linetypes
 #' etc. Just look at the source code for details.
 #'
-#' @param sim An object of class \linkS4class{MizerSim}
+#' @param object An object of class \linkS4class{MizerSim}
 #' @inheritParams plotSpectra
 #' @param gears A vector of gear names to be included in the plot. Default is
 #'  all gears.
@@ -666,26 +666,26 @@ plotlyYield <- function(sim, sim2,
 #' }
 #' @rdname plotYieldGear
 #' @export
-plotYieldGear <- function(sim, ...) {
+plotYieldGear <- function(object, ...) {
     UseMethod("plotYieldGear")
 }
 
 #' @rdname plotYieldGear
 #' @export
-plotYieldGear.MizerSim <- function(sim,
+plotYieldGear.MizerSim <- function(object,
                           species = NULL,
                           gears = NULL,
                           total = FALSE,
                           highlight = NULL, return_data = FALSE,
                           ...) {
-    assert_that(is(sim, "MizerSim"),
+    assert_that(is(object, "MizerSim"),
                 is.flag(total),
                 is.flag(return_data))
-    params <- sim@params
-    species <- valid_species_arg(sim, species, error_on_empty = TRUE)
-    gears <- valid_gears_arg(sim, gears, error_on_empty = TRUE)
+    params <- object@params
+    species <- valid_species_arg(object, species, error_on_empty = TRUE)
+    gears <- valid_gears_arg(object, gears, error_on_empty = TRUE)
 
-    y <- getYieldGear(sim, ...)
+    y <- getYieldGear(object, ...)
     y_total <- rowSums(y, dims = 2)
     y <- y[, dimnames(y)$gear %in% gears, dimnames(y)$sp %in% species, drop = FALSE]
     names(dimnames(y))[names(dimnames(y)) == "sp"] <- "Species"
@@ -718,7 +718,7 @@ plotYieldGear.MizerSim <- function(sim,
 
 #' @rdname plotYieldGear
 #' @export
-plotlyYieldGear <- function(sim, species = NULL,
+plotlyYieldGear <- function(object, species = NULL,
                             total = FALSE, highlight = NULL, ...) {
     argg <- as.list(environment())
     ggplotly(do.call("plotYieldGear", argg),

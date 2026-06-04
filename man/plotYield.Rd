@@ -6,10 +6,10 @@
 \alias{plotlyYield}
 \title{Plot the total yield of species through time}
 \usage{
-plotYield(sim, ...)
+plotYield(object, ...)
 
 \method{plotYield}{MizerSim}(
-  sim,
+  object,
   sim2,
   species = NULL,
   total = FALSE,
@@ -20,7 +20,7 @@ plotYield(sim, ...)
 )
 
 plotlyYield(
-  sim,
+  object,
   sim2,
   species = NULL,
   total = FALSE,
@@ -30,7 +30,7 @@ plotlyYield(
 )
 }
 \arguments{
-\item{sim}{An object of class \linkS4class{MizerSim}}
+\item{object}{An object of class \linkS4class{MizerSim}}
 
 \item{...}{Other arguments (currently unused)}
 

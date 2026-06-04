@@ -6,10 +6,10 @@
 \alias{plotlyYieldGear}
 \title{Plot the total yield of each species by gear through time}
 \usage{
-plotYieldGear(sim, ...)
+plotYieldGear(object, ...)
 
 \method{plotYieldGear}{MizerSim}(
-  sim,
+  object,
   species = NULL,
   gears = NULL,
   total = FALSE,
@@ -18,10 +18,10 @@ plotYieldGear(sim, ...)
   ...
 )
 
-plotlyYieldGear(sim, species = NULL, total = FALSE, highlight = NULL, ...)
+plotlyYieldGear(object, species = NULL, total = FALSE, highlight = NULL, ...)
 }
 \arguments{
-\item{sim}{An object of class \linkS4class{MizerSim}}
+\item{object}{An object of class \linkS4class{MizerSim}}
 
 \item{...}{Other arguments (currently unused)}
 
