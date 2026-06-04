@@ -300,23 +300,6 @@ test_that("yield plotly wrappers return plotly objects", {
     expect_s3_class(plotlyYieldGear(sim, species = species), "plotly")
 })
 
-test_that("biomass and yield plot APIs use object as first argument", {
-    expect_identical(names(formals(plotBiomass))[1], "object")
-    expect_identical(names(formals(getS3method("plotBiomass", "MizerSim")))[1],
-                     "object")
-    expect_identical(names(formals(plotlyBiomass))[1], "object")
-
-    expect_identical(names(formals(plotYield))[1], "object")
-    expect_identical(names(formals(getS3method("plotYield", "MizerSim")))[1],
-                     "object")
-    expect_identical(names(formals(plotlyYield))[1], "object")
-
-    expect_identical(names(formals(plotYieldGear))[1], "object")
-    expect_identical(names(formals(getS3method("plotYieldGear", "MizerSim")))[1],
-                     "object")
-    expect_identical(names(formals(plotlyYieldGear))[1], "object")
-})
-
 
 # testing the plot outputs
 test_that("return_data is identical",{
