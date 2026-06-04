@@ -541,10 +541,9 @@ convert_plot_size_axis <- function(plot_dat, params, size_axis,
 #'
 #' @param object An object of class \linkS4class{MizerSim}
 #' @inheritParams valid_species_arg
-#' @param start_time The first time to be plotted. Default (`NULL`) is the
-#'   beginning of the time series.
-#' @param end_time The last time to be plotted. Default (`NULL`) is the end of
-#'   the time series.
+#' @param tlim A numeric vector of length two providing lower and upper limits
+#'   for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no limit at
+#'   that end. Default is `c(NA, NA)`.
 #' @param y_ticks The approximate number of ticks desired on the y axis.
 #' @param ylim A numeric vector of length two providing lower and upper limits
 #'   for the y axis. Use `NA` to refer to the existing minimum or maximum. Any
@@ -578,7 +577,7 @@ convert_plot_size_axis <- function(plot_dat, params, size_axis,
 #' \donttest{
 #' plotBiomass(NS_sim)
 #' plotBiomass(NS_sim, species = c("Sandeel", "Herring"), total = TRUE)
-#' plotBiomass(NS_sim, start_time = 1980, end_time = 1990)
+#' plotBiomass(NS_sim, tlim = c(1980, 1990))
 #'
 #' # Returning the data frame
 #' fr <- plotBiomass(NS_sim, return_data = TRUE)
@@ -594,7 +593,9 @@ plotBiomass <- function(object, ...) {
 #' @usage NULL
 #' @export
 plotBiomass.MizerSim <- function(object, species = NULL,
-                        start_time = NULL, end_time = NULL,
+                        tlim = c(NA, NA),
+                        start_time = lifecycle::deprecated(),
+                        end_time = lifecycle::deprecated(),
                         y_ticks = 6, ylim = c(NA, NA),
                         total = FALSE, background = TRUE,
                         highlight = NULL,
@@ -604,12 +605,20 @@ plotBiomass.MizerSim <- function(object, species = NULL,
                         min_w = min(object@params@w),
                         max_w = max(object@params@w),
                         min_l = NULL, max_l = NULL, ...) {
+    if (lifecycle::is_present(start_time)) {
+        lifecycle::deprecate_warn("2.6.0", "plotBiomass(start_time)", "plotBiomass(tlim)")
+        tlim[[1]] <- start_time
+    }
+    if (lifecycle::is_present(end_time)) {
+        lifecycle::deprecate_warn("2.6.0", "plotBiomass(end_time)", "plotBiomass(tlim)")
+        tlim[[2]] <- end_time
+    }
     log_axes <- parseTimePlotLog(log, log_x = log_x, log_y = log_y)
     bm <- getBiomass(object, use_cutoff = use_cutoff,
                      min_w = min_w, max_w = max_w,
                      min_l = min_l, max_l = max_l)
     plot(bm, species = species,
-         start_time = start_time, end_time = end_time,
+         tlim = tlim,
          y_ticks = y_ticks, ylim = ylim,
          total = total, background = background,
          highlight = highlight,
@@ -622,8 +631,9 @@ plotBiomass.MizerSim <- function(object, species = NULL,
 #' @export
 plotlyBiomass <- function(object,
              species = NULL,
-             start_time = NULL,
-             end_time = NULL,
+             tlim = c(NA, NA),
+             start_time = lifecycle::deprecated(),
+             end_time = lifecycle::deprecated(),
              y_ticks = 6,
              ylim = c(NA, NA),
              total = FALSE,
@@ -635,7 +645,17 @@ plotlyBiomass <- function(object,
              max_w = max(object@params@w),
              min_l = NULL,
              max_l = NULL) {
+    if (lifecycle::is_present(start_time)) {
+        lifecycle::deprecate_warn("2.6.0", "plotlyBiomass(start_time)", "plotlyBiomass(tlim)")
+        tlim[[1]] <- start_time
+    }
+    if (lifecycle::is_present(end_time)) {
+        lifecycle::deprecate_warn("2.6.0", "plotlyBiomass(end_time)", "plotlyBiomass(tlim)")
+        tlim[[2]] <- end_time
+    }
     argg <- as.list(environment())
+    argg$start_time <- NULL
+    argg$end_time <- NULL
     plotHover(do.call("plotBiomass", argg),
              tooltip = c("Species", "Year", "Biomass"))
 }
@@ -658,6 +678,9 @@ plotlyBiomass <- function(object,
 #'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
 #'   For backward compatibility, `TRUE` and `FALSE` are interpreted as setting
 #'   only `log_y`.
+#' @param tlim A numeric vector of length two providing lower and upper limits
+#'   for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no limit at
+#'   that end. Default is `c(NA, NA)`.
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the three variables 'Year', 'Yield', 'Species' is returned.
@@ -691,10 +714,9 @@ plotYield <- function(object, ...) {
 plotYield.MizerSim <- function(object, sim2,
                       species = NULL,
                       total = FALSE,
-                      log = NULL,
-                      ylim = c(NA, NA),
+                      log_x = FALSE, log_y = TRUE, log = NULL,
+                      ylim = c(NA, NA), tlim = c(NA, NA),
                       highlight = NULL, return_data = FALSE,
-                      log_x = FALSE, log_y = TRUE,
                       ...) {
     log_axes <- parseTimePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is(object, "MizerSim"),
@@ -706,6 +728,14 @@ plotYield.MizerSim <- function(object, sim2,
     species <- valid_species_arg(object, species, error_on_empty = TRUE)
     if (missing(sim2)) {
         y <- getYield(object, ...)
+        times <- as.numeric(rownames(y))
+        if (!is.na(tlim[1])) {
+            y <- y[times >= tlim[1], , drop = FALSE]
+            times <- as.numeric(rownames(y))
+        }
+        if (!is.na(tlim[2])) {
+            y <- y[times <= tlim[2], , drop = FALSE]
+        }
         y_total <- rowSums(y)
         y <- y[, (as.character(dimnames(y)[[2]]) %in% species),
                drop = FALSE]
@@ -736,12 +766,12 @@ plotYield.MizerSim <- function(object, sim2,
             stop("The two simulations do not have the same times")
         }
         ym <- plotYield(object, species = species,
-                            total = total,
+                            tlim = tlim, total = total,
                             log_x = log_axes$log_x, log_y = log_axes$log_y,
                             ylim = ylim,
                             highlight = highlight, return_data = TRUE, ...)
         ym2 <- plotYield(sim2, species = species,
-                            total = total,
+                            tlim = tlim, total = total,
                             log_x = log_axes$log_x, log_y = log_axes$log_y,
                             ylim = ylim,
                             highlight = highlight, return_data = TRUE, ...)
@@ -767,10 +797,10 @@ plotYield.MizerSim <- function(object, sim2,
 plotlyYield <- function(object, sim2,
                         species = NULL,
                         total = FALSE,
-                        log = NULL,
-                        ylim = c(NA, NA),
+                        log_x = FALSE, log_y = TRUE, log = NULL,
+                        ylim = c(NA, NA), tlim = c(NA, NA),
                         highlight = NULL,
-                        log_x = FALSE, log_y = TRUE, ...) {
+                        ...) {
     argg <- as.list(environment())
     plotHover(do.call("plotYield", argg),
              tooltip = c("Species", "Year", "Yield"))
@@ -811,6 +841,9 @@ parseTimePlotLog <- function(log, log_x, log_y) {
 #' @inheritParams plotSpectra
 #' @param gears A vector of gear names to be included in the plot. Default is
 #'  all gears.
+#' @param tlim A numeric vector of length two providing lower and upper limits
+#'   for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no limit at
+#'   that end. Default is `c(NA, NA)`.
 #' @param ... .
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
@@ -842,7 +875,8 @@ plotYieldGear <- function(object, ...) {
 plotYieldGear.MizerSim <- function(object,
                           species = NULL,
                           gears = NULL,
-                          total = FALSE, ylim = c(NA, NA),
+                          total = FALSE,
+                          ylim = c(NA, NA), tlim = c(NA, NA),
                           highlight = NULL, return_data = FALSE,
                           ...) {
     assert_that(is(object, "MizerSim"),
@@ -853,6 +887,14 @@ plotYieldGear.MizerSim <- function(object,
     gears <- valid_gears_arg(object, gears, error_on_empty = TRUE)
 
     y <- getYieldGear(object, ...)
+    times <- as.numeric(dimnames(y)[[1]])
+    if (!is.na(tlim[1])) {
+        y <- y[times >= tlim[1], , , drop = FALSE]
+        times <- as.numeric(dimnames(y)[[1]])
+    }
+    if (!is.na(tlim[2])) {
+        y <- y[times <= tlim[2], , , drop = FALSE]
+    }
     y_total <- rowSums(y, dims = 2)
     y <- y[, dimnames(y)$gear %in% gears, dimnames(y)$sp %in% species, drop = FALSE]
     names(dimnames(y))[names(dimnames(y)) == "sp"] <- "Species"
@@ -889,7 +931,8 @@ plotYieldGear.MizerSim <- function(object,
 #' @export
 plotlyYieldGear <- function(object, species = NULL,
                             gears = NULL,
-                            total = FALSE, ylim = c(NA, NA),
+                            total = FALSE,
+                            ylim = c(NA, NA), tlim = c(NA, NA),
                             highlight = NULL, ...) {
     argg <- as.list(environment())
     plotHover(do.call("plotYieldGear", argg),

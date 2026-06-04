@@ -277,13 +277,13 @@ plotHover.ArrayTimeBySpeciesBySize <- function(x,
 #' @usage NULL
 #' @export
 animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
-                                             time_range = NULL,
                                              log_x = TRUE,
+                                             log_y = TRUE,
                                              log = NULL,
                                              wlim = c(NA, NA),
                                              llim = c(NA, NA),
                                              ylim = c(NA, NA),
-                                             log_y = TRUE,
+                                             tlim = c(NA, NA),
                                              size_axis = c("w", "l"),
                                              total = FALSE,
                                              background = TRUE,
@@ -323,14 +323,13 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
 
     times <- as.numeric(dimnames(x)[[1]])
     arr <- unclass(x)
-    if (!is.null(time_range)) {
-        if (length(time_range) == 2 && !all(time_range %in% times)) {
-            keep <- times >= time_range[1] & times <= time_range[2]
-        } else {
-            keep <- times %in% time_range
-        }
-        arr <- arr[keep, , , drop = FALSE]
-        times <- times[keep]
+    if (!is.na(tlim[1])) {
+        arr <- arr[times >= tlim[1], , , drop = FALSE]
+        times <- times[times >= tlim[1]]
+    }
+    if (!is.na(tlim[2])) {
+        arr <- arr[times <= tlim[2], , , drop = FALSE]
+        times <- times[times <= tlim[2]]
     }
 
     w <- as.numeric(dimnames(arr)[[3]])

@@ -137,15 +137,21 @@ reference:
   - setBevertonHolt
   - setResource
 - title: Sharing models
+  description: Save a model together with its metadata so it can be archived or
+    shared with other users.
   contents:
   - setMetadata
   - saveParams
 - title: Running simulations
+  description: Project a `MizerParams` object forward in time to produce a
+    `MizerSim` object containing the full time series of size spectra.
   contents:
   - project
   - projectToSteady
   - setInitialValues
 - title: Accessing results
+  description: Extract the raw arrays stored in a `MizerSim` object, such as
+    species and resource size spectra and fishing effort at each saved time step.
   contents:
   - "N"
   - NResource
@@ -153,14 +159,21 @@ reference:
   - getEffort
   - getTimes
 - title: Analysing results
+  description: Calculate summary quantities from a `MizerSim` object, such as
+    biomass, yield, growth, and feeding level, averaged or disaggregated over
+    time, species, or size.
   contents:
   - summary_functions
   - has_concept("summary functions")
 - title: Calculating indicators
+  description: Calculate ecological indicators from a `MizerSim` object, such as
+    mean weight, mean maximum weight, and the Large Fish Index.
   contents:
   - indicator_functions
   - has_concept("functions for calculating indicators")
 - title: Plotting results
+  description: Visualise size spectra, biomass and yield trajectories, growth
+    curves, and comparisons of model output with observations.
   contents:
   - plotting_functions
   - plot
@@ -176,6 +189,8 @@ reference:
   - setColours
   - setLinetypes
 - title: Manipulating species list
+  description: Add, remove, or rename species in an existing model, and manage
+    background species whose biomasses are kept at their steady-state values.
   contents:
   - addSpecies
   - removeSpecies
@@ -199,6 +214,8 @@ reference:
   - setReproduction
   - setFishing
 - title: Calculating rates
+  description: Calculate instantaneous ecological rates from a `MizerParams`
+    object, such as encounter rate, predation mortality, and somatic growth rate.
   contents:
   - has_concept("rate functions")
   - getCriticalFeedingLevel
@@ -214,17 +231,25 @@ reference:
   - has_concept("extension tools")
   - customFunction
 - title: Predation kernels
+  description: Functions that determine the size preference of predators for prey,
+    i.e. the probability of a predator of a given size eating prey of a given size.
   contents:
   - has_concept("predation kernel")
 - title: Fishing selectivity functions
+  description: Functions that determine the size-selectivity of fishing gears,
+    i.e. the proportion of fish of a given size that are retained by a gear.
   contents:
   - has_concept("selectivity functions")
 - title: Resource dynamics
+  description: Functions governing the time evolution of the background resource
+    spectrum, together with functions for getting and setting resource parameters.
   contents:
   - has_concept("resource dynamics functions")
   - has_concept("resource parameters")
   - resource_params
 - title: Reproduction functions
+  description: Functions governing the density-dependent relationship between the
+    energy invested in reproduction and the actual egg production rate.
   contents:
   - has_concept("functions calculating density-dependent reproduction rate")
   - getReproductionLevel
@@ -238,9 +263,13 @@ reference:
   - starts_with("mizer")
   - -mizer
 - title: Internal helper functions
+  description: Utility functions used internally by mizer that may also be useful
+    for users building extensions or working with model objects directly.
   contents:
   - has_concept("helper")
 - title: Classes
+  description: The S4 and S3 classes used by mizer, together with functions for
+    constructing, inspecting, comparing, and validating them.
   contents:
   - MizerParams-class
   - summary.MizerParams

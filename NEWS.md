@@ -120,6 +120,17 @@ individual variability in growth to be modelled.
   `plotBiomass()` and `plotYield()` keep support for logical `log` values for
   backward compatibility.
 
+- Time-filtering is now consistent across all time-series plot functions via a
+  new `tlim` parameter (analogous to `wlim` and `ylim`): a length-two numeric
+  vector `c(start, end)` that restricts the plotted time window. `plotYield()`,
+  `plotYieldGear()`, and `animate()` gain this parameter for the first time.
+  `plotBiomass()` and `animate.MizerSim()` now use `tlim` in place of the
+  former `start_time`/`end_time` and `time_range` parameters respectively;
+  the old parameters are deprecated and will be removed in a future release.
+  The `plot()`, `plot2()`, `addPlot()`, and `plotRelative()` methods for
+  `ArrayTimeBySpecies` are updated to use `tlim` without deprecation (these
+  functions were introduced after the 2.5.4 release).
+
 - New `addPlot()` generic with methods for adding `ArraySpeciesBySize` and
   `ArrayTimeBySpecies` values as extra lines on an existing compatible ggplot.
 
