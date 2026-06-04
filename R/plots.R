@@ -646,7 +646,7 @@ plotYield <- function(object, ...) {
 #' @export
 plotYield.MizerSim <- function(object, sim2,
                       species = NULL,
-                      total = FALSE, log = TRUE,
+                      total = FALSE, log = TRUE, ylim = c(NA, NA),
                       highlight = NULL, return_data = FALSE,
                       ...) {
     assert_that(is(object, "MizerSim"),
@@ -678,6 +678,7 @@ plotYield.MizerSim <- function(object, sim2,
         plotDataFrame(plot_dat, params,
                       ylab = "Yield [g/year]",
                       ytrans = ifelse(log, "log10", "identity"),
+                      ylim = ylim,
                       highlight = highlight)
     } else {
         # We need to combine two plots
@@ -685,10 +686,10 @@ plotYield.MizerSim <- function(object, sim2,
             stop("The two simulations do not have the same times")
         }
         ym <- plotYield(object, species = species,
-                            total = total, log = log,
+                            total = total, log = log, ylim = ylim,
                             highlight = highlight, return_data = TRUE, ...)
         ym2 <- plotYield(sim2, species = species,
-                            total = total, log = log,
+                            total = total, log = log, ylim = ylim,
                             highlight = highlight, return_data = TRUE, ...)
         ym$Simulation <- rep(1, nrow(ym)) # We don't use recycling because that
                                           # fails when there are zero rows.
@@ -700,6 +701,7 @@ plotYield.MizerSim <- function(object, sim2,
         plotDataFrame(ym, params,
                       ylab = "Yield [g/year]",
                       ytrans = ifelse(log, "log10", "identity"),
+                      ylim = ylim,
                       highlight = highlight, wrap_var = "Simulation")
     }
 }
@@ -708,7 +710,7 @@ plotYield.MizerSim <- function(object, sim2,
 #' @export
 plotlyYield <- function(object, sim2,
                         species = NULL,
-                        total = FALSE, log = TRUE,
+                        total = FALSE, log = TRUE, ylim = c(NA, NA),
                         highlight = NULL, ...) {
     argg <- as.list(environment())
     ggplotly(do.call("plotYield", argg),
@@ -759,7 +761,7 @@ plotYieldGear <- function(object, ...) {
 plotYieldGear.MizerSim <- function(object,
                           species = NULL,
                           gears = NULL,
-                          total = FALSE,
+                          total = FALSE, ylim = c(NA, NA),
                           highlight = NULL, return_data = FALSE,
                           ...) {
     assert_that(is(object, "MizerSim"),
@@ -795,7 +797,8 @@ plotYieldGear.MizerSim <- function(object,
     ggplot(ym) +
         geom_line(aes(x = Year, y = Yield, colour = Species,
                       linetype = Gear, linewidth = Species)) +
-        scale_y_continuous(trans = "log10", name = "Yield [g]") +
+        scale_y_continuous(trans = "log10", name = "Yield [g]",
+                           limits = ylim) +
         scale_colour_manual(values = params@linecolour[species_levels]) +
         scale_discrete_manual("linewidth", values = linesize)
 }
@@ -803,7 +806,8 @@ plotYieldGear.MizerSim <- function(object,
 #' @rdname plotYieldGear
 #' @export
 plotlyYieldGear <- function(object, species = NULL,
-                            total = FALSE, highlight = NULL, ...) {
+                            total = FALSE, ylim = c(NA, NA),
+                            highlight = NULL, ...) {
     argg <- as.list(environment())
     ggplotly(do.call("plotYieldGear", argg),
              tooltip = c("Species", "Year", "Yield"))
