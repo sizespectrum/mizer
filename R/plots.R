@@ -1285,8 +1285,8 @@ cdf_y_label <- function(power, normalise) {
 #' @param name1,name2 Labels for the two objects, used in the linetype legend.
 #' @inheritParams plotCDF
 #' @param ... Arguments passed to [plotCDF()] for preparing the cumulative
-#'   distribution data, for example `species`, `time_range`, `wlim`,
-#'   `resource`, `background` or `total`.
+#'   distribution data, for example `time_range` or `geometric_mean` for
+#'   `MizerSim` objects.
 #'
 #' @return A ggplot2 object.
 #' @export
@@ -1299,23 +1299,28 @@ cdf_y_label <- function(power, normalise) {
 #' plotCDF2(sim1, sim2, "Original", "Effort = 0.5")
 #' }
 plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
-                     power = 1, normalise = TRUE, log_x = TRUE, log_y = FALSE,
-                     log = NULL, resource = FALSE, llim = c(NA, NA),
-                     size_axis = c("w", "l"), ...) {
+                     species = NULL,
+                     wlim = c(NA, NA), llim = c(NA, NA),
+                     ylim = c(NA, NA),
+                     power = 1,
+                     total = FALSE, resource = FALSE,
+                     background = TRUE,
+                     normalise = TRUE,
+                     log_x = TRUE, log_y = FALSE,
+                     log = NULL, size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
-    assert_that(is.number(power), is.flag(normalise), length(llim) == 2)
+    assert_that(is.number(power), is.flag(normalise),
+                length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
 
-    args <- list(...)
-    wlim <- args$wlim %||% c(NA, NA)
-    ylim <- args$ylim %||% c(NA, NA)
-
-    cf1 <- plotCDF(object1, power = power, normalise = normalise,
-                   size_axis = "w",
-                   return_data = TRUE, ...)
-    cf2 <- plotCDF(object2, power = power, normalise = normalise,
-                   size_axis = "w",
-                   return_data = TRUE, ...)
+    cf1 <- plotCDF(object1, species = species, wlim = wlim,
+                   power = power, total = total, resource = resource,
+                   background = background, normalise = normalise,
+                   size_axis = "w", return_data = TRUE, ...)
+    cf2 <- plotCDF(object2, species = species, wlim = wlim,
+                   power = power, total = total, resource = resource,
+                   background = background, normalise = normalise,
+                   size_axis = "w", return_data = TRUE, ...)
     params <- if (is(object1, "MizerSim")) object1@params else object1
 
     plotComparisonDataFrame(cf1, cf2, validParams(params),
@@ -1345,8 +1350,7 @@ plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
 #'   in the same form as the base [plot()] argument. For example, `"x"`,
 #'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
 #' @param ... Arguments passed to [plotSpectra()] for preparing the spectra
-#'   data, for example `species`, `time_range`, `wlim`, `ylim`, `resource`,
-#'   `background` or `total`.
+#'   data, for example `time_range` or `geometric_mean` for `MizerSim` objects.
 #'
 #' @return A ggplot2 object.
 #' @export
@@ -1359,22 +1363,27 @@ plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
 #' plotSpectra2(sim1, sim2, "Original", "Effort = 0.5")
 #' }
 plotSpectra2 <- function(object1, object2, name1 = "First", name2 = "Second",
-                         power = 1, log_x = TRUE, log_y = TRUE,
-                         log = NULL, llim = c(NA, NA),
-                         size_axis = c("w", "l"), ...) {
+                         species = NULL,
+                         wlim = c(NA, NA), llim = c(NA, NA),
+                         ylim = c(NA, NA),
+                         power = 1,
+                         total = FALSE, resource = TRUE,
+                         background = TRUE,
+                         log_x = TRUE, log_y = TRUE,
+                         log = NULL, size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
-    assert_that(length(llim) == 2)
+    assert_that(length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
 
-    args <- list(...)
-    wlim <- args$wlim %||% c(NA, NA)
-    ylim <- args$ylim %||% c(NA, NA)
-
-    sf1 <- plotSpectra(object1, power = power, size_axis = "w",
+    sf1 <- plotSpectra(object1, species = species, wlim = wlim, ylim = ylim,
+                       power = power, total = total, resource = resource,
+                       background = background, size_axis = "w",
                        return_data = TRUE, ...)
-    sf2 <- plotSpectra(object2, power = power, size_axis = "w",
+    sf2 <- plotSpectra(object2, species = species, wlim = wlim, ylim = ylim,
+                       power = power, total = total, resource = resource,
+                       background = background, size_axis = "w",
                        return_data = TRUE, ...)
     params <- if (is(object1, "MizerSim")) object1@params else object1
 
@@ -1401,14 +1410,22 @@ spectra_y_label <- function(power) {
 #' @return `plotlySpectra2()` returns a plotly object.
 #' @export
 plotlySpectra2 <- function(object1, object2, name1 = "First",
-                           name2 = "Second", power = 1,
+                           name2 = "Second",
+                           species = NULL,
+                           wlim = c(NA, NA), llim = c(NA, NA),
+                           ylim = c(NA, NA),
+                           power = 1,
+                           total = FALSE, resource = TRUE,
+                           background = TRUE,
                            log_x = TRUE, log_y = TRUE, log = NULL,
-                           llim = c(NA, NA),
                            size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
     ggplotly(plotSpectra2(object1, object2, name1 = name1, name2 = name2,
-                          power = power, log_x = log_x, log_y = log_y,
-                          log = log, llim = llim, size_axis = size_axis, ...),
+                          species = species, wlim = wlim, llim = llim,
+                          ylim = ylim, power = power, total = total,
+                          resource = resource, background = background,
+                          log_x = log_x, log_y = log_y,
+                          log = log, size_axis = size_axis, ...),
              tooltip = plot_size_tooltip(size_axis, before = "Species",
                                          after = c("value", "Model")))
 }
@@ -1421,11 +1438,6 @@ plotlySpectra2 <- function(object1, object2, name1 = "First",
 #' shows
 #' \deqn{2 (N_2(w) - N_1(w)) / (N_2(w) + N_1(w)).}
 #'
-#' The individual spectra are calculated by [plotSpectra()], to which all
-#' additional arguments are passed. For example, you can determine a time range
-#' over which to average simulation results via `time_range`. See
-#' [plotSpectra()] for more options.
-#'
 #' Note that it does not matter whether the relative difference is calculated
 #' for number density, biomass density, or biomass density in log weight,
 #' because the factors of \eqn{w} by which the densities differ cancel out in
@@ -1433,15 +1445,13 @@ plotlySpectra2 <- function(object1, object2, name1 = "First",
 #'
 #' @param object1 First `MizerParams` or `MizerSim` object.
 #' @param object2 Second `MizerParams` or `MizerSim` object.
+#' @inheritParams plotSpectra
 #' @param log_x If `TRUE` (default), use a log10 x-axis.
 #' @param ylim A numeric vector of length two providing lower and upper limits
 #'   for the relative difference (y) axis. Use `NA` to refer to the existing
 #'   minimum or maximum.
-#' @param size_axis Whether to plot size as weight (`"w"`, default) or length
-#'   (`"l"`), using the allometric weight-length relationship.
 #' @param ... Arguments passed to [plotSpectra()] for preparing the spectra
-#'   data, for example `species`, `time_range`, `wlim`, `resource`,
-#'   `background` or `total`.
+#'   data, for example `time_range` or `geometric_mean` for `MizerSim` objects.
 #'
 #' @return A ggplot2 object.
 #' @export
@@ -1453,17 +1463,26 @@ plotlySpectra2 <- function(object1, object2, name1 = "First",
 #' sim2 <- project(NS_params, effort = 0.5, t_max = 10, progress_bar = FALSE)
 #' plotSpectraRelative(sim1, sim2)
 #' }
-plotSpectraRelative <- function(object1, object2, log_x = TRUE,
+plotSpectraRelative <- function(object1, object2,
+                                species = NULL,
+                                wlim = c(NA, NA), llim = c(NA, NA),
                                 ylim = c(NA, NA),
-                                llim = c(NA, NA),
+                                power = 1,
+                                total = FALSE, resource = TRUE,
+                                background = TRUE,
+                                log_x = TRUE,
                                 size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
-    assert_that(length(llim) == 2)
-    args <- list(...)
-    wlim <- args$wlim %||% c(NA, NA)
+    assert_that(length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
 
-    sf1 <- plotSpectra(object1, size_axis = "w", return_data = TRUE, ...)
-    sf2 <- plotSpectra(object2, size_axis = "w", return_data = TRUE, ...)
+    sf1 <- plotSpectra(object1, species = species, wlim = wlim,
+                       power = power, total = total, resource = resource,
+                       background = background, size_axis = "w",
+                       return_data = TRUE, ...)
+    sf2 <- plotSpectra(object2, species = species, wlim = wlim,
+                       power = power, total = total, resource = resource,
+                       background = background, size_axis = "w",
+                       return_data = TRUE, ...)
     params <- if (is(object1, "MizerSim")) object1@params else object1
 
     plotRelativeDataFrame(sf1, sf2, validParams(params),
@@ -1476,14 +1495,21 @@ plotSpectraRelative <- function(object1, object2, log_x = TRUE,
 
 #' @rdname plotSpectraRelative
 #' @export
-plotlySpectraRelative <- function(object1, object2, log_x = TRUE,
+plotlySpectraRelative <- function(object1, object2,
+                                  species = NULL,
+                                  wlim = c(NA, NA), llim = c(NA, NA),
                                   ylim = c(NA, NA),
-                                  llim = c(NA, NA),
+                                  power = 1,
+                                  total = FALSE, resource = TRUE,
+                                  background = TRUE,
+                                  log_x = TRUE,
                                   size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
-    ggplotly(plotSpectraRelative(object1, object2, log_x = log_x,
-                                  ylim = ylim, llim = llim,
-                                  size_axis = size_axis, ...),
+    ggplotly(plotSpectraRelative(object1, object2, species = species,
+                                  wlim = wlim, llim = llim, ylim = ylim,
+                                  power = power, total = total,
+                                  resource = resource, background = background,
+                                  log_x = log_x, size_axis = size_axis, ...),
              tooltip = plot_size_tooltip(size_axis, before = "Legend",
                                          after = "rel_diff"))
 }
@@ -1525,19 +1551,22 @@ plotlyCDF <- function(object, species = NULL,
 #' @return `plotlyCDF2()` returns a plotly object.
 #' @export
 plotlyCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
-                       power = 1, normalise = TRUE,
-                       log_x = TRUE, log = NULL, resource = FALSE,
-                       llim = c(NA, NA),
-                       size_axis = c("w", "l"), ...) {
+                       species = NULL,
+                       wlim = c(NA, NA), llim = c(NA, NA),
+                       ylim = c(NA, NA),
+                       power = 1,
+                       total = FALSE, resource = FALSE,
+                       background = TRUE,
+                       normalise = TRUE,
+                       log_x = TRUE, log_y = FALSE,
+                       log = NULL, size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
-    args <- list(object1 = object1, object2 = object2,
-                 name1 = name1, name2 = name2,
-                 normalise = normalise, log_x = log_x, log = log,
-                 llim = llim, size_axis = size_axis, ...)
-    if (!missing(power)) {
-        args$power <- power
-    }
-    ggplotly(do.call("plotCDF2", args),
+    ggplotly(plotCDF2(object1, object2, name1 = name1, name2 = name2,
+                      species = species, wlim = wlim, llim = llim,
+                      ylim = ylim, power = power, total = total,
+                      resource = resource, background = background,
+                      normalise = normalise, log_x = log_x, log_y = log_y,
+                      log = log, size_axis = size_axis, ...),
              tooltip = plot_size_tooltip(size_axis, before = "Species",
                                          after = c("value", "Model")))
 }
