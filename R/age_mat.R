@@ -26,12 +26,14 @@ age_mat_vB <- function(object, ...) {
 }
 
 #' @rdname age_mat_vB
+#' @usage NULL
 #' @export
 age_mat_vB.MizerParams <- function(object, ...) {
     age_mat_vB.data.frame(object@species_params)
 }
 
 #' @rdname age_mat_vB
+#' @usage NULL
 #' @export
 age_mat_vB.data.frame <- function(object, ...) {
     sp <- object
@@ -46,6 +48,7 @@ age_mat_vB.data.frame <- function(object, ...) {
 }
 
 #' @rdname age_mat_vB
+#' @usage NULL
 #' @export
 age_mat_vB.default <- function(object, ...) {
     stop("The first argument must be either a MizerParams object or a species_params data frame.")

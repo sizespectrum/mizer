@@ -558,6 +558,7 @@ plotBiomass <- function(object, ...) {
 }
 
 #' @rdname plotBiomass
+#' @usage NULL
 #' @export
 plotBiomass.MizerSim <- function(object, species = NULL,
                         start_time = NULL, end_time = NULL,
@@ -581,6 +582,7 @@ plotBiomass.MizerSim <- function(object, species = NULL,
 }
 
 #' @rdname plotBiomass
+#' @usage NULL
 #' @export
 plotlyBiomass <- function(object,
              species = NULL,
@@ -643,6 +645,7 @@ plotYield <- function(object, ...) {
 }
 
 #' @rdname plotYield
+#' @usage NULL
 #' @export
 plotYield.MizerSim <- function(object, sim2,
                       species = NULL,
@@ -705,6 +708,7 @@ plotYield.MizerSim <- function(object, sim2,
 }
 
 #' @rdname plotYield
+#' @usage NULL
 #' @export
 plotlyYield <- function(object, sim2,
                         species = NULL,
@@ -755,6 +759,7 @@ plotYieldGear <- function(object, ...) {
 }
 
 #' @rdname plotYieldGear
+#' @usage NULL
 #' @export
 plotYieldGear.MizerSim <- function(object,
                           species = NULL,
@@ -801,6 +806,7 @@ plotYieldGear.MizerSim <- function(object,
 }
 
 #' @rdname plotYieldGear
+#' @usage NULL
 #' @export
 plotlyYieldGear <- function(object, species = NULL,
                             total = FALSE, highlight = NULL, ...) {
@@ -900,6 +906,7 @@ plotSpectra <- function(object, ...) {
 }
 
 #' @rdname plotSpectra
+#' @usage NULL
 #' @export
 plotSpectra.MizerSim <- function(object, species = NULL,
                         time_range,
@@ -954,6 +961,7 @@ plotSpectra.MizerSim <- function(object, species = NULL,
 }
 
 #' @rdname plotSpectra
+#' @usage NULL
 #' @export
 plotSpectra.MizerParams <- function(object, species = NULL,
                         wlim = c(NA, NA), llim = c(NA, NA),
@@ -1122,6 +1130,7 @@ plotCDF <- function(object, ...) {
 }
 
 #' @rdname plotCDF
+#' @usage NULL
 #' @export
 plotCDF.MizerSim <- function(object, species = NULL,
                              time_range,
@@ -1166,6 +1175,7 @@ plotCDF.MizerSim <- function(object, species = NULL,
 }
 
 #' @rdname plotCDF
+#' @usage NULL
 #' @export
 plotCDF.MizerParams <- function(object, species = NULL,
                                 wlim = c(NA, NA), llim = c(NA, NA),
@@ -1407,6 +1417,7 @@ spectra_y_label <- function(power) {
 }
 
 #' @rdname plotSpectra2
+#' @usage NULL
 #' @return `plotlySpectra2()` returns a plotly object.
 #' @export
 plotlySpectra2 <- function(object1, object2, name1 = "First",
@@ -1494,6 +1505,7 @@ plotSpectraRelative <- function(object1, object2,
 }
 
 #' @rdname plotSpectraRelative
+#' @usage NULL
 #' @export
 plotlySpectraRelative <- function(object1, object2,
                                   species = NULL,
@@ -1515,6 +1527,7 @@ plotlySpectraRelative <- function(object1, object2,
 }
 
 #' @rdname plotCDF
+#' @usage NULL
 #' @return `plotlyCDF()` returns a plotly object.
 #' @export
 plotlyCDF <- function(object, species = NULL,
@@ -1548,6 +1561,7 @@ plotlyCDF <- function(object, species = NULL,
 }
 
 #' @rdname plotCDF2
+#' @usage NULL
 #' @return `plotlyCDF2()` returns a plotly object.
 #' @export
 plotlyCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
@@ -1572,6 +1586,7 @@ plotlyCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
 }
 
 #' @rdname plotSpectra
+#' @usage NULL
 #' @export
 plotlySpectra <- function(object, species = NULL,
                         time_range, geometric_mean = FALSE,
@@ -1640,6 +1655,7 @@ plotFeedingLevel <- function(object, ...) {
 }
 
 #' @rdname plotFeedingLevel
+#' @usage NULL
 #' @export
 plotFeedingLevel.MizerSim <- function(object, species = NULL,
             time_range, highlight = NULL,
@@ -1671,6 +1687,7 @@ plotFeedingLevel.MizerSim <- function(object, species = NULL,
 }
 
 #' @rdname plotFeedingLevel
+#' @usage NULL
 #' @export
 plotFeedingLevel.MizerParams <- function(object, species = NULL,
             highlight = NULL,
@@ -1772,6 +1789,7 @@ plot_feeding_level <- function(params, feed, species, highlight,
 }
 
 #' @rdname plotFeedingLevel
+#' @usage NULL
 #' @export
 plotlyFeedingLevel <- function(object,
                              species = NULL,
@@ -1887,6 +1905,7 @@ plotPredMort <- function(object, ...) {
 }
 
 #' @rdname plotPredMort
+#' @usage NULL
 #' @export
 plotPredMort.MizerSim <- function(object, species = NULL,
                          time_range, all.sizes = FALSE,
@@ -1915,6 +1934,7 @@ plotPredMort.MizerSim <- function(object, species = NULL,
 }
 
 #' @rdname plotPredMort
+#' @usage NULL
 #' @export
 plotPredMort.MizerParams <- function(object, species = NULL,
                          all.sizes = FALSE,
@@ -1940,6 +1960,7 @@ plotPredMort.MizerParams <- function(object, species = NULL,
 plotM2 <- plotPredMort
 
 #' @rdname plotPredMort
+#' @usage NULL
 #' @export
 plotlyPredMort <- function(object, species = NULL,
                            time_range,
@@ -1987,6 +2008,7 @@ plotFMort <- function(object, ...) {
 }
 
 #' @rdname plotFMort
+#' @usage NULL
 #' @export
 plotFMort.MizerSim <- function(object, species = NULL,
                       time_range, all.sizes = FALSE,
@@ -2012,6 +2034,7 @@ plotFMort.MizerSim <- function(object, species = NULL,
 }
 
 #' @rdname plotFMort
+#' @usage NULL
 #' @export
 plotFMort.MizerParams <- function(object, species = NULL,
                       all.sizes = FALSE,
@@ -2028,6 +2051,7 @@ plotFMort.MizerParams <- function(object, species = NULL,
 }
 
 #' @rdname plotFMort
+#' @usage NULL
 #' @export
 plotlyFMort <- function(object, species = NULL,
                         time_range,
@@ -2099,6 +2123,7 @@ plotGrowthCurves <- function(object, ...) {
 }
 
 #' @rdname plotGrowthCurves
+#' @usage NULL
 #' @export
 plotGrowthCurves.MizerSim <- function(object, species = NULL,
                              max_age = 20, percentage = FALSE,
@@ -2119,6 +2144,7 @@ plotGrowthCurves.MizerSim <- function(object, species = NULL,
 }
 
 #' @rdname plotGrowthCurves
+#' @usage NULL
 #' @export
 plotGrowthCurves.MizerParams <- function(object, species = NULL,
                              max_age = 20, percentage = FALSE,
@@ -2278,6 +2304,7 @@ plot_growth_curves <- function(params, species,
 }
 
 #' @rdname plotGrowthCurves
+#' @usage NULL
 #' @export
 plotlyGrowthCurves <- function(object, species = NULL,
                                max_age = 20,
@@ -2329,6 +2356,7 @@ plotDiet <- function(object, ...) {
 }
 
 #' @rdname plotDiet
+#' @usage NULL
 #' @export
 plotDiet.MizerSim <- function(object, species = NULL,
                               wlim = c(NA, NA), llim = c(NA, NA),
@@ -2341,6 +2369,7 @@ plotDiet.MizerSim <- function(object, species = NULL,
 }
 
 #' @rdname plotDiet
+#' @usage NULL
 #' @export
 plotDiet.MizerParams <- function(object, species = NULL,
                                  wlim = c(NA, NA), llim = c(NA, NA),
@@ -2415,6 +2444,7 @@ plot_diet <- function(params, n, diet, species, wlim, llim,
 }
 
 #' @rdname plotDiet
+#' @usage NULL
 #' @return `plotlyDiet()` returns a plotly object.
 #' @export
 plotlyDiet <- function(object, species = NULL,

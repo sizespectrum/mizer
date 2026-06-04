@@ -173,6 +173,7 @@ plot.ArrayTimeBySpecies <- function(x, species = NULL,
 }
 
 #' @rdname addPlot
+#' @usage NULL
 #' @inheritParams plot
 #' @param colour Optional fixed colour for the added lines. If `NULL`, the
 #'   species colours from the existing plot are used.
@@ -235,6 +236,7 @@ addPlot.ArrayTimeBySpecies <- function(plot, x, species = NULL,
 }
 
 #' @rdname plot2
+#' @usage NULL
 #' @export
 plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
                                      species = NULL,
@@ -268,6 +270,7 @@ plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
 }
 
 #' @rdname plotRelative
+#' @usage NULL
 #' @export
 plotRelative.ArrayTimeBySpecies <- function(x, y, species = NULL,
                                             start_time = NULL,

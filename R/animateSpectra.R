@@ -86,6 +86,7 @@
 animate <- function(x, ...) UseMethod("animate")
 
 #' @rdname animate
+#' @usage NULL
 #' @param power The abundance is plotted as the number density times the weight
 #'   raised to \code{power}. The default \code{power = 1} gives the biomass
 #'   density, whereas \code{power = 2} gives the biomass density with respect

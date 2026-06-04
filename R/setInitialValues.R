@@ -152,6 +152,7 @@ initialN <- function(object) {
     UseMethod("initialN")
 }
 #' @rdname initialN-set
+#' @usage NULL
 #' @export
 initialN.MizerParams <- function(object) {
     params <- validParams(object)
@@ -159,6 +160,7 @@ initialN.MizerParams <- function(object) {
                        params = params)
 }
 #' @rdname initialN-set
+#' @usage NULL
 #' @export
 initialN.MizerSim <- function(object) {
     ArraySpeciesBySize(object@params@initial_n,
@@ -207,12 +209,14 @@ initialNResource <- function(object) {
     UseMethod("initialNResource")
 }
 #' @rdname initialNResource-set
+#' @usage NULL
 #' @export
 initialNResource.MizerParams <- function(object) {
     params <- validParams(object)
     return(params@initial_n_pp)
 }
 #' @rdname initialNResource-set
+#' @usage NULL
 #' @export
 initialNResource.MizerSim <- function(object) {
     return(object@params@initial_n_pp)

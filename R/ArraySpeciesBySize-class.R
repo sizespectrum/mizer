@@ -272,6 +272,7 @@ plot2 <- function(x, y, ...) {
 }
 
 #' @rdname plot2
+#' @usage NULL
 #' @export
 plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
                                      species = NULL, all.sizes = FALSE,
@@ -337,6 +338,7 @@ plotRelative <- function(x, y, ...) {
 }
 
 #' @rdname plotRelative
+#' @usage NULL
 #' @export
 plotRelative.ArraySpeciesBySize <- function(x, y, species = NULL,
                                             all.sizes = FALSE,
@@ -429,6 +431,7 @@ addPlot <- function(plot, x, ...) {
 }
 
 #' @rdname addPlot
+#' @usage NULL
 #' @inheritParams plot
 #' @param colour Optional fixed colour for the added lines. If `NULL`, the
 #'   species colours from the existing plot are used.
