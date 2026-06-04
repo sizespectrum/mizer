@@ -34,6 +34,9 @@
 #'   range. Default is the entire time range of `x`.
 #' @param log_x If `TRUE` (default), use a log10 x-axis for body size.
 #' @param log_y If `TRUE` (default), use a log10 y-axis.
+#' @param log A character string specifying which axes to log-transform:
+#'   `"x"`, `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x`
+#'   and `log_y`.
 #' @param size_axis Whether to plot size as weight (`"w"`, default) or length
 #'   (`"l"`), using the allometric weight-length relationship.
 #' @param total A boolean value that determines whether the total over all
@@ -93,6 +96,7 @@ animate <- function(x, ...) UseMethod("animate")
 #' @export
 animate.MizerSim <- function(x, species = NULL, time_range = NULL,
                               log_x = TRUE, log_y = TRUE,
+                              log = NULL,
                               wlim = c(NA, NA), llim = c(NA, NA),
                               ylim = c(NA, NA),
                               size_axis = c("w", "l"),
@@ -103,6 +107,9 @@ animate.MizerSim <- function(x, species = NULL, time_range = NULL,
                               easing = "linear", ...) {
     sim <- x
     size_axis <- plot_size_axis(size_axis)
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
+    log_x <- log_axes$log_x
+    log_y <- log_axes$log_y
     assert_that(is.flag(total), is.flag(resource), is.flag(background),
                 is.number(power),
                 is.number(frame_duration), frame_duration >= 0,

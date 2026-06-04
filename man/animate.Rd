@@ -13,6 +13,7 @@
   species = NULL,
   time_range = NULL,
   log_x = TRUE,
+  log = NULL,
   wlim = c(NA, NA),
   llim = c(NA, NA),
   ylim = c(NA, NA),
@@ -34,6 +35,7 @@ animate(x, ...)
   time_range = NULL,
   log_x = TRUE,
   log_y = TRUE,
+  log = NULL,
   wlim = c(NA, NA),
   llim = c(NA, NA),
   ylim = c(NA, NA),
@@ -77,6 +79,10 @@ limits are clipped by the viewport rather than removed from the animation
 frames.}
 
 \item{log_y}{If \code{TRUE} (default), use a log10 y-axis.}
+
+\item{log}{A character string specifying which axes to log-transform:
+\code{"x"}, \code{"y"}, \code{"xy"} or \code{""}. If supplied, this overrides \code{log_x}
+and \code{log_y}.}
 
 \item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
 (\code{"l"}), using the allometric weight-length relationship.}

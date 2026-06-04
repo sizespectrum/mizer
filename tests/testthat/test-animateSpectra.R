@@ -303,3 +303,24 @@ test_that("animateSpectra sets the y axis title from power", {
     expect_identical(built_custom$x$layout$yaxis$title,
                      "Number density * w^1.5")
 })
+
+test_that("animate supports the log argument", {
+    sim <- example_animate_sim
+    built_xy <- plotly::plotly_build(
+        animateSpectra(sim, species = "Cod", time_range = c(1, 2), log = "xy")
+    )
+    expect_identical(built_xy$x$layout$xaxis$type, "log")
+    expect_identical(built_xy$x$layout$yaxis$type, "log")
+
+    built_none <- plotly::plotly_build(
+        animateSpectra(sim, species = "Cod", time_range = c(1, 2), log = "")
+    )
+    expect_identical(built_none$x$layout$xaxis$type, "-")
+    expect_identical(built_none$x$layout$yaxis$type, "-")
+
+    built_array <- plotly::plotly_build(
+        animate(getFMort(sim), species = "Cod", time_range = c(1, 2), log = "y")
+    )
+    expect_identical(built_array$x$layout$xaxis$type, "-")
+    expect_identical(built_array$x$layout$yaxis$type, "log")
+})
