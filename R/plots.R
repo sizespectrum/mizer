@@ -753,8 +753,16 @@ parseTimePlotLog <- function(log, log_x, log_y) {
     if (is.null(log)) {
         return(list(log_x = log_x, log_y = log_y))
     }
-    if (is.logical(log) && length(log) == 1 && !is.na(log)) {
-        return(list(log_x = FALSE, log_y = log))
+    if (is.logical(log)) {
+        if (length(log) != 1 || is.na(log)) {
+            stop("`log` must be `NULL`, a single logical value, or a ",
+                 "character string containing only \"x\" and/or \"y\".")
+        }
+        return(list(log_x = FALSE, log_y = isTRUE(log)))
+    }
+    if (!is.character(log)) {
+        stop("`log` must be `NULL`, a single logical value, or a ",
+             "character string containing only \"x\" and/or \"y\".")
     }
     parsePlotLog(log, log_x = log_x, log_y = log_y)
 }
@@ -1159,7 +1167,6 @@ plot_spectra <- function(params, n, n_pp,
     if (identical(size_axis, "l")) {
         plot_dat <- filter_plot_length_limits(plot_dat, llim)
     }
-
     if (return_data) return(plot_dat)
 
     plotDataFrame(plot_dat, params, xlab = plot_size_xlab(size_axis),
@@ -1772,6 +1779,9 @@ plot_feeding_level <- function(params, feed, species, highlight,
     plot_dat <- convert_plot_size_axis(plot_dat, params, size_axis)
     if (identical(size_axis, "l")) {
         plot_dat <- filter_plot_length_limits(plot_dat, llim)
+    }
+    if (log_y) {
+        plot_dat <- subset(plot_dat, value > 0)
     }
 
     if (return_data) return(plot_dat)
