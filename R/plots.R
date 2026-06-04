@@ -38,9 +38,9 @@
 #'   time-by-species-by-size array, such as those returned by [getFMort()] or
 #'   [getPredMort()] on a `MizerSim`.
 #'
-#' The same array objects can be passed to [ggplotly()] to produce interactive
-#' versions, for example `ggplotly(getBiomass(sim))` or
-#' `ggplotly(getEncounter(params))`. To add another compatible array to an
+#' The same array objects can be passed to [plotHover()] to produce
+#' hover-enabled plotly versions, for example `plotHover(getBiomass(sim))` or
+#' `plotHover(getEncounter(params))`. To add another compatible array to an
 #' existing ggplot, use [addPlot()]. To compare two compatible mizer arrays
 #' directly, use [plot2()]. To plot cumulative distributions over body size,
 #' use [plotCDF()]. To visualise how spectra or rates change through time, use
@@ -74,7 +74,7 @@
 #' counterparts, for example [plotlyBiomass()] or [plotlySpectra()], for
 #' interactive exploration. Generic and compositional plotting APIs, such as
 #' [plot()], [plot2()], [plotRelative()] and [addPlot()], do not have separate
-#' plotly wrappers. Use [ggplotly()] on the ggplot object they return.
+#' plotly wrappers. Use [plotHover()] on the ggplot object they return.
 #'
 #' While most plot functions take their data from a MizerSim object, some of
 #' those that make plots representing data at a single time can also take their
@@ -104,7 +104,7 @@
 #' # Generic plot methods
 #' plot(sim)
 #' plot(getBiomass(sim), species = c("Cod", "Herring"))
-#' ggplotly(getBiomass(sim))
+#' plotHover(getBiomass(sim))
 #'
 #' # Named plot functions
 #' plotFeedingLevel(sim)
@@ -281,12 +281,31 @@ mizer_tooltip_vars <- function(frame, group_var, x_var, y_var,
     unique(c(tooltip, extra))
 }
 
-#' @exportS3Method plotly::ggplotly
-ggplotly.mizer_plot <- function(p = ggplot2::last_plot(), ...,
-                                tooltip = attr(p, "mizer_tooltip") %||%
-                                    "all") {
-    class(p) <- setdiff(class(p), "mizer_plot")
-    ggplotly(p, ..., tooltip = tooltip)
+#' Create a hover-enabled plotly plot from a mizer object
+#'
+#' Creates an interactive plotly version of a mizer plot. Can be called on any
+#' mizer array object (such as those returned by [getEncounter()],
+#' [getBiomass()], etc.) or on any `mizer_plot` object returned by the named
+#' plot functions such as [plotBiomass()], [plotSpectra()], etc. In the first
+#' case it is a shorthand for `plotly::ggplotly(plot(x, ...))`.
+#'
+#' @param x A `mizer_plot`, `ArraySpeciesBySize`, `ArrayTimeBySpecies`, or
+#'   `ArrayTimeBySpeciesBySize` object.
+#' @param ... Arguments passed to the corresponding `plot()` method for mizer
+#'   array objects, or to [plotly::ggplotly()] for `mizer_plot` objects.
+#' @return A plotly object.
+#' @seealso [plot()], [plotBiomass()], [plotSpectra()], [plotting_functions]
+#' @concept plotting functions
+#' @export
+plotHover <- function(x, ...) UseMethod("plotHover")
+
+#' @rdname plotHover
+#' @export
+plotHover.mizer_plot <- function(x = ggplot2::last_plot(), ...,
+                                 tooltip = attr(x, "mizer_tooltip") %||%
+                                     "all") {
+    class(x) <- setdiff(class(x), "mizer_plot")
+    plotly::ggplotly(x, ..., tooltip = tooltip)
 }
 
 plotComparisonDataFrame <- function(frame1, frame2, params,
@@ -617,7 +636,7 @@ plotlyBiomass <- function(object,
              min_l = NULL,
              max_l = NULL) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotBiomass", argg),
+    plotHover(do.call("plotBiomass", argg),
              tooltip = c("Species", "Year", "Biomass"))
 }
 
@@ -753,7 +772,7 @@ plotlyYield <- function(object, sim2,
                         highlight = NULL,
                         log_x = FALSE, log_y = TRUE, ...) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotYield", argg),
+    plotHover(do.call("plotYield", argg),
              tooltip = c("Species", "Year", "Yield"))
 }
 
@@ -873,7 +892,7 @@ plotlyYieldGear <- function(object, species = NULL,
                             total = FALSE, ylim = c(NA, NA),
                             highlight = NULL, ...) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotYieldGear", argg),
+    plotHover(do.call("plotYieldGear", argg),
              tooltip = c("Species", "Year", "Yield"))
 }
 
@@ -1518,7 +1537,7 @@ plotlySpectra2 <- function(object1, object2, name1 = "First",
     if (!missing(power)) {
         args$power <- power
     }
-    ggplotly(do.call("plotSpectra2", args),
+    plotHover(do.call("plotSpectra2", args),
              tooltip = plot_size_tooltip(size_axis, before = "Species",
                                          after = c("value", "Model")))
 }
@@ -1583,7 +1602,7 @@ plotlySpectraRelative <- function(object1, object2,
     if (!missing(power)) {
         args$power <- power
     }
-    ggplotly(do.call("plotSpectraRelative", args),
+    plotHover(do.call("plotSpectraRelative", args),
              tooltip = plot_size_tooltip(size_axis, before = "Legend",
                                          after = "rel_diff"))
 }
@@ -1616,7 +1635,7 @@ plotlyCDF <- function(object, species = NULL,
     if (!missing(power)) {
         args$power <- power
     }
-    ggplotly(do.call("plotCDF", args),
+    plotHover(do.call("plotCDF", args),
              tooltip = plot_size_tooltip(size_axis, before = "Species",
                                          after = "value"))
 }
@@ -1647,7 +1666,7 @@ plotlyCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
     if (!missing(power)) {
         args$power <- power
     }
-    ggplotly(do.call("plotCDF2", args),
+    plotHover(do.call("plotCDF2", args),
              tooltip = plot_size_tooltip(size_axis, before = "Species",
                                          after = c("value", "Model")))
 }
@@ -1667,7 +1686,7 @@ plotlySpectra <- function(object, species = NULL,
                         size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
     argg <- as.list(environment())
-    ggplotly(do.call("plotSpectra", argg),
+    plotHover(do.call("plotSpectra", argg),
              tooltip = plot_size_tooltip(size_axis, before = "Species",
                                          after = "value"))
 }
@@ -1884,7 +1903,7 @@ plotlyFeedingLevel <- function(object,
                              log_x = TRUE, log_y = FALSE, log = NULL, ...) {
     size_axis <- plot_size_axis(size_axis)
     argg <- as.list(environment())
-    p <- ggplotly(do.call("plotFeedingLevel", argg),
+    p <- plotHover(do.call("plotFeedingLevel", argg),
                   tooltip = plot_size_tooltip(size_axis, before = "Species",
                                               after = "value"))
 
@@ -2059,7 +2078,7 @@ plotlyPredMort <- function(object, species = NULL,
                            log_x = TRUE, log_y = FALSE, log = NULL, ...) {
     size_axis <- plot_size_axis(size_axis)
     argg <- as.list(environment())
-    ggplotly(do.call("plotPredMort", argg),
+    plotHover(do.call("plotPredMort", argg),
              tooltip = plot_size_tooltip(size_axis, before = "Species",
                                          after = "value"))
 }
@@ -2156,7 +2175,7 @@ plotlyFMort <- function(object, species = NULL,
                         log_x = TRUE, log_y = FALSE, log = NULL, ...) {
     size_axis <- plot_size_axis(size_axis)
     argg <- as.list(environment())
-    ggplotly(do.call("plotFMort", argg),
+    plotHover(do.call("plotFMort", argg),
              tooltip = plot_size_tooltip(size_axis, before = "Species",
                                          after = "value"))
 }
@@ -2421,7 +2440,7 @@ plotlyGrowthCurves <- function(object, species = NULL,
                                highlight = NULL,
                                log_x = FALSE, log_y = FALSE, log = NULL) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotGrowthCurves", argg),
+    plotHover(do.call("plotGrowthCurves", argg),
              tooltip = c("Species", "Age", "value"))
 }
 
@@ -2569,11 +2588,11 @@ plotlyDiet <- function(object, species = NULL,
                        size_axis = c("w", "l"),
                        log_x = TRUE, log_y = FALSE, log = NULL, ...) {
     size_axis <- plot_size_axis(size_axis)
-    ggplotly(plotDiet(object, species = species, wlim = wlim, llim = llim,
-                      log_x = log_x, log_y = log_y, log = log,
-                      size_axis = size_axis, ...),
-             tooltip = plot_size_tooltip(size_axis, before = "Predator",
-                                        after = c("Proportion", "Prey")))
+    plotHover(plotDiet(object, species = species, wlim = wlim, llim = llim,
+                       log_x = log_x, log_y = log_y, log = log,
+                       size_axis = size_axis, ...),
+              tooltip = plot_size_tooltip(size_axis, before = "Predator",
+                                         after = c("Proportion", "Prey")))
 }
 
 

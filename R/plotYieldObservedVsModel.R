@@ -36,7 +36,7 @@
 #' @param return_data Whether to return the data frame for the plot (TRUE) or
 #'   not (FALSE). Default is FALSE.
 #' @param ... For [plotlyYieldObservedVsModel()], additional arguments passed
-#'   to [ggplotly()]. Otherwise unused.
+#'   to [plotHover()]. Otherwise unused.
 #' 
 #' @return A ggplot2 object with the plot of model yield by species compared
 #'   to observed yield. If `return_data = TRUE`, the data frame used to
@@ -190,5 +190,5 @@ plotlyYieldObservedVsModel <- function(object, species = NULL, ratio = FALSE,
                                          show_unobserved = FALSE, ...) {
     argg <- as.list(environment())
     argg$labels <- FALSE
-    ggplotly(do.call("plotYieldObservedVsModel", argg), ...)
+    plotHover(do.call("plotYieldObservedVsModel", argg), ...)
 }
