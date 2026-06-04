@@ -6,11 +6,11 @@
 #' size axis due to the variability in prey sizes. This is the diffusion
 #' term from the jump-growth equation.
 #'
-#' @param params A MizerParams object
+#' @param object A \linkS4class{MizerParams} or \linkS4class{MizerSim} object
 #' @param n A matrix of species abundances (species x size). Defaults to the
-#'   initial abundances in `params`.
+#'   initial abundances in `object`.
 #' @param n_pp A vector of the resource abundance by size. Defaults to the
-#'   initial resource abundances in `params`.
+#'   initial resource abundances in `object`.
 #' @param n_other A list of abundances for other dynamical components.
 #' @param t The time for which to do the calculation.
 #' @param ... Unused
@@ -22,19 +22,20 @@
 #' Datta, S., Delius, G. W. and Law, R. (2010). A jump-growth model for
 #' predator-prey dynamics: derivation and application to marine ecosystems.
 #' Bulletin of Mathematical Biology, 72(6):1361–1382
-getDiffusion <- function(params, n = initialN(params),
-                         n_pp = initialNResource(params),
-                         n_other = initialNOther(params),
+getDiffusion <- function(object, n = initialN(object),
+                         n_pp = initialNResource(object),
+                         n_other = initialNOther(object),
                          t = 0,
                          ...) {
     UseMethod("getDiffusion")
 }
 #' @export
-getDiffusion.MizerParams <- function(params, n = initialN(params),
-                                     n_pp = initialNResource(params),
-                                     n_other = initialNOther(params),
+getDiffusion.MizerParams <- function(object, n = initialN(object),
+                                     n_pp = initialNResource(object),
+                                     n_other = initialNOther(object),
                                      t = 0,
                                      ...) {
+    params <- object
     params <- validParams(params)
     feeding_level <- getFeedingLevel(params, n = n, n_pp = n_pp,
                                      n_other = n_other, time_range = t)
@@ -51,9 +52,9 @@ getDiffusion.MizerParams <- function(params, n = initialN(params),
 }
 
 #' @export
-getDiffusion.MizerSim <- function(params, n, n_pp, n_other, t = 0,
+getDiffusion.MizerSim <- function(object, n, n_pp, n_other, t = 0,
                                   time_range, drop = FALSE, ...) {
-    sim <- params
+    sim <- object
     get_species_size_rate_from_sim(
         sim, time_range, drop,
         function(slice) {

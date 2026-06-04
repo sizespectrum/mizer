@@ -71,18 +71,19 @@ NULL
 #' getProportionOfLargeFish(NS_sim, min_w = 10, max_w = 5000,
 #'     threshold_w = 500, biomass_proportion = FALSE)[years]
 #' getProportionOfLargeFish(NS_params)
-getProportionOfLargeFish <- function(sim,
+getProportionOfLargeFish <- function(object,
                                      species = NULL,
                                      threshold_w = 100, threshold_l = NULL,
                                      biomass_proportion = TRUE, ...) {
     UseMethod("getProportionOfLargeFish")
 }
 #' @export
-getProportionOfLargeFish.MizerSim <- function(sim,
+getProportionOfLargeFish.MizerSim <- function(object,
                                               species = NULL,
                                               threshold_w = 100,
                                               threshold_l = NULL,
                                               biomass_proportion = TRUE, ...) {
+    sim <- object
     species <- valid_species_arg(sim, species)
 
     total_size_range <- get_size_range_array(sim@params, ...)
@@ -114,13 +115,13 @@ getProportionOfLargeFish.MizerSim <- function(sim,
     1 - (upto_threshold_measure / total_measure)
 }
 #' @export
-getProportionOfLargeFish.MizerParams <- function(sim,
+getProportionOfLargeFish.MizerParams <- function(object,
                                                  species = NULL,
                                                  threshold_w = 100,
                                                  threshold_l = NULL,
                                                  biomass_proportion = TRUE,
                                                  ...) {
-    params <- sim
+    params <- object
     species <- valid_species_arg(params, species)
 
     total_size_range <- get_size_range_array(params, ...)
@@ -155,7 +156,7 @@ getProportionOfLargeFish.MizerParams <- function(sim,
 #' min_l will be used). You can also specify the species to be used in the
 #' calculation.
 #'
-#' @param sim A \linkS4class{MizerSim} or \linkS4class{MizerParams} object
+#' @param object A \linkS4class{MizerSim} or \linkS4class{MizerParams} object
 #' @inheritParams valid_species_arg
 #' @inheritDotParams get_size_range_array -params
 #'
@@ -171,11 +172,12 @@ getProportionOfLargeFish.MizerParams <- function(sim,
 #' getMeanWeight(NS_sim, species = c("Herring", "Sprat", "N.pout"))[years]
 #' getMeanWeight(NS_sim, min_w = 10, max_w = 5000)[years]
 #' getMeanWeight(NS_params)
-getMeanWeight <- function(sim, species = NULL, ...) {
+getMeanWeight <- function(object, species = NULL, ...) {
     UseMethod("getMeanWeight")
 }
 #' @export
-getMeanWeight.MizerSim <- function(sim, species = NULL, ...) {
+getMeanWeight.MizerSim <- function(object, species = NULL, ...) {
+    sim <- object
     assert_that(is(sim, "MizerSim"))
     species <- valid_species_arg(sim, species)
     n_species <- getN(sim, ...)
@@ -185,8 +187,8 @@ getMeanWeight.MizerSim <- function(sim, species = NULL, ...) {
     biomass_total / n_total
 }
 #' @export
-getMeanWeight.MizerParams <- function(sim, species = NULL, ...) {
-    params <- sim
+getMeanWeight.MizerParams <- function(object, species = NULL, ...) {
+    params <- object
     species <- valid_species_arg(params, species)
     n_total <- sum(getN(params, ...)[species])
     biomass_total <- sum(getBiomass(params, ...)[species])
@@ -224,13 +226,14 @@ getMeanWeight.MizerParams <- function(sim, species = NULL, ...) {
 #' getMeanMaxWeight(NS_sim, species=c("Herring","Sprat","N.pout"))[years, ]
 #' getMeanMaxWeight(NS_sim, min_w = 10, max_w = 5000)[years, ]
 #' getMeanMaxWeight(NS_params)
-getMeanMaxWeight <- function(sim, species = NULL,
+getMeanMaxWeight <- function(object, species = NULL,
                              measure = "both", ...) {
     UseMethod("getMeanMaxWeight")
 }
 #' @export
-getMeanMaxWeight.MizerSim <- function(sim, species = NULL,
+getMeanMaxWeight.MizerSim <- function(object, species = NULL,
                                       measure = "both", ...) {
+    sim <- object
     assert_that(is(sim, "MizerSim"))
     if (!(measure %in% c("both", "numbers", "biomass"))) {
         stop("measure must be one of 'both', 'numbers' or 'biomass'")
@@ -262,9 +265,9 @@ getMeanMaxWeight.MizerSim <- function(sim, species = NULL,
     cbind(mmw_numbers, mmw_biomass)
 }
 #' @export
-getMeanMaxWeight.MizerParams <- function(sim, species = NULL,
+getMeanMaxWeight.MizerParams <- function(object, species = NULL,
                                          measure = "both", ...) {
-    params <- sim
+    params <- object
     if (!(measure %in% c("both", "numbers", "biomass"))) {
         stop("measure must be one of 'both', 'numbers' or 'biomass'")
     }
@@ -332,13 +335,14 @@ getMeanMaxWeight.MizerParams <- function(sim, species = NULL,
 #' slope_biomass[1, ] # in 1976
 #'
 #' getCommunitySlope(NS_params)
-getCommunitySlope <- function(sim, species = NULL,
+getCommunitySlope <- function(object, species = NULL,
                               biomass = TRUE, ...) {
     UseMethod("getCommunitySlope")
 }
 #' @export
-getCommunitySlope.MizerSim <- function(sim, species = NULL,
+getCommunitySlope.MizerSim <- function(object, species = NULL,
                                        biomass = TRUE, ...) {
+    sim <- object
     assert_that(is(sim, "MizerSim"))
     species <- valid_species_arg(sim, species)
     size_range <- get_size_range_array(sim@params, ...)
@@ -367,9 +371,9 @@ getCommunitySlope.MizerSim <- function(sim, species = NULL,
     slope[, -1]
 }
 #' @export
-getCommunitySlope.MizerParams <- function(sim, species = NULL,
+getCommunitySlope.MizerParams <- function(object, species = NULL,
                                           biomass = TRUE, ...) {
-    params <- sim
+    params <- object
     species <- valid_species_arg(params, species)
     size_range <- get_size_range_array(params, ...)
     # set entries for unwanted sizes to zero and sum over wanted species,
