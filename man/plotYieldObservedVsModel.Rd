@@ -51,7 +51,8 @@ not (FALSE). Default is FALSE.}
 yield observation is available. If TRUE, these species will be
 shown as if their observed yield was equal to the model yield.}
 
-\item{...}{Additional arguments passed to the generic function.}
+\item{...}{For \code{\link[=plotlyYieldObservedVsModel]{plotlyYieldObservedVsModel()}}, additional arguments passed
+to \code{\link[=ggplotly]{ggplotly()}}. Otherwise unused.}
 }
 \value{
 A ggplot2 object with the plot of model yield by species compared

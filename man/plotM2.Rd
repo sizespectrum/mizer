@@ -10,7 +10,7 @@ plotM2(object, ...)
 \item{object}{An object of class \linkS4class{MizerSim} or
 \linkS4class{MizerParams}.}
 
-\item{...}{Other arguments (currently unused)}
+\item{...}{.}
 }
 \value{
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
@@ -40,20 +40,15 @@ Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
 \code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
 \code{\link{plot}},
-\code{\link[=plot2]{plot2()}},
 \code{\link[=plotBiomass]{plotBiomass()}},
 \code{\link[=plotCDF]{plotCDF()}},
-\code{\link[=plotCDF2]{plotCDF2()}},
 \code{\link[=plotDiet]{plotDiet()}},
 \code{\link[=plotFMort]{plotFMort()}},
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}},
 \code{\link[=plotGrowthCurves]{plotGrowthCurves()}},
 \code{\link{plotMizerParams}},
 \code{\link{plotMizerSim}},
-\code{\link[=plotRelative]{plotRelative()}},
 \code{\link[=plotSpectra]{plotSpectra()}},
-\code{\link[=plotSpectra2]{plotSpectra2()}},
-\code{\link[=plotSpectraRelative]{plotSpectraRelative()}},
 \code{\link[=plotYield]{plotYield()}},
 \code{\link[=plotYieldGear]{plotYieldGear()}},
 \code{\link{plotting_functions}}

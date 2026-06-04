@@ -5,22 +5,22 @@
 \title{Get diffusion rate from predation}
 \usage{
 getDiffusion(
-  params,
-  n = initialN(params),
-  n_pp = initialNResource(params),
-  n_other = initialNOther(params),
+  object,
+  n = initialN(object),
+  n_pp = initialNResource(object),
+  n_other = initialNOther(object),
   t = 0,
   ...
 )
 }
 \arguments{
-\item{params}{A MizerParams object}
+\item{object}{A \linkS4class{MizerParams} or \linkS4class{MizerSim} object}
 
 \item{n}{A matrix of species abundances (species x size). Defaults to the
-initial abundances in \code{params}.}
+initial abundances in \code{object}.}
 
 \item{n_pp}{A vector of the resource abundance by size. Defaults to the
-initial resource abundances in \code{params}.}
+initial resource abundances in \code{object}.}
 
 \item{n_other}{A list of abundances for other dynamical components.}
 

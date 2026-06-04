@@ -5,7 +5,7 @@
 \title{Calculate the proportion of large fish}
 \usage{
 getProportionOfLargeFish(
-  sim,
+  object,
   species = NULL,
   threshold_w = 100,
   threshold_l = NULL,
@@ -14,7 +14,7 @@ getProportionOfLargeFish(
 )
 }
 \arguments{
-\item{sim}{A \linkS4class{MizerSim} or \linkS4class{MizerParams} object}
+\item{object}{A \linkS4class{MizerSim} or \linkS4class{MizerParams} object}
 
 \item{species}{The species to be selected. Optional. By default all target
 species are selected. A vector of species names, or a

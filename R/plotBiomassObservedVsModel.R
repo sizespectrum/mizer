@@ -41,7 +41,8 @@
 #'   shown as if their observed biomass was equal to the model biomass.
 #' @param return_data Whether to return the data frame for the plot (TRUE) or
 #'   not (FALSE). Default is FALSE.
-#' @param ... Additional arguments passed to the plot function.
+#' @param ... For [plotlyBiomassObservedVsModel()], additional arguments passed
+#'   to [ggplotly()]. Otherwise unused.
 #' 
 #' @return A ggplot2 object with the plot of model biomass by species compared
 #'   to observed biomass. If `return_data = TRUE`, the data frame used to

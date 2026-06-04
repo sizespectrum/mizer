@@ -13,7 +13,7 @@ removeSpecies(params, species, ...)
 numeric vector of species indices, or a logical vector indicating for
 each species whether it is to be removed (TRUE) or not.}
 
-\item{...}{Additional arguments}
+\item{...}{Currently unused.}
 }
 \value{
 An object of type \linkS4class{MizerParams}

@@ -784,6 +784,7 @@ parseTimePlotLog <- function(log, log_x, log_y) {
 #' @inheritParams plotSpectra
 #' @param gears A vector of gear names to be included in the plot. Default is
 #'  all gears.
+#' @param ... .
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the four variables 'Year', 'Yield', 'Species' and 'Gear' is
@@ -860,6 +861,7 @@ plotYieldGear.MizerSim <- function(object,
 #' @usage NULL
 #' @export
 plotlyYieldGear <- function(object, species = NULL,
+                            gears = NULL,
                             total = FALSE, ylim = c(NA, NA),
                             highlight = NULL, ...) {
     argg <- as.list(environment())
@@ -867,7 +869,7 @@ plotlyYieldGear <- function(object, species = NULL,
              tooltip = c("Species", "Year", "Yield"))
 }
 
-#' Plot abundance spectra and compare between objects
+#' Plot abundance and biomass spectra and compare between objects
 #'
 #' `plotSpectra()` plots the number density multiplied by a power of the
 #' weight, with the power specified by the `power` argument. When called with a
@@ -1562,7 +1564,7 @@ plotlyCDF <- function(object, species = NULL,
                       total = FALSE, resource = FALSE,
                       background = TRUE,
                       highlight = NULL, normalise = TRUE,
-                      log_x = TRUE, log = NULL,
+                      log_x = TRUE, log_y = FALSE, log = NULL,
                       size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
     args <- list(object = object, species = species,
@@ -1571,7 +1573,7 @@ plotlyCDF <- function(object, species = NULL,
                  biomass = biomass, total = total,
                  resource = resource, background = background,
                  highlight = highlight, normalise = normalise,
-                 log_x = log_x, log = log, llim = llim,
+                 log_x = log_x, log_y = log_y, log = log, llim = llim,
                  size_axis = size_axis, ...)
     if (!missing(time_range)) {
         args$time_range <- time_range
@@ -1650,6 +1652,7 @@ plotlySpectra <- function(object, species = NULL,
 #'   outside a species' size range. Default FALSE.
 #' @param include_critical If TRUE, then the critical feeding level is also
 #'   plotted. Default FALSE.
+#' @param ... .
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the variables 'w' (or 'l' if `size_axis = "l"`), 'value' and
@@ -1831,6 +1834,7 @@ plot_feeding_level <- function(params, feed, species, highlight,
 plotlyFeedingLevel <- function(object,
                              species = NULL,
                              time_range,
+                             all.sizes = FALSE,
                              highlight = NULL,
                              include_critical = FALSE,
                              wlim = c(NA, NA), llim = c(NA, NA),
@@ -1918,6 +1922,7 @@ plotlyFeedingLevel <- function(object,
 #' @inheritParams plotSpectra
 #' @param all.sizes If TRUE, then predation mortality is plotted also for sizes
 #'   outside a species' size range. Default FALSE.
+#' @param ... .
 #'
 #' @return  A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the three variables 'w' (or 'l' if `size_axis = "l"`), 'value',
@@ -2027,6 +2032,7 @@ plotlyPredMort <- function(object, species = NULL,
 #' @inheritParams plotSpectra
 #' @param all.sizes If TRUE, then fishing mortality is plotted also for sizes
 #'   outside a species' size range. Default FALSE.
+#' @param ... .
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the three variables 'w' (or 'l' if `size_axis = "l"`), 'value',
 #'   'Species' is returned.
@@ -2148,6 +2154,7 @@ plotlyFMort <- function(object, species = NULL,
 #'   name as used in the model), `age` (in years) and either `weight` (in grams)
 #'   or `length` (in cm). If both `weight` and `length` are provided, only
 #'   `weight` is used.
+#' @param ... .
 #' @return A ggplot2 object
 #' @export
 #' @family plotting functions
@@ -2393,6 +2400,7 @@ plotlyGrowthCurves <- function(object, species = NULL,
 #' facet for each species.
 #'
 #' @inheritParams plotSpectra
+#' @param ... .
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the four variables 'Predator', 'w' (or 'l' if

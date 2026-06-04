@@ -8,47 +8,7 @@
 \alias{animateSpectra}
 \title{Animate size-dependent quantities through time}
 \usage{
-\method{animate}{ArrayTimeBySpeciesBySize}(
-  x,
-  species = NULL,
-  time_range = NULL,
-  log_x = TRUE,
-  log = NULL,
-  wlim = c(NA, NA),
-  llim = c(NA, NA),
-  ylim = c(NA, NA),
-  log_y = TRUE,
-  size_axis = c("w", "l"),
-  total = FALSE,
-  background = TRUE,
-  frame_duration = 500,
-  transition_duration = frame_duration,
-  easing = "linear",
-  ...
-)
-
 animate(x, ...)
-
-\method{animate}{MizerSim}(
-  x,
-  species = NULL,
-  time_range = NULL,
-  log_x = TRUE,
-  log_y = TRUE,
-  log = NULL,
-  wlim = c(NA, NA),
-  llim = c(NA, NA),
-  ylim = c(NA, NA),
-  size_axis = c("w", "l"),
-  power = 1,
-  total = FALSE,
-  resource = TRUE,
-  background = TRUE,
-  frame_duration = 500,
-  transition_duration = frame_duration,
-  easing = "linear",
-  ...
-)
 
 animateSpectra(sim, ...)
 }
@@ -63,6 +23,10 @@ values to include, or a length-two vector giving the min and max of the
 range. Default is the entire time range of \code{x}.}
 
 \item{log_x}{If \code{TRUE} (default), use a log10 x-axis for body size.}
+
+\item{log}{A character string specifying which axes to log-transform:
+\code{"x"}, \code{"y"}, \code{"xy"} or \code{""}. If supplied, this overrides \code{log_x}
+and \code{log_y}.}
 
 \item{wlim}{A numeric vector of length two providing lower and upper limits
 for the body-size (x) axis. Use \code{NA} to refer to the existing minimum or
@@ -79,10 +43,6 @@ limits are clipped by the viewport rather than removed from the animation
 frames.}
 
 \item{log_y}{If \code{TRUE} (default), use a log10 y-axis.}
-
-\item{log}{A character string specifying which axes to log-transform:
-\code{"x"}, \code{"y"}, \code{"xy"} or \code{""}. If supplied, this overrides \code{log_x}
-and \code{log_y}.}
 
 \item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
 (\code{"l"}), using the allometric weight-length relationship.}
@@ -169,10 +129,8 @@ animate(getFeedingLevel(NS_sim), species = c("Cod", "Herring"))
 Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
 \code{\link{plot}},
-\code{\link[=plot2]{plot2()}},
 \code{\link[=plotBiomass]{plotBiomass()}},
 \code{\link[=plotCDF]{plotCDF()}},
-\code{\link[=plotCDF2]{plotCDF2()}},
 \code{\link[=plotDiet]{plotDiet()}},
 \code{\link[=plotFMort]{plotFMort()}},
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}},
@@ -180,10 +138,7 @@ Other plotting functions:
 \code{\link{plotMizerParams}},
 \code{\link{plotMizerSim}},
 \code{\link[=plotPredMort]{plotPredMort()}},
-\code{\link[=plotRelative]{plotRelative()}},
 \code{\link[=plotSpectra]{plotSpectra()}},
-\code{\link[=plotSpectra2]{plotSpectra2()}},
-\code{\link[=plotSpectraRelative]{plotSpectraRelative()}},
 \code{\link[=plotYield]{plotYield()}},
 \code{\link[=plotYieldGear]{plotYieldGear()}},
 \code{\link{plotting_functions}}

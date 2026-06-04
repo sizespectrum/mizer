@@ -8,17 +8,11 @@
 \title{Calculate age at maturity from von Bertalanffy growth parameters}
 \usage{
 age_mat_vB(object, ...)
-
-\method{age_mat_vB}{MizerParams}(object, ...)
-
-\method{age_mat_vB}{data.frame}(object, ...)
-
-\method{age_mat_vB}{default}(object, ...)
 }
 \arguments{
 \item{object}{A MizerParams object or a species_params data frame}
 
-\item{...}{Additional arguments}
+\item{...}{Currently unused.}
 }
 \value{
 A named vector. The names are the species names and the values are

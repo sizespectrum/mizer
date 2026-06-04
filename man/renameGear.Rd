@@ -12,7 +12,7 @@ renameGear(params, replace, ...)
 \item{replace}{A named character vector, with new names as values, and old
 names as names.}
 
-\item{...}{Additional arguments}
+\item{...}{Currently unused.}
 }
 \value{
 An object of type \linkS4class{MizerParams}

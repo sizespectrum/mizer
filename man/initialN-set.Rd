@@ -10,10 +10,6 @@
 initialN(params) <- value
 
 initialN(object)
-
-\method{initialN}{MizerParams}(object)
-
-\method{initialN}{MizerSim}(object)
 }
 \arguments{
 \item{params}{A MizerParams object}

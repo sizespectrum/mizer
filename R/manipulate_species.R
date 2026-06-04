@@ -33,7 +33,7 @@
 #' @param info_level Controls the amount of information messages that are shown
 #'   when the function sets default values for parameters. Higher levels lead
 #'   to more messages. Set to 0 to suppress all such messages.
-#' @param ... Additional arguments
+#' @param ... Currently unused.
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #'
@@ -373,7 +373,7 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
 #' @param species The species to be removed. A vector of species names, or a
 #'   numeric vector of species indices, or a logical vector indicating for
 #'   each species whether it is to be removed (TRUE) or not.
-#' @param ... Additional arguments
+#' @param ... Currently unused.
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
@@ -461,7 +461,7 @@ removeSpecies.MizerParams <- function(params, species, ...) {
 #' @param params A mizer params object
 #' @param replace A named character vector, with new names as values, and old
 #'   names as names.
-#' @param ... Additional arguments
+#' @param ... Currently unused.
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
@@ -690,7 +690,7 @@ expandSizeGrid.MizerParams <- function(params,
 #' @param params A mizer params object
 #' @param replace A named character vector, with new names as values, and old
 #'   names as names.
-#' @param ... Additional arguments
+#' @param ... Currently unused.
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' @export

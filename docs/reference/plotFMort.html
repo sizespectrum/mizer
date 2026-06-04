@@ -91,30 +91,7 @@ step).</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plotFMort</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># S3 method for class 'MizerSim'</span></span>
-<span><span class="fu">plotFMort</span><span class="op">(</span></span>
-<span>  <span class="va">object</span>,</span>
-<span>  species <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  <span class="va">time_range</span>,</span>
-<span>  all.sizes <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  highlight <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  return_data <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  <span class="va">...</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># S3 method for class 'MizerParams'</span></span>
-<span><span class="fu">plotFMort</span><span class="op">(</span></span>
-<span>  <span class="va">object</span>,</span>
-<span>  species <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  all.sizes <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  highlight <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  return_data <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  <span class="va">...</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">plotlyFMort</span><span class="op">(</span><span class="va">object</span>, species <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">time_range</span>, highlight <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plotFMort</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -127,7 +104,7 @@ step).</p>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Other arguments (currently unused)</p></dd>
+<dd><p>.</p></dd>
 
 
 <dt id="arg-species">species<a class="anchor" aria-label="anchor" href="#arg-species"></a></dt>
@@ -153,6 +130,27 @@ outside a species' size range. Default FALSE.</p></dd>
 <dd><p>Name or vector of names of the species to be highlighted.</p></dd>
 
 
+<dt id="arg-wlim">wlim<a class="anchor" aria-label="anchor" href="#arg-wlim"></a></dt>
+<dd><p>A numeric vector of length two providing lower and upper limits
+for the w axis. Use NA for the default: the lower default is
+<code>min(params@w) / 100</code> when <code>resource = TRUE</code> (to show some resource below
+the fish grid) or <code>min(params@w)</code> when <code>resource = FALSE</code>; the upper
+default is <code>max(params@w_full)</code>. Data is filtered to this range and the
+axis limits are set accordingly.</p></dd>
+
+
+<dt id="arg-llim">llim<a class="anchor" aria-label="anchor" href="#arg-llim"></a></dt>
+<dd><p>A numeric vector of length two providing lower and upper limits
+for the length axis when <code>size_axis = "l"</code>. Use <code>NA</code> to auto-scale to the
+data range. Data is filtered to this range and the axis limits are set
+accordingly.</p></dd>
+
+
+<dt id="arg-size-axis">size_axis<a class="anchor" aria-label="anchor" href="#arg-size-axis"></a></dt>
+<dd><p>Whether to plot size as weight (<code>"w"</code>, default) or length
+(<code>"l"</code>), using the allometric weight-length relationship.</p></dd>
+
+
 <dt id="arg-return-data">return_data<a class="anchor" aria-label="anchor" href="#arg-return-data"></a></dt>
 <dd><p>A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default value is FALSE</p></dd>
@@ -161,7 +159,8 @@ used for the plot is returned instead of the plot itself. Default value is FALSE
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A ggplot2 object, unless <code>return_data = TRUE</code>, in which case a data
-frame with the three variables 'w', 'value', 'Species' is returned.</p>
+frame with the three variables 'w' (or 'l' if <code>size_axis = "l"</code>), 'value',
+'Species' is returned.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -170,20 +169,15 @@ frame with the three variables 'w', 'value', 'Species' is returned.</p>
 <code><a href="addPlot.html">addPlot()</a></code>,
 <code><a href="animate.html">animate.ArrayTimeBySpeciesBySize()</a></code>,
 <code><a href="plot.html">plot</a></code>,
-<code><a href="plot2.html">plot2()</a></code>,
 <code><a href="plotBiomass.html">plotBiomass()</a></code>,
 <code><a href="plotCDF.html">plotCDF()</a></code>,
-<code><a href="plotCDF2.html">plotCDF2()</a></code>,
 <code><a href="plotDiet.html">plotDiet()</a></code>,
 <code><a href="plotFeedingLevel.html">plotFeedingLevel()</a></code>,
 <code><a href="plotGrowthCurves.html">plotGrowthCurves()</a></code>,
 <code><a href="plotMizerParams.html">plotMizerParams</a></code>,
 <code><a href="plotMizerSim.html">plotMizerSim</a></code>,
 <code><a href="plotPredMort.html">plotPredMort()</a></code>,
-<code><a href="plotRelative.html">plotRelative()</a></code>,
 <code><a href="plotSpectra.html">plotSpectra()</a></code>,
-<code><a href="plotSpectra2.html">plotSpectra2()</a></code>,
-<code><a href="plotSpectraRelative.html">plotSpectraRelative()</a></code>,
 <code><a href="plotYield.html">plotYield()</a></code>,
 <code><a href="plotYieldGear.html">plotYieldGear()</a></code>,
 <code><a href="plotting_functions.html">plotting_functions</a></code></p></div>

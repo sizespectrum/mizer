@@ -4,10 +4,10 @@
 \alias{getMeanMaxWeight}
 \title{Calculate the mean maximum weight of the community}
 \usage{
-getMeanMaxWeight(sim, species = NULL, measure = "both", ...)
+getMeanMaxWeight(object, species = NULL, measure = "both", ...)
 }
 \arguments{
-\item{sim}{A \linkS4class{MizerSim} or \linkS4class{MizerParams} object}
+\item{object}{A \linkS4class{MizerSim} or \linkS4class{MizerParams} object}
 
 \item{species}{The species to be selected. Optional. By default all target
 species are selected. A vector of species names, or a

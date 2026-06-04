@@ -208,16 +208,6 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #' plot(getPredMort(NS_params), species = c("Cod", "Herring"),
 #'      size_axis = "l")
 #' }
-#' \donttest{
-#' enc <- getEncounter(NS_params)
-#' plot2(enc, enc, name1 = "Original", name2 = "Changed")
-#' plot2(getBiomass(NS_sim), getBiomass(NS_sim), species = "Cod")
-#' }
-#' \donttest{
-#' enc <- getEncounter(NS_params)
-#' plotRelative(enc, enc, species = "Cod")
-#' plotRelative(getBiomass(NS_sim), getBiomass(NS_sim), species = "Cod")
-#' }
 plot.ArraySpeciesBySize <- function(x, species = NULL,
                             all.sizes = FALSE, highlight = NULL,
                             return_data = FALSE, log_x = TRUE, log_y = FALSE,

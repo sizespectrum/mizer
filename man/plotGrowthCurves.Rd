@@ -8,39 +8,6 @@
 \title{Plot growth curves}
 \usage{
 plotGrowthCurves(object, ...)
-
-\method{plotGrowthCurves}{MizerSim}(
-  object,
-  species = NULL,
-  max_age = 20,
-  percentage = FALSE,
-  species_panel = FALSE,
-  highlight = NULL,
-  size_at_age = NULL,
-  return_data = FALSE,
-  ...
-)
-
-\method{plotGrowthCurves}{MizerParams}(
-  object,
-  species = NULL,
-  max_age = 20,
-  percentage = FALSE,
-  species_panel = FALSE,
-  highlight = NULL,
-  size_at_age = NULL,
-  return_data = FALSE,
-  ...
-)
-
-plotlyGrowthCurves(
-  object,
-  species = NULL,
-  max_age = 20,
-  percentage = FALSE,
-  species_panel = FALSE,
-  highlight = NULL
-)
 }
 \arguments{
 \item{object}{MizerSim or MizerParams object. If given a
@@ -48,7 +15,7 @@ plotlyGrowthCurves(
 simulation to calculate the size at age. If given a
 \linkS4class{MizerParams} object, uses the initial growth rates instead.}
 
-\item{...}{Other arguments (currently unused)}
+\item{...}{.}
 
 \item{species}{The species to be selected. Optional. By default all target
 species are selected. A vector of species names, or a
@@ -122,20 +89,15 @@ Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
 \code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
 \code{\link{plot}},
-\code{\link[=plot2]{plot2()}},
 \code{\link[=plotBiomass]{plotBiomass()}},
 \code{\link[=plotCDF]{plotCDF()}},
-\code{\link[=plotCDF2]{plotCDF2()}},
 \code{\link[=plotDiet]{plotDiet()}},
 \code{\link[=plotFMort]{plotFMort()}},
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}},
 \code{\link{plotMizerParams}},
 \code{\link{plotMizerSim}},
 \code{\link[=plotPredMort]{plotPredMort()}},
-\code{\link[=plotRelative]{plotRelative()}},
 \code{\link[=plotSpectra]{plotSpectra()}},
-\code{\link[=plotSpectra2]{plotSpectra2()}},
-\code{\link[=plotSpectraRelative]{plotSpectraRelative()}},
 \code{\link[=plotYield]{plotYield()}},
 \code{\link[=plotYieldGear]{plotYieldGear()}},
 \code{\link{plotting_functions}}

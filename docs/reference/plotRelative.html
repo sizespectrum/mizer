@@ -101,7 +101,9 @@ $$2 (N_2 - N_1) / (N_1 + N_2).$$</p>
 <span>  all.sizes <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  log_x <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  wlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
+<span>  llim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
 <span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
+<span>  size_axis <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"w"</span>, <span class="st">"l"</span><span class="op">)</span>,</span>
 <span>  total <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  background <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -130,7 +132,9 @@ $$2 (N_2 - N_1) / (N_1 + N_2).$$</p>
 <span>  all.sizes <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  log_x <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  wlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
+<span>  llim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
 <span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
+<span>  size_axis <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"w"</span>, <span class="st">"l"</span><span class="op">)</span>,</span>
 <span>  total <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  background <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -170,10 +174,21 @@ for the weight (x) axis. Use <code>NA</code> to refer to the existing minimum or
 maximum. Only applies to <code>ArraySpeciesBySize</code>.</p></dd>
 
 
+<dt id="arg-llim">llim<a class="anchor" aria-label="anchor" href="#arg-llim"></a></dt>
+<dd><p>A numeric vector of length two providing lower and upper limits
+for the length (x) axis when <code>size_axis = "l"</code>. Use <code>NA</code> to refer to the
+existing minimum or maximum. Only applies to <code>ArraySpeciesBySize</code>.</p></dd>
+
+
 <dt id="arg-ylim">ylim<a class="anchor" aria-label="anchor" href="#arg-ylim"></a></dt>
 <dd><p>A numeric vector of length two providing lower and upper limits
 for the value (y) axis. Use <code>NA</code> to refer to the existing minimum or
 maximum.</p></dd>
+
+
+<dt id="arg-size-axis">size_axis<a class="anchor" aria-label="anchor" href="#arg-size-axis"></a></dt>
+<dd><p>Whether to plot size as weight (<code>"w"</code>, default) or length
+(<code>"l"</code>), using the allometric weight-length relationship.</p></dd>
 
 
 <dt id="arg-total">total<a class="anchor" aria-label="anchor" href="#arg-total"></a></dt>

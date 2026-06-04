@@ -51,7 +51,8 @@ not (FALSE). Default is FALSE.}
 biomass observation is available. If TRUE, these species will be
 shown as if their observed biomass was equal to the model biomass.}
 
-\item{...}{Additional arguments passed to the plot function.}
+\item{...}{For \code{\link[=plotlyBiomassObservedVsModel]{plotlyBiomassObservedVsModel()}}, additional arguments passed
+to \code{\link[=ggplotly]{ggplotly()}}. Otherwise unused.}
 }
 \value{
 A ggplot2 object with the plot of model biomass by species compared

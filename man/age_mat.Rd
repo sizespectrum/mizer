@@ -9,7 +9,7 @@ age_mat(params, ...)
 \arguments{
 \item{params}{A MizerParams object}
 
-\item{...}{Additional arguments}
+\item{...}{Currently unused.}
 }
 \value{
 A named vector. The names are the species names and the values are

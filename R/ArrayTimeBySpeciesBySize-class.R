@@ -137,7 +137,6 @@ print.summary.ArrayTimeBySpeciesBySize <- function(x, ...) {
 #' @export
 #' @examples
 #' \donttest{
-#' plot(getFMort(NS_sim))
 #' plot(getFMort(NS_sim), time = 2010)
 #' }
 plot.ArrayTimeBySpeciesBySize <- function(x, species = NULL, time = NULL,

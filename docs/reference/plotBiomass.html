@@ -88,53 +88,14 @@ against time. The biomass is calculated within user defined size limits
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plotBiomass</span><span class="op">(</span><span class="va">sim</span>, <span class="va">...</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># S3 method for class 'MizerSim'</span></span>
-<span><span class="fu">plotBiomass</span><span class="op">(</span></span>
-<span>  <span class="va">sim</span>,</span>
-<span>  species <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  start_time <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  end_time <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  y_ticks <span class="op">=</span> <span class="fl">6</span>,</span>
-<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
-<span>  total <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  background <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  highlight <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  log <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  return_data <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  use_cutoff <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  min_w <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">sim</span><span class="op">@</span><span class="va">params</span><span class="op">@</span><span class="va">w</span><span class="op">)</span>,</span>
-<span>  max_w <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">sim</span><span class="op">@</span><span class="va">params</span><span class="op">@</span><span class="va">w</span><span class="op">)</span>,</span>
-<span>  min_l <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  max_l <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  <span class="va">...</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">plotlyBiomass</span><span class="op">(</span></span>
-<span>  <span class="va">sim</span>,</span>
-<span>  species <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  start_time <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  end_time <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  y_ticks <span class="op">=</span> <span class="fl">6</span>,</span>
-<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
-<span>  total <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  background <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  highlight <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  log <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  use_cutoff <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  min_w <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">sim</span><span class="op">@</span><span class="va">params</span><span class="op">@</span><span class="va">w</span><span class="op">)</span>,</span>
-<span>  max_w <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">sim</span><span class="op">@</span><span class="va">params</span><span class="op">@</span><span class="va">w</span><span class="op">)</span>,</span>
-<span>  min_l <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  max_l <span class="op">=</span> <span class="cn">NULL</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plotBiomass</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-sim">sim<a class="anchor" aria-label="anchor" href="#arg-sim"></a></dt>
+<dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
 <dd><p>An object of class <a href="MizerSim-class.html">MizerSim</a></p></dd>
 
 
@@ -231,9 +192,7 @@ returned.</p>
 <code><a href="addPlot.html">addPlot()</a></code>,
 <code><a href="animate.html">animate.ArrayTimeBySpeciesBySize()</a></code>,
 <code><a href="plot.html">plot</a></code>,
-<code><a href="plot2.html">plot2()</a></code>,
 <code><a href="plotCDF.html">plotCDF()</a></code>,
-<code><a href="plotCDF2.html">plotCDF2()</a></code>,
 <code><a href="plotDiet.html">plotDiet()</a></code>,
 <code><a href="plotFMort.html">plotFMort()</a></code>,
 <code><a href="plotFeedingLevel.html">plotFeedingLevel()</a></code>,
@@ -241,10 +200,7 @@ returned.</p>
 <code><a href="plotMizerParams.html">plotMizerParams</a></code>,
 <code><a href="plotMizerSim.html">plotMizerSim</a></code>,
 <code><a href="plotPredMort.html">plotPredMort()</a></code>,
-<code><a href="plotRelative.html">plotRelative()</a></code>,
 <code><a href="plotSpectra.html">plotSpectra()</a></code>,
-<code><a href="plotSpectra2.html">plotSpectra2()</a></code>,
-<code><a href="plotSpectraRelative.html">plotSpectraRelative()</a></code>,
 <code><a href="plotYield.html">plotYield()</a></code>,
 <code><a href="plotYieldGear.html">plotYieldGear()</a></code>,
 <code><a href="plotting_functions.html">plotting_functions</a></code></p></div>

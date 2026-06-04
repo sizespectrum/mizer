@@ -4,107 +4,31 @@
 \name{plot}
 \alias{plot}
 \alias{plot.ArraySpeciesBySize}
+\alias{plot2}
+\alias{plot2.ArraySpeciesBySize}
+\alias{plotRelative}
+\alias{plotRelative.ArraySpeciesBySize}
 \alias{ggplotly.ArraySpeciesBySize}
 \alias{plot.ArrayTimeBySpecies}
+\alias{plot2.ArrayTimeBySpecies}
+\alias{plotRelative.ArrayTimeBySpecies}
 \alias{ggplotly.ArrayTimeBySpecies}
 \alias{plot.ArrayTimeBySpeciesBySize}
+\alias{plot2.ArrayTimeBySpeciesBySize}
+\alias{plotRelative.ArrayTimeBySpeciesBySize}
 \alias{ggplotly.ArrayTimeBySpeciesBySize}
-\title{Plotting outputs}
+\title{Plot, compare or show relative difference of mizer arrays}
 \usage{
-\method{plot}{ArraySpeciesBySize}(
-  x,
-  species = NULL,
-  all.sizes = FALSE,
-  highlight = NULL,
-  return_data = FALSE,
-  log_x = TRUE,
-  log_y = FALSE,
-  log = NULL,
-  wlim = c(NA, NA),
-  llim = c(NA, NA),
-  ylim = c(NA, NA),
-  size_axis = c("w", "l"),
-  total = FALSE,
-  background = TRUE,
-  y_ticks = 6,
-  ...
-)
+plot(x, ...)
 
-\method{ggplotly}{ArraySpeciesBySize}(
-  p = ggplot2::last_plot(),
-  width = NULL,
-  height = NULL,
-  tooltip = "all",
-  dynamicTicks = FALSE,
-  layerData = 1,
-  originalData = TRUE,
-  source = "A",
-  ...
-)
+plot2(x, y, ...)
 
-\method{plot}{ArrayTimeBySpecies}(
-  x,
-  species = NULL,
-  start_time = NULL,
-  end_time = NULL,
-  y_ticks = 6,
-  ylim = c(NA, NA),
-  total = FALSE,
-  background = TRUE,
-  highlight = NULL,
-  log_x = FALSE,
-  log_y = TRUE,
-  log = NULL,
-  return_data = FALSE,
-  ...
-)
-
-\method{ggplotly}{ArrayTimeBySpecies}(
-  p = ggplot2::last_plot(),
-  width = NULL,
-  height = NULL,
-  tooltip = "all",
-  dynamicTicks = FALSE,
-  layerData = 1,
-  originalData = TRUE,
-  source = "A",
-  ...
-)
-
-\method{plot}{ArrayTimeBySpeciesBySize}(
-  x,
-  species = NULL,
-  time = NULL,
-  all.sizes = FALSE,
-  highlight = NULL,
-  return_data = FALSE,
-  log_x = TRUE,
-  log_y = FALSE,
-  log = NULL,
-  wlim = c(NA, NA),
-  llim = c(NA, NA),
-  ylim = c(NA, NA),
-  size_axis = c("w", "l"),
-  total = FALSE,
-  background = TRUE,
-  y_ticks = 6,
-  ...
-)
-
-\method{ggplotly}{ArrayTimeBySpeciesBySize}(
-  p = ggplot2::last_plot(),
-  width = NULL,
-  height = NULL,
-  tooltip = "all",
-  dynamicTicks = FALSE,
-  layerData = 1,
-  originalData = TRUE,
-  source = "A",
-  ...
-)
+plotRelative(x, y, ...)
 }
 \arguments{
-\item{x}{An \code{ArraySpeciesBySize} or \code{ArrayTimeBySpecies} object.}
+\item{x}{For \code{plot()}, an \code{ArraySpeciesBySize}, \code{ArrayTimeBySpecies}, or
+\code{ArrayTimeBySpeciesBySize} object. For \code{plot2()} and \code{plotRelative()},
+the first of two compatible mizer array objects to compare.}
 
 \item{species}{Character vector of species to include. \code{NULL} (default) means
 all species.}
@@ -152,6 +76,12 @@ Default is \code{TRUE}.}
 
 \item{...}{Further arguments (currently unused).}
 
+\item{y}{For \code{plot2()} and \code{plotRelative()}, the second mizer array object,
+compatible with \code{x}.}
+
+\item{name1, name2}{Labels for the two objects, used in the linetype legend
+of \code{plot2()}.}
+
 \item{p}{An \code{ArraySpeciesBySize}, \code{ArrayTimeBySpecies} or
 \code{ArrayTimeBySpeciesBySize} object passed to \code{ggplotly()}.}
 
@@ -170,6 +100,8 @@ Only applies to \code{ArrayTimeBySpeciesBySize}.}
 \code{plot()} returns a ggplot2 object, unless \code{return_data = TRUE}, in
 which case a data frame is returned.
 
+\code{plot2()} and \code{plotRelative()} return a ggplot2 object.
+
 \code{ggplotly()} returns a plotly object.
 }
 \description{
@@ -179,6 +111,15 @@ showing the values against size or against time (depending on the type of
 output). \code{ggplotly()} creates an interactive version of the same figure.
 }
 \details{
+\code{plot2()} compares two compatible mizer array objects in a single ggplot.
+Colours identify species or groups, and linetype identifies which object
+the values came from.
+
+\code{plotRelative()} plots the difference between two compatible mizer array
+objects relative to their average. If the values in the first object are
+\eqn{N_1} and the values in the second are \eqn{N_2}, it plots
+\deqn{2 (N_2 - N_1) / (N_1 + N_2).}
+
 This works because the mizer functions that give values that depend on
 species and size return an \code{ArraySpeciesBySize} object and those that
 give values that depend on species and time return an \code{ArrayTimeBySpecies}
@@ -206,7 +147,6 @@ plot(getYield(NS_sim), species = c("Cod", "Herring"))
 ggplotly(getBiomass(NS_sim))
 }
 \donttest{
-plot(getFMort(NS_sim))
 plot(getFMort(NS_sim), time = 2010)
 }
 \donttest{
@@ -217,10 +157,8 @@ ggplotly(getFMort(NS_sim))
 Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
 \code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
-\code{\link[=plot2]{plot2()}},
 \code{\link[=plotBiomass]{plotBiomass()}},
 \code{\link[=plotCDF]{plotCDF()}},
-\code{\link[=plotCDF2]{plotCDF2()}},
 \code{\link[=plotDiet]{plotDiet()}},
 \code{\link[=plotFMort]{plotFMort()}},
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}},
@@ -228,10 +166,7 @@ Other plotting functions:
 \code{\link{plotMizerParams}},
 \code{\link{plotMizerSim}},
 \code{\link[=plotPredMort]{plotPredMort()}},
-\code{\link[=plotRelative]{plotRelative()}},
 \code{\link[=plotSpectra]{plotSpectra()}},
-\code{\link[=plotSpectra2]{plotSpectra2()}},
-\code{\link[=plotSpectraRelative]{plotSpectraRelative()}},
 \code{\link[=plotYield]{plotYield()}},
 \code{\link[=plotYieldGear]{plotYieldGear()}},
 \code{\link{plotting_functions}}
