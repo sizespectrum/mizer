@@ -173,6 +173,19 @@ test_that("plotSpectra2 supports base plot log argument", {
                  "`log` must be a character string")
 })
 
+test_that("comparison helpers preserve non-size x variables", {
+    p <- plot2(getBiomass(NS_sim), getBiomass(NS_sim), species = "Cod")
+    expect_s3_class(p, "ggplot")
+    expect_true("Year" %in% names(p$data))
+    expect_error(ggplot2::ggplot_build(p), NA)
+
+    p_rel <- plotRelative(getBiomass(NS_sim), getBiomass(NS_sim),
+                          species = "Cod")
+    expect_s3_class(p_rel, "ggplot")
+    expect_true("Year" %in% names(p_rel$data))
+    expect_error(ggplot2::ggplot_build(p_rel), NA)
+})
+
 test_that("plotSpectraRelative plots symmetric relative difference", {
     params2 <- params
     params2@initial_n[] <- params@initial_n * 2
@@ -282,6 +295,94 @@ test_that("plotCDF2 compares cumulative distributions", {
     p_log_y2 <- plotCDF2(params, sim, species = species, resource = FALSE,
                          log = "y")
     expect_identical(p_log_y2$scales$get_scales("y")$trans$name, "log-10")
+})
+
+test_that("size-based plots support length axes", {
+    params_len <- params
+    params_len@species_params$a <- 0.01
+    params_len@species_params$b <- 3
+    sim_len <- sim
+    sim_len@params <- params_len
+
+    spectra_w <- plotSpectra(params_len, species = species, resource = FALSE,
+                             total = FALSE, return_data = TRUE)
+    spectra_l <- plotSpectra(params_len, species = species, resource = FALSE,
+                             total = FALSE, size_axis = "l",
+                             return_data = TRUE)
+    expect_true("l" %in% names(spectra_l))
+    expect_false("w" %in% names(spectra_l))
+    sp_idx <- match(as.character(spectra_w$Species),
+                    as.character(params_len@species_params$species))
+    expected_l <- w2l(spectra_w$w,
+                      params_len@species_params[sp_idx, , drop = FALSE])
+    expect_equal(spectra_l$l, expected_l)
+
+    llim <- stats::quantile(spectra_l$l, c(0.25, 0.75), names = FALSE)
+    spectra_l_limited <- plotSpectra(params_len, species = species,
+                                     resource = FALSE, total = FALSE,
+                                     size_axis = "l", llim = llim,
+                                     return_data = TRUE)
+    expect_true(all(spectra_l_limited$l >= llim[1]))
+    expect_true(all(spectra_l_limited$l <= llim[2]))
+
+    spectra_hidden <- plotSpectra(params_len, species = species,
+                                  resource = TRUE, total = TRUE,
+                                  size_axis = "l", return_data = TRUE)
+    expect_false(any(spectra_hidden$Legend %in% c("Resource", "Total")))
+
+    p <- plotSpectra(params_len, species = species, resource = FALSE,
+                     size_axis = "l")
+    expect_identical(p$scales$get_scales("x")$name, "Length [cm]")
+    expect_identical(p$scales$get_scales("x")$trans$name, "log-10")
+
+    expect_true("l" %in% names(plotCDF(params_len, species = species,
+                                       resource = FALSE, size_axis = "l",
+                                       return_data = TRUE)))
+    cdf_l_limited <- plotCDF(params_len, species = species, resource = FALSE,
+                             size_axis = "l", llim = llim,
+                             return_data = TRUE)
+    expect_true(all(cdf_l_limited$l >= llim[1]))
+    expect_true(all(cdf_l_limited$l <= llim[2]))
+    expect_equal(stats::aggregate(value ~ Species, cdf_l_limited, max)$value,
+                 rep(1, length(unique(cdf_l_limited$Species))))
+    expect_true("l" %in% names(plotSpectra2(params_len, params_len,
+                                            species = species,
+                                            resource = FALSE,
+                                            size_axis = "l")$data))
+    expect_true("l" %in% names(plotCDF2(params_len, params_len,
+                                        species = species,
+                                        resource = FALSE,
+                                        size_axis = "l")$data))
+    expect_true("l" %in% names(plotSpectraRelative(params_len, params_len,
+                                                   species = species,
+                                                   resource = FALSE,
+                                                   size_axis = "l")$data))
+
+    expect_true("l" %in% names(plotFeedingLevel(params_len, species = species,
+                                                size_axis = "l",
+                                                return_data = TRUE)))
+    expect_true("l" %in% names(plotPredMort(params_len, species = species,
+                                            size_axis = "l",
+                                            return_data = TRUE)))
+    expect_true("l" %in% names(plotFMort(params_len, species = species,
+                                         size_axis = "l",
+                                         return_data = TRUE)))
+    expect_true("l" %in% names(plotDiet(params_len, species = species[[1]],
+                                        size_axis = "l",
+                                        return_data = TRUE)))
+    expect_true(all(plotDiet(params_len, species = species[[1]],
+                             size_axis = "l", llim = llim,
+                             return_data = TRUE)$l >= llim[1]))
+    expect_true("l" %in% names(plot(getPredMort(params_len),
+                                    species = species, size_axis = "l",
+                                    return_data = TRUE)))
+    rate_l_limited <- plot(getPredMort(params_len), species = species,
+                           size_axis = "l", llim = llim,
+                           return_data = TRUE)
+    expect_true(all(rate_l_limited$l >= llim[1]))
+    expect_true(all(rate_l_limited$l <= llim[2]))
+    expect_true("l" %in% names(plot(getFMort(sim_len), species = species,
+                                    size_axis = "l", return_data = TRUE)))
 })
 
 test_that("yield plotting helpers validate comparison and gear selection", {
@@ -477,6 +578,10 @@ test_that("axis limits are set correctly", {
     expect_equal(p$scales$scales[[2]]$limits[2], log10(max(params@w_full)))
     expect_true(is.na(p$scales$scales[[1]]$limits[1]))
     expect_equal(p$scales$scales[[1]]$limits[2], 8)
+
+    p <- plotSpectra(sim, species = species, resource = FALSE,
+                     size_axis = "l", llim = c(10, 100))
+    expect_equal(p$scales$scales[[2]]$limits, c(1, 2))
 
     # Default wlim lower depends on resource argument
     p_res <- plotSpectra(sim, species = species, return_data = TRUE)

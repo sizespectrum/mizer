@@ -14,8 +14,10 @@
   time_range = NULL,
   log_x = TRUE,
   wlim = c(NA, NA),
+  llim = c(NA, NA),
   ylim = c(NA, NA),
   log_y = TRUE,
+  size_axis = c("w", "l"),
   total = FALSE,
   background = TRUE,
   frame_duration = 500,
@@ -33,7 +35,9 @@ animate(x, ...)
   log_x = TRUE,
   log_y = TRUE,
   wlim = c(NA, NA),
+  llim = c(NA, NA),
   ylim = c(NA, NA),
+  size_axis = c("w", "l"),
   power = 1,
   total = FALSE,
   resource = TRUE,
@@ -62,6 +66,10 @@ range. Default is the entire time range of \code{x}.}
 for the body-size (x) axis. Use \code{NA} to refer to the existing minimum or
 maximum.}
 
+\item{llim}{A numeric vector of length two providing lower and upper limits
+for the length (x) axis when \code{size_axis = "l"}. Use \code{NA} to refer to the
+existing minimum or maximum.}
+
 \item{ylim}{A numeric vector of length two providing lower and upper limits
 for the value (y) axis. Use \code{NA} to refer to the existing minimum or
 maximum. Limits are applied as Plotly axis ranges, so points outside the
@@ -69,6 +77,9 @@ limits are clipped by the viewport rather than removed from the animation
 frames.}
 
 \item{log_y}{If \code{TRUE} (default), use a log10 y-axis.}
+
+\item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
+(\code{"l"}), using the allometric weight-length relationship.}
 
 \item{total}{A boolean value that determines whether the total over all
 selected species is plotted as an additional trace called \code{"Total"}.

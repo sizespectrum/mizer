@@ -143,7 +143,9 @@ plot.ArrayTimeBySpeciesBySize <- function(x, species = NULL, time = NULL,
                                           all.sizes = FALSE, highlight = NULL,
                                           return_data = FALSE, log_x = TRUE,
                                           log_y = FALSE, log = NULL,
-                                          wlim = c(NA, NA), ylim = c(NA, NA),
+                                          wlim = c(NA, NA), llim = c(NA, NA),
+                                          ylim = c(NA, NA),
+                                          size_axis = c("w", "l"),
                                           total = FALSE, background = TRUE,
                                           y_ticks = 6, ...) {
     params <- attr(x, "params")
@@ -167,8 +169,10 @@ plot.ArrayTimeBySpeciesBySize <- function(x, species = NULL, time = NULL,
     plot.ArraySpeciesBySize(slice, species = species, all.sizes = all.sizes,
                             highlight = highlight, return_data = return_data,
                             log_x = log_x, log_y = log_y, log = log,
-                            wlim = wlim, ylim = ylim, total = total,
-                            background = background, y_ticks = y_ticks, ...)
+                            wlim = wlim, ylim = ylim, llim = llim,
+                            size_axis = size_axis,
+                            total = total, background = background,
+                            y_ticks = y_ticks, ...)
 }
 
 #' @rdname plot2
@@ -183,7 +187,9 @@ plot2.ArrayTimeBySpeciesBySize <- function(x, y, name1 = "First",
                                            log_x = TRUE, log_y = FALSE,
                                            log = NULL,
                                            wlim = c(NA, NA),
+                                           llim = c(NA, NA),
                                            ylim = c(NA, NA),
+                                           size_axis = c("w", "l"),
                                            total = FALSE,
                                            background = TRUE,
                                            y_ticks = 6, ...) {
@@ -194,7 +200,8 @@ plot2.ArrayTimeBySpeciesBySize <- function(x, y, name1 = "First",
     plot2.ArraySpeciesBySize(slice1, slice2, name1 = name1, name2 = name2,
                              species = species, all.sizes = all.sizes,
                              log_x = log_x, log_y = log_y, log = log,
-                             wlim = wlim, ylim = ylim, total = total,
+                             wlim = wlim, ylim = ylim, llim = llim,
+                             size_axis = size_axis, total = total,
                              background = background, y_ticks = y_ticks, ...)
 }
 
@@ -208,7 +215,9 @@ plotRelative.ArrayTimeBySpeciesBySize <- function(x, y, species = NULL,
                                                   all.sizes = FALSE,
                                                   log_x = TRUE,
                                                   wlim = c(NA, NA),
+                                                  llim = c(NA, NA),
                                                   ylim = c(NA, NA),
+                                                  size_axis = c("w", "l"),
                                                   total = FALSE,
                                                   background = TRUE, ...) {
     check_plot2_compatible(x, y, "ArrayTimeBySpeciesBySize")
@@ -217,7 +226,8 @@ plotRelative.ArrayTimeBySpeciesBySize <- function(x, y, species = NULL,
 
     plotRelative.ArraySpeciesBySize(slice1, slice2, species = species,
                                     all.sizes = all.sizes, log_x = log_x,
-                                    wlim = wlim, ylim = ylim,
+                                    wlim = wlim, ylim = ylim, llim = llim,
+                                    size_axis = size_axis,
                                     total = total, background = background,
                                     ...)
 }
@@ -267,8 +277,10 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
                                              time_range = NULL,
                                              log_x = TRUE,
                                              wlim = c(NA, NA),
+                                             llim = c(NA, NA),
                                              ylim = c(NA, NA),
                                              log_y = TRUE,
+                                             size_axis = c("w", "l"),
                                              total = FALSE,
                                              background = TRUE,
                                              frame_duration = 500,
@@ -279,7 +291,8 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
                 is.number(frame_duration), frame_duration >= 0,
                 is.number(transition_duration), transition_duration >= 0,
                 is.string(easing),
-                length(wlim) == 2, length(ylim) == 2)
+                length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
+    size_axis <- plot_size_axis(size_axis)
 
     params <- attr(x, "params")
     value_name <- attr(x, "value_name") %||% "Value"
@@ -349,8 +362,12 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
         y_label <- paste0(value_name, " [", units_str, "]")
     }
 
-    animate_plotly(df, params, log_x, log_y, y_label, wlim, ylim,
-                   frame_duration, transition_duration, easing)
+    animate_plotly(df, params, log_x, log_y, y_label, wlim, llim,
+                   ylim,
+                   size_axis = size_axis,
+                   frame_duration = frame_duration,
+                   transition_duration = transition_duration,
+                   easing = easing)
 }
 
 #' @export

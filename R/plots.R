@@ -131,7 +131,7 @@
 NULL
 
 # Hackiness to get past the 'no visible binding ... ' warning when running check
-utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
+utils::globalVariables(c("time", "value", "Species", "w", "l", "gear", "Age",
                          "x", "y", "Year", "Yield", "Biomass", "Size",
                          "Proportion", "Prey", "Legend", "Type", "Gear",
                          "Predator", "weight", "a", "b", "age", "w_max",
@@ -294,7 +294,8 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                                     xlab = waiver(), ylab = waiver(),
                                     xtrans = "identity", ytrans = "identity",
                                     xlim = c(NA, NA), ylim = c(NA, NA),
-                                    y_ticks = 6, legend_var = "Legend") {
+                                    y_ticks = 6, legend_var = "Legend",
+                                    size_axis = NULL) {
     assert_that(is.data.frame(frame1),
                 is.data.frame(frame2),
                 is(params, "MizerParams"))
@@ -313,6 +314,12 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
     if (!(legend_var %in% var_names)) {
         stop("The `legend_var` argument must be the name of a variable ",
              "in the data frame.")
+    }
+    if (!is.null(size_axis)) {
+        size_axis <- plot_size_axis(size_axis)
+        frame <- convert_plot_size_axis(frame, params, size_axis,
+                                        species_col = group_var)
+        x_var <- plot_size_x_var(size_axis)
     }
 
     legend_levels <- intersect(names(params@linecolour), frame[[legend_var]])
@@ -348,7 +355,8 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
                                   xtrans = "identity",
                                   xlim = c(NA, NA),
                                   ylim = c(NA, NA),
-                                  legend_var = "Legend") {
+                                  legend_var = "Legend",
+                                  size_axis = NULL) {
     assert_that(is.data.frame(frame1),
                 is.data.frame(frame2),
                 is(params, "MizerParams"))
@@ -370,6 +378,12 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
     frame$rel_diff <- relative_difference(frame[[paste0(y_var, ".x")]],
                                           frame[[paste0(y_var, ".y")]])
     frame <- frame[is.finite(frame$rel_diff), ]
+    if (!is.null(size_axis)) {
+        size_axis <- plot_size_axis(size_axis)
+        frame <- convert_plot_size_axis(frame, params, size_axis,
+                                        species_col = group_var)
+        x_var <- plot_size_x_var(size_axis)
+    }
 
     legend_levels <- intersect(names(params@linecolour), frame[[legend_var]])
     frame[[legend_var]] <- factor(frame[[legend_var]], levels = legend_levels)
@@ -419,6 +433,76 @@ log_breaks <- function(n = 6) {
         grDevices::axisTicks(log10(range(x, na.rm = TRUE)),
                              log = TRUE, nint = n)
     }
+}
+
+plot_size_axis <- function(size_axis = "w") {
+    match.arg(size_axis, c("w", "l"))
+}
+
+plot_size_x_var <- function(size_axis) {
+    if (identical(plot_size_axis(size_axis), "l")) "l" else "w"
+}
+
+plot_size_xlab <- function(size_axis) {
+    if (identical(plot_size_axis(size_axis), "l")) "Length [cm]" else "Size [g]"
+}
+
+plot_size_xlim <- function(wlim, size_axis, llim = c(NA, NA)) {
+    if (identical(plot_size_axis(size_axis), "l")) llim else wlim
+}
+
+filter_plot_length_limits <- function(plot_dat, llim) {
+    if (!"l" %in% names(plot_dat)) {
+        return(plot_dat)
+    }
+    if (!is.na(llim[1])) plot_dat <- plot_dat[plot_dat$l >= llim[1], ]
+    if (!is.na(llim[2])) plot_dat <- plot_dat[plot_dat$l <= llim[2], ]
+    plot_dat
+}
+
+plot_size_tooltip <- function(size_axis, before = NULL, after = NULL) {
+    c(before, plot_size_x_var(size_axis), after)
+}
+
+convert_plot_size_axis <- function(plot_dat, params, size_axis,
+                                   species_col = "Species",
+                                   drop_w = TRUE) {
+    size_axis <- plot_size_axis(size_axis)
+    if (identical(size_axis, "w")) {
+        return(plot_dat)
+    }
+    if (!is(params, "MizerParams")) {
+        stop("Length-axis plots need a MizerParams object.")
+    }
+    if (!"w" %in% names(plot_dat)) {
+        stop("Length-axis plots need plotting data with a `w` column.")
+    }
+    if (!species_col %in% names(plot_dat)) {
+        stop("Length-axis plots need plotting data with a `", species_col,
+             "` column.")
+    }
+
+    species <- as.character(plot_dat[[species_col]])
+    species_idx <- match(species, as.character(params@species_params$species))
+    plot_dat <- plot_dat[!is.na(species_idx), , drop = FALSE]
+    species_idx <- species_idx[!is.na(species_idx)]
+    if (nrow(plot_dat) == 0) {
+        if (!drop_w) {
+            plot_dat$l <- numeric(0)
+            return(plot_dat[, c("l", "w",
+                                setdiff(names(plot_dat), c("l", "w"))),
+                            drop = FALSE])
+        }
+        return(plot_dat[, setdiff(names(plot_dat), "w"), drop = FALSE])
+    }
+    sp <- params@species_params[species_idx, , drop = FALSE]
+    plot_dat$l <- w2l(plot_dat$w, sp)
+    if (drop_w) {
+        return(plot_dat[, c("l", setdiff(names(plot_dat), c("l", "w"))),
+                        drop = FALSE])
+    }
+    plot_dat[, c("l", "w", setdiff(names(plot_dat), c("l", "w"))),
+             drop = FALSE]
 }
 
 
@@ -751,6 +835,10 @@ plotlyYieldGear <- function(sim, species = NULL,
 #'   the fish grid) or `min(params@w)` when `resource = FALSE`; the upper
 #'   default is `max(params@w_full)`. Data is filtered to this range and the
 #'   axis limits are set accordingly.
+#' @param llim A numeric vector of length two providing lower and upper limits
+#'   for the length axis when `size_axis = "l"`. Use `NA` to auto-scale to the
+#'   data range. Data is filtered to this range and the axis limits are set
+#'   accordingly.
 #' @param ylim A numeric vector of length two providing lower and upper limits
 #'   for the y axis. Use NA to auto-scale to the data range. Values below 1e-20
 #'   are always filtered out from the data regardless of `ylim[1]`. Data above
@@ -778,13 +866,15 @@ plotlyYieldGear <- function(sim, species = NULL,
 #' @param log Character string specifying which axes should use log10 scales,
 #'   in the same form as the base [plot()] argument. For example, `"x"`,
 #'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
+#' @param size_axis Whether to plot size as weight (`"w"`, default) or length
+#'   (`"l"`), using the allometric weight-length relationship.
 #' @param return_data A boolean value that determines whether the formatted data
 #' used for the plot is returned instead of the plot itself. Default value is FALSE
 #' @param ... Other arguments (currently unused)
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
-#'   frame with the four variables 'w', 'value', 'Species', 'Legend' is
-#'   returned.
+#'   frame with the four variables 'w' (or 'l' if `size_axis = "l"`), 'value',
+#'   'Species', 'Legend' is returned.
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions]
@@ -797,6 +887,7 @@ plotlyYieldGear <- function(sim, species = NULL,
 #' plotSpectra(sim, time_range = 10:20)
 #' plotSpectra(sim, time_range = 10:20, power = 0)
 #' plotSpectra(sim, species = c("Cod", "Herring"), power = 1)
+#' plotSpectra(sim, species = c("Cod", "Herring"), size_axis = "l")
 #'
 #' # Returning the data frame
 #' fr <- plotSpectra(sim, return_data = TRUE)
@@ -813,16 +904,19 @@ plotSpectra <- function(object, ...) {
 plotSpectra.MizerSim <- function(object, species = NULL,
                         time_range,
                         geometric_mean = FALSE,
-                        wlim = c(NA, NA), ylim = c(NA, NA),
+                        wlim = c(NA, NA), llim = c(NA, NA),
+                        ylim = c(NA, NA),
                         power = 1, biomass = TRUE,
                         total = FALSE, resource = TRUE,
                         background = TRUE,
                         highlight = NULL, log_x = TRUE, log_y = TRUE,
-                        log = NULL, return_data = FALSE, ...) {
+                        log = NULL, size_axis = c("w", "l"),
+                        return_data = FALSE, ...) {
     # to deal with old-type biomass argument
     if (missing(power)) {
         power <- as.numeric(biomass)
     }
+    size_axis <- plot_size_axis(size_axis)
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
@@ -831,6 +925,7 @@ plotSpectra.MizerSim <- function(object, species = NULL,
                 is.flag(background),
                 is.number(power),
                 length(wlim) == 2,
+                length(llim) == 2,
                 length(ylim) == 2)
     species <- valid_species_arg(object, species)
     if (length(species) == 0 && !total && !resource) {
@@ -850,25 +945,30 @@ plotSpectra.MizerSim <- function(object, species = NULL,
     n_pp <- apply(object@n_pp[time_elements, , drop = FALSE], 2, mean_fn)
     plot_spectra(object@params, n = n, n_pp = n_pp,
                  species = species, wlim = wlim, ylim = ylim,
+                 llim = llim,
                  power = power, total = total, resource = resource,
                  background = background, highlight = highlight,
                  log_x = log_x, log_y = log_y,
+                 size_axis = size_axis,
                  return_data = return_data)
 }
 
 #' @rdname plotSpectra
 #' @export
 plotSpectra.MizerParams <- function(object, species = NULL,
-                        wlim = c(NA, NA), ylim = c(NA, NA),
+                        wlim = c(NA, NA), llim = c(NA, NA),
+                        ylim = c(NA, NA),
                         power = 1, biomass = TRUE,
                         total = FALSE, resource = TRUE,
                         background = TRUE,
                         highlight = NULL, log_x = TRUE, log_y = TRUE,
-                        log = NULL, return_data = FALSE, ...) {
+                        log = NULL, size_axis = c("w", "l"),
+                        return_data = FALSE, ...) {
     # to deal with old-type biomass argument
     if (missing(power)) {
         power <- as.numeric(biomass)
     }
+    size_axis <- plot_size_axis(size_axis)
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
@@ -877,6 +977,7 @@ plotSpectra.MizerParams <- function(object, species = NULL,
                 is.flag(background),
                 is.number(power),
                 length(wlim) == 2,
+                length(llim) == 2,
                 length(ylim) == 2)
     species <- valid_species_arg(object, species)
     if (length(species) == 0 && !total && !resource) {
@@ -885,18 +986,21 @@ plotSpectra.MizerParams <- function(object, species = NULL,
     plot_spectra(object, n = object@initial_n,
                  n_pp = object@initial_n_pp,
                  species = species, wlim = wlim, ylim = ylim,
+                 llim = llim,
                  power = power, total = total, resource = resource,
                  background = background, highlight = highlight,
                  log_x = log_x, log_y = log_y,
+                 size_axis = size_axis,
                  return_data = return_data)
 }
 
 
 plot_spectra <- function(params, n, n_pp,
-                         species, wlim, ylim, power,
+                         species, wlim, llim, ylim, power,
                          total, resource, background,
-                         highlight, log_x, log_y, return_data) {
+                         highlight, log_x, log_y, size_axis, return_data) {
     params <- validParams(params)
+    size_axis <- plot_size_axis(size_axis)
     if (is.na(wlim[1])) {
         wlim[1] <- if (resource) min(params@w) / 100 else min(params@w)
     }
@@ -967,13 +1071,18 @@ plot_spectra <- function(params, n, n_pp,
     }
     filter_min <- if (is.na(ylim[1])) 1e-20 else ylim[1]
     plot_dat <- plot_dat[plot_dat$value > filter_min, ]
+    plot_dat <- convert_plot_size_axis(plot_dat, params, size_axis)
+    if (identical(size_axis, "l")) {
+        plot_dat <- filter_plot_length_limits(plot_dat, llim)
+    }
 
     if (return_data) return(plot_dat)
 
-    plotDataFrame(plot_dat, params, xlab = "Size [g]", ylab = y_label,
+    plotDataFrame(plot_dat, params, xlab = plot_size_xlab(size_axis),
+                  ylab = y_label,
                   xtrans = if (log_x) "log10" else "identity",
                   ytrans = if (log_y) "log10" else "identity",
-                  xlim = wlim, ylim = ylim,
+                  xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
                   highlight = highlight, legend_var = "Legend")
 }
 
@@ -998,8 +1107,8 @@ plot_spectra <- function(params, n, n_pp,
 #'   `log_x` and `log_y`.
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
-#'   frame with the four variables 'w', 'value', 'Species', 'Legend' is
-#'   returned.
+#'   frame with the four variables 'w' (or 'l' if `size_axis = "l"`), 'value',
+#'   'Species', 'Legend' is returned.
 #' @export
 #' @family plotting functions
 #' @seealso [plotSpectra()]
@@ -1017,13 +1126,16 @@ plotCDF <- function(object, ...) {
 plotCDF.MizerSim <- function(object, species = NULL,
                              time_range,
                              geometric_mean = FALSE,
-                             wlim = c(NA, NA), ylim = c(NA, NA),
+                             wlim = c(NA, NA), llim = c(NA, NA),
+                             ylim = c(NA, NA),
                              power = 1, biomass = TRUE,
                              total = FALSE, resource = FALSE,
                              background = TRUE,
                              highlight = NULL, normalise = TRUE,
                              log_x = TRUE, log_y = FALSE, log = NULL,
+                             size_axis = c("w", "l"),
                              return_data = FALSE, ...) {
+    size_axis <- plot_size_axis(size_axis)
     if (missing(power)) {
         power <- as.numeric(biomass)
     }
@@ -1032,13 +1144,15 @@ plotCDF.MizerSim <- function(object, species = NULL,
                 is.flag(background), is.flag(normalise),
                 is.number(power),
                 length(wlim) == 2,
+                length(llim) == 2,
                 length(ylim) == 2)
 
     args <- list(object = object, species = species,
                  geometric_mean = geometric_mean,
-                 wlim = wlim, ylim = c(NA, NA),
+                 wlim = wlim, llim = llim, ylim = c(NA, NA),
                  power = power, total = total,
                  resource = resource, background = background,
+                 size_axis = "w",
                  return_data = TRUE)
     if (!missing(time_range)) {
         args$time_range <- time_range
@@ -1047,19 +1161,23 @@ plotCDF.MizerSim <- function(object, species = NULL,
     plot_cdf(plot_dat, object@params, power = power, normalise = normalise,
              log_x = log_axes$log_x, log_y = log_axes$log_y,
              wlim = wlim, ylim = ylim,
-             highlight = highlight, return_data = return_data)
+             llim = llim, highlight = highlight, size_axis = size_axis,
+             return_data = return_data)
 }
 
 #' @rdname plotCDF
 #' @export
 plotCDF.MizerParams <- function(object, species = NULL,
-                                wlim = c(NA, NA), ylim = c(NA, NA),
+                                wlim = c(NA, NA), llim = c(NA, NA),
+                                ylim = c(NA, NA),
                                 power = 1, biomass = TRUE,
                                 total = FALSE, resource = FALSE,
                                 background = TRUE,
                                 highlight = NULL, normalise = TRUE,
                                 log_x = TRUE, log_y = FALSE, log = NULL,
+                                size_axis = c("w", "l"),
                                 return_data = FALSE, ...) {
+    size_axis <- plot_size_axis(size_axis)
     if (missing(power)) {
         power <- as.numeric(biomass)
     }
@@ -1068,30 +1186,44 @@ plotCDF.MizerParams <- function(object, species = NULL,
                 is.flag(background), is.flag(normalise),
                 is.number(power),
                 length(wlim) == 2,
+                length(llim) == 2,
                 length(ylim) == 2)
 
     plot_dat <- plotSpectra(object, species = species,
                             wlim = wlim, ylim = c(NA, NA),
+                            llim = llim,
                             power = power, total = total,
                             resource = resource, background = background,
+                            size_axis = "w",
                             return_data = TRUE)
     plot_cdf(plot_dat, object, power = power, normalise = normalise,
              log_x = log_axes$log_x, log_y = log_axes$log_y,
              wlim = wlim, ylim = ylim,
-             highlight = highlight, return_data = return_data)
+             llim = llim, highlight = highlight, size_axis = size_axis,
+             return_data = return_data)
 }
 
-plot_cdf <- function(plot_dat, params, power, normalise, log_x, log_y, wlim,
-                     ylim, highlight, return_data) {
+plot_cdf <- function(plot_dat, params, power, normalise, log_x, log_y, wlim, llim,
+                     ylim, highlight, size_axis, return_data) {
+    size_axis <- plot_size_axis(size_axis)
+    if (identical(size_axis, "l")) {
+        plot_dat_l <- convert_plot_size_axis(plot_dat, params, size_axis,
+                                             drop_w = FALSE)
+        plot_dat_l <- filter_plot_length_limits(plot_dat_l, llim)
+        plot_dat <- plot_dat_l[, setdiff(names(plot_dat_l), "l"),
+                               drop = FALSE]
+    }
     cdf_dat <- prepare_spectra_cdf_data(plot_dat, params,
                                         normalise = normalise)
+    cdf_dat <- convert_plot_size_axis(cdf_dat, params, size_axis)
     if (return_data) return(cdf_dat)
 
     plotDataFrame(cdf_dat, validParams(params),
-                  xlab = "Size [g]", ylab = cdf_y_label(power, normalise),
+                  xlab = plot_size_xlab(size_axis),
+                  ylab = cdf_y_label(power, normalise),
                   xtrans = if (log_x) "log10" else "identity",
                   ytrans = if (log_y) "log10" else "identity",
-                  xlim = wlim, ylim = ylim,
+                  xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
                   highlight = highlight, legend_var = "Legend")
 }
 
@@ -1153,8 +1285,8 @@ cdf_y_label <- function(power, normalise) {
 #' @param name1,name2 Labels for the two objects, used in the linetype legend.
 #' @inheritParams plotCDF
 #' @param ... Arguments passed to [plotCDF()] for preparing the cumulative
-#'   distribution data, for example `species`, `time_range`, `wlim`,
-#'   `resource`, `background` or `total`.
+#'   distribution data, for example `time_range` or `geometric_mean` for
+#'   `MizerSim` objects.
 #'
 #' @return A ggplot2 object.
 #' @export
@@ -1167,29 +1299,39 @@ cdf_y_label <- function(power, normalise) {
 #' plotCDF2(sim1, sim2, "Original", "Effort = 0.5")
 #' }
 plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
-                     power = 1, normalise = TRUE, log_x = TRUE, log_y = FALSE,
-                     log = NULL, resource = FALSE, ...) {
+                     species = NULL,
+                     wlim = c(NA, NA), llim = c(NA, NA),
+                     ylim = c(NA, NA),
+                     power = 1,
+                     total = FALSE, resource = FALSE,
+                     background = TRUE,
+                     normalise = TRUE,
+                     log_x = TRUE, log_y = FALSE,
+                     log = NULL, size_axis = c("w", "l"), ...) {
+    size_axis <- plot_size_axis(size_axis)
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
-    assert_that(is.number(power), is.flag(normalise))
+    assert_that(is.number(power), is.flag(normalise),
+                length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
 
-    args <- list(...)
-    wlim <- args$wlim %||% c(NA, NA)
-    ylim <- args$ylim %||% c(NA, NA)
-
-    cf1 <- plotCDF(object1, power = power, normalise = normalise,
-                   return_data = TRUE, ...)
-    cf2 <- plotCDF(object2, power = power, normalise = normalise,
-                   return_data = TRUE, ...)
+    cf1 <- plotCDF(object1, species = species, wlim = wlim,
+                   power = power, total = total, resource = resource,
+                   background = background, normalise = normalise,
+                   size_axis = "w", return_data = TRUE, ...)
+    cf2 <- plotCDF(object2, species = species, wlim = wlim,
+                   power = power, total = total, resource = resource,
+                   background = background, normalise = normalise,
+                   size_axis = "w", return_data = TRUE, ...)
     params <- if (is(object1, "MizerSim")) object1@params else object1
 
     plotComparisonDataFrame(cf1, cf2, validParams(params),
                             name1 = name1, name2 = name2,
-                            xlab = "Size [g]",
+                            xlab = plot_size_xlab(size_axis),
                             ylab = cdf_y_label(power, normalise),
                             xtrans = if (log_axes$log_x) "log10" else "identity",
                             ytrans = if (log_axes$log_y) "log10" else "identity",
-                            xlim = wlim, ylim = ylim,
-                            legend_var = "Legend")
+                            xlim = plot_size_xlim(wlim, size_axis, llim),
+                            ylim = ylim, legend_var = "Legend",
+                            size_axis = size_axis)
 }
 
 #' Compare two size spectra in the same plot
@@ -1208,8 +1350,7 @@ plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
 #'   in the same form as the base [plot()] argument. For example, `"x"`,
 #'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
 #' @param ... Arguments passed to [plotSpectra()] for preparing the spectra
-#'   data, for example `species`, `time_range`, `wlim`, `ylim`, `resource`,
-#'   `background` or `total`.
+#'   data, for example `time_range` or `geometric_mean` for `MizerSim` objects.
 #'
 #' @return A ggplot2 object.
 #' @export
@@ -1222,28 +1363,39 @@ plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
 #' plotSpectra2(sim1, sim2, "Original", "Effort = 0.5")
 #' }
 plotSpectra2 <- function(object1, object2, name1 = "First", name2 = "Second",
-                         power = 1, log_x = TRUE, log_y = TRUE,
-                         log = NULL, ...) {
+                         species = NULL,
+                         wlim = c(NA, NA), llim = c(NA, NA),
+                         ylim = c(NA, NA),
+                         power = 1,
+                         total = FALSE, resource = TRUE,
+                         background = TRUE,
+                         log_x = TRUE, log_y = TRUE,
+                         log = NULL, size_axis = c("w", "l"), ...) {
+    size_axis <- plot_size_axis(size_axis)
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
+    assert_that(length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
 
-    args <- list(...)
-    wlim <- args$wlim %||% c(NA, NA)
-    ylim <- args$ylim %||% c(NA, NA)
-
-    sf1 <- plotSpectra(object1, power = power, return_data = TRUE, ...)
-    sf2 <- plotSpectra(object2, power = power, return_data = TRUE, ...)
+    sf1 <- plotSpectra(object1, species = species, wlim = wlim, ylim = ylim,
+                       power = power, total = total, resource = resource,
+                       background = background, size_axis = "w",
+                       return_data = TRUE, ...)
+    sf2 <- plotSpectra(object2, species = species, wlim = wlim, ylim = ylim,
+                       power = power, total = total, resource = resource,
+                       background = background, size_axis = "w",
+                       return_data = TRUE, ...)
     params <- if (is(object1, "MizerSim")) object1@params else object1
 
     plotComparisonDataFrame(sf1, sf2, validParams(params),
                             name1 = name1, name2 = name2,
-                            xlab = "Size [g]",
+                            xlab = plot_size_xlab(size_axis),
                             ylab = spectra_y_label(power),
                             xtrans = if (log_x) "log10" else "identity",
                             ytrans = if (log_y) "log10" else "identity",
-                            xlim = wlim, ylim = ylim,
-                            legend_var = "Legend")
+                            xlim = plot_size_xlim(wlim, size_axis, llim),
+                            ylim = ylim, legend_var = "Legend",
+                            size_axis = size_axis)
 }
 
 spectra_y_label <- function(power) {
@@ -1258,12 +1410,24 @@ spectra_y_label <- function(power) {
 #' @return `plotlySpectra2()` returns a plotly object.
 #' @export
 plotlySpectra2 <- function(object1, object2, name1 = "First",
-                           name2 = "Second", power = 1,
-                           log_x = TRUE, log_y = TRUE, log = NULL, ...) {
+                           name2 = "Second",
+                           species = NULL,
+                           wlim = c(NA, NA), llim = c(NA, NA),
+                           ylim = c(NA, NA),
+                           power = 1,
+                           total = FALSE, resource = TRUE,
+                           background = TRUE,
+                           log_x = TRUE, log_y = TRUE, log = NULL,
+                           size_axis = c("w", "l"), ...) {
+    size_axis <- plot_size_axis(size_axis)
     ggplotly(plotSpectra2(object1, object2, name1 = name1, name2 = name2,
-                          power = power, log_x = log_x, log_y = log_y,
-                          log = log, ...),
-             tooltip = c("Species", "w", "value", "Model"))
+                          species = species, wlim = wlim, llim = llim,
+                          ylim = ylim, power = power, total = total,
+                          resource = resource, background = background,
+                          log_x = log_x, log_y = log_y,
+                          log = log, size_axis = size_axis, ...),
+             tooltip = plot_size_tooltip(size_axis, before = "Species",
+                                         after = c("value", "Model")))
 }
 
 #' Plot the relative difference between two spectra
@@ -1274,11 +1438,6 @@ plotlySpectra2 <- function(object1, object2, name1 = "First",
 #' shows
 #' \deqn{2 (N_2(w) - N_1(w)) / (N_2(w) + N_1(w)).}
 #'
-#' The individual spectra are calculated by [plotSpectra()], to which all
-#' additional arguments are passed. For example, you can determine a time range
-#' over which to average simulation results via `time_range`. See
-#' [plotSpectra()] for more options.
-#'
 #' Note that it does not matter whether the relative difference is calculated
 #' for number density, biomass density, or biomass density in log weight,
 #' because the factors of \eqn{w} by which the densities differ cancel out in
@@ -1286,13 +1445,13 @@ plotlySpectra2 <- function(object1, object2, name1 = "First",
 #'
 #' @param object1 First `MizerParams` or `MizerSim` object.
 #' @param object2 Second `MizerParams` or `MizerSim` object.
+#' @inheritParams plotSpectra
 #' @param log_x If `TRUE` (default), use a log10 x-axis.
 #' @param ylim A numeric vector of length two providing lower and upper limits
 #'   for the relative difference (y) axis. Use `NA` to refer to the existing
 #'   minimum or maximum.
 #' @param ... Arguments passed to [plotSpectra()] for preparing the spectra
-#'   data, for example `species`, `time_range`, `wlim`, `resource`,
-#'   `background` or `total`.
+#'   data, for example `time_range` or `geometric_mean` for `MizerSim` objects.
 #'
 #' @return A ggplot2 object.
 #' @export
@@ -1304,29 +1463,55 @@ plotlySpectra2 <- function(object1, object2, name1 = "First",
 #' sim2 <- project(NS_params, effort = 0.5, t_max = 10, progress_bar = FALSE)
 #' plotSpectraRelative(sim1, sim2)
 #' }
-plotSpectraRelative <- function(object1, object2, log_x = TRUE,
-                                ylim = c(NA, NA), ...) {
-    args <- list(...)
-    wlim <- args$wlim %||% c(NA, NA)
+plotSpectraRelative <- function(object1, object2,
+                                species = NULL,
+                                wlim = c(NA, NA), llim = c(NA, NA),
+                                ylim = c(NA, NA),
+                                power = 1,
+                                total = FALSE, resource = TRUE,
+                                background = TRUE,
+                                log_x = TRUE,
+                                size_axis = c("w", "l"), ...) {
+    size_axis <- plot_size_axis(size_axis)
+    assert_that(length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
 
-    sf1 <- plotSpectra(object1, return_data = TRUE, ...)
-    sf2 <- plotSpectra(object2, return_data = TRUE, ...)
+    sf1 <- plotSpectra(object1, species = species, wlim = wlim,
+                       power = power, total = total, resource = resource,
+                       background = background, size_axis = "w",
+                       return_data = TRUE, ...)
+    sf2 <- plotSpectra(object2, species = species, wlim = wlim,
+                       power = power, total = total, resource = resource,
+                       background = background, size_axis = "w",
+                       return_data = TRUE, ...)
     params <- if (is(object1, "MizerSim")) object1@params else object1
 
     plotRelativeDataFrame(sf1, sf2, validParams(params),
-                          xlab = "Size [g]",
+                          xlab = plot_size_xlab(size_axis),
                           xtrans = if (log_x) "log10" else "identity",
-                          xlim = wlim, ylim = ylim,
-                          legend_var = "Legend")
+                          xlim = plot_size_xlim(wlim, size_axis, llim),
+                          ylim = ylim,
+                          legend_var = "Legend", size_axis = size_axis)
 }
 
 #' @rdname plotSpectraRelative
 #' @export
-plotlySpectraRelative <- function(object1, object2, log_x = TRUE,
-                                  ylim = c(NA, NA), ...) {
-    ggplotly(plotSpectraRelative(object1, object2, log_x = log_x,
-                                  ylim = ylim, ...),
-             tooltip = c("Legend", "w", "rel_diff"))
+plotlySpectraRelative <- function(object1, object2,
+                                  species = NULL,
+                                  wlim = c(NA, NA), llim = c(NA, NA),
+                                  ylim = c(NA, NA),
+                                  power = 1,
+                                  total = FALSE, resource = TRUE,
+                                  background = TRUE,
+                                  log_x = TRUE,
+                                  size_axis = c("w", "l"), ...) {
+    size_axis <- plot_size_axis(size_axis)
+    ggplotly(plotSpectraRelative(object1, object2, species = species,
+                                  wlim = wlim, llim = llim, ylim = ylim,
+                                  power = power, total = total,
+                                  resource = resource, background = background,
+                                  log_x = log_x, size_axis = size_axis, ...),
+             tooltip = plot_size_tooltip(size_axis, before = "Legend",
+                                         after = "rel_diff"))
 }
 
 #' @rdname plotCDF
@@ -1334,19 +1519,23 @@ plotlySpectraRelative <- function(object1, object2, log_x = TRUE,
 #' @export
 plotlyCDF <- function(object, species = NULL,
                       time_range, geometric_mean = FALSE,
-                      wlim = c(NA, NA), ylim = c(NA, NA),
+                      wlim = c(NA, NA), llim = c(NA, NA),
+                      ylim = c(NA, NA),
                       power = 1, biomass = TRUE,
                       total = FALSE, resource = FALSE,
                       background = TRUE,
                       highlight = NULL, normalise = TRUE,
-                      log_x = TRUE, log = NULL, ...) {
+                      log_x = TRUE, log = NULL,
+                      size_axis = c("w", "l"), ...) {
+    size_axis <- plot_size_axis(size_axis)
     args <- list(object = object, species = species,
                  geometric_mean = geometric_mean,
                  wlim = wlim, ylim = ylim,
                  biomass = biomass, total = total,
                  resource = resource, background = background,
                  highlight = highlight, normalise = normalise,
-                 log_x = log_x, log = log, ...)
+                 log_x = log_x, log = log, llim = llim,
+                 size_axis = size_axis, ...)
     if (!missing(time_range)) {
         args$time_range <- time_range
     }
@@ -1354,38 +1543,51 @@ plotlyCDF <- function(object, species = NULL,
         args$power <- power
     }
     ggplotly(do.call("plotCDF", args),
-             tooltip = c("Species", "w", "value"))
+             tooltip = plot_size_tooltip(size_axis, before = "Species",
+                                         after = "value"))
 }
 
 #' @rdname plotCDF2
 #' @return `plotlyCDF2()` returns a plotly object.
 #' @export
 plotlyCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
-                       power = 1, normalise = TRUE,
-                       log_x = TRUE, log = NULL, resource = FALSE, ...) {
-    args <- list(object1 = object1, object2 = object2,
-                 name1 = name1, name2 = name2,
-                 normalise = normalise, log_x = log_x, log = log, ...)
-    if (!missing(power)) {
-        args$power <- power
-    }
-    ggplotly(do.call("plotCDF2", args),
-             tooltip = c("Species", "w", "value", "Model"))
+                       species = NULL,
+                       wlim = c(NA, NA), llim = c(NA, NA),
+                       ylim = c(NA, NA),
+                       power = 1,
+                       total = FALSE, resource = FALSE,
+                       background = TRUE,
+                       normalise = TRUE,
+                       log_x = TRUE, log_y = FALSE,
+                       log = NULL, size_axis = c("w", "l"), ...) {
+    size_axis <- plot_size_axis(size_axis)
+    ggplotly(plotCDF2(object1, object2, name1 = name1, name2 = name2,
+                      species = species, wlim = wlim, llim = llim,
+                      ylim = ylim, power = power, total = total,
+                      resource = resource, background = background,
+                      normalise = normalise, log_x = log_x, log_y = log_y,
+                      log = log, size_axis = size_axis, ...),
+             tooltip = plot_size_tooltip(size_axis, before = "Species",
+                                         after = c("value", "Model")))
 }
 
 #' @rdname plotSpectra
 #' @export
 plotlySpectra <- function(object, species = NULL,
                         time_range, geometric_mean = FALSE,
-                        wlim = c(NA, NA), ylim = c(NA, NA),
+                        wlim = c(NA, NA), llim = c(NA, NA),
+                        ylim = c(NA, NA),
                         power = 1, biomass = TRUE,
                         total = FALSE, resource = TRUE,
                         background = TRUE,
                         highlight = NULL, log_x = TRUE, log_y = TRUE,
-                        log = NULL, ...) {
+                        log = NULL,
+                        size_axis = c("w", "l"), ...) {
+    size_axis <- plot_size_axis(size_axis)
     argg <- as.list(environment())
     ggplotly(do.call("plotSpectra", argg),
-             tooltip = c("Species", "w", "value"))
+             tooltip = plot_size_tooltip(size_axis, before = "Species",
+                                         after = "value"))
 }
 
 #' Plot the feeding level of species by size
@@ -1412,9 +1614,10 @@ plotlySpectra <- function(object, species = NULL,
 #'   plotted. Default FALSE.
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
-#'   frame with the variables 'w', 'value' and 'Species' is returned. If also
-#'   `include_critical = TRUE` then the data frame contains a fourth variable
-#'   'Type' that distinguishes between 'actual' and 'critical' feeding level.
+#'   frame with the variables 'w' (or 'l' if `size_axis = "l"`), 'value' and
+#'   'Species' is returned. If also `include_critical = TRUE` then the data
+#'   frame contains a fourth variable 'Type' that distinguishes between
+#'   'actual' and 'critical' feeding level.
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions], [getFeedingLevel()]
@@ -1441,9 +1644,14 @@ plotFeedingLevel <- function(object, ...) {
 plotFeedingLevel.MizerSim <- function(object, species = NULL,
             time_range, highlight = NULL,
             all.sizes = FALSE, include_critical = FALSE,
+            wlim = c(NA, NA), llim = c(NA, NA),
+            size_axis = c("w", "l"),
             return_data = FALSE, ...) {
+    size_axis <- plot_size_axis(size_axis)
     assert_that(is.flag(all.sizes),
                 is.flag(include_critical),
+                length(wlim) == 2,
+                length(llim) == 2,
                 is.flag(return_data))
     if (missing(time_range)) {
         time_range  <- max(as.numeric(dimnames(object@n)$time))
@@ -1457,6 +1665,8 @@ plotFeedingLevel.MizerSim <- function(object, species = NULL,
     plot_feeding_level(params, feed, species = species,
                        highlight = highlight, all.sizes = all.sizes,
                        include_critical = include_critical,
+                       wlim = wlim, llim = llim,
+                       size_axis = size_axis,
                        return_data = return_data)
 }
 
@@ -1465,21 +1675,29 @@ plotFeedingLevel.MizerSim <- function(object, species = NULL,
 plotFeedingLevel.MizerParams <- function(object, species = NULL,
             highlight = NULL,
             all.sizes = FALSE, include_critical = FALSE,
+            wlim = c(NA, NA), llim = c(NA, NA),
+            size_axis = c("w", "l"),
             return_data = FALSE, ...) {
+    size_axis <- plot_size_axis(size_axis)
     assert_that(is.flag(all.sizes),
                 is.flag(include_critical),
+                length(wlim) == 2,
+                length(llim) == 2,
                 is.flag(return_data))
     params <- validParams(object)
     feed <- getFeedingLevel(params, drop = FALSE)
     plot_feeding_level(params, feed, species = species,
                        highlight = highlight, all.sizes = all.sizes,
                        include_critical = include_critical,
+                       wlim = wlim, llim = llim,
+                       size_axis = size_axis,
                        return_data = return_data)
 }
 
 plot_feeding_level <- function(params, feed, species, highlight,
                                all.sizes, include_critical,
-                               return_data) {
+                               wlim, llim, size_axis, return_data) {
+    size_axis <- plot_size_axis(size_axis)
 
     # selector for desired species
     sel_sp <- valid_species_arg(params, species, return.logical = TRUE,
@@ -1511,8 +1729,15 @@ plot_feeding_level <- function(params, feed, species, highlight,
         }
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
+    if (!is.na(wlim[1])) plot_dat <- plot_dat[plot_dat$w >= wlim[1], ]
+    if (!is.na(wlim[2])) plot_dat <- plot_dat[plot_dat$w <= wlim[2], ]
+    plot_dat <- convert_plot_size_axis(plot_dat, params, size_axis)
+    if (identical(size_axis, "l")) {
+        plot_dat <- filter_plot_length_limits(plot_dat, llim)
+    }
 
     if (return_data) return(plot_dat)
+    x_var <- plot_size_x_var(size_axis)
 
     # Need to keep species in order for legend
     legend_levels <-
@@ -1535,9 +1760,10 @@ plot_feeding_level <- function(params, feed, species, highlight,
     } else {
         p <- ggplot(plot_dat, aes(group = Species))
     }
-    p + geom_line(aes(x = w, y = value,
+    p + geom_line(aes(x = .data[[x_var]], y = value,
                       colour = Legend, linetype = Legend, linewidth = Legend)) +
-        scale_x_continuous(name = "Size [g]", trans = "log10") +
+        scale_x_continuous(name = plot_size_xlab(size_axis), trans = "log10",
+                           limits = plot_size_xlim(wlim, size_axis, llim)) +
         scale_y_continuous(name = "Feeding Level") +
         coord_cartesian(ylim = c(0, 1)) +
         scale_colour_manual(values = params@linecolour[legend_levels]) +
@@ -1551,10 +1777,14 @@ plotlyFeedingLevel <- function(object,
                              species = NULL,
                              time_range,
                              highlight = NULL,
-                             include_critical = FALSE, ...) {
+                             include_critical = FALSE,
+                             wlim = c(NA, NA), llim = c(NA, NA),
+                             size_axis = c("w", "l"), ...) {
+    size_axis <- plot_size_axis(size_axis)
     argg <- as.list(environment())
     p <- ggplotly(do.call("plotFeedingLevel", argg),
-                  tooltip = c("Species", "w", "value"))
+                  tooltip = plot_size_tooltip(size_axis, before = "Species",
+                                              after = "value"))
 
     # When critical feeding level is included, ggplotly creates traces split by the
     # interaction of Species and Type, which produces a very long combined legend.
@@ -1634,7 +1864,8 @@ plotlyFeedingLevel <- function(object,
 #'   outside a species' size range. Default FALSE.
 #'
 #' @return  A ggplot2 object, unless `return_data = TRUE`, in which case a data
-#'   frame with the three variables 'w', 'value', 'Species' is returned.
+#'   frame with the three variables 'w' (or 'l' if `size_axis = "l"`), 'value',
+#'   'Species' is returned.
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions],  [getPredMort()]
@@ -1659,8 +1890,12 @@ plotPredMort <- function(object, ...) {
 #' @export
 plotPredMort.MizerSim <- function(object, species = NULL,
                          time_range, all.sizes = FALSE,
-                         highlight = NULL, return_data = FALSE,
+                         highlight = NULL,
+                         wlim = c(NA, NA), llim = c(NA, NA),
+                         size_axis = c("w", "l"),
+                         return_data = FALSE,
                          ...) {
+    size_axis <- plot_size_axis(size_axis)
     if (missing(time_range)) {
         time_range <- max(as.numeric(dimnames(object@n)$time))
     }
@@ -1673,7 +1908,9 @@ plotPredMort.MizerSim <- function(object, species = NULL,
                                     units = "1/year",
                                     params = object@params)
     plot(pred_mort, species = species, all.sizes = all.sizes,
-         highlight = highlight, return_data = return_data,
+         highlight = highlight, wlim = wlim, llim = llim,
+         size_axis = size_axis,
+         return_data = return_data,
          ylim = c(0, NA))
 }
 
@@ -1681,10 +1918,15 @@ plotPredMort.MizerSim <- function(object, species = NULL,
 #' @export
 plotPredMort.MizerParams <- function(object, species = NULL,
                          all.sizes = FALSE,
-                         highlight = NULL, return_data = FALSE,
+                         highlight = NULL,
+                         wlim = c(NA, NA), llim = c(NA, NA),
+                         size_axis = c("w", "l"),
+                         return_data = FALSE,
                          ...) {
+    size_axis <- plot_size_axis(size_axis)
     plot(getPredMort(validParams(object)), species = species,
          all.sizes = all.sizes, highlight = highlight,
+         wlim = wlim, llim = llim, size_axis = size_axis,
          return_data = return_data, ylim = c(0, NA))
 }
 
@@ -1701,10 +1943,14 @@ plotM2 <- plotPredMort
 #' @export
 plotlyPredMort <- function(object, species = NULL,
                            time_range,
-                           highlight = NULL, ...) {
+                           highlight = NULL,
+                           wlim = c(NA, NA), llim = c(NA, NA),
+                           size_axis = c("w", "l"), ...) {
+    size_axis <- plot_size_axis(size_axis)
     argg <- as.list(environment())
     ggplotly(do.call("plotPredMort", argg),
-             tooltip = c("Species", "w", "value"))
+             tooltip = plot_size_tooltip(size_axis, before = "Species",
+                                         after = "value"))
 }
 
 #' Plot total fishing mortality of each species by size
@@ -1718,7 +1964,8 @@ plotlyPredMort <- function(object, species = NULL,
 #' @param all.sizes If TRUE, then fishing mortality is plotted also for sizes
 #'   outside a species' size range. Default FALSE.
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
-#'   frame with the three variables 'w', 'value', 'Species' is returned.
+#'   frame with the three variables 'w' (or 'l' if `size_axis = "l"`), 'value',
+#'   'Species' is returned.
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions], [getFMort()]
@@ -1743,8 +1990,12 @@ plotFMort <- function(object, ...) {
 #' @export
 plotFMort.MizerSim <- function(object, species = NULL,
                       time_range, all.sizes = FALSE,
-                      highlight = NULL, return_data = FALSE,
+                      highlight = NULL,
+                      wlim = c(NA, NA), llim = c(NA, NA),
+                      size_axis = c("w", "l"),
+                      return_data = FALSE,
                       ...) {
+    size_axis <- plot_size_axis(size_axis)
     if (missing(time_range)) {
         time_range <- max(as.numeric(dimnames(object@n)$time))
     }
@@ -1755,17 +2006,24 @@ plotFMort.MizerSim <- function(object, species = NULL,
     f <- ArraySpeciesBySize(f, value_name = "Fishing mortality",
                             units = "1/year", params = object@params)
     plot(f, species = species, all.sizes = all.sizes,
-         highlight = highlight, return_data = return_data)
+         highlight = highlight, wlim = wlim, llim = llim,
+         size_axis = size_axis,
+         return_data = return_data)
 }
 
 #' @rdname plotFMort
 #' @export
 plotFMort.MizerParams <- function(object, species = NULL,
                       all.sizes = FALSE,
-                      highlight = NULL, return_data = FALSE,
+                      highlight = NULL,
+                      wlim = c(NA, NA), llim = c(NA, NA),
+                      size_axis = c("w", "l"),
+                      return_data = FALSE,
                       ...) {
+    size_axis <- plot_size_axis(size_axis)
     plot(getFMort(validParams(object)), species = species,
          all.sizes = all.sizes, highlight = highlight,
+         wlim = wlim, llim = llim, size_axis = size_axis,
          return_data = return_data)
 }
 
@@ -1773,10 +2031,14 @@ plotFMort.MizerParams <- function(object, species = NULL,
 #' @export
 plotlyFMort <- function(object, species = NULL,
                         time_range,
-                        highlight = NULL, ...) {
+                        highlight = NULL,
+                        wlim = c(NA, NA), llim = c(NA, NA),
+                        size_axis = c("w", "l"), ...) {
+    size_axis <- plot_size_axis(size_axis)
     argg <- as.list(environment())
     ggplotly(do.call("plotFMort", argg),
-             tooltip = c("Species", "w", "value"))
+             tooltip = plot_size_tooltip(size_axis, before = "Species",
+                                         after = "value"))
 }
 
 
@@ -2046,8 +2308,8 @@ plotlyGrowthCurves <- function(object, species = NULL,
 #' @inheritParams plotSpectra
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
-#'   frame with the four variables 'Predator', 'w', 'Proportion', 'Prey' is
-#'   returned.
+#'   frame with the four variables 'Predator', 'w' (or 'l' if
+#'   `size_axis = "l"`), 'Proportion', 'Prey' is returned.
 #' @export
 #' @seealso [getDiet()]
 #' @family plotting functions
@@ -2069,21 +2331,35 @@ plotDiet <- function(object, ...) {
 #' @rdname plotDiet
 #' @export
 plotDiet.MizerSim <- function(object, species = NULL,
+                              wlim = c(NA, NA), llim = c(NA, NA),
+                              size_axis = c("w", "l"),
                               return_data = FALSE, ...) {
-    plotDiet(object@params, species = species, return_data = return_data, ...)
+    size_axis <- plot_size_axis(size_axis)
+    plotDiet(object@params, species = species, wlim = wlim, llim = llim,
+             size_axis = size_axis,
+             return_data = return_data, ...)
 }
 
 #' @rdname plotDiet
 #' @export
-plotDiet.MizerParams <- function(object, species = NULL, return_data = FALSE, ...) {
-    assert_that(is.flag(return_data))
+plotDiet.MizerParams <- function(object, species = NULL,
+                                 wlim = c(NA, NA), llim = c(NA, NA),
+                                 size_axis = c("w", "l"),
+                                 return_data = FALSE, ...) {
+    size_axis <- plot_size_axis(size_axis)
+    assert_that(is.flag(return_data),
+                length(wlim) == 2,
+                length(llim) == 2)
     params <- validParams(object)
     diet <- getDiet(params)
     plot_diet(params, n = params@initial_n, diet = diet, species = species,
+              wlim = wlim, llim = llim, size_axis = size_axis,
               return_data = return_data)
 }
 
-plot_diet <- function(params, n, diet, species, return_data) {
+plot_diet <- function(params, n, diet, species, wlim, llim,
+                      size_axis, return_data) {
+    size_axis <- plot_size_axis(size_axis)
     species <- valid_species_arg(params, species, return.logical = TRUE)
     diet <- diet[species, , , drop = FALSE]
     names(dimnames(diet)) <- c("Predator", "w", "Prey")
@@ -2093,6 +2369,8 @@ plot_diet <- function(params, n, diet, species, return_data) {
     plot_dat$Prey <- factor(plot_dat$Prey, levels = rev(prey))
 
     plot_dat <- plot_dat[plot_dat$Proportion > 0.001, ]
+    if (!is.na(wlim[1])) plot_dat <- plot_dat[plot_dat$w >= wlim[1], ]
+    if (!is.na(wlim[2])) plot_dat <- plot_dat[plot_dat$w <= wlim[2], ]
 
     # Restrict plot to relevant size ranges where abundance is meaningful
     # For each predator species, find the maximum size where density is meaningful
@@ -2114,14 +2392,20 @@ plot_diet <- function(params, n, diet, species, return_data) {
         }
     }
 
+    plot_dat <- convert_plot_size_axis(plot_dat, params, size_axis,
+                                       species_col = "Predator")
+    if (identical(size_axis, "l")) {
+        plot_dat <- filter_plot_length_limits(plot_dat, llim)
+    }
     if (return_data) return(plot_dat)
+    x_var <- plot_size_x_var(size_axis)
 
     legend_levels <-
         intersect(names(params@linecolour), plot_dat$Prey)
     p <- ggplot(plot_dat) +
-        geom_area(aes(x = w, y = Proportion, fill = Prey)) +
-        scale_x_log10() +
-        labs(x = "Size [g]", y = "Proportion") +
+        geom_area(aes(x = .data[[x_var]], y = Proportion, fill = Prey)) +
+        scale_x_log10(limits = plot_size_xlim(wlim, size_axis, llim)) +
+        labs(x = plot_size_xlab(size_axis), y = "Proportion") +
         scale_fill_manual(values = params@linecolour[legend_levels],
                           limits = legend_levels)
     if (sum(species) > 1) {
@@ -2133,9 +2417,14 @@ plot_diet <- function(params, n, diet, species, return_data) {
 #' @rdname plotDiet
 #' @return `plotlyDiet()` returns a plotly object.
 #' @export
-plotlyDiet <- function(object, species = NULL, ...) {
-    ggplotly(plotDiet(object, species = species, ...),
-             tooltip = c("Predator", "w", "Proportion", "Prey"))
+plotlyDiet <- function(object, species = NULL,
+                       wlim = c(NA, NA), llim = c(NA, NA),
+                       size_axis = c("w", "l"), ...) {
+    size_axis <- plot_size_axis(size_axis)
+    ggplotly(plotDiet(object, species = species, wlim = wlim, llim = llim,
+                      size_axis = size_axis, ...),
+             tooltip = plot_size_tooltip(size_axis, before = "Predator",
+                                         after = c("Proportion", "Prey")))
 }
 
 

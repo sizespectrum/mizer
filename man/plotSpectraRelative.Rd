@@ -5,24 +5,88 @@
 \alias{plotlySpectraRelative}
 \title{Plot the relative difference between two spectra}
 \usage{
-plotSpectraRelative(object1, object2, log_x = TRUE, ylim = c(NA, NA), ...)
+plotSpectraRelative(
+  object1,
+  object2,
+  species = NULL,
+  wlim = c(NA, NA),
+  llim = c(NA, NA),
+  ylim = c(NA, NA),
+  power = 1,
+  total = FALSE,
+  resource = TRUE,
+  background = TRUE,
+  log_x = TRUE,
+  size_axis = c("w", "l"),
+  ...
+)
 
-plotlySpectraRelative(object1, object2, log_x = TRUE, ylim = c(NA, NA), ...)
+plotlySpectraRelative(
+  object1,
+  object2,
+  species = NULL,
+  wlim = c(NA, NA),
+  llim = c(NA, NA),
+  ylim = c(NA, NA),
+  power = 1,
+  total = FALSE,
+  resource = TRUE,
+  background = TRUE,
+  log_x = TRUE,
+  size_axis = c("w", "l"),
+  ...
+)
 }
 \arguments{
 \item{object1}{First \code{MizerParams} or \code{MizerSim} object.}
 
 \item{object2}{Second \code{MizerParams} or \code{MizerSim} object.}
 
-\item{log_x}{If \code{TRUE} (default), use a log10 x-axis.}
+\item{species}{The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a
+numeric vector with the species indices, or a logical vector indicating for
+each species whether it is to be selected (TRUE) or not.}
+
+\item{wlim}{A numeric vector of length two providing lower and upper limits
+for the w axis. Use NA for the default: the lower default is
+\code{min(params@w) / 100} when \code{resource = TRUE} (to show some resource below
+the fish grid) or \code{min(params@w)} when \code{resource = FALSE}; the upper
+default is \code{max(params@w_full)}. Data is filtered to this range and the
+axis limits are set accordingly.}
+
+\item{llim}{A numeric vector of length two providing lower and upper limits
+for the length axis when \code{size_axis = "l"}. Use \code{NA} to auto-scale to the
+data range. Data is filtered to this range and the axis limits are set
+accordingly.}
 
 \item{ylim}{A numeric vector of length two providing lower and upper limits
 for the relative difference (y) axis. Use \code{NA} to refer to the existing
 minimum or maximum.}
 
+\item{power}{The abundance is plotted as the number density times the weight
+raised to \code{power}. The default \code{power = 1} gives the biomass
+density, whereas \code{power = 2} gives the biomass density with respect
+to logarithmic size bins.}
+
+\item{total}{A boolean value that determines whether the total over all
+species in the system is plotted as well. Note that even if the plot
+only shows a selection of species, the total is including all species.
+Default is FALSE.}
+
+\item{resource}{A boolean value that determines whether resource is included.
+Default is TRUE.}
+
+\item{background}{A boolean value that determines whether background species
+are included. Ignored if the model does not contain background species.
+Default is TRUE.}
+
+\item{log_x}{If \code{TRUE} (default), use a log10 x-axis.}
+
+\item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
+(\code{"l"}), using the allometric weight-length relationship.}
+
 \item{...}{Arguments passed to \code{\link[=plotSpectra]{plotSpectra()}} for preparing the spectra
-data, for example \code{species}, \code{time_range}, \code{wlim}, \code{resource},
-\code{background} or \code{total}.}
+data, for example \code{time_range} or \code{geometric_mean} for \code{MizerSim} objects.}
 }
 \value{
 A ggplot2 object.
@@ -35,11 +99,6 @@ shows
 \deqn{2 (N_2(w) - N_1(w)) / (N_2(w) + N_1(w)).}
 }
 \details{
-The individual spectra are calculated by \code{\link[=plotSpectra]{plotSpectra()}}, to which all
-additional arguments are passed. For example, you can determine a time range
-over which to average simulation results via \code{time_range}. See
-\code{\link[=plotSpectra]{plotSpectra()}} for more options.
-
 Note that it does not matter whether the relative difference is calculated
 for number density, biomass density, or biomass density in log weight,
 because the factors of \eqn{w} by which the densities differ cancel out in

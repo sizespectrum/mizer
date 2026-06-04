@@ -34,6 +34,8 @@
 #'   range. Default is the entire time range of `x`.
 #' @param log_x If `TRUE` (default), use a log10 x-axis for body size.
 #' @param log_y If `TRUE` (default), use a log10 y-axis.
+#' @param size_axis Whether to plot size as weight (`"w"`, default) or length
+#'   (`"l"`), using the allometric weight-length relationship.
 #' @param total A boolean value that determines whether the total over all
 #'   selected species is plotted as an additional trace called `"Total"`.
 #'   Default is `FALSE`.
@@ -43,6 +45,9 @@
 #' @param wlim A numeric vector of length two providing lower and upper limits
 #'   for the body-size (x) axis. Use `NA` to refer to the existing minimum or
 #'   maximum.
+#' @param llim A numeric vector of length two providing lower and upper limits
+#'   for the length (x) axis when `size_axis = "l"`. Use `NA` to refer to the
+#'   existing minimum or maximum.
 #' @param ylim A numeric vector of length two providing lower and upper limits
 #'   for the value (y) axis. Use `NA` to refer to the existing minimum or
 #'   maximum. Limits are applied as Plotly axis ranges, so points outside the
@@ -88,19 +93,23 @@ animate <- function(x, ...) UseMethod("animate")
 #' @export
 animate.MizerSim <- function(x, species = NULL, time_range = NULL,
                               log_x = TRUE, log_y = TRUE,
-                              wlim = c(NA, NA), ylim = c(NA, NA),
+                              wlim = c(NA, NA), llim = c(NA, NA),
+                              ylim = c(NA, NA),
+                              size_axis = c("w", "l"),
                               power = 1, total = FALSE, resource = TRUE,
                               background = TRUE,
                               frame_duration = 500,
                               transition_duration = frame_duration,
                               easing = "linear", ...) {
     sim <- x
+    size_axis <- plot_size_axis(size_axis)
     assert_that(is.flag(total), is.flag(resource), is.flag(background),
                 is.number(power),
                 is.number(frame_duration), frame_duration >= 0,
                 is.number(transition_duration), transition_duration >= 0,
                 is.string(easing),
                 length(wlim) == 2,
+                length(llim) == 2,
                 length(ylim) == 2)
 
     species <- valid_species_arg(sim, species)
@@ -155,8 +164,12 @@ animate.MizerSim <- function(x, species = NULL, time_range = NULL,
     }
     nf <- mutate(nf, value = value * w^power)
 
-    animate_plotly(nf, sim@params, log_x, log_y, y_label, wlim, ylim,
-                   frame_duration, transition_duration, easing)
+    animate_plotly(nf, sim@params, log_x, log_y, y_label, wlim, llim,
+                   ylim,
+                   size_axis = size_axis,
+                   frame_duration = frame_duration,
+                   transition_duration = transition_duration,
+                   easing = easing)
 }
 
 # Build a plotly animation from a prepared long-format data frame.
@@ -165,9 +178,14 @@ animate.MizerSim <- function(x, species = NULL, time_range = NULL,
 # by individual Species within each legend group — so background species always
 # appear together and share a single legend entry.
 animate_plotly <- function(df, params, log_x, log_y, y_label,
-                           wlim = c(NA, NA), ylim = c(NA, NA),
+                           wlim = c(NA, NA), llim = c(NA, NA),
+                           ylim = c(NA, NA),
+                           size_axis = "w",
                            frame_duration = 500, transition_duration = 500,
                            easing = "linear") {
+    size_axis <- plot_size_axis(size_axis)
+    df <- convert_plot_size_axis(df, params, size_axis)
+    x_var <- plot_size_x_var(size_axis)
     legend_name_order <- intersect(names(params@linecolour),
                                    unique(df$legend_name))
     sp_order <- unlist(lapply(legend_name_order, function(ln) {
@@ -185,7 +203,7 @@ animate_plotly <- function(df, params, log_x, log_y, y_label,
         p <- plotly::add_lines(
             p,
             data = df_sp,
-            x = ~w, y = ~value,
+            x = stats::as.formula(paste0("~", x_var)), y = ~value,
             frame = ~time,
             name = ln,
             legendgroup = ln,
@@ -194,7 +212,10 @@ animate_plotly <- function(df, params, log_x, log_y, y_label,
         )
     }
     p <- plotly::layout(p,
-                        xaxis = plotly_axis(df$w, wlim, log_x, "Size [g]"),
+                        xaxis = plotly_axis(
+                            df[[x_var]],
+                            plot_size_xlim(wlim, size_axis, llim),
+                            log_x, plot_size_xlab(size_axis)),
                         yaxis = plotly_axis(df$value, ylim, log_y, y_label),
                         legend = list(traceorder = "normal"))
     plotly::animation_opts(p, frame = frame_duration,

@@ -159,6 +159,11 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #' @param wlim A numeric vector of length two providing lower and upper limits
 #'   for the weight (x) axis. Use `NA` to refer to the existing minimum or
 #'   maximum. Only applies to `ArraySpeciesBySize`.
+#' @param llim A numeric vector of length two providing lower and upper limits
+#'   for the length (x) axis when `size_axis = "l"`. Use `NA` to refer to the
+#'   existing minimum or maximum. Only applies to `ArraySpeciesBySize`.
+#' @param size_axis Whether to plot size as weight (`"w"`, default) or length
+#'   (`"l"`), using the allometric weight-length relationship.
 #' @param ylim A numeric vector of length two providing lower and upper limits
 #'   for the value (y) axis. Use `NA` to refer to the existing minimum or
 #'   maximum.
@@ -180,24 +185,36 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #' \donttest{
 #' plot(getEncounter(NS_params))
 #' plot(getFeedingLevel(NS_params), species = c("Cod", "Herring"))
+#' plot(getPredMort(NS_params), species = c("Cod", "Herring"),
+#'      size_axis = "l")
 #' }
 plot.ArraySpeciesBySize <- function(x, species = NULL,
                             all.sizes = FALSE, highlight = NULL,
                             return_data = FALSE, log_x = TRUE, log_y = FALSE,
                             log = NULL,
-                            wlim = c(NA, NA), ylim = c(NA, NA),
+                            wlim = c(NA, NA), llim = c(NA, NA),
+                            ylim = c(NA, NA),
+                            size_axis = c("w", "l"),
                             total = FALSE, background = TRUE,
                             y_ticks = 6, ...) {
+    size_axis <- plot_size_axis(size_axis)
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
 
+    assert_that(length(wlim) == 2,
+                length(llim) == 2,
+                length(ylim) == 2)
     value_name <- attr(x, "value_name") %||% "Rate"
     units_str <- attr(x, "units")
     params <- attr(x, "params")
     plot_dat <- prepare_ArraySpeciesBySize_plot_data(
         x, species = species, all.sizes = all.sizes, wlim = wlim,
         total = total, background = background)
+    plot_dat <- convert_plot_size_axis(plot_dat, params, size_axis)
+    if (identical(size_axis, "l")) {
+        plot_dat <- filter_plot_length_limits(plot_dat, llim)
+    }
 
     if (return_data) return(plot_dat)
 
@@ -206,11 +223,13 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
         y_label <- paste0(value_name, " [", units_str, "]")
     }
 
-    plotDataFrame(plot_dat, params, xlab = "Size [g]", ylab = y_label,
+    plotDataFrame(plot_dat, params, xlab = plot_size_xlab(size_axis),
+                  ylab = y_label,
                   xtrans = if (log_x) "log10" else "identity",
                   ytrans = if (log_y) "log10" else "identity",
-                  xlim = wlim, ylim = ylim, highlight = highlight,
-                  y_ticks = y_ticks, legend_var = "Legend")
+                  xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
+                  highlight = highlight, y_ticks = y_ticks,
+                  legend_var = "Legend")
 }
 
 parsePlotLog <- function(log, log_x = FALSE, log_y = FALSE) {
@@ -257,14 +276,20 @@ plot2 <- function(x, y, ...) {
 plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
                                      species = NULL, all.sizes = FALSE,
                                      log_x = TRUE, log_y = FALSE, log = NULL,
-                                     wlim = c(NA, NA), ylim = c(NA, NA),
+                                     wlim = c(NA, NA), llim = c(NA, NA),
+                                     ylim = c(NA, NA),
+                                     size_axis = c("w", "l"),
                                      total = FALSE, background = TRUE,
                                      y_ticks = 6, ...) {
     check_plot2_compatible(x, y, "ArraySpeciesBySize")
     compare_array_metadata(x, y)
+    size_axis <- plot_size_axis(size_axis)
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
+    assert_that(length(wlim) == 2,
+                length(llim) == 2,
+                length(ylim) == 2)
 
     params <- attr(x, "params")
     y_label <- array_y_label(x, default = "Rate")
@@ -277,11 +302,13 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
 
     plotComparisonDataFrame(plot_dat1, plot_dat2, params,
                             name1 = name1, name2 = name2,
-                            xlab = "Size [g]", ylab = y_label,
+                            xlab = plot_size_xlab(size_axis), ylab = y_label,
                             xtrans = if (log_x) "log10" else "identity",
                             ytrans = if (log_y) "log10" else "identity",
-                            xlim = wlim, ylim = ylim,
-                            y_ticks = y_ticks, legend_var = "Legend")
+                            xlim = plot_size_xlim(wlim, size_axis, llim),
+                            ylim = ylim,
+                            y_ticks = y_ticks, legend_var = "Legend",
+                            size_axis = size_axis)
 }
 
 #' Plot the relative difference between two mizer array objects
@@ -315,11 +342,17 @@ plotRelative.ArraySpeciesBySize <- function(x, y, species = NULL,
                                             all.sizes = FALSE,
                                             log_x = TRUE,
                                             wlim = c(NA, NA),
+                                            llim = c(NA, NA),
                                             ylim = c(NA, NA),
+                                            size_axis = c("w", "l"),
                                             total = FALSE,
                                             background = TRUE, ...) {
     check_plot2_compatible(x, y, "ArraySpeciesBySize")
     compare_array_metadata(x, y)
+    size_axis <- plot_size_axis(size_axis)
+    assert_that(length(wlim) == 2,
+                length(llim) == 2,
+                length(ylim) == 2)
     params <- attr(x, "params")
     plot_dat1 <- prepare_ArraySpeciesBySize_plot_data(
         x, species = species, all.sizes = all.sizes, wlim = wlim,
@@ -329,9 +362,11 @@ plotRelative.ArraySpeciesBySize <- function(x, y, species = NULL,
         total = total, background = background)
 
     plotRelativeDataFrame(plot_dat1, plot_dat2, params,
-                          xlab = "Size [g]",
+                          xlab = plot_size_xlab(size_axis),
                           xtrans = if (log_x) "log10" else "identity",
-                          xlim = wlim, ylim = ylim, legend_var = "Legend")
+                          xlim = plot_size_xlim(wlim, size_axis, llim),
+                          ylim = ylim,
+                          legend_var = "Legend", size_axis = size_axis)
 }
 
 check_plot2_compatible <- function(x, y, class) {
@@ -405,6 +440,8 @@ addPlot <- function(plot, x, ...) {
 addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
                                        all.sizes = FALSE,
                                        wlim = c(NA, NA),
+                                       llim = c(NA, NA),
+                                       size_axis = c("w", "l"),
                                        total = FALSE,
                                        background = TRUE,
                                        colour = NULL,
@@ -419,15 +456,24 @@ addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
                 is.number(alpha),
                 alpha >= 0,
                 alpha <= 1)
+    size_axis <- plot_size_axis(size_axis)
+    assert_that(length(wlim) == 2,
+                length(llim) == 2)
 
     plot <- deep_copy(plot)
     plot_dat <- prepare_ArraySpeciesBySize_plot_data(
         x, species = species, all.sizes = all.sizes, wlim = wlim,
         total = total, background = background)
-    check_addPlot_compatible(plot, x_var = "w", y_var = "value",
+    params <- attr(x, "params")
+    plot_dat <- convert_plot_size_axis(plot_dat, params, size_axis)
+    if (identical(size_axis, "l")) {
+        plot_dat <- filter_plot_length_limits(plot_dat, llim)
+    }
+    x_var <- plot_size_x_var(size_axis)
+    check_addPlot_compatible(plot, x_var = x_var, y_var = "value",
                              units = attr(x, "units"))
 
-    mapping <- aes(x = .data[["w"]], y = .data[["value"]],
+    mapping <- aes(x = .data[[x_var]], y = .data[["value"]],
                    group = .data[["Species"]])
     if (is.null(colour)) {
         mapping$colour <- rlang::quo(.data[["Legend"]])
