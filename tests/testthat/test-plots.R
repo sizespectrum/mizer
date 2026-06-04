@@ -397,8 +397,16 @@ test_that("yield plotting helpers validate comparison and gear selection", {
 })
 
 test_that("yield plotly wrappers return plotly objects", {
-    expect_s3_class(plotlyYield(sim, species = species), "plotly")
-    expect_s3_class(plotlyYieldGear(sim, species = species), "plotly")
+    expect_s3_class(plotlyYield(sim, species = species, ylim = c(1e-5, 1)), "plotly")
+    expect_s3_class(plotlyYieldGear(sim, species = species, ylim = c(1e-5, 1)), "plotly")
+})
+
+test_that("yield plotting helpers accept ylim", {
+    p <- plotYield(sim, species = species, ylim = c(1e-5, 1))
+    expect_equal(p$scales$get_scales("y")$limits, c(1e-5, 1))
+
+    p_gear <- plotYieldGear(sim, species = species, ylim = c(1e-5, 1))
+    expect_equal(p_gear$scales$get_scales("y")$limits, c(1e-5, 1))
 })
 
 
