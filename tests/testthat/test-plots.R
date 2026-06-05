@@ -227,6 +227,22 @@ test_that("comparison helpers preserve non-size x variables", {
     expect_error(ggplot2::ggplot_build(p_rel), NA)
 })
 
+test_that("plotRelative, plot2, and plotGrowthCurves do not have LineSpec legend", {
+    p_rel <- plotRelative(getBiomass(NS_sim), getBiomass(NS_sim), species = "Cod")
+    expect_equal(p_rel$scales$get_scales("linewidth")$guide, "none")
+
+    p2 <- plot2(getBiomass(NS_sim), getBiomass(NS_sim), species = "Cod")
+    expect_equal(p2$scales$get_scales("linewidth")$guide, "none")
+
+    p_growth <- plotGrowthCurves(NS_params, species = c("Cod", "Haddock"))
+    expect_equal(p_growth$scales$get_scales("linewidth")$guide, "none")
+    expect_equal(rlang::as_label(p_growth$layers[[1]]$mapping$colour), "LineSpec")
+    expect_equal(rlang::as_label(p_growth$layers[[1]]$mapping$linetype), "LineSpec")
+    expect_equal(rlang::as_label(p_growth$layers[[1]]$mapping$linewidth), "LineSpec")
+    expect_equal(p_growth$scales$get_scales("colour")$name, "Species")
+    expect_equal(p_growth$scales$get_scales("linetype")$name, "Species")
+})
+
 test_that("plotSpectraRelative plots symmetric relative difference", {
     params2 <- params
     params2@initial_n[] <- params@initial_n * 2

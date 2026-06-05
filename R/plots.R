@@ -372,7 +372,7 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                       linewidth = .data[["LineSpec"]])) +
         scale_colour_manual(values = linecolour) +
         scale_linetype_discrete(drop = FALSE) +
-        scale_discrete_manual("linewidth", values = linesize)
+        scale_discrete_manual("linewidth", values = linesize, guide = "none")
     make_mizer_plot(p, mizer_tooltip_vars(frame, legend_var, x_var, y_var,
                                           extra = "Model"))
 }
@@ -435,7 +435,7 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
                       colour = .data[[legend_var]],
                       linewidth = .data[["LineSpec"]])) +
         scale_colour_manual(values = linecolour) +
-        scale_discrete_manual("linewidth", values = linesize)
+        scale_discrete_manual("linewidth", values = linesize, guide = "none")
     make_mizer_plot(p, mizer_tooltip_vars(frame, group_var, x_var, "rel_diff",
                                           legend_var))
 }
@@ -2671,9 +2671,9 @@ plot_growth_curves <- function(params, species,
                                 trans = if (log_x) "log10" else "identity") +
         scale_y_continuous(name = y_label,
                            trans = if (log_y) "log10" else "identity") +
-        scale_colour_manual(values = params@linecolour[legend_levels]) +
-        scale_linetype_manual(values = params@linetype[legend_levels]) +
-        scale_discrete_manual("linewidth", values = linesize)
+        scale_colour_manual(name = "Species", values = params@linecolour[legend_levels]) +
+        scale_linetype_manual(name = "Species", values = params@linetype[legend_levels]) +
+        scale_discrete_manual("linewidth", values = linesize, guide = "none")
 
     # starting cases now
     if (!percentage)  {
