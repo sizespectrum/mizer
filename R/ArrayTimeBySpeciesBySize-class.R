@@ -131,9 +131,6 @@ print.summary.ArrayTimeBySpeciesBySize <- function(x, ...) {
 
 #' @rdname plot
 #' @usage NULL
-#'
-#' @param time The time to display. Default (`NULL`) is the final time step.
-#'   Only applies to `ArrayTimeBySpeciesBySize`.
 #' @export
 #' @examples
 #' \donttest{
@@ -177,9 +174,6 @@ plot.ArrayTimeBySpeciesBySize <- function(x, species = NULL, time = NULL,
 
 #' @rdname plot2
 #' @usage NULL
-#'
-#' @param time The time to display. Default (`NULL`) is the final time step.
-#'   Only applies to `ArrayTimeBySpeciesBySize`.
 #' @export
 plot2.ArrayTimeBySpeciesBySize <- function(x, y, name1 = "First",
                                            name2 = "Second",
@@ -208,9 +202,6 @@ plot2.ArrayTimeBySpeciesBySize <- function(x, y, name1 = "First",
 
 #' @rdname plotRelative
 #' @usage NULL
-#'
-#' @param time The time to display. Default (`NULL`) is the final time step.
-#'   Only applies to `ArrayTimeBySpeciesBySize`.
 #' @export
 plotRelative.ArrayTimeBySpeciesBySize <- function(x, y, species = NULL,
                                                   time = NULL,

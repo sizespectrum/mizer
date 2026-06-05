@@ -66,7 +66,17 @@
 #'   `"cubic"`, `"sin"`, `"exp"`, `"circle"`, `"elastic"`, `"back"`,
 #'   `"bounce"`, and each of those with suffix `"-in"`, `"-out"`, or
 #'   `"-in-out"` appended, for example `"cubic-in-out"`.
-#' @param ... Additional arguments passed to the method.
+#' @param ... Further arguments used by only some of the methods:
+#'   \describe{
+#'     \item{`power`}{The abundance is plotted as the number density times the
+#'       weight raised to \code{power}. The default \code{power = 1} gives the
+#'       biomass density, whereas \code{power = 2} gives the biomass density
+#'       with respect to logarithmic size bins. Only applies to `MizerSim`.}
+#'     \item{`resource`}{A boolean value that determines whether resource is
+#'       included. If `TRUE`, the resource spectrum is plotted as an additional
+#'       trace called `"Resource"`. Default is `TRUE`. Only applies to
+#'       `MizerSim`.}
+#'   }
 #'
 #' @return A plotly object with one animated line trace per plotted group. Use
 #'   the play button or the slider to step through time.
@@ -83,17 +93,18 @@
 #' # Animate feeding level for two species only
 #' animate(getFeedingLevel(NS_sim), species = c("Cod", "Herring"))
 #' }
-animate <- function(x, ...) UseMethod("animate")
+animate <- function(x, species = NULL, log_x = TRUE, log_y = TRUE,
+                    log = NULL, wlim = c(NA, NA), llim = c(NA, NA),
+                    ylim = c(NA, NA), tlim = c(NA, NA),
+                    size_axis = c("w", "l"), total = FALSE,
+                    background = TRUE, frame_duration = 500,
+                    transition_duration = frame_duration,
+                    easing = "linear", ...) {
+    UseMethod("animate")
+}
 
 #' @rdname animate
 #' @usage NULL
-#' @param power The abundance is plotted as the number density times the weight
-#'   raised to \code{power}. The default \code{power = 1} gives the biomass
-#'   density, whereas \code{power = 2} gives the biomass density with respect
-#'   to logarithmic size bins. Only applies to `MizerSim`.
-#' @param resource A boolean value that determines whether resource is included.
-#'   If `TRUE`, the resource spectrum is plotted as an additional trace called
-#'   `"Resource"`. Default is `TRUE`. Only applies to `MizerSim`.
 #' @export
 animate.MizerSim <- function(x, species = NULL,
                               log_x = TRUE, log_y = TRUE,

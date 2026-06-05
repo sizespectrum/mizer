@@ -36,6 +36,43 @@ devtools::clean_dll(); devtools::load_all()
 - **Naming**: camelCase or snake_case for functions/variables; PascalCase for classes
 - **Language**: British English (en-GB) — "colour", "behaviour", "modelling"
 
+### Documenting S3 generics with several methods
+
+When several methods of a mizer-defined S3 generic share a man page (combined
+with `@rdname`/`@name`), document everything on the **generic** and leave the
+methods with no roxygen beyond `@rdname`, `@usage NULL` and `@export`:
+
+- The generic's **function signature owns all arguments shared by all methods**.
+  Document those with ordinary `@param`. This keeps `\usage` short (one generic
+  signature) and avoids the "Documented arguments not in \usage" `R CMD check`
+  error.
+- Arguments used by **only some** methods are listed in a `\describe{}` block
+  under `@param ...` on the generic (not as standalone `@param`, which would
+  re-introduce the check error).
+- Adding shared args to the generic is safe: the generic body is just
+  `UseMethod()`, so its defaults are never evaluated and `missing()` in a method
+  still reflects the caller's call.
+- Where a shared arg's default is **class-dependent** (e.g. `log_x` differs
+  between size and time plots), give it no default in the generic signature and
+  explain the per-class default in its `@param` prose. Where a default is
+  **object-dependent** (e.g. `min_w = min(object@params@w)`), keep that arg
+  under `@param ...` instead.
+- Prefer inlining shared descriptions over `@inheritParams`: on a multi-method
+  page `@inheritParams` imports docs for the *union* of all method formals
+  (including method-only ones) as standalone `@param`, which re-triggers the
+  check error.
+- **Exception:** base-R generics (`plot`, `print`, `summary`, `as.data.frame`)
+  cannot gain formals, so all their method arguments go in the `@param ...`
+  `\describe{}` block. For the `@usage`, reference the **generic**
+  (`@usage plot(x, ...)`), not a `\method{generic}{class}(...)` line, and keep
+  every method at `@usage NULL`. A fabricated `\method{}` usage that omits the
+  method's real formals triggers an `R CMD check` *codoc* warning ("Codoc
+  mismatches"), because codoc compares each `\method{}` usage against the actual
+  method signature. Referencing the base generic sidesteps this: codoc skips it
+  because the generic is not a package object. (A `\method{}` usage is only safe
+  when it lists the method's real formals, e.g. `print` methods that genuinely
+  take just `(x, ...)`.)
+
 ## Testing
 
 - Use `expect_doppelganger()` (vdiffr) for plot tests

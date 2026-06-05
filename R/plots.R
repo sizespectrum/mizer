@@ -545,7 +545,10 @@ convert_plot_size_axis <- function(plot_dat, params, size_axis,
 #' (see [getBiomass()]).
 #'
 #' @param object An object of class \linkS4class{MizerSim}
-#' @inheritParams valid_species_arg
+#' @param species The species to be selected. Optional. By default all target
+#'   species are selected. A vector of species names, or a numeric vector with
+#'   the species indices, or a logical vector indicating for each species
+#'   whether it is to be selected (TRUE) or not.
 #' @param tlim A numeric vector of length two providing lower and upper limits
 #'   for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no limit at
 #'   that end. Default is `c(NA, NA)`.
@@ -570,7 +573,18 @@ convert_plot_size_axis <- function(plot_dat, params, size_axis,
 #'   used for the plot is returned instead of the plot itself. Default is FALSE.
 #' @param use_cutoff If TRUE, the `biomass_cutoff` column in the species
 #'   parameters is used as the minimum weight for each species.
-#' @inheritParams get_size_range_array
+#' @param ... Arguments setting the size range over which the biomass is
+#'   calculated (see [getBiomass()]):
+#'   \describe{
+#'     \item{`min_w`}{Smallest weight in size range. Defaults to smallest weight
+#'       in the model.}
+#'     \item{`max_w`}{Largest weight in size range. Defaults to largest weight
+#'       in the model.}
+#'     \item{`min_l`}{Smallest length in size range. If supplied, this takes
+#'       precedence over `min_w`.}
+#'     \item{`max_l`}{Largest length in size range. If supplied, this takes
+#'       precedence over `max_w`.}
+#'   }
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the four variables 'Year', 'Biomass', 'Species', 'Legend' is
@@ -590,7 +604,11 @@ convert_plot_size_axis <- function(plot_dat, params, size_axis,
 #' }
 #' @rdname plotBiomass
 #' @export
-plotBiomass <- function(object, ...) {
+plotBiomass <- function(object, species = NULL, tlim = c(NA, NA),
+                        y_ticks = 6, ylim = c(NA, NA), total = FALSE,
+                        background = TRUE, highlight = NULL, log = NULL,
+                        return_data = FALSE, log_x = FALSE, log_y = TRUE,
+                        use_cutoff = FALSE, ...) {
     UseMethod("plotBiomass")
 }
 
@@ -675,7 +693,12 @@ plotlyBiomass <- function(object,
 #' @param object An object of class \linkS4class{MizerSim}
 #' @param sim2 An optional second object of class \linkS4class{MizerSim}. If
 #'   this is provided its yields will be shown on the same plot in bolder lines.
-#' @inheritParams plotSpectra
+#' @param species The species to be selected. Optional. By default all target
+#'   species are selected. A vector of species names, or a numeric vector with
+#'   the species indices, or a logical vector indicating for each species
+#'   whether it is to be selected (TRUE) or not.
+#' @param total A boolean value that determines whether the total yield from all
+#'   species is plotted as well. Default is FALSE.
 #' @param log_x If `TRUE`, use a log10 x-axis. Default is `FALSE`.
 #' @param log_y If `TRUE`, use a log10 y-axis. Default is `TRUE`.
 #' @param log Character string specifying which axes should use log10 scales,
@@ -683,9 +706,15 @@ plotlyBiomass <- function(object,
 #'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
 #'   For backward compatibility, `TRUE` and `FALSE` are interpreted as setting
 #'   only `log_y`.
+#' @param ylim A numeric vector of length two providing lower and upper limits
+#'   for the y axis. Use `NA` to refer to the existing minimum or maximum.
 #' @param tlim A numeric vector of length two providing lower and upper limits
 #'   for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no limit at
 #'   that end. Default is `c(NA, NA)`.
+#' @param highlight Name or vector of names of the species to be highlighted.
+#' @param return_data A boolean value that determines whether the formatted data
+#'   used for the plot is returned instead of the plot itself. Default is FALSE.
+#' @param ... Arguments passed to [getYield()].
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the three variables 'Year', 'Yield', 'Species' is returned.
@@ -709,7 +738,10 @@ plotlyBiomass <- function(object,
 #' }
 #' @rdname plotYield
 #' @export
-plotYield <- function(object, ...) {
+plotYield <- function(object, sim2, species = NULL, total = FALSE,
+                      log_x = FALSE, log_y = TRUE, log = NULL,
+                      ylim = c(NA, NA), tlim = c(NA, NA), highlight = NULL,
+                      return_data = FALSE, ...) {
     UseMethod("plotYield")
 }
 
@@ -843,13 +875,23 @@ parseTimePlotLog <- function(log, log_x, log_y) {
 #' etc. Just look at the source code for details.
 #'
 #' @param object An object of class \linkS4class{MizerSim}
-#' @inheritParams plotSpectra
+#' @param species The species to be selected. Optional. By default all target
+#'   species are selected. A vector of species names, or a numeric vector with
+#'   the species indices, or a logical vector indicating for each species
+#'   whether it is to be selected (TRUE) or not.
 #' @param gears A vector of gear names to be included in the plot. Default is
 #'  all gears.
+#' @param total A boolean value that determines whether the total yield from all
+#'   species is plotted as well. Default is FALSE.
+#' @param ylim A numeric vector of length two providing lower and upper limits
+#'   for the y axis. Use `NA` to refer to the existing minimum or maximum.
 #' @param tlim A numeric vector of length two providing lower and upper limits
 #'   for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no limit at
 #'   that end. Default is `c(NA, NA)`.
-#' @param ... .
+#' @param highlight Name or vector of names of the species to be highlighted.
+#' @param return_data A boolean value that determines whether the formatted data
+#'   used for the plot is returned instead of the plot itself. Default is FALSE.
+#' @param ... Arguments passed to [getYieldGear()].
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the four variables 'Year', 'Yield', 'Species' and 'Gear' is
@@ -870,7 +912,9 @@ parseTimePlotLog <- function(log, log_x, log_y) {
 #' }
 #' @rdname plotYieldGear
 #' @export
-plotYieldGear <- function(object, ...) {
+plotYieldGear <- function(object, species = NULL, gears = NULL,
+                          total = FALSE, ylim = c(NA, NA), tlim = c(NA, NA),
+                          highlight = NULL, return_data = FALSE, ...) {
     UseMethod("plotYieldGear")
 }
 
@@ -962,14 +1006,10 @@ plotlyYieldGear <- function(object, species = NULL,
 #'
 #' @param object An object of class \linkS4class{MizerSim} or
 #'   \linkS4class{MizerParams}.
-#' @inheritParams valid_species_arg
-#' @param time_range The time range (either a vector of values, a vector of min
-#'   and max time, or a single value) to average the abundances over. Default is
-#'   the final time step. Ignored when called with a \linkS4class{MizerParams}
-#'   object.
-#' @param geometric_mean `r lifecycle::badge("experimental")`
-#'   If TRUE then the average of the abundances over the
-#'   time range is a geometric mean instead of the default arithmetic mean.
+#' @param species The species to be selected. Optional. By default all target
+#'   species are selected. A vector of species names, or a numeric vector with
+#'   the species indices, or a logical vector indicating for each species
+#'   whether it is to be selected (TRUE) or not.
 #' @param wlim A numeric vector of length two providing lower and upper limits
 #'   for the w axis. Use NA for the default: the lower default is
 #'   `min(params@w) / 100` when `resource = TRUE` (to show some resource below
@@ -1001,7 +1041,8 @@ plotlyYieldGear <- function(object, species = NULL,
 #' @param background A boolean value that determines whether background species
 #'   are included. Ignored if the model does not contain background species.
 #'   Default is TRUE.
-#' @param highlight Name or vector of names of the species to be highlighted.
+#' @param highlight Name or vector of names of the species to be highlighted by
+#'   being plotted with thicker lines.
 #' @param log_x If `TRUE` (default), use a log10 x-axis.
 #' @param log_y If `TRUE` (default), use a log10 y-axis.
 #' @param log Character string specifying which axes should use log10 scales,
@@ -1011,7 +1052,17 @@ plotlyYieldGear <- function(object, species = NULL,
 #'   (`"l"`), using the allometric weight-length relationship.
 #' @param return_data A boolean value that determines whether the formatted data
 #' used for the plot is returned instead of the plot itself. Default value is FALSE
-#' @param ... Currently unused.
+#' @param ... Further arguments used by only some of the methods:
+#'   \describe{
+#'     \item{`time_range`}{The time range (either a vector of values, a vector
+#'       of min and max time, or a single value) to average the abundances
+#'       over. Default is the final time step. Only applies when called with a
+#'       \linkS4class{MizerSim} object.}
+#'     \item{`geometric_mean`}{`r lifecycle::badge("experimental")` If `TRUE`
+#'       then the average of the abundances over the time range is a geometric
+#'       mean instead of the default arithmetic mean. Only applies when called
+#'       with a \linkS4class{MizerSim} object.}
+#'   }
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the four variables 'w' (or 'l' if `size_axis = "l"`), 'value',
@@ -1036,7 +1087,12 @@ plotlyYieldGear <- function(object, species = NULL,
 #' }
 #' @rdname plotSpectra
 #' @export
-plotSpectra <- function(object, ...) {
+plotSpectra <- function(object, species = NULL,
+                        wlim = c(NA, NA), llim = c(NA, NA), ylim = c(NA, NA),
+                        power = 1, biomass = TRUE, total = FALSE,
+                        resource = TRUE, background = TRUE, highlight = NULL,
+                        log_x = TRUE, log_y = TRUE, log = NULL,
+                        size_axis = c("w", "l"), return_data = FALSE, ...) {
     UseMethod("plotSpectra")
 }
 
@@ -1240,9 +1296,45 @@ plot_spectra <- function(params, n, n_pp,
 #' `plotlyCDF()` is the interactive plotly version. To compare cumulative
 #' distributions from two objects, use [plotCDF2()].
 #'
-#' @inheritParams plotSpectra
+#' @param object An object of class \linkS4class{MizerSim} or
+#'   \linkS4class{MizerParams}.
+#' @param species The species to be selected. Optional. By default all target
+#'   species are selected. A vector of species names, or a numeric vector with
+#'   the species indices, or a logical vector indicating for each species
+#'   whether it is to be selected (TRUE) or not.
+#' @param wlim A numeric vector of length two providing lower and upper limits
+#'   for the w axis. Use NA for the default: the lower default is
+#'   `min(params@w) / 100` when `resource = TRUE` (to show some resource below
+#'   the fish grid) or `min(params@w)` when `resource = FALSE`; the upper
+#'   default is `max(params@w_full)`. Data is filtered to this range and the
+#'   axis limits are set accordingly.
+#' @param llim A numeric vector of length two providing lower and upper limits
+#'   for the length axis when `size_axis = "l"`. Use `NA` to auto-scale to the
+#'   data range. Data is filtered to this range and the axis limits are set
+#'   accordingly.
+#' @param ylim A numeric vector of length two providing lower and upper limits
+#'   for the y axis. Use NA to auto-scale to the data range. Values below 1e-20
+#'   are always filtered out from the data regardless of `ylim[1]`. Data above
+#'   `ylim[2]` is filtered and the upper axis limit is set accordingly.
+#' @param power The abundance is plotted as the number density times the weight
+#' raised to `power`. The default \code{power = 1} gives the biomass
+#' density, whereas \code{power = 2} gives the biomass density with respect
+#' to logarithmic size bins.
+#' @param biomass `r lifecycle::badge("deprecated")`
+#'  Only used if `power` argument is missing. Then
+#'   \code{biomass = TRUE} is equivalent to \code{power=1} and
+#'   \code{biomass = FALSE} is equivalent to \code{power=0}
+#' @param total A boolean value that determines whether the total over all
+#'   species in the system is plotted as well. Note that even if the plot
+#'   only shows a selection of species, the total is including all species.
+#'   Default is FALSE.
 #' @param resource A boolean value that determines whether resource is included.
 #'   Default is FALSE.
+#' @param background A boolean value that determines whether background species
+#'   are included. Ignored if the model does not contain background species.
+#'   Default is TRUE.
+#' @param highlight Name or vector of names of the species to be highlighted by
+#'   being plotted with thicker lines.
 #' @param normalise If `TRUE` (default), plot the cumulative proportion. If
 #'   `FALSE`, plot the cumulative abundance, biomass, or other unnormalised
 #'   integral.
@@ -1251,7 +1343,21 @@ plot_spectra <- function(params, n, n_pp,
 #' @param log Character string specifying which axes should use a log10 scale,
 #'   in the same form as the base [plot()] argument. If supplied, this overrides
 #'   `log_x` and `log_y`.
-#' @param ... Currently unused.
+#' @param size_axis Whether to plot size as weight (`"w"`, default) or length
+#'   (`"l"`), using the allometric weight-length relationship.
+#' @param return_data A boolean value that determines whether the formatted data
+#'   used for the plot is returned instead of the plot itself. Default is FALSE.
+#' @param ... Further arguments used by only some of the methods:
+#'   \describe{
+#'     \item{`time_range`}{The time range (either a vector of values, a vector
+#'       of min and max time, or a single value) to average the abundances
+#'       over. Default is the final time step. Only applies when called with a
+#'       \linkS4class{MizerSim} object.}
+#'     \item{`geometric_mean`}{`r lifecycle::badge("experimental")` If `TRUE`
+#'       then the average of the abundances over the time range is a geometric
+#'       mean instead of the default arithmetic mean. Only applies when called
+#'       with a \linkS4class{MizerSim} object.}
+#'   }
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the four variables 'w' (or 'l' if `size_axis = "l"`), 'value',
@@ -1264,7 +1370,12 @@ plot_spectra <- function(params, n, n_pp,
 #' plotCDF(NS_params, species = c("Cod", "Herring"))
 #' plotCDF(NS_sim, power = 0, normalise = FALSE)
 #' }
-plotCDF <- function(object, ...) {
+plotCDF <- function(object, species = NULL,
+                    wlim = c(NA, NA), llim = c(NA, NA), ylim = c(NA, NA),
+                    power = 1, biomass = TRUE, total = FALSE,
+                    resource = FALSE, background = TRUE, highlight = NULL,
+                    normalise = TRUE, log_x = TRUE, log_y = FALSE, log = NULL,
+                    size_axis = c("w", "l"), return_data = FALSE, ...) {
     UseMethod("plotCDF")
 }
 
@@ -1791,12 +1902,38 @@ plotlySpectra <- function(object, species = NULL,
 #' actual feeding level, because the species would stop growing at any point
 #' where the feeding level drops to the critical feeding level.
 #'
-#' @inheritParams plotSpectra
+#' @param object An object of class \linkS4class{MizerSim} or
+#'   \linkS4class{MizerParams}.
+#' @param species The species to be selected. Optional. By default all target
+#'   species are selected. A vector of species names, or a numeric vector with
+#'   the species indices, or a logical vector indicating for each species
+#'   whether it is to be selected (TRUE) or not.
 #' @param all.sizes If TRUE, then feeding level is plotted also for sizes
 #'   outside a species' size range. Default FALSE.
+#' @param highlight Name or vector of names of the species to be highlighted.
 #' @param include_critical If TRUE, then the critical feeding level is also
 #'   plotted. Default FALSE.
-#' @param ... .
+#' @param wlim A numeric vector of length two providing lower and upper limits
+#'   for the weight (x) axis. Use `NA` to auto-scale to the data range.
+#' @param llim A numeric vector of length two providing lower and upper limits
+#'   for the length (x) axis when `size_axis = "l"`. Use `NA` to auto-scale to
+#'   the data range.
+#' @param size_axis Whether to plot size as weight (`"w"`, default) or length
+#'   (`"l"`), using the allometric weight-length relationship.
+#' @param return_data A boolean value that determines whether the formatted data
+#'   used for the plot is returned instead of the plot itself. Default is FALSE.
+#' @param log_x If `TRUE` (default), use a log10 x-axis.
+#' @param log_y If `TRUE`, use a log10 y-axis. Default is `FALSE`.
+#' @param log Character string specifying which axes should use log10 scales,
+#'   in the same form as the base [plot()] argument. For example, `"x"`,
+#'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
+#' @param ... Further arguments used by only some of the methods:
+#'   \describe{
+#'     \item{`time_range`}{The time range (either a vector of values, a vector
+#'       of min and max time, or a single value) to average the feeding level
+#'       over. Default is the final time step. Only applies when called with a
+#'       \linkS4class{MizerSim} object.}
+#'   }
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the variables 'w' (or 'l' if `size_axis = "l"`), 'value' and
@@ -1820,7 +1957,11 @@ plotlySpectra <- function(object, species = NULL,
 #' }
 #' @rdname plotFeedingLevel
 #' @export
-plotFeedingLevel <- function(object, ...) {
+plotFeedingLevel <- function(object, species = NULL, all.sizes = FALSE,
+                             highlight = NULL, include_critical = FALSE,
+                             wlim = c(NA, NA), llim = c(NA, NA),
+                             size_axis = c("w", "l"), return_data = FALSE,
+                             log_x = TRUE, log_y = FALSE, log = NULL, ...) {
     UseMethod("plotFeedingLevel")
 }
 
@@ -2065,10 +2206,36 @@ plotlyFeedingLevel <- function(object,
 #' by size. The mortality rate is averaged over the specified time range (a
 #' single value for the time range can be used to plot a single time step).
 #'
-#' @inheritParams plotSpectra
+#' @param object An object of class \linkS4class{MizerSim} or
+#'   \linkS4class{MizerParams}.
+#' @param species The species to be selected. Optional. By default all target
+#'   species are selected. A vector of species names, or a numeric vector with
+#'   the species indices, or a logical vector indicating for each species
+#'   whether it is to be selected (TRUE) or not.
 #' @param all.sizes If TRUE, then predation mortality is plotted also for sizes
 #'   outside a species' size range. Default FALSE.
-#' @param ... .
+#' @param highlight Name or vector of names of the species to be highlighted.
+#' @param wlim A numeric vector of length two providing lower and upper limits
+#'   for the weight (x) axis. Use `NA` to auto-scale to the data range.
+#' @param llim A numeric vector of length two providing lower and upper limits
+#'   for the length (x) axis when `size_axis = "l"`. Use `NA` to auto-scale to
+#'   the data range.
+#' @param size_axis Whether to plot size as weight (`"w"`, default) or length
+#'   (`"l"`), using the allometric weight-length relationship.
+#' @param return_data A boolean value that determines whether the formatted data
+#'   used for the plot is returned instead of the plot itself. Default is FALSE.
+#' @param log_x If `TRUE` (default), use a log10 x-axis.
+#' @param log_y If `TRUE`, use a log10 y-axis. Default is `FALSE`.
+#' @param log Character string specifying which axes should use log10 scales,
+#'   in the same form as the base [plot()] argument. For example, `"x"`,
+#'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
+#' @param ... Further arguments used by only some of the methods:
+#'   \describe{
+#'     \item{`time_range`}{The time range (either a vector of values, a vector
+#'       of min and max time, or a single value) to average the predation
+#'       mortality over. Default is the final time step. Only applies when
+#'       called with a \linkS4class{MizerSim} object.}
+#'   }
 #'
 #' @return  A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the three variables 'w' (or 'l' if `size_axis = "l"`), 'value',
@@ -2089,7 +2256,10 @@ plotlyFeedingLevel <- function(object,
 #' }
 #' @rdname plotPredMort
 #' @export
-plotPredMort <- function(object, ...) {
+plotPredMort <- function(object, species = NULL, all.sizes = FALSE,
+                         highlight = NULL, wlim = c(NA, NA), llim = c(NA, NA),
+                         size_axis = c("w", "l"), return_data = FALSE,
+                         log_x = TRUE, log_y = FALSE, log = NULL, ...) {
     UseMethod("plotPredMort")
 }
 
@@ -2173,10 +2343,36 @@ plotlyPredMort <- function(object, species = NULL,
 #' range (a single value for the time range can be used to plot a single time
 #' step).
 #'
-#' @inheritParams plotSpectra
+#' @param object An object of class \linkS4class{MizerSim} or
+#'   \linkS4class{MizerParams}.
+#' @param species The species to be selected. Optional. By default all target
+#'   species are selected. A vector of species names, or a numeric vector with
+#'   the species indices, or a logical vector indicating for each species
+#'   whether it is to be selected (TRUE) or not.
 #' @param all.sizes If TRUE, then fishing mortality is plotted also for sizes
 #'   outside a species' size range. Default FALSE.
-#' @param ... .
+#' @param highlight Name or vector of names of the species to be highlighted.
+#' @param wlim A numeric vector of length two providing lower and upper limits
+#'   for the weight (x) axis. Use `NA` to auto-scale to the data range.
+#' @param llim A numeric vector of length two providing lower and upper limits
+#'   for the length (x) axis when `size_axis = "l"`. Use `NA` to auto-scale to
+#'   the data range.
+#' @param size_axis Whether to plot size as weight (`"w"`, default) or length
+#'   (`"l"`), using the allometric weight-length relationship.
+#' @param return_data A boolean value that determines whether the formatted data
+#'   used for the plot is returned instead of the plot itself. Default is FALSE.
+#' @param log_x If `TRUE` (default), use a log10 x-axis.
+#' @param log_y If `TRUE`, use a log10 y-axis. Default is `FALSE`.
+#' @param log Character string specifying which axes should use log10 scales,
+#'   in the same form as the base [plot()] argument. For example, `"x"`,
+#'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
+#' @param ... Further arguments used by only some of the methods:
+#'   \describe{
+#'     \item{`time_range`}{The time range (either a vector of values, a vector
+#'       of min and max time, or a single value) to average the fishing
+#'       mortality over. Default is the final time step. Only applies when
+#'       called with a \linkS4class{MizerSim} object.}
+#'   }
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the three variables 'w' (or 'l' if `size_axis = "l"`), 'value',
 #'   'Species' is returned.
@@ -2196,7 +2392,10 @@ plotlyPredMort <- function(object, species = NULL,
 #' }
 #' @rdname plotFMort
 #' @export
-plotFMort <- function(object, ...) {
+plotFMort <- function(object, species = NULL, all.sizes = FALSE,
+                      highlight = NULL, wlim = c(NA, NA), llim = c(NA, NA),
+                      size_axis = c("w", "l"), return_data = FALSE,
+                      log_x = TRUE, log_y = FALSE, log = NULL, ...) {
     UseMethod("plotFMort")
 }
 
@@ -2287,16 +2486,31 @@ plotlyFMort <- function(object, species = NULL,
 #' not be compared to the mizer growth curves (which approximate the average age
 #' at each length).
 #'
-#' @inheritParams getGrowthCurves
-#' @inheritParams plotSpectra
+#' @param object An object of class \linkS4class{MizerSim} or
+#'   \linkS4class{MizerParams}.
+#' @param species The species to be selected. Optional. By default all target
+#'   species are selected. A vector of species names, or a numeric vector with
+#'   the species indices, or a logical vector indicating for each species
+#'   whether it is to be selected (TRUE) or not.
+#' @param max_age The age up to which to run the growth curve. Default is 20.
+#' @param percentage Boolean value. If TRUE, the size is given as a percentage
+#'   of the maximal size.
 #' @param species_panel If TRUE (default), and `percentage = FALSE`, display all
 #'   species as facets. Otherwise puts all species into a single panel.
+#' @param highlight Name or vector of names of the species to be highlighted.
 #' @param size_at_age A data frame with observed size at age data to be plotted
 #'   on top of growth curve graphs. Should contain columns `species` (species
 #'   name as used in the model), `age` (in years) and either `weight` (in grams)
 #'   or `length` (in cm). If both `weight` and `length` are provided, only
 #'   `weight` is used.
-#' @param ... .
+#' @param return_data A boolean value that determines whether the formatted data
+#'   used for the plot is returned instead of the plot itself. Default is FALSE.
+#' @param log_x If `TRUE`, use a log10 x-axis. Default is `FALSE`.
+#' @param log_y If `TRUE`, use a log10 y-axis. Default is `FALSE`.
+#' @param log Character string specifying which axes should use log10 scales,
+#'   in the same form as the base [plot()] argument. For example, `"x"`,
+#'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
+#' @param ... Unused.
 #' @return A ggplot2 object
 #' @export
 #' @family plotting functions
@@ -2315,7 +2529,11 @@ plotlyFMort <- function(object, species = NULL,
 #' }
 #' @rdname plotGrowthCurves
 #' @export
-plotGrowthCurves <- function(object, ...) {
+plotGrowthCurves <- function(object, species = NULL, max_age = 20,
+                             percentage = FALSE, species_panel = FALSE,
+                             highlight = NULL, size_at_age = NULL,
+                             return_data = FALSE, log_x = FALSE,
+                             log_y = FALSE, log = NULL, ...) {
     UseMethod("plotGrowthCurves")
 }
 
@@ -2542,8 +2760,27 @@ plotlyGrowthCurves <- function(object, species = NULL,
 #' If more than one predator species is selected, then the plot contains one
 #' facet for each species.
 #'
-#' @inheritParams plotSpectra
-#' @param ... .
+#' @param object An object of class \linkS4class{MizerSim} or
+#'   \linkS4class{MizerParams}.
+#' @param species The species to be selected. Optional. By default all target
+#'   species are selected. A vector of species names, or a numeric vector with
+#'   the species indices, or a logical vector indicating for each species
+#'   whether it is to be selected (TRUE) or not.
+#' @param wlim A numeric vector of length two providing lower and upper limits
+#'   for the weight (x) axis. Use `NA` to auto-scale to the data range.
+#' @param llim A numeric vector of length two providing lower and upper limits
+#'   for the length (x) axis when `size_axis = "l"`. Use `NA` to auto-scale to
+#'   the data range.
+#' @param size_axis Whether to plot size as weight (`"w"`, default) or length
+#'   (`"l"`), using the allometric weight-length relationship.
+#' @param return_data A boolean value that determines whether the formatted data
+#'   used for the plot is returned instead of the plot itself. Default is FALSE.
+#' @param log_x If `TRUE` (default), use a log10 x-axis.
+#' @param log_y If `TRUE`, use a log10 y-axis. Default is `FALSE`.
+#' @param log Character string specifying which axes should use log10 scales,
+#'   in the same form as the base [plot()] argument. For example, `"x"`,
+#'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
+#' @param ... Unused.
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the four variables 'Predator', 'w' (or 'l' if
@@ -2562,7 +2799,10 @@ plotlyGrowthCurves <- function(object, species = NULL,
 #' }
 #' @rdname plotDiet
 #' @export
-plotDiet <- function(object, ...) {
+plotDiet <- function(object, species = NULL, wlim = c(NA, NA),
+                     llim = c(NA, NA), size_axis = c("w", "l"),
+                     return_data = FALSE, log_x = TRUE, log_y = FALSE,
+                     log = NULL, ...) {
     UseMethod("plotDiet")
 }
 

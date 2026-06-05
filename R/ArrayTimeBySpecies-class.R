@@ -127,10 +127,6 @@ print.summary.ArrayTimeBySpecies <- function(x, ...) {
 
 #' @rdname plot
 #' @usage NULL
-#'
-#' @param tlim A numeric vector of length two providing lower and upper limits
-#'   for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no limit at
-#'   that end. Default is `c(NA, NA)`. Only applies to `ArrayTimeBySpecies`.
 #' @export
 #' @examples
 #' \donttest{
@@ -174,13 +170,6 @@ plot.ArrayTimeBySpecies <- function(x, species = NULL,
 
 #' @rdname addPlot
 #' @usage NULL
-#' @inheritParams plot
-#' @param colour Optional fixed colour for the added lines. If `NULL`, the
-#'   species colours from the existing plot are used.
-#' @param linetype Optional fixed line type for the added lines. If `NULL`, the
-#'   species line types from the existing plot are used.
-#' @param linewidth Width of the added lines.
-#' @param alpha Transparency of the added lines.
 #' @export
 addPlot.ArrayTimeBySpecies <- function(plot, x, species = NULL,
                                        tlim = c(NA, NA),
@@ -236,9 +225,6 @@ addPlot.ArrayTimeBySpecies <- function(plot, x, species = NULL,
 
 #' @rdname plot2
 #' @usage NULL
-#' @param tlim A numeric vector of length two providing lower and upper limits
-#'   for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no limit at
-#'   that end. Default is `c(NA, NA)`. Only applies to `ArrayTimeBySpecies`.
 #' @export
 plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
                                      species = NULL,
@@ -273,9 +259,6 @@ plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
 
 #' @rdname plotRelative
 #' @usage NULL
-#' @param tlim A numeric vector of length two providing lower and upper limits
-#'   for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no limit at
-#'   that end. Default is `c(NA, NA)`. Only applies to `ArrayTimeBySpecies`.
 #' @export
 plotRelative.ArrayTimeBySpecies <- function(x, y, species = NULL,
                                             tlim = c(NA, NA),

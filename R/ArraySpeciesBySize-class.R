@@ -145,47 +145,59 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #' To compare two mizer arrays in a single plot, use [plot2()]. To show the
 #' relative difference between two arrays, use [plotRelative()].
 #'
-#' @usage plot(x, ...)
 #' @param x An `ArraySpeciesBySize`, `ArrayTimeBySpecies`, or
 #'   `ArrayTimeBySpeciesBySize` object.
-#' @param species Character vector of species to include. `NULL` (default) means
-#'   all species.
-#' @param all.sizes If `FALSE` (default), values outside a species' size range
-#'   (`w_min` to `w_max`) are removed. Only applies to `ArraySpeciesBySize`.
-#' @param highlight Name or vector of names of the species to be highlighted.
-#' @param return_data If `TRUE`, return the data frame instead of the plot.
-#' @param log_x If `TRUE`, use a log10 x-axis. Default is `TRUE` for size
-#'   spectra and `FALSE` for time series.
-#' @param log_y If `TRUE`, use a log10 y-axis. Default is `FALSE` for
-#'   `ArraySpeciesBySize` and `TRUE` for `ArrayTimeBySpecies`.
-#' @param log Character string specifying which axes should use log10 scales,
-#'   in the same form as the base [plot()] argument. For example, `"x"`,
-#'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
-#' @param wlim A numeric vector of length two providing lower and upper limits
-#'   for the weight (x) axis. Use `NA` to refer to the existing minimum or
-#'   maximum. Only applies to `ArraySpeciesBySize`.
-#' @param llim A numeric vector of length two providing lower and upper limits
-#'   for the length (x) axis when `size_axis = "l"`. Use `NA` to refer to the
-#'   existing minimum or maximum. Only applies to `ArraySpeciesBySize`.
-#' @param size_axis Whether to plot size as weight (`"w"`, default) or length
-#'   (`"l"`), using the allometric weight-length relationship.
-#' @param ylim A numeric vector of length two providing lower and upper limits
-#'   for the value (y) axis. Use `NA` to refer to the existing minimum or
-#'   maximum.
-#' @param total A boolean value that determines whether the total over all
-#'   selected species is plotted as well. Default is `FALSE`.
-#' @param background A boolean value that determines whether background species
-#'   are included. Ignored if the model does not contain background species.
-#'   Default is `TRUE`.
-#' @param y_ticks The approximate number of ticks desired on the y axis.
-#' @param ... Further arguments (currently unused).
+#' @param ... Additional arguments used by the individual methods:
+#'   \describe{
+#'     \item{`species`}{Character vector of species to include. `NULL`
+#'       (default) means all species.}
+#'     \item{`time`}{The time to display. Default (`NULL`) is the final time
+#'       step. Only applies to `ArrayTimeBySpeciesBySize`.}
+#'     \item{`tlim`}{A numeric vector of length two providing lower and upper
+#'       limits for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no
+#'       limit at that end. Default is `c(NA, NA)`. Only applies to
+#'       `ArrayTimeBySpecies`.}
+#'     \item{`all.sizes`}{If `FALSE` (default), values outside a species' size
+#'       range (`w_min` to `w_max`) are removed. Only applies to
+#'       `ArraySpeciesBySize`.}
+#'     \item{`highlight`}{Name or vector of names of the species to be
+#'       highlighted.}
+#'     \item{`return_data`}{If `TRUE`, return the data frame instead of the
+#'       plot.}
+#'     \item{`log_x`}{If `TRUE`, use a log10 x-axis. Default is `TRUE` for size
+#'       spectra and `FALSE` for time series.}
+#'     \item{`log_y`}{If `TRUE`, use a log10 y-axis. Default is `FALSE` for
+#'       `ArraySpeciesBySize` and `TRUE` for `ArrayTimeBySpecies`.}
+#'     \item{`log`}{Character string specifying which axes should use log10
+#'       scales, in the same form as the base [plot()] argument. For example,
+#'       `"x"`, `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and
+#'       `log_y`.}
+#'     \item{`wlim`}{A numeric vector of length two providing lower and upper
+#'       limits for the weight (x) axis. Use `NA` to refer to the existing
+#'       minimum or maximum. Only applies to `ArraySpeciesBySize`.}
+#'     \item{`llim`}{A numeric vector of length two providing lower and upper
+#'       limits for the length (x) axis when `size_axis = "l"`. Use `NA` to
+#'       refer to the existing minimum or maximum. Only applies to
+#'       `ArraySpeciesBySize`.}
+#'     \item{`size_axis`}{Whether to plot size as weight (`"w"`, default) or
+#'       length (`"l"`), using the allometric weight-length relationship.}
+#'     \item{`ylim`}{A numeric vector of length two providing lower and upper
+#'       limits for the value (y) axis. Use `NA` to refer to the existing
+#'       minimum or maximum.}
+#'     \item{`total`}{A boolean value that determines whether the total over
+#'       all selected species is plotted as well. Default is `FALSE`.}
+#'     \item{`background`}{A boolean value that determines whether background
+#'       species are included. Ignored if the model does not contain background
+#'       species. Default is `TRUE`.}
+#'     \item{`y_ticks`}{The approximate number of ticks desired on the y axis.}
+#'   }
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame is returned. [plotHover()] returns a plotly object.
 #'
 #' @name plot
 #' @family plotting functions
-#' @usage \method{plot}{ArraySpeciesBySize}(x, ...)
+#' @usage plot(x, ...)
 #' @export
 #' @examples
 #' \donttest{
@@ -274,8 +286,6 @@ parsePlotLog <- function(log, log_x = FALSE, log_y = FALSE) {
 #' @param name1,name2 Labels for the two objects, used in the linetype legend.
 #' @param species Character vector of species to include. `NULL` (default) means
 #'   all species.
-#' @param all.sizes If `FALSE` (default), values outside a species' size range
-#'   (`w_min` to `w_max`) are removed. Only applies to `ArraySpeciesBySize`.
 #' @param log_x If `TRUE`, use a log10 x-axis. Default is `TRUE` for size
 #'   spectra and `FALSE` for time series.
 #' @param log_y If `TRUE`, use a log10 y-axis. Default is `FALSE` for
@@ -283,14 +293,6 @@ parsePlotLog <- function(log, log_x = FALSE, log_y = FALSE) {
 #' @param log Character string specifying which axes should use log10 scales,
 #'   in the same form as the base [plot()] argument. For example, `"x"`,
 #'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
-#' @param wlim A numeric vector of length two providing lower and upper limits
-#'   for the weight (x) axis. Use `NA` to refer to the existing minimum or
-#'   maximum. Only applies to `ArraySpeciesBySize`.
-#' @param llim A numeric vector of length two providing lower and upper limits
-#'   for the length (x) axis when `size_axis = "l"`. Use `NA` to refer to the
-#'   existing minimum or maximum. Only applies to `ArraySpeciesBySize`.
-#' @param size_axis Whether to plot size as weight (`"w"`, default) or length
-#'   (`"l"`), using the allometric weight-length relationship.
 #' @param ylim A numeric vector of length two providing lower and upper limits
 #'   for the value (y) axis. Use `NA` to refer to the existing minimum or
 #'   maximum.
@@ -300,7 +302,29 @@ parsePlotLog <- function(log, log_x = FALSE, log_y = FALSE) {
 #'   are included. Ignored if the model does not contain background species.
 #'   Default is `TRUE`.
 #' @param y_ticks The approximate number of ticks desired on the y axis.
-#' @param ... Further arguments (currently unused).
+#' @param ... Further arguments used by only some of the methods:
+#'   \describe{
+#'     \item{`all.sizes`}{If `FALSE` (default), values outside a species' size
+#'       range (`w_min` to `w_max`) are removed. Only applies to
+#'       `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize`.}
+#'     \item{`wlim`}{A numeric vector of length two providing lower and upper
+#'       limits for the weight (x) axis. Use `NA` to refer to the existing
+#'       minimum or maximum. Only applies to `ArraySpeciesBySize` and
+#'       `ArrayTimeBySpeciesBySize`.}
+#'     \item{`llim`}{A numeric vector of length two providing lower and upper
+#'       limits for the length (x) axis when `size_axis = "l"`. Use `NA` to
+#'       refer to the existing minimum or maximum. Only applies to
+#'       `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize`.}
+#'     \item{`size_axis`}{Whether to plot size as weight (`"w"`, default) or
+#'       length (`"l"`), using the allometric weight-length relationship. Only
+#'       applies to `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize`.}
+#'     \item{`time`}{The time to display. Default (`NULL`) is the final time
+#'       step. Only applies to `ArrayTimeBySpeciesBySize`.}
+#'     \item{`tlim`}{A numeric vector of length two providing lower and upper
+#'       limits for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no
+#'       limit at that end. Default is `c(NA, NA)`. Only applies to
+#'       `ArrayTimeBySpecies`.}
+#'   }
 #'
 #' @return A ggplot2 object.
 #'
@@ -310,7 +334,10 @@ parsePlotLog <- function(log, log_x = FALSE, log_y = FALSE) {
 #' \donttest{
 #' plot2(getEncounter(NS_params), getEncounter(NS_params))
 #' }
-plot2 <- function(x, y, ...) {
+plot2 <- function(x, y, name1 = "First", name2 = "Second",
+                  species = NULL, log_x, log_y, log = NULL,
+                  ylim = c(NA, NA), total = FALSE, background = TRUE,
+                  y_ticks = 6, ...) {
     UseMethod("plot2", x)
 }
 
@@ -368,25 +395,38 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
 #' @param y The second mizer array object, compatible with `x`.
 #' @param species Character vector of species to include. `NULL` (default) means
 #'   all species.
-#' @param all.sizes If `FALSE` (default), values outside a species' size range
-#'   (`w_min` to `w_max`) are removed. Only applies to `ArraySpeciesBySize`.
-#' @param log_x If `TRUE`, use a log10 x-axis.
-#' @param wlim A numeric vector of length two providing lower and upper limits
-#'   for the weight (x) axis. Use `NA` to refer to the existing minimum or
-#'   maximum. Only applies to `ArraySpeciesBySize`.
-#' @param llim A numeric vector of length two providing lower and upper limits
-#'   for the length (x) axis when `size_axis = "l"`. Use `NA` to refer to the
-#'   existing minimum or maximum. Only applies to `ArraySpeciesBySize`.
+#' @param log_x If `TRUE`, use a log10 x-axis. Default is `TRUE` for size
+#'   spectra and `FALSE` for time series.
 #' @param ylim A numeric vector of length two providing lower and upper limits
 #'   for the value (y) axis.
-#' @param size_axis Whether to plot size as weight (`"w"`, default) or length
-#'   (`"l"`), using the allometric weight-length relationship.
 #' @param total A boolean value that determines whether the total over all
 #'   selected species is plotted as well. Default is `FALSE`.
 #' @param background A boolean value that determines whether background species
 #'   are included. Ignored if the model does not contain background species.
 #'   Default is `TRUE`.
-#' @param ... Further arguments (currently unused).
+#' @param ... Further arguments used by only some of the methods:
+#'   \describe{
+#'     \item{`all.sizes`}{If `FALSE` (default), values outside a species' size
+#'       range (`w_min` to `w_max`) are removed. Only applies to
+#'       `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize`.}
+#'     \item{`wlim`}{A numeric vector of length two providing lower and upper
+#'       limits for the weight (x) axis. Use `NA` to refer to the existing
+#'       minimum or maximum. Only applies to `ArraySpeciesBySize` and
+#'       `ArrayTimeBySpeciesBySize`.}
+#'     \item{`llim`}{A numeric vector of length two providing lower and upper
+#'       limits for the length (x) axis when `size_axis = "l"`. Use `NA` to
+#'       refer to the existing minimum or maximum. Only applies to
+#'       `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize`.}
+#'     \item{`size_axis`}{Whether to plot size as weight (`"w"`, default) or
+#'       length (`"l"`), using the allometric weight-length relationship. Only
+#'       applies to `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize`.}
+#'     \item{`time`}{The time to display. Default (`NULL`) is the final time
+#'       step. Only applies to `ArrayTimeBySpeciesBySize`.}
+#'     \item{`tlim`}{A numeric vector of length two providing lower and upper
+#'       limits for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no
+#'       limit at that end. Default is `c(NA, NA)`. Only applies to
+#'       `ArrayTimeBySpecies`.}
+#'   }
 #'
 #' @return A ggplot2 object.
 #'
@@ -396,7 +436,9 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
 #' \donttest{
 #' plotRelative(getEncounter(NS_params), getEncounter(NS_params))
 #' }
-plotRelative <- function(x, y, ...) {
+plotRelative <- function(x, y, species = NULL, log_x,
+                         ylim = c(NA, NA), total = FALSE,
+                         background = TRUE, ...) {
     UseMethod("plotRelative", x)
 }
 
@@ -478,7 +520,41 @@ array_y_label <- function(x, default = "Value") {
 #'
 #' @param plot A ggplot2 object to which the new values should be added.
 #' @param x An object containing the values to add.
-#' @param ... Further arguments passed to methods.
+#' @param species Character vector of species to include. `NULL` (default) means
+#'   all species.
+#' @param total A boolean value that determines whether the total over all
+#'   selected species is plotted as well. Default is `FALSE`.
+#' @param background A boolean value that determines whether background species
+#'   are included. Ignored if the model does not contain background species.
+#'   Default is `TRUE`.
+#' @param colour Optional fixed colour for the added lines. If `NULL`, the
+#'   species colours from the existing plot are used.
+#' @param linetype Optional fixed line type for the added lines. If `NULL`, the
+#'   species line types from the existing plot are used.
+#' @param linewidth Width of the added lines.
+#' @param alpha Transparency of the added lines.
+#' @param ... Further arguments used by only some of the methods:
+#'   \describe{
+#'     \item{`all.sizes`}{If `FALSE` (default), values outside a species' size
+#'       range (`w_min` to `w_max`) are removed. Only applies to
+#'       `ArraySpeciesBySize`.}
+#'     \item{`wlim`}{A numeric vector of length two providing lower and upper
+#'       limits for the weight (x) axis. Use `NA` to refer to the existing
+#'       minimum or maximum. Only applies to `ArraySpeciesBySize`.}
+#'     \item{`llim`}{A numeric vector of length two providing lower and upper
+#'       limits for the length (x) axis when `size_axis = "l"`. Use `NA` to
+#'       refer to the existing minimum or maximum. Only applies to
+#'       `ArraySpeciesBySize`.}
+#'     \item{`size_axis`}{Whether to plot size as weight (`"w"`, default) or
+#'       length (`"l"`), using the allometric weight-length relationship. Only
+#'       applies to `ArraySpeciesBySize`.}
+#'     \item{`tlim`}{A numeric vector of length two providing lower and upper
+#'       limits for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no
+#'       limit at that end. Default is `c(NA, NA)`. Only applies to
+#'       `ArrayTimeBySpecies`.}
+#'     \item{`ylim`}{A numeric vector of length two providing lower and upper
+#'       limits for the value (y) axis. Only applies to `ArrayTimeBySpecies`.}
+#'   }
 #'
 #' @return A ggplot2 object.
 #' @export
@@ -489,19 +565,14 @@ array_y_label <- function(x, default = "Value") {
 #' p <- plot(getEncounter(NS_params), species = "Cod")
 #' addPlot(p, getEncounter(NS_params), species = "Cod")
 #' }
-addPlot <- function(plot, x, ...) {
+addPlot <- function(plot, x, species = NULL, total = FALSE,
+                    background = TRUE, colour = NULL, linetype = "dashed",
+                    linewidth = 0.8, alpha = 1, ...) {
     UseMethod("addPlot", x)
 }
 
 #' @rdname addPlot
 #' @usage NULL
-#' @inheritParams plot
-#' @param colour Optional fixed colour for the added lines. If `NULL`, the
-#'   species colours from the existing plot are used.
-#' @param linetype Optional fixed line type for the added lines. If `NULL`, the
-#'   species line types from the existing plot are used.
-#' @param linewidth Width of the added lines.
-#' @param alpha Transparency of the added lines.
 #' @export
 addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
                                        all.sizes = FALSE,
