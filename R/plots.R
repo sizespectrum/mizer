@@ -256,6 +256,17 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
                                           legend_var))
 }
 
+#' Construct a named vector of line widths for a plot
+#'
+#' Helper used by the plotting functions to give highlighted species a thicker
+#' line than the rest.
+#'
+#' @param levels Character vector of the legend levels (usually species names).
+#' @param highlight Name or vector of names of the levels to be highlighted with
+#'   a thicker line.
+#' @return A named numeric vector of line widths, one for each entry in
+#'   `levels`, with highlighted entries set to a larger value.
+#' @keywords internal
 make_linesize <- function(levels, highlight) {
     linesize <- rep(0.8, length(levels))
     names(linesize) <- levels
@@ -263,12 +274,38 @@ make_linesize <- function(levels, highlight) {
     linesize
 }
 
+#' Tag a ggplot object as a mizer plot
+#'
+#' Attaches the tooltip information to a ggplot object and adds the
+#' `"mizer_plot"` class so that [plotHover()] knows which aesthetics to show.
+#'
+#' @param plot A ggplot object.
+#' @param tooltip Character vector of variable names to include in the plotly
+#'   tooltip.
+#' @return The `plot` object with the tooltip stored as an attribute and
+#'   `"mizer_plot"` prepended to its class.
+#' @keywords internal
 make_mizer_plot <- function(plot, tooltip) {
     attr(plot, "mizer_tooltip") <- tooltip
     class(plot) <- unique(c("mizer_plot", class(plot)))
     plot
 }
 
+#' Determine the tooltip variables for a mizer plot
+#'
+#' Works out which variables should appear in the plotly tooltip, including the
+#' legend variable only when it differs from the grouping variable, plus any
+#' extra variables.
+#'
+#' @param frame The data frame underlying the plot.
+#' @param group_var Name of the grouping variable.
+#' @param x_var Name of the variable on the x-axis.
+#' @param y_var Name of the variable on the y-axis.
+#' @param legend_var Optional name of the legend variable.
+#' @param extra Optional character vector of additional variable names to
+#'   include.
+#' @return A character vector of variable names for the tooltip.
+#' @keywords internal
 mizer_tooltip_vars <- function(frame, group_var, x_var, y_var,
                                legend_var = NULL, extra = NULL) {
     tooltip <- c(group_var, x_var, y_var)
@@ -311,6 +348,30 @@ plotHover.mizer_plot <- function(x = ggplot2::last_plot(), ...,
     plotly::ggplotly(x, ..., tooltip = tooltip)
 }
 
+#' Make a plot comparing two data frames
+#'
+#' Used internally by the comparison plotting functions such as [plotSpectra2()]
+#' and [plotCDF2()]. The two data frames are combined and drawn with colour
+#' identifying the species or group and linetype identifying the object.
+#'
+#' @param frame1,frame2 Data frames sharing the same first three variables (x, y
+#'   and grouping variable). The names of `frame1` are imposed on `frame2`.
+#' @param params A MizerParams object, used for the line colours.
+#' @param name1,name2 Labels for the two data frames, used in the linetype
+#'   legend.
+#' @param xlab,ylab Labels for the x and y axes.
+#' @param xtrans,ytrans Transformations for the x and y axes, e.g. `"log10"` or
+#'   `"identity"`.
+#' @param xlim,ylim Numeric vectors of length two giving the axis limits. Use
+#'   `NA` to refer to the existing minimum or maximum.
+#' @param y_ticks The approximate number of ticks desired on the y axis.
+#' @param highlight Name or vector of names of the species to be highlighted.
+#' @param legend_var Name of the variable used in the legend and to determine the
+#'   line colour.
+#' @param size_axis Optional. If non-NULL, the x-axis is converted to weight
+#'   (`"w"`) or length (`"l"`).
+#' @return A `mizer_plot` (ggplot2) object.
+#' @keywords internal
 plotComparisonDataFrame <- function(frame1, frame2, params,
                                     name1 = "First", name2 = "Second",
                                     xlab = waiver(), ylab = waiver(),
@@ -377,6 +438,26 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                                           extra = "Model"))
 }
 
+#' Make a plot of the relative difference between two data frames
+#'
+#' Used internally by [plotSpectraRelative()] and similar functions. The two
+#' data frames are joined on their shared variables and the relative difference
+#' of their y-values is plotted against the x-variable.
+#'
+#' @param frame1,frame2 Data frames sharing the same first three variables (x, y
+#'   and grouping variable). The names of `frame1` are imposed on `frame2`.
+#' @param params A MizerParams object, used for the line colours.
+#' @param xlab Label for the x-axis.
+#' @param xtrans Transformation for the x-axis, e.g. `"log10"` or `"identity"`.
+#' @param xlim,ylim Numeric vectors of length two giving the axis limits. Use
+#'   `NA` to refer to the existing minimum or maximum.
+#' @param highlight Name or vector of names of the species to be highlighted.
+#' @param legend_var Name of the variable used in the legend and to determine the
+#'   line colour.
+#' @param size_axis Optional. If non-NULL, the x-axis is converted to weight
+#'   (`"w"`) or length (`"l"`).
+#' @return A `mizer_plot` (ggplot2) object showing the relative difference.
+#' @keywords internal
 plotRelativeDataFrame <- function(frame1, frame2, params,
                                   xlab = waiver(),
                                   xtrans = "identity",
@@ -440,6 +521,12 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
                                           legend_var))
 }
 
+#' Symmetric relative difference between two values
+#'
+#' @param first,second Numeric vectors to compare.
+#' @return The symmetric relative difference
+#'   `2 * (second - first) / (first + second)`.
+#' @keywords internal
 relative_difference <- function(first, second) {
     2 * (second - first) / (first + second)
 }
@@ -467,22 +554,54 @@ log_breaks <- function(n = 6) {
     }
 }
 
+#' Validate the size-axis argument
+#'
+#' @param size_axis Either `"w"` (weight) or `"l"` (length).
+#' @return The matched size-axis string, either `"w"` or `"l"`.
+#' @keywords internal
 plot_size_axis <- function(size_axis = "w") {
     match.arg(size_axis, c("w", "l"))
 }
 
+#' Name of the x-variable for a given size axis
+#'
+#' @param size_axis Either `"w"` (weight) or `"l"` (length).
+#' @return `"l"` for a length axis, otherwise `"w"`.
+#' @keywords internal
 plot_size_x_var <- function(size_axis) {
     if (identical(plot_size_axis(size_axis), "l")) "l" else "w"
 }
 
+#' Axis label for a given size axis
+#'
+#' @param size_axis Either `"w"` (weight) or `"l"` (length).
+#' @return The axis label: `"Length [cm]"` for a length axis, otherwise
+#'   `"Size [g]"`.
+#' @keywords internal
 plot_size_xlab <- function(size_axis) {
     if (identical(plot_size_axis(size_axis), "l")) "Length [cm]" else "Size [g]"
 }
 
+#' Choose the x-axis limits for a given size axis
+#'
+#' @param wlim Numeric vector of length two giving the weight limits.
+#' @param size_axis Either `"w"` (weight) or `"l"` (length).
+#' @param llim Numeric vector of length two giving the length limits.
+#' @return `llim` for a length axis, otherwise `wlim`.
+#' @keywords internal
 plot_size_xlim <- function(wlim, size_axis, llim = c(NA, NA)) {
     if (identical(plot_size_axis(size_axis), "l")) llim else wlim
 }
 
+#' Filter plotting data to the requested length limits
+#'
+#' @param plot_dat A data frame of plotting data, possibly with an `l` (length)
+#'   column.
+#' @param llim Numeric vector of length two giving the lower and upper length
+#'   limits. Use `NA` to apply no limit at that end.
+#' @return `plot_dat` filtered to the length limits, or unchanged if it has no
+#'   `l` column.
+#' @keywords internal
 filter_plot_length_limits <- function(plot_dat, llim) {
     if (!"l" %in% names(plot_dat)) {
         return(plot_dat)
@@ -492,10 +611,34 @@ filter_plot_length_limits <- function(plot_dat, llim) {
     plot_dat
 }
 
+#' Assemble the tooltip variables for a size-axis plot
+#'
+#' @param size_axis Either `"w"` (weight) or `"l"` (length).
+#' @param before,after Optional character vectors of variable names to place
+#'   before and after the size variable in the tooltip.
+#' @return A character vector of tooltip variable names.
+#' @keywords internal
 plot_size_tooltip <- function(size_axis, before = NULL, after = NULL) {
     c(before, plot_size_x_var(size_axis), after)
 }
 
+#' Convert plotting data from weight to length
+#'
+#' When `size_axis = "l"`, adds a length column `l` computed from the weight
+#' column `w` using each species' weight-length relationship. For
+#' `size_axis = "w"` the data is returned unchanged.
+#'
+#' @param plot_dat A data frame of plotting data with a `w` column and a species
+#'   column.
+#' @param params A MizerParams object providing the weight-length parameters.
+#' @param size_axis Either `"w"` (weight) or `"l"` (length).
+#' @param species_col Name of the column identifying the species. Default is
+#'   `"Species"`.
+#' @param drop_w If `TRUE` (default), the `w` column is dropped once `l` has been
+#'   computed.
+#' @return The plotting data, with a length column `l` added (and `w` optionally
+#'   dropped) when `size_axis = "l"`.
+#' @keywords internal
 convert_plot_size_axis <- function(plot_dat, params, size_axis,
                                    species_col = "Species",
                                    drop_w = TRUE) {
@@ -845,6 +988,18 @@ plotlyYield <- function(object, sim2,
 
 # For time-series plots, keep backward compatibility with the historical
 # logical `log` argument while supporting the newer `log_x` / `log_y` form.
+#' Parse the `log` argument for time-series plots
+#'
+#' Translates the `log` argument of the time-series plotting functions into a
+#' list of logical flags for the x and y axes, falling back to `log_x` and
+#' `log_y` when `log` is `NULL`. For backwards compatibility a single logical
+#' `log` value sets only `log_y`.
+#'
+#' @param log `NULL`, a single logical value, or a character string containing
+#'   only `"x"` and/or `"y"`.
+#' @param log_x,log_y Default logical flags used when `log` is `NULL`.
+#' @return A list with logical elements `log_x` and `log_y`.
+#' @keywords internal
 parseTimePlotLog <- function(log, log_x, log_y) {
     if (is.null(log)) {
         return(list(log_x = log_x, log_y = log_y))
@@ -1192,6 +1347,32 @@ plotSpectra.MizerParams <- function(object, species = NULL,
 }
 
 
+#' Build the size-spectrum plot
+#'
+#' Internal worker shared by the [plotSpectra()] methods. It assembles the
+#' plotting data frame from the species and resource abundances, applies the
+#' size and abundance limits, optionally converts to a length axis, and either
+#' returns the data or draws the plot via [plotDataFrame()].
+#'
+#' @param params A MizerParams object.
+#' @param n Array of species abundances (species by size).
+#' @param n_pp Vector of resource abundance.
+#' @param species The species to be plotted.
+#' @param wlim,llim Numeric vectors of length two giving the weight and length
+#'   limits.
+#' @param ylim Numeric vector of length two giving the y-axis limits.
+#' @param power The abundance is multiplied by weight raised to this power.
+#' @param total Whether to include the total community abundance.
+#' @param resource Whether to include the resource spectrum.
+#' @param background Whether to include background species.
+#' @param highlight Name or vector of names of species to be highlighted.
+#' @param log_x,log_y Logical flags for log10 axes.
+#' @param size_axis Either `"w"` (weight) or `"l"` (length).
+#' @param return_data If `TRUE`, return the plotting data frame instead of the
+#'   plot.
+#' @return A `mizer_plot` (ggplot2) object, or the plotting data frame if
+#'   `return_data = TRUE`.
+#' @keywords internal
 plot_spectra <- function(params, n, n_pp,
                          species, wlim, llim, ylim, power,
                          total, resource, background,
@@ -1459,6 +1640,29 @@ plotCDF.MizerParams <- function(object, species = NULL,
              return_data = return_data)
 }
 
+#' Build the cumulative-distribution plot
+#'
+#' Internal worker shared by the [plotCDF()] methods. It integrates the spectra
+#' data over size (optionally normalising), converts to a length axis if
+#' requested, and either returns the data or draws the plot via
+#' [plotDataFrame()].
+#'
+#' @param plot_dat Spectra plotting data as produced for [plotSpectra()].
+#' @param params A MizerParams object.
+#' @param power The power of weight that the abundance was multiplied by, used
+#'   for the y-axis label.
+#' @param normalise If `TRUE`, each curve is divided by its final value.
+#' @param log_x,log_y Logical flags for log10 axes.
+#' @param wlim,llim Numeric vectors of length two giving the weight and length
+#'   limits.
+#' @param ylim Numeric vector of length two giving the y-axis limits.
+#' @param highlight Name or vector of names of species to be highlighted.
+#' @param size_axis Either `"w"` (weight) or `"l"` (length).
+#' @param return_data If `TRUE`, return the cumulative-distribution data frame
+#'   instead of the plot.
+#' @return A `mizer_plot` (ggplot2) object, or the data frame if
+#'   `return_data = TRUE`.
+#' @keywords internal
 plot_cdf <- function(plot_dat, params, power, normalise, log_x, log_y, wlim, llim,
                      ylim, highlight, size_axis, return_data) {
     size_axis <- plot_size_axis(size_axis)
@@ -1485,6 +1689,20 @@ plot_cdf <- function(plot_dat, params, power, normalise, log_x, log_y, wlim, lli
                   highlight = highlight, legend_var = "Legend")
 }
 
+#' Integrate spectra data into a cumulative distribution
+#'
+#' Multiplies the spectra density by the size-bin widths and forms the
+#' cumulative sum over size for each species, optionally normalising each curve
+#' to end at 1.
+#'
+#' @param plot_dat Spectra plotting data with a `w` column, a `Species` column
+#'   and the value in the second column.
+#' @param params A MizerParams object, used for the size-bin widths.
+#' @param normalise If `TRUE` (default), divide each species' curve by its
+#'   maximum.
+#' @return The plotting data with the value column replaced by its cumulative
+#'   distribution over size.
+#' @keywords internal
 prepare_spectra_cdf_data <- function(plot_dat, params, normalise = TRUE) {
     params <- validParams(params)
     y_var <- names(plot_dat)[2]
@@ -1499,6 +1717,15 @@ prepare_spectra_cdf_data <- function(plot_dat, params, normalise = TRUE) {
     plot_dat
 }
 
+#' Look up the size-bin widths for spectra data
+#'
+#' Matches the weights in the plotting data to the model's full size grid and
+#' returns the corresponding bin widths.
+#'
+#' @param w Numeric vector of weights.
+#' @param params A MizerParams object.
+#' @return A numeric vector of bin widths, one for each entry of `w`.
+#' @keywords internal
 spectra_bin_width <- function(w, params) {
     idx <- match(w, params@w_full)
     if (anyNA(idx)) {
@@ -1513,6 +1740,12 @@ spectra_bin_width <- function(w, params) {
     params@dw_full[idx]
 }
 
+#' Y-axis label for a cumulative-distribution plot
+#'
+#' @param power The power of weight that the abundance was multiplied by.
+#' @param normalise Whether the cumulative distribution is normalised.
+#' @return A character string for the y-axis label.
+#' @keywords internal
 cdf_y_label <- function(power, normalise) {
     if (normalise) {
         if (power == 0) {
@@ -1669,6 +1902,11 @@ plotSpectra2 <- function(object1, object2, name1 = "First", name2 = "Second",
                             size_axis = size_axis)
 }
 
+#' Y-axis label for a size-spectrum plot
+#'
+#' @param power The power of weight that the abundance was multiplied by.
+#' @return A character string for the y-axis label.
+#' @keywords internal
 spectra_y_label <- function(power) {
     if (power %in% c(0, 1, 2)) {
         return(c("Number density [1/g]", "Biomass density",
@@ -2026,6 +2264,29 @@ plotFeedingLevel.MizerParams <- function(object, species = NULL,
                        return_data = return_data)
 }
 
+#' Build the feeding-level plot
+#'
+#' Internal worker shared by the [plotFeedingLevel()] methods. It assembles the
+#' plotting data, optionally adds the critical feeding level, restricts to each
+#' species' size range, converts to a length axis if requested and draws the
+#' plot.
+#'
+#' @param params A MizerParams object.
+#' @param feed Array of feeding levels (species by size).
+#' @param species The species to be plotted.
+#' @param highlight Name or vector of names of species to be highlighted.
+#' @param all.sizes If `FALSE`, feeding levels outside each species' size range
+#'   are removed.
+#' @param include_critical Whether to also plot the critical feeding level.
+#' @param log_x,log_y Logical flags for log10 axes.
+#' @param wlim,llim Numeric vectors of length two giving the weight and length
+#'   limits.
+#' @param size_axis Either `"w"` (weight) or `"l"` (length).
+#' @param return_data If `TRUE`, return the plotting data frame instead of the
+#'   plot.
+#' @return A `mizer_plot` (ggplot2) object, or the plotting data frame if
+#'   `return_data = TRUE`.
+#' @keywords internal
 plot_feeding_level <- function(params, feed, species, highlight,
                                all.sizes, include_critical,
                                log_x, log_y,
@@ -2584,6 +2845,25 @@ plotGrowthCurves.MizerParams <- function(object, species = NULL,
                        return_data = return_data)
 }
 
+#' Build the growth-curves plot
+#'
+#' Internal worker shared by the [plotGrowthCurves()] methods. It computes the
+#' modelled size at age, optionally adds a von Bertalanffy curve and observed
+#' size-at-age data, and draws the plot.
+#'
+#' @param params A MizerParams object.
+#' @param species The species to be plotted.
+#' @param max_age The age up to which to plot the growth curve.
+#' @param percentage If `TRUE`, size is shown as a percentage of maximum size.
+#' @param species_panel If `TRUE`, each species is shown in its own panel.
+#' @param highlight Name or vector of names of species to be highlighted.
+#' @param log_x,log_y Logical flags for log10 axes.
+#' @param size_at_age Optional data frame of observed size-at-age data.
+#' @param return_data If `TRUE`, return the plotting data frame instead of the
+#'   plot.
+#' @return A `mizer_plot` (ggplot2) object, or the plotting data frame if
+#'   `return_data = TRUE`.
+#' @keywords internal
 plot_growth_curves <- function(params, species,
                                max_age, percentage,
                                species_panel, highlight,
@@ -2842,6 +3122,25 @@ plotDiet.MizerParams <- function(object, species = NULL,
               return_data = return_data)
 }
 
+#' Build the diet-composition plot
+#'
+#' Internal worker shared by the [plotDiet()] methods. It melts the diet array
+#' into a data frame, restricts to meaningful size ranges, converts to a length
+#' axis if requested and draws a stacked-area plot of prey proportions.
+#'
+#' @param params A MizerParams object.
+#' @param n Array of species abundances (species by size).
+#' @param diet Array of diet proportions (predator by size by prey).
+#' @param species The predator species to be plotted.
+#' @param log_x,log_y Logical flags for log10 axes.
+#' @param wlim,llim Numeric vectors of length two giving the weight and length
+#'   limits.
+#' @param size_axis Either `"w"` (weight) or `"l"` (length).
+#' @param return_data If `TRUE`, return the plotting data frame instead of the
+#'   plot.
+#' @return A `mizer_plot` (ggplot2) object, or the plotting data frame if
+#'   `return_data = TRUE`.
+#' @keywords internal
 plot_diet <- function(params, n, diet, species, log_x, log_y, wlim, llim,
                       size_axis, return_data) {
     size_axis <- plot_size_axis(size_axis)
