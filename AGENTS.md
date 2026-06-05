@@ -63,15 +63,7 @@ methods with no roxygen beyond `@rdname`, `@usage NULL` and `@export`:
   check error.
 - **Exception:** base-R generics (`plot`, `print`, `summary`, `as.data.frame`)
   cannot gain formals, so all their method arguments go in the `@param ...`
-  `\describe{}` block. For the `@usage`, reference the **generic**
-  (`@usage plot(x, ...)`), not a `\method{generic}{class}(...)` line, and keep
-  every method at `@usage NULL`. A fabricated `\method{}` usage that omits the
-  method's real formals triggers an `R CMD check` *codoc* warning ("Codoc
-  mismatches"), because codoc compares each `\method{}` usage against the actual
-  method signature. Referencing the base generic sidesteps this: codoc skips it
-  because the generic is not a package object. (A `\method{}` usage is only safe
-  when it lists the method's real formals, e.g. `print` methods that genuinely
-  take just `(x, ...)`.)
+  `\describe{}` block. The methods use `@usage NULL`.
 
 ## Testing
 
