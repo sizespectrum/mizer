@@ -99,8 +99,6 @@ reference:
   - newCommunityParams
   - newTraitParams
   - newMultispeciesParams
-  - mizer-package
-  - defaults_edition
 - title: Changing model parameters
   description: After you have created a model, you will want to make changes to it
     while tuning the model and for investigating the impact of changes in parameters.
@@ -110,8 +108,13 @@ reference:
   - initialN
   - initialNResource
   - initial_effort
+  - addSpecies
+  - removeSpecies
+  - renameSpecies
   - renameGear
   - expandSizeGrid
+  - markBackground
+  - removeBackgroundSpecies
   - use_predation_diffusion
 - title: Steady state tuning
   description: The first task after creating a multi-species model is to tune
@@ -178,25 +181,29 @@ reference:
   - plotting_functions
   - plot
   - plotHover
+  - plot2
+  - plotRelative
   - animate
   - plotSpectra
+  - plotSpectra2
+  - plotSpectraRelative
   - plotCDF
+  - plotCDF2
+  - plotBiomass
+  - plotPredMort
+  - plotFeedingLevel
+  - plotYield
+  - plotYieldGear
+  - plotFMort
+  - plotGrowthCurves
+  - plotBiomassObservedVsModel
+  - plotYieldObservedVsModel
   - starts_with("animate")
   - starts_with("plot")
   - addPlot
   - has_concept("plotting functions")
-  - -plotM2
   - setColours
   - setLinetypes
-- title: Manipulating species list
-  description: Add, remove, or rename species in an existing model, and manage
-    background species whose biomasses are kept at their steady-state values.
-  contents:
-  - addSpecies
-  - removeSpecies
-  - renameSpecies
-  - markBackground
-  - removeBackgroundSpecies
 - title: Setting custom rates
   desc: You can override the rates mizer calculates from the species parameters
     and gear parameters with your own rate arrays.
@@ -215,8 +222,9 @@ reference:
   - setFishing
 - title: Calculating rates
   description: Calculate instantaneous ecological rates from a `MizerParams`
-    object, such as encounter rate, predation mortality, and somatic growth rate.
+    object, such as encounter rate, predation mortality, or somatic growth rate.
   contents:
+  - getRates
   - has_concept("rate functions")
   - getCriticalFeedingLevel
 - title: Extending Mizer
@@ -267,10 +275,12 @@ reference:
     for users building extensions or working with model objects directly.
   contents:
   - has_concept("helper")
+  - defaults_edition
 - title: Classes
   description: The S4 and S3 classes used by mizer, together with functions for
     constructing, inspecting, comparing, and validating them.
   contents:
+  - mizer-package
   - MizerParams-class
   - summary.MizerParams
   - compareParams
