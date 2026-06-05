@@ -48,15 +48,13 @@ expect_true(is_ggplot(p))
 expect_identical(p$labels$x, "observed biomass [g]")
 expect_identical(p$labels$y, "model biomass [g]")
 expect_identical(p$data, dummy)
+vdiffr::expect_doppelganger("plotBiomassObservedVsModel", p)
 
 # Look at plot of ratio
 dummy <- plotBiomassObservedVsModel(params, ratio = TRUE, return_data = TRUE)
 p <- plotBiomassObservedVsModel(params, ratio = TRUE)
 expect_identical(p$labels$y, "model biomass / observed biomass")
 expect_identical(p$data, dummy)
-
-vdiffr::expect_doppelganger("plotBiomassObservedVsModel", p)
-
 })
 
 test_that("plotBiomassObservedVsModel methods for MizerSim and plotly work", {
