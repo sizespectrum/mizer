@@ -369,10 +369,13 @@ as.data.frame.ArrayTimeBySpeciesBySize <- function(x, row.names = NULL,
     w <- as.numeric(dimnames(x)[[3]])
     if (any(is.na(w))) w <- seq_len(dim(x)[3])
 
-    df <- expand.grid(time = times, Species = sp_names, w = w,
-                      stringsAsFactors = FALSE)
-    df$value <- c(unclass(x))
-    df
+    data.frame(
+        expand.grid(time = times, Species = sp_names, w = w,
+                    stringsAsFactors = FALSE),
+        value = c(unclass(x)),
+        row.names = row.names,
+        check.names = !optional
+    )
 }
 
 #' @export

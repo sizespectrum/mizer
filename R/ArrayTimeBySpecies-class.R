@@ -370,6 +370,8 @@ as.data.frame.ArrayTimeBySpecies <- function(x, row.names = NULL,
         time = rep(t, times = ncol(mat)),
         value = c(mat),
         Species = rep(sp_names, each = nrow(mat)),
+        row.names = row.names,
+        check.names = !optional,
         stringsAsFactors = FALSE
     )
 }

@@ -96,8 +96,12 @@ NULL
 #'
 #' @param x An `ArraySpeciesBySize`, `ArrayTimeBySpecies` or
 #'   `ArrayTimeBySpeciesBySize` object.
-#' @param row.names Passed for compatibility with the base generic. Ignored.
-#' @param optional Passed for compatibility with the base generic. Ignored.
+#' @param row.names Optional and included only for compatibility with the base
+#'   generic. `NULL` or a character vector giving the row names for the
+#'   data frame.
+#' @param optional Optional and included only for compatibility with the base
+#'   generic. A logical value. If `TRUE`, setting row names and converting
+#'   column names (to syntactic names) is optional.
 #' @param ... Further arguments. They are currently ignored by the mizer
 #'   methods.
 #'

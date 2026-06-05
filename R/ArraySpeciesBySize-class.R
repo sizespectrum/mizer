@@ -846,6 +846,8 @@ as.data.frame.ArraySpeciesBySize <- function(x, row.names = NULL,
         w = rep(w, each = nrow(mat)),
         value = c(mat),
         Species = sp_names,
+        row.names = row.names,
+        check.names = !optional,
         stringsAsFactors = FALSE
     )
 }
