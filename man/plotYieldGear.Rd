@@ -33,6 +33,10 @@ are always filtered out from the data regardless of \code{ylim[1]}. Data above
 \code{plotSpectraRelative()}, the y axis is the relative difference and \code{NA}
 refers to the existing minimum or maximum.}
 
+\item{tlim}{A numeric vector of length two providing lower and upper limits
+for the time axis, e.g. \code{c(1980, 2000)}. Use \code{NA} to apply no limit at
+that end. Default is \code{c(NA, NA)}.}
+
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 
 \item{return_data}{A boolean value that determines whether the formatted data

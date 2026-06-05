@@ -93,7 +93,7 @@ sim <- NS_sim
 # Generic plot methods
 plot(sim)
 plot(getBiomass(sim), species = c("Cod", "Herring"))
-ggplotly(getBiomass(sim))
+plotHover(getBiomass(sim))
 
 # Named plot functions
 plotFeedingLevel(sim)

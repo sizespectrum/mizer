@@ -100,7 +100,10 @@ fishing gears can be plotted against time. The yield is obtained with
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>.</p></dd>
+<dd><p>For <code><a href="plotSpectra.html">plotSpectra2()</a></code> and <code><a href="plotSpectra.html">plotSpectraRelative()</a></code>, additional
+arguments passed to <code><a href="plotSpectra.html">plotSpectra()</a></code> for preparing the spectra data, for
+example <code>time_range</code> or <code>geometric_mean</code> for <code>MizerSim</code> objects.
+Otherwise unused.</p></dd>
 
 
 <dt id="arg-sim-">sim2<a class="anchor" aria-label="anchor" href="#arg-sim-"></a></dt>
@@ -122,9 +125,20 @@ only shows a selection of species, the total is including all species.
 Default is FALSE.</p></dd>
 
 
+<dt id="arg-log-x">log_x<a class="anchor" aria-label="anchor" href="#arg-log-x"></a></dt>
+<dd><p>If <code>TRUE</code>, use a log10 x-axis. Default is <code>FALSE</code>.</p></dd>
+
+
+<dt id="arg-log-y">log_y<a class="anchor" aria-label="anchor" href="#arg-log-y"></a></dt>
+<dd><p>If <code>TRUE</code>, use a log10 y-axis. Default is <code>TRUE</code>.</p></dd>
+
+
 <dt id="arg-log">log<a class="anchor" aria-label="anchor" href="#arg-log"></a></dt>
-<dd><p>Boolean whether yield should be plotted on a logarithmic axis.
-Defaults to true.</p></dd>
+<dd><p>Character string specifying which axes should use log10 scales,
+in the same form as the base <code><a href="plot.html">plot()</a></code> argument. For example, <code>"x"</code>,
+<code>"y"</code>, <code>"xy"</code> or <code>""</code>. If supplied, this overrides <code>log_x</code> and <code>log_y</code>.
+For backward compatibility, <code>TRUE</code> and <code>FALSE</code> are interpreted as setting
+only <code>log_y</code>.</p></dd>
 
 
 <dt id="arg-ylim">ylim<a class="anchor" aria-label="anchor" href="#arg-ylim"></a></dt>
@@ -134,6 +148,12 @@ are always filtered out from the data regardless of <code>ylim[1]</code>. Data a
 <code>ylim[2]</code> is filtered and the upper axis limit is set accordingly. For
 <code><a href="plotSpectra.html">plotSpectraRelative()</a></code>, the y axis is the relative difference and <code>NA</code>
 refers to the existing minimum or maximum.</p></dd>
+
+
+<dt id="arg-tlim">tlim<a class="anchor" aria-label="anchor" href="#arg-tlim"></a></dt>
+<dd><p>A numeric vector of length two providing lower and upper limits
+for the time axis, e.g. <code>c(1980, 2000)</code>. Use <code>NA</code> to apply no limit at
+that end. Default is <code>c(NA, NA)</code>.</p></dd>
 
 
 <dt id="arg-highlight">highlight<a class="anchor" aria-label="anchor" href="#arg-highlight"></a></dt>

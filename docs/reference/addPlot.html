@@ -172,14 +172,10 @@ species line types from the existing plot are used.</p></dd>
 <dd><p>Transparency of the added lines.</p></dd>
 
 
-<dt id="arg-start-time">start_time<a class="anchor" aria-label="anchor" href="#arg-start-time"></a></dt>
-<dd><p>The first time to be plotted. Default (<code>NULL</code>) is the
-beginning of the time series. Only applies to <code>ArrayTimeBySpecies</code>.</p></dd>
-
-
-<dt id="arg-end-time">end_time<a class="anchor" aria-label="anchor" href="#arg-end-time"></a></dt>
-<dd><p>The last time to be plotted. Default (<code>NULL</code>) is the end of
-the time series. Only applies to <code>ArrayTimeBySpecies</code>.</p></dd>
+<dt id="arg-tlim">tlim<a class="anchor" aria-label="anchor" href="#arg-tlim"></a></dt>
+<dd><p>A numeric vector of length two providing lower and upper limits
+for the time axis, e.g. <code>c(1980, 2000)</code>. Use <code>NA</code> to apply no limit at
+that end. Default is <code>c(NA, NA)</code>. Only applies to <code>ArrayTimeBySpecies</code>.</p></dd>
 
 
 <dt id="arg-ylim">ylim<a class="anchor" aria-label="anchor" href="#arg-ylim"></a></dt>

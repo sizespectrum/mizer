@@ -50,11 +50,9 @@ species line types from the existing plot are used.}
 
 \item{alpha}{Transparency of the added lines.}
 
-\item{start_time}{The first time to be plotted. Default (\code{NULL}) is the
-beginning of the time series. Only applies to \code{ArrayTimeBySpecies}.}
-
-\item{end_time}{The last time to be plotted. Default (\code{NULL}) is the end of
-the time series. Only applies to \code{ArrayTimeBySpecies}.}
+\item{tlim}{A numeric vector of length two providing lower and upper limits
+for the time axis, e.g. \code{c(1980, 2000)}. Use \code{NA} to apply no limit at
+that end. Default is \code{c(NA, NA)}. Only applies to \code{ArrayTimeBySpecies}.}
 
 \item{ylim}{A numeric vector of length two providing lower and upper limits
 for the value (y) axis. Use \code{NA} to refer to the existing minimum or

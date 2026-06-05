@@ -18,6 +18,8 @@
 \usage{
 plot(x, ...)
 
+\method{plot}{ArraySpeciesBySize}(x, ...)
+
 plot2(x, y, ...)
 
 plotRelative(x, y, ...)
@@ -79,11 +81,9 @@ compatible with \code{x}.}
 \item{name1, name2}{Labels for the two objects, used in the linetype legend
 of \code{plot2()}.}
 
-\item{start_time}{The first time to be plotted. Default (\code{NULL}) is the
-beginning of the time series. Only applies to \code{ArrayTimeBySpecies}.}
-
-\item{end_time}{The last time to be plotted. Default (\code{NULL}) is the end of
-the time series. Only applies to \code{ArrayTimeBySpecies}.}
+\item{tlim}{A numeric vector of length two providing lower and upper limits
+for the time axis, e.g. \code{c(1980, 2000)}. Use \code{NA} to apply no limit at
+that end. Default is \code{c(NA, NA)}. Only applies to \code{ArrayTimeBySpecies}.}
 
 \item{time}{The time to display. Default (\code{NULL}) is the final time step.
 Only applies to \code{ArrayTimeBySpeciesBySize}.}

@@ -9,41 +9,11 @@
 \alias{plotHover.mizer_plot}
 \title{Create a hover-enabled plotly plot from a mizer object}
 \usage{
-\method{plotHover}{ArraySpeciesBySize}(
-  x,
-  width = NULL,
-  height = NULL,
-  tooltip = "all",
-  dynamicTicks = FALSE,
-  layerData = 1,
-  originalData = TRUE,
-  source = "A",
-  ...
-)
+\method{plotHover}{ArraySpeciesBySize}(x, ...)
 
-\method{plotHover}{ArrayTimeBySpecies}(
-  x,
-  width = NULL,
-  height = NULL,
-  tooltip = "all",
-  dynamicTicks = FALSE,
-  layerData = 1,
-  originalData = TRUE,
-  source = "A",
-  ...
-)
+\method{plotHover}{ArrayTimeBySpecies}(x, ...)
 
-\method{plotHover}{ArrayTimeBySpeciesBySize}(
-  x,
-  width = NULL,
-  height = NULL,
-  tooltip = "all",
-  dynamicTicks = FALSE,
-  layerData = 1,
-  originalData = TRUE,
-  source = "A",
-  ...
-)
+\method{plotHover}{ArrayTimeBySpeciesBySize}(x, ...)
 
 plotHover(x, ...)
 
@@ -57,10 +27,12 @@ plotHover(x, ...)
 \item{x}{A \code{mizer_plot}, \code{ArraySpeciesBySize}, \code{ArrayTimeBySpecies}, or
 \code{ArrayTimeBySpeciesBySize} object.}
 
-\item{width, height, tooltip, dynamicTicks, layerData, originalData, source}{Arguments passed to \code{\link[plotly:ggplotly]{plotly::ggplotly()}}.}
-
 \item{...}{Arguments passed to the corresponding \code{plot()} method for mizer
 array objects, or to \code{\link[plotly:ggplotly]{plotly::ggplotly()}} for \code{mizer_plot} objects.}
+
+\item{tooltip}{Character vector of aesthetic names to include in the tooltip,
+or \code{"all"} for all aesthetics. Defaults to the tooltip stored in the
+\code{mizer_plot} object.}
 }
 \value{
 A plotly object.

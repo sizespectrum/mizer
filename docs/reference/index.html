@@ -302,7 +302,7 @@
       </dl></div><div class="section level2">
       <h2 id="sharing-models">Sharing models<a class="anchor" aria-label="anchor" href="#sharing-models"></a></h2>
 
-
+      <div class="section-desc"><p>Save a model together with its metadata so it can be archived or shared with other users.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -325,7 +325,7 @@
       </dl></div><div class="section level2">
       <h2 id="running-simulations">Running simulations<a class="anchor" aria-label="anchor" href="#running-simulations"></a></h2>
 
-
+      <div class="section-desc"><p>Project a <code>MizerParams</code> object forward in time to produce a <code>MizerSim</code> object containing the full time series of size spectra.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -355,7 +355,7 @@
       </dl></div><div class="section level2">
       <h2 id="accessing-results">Accessing results<a class="anchor" aria-label="anchor" href="#accessing-results"></a></h2>
 
-
+      <div class="section-desc"><p>Extract the raw arrays stored in a <code>MizerSim</code> object, such as species and resource size spectra and fishing effort at each saved time step.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -392,7 +392,7 @@
       </dl></div><div class="section level2">
       <h2 id="analysing-results">Analysing results<a class="anchor" aria-label="anchor" href="#analysing-results"></a></h2>
 
-
+      <div class="section-desc"><p>Calculate summary quantities from a <code>MizerSim</code> object, such as biomass, yield, growth, and feeding level, averaged or disaggregated over time, species, or size.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -471,7 +471,7 @@
       </dl></div><div class="section level2">
       <h2 id="calculating-indicators">Calculating indicators<a class="anchor" aria-label="anchor" href="#calculating-indicators"></a></h2>
 
-
+      <div class="section-desc"><p>Calculate ecological indicators from a <code>MizerSim</code> object, such as mean weight, mean maximum weight, and the Large Fish Index.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -515,7 +515,7 @@
       </dl></div><div class="section level2">
       <h2 id="plotting-results">Plotting results<a class="anchor" aria-label="anchor" href="#plotting-results"></a></h2>
 
-
+      <div class="section-desc"><p>Visualise size spectra, biomass and yield trajectories, growth curves, and comparisons of model output with observations.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -535,6 +535,13 @@
 
         </dt>
         <dd>Plot, compare or show relative difference of mizer arrays</dd>
+
+        <dt>
+
+          <code><a href="plotHover.html">plotHover()</a></code>
+
+        </dt>
+        <dd>Create a hover-enabled plotly plot from a mizer object</dd>
 
         <dt>
 
@@ -657,7 +664,7 @@
       </dl></div><div class="section level2">
       <h2 id="manipulating-species-list">Manipulating species list<a class="anchor" aria-label="anchor" href="#manipulating-species-list"></a></h2>
 
-
+      <div class="section-desc"><p>Add, remove, or rename species in an existing model, and manage background species whose biomasses are kept at their steady-state values.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -787,7 +794,7 @@
       </dl></div><div class="section level2">
       <h2 id="calculating-rates">Calculating rates<a class="anchor" aria-label="anchor" href="#calculating-rates"></a></h2>
 
-
+      <div class="section-desc"><p>Calculate instantaneous ecological rates from a <code>MizerParams</code> object, such as encounter rate, predation mortality, and somatic growth rate.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -994,7 +1001,7 @@
       </dl></div><div class="section level2">
       <h2 id="predation-kernels">Predation kernels<a class="anchor" aria-label="anchor" href="#predation-kernels"></a></h2>
 
-
+      <div class="section-desc"><p>Functions that determine the size preference of predators for prey, i.e. the probability of a predator of a given size eating prey of a given size.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -1031,7 +1038,7 @@
       </dl></div><div class="section level2">
       <h2 id="fishing-selectivity-functions">Fishing selectivity functions<a class="anchor" aria-label="anchor" href="#fishing-selectivity-functions"></a></h2>
 
-
+      <div class="section-desc"><p>Functions that determine the size-selectivity of fishing gears, i.e. the proportion of fish of a given size that are retained by a gear.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -1068,7 +1075,7 @@
       </dl></div><div class="section level2">
       <h2 id="resource-dynamics">Resource dynamics<a class="anchor" aria-label="anchor" href="#resource-dynamics"></a></h2>
 
-
+      <div class="section-desc"><p>Functions governing the time evolution of the background resource spectrum, together with functions for getting and setting resource parameters.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -1105,7 +1112,7 @@
       </dl></div><div class="section level2">
       <h2 id="reproduction-functions">Reproduction functions<a class="anchor" aria-label="anchor" href="#reproduction-functions"></a></h2>
 
-
+      <div class="section-desc"><p>Functions governing the density-dependent relationship between the energy invested in reproduction and the actual egg production rate.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -1284,7 +1291,7 @@
       </dl></div><div class="section level2">
       <h2 id="internal-helper-functions">Internal helper functions<a class="anchor" aria-label="anchor" href="#internal-helper-functions"></a></h2>
 
-
+      <div class="section-desc"><p>Utility functions used internally by mizer that may also be useful for users building extensions or working with model objects directly.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -1482,7 +1489,7 @@
       </dl></div><div class="section level2">
       <h2 id="classes">Classes<a class="anchor" aria-label="anchor" href="#classes"></a></h2>
 
-
+      <div class="section-desc"><p>The S4 and S3 classes used by mizer, together with functions for constructing, inspecting, comparing, and validating them.</p></div>
 
       <dl></dl></div><div class="section level2">
 
