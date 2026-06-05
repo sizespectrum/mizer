@@ -1547,10 +1547,21 @@ getRDD.MizerSim <- function(object, n, n_pp, n_other, t = 0,
 #' \eqn{R_{dd,i}} (see [getRDD()]). For sizes below the recruitment size
 #' the flux is zero.
 #'
+#' The flux at weight \eqn{w} is multiplied by \eqn{w} raised to the `power`
+#' given by the `power` argument, similar to the `power` argument of
+#' [plotSpectra()]. The default `power = 0` returns the flux of individuals
+#' (numbers/year). With `power = 1` the result is the flux of biomass
+#' (grams/year).
+#'
 #' @template param_object_dots
+#' @param power The flux at weight \eqn{w} is multiplied by \eqn{w} raised to
+#'   `power`. The default `power = 0` gives the flux of individuals
+#'   (numbers/year), whereas `power = 1` gives the flux of biomass
+#'   (grams/year).
 #' @return
 #' * `MizerParams`: An `ArraySpeciesBySize` object (species x size) with the
-#'   flux of individuals entering each size class (numbers/year).
+#'   flux entering each size class. The units are `numbers/year` when
+#'   `power = 0` and `g^power/year` otherwise.
 #' * `MizerSim`: An `ArrayTimeBySpeciesBySize` object (time step x species x
 #'   size) with the flux at every time step. If `drop = TRUE` then dimensions
 #'   of length 1 will be removed.
@@ -1567,7 +1578,7 @@ getRDD.MizerSim <- function(object, n, n_pp, n_other, t = 0,
 #' # Flux for Sprat of size 2g
 #' flux["Sprat", "2"]
 #' }
-getFlux <- function(object, ...) {
+getFlux <- function(object, power = 0, ...) {
     UseMethod("getFlux")
 }
 
@@ -1575,17 +1586,19 @@ getFlux <- function(object, ...) {
 getFlux.MizerParams <- function(object, n = initialN(object),
                     n_pp = initialNResource(object),
                     n_other = initialNOther(object),
-                    t = 0, ...) {
+                    t = 0, power = 0, ...) {
     params <- validParams(object)
+    assert_that(is.number(power))
 
     g <- getEGrowth(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
     d <- getDiffusion(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
     rdd <- getRDD(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
 
-    flux <- flux_from_rates(params, n = n, g = g, d = d, rdd = rdd)
+    flux <- flux_from_rates(params, n = n, g = g, d = d, rdd = rdd,
+                            power = power)
 
     ArraySpeciesBySize(flux, value_name = "Flux",
-             units = "1/year", params = params)
+             units = flux_units(power), params = params)
 }
 
 #' Assemble the flux matrix from growth, diffusion and recruitment rates
@@ -1600,10 +1613,12 @@ getFlux.MizerParams <- function(object, n = initialN(object),
 #' @param d Diffusion rate matrix (species x size), as from [getDiffusion()].
 #' @param rdd Density-dependent reproduction rate vector (one per species), as
 #'   from [getRDD()].
+#' @param power The flux at weight \eqn{w} is multiplied by \eqn{w} raised to
+#'   `power`. The default `power = 0` leaves the flux of individuals unchanged.
 #'
 #' @return A plain species x size matrix of fluxes (no mizer array class).
 #' @keywords internal
-flux_from_rates <- function(params, n, g, d, rdd) {
+flux_from_rates <- function(params, n, g, d, rdd, power = 0) {
     no_sp <- nrow(params@species_params)
     no_w <- length(params@w)
     dw <- params@dw
@@ -1634,13 +1649,33 @@ flux_from_rates <- function(params, n, g, d, rdd) {
         flux[mask_below] <- 0
     }
 
+    if (power != 0) {
+        flux <- sweep(flux, 2, params@w^power, "*")
+    }
+
     flux
 }
 
+#' Units string for the flux returned by [getFlux()]
+#'
+#' @param power The power of weight the flux was multiplied by.
+#' @return A character string with the units of the flux.
+#' @keywords internal
+flux_units <- function(power) {
+    if (power == 0) {
+        "1/year"
+    } else if (power == 1) {
+        "g/year"
+    } else {
+        paste0("g^", power, "/year")
+    }
+}
+
 #' @export
-getFlux.MizerSim <- function(object, n, n_pp, n_other, t, ...,
+getFlux.MizerSim <- function(object, n, n_pp, n_other, t, power = 0, ...,
                              time_range, drop = FALSE) {
     sim <- object
+    assert_that(is.number(power))
     if (missing(time_range) && !missing(t)) time_range <- t
 
     # Resolve the rate functions once rather than at every saved time step. The
@@ -1659,9 +1694,10 @@ getFlux.MizerSim <- function(object, n, n_pp, n_other, t, ...,
                 rates_fns = rates_fns,
                 targets = c("EGrowth", "Diffusion", "RDD"), ...)
             flux_from_rates(params, n = slice$n,
-                            g = r$e_growth, d = r$diffusion, rdd = r$rdd)
+                            g = r$e_growth, d = r$diffusion, rdd = r$rdd,
+                            power = power)
         },
-        value_name = "Flux", units = "1/year")
+        value_name = "Flux", units = flux_units(power))
 }
 
 

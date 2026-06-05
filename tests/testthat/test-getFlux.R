@@ -62,3 +62,39 @@ test_that("getFlux uses total diffusion", {
 
     expect_equal(flux[species, j], expected, ignore_attr = TRUE)
 })
+
+test_that("getFlux power argument scales the flux by a power of weight", {
+    params <- newTraitParams(no_sp = 2)
+    n <- params@initial_n
+
+    flux0 <- getFlux(params, n = n)
+    flux1 <- getFlux(params, n = n, power = 1)
+    flux2 <- getFlux(params, n = n, power = 2)
+
+    # power = 0 is the default
+    expect_identical(flux0, getFlux(params, n = n, power = 0))
+
+    expect_equal(flux1[], sweep(flux0[], 2, params@w, "*"),
+                 ignore_attr = TRUE)
+    expect_equal(flux2[], sweep(flux0[], 2, params@w^2, "*"),
+                 ignore_attr = TRUE)
+
+    # units are updated
+    expect_equal(attr(flux0, "units"), "1/year")
+    expect_equal(attr(flux1, "units"), "g/year")
+    expect_equal(attr(flux2, "units"), "g^2/year")
+
+    expect_error(getFlux(params, n = n, power = "a"))
+})
+
+test_that("getFlux power argument works for MizerSim", {
+    params <- newTraitParams(no_sp = 2)
+    sim <- project(params, t_max = 1, progress_bar = FALSE)
+
+    flux0 <- getFlux(sim)
+    flux1 <- getFlux(sim, power = 1)
+
+    expect_equal(flux1[], sweep(flux0[], 3, params@w, "*"),
+                 ignore_attr = TRUE)
+    expect_equal(attr(flux1, "units"), "g/year")
+})

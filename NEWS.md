@@ -31,7 +31,9 @@ individual variability in growth to be modelled.
 
 - New `getFlux()` function calculates the flux of individuals entering each
   size class, combining the advective flux from somatic growth and the
-  diffusive flux.
+  diffusive flux. It has a `power` argument, similar to that of `plotSpectra()`,
+  for multiplying the flux by a power of the weight; `power = 1` gives the flux
+  of biomass.
 
 - `getRequiredRDD()` is now exported. It calculates the recruitment rate needed
   to maintain a given initial abundance, accounting for both growth and
