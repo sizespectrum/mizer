@@ -184,6 +184,7 @@ plotYieldObservedVsModel.MizerSim <- function(object, species = NULL, ratio = FA
 
 
 #' @rdname plotYieldObservedVsModel
+#' @usage NULL
 #' @export
 plotlyYieldObservedVsModel <- function(object, species = NULL, ratio = FALSE,
                                          log_scale = TRUE,

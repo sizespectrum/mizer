@@ -200,6 +200,7 @@ plotBiomassObservedVsModel.MizerSim <- function(object, species = NULL, ratio = 
 }
 
 #' @rdname plotBiomassObservedVsModel
+#' @usage NULL
 #' @export
 plotlyBiomassObservedVsModel <- function(object, species = NULL, ratio = FALSE,
                                          log_scale = TRUE,
