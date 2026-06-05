@@ -177,17 +177,18 @@ plot.ArrayTimeBySpeciesBySize <- function(x, species = NULL, time = NULL,
 #' @export
 plot2.ArrayTimeBySpeciesBySize <- function(x, y, name1 = "First",
                                            name2 = "Second",
-                                           species = NULL, time = NULL,
-                                           all.sizes = FALSE,
+                                           species = NULL,
                                            log_x = TRUE, log_y = FALSE,
                                            log = NULL,
-                                           wlim = c(NA, NA),
-                                           llim = c(NA, NA),
                                            ylim = c(NA, NA),
-                                           size_axis = c("w", "l"),
                                            total = FALSE,
                                            background = TRUE,
-                                           y_ticks = 6, ...) {
+                                           y_ticks = 6,
+                                           time = NULL,
+                                           all.sizes = FALSE,
+                                           wlim = c(NA, NA),
+                                           llim = c(NA, NA),
+                                           size_axis = c("w", "l"), ...) {
     check_plot2_compatible(x, y, "ArrayTimeBySpeciesBySize")
     slice1 <- ArrayTimeBySpeciesBySize_slice(x, time = time)
     slice2 <- ArrayTimeBySpeciesBySize_slice(y, time = time)
@@ -204,15 +205,15 @@ plot2.ArrayTimeBySpeciesBySize <- function(x, y, name1 = "First",
 #' @usage NULL
 #' @export
 plotRelative.ArrayTimeBySpeciesBySize <- function(x, y, species = NULL,
+                                                  log_x = TRUE,
+                                                  ylim = c(NA, NA),
+                                                  total = FALSE,
+                                                  background = TRUE,
                                                   time = NULL,
                                                   all.sizes = FALSE,
-                                                  log_x = TRUE,
                                                   wlim = c(NA, NA),
                                                   llim = c(NA, NA),
-                                                  ylim = c(NA, NA),
-                                                  size_axis = c("w", "l"),
-                                                  total = FALSE,
-                                                  background = TRUE, ...) {
+                                                  size_axis = c("w", "l"), ...) {
     check_plot2_compatible(x, y, "ArrayTimeBySpeciesBySize")
     slice1 <- ArrayTimeBySpeciesBySize_slice(x, time = time)
     slice2 <- ArrayTimeBySpeciesBySize_slice(y, time = time)
@@ -246,6 +247,7 @@ ArrayTimeBySpeciesBySize_slice <- function(x, time = NULL) {
 }
 
 #' @rdname plotHover
+#' @usage NULL
 #' @examples
 #' \donttest{
 #' plotHover(getFMort(NS_sim))

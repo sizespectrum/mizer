@@ -658,6 +658,7 @@ validGearParams <- function(gear_params, species_params) {
 #'
 #' @param effort A vector or scalar with the initial fishing effort, see Details
 #'   below.
+#' @param params A MizerParams object.
 #'
 #' @concept helper
 #' @seealso [initial_effort()]

@@ -20,14 +20,6 @@
 #'
 #' @return The printed object, invisibly.
 #'
-#' @usage
-#' \method{print}{ArraySpeciesBySize}(x, ...)
-#' \method{print}{ArrayTimeBySpecies}(x, ...)
-#' \method{print}{ArrayTimeBySpeciesBySize}(x, ...)
-#' \method{print}{summary.ArraySpeciesBySize}(x, ...)
-#' \method{print}{summary.ArrayTimeBySpecies}(x, ...)
-#' \method{print}{summary.ArrayTimeBySpeciesBySize}(x, ...)
-#'
 #' @aliases print.ArraySpeciesBySize print.ArrayTimeBySpecies print.ArrayTimeBySpeciesBySize print.summary.ArraySpeciesBySize print.summary.ArrayTimeBySpecies print.summary.ArrayTimeBySpeciesBySize
 #' @seealso [summary()], [as.data.frame()], [plot()],
 #'   [ArraySpeciesBySize()], [ArrayTimeBySpecies()],
@@ -68,11 +60,6 @@ NULL
 #' For [MizerParams()] and [MizerSim()], the object is returned invisibly.
 #' For array objects, a list of class `summary.ArraySpeciesBySize`,
 #' `summary.ArrayTimeBySpecies` or `summary.ArrayTimeBySpeciesBySize`.
-#'
-#' @usage
-#' \method{summary}{ArraySpeciesBySize}(object, ...)
-#' \method{summary}{ArrayTimeBySpecies}(object, ...)
-#' \method{summary}{ArrayTimeBySpeciesBySize}(object, ...)
 #'
 #' @aliases summary.ArraySpeciesBySize summary.ArrayTimeBySpecies summary.ArrayTimeBySpeciesBySize
 #' @seealso [print()], [as.data.frame()], [MizerParams()], [MizerSim()],
@@ -115,14 +102,6 @@ NULL
 #'   methods.
 #'
 #' @return A data frame in long format.
-#'
-#' @usage
-#' \method{as.data.frame}{ArraySpeciesBySize}(x, row.names = NULL,
-#'     optional = FALSE, ...)
-#' \method{as.data.frame}{ArrayTimeBySpecies}(x, row.names = NULL,
-#'     optional = FALSE, ...)
-#' \method{as.data.frame}{ArrayTimeBySpeciesBySize}(x, row.names = NULL,
-#'     optional = FALSE, ...)
 #'
 #' @aliases as.data.frame.ArraySpeciesBySize as.data.frame.ArrayTimeBySpecies as.data.frame.ArrayTimeBySpeciesBySize
 #' @seealso [print()], [summary()], [plot()], [ArraySpeciesBySize()],

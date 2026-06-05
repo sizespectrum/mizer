@@ -66,7 +66,13 @@ NULL
 #' consumed biomass rather than the available biomass. Outside the range of
 #' sizes for a predator species the returned rate is zero.
 #'
-#' @inheritParams getEncounter
+#' @param params A \linkS4class{MizerParams} object.
+#' @param n A matrix of species abundances (species x size). Defaults to
+#'   the initial abundances stored in `params`.
+#' @param n_pp A vector of the resource abundance by size. Defaults to the
+#'   initial resource abundance stored in `params`.
+#' @param n_other A named list of the abundances of other dynamical
+#'   components. Defaults to the initial values stored in `params`.
 #' @param proportion If TRUE (default) the function returns the diet as a
 #'   proportion of the total consumption rate. If FALSE it returns the
 #'   consumption rate in grams per year.

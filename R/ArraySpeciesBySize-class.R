@@ -207,7 +207,7 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #'
 #' @name plot
 #' @family plotting functions
-#' @usage plot(x, ...)
+#' @usage NULL
 #' @export
 #' @examples
 #' \donttest{
@@ -360,13 +360,14 @@ plot2 <- function(x, y, name1 = "First", name2 = "Second",
 #' @usage NULL
 #' @export
 plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
-                                     species = NULL, all.sizes = FALSE,
+                                     species = NULL,
                                      log_x = TRUE, log_y = FALSE, log = NULL,
-                                     wlim = c(NA, NA), llim = c(NA, NA),
                                      ylim = c(NA, NA),
-                                     size_axis = c("w", "l"),
                                      total = FALSE, background = TRUE,
-                                     y_ticks = 6, ...) {
+                                     y_ticks = 6,
+                                     all.sizes = FALSE,
+                                     wlim = c(NA, NA), llim = c(NA, NA),
+                                     size_axis = c("w", "l"), ...) {
     check_plot2_compatible(x, y, "ArraySpeciesBySize")
     compare_array_metadata(x, y)
     size_axis <- plot_size_axis(size_axis)
@@ -469,14 +470,14 @@ plotRelative <- function(x, y, species = NULL, log_x,
 #' @usage NULL
 #' @export
 plotRelative.ArraySpeciesBySize <- function(x, y, species = NULL,
-                                            all.sizes = FALSE,
                                             log_x = TRUE,
+                                            ylim = c(NA, NA),
+                                            total = FALSE,
+                                            background = TRUE,
+                                            all.sizes = FALSE,
                                             wlim = c(NA, NA),
                                             llim = c(NA, NA),
-                                            ylim = c(NA, NA),
-                                            size_axis = c("w", "l"),
-                                            total = FALSE,
-                                            background = TRUE, ...) {
+                                            size_axis = c("w", "l"), ...) {
     check_plot2_compatible(x, y, "ArraySpeciesBySize")
     compare_array_metadata(x, y)
     size_axis <- plot_size_axis(size_axis)
@@ -600,16 +601,16 @@ addPlot <- function(plot, x, species = NULL, total = FALSE,
 #' @usage NULL
 #' @export
 addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
-                                       all.sizes = FALSE,
-                                       wlim = c(NA, NA),
-                                       llim = c(NA, NA),
-                                       size_axis = c("w", "l"),
                                        total = FALSE,
                                        background = TRUE,
                                        colour = NULL,
                                        linetype = "dashed",
                                        linewidth = 0.8,
                                        alpha = 1,
+                                       all.sizes = FALSE,
+                                       wlim = c(NA, NA),
+                                       llim = c(NA, NA),
+                                       size_axis = c("w", "l"),
                                        ...) {
     if (!inherits(plot, "ggplot")) {
         stop("The `plot` argument must be a ggplot object.")
@@ -825,6 +826,7 @@ prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,
 }
 
 #' @rdname plotHover
+#' @usage NULL
 #' @examples
 #' \donttest{
 #' plotHover(getEncounter(NS_params))

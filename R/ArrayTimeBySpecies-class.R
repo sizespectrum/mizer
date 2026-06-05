@@ -172,14 +172,14 @@ plot.ArrayTimeBySpecies <- function(x, species = NULL,
 #' @usage NULL
 #' @export
 addPlot.ArrayTimeBySpecies <- function(plot, x, species = NULL,
-                                       tlim = c(NA, NA),
-                                       ylim = c(NA, NA),
                                        total = FALSE,
                                        background = TRUE,
                                        colour = NULL,
                                        linetype = "dashed",
                                        linewidth = 0.8,
                                        alpha = 1,
+                                       tlim = c(NA, NA),
+                                       ylim = c(NA, NA),
                                        ...) {
     if (!inherits(plot, "ggplot")) {
         stop("The `plot` argument must be a ggplot object.")
@@ -228,11 +228,11 @@ addPlot.ArrayTimeBySpecies <- function(plot, x, species = NULL,
 #' @export
 plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
                                      species = NULL,
-                                     tlim = c(NA, NA),
-                                     y_ticks = 6, ylim = c(NA, NA),
-                                     total = FALSE, background = TRUE,
                                      log_x = FALSE, log_y = TRUE,
-                                     log = NULL, ...) {
+                                     log = NULL, ylim = c(NA, NA),
+                                     total = FALSE, background = TRUE,
+                                     y_ticks = 6,
+                                     tlim = c(NA, NA), ...) {
     check_plot2_compatible(x, y, "ArrayTimeBySpecies")
     compare_array_metadata(x, y)
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
@@ -261,11 +261,11 @@ plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
 #' @usage NULL
 #' @export
 plotRelative.ArrayTimeBySpecies <- function(x, y, species = NULL,
-                                            tlim = c(NA, NA),
+                                            log_x = FALSE,
                                             ylim = c(NA, NA),
                                             total = FALSE,
                                             background = TRUE,
-                                            log_x = FALSE, ...) {
+                                            tlim = c(NA, NA), ...) {
     check_plot2_compatible(x, y, "ArrayTimeBySpecies")
     compare_array_metadata(x, y)
     params <- attr(x, "params")

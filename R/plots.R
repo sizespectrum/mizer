@@ -286,8 +286,7 @@ mizer_tooltip_vars <- function(frame, group_var, x_var, y_var,
 #' Creates an interactive plotly version of a mizer plot. Can be called on any
 #' mizer array object (such as those returned by [getEncounter()],
 #' [getBiomass()], etc.) or on any `mizer_plot` object returned by the named
-#' plot functions such as [plotBiomass()], [plotSpectra()], etc. In the first
-#' case it is a shorthand for `plotly::ggplotly(plot(x, ...))`.
+#' plot functions such as [plotBiomass()], [plotSpectra()], etc.
 #'
 #' @param x A `mizer_plot`, `ArraySpeciesBySize`, `ArrayTimeBySpecies`, or
 #'   `ArrayTimeBySpeciesBySize` object.
@@ -300,6 +299,7 @@ mizer_tooltip_vars <- function(frame, group_var, x_var, y_var,
 plotHover <- function(x, ...) UseMethod("plotHover")
 
 #' @rdname plotHover
+#' @usage NULL
 #' @param tooltip Character vector of aesthetic names to include in the tooltip,
 #'   or `"all"` for all aesthetics. Defaults to the tooltip stored in the
 #'   `mizer_plot` object.
@@ -617,14 +617,14 @@ plotBiomass <- function(object, species = NULL, tlim = c(NA, NA),
 #' @export
 plotBiomass.MizerSim <- function(object, species = NULL,
                         tlim = c(NA, NA),
-                        start_time = lifecycle::deprecated(),
-                        end_time = lifecycle::deprecated(),
                         y_ticks = 6, ylim = c(NA, NA),
                         total = FALSE, background = TRUE,
                         highlight = NULL,
                         log = NULL, return_data = FALSE,
                         log_x = FALSE, log_y = TRUE,
                         use_cutoff = FALSE,
+                        start_time = lifecycle::deprecated(),
+                        end_time = lifecycle::deprecated(),
                         min_w = min(object@params@w),
                         max_w = max(object@params@w),
                         min_l = NULL, max_l = NULL, ...) {
@@ -1098,8 +1098,6 @@ plotSpectra <- function(object, species = NULL,
 #' @usage NULL
 #' @export
 plotSpectra.MizerSim <- function(object, species = NULL,
-                        time_range,
-                        geometric_mean = FALSE,
                         wlim = c(NA, NA), llim = c(NA, NA),
                         ylim = c(NA, NA),
                         power = 1, biomass = TRUE,
@@ -1107,7 +1105,9 @@ plotSpectra.MizerSim <- function(object, species = NULL,
                         background = TRUE,
                         highlight = NULL, log_x = TRUE, log_y = TRUE,
                         log = NULL, size_axis = c("w", "l"),
-                        return_data = FALSE, ...) {
+                        return_data = FALSE,
+                        time_range,
+                        geometric_mean = FALSE, ...) {
     # to deal with old-type biomass argument
     if (missing(power)) {
         power <- as.numeric(biomass)
@@ -1379,8 +1379,6 @@ plotCDF <- function(object, species = NULL,
 #' @usage NULL
 #' @export
 plotCDF.MizerSim <- function(object, species = NULL,
-                             time_range,
-                             geometric_mean = FALSE,
                              wlim = c(NA, NA), llim = c(NA, NA),
                              ylim = c(NA, NA),
                              power = 1, biomass = TRUE,
@@ -1389,7 +1387,9 @@ plotCDF.MizerSim <- function(object, species = NULL,
                              highlight = NULL, normalise = TRUE,
                              log_x = TRUE, log_y = FALSE, log = NULL,
                              size_axis = c("w", "l"),
-                             return_data = FALSE, ...) {
+                             return_data = FALSE,
+                             time_range,
+                             geometric_mean = FALSE, ...) {
     size_axis <- plot_size_axis(size_axis)
     if (missing(power)) {
         power <- as.numeric(biomass)
@@ -1966,12 +1966,13 @@ plotFeedingLevel <- function(object, species = NULL, all.sizes = FALSE,
 #' @usage NULL
 #' @export
 plotFeedingLevel.MizerSim <- function(object, species = NULL,
-            time_range, all.sizes = FALSE,
+            all.sizes = FALSE,
             highlight = NULL, include_critical = FALSE,
             wlim = c(NA, NA), llim = c(NA, NA),
             size_axis = c("w", "l"),
             return_data = FALSE,
-            log_x = TRUE, log_y = FALSE, log = NULL, ...) {
+            log_x = TRUE, log_y = FALSE, log = NULL,
+            time_range, ...) {
     size_axis <- plot_size_axis(size_axis)
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is.flag(all.sizes),
@@ -2265,13 +2266,13 @@ plotPredMort <- function(object, species = NULL, all.sizes = FALSE,
 #' @usage NULL
 #' @export
 plotPredMort.MizerSim <- function(object, species = NULL,
-                         time_range, all.sizes = FALSE,
+                         all.sizes = FALSE,
                          highlight = NULL,
                          wlim = c(NA, NA), llim = c(NA, NA),
                          size_axis = c("w", "l"),
                          return_data = FALSE,
                          log_x = TRUE, log_y = FALSE, log = NULL,
-                         ...) {
+                         time_range, ...) {
     size_axis <- plot_size_axis(size_axis)
     if (missing(time_range)) {
         time_range <- max(as.numeric(dimnames(object@n)$time))
@@ -2402,13 +2403,13 @@ plotFMort <- function(object, species = NULL, all.sizes = FALSE,
 #' @usage NULL
 #' @export
 plotFMort.MizerSim <- function(object, species = NULL,
-                      time_range, all.sizes = FALSE,
+                      all.sizes = FALSE,
                       highlight = NULL,
                       wlim = c(NA, NA), llim = c(NA, NA),
                       size_axis = c("w", "l"),
                       return_data = FALSE,
                       log_x = TRUE, log_y = FALSE, log = NULL,
-                      ...) {
+                      time_range, ...) {
     size_axis <- plot_size_axis(size_axis)
     if (missing(time_range)) {
         time_range <- max(as.numeric(dimnames(object@n)$time))

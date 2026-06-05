@@ -113,13 +113,15 @@ animate.MizerSim <- function(x, species = NULL,
                               wlim = c(NA, NA), llim = c(NA, NA),
                               ylim = c(NA, NA),
                               tlim = c(NA, NA),
-                              time_range = lifecycle::deprecated(),
                               size_axis = c("w", "l"),
-                              power = 1, total = FALSE, resource = TRUE,
+                              total = FALSE,
                               background = TRUE,
                               frame_duration = 500,
                               transition_duration = frame_duration,
-                              easing = "linear", ...) {
+                              easing = "linear",
+                              time_range = lifecycle::deprecated(),
+                              power = 1,
+                              resource = TRUE, ...) {
     if (lifecycle::is_present(time_range)) {
         lifecycle::deprecate_warn("2.6.0", "animate(time_range)", "animate(tlim)")
         tlim <- c(min(time_range), max(time_range))

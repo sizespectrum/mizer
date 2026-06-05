@@ -10,11 +10,16 @@
 ^dev_scripts
 ^.vscode$
 ^.github$
+^.agents$
+^.antigravitycli$
+^.claude$
+^\.codex$
 ^\.github$
-^\.lintr
-^\.nojekyll
+^\.lintr$
+^\.nojekyll$
+^man-roxygen$
 ^runtime\.txt$
-^CITATION.cff
+^CITATION.cff$
 ^CRAN-RELEASE$
 ^CRAN-SUBMISSION$
 
