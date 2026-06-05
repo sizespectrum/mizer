@@ -2813,7 +2813,7 @@ plotGrowthCurves.MizerSim <- function(object, species = NULL,
                 is.flag(return_data),
                 is.number(max_age))
     params <- object@params
-    params <- setInitialValues(params, object)
+    params <- finalParams(object)
     plot_growth_curves(params, species = species,
                        max_age = max_age, percentage = percentage,
                        species_panel = species_panel, highlight = highlight,

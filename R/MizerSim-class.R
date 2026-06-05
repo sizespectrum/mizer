@@ -130,8 +130,10 @@ valid_MizerSim <- function(object) {
 #' [getTimes()] returns the vector of times at which simulation results
 #' were stored and [idxFinalT()] returns the index with which to access
 #' specifically the value at the final time in the arrays returned by the other
-#' functions. [getParams()] returns the `MizerParams` object that was
-#' passed to `project()`. There are also several
+#' functions. [getParams()] extracts the ecosystem state as a `MizerParams`
+#' object with initial abundances set to values from the simulation; [finalParams()]
+#' and [initialParams()] are convenient shorthands for the final and initial
+#' time steps. There are also several
 #' [summary_functions] and [plotting_functions]
 #' available to explore the contents of a `MizerSim` object.
 #'
@@ -469,24 +471,117 @@ getEffort.MizerSim <- function(sim) {
     sim@effort
 }
 
-#' Extract the parameter object underlying a simulation
+#' Extract the model state from a simulation
 #'
-#' @param sim A MizerSim object
-#' @return The MizerParams object that was used to run the simulation
+#' A `MizerParams` object describes the state of the ecosystem: its species
+#' parameters, size grid, rate functions, *and* the current abundances stored in
+#' the `initial_n`, `initial_n_pp`, `initial_n_other`, and `initial_effort`
+#' slots. `getParams()` extracts that state from a `MizerSim` object, averaged
+#' over a chosen time range (or at a single time point).
+#'
+#' When no `time_range` is given, the state at the final time step is returned.
+#' Use [initialParams()] or [finalParams()] as convenient shorthand for the
+#' state at the initial and final time respectively.
+#'
+#' The abundances set in the returned `MizerParams` object are averages over the
+#' selected time range. By default this is an arithmetic mean; set
+#' `geometric_mean = TRUE` to use a geometric mean instead (this does not affect
+#' the effort or other components, which are always averaged arithmetically).
+#'
+#' @param sim A `MizerSim` object.
+#' @param time_range The time range to average the abundances over. Can be a
+#'   vector of values, a vector of min and max time, or a single value. Only the
+#'   range of times is relevant, i.e., all times between the smallest and
+#'   largest will be selected.  Default is the final time step.
+#' @param geometric_mean `r lifecycle::badge("experimental")`
+#'   If `TRUE`, the average of the abundances over the time range is a geometric
+#'   mean instead of the default arithmetic mean. This does not affect the
+#'   average of the effort or of other components, which is always arithmetic.
+#' @return A `MizerParams` object with `initial_n`, `initial_n_pp`,
+#'   `initial_n_other`, and `initial_effort` set to the (averaged) values from
+#'   the simulation.
 #' @export
+#' @seealso [initialParams()], [finalParams()]
 #' @examples
-#' # This will be identical to the params object that was used to create the
-#' # simulation
-#' sim <- project(NS_params, t_max = 1)
-#' identical(getParams(sim), NS_params)
-getParams <- function(sim) {
+#' sim <- project(NS_params, t_max = 20, effort = 0.5)
+#' # Extract state at a specific time
+#' params_2010 <- getParams(sim, time_range = 10)
+#' # Extract state averaged over the last 10 years
+#' params_avg <- getParams(sim, time_range = c(10, 20))
+getParams <- function(sim, time_range, geometric_mean = FALSE) {
     UseMethod("getParams")
 }
 
 #' @export
-getParams.MizerSim <- function(sim) {
-    assert_that(is(sim, "MizerSim"))
+getParams.MizerSim <- function(sim, time_range, geometric_mean = FALSE) {
+    assert_that(is(sim, "MizerSim"),
+                is.flag(geometric_mean))
+    params <- sim@params
+    if (missing(time_range)) {
+        time_range <- max(as.numeric(dimnames(sim@n)$time))
+    }
+    time_elements <- get_time_elements(sim, time_range)
+    mean_fn <- mean
+    if (geometric_mean) {
+        mean_fn <- function(x) exp(mean(log(x)))
+    }
+    params@initial_n[] <-
+        apply(sim@n[time_elements, , , drop = FALSE], c(2, 3), mean_fn)
+    params@initial_n_pp[] <-
+        apply(sim@n_pp[time_elements, , drop = FALSE], 2, mean_fn)
+    mizer_add <- function(l1, l2) {
+        ifelse(is.list(l1), Map("+", l1, l2), l1 + l2)
+    }
+    params@initial_n_other[] <-
+        apply(sim@n_other[time_elements, , drop = FALSE], 2,
+              function(l) Reduce(mizer_add, l) / length(l),
+              simplify = FALSE)
+    params@initial_effort[] <-
+        apply(sim@effort[time_elements, , drop = FALSE], 2, mean)
+    params@time_modified <- lubridate::now()
+    params
+}
+
+#' Extract the initial state from a simulation
+#'
+#' Returns the `MizerParams` object underlying the simulation with its initial
+#' abundances set to the abundances at the initial time of the
+#' simulation.
+#'
+#' @param sim A `MizerSim` object.
+#' @return A `MizerParams` object with initial state of the simulation.
+#' @export
+#' @seealso [getParams()], [finalParams()]
+#' @examples
+#' sim <- project(NS_params, t_max = 20, effort = 0.5)
+#' params_start <- initialParams(sim)
+initialParams <- function(sim) {
+    sim <- validSim(sim)
     sim@params
+}
+
+#' Extract the final state from a simulation
+#'
+#' Returns the `MizerParams` object underlying the simulation with its initial
+#' abundances set to the abundances at the *last* saved time step of the
+#' simulation. This is a convenience wrapper around [getParams()] with no
+#' `time_range` argument (the default).
+#'
+#' @param sim A `MizerSim` object.
+#' @return A `MizerParams` object with initial values taken from the final time
+#'   step of the simulation.
+#' @export
+#' @seealso [getParams()], [initialParams()]
+#' @examples
+#' sim <- project(NS_params, t_max = 20, effort = 0.5)
+#' params_end <- finalParams(sim)
+finalParams <- function(sim) {
+    UseMethod("finalParams")
+}
+
+#' @export
+finalParams.MizerSim <- function(sim) {
+    getParams(sim)
 }
 
 #' Extract the projection parameters used to produce a simulation

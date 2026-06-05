@@ -80,7 +80,6 @@ Other functions for setting parameters:
 \code{\link[=setExtEncounter]{setExtEncounter()}},
 \code{\link[=setExtMort]{setExtMort()}},
 \code{\link[=setFishing]{setFishing()}},
-\code{\link[=setInitialValues]{setInitialValues()}},
 \code{\link[=setInteraction]{setInteraction()}},
 \code{\link[=setMaxIntakeRate]{setMaxIntakeRate()}},
 \code{\link[=setMetabolicRate]{setMetabolicRate()}},

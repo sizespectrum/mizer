@@ -1,23 +1,12 @@
 #' Set initial values to values from a simulation
 #'
-#' This is used to use the results from one simulation as the starting values
-#' for another simulation.
+#' `r lifecycle::badge("deprecated")`
 #'
-#' The initial abundances (for both species and resource) in the `params`
-#' object are set to the abundances in a MizerSim object, averaged over
-#' a range of times. Similarly, the initial effort in the `params` object is
-#' set to the effort in the MizerSim object, again averaged over that range
-#' of times.
-#' When no time range is specified, the initial values are taken from the final
-#' time step of the simulation.
-#'
-#' If the model described by `sim` and `params` has additional components
-#' created with [setComponent()] then the values of these components are also
-#' averaged and copied to `params`.
-#'
-#' The MizerSim object must come from a model with the same set of species and
-#' gears and other components and the same size bins as the MizerParams object.
-#' Otherwise an error is raised.
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#' This function is deprecated. Use [getParams()], [initialParams()], or
+#' [finalParams()] instead. These functions return a `MizerParams` object
+#' with the ecosystem state extracted from a simulation.
 #'
 #' @param params A `MizerParams` object in which to set the initial values
 #' @param sim A `MizerSim` object from which to take the values.
@@ -33,13 +22,8 @@
 #' @param ... Additional arguments passed to the method.
 #'
 #' @return The `params` object with updated initial values and initial effort.
-#'   Because of the way the
-#'   R language works, `setInitialValues()` does not make the changes to the
-#'   params object that you pass to it but instead returns a new params object.
-#'   So to affect the change you call the function in the form
-#'   `params <- setInitialValues(params, sim)`.
 #' @export
-#' @family functions for setting parameters
+#' @concept deprecated
 #' @examples
 #' \donttest{
 #' params <- NS_params
@@ -51,6 +35,13 @@ setInitialValues <- function(params, sim, time_range, geometric_mean = FALSE, ..
 }
 #' @export
 setInitialValues.MizerParams <- function(params, sim, time_range, geometric_mean = FALSE, ...) {
+    lifecycle::deprecate_warn(
+        "3.0.0", "setInitialValues()",
+        details = paste0("Use `getParams(sim, time_range, geometric_mean)` to ",
+                         "extract a MizerParams object with updated initial ",
+                         "values. Convenience wrappers `initialParams()` and ",
+                         "`finalParams()` extract the first and last time steps.")
+    )
     assert_that(is(sim, "MizerSim"),
                 is.flag(geometric_mean))
     no_t <- dim(sim@n)[1]

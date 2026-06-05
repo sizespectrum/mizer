@@ -229,6 +229,26 @@ the mathematical details.
   external diffusion rate power law. `setExtDiffusion()` calculates the default
   array from species parameters when no custom array is supplied.
 
+## Extracting model state from a simulation
+
+- `getParams(sim, time_range, geometric_mean = FALSE)` now extracts the
+  ecosystem state from a `MizerSim` object, returning a `MizerParams` object
+  with `initial_n`, `initial_n_pp`, `initial_n_other`, and `initial_effort` set
+  to the (optionally averaged) values from the simulation. When no `time_range`
+  is given, the final time step is used.
+
+- New `finalParams(sim)` returns the `MizerParams` object with initial values
+  set to the final time step of the simulation. Convenient shorthand for
+  `getParams(sim)`.
+
+- New `initialParams(sim)` returns the `MizerParams` object with initial values
+  set to the first time step of the simulation.
+
+- `setInitialValues()` is deprecated. Replace
+  `setInitialValues(params, sim)` with `finalParams(sim)` (or
+  `getParams(sim, time_range, geometric_mean)` when averaging over a time
+  range).
+
 ## Other improvements
 
 - The `MizerSim` methods of the rate-getter functions (`getEncounter()`,

@@ -26,32 +26,15 @@ always arithmetic.}
 }
 \value{
 The \code{params} object with updated initial values and initial effort.
-Because of the way the
-R language works, \code{setInitialValues()} does not make the changes to the
-params object that you pass to it but instead returns a new params object.
-So to affect the change you call the function in the form
-\code{params <- setInitialValues(params, sim)}.
 }
 \description{
-This is used to use the results from one simulation as the starting values
-for another simulation.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+This function is deprecated. Use \code{\link[=getParams]{getParams()}}, \code{\link[=initialParams]{initialParams()}}, or
+\code{\link[=finalParams]{finalParams()}} instead. These functions return a \code{MizerParams} object
+with the ecosystem state extracted from a simulation.
 }
 \details{
-The initial abundances (for both species and resource) in the \code{params}
-object are set to the abundances in a MizerSim object, averaged over
-a range of times. Similarly, the initial effort in the \code{params} object is
-set to the effort in the MizerSim object, again averaged over that range
-of times.
-When no time range is specified, the initial values are taken from the final
-time step of the simulation.
-
-If the model described by \code{sim} and \code{params} has additional components
-created with \code{\link[=setComponent]{setComponent()}} then the values of these components are also
-averaged and copied to \code{params}.
-
-The MizerSim object must come from a model with the same set of species and
-gears and other components and the same size bins as the MizerParams object.
-Otherwise an error is raised.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 }
 \examples{
 \donttest{
@@ -60,21 +43,4 @@ sim <- project(params, t_max = 20, effort = 0.5)
 params <- setInitialValues(params, sim)
 }
 }
-\seealso{
-Other functions for setting parameters:
-\code{\link[=gear_params]{gear_params()}},
-\code{\link[=setExtDiffusion]{setExtDiffusion()}},
-\code{\link[=setExtEncounter]{setExtEncounter()}},
-\code{\link[=setExtMort]{setExtMort()}},
-\code{\link[=setFishing]{setFishing()}},
-\code{\link[=setInteraction]{setInteraction()}},
-\code{\link[=setMaxIntakeRate]{setMaxIntakeRate()}},
-\code{\link[=setMetabolicRate]{setMetabolicRate()}},
-\code{\link[=setParams]{setParams()}},
-\code{\link[=setPredKernel]{setPredKernel()}},
-\code{\link[=setReproduction]{setReproduction()}},
-\code{\link[=setSearchVolume]{setSearchVolume()}},
-\code{\link[=species_params]{species_params()}},
-\code{\link[=use_predation_diffusion]{use_predation_diffusion()}}
-}
-\concept{functions for setting parameters}
+\concept{deprecated}

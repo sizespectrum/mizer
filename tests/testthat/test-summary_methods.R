@@ -346,7 +346,7 @@ test_that("getN works", {
 
 # getGrowthCurves ----
 test_that("getGrowthCurves works with MizerSim", {
-    ps <- setInitialValues(params, sim)
+    ps <- finalParams(sim)
     expect_identical(getGrowthCurves(sim),
                      getGrowthCurves(ps))
 })

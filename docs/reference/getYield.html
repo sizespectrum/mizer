@@ -147,7 +147,7 @@ during the time period of interest.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Cod: min=2.89e+11 mean=3.22e+11 max=3.55e+11</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Running simulation for another year, saving intermediate time steps</span></span></span>
-<span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="setInitialValues.html">setInitialValues</a></span><span class="op">(</span><span class="fu"><a href="getParams.html">getParams</a></span><span class="op">(</span><span class="va">NS_sim</span><span class="op">)</span>, <span class="va">NS_sim</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="finalParams.html">finalParams</a></span><span class="op">(</span><span class="va">NS_sim</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_save <span class="op">=</span> <span class="fl">0.1</span>, t_max <span class="op">=</span> <span class="fl">1</span>,</span></span>
 <span class="r-in"><span>               t_start <span class="op">=</span> <span class="fl">2010</span>, progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># The yield rate for Herring decreases during the year</span></span></span>

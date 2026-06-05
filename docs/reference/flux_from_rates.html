@@ -88,7 +88,7 @@ rate functions once and reuse them across all saved time steps.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">flux_from_rates</span><span class="op">(</span><span class="va">params</span>, <span class="va">n</span>, <span class="va">g</span>, <span class="va">d</span>, <span class="va">rdd</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">flux_from_rates</span><span class="op">(</span><span class="va">params</span>, <span class="va">n</span>, <span class="va">g</span>, <span class="va">d</span>, <span class="va">rdd</span>, power <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -114,6 +114,11 @@ rate functions once and reuse them across all saved time steps.</p>
 <dt id="arg-rdd">rdd<a class="anchor" aria-label="anchor" href="#arg-rdd"></a></dt>
 <dd><p>Density-dependent reproduction rate vector (one per species), as
 from <code><a href="getRDD.html">getRDD()</a></code>.</p></dd>
+
+
+<dt id="arg-power">power<a class="anchor" aria-label="anchor" href="#arg-power"></a></dt>
+<dd><p>The flux at weight \(w\) is multiplied by \(w\) raised to
+<code>power</code>. The default <code>power = 0</code> leaves the flux of individuals unchanged.</p></dd>
 
 </dl></div>
     <div class="section level2">

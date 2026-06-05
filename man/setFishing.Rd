@@ -181,7 +181,6 @@ Other functions for setting parameters:
 \code{\link[=setExtDiffusion]{setExtDiffusion()}},
 \code{\link[=setExtEncounter]{setExtEncounter()}},
 \code{\link[=setExtMort]{setExtMort()}},
-\code{\link[=setInitialValues]{setInitialValues()}},
 \code{\link[=setInteraction]{setInteraction()}},
 \code{\link[=setMaxIntakeRate]{setMaxIntakeRate()}},
 \code{\link[=setMetabolicRate]{setMetabolicRate()}},

@@ -407,7 +407,7 @@ project.MizerSim <- function(object, effort,
                     "' to one that used method = '", stored$method, "'.")
         }
     }
-    params <- setInitialValues(object@params, object)
+    params <- finalParams(object)
     t_start <- getTimes(object)[idxFinalT(object)]
 
     sim <- project(params,

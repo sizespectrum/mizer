@@ -627,7 +627,7 @@ getYieldGear.MizerParams <- function(object) {
 #' yield[c("1972", "2010"), c("Herring", "Cod")]
 #'
 #' # Running simulation for another year, saving intermediate time steps
-#' params <- setInitialValues(getParams(NS_sim), NS_sim)
+#' params <- finalParams(NS_sim)
 #' sim <- project(params, t_save = 0.1, t_max = 1,
 #'                t_start = 2010, progress_bar = FALSE)
 #' # The yield rate for Herring decreases during the year
@@ -689,8 +689,7 @@ getGrowthCurves.MizerSim <- function(object,
                             species = NULL,
                             max_age = 20,
                             percentage = FALSE) {
-    params <- object@params
-    params <- setInitialValues(params, object)
+    params <- finalParams(object)
     getGrowthCurves(params, species, max_age, percentage)
 }
 #' @export

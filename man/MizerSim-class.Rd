@@ -21,8 +21,10 @@ returns the fishing effort of each gear through time.
 \code{\link[=getTimes]{getTimes()}} returns the vector of times at which simulation results
 were stored and \code{\link[=idxFinalT]{idxFinalT()}} returns the index with which to access
 specifically the value at the final time in the arrays returned by the other
-functions. \code{\link[=getParams]{getParams()}} returns the \code{MizerParams} object that was
-passed to \code{project()}. There are also several
+functions. \code{\link[=getParams]{getParams()}} extracts the ecosystem state as a \code{MizerParams}
+object with initial abundances set to values from the simulation; \code{\link[=finalParams]{finalParams()}}
+and \code{\link[=initialParams]{initialParams()}} are convenient shorthands for the final and initial
+time steps. There are also several
 \link{summary_functions} and \link{plotting_functions}
 available to explore the contents of a \code{MizerSim} object.
 

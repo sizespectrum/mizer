@@ -2,22 +2,52 @@
 % Please edit documentation in R/MizerSim-class.R
 \name{getParams}
 \alias{getParams}
-\title{Extract the parameter object underlying a simulation}
+\title{Extract the model state from a simulation}
 \usage{
-getParams(sim)
+getParams(sim, time_range, geometric_mean = FALSE)
 }
 \arguments{
-\item{sim}{A MizerSim object}
+\item{sim}{A \code{MizerSim} object.}
+
+\item{time_range}{The time range to average the abundances over. Can be a
+vector of values, a vector of min and max time, or a single value. Only the
+range of times is relevant, i.e., all times between the smallest and
+largest will be selected.  Default is the final time step.}
+
+\item{geometric_mean}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If \code{TRUE}, the average of the abundances over the time range is a geometric
+mean instead of the default arithmetic mean. This does not affect the
+average of the effort or of other components, which is always arithmetic.}
 }
 \value{
-The MizerParams object that was used to run the simulation
+A \code{MizerParams} object with \code{initial_n}, \code{initial_n_pp},
+\code{initial_n_other}, and \code{initial_effort} set to the (averaged) values from
+the simulation.
 }
 \description{
-Extract the parameter object underlying a simulation
+A \code{MizerParams} object describes the state of the ecosystem: its species
+parameters, size grid, rate functions, \emph{and} the current abundances stored in
+the \code{initial_n}, \code{initial_n_pp}, \code{initial_n_other}, and \code{initial_effort}
+slots. \code{getParams()} extracts that state from a \code{MizerSim} object, averaged
+over a chosen time range (or at a single time point).
+}
+\details{
+When no \code{time_range} is given, the state at the final time step is returned.
+Use \code{\link[=initialParams]{initialParams()}} or \code{\link[=finalParams]{finalParams()}} as convenient shorthand for the
+state at the initial and final time respectively.
+
+The abundances set in the returned \code{MizerParams} object are averages over the
+selected time range. By default this is an arithmetic mean; set
+\code{geometric_mean = TRUE} to use a geometric mean instead (this does not affect
+the effort or other components, which are always averaged arithmetically).
 }
 \examples{
-# This will be identical to the params object that was used to create the
-# simulation
-sim <- project(NS_params, t_max = 1)
-identical(getParams(sim), NS_params)
+sim <- project(NS_params, t_max = 20, effort = 0.5)
+# Extract state at a specific time
+params_2010 <- getParams(sim, time_range = 10)
+# Extract state averaged over the last 10 years
+params_avg <- getParams(sim, time_range = c(10, 20))
+}
+\seealso{
+\code{\link[=initialParams]{initialParams()}}, \code{\link[=finalParams]{finalParams()}}
 }

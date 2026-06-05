@@ -97,8 +97,10 @@ returns the fishing effort of each gear through time.
 <code><a href="getTimes.html">getTimes()</a></code> returns the vector of times at which simulation results
 were stored and <code><a href="finalN.html">idxFinalT()</a></code> returns the index with which to access
 specifically the value at the final time in the arrays returned by the other
-functions. <code><a href="getParams.html">getParams()</a></code> returns the <code>MizerParams</code> object that was
-passed to <code><a href="project.html">project()</a></code>. There are also several
+functions. <code><a href="getParams.html">getParams()</a></code> extracts the ecosystem state as a <code>MizerParams</code>
+object with initial abundances set to values from the simulation; <code><a href="finalParams.html">finalParams()</a></code>
+and <code><a href="initialParams.html">initialParams()</a></code> are convenient shorthands for the final and initial
+time steps. There are also several
 <a href="summary_functions.html">summary_functions</a> and <a href="plotting_functions.html">plotting_functions</a>
 available to explore the contents of a <code>MizerSim</code> object.</p>
 <p>The arrays all have named dimensions. The names of the <code>time</code> dimension

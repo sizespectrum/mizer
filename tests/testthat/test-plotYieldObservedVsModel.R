@@ -61,7 +61,7 @@ test_that("plotYieldObservedVsModel methods for MizerSim and plotly work", {
     sim <- project(params, t_max = 0.1, progress_bar = FALSE)
 
     expect_message(dummy_sim <- plotYieldObservedVsModel(sim, return_data = TRUE))
-    expect_message(dummy_params <- plotYieldObservedVsModel(setInitialValues(sim@params, sim),
+    expect_message(dummy_params <- plotYieldObservedVsModel(finalParams(sim),
                                                             return_data = TRUE))
     expect_equal(dummy_sim, dummy_params, ignore_attr = TRUE)
 

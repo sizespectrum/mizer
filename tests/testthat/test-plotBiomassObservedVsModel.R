@@ -66,7 +66,7 @@ params <- calibrateBiomass(params)
 sim <- project(params, t_max = 0.1, progress_bar = FALSE)
 
 dummy_sim <- plotBiomassObservedVsModel(sim, return_data = TRUE)
-dummy_params <- plotBiomassObservedVsModel(setInitialValues(sim@params, sim),
+dummy_params <- plotBiomassObservedVsModel(finalParams(sim),
                                            return_data = TRUE,
                                            ratio = FALSE)
 expect_identical(dummy_sim, dummy_params)

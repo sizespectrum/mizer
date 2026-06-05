@@ -176,7 +176,7 @@ plotYieldObservedVsModel.MizerParams <- function(object, species = NULL, ratio =
 plotYieldObservedVsModel.MizerSim <- function(object, species = NULL, ratio = FALSE,
                                      log_scale = TRUE, return_data = FALSE, 
                                      labels = TRUE, show_unobserved = FALSE, ...) {
-    params <- setInitialValues(object@params, object)
+    params <- finalParams(object)
     plotYieldObservedVsModel(params, species = species, ratio = ratio,
                              log_scale = log_scale, return_data = return_data,
                              labels = labels, show_unobserved = show_unobserved)

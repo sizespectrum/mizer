@@ -151,16 +151,19 @@ reference:
   contents:
   - project
   - projectToSteady
-  - setInitialValues
 - title: Accessing results
   description: Extract the raw arrays stored in a `MizerSim` object, such as
-    species and resource size spectra and fishing effort at each saved time step.
+    species and resource size spectra and fishing effort at each saved time step,
+    or extract the ecosystem state as a `MizerParams` object.
   contents:
   - "N"
   - NResource
   - finalN
   - getEffort
   - getTimes
+  - getParams
+  - initialParams
+  - finalParams
 - title: Analysing results
   description: Calculate summary quantities from a `MizerSim` object, such as
     biomass, yield, growth, and feeding level, averaged or disaggregated over
@@ -293,7 +296,6 @@ reference:
   - getSimParams
   - validSim
   - MizerSim
-  - getParams
   - print
   - summary
   - str

@@ -366,17 +366,10 @@
           <span class="badge lifecycle lifecycle-experimental">experimental</span>
         </dt>
         <dd>Project to steady state</dd>
-
-        <dt>
-
-          <code><a href="setInitialValues.html">setInitialValues()</a></code>
-
-        </dt>
-        <dd>Set initial values to values from a simulation</dd>
       </dl></div><div class="section level2">
       <h2 id="accessing-results">Accessing results<a class="anchor" aria-label="anchor" href="#accessing-results"></a></h2>
 
-      <div class="section-desc"><p>Extract the raw arrays stored in a <code>MizerSim</code> object, such as species and resource size spectra and fishing effort at each saved time step.</p></div>
+      <div class="section-desc"><p>Extract the raw arrays stored in a <code>MizerSim</code> object, such as species and resource size spectra and fishing effort at each saved time step, or extract the ecosystem state as a <code>MizerParams</code> object.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -410,6 +403,27 @@
 
         </dt>
         <dd>Times for which simulation results are available</dd>
+
+        <dt>
+
+          <code><a href="getParams.html">getParams()</a></code>
+
+        </dt>
+        <dd>Extract the model state from a simulation</dd>
+
+        <dt>
+
+          <code><a href="initialParams.html">initialParams()</a></code>
+
+        </dt>
+        <dd>Extract the initial state from a simulation</dd>
+
+        <dt>
+
+          <code><a href="finalParams.html">finalParams()</a></code>
+
+        </dt>
+        <dd>Extract the final state from a simulation</dd>
       </dl></div><div class="section level2">
       <h2 id="analysing-results">Analysing results<a class="anchor" aria-label="anchor" href="#analysing-results"></a></h2>
 
@@ -1622,13 +1636,6 @@
 
         <dt>
 
-          <code><a href="getParams.html">getParams()</a></code>
-
-        </dt>
-        <dd>Extract the parameter object underlying a simulation</dd>
-
-        <dt>
-
           <code><a href="print.html">print</a></code> <code><a href="print.html">print.ArraySpeciesBySize</a></code> <code><a href="print.html">print.ArrayTimeBySpecies</a></code> <code><a href="print.html">print.ArrayTimeBySpeciesBySize</a></code> <code><a href="print.html">print.summary.ArraySpeciesBySize</a></code> <code><a href="print.html">print.summary.ArrayTimeBySpecies</a></code> <code><a href="print.html">print.summary.ArrayTimeBySpeciesBySize</a></code>
 
         </dt>
@@ -1826,6 +1833,13 @@
           <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
         </dt>
         <dd>Alias for <code><a href="../reference/plotPredMort.html">plotPredMort()</a></code></dd>
+
+        <dt>
+
+          <code><a href="setInitialValues.html">setInitialValues()</a></code>
+          <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
+        </dt>
+        <dd>Set initial values to values from a simulation</dd>
 
         <dt>
 
