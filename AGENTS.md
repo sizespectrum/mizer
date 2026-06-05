@@ -35,35 +35,10 @@ devtools::clean_dll(); devtools::load_all()
 - **Indentation**: 4 spaces
 - **Naming**: camelCase or snake_case for functions/variables; PascalCase for classes
 - **Language**: British English (en-GB) — "colour", "behaviour", "modelling"
-
-### Documenting S3 generics with several methods
-
-When several methods of a mizer-defined S3 generic share a man page (combined
-with `@rdname`/`@name`), document everything on the **generic** and leave the
-methods with no roxygen beyond `@rdname`, `@usage NULL` and `@export`:
-
-- The generic's **function signature owns all arguments shared by all methods**.
-  Document those with ordinary `@param`. This keeps `\usage` short (one generic
-  signature) and avoids the "Documented arguments not in \usage" `R CMD check`
-  error.
-- Arguments used by **only some** methods are listed in a `\describe{}` block
-  under `@param ...` on the generic (not as standalone `@param`, which would
-  re-introduce the check error).
-- Adding shared args to the generic is safe: the generic body is just
-  `UseMethod()`, so its defaults are never evaluated and `missing()` in a method
-  still reflects the caller's call.
-- Where a shared arg's default is **class-dependent** (e.g. `log_x` differs
-  between size and time plots), give it no default in the generic signature and
-  explain the per-class default in its `@param` prose. Where a default is
-  **object-dependent** (e.g. `min_w = min(object@params@w)`), keep that arg
-  under `@param ...` instead.
-- Prefer inlining shared descriptions over `@inheritParams`: on a multi-method
-  page `@inheritParams` imports docs for the *union* of all method formals
-  (including method-only ones) as standalone `@param`, which re-triggers the
-  check error.
-- **Exception:** base-R generics (`plot`, `print`, `summary`, `as.data.frame`)
-  cannot gain formals, so all their method arguments go in the `@param ...`
-  `\describe{}` block. The methods use `@usage NULL`.
+- When documenting a mizer S3 generic whose methods share a man page (combined
+  with `@rdname`/`@name`), follow the steps in
+  `.claude/skills/document-s3-generics.md`. Claude Code users can invoke this as
+  `/document-s3-generics`.
 
 ## Testing
 
