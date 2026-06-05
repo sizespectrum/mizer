@@ -175,7 +175,7 @@ plot.ArrayTimeBySpeciesBySize <- function(x, species = NULL, time = NULL,
                             y_ticks = y_ticks, ...)
 }
 
-#' @rdname plot
+#' @rdname plot2
 #' @usage NULL
 #'
 #' @param time The time to display. Default (`NULL`) is the final time step.
@@ -206,7 +206,7 @@ plot2.ArrayTimeBySpeciesBySize <- function(x, y, name1 = "First",
                              background = background, y_ticks = y_ticks, ...)
 }
 
-#' @rdname plot
+#' @rdname plotRelative
 #' @usage NULL
 #'
 #' @param time The time to display. Default (`NULL`) is the final time step.

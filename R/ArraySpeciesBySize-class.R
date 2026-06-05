@@ -127,21 +127,12 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
     invisible(x)
 }
 
-#' Plot, compare or show relative difference of mizer arrays
+#' Plot mizer arrays
 #'
 #' Many mizer functions return values that depend on species and either size or
 #' time. `plot()` creates a ggplot2 figure with one line for each species
 #' showing the values against size or against time (depending on the type of
 #' output). [plotHover()] creates an interactive version of the same figure.
-#'
-#' `plot2()` compares two compatible mizer array objects in a single ggplot.
-#' Colours identify species or groups, and linetype identifies which object
-#' the values came from.
-#'
-#' `plotRelative()` plots the difference between two compatible mizer array
-#' objects relative to their average. If the values in the first object are
-#' \eqn{N_1} and the values in the second are \eqn{N_2}, it plots
-#' \deqn{2 (N_2 - N_1) / (N_1 + N_2).}
 #'
 #' This works because the mizer functions that give values that depend on
 #' species and size return an `ArraySpeciesBySize` object and those that
@@ -151,14 +142,12 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #' computed from. This allows the plots to be automatically labelled and
 #' coloured appropriately.
 #'
+#' To compare two mizer arrays in a single plot, use [plot2()]. To show the
+#' relative difference between two arrays, use [plotRelative()].
+#'
 #' @usage plot(x, ...)
-#' @param x For `plot()`, an `ArraySpeciesBySize`, `ArrayTimeBySpecies`, or
-#'   `ArrayTimeBySpeciesBySize` object. For `plot2()` and `plotRelative()`,
-#'   the first of two compatible mizer array objects to compare.
-#' @param y For `plot2()` and `plotRelative()`, the second mizer array object,
-#'   compatible with `x`.
-#' @param name1,name2 Labels for the two objects, used in the linetype legend
-#'   of `plot2()`.
+#' @param x An `ArraySpeciesBySize`, `ArrayTimeBySpecies`, or
+#'   `ArrayTimeBySpeciesBySize` object.
 #' @param species Character vector of species to include. `NULL` (default) means
 #'   all species.
 #' @param all.sizes If `FALSE` (default), values outside a species' size range
@@ -191,12 +180,8 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #' @param y_ticks The approximate number of ticks desired on the y axis.
 #' @param ... Further arguments (currently unused).
 #'
-#' @return `plot()` returns a ggplot2 object, unless `return_data = TRUE`, in
-#'   which case a data frame is returned.
-#'
-#'   `plot2()` and `plotRelative()` return a ggplot2 object.
-#'
-#'   [plotHover()] returns a plotly object.
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
+#'   frame is returned. [plotHover()] returns a plotly object.
 #'
 #' @name plot
 #' @family plotting functions
@@ -276,13 +261,60 @@ parsePlotLog <- function(log, log_x = FALSE, log_y = FALSE) {
     )
 }
 
-#' @rdname plot
+#' Compare two mizer arrays in a single plot
+#'
+#' `plot2()` compares two compatible mizer array objects in a single ggplot.
+#' Colours identify species or groups, and linetype identifies which object
+#' the values came from.
+#'
+#' @param x The first of two compatible mizer array objects to compare.
+#'   Can be an `ArraySpeciesBySize`, `ArrayTimeBySpecies`, or
+#'   `ArrayTimeBySpeciesBySize` object.
+#' @param y The second mizer array object, compatible with `x`.
+#' @param name1,name2 Labels for the two objects, used in the linetype legend.
+#' @param species Character vector of species to include. `NULL` (default) means
+#'   all species.
+#' @param all.sizes If `FALSE` (default), values outside a species' size range
+#'   (`w_min` to `w_max`) are removed. Only applies to `ArraySpeciesBySize`.
+#' @param log_x If `TRUE`, use a log10 x-axis. Default is `TRUE` for size
+#'   spectra and `FALSE` for time series.
+#' @param log_y If `TRUE`, use a log10 y-axis. Default is `FALSE` for
+#'   `ArraySpeciesBySize` and `TRUE` for `ArrayTimeBySpecies`.
+#' @param log Character string specifying which axes should use log10 scales,
+#'   in the same form as the base [plot()] argument. For example, `"x"`,
+#'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
+#' @param wlim A numeric vector of length two providing lower and upper limits
+#'   for the weight (x) axis. Use `NA` to refer to the existing minimum or
+#'   maximum. Only applies to `ArraySpeciesBySize`.
+#' @param llim A numeric vector of length two providing lower and upper limits
+#'   for the length (x) axis when `size_axis = "l"`. Use `NA` to refer to the
+#'   existing minimum or maximum. Only applies to `ArraySpeciesBySize`.
+#' @param size_axis Whether to plot size as weight (`"w"`, default) or length
+#'   (`"l"`), using the allometric weight-length relationship.
+#' @param ylim A numeric vector of length two providing lower and upper limits
+#'   for the value (y) axis. Use `NA` to refer to the existing minimum or
+#'   maximum.
+#' @param total A boolean value that determines whether the total over all
+#'   selected species is plotted as well. Default is `FALSE`.
+#' @param background A boolean value that determines whether background species
+#'   are included. Ignored if the model does not contain background species.
+#'   Default is `TRUE`.
+#' @param y_ticks The approximate number of ticks desired on the y axis.
+#' @param ... Further arguments (currently unused).
+#'
+#' @return A ggplot2 object.
+#'
+#' @family plotting functions
 #' @export
+#' @examples
+#' \donttest{
+#' plot2(getEncounter(NS_params), getEncounter(NS_params))
+#' }
 plot2 <- function(x, y, ...) {
     UseMethod("plot2", x)
 }
 
-#' @rdname plot
+#' @rdname plot2
 #' @usage NULL
 #' @export
 plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
@@ -323,13 +355,52 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
                             size_axis = size_axis)
 }
 
-#' @rdname plot
+#' Plot relative difference between two mizer arrays
+#'
+#' `plotRelative()` plots the difference between two compatible mizer array
+#' objects relative to their average. If the values in the first object are
+#' \eqn{N_1} and the values in the second are \eqn{N_2}, it plots
+#' \deqn{2 (N_2 - N_1) / (N_1 + N_2).}
+#'
+#' @param x The first of two compatible mizer array objects to compare.
+#'   Can be an `ArraySpeciesBySize`, `ArrayTimeBySpecies`, or
+#'   `ArrayTimeBySpeciesBySize` object.
+#' @param y The second mizer array object, compatible with `x`.
+#' @param species Character vector of species to include. `NULL` (default) means
+#'   all species.
+#' @param all.sizes If `FALSE` (default), values outside a species' size range
+#'   (`w_min` to `w_max`) are removed. Only applies to `ArraySpeciesBySize`.
+#' @param log_x If `TRUE`, use a log10 x-axis.
+#' @param wlim A numeric vector of length two providing lower and upper limits
+#'   for the weight (x) axis. Use `NA` to refer to the existing minimum or
+#'   maximum. Only applies to `ArraySpeciesBySize`.
+#' @param llim A numeric vector of length two providing lower and upper limits
+#'   for the length (x) axis when `size_axis = "l"`. Use `NA` to refer to the
+#'   existing minimum or maximum. Only applies to `ArraySpeciesBySize`.
+#' @param ylim A numeric vector of length two providing lower and upper limits
+#'   for the value (y) axis.
+#' @param size_axis Whether to plot size as weight (`"w"`, default) or length
+#'   (`"l"`), using the allometric weight-length relationship.
+#' @param total A boolean value that determines whether the total over all
+#'   selected species is plotted as well. Default is `FALSE`.
+#' @param background A boolean value that determines whether background species
+#'   are included. Ignored if the model does not contain background species.
+#'   Default is `TRUE`.
+#' @param ... Further arguments (currently unused).
+#'
+#' @return A ggplot2 object.
+#'
+#' @family plotting functions
 #' @export
+#' @examples
+#' \donttest{
+#' plotRelative(getEncounter(NS_params), getEncounter(NS_params))
+#' }
 plotRelative <- function(x, y, ...) {
     UseMethod("plotRelative", x)
 }
 
-#' @rdname plot
+#' @rdname plotRelative
 #' @usage NULL
 #' @export
 plotRelative.ArraySpeciesBySize <- function(x, y, species = NULL,

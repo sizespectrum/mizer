@@ -234,8 +234,11 @@ addPlot.ArrayTimeBySpecies <- function(plot, x, species = NULL,
     plot + do.call(geom_line, layer_args)
 }
 
-#' @rdname plot
+#' @rdname plot2
 #' @usage NULL
+#' @param tlim A numeric vector of length two providing lower and upper limits
+#'   for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no limit at
+#'   that end. Default is `c(NA, NA)`. Only applies to `ArrayTimeBySpecies`.
 #' @export
 plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
                                      species = NULL,
@@ -268,8 +271,11 @@ plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
                             legend_var = "Legend")
 }
 
-#' @rdname plot
+#' @rdname plotRelative
 #' @usage NULL
+#' @param tlim A numeric vector of length two providing lower and upper limits
+#'   for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no limit at
+#'   that end. Default is `c(NA, NA)`. Only applies to `ArrayTimeBySpecies`.
 #' @export
 plotRelative.ArrayTimeBySpecies <- function(x, y, species = NULL,
                                             tlim = c(NA, NA),
