@@ -44,13 +44,9 @@ getDiffusion.MizerParams <- function(object, n = initialN(object),
 getDiffusion.MizerSim <- function(object, n, n_pp, n_other, t = 0,
                                   time_range, drop = FALSE, ...) {
     sim <- object
-    get_species_size_rate_from_sim(
-        sim, time_range, drop,
-        function(slice) {
-            getDiffusion(sim@params, n = slice$n, n_pp = slice$n_pp,
-                         n_other = slice$n_other, t = slice$t, ...)
-        },
-        value_name = "Diffusion rate", units = "g^2/year")
+    sim_size_rate(sim, time_range, drop, target = "Diffusion",
+                  slot = "diffusion", value_name = "Diffusion rate",
+                  units = "g^2/year", ...)
 }
 
 #' @name mizerDiffusion

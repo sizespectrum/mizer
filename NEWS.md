@@ -229,6 +229,16 @@ the mathematical details.
 
 ## Other improvements
 
+- The `MizerSim` methods of the rate-getter functions (`getEncounter()`,
+  `getFeedingLevel()`, `getEReproAndGrowth()`, `getERepro()`, `getEGrowth()`,
+  `getDiffusion()`, `getPredRate()`, `getPredMort()`, `getMort()`, `getFMort()`,
+  `getFMortGear()`, `getRDI()`, `getRDD()` and `getFlux()`) are now much faster.
+  They resolve the rate functions and validate the parameters once and then, at
+  each saved time step, calculate only the rates needed (and their
+  dependencies) rather than re-resolving and recomputing the whole rate chain.
+  The speed-up grows with the depth of the rate chain, e.g. roughly 100× for
+  `getRDI()` and `getFlux()` on a 50-step simulation.
+
 - Many functions now have S3 methods so they can be called with either a
   `MizerParams` or `MizerSim` object, and users can define their own subclass
   methods to modify mizer behaviour (#330). The `MizerSim` accessors

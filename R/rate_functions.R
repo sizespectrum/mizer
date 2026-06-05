@@ -128,13 +128,9 @@ getEncounter.MizerSim <- function(object, n, n_pp, n_other, t, ...,
                                   time_range, drop = FALSE) {
     sim <- object
     if (missing(time_range) && !missing(t)) time_range <- t
-    get_species_size_rate_from_sim(
-        sim, time_range, drop,
-        function(slice) {
-            getEncounter(sim@params, n = slice$n, n_pp = slice$n_pp,
-                         n_other = slice$n_other, t = slice$t, ...)
-        },
-        value_name = "Encounter rate", units = "g/year")
+    sim_size_rate(sim, time_range, drop, target = "Encounter",
+                  slot = "encounter", value_name = "Encounter rate",
+                  units = "g/year", ...)
 }
 
 
@@ -268,6 +264,210 @@ get_species_time_rate_from_sim <- function(sim, time_range, rate_fun,
 }
 
 
+# Dependency graph of the rate functions: for each rate, the other rates that
+# must be calculated before it. The names match the entries of
+# `params@rates_funcs`. Used by `mizer_rates_subset()` to work out the minimal
+# set of rates a `MizerSim` getter needs at each saved time step.
+.rate_dependencies <- list(
+    Encounter       = character(0),
+    FeedingLevel    = "Encounter",
+    EReproAndGrowth = c("Encounter", "FeedingLevel"),
+    ERepro          = "EReproAndGrowth",
+    EGrowth         = c("ERepro", "EReproAndGrowth"),
+    Diffusion       = "FeedingLevel",
+    PredRate        = "FeedingLevel",
+    PredMort        = "PredRate",
+    FMort           = c("EGrowth", "PredMort"),
+    Mort            = c("FMort", "PredMort"),
+    RDI             = c("ERepro", "EGrowth", "Diffusion", "Mort"),
+    RDD             = "RDI",
+    ResourceMort    = "PredRate"
+)
+
+#' Determine which rates must be calculated to obtain a set of target rates
+#'
+#' Internal helper returning the transitive closure of `targets` over
+#' `.rate_dependencies`, in an order in which the rates can be calculated (each
+#' rate appears after all the rates it depends on).
+#'
+#' @param targets Character vector of rate names (as in `params@rates_funcs`).
+#' @return A character vector of rate names.
+#' @keywords internal
+needed_rates <- function(targets) {
+    need <- character(0)
+    visit <- function(x) {
+        if (x %in% need) return(invisible())
+        for (dep in .rate_dependencies[[x]]) visit(dep)
+        need[[length(need) + 1L]] <<- x
+    }
+    for (target in targets) visit(target)
+    need
+}
+
+#' Calculate a selected subset of the rates
+#'
+#' Internal helper used by the `MizerSim` rate getters. Given rate functions
+#' already resolved once with `projectRateFunctions()`, it calculates only those
+#' rates needed to obtain the requested `targets` (plus their dependencies),
+#' avoiding both the per-time-step cost of re-resolving the functions and the
+#' cost of computing rates that are not required. The individual calculations
+#' mirror those in [mizerRates()].
+#'
+#' @param params A valid `MizerParams` object.
+#' @param n A matrix of species abundances (species x size).
+#' @param n_pp A vector of the resource abundance by size.
+#' @param n_other A named list of the abundances of other components.
+#' @param t The time for the calculation.
+#' @param effort The fishing effort. Only used when a target requires the
+#'   fishing mortality.
+#' @param rates_fns Named list of resolved rate functions, as returned by
+#'   `projectRateFunctions()`.
+#' @param targets Character vector of rate names (as in `params@rates_funcs`)
+#'   to calculate.
+#' @param ... Passed on to the individual rate functions.
+#' @return A named list of the calculated rates, using the same element names
+#'   as the list returned by [mizerRates()].
+#' @keywords internal
+mizer_rates_subset <- function(params, n, n_pp, n_other, t, effort,
+                               rates_fns, targets, ...) {
+    need <- needed_rates(targets)
+    r <- list()
+    if ("Encounter" %in% need)
+        r$encounter <- rates_fns$Encounter(
+            params, n = n, n_pp = n_pp, n_other = n_other, t = t, ...)
+    if ("FeedingLevel" %in% need)
+        r$feeding_level <- rates_fns$FeedingLevel(
+            params, n = n, n_pp = n_pp, n_other = n_other,
+            encounter = r$encounter, t = t, ...)
+    if ("EReproAndGrowth" %in% need)
+        r$e <- rates_fns$EReproAndGrowth(
+            params, n = n, n_pp = n_pp, n_other = n_other,
+            encounter = r$encounter, feeding_level = r$feeding_level,
+            t = t, ...)
+    if ("ERepro" %in% need)
+        r$e_repro <- rates_fns$ERepro(
+            params, n = n, n_pp = n_pp, n_other = n_other,
+            e = r$e, t = t, ...)
+    if ("EGrowth" %in% need)
+        r$e_growth <- rates_fns$EGrowth(
+            params, n = n, n_pp = n_pp, n_other = n_other,
+            e_repro = r$e_repro, e = r$e, t = t, ...)
+    if ("Diffusion" %in% need)
+        r$diffusion <- rates_fns$Diffusion(
+            params, n = n, n_pp = n_pp, n_other = n_other,
+            feeding_level = r$feeding_level, t = t, ...)
+    if ("PredRate" %in% need)
+        r$pred_rate <- rates_fns$PredRate(
+            params, n = n, n_pp = n_pp, n_other = n_other,
+            feeding_level = r$feeding_level, t = t, ...)
+    if ("PredMort" %in% need)
+        r$pred_mort <- rates_fns$PredMort(
+            params, n = n, n_pp = n_pp, n_other = n_other,
+            pred_rate = r$pred_rate, t = t, ...)
+    if ("FMort" %in% need)
+        r$f_mort <- rates_fns$FMort(
+            params, n = n, n_pp = n_pp, n_other = n_other,
+            effort = effort, t = t, e_growth = r$e_growth,
+            pred_mort = r$pred_mort, ...)
+    if ("Mort" %in% need)
+        r$mort <- rates_fns$Mort(
+            params, n = n, n_pp = n_pp, n_other = n_other,
+            f_mort = r$f_mort, pred_mort = r$pred_mort, t = t, ...)
+    if ("RDI" %in% need)
+        r$rdi <- rates_fns$RDI(
+            params, n = n, n_pp = n_pp, n_other = n_other,
+            e_growth = r$e_growth, mort = r$mort, diffusion = r$diffusion,
+            e_repro = r$e_repro, t = t, ...)
+    if ("RDD" %in% need)
+        r$rdd <- rates_fns$RDD(
+            params, rdi = r$rdi, species_params = params@species_params,
+            t = t, ...)
+    if ("ResourceMort" %in% need)
+        r$resource_mort <- rates_fns$ResourceMort(
+            params, n = n, n_pp = n_pp, n_other = n_other,
+            pred_rate = r$pred_rate, t = t, ...)
+    r
+}
+
+#' Build a `MizerSim` rate getter that resolves the rate functions once
+#'
+#' Internal helper capturing the pattern shared by the `MizerSim` rate getters
+#' that return a species-by-size array. It validates the params and resolves the
+#' rate functions a single time, then for each saved time step calculates only
+#' the required `target` rate with [mizer_rates_subset()] and extracts the
+#' element named `slot` from the result.
+#'
+#' @param sim A `MizerSim` object.
+#' @param time_range Passed to the sim iteration helper.
+#' @param drop Passed to the sim iteration helper.
+#' @param target Name of the rate to calculate (as in `params@rates_funcs`).
+#' @param slot Name of the element to extract from the [mizer_rates_subset()]
+#'   result (e.g. `"e_growth"` for the `EGrowth` rate).
+#' @param value_name,units Metadata for the returned array.
+#' @param use_sim_effort If `TRUE`, the saved effort at each time step is used;
+#'   otherwise the initial effort is used (matching the behaviour of the
+#'   corresponding `MizerParams` getter).
+#' @param ... Passed on to the rate functions.
+#' @return An `ArrayTimeBySpeciesBySize` object (or a reduced array if `drop`).
+#' @keywords internal
+sim_size_rate <- function(sim, time_range, drop, target, slot,
+                          value_name, units = NULL,
+                          use_sim_effort = FALSE, ...) {
+    params <- validParams(sim@params)
+    rates_fns <- projectRateFunctions(params)
+    effort <- params@initial_effort
+    get_species_size_rate_from_sim(
+        sim, time_range, drop,
+        function(slice) {
+            r <- mizer_rates_subset(
+                params, n = slice$n, n_pp = slice$n_pp,
+                n_other = slice$n_other, t = slice$t,
+                effort = if (use_sim_effort) slice$effort else effort,
+                rates_fns = rates_fns, targets = target, ...)
+            m <- r[[slot]]
+            # Normalise dimnames to match the corresponding `MizerParams`
+            # getter: rates over the community size grid take the `metab`
+            # dimnames (as `ArraySpeciesBySize()` would set), while the
+            # predation rate runs over the full prey size grid.
+            if (identical(dim(m), dim(params@metab))) {
+                dimnames(m) <- dimnames(params@metab)
+            } else {
+                dimnames(m) <- list(
+                    sp = dimnames(params@initial_n)$sp,
+                    w_prey = as.character(signif(params@w_full, 3)))
+            }
+            m
+        },
+        value_name = value_name, units = units)
+}
+
+#' Build a `MizerSim` rate getter that resolves the rate functions once
+#'
+#' Like [sim_size_rate()] but for getters that return one value per species at
+#' each time step (a time-by-species array), such as [getRDI()] and [getRDD()].
+#' These use the initial effort, matching their `MizerParams` counterparts.
+#'
+#' @inheritParams sim_size_rate
+#' @return An `ArrayTimeBySpecies` object.
+#' @keywords internal
+sim_species_rate <- function(sim, time_range, target, slot,
+                             value_name, units = NULL, ...) {
+    params <- validParams(sim@params)
+    rates_fns <- projectRateFunctions(params)
+    effort <- params@initial_effort
+    get_species_time_rate_from_sim(
+        sim, time_range,
+        function(slice) {
+            r <- mizer_rates_subset(
+                params, n = slice$n, n_pp = slice$n_pp,
+                n_other = slice$n_other, t = slice$t, effort = effort,
+                rates_fns = rates_fns, targets = target, ...)
+            r[[slot]]
+        },
+        value_name = value_name, units = units)
+}
+
+
 #' Get feeding level
 #'
 #' Returns the feeding level.
@@ -331,14 +531,8 @@ getFeedingLevel.MizerParams <- function(object, n, n_pp, n_other,
 getFeedingLevel.MizerSim <- function(object, n, n_pp, n_other,
                             time_range, drop = FALSE, ...) {
     sim <- object
-    get_species_size_rate_from_sim(
-        sim, time_range, drop,
-        function(slice) {
-            getFeedingLevel(sim@params, n = slice$n, n_pp = slice$n_pp,
-                            n_other = slice$n_other, time_range = slice$t,
-                            ...)
-        },
-        value_name = "Feeding level")
+    sim_size_rate(sim, time_range, drop, target = "FeedingLevel",
+                  slot = "feeding_level", value_name = "Feeding level", ...)
 }
 
 
@@ -429,13 +623,10 @@ getEReproAndGrowth.MizerSim <- function(object, n, n_pp, n_other, t, ...,
                                         time_range, drop = FALSE) {
     sim <- object
     if (missing(time_range) && !missing(t)) time_range <- t
-    get_species_size_rate_from_sim(
-        sim, time_range, drop,
-        function(slice) {
-            getEReproAndGrowth(sim@params, n = slice$n, n_pp = slice$n_pp,
-                               n_other = slice$n_other, t = slice$t, ...)
-        },
-        value_name = "Energy for growth and reproduction", units = "g/year")
+    sim_size_rate(sim, time_range, drop, target = "EReproAndGrowth",
+                  slot = "e",
+                  value_name = "Energy for growth and reproduction",
+                  units = "g/year", ...)
 }
 
 #' Get predation rate
@@ -503,13 +694,9 @@ getPredRate.MizerSim <- function(object, n, n_pp, n_other, t, ...,
                                  time_range, drop = FALSE) {
     sim <- object
     if (missing(time_range) && !missing(t)) time_range <- t
-    get_species_size_rate_from_sim(
-        sim, time_range, drop,
-        function(slice) {
-            getPredRate(sim@params, n = slice$n, n_pp = slice$n_pp,
-                        n_other = slice$n_other, t = slice$t, ...)
-        },
-        value_name = "Predation rate", units = "1/year")
+    sim_size_rate(sim, time_range, drop, target = "PredRate",
+                  slot = "pred_rate", value_name = "Predation rate",
+                  units = "1/year", ...)
 }
 
 #' Get total predation mortality rate
@@ -580,13 +767,9 @@ getPredMort.MizerParams <- function(object, n, n_pp, n_other,
 getPredMort.MizerSim <- function(object, n, n_pp, n_other,
                         time_range, drop = TRUE, ...) {
     sim <- object
-    get_species_size_rate_from_sim(
-        sim, time_range, drop,
-        function(slice) {
-            getPredMort(sim@params, n = slice$n, n_pp = slice$n_pp,
-                        n_other = slice$n_other, time_range = slice$t, ...)
-        },
-        value_name = "Predation mortality", units = "1/year")
+    sim_size_rate(sim, time_range, drop, target = "PredMort",
+                  slot = "pred_mort", value_name = "Predation mortality",
+                  units = "1/year", ...)
 }
 
 #' Alias for `getPredMort()`
@@ -780,13 +963,15 @@ getFMortGear.MizerSim <- function(object, effort, time_range,
                                   n, n_pp, n_other, t = 0, ...) {
     sim <- object
     time_elements <- get_sim_rate_time_elements(sim, time_range)
+    # Validate the params once rather than at every saved time step.
+    params <- validParams(sim@params)
 
     # Work slice by slice, like the other MizerSim rate methods, so any future
     # state-aware gear mortality calculation receives the matching simulation
     # state and time rather than only the effort matrix.
     f_mort_gear <- plyr::aaply(which(time_elements), 1, function(time_idx) {
         slice <- get_sim_rate_slice(sim, time_idx)
-        getFMortGear(sim@params, effort = slice$effort, n = slice$n,
+        getFMortGear(params, effort = slice$effort, n = slice$n,
                      n_pp = slice$n_pp, n_other = slice$n_other,
                      t = slice$t, ...)
     }, .drop = FALSE)
@@ -958,14 +1143,9 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE,
 getFMort.MizerSim <- function(object, effort, time_range, drop = TRUE,
                               n, n_pp, n_other, t, ...) {
     sim <- object
-    get_species_size_rate_from_sim(
-        sim, time_range, drop,
-        function(slice) {
-            getFMort(sim@params, effort = slice$effort, n = slice$n,
-                     n_pp = slice$n_pp, n_other = slice$n_other,
-                     t = slice$t, ...)
-        },
-        value_name = "Fishing mortality", units = "1/year")
+    sim_size_rate(sim, time_range, drop, target = "FMort", slot = "f_mort",
+                  value_name = "Fishing mortality", units = "1/year",
+                  use_sim_effort = TRUE, ...)
 }
 
 
@@ -1056,14 +1236,9 @@ getMort.MizerSim <- function(object, n, n_pp, n_other, effort, t, ...,
                              time_range, drop = TRUE) {
     sim <- object
     if (missing(time_range) && !missing(t)) time_range <- t
-    get_species_size_rate_from_sim(
-        sim, time_range, drop,
-        function(slice) {
-            getMort(sim@params, n = slice$n, n_pp = slice$n_pp,
-                    n_other = slice$n_other, effort = slice$effort,
-                    t = slice$t, ...)
-        },
-        value_name = "Total mortality", units = "1/year")
+    sim_size_rate(sim, time_range, drop, target = "Mort", slot = "mort",
+                  value_name = "Total mortality", units = "1/year",
+                  use_sim_effort = TRUE, ...)
 }
 
 #' Alias for `getMort()`
@@ -1136,13 +1311,8 @@ getERepro.MizerSim <- function(object, n, n_pp, n_other, t, ...,
                                time_range, drop = FALSE) {
     sim <- object
     if (missing(time_range) && !missing(t)) time_range <- t
-    get_species_size_rate_from_sim(
-        sim, time_range, drop,
-        function(slice) {
-            getERepro(sim@params, n = slice$n, n_pp = slice$n_pp,
-                      n_other = slice$n_other, t = slice$t, ...)
-        },
-        value_name = "Energy for reproduction", units = "g/year")
+    sim_size_rate(sim, time_range, drop, target = "ERepro", slot = "e_repro",
+                  value_name = "Energy for reproduction", units = "g/year", ...)
 }
 
 #' Alias for `getERepro()`
@@ -1213,13 +1383,8 @@ getEGrowth.MizerSim <- function(object, n, n_pp, n_other, t, ...,
                                 time_range, drop = FALSE) {
     sim <- object
     if (missing(time_range) && !missing(t)) time_range <- t
-    get_species_size_rate_from_sim(
-        sim, time_range, drop,
-        function(slice) {
-            getEGrowth(sim@params, n = slice$n, n_pp = slice$n_pp,
-                       n_other = slice$n_other, t = slice$t, ...)
-        },
-        value_name = "Growth rate", units = "g/year")
+    sim_size_rate(sim, time_range, drop, target = "EGrowth", slot = "e_growth",
+                  value_name = "Growth rate", units = "g/year", ...)
 }
 
 
@@ -1280,14 +1445,9 @@ getRDI.MizerParams <- function(object, n = initialN(object),
 getRDI.MizerSim <- function(object, n, n_pp, n_other, t = 0,
                             time_range, ...) {
     sim <- object
-    get_species_time_rate_from_sim(
-        sim, time_range,
-        function(slice) {
-            getRDI(sim@params, n = slice$n, n_pp = slice$n_pp,
-                   n_other = slice$n_other, t = slice$t, ...)
-        },
-        value_name = "Density-independent reproduction rate",
-        units = "1/year")
+    sim_species_rate(sim, time_range, target = "RDI", slot = "rdi",
+                     value_name = "Density-independent reproduction rate",
+                     units = "1/year", ...)
 }
 
 
@@ -1372,14 +1532,9 @@ getRDD.MizerParams <- function(object, n = initialN(object),
 getRDD.MizerSim <- function(object, n, n_pp, n_other, t = 0,
                             rdi, time_range, ...) {
     sim <- object
-    get_species_time_rate_from_sim(
-        sim, time_range,
-        function(slice) {
-            getRDD(sim@params, n = slice$n, n_pp = slice$n_pp,
-                   n_other = slice$n_other, t = slice$t, ...)
-        },
-        value_name = "Density-dependent reproduction rate",
-        units = "1/year")
+    sim_species_rate(sim, time_range, target = "RDD", slot = "rdd",
+                     value_name = "Density-dependent reproduction rate",
+                     units = "1/year", ...)
 }
 
 #' Get flux into size bins
@@ -1423,15 +1578,38 @@ getFlux.MizerParams <- function(object, n = initialN(object),
                     t = 0, ...) {
     params <- validParams(object)
 
-    no_sp <- nrow(params@species_params)
-    no_w <- length(params@w)
-
     g <- getEGrowth(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
     d <- getDiffusion(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
+    rdd <- getRDD(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
+
+    flux <- flux_from_rates(params, n = n, g = g, d = d, rdd = rdd)
+
+    ArraySpeciesBySize(flux, value_name = "Flux",
+             units = "1/year", params = params)
+}
+
+#' Assemble the flux matrix from growth, diffusion and recruitment rates
+#'
+#' Internal helper holding the arithmetic shared by `getFlux.MizerParams` and
+#' `getFlux.MizerSim`. Keeping it separate lets the `MizerSim` method resolve the
+#' rate functions once and reuse them across all saved time steps.
+#'
+#' @param params A valid `MizerParams` object.
+#' @param n A matrix of species abundances (species x size).
+#' @param g Growth rate matrix (species x size), as from [getEGrowth()].
+#' @param d Diffusion rate matrix (species x size), as from [getDiffusion()].
+#' @param rdd Density-dependent reproduction rate vector (one per species), as
+#'   from [getRDD()].
+#'
+#' @return A plain species x size matrix of fluxes (no mizer array class).
+#' @keywords internal
+flux_from_rates <- function(params, n, g, d, rdd) {
+    no_sp <- nrow(params@species_params)
+    no_w <- length(params@w)
     dw <- params@dw
 
     flux <- matrix(0, nrow = no_sp, ncol = no_w,
-                   dimnames = list(params@species_params$species, NULL))
+                   dimnames = dimnames(params@metab))
 
     idx <- 2:no_w
     idx_minus_1 <- idx - 1
@@ -1444,8 +1622,6 @@ getFlux.MizerParams <- function(object, n = initialN(object),
     flux[, idx] <- g[, idx_minus_1] * n[, idx_minus_1] - 0.5 * diff_term
 
     # Apply recruitment boundary conditions
-    rdd <- getRDD(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
-
     j_start <- params@w_min_idx
     idxs <- cbind(1:no_sp, j_start)
     flux[idxs] <- rdd
@@ -1458,8 +1634,7 @@ getFlux.MizerParams <- function(object, n = initialN(object),
         flux[mask_below] <- 0
     }
 
-    ArraySpeciesBySize(flux, value_name = "Flux",
-             units = "1/year", params = params)
+    flux
 }
 
 #' @export
@@ -1467,11 +1642,24 @@ getFlux.MizerSim <- function(object, n, n_pp, n_other, t, ...,
                              time_range, drop = FALSE) {
     sim <- object
     if (missing(time_range) && !missing(t)) time_range <- t
+
+    # Resolve the rate functions once rather than at every saved time step. The
+    # flux needs only the growth, diffusion and recruitment rates (and the rates
+    # those depend on), which `mizer_rates_subset()` calculates selectively.
+    params <- validParams(sim@params)
+    rates_fns <- projectRateFunctions(params)
+    effort <- params@initial_effort
+
     get_species_size_rate_from_sim(
         sim, time_range, drop,
         function(slice) {
-            getFlux(sim@params, n = slice$n, n_pp = slice$n_pp,
-                    n_other = slice$n_other, t = slice$t, ...)
+            r <- mizer_rates_subset(
+                params, n = slice$n, n_pp = slice$n_pp,
+                n_other = slice$n_other, t = slice$t, effort = effort,
+                rates_fns = rates_fns,
+                targets = c("EGrowth", "Diffusion", "RDD"), ...)
+            flux_from_rates(params, n = slice$n,
+                            g = r$e_growth, d = r$diffusion, rdd = r$rdd)
         },
         value_name = "Flux", units = "1/year")
 }
