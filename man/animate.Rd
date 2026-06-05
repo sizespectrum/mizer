@@ -18,11 +18,9 @@ animateSpectra(sim, ...)
 \item{species}{Name or vector of names of the species to be plotted. By
 default all species are plotted.}
 
-\item{time_range}{The time range to animate over. Either a vector of time
-values to include, or a length-two vector giving the min and max of the
-range. Default is the entire time range of \code{x}.}
-
 \item{log_x}{If \code{TRUE} (default), use a log10 x-axis for body size.}
+
+\item{log_y}{If \code{TRUE} (default), use a log10 y-axis.}
 
 \item{log}{A character string specifying which axes to log-transform:
 \code{"x"}, \code{"y"}, \code{"xy"} or \code{""}. If supplied, this overrides \code{log_x}
@@ -42,7 +40,9 @@ maximum. Limits are applied as Plotly axis ranges, so points outside the
 limits are clipped by the viewport rather than removed from the animation
 frames.}
 
-\item{log_y}{If \code{TRUE} (default), use a log10 y-axis.}
+\item{tlim}{A numeric vector of length two providing lower and upper limits
+for the animated time window, e.g. \code{c(1997, 2007)}. Use \code{NA} to apply no
+limit at that end. Default is \code{c(NA, NA)}.}
 
 \item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
 (\code{"l"}), using the allometric weight-length relationship.}
@@ -116,7 +116,7 @@ Species linecolours and linetypes follow \code{params@linecolour} and
 \examples{
 \donttest{
 # Animate biomass density spectra, showing only sizes above 0.1 g
-animate(NS_sim, power = 2, wlim = c(0.1, NA), time_range = 1997:2007)
+animate(NS_sim, power = 2, wlim = c(0.1, NA), tlim = c(1997, 2007))
 
 # Animate fishing mortality through time
 animate(getFMort(NS_sim))

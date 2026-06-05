@@ -128,10 +128,9 @@ print.summary.ArrayTimeBySpecies <- function(x, ...) {
 #' @rdname plot
 #' @usage NULL
 #'
-#' @param start_time The first time to be plotted. Default (`NULL`) is the
-#'   beginning of the time series. Only applies to `ArrayTimeBySpecies`.
-#' @param end_time The last time to be plotted. Default (`NULL`) is the end of
-#'   the time series. Only applies to `ArrayTimeBySpecies`.
+#' @param tlim A numeric vector of length two providing lower and upper limits
+#'   for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no limit at
+#'   that end. Default is `c(NA, NA)`. Only applies to `ArrayTimeBySpecies`.
 #' @export
 #' @examples
 #' \donttest{
@@ -140,7 +139,7 @@ print.summary.ArrayTimeBySpecies <- function(x, ...) {
 #' plot(getYield(NS_sim), species = c("Cod", "Herring"))
 #' }
 plot.ArrayTimeBySpecies <- function(x, species = NULL,
-                                    start_time = NULL, end_time = NULL,
+                                    tlim = c(NA, NA),
                                     y_ticks = 6, ylim = c(NA, NA),
                                     total = FALSE, background = TRUE,
                                     highlight = NULL, log_x = FALSE,
@@ -161,7 +160,7 @@ plot.ArrayTimeBySpecies <- function(x, species = NULL,
         y_label <- paste0(value_name, " [", units_str, "]")
     }
     plot_dat <- prepare_ArrayTimeBySpecies_plot_data(
-        x, species = species, start_time = start_time, end_time = end_time,
+        x, species = species, tlim = tlim,
         ylim = ylim, total = total, background = background)
 
     if (return_data) return(plot_dat)
@@ -184,8 +183,7 @@ plot.ArrayTimeBySpecies <- function(x, species = NULL,
 #' @param alpha Transparency of the added lines.
 #' @export
 addPlot.ArrayTimeBySpecies <- function(plot, x, species = NULL,
-                                       start_time = NULL,
-                                       end_time = NULL,
+                                       tlim = c(NA, NA),
                                        ylim = c(NA, NA),
                                        total = FALSE,
                                        background = TRUE,
@@ -204,7 +202,7 @@ addPlot.ArrayTimeBySpecies <- function(plot, x, species = NULL,
 
     plot <- deep_copy(plot)
     plot_dat <- prepare_ArrayTimeBySpecies_plot_data(
-        x, species = species, start_time = start_time, end_time = end_time,
+        x, species = species, tlim = tlim,
         ylim = ylim, total = total, background = background)
     y_var <- names(plot_dat)[[2]]
     check_addPlot_compatible(plot, x_var = "Year", y_var = y_var,
@@ -241,7 +239,7 @@ addPlot.ArrayTimeBySpecies <- function(plot, x, species = NULL,
 #' @export
 plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
                                      species = NULL,
-                                     start_time = NULL, end_time = NULL,
+                                     tlim = c(NA, NA),
                                      y_ticks = 6, ylim = c(NA, NA),
                                      total = FALSE, background = TRUE,
                                      log_x = FALSE, log_y = TRUE,
@@ -255,10 +253,10 @@ plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
     params <- attr(x, "params")
     y_label <- array_y_label(x, default = "Value")
     plot_dat1 <- prepare_ArrayTimeBySpecies_plot_data(
-        x, species = species, start_time = start_time, end_time = end_time,
+        x, species = species, tlim = tlim,
         ylim = ylim, total = total, background = background)
     plot_dat2 <- prepare_ArrayTimeBySpecies_plot_data(
-        y, species = species, start_time = start_time, end_time = end_time,
+        y, species = species, tlim = tlim,
         ylim = ylim, total = total, background = background)
 
     plotComparisonDataFrame(plot_dat1, plot_dat2, params,
@@ -274,8 +272,7 @@ plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
 #' @usage NULL
 #' @export
 plotRelative.ArrayTimeBySpecies <- function(x, y, species = NULL,
-                                            start_time = NULL,
-                                            end_time = NULL,
+                                            tlim = c(NA, NA),
                                             ylim = c(NA, NA),
                                             total = FALSE,
                                             background = TRUE,
@@ -284,10 +281,10 @@ plotRelative.ArrayTimeBySpecies <- function(x, y, species = NULL,
     compare_array_metadata(x, y)
     params <- attr(x, "params")
     plot_dat1 <- prepare_ArrayTimeBySpecies_plot_data(
-        x, species = species, start_time = start_time, end_time = end_time,
+        x, species = species, tlim = tlim,
         total = total, background = background)
     plot_dat2 <- prepare_ArrayTimeBySpecies_plot_data(
-        y, species = species, start_time = start_time, end_time = end_time,
+        y, species = species, tlim = tlim,
         total = total, background = background)
 
     plotRelativeDataFrame(plot_dat1, plot_dat2, params,
@@ -297,8 +294,7 @@ plotRelative.ArrayTimeBySpecies <- function(x, y, species = NULL,
 }
 
 prepare_ArrayTimeBySpecies_plot_data <- function(x, species = NULL,
-                                                 start_time = NULL,
-                                                 end_time = NULL,
+                                                 tlim = c(NA, NA),
                                                  ylim = c(NA, NA),
                                                  total = FALSE,
                                                  background = TRUE) {
@@ -308,15 +304,15 @@ prepare_ArrayTimeBySpecies_plot_data <- function(x, species = NULL,
     # Filter to time range
     t <- as.numeric(rownames(x))
     if (any(is.na(t))) t <- seq_len(nrow(x))
-    if (!is.null(start_time) && !is.null(end_time) && start_time >= end_time) {
-        stop("start_time must be less than end_time")
+    if (!is.na(tlim[1]) && !is.na(tlim[2]) && tlim[1] >= tlim[2]) {
+        stop("tlim[1] must be less than tlim[2]")
     }
-    if (!is.null(start_time)) {
-        x <- x[t >= start_time, , drop = FALSE]
-        t <- t[t >= start_time]
+    if (!is.na(tlim[1])) {
+        x <- x[t >= tlim[1], , drop = FALSE]
+        t <- t[t >= tlim[1]]
     }
-    if (!is.null(end_time)) {
-        x <- x[t <= end_time, , drop = FALSE]
+    if (!is.na(tlim[2])) {
+        x <- x[t <= tlim[2], , drop = FALSE]
     }
 
     all_species <- colnames(x)
@@ -362,24 +358,14 @@ prepare_ArrayTimeBySpecies_plot_data <- function(x, species = NULL,
     plot_dat
 }
 
-#' @rdname plot
-#' @usage NULL
-#' @exportS3Method plotly::ggplotly
+#' @rdname plotHover
 #' @examples
 #' \donttest{
-#' ggplotly(getBiomass(NS_sim))
+#' plotHover(getBiomass(NS_sim))
 #' }
-ggplotly.ArrayTimeBySpecies <- function(p = ggplot2::last_plot(),
-                                        width = NULL, height = NULL,
-                                        tooltip = "all",
-                                        dynamicTicks = FALSE,
-                                        layerData = 1,
-                                        originalData = TRUE,
-                                        source = "A", ...) {
-    plotly::ggplotly(plot(p, ...), width = width, height = height,
-                     tooltip = tooltip, dynamicTicks = dynamicTicks,
-                     layerData = layerData, originalData = originalData,
-                     source = source)
+#' @export
+plotHover.ArrayTimeBySpecies <- function(x, ...) {
+    plotHover(plot(x, ...), ...)
 }
 
 #' @export

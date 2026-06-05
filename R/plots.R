@@ -38,9 +38,9 @@
 #'   time-by-species-by-size array, such as those returned by [getFMort()] or
 #'   [getPredMort()] on a `MizerSim`.
 #'
-#' The same array objects can be passed to [ggplotly()] to produce interactive
-#' versions, for example `ggplotly(getBiomass(sim))` or
-#' `ggplotly(getEncounter(params))`. To add another compatible array to an
+#' The same array objects can be passed to [plotHover()] to produce
+#' hover-enabled plotly versions, for example `plotHover(getBiomass(sim))` or
+#' `plotHover(getEncounter(params))`. To add another compatible array to an
 #' existing ggplot, use [addPlot()]. To compare two compatible mizer arrays
 #' directly, use [plot2()]. To plot cumulative distributions over body size,
 #' use [plotCDF()]. To visualise how spectra or rates change through time, use
@@ -74,7 +74,7 @@
 #' counterparts, for example [plotlyBiomass()] or [plotlySpectra()], for
 #' interactive exploration. Generic and compositional plotting APIs, such as
 #' [plot()], [plot2()], [plotRelative()] and [addPlot()], do not have separate
-#' plotly wrappers. Use [ggplotly()] on the ggplot object they return.
+#' plotly wrappers. Use [plotHover()] on the ggplot object they return.
 #'
 #' While most plot functions take their data from a MizerSim object, some of
 #' those that make plots representing data at a single time can also take their
@@ -104,7 +104,7 @@
 #' # Generic plot methods
 #' plot(sim)
 #' plot(getBiomass(sim), species = c("Cod", "Herring"))
-#' ggplotly(getBiomass(sim))
+#' plotHover(getBiomass(sim))
 #'
 #' # Named plot functions
 #' plotFeedingLevel(sim)
@@ -281,12 +281,34 @@ mizer_tooltip_vars <- function(frame, group_var, x_var, y_var,
     unique(c(tooltip, extra))
 }
 
-#' @exportS3Method plotly::ggplotly
-ggplotly.mizer_plot <- function(p = ggplot2::last_plot(), ...,
-                                tooltip = attr(p, "mizer_tooltip") %||%
-                                    "all") {
-    class(p) <- setdiff(class(p), "mizer_plot")
-    ggplotly(p, ..., tooltip = tooltip)
+#' Create a hover-enabled plotly plot from a mizer object
+#'
+#' Creates an interactive plotly version of a mizer plot. Can be called on any
+#' mizer array object (such as those returned by [getEncounter()],
+#' [getBiomass()], etc.) or on any `mizer_plot` object returned by the named
+#' plot functions such as [plotBiomass()], [plotSpectra()], etc. In the first
+#' case it is a shorthand for `plotly::ggplotly(plot(x, ...))`.
+#'
+#' @param x A `mizer_plot`, `ArraySpeciesBySize`, `ArrayTimeBySpecies`, or
+#'   `ArrayTimeBySpeciesBySize` object.
+#' @param ... Arguments passed to the corresponding `plot()` method for mizer
+#'   array objects, or to [plotly::ggplotly()] for `mizer_plot` objects.
+#' @return A plotly object.
+#' @seealso [plot()], [plotBiomass()], [plotSpectra()], [plotting_functions]
+#' @concept plotting functions
+#' @export
+plotHover <- function(x, ...) UseMethod("plotHover")
+
+#' @rdname plotHover
+#' @param tooltip Character vector of aesthetic names to include in the tooltip,
+#'   or `"all"` for all aesthetics. Defaults to the tooltip stored in the
+#'   `mizer_plot` object.
+#' @export
+plotHover.mizer_plot <- function(x = ggplot2::last_plot(), ...,
+                                 tooltip = attr(x, "mizer_tooltip") %||%
+                                     "all") {
+    class(x) <- setdiff(class(x), "mizer_plot")
+    plotly::ggplotly(x, ..., tooltip = tooltip)
 }
 
 plotComparisonDataFrame <- function(frame1, frame2, params,
@@ -336,22 +358,23 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
     ybreaks <- waiver()
     if (ytrans == "log10") ybreaks <- log_breaks(n = y_ticks)
 
+    frame$LineSpec <- frame[[legend_var]]
     p <- ggplot(frame,
-                aes(group = interaction(.data[[group_var]], .data[["Model"]]))) +
+                aes(group = interaction(.data[[legend_var]], .data[["Model"]]),
+                    colour = .data[[legend_var]])) +
         scale_y_continuous(trans = ytrans, breaks = ybreaks,
                            labels = prettyNum, name = ylab,
                            limits = ylim) +
         scale_x_continuous(trans = xtrans, breaks = xbreaks, name = xlab,
                            limits = xlim) +
         geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
-                      colour = .data[[legend_var]],
                       linetype = .data[["Model"]],
-                      linewidth = .data[[legend_var]])) +
+                      linewidth = .data[["LineSpec"]])) +
         scale_colour_manual(values = linecolour) +
         scale_linetype_discrete(drop = FALSE) +
         scale_discrete_manual("linewidth", values = linesize)
-    make_mizer_plot(p, mizer_tooltip_vars(frame, group_var, x_var, y_var,
-                                          legend_var, extra = "Model"))
+    make_mizer_plot(p, mizer_tooltip_vars(frame, legend_var, x_var, y_var,
+                                          extra = "Model"))
 }
 
 plotRelativeDataFrame <- function(frame1, frame2, params,
@@ -397,6 +420,7 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
     }
     linecolour <- params@linecolour[legend_levels]
     linesize <- make_linesize(legend_levels, highlight)
+    frame$LineSpec <- frame[[legend_var]]
 
     xbreaks <- waiver()
     if (xtrans == "log10") xbreaks <- log_breaks()
@@ -409,7 +433,7 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
                    colour = "dark grey", linewidth = 0.75) +
         geom_line(aes(x = .data[[x_var]], y = .data[["rel_diff"]],
                       colour = .data[[legend_var]],
-                      linewidth = .data[[legend_var]])) +
+                      linewidth = .data[["LineSpec"]])) +
         scale_colour_manual(values = linecolour) +
         scale_discrete_manual("linewidth", values = linesize)
     make_mizer_plot(p, mizer_tooltip_vars(frame, group_var, x_var, "rel_diff",
@@ -522,10 +546,9 @@ convert_plot_size_axis <- function(plot_dat, params, size_axis,
 #'
 #' @param object An object of class \linkS4class{MizerSim}
 #' @inheritParams valid_species_arg
-#' @param start_time The first time to be plotted. Default (`NULL`) is the
-#'   beginning of the time series.
-#' @param end_time The last time to be plotted. Default (`NULL`) is the end of
-#'   the time series.
+#' @param tlim A numeric vector of length two providing lower and upper limits
+#'   for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no limit at
+#'   that end. Default is `c(NA, NA)`.
 #' @param y_ticks The approximate number of ticks desired on the y axis.
 #' @param ylim A numeric vector of length two providing lower and upper limits
 #'   for the y axis. Use `NA` to refer to the existing minimum or maximum. Any
@@ -559,7 +582,7 @@ convert_plot_size_axis <- function(plot_dat, params, size_axis,
 #' \donttest{
 #' plotBiomass(NS_sim)
 #' plotBiomass(NS_sim, species = c("Sandeel", "Herring"), total = TRUE)
-#' plotBiomass(NS_sim, start_time = 1980, end_time = 1990)
+#' plotBiomass(NS_sim, tlim = c(1980, 1990))
 #'
 #' # Returning the data frame
 #' fr <- plotBiomass(NS_sim, return_data = TRUE)
@@ -575,7 +598,9 @@ plotBiomass <- function(object, ...) {
 #' @usage NULL
 #' @export
 plotBiomass.MizerSim <- function(object, species = NULL,
-                        start_time = NULL, end_time = NULL,
+                        tlim = c(NA, NA),
+                        start_time = lifecycle::deprecated(),
+                        end_time = lifecycle::deprecated(),
                         y_ticks = 6, ylim = c(NA, NA),
                         total = FALSE, background = TRUE,
                         highlight = NULL,
@@ -585,12 +610,20 @@ plotBiomass.MizerSim <- function(object, species = NULL,
                         min_w = min(object@params@w),
                         max_w = max(object@params@w),
                         min_l = NULL, max_l = NULL, ...) {
+    if (lifecycle::is_present(start_time)) {
+        lifecycle::deprecate_warn("2.6.0", "plotBiomass(start_time)", "plotBiomass(tlim)")
+        tlim[[1]] <- start_time
+    }
+    if (lifecycle::is_present(end_time)) {
+        lifecycle::deprecate_warn("2.6.0", "plotBiomass(end_time)", "plotBiomass(tlim)")
+        tlim[[2]] <- end_time
+    }
     log_axes <- parseTimePlotLog(log, log_x = log_x, log_y = log_y)
     bm <- getBiomass(object, use_cutoff = use_cutoff,
                      min_w = min_w, max_w = max_w,
                      min_l = min_l, max_l = max_l)
     plot(bm, species = species,
-         start_time = start_time, end_time = end_time,
+         tlim = tlim,
          y_ticks = y_ticks, ylim = ylim,
          total = total, background = background,
          highlight = highlight,
@@ -603,8 +636,9 @@ plotBiomass.MizerSim <- function(object, species = NULL,
 #' @export
 plotlyBiomass <- function(object,
              species = NULL,
-             start_time = NULL,
-             end_time = NULL,
+             tlim = c(NA, NA),
+             start_time = lifecycle::deprecated(),
+             end_time = lifecycle::deprecated(),
              y_ticks = 6,
              ylim = c(NA, NA),
              total = FALSE,
@@ -616,8 +650,18 @@ plotlyBiomass <- function(object,
              max_w = max(object@params@w),
              min_l = NULL,
              max_l = NULL) {
+    if (lifecycle::is_present(start_time)) {
+        lifecycle::deprecate_warn("2.6.0", "plotlyBiomass(start_time)", "plotlyBiomass(tlim)")
+        tlim[[1]] <- start_time
+    }
+    if (lifecycle::is_present(end_time)) {
+        lifecycle::deprecate_warn("2.6.0", "plotlyBiomass(end_time)", "plotlyBiomass(tlim)")
+        tlim[[2]] <- end_time
+    }
     argg <- as.list(environment())
-    ggplotly(do.call("plotBiomass", argg),
+    argg$start_time <- NULL
+    argg$end_time <- NULL
+    plotHover(do.call("plotBiomass", argg),
              tooltip = c("Species", "Year", "Biomass"))
 }
 
@@ -639,6 +683,9 @@ plotlyBiomass <- function(object,
 #'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
 #'   For backward compatibility, `TRUE` and `FALSE` are interpreted as setting
 #'   only `log_y`.
+#' @param tlim A numeric vector of length two providing lower and upper limits
+#'   for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no limit at
+#'   that end. Default is `c(NA, NA)`.
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the three variables 'Year', 'Yield', 'Species' is returned.
@@ -672,10 +719,9 @@ plotYield <- function(object, ...) {
 plotYield.MizerSim <- function(object, sim2,
                       species = NULL,
                       total = FALSE,
-                      log = NULL,
-                      ylim = c(NA, NA),
+                      log_x = FALSE, log_y = TRUE, log = NULL,
+                      ylim = c(NA, NA), tlim = c(NA, NA),
                       highlight = NULL, return_data = FALSE,
-                      log_x = FALSE, log_y = TRUE,
                       ...) {
     log_axes <- parseTimePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is(object, "MizerSim"),
@@ -687,6 +733,14 @@ plotYield.MizerSim <- function(object, sim2,
     species <- valid_species_arg(object, species, error_on_empty = TRUE)
     if (missing(sim2)) {
         y <- getYield(object, ...)
+        times <- as.numeric(rownames(y))
+        if (!is.na(tlim[1])) {
+            y <- y[times >= tlim[1], , drop = FALSE]
+            times <- as.numeric(rownames(y))
+        }
+        if (!is.na(tlim[2])) {
+            y <- y[times <= tlim[2], , drop = FALSE]
+        }
         y_total <- rowSums(y)
         y <- y[, (as.character(dimnames(y)[[2]]) %in% species),
                drop = FALSE]
@@ -717,12 +771,12 @@ plotYield.MizerSim <- function(object, sim2,
             stop("The two simulations do not have the same times")
         }
         ym <- plotYield(object, species = species,
-                            total = total,
+                            tlim = tlim, total = total,
                             log_x = log_axes$log_x, log_y = log_axes$log_y,
                             ylim = ylim,
                             highlight = highlight, return_data = TRUE, ...)
         ym2 <- plotYield(sim2, species = species,
-                            total = total,
+                            tlim = tlim, total = total,
                             log_x = log_axes$log_x, log_y = log_axes$log_y,
                             ylim = ylim,
                             highlight = highlight, return_data = TRUE, ...)
@@ -748,12 +802,12 @@ plotYield.MizerSim <- function(object, sim2,
 plotlyYield <- function(object, sim2,
                         species = NULL,
                         total = FALSE,
-                        log = NULL,
-                        ylim = c(NA, NA),
+                        log_x = FALSE, log_y = TRUE, log = NULL,
+                        ylim = c(NA, NA), tlim = c(NA, NA),
                         highlight = NULL,
-                        log_x = FALSE, log_y = TRUE, ...) {
+                        ...) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotYield", argg),
+    plotHover(do.call("plotYield", argg),
              tooltip = c("Species", "Year", "Yield"))
 }
 
@@ -792,6 +846,9 @@ parseTimePlotLog <- function(log, log_x, log_y) {
 #' @inheritParams plotSpectra
 #' @param gears A vector of gear names to be included in the plot. Default is
 #'  all gears.
+#' @param tlim A numeric vector of length two providing lower and upper limits
+#'   for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no limit at
+#'   that end. Default is `c(NA, NA)`.
 #' @param ... .
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
@@ -823,7 +880,8 @@ plotYieldGear <- function(object, ...) {
 plotYieldGear.MizerSim <- function(object,
                           species = NULL,
                           gears = NULL,
-                          total = FALSE, ylim = c(NA, NA),
+                          total = FALSE,
+                          ylim = c(NA, NA), tlim = c(NA, NA),
                           highlight = NULL, return_data = FALSE,
                           ...) {
     assert_that(is(object, "MizerSim"),
@@ -834,6 +892,14 @@ plotYieldGear.MizerSim <- function(object,
     gears <- valid_gears_arg(object, gears, error_on_empty = TRUE)
 
     y <- getYieldGear(object, ...)
+    times <- as.numeric(dimnames(y)[[1]])
+    if (!is.na(tlim[1])) {
+        y <- y[times >= tlim[1], , , drop = FALSE]
+        times <- as.numeric(dimnames(y)[[1]])
+    }
+    if (!is.na(tlim[2])) {
+        y <- y[times <= tlim[2], , , drop = FALSE]
+    }
     y_total <- rowSums(y, dims = 2)
     y <- y[, dimnames(y)$gear %in% gears, dimnames(y)$sp %in% species, drop = FALSE]
     names(dimnames(y))[names(dimnames(y)) == "sp"] <- "Species"
@@ -855,14 +921,18 @@ plotYieldGear.MizerSim <- function(object,
     # Need to keep species in order for legend
     species_levels <- intersect(names(params@linecolour), ym$Species)
     ym$Species <- factor(ym$Species, levels = species_levels)
+    ym$Legend <- ym$Species
     linesize <- make_linesize(species_levels, highlight)
-    ggplot(ym) +
-        geom_line(aes(x = Year, y = Yield, colour = Species,
-                      linetype = Gear, linewidth = Species)) +
-        scale_y_continuous(trans = "log10", name = "Yield [g]",
-                           limits = ylim) +
-        scale_colour_manual(values = params@linecolour[species_levels]) +
-        scale_discrete_manual("linewidth", values = linesize)
+    make_mizer_plot(
+        ggplot(ym) +
+            geom_line(aes(x = Year, y = Yield, colour = Species,
+                          linetype = Gear, linewidth = Legend)) +
+            scale_y_continuous(trans = "log10", name = "Yield [g]",
+                               limits = ylim) +
+            scale_colour_manual(values = params@linecolour[species_levels]) +
+            scale_discrete_manual("linewidth", values = linesize),
+        c("Species", "Gear", "Year", "Yield")
+    )
 }
 
 #' @rdname plotYieldGear
@@ -870,11 +940,12 @@ plotYieldGear.MizerSim <- function(object,
 #' @export
 plotlyYieldGear <- function(object, species = NULL,
                             gears = NULL,
-                            total = FALSE, ylim = c(NA, NA),
+                            total = FALSE,
+                            ylim = c(NA, NA), tlim = c(NA, NA),
                             highlight = NULL, ...) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotYieldGear", argg),
-             tooltip = c("Species", "Year", "Yield"))
+    plotHover(do.call("plotYieldGear", argg),
+             tooltip = c("Species", "Gear", "Year", "Yield"))
 }
 
 #' Plot abundance and biomass spectra and compare between objects
@@ -1179,6 +1250,7 @@ plot_spectra <- function(params, n, n_pp,
     if (identical(size_axis, "l")) {
         plot_dat <- filter_plot_length_limits(plot_dat, llim)
     }
+    names(plot_dat)[2] <- y_label
     if (return_data) return(plot_dat)
 
     plotDataFrame(plot_dat, params, xlab = plot_size_xlab(size_axis),
@@ -1341,11 +1413,13 @@ plot_cdf <- function(plot_dat, params, power, normalise, log_x, log_y, wlim, lli
     cdf_dat <- prepare_spectra_cdf_data(plot_dat, params,
                                         normalise = normalise)
     cdf_dat <- convert_plot_size_axis(cdf_dat, params, size_axis)
+    cdf_y <- cdf_y_label(power, normalise)
+    names(cdf_dat)[2] <- cdf_y
     if (return_data) return(cdf_dat)
 
     plotDataFrame(cdf_dat, validParams(params),
                   xlab = plot_size_xlab(size_axis),
-                  ylab = cdf_y_label(power, normalise),
+                  ylab = cdf_y,
                   xtrans = if (log_x) "log10" else "identity",
                   ytrans = if (log_y) "log10" else "identity",
                   xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
@@ -1354,13 +1428,14 @@ plot_cdf <- function(plot_dat, params, power, normalise, log_x, log_y, wlim, lli
 
 prepare_spectra_cdf_data <- function(plot_dat, params, normalise = TRUE) {
     params <- validParams(params)
+    y_var <- names(plot_dat)[2]
     plot_dat <- plot_dat[order(plot_dat$Species, plot_dat$w), ]
-    plot_dat$value <- plot_dat$value * spectra_bin_width(plot_dat$w, params)
-    plot_dat$value <- stats::ave(plot_dat$value, plot_dat$Species,
-                                 FUN = cumsum)
+    plot_dat[[y_var]] <- plot_dat[[y_var]] * spectra_bin_width(plot_dat$w, params)
+    plot_dat[[y_var]] <- stats::ave(plot_dat[[y_var]], plot_dat$Species,
+                                    FUN = cumsum)
     if (normalise) {
-        totals <- stats::ave(plot_dat$value, plot_dat$Species, FUN = max)
-        plot_dat$value <- plot_dat$value / totals
+        totals <- stats::ave(plot_dat[[y_var]], plot_dat$Species, FUN = max)
+        plot_dat[[y_var]] <- plot_dat[[y_var]] / totals
     }
     plot_dat
 }
@@ -1518,9 +1593,7 @@ plotlySpectra2 <- function(object1, object2, name1 = "First",
     if (!missing(power)) {
         args$power <- power
     }
-    ggplotly(do.call("plotSpectra2", args),
-             tooltip = plot_size_tooltip(size_axis, before = "Species",
-                                         after = c("value", "Model")))
+    plotHover(do.call("plotSpectra2", args))
 }
 
 #' @rdname plotSpectra
@@ -1583,7 +1656,7 @@ plotlySpectraRelative <- function(object1, object2,
     if (!missing(power)) {
         args$power <- power
     }
-    ggplotly(do.call("plotSpectraRelative", args),
+    plotHover(do.call("plotSpectraRelative", args),
              tooltip = plot_size_tooltip(size_axis, before = "Legend",
                                          after = "rel_diff"))
 }
@@ -1616,9 +1689,7 @@ plotlyCDF <- function(object, species = NULL,
     if (!missing(power)) {
         args$power <- power
     }
-    ggplotly(do.call("plotCDF", args),
-             tooltip = plot_size_tooltip(size_axis, before = "Species",
-                                         after = "value"))
+    plotHover(do.call("plotCDF", args))
 }
 
 #' @rdname plotCDF
@@ -1647,9 +1718,7 @@ plotlyCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
     if (!missing(power)) {
         args$power <- power
     }
-    ggplotly(do.call("plotCDF2", args),
-             tooltip = plot_size_tooltip(size_axis, before = "Species",
-                                         after = c("value", "Model")))
+    plotHover(do.call("plotCDF2", args))
 }
 
 #' @rdname plotSpectra
@@ -1667,9 +1736,7 @@ plotlySpectra <- function(object, species = NULL,
                         size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
     argg <- as.list(environment())
-    ggplotly(do.call("plotSpectra", argg),
-             tooltip = plot_size_tooltip(size_axis, before = "Species",
-                                         after = "value"))
+    plotHover(do.call("plotSpectra", argg))
 }
 
 #' Plot the feeding level of species by size
@@ -1832,6 +1899,7 @@ plot_feeding_level <- function(params, feed, species, highlight,
         plot_dat <- subset(plot_dat, value > 0)
     }
 
+    names(plot_dat)[2] <- "Feeding level"
     if (return_data) return(plot_dat)
     x_var <- plot_size_x_var(size_axis)
 
@@ -1856,18 +1924,21 @@ plot_feeding_level <- function(params, feed, species, highlight,
     } else {
         p <- ggplot(plot_dat, aes(group = Species))
     }
-    p + geom_line(aes(x = .data[[x_var]], y = value,
-                      colour = Legend, linetype = Legend, linewidth = Legend)) +
-        scale_x_continuous(name = plot_size_xlab(size_axis),
-                           trans = if (log_x) "log10" else "identity",
-                           limits = plot_size_xlim(wlim, size_axis, llim)) +
-        scale_y_continuous(name = "Feeding Level",
-                           trans = if (log_y) "log10" else "identity") +
-        # Feeding level is naturally bounded in [0, 1] on linear scale.
-        coord_cartesian(ylim = if (log_y) NULL else c(0, 1)) +
-        scale_colour_manual(values = params@linecolour[legend_levels]) +
-        scale_linetype_manual(values = params@linetype[legend_levels]) +
-        scale_discrete_manual("linewidth", values = linesize)
+    make_mizer_plot(
+        p + geom_line(aes(x = .data[[x_var]], y = .data[["Feeding level"]],
+                          colour = Legend, linetype = Legend, linewidth = Legend)) +
+            scale_x_continuous(name = plot_size_xlab(size_axis),
+                               trans = if (log_x) "log10" else "identity",
+                               limits = plot_size_xlim(wlim, size_axis, llim)) +
+            scale_y_continuous(name = "Feeding Level",
+                               trans = if (log_y) "log10" else "identity") +
+            # Feeding level is naturally bounded in [0, 1] on linear scale.
+            coord_cartesian(ylim = if (log_y) NULL else c(0, 1)) +
+            scale_colour_manual(values = params@linecolour[legend_levels]) +
+            scale_linetype_manual(values = params@linetype[legend_levels]) +
+            scale_discrete_manual("linewidth", values = linesize),
+        plot_size_tooltip(size_axis, before = "Species", after = "Feeding level")
+    )
 }
 
 #' @rdname plotFeedingLevel
@@ -1884,9 +1955,7 @@ plotlyFeedingLevel <- function(object,
                              log_x = TRUE, log_y = FALSE, log = NULL, ...) {
     size_axis <- plot_size_axis(size_axis)
     argg <- as.list(environment())
-    p <- ggplotly(do.call("plotFeedingLevel", argg),
-                  tooltip = plot_size_tooltip(size_axis, before = "Species",
-                                              after = "value"))
+    p <- plotHover(do.call("plotFeedingLevel", argg))
 
     # When critical feeding level is included, ggplotly creates traces split by the
     # interaction of Species and Type, which produces a very long combined legend.
@@ -2059,9 +2128,7 @@ plotlyPredMort <- function(object, species = NULL,
                            log_x = TRUE, log_y = FALSE, log = NULL, ...) {
     size_axis <- plot_size_axis(size_axis)
     argg <- as.list(environment())
-    ggplotly(do.call("plotPredMort", argg),
-             tooltip = plot_size_tooltip(size_axis, before = "Species",
-                                         after = "value"))
+    plotHover(do.call("plotPredMort", argg))
 }
 
 #' Plot total fishing mortality of each species by size
@@ -2156,9 +2223,7 @@ plotlyFMort <- function(object, species = NULL,
                         log_x = TRUE, log_y = FALSE, log = NULL, ...) {
     size_axis <- plot_size_axis(size_axis)
     argg <- as.list(environment())
-    ggplotly(do.call("plotFMort", argg),
-             tooltip = plot_size_tooltip(size_axis, before = "Species",
-                                         after = "value"))
+    plotHover(do.call("plotFMort", argg))
 }
 
 
@@ -2332,22 +2397,24 @@ plot_growth_curves <- function(params, species,
         plot_dat2$Legend <- "von Bertalanffy"
         plot_dat <- rbind(plot_dat, plot_dat2)
     }
-    if (return_data) return(plot_dat)
-
-    p <- ggplot(filter(plot_dat, Legend == "model")) +
-        geom_line(aes(x = Age, y = value,
-                      colour = Species, linetype = Species,
-                      linewidth = Species))
     y_label <- if (percentage)
         "Percent of maximum size"
     else "Size [g]"
-    # Need to keep species in order for legend
+    names(plot_dat)[3] <- y_label
+    if (return_data) return(plot_dat)
+
     legend_levels <-
         intersect(c(dimnames(params@initial_n)$sp,
                     "Background", "Resource", "Total"),
                   plot_dat$Species)
     plot_dat$Species <- factor(plot_dat$Species, levels = legend_levels)
+    plot_dat$LineSpec <- plot_dat$Species
     linesize <- make_linesize(legend_levels, highlight)
+    p <- ggplot(filter(plot_dat, Legend == "model"),
+                aes(group = Species)) +
+        geom_line(aes(x = Age, y = .data[[y_label]],
+                      colour = .data[["LineSpec"]], linetype = .data[["LineSpec"]],
+                      linewidth = .data[["LineSpec"]]))
     p <- p + scale_x_continuous(name = "Age [Years]",
                                 trans = if (log_x) "log10" else "identity") +
         scale_y_continuous(name = y_label,
@@ -2370,7 +2437,7 @@ plot_growth_curves <- function(params, species,
             if ("von Bertalanffy" %in% plot_dat$Legend) {
                 p <- p + geom_line(data = filter(plot_dat,
                                                  Legend == "von Bertalanffy"),
-                                   aes(x = Age, y = value))
+                                   aes(x = Age, y = .data[[y_label]]))
             }
             if (!is.null(size_at_age)) {
                 size_at_age <- filter(size_at_age, species == selected_species)
@@ -2382,7 +2449,7 @@ plot_growth_curves <- function(params, species,
         } else if (species_panel) { # need to add either no panel if no param
             # for VB or create a panel without VB
             p <- ggplot(plot_dat) +
-                geom_line(aes(x = Age, y = value, colour = Legend)) +
+                geom_line(aes(x = Age, y = .data[[y_label]], colour = Legend)) +
                 scale_x_continuous(name = "Age [years]",
                                    trans = if (log_x) "log10" else "identity") +
                 scale_y_continuous(name = "Size [g]",
@@ -2407,7 +2474,7 @@ plot_growth_curves <- function(params, species,
         }
 
     }
-    return(p)
+    return(make_mizer_plot(p, c("Species", "Age", y_label)))
 
 }
 
@@ -2421,8 +2488,7 @@ plotlyGrowthCurves <- function(object, species = NULL,
                                highlight = NULL,
                                log_x = FALSE, log_y = FALSE, log = NULL) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotGrowthCurves", argg),
-             tooltip = c("Species", "Age", "value"))
+    plotHover(do.call("plotGrowthCurves", argg))
 }
 
 
@@ -2557,7 +2623,8 @@ plot_diet <- function(params, n, diet, species, log_x, log_y, wlim, llim,
     if (sum(species) > 1) {
         p <- p + facet_wrap(vars(Predator))
     }
-    p
+    make_mizer_plot(p, plot_size_tooltip(size_axis,
+                                         after = c("Proportion", "Prey")))
 }
 
 #' @rdname plotDiet
@@ -2569,11 +2636,11 @@ plotlyDiet <- function(object, species = NULL,
                        size_axis = c("w", "l"),
                        log_x = TRUE, log_y = FALSE, log = NULL, ...) {
     size_axis <- plot_size_axis(size_axis)
-    ggplotly(plotDiet(object, species = species, wlim = wlim, llim = llim,
-                      log_x = log_x, log_y = log_y, log = log,
-                      size_axis = size_axis, ...),
-             tooltip = plot_size_tooltip(size_axis, before = "Predator",
-                                        after = c("Proportion", "Prey")))
+    plotHover(plotDiet(object, species = species, wlim = wlim, llim = llim,
+                       log_x = log_x, log_y = log_y, log = log,
+                       size_axis = size_axis, ...),
+              tooltip = plot_size_tooltip(size_axis,
+                                         after = c("Proportion", "Prey")))
 }
 
 

@@ -155,6 +155,21 @@ accordingly.</p></dd>
 <dd><p>A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default value is FALSE</p></dd>
 
+
+<dt id="arg-log-x">log_x<a class="anchor" aria-label="anchor" href="#arg-log-x"></a></dt>
+<dd><p>If <code>TRUE</code> (default), use a log10 x-axis.</p></dd>
+
+
+<dt id="arg-log-y">log_y<a class="anchor" aria-label="anchor" href="#arg-log-y"></a></dt>
+<dd><p>If <code>TRUE</code> (default), use a log10 y-axis. Not used by
+<code><a href="plotSpectra.html">plotSpectraRelative()</a></code>.</p></dd>
+
+
+<dt id="arg-log">log<a class="anchor" aria-label="anchor" href="#arg-log"></a></dt>
+<dd><p>Character string specifying which axes should use log10 scales,
+in the same form as the base <code><a href="plot.html">plot()</a></code> argument. For example, <code>"x"</code>,
+<code>"y"</code>, <code>"xy"</code> or <code>""</code>. If supplied, this overrides <code>log_x</code> and <code>log_y</code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -197,10 +212,10 @@ frame with the three variables 'w' (or 'l' if <code>size_axis = "l"</code>), 'va
 <span class="r-in"><span><span class="va">fr</span> <span class="op">&lt;-</span> <span class="fu">plotFMort</span><span class="op">(</span><span class="va">sim</span>, return_data <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">fr</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 'data.frame':	934 obs. of  4 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ w      : num  0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ value  : num  0 0 0 0 0 0 0 0 0 0 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ Species: chr  "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ Legend : chr  "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ w                : num  0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ Fishing mortality: num  0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ Species          : chr  "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ Legend           : chr  "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

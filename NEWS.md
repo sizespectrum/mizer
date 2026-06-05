@@ -104,9 +104,10 @@ individual variability in growth to be modelled.
   `ArraySpeciesBySize` object when a single time is selected, and an
   `ArrayTimeBySpecies` object when a single size is selected.
 
-- New `ggplotly()` methods for `ArraySpeciesBySize`, `ArrayTimeBySpecies`, and
-  `ArrayTimeBySpeciesBySize` convert the `ggplot2` output of `plot()` into
-  interactive plotly figures.
+- New `plotHover()` generic with methods for `ArraySpeciesBySize`,
+  `ArrayTimeBySpecies`, `ArrayTimeBySpeciesBySize`, and `mizer_plot` converts
+  mizer plots into hover-enabled plotly figures. Replaces the former approach of
+  registering methods for `plotly::ggplotly()`.
 
 - The `animate()` methods for `MizerSim` and `ArrayTimeBySpeciesBySize` now
   support axis range settings (`xlim`, `ylim`), timing controls, interpolation
@@ -118,6 +119,17 @@ individual variability in growth to be modelled.
   arguments. In all cases, when supplied, `log` overrides `log_x` and `log_y`.
   `plotBiomass()` and `plotYield()` keep support for logical `log` values for
   backward compatibility.
+
+- Time-filtering is now consistent across all time-series plot functions via a
+  new `tlim` parameter (analogous to `wlim` and `ylim`): a length-two numeric
+  vector `c(start, end)` that restricts the plotted time window. `plotYield()`,
+  `plotYieldGear()`, and `animate()` gain this parameter for the first time.
+  `plotBiomass()` and `animate.MizerSim()` now use `tlim` in place of the
+  former `start_time`/`end_time` and `time_range` parameters respectively;
+  the old parameters are deprecated and will be removed in a future release.
+  The `plot()`, `plot2()`, `addPlot()`, and `plotRelative()` methods for
+  `ArrayTimeBySpecies` are updated to use `tlim` without deprecation (these
+  functions were introduced after the 2.5.4 release).
 
 - New `addPlot()` generic with methods for adding `ArraySpeciesBySize` and
   `ArrayTimeBySpecies` values as extra lines on an existing compatible ggplot.

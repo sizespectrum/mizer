@@ -30,9 +30,9 @@ time-by-species-by-size array, such as those returned by \code{\link[=getFMort]{
 \code{\link[=getPredMort]{getPredMort()}} on a \code{MizerSim}.
 }
 
-The same array objects can be passed to \code{\link[=ggplotly]{ggplotly()}} to produce interactive
-versions, for example \code{ggplotly(getBiomass(sim))} or
-\code{ggplotly(getEncounter(params))}. To add another compatible array to an
+The same array objects can be passed to \code{\link[=plotHover]{plotHover()}} to produce
+hover-enabled plotly versions, for example \code{plotHover(getBiomass(sim))} or
+\code{plotHover(getEncounter(params))}. To add another compatible array to an
 existing ggplot, use \code{\link[=addPlot]{addPlot()}}. To compare two compatible mizer arrays
 directly, use \code{\link[=plot2]{plot2()}}. To plot cumulative distributions over body size,
 use \code{\link[=plotCDF]{plotCDF()}}. To visualise how spectra or rates change through time, use
@@ -66,7 +66,7 @@ ggplot grammar of graphics. The named high-level plot functions have plotly
 counterparts, for example \code{\link[=plotlyBiomass]{plotlyBiomass()}} or \code{\link[=plotlySpectra]{plotlySpectra()}}, for
 interactive exploration. Generic and compositional plotting APIs, such as
 \code{\link[=plot]{plot()}}, \code{\link[=plot2]{plot2()}}, \code{\link[=plotRelative]{plotRelative()}} and \code{\link[=addPlot]{addPlot()}}, do not have separate
-plotly wrappers. Use \code{\link[=ggplotly]{ggplotly()}} on the ggplot object they return.
+plotly wrappers. Use \code{\link[=plotHover]{plotHover()}} on the ggplot object they return.
 
 While most plot functions take their data from a MizerSim object, some of
 those that make plots representing data at a single time can also take their
@@ -93,7 +93,7 @@ sim <- NS_sim
 # Generic plot methods
 plot(sim)
 plot(getBiomass(sim), species = c("Cod", "Herring"))
-ggplotly(getBiomass(sim))
+plotHover(getBiomass(sim))
 
 # Named plot functions
 plotFeedingLevel(sim)

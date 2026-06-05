@@ -52,7 +52,7 @@ biomass observation is available. If TRUE, these species will be
 shown as if their observed biomass was equal to the model biomass.}
 
 \item{...}{For \code{\link[=plotlyBiomassObservedVsModel]{plotlyBiomassObservedVsModel()}}, additional arguments passed
-to \code{\link[=ggplotly]{ggplotly()}}. Otherwise unused.}
+to \code{\link[=plotHover]{plotHover()}}. Otherwise unused.}
 }
 \value{
 A ggplot2 object with the plot of model biomass by species compared

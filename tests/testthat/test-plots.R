@@ -31,7 +31,7 @@ expect_ggplot <- function(fig) {
 # plots have not changed ----
 test_that("plots have not changed", {
 p <- plotBiomass(sim, species = species, total = TRUE,
-                 start_time = 0, end_time = 2.8,
+                 tlim = c(0, 2.8),
                  y_ticks = 4)
 expect_doppelganger("Plot Biomass", p)
 
@@ -123,20 +123,61 @@ test_that("plotly wrappers return plotly objects for spectra and rate plots", {
     expect_s3_class(plotlyDiet(params, species = species[[1]]), "plotly")
 })
 
-test_that("ggplotly(plot(...)) uses concise mizer tooltips", {
+tooltip_fields <- function(gp, trace = 1) {
+    tip <- gp$x$data[[trace]]$text[[1]]
+    trimws(sub(":.*", "", strsplit(tip, "<br />", fixed = TRUE)[[1]]))
+}
+
+test_that("plotly tooltips have the correct fields in the correct order", {
+    expect_equal(tooltip_fields(plotlyBiomass(sim, species = species)),
+                 c("Species", "Year", "Biomass"))
+    expect_equal(tooltip_fields(plotlyYield(sim, species = species)),
+                 c("Species", "Year", "Yield"))
+    expect_equal(tooltip_fields(plotlyYieldGear(sim, species = species)),
+                 c("Year", "Yield", "Species", "Gear"))
+    expect_equal(tooltip_fields(plotlySpectra(params, species = species)),
+                 c("Species", "w", "Biomass density"))
+    expect_equal(tooltip_fields(plotlyPredMort(sim, species = species)),
+                 c("Species", "w", "Predation mortality"))
+    expect_equal(tooltip_fields(plotlyFMort(sim, species = species)),
+                 c("Species", "w", "Fishing mortality"))
+    expect_equal(tooltip_fields(plotlyFeedingLevel(sim, species = species)),
+                 c("Species", "w", "Feeding level"))
+    expect_equal(tooltip_fields(plotlyGrowthCurves(sim, species = species)),
+                 c("Species", "Age", "Size [g]"))
+    expect_equal(tooltip_fields(plotlyDiet(params, species = species[[1]])),
+                 c("w", "Proportion", "Prey"))
+    expect_equal(tooltip_fields(plotlySpectra2(params, sim, species = species)),
+                 c("Legend", "w", "Biomass density", "Model"))
+    expect_equal(tooltip_fields(plotlySpectraRelative(params, params,
+                                                      species = species,
+                                                      resource = FALSE),
+                                trace = 2),
+                 c("w", "rel_diff", "Legend"))
+    expect_equal(tooltip_fields(plotlyCDF(params, species = species,
+                                          resource = FALSE)),
+                 c("Species", "w", "Cumulative proportion of biomass"))
+    expect_equal(tooltip_fields(plotlyCDF2(params, params, species = species,
+                                            resource = FALSE)),
+                 c("Legend", "w", "Cumulative proportion of biomass", "Model"))
+})
+
+test_that("plotHover on array objects has correct tooltip fields", {
+    expect_equal(tooltip_fields(plotHover(getEncounter(params),
+                                          species = species)),
+                 c("Species", "w", "Encounter rate"))
+    expect_equal(tooltip_fields(plotHover(getBiomass(sim), species = species)),
+                 c("Species", "Year", "Biomass"))
+    expect_equal(tooltip_fields(plotHover(getEncounter(sim),
+                                          species = species[[1]])),
+                 c("Species", "w", "Encounter rate"))
+})
+
+test_that("plotHover(plot(...)) uses concise mizer tooltips", {
     p <- plot(getEncounter(NS_params), species = "Cod")
     expect_s3_class(p, "mizer_plot")
-    gp <- ggplotly(p)
-    first_tip <- gp$x$data[[1]]$text[[1]]
-    expect_true(grepl("Species: Cod", first_tip, fixed = TRUE))
-    expect_true(grepl("w:", first_tip, fixed = TRUE))
-    expect_true(grepl("value:", first_tip, fixed = TRUE))
-    legend_matches <- gregexpr("Legend:", first_tip, fixed = TRUE)[[1]]
-    expect_lte(sum(legend_matches > 0), 1)
-
-    ggplot2::set_last_plot(p)
-    gp_last <- ggplotly()
-    expect_identical(gp_last$x$data[[1]]$text[[1]], first_tip)
+    gp <- plotHover(p)
+    expect_equal(tooltip_fields(gp), c("Species", "w", "Encounter rate"))
 })
 
 test_that("plotSpectra2 compares spectra from params and sims", {
@@ -210,11 +251,11 @@ test_that("plotCDF plots cumulative spectra from small to large sizes", {
     p <- plotCDF(params, species = species, resource = FALSE, power = 0,
                  wlim = c(1, NA), return_data = TRUE)
     expect_true(all(p$w >= 1))
-    expect_true(all(p$value >= 0))
+    expect_true(all(p[[2]] >= 0))
     for (sp in unique(p$Species)) {
         sp_dat <- p[p$Species == sp, ]
-        expect_equal(max(sp_dat$value), 1)
-        expect_true(all(diff(sp_dat$value) >= -1e-12))
+        expect_equal(max(sp_dat[[2]]), 1)
+        expect_true(all(diff(sp_dat[[2]]) >= -1e-12))
     }
 
     spectra <- plotSpectra(params, species = species, resource = FALSE,
@@ -223,9 +264,9 @@ test_that("plotCDF plots cumulative spectra from small to large sizes", {
                    power = 1, wlim = c(1, NA), normalise = FALSE,
                    return_data = TRUE)
     widths <- params@dw_full[match(spectra$w, params@w_full)]
-    expected <- sum(spectra$value[spectra$Species == species[[1]]] *
+    expected <- sum(spectra[[2]][spectra$Species == species[[1]]] *
                         widths[spectra$Species == species[[1]]])
-    observed <- max(cdf$value[cdf$Species == species[[1]]])
+    observed <- max(cdf[[2]][cdf$Species == species[[1]]])
     expect_equal(observed, expected)
 
     p_plot <- plotCDF(params, species = species, resource = FALSE)
@@ -267,7 +308,7 @@ test_that("plotCDF supports simulations, resource, total and unnormalised output
                  total = TRUE, resource = TRUE, normalise = FALSE,
                  return_data = TRUE)
     expect_true(all(c("Resource", "Total") %in% p$Legend))
-    expect_true(max(p$value) > 1)
+    expect_true(max(p[[2]]) > 1)
 
     p_plot <- plotCDF(sim, species = species, time_range = 1:3,
                       total = TRUE, resource = TRUE, normalise = FALSE)
@@ -343,7 +384,9 @@ test_that("size-based plots support length axes", {
                              return_data = TRUE)
     expect_true(all(cdf_l_limited$l >= llim[1]))
     expect_true(all(cdf_l_limited$l <= llim[2]))
-    expect_equal(stats::aggregate(value ~ Species, cdf_l_limited, max)$value,
+    y_var <- names(cdf_l_limited)[2]
+    expect_equal(stats::aggregate(cdf_l_limited[[y_var]] ~ cdf_l_limited$Species,
+                                  FUN = max)[[2]],
                  rep(1, length(unique(cdf_l_limited$Species))))
     expect_true("l" %in% names(plotSpectra2(params_len, params_len,
                                             species = species,
@@ -413,7 +456,7 @@ test_that("yield plotting helpers accept ylim", {
 # testing the plot outputs
 test_that("return_data is identical",{
     expect_equal(dim(plotBiomass(sim, species = species, total = TRUE,
-                                 start_time = 0, end_time = 2.8, y_ticks = 4, return_data = TRUE)), c(9,4))
+                                 tlim = c(0, 2.8), y_ticks = 4, return_data = TRUE)), c(9,4))
     expect_warning(p <- plotYield(sim, sim0, species = species, return_data = TRUE))
     expect_equal(dim(p), c(8,4))
 
@@ -441,6 +484,34 @@ test_that("return_data is identical",{
 }
 )
 
+# tlim parameter ----
+test_that("tlim filters time axis correctly", {
+    # plotBiomass: deprecated start_time/end_time triggers warning
+    expect_warning(plotBiomass(sim, start_time = 0), "deprecated")
+    expect_warning(plotBiomass(sim, end_time = 2), "deprecated")
+
+    # plotBiomass: tlim reduces number of rows
+    all_rows <- nrow(plotBiomass(sim, species = species, return_data = TRUE))
+    limited_rows <- nrow(plotBiomass(sim, species = species,
+                                     tlim = c(1, 3), return_data = TRUE))
+    expect_lt(limited_rows, all_rows)
+
+    # plotYield: tlim reduces number of rows
+    all_rows <- nrow(plotYield(sim, species = species, return_data = TRUE))
+    limited_rows <- nrow(plotYield(sim, species = species,
+                                   tlim = c(1, 3), return_data = TRUE))
+    expect_lt(limited_rows, all_rows)
+
+    # plotYieldGear: tlim reduces number of rows
+    all_rows <- nrow(plotYieldGear(sim, species = species, return_data = TRUE))
+    limited_rows <- nrow(plotYieldGear(sim, species = species,
+                                       tlim = c(1, 3), return_data = TRUE))
+    expect_lt(limited_rows, all_rows)
+
+    # animate: deprecated time_range triggers warning
+    expect_warning(animate(sim, time_range = 1:3), "deprecated")
+})
+
 # Legends have the correct entries ----
 test_that("Legends have correct entries", {
     # plotSpectra
@@ -465,13 +536,13 @@ test_that("plotSpectra averages over time range", {
     df <- plotSpectra(NS_sim, species = 1, time_range = time_range,
                       power = 0, return_data = TRUE)
     expected <- mean(NS_sim@n[time_sel, 1, 1])
-    expect_equal(df$value[1], expected)
+    expect_equal(df[[2]][1], expected)
     # geometric mean
     df <- plotSpectra(NS_sim, species = 1, time_range = time_range,
                       geometric_mean = TRUE,
                       power = 0, return_data = TRUE)
     expected <- exp(mean(log(NS_sim@n[time_sel, 1, 1])))
-    expect_equal(df$value[1], expected)
+    expect_equal(df[[2]][1], expected)
 })
 
 test_that("plotSpectra validates empty selection and can return total only", {

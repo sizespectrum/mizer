@@ -75,7 +75,7 @@ test_that("plot.ArrayTimeBySpecies supports base plot log argument", {
     expect_identical(p_none$scales$get_scales("x")$trans$name, "identity")
     expect_identical(p_none$scales$get_scales("y")$trans$name, "identity")
 
-    expect_error(plot(bio, log = TRUE), "`log` must be a character string")
+    expect_error(plot(bio, log = 1), "must be a single logical value or a character string")
 })
 
 test_that("plot2.ArrayTimeBySpecies compares compatible arrays", {
@@ -83,8 +83,8 @@ test_that("plot2.ArrayTimeBySpecies compares compatible arrays", {
     years <- as.numeric(rownames(bio))
 
     p <- plot2(bio, bio, name1 = "Original", name2 = "Changed",
-               species = "Cod", total = TRUE, start_time = years[2],
-               end_time = years[5], log = "xy")
+               species = "Cod", total = TRUE,
+               tlim = c(years[2], years[5]), log = "xy")
     expect_s3_class(p, "ggplot")
     expect_identical(levels(p$data$Model), c("Original", "Changed"))
     expect_true(all(p$data$Species %in% c("Cod", "Total")))
@@ -117,7 +117,7 @@ test_that("plotRelative.ArrayTimeBySpecies plots symmetric relative difference",
     years <- as.numeric(rownames(bio))
 
     p <- plotRelative(bio, bio2, species = "Cod", total = TRUE,
-                      start_time = years[2], end_time = years[5])
+                      tlim = c(years[2], years[5]))
     expect_s3_class(p, "ggplot")
     expect_true(all(p$data$Species %in% c("Cod", "Total")))
     expect_true(all(p$data$Year >= years[2]))
@@ -164,7 +164,7 @@ test_that("addPlot.ArrayTimeBySpecies adds lines to an existing ggplot", {
 test_that("ArrayTimeBySpecies has interactive plotly methods", {
     bio <- getBiomass(NS_sim)
 
-    expect_s3_class(ggplotly(bio), "plotly")
+    expect_s3_class(plotHover(bio), "plotly")
 })
 
 test_that("plot.ArrayTimeBySpecies time filtering works", {
@@ -172,14 +172,14 @@ test_that("plot.ArrayTimeBySpecies time filtering works", {
     t <- as.numeric(rownames(bio))
 
     mid <- median(t)
-    df_start <- plot(bio, start_time = mid, return_data = TRUE)
+    df_start <- plot(bio, tlim = c(mid, NA), return_data = TRUE)
     expect_true(all(df_start$Year >= mid))
 
-    df_end <- plot(bio, end_time = mid, return_data = TRUE)
+    df_end <- plot(bio, tlim = c(NA, mid), return_data = TRUE)
     expect_true(all(df_end$Year <= mid))
 
-    expect_error(plot(bio, start_time = mid, end_time = mid - 1),
-                 "start_time must be less than end_time")
+    expect_error(plot(bio, tlim = c(mid, mid - 1)),
+                 "tlim\\[1\\] must be less than tlim\\[2\\]")
 })
 
 test_that("plot.ArrayTimeBySpecies total works", {
