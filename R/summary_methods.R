@@ -904,4 +904,61 @@ summary.MizerSim <- function(object, ...) {
     invisible(object)
 }
 
+#' Display structure of MizerParams object
+#'
+#' Prints a clean, compact summary of the slots in a `MizerParams` object.
+#' @param object A `MizerParams` object.
+#' @param max.level Maximum level of nesting to print. Defaults to `NA` (no limit).
+#' @param ... Other arguments passed to [utils::str()].
+#' @return `NULL`, invisibly.
+#' @export
+str.MizerParams <- function(object, max.level = NA, ...) {
+    cat("Formal class 'MizerParams' [package \"mizer\"] with ",
+        length(slotNames(object)), " slots\n", sep = "")
+    if (!is.na(max.level) && max.level <= 0) {
+        return(invisible(NULL))
+    }
+    slot_max_level <- if (is.na(max.level)) NA else max.level - 1
+    for (name in slotNames(object)) {
+        val <- slot(object, name)
+        val_str <- capture.output(str(val, max.level = slot_max_level, ...))
+        if (length(val_str) > 0) {
+            cat(" @ ", name, paste(rep(" ", max(0, 20 - nchar(name))), collapse = ""), ": ", val_str[1], "\n", sep = "")
+            if (length(val_str) > 1) {
+                cat(paste0("   ", val_str[-1], collapse = "\n"), "\n")
+            }
+        }
+    }
+    invisible(NULL)
+}
+
+#' Display structure of MizerSim object
+#'
+#' Prints a clean, compact summary of the slots in a `MizerSim` object.
+#' @param object A `MizerSim` object.
+#' @param max.level Maximum level of nesting to print. Defaults to `NA` (no limit).
+#' @param ... Other arguments passed to [utils::str()].
+#' @return `NULL`, invisibly.
+#' @export
+str.MizerSim <- function(object, max.level = NA, ...) {
+    cat("Formal class 'MizerSim' [package \"mizer\"] with ",
+        length(slotNames(object)), " slots\n", sep = "")
+    if (!is.na(max.level) && max.level <= 0) {
+        return(invisible(NULL))
+    }
+    slot_max_level <- if (is.na(max.level)) NA else max.level - 1
+    for (name in slotNames(object)) {
+        val <- slot(object, name)
+        val_str <- capture.output(str(val, max.level = slot_max_level, ...))
+        if (length(val_str) > 0) {
+            cat(" @ ", name, paste(rep(" ", max(0, 20 - nchar(name))), collapse = ""), ": ", val_str[1], "\n", sep = "")
+            if (length(val_str) > 1) {
+                cat(paste0("   ", val_str[-1], collapse = "\n"), "\n")
+            }
+        }
+    }
+    invisible(NULL)
+}
+
 # Indicator functions ####
+

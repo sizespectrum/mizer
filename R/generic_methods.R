@@ -121,3 +121,29 @@ NULL
 #' }
 #' @name as.data.frame
 NULL
+
+#' Display the structure of mizer objects
+#'
+#' Mizer provides `str()` methods for [MizerParams()] and [MizerSim()] objects,
+#' as well as [ArraySpeciesBySize()], [ArrayTimeBySpecies()] and [ArrayTimeBySpeciesBySize()]
+#' objects. These methods produce a clean, compact overview of the object's structure
+#' without polluting the console with large amounts of internal data.
+#'
+#' @param object The object to display the structure of.
+#' @param ... Further arguments. They are passed to the default `str()` method.
+#'
+#' @return `NULL`, invisibly.
+#'
+#' @aliases str.ArraySpeciesBySize str.ArrayTimeBySpecies str.ArrayTimeBySpeciesBySize
+#' @seealso [MizerParams()], [MizerSim()], [ArraySpeciesBySize()],
+#'   [ArrayTimeBySpecies()], [ArrayTimeBySpeciesBySize()]
+#'
+#' @examples
+#' \donttest{
+#' str(NS_params)
+#' str(NS_sim)
+#' str(getEncounter(NS_params))
+#' }
+#' @name str
+NULL
+

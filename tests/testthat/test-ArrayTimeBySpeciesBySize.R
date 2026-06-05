@@ -61,6 +61,17 @@ test_that("summary.ArrayTimeBySpeciesBySize works", {
     expect_output(print(s), "times x")
 })
 
+test_that("str.ArrayTimeBySpeciesBySize works", {
+    fmort <- getFMort(NS_sim)
+    expect_output(str(fmort), "ArrayTimeBySpeciesBySize")
+    expect_output(str(fmort), "Fishing mortality")
+    expect_output(str(fmort), "1/year")
+    expect_output(str(fmort), "params")
+    
+    out <- capture.output(str(fmort))
+    expect_false(any(grepl("intake_max", out)))
+})
+
 test_that("plot.ArrayTimeBySpeciesBySize returns a ggplot", {
     fmort <- getFMort(NS_sim)
     p <- plot(fmort)

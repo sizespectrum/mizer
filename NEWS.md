@@ -164,6 +164,11 @@ individual variability in growth to be modelled.
   so `plot()` and `summary()` remain plain S3 generics when mizer is loaded,
   avoiding interference with S4 method dispatch for other packages.
 
+- New `str()` methods for `MizerParams` and `MizerSim` objects, and the mizer
+  array classes (`ArraySpeciesBySize`, `ArrayTimeBySpecies`, and
+  `ArrayTimeBySpeciesBySize`), showing a clean, compact overview of their
+  structures without dumping large amounts of internal data.
+
 ## New extension mechanism allowing extension chains
 
 - New composable extension chain infrastructure: `registerExtensions()`,

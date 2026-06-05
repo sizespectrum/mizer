@@ -377,3 +377,18 @@ test_that("summary works", {
     expect_output(summary(sim),
                   'An object of class "MizerSim"')
 })
+
+test_that("str works", {
+    expect_output(str(params), "Formal class 'MizerParams' \\[package \"mizer\"\\] with [0-9]+ slots")
+    expect_output(str(params, max.level = 0), "Formal class 'MizerParams' \\[package \"mizer\"\\] with [0-9]+ slots")
+    out <- capture.output(str(params, max.level = 0))
+    expect_length(out, 1)
+    expect_match(out, "Formal class 'MizerParams'")
+    
+    sim <- project(params, t_max = 0.1)
+    expect_output(str(sim), "Formal class 'MizerSim' \\[package \"mizer\"\\] with 6 slots")
+    out_sim <- capture.output(str(sim, max.level = 0))
+    expect_length(out_sim, 1)
+    expect_match(out_sim, "Formal class 'MizerSim'")
+})
+

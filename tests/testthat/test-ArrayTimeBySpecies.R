@@ -48,6 +48,17 @@ test_that("summary.ArrayTimeBySpecies works", {
     expect_output(print(s), "times x")
 })
 
+test_that("str.ArrayTimeBySpecies works", {
+    bio <- getBiomass(NS_sim)
+    expect_output(str(bio), "ArrayTimeBySpecies")
+    expect_output(str(bio), "Biomass")
+    expect_output(str(bio), "g")
+    expect_output(str(bio), "params")
+    
+    out <- capture.output(str(bio))
+    expect_false(any(grepl("intake_max", out)))
+})
+
 test_that("plot.ArrayTimeBySpecies returns ggplot", {
     bio <- getBiomass(NS_sim)
 

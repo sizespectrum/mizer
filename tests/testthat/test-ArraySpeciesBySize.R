@@ -73,6 +73,17 @@ test_that("summary.ArraySpeciesBySize works", {
     expect_output(print(s), "Encounter rate")
 })
 
+test_that("str.ArraySpeciesBySize works", {
+    enc <- getEncounter(NS_params)
+    expect_output(str(enc), "ArraySpeciesBySize")
+    expect_output(str(enc), "Encounter rate")
+    expect_output(str(enc), "g/year")
+    expect_output(str(enc), "params")
+    
+    out <- capture.output(str(enc))
+    expect_false(any(grepl("intake_max", out)))
+})
+
 test_that("plot.ArraySpeciesBySize returns ggplot", {
     enc <- getEncounter(NS_params)
 

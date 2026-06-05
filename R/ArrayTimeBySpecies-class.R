@@ -406,3 +406,18 @@ unclass_time <- function(x) {
     attr(x, "params") <- NULL
     x
 }
+
+#' @export
+str.ArrayTimeBySpecies <- function(object, ...) {
+    params <- attr(object, "params")
+    attr(object, "params") <- NULL
+    class(object) <- c("matrix", "array")
+    out <- capture.output(utils::str(object, ...))
+    out[1] <- paste0(" 'ArrayTimeBySpecies' ", sub("^ ", "", out[1]))
+    cat(paste0(out, collapse = "\n"), "\n", sep = "")
+    if (!is.null(params)) {
+        cat(" - attr(*, \"params\")=Formal class 'MizerParams' [package \"mizer\"] with ",
+            length(slotNames(params)), " slots\n", sep = "")
+    }
+    invisible(NULL)
+}

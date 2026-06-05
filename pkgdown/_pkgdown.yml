@@ -283,17 +283,20 @@ reference:
   - mizer-package
   - MizerParams-class
   - summary.MizerParams
+  - str.MizerParams
   - compareParams
   - "w"
   - validParams
   - MizerSim-class
   - summary.MizerSim
+  - str.MizerSim
   - getSimParams
   - validSim
   - MizerSim
   - getParams
   - print
   - summary
+  - str
   - as.data.frame
   - ArraySpeciesBySize
   - is.ArraySpeciesBySize
