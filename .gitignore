@@ -13,3 +13,4 @@ docs/dev
 !.claude/skills/
 !.claude/skills/**
 .codex
+.antigravitycli
