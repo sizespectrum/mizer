@@ -4,36 +4,43 @@
 \alias{getFlux}
 \title{Get flux into size bins}
 \usage{
-getFlux(
-  object,
-  n = initialN(object),
-  n_pp = initialNResource(object),
-  n_other = initialNOther(object),
-  t = 0,
-  ...
-)
+getFlux(object, power = 0, ...)
 }
 \arguments{
-\item{n}{A matrix of species abundances (species x size).}
+\item{object}{A \linkS4class{MizerParams} or \linkS4class{MizerSim} object.}
 
-\item{n_pp}{A vector of the resource abundance by size}
+\item{power}{The flux at weight \eqn{w} is multiplied by \eqn{w} raised to
+\code{power}. The default \code{power = 0} gives the flux of individuals
+(numbers/year), whereas \code{power = 1} gives the flux of biomass
+(grams/year).}
 
-\item{n_other}{A list of abundances for other dynamical components of the
-ecosystem}
+\item{...}{Additional arguments that depend on the class of \code{object}.
 
-\item{t}{The time for which to do the calculation (Not used by standard
-mizer rate functions but useful for extensions with time-dependent
-parameters.)}
+\strong{For a \linkS4class{MizerParams} object:}
+\describe{
+\item{\code{n}}{A matrix of species abundances (species x size). Defaults to
+the initial abundances stored in \code{object}.}
+\item{\code{n_pp}}{A vector of the resource abundance by size. Defaults to the
+initial resource abundance stored in \code{object}.}
+\item{\code{n_other}}{A named list of the abundances of other dynamical
+components. Defaults to the initial values stored in \code{object}.}
+\item{\code{t}}{The time for which to do the calculation. Defaults to 0.}
+}
 
-\item{...}{Unused}
-
-\item{drop}{If \code{TRUE} then any dimension of length 1 will be removed
-from the returned array.}
+\strong{For a \linkS4class{MizerSim} object:}
+\describe{
+\item{\code{time_range}}{The time range over which to return the rates. Either
+a vector of values, a vector of min and max time, or a single value.
+Defaults to the whole time range of the simulation.}
+\item{\code{drop}}{If \code{TRUE} then any dimension of length 1 is removed from the
+returned array.}
+}}
 }
 \value{
 \itemize{
 \item \code{MizerParams}: An \code{ArraySpeciesBySize} object (species x size) with the
-flux of individuals entering each size class (numbers/year).
+flux entering each size class. The units are \code{numbers/year} when
+\code{power = 0} and \code{g^power/year} otherwise.
 \item \code{MizerSim}: An \code{ArrayTimeBySpeciesBySize} object (time step x species x
 size) with the flux at every time step. If \code{drop = TRUE} then dimensions
 of length 1 will be removed.
@@ -48,6 +55,12 @@ growth and a diffusive flux from the redistribution of individuals.
 At the recruitment size, the flux is simply the recruitment rate
 \eqn{R_{dd,i}} (see \code{\link[=getRDD]{getRDD()}}). For sizes below the recruitment size
 the flux is zero.
+
+The flux at weight \eqn{w} is multiplied by \eqn{w} raised to the \code{power}
+given by the \code{power} argument, similar to the \code{power} argument of
+\code{\link[=plotSpectra]{plotSpectra()}}. The default \code{power = 0} returns the flux of individuals
+(numbers/year). With \code{power = 1} the result is the flux of biomass
+(grams/year).
 }
 \examples{
 \donttest{

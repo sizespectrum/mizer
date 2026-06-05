@@ -5,33 +5,28 @@
 \alias{addPlot}
 \alias{addPlot.ArraySpeciesBySize}
 \alias{addPlot.ArrayTimeBySpecies}
-\title{Add values to an existing plot}
+\title{Add lines to an existing plot}
 \usage{
-addPlot(plot, x, ...)
+addPlot(
+  plot,
+  x,
+  species = NULL,
+  total = FALSE,
+  background = TRUE,
+  colour = NULL,
+  linetype = "dashed",
+  linewidth = 0.8,
+  alpha = 1,
+  ...
+)
 }
 \arguments{
 \item{plot}{A ggplot2 object to which the new values should be added.}
 
 \item{x}{An object containing the values to add.}
 
-\item{...}{Further arguments passed to methods.}
-
 \item{species}{Character vector of species to include. \code{NULL} (default) means
 all species.}
-
-\item{all.sizes}{If \code{FALSE} (default), values outside a species' size range
-(\code{w_min} to \code{w_max}) are removed. Only applies to \code{ArraySpeciesBySize}.}
-
-\item{wlim}{A numeric vector of length two providing lower and upper limits
-for the weight (x) axis. Use \code{NA} to refer to the existing minimum or
-maximum. Only applies to \code{ArraySpeciesBySize}.}
-
-\item{llim}{A numeric vector of length two providing lower and upper limits
-for the length (x) axis when \code{size_axis = "l"}. Use \code{NA} to refer to the
-existing minimum or maximum. Only applies to \code{ArraySpeciesBySize}.}
-
-\item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
-(\code{"l"}), using the allometric weight-length relationship.}
 
 \item{total}{A boolean value that determines whether the total over all
 selected species is plotted as well. Default is \code{FALSE}.}
@@ -50,13 +45,30 @@ species line types from the existing plot are used.}
 
 \item{alpha}{Transparency of the added lines.}
 
-\item{tlim}{A numeric vector of length two providing lower and upper limits
-for the time axis, e.g. \code{c(1980, 2000)}. Use \code{NA} to apply no limit at
-that end. Default is \code{c(NA, NA)}. Only applies to \code{ArrayTimeBySpecies}.}
+\item{...}{Further arguments used by only some of the methods:
 
-\item{ylim}{A numeric vector of length two providing lower and upper limits
-for the value (y) axis. Use \code{NA} to refer to the existing minimum or
-maximum.}
+\strong{For \code{ArraySpeciesBySize} methods:}
+\describe{
+\item{\code{all.sizes}}{If \code{FALSE} (default), values outside a species' size
+range (\code{w_min} to \code{w_max}) are removed.}
+\item{\code{wlim}}{A numeric vector of length two providing lower and upper
+limits for the weight (x) axis. Use \code{NA} to refer to the existing
+minimum or maximum.}
+\item{\code{llim}}{A numeric vector of length two providing lower and upper
+limits for the length (x) axis when \code{size_axis = "l"}. Use \code{NA} to
+refer to the existing minimum or maximum.}
+\item{\code{size_axis}}{Whether to plot size as weight (\code{"w"}, default) or
+length (\code{"l"}), using the allometric weight-length relationship.}
+}
+
+\strong{For \code{ArrayTimeBySpecies} methods:}
+\describe{
+\item{\code{tlim}}{A numeric vector of length two providing lower and upper
+limits for the time axis, e.g. \code{c(1980, 2000)}. Use \code{NA} to apply no
+limit at that end. Default is \code{c(NA, NA)}.}
+\item{\code{ylim}}{A numeric vector of length two providing lower and upper
+limits for the value (y) axis.}
+}}
 }
 \value{
 A ggplot2 object.
@@ -79,8 +91,10 @@ addPlot(p, getEncounter(NS_params), species = "Cod")
 Other plotting functions:
 \code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
 \code{\link{plot}},
+\code{\link[=plot2]{plot2()}},
 \code{\link[=plotBiomass]{plotBiomass()}},
 \code{\link[=plotCDF]{plotCDF()}},
+\code{\link[=plotCDF2]{plotCDF2()}},
 \code{\link[=plotDiet]{plotDiet()}},
 \code{\link[=plotFMort]{plotFMort()}},
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}},
@@ -88,7 +102,10 @@ Other plotting functions:
 \code{\link{plotMizerParams}},
 \code{\link{plotMizerSim}},
 \code{\link[=plotPredMort]{plotPredMort()}},
+\code{\link[=plotRelative]{plotRelative()}},
 \code{\link[=plotSpectra]{plotSpectra()}},
+\code{\link[=plotSpectra2]{plotSpectra2()}},
+\code{\link[=plotSpectraRelative]{plotSpectraRelative()}},
 \code{\link[=plotYield]{plotYield()}},
 \code{\link[=plotYieldGear]{plotYieldGear()}},
 \code{\link{plotting_functions}}

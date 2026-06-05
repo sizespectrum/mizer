@@ -6,28 +6,34 @@
 \alias{plotlyYield}
 \title{Plot the total yield of species through time}
 \usage{
-plotYield(object, ...)
+plotYield(
+  object,
+  sim2,
+  species = NULL,
+  total = FALSE,
+  log_x = FALSE,
+  log_y = TRUE,
+  log = NULL,
+  ylim = c(NA, NA),
+  tlim = c(NA, NA),
+  highlight = NULL,
+  return_data = FALSE,
+  ...
+)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim}}
-
-\item{...}{For \code{plotSpectra2()} and \code{plotSpectraRelative()}, additional
-arguments passed to \code{\link[=plotSpectra]{plotSpectra()}} for preparing the spectra data, for
-example \code{time_range} or \code{geometric_mean} for \code{MizerSim} objects.
-Otherwise unused.}
 
 \item{sim2}{An optional second object of class \linkS4class{MizerSim}. If
 this is provided its yields will be shown on the same plot in bolder lines.}
 
 \item{species}{The species to be selected. Optional. By default all target
-species are selected. A vector of species names, or a
-numeric vector with the species indices, or a logical vector indicating for
-each species whether it is to be selected (TRUE) or not.}
+species are selected. A vector of species names, or a numeric vector with
+the species indices, or a logical vector indicating for each species
+whether it is to be selected (TRUE) or not.}
 
-\item{total}{A boolean value that determines whether the total over all
-species in the system is plotted as well. Note that even if the plot
-only shows a selection of species, the total is including all species.
-Default is FALSE.}
+\item{total}{A boolean value that determines whether the total yield from all
+species is plotted as well. Default is FALSE.}
 
 \item{log_x}{If \code{TRUE}, use a log10 x-axis. Default is \code{FALSE}.}
 
@@ -40,11 +46,7 @@ For backward compatibility, \code{TRUE} and \code{FALSE} are interpreted as sett
 only \code{log_y}.}
 
 \item{ylim}{A numeric vector of length two providing lower and upper limits
-for the y axis. Use NA to auto-scale to the data range. Values below 1e-20
-are always filtered out from the data regardless of \code{ylim[1]}. Data above
-\code{ylim[2]} is filtered and the upper axis limit is set accordingly. For
-\code{plotSpectraRelative()}, the y axis is the relative difference and \code{NA}
-refers to the existing minimum or maximum.}
+for the y axis. Use \code{NA} to refer to the existing minimum or maximum.}
 
 \item{tlim}{A numeric vector of length two providing lower and upper limits
 for the time axis, e.g. \code{c(1980, 2000)}. Use \code{NA} to apply no limit at
@@ -53,7 +55,9 @@ that end. Default is \code{c(NA, NA)}.}
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 
 \item{return_data}{A boolean value that determines whether the formatted data
-used for the plot is returned instead of the plot itself. Default value is FALSE}
+used for the plot is returned instead of the plot itself. Default is FALSE.}
+
+\item{...}{Arguments passed to \code{\link[=getYield]{getYield()}}.}
 }
 \value{
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
@@ -87,8 +91,10 @@ Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
 \code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
 \code{\link{plot}},
+\code{\link[=plot2]{plot2()}},
 \code{\link[=plotBiomass]{plotBiomass()}},
 \code{\link[=plotCDF]{plotCDF()}},
+\code{\link[=plotCDF2]{plotCDF2()}},
 \code{\link[=plotDiet]{plotDiet()}},
 \code{\link[=plotFMort]{plotFMort()}},
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}},
@@ -96,7 +102,10 @@ Other plotting functions:
 \code{\link{plotMizerParams}},
 \code{\link{plotMizerSim}},
 \code{\link[=plotPredMort]{plotPredMort()}},
+\code{\link[=plotRelative]{plotRelative()}},
 \code{\link[=plotSpectra]{plotSpectra()}},
+\code{\link[=plotSpectra2]{plotSpectra2()}},
+\code{\link[=plotSpectraRelative]{plotSpectraRelative()}},
 \code{\link[=plotYieldGear]{plotYieldGear()}},
 \code{\link{plotting_functions}}
 }

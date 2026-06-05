@@ -4,97 +4,70 @@
 \name{plot}
 \alias{plot}
 \alias{plot.ArraySpeciesBySize}
-\alias{plot2}
-\alias{plot2.ArraySpeciesBySize}
-\alias{plotRelative}
-\alias{plotRelative.ArraySpeciesBySize}
 \alias{plot.ArrayTimeBySpecies}
-\alias{plot2.ArrayTimeBySpecies}
-\alias{plotRelative.ArrayTimeBySpecies}
 \alias{plot.ArrayTimeBySpeciesBySize}
-\alias{plot2.ArrayTimeBySpeciesBySize}
-\alias{plotRelative.ArrayTimeBySpeciesBySize}
-\title{Plot, compare or show relative difference of mizer arrays}
-\usage{
-plot(x, ...)
-
-\method{plot}{ArraySpeciesBySize}(x, ...)
-
-plot2(x, y, ...)
-
-plotRelative(x, y, ...)
-}
+\title{Plot mizer arrays}
 \arguments{
-\item{x}{For \code{plot()}, an \code{ArraySpeciesBySize}, \code{ArrayTimeBySpecies}, or
-\code{ArrayTimeBySpeciesBySize} object. For \code{plot2()} and \code{plotRelative()},
-the first of two compatible mizer array objects to compare.}
+\item{x}{An \code{ArraySpeciesBySize}, \code{ArrayTimeBySpecies}, or
+\code{ArrayTimeBySpeciesBySize} object.}
 
-\item{species}{Character vector of species to include. \code{NULL} (default) means
-all species.}
-
-\item{all.sizes}{If \code{FALSE} (default), values outside a species' size range
-(\code{w_min} to \code{w_max}) are removed. Only applies to \code{ArraySpeciesBySize}.}
-
-\item{highlight}{Name or vector of names of the species to be highlighted.}
-
-\item{return_data}{If \code{TRUE}, return the data frame instead of the plot.}
-
-\item{log_x}{If \code{TRUE}, use a log10 x-axis. Default is \code{TRUE} for size
+\item{...}{\strong{Arguments used by all methods:}
+\describe{
+\item{\code{species}}{Character vector of species to include. \code{NULL}
+(default) means all species.}
+\item{\code{highlight}}{Name or vector of names of the species to be
+highlighted.}
+\item{\code{total}}{A boolean value that determines whether the total over
+all selected species is plotted as well. Default is \code{FALSE}.}
+\item{\code{background}}{A boolean value that determines whether background
+species are included. Ignored if the model does not contain background
+species. Default is \code{TRUE}.}
+\item{\code{return_data}}{If \code{TRUE}, return the data frame instead of the
+plot.}
+\item{\code{log_x}}{If \code{TRUE}, use a log10 x-axis. Default is \code{TRUE} for size
 spectra and \code{FALSE} for time series.}
-
-\item{log_y}{If \code{TRUE}, use a log10 y-axis. Default is \code{FALSE} for
+\item{\code{log_y}}{If \code{TRUE}, use a log10 y-axis. Default is \code{FALSE} for
 \code{ArraySpeciesBySize} and \code{TRUE} for \code{ArrayTimeBySpecies}.}
+\item{\code{log}}{Character string specifying which axes should use log10
+scales, in the same form as the base \code{\link[=plot]{plot()}} argument. For example,
+\code{"x"}, \code{"y"}, \code{"xy"} or \code{""}. If supplied, this overrides \code{log_x} and
+\code{log_y}.}
+\item{\code{ylim}}{A numeric vector of length two providing lower and upper
+limits for the value (y) axis. Use \code{NA} to refer to the existing
+minimum or maximum.}
+\item{\code{y_ticks}}{The approximate number of ticks desired on the y axis.}
+}
 
-\item{log}{Character string specifying which axes should use log10 scales,
-in the same form as the base \code{\link[=plot]{plot()}} argument. For example, \code{"x"},
-\code{"y"}, \code{"xy"} or \code{""}. If supplied, this overrides \code{log_x} and \code{log_y}.}
+\strong{For \code{ArraySpeciesBySize} and \code{ArrayTimeBySpeciesBySize} methods:}
+\describe{
+\item{\code{all.sizes}}{If \code{FALSE} (default), values outside a species' size
+range (\code{w_min} to \code{w_max}) are removed.}
+\item{\code{wlim}}{A numeric vector of length two providing lower and upper
+limits for the weight (x) axis. Use \code{NA} to refer to the existing
+minimum or maximum.}
+\item{\code{llim}}{A numeric vector of length two providing lower and upper
+limits for the length (x) axis when \code{size_axis = "l"}. Use \code{NA} to
+refer to the existing minimum or maximum.}
+\item{\code{size_axis}}{Whether to plot size as weight (\code{"w"}, default) or
+length (\code{"l"}), using the allometric weight-length relationship.}
+}
 
-\item{wlim}{A numeric vector of length two providing lower and upper limits
-for the weight (x) axis. Use \code{NA} to refer to the existing minimum or
-maximum. Only applies to \code{ArraySpeciesBySize}.}
+\strong{For \code{ArrayTimeBySpecies} methods:}
+\describe{
+\item{\code{tlim}}{A numeric vector of length two providing lower and upper
+limits for the time axis, e.g. \code{c(1980, 2000)}. Use \code{NA} to apply no
+limit at that end. Default is \code{c(NA, NA)}.}
+}
 
-\item{llim}{A numeric vector of length two providing lower and upper limits
-for the length (x) axis when \code{size_axis = "l"}. Use \code{NA} to refer to the
-existing minimum or maximum. Only applies to \code{ArraySpeciesBySize}.}
-
-\item{ylim}{A numeric vector of length two providing lower and upper limits
-for the value (y) axis. Use \code{NA} to refer to the existing minimum or
-maximum.}
-
-\item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
-(\code{"l"}), using the allometric weight-length relationship.}
-
-\item{total}{A boolean value that determines whether the total over all
-selected species is plotted as well. Default is \code{FALSE}.}
-
-\item{background}{A boolean value that determines whether background species
-are included. Ignored if the model does not contain background species.
-Default is \code{TRUE}.}
-
-\item{y_ticks}{The approximate number of ticks desired on the y axis.}
-
-\item{...}{Further arguments (currently unused).}
-
-\item{y}{For \code{plot2()} and \code{plotRelative()}, the second mizer array object,
-compatible with \code{x}.}
-
-\item{name1, name2}{Labels for the two objects, used in the linetype legend
-of \code{plot2()}.}
-
-\item{tlim}{A numeric vector of length two providing lower and upper limits
-for the time axis, e.g. \code{c(1980, 2000)}. Use \code{NA} to apply no limit at
-that end. Default is \code{c(NA, NA)}. Only applies to \code{ArrayTimeBySpecies}.}
-
-\item{time}{The time to display. Default (\code{NULL}) is the final time step.
-Only applies to \code{ArrayTimeBySpeciesBySize}.}
+\strong{For \code{ArrayTimeBySpeciesBySize} methods:}
+\describe{
+\item{\code{time}}{The time to display. Default (\code{NULL}) is the final time
+step.}
+}}
 }
 \value{
-\code{plot()} returns a ggplot2 object, unless \code{return_data = TRUE}, in
-which case a data frame is returned.
-
-\code{plot2()} and \code{plotRelative()} return a ggplot2 object.
-
-\code{\link[=plotHover]{plotHover()}} returns a plotly object.
+A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
+frame is returned. \code{\link[=plotHover]{plotHover()}} returns a plotly object.
 }
 \description{
 Many mizer functions return values that depend on species and either size or
@@ -103,15 +76,6 @@ showing the values against size or against time (depending on the type of
 output). \code{\link[=plotHover]{plotHover()}} creates an interactive version of the same figure.
 }
 \details{
-\code{plot2()} compares two compatible mizer array objects in a single ggplot.
-Colours identify species or groups, and linetype identifies which object
-the values came from.
-
-\code{plotRelative()} plots the difference between two compatible mizer array
-objects relative to their average. If the values in the first object are
-\eqn{N_1} and the values in the second are \eqn{N_2}, it plots
-\deqn{2 (N_2 - N_1) / (N_1 + N_2).}
-
 This works because the mizer functions that give values that depend on
 species and size return an \code{ArraySpeciesBySize} object and those that
 give values that depend on species and time return an \code{ArrayTimeBySpecies}
@@ -119,6 +83,9 @@ object. These objects have attributes that store the name of the value,
 its units, and a reference to the \code{MizerParams} object that the value was
 computed from. This allows the plots to be automatically labelled and
 coloured appropriately.
+
+To compare two mizer arrays in a single plot, use \code{\link[=plot2]{plot2()}}. To show the
+relative difference between two arrays, use \code{\link[=plotRelative]{plotRelative()}}.
 }
 \examples{
 \donttest{
@@ -140,8 +107,10 @@ plot(getFMort(NS_sim), time = 2010)
 Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
 \code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
+\code{\link[=plot2]{plot2()}},
 \code{\link[=plotBiomass]{plotBiomass()}},
 \code{\link[=plotCDF]{plotCDF()}},
+\code{\link[=plotCDF2]{plotCDF2()}},
 \code{\link[=plotDiet]{plotDiet()}},
 \code{\link[=plotFMort]{plotFMort()}},
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}},
@@ -149,7 +118,10 @@ Other plotting functions:
 \code{\link{plotMizerParams}},
 \code{\link{plotMizerSim}},
 \code{\link[=plotPredMort]{plotPredMort()}},
+\code{\link[=plotRelative]{plotRelative()}},
 \code{\link[=plotSpectra]{plotSpectra()}},
+\code{\link[=plotSpectra2]{plotSpectra2()}},
+\code{\link[=plotSpectraRelative]{plotSpectraRelative()}},
 \code{\link[=plotYield]{plotYield()}},
 \code{\link[=plotYieldGear]{plotYieldGear()}},
 \code{\link{plotting_functions}}

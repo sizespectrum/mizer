@@ -8,7 +8,24 @@
 \alias{animateSpectra}
 \title{Animate size-dependent quantities through time}
 \usage{
-animate(x, ...)
+animate(
+  x,
+  species = NULL,
+  log_x = TRUE,
+  log_y = TRUE,
+  log = NULL,
+  wlim = c(NA, NA),
+  llim = c(NA, NA),
+  ylim = c(NA, NA),
+  tlim = c(NA, NA),
+  size_axis = c("w", "l"),
+  total = FALSE,
+  background = TRUE,
+  frame_duration = 500,
+  transition_duration = frame_duration,
+  easing = "linear",
+  ...
+)
 
 animateSpectra(sim, ...)
 }
@@ -68,16 +85,18 @@ frames. Default is \code{"linear"}. Available options are \code{"linear"}, \code
 \code{"bounce"}, and each of those with suffix \code{"-in"}, \code{"-out"}, or
 \code{"-in-out"} appended, for example \code{"cubic-in-out"}.}
 
-\item{...}{Additional arguments passed to the method.}
+\item{...}{Further arguments used by only some of the methods:
 
-\item{power}{The abundance is plotted as the number density times the weight
-raised to \code{power}. The default \code{power = 1} gives the biomass
-density, whereas \code{power = 2} gives the biomass density with respect
-to logarithmic size bins. Only applies to \code{MizerSim}.}
-
-\item{resource}{A boolean value that determines whether resource is included.
-If \code{TRUE}, the resource spectrum is plotted as an additional trace called
-\code{"Resource"}. Default is \code{TRUE}. Only applies to \code{MizerSim}.}
+\strong{For \code{MizerSim} methods:}
+\describe{
+\item{\code{power}}{The abundance is plotted as the number density times the
+weight raised to \code{power}. The default \code{power = 1} gives the
+biomass density, whereas \code{power = 2} gives the biomass density
+with respect to logarithmic size bins.}
+\item{\code{resource}}{A boolean value that determines whether resource is
+included. If \code{TRUE}, the resource spectrum is plotted as an additional
+trace called \code{"Resource"}. Default is \code{TRUE}.}
+}}
 
 \item{sim}{A \code{MizerSim} object.}
 }
@@ -129,8 +148,10 @@ animate(getFeedingLevel(NS_sim), species = c("Cod", "Herring"))
 Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
 \code{\link{plot}},
+\code{\link[=plot2]{plot2()}},
 \code{\link[=plotBiomass]{plotBiomass()}},
 \code{\link[=plotCDF]{plotCDF()}},
+\code{\link[=plotCDF2]{plotCDF2()}},
 \code{\link[=plotDiet]{plotDiet()}},
 \code{\link[=plotFMort]{plotFMort()}},
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}},
@@ -138,7 +159,10 @@ Other plotting functions:
 \code{\link{plotMizerParams}},
 \code{\link{plotMizerSim}},
 \code{\link[=plotPredMort]{plotPredMort()}},
+\code{\link[=plotRelative]{plotRelative()}},
 \code{\link[=plotSpectra]{plotSpectra()}},
+\code{\link[=plotSpectra2]{plotSpectra2()}},
+\code{\link[=plotSpectraRelative]{plotSpectraRelative()}},
 \code{\link[=plotYield]{plotYield()}},
 \code{\link[=plotYieldGear]{plotYieldGear()}},
 \code{\link{plotting_functions}}

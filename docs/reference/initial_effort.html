@@ -25,7 +25,7 @@ specify a time-varying effort."><meta property="og:image" content="https://sizes
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.4.9127</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -102,9 +102,7 @@ specify a time-varying effort.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">initial_effort</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">initial_effort</span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span>
-<span></span>
-<span><span class="fu">validEffortVector</span><span class="op">(</span><span class="va">effort</span>, <span class="va">params</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">initial_effort</span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -116,11 +114,6 @@ specify a time-varying effort.</p>
 
 
 <dt id="arg-value">value<a class="anchor" aria-label="anchor" href="#arg-value"></a></dt>
-<dd><p>A vector or scalar with the initial fishing effort, see Details
-below.</p></dd>
-
-
-<dt id="arg-effort">effort<a class="anchor" aria-label="anchor" href="#arg-effort"></a></dt>
 <dd><p>A vector or scalar with the initial fishing effort, see Details
 below.</p></dd>
 
@@ -139,8 +132,8 @@ gears in the params object</p></li>
 params object. This is then sorted correctly.</p></li>
 <li><p>a named vector which only supplies values for some of the gears.
 The effort for the other gears is then set to the default effort returned
-by <code>validEffortVector()</code>, which depends on the defaults edition.</p></li>
-</ul><p>These conversions are done by the function <code>validEffortVector()</code>.</p>
+by <code><a href="validEffortVector.html">validEffortVector()</a></code>, which depends on the defaults edition.</p></li>
+</ul><p>These conversions are done by the function <code><a href="validEffortVector.html">validEffortVector()</a></code>.</p>
 <p>An <code>effort</code> argument will lead to an error if it is either</p><ul><li><p>unnamed and of the wrong length</p></li>
 <li><p>named but where some names do not match any of the gears</p></li>
 <li><p>not numeric</p></li>

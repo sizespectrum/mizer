@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.4.9127</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -352,14 +352,15 @@ simulation.</p>
 <td><a href="../reference/plotBiomass.html"><code>plotBiomass(sim)</code></a></td>
 <td>
 <code>species</code>, <code>total</code>, <code>start_time</code>,
-<code>end_time</code>, <code>log</code>
+<code>end_time</code>, <code>log_x</code>, <code>log_y</code>
 </td>
 <td>total biomass per species</td>
 </tr>
 <tr class="even">
 <td><a href="../reference/plotYield.html"><code>plotYield(sim)</code></a></td>
 <td>
-<code>species</code>, <code>total</code>, <code>log</code>
+<code>species</code>, <code>total</code>, <code>log_x</code>,
+<code>log_y</code>
 </td>
 <td>total yield per species</td>
 </tr>
@@ -376,7 +377,7 @@ simulation.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotBiomass.html">plotBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plotBiomass.html">plotBiomass</a></span><span class="op">(</span><span class="va">sim</span>, species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cod"</span>, <span class="st">"Herring"</span><span class="op">)</span>, total <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plotBiomass.html">plotBiomass</a></span><span class="op">(</span><span class="va">sim</span>, start_time <span class="op">=</span> <span class="fl">1980</span>, end_time <span class="op">=</span> <span class="fl">1990</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plotYield.html">plotYield</a></span><span class="op">(</span><span class="va">sim</span>, log <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/plotYield.html">plotYield</a></span><span class="op">(</span><span class="va">sim</span>, log_y <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="plots-against-body-size">Plots against body size<a class="anchor" aria-label="anchor" href="#plots-against-body-size"></a>
@@ -408,7 +409,7 @@ period.</p>
 <td><a href="../reference/plotFeedingLevel.html"><code>plotFeedingLevel(sim)</code></a></td>
 <td>
 <code>time_range</code>, <code>species</code>,
-<code>highlight</code>
+<code>highlight</code>, <code>log_x</code>, <code>log_y</code>
 </td>
 <td>feeding level (0–1) at size</td>
 </tr>
@@ -416,7 +417,7 @@ period.</p>
 <td><a href="../reference/plotPredMort.html"><code>plotPredMort(sim)</code></a></td>
 <td>
 <code>time_range</code>, <code>species</code>,
-<code>highlight</code>
+<code>highlight</code>, <code>log_x</code>, <code>log_y</code>
 </td>
 <td>predation mortality at size</td>
 </tr>
@@ -424,7 +425,7 @@ period.</p>
 <td><a href="../reference/plotFMort.html"><code>plotFMort(sim)</code></a></td>
 <td>
 <code>time_range</code>, <code>species</code>,
-<code>highlight</code>
+<code>highlight</code>, <code>log_x</code>, <code>log_y</code>
 </td>
 <td>fishing mortality at size</td>
 </tr>
@@ -432,13 +433,15 @@ period.</p>
 <td><a href="../reference/plotGrowthCurves.html"><code>plotGrowthCurves(sim)</code></a></td>
 <td>
 <code>species</code>, <code>max_age</code>, <code>percentage</code>,
-<code>species_panel</code>
+<code>species_panel</code>, <code>log_x</code>, <code>log_y</code>
 </td>
 <td>size at age</td>
 </tr>
 <tr class="even">
 <td><a href="../reference/plotDiet.html"><code>plotDiet(params)</code></a></td>
-<td><code>species</code></td>
+<td>
+<code>species</code>, <code>log_x</code>, <code>log_y</code>
+</td>
 <td>diet composition at size</td>
 </tr>
 </tbody>
@@ -462,7 +465,7 @@ period.</p>
 </h2>
 <p>The arrays returned by summary functions carry class
 <code>ArraySpeciesBySize</code> or <code>ArrayTimeBySpecies</code> and
-have <code><a href="../reference/plot.html">plot()</a></code> and <code><a href="https://rdrr.io/pkg/plotly/man/ggplotly.html" class="external-link">ggplotly()</a></code> methods. This makes
+have <code><a href="../reference/plot.html">plot()</a></code> and <code>ggplotly()</code> methods. This makes
 it easy to plot any quantity without a dedicated plot function.</p>
 <table class="table">
 <colgroup>
@@ -505,8 +508,8 @@ it easy to plot any quantity without a dedicated plot function.</p>
 <span><span class="fu"><a href="../reference/addPlot.html">addPlot</a></span><span class="op">(</span><span class="va">p</span>, <span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>, species <span class="op">=</span> <span class="st">"Herring"</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Interactive versions</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/plotly/man/ggplotly.html" class="external-link">ggplotly</a></span><span class="op">(</span><span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/plotly/man/ggplotly.html" class="external-link">ggplotly</a></span><span class="op">(</span><span class="fu"><a href="../reference/getEncounter.html">getEncounter</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">ggplotly</span><span class="op">(</span><span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">ggplotly</span><span class="op">(</span><span class="fu"><a href="../reference/getEncounter.html">getEncounter</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><code>plot(&lt;ArrayTimeBySpecies&gt;)</code> accepts:
 <code>species</code>, <code>start_time</code>, <code>end_time</code>,
 <code>total</code>, <code>background</code>, <code>highlight</code>,
@@ -645,7 +648,7 @@ object, so you can customise them:</p>
 <span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/getFeedingLevel.html">getFeedingLevel</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span>   <span class="co"># ArraySpeciesBySize → value vs size</span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>, species <span class="op">=</span> <span class="st">"Cod"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/addPlot.html">addPlot</a></span><span class="op">(</span><span class="va">p</span>, <span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>, species <span class="op">=</span> <span class="st">"Herring"</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/plotly/man/ggplotly.html" class="external-link">ggplotly</a></span><span class="op">(</span><span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span>       <span class="co"># interactive version</span></span>
+<span><span class="fu">ggplotly</span><span class="op">(</span><span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span>       <span class="co"># interactive version</span></span>
 <span></span>
 <span><span class="co"># ── Add plotly interactivity to any named plot function ───────────────────────</span></span>
 <span><span class="fu"><a href="../reference/plotBiomass.html">plotlyBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span>

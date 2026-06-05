@@ -4,35 +4,35 @@
 \alias{getMort}
 \title{Get total mortality rate}
 \usage{
-getMort(
-  object,
-  n = initialN(object),
-  n_pp = initialNResource(object),
-  n_other = initialNOther(object),
-  effort = getInitialEffort(object),
-  t = 0,
-  ...
-)
+getMort(object, ...)
 }
 \arguments{
-\item{n}{A matrix of species abundances (species x size).}
+\item{object}{A \linkS4class{MizerParams} or \linkS4class{MizerSim} object.}
 
-\item{n_pp}{A vector of the resource abundance by size}
+\item{...}{Additional arguments that depend on the class of \code{object}.
 
-\item{n_other}{A list of abundances for other dynamical components of the
-ecosystem}
+\strong{For a \linkS4class{MizerParams} object:}
+\describe{
+\item{\code{n}}{A matrix of species abundances (species x size). Defaults to
+the initial abundances stored in \code{object}.}
+\item{\code{n_pp}}{A vector of the resource abundance by size. Defaults to the
+initial resource abundance stored in \code{object}.}
+\item{\code{n_other}}{A named list of the abundances of other dynamical
+components. Defaults to the initial values stored in \code{object}.}
+\item{\code{effort}}{A numeric vector of the effort by gear or a single
+numeric effort value which is used for all gears. Defaults to the
+initial effort stored in \code{object}.}
+\item{\code{t}}{The time for which to do the calculation. Defaults to 0.}
+}
 
-\item{effort}{A numeric vector of the effort by gear or a single numeric
-effort value which is used for all gears.}
-
-\item{t}{The time for which to do the calculation (Not used by standard
-mizer rate functions but useful for extensions with time-dependent
-parameters.)}
-
-\item{...}{Unused}
-
-\item{drop}{If \code{TRUE} then any dimension of length 1 will be removed
-from the returned array.}
+\strong{For a \linkS4class{MizerSim} object:}
+\describe{
+\item{\code{time_range}}{The time range over which to return the rates. Either
+a vector of values, a vector of min and max time, or a single value.
+Defaults to the whole time range of the simulation.}
+\item{\code{drop}}{If \code{TRUE} then any dimension of length 1 is removed from the
+returned array.}
+}}
 }
 \value{
 \itemize{

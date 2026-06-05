@@ -3,22 +3,16 @@
 \name{initial_effort}
 \alias{initial_effort}
 \alias{initial_effort<-}
-\alias{validEffortVector}
 \title{Initial fishing effort}
 \usage{
 initial_effort(params)
 
 initial_effort(params) <- value
-
-validEffortVector(effort, params)
 }
 \arguments{
 \item{params}{A MizerParams object}
 
 \item{value}{A vector or scalar with the initial fishing effort, see Details
-below.}
-
-\item{effort}{A vector or scalar with the initial fishing effort, see Details
 below.}
 }
 \value{

@@ -28,3 +28,6 @@ replace <- c(Cod = "Kabeljau", Haddock = "Schellfisch")
 params <- renameSpecies(NS_params, replace)
 species_params(params)$species
 }
+\seealso{
+\code{\link[=renameGear]{renameGear()}}
+}

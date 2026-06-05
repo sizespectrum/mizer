@@ -19,7 +19,7 @@ step)."><meta property="og:image" content="https://sizespectrum.org/mizer/refere
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.4.9127</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,7 +91,20 @@ step).</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plotFMort</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plotFMort</span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  species <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  all.sizes <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  highlight <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  wlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
+<span>  llim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
+<span>  size_axis <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"w"</span>, <span class="st">"l"</span><span class="op">)</span>,</span>
+<span>  return_data <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  log_x <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  log_y <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  log <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -103,22 +116,11 @@ step).</p>
 <a href="MizerParams-class.html">MizerParams</a>.</p></dd>
 
 
-<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>.</p></dd>
-
-
 <dt id="arg-species">species<a class="anchor" aria-label="anchor" href="#arg-species"></a></dt>
 <dd><p>The species to be selected. Optional. By default all target
-species are selected. A vector of species names, or a
-numeric vector with the species indices, or a logical vector indicating for
-each species whether it is to be selected (TRUE) or not.</p></dd>
-
-
-<dt id="arg-time-range">time_range<a class="anchor" aria-label="anchor" href="#arg-time-range"></a></dt>
-<dd><p>The time range (either a vector of values, a vector of min
-and max time, or a single value) to average the abundances over. Default is
-the final time step. Ignored when called with a <a href="MizerParams-class.html">MizerParams</a>
-object.</p></dd>
+species are selected. A vector of species names, or a numeric vector with
+the species indices, or a logical vector indicating for each species
+whether it is to be selected (TRUE) or not.</p></dd>
 
 
 <dt id="arg-all-sizes">all.sizes<a class="anchor" aria-label="anchor" href="#arg-all-sizes"></a></dt>
@@ -132,18 +134,13 @@ outside a species' size range. Default FALSE.</p></dd>
 
 <dt id="arg-wlim">wlim<a class="anchor" aria-label="anchor" href="#arg-wlim"></a></dt>
 <dd><p>A numeric vector of length two providing lower and upper limits
-for the w axis. Use NA for the default: the lower default is
-<code>min(params@w) / 100</code> when <code>resource = TRUE</code> (to show some resource below
-the fish grid) or <code>min(params@w)</code> when <code>resource = FALSE</code>; the upper
-default is <code>max(params@w_full)</code>. Data is filtered to this range and the
-axis limits are set accordingly.</p></dd>
+for the weight (x) axis. Use <code>NA</code> to auto-scale to the data range.</p></dd>
 
 
 <dt id="arg-llim">llim<a class="anchor" aria-label="anchor" href="#arg-llim"></a></dt>
 <dd><p>A numeric vector of length two providing lower and upper limits
-for the length axis when <code>size_axis = "l"</code>. Use <code>NA</code> to auto-scale to the
-data range. Data is filtered to this range and the axis limits are set
-accordingly.</p></dd>
+for the length (x) axis when <code>size_axis = "l"</code>. Use <code>NA</code> to auto-scale to
+the data range.</p></dd>
 
 
 <dt id="arg-size-axis">size_axis<a class="anchor" aria-label="anchor" href="#arg-size-axis"></a></dt>
@@ -153,7 +150,7 @@ accordingly.</p></dd>
 
 <dt id="arg-return-data">return_data<a class="anchor" aria-label="anchor" href="#arg-return-data"></a></dt>
 <dd><p>A boolean value that determines whether the formatted data
-used for the plot is returned instead of the plot itself. Default value is FALSE</p></dd>
+used for the plot is returned instead of the plot itself. Default is FALSE.</p></dd>
 
 
 <dt id="arg-log-x">log_x<a class="anchor" aria-label="anchor" href="#arg-log-x"></a></dt>
@@ -161,14 +158,24 @@ used for the plot is returned instead of the plot itself. Default value is FALSE
 
 
 <dt id="arg-log-y">log_y<a class="anchor" aria-label="anchor" href="#arg-log-y"></a></dt>
-<dd><p>If <code>TRUE</code> (default), use a log10 y-axis. Not used by
-<code><a href="plotSpectra.html">plotSpectraRelative()</a></code>.</p></dd>
+<dd><p>If <code>TRUE</code>, use a log10 y-axis. Default is <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-log">log<a class="anchor" aria-label="anchor" href="#arg-log"></a></dt>
 <dd><p>Character string specifying which axes should use log10 scales,
 in the same form as the base <code><a href="plot.html">plot()</a></code> argument. For example, <code>"x"</code>,
 <code>"y"</code>, <code>"xy"</code> or <code>""</code>. If supplied, this overrides <code>log_x</code> and <code>log_y</code>.</p></dd>
+
+
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
+<dd><p>Further arguments used by only some of the methods:</p>
+<p><strong>For <code>MizerSim</code> methods:</strong></p><dl><dt><code>time_range</code></dt>
+<dd><p>The time range (either a vector of values, a vector
+of min and max time, or a single value) to average the fishing
+mortality over. Default is the final time step.</p></dd>
+
+
+</dl></dd>
 
 </dl></div>
     <div class="section level2">
@@ -184,15 +191,20 @@ frame with the three variables 'w' (or 'l' if <code>size_axis = "l"</code>), 'va
 <code><a href="addPlot.html">addPlot()</a></code>,
 <code><a href="animate.html">animate.ArrayTimeBySpeciesBySize()</a></code>,
 <code><a href="plot.html">plot</a></code>,
+<code><a href="plot2.html">plot2()</a></code>,
 <code><a href="plotBiomass.html">plotBiomass()</a></code>,
 <code><a href="plotCDF.html">plotCDF()</a></code>,
+<code><a href="plotCDF2.html">plotCDF2()</a></code>,
 <code><a href="plotDiet.html">plotDiet()</a></code>,
 <code><a href="plotFeedingLevel.html">plotFeedingLevel()</a></code>,
 <code><a href="plotGrowthCurves.html">plotGrowthCurves()</a></code>,
 <code><a href="plotMizerParams.html">plotMizerParams</a></code>,
 <code><a href="plotMizerSim.html">plotMizerSim</a></code>,
 <code><a href="plotPredMort.html">plotPredMort()</a></code>,
+<code><a href="plotRelative.html">plotRelative()</a></code>,
 <code><a href="plotSpectra.html">plotSpectra()</a></code>,
+<code><a href="plotSpectra2.html">plotSpectra2()</a></code>,
+<code><a href="plotSpectraRelative.html">plotSpectraRelative()</a></code>,
 <code><a href="plotYield.html">plotYield()</a></code>,
 <code><a href="plotYieldGear.html">plotYieldGear()</a></code>,
 <code><a href="plotting_functions.html">plotting_functions</a></code></p></div>
@@ -210,7 +222,7 @@ frame with the three variables 'w' (or 'l' if <code>size_axis = "l"</code>), 'va
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Returning the data frame</span></span></span>
 <span class="r-in"><span><span class="va">fr</span> <span class="op">&lt;-</span> <span class="fu">plotFMort</span><span class="op">(</span><span class="va">sim</span>, return_data <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">fr</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="str.html">str</a></span><span class="op">(</span><span class="va">fr</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 'data.frame':	934 obs. of  4 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ w                : num  0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ Fishing mortality: num  0 0 0 0 0 0 0 0 0 0 ...</span>

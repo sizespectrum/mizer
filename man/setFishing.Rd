@@ -55,7 +55,7 @@ a vector, must be named by gear.}
 
 \item{...}{Unused}
 
-\item{value}{.}
+\item{value}{The array to assign}
 }
 \value{
 \code{setFishing()}: A MizerParams object with updated fishing

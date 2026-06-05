@@ -6,11 +6,6 @@
 \alias{summary.ArrayTimeBySpecies}
 \alias{summary.ArrayTimeBySpeciesBySize}
 \title{Summarise mizer objects}
-\usage{
-\method{summary}{ArraySpeciesBySize}(object, ...)
-\method{summary}{ArrayTimeBySpecies}(object, ...)
-\method{summary}{ArrayTimeBySpeciesBySize}(object, ...)
-}
 \arguments{
 \item{object}{The object to summarise.}
 

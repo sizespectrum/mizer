@@ -19,7 +19,7 @@ always stored in a column called value."><meta property="og:image" content="http
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.4.9127</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,18 +89,6 @@ observed combination of species, size and/or time. The numeric result is
 always stored in a column called <code>value</code>.</p>
     </div>
 
-    <div class="section level2">
-    <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'ArraySpeciesBySize'</span></span>
-<span><span class="fu">as.data.frame</span><span class="op">(</span><span class="va">x</span>, row.names <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    optional <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
-<span><span class="co"># S3 method for class 'ArrayTimeBySpecies'</span></span>
-<span><span class="fu">as.data.frame</span><span class="op">(</span><span class="va">x</span>, row.names <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    optional <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
-<span><span class="co"># S3 method for class 'ArrayTimeBySpeciesBySize'</span></span>
-<span><span class="fu">as.data.frame</span><span class="op">(</span><span class="va">x</span>, row.names <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    optional <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
-    </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
@@ -112,11 +100,15 @@ always stored in a column called <code>value</code>.</p>
 
 
 <dt id="arg-row-names">row.names<a class="anchor" aria-label="anchor" href="#arg-row-names"></a></dt>
-<dd><p>Passed for compatibility with the base generic. Ignored.</p></dd>
+<dd><p>Optional and included only for compatibility with the base
+generic. <code>NULL</code> or a character vector giving the row names for the
+data frame.</p></dd>
 
 
 <dt id="arg-optional">optional<a class="anchor" aria-label="anchor" href="#arg-optional"></a></dt>
-<dd><p>Passed for compatibility with the base generic. Ignored.</p></dd>
+<dd><p>Optional and included only for compatibility with the base
+generic. A logical value. If <code>TRUE</code>, setting row names and converting
+column names (to syntactic names) is optional.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

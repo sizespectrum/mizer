@@ -19,7 +19,7 @@ total consumption rate."><meta property="og:image" content="https://sizespectrum
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.4.9127</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -104,17 +104,23 @@ total consumption rate.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
-<dd><p>A matrix of species abundances (species x size).</p></dd>
+<dl><dt id="arg-params">params<a class="anchor" aria-label="anchor" href="#arg-params"></a></dt>
+<dd><p>A <a href="MizerParams-class.html">MizerParams</a> object.</p></dd>
+
+
+<dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
+<dd><p>A matrix of species abundances (species x size). Defaults to
+the initial abundances stored in <code>params</code>.</p></dd>
 
 
 <dt id="arg-n-pp">n_pp<a class="anchor" aria-label="anchor" href="#arg-n-pp"></a></dt>
-<dd><p>A vector of the resource abundance by size</p></dd>
+<dd><p>A vector of the resource abundance by size. Defaults to the
+initial resource abundance stored in <code>params</code>.</p></dd>
 
 
 <dt id="arg-n-other">n_other<a class="anchor" aria-label="anchor" href="#arg-n-other"></a></dt>
-<dd><p>A list of abundances for other dynamical components of the
-ecosystem</p></dd>
+<dd><p>A named list of the abundances of other dynamical
+components. Defaults to the initial values stored in <code>params</code>.</p></dd>
 
 
 <dt id="arg-proportion">proportion<a class="anchor" aria-label="anchor" href="#arg-proportion"></a></dt>
@@ -168,7 +174,7 @@ sizes for a predator species the returned rate is zero.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">diet</span> <span class="op">&lt;-</span> <span class="fu">getDiet</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">diet</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="str.html">str</a></span><span class="op">(</span><span class="va">diet</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  num [1:12, 1:100, 1:14] 8.94e-18 6.86e-19 3.46e-18 1.75e-09 1.12e-17 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "dimnames")=List of 3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ predator: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>

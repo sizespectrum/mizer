@@ -9,19 +9,9 @@
 \alias{plotHover.mizer_plot}
 \title{Create a hover-enabled plotly plot from a mizer object}
 \usage{
-\method{plotHover}{ArraySpeciesBySize}(x, ...)
-
 \method{plotHover}{ArrayTimeBySpecies}(x, ...)
 
-\method{plotHover}{ArrayTimeBySpeciesBySize}(x, ...)
-
 plotHover(x, ...)
-
-\method{plotHover}{mizer_plot}(
-  x = ggplot2::last_plot(),
-  ...,
-  tooltip = attr(x, "mizer_tooltip") \%||\% "all"
-)
 }
 \arguments{
 \item{x}{A \code{mizer_plot}, \code{ArraySpeciesBySize}, \code{ArrayTimeBySpecies}, or
@@ -41,8 +31,7 @@ A plotly object.
 Creates an interactive plotly version of a mizer plot. Can be called on any
 mizer array object (such as those returned by \code{\link[=getEncounter]{getEncounter()}},
 \code{\link[=getBiomass]{getBiomass()}}, etc.) or on any \code{mizer_plot} object returned by the named
-plot functions such as \code{\link[=plotBiomass]{plotBiomass()}}, \code{\link[=plotSpectra]{plotSpectra()}}, etc. In the first
-case it is a shorthand for \code{plotly::ggplotly(plot(x, ...))}.
+plot functions such as \code{\link[=plotBiomass]{plotBiomass()}}, \code{\link[=plotSpectra]{plotSpectra()}}, etc.
 }
 \examples{
 \donttest{

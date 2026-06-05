@@ -18,7 +18,7 @@ The interaction coefficient between predator and prey species
 in the North Sea.
 }
 \examples{
-params <- MizerParams(NS_species_params_gears,
-                      interaction = NS_interaction)
+params <- newMultispeciesParams(NS_species_params_gears,
+                                interaction = NS_interaction)
 }
 \keyword{datasets}

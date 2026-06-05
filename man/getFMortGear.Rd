@@ -4,31 +4,33 @@
 \alias{getFMortGear}
 \title{Get the fishing mortality by time, gear, species and size}
 \usage{
-getFMortGear(object, effort, time_range, n, n_pp, n_other, t = 0, ...)
+getFMortGear(object, ...)
 }
 \arguments{
-\item{object}{A \code{MizerParams} object or a \code{MizerSim} object.}
+\item{object}{A \linkS4class{MizerParams} or \linkS4class{MizerSim} object.}
 
-\item{effort}{The effort for each fishing gear. See notes below.}
+\item{...}{Additional arguments that depend on the class of \code{object}.
 
-\item{time_range}{Subset the returned fishing mortalities by time. The time
-range is either a vector of values, a vector of min and max time, or a
-single value. For a \code{MizerSim}, the default is the whole time range. For a
-\code{MizerParams}, this is retained for backwards compatibility as an
-alternative way to supply \code{t} when \code{t} is not supplied.}
+\strong{For a \linkS4class{MizerParams} object:}
+\describe{
+\item{\code{effort}}{The effort for each fishing gear. See notes below.
+Defaults to the initial effort stored in \code{object}.}
+\item{\code{n}}{A matrix of species abundances (species x size). Defaults to
+the initial abundances stored in \code{object}.}
+\item{\code{n_pp}}{A vector of the resource abundance by size. Defaults to the
+initial resource abundance stored in \code{object}.}
+\item{\code{n_other}}{A named list of the abundances of other dynamical
+components. Defaults to the initial values stored in \code{object}.}
+\item{\code{t}}{The time for which to do the calculation. Defaults to 0.}
+}
 
-\item{n}{A matrix of species abundances (species x size).}
-
-\item{n_pp}{A vector of the resource abundance by size}
-
-\item{n_other}{A list of abundances for other dynamical components of the
-ecosystem}
-
-\item{t}{The time for which to do the calculation (Not used by standard
-mizer rate functions but useful for extensions with time-dependent
-parameters.)}
-
-\item{...}{Unused}
+\strong{For a \linkS4class{MizerSim} object:}
+\describe{
+\item{\code{time_range}}{Subset the returned fishing mortalities by time. The
+time range is either a vector of values, a vector of min and max time,
+or a single value. Defaults to the whole time range of the
+simulation.}
+}}
 }
 \value{
 An array. If the effort argument has a time dimension, or a

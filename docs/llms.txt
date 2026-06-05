@@ -226,11 +226,6 @@ for a description of these model types.
   : Set up parameters for a trait-based multispecies model
 - [`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md)
   : Set up parameters for a general multispecies model
-- [`mizer`](https://sizespectrum.org/mizer/reference/mizer-package.md)
-  [`mizer-package`](https://sizespectrum.org/mizer/reference/mizer-package.md)
-  : mizer: Multi-species size-based modelling in R
-- [`defaults_edition()`](https://sizespectrum.org/mizer/reference/defaults_edition.md)
-  : Default editions
 
 ## Changing model parameters
 
@@ -255,12 +250,21 @@ parameters.
   : Initial value for resource spectrum
 - [`initial_effort()`](https://sizespectrum.org/mizer/reference/initial_effort.md)
   [`` `initial_effort<-`() ``](https://sizespectrum.org/mizer/reference/initial_effort.md)
-  [`validEffortVector()`](https://sizespectrum.org/mizer/reference/initial_effort.md)
   : Initial fishing effort
+- [`addSpecies()`](https://sizespectrum.org/mizer/reference/addSpecies.md)
+  : Add new species
+- [`removeSpecies()`](https://sizespectrum.org/mizer/reference/removeSpecies.md)
+  : Remove species
+- [`renameSpecies()`](https://sizespectrum.org/mizer/reference/renameSpecies.md)
+  **\[experimental\]** : Rename species
 - [`renameGear()`](https://sizespectrum.org/mizer/reference/renameGear.md)
   : Rename gears
 - [`expandSizeGrid()`](https://sizespectrum.org/mizer/reference/expandSizeGrid.md)
   : Expand the size grid
+- [`markBackground()`](https://sizespectrum.org/mizer/reference/markBackground.md)
+  : Designate species as background species
+- [`removeBackgroundSpecies()`](https://sizespectrum.org/mizer/reference/removeBackgroundSpecies.md)
+  : Remove all background species
 - [`use_predation_diffusion()`](https://sizespectrum.org/mizer/reference/use_predation_diffusion.md)
   [`` `use_predation_diffusion<-`() ``](https://sizespectrum.org/mizer/reference/use_predation_diffusion.md)
   : Get or set the use_predation_diffusion flag
@@ -279,7 +283,6 @@ observed growth rates, abundances and fisheries yields.
 - [`matchGrowth()`](https://sizespectrum.org/mizer/reference/matchGrowth.md)
   : Adjust model to produce observed growth
 - [`plotBiomassObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotBiomassObservedVsModel.md)
-  [`plotlyBiomassObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotBiomassObservedVsModel.md)
   **\[experimental\]** : Plotting observed vs. model biomass data
 - [`calibrateBiomass()`](https://sizespectrum.org/mizer/reference/calibrateBiomass.md)
   **\[experimental\]** : Calibrate the model scale to match total
@@ -292,7 +295,6 @@ observed growth rates, abundances and fisheries yields.
 - [`matchNumbers()`](https://sizespectrum.org/mizer/reference/matchNumbers.md)
   **\[experimental\]** : Match numbers to observations
 - [`plotYieldObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotYieldObservedVsModel.md)
-  [`plotlyYieldObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotYieldObservedVsModel.md)
   **\[experimental\]** : Plotting observed vs. model yields
 - [`scaleModel()`](https://sizespectrum.org/mizer/reference/scaleModel.md)
   **\[experimental\]** : Change scale of the model
@@ -321,6 +323,9 @@ state.
 
 ## Sharing models
 
+Save a model together with its metadata so it can be archived or shared
+with other users.
+
 - [`setMetadata()`](https://sizespectrum.org/mizer/reference/setMetadata.md)
   [`getMetadata()`](https://sizespectrum.org/mizer/reference/setMetadata.md)
   **\[experimental\]** : Set metadata for a model
@@ -332,6 +337,9 @@ state.
 
 ## Running simulations
 
+Project a `MizerParams` object forward in time to produce a `MizerSim`
+object containing the full time series of size spectra.
+
 - [`project()`](https://sizespectrum.org/mizer/reference/project.md) :
   Project size spectrum forward in time
 - [`projectToSteady()`](https://sizespectrum.org/mizer/reference/projectToSteady.md)
@@ -340,6 +348,9 @@ state.
   : Set initial values to values from a simulation
 
 ## Accessing results
+
+Extract the raw arrays stored in a `MizerSim` object, such as species
+and resource size spectra and fishing effort at each saved time step.
 
 - [`N()`](https://sizespectrum.org/mizer/reference/N.md)
   [`NResource()`](https://sizespectrum.org/mizer/reference/N.md) : Time
@@ -354,6 +365,10 @@ state.
   Times for which simulation results are available
 
 ## Analysing results
+
+Calculate summary quantities from a `MizerSim` object, such as biomass,
+yield, growth, and feeding level, averaged or disaggregated over time,
+species, or size.
 
 - [`summary_functions`](https://sizespectrum.org/mizer/reference/summary_functions.md)
   : Description of summary functions
@@ -380,6 +395,9 @@ state.
 
 ## Calculating indicators
 
+Calculate ecological indicators from a `MizerSim` object, such as mean
+weight, mean maximum weight, and the Large Fish Index.
+
 - [`indicator_functions`](https://sizespectrum.org/mizer/reference/indicator_functions.md)
   : Description of indicator functions
 - [`getCommunitySlope()`](https://sizespectrum.org/mizer/reference/getCommunitySlope.md)
@@ -393,56 +411,82 @@ state.
 
 ## Plotting results
 
+Visualise size spectra, biomass and yield trajectories, growth curves,
+and comparisons of model output with observations.
+
 - [`plotting_functions`](https://sizespectrum.org/mizer/reference/plotting_functions.md)
   : Description of the plotting functions
+
+- [`plot`](https://sizespectrum.org/mizer/reference/plot.md)
+  [`plot.ArraySpeciesBySize`](https://sizespectrum.org/mizer/reference/plot.md)
+  [`plot.ArrayTimeBySpecies`](https://sizespectrum.org/mizer/reference/plot.md)
+  [`plot.ArrayTimeBySpeciesBySize`](https://sizespectrum.org/mizer/reference/plot.md)
+  : Plot mizer arrays
+
+- [`plotHover()`](https://sizespectrum.org/mizer/reference/plotHover.md)
+  : Create a hover-enabled plotly plot from a mizer object
+
+- [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md) :
+  Compare two mizer arrays in a single plot
+
+- [`plotRelative()`](https://sizespectrum.org/mizer/reference/plotRelative.md)
+  : Plot relative difference between two mizer arrays
 
 - [`animate()`](https://sizespectrum.org/mizer/reference/animate.md)
   [`animateSpectra()`](https://sizespectrum.org/mizer/reference/animate.md)
   : Animate size-dependent quantities through time
 
-- [`plot(`*`<ArraySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/plot.md)
-  [`ggplotly(`*`<ArraySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/plot.md)
-  [`plot(`*`<ArrayTimeBySpecies>`*`)`](https://sizespectrum.org/mizer/reference/plot.md)
-  [`ggplotly(`*`<ArrayTimeBySpecies>`*`)`](https://sizespectrum.org/mizer/reference/plot.md)
-  [`plot(`*`<ArrayTimeBySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/plot.md)
-  [`ggplotly(`*`<ArrayTimeBySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/plot.md)
-  : Plotting outputs
+- [`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md)
+  : Plot abundance and biomass spectra
 
-- [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md) :
-  Compare two mizer array objects in one plot
+- [`plotSpectra2()`](https://sizespectrum.org/mizer/reference/plotSpectra2.md)
+  : Compare abundance and biomass spectra from two objects
 
-- [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md)
-  [`plotlyBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md)
-  : Plot the biomass of species through time
+- [`plotSpectraRelative()`](https://sizespectrum.org/mizer/reference/plotSpectraRelative.md)
+  : Plot relative difference between abundance spectra
 
-- [`plotBiomassObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotBiomassObservedVsModel.md)
-  [`plotlyBiomassObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotBiomassObservedVsModel.md)
-  **\[experimental\]** : Plotting observed vs. model biomass data
-
-- [`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md)
-  [`plotlyCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md) :
+- [`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md) :
   Plot cumulative abundance or biomass distributions
 
-- [`plotCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md)
-  [`plotlyCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md)
-  : Compare two cumulative abundance or biomass distributions
+- [`plotCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md) :
+  Compare cumulative abundance or biomass distributions from two objects
+
+- [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md)
+  : Plot the biomass of species through time
+
+- [`plotPredMort()`](https://sizespectrum.org/mizer/reference/plotPredMort.md)
+  : Plot predation mortality rate of each species against size
+
+- [`plotFeedingLevel()`](https://sizespectrum.org/mizer/reference/plotFeedingLevel.md)
+  : Plot the feeding level of species by size
+
+- [`plotYield()`](https://sizespectrum.org/mizer/reference/plotYield.md)
+  : Plot the total yield of species through time
+
+- [`plotYieldGear()`](https://sizespectrum.org/mizer/reference/plotYieldGear.md)
+  : Plot the total yield of each species by gear through time
+
+- [`plotFMort()`](https://sizespectrum.org/mizer/reference/plotFMort.md)
+  : Plot total fishing mortality of each species by size
+
+- [`plotGrowthCurves()`](https://sizespectrum.org/mizer/reference/plotGrowthCurves.md)
+  : Plot growth curves
+
+- [`plotBiomassObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotBiomassObservedVsModel.md)
+  **\[experimental\]** : Plotting observed vs. model biomass data
+
+- [`plotYieldObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotYieldObservedVsModel.md)
+  **\[experimental\]** : Plotting observed vs. model yields
 
 - [`plotDiet()`](https://sizespectrum.org/mizer/reference/plotDiet.md)
-  [`plotlyDiet()`](https://sizespectrum.org/mizer/reference/plotDiet.md)
   **\[experimental\]** : Plot diet, resolved by prey species, as
   function of predator at size.
 
-- [`plotFMort()`](https://sizespectrum.org/mizer/reference/plotFMort.md)
-  [`plotlyFMort()`](https://sizespectrum.org/mizer/reference/plotFMort.md)
-  : Plot total fishing mortality of each species by size
+- [`plotM2()`](https://sizespectrum.org/mizer/reference/plotM2.md)
+  **\[deprecated\]** :
 
-- [`plotFeedingLevel()`](https://sizespectrum.org/mizer/reference/plotFeedingLevel.md)
-  [`plotlyFeedingLevel()`](https://sizespectrum.org/mizer/reference/plotFeedingLevel.md)
-  : Plot the feeding level of species by size
-
-- [`plotGrowthCurves()`](https://sizespectrum.org/mizer/reference/plotGrowthCurves.md)
-  [`plotlyGrowthCurves()`](https://sizespectrum.org/mizer/reference/plotGrowthCurves.md)
-  : Plot growth curves
+  Alias for
+  [`plotPredMort()`](https://sizespectrum.org/mizer/reference/plotPredMort.md)
 
 - [`plot(`*`<MizerParams>`*`)`](https://sizespectrum.org/mizer/reference/plotMizerParams.md)
   :
@@ -454,39 +498,8 @@ state.
 
   Summary plot for `MizerSim` objects
 
-- [`plotPredMort()`](https://sizespectrum.org/mizer/reference/plotPredMort.md)
-  [`plotlyPredMort()`](https://sizespectrum.org/mizer/reference/plotPredMort.md)
-  : Plot predation mortality rate of each species against size
-
-- [`plotRelative()`](https://sizespectrum.org/mizer/reference/plotRelative.md)
-  : Plot the relative difference between two mizer array objects
-
-- [`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md)
-  [`plotlySpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md)
-  : Plot the abundance spectra
-
-- [`plotSpectra2()`](https://sizespectrum.org/mizer/reference/plotSpectra2.md)
-  [`plotlySpectra2()`](https://sizespectrum.org/mizer/reference/plotSpectra2.md)
-  : Compare two size spectra in the same plot
-
-- [`plotSpectraRelative()`](https://sizespectrum.org/mizer/reference/plotSpectraRelative.md)
-  [`plotlySpectraRelative()`](https://sizespectrum.org/mizer/reference/plotSpectraRelative.md)
-  : Plot the relative difference between two spectra
-
-- [`plotYield()`](https://sizespectrum.org/mizer/reference/plotYield.md)
-  [`plotlyYield()`](https://sizespectrum.org/mizer/reference/plotYield.md)
-  : Plot the total yield of species through time
-
-- [`plotYieldGear()`](https://sizespectrum.org/mizer/reference/plotYieldGear.md)
-  [`plotlyYieldGear()`](https://sizespectrum.org/mizer/reference/plotYieldGear.md)
-  : Plot the total yield of each species by gear through time
-
-- [`plotYieldObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotYieldObservedVsModel.md)
-  [`plotlyYieldObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotYieldObservedVsModel.md)
-  **\[experimental\]** : Plotting observed vs. model yields
-
 - [`addPlot()`](https://sizespectrum.org/mizer/reference/addPlot.md)
-  **\[experimental\]** : Add values to an existing plot
+  **\[experimental\]** : Add lines to an existing plot
 
 - [`setColours()`](https://sizespectrum.org/mizer/reference/setColours.md)
   [`getColours()`](https://sizespectrum.org/mizer/reference/setColours.md)
@@ -494,19 +507,6 @@ state.
   [`getLinetypes()`](https://sizespectrum.org/mizer/reference/setColours.md)
   **\[experimental\]** : Set line colours and line types to be used in
   mizer plots
-
-## Manipulating species list
-
-- [`addSpecies()`](https://sizespectrum.org/mizer/reference/addSpecies.md)
-  : Add new species
-- [`removeSpecies()`](https://sizespectrum.org/mizer/reference/removeSpecies.md)
-  : Remove species
-- [`renameSpecies()`](https://sizespectrum.org/mizer/reference/renameSpecies.md)
-  **\[experimental\]** : Rename species
-- [`markBackground()`](https://sizespectrum.org/mizer/reference/markBackground.md)
-  : Designate species as background species
-- [`removeBackgroundSpecies()`](https://sizespectrum.org/mizer/reference/removeBackgroundSpecies.md)
-  : Remove all background species
 
 ## Setting custom rates
 
@@ -574,6 +574,11 @@ and gear parameters with your own rate arrays.
 
 ## Calculating rates
 
+Calculate instantaneous ecological rates from a `MizerParams` object,
+such as encounter rate, predation mortality, or somatic growth rate.
+
+- [`getRates()`](https://sizespectrum.org/mizer/reference/getRates.md) :
+  Get all rates
 - [`getDiffusion()`](https://sizespectrum.org/mizer/reference/getDiffusion.md)
   : Get diffusion rate from predation
 - [`getEGrowth()`](https://sizespectrum.org/mizer/reference/getEGrowth.md)
@@ -603,8 +608,6 @@ and gear parameters with your own rate arrays.
   density dependent reproduction rate
 - [`getRDI()`](https://sizespectrum.org/mizer/reference/getRDI.md) : Get
   density independent rate of egg production
-- [`getRates()`](https://sizespectrum.org/mizer/reference/getRates.md) :
-  Get all rates
 - [`getResourceMort()`](https://sizespectrum.org/mizer/reference/getResourceMort.md)
   : Get predation mortality rate for resource
 - [`getCriticalFeedingLevel()`](https://sizespectrum.org/mizer/reference/getCriticalFeedingLevel.md)
@@ -650,6 +653,10 @@ for more details.
 
 ## Predation kernels
 
+Functions that determine the size preference of predators for prey,
+i.e. the probability of a predator of a given size eating prey of a
+given size.
+
 - [`box_pred_kernel()`](https://sizespectrum.org/mizer/reference/box_pred_kernel.md)
   : Box predation kernel
 - [`lognormal_pred_kernel()`](https://sizespectrum.org/mizer/reference/lognormal_pred_kernel.md)
@@ -661,6 +668,9 @@ for more details.
 
 ## Fishing selectivity functions
 
+Functions that determine the size-selectivity of fishing gears, i.e. the
+proportion of fish of a given size that are retained by a gear.
+
 - [`double_sigmoid_length()`](https://sizespectrum.org/mizer/reference/double_sigmoid_length.md)
   : Length based double-sigmoid selectivity function
 - [`knife_edge()`](https://sizespectrum.org/mizer/reference/knife_edge.md)
@@ -671,6 +681,10 @@ for more details.
   : Weight based sigmoidal selectivity function
 
 ## Resource dynamics
+
+Functions governing the time evolution of the background resource
+spectrum, together with functions for getting and setting resource
+parameters.
 
 - [`resource_constant()`](https://sizespectrum.org/mizer/reference/resource_constant.md)
   : Keep resource abundance constant
@@ -685,6 +699,9 @@ for more details.
   : Resource parameters
 
 ## Reproduction functions
+
+Functions governing the density-dependent relationship between the
+energy invested in reproduction and the actual egg production rate.
 
 - [`BevertonHoltRDD()`](https://sizespectrum.org/mizer/reference/BevertonHoltRDD.md)
   : Beverton Holt function to calculate density-dependent reproduction
@@ -765,6 +782,9 @@ mizer…() functions.
 
 ## Internal helper functions
 
+Utility functions used internally by mizer that may also be useful for
+users building extensions or working with model objects directly.
+
 - [`age_mat()`](https://sizespectrum.org/mizer/reference/age_mat.md) :
   Calculate age at maturity
 
@@ -841,6 +861,9 @@ mizer…() functions.
 - [`set_species_param_default()`](https://sizespectrum.org/mizer/reference/set_species_param_default.md)
   : Set a species parameter to a default value
 
+- [`validEffortVector()`](https://sizespectrum.org/mizer/reference/validEffortVector.md)
+  : Make a valid effort vector
+
 - [`validGearParams()`](https://sizespectrum.org/mizer/reference/validGearParams.md)
   : Check validity of gear parameters and set defaults
 
@@ -854,13 +877,26 @@ mizer…() functions.
 - [`valid_species_arg()`](https://sizespectrum.org/mizer/reference/valid_species_arg.md)
   : Helper function to assure validity of species argument
 
+- [`defaults_edition()`](https://sizespectrum.org/mizer/reference/defaults_edition.md)
+  : Default editions
+
 ## Classes
+
+The S4 and S3 classes used by mizer, together with functions for
+constructing, inspecting, comparing, and validating them.
+
+- [`mizer`](https://sizespectrum.org/mizer/reference/mizer-package.md)
+  [`mizer-package`](https://sizespectrum.org/mizer/reference/mizer-package.md)
+  : mizer: Multi-species size-based modelling in R
 
 - [`MizerParams-class`](https://sizespectrum.org/mizer/reference/MizerParams-class.md)
   : A class to hold the parameters for a size based model.
 
 - [`summary(`*`<MizerParams>`*`)`](https://sizespectrum.org/mizer/reference/summary.MizerParams.md)
   : Summarize MizerParams object
+
+- [`str(`*`<MizerParams>`*`)`](https://sizespectrum.org/mizer/reference/str.MizerParams.md)
+  : Display structure of MizerParams object
 
 - [`compareParams()`](https://sizespectrum.org/mizer/reference/compareParams.md)
   : Compare two MizerParams objects and print out differences
@@ -880,6 +916,9 @@ mizer…() functions.
 - [`summary(`*`<MizerSim>`*`)`](https://sizespectrum.org/mizer/reference/summary.MizerSim.md)
   : Summarize MizerSim object
 
+- [`str(`*`<MizerSim>`*`)`](https://sizespectrum.org/mizer/reference/str.MizerSim.md)
+  : Display structure of MizerSim object
+
 - [`getSimParams()`](https://sizespectrum.org/mizer/reference/getSimParams.md)
   : Extract the projection parameters used to produce a simulation
 
@@ -893,24 +932,31 @@ mizer…() functions.
 - [`getParams()`](https://sizespectrum.org/mizer/reference/getParams.md)
   : Extract the parameter object underlying a simulation
 
-- [`print(`*`<ArraySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/print.md)
-  [`print(`*`<ArrayTimeBySpecies>`*`)`](https://sizespectrum.org/mizer/reference/print.md)
-  [`print(`*`<ArrayTimeBySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/print.md)
-  [`print(`*`<summary.ArraySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/print.md)
-  [`print(`*`<summary.ArrayTimeBySpecies>`*`)`](https://sizespectrum.org/mizer/reference/print.md)
-  [`print(`*`<summary.ArrayTimeBySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/print.md)
+- [`print`](https://sizespectrum.org/mizer/reference/print.md)
+  [`print.ArraySpeciesBySize`](https://sizespectrum.org/mizer/reference/print.md)
+  [`print.ArrayTimeBySpecies`](https://sizespectrum.org/mizer/reference/print.md)
+  [`print.ArrayTimeBySpeciesBySize`](https://sizespectrum.org/mizer/reference/print.md)
+  [`print.summary.ArraySpeciesBySize`](https://sizespectrum.org/mizer/reference/print.md)
+  [`print.summary.ArrayTimeBySpecies`](https://sizespectrum.org/mizer/reference/print.md)
+  [`print.summary.ArrayTimeBySpeciesBySize`](https://sizespectrum.org/mizer/reference/print.md)
   : Print mizer objects
 
-- [`summary(`*`<MizerParams>`*`)`](https://sizespectrum.org/mizer/reference/summary.md)
-  [`summary(`*`<MizerSim>`*`)`](https://sizespectrum.org/mizer/reference/summary.md)
-  [`summary(`*`<ArraySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/summary.md)
-  [`summary(`*`<ArrayTimeBySpecies>`*`)`](https://sizespectrum.org/mizer/reference/summary.md)
-  [`summary(`*`<ArrayTimeBySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/summary.md)
+- [`summary`](https://sizespectrum.org/mizer/reference/summary.md)
+  [`summary.ArraySpeciesBySize`](https://sizespectrum.org/mizer/reference/summary.md)
+  [`summary.ArrayTimeBySpecies`](https://sizespectrum.org/mizer/reference/summary.md)
+  [`summary.ArrayTimeBySpeciesBySize`](https://sizespectrum.org/mizer/reference/summary.md)
   : Summarise mizer objects
 
-- [`as.data.frame(`*`<ArraySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/as.data.frame.md)
-  [`as.data.frame(`*`<ArrayTimeBySpecies>`*`)`](https://sizespectrum.org/mizer/reference/as.data.frame.md)
-  [`as.data.frame(`*`<ArrayTimeBySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/as.data.frame.md)
+- [`str`](https://sizespectrum.org/mizer/reference/str.md)
+  [`str.ArraySpeciesBySize`](https://sizespectrum.org/mizer/reference/str.md)
+  [`str.ArrayTimeBySpecies`](https://sizespectrum.org/mizer/reference/str.md)
+  [`str.ArrayTimeBySpeciesBySize`](https://sizespectrum.org/mizer/reference/str.md)
+  : Display the structure of mizer objects
+
+- [`as.data.frame`](https://sizespectrum.org/mizer/reference/as.data.frame.md)
+  [`as.data.frame.ArraySpeciesBySize`](https://sizespectrum.org/mizer/reference/as.data.frame.md)
+  [`as.data.frame.ArrayTimeBySpecies`](https://sizespectrum.org/mizer/reference/as.data.frame.md)
+  [`as.data.frame.ArrayTimeBySpeciesBySize`](https://sizespectrum.org/mizer/reference/as.data.frame.md)
   : Convert mizer arrays to data frames
 
 - [`ArraySpeciesBySize()`](https://sizespectrum.org/mizer/reference/ArraySpeciesBySize.md)

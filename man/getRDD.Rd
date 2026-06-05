@@ -4,33 +4,33 @@
 \alias{getRDD}
 \title{Get density dependent reproduction rate}
 \usage{
-getRDD(
-  object,
-  n = initialN(object),
-  n_pp = initialNResource(object),
-  n_other = initialNOther(object),
-  t = 0,
-  rdi = getRDI(object, n = n, n_pp = n_pp, n_other = n_other, t = t),
-  ...
-)
+getRDD(object, ...)
 }
 \arguments{
-\item{n}{A matrix of species abundances (species x size).}
+\item{object}{A \linkS4class{MizerParams} or \linkS4class{MizerSim} object.}
 
-\item{n_pp}{A vector of the resource abundance by size}
+\item{...}{Additional arguments that depend on the class of \code{object}.
 
-\item{n_other}{A list of abundances for other dynamical components of the
-ecosystem}
-
-\item{t}{The time for which to do the calculation (Not used by standard
-mizer rate functions but useful for extensions with time-dependent
-parameters.)}
-
-\item{rdi}{A vector of density-independent reproduction rates for each
-species. If not specified, rdi is calculated internally using
+\strong{For a \linkS4class{MizerParams} object:}
+\describe{
+\item{\code{n}}{A matrix of species abundances (species x size). Defaults to
+the initial abundances stored in \code{object}.}
+\item{\code{n_pp}}{A vector of the resource abundance by size. Defaults to the
+initial resource abundance stored in \code{object}.}
+\item{\code{n_other}}{A named list of the abundances of other dynamical
+components. Defaults to the initial values stored in \code{object}.}
+\item{\code{t}}{The time for which to do the calculation. Defaults to 0.}
+\item{\code{rdi}}{A vector of density-independent reproduction rates for each
+species. If not specified, it is calculated internally using
 \code{\link[=getRDI]{getRDI()}}.}
+}
 
-\item{...}{Unused}
+\strong{For a \linkS4class{MizerSim} object:}
+\describe{
+\item{\code{time_range}}{The time range over which to return the rates. Either
+a vector of values, a vector of min and max time, or a single value.
+Defaults to the whole time range of the simulation.}
+}}
 }
 \value{
 \itemize{

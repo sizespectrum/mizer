@@ -5,35 +5,36 @@
 \title{Get the total fishing mortality rate from all fishing gears by time, species
 and size.}
 \usage{
-getFMort(object, effort, time_range, drop = TRUE, n, n_pp, n_other, t, ...)
+getFMort(object, ...)
 }
 \arguments{
-\item{object}{A \code{MizerParams} object or a \code{MizerSim} object}
+\item{object}{A \linkS4class{MizerParams} or \linkS4class{MizerSim} object.}
 
-\item{effort}{The effort of each fishing gear. Only used if the object
-argument is of class \code{MizerParams}. See notes below.}
+\item{...}{Additional arguments that depend on the class of \code{object}.
 
-\item{time_range}{Subset the returned fishing mortalities by time. The time
-range is either a vector of values, a vector of min and max time, or a
-single value. Default is the whole time range. Only used if the
-\code{object} argument is of type \code{MizerSim}.}
+\strong{For a \linkS4class{MizerParams} object:}
+\describe{
+\item{\code{effort}}{The effort of each fishing gear. See notes below.
+Defaults to the initial effort stored in \code{object}.}
+\item{\code{n}}{A matrix of species abundances (species x size). Defaults to
+the initial abundances stored in \code{object}.}
+\item{\code{n_pp}}{A vector of the resource abundance by size. Defaults to the
+initial resource abundance stored in \code{object}.}
+\item{\code{n_other}}{A named list of the abundances of other dynamical
+components. Defaults to the initial values stored in \code{object}.}
+\item{\code{t}}{The time for which to do the calculation. Defaults to 0.}
+}
 
-\item{drop}{Only used when object is of type \code{MizerSim}. Should
-dimensions of length 1 be dropped, e.g. if your community only has one
-species it might make presentation of results easier. Default is TRUE.}
-
-\item{n}{A matrix of species abundances (species x size).}
-
-\item{n_pp}{A vector of the resource abundance by size}
-
-\item{n_other}{A list of abundances for other dynamical components of the
-ecosystem}
-
-\item{t}{The time for which to do the calculation (Not used by standard
-mizer rate functions but useful for extensions with time-dependent
-parameters.)}
-
-\item{...}{Unused}
+\strong{For a \linkS4class{MizerSim} object:}
+\describe{
+\item{\code{time_range}}{Subset the returned fishing mortalities by time. The
+time range is either a vector of values, a vector of min and max time,
+or a single value. Defaults to the whole time range of the
+simulation.}
+\item{\code{drop}}{Should dimensions of length 1 be dropped, e.g. if your
+community only has one species it might make presentation of results
+easier. Defaults to \code{TRUE}.}
+}}
 }
 \value{
 \itemize{

@@ -15,15 +15,6 @@ plotYieldObservedVsModel(
   show_unobserved = FALSE,
   ...
 )
-
-plotlyYieldObservedVsModel(
-  object,
-  species = NULL,
-  ratio = FALSE,
-  log_scale = TRUE,
-  show_unobserved = FALSE,
-  ...
-)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerParams} or

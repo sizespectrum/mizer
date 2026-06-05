@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.4.9127</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -109,194 +109,18 @@ results for the final time step</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="fu">finalN</span><span class="op">(</span><span class="va">NS_sim</span><span class="op">)</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="str.html">str</a></span><span class="op">(</span><span class="fu">finalN</span><span class="op">(</span><span class="va">NS_sim</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  'ArraySpeciesBySize' num [1:12, 1:100] 1.53e+13 5.89e+12 1.10e+14 1.37e+13 1.16e+11 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "dimnames")=List of 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "value_name")= chr "Number density"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 46 slots</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ metadata               : list()</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ mizer_version          :Classes 'package_version', 'numeric_version'  hidden list of 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : int [1:4] 2 5 4 9126</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ extensions             : chr(0) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ time_created           : POSIXct[1:1], format: "2021-09-03 20:30:02"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ time_modified          : POSIXct[1:1], format: "2026-05-09 08:15:13"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ w                      : num [1:100] 0.001 0.00119 0.00142 0.0017 0.00203 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ dw                     : num [1:100] 0.000193 0.000231 0.000275 0.000329 0.000392 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ w_full                 : num [1:218] 8.73e-13 1.04e-12 1.24e-12 1.48e-12 1.77e-12 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ dw_full                : num [1:218] 1.69e-13 2.01e-13 2.40e-13 2.87e-13 3.42e-13 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ w_min_idx              : Named num [1:12] 1 1 1 1 1 1 1 1 1 1 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "names")= chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ maturity               : num [1:12, 1:100] 0 0 0 0 0 0 0 0 0 0 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ psi                    : num [1:12, 1:100] 0 0 0 0 0 0 0 0 0 0 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ initial_n              : num [1:12, 1:100] 1.67e+13 5.82e+12 1.19e+14 1.36e+13 1.17e+11 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ intake_max             : num [1:12, 1:100] 0.145 0.256 0.312 0.284 0.349 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ search_vol             : num [1:12, 1:100] 4.39e-13 2.94e-13 7.57e-13 1.95e-13 5.89e-13 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ metab                  : num [1:12, 1:100] 0.0127 0.0233 0.0268 0.0232 0.03 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ pred_kernel            : logi [1(1d)] NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ ft_pred_kernel_e       : cplx [1:12, 1:218] 11.3+0i 26.9+0i 20.8+0i ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ k : chr [1:218] "1" "2" "3" "4" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ ft_pred_kernel_p       : cplx [1:12, 1:218] 11.3+0i 26.9+0i 20.8+0i ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ k : chr [1:218] "1" "2" "3" "4" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ mu_b                   : num [1:12, 1:100] 0.1871 0.1817 0.1293 0.0865 0.0874 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ ext_encounter          : num [1:12, 1:100] 0 0 0 0 0 0 0 0 0 0 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ ext_diffusion          : num [1:12, 1:100] 0 0 0 0 0 0 0 0 0 0 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ rr_pp                  : Named num [1:218] 104642 98654 93009 87686 82669 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "names")= chr [1:218] "8.73e-13" "1.04e-12" "1.24e-12" "1.48e-12" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ cc_pp                  : Named num [1:218] 4.88e+35 3.40e+35 2.36e+35 1.64e+35 1.14e+35 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "names")= chr [1:218] "8.73e-13" "1.04e-12" "1.24e-12" "1.48e-12" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ resource_dynamics      : chr "resource_semichemostat"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ resource_params        :List of 5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ kappa      : num 9.27e+10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ lambda     : num 2.05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ r_pp       : num 10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ n          : num 0.667</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ w_pp_cutoff: num 10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ other_dynamics         : list()</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ other_params           : list()</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ other_encounter        : list()</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ other_mort             : list()</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ rates_funcs            :List of 14</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ Rates          : chr "mizerRates"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ Encounter      : chr "mizerEncounter"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ PredRate       : chr "mizerPredRate"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ PredMort       : chr "mizerPredMort"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ FMort          : chr "mizerFMort"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ Mort           : chr "mizerMort"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ ERepro         : chr "mizerERepro"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ EGrowth        : chr "mizerEGrowth"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ ResourceMort   : chr "mizerResourceMort"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ RDI            : chr "mizerRDI"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ RDD            : chr "BevertonHoltRDD"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ Diffusion      : chr "mizerDiffusion"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ sc                     : num [1:100] 0.001 0.00119 0.00142 0.0017 0.00203 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ initial_n_pp           : Named num [1:218] 4.88e+35 3.40e+35 2.36e+35 1.64e+35 1.14e+35 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "names")= chr [1:218] "8.73e-13" "1.04e-12" "1.24e-12" "1.48e-12" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ initial_n_other        : list()</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ species_params         :'data.frame':	12 obs. of  30 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ species             : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ w_max               : num [1:12] 33 36 100 334 324 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ w_mat               : int [1:12] 13 4 23 99 21 75 78 39 105 165 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ beta                : int [1:12] 51076 398849 22 280540 191 22 381 283 113 558 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ sigma               : num [1:12] 0.8 1.9 1.5 3.2 1.9 1.5 1.9 1.8 1.6 2.1 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ k_vb                : num [1:12] 0.681 1 0.849 0.606 0.536 0.323 0.284 0.266 0.122 0.271 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ R_max               : num [1:12] 7.38e+11 4.10e+11 1.05e+13 1.11e+12 1.12e+10 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ a                   : num [1:12] 0.007 0.001 0.009 0.002 0.01 0.006 0.008 0.004 0.007 0.005 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ b                   : num [1:12] 3.01 3.32 2.94 3.43 2.99 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ w_min               : num [1:12] 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ alpha               : num [1:12] 0.6 0.6 0.6 0.6 0.6 0.6 0.6 0.6 0.6 0.6 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ interaction_resource: num [1:12] 1 1 1 1 1 1 1 1 1 1 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ n                   : num [1:12] 0.667 0.667 0.667 0.667 0.667 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ p                   : num [1:12] 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ q                   : num [1:12] 0.717 0.717 0.717 0.717 0.717 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ pred_kernel_type    : chr [1:12] "lognormal" "lognormal" "lognormal" "lognormal" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ h                   : num [1:12] 14.5 25.6 31.2 28.4 34.9 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ k                   : num [1:12] 0 0 0 0 0 0 0 0 0 0 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ ks                  : num [1:12] 1.59 2.94 3.37 2.92 3.78 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ z0                  : num [1:12] 0.1871 0.1817 0.1293 0.0865 0.0874 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ gamma               : num [1:12] 6.20e-11 4.16e-11 1.07e-10 2.76e-11 8.31e-11 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ w_mat25             : num [1:12] 11.65 3.58 20.61 88.7 18.82 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ m                   : num [1:12] 1 1 1 1 1 1 1 1 1 1 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ erepro              : num [1:12] 1 1 1 1 1 1 1 1 1 1 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ w_repro_max         : num [1:12] 33 36 100 334 324 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ is_background       : logi [1:12] FALSE FALSE FALSE FALSE FALSE FALSE ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ z_ext               : num [1:12] 0 0 0 0 0 0 0 0 0 0 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ d                   : num [1:12] -0.333 -0.333 -0.333 -0.333 -0.333 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ E_ext               : num [1:12] 0 0 0 0 0 0 0 0 0 0 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ D_ext               : num [1:12] 0 0 0 0 0 0 0 0 0 0 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ given_species_params   :'data.frame':	12 obs. of  24 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ species             : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ w_max               : num [1:12] 33 36 100 334 324 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ w_mat               : int [1:12] 13 4 23 99 21 75 78 39 105 165 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ beta                : int [1:12] 51076 398849 22 280540 191 22 381 283 113 558 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ sigma               : num [1:12] 0.8 1.9 1.5 3.2 1.9 1.5 1.9 1.8 1.6 2.1 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ k_vb                : num [1:12] 0.681 1 0.849 0.606 0.536 0.323 0.284 0.266 0.122 0.271 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ R_max               : num [1:12] 7.38e+11 4.10e+11 1.05e+13 1.11e+12 1.12e+10 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ a                   : num [1:12] 0.007 0.001 0.009 0.002 0.01 0.006 0.008 0.004 0.007 0.005 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ b                   : num [1:12] 3.01 3.32 2.94 3.43 2.99 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ w_min               : num [1:12] 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ alpha               : num [1:12] 0.6 0.6 0.6 0.6 0.6 0.6 0.6 0.6 0.6 0.6 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ interaction_resource: num [1:12] 1 1 1 1 1 1 1 1 1 1 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ n                   : num [1:12] 0.667 0.667 0.667 0.667 0.667 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ p                   : num [1:12] 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ q                   : num [1:12] 0.717 0.717 0.717 0.717 0.717 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ pred_kernel_type    : chr [1:12] "lognormal" "lognormal" "lognormal" "lognormal" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ h                   : num [1:12] 14.5 25.6 31.2 28.4 34.9 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ k                   : num [1:12] 0 0 0 0 0 0 0 0 0 0 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ ks                  : num [1:12] 1.59 2.94 3.37 2.92 3.78 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ z0                  : num [1:12] 0.1871 0.1817 0.1293 0.0865 0.0874 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ gamma               : num [1:12] 6.20e-11 4.16e-11 1.07e-10 2.76e-11 8.31e-11 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ w_mat25             : num [1:12] 11.65 3.58 20.61 88.7 18.82 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ m                   : num [1:12] 1 1 1 1 1 1 1 1 1 1 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ erepro              : num [1:12] 1 1 1 1 1 1 1 1 1 1 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ interaction            : num [1:12, 1:12] 0.7291 0.0341 0.0635 0.2742 0.3624 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ predator: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ prey    : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ gear_params            :'data.frame':	12 obs. of  6 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ species     : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ gear        : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ sel_func    : chr [1:12] "sigmoid_length" "sigmoid_length" "sigmoid_length" "sigmoid_length" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ l25         : num [1:12] 7.6 9.8 8.7 10.1 11.5 19.8 16.4 19.8 11.5 19.1 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ l50         : num [1:12] 8.1 11.8 12.2 20.8 17 29 25.8 29 17 24.3 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ catchability: num [1:12] 1.24 0.886 1.24 0.573 0.124 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ selectivity            : num [1:12, 1:12, 1:100] 5.9e-08 0.0 0.0 0.0 0.0 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ gear: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp  : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ w   : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ catchability           : num [1:12, 1:12] 1.24 0 0 0 0 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "dimnames")=List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ gear: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ sp  : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ initial_effort         : Named num [1:12] 0 0 0 1.808 0.758 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "names")= chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ A                      : num [1:12] 1 1 1 1 1 1 1 1 1 1 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ linecolour             : Named chr [1:17] "#815f00" "#6237e2" "#8da600" "#de53ff" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "names")= chr [1:17] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ linetype               : Named chr [1:17] "solid" "solid" "solid" "solid" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "names")= chr [1:17] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ ft_mask                : logi [1:12, 1:218] TRUE TRUE TRUE TRUE TRUE TRUE ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..@ use_predation_diffusion: logi FALSE</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># This could also be obtained using `N()` and `idxFinalT()`</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="N.html">N</a></span><span class="op">(</span><span class="va">NS_sim</span><span class="op">)</span><span class="op">[</span><span class="fu">idxFinalT</span><span class="op">(</span><span class="va">NS_sim</span><span class="op">)</span>, , <span class="op">]</span>, <span class="fu">finalN</span><span class="op">(</span><span class="va">NS_sim</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="fu">finalNResource</span><span class="op">(</span><span class="va">NS_sim</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="str.html">str</a></span><span class="op">(</span><span class="fu">finalNResource</span><span class="op">(</span><span class="va">NS_sim</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Named num [1:218] 4.88e+35 3.40e+35 2.36e+35 1.64e+35 1.14e+35 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "names")= chr [1:218] "8.73e-13" "1.04e-12" "1.24e-12" "1.48e-12" ...</span>
 <span class="r-in"><span><span class="va">idx</span> <span class="op">&lt;-</span> <span class="fu">idxFinalT</span><span class="op">(</span><span class="va">NS_sim</span><span class="op">)</span></span></span>

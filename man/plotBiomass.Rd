@@ -6,17 +6,30 @@
 \alias{plotlyBiomass}
 \title{Plot the biomass of species through time}
 \usage{
-plotBiomass(object, ...)
+plotBiomass(
+  object,
+  species = NULL,
+  tlim = c(NA, NA),
+  y_ticks = 6,
+  ylim = c(NA, NA),
+  total = FALSE,
+  background = TRUE,
+  highlight = NULL,
+  log = NULL,
+  return_data = FALSE,
+  log_x = FALSE,
+  log_y = TRUE,
+  use_cutoff = FALSE,
+  ...
+)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim}}
 
-\item{...}{Unused}
-
 \item{species}{The species to be selected. Optional. By default all target
-species are selected. A vector of species names, or a
-numeric vector with the species indices, or a logical vector indicating for
-each species whether it is to be selected (TRUE) or not.}
+species are selected. A vector of species names, or a numeric vector with
+the species indices, or a logical vector indicating for each species
+whether it is to be selected (TRUE) or not.}
 
 \item{tlim}{A numeric vector of length two providing lower and upper limits
 for the time axis, e.g. \code{c(1980, 2000)}. Use \code{NA} to apply no limit at
@@ -53,17 +66,18 @@ used for the plot is returned instead of the plot itself. Default is FALSE.}
 \item{use_cutoff}{If TRUE, the \code{biomass_cutoff} column in the species
 parameters is used as the minimum weight for each species.}
 
-\item{min_w}{Smallest weight in size range. Defaults to smallest weight in
-the model.}
-
-\item{max_w}{Largest weight in size range. Defaults to largest weight in the
-model.}
-
-\item{min_l}{Smallest length in size range. If supplied, this takes
+\item{...}{Arguments setting the size range over which the biomass is
+calculated (see \code{\link[=getBiomass]{getBiomass()}}):
+\describe{
+\item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight
+in the model.}
+\item{\code{max_w}}{Largest weight in size range. Defaults to largest weight
+in the model.}
+\item{\code{min_l}}{Smallest length in size range. If supplied, this takes
 precedence over \code{min_w}.}
-
-\item{max_l}{Largest length in size range. If supplied, this takes precedence
-over \code{max_w}.}
+\item{\code{max_l}}{Largest length in size range. If supplied, this takes
+precedence over \code{max_w}.}
+}}
 }
 \value{
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
@@ -93,7 +107,9 @@ Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
 \code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
 \code{\link{plot}},
+\code{\link[=plot2]{plot2()}},
 \code{\link[=plotCDF]{plotCDF()}},
+\code{\link[=plotCDF2]{plotCDF2()}},
 \code{\link[=plotDiet]{plotDiet()}},
 \code{\link[=plotFMort]{plotFMort()}},
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}},
@@ -101,7 +117,10 @@ Other plotting functions:
 \code{\link{plotMizerParams}},
 \code{\link{plotMizerSim}},
 \code{\link[=plotPredMort]{plotPredMort()}},
+\code{\link[=plotRelative]{plotRelative()}},
 \code{\link[=plotSpectra]{plotSpectra()}},
+\code{\link[=plotSpectra2]{plotSpectra2()}},
+\code{\link[=plotSpectraRelative]{plotSpectraRelative()}},
 \code{\link[=plotYield]{plotYield()}},
 \code{\link[=plotYieldGear]{plotYieldGear()}},
 \code{\link{plotting_functions}}

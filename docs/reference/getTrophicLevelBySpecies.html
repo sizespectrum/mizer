@@ -33,7 +33,7 @@ from getTrophicLevel()."><meta property="og:image" content="https://sizespectrum
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.4.9127</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -125,17 +125,23 @@ from <code><a href="getTrophicLevel.html">getTrophicLevel()</a></code>.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
-<dd><p>A matrix of species abundances (species x size).</p></dd>
+<dl><dt id="arg-params">params<a class="anchor" aria-label="anchor" href="#arg-params"></a></dt>
+<dd><p>A <a href="MizerParams-class.html">MizerParams</a> object.</p></dd>
+
+
+<dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
+<dd><p>A matrix of species abundances (species x size). Defaults to
+the initial abundances stored in <code>params</code>.</p></dd>
 
 
 <dt id="arg-n-pp">n_pp<a class="anchor" aria-label="anchor" href="#arg-n-pp"></a></dt>
-<dd><p>A vector of the resource abundance by size</p></dd>
+<dd><p>A vector of the resource abundance by size. Defaults to the
+initial resource abundance stored in <code>params</code>.</p></dd>
 
 
 <dt id="arg-n-other">n_other<a class="anchor" aria-label="anchor" href="#arg-n-other"></a></dt>
-<dd><p>A list of abundances for other dynamical components of the
-ecosystem</p></dd>
+<dd><p>A named list of the abundances of other dynamical
+components. Defaults to the initial values stored in <code>params</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

@@ -34,3 +34,6 @@ species_params(params)$species
 params <- removeSpecies(params, c("Cod", "Haddock"))
 species_params(params)$species
 }
+\seealso{
+\code{\link[=addSpecies]{addSpecies()}}, \code{\link[=renameSpecies]{renameSpecies()}}
+}

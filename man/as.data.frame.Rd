@@ -6,21 +6,17 @@
 \alias{as.data.frame.ArrayTimeBySpecies}
 \alias{as.data.frame.ArrayTimeBySpeciesBySize}
 \title{Convert mizer arrays to data frames}
-\usage{
-\method{as.data.frame}{ArraySpeciesBySize}(x, row.names = NULL,
-    optional = FALSE, ...)
-\method{as.data.frame}{ArrayTimeBySpecies}(x, row.names = NULL,
-    optional = FALSE, ...)
-\method{as.data.frame}{ArrayTimeBySpeciesBySize}(x, row.names = NULL,
-    optional = FALSE, ...)
-}
 \arguments{
 \item{x}{An \code{ArraySpeciesBySize}, \code{ArrayTimeBySpecies} or
 \code{ArrayTimeBySpeciesBySize} object.}
 
-\item{row.names}{Passed for compatibility with the base generic. Ignored.}
+\item{row.names}{Optional and included only for compatibility with the base
+generic. \code{NULL} or a character vector giving the row names for the
+data frame.}
 
-\item{optional}{Passed for compatibility with the base generic. Ignored.}
+\item{optional}{Optional and included only for compatibility with the base
+generic. A logical value. If \code{TRUE}, setting row names and converting
+column names (to syntactic names) is optional.}
 
 \item{...}{Further arguments. They are currently ignored by the mizer
 methods.}

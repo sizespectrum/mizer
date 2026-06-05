@@ -4,13 +4,64 @@
 \alias{plotM2}
 \title{Alias for \code{plotPredMort()}}
 \usage{
-plotM2(object, ...)
+plotM2(
+  object,
+  species = NULL,
+  all.sizes = FALSE,
+  highlight = NULL,
+  wlim = c(NA, NA),
+  llim = c(NA, NA),
+  size_axis = c("w", "l"),
+  return_data = FALSE,
+  log_x = TRUE,
+  log_y = FALSE,
+  log = NULL,
+  ...
+)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or
 \linkS4class{MizerParams}.}
 
-\item{...}{.}
+\item{species}{The species to be selected. Optional. By default all target
+species are selected. A vector of species names, or a numeric vector with
+the species indices, or a logical vector indicating for each species
+whether it is to be selected (TRUE) or not.}
+
+\item{all.sizes}{If TRUE, then predation mortality is plotted also for sizes
+outside a species' size range. Default FALSE.}
+
+\item{highlight}{Name or vector of names of the species to be highlighted.}
+
+\item{wlim}{A numeric vector of length two providing lower and upper limits
+for the weight (x) axis. Use \code{NA} to auto-scale to the data range.}
+
+\item{llim}{A numeric vector of length two providing lower and upper limits
+for the length (x) axis when \code{size_axis = "l"}. Use \code{NA} to auto-scale to
+the data range.}
+
+\item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
+(\code{"l"}), using the allometric weight-length relationship.}
+
+\item{return_data}{A boolean value that determines whether the formatted data
+used for the plot is returned instead of the plot itself. Default is FALSE.}
+
+\item{log_x}{If \code{TRUE} (default), use a log10 x-axis.}
+
+\item{log_y}{If \code{TRUE}, use a log10 y-axis. Default is \code{FALSE}.}
+
+\item{log}{Character string specifying which axes should use log10 scales,
+in the same form as the base \code{\link[=plot]{plot()}} argument. For example, \code{"x"},
+\code{"y"}, \code{"xy"} or \code{""}. If supplied, this overrides \code{log_x} and \code{log_y}.}
+
+\item{...}{Further arguments used by only some of the methods:
+
+\strong{For \code{MizerSim} methods:}
+\describe{
+\item{\code{time_range}}{The time range (either a vector of values, a vector
+of min and max time, or a single value) to average the predation
+mortality over. Default is the final time step.}
+}}
 }
 \value{
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
@@ -40,15 +91,20 @@ Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
 \code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
 \code{\link{plot}},
+\code{\link[=plot2]{plot2()}},
 \code{\link[=plotBiomass]{plotBiomass()}},
 \code{\link[=plotCDF]{plotCDF()}},
+\code{\link[=plotCDF2]{plotCDF2()}},
 \code{\link[=plotDiet]{plotDiet()}},
 \code{\link[=plotFMort]{plotFMort()}},
 \code{\link[=plotFeedingLevel]{plotFeedingLevel()}},
 \code{\link[=plotGrowthCurves]{plotGrowthCurves()}},
 \code{\link{plotMizerParams}},
 \code{\link{plotMizerSim}},
+\code{\link[=plotRelative]{plotRelative()}},
 \code{\link[=plotSpectra]{plotSpectra()}},
+\code{\link[=plotSpectra2]{plotSpectra2()}},
+\code{\link[=plotSpectraRelative]{plotSpectraRelative()}},
 \code{\link[=plotYield]{plotYield()}},
 \code{\link[=plotYieldGear]{plotYieldGear()}},
 \code{\link{plotting_functions}}

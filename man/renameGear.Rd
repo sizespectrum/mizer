@@ -27,3 +27,6 @@ replace <- c(Industrial = "Trawl", Otter = "Beam_Trawl")
 params <- renameGear(NS_params, replace)
 gear_params(params)$gear
 }
+\seealso{
+\code{\link[=renameSpecies]{renameSpecies()}}
+}

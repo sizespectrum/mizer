@@ -95,5 +95,5 @@ params <- addSpecies(params, species_params)
 plotSpectra(params)
 }
 \seealso{
-\code{\link[=removeSpecies]{removeSpecies()}}
+\code{\link[=removeSpecies]{removeSpecies()}}, \code{\link[=renameSpecies]{renameSpecies()}}
 }

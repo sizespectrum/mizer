@@ -30,6 +30,6 @@ a data.frame that contains all the necessary information to be used by the
 assumed to be fished by a separate gear.
 }
 \examples{
-params <- MizerParams(NS_species_params)
+params <- newMultispeciesParams(NS_species_params)
 }
 \keyword{datasets}
