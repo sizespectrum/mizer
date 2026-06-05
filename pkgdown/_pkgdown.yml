@@ -177,6 +177,7 @@ reference:
   contents:
   - plotting_functions
   - plot
+  - plotHover
   - animate
   - plotSpectra
   - plotCDF

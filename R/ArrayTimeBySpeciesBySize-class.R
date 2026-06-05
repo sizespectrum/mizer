@@ -254,24 +254,14 @@ ArrayTimeBySpeciesBySize_slice <- function(x, time = NULL) {
                        units = units, params = params)
 }
 
-#' @rdname plot
-#' @usage NULL
-#' @exportS3Method plotly::ggplotly
+#' @rdname plotHover
 #' @examples
 #' \donttest{
-#' ggplotly(getFMort(NS_sim))
+#' plotHover(getFMort(NS_sim))
 #' }
-ggplotly.ArrayTimeBySpeciesBySize <- function(p = ggplot2::last_plot(),
-                                              width = NULL, height = NULL,
-                                              tooltip = "all",
-                                              dynamicTicks = FALSE,
-                                              layerData = 1,
-                                              originalData = TRUE,
-                                              source = "A", ...) {
-    plotly::ggplotly(plot(p, ...), width = width, height = height,
-                     tooltip = tooltip, dynamicTicks = dynamicTicks,
-                     layerData = layerData, originalData = originalData,
-                     source = source)
+#' @export
+plotHover.ArrayTimeBySpeciesBySize <- function(x, ...) {
+    plotHover(plot(x, ...), ...)
 }
 
 #' @rdname animate

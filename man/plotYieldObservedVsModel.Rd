@@ -52,7 +52,7 @@ yield observation is available. If TRUE, these species will be
 shown as if their observed yield was equal to the model yield.}
 
 \item{...}{For \code{\link[=plotlyYieldObservedVsModel]{plotlyYieldObservedVsModel()}}, additional arguments passed
-to \code{\link[=ggplotly]{ggplotly()}}. Otherwise unused.}
+to \code{\link[=plotHover]{plotHover()}}. Otherwise unused.}
 }
 \value{
 A ggplot2 object with the plot of model yield by species compared

@@ -132,7 +132,7 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #' Many mizer functions return values that depend on species and either size or
 #' time. `plot()` creates a ggplot2 figure with one line for each species
 #' showing the values against size or against time (depending on the type of
-#' output). `ggplotly()` creates an interactive version of the same figure.
+#' output). [plotHover()] creates an interactive version of the same figure.
 #'
 #' `plot2()` compares two compatible mizer array objects in a single ggplot.
 #' Colours identify species or groups, and linetype identifies which object
@@ -196,10 +196,11 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #'
 #'   `plot2()` and `plotRelative()` return a ggplot2 object.
 #'
-#'   `ggplotly()` returns a plotly object.
+#'   [plotHover()] returns a plotly object.
 #'
 #' @name plot
 #' @family plotting functions
+#' @usage \method{plot}{ArraySpeciesBySize}(x, ...)
 #' @export
 #' @examples
 #' \donttest{
@@ -464,10 +465,11 @@ addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
         plot_dat <- filter_plot_length_limits(plot_dat, llim)
     }
     x_var <- plot_size_x_var(size_axis)
-    check_addPlot_compatible(plot, x_var = x_var, y_var = "value",
+    y_var <- names(plot_dat)[2]
+    check_addPlot_compatible(plot, x_var = x_var, y_var = y_var,
                              units = attr(x, "units"))
 
-    mapping <- aes(x = .data[[x_var]], y = .data[["value"]],
+    mapping <- aes(x = .data[[x_var]], y = .data[[y_var]],
                    group = .data[["Species"]])
     if (is.null(colour)) {
         mapping$colour <- rlang::quo(.data[["Legend"]])
@@ -596,6 +598,7 @@ prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,
         }
     }
 
+    value_name <- attr(x, "value_name") %||% "value"
     sel <- all_species %in% species
     mat <- unclass(x)[sel, , drop = FALSE]
 
@@ -649,31 +652,19 @@ prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,
         plot_dat <- rbind(plot_dat, total_dat)
     }
 
+    names(plot_dat)[2] <- value_name
+
     plot_dat
 }
 
-#' @rdname plot
-#' @usage NULL
-#' @param p An `ArraySpeciesBySize`, `ArrayTimeBySpecies` or
-#'   `ArrayTimeBySpeciesBySize` object passed to `ggplotly()`.
-#' @param width,height,tooltip,dynamicTicks,layerData,originalData,source
-#'   Arguments passed to [plotly::ggplotly()].
+#' @rdname plotHover
 #' @examples
 #' \donttest{
-#' ggplotly(getEncounter(NS_params))
+#' plotHover(getEncounter(NS_params))
 #' }
-#' @exportS3Method plotly::ggplotly
-ggplotly.ArraySpeciesBySize <- function(p = ggplot2::last_plot(),
-                                        width = NULL, height = NULL,
-                                        tooltip = "all",
-                                        dynamicTicks = FALSE,
-                                        layerData = 1,
-                                        originalData = TRUE,
-                                        source = "A", ...) {
-    plotly::ggplotly(plot(p, ...), width = width, height = height,
-                     tooltip = tooltip, dynamicTicks = dynamicTicks,
-                     layerData = layerData, originalData = originalData,
-                     source = source)
+#' @export
+plotHover.ArraySpeciesBySize <- function(x, ...) {
+    plotHover(plot(x, ...), ...)
 }
 
 #' @export

@@ -104,9 +104,10 @@ individual variability in growth to be modelled.
   `ArraySpeciesBySize` object when a single time is selected, and an
   `ArrayTimeBySpecies` object when a single size is selected.
 
-- New `ggplotly()` methods for `ArraySpeciesBySize`, `ArrayTimeBySpecies`, and
-  `ArrayTimeBySpeciesBySize` convert the `ggplot2` output of `plot()` into
-  interactive plotly figures.
+- New `plotHover()` generic with methods for `ArraySpeciesBySize`,
+  `ArrayTimeBySpecies`, `ArrayTimeBySpeciesBySize`, and `mizer_plot` converts
+  mizer plots into hover-enabled plotly figures. Replaces the former approach of
+  registering methods for `plotly::ggplotly()`.
 
 - The `animate()` methods for `MizerSim` and `ArrayTimeBySpeciesBySize` now
   support axis range settings (`xlim`, `ylim`), timing controls, interpolation

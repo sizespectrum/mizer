@@ -75,7 +75,7 @@ test_that("plot.ArrayTimeBySpecies supports base plot log argument", {
     expect_identical(p_none$scales$get_scales("x")$trans$name, "identity")
     expect_identical(p_none$scales$get_scales("y")$trans$name, "identity")
 
-    expect_error(plot(bio, log = TRUE), "`log` must be a character string")
+    expect_error(plot(bio, log = 1), "must be a single logical value or a character string")
 })
 
 test_that("plot2.ArrayTimeBySpecies compares compatible arrays", {
@@ -164,7 +164,7 @@ test_that("addPlot.ArrayTimeBySpecies adds lines to an existing ggplot", {
 test_that("ArrayTimeBySpecies has interactive plotly methods", {
     bio <- getBiomass(NS_sim)
 
-    expect_s3_class(ggplotly(bio), "plotly")
+    expect_s3_class(plotHover(bio), "plotly")
 })
 
 test_that("plot.ArrayTimeBySpecies time filtering works", {

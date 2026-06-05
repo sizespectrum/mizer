@@ -358,24 +358,14 @@ prepare_ArrayTimeBySpecies_plot_data <- function(x, species = NULL,
     plot_dat
 }
 
-#' @rdname plot
-#' @usage NULL
-#' @exportS3Method plotly::ggplotly
+#' @rdname plotHover
 #' @examples
 #' \donttest{
-#' ggplotly(getBiomass(NS_sim))
+#' plotHover(getBiomass(NS_sim))
 #' }
-ggplotly.ArrayTimeBySpecies <- function(p = ggplot2::last_plot(),
-                                        width = NULL, height = NULL,
-                                        tooltip = "all",
-                                        dynamicTicks = FALSE,
-                                        layerData = 1,
-                                        originalData = TRUE,
-                                        source = "A", ...) {
-    plotly::ggplotly(plot(p, ...), width = width, height = height,
-                     tooltip = tooltip, dynamicTicks = dynamicTicks,
-                     layerData = layerData, originalData = originalData,
-                     source = source)
+#' @export
+plotHover.ArrayTimeBySpecies <- function(x, ...) {
+    plotHover(plot(x, ...), ...)
 }
 
 #' @export

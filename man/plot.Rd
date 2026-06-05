@@ -8,18 +8,17 @@
 \alias{plot2.ArraySpeciesBySize}
 \alias{plotRelative}
 \alias{plotRelative.ArraySpeciesBySize}
-\alias{ggplotly.ArraySpeciesBySize}
 \alias{plot.ArrayTimeBySpecies}
 \alias{plot2.ArrayTimeBySpecies}
 \alias{plotRelative.ArrayTimeBySpecies}
-\alias{ggplotly.ArrayTimeBySpecies}
 \alias{plot.ArrayTimeBySpeciesBySize}
 \alias{plot2.ArrayTimeBySpeciesBySize}
 \alias{plotRelative.ArrayTimeBySpeciesBySize}
-\alias{ggplotly.ArrayTimeBySpeciesBySize}
 \title{Plot, compare or show relative difference of mizer arrays}
 \usage{
 plot(x, ...)
+
+\method{plot}{ArraySpeciesBySize}(x, ...)
 
 plot2(x, y, ...)
 
@@ -82,16 +81,9 @@ compatible with \code{x}.}
 \item{name1, name2}{Labels for the two objects, used in the linetype legend
 of \code{plot2()}.}
 
-\item{p}{An \code{ArraySpeciesBySize}, \code{ArrayTimeBySpecies} or
-\code{ArrayTimeBySpeciesBySize} object passed to \code{ggplotly()}.}
-
-\item{width, height, tooltip, dynamicTicks, layerData, originalData, source}{Arguments passed to \code{\link[plotly:ggplotly]{plotly::ggplotly()}}.}
-
-\item{start_time}{The first time to be plotted. Default (\code{NULL}) is the
-beginning of the time series. Only applies to \code{ArrayTimeBySpecies}.}
-
-\item{end_time}{The last time to be plotted. Default (\code{NULL}) is the end of
-the time series. Only applies to \code{ArrayTimeBySpecies}.}
+\item{tlim}{A numeric vector of length two providing lower and upper limits
+for the time axis, e.g. \code{c(1980, 2000)}. Use \code{NA} to apply no limit at
+that end. Default is \code{c(NA, NA)}. Only applies to \code{ArrayTimeBySpecies}.}
 
 \item{time}{The time to display. Default (\code{NULL}) is the final time step.
 Only applies to \code{ArrayTimeBySpeciesBySize}.}
@@ -102,13 +94,13 @@ which case a data frame is returned.
 
 \code{plot2()} and \code{plotRelative()} return a ggplot2 object.
 
-\code{ggplotly()} returns a plotly object.
+\code{\link[=plotHover]{plotHover()}} returns a plotly object.
 }
 \description{
 Many mizer functions return values that depend on species and either size or
 time. \code{plot()} creates a ggplot2 figure with one line for each species
 showing the values against size or against time (depending on the type of
-output). \code{ggplotly()} creates an interactive version of the same figure.
+output). \code{\link[=plotHover]{plotHover()}} creates an interactive version of the same figure.
 }
 \details{
 \code{plot2()} compares two compatible mizer array objects in a single ggplot.
@@ -136,21 +128,12 @@ plot(getPredMort(NS_params), species = c("Cod", "Herring"),
      size_axis = "l")
 }
 \donttest{
-ggplotly(getEncounter(NS_params))
-}
-\donttest{
 plot(getBiomass(NS_sim))
 plot(getBiomass(NS_sim), species = c("Cod", "Herring"), total = TRUE)
 plot(getYield(NS_sim), species = c("Cod", "Herring"))
 }
 \donttest{
-ggplotly(getBiomass(NS_sim))
-}
-\donttest{
 plot(getFMort(NS_sim), time = 2010)
-}
-\donttest{
-ggplotly(getFMort(NS_sim))
 }
 }
 \seealso{

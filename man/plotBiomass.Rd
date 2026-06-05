@@ -18,11 +18,9 @@ species are selected. A vector of species names, or a
 numeric vector with the species indices, or a logical vector indicating for
 each species whether it is to be selected (TRUE) or not.}
 
-\item{start_time}{The first time to be plotted. Default (\code{NULL}) is the
-beginning of the time series.}
-
-\item{end_time}{The last time to be plotted. Default (\code{NULL}) is the end of
-the time series.}
+\item{tlim}{A numeric vector of length two providing lower and upper limits
+for the time axis, e.g. \code{c(1980, 2000)}. Use \code{NA} to apply no limit at
+that end. Default is \code{c(NA, NA)}.}
 
 \item{y_ticks}{The approximate number of ticks desired on the y axis.}
 
@@ -39,10 +37,18 @@ Default is TRUE.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 
-\item{log}{If \code{TRUE} (default), use a log10 y-axis.}
+\item{log}{Character string specifying which axes should use log10 scales,
+in the same form as the base \code{\link[=plot]{plot()}} argument. For example, \code{"x"},
+\code{"y"}, \code{"xy"} or \code{""}. If supplied, this overrides \code{log_x} and \code{log_y}.
+For backward compatibility, \code{TRUE} and \code{FALSE} are interpreted as setting
+only \code{log_y}.}
 
 \item{return_data}{A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default is FALSE.}
+
+\item{log_x}{If \code{TRUE}, use a log10 x-axis. Default is \code{FALSE}.}
+
+\item{log_y}{If \code{TRUE}, use a log10 y-axis. Default is \code{TRUE}.}
 
 \item{use_cutoff}{If TRUE, the \code{biomass_cutoff} column in the species
 parameters is used as the minimum weight for each species.}
@@ -73,7 +79,7 @@ against time. The biomass is calculated within user defined size limits
 \donttest{
 plotBiomass(NS_sim)
 plotBiomass(NS_sim, species = c("Sandeel", "Herring"), total = TRUE)
-plotBiomass(NS_sim, start_time = 1980, end_time = 1990)
+plotBiomass(NS_sim, tlim = c(1980, 1990))
 
 # Returning the data frame
 fr <- plotBiomass(NS_sim, return_data = TRUE)

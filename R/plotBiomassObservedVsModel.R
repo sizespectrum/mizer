@@ -42,7 +42,7 @@
 #' @param return_data Whether to return the data frame for the plot (TRUE) or
 #'   not (FALSE). Default is FALSE.
 #' @param ... For [plotlyBiomassObservedVsModel()], additional arguments passed
-#'   to [ggplotly()]. Otherwise unused.
+#'   to [plotHover()]. Otherwise unused.
 #' 
 #' @return A ggplot2 object with the plot of model biomass by species compared
 #'   to observed biomass. If `return_data = TRUE`, the data frame used to
@@ -187,7 +187,7 @@ plotBiomassObservedVsModel.MizerParams <- function(object, species = NULL, ratio
             max.overlaps = Inf,
             seed = 42)
     }
-    gg
+    make_mizer_plot(gg, "all")
 }
 #' @export
 plotBiomassObservedVsModel.MizerSim <- function(object, species = NULL, ratio = FALSE,
@@ -206,5 +206,5 @@ plotlyBiomassObservedVsModel <- function(object, species = NULL, ratio = FALSE,
                                          show_unobserved = FALSE, ...) {
     argg <- as.list(environment())
     argg$labels <- FALSE
-    ggplotly(do.call("plotBiomassObservedVsModel", argg), ...)
+    plotHover(do.call("plotBiomassObservedVsModel", argg), ...)
 }

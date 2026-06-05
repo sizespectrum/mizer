@@ -4,7 +4,6 @@
 \name{reexports}
 \alias{reexports}
 \alias{melt}
-\alias{ggplotly}
 \title{Objects exported from other packages}
 \keyword{internal}
 \description{
@@ -12,8 +11,6 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{plotly}{\code{\link[plotly:ggplotly]{ggplotly()}}}
-
   \item{reshape2}{\code{\link[reshape2:melt]{melt()}}}
 }}
 

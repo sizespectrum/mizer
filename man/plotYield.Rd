@@ -11,7 +11,10 @@ plotYield(object, ...)
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim}}
 
-\item{...}{.}
+\item{...}{For \code{plotSpectra2()} and \code{plotSpectraRelative()}, additional
+arguments passed to \code{\link[=plotSpectra]{plotSpectra()}} for preparing the spectra data, for
+example \code{time_range} or \code{geometric_mean} for \code{MizerSim} objects.
+Otherwise unused.}
 
 \item{sim2}{An optional second object of class \linkS4class{MizerSim}. If
 this is provided its yields will be shown on the same plot in bolder lines.}
@@ -26,8 +29,15 @@ species in the system is plotted as well. Note that even if the plot
 only shows a selection of species, the total is including all species.
 Default is FALSE.}
 
-\item{log}{Boolean whether yield should be plotted on a logarithmic axis.
-Defaults to true.}
+\item{log_x}{If \code{TRUE}, use a log10 x-axis. Default is \code{FALSE}.}
+
+\item{log_y}{If \code{TRUE}, use a log10 y-axis. Default is \code{TRUE}.}
+
+\item{log}{Character string specifying which axes should use log10 scales,
+in the same form as the base \code{\link[=plot]{plot()}} argument. For example, \code{"x"},
+\code{"y"}, \code{"xy"} or \code{""}. If supplied, this overrides \code{log_x} and \code{log_y}.
+For backward compatibility, \code{TRUE} and \code{FALSE} are interpreted as setting
+only \code{log_y}.}
 
 \item{ylim}{A numeric vector of length two providing lower and upper limits
 for the y axis. Use NA to auto-scale to the data range. Values below 1e-20
@@ -35,6 +45,10 @@ are always filtered out from the data regardless of \code{ylim[1]}. Data above
 \code{ylim[2]} is filtered and the upper axis limit is set accordingly. For
 \code{plotSpectraRelative()}, the y axis is the relative difference and \code{NA}
 refers to the existing minimum or maximum.}
+
+\item{tlim}{A numeric vector of length two providing lower and upper limits
+for the time axis, e.g. \code{c(1980, 2000)}. Use \code{NA} to apply no limit at
+that end. Default is \code{c(NA, NA)}.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 
