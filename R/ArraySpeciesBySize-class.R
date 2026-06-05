@@ -147,21 +147,18 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #'
 #' @param x An `ArraySpeciesBySize`, `ArrayTimeBySpecies`, or
 #'   `ArrayTimeBySpeciesBySize` object.
-#' @param ... Additional arguments used by the individual methods:
+#' @param ...
+#'   **Arguments used by all methods:**
 #'   \describe{
 #'     \item{`species`}{Character vector of species to include. `NULL`
 #'       (default) means all species.}
-#'     \item{`time`}{The time to display. Default (`NULL`) is the final time
-#'       step. Only applies to `ArrayTimeBySpeciesBySize`.}
-#'     \item{`tlim`}{A numeric vector of length two providing lower and upper
-#'       limits for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no
-#'       limit at that end. Default is `c(NA, NA)`. Only applies to
-#'       `ArrayTimeBySpecies`.}
-#'     \item{`all.sizes`}{If `FALSE` (default), values outside a species' size
-#'       range (`w_min` to `w_max`) are removed. Only applies to
-#'       `ArraySpeciesBySize`.}
 #'     \item{`highlight`}{Name or vector of names of the species to be
 #'       highlighted.}
+#'     \item{`total`}{A boolean value that determines whether the total over
+#'       all selected species is plotted as well. Default is `FALSE`.}
+#'     \item{`background`}{A boolean value that determines whether background
+#'       species are included. Ignored if the model does not contain background
+#'       species. Default is `TRUE`.}
 #'     \item{`return_data`}{If `TRUE`, return the data frame instead of the
 #'       plot.}
 #'     \item{`log_x`}{If `TRUE`, use a log10 x-axis. Default is `TRUE` for size
@@ -172,24 +169,37 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #'       scales, in the same form as the base [plot()] argument. For example,
 #'       `"x"`, `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and
 #'       `log_y`.}
-#'     \item{`wlim`}{A numeric vector of length two providing lower and upper
-#'       limits for the weight (x) axis. Use `NA` to refer to the existing
-#'       minimum or maximum. Only applies to `ArraySpeciesBySize`.}
-#'     \item{`llim`}{A numeric vector of length two providing lower and upper
-#'       limits for the length (x) axis when `size_axis = "l"`. Use `NA` to
-#'       refer to the existing minimum or maximum. Only applies to
-#'       `ArraySpeciesBySize`.}
-#'     \item{`size_axis`}{Whether to plot size as weight (`"w"`, default) or
-#'       length (`"l"`), using the allometric weight-length relationship.}
 #'     \item{`ylim`}{A numeric vector of length two providing lower and upper
 #'       limits for the value (y) axis. Use `NA` to refer to the existing
 #'       minimum or maximum.}
-#'     \item{`total`}{A boolean value that determines whether the total over
-#'       all selected species is plotted as well. Default is `FALSE`.}
-#'     \item{`background`}{A boolean value that determines whether background
-#'       species are included. Ignored if the model does not contain background
-#'       species. Default is `TRUE`.}
 #'     \item{`y_ticks`}{The approximate number of ticks desired on the y axis.}
+#'   }
+#'
+#'   **For `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize` methods:**
+#'   \describe{
+#'     \item{`all.sizes`}{If `FALSE` (default), values outside a species' size
+#'       range (`w_min` to `w_max`) are removed.}
+#'     \item{`wlim`}{A numeric vector of length two providing lower and upper
+#'       limits for the weight (x) axis. Use `NA` to refer to the existing
+#'       minimum or maximum.}
+#'     \item{`llim`}{A numeric vector of length two providing lower and upper
+#'       limits for the length (x) axis when `size_axis = "l"`. Use `NA` to
+#'       refer to the existing minimum or maximum.}
+#'     \item{`size_axis`}{Whether to plot size as weight (`"w"`, default) or
+#'       length (`"l"`), using the allometric weight-length relationship.}
+#'   }
+#'
+#'   **For `ArrayTimeBySpecies` methods:**
+#'   \describe{
+#'     \item{`tlim`}{A numeric vector of length two providing lower and upper
+#'       limits for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no
+#'       limit at that end. Default is `c(NA, NA)`.}
+#'   }
+#'
+#'   **For `ArrayTimeBySpeciesBySize` methods:**
+#'   \describe{
+#'     \item{`time`}{The time to display. Default (`NULL`) is the final time
+#'       step.}
 #'   }
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
@@ -303,27 +313,32 @@ parsePlotLog <- function(log, log_x = FALSE, log_y = FALSE) {
 #'   Default is `TRUE`.
 #' @param y_ticks The approximate number of ticks desired on the y axis.
 #' @param ... Further arguments used by only some of the methods:
+#'
+#'   **For `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize` methods:**
 #'   \describe{
 #'     \item{`all.sizes`}{If `FALSE` (default), values outside a species' size
-#'       range (`w_min` to `w_max`) are removed. Only applies to
-#'       `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize`.}
+#'       range (`w_min` to `w_max`) are removed.}
 #'     \item{`wlim`}{A numeric vector of length two providing lower and upper
 #'       limits for the weight (x) axis. Use `NA` to refer to the existing
-#'       minimum or maximum. Only applies to `ArraySpeciesBySize` and
-#'       `ArrayTimeBySpeciesBySize`.}
+#'       minimum or maximum.}
 #'     \item{`llim`}{A numeric vector of length two providing lower and upper
 #'       limits for the length (x) axis when `size_axis = "l"`. Use `NA` to
-#'       refer to the existing minimum or maximum. Only applies to
-#'       `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize`.}
+#'       refer to the existing minimum or maximum.}
 #'     \item{`size_axis`}{Whether to plot size as weight (`"w"`, default) or
-#'       length (`"l"`), using the allometric weight-length relationship. Only
-#'       applies to `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize`.}
-#'     \item{`time`}{The time to display. Default (`NULL`) is the final time
-#'       step. Only applies to `ArrayTimeBySpeciesBySize`.}
+#'       length (`"l"`), using the allometric weight-length relationship.}
+#'   }
+#'
+#'   **For `ArrayTimeBySpecies` methods:**
+#'   \describe{
 #'     \item{`tlim`}{A numeric vector of length two providing lower and upper
 #'       limits for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no
-#'       limit at that end. Default is `c(NA, NA)`. Only applies to
-#'       `ArrayTimeBySpecies`.}
+#'       limit at that end. Default is `c(NA, NA)`.}
+#'   }
+#'
+#'   **For `ArrayTimeBySpeciesBySize` methods:**
+#'   \describe{
+#'     \item{`time`}{The time to display. Default (`NULL`) is the final time
+#'       step.}
 #'   }
 #'
 #' @return A ggplot2 object.
@@ -405,27 +420,32 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
 #'   are included. Ignored if the model does not contain background species.
 #'   Default is `TRUE`.
 #' @param ... Further arguments used by only some of the methods:
+#'
+#'   **For `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize` methods:**
 #'   \describe{
 #'     \item{`all.sizes`}{If `FALSE` (default), values outside a species' size
-#'       range (`w_min` to `w_max`) are removed. Only applies to
-#'       `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize`.}
+#'       range (`w_min` to `w_max`) are removed.}
 #'     \item{`wlim`}{A numeric vector of length two providing lower and upper
 #'       limits for the weight (x) axis. Use `NA` to refer to the existing
-#'       minimum or maximum. Only applies to `ArraySpeciesBySize` and
-#'       `ArrayTimeBySpeciesBySize`.}
+#'       minimum or maximum.}
 #'     \item{`llim`}{A numeric vector of length two providing lower and upper
 #'       limits for the length (x) axis when `size_axis = "l"`. Use `NA` to
-#'       refer to the existing minimum or maximum. Only applies to
-#'       `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize`.}
+#'       refer to the existing minimum or maximum.}
 #'     \item{`size_axis`}{Whether to plot size as weight (`"w"`, default) or
-#'       length (`"l"`), using the allometric weight-length relationship. Only
-#'       applies to `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize`.}
-#'     \item{`time`}{The time to display. Default (`NULL`) is the final time
-#'       step. Only applies to `ArrayTimeBySpeciesBySize`.}
+#'       length (`"l"`), using the allometric weight-length relationship.}
+#'   }
+#'
+#'   **For `ArrayTimeBySpecies` methods:**
+#'   \describe{
 #'     \item{`tlim`}{A numeric vector of length two providing lower and upper
 #'       limits for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no
-#'       limit at that end. Default is `c(NA, NA)`. Only applies to
-#'       `ArrayTimeBySpecies`.}
+#'       limit at that end. Default is `c(NA, NA)`.}
+#'   }
+#'
+#'   **For `ArrayTimeBySpeciesBySize` methods:**
+#'   \describe{
+#'     \item{`time`}{The time to display. Default (`NULL`) is the final time
+#'       step.}
 #'   }
 #'
 #' @return A ggplot2 object.
@@ -434,7 +454,10 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
 #' @export
 #' @examples
 #' \donttest{
-#' plotRelative(getEncounter(NS_params), getEncounter(NS_params))
+#' params <- NS_params
+#' given_species_params(params)["Cod", "w_mat"] <- 1200
+#' plotRelative(getEGrowth(NS_params), getEGrowth(params),
+#'              wlim = c(500, 2000), log_x = FALSE, species = "Cod")
 #' }
 plotRelative <- function(x, y, species = NULL, log_x,
                          ylim = c(NA, NA), total = FALSE,
@@ -509,7 +532,7 @@ array_y_label <- function(x, default = "Value") {
     value_name
 }
 
-#' Add values to an existing plot
+#' Add lines to an existing plot
 #'
 #' `r lifecycle::badge("experimental")`
 #' `addPlot()` adds another set of values to an existing ggplot. The first
@@ -534,26 +557,28 @@ array_y_label <- function(x, default = "Value") {
 #' @param linewidth Width of the added lines.
 #' @param alpha Transparency of the added lines.
 #' @param ... Further arguments used by only some of the methods:
+#'
+#'   **For `ArraySpeciesBySize` methods:**
 #'   \describe{
 #'     \item{`all.sizes`}{If `FALSE` (default), values outside a species' size
-#'       range (`w_min` to `w_max`) are removed. Only applies to
-#'       `ArraySpeciesBySize`.}
+#'       range (`w_min` to `w_max`) are removed.}
 #'     \item{`wlim`}{A numeric vector of length two providing lower and upper
 #'       limits for the weight (x) axis. Use `NA` to refer to the existing
-#'       minimum or maximum. Only applies to `ArraySpeciesBySize`.}
+#'       minimum or maximum.}
 #'     \item{`llim`}{A numeric vector of length two providing lower and upper
 #'       limits for the length (x) axis when `size_axis = "l"`. Use `NA` to
-#'       refer to the existing minimum or maximum. Only applies to
-#'       `ArraySpeciesBySize`.}
+#'       refer to the existing minimum or maximum.}
 #'     \item{`size_axis`}{Whether to plot size as weight (`"w"`, default) or
-#'       length (`"l"`), using the allometric weight-length relationship. Only
-#'       applies to `ArraySpeciesBySize`.}
+#'       length (`"l"`), using the allometric weight-length relationship.}
+#'   }
+#'
+#'   **For `ArrayTimeBySpecies` methods:**
+#'   \describe{
 #'     \item{`tlim`}{A numeric vector of length two providing lower and upper
 #'       limits for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no
-#'       limit at that end. Default is `c(NA, NA)`. Only applies to
-#'       `ArrayTimeBySpecies`.}
+#'       limit at that end. Default is `c(NA, NA)`.}
 #'     \item{`ylim`}{A numeric vector of length two providing lower and upper
-#'       limits for the value (y) axis. Only applies to `ArrayTimeBySpecies`.}
+#'       limits for the value (y) axis.}
 #'   }
 #'
 #' @return A ggplot2 object.

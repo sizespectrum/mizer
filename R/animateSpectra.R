@@ -67,15 +67,16 @@
 #'   `"bounce"`, and each of those with suffix `"-in"`, `"-out"`, or
 #'   `"-in-out"` appended, for example `"cubic-in-out"`.
 #' @param ... Further arguments used by only some of the methods:
+#'
+#'   **For `MizerSim` methods:**
 #'   \describe{
 #'     \item{`power`}{The abundance is plotted as the number density times the
 #'       weight raised to \code{power}. The default \code{power = 1} gives the
 #'       biomass density, whereas \code{power = 2} gives the biomass density
-#'       with respect to logarithmic size bins. Only applies to `MizerSim`.}
+#'       with respect to logarithmic size bins.}
 #'     \item{`resource`}{A boolean value that determines whether resource is
 #'       included. If `TRUE`, the resource spectrum is plotted as an additional
-#'       trace called `"Resource"`. Default is `TRUE`. Only applies to
-#'       `MizerSim`.}
+#'       trace called `"Resource"`. Default is `TRUE`.}
 #'   }
 #'
 #' @return A plotly object with one animated line trace per plotted group. Use

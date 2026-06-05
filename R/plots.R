@@ -1053,16 +1053,14 @@ plotlyYieldGear <- function(object, species = NULL,
 #' @param return_data A boolean value that determines whether the formatted data
 #' used for the plot is returned instead of the plot itself. Default value is FALSE
 #' @param ... Further arguments used by only some of the methods:
-#'   \describe{
-#'     \item{`time_range`}{The time range (either a vector of values, a vector
-#'       of min and max time, or a single value) to average the abundances
-#'       over. Default is the final time step. Only applies when called with a
-#'       \linkS4class{MizerSim} object.}
-#'     \item{`geometric_mean`}{`r lifecycle::badge("experimental")` If `TRUE`
-#'       then the average of the abundances over the time range is a geometric
-#'       mean instead of the default arithmetic mean. Only applies when called
-#'       with a \linkS4class{MizerSim} object.}
-#'   }
+#'
+#'   **For `MizerSim` methods:**
+#'   * `time_range`: The time range (either a vector of values, a vector
+#'     of min and max time, or a single value) to average the abundances
+#'     over. Default is the final time step.
+#'   * `geometric_mean`: `r lifecycle::badge("experimental")` If `TRUE`
+#'     then the average of the abundances over the time range is a geometric
+#'     mean instead of the default arithmetic mean.
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the four variables 'w' (or 'l' if `size_axis = "l"`), 'value',
@@ -1348,16 +1346,14 @@ plot_spectra <- function(params, n, n_pp,
 #' @param return_data A boolean value that determines whether the formatted data
 #'   used for the plot is returned instead of the plot itself. Default is FALSE.
 #' @param ... Further arguments used by only some of the methods:
-#'   \describe{
-#'     \item{`time_range`}{The time range (either a vector of values, a vector
-#'       of min and max time, or a single value) to average the abundances
-#'       over. Default is the final time step. Only applies when called with a
-#'       \linkS4class{MizerSim} object.}
-#'     \item{`geometric_mean`}{`r lifecycle::badge("experimental")` If `TRUE`
-#'       then the average of the abundances over the time range is a geometric
-#'       mean instead of the default arithmetic mean. Only applies when called
-#'       with a \linkS4class{MizerSim} object.}
-#'   }
+#'
+#'   **For `MizerSim` methods:**
+#'   * `time_range`: The time range (either a vector of values, a vector
+#'     of min and max time, or a single value) to average the abundances
+#'     over. Default is the final time step.
+#'   * `geometric_mean`: `r lifecycle::badge("experimental")` If `TRUE`
+#'     then the average of the abundances over the time range is a geometric
+#'     mean instead of the default arithmetic mean.
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the four variables 'w' (or 'l' if `size_axis = "l"`), 'value',
@@ -1928,11 +1924,12 @@ plotlySpectra <- function(object, species = NULL,
 #'   in the same form as the base [plot()] argument. For example, `"x"`,
 #'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
 #' @param ... Further arguments used by only some of the methods:
+#'
+#'   **For `MizerSim` methods:**
 #'   \describe{
 #'     \item{`time_range`}{The time range (either a vector of values, a vector
 #'       of min and max time, or a single value) to average the feeding level
-#'       over. Default is the final time step. Only applies when called with a
-#'       \linkS4class{MizerSim} object.}
+#'       over. Default is the final time step.}
 #'   }
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
@@ -2230,11 +2227,12 @@ plotlyFeedingLevel <- function(object,
 #'   in the same form as the base [plot()] argument. For example, `"x"`,
 #'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
 #' @param ... Further arguments used by only some of the methods:
+#'
+#'   **For `MizerSim` methods:**
 #'   \describe{
 #'     \item{`time_range`}{The time range (either a vector of values, a vector
 #'       of min and max time, or a single value) to average the predation
-#'       mortality over. Default is the final time step. Only applies when
-#'       called with a \linkS4class{MizerSim} object.}
+#'       mortality over. Default is the final time step.}
 #'   }
 #'
 #' @return  A ggplot2 object, unless `return_data = TRUE`, in which case a data
@@ -2367,11 +2365,12 @@ plotlyPredMort <- function(object, species = NULL,
 #'   in the same form as the base [plot()] argument. For example, `"x"`,
 #'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
 #' @param ... Further arguments used by only some of the methods:
+#'
+#'   **For `MizerSim` methods:**
 #'   \describe{
 #'     \item{`time_range`}{The time range (either a vector of values, a vector
 #'       of min and max time, or a single value) to average the fishing
-#'       mortality over. Default is the final time step. Only applies when
-#'       called with a \linkS4class{MizerSim} object.}
+#'       mortality over. Default is the final time step.}
 #'   }
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the three variables 'w' (or 'l' if `size_axis = "l"`), 'value',
@@ -2925,12 +2924,12 @@ plotlyDiet <- function(object, species = NULL,
 #' After running a projection, produces 5 plots in the same window: feeding
 #' level, abundance spectra, predation mortality and fishing mortality of each
 #' species by size; and biomass of each species through time. This method just
-#' uses the other plotting functions and puts them all in one window.
+#' puts the plots generated by [plotBiomass()], [plotFeedingLevel()],
+#' [plotSpectra()], [plotPredMort()] and [plotFMort()] all in one window.
 #'
 #' @param x An object of class \linkS4class{MizerSim}
-#' @param ...  For additional arguments see the documentation for
-#'   [plotBiomass()],
-#'   [plotFeedingLevel()],[plotSpectra()],[plotPredMort()]
+#' @param ...  Arguments passed on to the individual plotting functions
+#'   [plotBiomass()], [plotFeedingLevel()], [plotSpectra()], [plotPredMort()]
 #'   and [plotFMort()].
 #' @return A viewport object
 #' @export
@@ -2969,11 +2968,12 @@ plot.MizerSim <- function(x, ...) {
 #' Summary plot for `MizerParams` objects
 #'
 #' Produces 3 plots in the same window: abundance spectra, feeding
-#' level and predation mortality of each species through time. This method just
-#' uses the other plotting functions and puts them all in one window.
+#' level and predation mortality of each species against size. This method just
+#' puts the plots generated by [plotFeedingLevel()], [plotPredMort()] and
+#' [plotSpectra()] all in one window.
 #'
 #' @param x An object of class \linkS4class{MizerParams}
-#' @param ...  For additional arguments see the documentation for
+#' @param ...  Arguments passed on to the individual plotting functions
 #'   [plotFeedingLevel()],[plotSpectra()],[plotPredMort()]
 #' @return A viewport object
 #' @export

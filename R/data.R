@@ -21,7 +21,7 @@
 #' @docType data
 #' @name NS_species_params
 #' @examples
-#' params <- MizerParams(NS_species_params)
+#' params <- newMultispeciesParams(NS_species_params)
 "NS_species_params"
 
 # NS_species_params_gears ----
@@ -60,8 +60,8 @@
 #' @docType data
 #' @name NS_interaction
 #' @examples
-#' params <- MizerParams(NS_species_params_gears,
-#'                       interaction = NS_interaction)
+#' params <- newMultispeciesParams(NS_species_params_gears,
+#'                                 interaction = NS_interaction)
 "NS_interaction"
 
 #' Alias for `NS_interaction`

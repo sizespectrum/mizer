@@ -369,7 +369,7 @@ catchability.MizerParams <- function(params) {
 }
 
 #' @rdname setFishing
-#' @param value .
+#' @param value The array to assign
 #' @export
 `catchability<-` <- function(params, value) {
     UseMethod("catchability<-")
@@ -653,12 +653,15 @@ validGearParams <- function(gear_params, species_params) {
 }
 
 #' Make a valid effort vector
+#' 
+#' @inherit initial_effort details
 #'
 #' @param effort A vector or scalar with the initial fishing effort, see Details
 #'   below.
 #'
+#' @concept helper
+#' @seealso [initial_effort()]
 #' @export
-#' @rdname initial_effort
 validEffortVector <- function(effort, params) {
     assert_that(is.null(effort) || is.numeric(effort))
     gear_names <- dimnames(params@catchability)[[1]]

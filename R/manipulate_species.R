@@ -67,7 +67,7 @@
 #' )
 #' params <- addSpecies(params, species_params)
 #' plotSpectra(params)
-#' @seealso [removeSpecies()]
+#' @seealso [removeSpecies()], [renameSpecies()]
 #' @export
 #' @rdname addSpecies
 addSpecies <- function(params, species_params,
@@ -376,6 +376,7 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
 #' @param ... Currently unused.
 #'
 #' @return An object of type \linkS4class{MizerParams}
+#' @seealso [addSpecies()], [renameSpecies()]
 #' @export
 #' @rdname removeSpecies
 #' @examples
@@ -464,6 +465,7 @@ removeSpecies.MizerParams <- function(params, species, ...) {
 #' @param ... Currently unused.
 #'
 #' @return An object of type \linkS4class{MizerParams}
+#' @seealso [renameGear()]
 #' @export
 #' @rdname renameSpecies
 #' @examples
@@ -693,6 +695,7 @@ expandSizeGrid.MizerParams <- function(params,
 #' @param ... Currently unused.
 #'
 #' @return An object of type \linkS4class{MizerParams}
+#' @seealso [renameSpecies()]
 #' @export
 #' @rdname renameGear
 #' @examples

@@ -80,11 +80,9 @@ getRates.MizerParams <- function(params, n = initialN(params),
 #' Returns the rate at which a predator of species \eqn{i} and
 #' weight \eqn{w} encounters food (grams/year).
 #'
-#' @inherit mizerEncounter
+#' @inherit mizerEncounter details sections
 #'
-#' @inheritParams get_time_elements
-#' @param drop If `TRUE` then any dimension of length 1 will be removed
-#'   from the returned array.
+#' @template param_object_dots
 #' @return
 #' * `MizerParams`: An `ArraySpeciesBySize` object (predator species x predator
 #'   size) with the encounter rates.
@@ -96,10 +94,7 @@ getRates.MizerParams <- function(params, n = initialN(params),
 #' @examples
 #' encounter <- getEncounter(NS_params)
 #' str(encounter)
-getEncounter <- function(object, n = initialN(object),
-                         n_pp = initialNResource(object),
-                         n_other = initialNOther(object),
-                         t = 0, ...) {
+getEncounter <- function(object, ...) {
     UseMethod("getEncounter")
 }
 #' @export
@@ -279,13 +274,9 @@ get_species_time_rate_from_sim <- function(sim, time_range, rate_fun,
 #' By default this function uses [mizerFeedingLevel()] to calculate
 #' the feeding level, but this can be overruled via [setRateFunction()].
 #'
-#' @inherit mizerFeedingLevel
+#' @inherit mizerFeedingLevel details sections
 #'
-#' @param object A `MizerParams` object or a `MizerSim` object
-#' @inheritParams mizerRates
-#' @inheritParams get_time_elements
-#' @param drop If `TRUE` then any dimension of length 1 will be removed
-#'   from the returned array.
+#' @template param_object_dots
 #'
 #' @return
 #' * `MizerParams`: An `ArraySpeciesBySize` object (predator species x predator
@@ -308,8 +299,7 @@ get_species_time_rate_from_sim <- function(sim, time_range, rate_fun,
 #' # Get the feeding level for years 15 - 20
 #' fl <- getFeedingLevel(sim, time_range = c(15, 20))
 #' }
-getFeedingLevel <- function(object, n, n_pp, n_other,
-                            time_range, drop = FALSE, ...) {
+getFeedingLevel <- function(object, ...) {
     UseMethod("getFeedingLevel")
 }
 
@@ -383,13 +373,9 @@ getCriticalFeedingLevel.MizerParams <- function(params) {
 #' reproduction and growth after metabolism and movement have been accounted
 #' for.
 #'
-#' @inheritParams mizerRates
+#' @inherit mizerEReproAndGrowth details sections
 #'
-#' @inherit mizerEReproAndGrowth
-#'
-#' @inheritParams get_time_elements
-#' @param drop If `TRUE` then any dimension of length 1 will be removed
-#'   from the returned array.
+#' @template param_object_dots
 #' @return
 #' * `MizerParams`: An `ArraySpeciesBySize` object (species x size) with the
 #'   energy rate \eqn{E_{r.i}(w)} available for growth and reproduction
@@ -413,10 +399,7 @@ getCriticalFeedingLevel.MizerParams <- function(params) {
 #' # Rate at this time for Sprat of size 2g
 #' e["Sprat", "2"]
 #' }
-getEReproAndGrowth <- function(object, n = initialN(object),
-                               n_pp = initialNResource(object),
-                               n_other = initialNOther(object),
-                               t = 0, ...) {
+getEReproAndGrowth <- function(object, ...) {
     UseMethod("getEReproAndGrowth")
 }
 
@@ -465,13 +448,9 @@ getEReproAndGrowth.MizerSim <- function(object, n, n_pp, n_other, t, ...,
 #' This potential rate is used in [getPredMort()] to
 #' calculate the realised predation mortality rate on the prey individual.
 #'
-#' @inherit mizerPredRate
+#' @inherit mizerPredRate details sections
 #'
-#' @inheritParams mizerRates
-#'
-#' @inheritParams get_time_elements
-#' @param drop If `TRUE` then any dimension of length 1 will be removed
-#'   from the returned array.
+#' @template param_object_dots
 #' @return
 #' * `MizerParams`: An `ArraySpeciesBySize` object (predator species x prey
 #'   size), where the prey size runs over fish community plus resource spectrum.
@@ -492,10 +471,7 @@ getEReproAndGrowth.MizerSim <- function(object, n, n_pp, n_other, t, ...,
 #' pred_rate <- getPredRate(params, n = N(sim)[15, , ],
 #'                          n_pp = NResource(sim)[15, ], t = 15)
 #' }
-getPredRate <- function(object, n = initialN(object),
-                        n_pp = initialNResource(object),
-                        n_other = initialNOther(object),
-                        t = 0, ...) {
+getPredRate <- function(object, ...) {
     UseMethod("getPredRate")
 }
 
@@ -544,8 +520,8 @@ getPredRate.MizerSim <- function(object, n, n_pp, n_other, t, ...,
 #'   \mu_{p.i}(w_p) = \sum_j pred_rate_j(w_p) \theta_{ji}.}
 #' The predation rate `pred_rate` is returned by [getPredRate()].
 #'
-#' @inherit mizerPredMort
-#' @inheritParams getFeedingLevel
+#' @inherit mizerPredMort details sections
+#' @template param_object_dots
 #'
 #' @return
 #' * `MizerParams`: An `ArraySpeciesBySize` object (prey species x prey size)
@@ -571,8 +547,7 @@ getPredRate.MizerSim <- function(object, n, n_pp, n_other, t, ...,
 #' # Get predation mortality over the years 15 - 20
 #' M2 <- getPredMort(sim, time_range = c(15, 20))
 #' }
-getPredMort <- function(object, n, n_pp, n_other,
-                        time_range, drop = TRUE, ...) {
+getPredMort <- function(object, ...) {
     UseMethod("getPredMort")
 }
 
@@ -688,14 +663,29 @@ getM2Background <- getResourceMort
 #' Calculates the fishing mortality rate \eqn{F_{g,i,w}} by gear, species and
 #' size and possibly time (in units 1/year).
 #'
-#' @param object A `MizerParams` object or a `MizerSim` object.
-#' @param effort The effort for each fishing gear. See notes below.
-#' @inheritParams mizerRates
-#' @param time_range Subset the returned fishing mortalities by time. The time
-#'   range is either a vector of values, a vector of min and max time, or a
-#'   single value. For a `MizerSim`, the default is the whole time range. For a
-#'   `MizerParams`, this is retained for backwards compatibility as an
-#'   alternative way to supply `t` when `t` is not supplied.
+#' @param object A \linkS4class{MizerParams} or \linkS4class{MizerSim} object.
+#' @param ... Additional arguments that depend on the class of `object`.
+#'
+#'   **For a \linkS4class{MizerParams} object:**
+#'   \describe{
+#'     \item{`effort`}{The effort for each fishing gear. See notes below.
+#'       Defaults to the initial effort stored in `object`.}
+#'     \item{`n`}{A matrix of species abundances (species x size). Defaults to
+#'       the initial abundances stored in `object`.}
+#'     \item{`n_pp`}{A vector of the resource abundance by size. Defaults to the
+#'       initial resource abundance stored in `object`.}
+#'     \item{`n_other`}{A named list of the abundances of other dynamical
+#'       components. Defaults to the initial values stored in `object`.}
+#'     \item{`t`}{The time for which to do the calculation. Defaults to 0.}
+#'   }
+#'
+#'   **For a \linkS4class{MizerSim} object:**
+#'   \describe{
+#'     \item{`time_range`}{Subset the returned fishing mortalities by time. The
+#'       time range is either a vector of values, a vector of min and max time,
+#'       or a single value. Defaults to the whole time range of the
+#'       simulation.}
+#'   }
 #'
 #' @return An array. If the effort argument has a time dimension, or a
 #'   `MizerSim` is passed in, the output array has four dimensions (time x
@@ -742,8 +732,7 @@ getM2Background <- getResourceMort
 #' F <- getFMortGear(sim, time_range = c(10, 20))
 #' }
 #'
-getFMortGear <- function(object, effort, time_range,
-                         n, n_pp, n_other, t = 0, ...) {
+getFMortGear <- function(object, ...) {
     UseMethod("getFMortGear")
 }
 
@@ -817,17 +806,32 @@ getFMortGear.MizerSim <- function(object, effort, time_range,
 #' The fishing mortality for each gear is obtained as catchability x
 #' selectivity x effort.
 #'
-#' @param object A `MizerParams` object or a `MizerSim` object
-#' @param effort The effort of each fishing gear. Only used if the object
-#'   argument is of class `MizerParams`. See notes below.
-#' @inheritParams mizerRates
-#' @param time_range Subset the returned fishing mortalities by time. The time
-#'   range is either a vector of values, a vector of min and max time, or a
-#'   single value. Default is the whole time range. Only used if the
-#'   `object` argument is of type `MizerSim`.
-#' @param drop Only used when object is of type `MizerSim`. Should
-#'   dimensions of length 1 be dropped, e.g. if your community only has one
-#'   species it might make presentation of results easier. Default is TRUE.
+#' @param object A \linkS4class{MizerParams} or \linkS4class{MizerSim} object.
+#' @param ... Additional arguments that depend on the class of `object`.
+#'
+#'   **For a \linkS4class{MizerParams} object:**
+#'   \describe{
+#'     \item{`effort`}{The effort of each fishing gear. See notes below.
+#'       Defaults to the initial effort stored in `object`.}
+#'     \item{`n`}{A matrix of species abundances (species x size). Defaults to
+#'       the initial abundances stored in `object`.}
+#'     \item{`n_pp`}{A vector of the resource abundance by size. Defaults to the
+#'       initial resource abundance stored in `object`.}
+#'     \item{`n_other`}{A named list of the abundances of other dynamical
+#'       components. Defaults to the initial values stored in `object`.}
+#'     \item{`t`}{The time for which to do the calculation. Defaults to 0.}
+#'   }
+#'
+#'   **For a \linkS4class{MizerSim} object:**
+#'   \describe{
+#'     \item{`time_range`}{Subset the returned fishing mortalities by time. The
+#'       time range is either a vector of values, a vector of min and max time,
+#'       or a single value. Defaults to the whole time range of the
+#'       simulation.}
+#'     \item{`drop`}{Should dimensions of length 1 be dropped, e.g. if your
+#'       community only has one species it might make presentation of results
+#'       easier. Defaults to `TRUE`.}
+#'   }
 #'
 #' @return
 #' * `MizerParams` with vector effort: An `ArraySpeciesBySize` object
@@ -875,8 +879,7 @@ getFMortGear.MizerSim <- function(object, effort, time_range,
 #' F <- getFMort(sim)
 #' F <- getFMort(sim, time_range = c(10, 20))
 #' }
-getFMort <- function(object, effort, time_range, drop = TRUE,
-                     n, n_pp, n_other, t, ...) {
+getFMort <- function(object, ...) {
     UseMethod("getFMort")
 }
 
@@ -972,14 +975,32 @@ getFMort.MizerSim <- function(object, effort, time_range, drop = TRUE,
 #' species by size from predation mortality, background mortality and fishing
 #' mortality for a single time step.
 #'
-#' @inherit mizerMort
-#' @inheritParams mizerRates
-#' @param effort A numeric vector of the effort by gear or a single numeric
-#'   effort value which is used for all gears.
+#' @inherit mizerMort details sections
+#' @param object A \linkS4class{MizerParams} or \linkS4class{MizerSim} object.
+#' @param ... Additional arguments that depend on the class of `object`.
 #'
-#' @inheritParams get_time_elements
-#' @param drop If `TRUE` then any dimension of length 1 will be removed
-#'   from the returned array.
+#'   **For a \linkS4class{MizerParams} object:**
+#'   \describe{
+#'     \item{`n`}{A matrix of species abundances (species x size). Defaults to
+#'       the initial abundances stored in `object`.}
+#'     \item{`n_pp`}{A vector of the resource abundance by size. Defaults to the
+#'       initial resource abundance stored in `object`.}
+#'     \item{`n_other`}{A named list of the abundances of other dynamical
+#'       components. Defaults to the initial values stored in `object`.}
+#'     \item{`effort`}{A numeric vector of the effort by gear or a single
+#'       numeric effort value which is used for all gears. Defaults to the
+#'       initial effort stored in `object`.}
+#'     \item{`t`}{The time for which to do the calculation. Defaults to 0.}
+#'   }
+#'
+#'   **For a \linkS4class{MizerSim} object:**
+#'   \describe{
+#'     \item{`time_range`}{The time range over which to return the rates. Either
+#'       a vector of values, a vector of min and max time, or a single value.
+#'       Defaults to the whole time range of the simulation.}
+#'     \item{`drop`}{If `TRUE` then any dimension of length 1 is removed from the
+#'       returned array.}
+#'   }
 #' @return
 #' * `MizerParams`: An `ArraySpeciesBySize` object (species x size) with the
 #'   total mortality rates.
@@ -1001,12 +1022,7 @@ getFMort.MizerSim <- function(object, effort, time_range, drop = TRUE,
 #' # Mortality rate at this time for Sprat of size 2g
 #' mort["Sprat", "2"]
 #' }
-getMort <- function(object,
-                    n = initialN(object),
-                    n_pp = initialNResource(object),
-                    n_other = initialNOther(object),
-                    effort = getInitialEffort(object),
-                    t = 0, ...) {
+getMort <- function(object, ...) {
     UseMethod("getMort")
 }
 
@@ -1065,12 +1081,8 @@ getZ <- getMort
 #' Calculates the energy rate (grams/year) available for reproduction after
 #' growth and metabolism have been accounted for.
 #'
-#' @inherit mizerERepro
-#' @inheritParams mizerRates
-#'
-#' @inheritParams get_time_elements
-#' @param drop If `TRUE` then any dimension of length 1 will be removed
-#'   from the returned array.
+#' @inherit mizerERepro details sections
+#' @template param_object_dots
 #' @return
 #' * `MizerParams`: An `ArraySpeciesBySize` object (species x size) holding
 #'   \deqn{\psi_i(w)\max(0, E_{r.i}(w))}
@@ -1095,10 +1107,7 @@ getZ <- getMort
 #' # Rate at this time for Sprat of size 2g
 #' erepro["Sprat", "2"]
 #' }
-getERepro <- function(object, n = initialN(object),
-                      n_pp = initialNResource(object),
-                      n_other = initialNOther(object),
-                      t = 0, ...) {
+getERepro <- function(object, ...) {
     UseMethod("getERepro")
 }
 
@@ -1152,12 +1161,8 @@ getESpawning <- getERepro
 #' size for growth after metabolism, movement and reproduction have been
 #' accounted for.
 #'
-#' @inherit mizerEGrowth
-#' @inheritParams mizerRates
-#'
-#' @inheritParams get_time_elements
-#' @param drop If `TRUE` then any dimension of length 1 will be removed
-#'   from the returned array.
+#' @inherit mizerEGrowth details sections
+#' @template param_object_dots
 #' @return
 #' * `MizerParams`: An `ArraySpeciesBySize` object (species x size) with the
 #'   somatic growth rates (grams/year).
@@ -1177,10 +1182,7 @@ getESpawning <- getERepro
 #' # Growth rate at this time for Sprat of size 2g
 #' growth["Sprat", "2"]
 #' }
-getEGrowth <- function(object, n = initialN(object),
-                       n_pp = initialNResource(object),
-                       n_other = initialNOther(object),
-                       t = 0, ...) {
+getEGrowth <- function(object, ...) {
     UseMethod("getEGrowth")
 }
 
@@ -1226,9 +1228,8 @@ getEGrowth.MizerSim <- function(object, n, n_pp, n_other, t, ...,
 #' Calculates the density-independent rate of total egg production
 #' \eqn{R_{di}}{R_di} (units 1/year) before density dependence, by species.
 #'
-#' @inherit mizerRDI
-#' @inheritParams mizerRates
-#' @inheritParams get_time_elements
+#' @inherit mizerRDI details sections
+#' @template param_object_dots_nodrop
 #'
 #' @return
 #' * `MizerParams`: A numeric vector the length of the number of species.
@@ -1244,10 +1245,7 @@ getEGrowth.MizerSim <- function(object, n, n_pp, n_other, t, ...,
 #' # Get the density-independent reproduction rate at a particular time step
 #' getRDI(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], t = 15)
 #' }
-getRDI <- function(object, n = initialN(object),
-                   n_pp = initialNResource(object),
-                   n_other = initialNOther(object),
-                   t = 0, ...) {
+getRDI <- function(object, ...) {
     UseMethod("getRDI")
 }
 
@@ -1303,11 +1301,29 @@ getRDI.MizerSim <- function(object, n, n_pp, n_other, t = 0,
 #' [BevertonHoltRDD()] by default, but this can be changed. See
 #' [setReproduction()] for more details.
 #'
-#' @inheritParams mizerRates
-#' @inheritParams get_time_elements
-#' @param rdi A vector of density-independent reproduction rates for each
-#'   species. If not specified, rdi is calculated internally using
-#'   [getRDI()].
+#' @param object A \linkS4class{MizerParams} or \linkS4class{MizerSim} object.
+#' @param ... Additional arguments that depend on the class of `object`.
+#'
+#'   **For a \linkS4class{MizerParams} object:**
+#'   \describe{
+#'     \item{`n`}{A matrix of species abundances (species x size). Defaults to
+#'       the initial abundances stored in `object`.}
+#'     \item{`n_pp`}{A vector of the resource abundance by size. Defaults to the
+#'       initial resource abundance stored in `object`.}
+#'     \item{`n_other`}{A named list of the abundances of other dynamical
+#'       components. Defaults to the initial values stored in `object`.}
+#'     \item{`t`}{The time for which to do the calculation. Defaults to 0.}
+#'     \item{`rdi`}{A vector of density-independent reproduction rates for each
+#'       species. If not specified, it is calculated internally using
+#'       [getRDI()].}
+#'   }
+#'
+#'   **For a \linkS4class{MizerSim} object:**
+#'   \describe{
+#'     \item{`time_range`}{The time range over which to return the rates. Either
+#'       a vector of values, a vector of min and max time, or a single value.
+#'       Defaults to the whole time range of the simulation.}
+#'   }
 #'
 #' @return
 #' * `MizerParams`: A numeric vector the length of the number of species.
@@ -1323,12 +1339,7 @@ getRDI.MizerSim <- function(object, n, n_pp, n_other, t = 0,
 #' # Get the rate at a particular time step
 #' getRDD(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], t = 15)
 #' }
-getRDD <- function(object, n = initialN(object),
-                   n_pp = initialNResource(object),
-                   n_other = initialNOther(object),
-                   t = 0,
-                   rdi = getRDI(object, n = n, n_pp = n_pp,
-                                n_other = n_other, t = t), ...) {
+getRDD <- function(object, ...) {
     UseMethod("getRDD")
 }
 
@@ -1381,11 +1392,7 @@ getRDD.MizerSim <- function(object, n, n_pp, n_other, t = 0,
 #' \eqn{R_{dd,i}} (see [getRDD()]). For sizes below the recruitment size
 #' the flux is zero.
 #'
-#' @inheritParams mizerRates
-#'
-#' @inheritParams get_time_elements
-#' @param drop If `TRUE` then any dimension of length 1 will be removed
-#'   from the returned array.
+#' @template param_object_dots
 #' @return
 #' * `MizerParams`: An `ArraySpeciesBySize` object (species x size) with the
 #'   flux of individuals entering each size class (numbers/year).
@@ -1405,10 +1412,7 @@ getRDD.MizerSim <- function(object, n, n_pp, n_other, t = 0,
 #' # Flux for Sprat of size 2g
 #' flux["Sprat", "2"]
 #' }
-getFlux <- function(object, n = initialN(object),
-                    n_pp = initialNResource(object),
-                    n_other = initialNOther(object),
-                    t = 0, ...) {
+getFlux <- function(object, ...) {
     UseMethod("getFlux")
 }
 

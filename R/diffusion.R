@@ -6,14 +6,7 @@
 #' size axis due to the variability in prey sizes. This is the diffusion
 #' term from the jump-growth equation.
 #'
-#' @param object A \linkS4class{MizerParams} or \linkS4class{MizerSim} object
-#' @param n A matrix of species abundances (species x size). Defaults to the
-#'   initial abundances in `object`.
-#' @param n_pp A vector of the resource abundance by size. Defaults to the
-#'   initial resource abundances in `object`.
-#' @param n_other A list of abundances for other dynamical components.
-#' @param t The time for which to do the calculation.
-#' @param ... Unused
+#' @template param_object_dots
 #'
 #' @return An array of dimensions species x size holding the diffusion rates.
 #' @export
@@ -22,11 +15,7 @@
 #' Datta, S., Delius, G. W. and Law, R. (2010). A jump-growth model for
 #' predator-prey dynamics: derivation and application to marine ecosystems.
 #' Bulletin of Mathematical Biology, 72(6):1361–1382
-getDiffusion <- function(object, n = initialN(object),
-                         n_pp = initialNResource(object),
-                         n_other = initialNOther(object),
-                         t = 0,
-                         ...) {
+getDiffusion <- function(object, ...) {
     UseMethod("getDiffusion")
 }
 #' @export
