@@ -43,3 +43,18 @@ as standalone `@param`, which re-triggers the check error.
 `plot`, `print`, `summary`, `as.data.frame` and other base-R generics cannot gain
 new formals. So all of their method arguments go in the `@param ...` `\describe{}`
 block on the page, and the methods use `@usage NULL`.
+
+## The `param_object_dots` template
+
+Most rate-function generics use `@template param_object_dots`. That template
+already supplies `@param object` and the full `@param ...` `\describe{}` block
+covering `n`, `n_pp`, `n_other`, `t` (MizerParams) and `time_range`, `drop`
+(MizerSim). You only need to add `@param` entries for *extra* shared args (like
+`power`) that are not in the template.
+
+## After editing
+
+Run `devtools::document()` to regenerate `man/` from the roxygen2 source, then
+check the updated `.Rd` to confirm:
+- `\usage{}` contains every `@param`-documented argument.
+- Both methods appear as `\alias{}` entries on the shared page.

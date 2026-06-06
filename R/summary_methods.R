@@ -2,9 +2,6 @@
 
 # Copyright 2012 Finlay Scott and Julia Blanchard.
 # Copyright 2018 Gustav Delius and Richard Southwell.
-# Development has received funding from the European Commission's Horizon 2020
-# Research and Innovation Programme under Grant Agreement No. 634495
-# for the project MINOUW (http://minouw-project.eu/).
 # Distributed under the GPL 3 or later
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
@@ -920,7 +917,7 @@ str.MizerParams <- function(object, max.level = NA, ...) {
     slot_max_level <- if (is.na(max.level)) NA else max.level - 1
     for (name in slotNames(object)) {
         val <- slot(object, name)
-        val_str <- capture.output(str(val, max.level = slot_max_level, ...))
+        val_str <- utils::capture.output(utils::str(val, max.level = slot_max_level, ...))
         if (length(val_str) > 0) {
             cat(" @ ", name, paste(rep(" ", max(0, 20 - nchar(name))), collapse = ""), ": ", val_str[1], "\n", sep = "")
             if (length(val_str) > 1) {
@@ -948,7 +945,7 @@ str.MizerSim <- function(object, max.level = NA, ...) {
     slot_max_level <- if (is.na(max.level)) NA else max.level - 1
     for (name in slotNames(object)) {
         val <- slot(object, name)
-        val_str <- capture.output(str(val, max.level = slot_max_level, ...))
+        val_str <- utils::capture.output(utils::str(val, max.level = slot_max_level, ...))
         if (length(val_str) > 0) {
             cat(" @ ", name, paste(rep(" ", max(0, 20 - nchar(name))), collapse = ""), ": ", val_str[1], "\n", sep = "")
             if (length(val_str) > 1) {

@@ -19,10 +19,6 @@ plotHover(x, ...)
 
 \item{...}{Arguments passed to the corresponding \code{plot()} method for mizer
 array objects, or to \code{\link[plotly:ggplotly]{plotly::ggplotly()}} for \code{mizer_plot} objects.}
-
-\item{tooltip}{Character vector of aesthetic names to include in the tooltip,
-or \code{"all"} for all aesthetics. Defaults to the tooltip stored in the
-\code{mizer_plot} object.}
 }
 \value{
 A plotly object.

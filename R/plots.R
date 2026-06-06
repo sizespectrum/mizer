@@ -2,9 +2,6 @@
 
 # Copyright 2012 Finlay Scott and Julia Blanchard.
 # Copyright 2019 Gustav Delius and Richard Southwell.
-# Development has received funding from the European Commission's Horizon 2020
-# Research and Innovation Programme under Grant Agreement No. 634495
-# for the project MINOUW (http://minouw-project.eu/).
 # Distributed under the GPL 3 or later
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
@@ -337,9 +334,6 @@ plotHover <- function(x, ...) UseMethod("plotHover")
 
 #' @rdname plotHover
 #' @usage NULL
-#' @param tooltip Character vector of aesthetic names to include in the tooltip,
-#'   or `"all"` for all aesthetics. Defaults to the tooltip stored in the
-#'   `mizer_plot` object.
 #' @export
 plotHover.mizer_plot <- function(x = ggplot2::last_plot(), ...,
                                  tooltip = attr(x, "mizer_tooltip") %||%

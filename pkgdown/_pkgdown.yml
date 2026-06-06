@@ -156,14 +156,14 @@ reference:
     species and resource size spectra and fishing effort at each saved time step,
     or extract the ecosystem state as a `MizerParams` object.
   contents:
+  - getParams
+  - initialParams
+  - finalParams
   - "N"
   - NResource
   - finalN
   - getEffort
   - getTimes
-  - getParams
-  - initialParams
-  - finalParams
 - title: Analysing results
   description: Calculate summary quantities from a `MizerSim` object, such as
     biomass, yield, growth, and feeding level, averaged or disaggregated over
@@ -171,6 +171,14 @@ reference:
   contents:
   - summary_functions
   - has_concept("summary functions")
+  - getFeedingLevel
+  - getCriticalFeedingLevel
+- title: Calculating rates
+  description: Calculate instantaneous ecological rates from a `MizerParams`
+    object, such as encounter rate, predation mortality, or somatic growth rate.
+  contents:
+  - getRates
+  - has_concept("rate functions")
 - title: Calculating indicators
   description: Calculate ecological indicators from a `MizerSim` object, such as
     mean weight, mean maximum weight, and the Large Fish Index.
@@ -223,13 +231,6 @@ reference:
   - setExtEncounter
   - setReproduction
   - setFishing
-- title: Calculating rates
-  description: Calculate instantaneous ecological rates from a `MizerParams`
-    object, such as encounter rate, predation mortality, or somatic growth rate.
-  contents:
-  - getRates
-  - has_concept("rate functions")
-  - getCriticalFeedingLevel
 - title: Extending Mizer
   desc: See [Extending mizer](https://sizespectrum.org/mizer/articles/extending-mizer.html),
    [Using mizer extension packages](https://sizespectrum.org/mizer/articles/using-extension-packages.html)

@@ -30,10 +30,6 @@ Values used as starting values for simulations with \code{project()}.
 # Doubling abundance of Cod in the initial state of the North Sea model
 params <- NS_params
 initialN(params)["Cod", ] <- 2 * initialN(params)["Cod", ]
-# Calculating the corresponding initial biomass
-biomass <- initialN(params)["Cod", ] * dw(NS_params) * w(NS_params)
-# Of course this initial state will no longer be a steady state
-params <- steady(params)
 }
 \seealso{
 \code{\link[=initialNResource]{initialNResource()}}, \code{\link[=initialNOther]{initialNOther()}}

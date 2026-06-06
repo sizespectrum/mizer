@@ -378,6 +378,27 @@
 
       <dl><dt>
 
+          <code><a href="getParams.html">getParams()</a></code>
+
+        </dt>
+        <dd>Extract the model state from a simulation</dd>
+
+        <dt>
+
+          <code><a href="initialParams.html">initialParams()</a></code>
+
+        </dt>
+        <dd>Extract the initial state from a simulation</dd>
+
+        <dt>
+
+          <code><a href="finalParams.html">finalParams()</a></code>
+
+        </dt>
+        <dd>Extract the final state from a simulation</dd>
+
+        <dt>
+
           <code><a href="N.html">N()</a></code> <code><a href="N.html">NResource()</a></code>
 
         </dt>
@@ -403,27 +424,6 @@
 
         </dt>
         <dd>Times for which simulation results are available</dd>
-
-        <dt>
-
-          <code><a href="getParams.html">getParams()</a></code>
-
-        </dt>
-        <dd>Extract the model state from a simulation</dd>
-
-        <dt>
-
-          <code><a href="initialParams.html">initialParams()</a></code>
-
-        </dt>
-        <dd>Extract the initial state from a simulation</dd>
-
-        <dt>
-
-          <code><a href="finalParams.html">finalParams()</a></code>
-
-        </dt>
-        <dd>Extract the final state from a simulation</dd>
       </dl></div><div class="section level2">
       <h2 id="analysing-results">Analysing results<a class="anchor" aria-label="anchor" href="#analysing-results"></a></h2>
 
@@ -503,6 +503,141 @@
 
         </dt>
         <dd>Calculate the rate at which biomass of each species is fished by each gear</dd>
+
+        <dt>
+
+          <code><a href="getFeedingLevel.html">getFeedingLevel()</a></code>
+
+        </dt>
+        <dd>Get feeding level</dd>
+
+        <dt>
+
+          <code><a href="getCriticalFeedingLevel.html">getCriticalFeedingLevel()</a></code>
+
+        </dt>
+        <dd>Get critical feeding level</dd>
+      </dl></div><div class="section level2">
+      <h2 id="calculating-rates">Calculating rates<a class="anchor" aria-label="anchor" href="#calculating-rates"></a></h2>
+
+      <div class="section-desc"><p>Calculate instantaneous ecological rates from a <code>MizerParams</code> object, such as encounter rate, predation mortality, or somatic growth rate.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="getRates.html">getRates()</a></code>
+
+        </dt>
+        <dd>Get all rates</dd>
+
+        <dt>
+
+          <code><a href="getDiffusion.html">getDiffusion()</a></code>
+
+        </dt>
+        <dd>Get diffusion rate from predation</dd>
+
+        <dt>
+
+          <code><a href="getEGrowth.html">getEGrowth()</a></code>
+
+        </dt>
+        <dd>Get energy rate available for growth</dd>
+
+        <dt>
+
+          <code><a href="getERepro.html">getERepro()</a></code>
+
+        </dt>
+        <dd>Get energy rate available for reproduction</dd>
+
+        <dt>
+
+          <code><a href="getEReproAndGrowth.html">getEReproAndGrowth()</a></code>
+
+        </dt>
+        <dd>Get energy rate available for reproduction and growth</dd>
+
+        <dt>
+
+          <code><a href="getEncounter.html">getEncounter()</a></code>
+
+        </dt>
+        <dd>Get encounter rate</dd>
+
+        <dt>
+
+          <code><a href="getFMort.html">getFMort()</a></code>
+
+        </dt>
+        <dd>Get the total fishing mortality rate from all fishing gears by time, species and size.</dd>
+
+        <dt>
+
+          <code><a href="getFMortGear.html">getFMortGear()</a></code>
+
+        </dt>
+        <dd>Get the fishing mortality by time, gear, species and size</dd>
+
+        <dt>
+
+          <code><a href="getFeedingLevel.html">getFeedingLevel()</a></code>
+
+        </dt>
+        <dd>Get feeding level</dd>
+
+        <dt>
+
+          <code><a href="getFlux.html">getFlux()</a></code>
+
+        </dt>
+        <dd>Get flux into size bins</dd>
+
+        <dt>
+
+          <code><a href="getMort.html">getMort()</a></code>
+
+        </dt>
+        <dd>Get total mortality rate</dd>
+
+        <dt>
+
+          <code><a href="getPredMort.html">getPredMort()</a></code>
+
+        </dt>
+        <dd>Get total predation mortality rate</dd>
+
+        <dt>
+
+          <code><a href="getPredRate.html">getPredRate()</a></code>
+
+        </dt>
+        <dd>Get predation rate</dd>
+
+        <dt>
+
+          <code><a href="getRDD.html">getRDD()</a></code>
+
+        </dt>
+        <dd>Get density dependent reproduction rate</dd>
+
+        <dt>
+
+          <code><a href="getRDI.html">getRDI()</a></code>
+
+        </dt>
+        <dd>Get density independent rate of egg production</dd>
+
+        <dt>
+
+          <code><a href="getResourceMort.html">getResourceMort()</a></code>
+
+        </dt>
+        <dd>Get predation mortality rate for resource</dd>
       </dl></div><div class="section level2">
       <h2 id="calculating-indicators">Calculating indicators<a class="anchor" aria-label="anchor" href="#calculating-indicators"></a></h2>
 
@@ -817,134 +952,6 @@
 
         </dt>
         <dd>Set fishing parameters</dd>
-      </dl></div><div class="section level2">
-      <h2 id="calculating-rates">Calculating rates<a class="anchor" aria-label="anchor" href="#calculating-rates"></a></h2>
-
-      <div class="section-desc"><p>Calculate instantaneous ecological rates from a <code>MizerParams</code> object, such as encounter rate, predation mortality, or somatic growth rate.</p></div>
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="getRates.html">getRates()</a></code>
-
-        </dt>
-        <dd>Get all rates</dd>
-
-        <dt>
-
-          <code><a href="getDiffusion.html">getDiffusion()</a></code>
-
-        </dt>
-        <dd>Get diffusion rate from predation</dd>
-
-        <dt>
-
-          <code><a href="getEGrowth.html">getEGrowth()</a></code>
-
-        </dt>
-        <dd>Get energy rate available for growth</dd>
-
-        <dt>
-
-          <code><a href="getERepro.html">getERepro()</a></code>
-
-        </dt>
-        <dd>Get energy rate available for reproduction</dd>
-
-        <dt>
-
-          <code><a href="getEReproAndGrowth.html">getEReproAndGrowth()</a></code>
-
-        </dt>
-        <dd>Get energy rate available for reproduction and growth</dd>
-
-        <dt>
-
-          <code><a href="getEncounter.html">getEncounter()</a></code>
-
-        </dt>
-        <dd>Get encounter rate</dd>
-
-        <dt>
-
-          <code><a href="getFMort.html">getFMort()</a></code>
-
-        </dt>
-        <dd>Get the total fishing mortality rate from all fishing gears by time, species and size.</dd>
-
-        <dt>
-
-          <code><a href="getFMortGear.html">getFMortGear()</a></code>
-
-        </dt>
-        <dd>Get the fishing mortality by time, gear, species and size</dd>
-
-        <dt>
-
-          <code><a href="getFeedingLevel.html">getFeedingLevel()</a></code>
-
-        </dt>
-        <dd>Get feeding level</dd>
-
-        <dt>
-
-          <code><a href="getFlux.html">getFlux()</a></code>
-
-        </dt>
-        <dd>Get flux into size bins</dd>
-
-        <dt>
-
-          <code><a href="getMort.html">getMort()</a></code>
-
-        </dt>
-        <dd>Get total mortality rate</dd>
-
-        <dt>
-
-          <code><a href="getPredMort.html">getPredMort()</a></code>
-
-        </dt>
-        <dd>Get total predation mortality rate</dd>
-
-        <dt>
-
-          <code><a href="getPredRate.html">getPredRate()</a></code>
-
-        </dt>
-        <dd>Get predation rate</dd>
-
-        <dt>
-
-          <code><a href="getRDD.html">getRDD()</a></code>
-
-        </dt>
-        <dd>Get density dependent reproduction rate</dd>
-
-        <dt>
-
-          <code><a href="getRDI.html">getRDI()</a></code>
-
-        </dt>
-        <dd>Get density independent rate of egg production</dd>
-
-        <dt>
-
-          <code><a href="getResourceMort.html">getResourceMort()</a></code>
-
-        </dt>
-        <dd>Get predation mortality rate for resource</dd>
-
-        <dt>
-
-          <code><a href="getCriticalFeedingLevel.html">getCriticalFeedingLevel()</a></code>
-
-        </dt>
-        <dd>Get critical feeding level</dd>
       </dl></div><div class="section level2">
       <h2 id="extending-mizer">Extending Mizer<a class="anchor" aria-label="anchor" href="#extending-mizer"></a></h2>
 

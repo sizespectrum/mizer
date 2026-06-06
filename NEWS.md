@@ -729,7 +729,7 @@ state, so you will need to also call `steady()` after matching the growth rates.
   `scaleModel()`.
 * New `matchBiomasses()` and `matchYields()` will try to adjust the abundances
   of the species to produce the observed biomasses or yields.
-  See blog post at https://bit.ly/2YqXESV .
+  See blog post at https://blog.mizer.sizespectrum.org/posts/2021-08-20-a-5-step-recipe-for-tuning-the-model-steady-state/ .
 * There are now accessor and replacement functions for rates. So for example
   instead of `params <- setReproduction(params, maturity = my_maturity)` one
   can simply use `maturity(params) <- my_maturity`. These are documented

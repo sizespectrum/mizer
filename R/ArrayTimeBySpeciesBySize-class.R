@@ -428,7 +428,7 @@ str.ArrayTimeBySpeciesBySize <- function(object, ...) {
     params <- attr(object, "params")
     attr(object, "params") <- NULL
     class(object) <- "array"
-    out <- capture.output(utils::str(object, ...))
+    out <- utils::capture.output(utils::str(object, ...))
     out[1] <- paste0(" 'ArrayTimeBySpeciesBySize' ", sub("^ ", "", out[1]))
     cat(paste0(out, collapse = "\n"), "\n", sep = "")
     if (!is.null(params)) {

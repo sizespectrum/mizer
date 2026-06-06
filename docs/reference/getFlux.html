@@ -88,7 +88,7 @@ growth and a diffusive flux from the redistribution of individuals.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getFlux</span><span class="op">(</span><span class="va">object</span>, power <span class="op">=</span> <span class="fl">0</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getFlux</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span>, power <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -97,13 +97,6 @@ growth and a diffusive flux from the redistribution of individuals.</p>
 
 <dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
 <dd><p>A <a href="MizerParams-class.html">MizerParams</a> or <a href="MizerSim-class.html">MizerSim</a> object.</p></dd>
-
-
-<dt id="arg-power">power<a class="anchor" aria-label="anchor" href="#arg-power"></a></dt>
-<dd><p>The flux at weight \(w\) is multiplied by \(w\) raised to
-<code>power</code>. The default <code>power = 0</code> gives the flux of individuals
-(numbers/year), whereas <code>power = 1</code> gives the flux of biomass
-(grams/year).</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -135,6 +128,13 @@ returned array.</p></dd>
 
 
 </dl></dd>
+
+
+<dt id="arg-power">power<a class="anchor" aria-label="anchor" href="#arg-power"></a></dt>
+<dd><p>The flux at weight \(w\) is multiplied by \(w\) raised to
+<code>power</code>. The default <code>power = 0</code> gives the flux of individuals
+(numbers/year), whereas <code>power = 1</code> gives the flux of biomass
+(grams/year).</p></dd>
 
 </dl></div>
     <div class="section level2">

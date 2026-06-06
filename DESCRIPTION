@@ -1,6 +1,6 @@
 Package: mizer
 Title: Dynamic Multi-Species Size Spectrum Modelling
-Date: 2027-06-05
+Date: 2026-06-06
 Type: Package
 Description: A set of classes and methods to set up and run multi-species, trait
     based and community size spectrum ecological models, focused on the marine

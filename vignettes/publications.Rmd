@@ -55,7 +55,7 @@ Production, Catch Potential, Responses to Fishing and Associated Uncertainties i
 
 ## Projects that have used/are using mizer
 
-The MINOUW Project (http://minouw-project.eu/) European Commission Horizon 2020 Research and Innovation Programme under Grant Agreement No. 634495
+The MINOUW Project European Commission Horizon 2020 Research and Innovation Programme under Grant Agreement No. 634495
 
 Rewiring marine food webs: predicting consequences of species range shifts. Australian Research Council Discovery Project DP170104240
 

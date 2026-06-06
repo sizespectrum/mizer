@@ -10,7 +10,7 @@
 #' So after using this function you may want to use `steady()` to run the model 
 #' to steady state, after which of course the biomasses will no longer match
 #' exactly. You could then iterate this process. This is described in the
-#' blog post at \url{https://bit.ly/2YqXESV}.
+#' blog post at \url{https://blog.mizer.sizespectrum.org/posts/2021-08-20-a-5-step-recipe-for-tuning-the-model-steady-state/}.
 #' 
 #' Before you can use this function you will need to have added a
 #' `biomass_observed` column to your model which gives the observed biomass in
@@ -95,7 +95,7 @@ matchBiomasses.MizerParams <- function(params, species = NULL,
 #' So after using this function you may want to use `steady()` to run the model
 #' to steady state, after which of course the numbers will no longer match
 #' exactly. You could then iterate this process. This is described in the
-#' blog post at \url{https://bit.ly/2YqXESV}.
+#' blog post at \url{https://blog.mizer.sizespectrum.org/posts/2021-08-20-a-5-step-recipe-for-tuning-the-model-steady-state/}.
 #'
 #' Before you can use this function you will need to have added a
 #' `number_observed` column to your model which gives the observed number of
@@ -188,7 +188,7 @@ matchNumbers.MizerParams <- function(params, species = NULL,
 #' So after using this function you may want to use `steady()` to run the model 
 #' to steady state, after which of course the yields will no longer match
 #' exactly. You could then iterate this process. This is described in the
-#' blog post at \url{https://bit.ly/2YqXESV}.
+#' blog post at \url{https://blog.mizer.sizespectrum.org/posts/2021-08-20-a-5-step-recipe-for-tuning-the-model-steady-state/}.
 #' 
 #' Before you can use this function you will need to have added a
 #' `yield_observed` column to your model which gives the observed yields in

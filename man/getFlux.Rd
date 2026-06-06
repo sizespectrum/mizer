@@ -2,17 +2,14 @@
 % Please edit documentation in R/rate_functions.R
 \name{getFlux}
 \alias{getFlux}
+\alias{getFlux.MizerParams}
+\alias{getFlux.MizerSim}
 \title{Get flux into size bins}
 \usage{
-getFlux(object, power = 0, ...)
+getFlux(object, ..., power = 0)
 }
 \arguments{
 \item{object}{A \linkS4class{MizerParams} or \linkS4class{MizerSim} object.}
-
-\item{power}{The flux at weight \eqn{w} is multiplied by \eqn{w} raised to
-\code{power}. The default \code{power = 0} gives the flux of individuals
-(numbers/year), whereas \code{power = 1} gives the flux of biomass
-(grams/year).}
 
 \item{...}{Additional arguments that depend on the class of \code{object}.
 
@@ -35,6 +32,11 @@ Defaults to the whole time range of the simulation.}
 \item{\code{drop}}{If \code{TRUE} then any dimension of length 1 is removed from the
 returned array.}
 }}
+
+\item{power}{The flux at weight \eqn{w} is multiplied by \eqn{w} raised to
+\code{power}. The default \code{power = 0} gives the flux of individuals
+(numbers/year), whereas \code{power = 1} gives the flux of biomass
+(grams/year).}
 }
 \value{
 \itemize{

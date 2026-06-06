@@ -135,10 +135,6 @@ setInitialValues.MizerParams <- function(params, sim, time_range, geometric_mean
 #' # Doubling abundance of Cod in the initial state of the North Sea model
 #' params <- NS_params
 #' initialN(params)["Cod", ] <- 2 * initialN(params)["Cod", ]
-#' # Calculating the corresponding initial biomass
-#' biomass <- initialN(params)["Cod", ] * dw(NS_params) * w(NS_params)
-#' # Of course this initial state will no longer be a steady state
-#' params <- steady(params)
 initialN <- function(object) {
     UseMethod("initialN")
 }
@@ -172,8 +168,6 @@ initialN.MizerSim <- function(object) {
 #' # Doubling resource abundance in the initial state of the North Sea model
 #' params <- NS_params
 #' initialNResource(params) <- 2 * initialNResource(params)
-#' # Of course this initial state will no longer be a steady state
-#' params <- steady(params)
 `initialNResource<-` <- function(params, value) {
     UseMethod("initialNResource<-")
 }
