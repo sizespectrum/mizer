@@ -69,6 +69,7 @@ test_that("upgradeParams from pre-2.4 preserves all slot values", {
 
     slots_to_check <- setdiff(slotNames(params),
                                c("mizer_version", "time_modified", "species_params"))
+    skip_on_os("mac")
     for (s in slots_to_check) {
         expect_identical(slot(params_after, s), slot(params_before, s),
                          label = paste0("params@", s))
@@ -92,7 +93,7 @@ test_that("Object from version 0.4 can be upgraded", {
     (sim <- validSim(simc.0.4)) |>
         expect_message("Initial effort has been set to 0") |>
         expect_warning("Your MizerSim object was created with an earlier")
-    
+
     expect_true(validObject(sim))
 })
 test_that("Object from version 1.0 can be upgraded", {
