@@ -1,14 +1,17 @@
 ## Test environments
-  
-### local Ubuntu, R 4.5.2
 
-  0 errors ✓ | 0 warnings ✓ | 0 notes ✓
-  
 ### winbuilder results
 
-  OK
+  Status: OK
 
-### R-hub 'linux,windows,macos'
+### macbuilder results
 
-  OK
+  Status: OK
 
+### local Ubuntu, R 4.5.2
+
+  0 errors ✔ | 0 warnings ✔ | 1 note ✖
+  
+  Compilation used the following non-portable flag(s):
+     ‘-mno-omit-leaf-frame-pointer’
+  
