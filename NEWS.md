@@ -1298,8 +1298,6 @@ species. The information is set up via a new `gear_params()` data frame. See
 ## Documentation
 
 * Mizer now has a documentation website at <https://sizespectrum.org/mizer/>
-  for the latest released version and at <https://sizespectrum.org/mizer/dev/>
-  for the development version. (#48)
 * The help pages of mizer functions has been extended massively, see for
   example the help for `newMultispeciesParams()`.
 * The vignette chapters are shown as pages on the website.

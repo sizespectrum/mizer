@@ -321,3 +321,8 @@ reference:
     versions of mizer
   contents:
   - has_concept("deprecated")
+
+redirects:
+  - ["articles/a_multispecies_model_of_the_north_sea.html", "https://mizer.course.sizespectrum.org/use/a_multispecies_model_of_the_north_sea.html"]
+  - ["articles/running_a_simulation.html", "https://mizer.course.sizespectrum.org/use/running_a_simulation.html"]
+  - ["articles/exploring_the_simulation_results.html", "https://mizer.course.sizespectrum.org/use/exploring_the_simulation_results.html"]
