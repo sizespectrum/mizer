@@ -42,7 +42,7 @@ individual variability in growth to be modelled.
 - `steadySingleSpecies()` correctly preserves the steady state under
   `project()`, including when diffusion is non-zero.
 
-- The vignette [cohort dynamics](../articles/cohort_dynamics_and_diffusion.html)
+- The vignette [cohort dynamics](https://sizespectrum.org/mizer/articles/cohort_dynamics_and_diffusion.html)
   demonstrates the effect of diffusion in an example.
 
 
@@ -52,7 +52,7 @@ individual variability in growth to be modelled.
   choosing the consumer density time-stepper. The default `"euler"` preserves
   the existing semi-implicit update, while `"predictor_corrector"` uses a new
   second-order predictor-corrector method. The accuracy of the two methods is
-  compared in the [numerical details](../articles/numerical_details.html)
+  compared in the [numerical details](https://sizespectrum.org/mizer/articles/numerical_details.html)
   vignette.
 
 - `MizerSim` objects now have a `sim_params` slot (a named list) that records
@@ -207,14 +207,14 @@ individual variability in growth to be modelled.
   outdated extension packages.
 
 - New vignette
-  [Extending mizer](../articles/extending-mizer.html)
+  [Extending mizer](https://sizespectrum.org/mizer/articles/extending-mizer.html)
   documents when to use `setRateFunction()`, `setComponent()`, and
   `customFunction()`, summarises required function signatures and return shapes,
   and gives worked examples for both a custom encounter function and an added
   ecosystem component. A companion vignette
-  [Using extension packages](../articles/using-extension-packages.html)
+  [Using extension packages](https://sizespectrum.org/mizer/articles/using-extension-packages.html)
   is aimed at users of extension packages, and
-  [Creating a mizer extension package](../articles/creating-extension-packages.html)
+  [Creating a mizer extension package](https://sizespectrum.org/mizer/articles/creating-extension-packages.html)
   guides extension authors through setting up a new extension package.
 
 - `setRateFunction()` now validates the registered function by calling it with
@@ -233,7 +233,7 @@ individual variability in growth to be modelled.
 
 ## Species parameters for external mortality, encounter and diffusion rates
 
-See the [model description](../articles/model_description.html) vignette for
+See the [model description](https://sizespectrum.org/mizer/articles/model_description.html) vignette for
 the mathematical details.
 
 - New species parameters `z_ext` (default 0) and `d` (default `n - 1`) add an
@@ -341,7 +341,7 @@ the mathematical details.
 
 - `age_mat_vB()` is now exported.
 
-- New [Cheatsheet: Analysis and Plotting](../articles/cheatsheet-analysis-and-plotting.html)
+- New [Cheatsheet: Analysis and Plotting](https://sizespectrum.org/mizer/articles/cheatsheet-analysis-and-plotting.html)
   vignette provides a quick reference for all functions that access simulation
   arrays, compute summaries, calculate indicators, and create plots.
   Closes #176.
