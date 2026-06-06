@@ -33,6 +33,12 @@ function \code{\link[=sigmoid_length]{sigmoid_length()}} and it is intended to m
 individuals from the fishing gear.
 }
 \details{
+You would not usually call this function directly. Instead, set the \code{sel_func}
+column in \code{\link[=gear_params]{gear_params()}} to \code{"double_sigmoid_length"} and provide the
+\code{l25}, \code{l50}, \code{l50_right} and \code{l25_right} values as additional columns.
+\code{\link[=setFishing]{setFishing()}} will then call this function automatically when calculating
+the selectivity array.
+
 The selectivity is obtained as the product of two sigmoidal curves, one
 rising and one dropping. The sigmoidal rise is based on the two parameters
 \code{l25} and \code{l50} which determine the length at which 25\% and 50\% of
@@ -49,6 +55,15 @@ As the size-based model is weight based, and this selectivity function is
 length based, it uses the length-weight parameters \code{a} and \code{b} to convert
 between length and weight. \deqn{l = \left(\frac{w}{a}\right)^{1/b}}{l =
 (w/a)^(1/b)}
+}
+\examples{
+# Hump-shaped selectivity: rises from l25=10 to l50=15,
+# then drops back to 50\% at l50_right=40 and 25\% at l25_right=50
+sp <- list(a = 0.01, b = 3)
+w <- c(1, 10, 100, 500, 1000)
+double_sigmoid_length(w, l25 = 10, l50 = 15,
+                      l50_right = 40, l25_right = 50,
+                      species_params = sp)
 }
 \seealso{
 \code{\link[=gear_params]{gear_params()}} for setting the selectivity parameters.

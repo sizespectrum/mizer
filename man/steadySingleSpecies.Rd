@@ -45,3 +45,7 @@ If the \code{keep} argument is supplied, the solution for the selected species
 are rescaled to keep the specified quantity at the value they had before
 calling this function.
 }
+\examples{
+# Set initial abundance of Cod to its single-species steady state
+params <- steadySingleSpecies(NS_params, species = "Cod")
+}

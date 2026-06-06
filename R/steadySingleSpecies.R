@@ -28,6 +28,9 @@
 #' @return A MizerParams object in which the initial abundances of the selected
 #'   species are changed to their single-species steady state abundances.
 #' @export
+#' @examples
+#' # Set initial abundance of Cod to its single-species steady state
+#' params <- steadySingleSpecies(NS_params, species = "Cod")
 steadySingleSpecies <- function(params, species = NULL,
                                 keep = c("egg", "biomass", "number")) {
     UseMethod("steadySingleSpecies")

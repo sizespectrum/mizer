@@ -43,6 +43,13 @@
 #' @return `setMetabolicRate()`: A MizerParams object with updated metabolic rate.
 #' @export
 #' @family functions for setting parameters
+#' @examples
+#' # Inspect the current metabolic rate
+#' getMetabolicRate(NS_params)["Cod", 1:5]
+#'
+#' # Reset metabolic rate from species parameters
+#' params <- setMetabolicRate(NS_params, reset = TRUE)
+#' getMetabolicRate(params)["Cod", 1:5]
 setMetabolicRate <- function(object, metab = NULL, p = NULL,
                              reset = FALSE, ...) {
     UseMethod("setMetabolicRate")

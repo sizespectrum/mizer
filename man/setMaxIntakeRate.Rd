@@ -65,6 +65,16 @@ recalculation from the species parameters is suppressed and a message is
 issued if the recalculated values would differ from the stored ones.
 }
 
+\examples{
+# Inspect the current maximum intake rate
+getMaxIntakeRate(NS_params)["Cod", 1:5]
+
+# Increase intake rate for Cod by 50\%
+intake_max <- getMaxIntakeRate(NS_params)
+intake_max["Cod", ] <- intake_max["Cod", ] * 1.5
+params <- setMaxIntakeRate(NS_params, intake_max = intake_max)
+getMaxIntakeRate(params)["Cod", 1:5]
+}
 \seealso{
 Other functions for setting parameters:
 \code{\link[=gear_params]{gear_params()}},

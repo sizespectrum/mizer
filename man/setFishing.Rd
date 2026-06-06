@@ -169,6 +169,9 @@ an effort that varies through time.
 }
 
 \examples{
+# Halve the initial fishing effort for all gears
+params <- setFishing(NS_params, initial_effort = 0.5)
+getInitialEffort(params)
 str(getCatchability(NS_params))
 str(getSelectivity(NS_params))
 str(getInitialEffort(NS_params))

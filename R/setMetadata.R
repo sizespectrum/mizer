@@ -41,6 +41,13 @@
 #' 
 #' @return `setMetadata()`: The MizerParams object with updated metadata
 #' @export
+#' @examples
+#' params <- setMetadata(NS_params,
+#'     title = "North Sea model",
+#'     description = "A multi-species model of the North Sea fish community.",
+#'     authors = list(list(name = "Finlay Scott", email = "finlay@example.com")))
+#' getMetadata(params)$title
+#' getMetadata(params)$authors[[1]]$name
 setMetadata <- function(params, title = NULL, description = NULL,
                         authors = NULL, url = NULL, doi = NULL, ...) {
     UseMethod("setMetadata")

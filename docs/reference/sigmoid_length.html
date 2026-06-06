@@ -122,7 +122,11 @@ Used to get at the length-weight parameters <code>a</code> and <code>b</code>.</
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The selectivity is given by the logistic function
+    <p>You would not usually call this function directly. Instead, set the <code>sel_func</code>
+column in <code><a href="gear_params.html">gear_params()</a></code> to <code>"sigmoid_length"</code> and provide the <code>l25</code> and
+<code>l50</code> values as additional columns. <code><a href="setFishing.html">setFishing()</a></code> will then call this
+function automatically when calculating the selectivity array.</p>
+<p>The selectivity is given by the logistic function
 $$S(l) = \frac{1}{1 + \exp\left(\log(3)\frac{l50 -l}{l50 - l25}\right)}$$
 As the mizer model is weight based, and this
 selectivity function is length based, it uses the
@@ -138,6 +142,16 @@ $$l = \left(\frac{w}{a}\right)^{1/b}$$</p>
 <code><a href="sigmoid_weight.html">sigmoid_weight()</a></code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Selectivity at weight given l25 = 10 cm, l50 = 15 cm</span></span></span>
+<span class="r-in"><span><span class="co"># using length-weight parameters a = 0.01, b = 3</span></span></span>
+<span class="r-in"><span><span class="va">sp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">0.01</span>, b <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">w</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span>, <span class="fl">100</span>, <span class="fl">500</span>, <span class="fl">1000</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">sigmoid_length</span><span class="op">(</span><span class="va">w</span>, l25 <span class="op">=</span> <span class="fl">10</span>, l50 <span class="op">=</span> <span class="fl">15</span>, species_params <span class="op">=</span> <span class="va">sp</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.0931323 0.2500000 0.8081354 0.9918278 0.9989960</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

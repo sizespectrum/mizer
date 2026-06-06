@@ -23,6 +23,16 @@ A sigmoidal selectivity function with 50\% selectivity at
 weight \code{sigmoidal_weight} \eqn{=w_{\text{sigmoid}}} and width \code{sigmoidal_sigma} \eqn{=\sigma}.
 \deqn{S(w) = \left(1 + \left(\frac{w}{w_{\text{sigmoid}}}\right)^{-\sigma}\right)^{-1}}{S(w) = (1 + (w/sigmoidal_weight)^{-sigmoidal_sigma})^{-1}}
 }
+\details{
+You would not usually call this function directly. Instead, set the \code{sel_func}
+column in \code{\link[=gear_params]{gear_params()}} to \code{"sigmoid_weight"} and provide \code{sigmoidal_weight}
+and \code{sigmoidal_sigma} as additional columns. \code{\link[=setFishing]{setFishing()}} will then call
+this function automatically when calculating the selectivity array.
+}
+\examples{
+sigmoid_weight(w = c(1, 10, 100, 1000),
+               sigmoidal_weight = 100, sigmoidal_sigma = 3)
+}
 \seealso{
 \code{\link[=gear_params]{gear_params()}} for setting the selectivity parameters.
 

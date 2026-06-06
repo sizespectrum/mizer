@@ -18,3 +18,7 @@ Returns the named list of arguments passed to \code{\link[=project]{project()}} 
 \code{method} and \code{dt}. Returns an empty list for simulations produced by
 older versions of mizer.
 }
+\examples{
+sim <- project(NS_params, t_max = 0.1, dt = 0.05, method = "predictor-corrector")
+getSimParams(sim)
+}

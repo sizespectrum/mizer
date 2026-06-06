@@ -45,6 +45,14 @@
 #' @return `setSearchVolume()`: A MizerParams object with updated search volume.
 #' @export
 #' @family functions for setting parameters
+#' @examples
+#' # Inspect the current search volume
+#' getSearchVolume(NS_params)["Cod", 1:5]
+#'
+#' # Double the search volume for all species
+#' sv <- getSearchVolume(NS_params) * 2
+#' params <- setSearchVolume(NS_params, search_vol = sv)
+#' getSearchVolume(params)["Cod", 1:5]
 setSearchVolume <- function(params, search_vol = NULL, reset = FALSE, ...) {
     UseMethod("setSearchVolume")
 }

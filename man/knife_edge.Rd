@@ -21,6 +21,15 @@ A knife-edge selectivity function where weights greater or equal to
 \code{knife_edge_size} are fully selected and no fish smaller than this size
 are selected.
 }
+\details{
+You would not usually call this function directly. Instead, set the \code{sel_func}
+column in \code{\link[=gear_params]{gear_params()}} to \code{"knife_edge"} and provide \code{knife_edge_size} as
+an additional column. \code{\link[=setFishing]{setFishing()}} will then call this function
+automatically when calculating the selectivity array.
+}
+\examples{
+knife_edge(w = c(1, 10, 100, 1000), knife_edge_size = 100)
+}
 \seealso{
 \code{\link[=gear_params]{gear_params()}} for setting the \code{knife_edge_size} parameter.
 

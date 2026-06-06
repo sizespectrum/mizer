@@ -112,6 +112,10 @@
 #' @export
 #' @seealso [gear_params()]
 #' @family functions for setting parameters
+#' @examples
+#' # Halve the initial fishing effort for all gears
+#' params <- setFishing(NS_params, initial_effort = 0.5)
+#' getInitialEffort(params)
 setFishing <- function(params, selectivity = NULL, catchability = NULL,
                        reset = FALSE, initial_effort = NULL, ...) {
     UseMethod("setFishing")

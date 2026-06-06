@@ -116,6 +116,13 @@ $$S(w) = \left(1 + \left(\frac{w}{w_{\text{sigmoid}}}\right)^{-\sigma}\right)^{-
     <p>Vector of selectivities at the given sizes.</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>You would not usually call this function directly. Instead, set the <code>sel_func</code>
+column in <code><a href="gear_params.html">gear_params()</a></code> to <code>"sigmoid_weight"</code> and provide <code>sigmoidal_weight</code>
+and <code>sigmoidal_sigma</code> as additional columns. <code><a href="setFishing.html">setFishing()</a></code> will then call
+this function automatically when calculating the selectivity array.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="gear_params.html">gear_params()</a></code> for setting the selectivity parameters.</p>
 <p>Other selectivity functions:
@@ -124,6 +131,13 @@ $$S(w) = \left(1 + \left(\frac{w}{w_{\text{sigmoid}}}\right)^{-\sigma}\right)^{-
 <code><a href="sigmoid_length.html">sigmoid_length()</a></code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">sigmoid_weight</span><span class="op">(</span>w <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span>, <span class="fl">100</span>, <span class="fl">1000</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>               sigmoidal_weight <span class="op">=</span> <span class="fl">100</span>, sigmoidal_sigma <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 9.99999e-07 9.99001e-04 5.00000e-01 9.99001e-01</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

@@ -9,8 +9,13 @@
 #'
 #' A sigmoid shaped selectivity function. Based on two parameters \code{l25} and
 #' \code{l50} which determine the length at which 25% and 50% of the stock is
-#' selected respectively. 
-#' 
+#' selected respectively.
+#'
+#' You would not usually call this function directly. Instead, set the `sel_func`
+#' column in [gear_params()] to `"sigmoid_length"` and provide the `l25` and
+#' `l50` values as additional columns. [setFishing()] will then call this
+#' function automatically when calculating the selectivity array.
+#'
 #' The selectivity is given by the logistic function
 #' \deqn{S(l) = \frac{1}{1 + \exp\left(\log(3)\frac{l50 -l}{l50 - l25}\right)}}{S(l) = 1/(1 + exp(log(3)*(l50 -l) / (l50 - l25)))}
 #' As the mizer model is weight based, and this
@@ -28,6 +33,12 @@
 #' @export
 #' @seealso [gear_params()] for setting the selectivity parameters.
 #' @family selectivity functions
+#' @examples
+#' # Selectivity at weight given l25 = 10 cm, l50 = 15 cm
+#' # using length-weight parameters a = 0.01, b = 3
+#' sp <- list(a = 0.01, b = 3)
+#' w <- c(1, 10, 100, 500, 1000)
+#' sigmoid_length(w, l25 = 10, l50 = 15, species_params = sp)
 sigmoid_length <- function(w, l25, l50, species_params, ...) {
     assert_that(is.numeric(w) && is.numeric(l25) && is.numeric(l50))
     assert_that(l25 > 0 && l25 < l50)
@@ -50,6 +61,12 @@ sigmoid_length <- function(w, l25, l50, species_params, ...) {
 #' sigmoidal drop-off. This drop-off is what distinguishes this from the
 #' function [sigmoid_length()] and it is intended to model the escape of large
 #' individuals from the fishing gear.
+#'
+#' You would not usually call this function directly. Instead, set the `sel_func`
+#' column in [gear_params()] to `"double_sigmoid_length"` and provide the
+#' `l25`, `l50`, `l50_right` and `l25_right` values as additional columns.
+#' [setFishing()] will then call this function automatically when calculating
+#' the selectivity array.
 #'
 #' The selectivity is obtained as the product of two sigmoidal curves, one
 #' rising and one dropping. The sigmoidal rise is based on the two parameters
@@ -81,6 +98,14 @@ sigmoid_length <- function(w, l25, l50, species_params, ...) {
 #' @export
 #' @seealso [gear_params()] for setting the selectivity parameters.
 #' @family selectivity functions
+#' @examples
+#' # Hump-shaped selectivity: rises from l25=10 to l50=15,
+#' # then drops back to 50% at l50_right=40 and 25% at l25_right=50
+#' sp <- list(a = 0.01, b = 3)
+#' w <- c(1, 10, 100, 500, 1000)
+#' double_sigmoid_length(w, l25 = 10, l50 = 15,
+#'                       l50_right = 40, l25_right = 50,
+#'                       species_params = sp)
 double_sigmoid_length <- function(w, l25, l50, l50_right, l25_right,
                                   species_params, ...) {
     assert_that(is.numeric(w) && 
@@ -114,6 +139,11 @@ double_sigmoid_length <- function(w, l25, l50, l50_right, l25_right,
 #' `knife_edge_size` are fully selected and no fish smaller than this size
 #' are selected.
 #'
+#' You would not usually call this function directly. Instead, set the `sel_func`
+#' column in [gear_params()] to `"knife_edge"` and provide `knife_edge_size` as
+#' an additional column. [setFishing()] will then call this function
+#' automatically when calculating the selectivity array.
+#'
 #' @param w Vector of sizes.
 #' @param knife_edge_size The weight at which the knife-edge operates.
 #' @param ... Unused
@@ -121,6 +151,8 @@ double_sigmoid_length <- function(w, l25, l50, l50_right, l25_right,
 #' @export
 #' @seealso [gear_params()] for setting the `knife_edge_size` parameter.
 #' @family selectivity functions
+#' @examples
+#' knife_edge(w = c(1, 10, 100, 1000), knife_edge_size = 100)
 knife_edge <- function(w, knife_edge_size, ...) {
     sel <- rep(0, length(w))
     sel[w >= knife_edge_size] <- 1
@@ -133,6 +165,11 @@ knife_edge <- function(w, knife_edge_size, ...) {
 #' weight `sigmoidal_weight` \eqn{=w_{\text{sigmoid}}} and width `sigmoidal_sigma` \eqn{=\sigma}.
 #' \deqn{S(w) = \left(1 + \left(\frac{w}{w_{\text{sigmoid}}}\right)^{-\sigma}\right)^{-1}}{S(w) = (1 + (w/sigmoidal_weight)^{-sigmoidal_sigma})^{-1}}
 #'
+#' You would not usually call this function directly. Instead, set the `sel_func`
+#' column in [gear_params()] to `"sigmoid_weight"` and provide `sigmoidal_weight`
+#' and `sigmoidal_sigma` as additional columns. [setFishing()] will then call
+#' this function automatically when calculating the selectivity array.
+#'
 #' @param w Vector of sizes.
 #' @param sigmoidal_weight The weight at which selectivity is 50%.
 #' @param sigmoidal_sigma The width of the selection function.
@@ -141,6 +178,9 @@ knife_edge <- function(w, knife_edge_size, ...) {
 #' @export
 #' @seealso [gear_params()] for setting the selectivity parameters.
 #' @family selectivity functions
+#' @examples
+#' sigmoid_weight(w = c(1, 10, 100, 1000),
+#'                sigmoidal_weight = 100, sigmoidal_sigma = 3)
 sigmoid_weight <- function(w, sigmoidal_weight, sigmoidal_sigma, ...) {
   return((1 + (w / sigmoidal_weight) ^ (-sigmoidal_sigma)) ^ (-1))
 } 

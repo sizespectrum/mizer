@@ -167,6 +167,22 @@ issued if the recalculated values would differ from the stored ones.</p>
 <code><a href="use_predation_diffusion.html">use_predation_diffusion()</a></code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Inspect the current maximum intake rate</span></span></span>
+<span class="r-in"><span><span class="fu">getMaxIntakeRate</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">[</span><span class="st">"Cod"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     0.001   0.00119   0.00142    0.0017   0.00203 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.6148276 0.6917271 0.7782447 0.8755836 0.9850971 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Increase intake rate for Cod by 50%</span></span></span>
+<span class="r-in"><span><span class="va">intake_max</span> <span class="op">&lt;-</span> <span class="fu">getMaxIntakeRate</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">intake_max</span><span class="op">[</span><span class="st">"Cod"</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">intake_max</span><span class="op">[</span><span class="st">"Cod"</span>, <span class="op">]</span> <span class="op">*</span> <span class="fl">1.5</span></span></span>
+<span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">setMaxIntakeRate</span><span class="op">(</span><span class="va">NS_params</span>, intake_max <span class="op">=</span> <span class="va">intake_max</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">getMaxIntakeRate</span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="st">"Cod"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     0.001   0.00119   0.00142    0.0017   0.00203 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.9222414 1.0375906 1.1673671 1.3133754 1.4776457 </span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

@@ -37,6 +37,15 @@
 #'   intake rate.
 #' @export
 #' @family functions for setting parameters
+#' @examples
+#' # Inspect the current maximum intake rate
+#' getMaxIntakeRate(NS_params)["Cod", 1:5]
+#'
+#' # Increase intake rate for Cod by 50%
+#' intake_max <- getMaxIntakeRate(NS_params)
+#' intake_max["Cod", ] <- intake_max["Cod", ] * 1.5
+#' params <- setMaxIntakeRate(NS_params, intake_max = intake_max)
+#' getMaxIntakeRate(params)["Cod", 1:5]
 setMaxIntakeRate <- function(params, intake_max = NULL, reset = FALSE, ...) {
     UseMethod("setMaxIntakeRate")
 }

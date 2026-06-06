@@ -261,7 +261,12 @@ an effort that varies through time.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="str.html">str</a></span><span class="op">(</span><span class="fu">getCatchability</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Halve the initial fishing effort for all gears</span></span></span>
+<span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">setFishing</span><span class="op">(</span><span class="va">NS_params</span>, initial_effort <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">getInitialEffort</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Industrial    Pelagic       Beam      Otter </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        0.5        0.5        0.5        0.5 </span>
+<span class="r-in"><span><span class="fu"><a href="str.html">str</a></span><span class="op">(</span><span class="fu">getCatchability</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  num [1:4, 1:12] 1 0 0 0 1 0 0 0 1 0 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "dimnames")=List of 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ gear: chr [1:4] "Industrial" "Pelagic" "Beam" "Otter"</span>

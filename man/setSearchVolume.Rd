@@ -73,6 +73,15 @@ recalculation from the species parameters is suppressed and a message is
 issued if the recalculated values would differ from the stored ones.
 }
 
+\examples{
+# Inspect the current search volume
+getSearchVolume(NS_params)["Cod", 1:5]
+
+# Double the search volume for all species
+sv <- getSearchVolume(NS_params) * 2
+params <- setSearchVolume(NS_params, search_vol = sv)
+getSearchVolume(params)["Cod", 1:5]
+}
 \seealso{
 Other functions for setting parameters:
 \code{\link[=gear_params]{gear_params()}},

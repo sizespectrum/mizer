@@ -20,6 +20,18 @@
 #' @seealso "Using mizer extension packages":
 #'   \code{vignette("using-extension-packages", package = "mizer")}
 #' @export
+#' @examples
+#' # Save params to a temporary file and read them back
+#' tmp <- tempfile(fileext = ".rds")
+#' saveParams(NS_params, file = tmp)
+#' params <- readParams(tmp)
+#' identical(params, NS_params)
+#'
+#' # Save and read back a simulation
+#' tmp2 <- tempfile(fileext = ".rds")
+#' saveSim(NS_sim, file = tmp2)
+#' sim <- readSim(tmp2)
+#' identical(sim, NS_sim)
 saveParams <- function(params, file) {
     UseMethod("saveParams")
 }

@@ -134,7 +134,12 @@ Requires <code>l25 &lt; l50 &lt; l50_right &lt; l25_right</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The selectivity is obtained as the product of two sigmoidal curves, one
+    <p>You would not usually call this function directly. Instead, set the <code>sel_func</code>
+column in <code><a href="gear_params.html">gear_params()</a></code> to <code>"double_sigmoid_length"</code> and provide the
+<code>l25</code>, <code>l50</code>, <code>l50_right</code> and <code>l25_right</code> values as additional columns.
+<code><a href="setFishing.html">setFishing()</a></code> will then call this function automatically when calculating
+the selectivity array.</p>
+<p>The selectivity is obtained as the product of two sigmoidal curves, one
 rising and one dropping. The sigmoidal rise is based on the two parameters
 <code>l25</code> and <code>l50</code> which determine the length at which 25% and 50% of
 the stock is selected respectively. The sigmoidal drop-off is based on the
@@ -157,6 +162,18 @@ between length and weight. $$l = \left(\frac{w}{a}\right)^{1/b}$$</p>
 <code><a href="sigmoid_weight.html">sigmoid_weight()</a></code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Hump-shaped selectivity: rises from l25=10 to l50=15,</span></span></span>
+<span class="r-in"><span><span class="co"># then drops back to 50% at l50_right=40 and 25% at l25_right=50</span></span></span>
+<span class="r-in"><span><span class="va">sp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">0.01</span>, b <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">w</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span>, <span class="fl">100</span>, <span class="fl">500</span>, <span class="fl">1000</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">double_sigmoid_length</span><span class="op">(</span><span class="va">w</span>, l25 <span class="op">=</span> <span class="fl">10</span>, l50 <span class="op">=</span> <span class="fl">15</span>,</span></span>
+<span class="r-in"><span>                      l50_right <span class="op">=</span> <span class="fl">40</span>, l25_right <span class="op">=</span> <span class="fl">50</span>,</span></span>
+<span class="r-in"><span>                      species_params <span class="op">=</span> <span class="va">sp</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.09125627 0.24107143 0.71411741 0.58113240 0.33040411</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

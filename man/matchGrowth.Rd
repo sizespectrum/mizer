@@ -43,3 +43,11 @@ the von Bertalanffy growth curve parameters using \code{age_mat_vB()}. If those
 are not available either for a species, the growth rate for that species will
 not be changed.
 }
+\examples{
+# Rescale rates so all species reach maturity by their maturity age.
+# The search volume gamma is adjusted to achieve the correct growth rate.
+species_params(NS_params)["Cod", "gamma"]
+params <- matchGrowth(NS_params)
+species_params(params)["Cod", "gamma"]
+age_mat(params)["Cod"]
+}

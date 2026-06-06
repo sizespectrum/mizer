@@ -175,6 +175,21 @@ issued if the recalculated values would differ from the stored ones.</p>
 <code><a href="use_predation_diffusion.html">use_predation_diffusion()</a></code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Inspect the current search volume</span></span></span>
+<span class="r-in"><span><span class="fu">getSearchVolume</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">[</span><span class="st">"Cod"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        0.001      0.00119      0.00142       0.0017      0.00203 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6.365796e-13 7.332810e-13 8.446721e-13 9.729844e-13 1.120788e-12 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Double the search volume for all species</span></span></span>
+<span class="r-in"><span><span class="va">sv</span> <span class="op">&lt;-</span> <span class="fu">getSearchVolume</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span> <span class="op">*</span> <span class="fl">2</span></span></span>
+<span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">setSearchVolume</span><span class="op">(</span><span class="va">NS_params</span>, search_vol <span class="op">=</span> <span class="va">sv</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">getSearchVolume</span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="st">"Cod"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        0.001      0.00119      0.00142       0.0017      0.00203 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.273159e-12 1.466562e-12 1.689344e-12 1.945969e-12 2.241577e-12 </span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

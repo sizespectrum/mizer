@@ -145,6 +145,20 @@ are not available either for a species, the growth rate for that species will
 not be changed.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Rescale rates so all species reach maturity by their maturity age.</span></span></span>
+<span class="r-in"><span><span class="co"># The search volume gamma is adjusted to achieve the correct growth rate.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="species_params.html">species_params</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">[</span><span class="st">"Cod"</span>, <span class="st">"gamma"</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.599016e-10</span>
+<span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">matchGrowth</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="st">"Cod"</span>, <span class="st">"gamma"</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.351462e-10</span>
+<span class="r-in"><span><span class="fu"><a href="age_mat.html">age_mat</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="st">"Cod"</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      Cod </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.954054 </span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

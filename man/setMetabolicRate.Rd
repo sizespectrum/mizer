@@ -71,6 +71,14 @@ from the species parameters is suppressed and a message is issued if the
 recalculated values would differ from the stored ones.
 }
 
+\examples{
+# Inspect the current metabolic rate
+getMetabolicRate(NS_params)["Cod", 1:5]
+
+# Reset metabolic rate from species parameters
+params <- setMetabolicRate(NS_params, reset = TRUE)
+getMetabolicRate(params)["Cod", 1:5]
+}
 \seealso{
 Other functions for setting parameters:
 \code{\link[=gear_params]{gear_params()}},

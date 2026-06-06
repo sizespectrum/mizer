@@ -30,6 +30,13 @@
 #'   consumption rate and metabolic rate and rescaled species parameters
 #'   `gamma`,`h`, `ks` and `k`.
 #' @export
+#' @examples
+#' # Rescale rates so all species reach maturity by their maturity age.
+#' # The search volume gamma is adjusted to achieve the correct growth rate.
+#' species_params(NS_params)["Cod", "gamma"]
+#' params <- matchGrowth(NS_params)
+#' species_params(params)["Cod", "gamma"]
+#' age_mat(params)["Cod"]
 matchGrowth <- function(params, species = NULL,
                         keep = c("egg", "biomass", "number"), ...)
     UseMethod("matchGrowth")
