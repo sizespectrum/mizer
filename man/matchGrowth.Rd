@@ -28,6 +28,7 @@ consumption rate and metabolic rate and rescaled species parameters
 \code{gamma},\code{h}, \code{ks} and \code{k}.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Scales the search volume, the maximum consumption rate, the metabolic rate
 and the external encounter rate
 all by the same factor in order to achieve a growth rate that allows

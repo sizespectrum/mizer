@@ -24,7 +24,6 @@ Other functions calculating density-dependent reproduction rate:
 \code{\link[=RickerRDD]{RickerRDD()}},
 \code{\link[=SheperdRDD]{SheperdRDD()}},
 \code{\link[=constantEggRDI]{constantEggRDI()}},
-\code{\link[=constantRDD]{constantRDD()}},
-\code{\link[=projectRDD]{projectRDD()}}
+\code{\link[=constantRDD]{constantRDD()}}
 }
 \concept{functions calculating density-dependent reproduction rate}

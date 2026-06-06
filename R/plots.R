@@ -2724,6 +2724,7 @@ plotlyFMort <- function(object, species = NULL,
 
 #' Plot growth curves
 #'
+#' `r lifecycle::badge("experimental")`
 #' The growth curves represent the average age of all the living fish of a
 #' species as a function of their size. So it would be natural to plot size
 #' on the x-axis. But to follow the usual convention from age-based models, we

@@ -198,13 +198,13 @@ reference:
   - plotYield
   - plotYieldGear
   - plotFMort
+  - plotMizerParams
+  - plotMizerSim
+  - plotDiet
   - plotGrowthCurves
+  - addPlot
   - plotBiomassObservedVsModel
   - plotYieldObservedVsModel
-  - starts_with("animate")
-  - starts_with("plot")
-  - addPlot
-  - has_concept("plotting functions")
   - setColours
   - setLinetypes
 - title: Setting custom rates
@@ -272,6 +272,7 @@ reference:
   contents:
   - mizerRates
   - starts_with("mizer")
+  - projectRDD
   - -mizer
 - title: Internal helper functions
   description: Utility functions used internally by mizer that may also be useful

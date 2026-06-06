@@ -31,13 +31,3 @@ S3 generic used by extension-aware projections to calculate the
 density-dependent reproduction rate. The base method calls the selected
 density-dependence function in \code{params@rates_funcs$RDD}.
 }
-\seealso{
-Other functions calculating density-dependent reproduction rate:
-\code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}},
-\code{\link[=RickerRDD]{RickerRDD()}},
-\code{\link[=SheperdRDD]{SheperdRDD()}},
-\code{\link[=constantEggRDI]{constantEggRDI()}},
-\code{\link[=constantRDD]{constantRDD()}},
-\code{\link[=noRDD]{noRDD()}}
-}
-\concept{functions calculating density-dependent reproduction rate}

@@ -81,7 +81,6 @@ mizerRDI <- projectRDI.MizerParams
 #'
 #' @return Vector of density-dependent reproduction rates.
 #' @export
-#' @family functions calculating density-dependent reproduction rate
 projectRDD <- function(params, rdi, species_params = params@species_params,
                        t = 0, ...) {
     UseMethod("projectRDD")

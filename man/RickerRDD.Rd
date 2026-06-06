@@ -30,7 +30,6 @@ Other functions calculating density-dependent reproduction rate:
 \code{\link[=SheperdRDD]{SheperdRDD()}},
 \code{\link[=constantEggRDI]{constantEggRDI()}},
 \code{\link[=constantRDD]{constantRDD()}},
-\code{\link[=noRDD]{noRDD()}},
-\code{\link[=projectRDD]{projectRDD()}}
+\code{\link[=noRDD]{noRDD()}}
 }
 \concept{functions calculating density-dependent reproduction rate}

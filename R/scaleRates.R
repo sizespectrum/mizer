@@ -1,5 +1,6 @@
 #' Rescale all rates in a mizer model
 #'
+#' `r lifecycle::badge("experimental")`
 #' Multiplies all rates in the model by a given factor. Rescaling all rates by
 #' a factor \eqn{f} is equivalent to rescaling time by \eqn{f}: it speeds up
 #' (or slows down) all dynamics without affecting the steady state of each

@@ -1,5 +1,6 @@
 #' Adjust model to produce observed growth
 #'
+#' `r lifecycle::badge("experimental")`
 #' Scales the search volume, the maximum consumption rate, the metabolic rate
 #' and the external encounter rate
 #' all by the same factor in order to achieve a growth rate that allows

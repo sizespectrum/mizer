@@ -17,6 +17,7 @@ scaleRates(params, factor, ...)
 The MizerParams object with all rates rescaled by \code{factor}.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Multiplies all rates in the model by a given factor. Rescaling all rates by
 a factor \eqn{f} is equivalent to rescaling time by \eqn{f}: it speeds up
 (or slows down) all dynamics without affecting the steady state of each

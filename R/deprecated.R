@@ -492,12 +492,12 @@ set_community_model <- function(max_w = 1e6,
         knife_is_min = knife_is_min,
         constant_reproduction = recruitment * rec_mult # to be used in the SRR
     )
-    com_params <- MizerParams(com_params_df, p = p, n = n, q = q, lambda = lambda, 
-                              kappa = kappa, min_w = min_w, max_w = max_w, 
+    com_params <- MizerParams(com_params_df, p = p, n = n, q = q, lambda = lambda,
+                              kappa = kappa, min_w = min_w, max_w = max_w,
                               min_w_pp = min_w_pp,
                               w_pp_cutoff = w_pp_cutoff, r_pp = r_pp, ...)
     com_params@rates_funcs$RDD <- "constantRDD"
-    com_params@psi[] <- 0 # Need to force to be 0. Can try setting w_mat but 
+    com_params@psi[] <- 0 # Need to force to be 0. Can try setting w_mat but
     # due to slope still not 0
     # Set w_mat to NA for clarity - it is not actually being used
     com_params@species_params$w_mat[] <- NA
@@ -506,34 +506,24 @@ set_community_model <- function(max_w = 1e6,
 
 #### getPhiPrey ####
 #' Get available energy
-#' 
+#'
 #' @description
 #' `r lifecycle::badge("deprecated")`
-#' 
+#'
 #' This is deprecated and is no longer used by the mizer project() method.
 #' Calculates the amount \eqn{E_{a,i}(w)} of food exposed to each predator as
-#' a function of predator size. 
-#' 
+#' a function of predator size.
+#'
 #' @param object An \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
 #' @param n_pp A vector of the background abundance by size
 #' @param ... Other arguments (currently unused)
-#'   
+#'
 #' @return A two dimensional array (predator species x predator size)
 #'   equal to `getEncounter(object, n, n_pp) / getSearchVolume(object)`.
 #' @seealso [project()]
 #' @export
 #' @concept deprecated
-#' @examples
-#' \donttest{
-#' params <-  NS_params
-#' sim <- project(params, t_max = 20, effort = 0.5)
-#' n <- sim@n[21,,]
-#' n_pp <- sim@n_pp[21,]
-#' getPhiPrey(params,n,n_pp)
-#' # ->
-#' getEncounter(params) / getSearchVolume(params)
-#' }
 getPhiPrey <- function(object, n, n_pp, ...) {
     lifecycle::deprecate_soft("2.0.0", "getPhiPrey()", "newMultispeciesParams()")
     getEncounter(object, n, n_pp) / object@search_vol

@@ -453,9 +453,6 @@ removeSpecies.MizerParams <- function(params, species, ...) {
 
 #' Rename species
 #'
-#' @description
-#' `r lifecycle::badge("experimental")`
-#'
 #' Changes the names of species in a MizerParams object. This involves for
 #' example changing the species dimension names of rate arrays appropriately.
 #'
