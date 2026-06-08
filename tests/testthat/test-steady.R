@@ -1,13 +1,13 @@
 # projectToSteady ----
-small_steady_params <- function() {
-    suppressMessages(newTraitParams(no_sp = 2, no_w = 20, max_w_max = 100,
-                                    min_w = 1e-3, w_pp_cutoff = 5, ks = 4,
-                                    reproduction_level = 0.25,
-                                    info_level = 0))
-}
+# Built once here; tests get a fresh copy via R's copy-on-modify semantics.
+small_steady_params <- suppressMessages(
+    newTraitParams(no_sp = 2, no_w = 20, max_w_max = 100,
+                   min_w = 1e-3, w_pp_cutoff = 5, ks = 4,
+                   reproduction_level = 0.25, info_level = 0)
+)
 
 test_that("projectToSteady() works", {
-    params <- small_steady_params()
+    params <- small_steady_params
     effort <- params@initial_effort * 1.1
     initialN(params)[1, ] <- initialN(params)[1, ] * 3
     expect_error(projectToSteady(params, dt = 1, t_per = 0.5),
@@ -65,7 +65,7 @@ test_that("projectToSteady accepts the documented effort forms", {
 })
 
 test_that("projectToSteady accepts consumer update method", {
-    params <- small_steady_params()
+    params <- small_steady_params
 
     pc <- suppressMessages(projectToSteady(params, t_per = 1, dt = 1,
                                            t_max = 1, tol = 1000,
@@ -83,7 +83,7 @@ test_that("projectToSteady accepts consumer update method", {
 
 # steady ----
 test_that("steady works", {
-    params <- small_steady_params()
+    params <- small_steady_params
     params@species_params$gamma[2] <- 2000
     params <- setSearchVolume(params)
     p <- steady(params, t_per = 1, t_max = 1, dt = 1, tol = 10) |>
@@ -98,7 +98,7 @@ test_that("steady works", {
 })
 
 test_that("steady accepts consumer update method", {
-    params <- small_steady_params()
+    params <- small_steady_params
     params@species_params$gamma[2] <- 2000
     params <- setSearchVolume(params)
 
@@ -112,14 +112,14 @@ test_that("steady accepts consumer update method", {
 })
 
 test_that("steady() preserves reproduction function", {
-    params <- small_steady_params()
+    params <- small_steady_params
     params@rates_funcs$RDD <- "noRDD"
     p2 <- steady(params, t_per = 1, t_max = 1, dt = 1) |>
         suppressMessages()
     expect_equal(params@rates_funcs$RDD, "noRDD")
 })
 test_that("steady() preserves erepro", {
-    params <- small_steady_params()
+    params <- small_steady_params
     species_params(params)$R_max <- 1.01 * species_params(params)$R_max
     p2 <- steady(params, t_per = 1, t_max = 1, dt = 1, tol = 10,
                  preserve = "erepro") |>
@@ -127,7 +127,7 @@ test_that("steady() preserves erepro", {
     expect_equal(p2@species_params$erepro, params@species_params$erepro)
 })
 test_that("steady() preserves reproduction level", {
-    params <- small_steady_params()
+    params <- small_steady_params
     species_params(params)$R_max <- 1.01 * species_params(params)$R_max
     p2 <- steady(params, t_per = 1, t_max = 1, dt = 1, tol = 10,
                  preserve = "reproduction_level") |>
@@ -135,7 +135,7 @@ test_that("steady() preserves reproduction level", {
     expect_equal(getReproductionLevel(p2), getReproductionLevel(params))
 })
 test_that("steady() preserves R_max", {
-    params <- small_steady_params()
+    params <- small_steady_params
     species_params(params)$erepro <- 1.01 * species_params(params)$erepro
     p2 <- steady(params, t_per = 1, t_max = 1, dt = 1, tol = 10,
                  preserve = "R_max") |>
@@ -206,7 +206,7 @@ test_that("valid_species_arg works", {
 })
 
 test_that("projectToSteady() converges with use_predation_diffusion", {
-    params_d <- small_steady_params()
+    params_d <- small_steady_params
     params_d@use_predation_diffusion <- TRUE
     initialN(params_d)[1, ] <- initialN(params_d)[1, ] * 3
     expect_message(
