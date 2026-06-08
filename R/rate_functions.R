@@ -1002,6 +1002,12 @@ getFMortGear.MizerSim <- function(object, effort, time_range,
 #'     \item{`n_other`}{A named list of the abundances of other dynamical
 #'       components. Defaults to the initial values stored in `object`.}
 #'     \item{`t`}{The time for which to do the calculation. Defaults to 0.}
+#'     \item{`e_growth`}{Optional pre-computed energy growth rate matrix
+#'       (species x size) as returned by [getEGrowth()]. If supplied, avoids a
+#'       redundant call to [getEGrowth()].}
+#'     \item{`pred_mort`}{Optional pre-computed predation mortality rate matrix
+#'       (species x size) as returned by [getPredMort()]. If supplied, avoids a
+#'       redundant call to [getPredMort()].}
 #'   }
 #'
 #'   **For a \linkS4class{MizerSim} object:**
@@ -1180,6 +1186,12 @@ getFMort.MizerSim <- function(object, effort, time_range, drop = TRUE,
 #'       numeric effort value which is used for all gears. Defaults to the
 #'       initial effort stored in `object`.}
 #'     \item{`t`}{The time for which to do the calculation. Defaults to 0.}
+#'     \item{`e_growth`}{Optional pre-computed energy growth rate matrix
+#'       (species x size) as returned by [getEGrowth()]. If supplied, avoids a
+#'       redundant call to [getEGrowth()].}
+#'     \item{`pred_mort`}{Optional pre-computed predation mortality rate matrix
+#'       (species x size) as returned by [getPredMort()]. If supplied, avoids a
+#'       redundant call to [getPredMort()].}
 #'   }
 #'
 #'   **For a \linkS4class{MizerSim} object:**
