@@ -13,7 +13,7 @@ test_that("registerExtensions creates marker class chains in dispatch order", {
     expect_true(methods::extends(simExtensionClass(ext_b), simExtensionClass(ext_a)))
     expect_true(methods::extends(simExtensionClass(ext_a), "MizerSim"))
 
-    params <- NS_params
+    params <- NS_params_small
     params@extensions <- chain
     params <- coerceToExtensionClass(params)
     expect_s4_class(params, ext_b)
@@ -54,7 +54,7 @@ test_that("coercion uses the object's own suffix chain", {
     suffix <- setNames(NA_character_, ext_a)
     registerExtensions(chain)
 
-    params <- NS_params
+    params <- NS_params_small
     params@extensions <- suffix
     params <- coerceToExtensionClass(params)
     expect_s4_class(params, ext_a)
@@ -89,7 +89,7 @@ test_that("S3 dispatch follows registered extension order", {
            envir = .GlobalEnv)
     withr::defer(rm(list = method_names, envir = .GlobalEnv))
 
-    params <- NS_params
+    params <- NS_params_small
     params@extensions <- chain
     params <- coerceToExtensionClass(params)
     expect_equal(extensionChainTestDispatch(params), "B A base")
@@ -102,7 +102,7 @@ test_that("base objects remain valid in extension sessions", {
     ext_a <- paste0("mizerTestBaseA", Sys.getpid())
     registerExtensions(setNames(NA_character_, ext_a))
 
-    params <- validParams(NS_params)
+    params <- validParams(NS_params_small)
     expect_s4_class(params, "MizerParams")
 
     sim <- MizerSim(params, t_dimnames = 0)
@@ -116,7 +116,7 @@ test_that("classless extensions remain metadata only", {
     chain <- c(stats = "0.0")
     registerExtensions(chain)
 
-    params <- NS_params
+    params <- NS_params_small
     params@extensions <- chain
     params <- coerceToExtensionClass(params)
 
@@ -182,14 +182,14 @@ test_that("registerExtension coerces objects to correct subclass", {
     full_chain <- getRegisteredExtensions()
 
     # Object carrying only A's chain coerces to ext_a, not ext_b
-    params_a <- NS_params
+    params_a <- NS_params_small
     params_a@extensions <- setNames(NA_character_, ext_a)
     params_a <- coerceToExtensionClass(params_a)
     expect_s4_class(params_a, ext_a)
     expect_false(is(params_a, ext_b))
 
     # Object carrying the full chain coerces to ext_b
-    params_b <- NS_params
+    params_b <- NS_params_small
     params_b@extensions <- full_chain
     params_b <- coerceToExtensionClass(params_b)
     expect_s4_class(params_b, ext_b)
@@ -204,7 +204,7 @@ test_that("readParams registers and coerces saved extension objects", {
     chain <- setNames(NA_character_, ext_a)
     registerExtensions(chain)
 
-    params <- NS_params
+    params <- NS_params_small
     params@extensions <- chain
     params <- coerceToExtensionClass(params)
 

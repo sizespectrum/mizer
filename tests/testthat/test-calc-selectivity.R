@@ -1,8 +1,8 @@
-knife_edge_selectivity_species_params <- NS_species_params_gears
+knife_edge_selectivity_species_params <- NS_species_params_gears_small
 knife_edge_selectivity_species_params$sel_func <- "knife_edge"
 knife_edge_selectivity_species_params$knife_edge_size <- 1000
 knife_edge_selectivity_params <- newMultispeciesParams(
-    knife_edge_selectivity_species_params, inter, info_level = 0)
+    knife_edge_selectivity_species_params, inter_small, info_level = 0)
 
 knife_edge_selectivity_species_params_no_length <-
     knife_edge_selectivity_species_params[
@@ -10,12 +10,12 @@ knife_edge_selectivity_species_params_no_length <-
                 c("l25", "l50", "a", "b"))
     ]
 knife_edge_selectivity_params_no_length <- newMultispeciesParams(
-    knife_edge_selectivity_species_params_no_length, inter, info_level = 0)
+    knife_edge_selectivity_species_params_no_length, inter_small, info_level = 0)
 
 test_that("calc_selectivity builds array and applies selectivity functions", {
     spg <- knife_edge_selectivity_species_params_no_length
     spg$knife_edge_size[spg$gear == "Industrial"] <- 500
-    params <- newMultispeciesParams(spg, inter, info_level = 0)
+    params <- newMultispeciesParams(spg, inter_small, info_level = 0)
     sel <- calc_selectivity(params)
     expect_equal(dim(sel), dim(params@selectivity))
     industrial_species <- spg$species[spg$gear == "Industrial"]

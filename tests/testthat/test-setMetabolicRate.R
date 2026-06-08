@@ -1,4 +1,4 @@
-params <- NS_params
+params <- NS_params_small
 
 # setMetabolicRate ----
 test_that("setMetabolicRate works", {
@@ -19,7 +19,7 @@ test_that("setMetabolicRate can set exponent p", {
     expect_identical(params@species_params$p, c(1, rep(0.7, 2)))
 })
 test_that("Comment works on metab", {
-    params <- NS_params
+    params <- NS_params_small
     # if no comment, it is set automatically
     metab <- params@metab
     params <- setMetabolicRate(params, metab = metab)
@@ -51,13 +51,13 @@ test_that("Comment works on metab", {
 
 # getMetabolicRate ----
 test_that("getMetabolicRate works", {
-    expect_true(is.ArraySpeciesBySize(getMetabolicRate(NS_params)))
-    expect_equal(getMetabolicRate(NS_params), NS_params@metab,
+    expect_true(is.ArraySpeciesBySize(getMetabolicRate(NS_params_small)))
+    expect_equal(getMetabolicRate(NS_params_small), NS_params_small@metab,
                  ignore_attr = TRUE)
 })
 
 test_that("Can get and set metab slot", {
-    params <- NS_params
+    params <- NS_params_small
     new <- 2 * metab(params)
     comment(new) <- "test"
     metab(params) <- new
@@ -66,20 +66,20 @@ test_that("Can get and set metab slot", {
 })
 
 test_that("setMetabolicRate uses the documented defaults and validates inputs", {
-    params <- NS_params
+    params <- NS_params_small
     params@species_params$p[] <- NA
     params <- setMetabolicRate(params)
     expect_identical(species_params(params)$p, rep(3 / 4, nrow(species_params(params))))
 
-    expect_error(setMetabolicRate(NS_params, p = "x"), "p must be numeric")
+    expect_error(setMetabolicRate(NS_params_small, p = "x"), "p must be numeric")
 
-    new <- metab(NS_params)
+    new <- metab(NS_params_small)
     bad_names <- new
     dimnames(bad_names)[[1]] <- rev(dimnames(bad_names)[[1]])
-    expect_error(setMetabolicRate(NS_params, metab = bad_names),
+    expect_error(setMetabolicRate(NS_params_small, metab = bad_names),
                  "same ordering of species")
 
     bad_values <- new
     bad_values[1, 1] <- -1
-    expect_error(setMetabolicRate(NS_params, metab = bad_values))
+    expect_error(setMetabolicRate(NS_params_small, metab = bad_values))
 })

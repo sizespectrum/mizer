@@ -1,5 +1,5 @@
-species_params <- NS_species_params
-w <- NS_params@w
+species_params <- NS_species_params_small
+w <- NS_params_small@w
 
 # knife-edge ----
 test_that("knife-edge selectivity function is working properly", {
@@ -7,15 +7,15 @@ test_that("knife-edge selectivity function is working properly", {
                   length(w))
     expect_equal(knife_edge(c(10, 20, 30), 20), c(0, 1, 1))
     
-    NS_species_params_gears$sel_func <- "knife_edge"
-    NS_species_params_gears$knife_edge_size <- 1000
-    NS_species_params_gears$knife_edge_size[NS_species_params_gears$gear == "Industrial"] <- 500
+    NS_species_params_gears_small$sel_func <- "knife_edge"
+    NS_species_params_gears_small$knife_edge_size <- 1000
+    NS_species_params_gears_small$knife_edge_size[NS_species_params_gears_small$gear == "Industrial"] <- 500
     # Chop off l25, l50, a and b columns - the trawl selectivity
-    NS_species_params_gears <- NS_species_params_gears[,!(colnames(NS_species_params_gears) %in% c("l25","l50","a","b"))]
-    params <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
-    industrial_species <- NS_species_params_gears$species[NS_species_params_gears$gear == "Industrial"]
-    pelagic_species <- NS_species_params_gears$species[NS_species_params_gears$gear == "Pelagic"]
-    otter_trawl_species <- NS_species_params_gears$species[NS_species_params_gears$gear == "Otter"]
+    NS_species_params_gears_small <- NS_species_params_gears_small[,!(colnames(NS_species_params_gears_small) %in% c("l25","l50","a","b"))]
+    params <- newMultispeciesParams(NS_species_params_gears_small, inter_small, info_level = 0)
+    industrial_species <- NS_species_params_gears_small$species[NS_species_params_gears_small$gear == "Industrial"]
+    pelagic_species <- NS_species_params_gears_small$species[NS_species_params_gears_small$gear == "Pelagic"]
+    otter_trawl_species <- NS_species_params_gears_small$species[NS_species_params_gears_small$gear == "Otter"]
 
     expect_true(all(params@selectivity["Industrial",industrial_species,params@w < 500] == 0))
     expect_true(all(params@selectivity["Industrial",industrial_species,params@w >= 500] == 1))

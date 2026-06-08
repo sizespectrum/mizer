@@ -1,5 +1,5 @@
 test_that("We can set and get resource parameters", {
-  params <- NS_params
+  params <- NS_params_small
   rp <- params@resource_params
   # Check that when called without parameters it leaves the params untouched
   # using expect_equal instead of expect_identical because the latter failed
@@ -39,7 +39,7 @@ test_that("We can set and get resource parameters", {
   expect_identical(params@cc_pp, resource_capacity)
   
   # Check that setResource calculates rates correctly
-  params <- setResource(NS_params, resource_rate = rr, 
+  params <- setResource(NS_params_small, resource_rate = rr, 
                         resource_capacity = cc,
                         lambda = lambda, n = n,
                         w_pp_cutoff = w_pp_cutoff,
@@ -55,12 +55,12 @@ test_that("We can set and get resource parameters", {
 })
 
 test_that("setResource gives error", {
-  expect_error(setResource(NS_params, resource_dynamics = "fake"),
+  expect_error(setResource(NS_params_small, resource_dynamics = "fake"),
                'The resource dynamics function "fake" is not defined.')
-    expect_error(setResource(NS_params, 
+    expect_error(setResource(NS_params_small, 
                              resource_capacity = 1, resource_level = 2),
                  "You should specify only either")
-    expect_error(setResource(NS_params, 
+    expect_error(setResource(NS_params_small, 
                              resource_capacity = 1, resource_rate = 2),
                  "You should only provide either")
 })
@@ -68,27 +68,27 @@ test_that("setResource gives error", {
 
 
 test_that("Can get and set resource_capacity slot", {
-  params <- NS_params
+  params <- NS_params_small
   new <- 2 * resource_capacity(params)
   comment(new) <- "test"
   resource_capacity(params) <- new
   expect_identical(resource_capacity(params), new)
 })
 test_that("Can get and set resource_rate slot", {
-  params <- NS_params
+  params <- NS_params_small
   new <- 2 * resource_rate(params)
   comment(new) <- "test"
   resource_rate(params) <- new
   expect_identical(resource_rate(params), new)
 })
 test_that("resource accessors return documented values", {
-    params <- NS_params
+    params <- NS_params_small
     expect_identical(resource_rate(params), params@rr_pp)
     expect_identical(resource_capacity(params), params@cc_pp)
     expect_equal(resource_level(params), params@initial_n_pp / params@cc_pp)
 })
 test_that("Can get and set resource_level slot", {
-    params <- NS_params
+    params <- NS_params_small
     new <- rep(0.5, length(resource_level(params)))
     resource_level(params) <- new
     expected_level <- new
@@ -101,7 +101,7 @@ test_that("Can get and set resource_level slot", {
 })
 
 test_that("resource_level can be set to 1", {
-    params <- NS_params
+    params <- NS_params_small
     expect_warning(
         params_new <- setResource(params, resource_level = 1),
         "division by zero"
@@ -112,7 +112,7 @@ test_that("resource_level can be set to 1", {
 })
 
 test_that("Can get and set resource_dynamics slot", {
-    params <- NS_params
+    params <- NS_params_small
     new <- "resource_constant"
     comment(new) <- "test"
     resource_dynamics(params) <- new
@@ -120,7 +120,7 @@ test_that("Can get and set resource_dynamics slot", {
 })
 
 test_that("w_pp_cutoff can be decreased without providing carrying_capacity", {
-    params <- NS_params
+    params <- NS_params_small
     old_cutoff <- resource_params(params)$w_pp_cutoff
     # Choose a new cutoff that is smaller
     new_cutoff <- old_cutoff / 2
@@ -144,7 +144,7 @@ test_that("w_pp_cutoff can be decreased without providing carrying_capacity", {
 })
 
 test_that("w_pp_cutoff cannot be increased without providing carrying_capacity", {
-    params <- NS_params
+    params <- NS_params_small
     old_cutoff <- resource_params(params)$w_pp_cutoff
     # Try to increase the cutoff
     new_cutoff <- old_cutoff * 2
@@ -157,7 +157,7 @@ test_that("w_pp_cutoff cannot be increased without providing carrying_capacity",
 })
 
 test_that("w_pp_cutoff can be changed when providing carrying_capacity", {
-    params <- NS_params
+    params <- NS_params_small
     old_cutoff <- resource_params(params)$w_pp_cutoff
     new_cutoff <- old_cutoff * 2
     

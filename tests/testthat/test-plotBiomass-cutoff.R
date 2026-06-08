@@ -1,5 +1,5 @@
 test_that("plotBiomass works with use_cutoff", {
-    params <- NS_params
+    params <- NS_params_small
     species_params(params)$biomass_cutoff <- 10
     sim <- project(params, t_max = 1, effort = 1)
     
@@ -27,7 +27,7 @@ test_that("plotBiomass works with use_cutoff", {
 })
 
 test_that("plotBiomass validates time range and can include total", {
-    sim <- project(NS_params, t_max = 1, effort = 1, progress_bar = FALSE)
+    sim <- project(NS_params_small, t_max = 1, effort = 1, progress_bar = FALSE)
     expect_error(plotBiomass(sim, start_time = 1, end_time = 1),
                  "must be less than")
 

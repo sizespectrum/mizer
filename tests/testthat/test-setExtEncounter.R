@@ -1,5 +1,5 @@
 test_that("setExtEncounter works", {
-    params <- NS_params
+    params <- NS_params_small
 
     # Without ext_encounter argument, recalculates from E_ext (default 0) and n
     p2 <- setExtEncounter(params)
@@ -20,7 +20,7 @@ test_that("setExtEncounter works", {
 })
 
 test_that("setExtEncounter uses E_ext species param", {
-    params <- NS_params
+    params <- NS_params_small
     species_params(params)$E_ext <- 0.1
     p2 <- setExtEncounter(params, reset = TRUE)
     expected <- sweep(outer(species_params(params)[["n"]],
@@ -30,7 +30,7 @@ test_that("setExtEncounter uses E_ext species param", {
 })
 
 test_that("reset works on ext_encounter", {
-    params <- NS_params
+    params <- NS_params_small
     # Set a custom ext_encounter with a comment
     custom <- params@ext_encounter
     custom[] <- 1
@@ -45,7 +45,7 @@ test_that("reset works on ext_encounter", {
 })
 
 test_that("Comment works on ext_encounter", {
-    params <- NS_params
+    params <- NS_params_small
     ext_encounter <- params@ext_encounter
     # comment is stored
     comment(ext_encounter) <- "test"
@@ -59,17 +59,17 @@ test_that("Comment works on ext_encounter", {
 })
 
 test_that("getExtEncounter works", {
-    expect_true(is.ArraySpeciesBySize(getExtEncounter(NS_params)))
-    expect_equal(getExtEncounter(NS_params), NS_params@ext_encounter,
+    expect_true(is.ArraySpeciesBySize(getExtEncounter(NS_params_small)))
+    expect_equal(getExtEncounter(NS_params_small), NS_params_small@ext_encounter,
                  ignore_attr = TRUE)
 })
 
 test_that("setExtEncounter validates dimensions", {
-    expect_error(setExtEncounter(NS_params, array(0, dim = c(1, 1))))
+    expect_error(setExtEncounter(NS_params_small, array(0, dim = c(1, 1))))
 })
 
 test_that("Can get and set slot", {
-    params <- NS_params
+    params <- NS_params_small
     ext_encounter <- getExtEncounter(params)
     expect_identical(ext_encounter(params), ext_encounter)
     new <- 2 * ext_encounter

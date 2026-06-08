@@ -1,18 +1,18 @@
 test_that("idxFinalT matches final time index and results", {
-    idx <- idxFinalT(NS_sim)
-    expect_equal(idx, length(getTimes(NS_sim)))
-    expect_equal(N(NS_sim)[idx, , ], finalN(NS_sim), ignore_attr = TRUE)
-    expect_identical(NResource(NS_sim)[idx, ], finalNResource(NS_sim))
+    idx <- idxFinalT(NS_sim_small)
+    expect_equal(idx, length(getTimes(NS_sim_small)))
+    expect_equal(N(NS_sim_small)[idx, , ], finalN(NS_sim_small), ignore_attr = TRUE)
+    expect_identical(NResource(NS_sim_small)[idx, ], finalNResource(NS_sim_small))
 })
 
 test_that("getEffort works", {
-    sim <- project(NS_params, t_max = 1, effort = 2, progress_bar = FALSE)
+    sim <- project(NS_params_small, t_max = 1, effort = 2, progress_bar = FALSE)
     expect_identical(getEffort(sim), sim@effort)
     expect_true(all(getEffort(sim) == 2))
 })
 
 test_that("N, NResource and getTimes expose stored arrays and times", {
-    sim <- project(NS_params, t_max = 1, t_save = 0.5, progress_bar = FALSE)
+    sim <- project(NS_params_small, t_max = 1, t_save = 0.5, progress_bar = FALSE)
 
     expect_equal(unclass(N(sim)), sim@n, ignore_attr = TRUE)
     expect_identical(NResource(sim), sim@n_pp)

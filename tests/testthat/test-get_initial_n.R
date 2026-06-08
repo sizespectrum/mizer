@@ -1,7 +1,7 @@
 # get_initial_n ----
 edition1_initial_n_params <- withr::with_options(
     list(mizer_defaults_edition = 1),
-    newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
+    newMultispeciesParams(NS_species_params_gears_small, inter_small, info_level = 0)
 )
 
 test_that("get_initial_n is working properly in edition 1", {

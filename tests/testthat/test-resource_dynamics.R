@@ -2,7 +2,7 @@
 
 # resource_constant ----
 test_that("resource_constant works", {
-    params <- NS_params
+    params <- NS_params_small
     x <- resource_constant(params,
                            n = params@initial_n,
                            n_pp = params@initial_n_pp,
@@ -14,7 +14,7 @@ test_that("resource_constant works", {
 })
 
 test_that("We can set and get resource parameters", {
-    params <- NS_params
+    params <- NS_params_small
     # get
     rp <- resource_params(params)
     expect_identical(rp, params@resource_params)
@@ -29,7 +29,7 @@ test_that("We can set and get resource parameters", {
 })
 
 test_that("Deprecated resource getters warn and delegate to accessors", {
-    params <- NS_params
+    params <- NS_params_small
     expect_warning(expect_identical(getResourceDynamics(params),
                                     resource_dynamics(params)),
                    "deprecated")
@@ -45,7 +45,7 @@ test_that("Deprecated resource getters warn and delegate to accessors", {
 })
 
 test_that("resource_params<- updates `time_modified`", {
-    params <- NS_params
-    resource_params(params) <- resource_params(NS_params)
-    expect_false(identical(params@time_modified, NS_params@time_modified))
+    params <- NS_params_small
+    resource_params(params) <- resource_params(NS_params_small)
+    expect_false(identical(params@time_modified, NS_params_small@time_modified))
 })

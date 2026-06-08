@@ -63,7 +63,7 @@ test_that("balance_resource_logistic works", {
         all.equal(N_steady[sel], N[sel])
     }
     
-    params <- NS_params
+    params <- NS_params_small
     
     # setting rate
     rate <- getResourceMort(params) * 1.1
@@ -81,7 +81,7 @@ test_that("balance_resource_logistic works", {
 })
 
 test_that("balance_resource_logistic validates balancing inputs", {
-    params <- NS_params
+    params <- NS_params_small
 
     rate <- getResourceMort(params)
     rate[1] <- rate[1] * 0.9
@@ -98,7 +98,7 @@ test_that("balance_resource_logistic validates balancing inputs", {
 })
 
 test_that("balance_resource_logistic nudges capacity to avoid division by zero", {
-    params <- NS_params
+    params <- NS_params_small
     capacity <- initialNResource(params)
     death <- getResourceMort(params) * capacity != 0
 

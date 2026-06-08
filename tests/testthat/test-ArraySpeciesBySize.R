@@ -1,7 +1,7 @@
 test_that("ArraySpeciesBySize constructor works", {
     mat <- matrix(1:30, nrow = 3, ncol = 10)
-    rownames(mat) <- NS_params@species_params$species
-    colnames(mat) <- signif(NS_params@w[1:10], 3)
+    rownames(mat) <- NS_params_small@species_params$species
+    colnames(mat) <- signif(NS_params_small@w[1:10], 3)
     
     rate <- ArraySpeciesBySize(mat, value_name = "Test rate", units = "g/year")
     
@@ -19,7 +19,7 @@ test_that("ArraySpeciesBySize constructor validates input", {
 })
 
 test_that("Rate functions return ArraySpeciesBySize", {
-    params <- NS_params
+    params <- NS_params_small
 
     expect_true(is.ArraySpeciesBySize(getEncounter(params)))
     expect_true(is.ArraySpeciesBySize(getFeedingLevel(params)))
@@ -42,7 +42,7 @@ test_that("Rate functions return ArraySpeciesBySize", {
 })
 
 test_that("All rate functions have consistent dimnames", {
-    params <- NS_params
+    params <- NS_params_small
     expected_dimnames <- dimnames(params@metab)
     
     expect_identical(dimnames(getEncounter(params)), expected_dimnames)
@@ -58,23 +58,23 @@ test_that("All rate functions have consistent dimnames", {
 })
 
 test_that("print.ArraySpeciesBySize works", {
-    enc <- getEncounter(NS_params)
+    enc <- getEncounter(NS_params_small)
     expect_output(print(enc), "Encounter rate")
     expect_output(print(enc), "species x")
     expect_output(print(enc), "g/year")
 })
 
 test_that("summary.ArraySpeciesBySize works", {
-    enc <- getEncounter(NS_params)
+    enc <- getEncounter(NS_params_small)
     s <- summary(enc)
     expect_s3_class(s, "summary.ArraySpeciesBySize")
     expect_identical(s$value_name, "Encounter rate")
-    expect_identical(nrow(s$per_species), nrow(NS_params@species_params))
+    expect_identical(nrow(s$per_species), nrow(NS_params_small@species_params))
     expect_output(print(s), "Encounter rate")
 })
 
 test_that("str.ArraySpeciesBySize works", {
-    enc <- getEncounter(NS_params)
+    enc <- getEncounter(NS_params_small)
     expect_output(str(enc), "ArraySpeciesBySize")
     expect_output(str(enc), "Encounter rate")
     expect_output(str(enc), "g/year")
@@ -85,7 +85,7 @@ test_that("str.ArraySpeciesBySize works", {
 })
 
 test_that("plot.ArraySpeciesBySize returns ggplot", {
-    enc <- getEncounter(NS_params)
+    enc <- getEncounter(NS_params_small)
 
     # params attribute is used for styling
     p <- plot(enc)
@@ -104,7 +104,7 @@ test_that("plot.ArraySpeciesBySize returns ggplot", {
 })
 
 test_that("plot.ArraySpeciesBySize supports base plot log argument", {
-    enc <- getEncounter(NS_params)
+    enc <- getEncounter(NS_params_small)
 
     p_y <- plot(enc, log = "y")
     expect_identical(p_y$scales$get_scales("x")$trans$name, "identity")
@@ -122,7 +122,7 @@ test_that("plot.ArraySpeciesBySize supports base plot log argument", {
 })
 
 test_that("plot2.ArraySpeciesBySize compares compatible arrays", {
-    enc <- getEncounter(NS_params)
+    enc <- getEncounter(NS_params_small)
 
     p <- plot2(enc, enc, name1 = "Original", name2 = "Changed",
                species = "Cod", total = TRUE, background = FALSE,
@@ -138,12 +138,12 @@ test_that("plot2.ArraySpeciesBySize compares compatible arrays", {
     expect_identical(p_none$scales$get_scales("x")$trans$name, "identity")
     expect_identical(p_none$scales$get_scales("y")$trans$name, "identity")
 
-    expect_error(plot2(enc, getBiomass(NS_sim)), "Both objects must be")
+    expect_error(plot2(enc, getBiomass(NS_sim_small)), "Both objects must be")
     expect_error(plot2(enc, enc, log = "z"), "containing only")
 })
 
 test_that("plotRelative.ArraySpeciesBySize plots symmetric relative difference", {
-    enc <- getEncounter(NS_params)
+    enc <- getEncounter(NS_params_small)
     enc2 <- enc
     enc2[] <- unclass(enc) * 2
 
@@ -158,12 +158,12 @@ test_that("plotRelative.ArraySpeciesBySize plots symmetric relative difference",
     p_linear <- plotRelative(enc, enc2, species = "Cod", log_x = FALSE)
     expect_identical(p_linear$scales$get_scales("x")$trans$name, "identity")
 
-    expect_error(plotRelative(enc, getBiomass(NS_sim)), "Both objects must be")
+    expect_error(plotRelative(enc, getBiomass(NS_sim_small)), "Both objects must be")
 })
 
 test_that("addPlot.ArraySpeciesBySize adds lines to an existing ggplot", {
-    enc <- getEncounter(NS_params)
-    pred_mort <- getPredMort(NS_params)
+    enc <- getEncounter(NS_params_small)
+    pred_mort <- getPredMort(NS_params_small)
 
     p <- plot(enc, species = "Cod")
     p2 <- addPlot(p, enc, species = "Cod", linetype = "dashed", alpha = 0.5)
@@ -177,25 +177,25 @@ test_that("addPlot.ArraySpeciesBySize adds lines to an existing ggplot", {
     p2$layers[[1]]$aes_params$alpha <- 0.25
     expect_null(p$layers[[1]]$aes_params$alpha)
     expect_error(addPlot("not a plot", enc), "ggplot")
-    expect_error(addPlot(plot(getBiomass(NS_sim)), enc), "x variable `w`")
+    expect_error(addPlot(plot(getBiomass(NS_sim_small)), enc), "x variable `w`")
     expect_warning(addPlot(p, pred_mort, species = "Cod"), "y units")
 })
 
 test_that("plot.ArraySpeciesBySize supports full size grid", {
-    pred_rate <- getPredRate(NS_params)
+    pred_rate <- getPredRate(NS_params_small)
 
     df <- plot(pred_rate, return_data = TRUE, all.sizes = TRUE)
-    expect_equal(sort(unique(df$w)), NS_params@w_full)
+    expect_equal(sort(unique(df$w)), NS_params_small@w_full)
 
     p <- plot(pred_rate)
     expect_s3_class(p, "ggplot")
 })
 
 test_that("plot.ArraySpeciesBySize errors for unknown size grid", {
-    mat <- matrix(1, nrow = nrow(NS_params@initial_n), ncol = 3,
-                  dimnames = list(sp = dimnames(NS_params@initial_n)$sp,
+    mat <- matrix(1, nrow = nrow(NS_params_small@initial_n), ncol = 3,
+                  dimnames = list(sp = dimnames(NS_params_small@initial_n)$sp,
                                   w = as.character(1:3)))
-    x <- ArraySpeciesBySize(mat, params = NS_params)
+    x <- ArraySpeciesBySize(mat, params = NS_params_small)
 
     expect_error(
         plot(x, return_data = TRUE),
@@ -204,25 +204,25 @@ test_that("plot.ArraySpeciesBySize errors for unknown size grid", {
 })
 
 test_that("ArraySpeciesBySize has interactive plotly methods", {
-    enc <- getEncounter(NS_params)
+    enc <- getEncounter(NS_params_small)
 
     expect_s3_class(plotHover(enc), "plotly")
 })
 
 test_that("as.data.frame.ArraySpeciesBySize works", {
-    enc <- getEncounter(NS_params)
+    enc <- getEncounter(NS_params_small)
     df <- as.data.frame(enc)
     expect_true(is.data.frame(df))
     expect_true(all(c("w", "value", "Species") %in% names(df)))
     expect_equal(nrow(df), prod(dim(enc)))
 
-    pred_rate <- getPredRate(NS_params)
+    pred_rate <- getPredRate(NS_params_small)
     df_pr <- as.data.frame(pred_rate)
-    expect_equal(sort(unique(df_pr$w)), NS_params@w_full)
+    expect_equal(sort(unique(df_pr$w)), NS_params_small@w_full)
 })
 
 test_that("ArraySpeciesBySize subsetting preserves class for 2D", {
-    enc <- getEncounter(NS_params)
+    enc <- getEncounter(NS_params_small)
     
     # Subsetting rows keeps class
     sub <- enc[1:3, ]
@@ -240,7 +240,7 @@ test_that("ArraySpeciesBySize subsetting preserves class for 2D", {
 })
 
 test_that("ArraySpeciesBySize arithmetic strips class", {
-    enc <- getEncounter(NS_params)
+    enc <- getEncounter(NS_params_small)
     
     # Arithmetic should strip ArraySpeciesBySize and return a plain matrix
     double_enc <- enc * 2
@@ -259,15 +259,15 @@ test_that("ArraySpeciesBySize arithmetic strips class", {
 })
 
 test_that("ArraySpeciesBySize value_name attribute", {
-    enc <- getEncounter(NS_params)
+    enc <- getEncounter(NS_params_small)
     expect_identical(attr(enc, "value_name"), "Encounter rate")
     
-    fl <- getFeedingLevel(NS_params)
+    fl <- getFeedingLevel(NS_params_small)
     expect_identical(attr(fl, "value_name"), "Feeding level")
     
-    g <- getEGrowth(NS_params)
+    g <- getEGrowth(NS_params_small)
     expect_identical(attr(g, "value_name"), "Growth rate")
     
-    mort <- getMort(NS_params)
+    mort <- getMort(NS_params_small)
     expect_identical(attr(mort, "value_name"), "Total mortality")
 })

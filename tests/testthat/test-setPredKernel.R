@@ -1,4 +1,4 @@
-params <- NS_params
+params <- NS_params_small
 no_sp <- nrow(params@species_params)
 
 ## setPredKernel ----
@@ -23,7 +23,7 @@ test_that("setPredKernel works", {
 })
 
 test_that("Comment works on pred_kernel", {
-    params <- NS_params
+    params <- NS_params_small
     # if no comment, it is set automatically
     pred_kernel <- getPredKernel(params)
     params <- setPredKernel(params, pred_kernel = pred_kernel)
@@ -67,15 +67,15 @@ test_that("getPredKernel has correct dimnames", {
     expect_identical(pred_kernel(params), pred_kernel)
 })
 test_that("getting and setting pred kernel leads to same dynamics", {
-    params <- NS_params
+    params <- NS_params_small
     params <- setPredKernel(params, pred_kernel = getPredKernel(params))
-    sim1 <- project(NS_params, t_max = 0.1)
+    sim1 <- project(NS_params_small, t_max = 0.1)
     sim2 <- project(params, t_max = 0.1)
     expect_equal(finalN(sim1), finalN(sim2), tolerance = 1e-4, ignore_attr = "params")
 })
 
 test_that("Can get and set pred_kernel slot", {
-    params <- NS_params
+    params <- NS_params_small
     new <- 2 * pred_kernel(params)
     comment(new) <- "test"
     pred_kernel(params) <- new
@@ -85,7 +85,7 @@ test_that("Can get and set pred_kernel slot", {
 
 ## get_phi ----
 test_that("get_phi works", {
-    sp <- NS_species_params
+    sp <- NS_species_params_small
     sp$pred_kernel_type <- "box"
     sp$ppmr_min <- 2
     sp$ppmr_max <- 4
@@ -105,7 +105,7 @@ test_that("get_phi works", {
 })
 
 test_that("get_phi throws error if predation kernel parameters are missing", {
-    sp <- NS_species_params
+    sp <- NS_species_params_small
     sp$pred_kernel_type <- "box"
     # parameters missing entirely
     expect_error(get_phi(sp, 1:5),
@@ -127,7 +127,7 @@ test_that("default_pred_kernel_params sets defaults for data frames and params",
     expect_identical(sp_defaulted$beta, c(30, 30))
     expect_identical(sp_defaulted$sigma, c(2, 2))
 
-    params <- NS_params
+    params <- NS_params_small
     params@species_params$pred_kernel_type <- NA
     params@species_params$beta <- NA
     params@species_params$sigma <- NA
@@ -138,7 +138,7 @@ test_that("default_pred_kernel_params sets defaults for data frames and params",
 })
 
 test_that("default_pred_kernel_params leaves manually set full kernels unchanged", {
-    params <- setPredKernel(NS_params, pred_kernel = getPredKernel(NS_params))
+    params <- setPredKernel(NS_params_small, pred_kernel = getPredKernel(NS_params_small))
     params@species_params$beta[] <- NA
 
     unchanged <- default_pred_kernel_params(params)

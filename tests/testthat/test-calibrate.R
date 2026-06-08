@@ -48,7 +48,7 @@ test_that("calibrateNumber works", {
 })
 
 test_that("calibrateBiomass and calibrateNumber honour cutoffs", {
-    params <- NS_params
+    params <- NS_params_small
     cutoff <- params@w[10]
 
     species_params(params)$biomass_cutoff <- cutoff
@@ -64,7 +64,7 @@ test_that("calibrateBiomass and calibrateNumber honour cutoffs", {
     expect_equal(biomass_scaled@initial_n,
                  params@initial_n * observed_total / model_total)
 
-    params <- NS_params
+    params <- NS_params_small
     species_params(params)$number_cutoff <- cutoff
     species_params(params)$number_observed <-
         c(NA, NA,
@@ -80,7 +80,7 @@ test_that("calibrateBiomass and calibrateNumber honour cutoffs", {
 })
 
 test_that("calibrateYield works and warns about deprecation", {
-    params <- NS_params
+    params <- NS_params_small
     expect_warning(expect_identical(calibrateYield(params), params),
                    "deprecated")
 
@@ -101,8 +101,8 @@ test_that("calibrateYield works and warns about deprecation", {
 
 test_that("scaleModel does not change dynamics.", {
     factor <- 10
-    sim <- project(NS_params, t_max = 1)
-    params2 <- scaleModel(NS_params, factor)
+    sim <- project(NS_params_small, t_max = 1)
+    params2 <- scaleModel(NS_params_small, factor)
     sim2 <- project(params2, t_max = 1)
     expect_equal(sim2@n[1, , ], sim@n[1, , ] * factor)
     expect_equal(sim2@n[2, , ], sim@n[2, , ] * factor)
@@ -110,7 +110,7 @@ test_that("scaleModel does not change dynamics.", {
 
 test_that("scaleModel rescales documented state and parameter slots", {
     factor <- 4
-    params <- NS_params
+    params <- NS_params_small
     params@species_params$R_max <- 1:nrow(params@species_params)
 
     scaled <- scaleModel(params, factor)
@@ -126,7 +126,7 @@ test_that("scaleModel rescales documented state and parameter slots", {
 })
 
 test_that("scaleModel renames deprecated r_max column", {
-    params <- NS_params
+    params <- NS_params_small
     params@species_params$r_max <- 1:nrow(params@species_params)
     params@species_params$R_max <- NULL
 
@@ -136,6 +136,6 @@ test_that("scaleModel renames deprecated r_max column", {
 })
 
 test_that("scaleModel updates `time_modified`", {
-    params <- scaleModel(NS_params, factor = 2)
-    expect_false(identical(params@time_modified, NS_params@time_modified))
+    params <- scaleModel(NS_params_small, factor = 2)
+    expect_false(identical(params@time_modified, NS_params_small@time_modified))
 })

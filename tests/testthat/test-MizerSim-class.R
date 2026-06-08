@@ -1,5 +1,5 @@
-params <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
-short_ns_sim <- project(NS_params, t_max = 0.2, t_save = 0.1)
+params <- newMultispeciesParams(NS_species_params_gears_small, inter_small, info_level = 0)
+short_ns_sim <- project(NS_params_small, t_max = 0.2, t_save = 0.1)
 
 # basic constructor sets dimensions properly ----
 test_that("basic constructor sets dimensions properly", {
@@ -53,13 +53,13 @@ test_that("validSim works", {
     sim@n[3, 1, 1] <- Inf
     expect_warning(simt <- validSim(sim),
                    "The simulation failed to work beyond time = 0.1")
-    expect_equal(dim(simt@n)[1:2], c(2, nrow(NS_params@species_params)))
+    expect_equal(dim(simt@n)[1:2], c(2, nrow(NS_params_small@species_params)))
     expect_equal(dim(simt@n_pp)[1], 2)
-    expect_equal(dim(simt@effort), c(2, length(unique(gear_params(NS_params)$gear))))
+    expect_equal(dim(simt@effort), c(2, length(unique(gear_params(NS_params_small)$gear))))
     sim@n[2, 2, 2] <- NaN
     expect_warning(simt <- validSim(sim),
                    "The simulation failed to work beyond time = 0")
-    expect_equal(dim(simt@n)[1:2], c(1, nrow(NS_params@species_params)))
+    expect_equal(dim(simt@n)[1:2], c(1, nrow(NS_params_small@species_params)))
 })
 
 test_that("validSim also validates embedded params", {
@@ -82,25 +82,25 @@ test_that("getParams() returns final time step by default", {
 })
 
 test_that("getParams() with a single time_range selects that time step", {
-    t <- getTimes(NS_sim)[3]
-    p <- getParams(NS_sim, time_range = t)
-    idx <- which(as.numeric(dimnames(NS_sim@n)$time) == t)
-    expect_equal(p@initial_n, NS_sim@n[idx, , ], ignore_attr = TRUE)
+    t <- getTimes(NS_sim_small)[3]
+    p <- getParams(NS_sim_small, time_range = t)
+    idx <- which(as.numeric(dimnames(NS_sim_small@n)$time) == t)
+    expect_equal(p@initial_n, NS_sim_small@n[idx, , ], ignore_attr = TRUE)
 })
 
 test_that("getParams() averages arithmetic mean over time range", {
     time_sel <- c(2:4)
-    time_range <- getTimes(NS_sim)[time_sel]
-    p <- getParams(NS_sim, time_range = time_range)
-    expect_equal(p@initial_n[1, 10], mean(NS_sim@n[time_sel, 1, 10]))
+    time_range <- getTimes(NS_sim_small)[time_sel]
+    p <- getParams(NS_sim_small, time_range = time_range)
+    expect_equal(p@initial_n[1, 10], mean(NS_sim_small@n[time_sel, 1, 10]))
 })
 
 test_that("getParams() averages geometric mean over time range", {
     time_sel <- c(2:4)
-    time_range <- getTimes(NS_sim)[time_sel]
-    p <- getParams(NS_sim, time_range = time_range, geometric_mean = TRUE)
+    time_range <- getTimes(NS_sim_small)[time_sel]
+    p <- getParams(NS_sim_small, time_range = time_range, geometric_mean = TRUE)
     expect_equal(p@initial_n[1, 10],
-                 exp(mean(log(NS_sim@n[time_sel, 1, 10]))))
+                 exp(mean(log(NS_sim_small@n[time_sel, 1, 10]))))
 })
 
 test_that("getParams() updates time_modified", {
@@ -110,8 +110,8 @@ test_that("getParams() updates time_modified", {
 })
 
 test_that("finalParams() matches getParams() with no time_range", {
-    p_get  <- getParams(NS_sim)
-    p_final <- finalParams(NS_sim)
+    p_get  <- getParams(NS_sim_small)
+    p_final <- finalParams(NS_sim_small)
     expect_equal(p_final@initial_n, p_get@initial_n)
     expect_equal(p_final@initial_n_pp, p_get@initial_n_pp)
     expect_equal(p_final@initial_effort, p_get@initial_effort)

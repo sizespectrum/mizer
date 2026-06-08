@@ -1,5 +1,5 @@
 test_that("pred kernel functions", {
-    ppmr <- NS_params@w_full / NS_params@w_full[1]
+    ppmr <- NS_params_small@w_full / NS_params_small@w_full[1]
     phi <- lognormal_pred_kernel(ppmr, beta = 100, sigma = 2)
     expect_true(all(phi > 0))
 

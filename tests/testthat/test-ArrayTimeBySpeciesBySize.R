@@ -24,45 +24,45 @@ test_that("ArrayTimeBySpeciesBySize constructor validates input", {
 })
 
 test_that("Rate functions return ArrayTimeBySpeciesBySize from MizerSim", {
-    expect_true(is.ArrayTimeBySpeciesBySize(getFMort(NS_sim)))
-    expect_true(is.ArrayTimeBySpeciesBySize(getFeedingLevel(NS_sim)))
-    expect_true(is.ArrayTimeBySpeciesBySize(getPredMort(NS_sim)))
+    expect_true(is.ArrayTimeBySpeciesBySize(getFMort(NS_sim_small)))
+    expect_true(is.ArrayTimeBySpeciesBySize(getFeedingLevel(NS_sim_small)))
+    expect_true(is.ArrayTimeBySpeciesBySize(getPredMort(NS_sim_small)))
 })
 
 test_that("Rate functions from MizerSim have correct dimnames", {
-    fmort <- getFMort(NS_sim)
-    expect_identical(dimnames(fmort)[[2]], NS_params@species_params$species)
-    expect_identical(dimnames(fmort)[[3]], dimnames(NS_params@metab)[[2]])
-    expect_identical(dim(fmort)[1], dim(NS_sim@n)[1])
+    fmort <- getFMort(NS_sim_small)
+    expect_identical(dimnames(fmort)[[2]], NS_params_small@species_params$species)
+    expect_identical(dimnames(fmort)[[3]], dimnames(NS_params_small@metab)[[2]])
+    expect_identical(dim(fmort)[1], dim(NS_sim_small@n)[1])
 })
 
 test_that("getFMort with drop=TRUE and single time returns ArraySpeciesBySize", {
-    times <- dimnames(NS_sim@n)$time
-    f1 <- getFMort(NS_sim, time_range = times[3], drop = TRUE)
+    times <- dimnames(NS_sim_small@n)$time
+    f1 <- getFMort(NS_sim_small, time_range = times[3], drop = TRUE)
     expect_true(is.ArraySpeciesBySize(f1))
     expect_identical(attr(f1, "value_name"), "Fishing mortality")
 })
 
 test_that("print.ArrayTimeBySpeciesBySize works", {
-    fmort <- getFMort(NS_sim)
+    fmort <- getFMort(NS_sim_small)
     expect_output(print(fmort), "Fishing mortality")
     expect_output(print(fmort), "times x")
     expect_output(print(fmort), "1/year")
 })
 
 test_that("summary.ArrayTimeBySpeciesBySize works", {
-    fmort <- getFMort(NS_sim)
+    fmort <- getFMort(NS_sim_small)
     s <- summary(fmort)
     expect_s3_class(s, "summary.ArrayTimeBySpeciesBySize")
     expect_identical(s$value_name, "Fishing mortality")
-    expect_identical(nrow(s$per_species), nrow(NS_params@species_params))
+    expect_identical(nrow(s$per_species), nrow(NS_params_small@species_params))
     expect_output(print(s), "Fishing mortality")
     expect_output(print(s), "1/year")
     expect_output(print(s), "times x")
 })
 
 test_that("str.ArrayTimeBySpeciesBySize works", {
-    fmort <- getFMort(NS_sim)
+    fmort <- getFMort(NS_sim_small)
     expect_output(str(fmort), "ArrayTimeBySpeciesBySize")
     expect_output(str(fmort), "Fishing mortality")
     expect_output(str(fmort), "1/year")
@@ -73,13 +73,13 @@ test_that("str.ArrayTimeBySpeciesBySize works", {
 })
 
 test_that("plot.ArrayTimeBySpeciesBySize returns a ggplot", {
-    fmort <- getFMort(NS_sim)
+    fmort <- getFMort(NS_sim_small)
     p <- plot(fmort)
     expect_s3_class(p, "ggplot")
 })
 
 test_that("plot.ArrayTimeBySpeciesBySize supports base plot log argument", {
-    fmort <- getFMort(NS_sim)
+    fmort <- getFMort(NS_sim_small)
 
     p_y <- plot(fmort, log = "y")
     expect_identical(p_y$scales$get_scales("x")$trans$name, "identity")
@@ -91,14 +91,14 @@ test_that("plot.ArrayTimeBySpeciesBySize supports base plot log argument", {
 })
 
 test_that("plot.ArrayTimeBySpeciesBySize time argument selects correct slice", {
-    fmort <- getFMort(NS_sim)
+    fmort <- getFMort(NS_sim_small)
     times <- as.numeric(dimnames(fmort)[[1]])
     p <- plot(fmort, time = times[3], return_data = TRUE)
     expect_true(is.data.frame(p))
 })
 
 test_that("plot2.ArrayTimeBySpeciesBySize compares selected time slices", {
-    fmort <- getFMort(NS_sim)
+    fmort <- getFMort(NS_sim_small)
     times <- as.numeric(dimnames(fmort)[[1]])
 
     p <- plot2(fmort, fmort, name1 = "Original", name2 = "Changed",
@@ -111,11 +111,11 @@ test_that("plot2.ArrayTimeBySpeciesBySize compares selected time slices", {
     expect_identical(p$scales$get_scales("x")$trans$name, "log-10")
     expect_identical(p$scales$get_scales("y")$trans$name, "log-10")
 
-    expect_error(plot2(fmort, getBiomass(NS_sim)), "Both objects must be")
+    expect_error(plot2(fmort, getBiomass(NS_sim_small)), "Both objects must be")
 })
 
 test_that("plotRelative.ArrayTimeBySpeciesBySize compares selected time slices", {
-    fmort <- getFMort(NS_sim)
+    fmort <- getFMort(NS_sim_small)
     fmort2 <- fmort
     fmort2[] <- unclass(fmort) * 2
     times <- as.numeric(dimnames(fmort)[[1]])
@@ -128,7 +128,7 @@ test_that("plotRelative.ArrayTimeBySpeciesBySize compares selected time slices",
     expect_true(all(abs(p$data$rel_diff - 2 / 3) < 1e-12))
     expect_identical(p$scales$get_scales("x")$trans$name, "log-10")
 
-    expect_error(plotRelative(fmort, getBiomass(NS_sim)), "Both objects must be")
+    expect_error(plotRelative(fmort, getBiomass(NS_sim_small)), "Both objects must be")
 })
 
 test_that("plot.ArrayTimeBySpeciesBySize preserves single species dimension", {
@@ -147,7 +147,7 @@ test_that("plot.ArrayTimeBySpeciesBySize preserves single species dimension", {
 })
 
 test_that("as.data.frame.ArrayTimeBySpeciesBySize returns correct structure", {
-    fmort <- getFMort(NS_sim)
+    fmort <- getFMort(NS_sim_small)
     df <- as.data.frame(fmort)
     expect_true(is.data.frame(df))
     expect_named(df, c("time", "Species", "w", "value"))
@@ -156,14 +156,14 @@ test_that("as.data.frame.ArrayTimeBySpeciesBySize returns correct structure", {
 })
 
 test_that("[.ArrayTimeBySpeciesBySize preserves class for 3D result", {
-    fmort <- getFMort(NS_sim)
+    fmort <- getFMort(NS_sim_small)
     sub <- fmort[1:3, , ]
     expect_true(is.ArrayTimeBySpeciesBySize(sub))
     expect_identical(attr(sub, "value_name"), "Fishing mortality")
 })
 
 test_that("[.ArrayTimeBySpeciesBySize returns ArraySpeciesBySize when time is dropped", {
-    fmort <- getFMort(NS_sim)
+    fmort <- getFMort(NS_sim_small)
     slice <- fmort[1, , ]
     expect_false(is.ArrayTimeBySpeciesBySize(slice))
     expect_true(is.ArraySpeciesBySize(slice))
@@ -171,7 +171,7 @@ test_that("[.ArrayTimeBySpeciesBySize returns ArraySpeciesBySize when time is dr
 })
 
 test_that("[.ArrayTimeBySpeciesBySize returns ArrayTimeBySpecies when size is dropped", {
-    fmort <- getFMort(NS_sim)
+    fmort <- getFMort(NS_sim_small)
     slice <- fmort[, , 1]
     expect_false(is.ArrayTimeBySpeciesBySize(slice))
     expect_true(is.ArrayTimeBySpecies(slice))
@@ -179,7 +179,7 @@ test_that("[.ArrayTimeBySpeciesBySize returns ArrayTimeBySpecies when size is dr
 })
 
 test_that("[.ArrayTimeBySpeciesBySize leaves time by size matrices plain", {
-    fmort <- getFMort(NS_sim)
+    fmort <- getFMort(NS_sim_small)
     slice <- fmort[, 1, ]
     expect_false(is.ArrayTimeBySpeciesBySize(slice))
     expect_false(is.ArraySpeciesBySize(slice))
@@ -188,20 +188,20 @@ test_that("[.ArrayTimeBySpeciesBySize leaves time by size matrices plain", {
 })
 
 test_that("Ops.ArrayTimeBySpeciesBySize strips class for arithmetic", {
-    fmort <- getFMort(NS_sim)
+    fmort <- getFMort(NS_sim_small)
     result <- fmort * 2
     expect_false(is.ArrayTimeBySpeciesBySize(result))
     expect_true(is.array(result))
 })
 
 test_that("animate dispatches on ArrayTimeBySpeciesBySize", {
-    fmort <- getFMort(NS_sim)
+    fmort <- getFMort(NS_sim_small)
     p <- animate(fmort)
     expect_s3_class(p, "plotly")
 })
 
 test_that("animate.ArrayTimeBySpeciesBySize respects species argument", {
-    fmort <- getFMort(NS_sim)
+    fmort <- getFMort(NS_sim_small)
     p <- animate(fmort, species = c("Cod", "Herring"))
     expect_s3_class(p, "plotly")
     expect_error(animate(fmort, species = "NotASpecies"),
@@ -209,14 +209,14 @@ test_that("animate.ArrayTimeBySpeciesBySize respects species argument", {
 })
 
 test_that("animate.ArrayTimeBySpeciesBySize respects time_range argument", {
-    fmort <- getFMort(NS_sim)
+    fmort <- getFMort(NS_sim_small)
     times <- as.numeric(dimnames(fmort)[[1]])
     p <- animate(fmort, time_range = c(times[1], times[4]))
     expect_s3_class(p, "plotly")
 })
 
 test_that("animate.ArrayTimeBySpeciesBySize sets axis ranges without dropping vertices", {
-    fmort <- getFMort(NS_sim)
+    fmort <- getFMort(NS_sim_small)
     p <- animate(fmort, species = "Cod", time_range = c(2000, 2001),
                  wlim = c(1, 1000), ylim = c(1e-3, 1))
     built_plot <- plotly::plotly_build(p)
@@ -230,13 +230,13 @@ test_that("animate.ArrayTimeBySpeciesBySize sets axis ranges without dropping ve
 })
 
 test_that("animate.ArrayTimeBySpeciesBySize can disable interpolation between frames", {
-    fmort <- getFMort(NS_sim)
+    fmort <- getFMort(NS_sim_small)
     p <- animate(fmort, time_range = c(2000, 2001), transition_duration = 0)
     expect_identical(p$animation$transition$duration, 0)
 })
 
 test_that("animate.ArrayTimeBySpeciesBySize exposes plotly animation timing controls", {
-    fmort <- getFMort(NS_sim)
+    fmort <- getFMort(NS_sim_small)
     p <- animate(fmort, time_range = c(2000, 2001),
                  frame_duration = 800,
                  transition_duration = 120,
@@ -248,7 +248,7 @@ test_that("animate.ArrayTimeBySpeciesBySize exposes plotly animation timing cont
 })
 
 test_that("animate.ArrayTimeBySpeciesBySize respects total argument", {
-    fmort <- getFMort(NS_sim)
+    fmort <- getFMort(NS_sim_small)
     trace_names <- function(p) {
         vapply(plotly::plotly_build(p)$x$data, function(t) t$name, character(1))
     }
@@ -260,7 +260,7 @@ test_that("animate.ArrayTimeBySpeciesBySize respects total argument", {
 
 test_that("animate.ArrayTimeBySpeciesBySize respects background argument", {
     # Use Herring so the background species has non-zero fishing mortality
-    params_bkgrd <- markBackground(NS_params, species = "Herring")
+    params_bkgrd <- markBackground(NS_params_small, species = "Herring")
     sim_bkgrd <- project(params_bkgrd, t_max = 5, t_save = 1)
     fmort <- getFMort(sim_bkgrd)
     trace_names <- function(p) {
@@ -271,7 +271,7 @@ test_that("animate.ArrayTimeBySpeciesBySize respects background argument", {
 })
 
 test_that("animateSpectra is a backward-compatible alias for animate", {
-    fmort <- getFMort(NS_sim)
+    fmort <- getFMort(NS_sim_small)
     expect_s3_class(animateSpectra(fmort), "plotly")
-    expect_s3_class(animateSpectra(NS_sim), "plotly")
+    expect_s3_class(animateSpectra(NS_sim_small), "plotly")
 })

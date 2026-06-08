@@ -4,7 +4,7 @@ example_animate_long_sim <- project(example_params(), t_max = 5, t_save = 1,
                                     effort = 1)
 example_animate_high_effort_sim <- project(example_params(), t_max = 2,
                                            t_save = 1, effort = 10)
-ns_animate_sim <- project(NS_params, t_max = 2, t_save = 1, effort = 1)
+ns_animate_sim <- project(NS_params_small, t_max = 2, t_save = 1, effort = 1)
 
 test_that("animateSpectra does not throw error", {
     sim <- example_animate_sim
@@ -40,7 +40,7 @@ test_that("animateSpectra sets axis ranges without dropping vertices", {
 })
 
 test_that("animateSpectra derives missing x-axis limits from plotted data", {
-    result <- animateSpectra(NS_sim, species = "Cod",
+    result <- animateSpectra(NS_sim_small, species = "Cod",
                              tlim = c(1, 2),
                              resource = FALSE, wlim = c(NA, 1000))
     built_plot <- plotly::plotly_build(result)
@@ -251,8 +251,8 @@ test_that("animateSpectra adds resource and total traces when requested", {
 })
 
 test_that("animateSpectra handles background parameter correctly", {
-    params_bkgrd <- markBackground(NS_params,
-                                    species = species_params(NS_params)$species[1:2])
+    params_bkgrd <- markBackground(NS_params_small,
+                                    species = species_params(NS_params_small)$species[1:2])
     sim_bkgrd <- project(params_bkgrd, t_max = 2, t_save = 1, effort = 1)
 
     # background = TRUE (default) includes a "Background" trace

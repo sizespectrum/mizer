@@ -1,5 +1,5 @@
 test_that("set_species_param_default sets default correctly", {
-    params <- NS_params
+    params <- NS_params_small
     no_sp <- nrow(params@species_params)
     
     # Add comments to test that they are preserved
@@ -30,7 +30,7 @@ test_that("set_species_param_default sets default correctly", {
 
 
 test_that("default for gamma is correct", {
-    params <- NS_params
+    params <- NS_params_small
     # check that missing h is o.k.
     params@species_params$alpha <- 0.1
     species_params <- params@species_params
@@ -58,7 +58,7 @@ test_that("default for gamma is correct", {
 
 
 test_that("Setting species params works", {
-    params <- newMultispeciesParams(NS_species_params, info_level = 0)
+    params <- newMultispeciesParams(NS_species_params_small, info_level = 0)
     # changing h changes intake_max
     h_old <- params@species_params$h[[1]]
     intake_max_old <- params@intake_max[1, 1]
@@ -100,11 +100,11 @@ test_that("Setting species params works", {
 })
 
 test_that("Error if species names don't match", {
-    sp <- NS_species_params
+    sp <- NS_species_params_small
     sp$species[2] <- "not a species"
-    expect_error(species_params(NS_params) <- sp,
+    expect_error(species_params(NS_params_small) <- sp,
                  "The species names in the new species parameter data frame do not match")
-    expect_error(given_species_params(NS_params) <- sp,
+    expect_error(given_species_params(NS_params_small) <- sp,
                  "The species names in the new species parameter data frame do not match")
 })
 
@@ -129,7 +129,7 @@ test_that("set_species_params_from_length works", {
 })
 
 test_that("`given_species_params<-()` gives correct warnings", {
-    params <- NS_params
+    params <- NS_params_small
     
     no_sp <- nrow(params@species_params)
     expect_warning(given_species_params(params)$f0 <- 1)
@@ -146,7 +146,7 @@ test_that("`given_species_params<-()` gives correct warnings", {
 })
 
 test_that("`given_species_params<-()` triggers recalculation", {
-    params <- NS_params
+    params <- NS_params_small
     params@given_species_params$gamma <- NULL
     gamma <- params@species_params$gamma
     given_species_params(params)$f0 <- 0.1
@@ -154,7 +154,7 @@ test_that("`given_species_params<-()` triggers recalculation", {
 })
 
 test_that("`given_species_params<-()` can remove columns", {
-    params <- NS_params
+    params <- NS_params_small
     given_species_params(params)$gamma <- NULL
     expect_false("gamma" %in% names(params@given_species_params))
     expect_true("gamma" %in% names(params@species_params))
@@ -162,7 +162,7 @@ test_that("`given_species_params<-()` can remove columns", {
 })
 
 test_that("calculated_species_params returns only non-given values", {
-    params <- NS_params
+    params <- NS_params_small
 
     calculated <- calculated_species_params(params)
     expect_false("species" %in% names(calculated))
@@ -175,12 +175,12 @@ test_that("calculated_species_params returns only non-given values", {
 })
 
 test_that("species_params and given_species_params accessors return stored tables", {
-    expect_identical(species_params(NS_params), NS_params@species_params)
-    expect_identical(given_species_params(NS_params), NS_params@given_species_params)
+    expect_identical(species_params(NS_params_small), NS_params_small@species_params)
+    expect_identical(given_species_params(NS_params_small), NS_params_small@given_species_params)
 })
 
 test_that("species_params setter validates and recalculates", {
-    params <- NS_params
+    params <- NS_params_small
     sp <- species_params(params)
     sp$w_min[1] <- 1
     species_params(params) <- sp
@@ -193,7 +193,7 @@ test_that("species_params setter validates and recalculates", {
 })
 
 test_that("given_species_params setter can add new explicit columns", {
-    params <- NS_params
+    params <- NS_params_small
     sp <- given_species_params(params)
     sp$custom <- seq_len(nrow(sp))
     given_species_params(params) <- sp
@@ -202,7 +202,7 @@ test_that("given_species_params setter can add new explicit columns", {
 })
 
 test_that("set_species_param_default converts factors to character and fills NAs only", {
-    sp <- species_params(NS_params)
+    sp <- species_params(NS_params_small)
     sp$dummy <- factor(rep("blue", nrow(sp)))
     sp$dummy[1] <- NA
     sp2 <- set_species_param_default(sp, "dummy", "black")
@@ -212,7 +212,7 @@ test_that("set_species_param_default converts factors to character and fills NAs
 })
 
 test_that("get_h_default, get_f0_default and get_ks_default follow documented defaults", {
-    params <- NS_params
+    params <- NS_params_small
 
     sp <- species_params(params)
     sp$h <- rep(NA_real_, nrow(sp))

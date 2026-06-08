@@ -1,4 +1,4 @@
-params <- NS_params
+params <- NS_params_small
 
 # validGearParams ----
 test_that("validGearParams works", {
@@ -61,7 +61,7 @@ test_that("validGearParams works", {
 
 # validEffortVector ----
 test_that("validEffort works", {
-    params <- NS_params
+    params <- NS_params_small
     ie <- params@initial_effort
     # an already valid vector is not changed
     expect_identical(validEffortVector(ie, params), ie)
@@ -86,7 +86,7 @@ test_that("validEffort works", {
                  "it has names that are not among the gear names")
 })
 test_that("validEffortParams works when no gears are set up", {
-    params <- newMultispeciesParams(NS_species_params,
+    params <- newMultispeciesParams(NS_species_params_small,
                                     gear_params = data.frame(), info_level = 0)
     expect_length(validEffortVector(1, params), 0)
     expect_length(validEffortVector(NULL, params), 0)
@@ -126,7 +126,7 @@ test_that("Setting catchability works", {
 })
 
 test_that("Comment works on selectivity", {
-    params <- NS_params
+    params <- NS_params_small
     # if no comment, it is set automatically
     selectivity <- params@selectivity
     params <- setFishing(params, selectivity = selectivity)
@@ -156,7 +156,7 @@ test_that("Comment works on selectivity", {
 })
 
 test_that("Comment works on catchability", {
-    params <- NS_params
+    params <- NS_params_small
     # if no comment, it is set automatically
     catchability <- params@catchability
     params <- setFishing(params, catchability = catchability)
@@ -242,7 +242,7 @@ test_that("Wrong dimnames throw errors or get fixed", {
 })
 
 test_that("Dimensions after number of gears has increased", {
-    params <- NS_params
+    params <- NS_params_small
     gear_params(params)$gear <- params@species_params$species
     no_gears <- nrow(params@species_params)
     expect_identical(dim(params@catchability)[[1]], no_gears)
@@ -258,20 +258,20 @@ test_that("Dimensions after number of gears has increased", {
 })
 
 test_that("Duplicate gear-species pairs give error", {
-    gp <- rbind(NS_params@gear_params, NS_params@gear_params[1, ])
+    gp <- rbind(NS_params_small@gear_params, NS_params_small@gear_params[1, ])
     expect_error(gear_params(params) <- gp,
                  "Some species - gear pairs appear more than once")
 })
 
 test_that("Non-existing species give error", {
-    gp <- NS_params@gear_params
+    gp <- NS_params_small@gear_params
     gp$species[[1]] <- "test"
     expect_error(gear_params(params) <- gp,
                  "The gear_params dataframe contains species that do not exist in the model.")
 })
 
 test_that("Can get and set selectivity slot", {
-    params <- NS_params
+    params <- NS_params_small
     new <- 2 * selectivity(params)
     comment(new) <- "test"
     selectivity(params) <- new
@@ -279,7 +279,7 @@ test_that("Can get and set selectivity slot", {
     expect_identical(getSelectivity(params), new)
 })
 test_that("Can get and set catchability slot", {
-    params <- NS_params
+    params <- NS_params_small
     new <- 2 * catchability(params)
     comment(new) <- "test"
     catchability(params) <- new
@@ -287,7 +287,7 @@ test_that("Can get and set catchability slot", {
     expect_identical(getCatchability(params), new)
 })
 test_that("Can get and set initial_effort slot", {
-    params <- NS_params
+    params <- NS_params_small
     expect_identical(getInitialEffort(params), initial_effort(params))
     new <- 2 * initial_effort(params)
     initial_effort(params) <- new

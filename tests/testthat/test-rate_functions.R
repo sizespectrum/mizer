@@ -1,5 +1,5 @@
 test_that("get_time_elements", {
-    params <- NS_params
+    params <- NS_params_small
     sim <- project(params, effort = 1, t_max = 4, dt = 0.5, t_save = 0.5)
     expect_error(get_time_elements(sim, time_range = 0.1),
                  "The time range does not contain any simulation results.")

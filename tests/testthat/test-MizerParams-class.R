@@ -1,7 +1,7 @@
 # emptyParams ----
 # * test dimensions ----
 test_that("basic constructor sets dimensions properly", {
-    species_params <- NS_species_params[c(1, 2, 3), ]
+    species_params <- NS_species_params_small[c(1, 2, 3), ]
     species_names <- species_params$species
     no_sp <- 3
     min_w <- 0.1
@@ -60,7 +60,7 @@ test_that("basic constructor sets dimensions properly", {
 })
 
 test_that("emptyParams validates min_w_pp against min_w", {
-    species_params <- NS_species_params[c(1, 2, 3), ]
+    species_params <- NS_species_params_small[c(1, 2, 3), ]
     expect_error(emptyParams(species_params,
                              min_w = 0.1,
                              max_w = 40000,
@@ -71,7 +71,7 @@ test_that("emptyParams validates min_w_pp against min_w", {
 
 # validMizerParams ----
 test_that("Slots are allowed to have comments", {
-    params <- NS_params
+    params <- NS_params_small
     comment(params) <- "All slots are given comments"
     for (slot in (slotNames(params))) {
         comment(slot(params, slot)) <- slot
@@ -82,7 +82,7 @@ test_that("Slots are allowed to have comments", {
 
 # size bins ----
 test_that("w, w_full, dw, dw_full work", {
-    params <- NS_params
+    params <- NS_params_small
     expect_identical(w(params), params@w)
     expect_identical(w_full(params), params@w_full)
     expect_identical(dw(params), params@dw)
@@ -105,11 +105,11 @@ test_that("validParams works", {
 
 test_that("validParams checks w_min and w_max", {
     # w_max
-    params <- NS_params
+    params <- NS_params_small
     params@species_params$w_max[1] <- 1e6
     expect_warning(validParams(params), "The maximum weight of a species is larger")
     # w_min
-    params <- NS_params
+    params <- NS_params_small
     params@species_params$w_min[1:3] <- 1e-6
     expect_warning(params <- validParams(params), "smaller than the minimum")
     expect_true(validObject(params))
@@ -117,15 +117,15 @@ test_that("validParams checks w_min and w_max", {
 })
 
 test_that("validParams rejects non-finite rate arrays and allows infinite intake_max", {
-    params <- NS_params
+    params <- NS_params_small
     params@search_vol[1, 1] <- NaN
     expect_error(validParams(params), "search_vol must not contain non-finite values")
 
-    params <- NS_params
+    params <- NS_params_small
     params@intake_max[1, 1] <- Inf
     expect_no_error(validParams(params))
 
-    params <- NS_params
+    params <- NS_params_small
     params@intake_max[1, 1] <- NaN
     expect_error(validParams(params),
                  "intake_max must contain finite or infinite numeric values only")

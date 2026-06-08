@@ -6,7 +6,7 @@ test_that("log_breaks returns monotonic breaks", {
 })
 
 test_that("plotDataFrame builds ggplot with species legend", {
-    params <- NS_params
+    params <- NS_params_small
     sp <- species_params(params)$species[1:2]
     df <- data.frame(
         x = c(1, 2, 3, 1, 2, 3),
@@ -23,7 +23,7 @@ test_that("plotDataFrame builds ggplot with species legend", {
 })
 
 test_that("plotDataFrame validates helper arguments", {
-    params <- NS_params
+    params <- NS_params_small
     df <- data.frame(x = 1:3, y = 1:3, Species = species_params(params)$species[1])
     expect_error(plotDataFrame(df[, 1:2], params),
                  "at least 3 variables")
@@ -36,7 +36,7 @@ test_that("plotDataFrame validates helper arguments", {
 })
 
 test_that("plotDataFrame supports area plots, wrapping and log x breaks", {
-    params <- NS_params
+    params <- NS_params_small
     sp <- species_params(params)$species[1:2]
     df <- data.frame(
         x = c(1, 10, 100, 1, 10, 100),

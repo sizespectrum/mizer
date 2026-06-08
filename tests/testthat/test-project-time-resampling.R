@@ -1,5 +1,5 @@
 test_that("Time resampling in project behaves as documented", {
-    params <- NS_params
+    params <- NS_params_small
     gear_names <- unique(gear_params(params)$gear)
 
     # Create effort array with irregular times

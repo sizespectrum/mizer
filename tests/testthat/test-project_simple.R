@@ -1,5 +1,5 @@
 test_that("project_simple matches project for one saved step", {
-    params <- NS_params
+    params <- NS_params_small
     dt <- 0.1
     t_save <- 1
     steps <- as.integer(t_save / dt)
@@ -33,7 +33,7 @@ test_that("project_simple matches project for one saved step", {
 })
 
 test_that("project_simple returns rates from the final update step", {
-    params <- NS_params
+    params <- NS_params_small
     dt <- 0.1
     steps <- 2
     effort <- getInitialEffort(params)
@@ -82,7 +82,7 @@ test_that("project_simple returns rates from the final update step", {
 })
 
 test_that("project_simple accepts predictor-corrector method", {
-    params <- NS_params
+    params <- NS_params_small
     effort <- getInitialEffort(params)
     res_fn <- get(params@resource_dynamics)
     other_fns <- lapply(params@other_dynamics, get)

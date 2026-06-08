@@ -1,5 +1,5 @@
 # choose an example params object
-params <- NS_params
+params <- NS_params_small
 sp <- params@species_params
 rdi <- getRDI(params)
 

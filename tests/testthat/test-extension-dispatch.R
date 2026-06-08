@@ -14,7 +14,7 @@ test_that("getEncounter dispatches through extension chain", {
         envir = asNamespace("mizer")
     )
 
-    params <- NS_params
+    params <- NS_params_small
     params@extensions <- chain
     params <- coerceToExtensionClass(params)
 
@@ -78,7 +78,7 @@ test_that("getRates dispatches through all projection hooks", {
         })
     }
 
-    params <- NS_params
+    params <- NS_params_small
     params@extensions <- chain
     params <- coerceToExtensionClass(params)
 
@@ -90,7 +90,7 @@ test_that("getRates dispatches through all projection hooks", {
 })
 
 test_that("getEncounter honours rates_funcs for base objects", {
-    params <- NS_params
+    params <- NS_params_small
     params@rates_funcs$Encounter <- "constant_encounter_for_dispatch_test"
 
     assign("constant_encounter_for_dispatch_test",
@@ -111,7 +111,7 @@ test_that("setRateFunction is honoured when extension dispatch is active", {
     chain <- setNames(NA_character_, ext)
     registerExtensions(chain)
 
-    params <- NS_params
+    params <- NS_params_small
     params@extensions <- chain
     params <- coerceToExtensionClass(params)
 
@@ -134,7 +134,7 @@ test_that("classless extensions do not trigger project dispatch", {
     chain <- c(stats = "0.0")
     registerExtensions(chain)
 
-    params <- NS_params
+    params <- NS_params_small
     params@extensions <- chain
     params@rates_funcs$Rates <- "classless_rates_for_dispatch_test"
     params@rates_funcs$Encounter <- "classless_encounter_for_dispatch_test"

@@ -1,5 +1,5 @@
 test_that("matchBiomasses works", {
-    params <- setBevertonHolt(NS_params)
+    params <- setBevertonHolt(NS_params_small)
 
     # Does nothing when no observed biomass
     expect_identical(matchBiomasses(params), params)
@@ -29,7 +29,7 @@ test_that("matchBiomasses works", {
 })
 
 test_that("matchNumbers works", {
-    params <- setBevertonHolt(NS_params)
+    params <- setBevertonHolt(NS_params_small)
 
     # Does nothing when no observed numbers
     expect_identical(matchNumbers(params), params)
@@ -58,7 +58,7 @@ test_that("matchNumbers works", {
 })
 
 test_that("matchBiomasses and matchNumbers fail for unreachable cutoff", {
-    params <- setBevertonHolt(NS_params)
+    params <- setBevertonHolt(NS_params_small)
     species_params(params)$biomass_observed <- 0
     species_params(params)$biomass_observed[1] <- 1
     species_params(params)$biomass_cutoff <- 0
@@ -75,7 +75,7 @@ test_that("matchBiomasses and matchNumbers fail for unreachable cutoff", {
 })
 
 test_that("matchYields works", {
-    params <- setBevertonHolt(NS_params)
+    params <- setBevertonHolt(NS_params_small)
     initial_effort(params) <- setNames(rep(1, length(initial_effort(params))),
                                        names(initial_effort(params)))
     yield_actual <- rowSums(sweep(params@initial_n, 2, params@w * params@dw, "*") *
@@ -93,7 +93,7 @@ test_that("matchYields works", {
 })
 
 test_that("matchYields updates `time_modified`", {
-    p <- NS_params
+    p <- NS_params_small
     species_params(p)$yield_observed <- 1
     p2 <- suppressWarnings(matchYields(p))
     expect_false(identical(p2@time_modified, p@time_modified))

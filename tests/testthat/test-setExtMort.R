@@ -1,8 +1,8 @@
-params <- NS_params
+params <- NS_params_small
 
 ## setExtMort ----
 test_that("setExtMort works", {
-    params <- NS_params
+    params <- NS_params_small
     params@species_params$z0 <- 2 * params@species_params$z0
     p2 <- setExtMort(params)
     expect_equal(p2@mu_b, 2 * params@mu_b, ignore_attr = TRUE)
@@ -24,7 +24,7 @@ test_that("setExtMort works", {
 })
 
 test_that("setExtMort uses z_ext and d species parameters", {
-    params <- NS_params
+    params <- NS_params_small
     params@species_params$z0 <- rep(0.2, nrow(params@species_params))
     params@species_params$z_ext <- seq_len(nrow(params@species_params)) / 10
     params@species_params$d <- seq(-0.25, by = 0.01,
@@ -40,7 +40,7 @@ test_that("setExtMort uses z_ext and d species parameters", {
 })
 
 test_that("setExtMort defaults z_ext to 0 and d to n - 1", {
-    params <- NS_params
+    params <- NS_params_small
     params@species_params$z_ext <- NULL
     params@species_params$d <- NULL
 
@@ -54,7 +54,7 @@ test_that("setExtMort defaults z_ext to 0 and d to n - 1", {
 })
 
 test_that("Comment works on mu_b", {
-    params <- NS_params
+    params <- NS_params_small
     # if no comment, it is set automatically
     ext_mort <- params@mu_b
     params <- setExtMort(params, ext_mort = ext_mort)
@@ -85,12 +85,12 @@ test_that("Comment works on mu_b", {
 
 # getExtMort ----
 test_that("getExtMort works", {
-    expect_true(is.ArraySpeciesBySize(getExtMort(NS_params)))
-    expect_equal(getExtMort(NS_params), NS_params@mu_b, ignore_attr = TRUE)
+    expect_true(is.ArraySpeciesBySize(getExtMort(NS_params_small)))
+    expect_equal(getExtMort(NS_params_small), NS_params_small@mu_b, ignore_attr = TRUE)
 })
 
 test_that("Can get and set slot", {
-    params <- NS_params
+    params <- NS_params_small
     ext_mort <- getExtMort(params)
     expect_identical(ext_mort(params), ext_mort)
     new <- 2 * ext_mort
@@ -101,8 +101,8 @@ test_that("Can get and set slot", {
 })
 
 test_that("setExtMort validates dimensions and deprecated z0 argument", {
-    expect_error(setExtMort(NS_params, array(0, dim = c(1, 1))))
-    expect_warning(p <- setExtMort(NS_params, z0 = NS_params@mu_b),
+    expect_error(setExtMort(NS_params_small, array(0, dim = c(1, 1))))
+    expect_warning(p <- setExtMort(NS_params_small, z0 = NS_params_small@mu_b),
                    "deprecated")
-    expect_equal(p@mu_b, NS_params@mu_b, ignore_attr = TRUE)
+    expect_equal(p@mu_b, NS_params_small@mu_b, ignore_attr = TRUE)
 })

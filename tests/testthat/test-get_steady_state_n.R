@@ -1,5 +1,5 @@
 test_that("get_steady_state_n works with no diffusion", {
-    params <- NS_params
+    params <- NS_params_small
     no_sp <- nrow(params@species_params)
     no_w <- length(params@w)
 

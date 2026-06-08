@@ -92,7 +92,7 @@ test_that("use_predation_diffusion<- updates `time_modified`", {
 test_that("mizerDiffusion increases when fish prey are present", {
     # With use_predation_diffusion = TRUE, adding fish as prey increases D.
     # This exercises the params@interaction %*% n term.
-    params <- newMultispeciesParams(NS_species_params_gears, inter,
+    params <- newMultispeciesParams(NS_species_params_gears_small, inter_small,
                                     no_w = 30, info_level = 0)
     params@use_predation_diffusion <- TRUE
     n_zero <- initialN(params)

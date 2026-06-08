@@ -4,18 +4,18 @@ trait_manipulate_params <- newTraitParams()
 small_trait_manipulate_params <- newTraitParams(no_sp = 2)
 small_trait_grid_manipulate_params <- newTraitParams(no_sp = 2, no_w = 36,
                                                      info_level = 0)
-ns_manipulate_params <- newMultispeciesParams(NS_species_params,
+ns_manipulate_params <- newMultispeciesParams(NS_species_params_small,
                                               info_level = 0)
 ns_manipulate_params_36 <- newMultispeciesParams(
-    NS_species_params,
+    NS_species_params_small,
     no_w = 36,
     max_w = 39900,
     min_w_pp = 9e-14,
     info_level = 0
 )
-remove_ns_species <- NS_species_params$species[2]
+remove_ns_species <- NS_species_params_small$species[2]
 reduced_ns_species_params <-
-    NS_species_params[NS_species_params$species != remove_ns_species, ]
+    NS_species_params_small[NS_species_params_small$species != remove_ns_species, ]
 reduced_ns_manipulate_params_36 <- newMultispeciesParams(
     reduced_ns_species_params,
     no_w = 36,
@@ -23,7 +23,7 @@ reduced_ns_manipulate_params_36 <- newMultispeciesParams(
     min_w_pp = 9e-14,
     info_level = 0
 )
-lower_ns_species_params <- NS_species_params
+lower_ns_species_params <- NS_species_params_small
 lower_ns_species_params$species <- tolower(lower_ns_species_params$species)
 lower_ns_manipulate_params <- newMultispeciesParams(lower_ns_species_params,
                                                     info_level = 0)
@@ -142,7 +142,7 @@ test_that("addSpecies works when adding a species with a smaller w_min", {
     sp <- data.frame(species = "Blue whale", w_max = 5e4, w_min = 1e-5,
                      w_mat = 1e3, beta = 1000, sigma = 2,
                      k_vb = 0.6, gear = 'Whale hunter')
-    params <- NS_params
+    params <- NS_params_small
     # change a slot to test that such changes will be preserved
     params <- setMaxIntakeRate(params, 2 * getMaxIntakeRate(params))
 
@@ -305,10 +305,10 @@ test_that("removeSpecies works correctly on gear_params", {
 })
 
 test_that("removeSpecies accepts numeric and logical selectors", {
-    by_name <- removeSpecies(NS_params, c("Cod", "Herring"))
-    by_index <- removeSpecies(NS_params, c(2, 3))
-    by_logical <- removeSpecies(NS_params,
-                                species_params(NS_params)$species %in%
+    by_name <- removeSpecies(NS_params_small, c("Cod", "Herring"))
+    by_index <- removeSpecies(NS_params_small, c(2, 3))
+    by_logical <- removeSpecies(NS_params_small,
+                                species_params(NS_params_small)$species %in%
                                     c("Cod", "Herring"))
     expect_equal(by_index, by_name, ignore_attr = TRUE)
     expect_equal(by_logical, by_name, ignore_attr = TRUE)
@@ -354,7 +354,7 @@ test_that("adding and then removing species leaves params unaltered", {
 test_that("renameSpecies works", {
     sp <- lower_ns_species_params
     p <- ns_manipulate_params
-    replace <- NS_species_params$species
+    replace <- NS_species_params_small$species
     names(replace) <- sp$species
     p2 <- lower_ns_manipulate_params
     p2 <- renameSpecies(p2, replace)
@@ -365,7 +365,7 @@ test_that("renameSpecies works", {
 
 test_that("renameSpecies updates linked species names", {
     replace <- c(Cod = "Kabeljau", Herring = "Hering")
-    p <- renameSpecies(NS_params, replace)
+    p <- renameSpecies(NS_params_small, replace)
     expect_true(all(replace %in% species_params(p)$species))
     expect_true(all(replace %in% names(getColours(p))))
     expect_true(all(replace %in% names(getLinetypes(p))))
@@ -433,20 +433,20 @@ test_that("renameGear warns on wrong names", {
 
 # expandSizeGrid ----
 test_that("expandSizeGrid works", {
-    params <- expandSizeGrid(NS_params, new_min_w = 1e-4, new_max_w = 50000)
+    params <- expandSizeGrid(NS_params_small, new_min_w = 1e-4, new_max_w = 50000)
     expect_lt(min(params@w), 1e-4)
     expect_gt(max(params@w), 50000)
-    min_idx <- sum(params@w < min(NS_params@w)) + 1
-    max_idx <- sum(params@w < max(NS_params@w)) + 1
-    expect_equal(params@w[min_idx:max_idx], NS_params@w)
-    expect_equal(params@search_vol[, min_idx:max_idx], NS_params@search_vol)
-    expect_equal(params@metab[, min_idx:max_idx], NS_params@metab)
-    expect_equal(params@initial_n[, min_idx:max_idx], NS_params@initial_n)
+    min_idx <- sum(params@w < min(NS_params_small@w)) + 1
+    max_idx <- sum(params@w < max(NS_params_small@w)) + 1
+    expect_equal(params@w[min_idx:max_idx], NS_params_small@w)
+    expect_equal(params@search_vol[, min_idx:max_idx], NS_params_small@search_vol)
+    expect_equal(params@metab[, min_idx:max_idx], NS_params_small@metab)
+    expect_equal(params@initial_n[, min_idx:max_idx], NS_params_small@initial_n)
 })
 
 test_that("expandSizeGrid preserves existing data", {
-    params <- expandSizeGrid(NS_params)
-    expect_unchanged(params, NS_params)
+    params <- expandSizeGrid(NS_params_small)
+    expect_unchanged(params, NS_params_small)
 })
 
 test_that("expandSizeGrid preserves slots recently added to upgradeParams", {
@@ -487,13 +487,13 @@ test_that("addSpecies updates `time_modified`", {
 })
 
 test_that("removeSpecies updates `time_modified`", {
-    p2 <- removeSpecies(NS_params, "Cod")
-    expect_false(identical(p2@time_modified, NS_params@time_modified))
+    p2 <- removeSpecies(NS_params_small, "Cod")
+    expect_false(identical(p2@time_modified, NS_params_small@time_modified))
 })
 
 test_that("renameSpecies updates `time_modified`", {
-    p2 <- renameSpecies(NS_params, c(Cod = "Kabeljau"))
-    expect_false(identical(p2@time_modified, NS_params@time_modified))
+    p2 <- renameSpecies(NS_params_small, c(Cod = "Kabeljau"))
+    expect_false(identical(p2@time_modified, NS_params_small@time_modified))
 })
 
 test_that("renameGear updates `time_modified`", {
@@ -504,6 +504,6 @@ test_that("renameGear updates `time_modified`", {
 })
 
 test_that("expandSizeGrid updates `time_modified`", {
-    p2 <- expandSizeGrid(NS_params, new_max_w = 2e6)
-    expect_false(identical(p2@time_modified, NS_params@time_modified))
+    p2 <- expandSizeGrid(NS_params_small, new_max_w = 2e6)
+    expect_false(identical(p2@time_modified, NS_params_small@time_modified))
 })

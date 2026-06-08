@@ -1,4 +1,4 @@
-params <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
+params <- newMultispeciesParams(NS_species_params_gears_small, inter_small, info_level = 0)
 
 # time dimension ----
 test_that("time dimension is dealt with properly", {
@@ -99,7 +99,7 @@ test_that("warns and includes t_max when not a multiple of t_save", {
 })
 
 test_that("project method selects consumer time stepper", {
-    params_small <- newMultispeciesParams(NS_species_params_gears[nrow(NS_species_params_gears), , drop = FALSE],
+    params_small <- newMultispeciesParams(NS_species_params_gears_small[nrow(NS_species_params_gears_small), , drop = FALSE],
                                           info_level = 0)
 
     sim_default <- project(params_small, t_max = 0.2, t_save = 0.2,
@@ -131,7 +131,7 @@ test_that("project method selects consumer time stepper", {
 })
 
 test_that("project.MizerSim defaults dt and method from sim_params", {
-    params_small <- newMultispeciesParams(NS_species_params_gears[nrow(NS_species_params_gears), , drop = FALSE],
+    params_small <- newMultispeciesParams(NS_species_params_gears_small[nrow(NS_species_params_gears_small), , drop = FALSE],
                                           info_level = 0)
     sim_pc <- project(params_small, t_max = 0.2, t_save = 0.2, dt = 0.05,
                       effort = 1, progress_bar = FALSE,
@@ -184,9 +184,9 @@ test_that("Can pass in initial species", {
 
 # w_min array reference ----
 test_that("w_min array reference is working OK", {
-    NS_species_params_gears$w_min <- 0.001
-    NS_species_params_gears$w_min[1] <- 1
-    params2 <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
+    NS_species_params_gears_small$w_min <- 0.001
+    NS_species_params_gears_small$w_min[1] <- 1
+    params2 <- newMultispeciesParams(NS_species_params_gears_small, inter_small, info_level = 0)
     sim <- project(params2, effort = 1, t_max = 1)
     final <- dim(sim@n)[1]
     expect_equal(sim@n[final, 1, 1:(sim@params@w_min_idx[1] - 1)],
@@ -297,7 +297,7 @@ test_that("Simulation gives same numerical results as previously",{
   old <- getOption("mizer_defaults_edition")
   on.exit(options(mizer_defaults_edition = old), add = TRUE)
   options(mizer_defaults_edition = 1)
-  params <- newMultispeciesParams(NS_species_params_gears, inter,
+  params <- newMultispeciesParams(NS_species_params_gears_small, inter_small,
                                   n = 2/3, p = 0.7, lambda = 2.8 - 2/3, info_level = 0)
   sim <- project(params, t_max = 1)
   # expect_known_value(sim@n[2, 3, ], "values/projectn")
@@ -308,7 +308,7 @@ test_that("Simulation gives same numerical results as previously",{
 })
 
 test_that("Final result the same when called with sim or params", {
-  params <- NS_params
+  params <- NS_params_small
   sim <- project(params, t_max = 1)
   params@initial_n[] <- sim@n[2, , ]
   params@initial_n_pp[] <- sim@n_pp[2, ]
@@ -322,23 +322,23 @@ test_that("Final result the same when called with sim or params", {
 # This test is motivated by the bug in 
 # https://github.com/sizespectrum/mizer/issues/173
 test_that("Dimnames on effort have correct names", {
-  gear_names <- unique(gear_params(NS_params)$gear)
+  gear_names <- unique(gear_params(NS_params_small)$gear)
   effort <- array(1, dim = c(3, length(gear_names)), 
                   dimnames = list(1:3,
                                   gear_names))
-  sim <- project(NS_params, effort, t_max = 0.1)
+  sim <- project(NS_params_small, effort, t_max = 0.1)
   expect_identical(names(dimnames(sim@effort)), c("time", "gear"))
 })
 
 # t_max and t_save with effort arrays ----
 test_that("t_max extends simulation beyond effort array", {
-  gear_names <- unique(gear_params(NS_params)$gear)
+  gear_names <- unique(gear_params(NS_params_small)$gear)
   # Create effort array that goes from year 1 to year 5
   effort <- array(0.5, dim = c(5, length(gear_names)),
                   dimnames = list(time = 1:5, gear = gear_names))
   
   # Extend simulation to year 10 with t_max
-  sim <- project(NS_params, effort = effort, t_max = 9, dt = 0.1)
+  sim <- project(NS_params_small, effort = effort, t_max = 9, dt = 0.1)
   
   # Should save at times 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
   expect_equal(as.numeric(dimnames(sim@n)[[1]]), 1:10)
@@ -349,13 +349,13 @@ test_that("t_max extends simulation beyond effort array", {
 })
 
 test_that("t_save controls save frequency with effort array", {
-  gear_names <- unique(gear_params(NS_params)$gear)
+  gear_names <- unique(gear_params(NS_params_small)$gear)
   # Create effort array with times 0, 1, 2, 3, 4, 5
   effort <- array(0.5, dim = c(6, length(gear_names)),
                   dimnames = list(time = 0:5, gear = gear_names))
   
   # Use t_save to control output frequency
-  sim <- project(NS_params, effort = effort, t_save = 2, dt = 0.1)
+  sim <- project(NS_params_small, effort = effort, t_save = 2, dt = 0.1)
   
   # Should save at times 0, 2, 4
   expect_equal(as.numeric(dimnames(sim@n)[[1]]), c(0, 2, 4))
@@ -363,13 +363,13 @@ test_that("t_save controls save frequency with effort array", {
 })
 
 test_that("t_max and t_save work together with effort array", {
-  gear_names <- unique(gear_params(NS_params)$gear)
+  gear_names <- unique(gear_params(NS_params_small)$gear)
   # Create effort array from 0 to 3
   effort <- array(0.5, dim = c(4, length(gear_names)),
                   dimnames = list(time = 0:3, gear = gear_names))
   
   # Extend to 6 and save every 2 years
-  sim <- project(NS_params, effort = effort, t_max = 6, t_save = 2, dt = 0.1)
+  sim <- project(NS_params_small, effort = effort, t_max = 6, t_save = 2, dt = 0.1)
   
   # Should save at times 0, 2, 4, 6
   expect_equal(as.numeric(dimnames(sim@n)[[1]]), c(0, 2, 4, 6))
@@ -377,20 +377,20 @@ test_that("t_max and t_save work together with effort array", {
 })
 
 test_that("Effort array times used when t_max and t_save not provided", {
-  gear_names <- unique(gear_params(NS_params)$gear)
+  gear_names <- unique(gear_params(NS_params_small)$gear)
   # Create effort array with irregular times
   effort <- array(0.5, dim = c(4, length(gear_names)),
                   dimnames = list(time = c(0, 1, 3, 7), gear = gear_names))
   
   # Without t_max or t_save, should use effort array times
-  sim <- project(NS_params, effort = effort, dt = 0.1)
+  sim <- project(NS_params_small, effort = effort, dt = 0.1)
   
   expect_equal(as.numeric(dimnames(sim@n)[[1]]), c(0, 1, 3, 7))
   expect_equal(dim(sim@n)[1], 4)
 })
 
 test_that("Effort values interpolated correctly", {
-  gear_names <- unique(gear_params(NS_params)$gear)
+  gear_names <- unique(gear_params(NS_params_small)$gear)
   # Create effort array with varying effort
   effort <- array(NA, dim = c(3, length(gear_names)),
                   dimnames = list(time = c(0, 5, 10), gear = gear_names))
@@ -398,7 +398,7 @@ test_that("Effort values interpolated correctly", {
   effort[, 2:3] <- 0.3  # Others constant
   
   # Use t_save to create intermediate time points
-  sim <- project(NS_params, effort = effort, t_save = 2.5, dt = 0.1)
+  sim <- project(NS_params_small, effort = effort, t_save = 2.5, dt = 0.1)
   
   # Should have times 0, 2.5, 5, 7.5, 10
   expect_equal(as.numeric(dimnames(sim@n)[[1]]), c(0, 2.5, 5, 7.5, 10))
@@ -418,14 +418,14 @@ test_that("Effort values interpolated correctly", {
 
 test_that("Can extend simulation with NA in final effort", {
   # This is the motivating use case from the issue
-  gear_names <- unique(gear_params(NS_params)$gear)
+  gear_names <- unique(gear_params(NS_params_small)$gear)
   effort <- array(0.5, dim = c(3, length(gear_names)),
                   dimnames = list(time = 2017:2019, gear = gear_names))
   # The last year has NA which gets replaced by default (1 for edition >= 2)
   effort[3, ] <- NA
   
   # Run until 2020 without needing to specify effort for 2019
-  sim <- project(NS_params, effort = effort, t_max = 3, dt = 0.1)
+  sim <- project(NS_params_small, effort = effort, t_max = 3, dt = 0.1)
   
   # Should have years 2017, 2018, 2019, 2020
   expect_equal(as.numeric(dimnames(sim@n)[[1]]), 2017:2020)
@@ -437,10 +437,10 @@ test_that("Can extend simulation with NA in final effort", {
 })
 
 test_that("Named effort vectors fill missing gears with the default effort", {
-  gear_names <- unique(gear_params(NS_params)$gear)
+  gear_names <- unique(gear_params(NS_params_small)$gear)
   effort <- c(Industrial = 0.25, Pelagic = 0.4)
 
-  sim <- project(NS_params, effort = effort, t_max = 1, progress_bar = FALSE)
+  sim <- project(NS_params_small, effort = effort, t_max = 1, progress_bar = FALSE)
 
   default_effort <- ifelse(defaults_edition() < 2, 0, 1)
   expect_equal(sim@effort[1, "Industrial"], 0.25)
@@ -450,19 +450,19 @@ test_that("Named effort vectors fill missing gears with the default effort", {
 })
 
 test_that("t_max less than effort array duration uses effort times", {
-  gear_names <- unique(gear_params(NS_params)$gear)
+  gear_names <- unique(gear_params(NS_params_small)$gear)
   effort <- array(0.5, dim = c(6, length(gear_names)),
                   dimnames = list(time = 0:5, gear = gear_names))
   
   # t_max = 3 should run until time 3, not 5
-  sim <- project(NS_params, effort = effort, t_max = 3, dt = 0.1)
+  sim <- project(NS_params_small, effort = effort, t_max = 3, dt = 0.1)
   
   # Should stop at year 3
   expect_equal(max(as.numeric(dimnames(sim@n)[[1]])), 3)
 })
 
 test_that("project does not change the params object", {
-    params <- NS_params
+    params <- NS_params_small
     params@ext_diffusion[] <- 1
     old_params <- unserialize(serialize(params, NULL))
     sim <- project(params, t_max = 1)
@@ -472,7 +472,7 @@ test_that("project does not change the params object", {
 
 # predation diffusion ----
 test_that("Simulation gives same numerical results with predation diffusion", {
-    params_d <- NS_params
+    params_d <- NS_params_small
     params_d@use_predation_diffusion <- TRUE
     sim_d <- project(params_d, t_max = 1)
     expect_snapshot(sim_d@n[2, 3, ])
@@ -480,7 +480,7 @@ test_that("Simulation gives same numerical results with predation diffusion", {
 })
 
 test_that("Final result the same when called with sim or params, predation diffusion on", {
-    params_d <- NS_params
+    params_d <- NS_params_small
     params_d@use_predation_diffusion <- TRUE
     sim_d <- project(params_d, t_max = 1)
     params_d@initial_n[] <- sim_d@n[2, , ]
@@ -492,9 +492,9 @@ test_that("Final result the same when called with sim or params, predation diffu
 })
 
 test_that("Predation diffusion changes simulation trajectory", {
-    params_d <- NS_params
+    params_d <- NS_params_small
     params_d@use_predation_diffusion <- TRUE
     sim_d <- project(params_d, t_max = 1)
-    sim_base <- project(NS_params, t_max = 1)
+    sim_base <- project(NS_params_small, t_max = 1)
     expect_false(identical(sim_d@n, sim_base@n))
 })

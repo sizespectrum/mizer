@@ -1,5 +1,5 @@
 test_that("validSpeciesParams() works", {
-    species_params <- NS_species_params
+    species_params <- NS_species_params_small
     
     # test w_mat
     sp <- species_params

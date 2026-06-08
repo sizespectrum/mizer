@@ -1,4 +1,4 @@
-params <- NS_params
+params <- NS_params_small
 e <- globalenv()
 e$test_dyn <- function(params, ...) {
     111
@@ -90,7 +90,7 @@ test_that("We can set and get other params", {
                  "other_params should be a named list")
     other_params(params) <- list(test = 5, other = 6)
     expect_identical(other_params(params), list(test = 5, other = 6))
-    params2 <- setComponent(NS_params, "component", 1,
+    params2 <- setComponent(NS_params_small, "component", 1,
                             dynamics_fun = "test_dyn",
                             component_params = list(a = 2))
     expect_null(other_params(params2))
@@ -221,7 +221,7 @@ test_that("We can access simulation results", {
 })
 
 test_that("component can mimic resource", {
-    params <- NS_params
+    params <- NS_params_small
     initialNResource(params) <- initialNResource(params) / 10
     component_params <- list(capacity = params@cc_pp,
                              rate = params@rr_pp)
@@ -283,7 +283,7 @@ e$test_fmort_n_other <- function(params, n, n_pp, n_other, effort, t, ...) {
 }
 
 test_that("getFeedingLevel.MizerSim preserves n_other component names with time_range", {
-    p <- NS_params |>
+    p <- NS_params_small |>
         setComponent("my_comp", 1, dynamics_fun = "test_dyn") |>
         setRateFunction("Encounter", "test_encounter_n_other")
     sim <- project(p, t_max = 3, dt = 1, t_save = 1)
@@ -291,7 +291,7 @@ test_that("getFeedingLevel.MizerSim preserves n_other component names with time_
 })
 
 test_that("getPredMort.MizerSim preserves n_other component names with time_range", {
-    p <- NS_params |>
+    p <- NS_params_small |>
         setComponent("my_comp", 1, dynamics_fun = "test_dyn") |>
         setRateFunction("PredRate", "test_predrate_n_other")
     sim <- project(p, t_max = 3, dt = 1, t_save = 1)
@@ -299,7 +299,7 @@ test_that("getPredMort.MizerSim preserves n_other component names with time_rang
 })
 
 test_that("getFMort.MizerSim preserves n_other component names with time_range", {
-    p <- NS_params |>
+    p <- NS_params_small |>
         setComponent("my_comp", 1, dynamics_fun = "test_dyn") |>
         setRateFunction("FMort", "test_fmort_n_other")
     sim <- project(p, t_max = 3, dt = 1, t_save = 1)

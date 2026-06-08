@@ -9,13 +9,13 @@ test_that("info_level works in newTraitParams", {
 })
 
 test_that("info_level works in newMultispeciesParams", {
-    sp <- NS_species_params
+    sp <- NS_species_params_small
     expect_message(newMultispeciesParams(sp, info_level = 3), "Because")
     expect_silent(newMultispeciesParams(sp, info_level = 0))
 })
 
 test_that("info_level works in setParams", {
-    params <- NS_params
+    params <- NS_params_small
     params@species_params$h <- NA
     expect_message(setParams(params, info_level = 3), "Because")
     expect_silent(setParams(params, info_level = 0))
@@ -29,7 +29,7 @@ test_that("info_level works in projectToSteady", {
 })
 
 test_that("info_level works in matchYields", {
-    params <- NS_params
+    params <- NS_params_small
     species_params(params)$yield_observed <- NA
     suppressWarnings({
         expect_message(matchYields(params, info_level = 3),

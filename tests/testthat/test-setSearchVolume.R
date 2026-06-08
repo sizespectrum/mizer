@@ -1,6 +1,6 @@
 # setSearchVolume ----
 test_that("setSearchVolume works", {
-    params <- NS_params
+    params <- NS_params_small
     params@species_params$gamma <- 2 * params@species_params$gamma
     p2 <- setSearchVolume(params)
     expect_equal(2 * params@search_vol, p2@search_vol)
@@ -9,7 +9,7 @@ test_that("setSearchVolume works", {
     expect_unchanged(p2, params)
 })
 test_that("Comment works on search volume", {
-    params <- NS_params
+    params <- NS_params_small
     # if no comment, it is set automatically
     search_vol <- params@search_vol
     params <- setSearchVolume(params, search_vol = search_vol)
@@ -40,16 +40,16 @@ test_that("Comment works on search volume", {
 
 # getSearchVolume ----
 test_that("getSearchVolume works", {
-    expect_true(is.ArraySpeciesBySize(getSearchVolume(NS_params)))
-    expect_equal(getSearchVolume(NS_params), NS_params@search_vol,
+    expect_true(is.ArraySpeciesBySize(getSearchVolume(NS_params_small)))
+    expect_equal(getSearchVolume(NS_params_small), NS_params_small@search_vol,
                  ignore_attr = TRUE)
-    expect_identical(getSearchVolume(NS_params),
-                     search_vol(NS_params))
+    expect_identical(getSearchVolume(NS_params_small),
+                     search_vol(NS_params_small))
 })
 
 
 test_that("Can get and set search_vol slot", {
-    params <- NS_params
+    params <- NS_params_small
     new <- 2 * search_vol(params)
     comment(new) <- "test"
     search_vol(params) <- new
@@ -58,7 +58,7 @@ test_that("Can get and set search_vol slot", {
 })
 
 test_that("setSearchVolume uses q default and validates manual arrays", {
-    params <- NS_params
+    params <- NS_params_small
     params@species_params$q[] <- NA
     params <- setSearchVolume(params, reset = TRUE)
     expect_equal(
@@ -66,13 +66,13 @@ test_that("setSearchVolume uses q default and validates manual arrays", {
         resource_params(params)$lambda - 2 + species_params(params)$n
     )
 
-    new <- search_vol(NS_params)
+    new <- search_vol(NS_params_small)
     bad_names <- new
     dimnames(bad_names)[[1]] <- rev(dimnames(bad_names)[[1]])
-    expect_error(setSearchVolume(NS_params, search_vol = bad_names),
+    expect_error(setSearchVolume(NS_params_small, search_vol = bad_names),
                  "same ordering of species")
 
     bad_values <- new
     bad_values[1, 1] <- -1
-    expect_error(setSearchVolume(NS_params, search_vol = bad_values))
+    expect_error(setSearchVolume(NS_params_small, search_vol = bad_values))
 })

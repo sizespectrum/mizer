@@ -3,7 +3,7 @@
 withr::local_options(mizer_defaults_edition = 1)
 
 # North sea
-params <- newMultispeciesParams(NS_species_params_gears, inter,
+params <- newMultispeciesParams(NS_species_params_gears_small, inter_small,
                                 n = 2/3, p = 0.7, lambda = 2.8 - 2/3,
                                 info_level = 0)
 no_gear <- dim(params@catchability)[1]
@@ -325,9 +325,9 @@ test_that("getPredMort passes correct time", {
 })
 
 test_that("interaction is right way round in getPredMort function", {
-    sp_name <- NS_species_params_gears$species[2]
-    inter[, sp_name] <- 0  # species not eaten by anything
-    params <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
+    sp_name <- NS_species_params_gears_small$species[2]
+    inter_small[, sp_name] <- 0  # species not eaten by anything
+    params <- newMultispeciesParams(NS_species_params_gears_small, inter_small, info_level = 0)
     m2 <- getPredMort(params, get_initial_n(params), params@cc_pp)
     expect_true(all(m2[sp_name, ] == 0))
 })
@@ -483,7 +483,7 @@ test_that("getFMort", {
 })
 
 test_that("getFMort drop argument controls singleton dimensions for MizerSim", {
-    single <- project(newMultispeciesParams(NS_species_params_gears[3, ], info_level = 0),
+    single <- project(newMultispeciesParams(NS_species_params_gears_small[3, ], info_level = 0),
                       effort = 1, t_max = 2, progress_bar = FALSE)
     expect_equal(dim(getFMort(single, drop = FALSE)),
                  c(length(getTimes(single)), 1, length(single@params@w)))
@@ -831,14 +831,14 @@ test_that("mizerRates returns the standard rate list from registered functions",
 # fft ----
 test_that("Test that fft based integrator gives similar result as old code", {
     # Make it harder by working with kernels that need a lot of cutoff
-    species_params <- NS_species_params_gears
+    species_params <- NS_species_params_gears_small
     species_params$pred_kernel_type <- "truncated_lognormal"
     species_params$sigma[2] <- 3
     species_params$beta[1] <- species_params$beta[1] * 100
     species_params$beta[3] <- species_params$beta[3] / 1000
     # and use different egg sizes
     species_params$w_min <- seq(0.001, 1, length.out = no_sp)
-    params <- newMultispeciesParams(species_params, inter,
+    params <- newMultispeciesParams(species_params, inter_small,
                                         no_w = 30, min_w_pp = 1e-12,
                                         info_level = 0)
     # create a second params object that does not use fft

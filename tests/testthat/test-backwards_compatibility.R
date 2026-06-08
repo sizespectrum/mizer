@@ -238,21 +238,10 @@ test_that("set_multispecies_model keeps documented legacy defaults", {
 })
 
 test_that("getPhiPrey deprecates softly and matches encounter over search volume", {
-  params <- NS_params
+  params <- NS_params_small
   expect_warning(
     phi <- getPhiPrey(params, n = initialN(params), n_pp = initialNResource(params)),
     "deprecated"
   )
   expect_equal(phi, getEncounter(params) / getSearchVolume(params))
 })
-
-# The data() calls at the top of this file loaded full 12-species versions into
-# the global environment. Restore the 3-species versions used by all other
-# test files so that later files see the correct small test objects.
-assign("NS_species_params_gears",
-       NS_species_params_gears[
-           NS_species_params_gears$species %in% NS_species_params$species, ],
-       envir = .GlobalEnv)
-assign("inter",
-       inter[NS_species_params$species, NS_species_params$species],
-       envir = .GlobalEnv)

@@ -1,7 +1,7 @@
 test_that("ArrayTimeBySpecies constructor works", {
     mat <- matrix(1:30, nrow = 10, ncol = 3)
     rownames(mat) <- as.character(1:10)
-    colnames(mat) <- NS_params@species_params$species
+    colnames(mat) <- NS_params_small@species_params$species
 
     bio <- ArrayTimeBySpecies(mat, value_name = "Biomass", units = "g")
 
@@ -19,37 +19,37 @@ test_that("ArrayTimeBySpecies constructor validates input", {
 })
 
 test_that("Sim accessor functions return ArrayTimeBySpecies", {
-    expect_true(is.ArrayTimeBySpecies(getBiomass(NS_sim)))
-    expect_true(is.ArrayTimeBySpecies(getSSB(NS_sim)))
-    expect_true(is.ArrayTimeBySpecies(getN(NS_sim)))
-    expect_true(is.ArrayTimeBySpecies(getYield(NS_sim)))
+    expect_true(is.ArrayTimeBySpecies(getBiomass(NS_sim_small)))
+    expect_true(is.ArrayTimeBySpecies(getSSB(NS_sim_small)))
+    expect_true(is.ArrayTimeBySpecies(getN(NS_sim_small)))
+    expect_true(is.ArrayTimeBySpecies(getYield(NS_sim_small)))
 })
 
 test_that("Sim accessor functions have correct dimnames", {
-    bio <- getBiomass(NS_sim)
-    expect_identical(colnames(bio), NS_params@species_params$species)
-    expect_identical(nrow(bio), length(NS_sim@n[, 1, 1]))
+    bio <- getBiomass(NS_sim_small)
+    expect_identical(colnames(bio), NS_params_small@species_params$species)
+    expect_identical(nrow(bio), length(NS_sim_small@n[, 1, 1]))
 })
 
 test_that("print.ArrayTimeBySpecies works", {
-    bio <- getBiomass(NS_sim)
+    bio <- getBiomass(NS_sim_small)
     expect_output(print(bio), "Biomass")
     expect_output(print(bio), "times x")
     expect_output(print(bio), "g")
 })
 
 test_that("summary.ArrayTimeBySpecies works", {
-    bio <- getBiomass(NS_sim)
+    bio <- getBiomass(NS_sim_small)
     s <- summary(bio)
     expect_s3_class(s, "summary.ArrayTimeBySpecies")
     expect_identical(s$value_name, "Biomass")
-    expect_identical(nrow(s$per_species), nrow(NS_params@species_params))
+    expect_identical(nrow(s$per_species), nrow(NS_params_small@species_params))
     expect_output(print(s), "Biomass")
     expect_output(print(s), "times x")
 })
 
 test_that("str.ArrayTimeBySpecies works", {
-    bio <- getBiomass(NS_sim)
+    bio <- getBiomass(NS_sim_small)
     expect_output(str(bio), "ArrayTimeBySpecies")
     expect_output(str(bio), "Biomass")
     expect_output(str(bio), "g")
@@ -60,7 +60,7 @@ test_that("str.ArrayTimeBySpecies works", {
 })
 
 test_that("plot.ArrayTimeBySpecies returns ggplot", {
-    bio <- getBiomass(NS_sim)
+    bio <- getBiomass(NS_sim_small)
 
     p <- plot(bio)
     expect_s3_class(p, "ggplot")
@@ -76,7 +76,7 @@ test_that("plot.ArrayTimeBySpecies returns ggplot", {
 })
 
 test_that("plot.ArrayTimeBySpecies supports base plot log argument", {
-    bio <- getBiomass(NS_sim)
+    bio <- getBiomass(NS_sim_small)
 
     p_xy <- plot(bio, log = "xy")
     expect_identical(p_xy$scales$get_scales("x")$trans$name, "log-10")
@@ -90,7 +90,7 @@ test_that("plot.ArrayTimeBySpecies supports base plot log argument", {
 })
 
 test_that("plot2.ArrayTimeBySpecies compares compatible arrays", {
-    bio <- getBiomass(NS_sim)
+    bio <- getBiomass(NS_sim_small)
     years <- as.numeric(rownames(bio))
 
     p <- plot2(bio, bio, name1 = "Original", name2 = "Changed",
@@ -110,7 +110,7 @@ test_that("plot2.ArrayTimeBySpecies compares compatible arrays", {
 
     warnings <- character()
     withCallingHandlers(
-        plot2(bio, getYield(NS_sim), species = "Cod"),
+        plot2(bio, getYield(NS_sim_small), species = "Cod"),
         warning = function(w) {
             warnings <<- c(warnings, conditionMessage(w))
             invokeRestart("muffleWarning")
@@ -118,11 +118,11 @@ test_that("plot2.ArrayTimeBySpecies compares compatible arrays", {
     )
     expect_true(any(grepl("value name", warnings)))
     expect_true(any(grepl("y units", warnings)))
-    expect_error(plot2(bio, getEncounter(NS_params)), "Both objects must be")
+    expect_error(plot2(bio, getEncounter(NS_params_small)), "Both objects must be")
 })
 
 test_that("plotRelative.ArrayTimeBySpecies plots symmetric relative difference", {
-    bio <- getBiomass(NS_sim)
+    bio <- getBiomass(NS_sim_small)
     bio2 <- bio
     bio2[] <- unclass(bio) * 2
     years <- as.numeric(rownames(bio))
@@ -139,12 +139,12 @@ test_that("plotRelative.ArrayTimeBySpecies plots symmetric relative difference",
     p_log <- plotRelative(bio, bio2, species = "Cod", log_x = TRUE)
     expect_identical(p_log$scales$get_scales("x")$trans$name, "log-10")
 
-    expect_error(plotRelative(bio, getEncounter(NS_params)), "Both objects must be")
+    expect_error(plotRelative(bio, getEncounter(NS_params_small)), "Both objects must be")
 })
 
 test_that("addPlot.ArrayTimeBySpecies adds lines to an existing ggplot", {
-    bio <- getBiomass(NS_sim)
-    yield <- getYield(NS_sim)
+    bio <- getBiomass(NS_sim_small)
+    yield <- getYield(NS_sim_small)
 
     p <- plot(bio, species = "Cod")
     p2 <- addPlot(p, bio, species = "Cod", linetype = "dashed", alpha = 0.5)
@@ -158,7 +158,7 @@ test_that("addPlot.ArrayTimeBySpecies adds lines to an existing ggplot", {
     p2$layers[[1]]$aes_params$alpha <- 0.25
     expect_null(p$layers[[1]]$aes_params$alpha)
     expect_error(addPlot("not a plot", bio), "ggplot")
-    expect_error(addPlot(plot(getEncounter(NS_params)), bio), "x variable `Year`")
+    expect_error(addPlot(plot(getEncounter(NS_params_small)), bio), "x variable `Year`")
 
     warnings <- character()
     withCallingHandlers(
@@ -173,13 +173,13 @@ test_that("addPlot.ArrayTimeBySpecies adds lines to an existing ggplot", {
 })
 
 test_that("ArrayTimeBySpecies has interactive plotly methods", {
-    bio <- getBiomass(NS_sim)
+    bio <- getBiomass(NS_sim_small)
 
     expect_s3_class(plotHover(bio), "plotly")
 })
 
 test_that("plot.ArrayTimeBySpecies time filtering works", {
-    bio <- getBiomass(NS_sim)
+    bio <- getBiomass(NS_sim_small)
     t <- as.numeric(rownames(bio))
 
     mid <- median(t)
@@ -194,29 +194,29 @@ test_that("plot.ArrayTimeBySpecies time filtering works", {
 })
 
 test_that("plot.ArrayTimeBySpecies total works", {
-    bio <- getBiomass(NS_sim)
+    bio <- getBiomass(NS_sim_small)
     df <- plot(bio, total = TRUE, return_data = TRUE)
     expect_true("Total" %in% df$Species)
 })
 
 test_that("plot.ArrayTimeBySpecies errors on unknown species", {
-    bio <- getBiomass(NS_sim)
+    bio <- getBiomass(NS_sim_small)
     expect_error(plot(bio, species = "NotASpecies"),
                  "None of the selected species are in the array.")
 })
 
 test_that("as.data.frame.ArrayTimeBySpecies works", {
-    bio <- getBiomass(NS_sim)
+    bio <- getBiomass(NS_sim_small)
     df <- as.data.frame(bio)
     expect_true(is.data.frame(df))
     expect_true(all(c("time", "value", "Species") %in% names(df)))
     expect_equal(nrow(df), prod(dim(bio)))
     expect_identical(sort(unique(df$Species)),
-                     sort(NS_params@species_params$species))
+                     sort(NS_params_small@species_params$species))
 })
 
 test_that("ArrayTimeBySpecies subsetting preserves class for 2D", {
-    bio <- getBiomass(NS_sim)
+    bio <- getBiomass(NS_sim_small)
 
     # Row subsetting keeps class
     sub <- bio[1:3, ]
@@ -239,7 +239,7 @@ test_that("ArrayTimeBySpecies subsetting preserves class for 2D", {
 })
 
 test_that("ArrayTimeBySpecies arithmetic strips class", {
-    bio <- getBiomass(NS_sim)
+    bio <- getBiomass(NS_sim_small)
 
     # Multiplication strips class
     doubled <- bio * 2
@@ -258,8 +258,8 @@ test_that("ArrayTimeBySpecies arithmetic strips class", {
 })
 
 test_that("ArrayTimeBySpecies value_name attributes are set correctly", {
-    expect_identical(attr(getBiomass(NS_sim), "value_name"), "Biomass")
-    expect_identical(attr(getSSB(NS_sim), "value_name"), "Spawning stock biomass")
-    expect_identical(attr(getYield(NS_sim), "value_name"), "Yield rate")
-    expect_identical(attr(getN(NS_sim), "value_name"), "Abundance")
+    expect_identical(attr(getBiomass(NS_sim_small), "value_name"), "Biomass")
+    expect_identical(attr(getSSB(NS_sim_small), "value_name"), "Spawning stock biomass")
+    expect_identical(attr(getYield(NS_sim_small), "value_name"), "Yield rate")
+    expect_identical(attr(getN(NS_sim_small), "value_name"), "Abundance")
 })

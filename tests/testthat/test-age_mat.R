@@ -1,5 +1,5 @@
 test_that("age_mat_vB works with MizerParams object", {
-    params <- NS_params
+    params <- NS_params_small
     ages <- age_mat_vB(params)
 
     expect_named(ages, params@species_params$species)
@@ -8,7 +8,7 @@ test_that("age_mat_vB works with MizerParams object", {
 })
 
 test_that("age_mat_vB works with species_params dataframe", {
-    sp <- NS_params@species_params
+    sp <- NS_params_small@species_params
     ages <- age_mat_vB(sp)
 
     expect_named(ages, sp$species)
@@ -17,7 +17,7 @@ test_that("age_mat_vB works with species_params dataframe", {
 })
 
 test_that("age_mat_vB handles missing parameters correctly", {
-    sp <- NS_params@species_params
+    sp <- NS_params_small@species_params
     # Test missing k_vb
     sp_no_k <- sp
     sp_no_k$k_vb <- NULL
@@ -62,7 +62,7 @@ test_that("age_mat_vB throws error for invalid input", {
 })
 
 test_that("age_mat works with MizerParams object", {
-    params <- NS_params
+    params <- NS_params_small
     ages <- age_mat(params)
 
     expect_named(ages, params@species_params$species)
@@ -72,7 +72,7 @@ test_that("age_mat works with MizerParams object", {
 })
 
 test_that("age_mat sums dw over growth bins below maturity size", {
-    params <- NS_params
+    params <- NS_params_small
     ages <- age_mat(params)
     growth <- getEGrowth(params)
 

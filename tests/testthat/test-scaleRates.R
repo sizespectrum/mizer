@@ -1,19 +1,19 @@
 test_that("scaleRates with factor = 1 leaves params unchanged", {
     # validParams is called internally, so use it as the base to avoid
     # spurious differences from columns it adds (e.g. D_ext)
-    params <- suppressMessages(validParams(NS_params))
+    params <- suppressMessages(validParams(NS_params_small))
     expect_unchanged(scaleRates(params, 1), params)
 })
 
 test_that("scaleRates validates factor", {
-    params <- NS_params
+    params <- NS_params_small
     expect_error(scaleRates(params, 0))
     expect_error(scaleRates(params, -1))
     expect_error(scaleRates(params, "a"))
 })
 
 test_that("scaleRates scales all rate slots by factor", {
-    params <- NS_params
+    params <- NS_params_small
     f <- 3
     scaled <- scaleRates(params, f)
 
@@ -28,7 +28,7 @@ test_that("scaleRates scales all rate slots by factor", {
 })
 
 test_that("scaleRates scales species_params columns by factor", {
-    params <- NS_params
+    params <- NS_params_small
     f <- 3
     scaled <- scaleRates(params, f)
     sp  <- params@species_params
@@ -47,7 +47,7 @@ test_that("scaleRates scales species_params columns by factor", {
 })
 
 test_that("scaleRates scales given_species_params columns by factor", {
-    params <- NS_params
+    params <- NS_params_small
     f <- 3
     scaled <- scaleRates(params, f)
     gsp  <- params@given_species_params
@@ -62,7 +62,7 @@ test_that("scaleRates scales given_species_params columns by factor", {
 })
 
 test_that("scaleRates scales gear_params catchability by factor", {
-    params <- NS_params
+    params <- NS_params_small
     f <- 3
     scaled <- scaleRates(params, f)
     expect_equal(scaled@gear_params$catchability,
@@ -70,8 +70,8 @@ test_that("scaleRates scales gear_params catchability by factor", {
 })
 
 test_that("scaleRates does not add absent species_params columns", {
-    params <- NS_params
-    # z0pre is absent from NS_params and should not be invented by scaleRates
+    params <- NS_params_small
+    # z0pre is absent from NS_params_small and should not be invented by scaleRates
     expect_false("z0pre" %in% names(params@species_params))
     scaled <- scaleRates(params, 2)
     expect_false("z0pre" %in% names(scaled@species_params))
@@ -95,7 +95,7 @@ test_that("scaleRates produces time-rescaled dynamics", {
     # project(p, t_max=f*T, dt=f*dt) since each step covers the same
     # biological time.
     f <- 2
-    params <- NS_params
+    params <- NS_params_small
     params_scaled <- scaleRates(params, f)
 
     sim_orig   <- project(params,        t_max = 1,   dt = 0.1,  t_save = 1)

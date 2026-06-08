@@ -1,4 +1,4 @@
-params <- NS_params
+params <- NS_params_small
 sim <- project(params, t_max = 0.1, t_save = 0.1, effort = 1)
 
 test_that("setInitialValues is deprecated", {
@@ -29,30 +29,30 @@ test_that("We can set and get initial values from sim object", {
 })
 
 test_that("initialN and initialNResource setters validate dimnames and values", {
-    params <- NS_params
+    params <- NS_params_small
     new_n <- initialN(params)
     dimnames(new_n)[[1]][1] <- "wrong"
     expect_warning(initialN(params) <- new_n,
                    "The dimnames do not match. I will ignore them.")
-    expect_equal(initialN(params), NS_params@initial_n, ignore_attr = TRUE)
+    expect_equal(initialN(params), NS_params_small@initial_n, ignore_attr = TRUE)
 
     new_n_pp <- initialNResource(params)
     names(new_n_pp)[1] <- "wrong"
     initialNResource(params) <- new_n_pp
-    expect_identical(initialNResource(params), NS_params@initial_n_pp)
+    expect_identical(initialNResource(params), NS_params_small@initial_n_pp)
 
     expect_error(initialN(params) <- (-1) * initialN(params))
     expect_error(initialNResource(params) <- (-1) * initialNResource(params))
 })
 
 test_that("setInitialValues gives correct errors", {
-    params1 <- newMultispeciesParams(NS_species_params, no_w = 20, info_level = 0)
+    params1 <- newMultispeciesParams(NS_species_params_small, no_w = 20, info_level = 0)
     sim <- project(params1, t_max = 2, dt = 1)
-    params2 <- newMultispeciesParams(NS_species_params, no_w = 30, info_level = 0)
+    params2 <- newMultispeciesParams(NS_species_params_small, no_w = 30, info_level = 0)
     expect_error(suppressWarnings(setInitialValues(params2, sim)),
                  "The consumer size spectrum of the simulation in `sim` has a different size from that in `params`")
 
-    params3 <- newMultispeciesParams(NS_species_params, no_w = 20,
+    params3 <- newMultispeciesParams(NS_species_params_small, no_w = 20,
                                      min_w_pp = 1e-4, info_level = 0)
     expect_error(suppressWarnings(setInitialValues(params3, sim)),
                  "The resource size spectrum of the simulation in `sim` has a different size from that in `params`.")
@@ -70,7 +70,7 @@ test_that("setInitialValues gives correct errors", {
 })
 
 test_that("Can set initial values in a model with a single species", {
-    species_params <- NS_species_params[1, ]
+    species_params <- NS_species_params_small[1, ]
     params <- newMultispeciesParams(species_params, info_level = 0)
     sim <- project(params, t_max = 0.1, t_save = 0.1)
     p <- suppressWarnings(setInitialValues(params, sim))
@@ -93,17 +93,17 @@ test_that("Can set initial values in a model with a single other component", {
 
 test_that("setInitialValues averages correctly over time range", {
     time_sel <- c(2:4)
-    time_range <- getTimes(NS_sim)[time_sel]
+    time_range <- getTimes(NS_sim_small)[time_sel]
     # arithmetic mean
     params <- suppressWarnings(
-        setInitialValues(NS_sim@params, NS_sim, time_range = time_range))
-    expected_n <- mean(NS_sim@n[time_sel, 1, 10])
+        setInitialValues(NS_sim_small@params, NS_sim_small, time_range = time_range))
+    expected_n <- mean(NS_sim_small@n[time_sel, 1, 10])
     expect_equal(params@initial_n[1, 10], expected_n)
     # geometric mean
     params <- suppressWarnings(
-        setInitialValues(NS_sim@params, NS_sim, time_range = time_range,
+        setInitialValues(NS_sim_small@params, NS_sim_small, time_range = time_range,
                          geometric_mean = TRUE))
-    expected_n <- exp(mean(log(NS_sim@n[time_sel, 1, 10])))
+    expected_n <- exp(mean(log(NS_sim_small@n[time_sel, 1, 10])))
     expect_equal(params@initial_n[1, 10], expected_n)
 })
 

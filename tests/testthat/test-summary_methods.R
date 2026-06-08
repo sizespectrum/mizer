@@ -1,9 +1,9 @@
 ## Initialisation ----
 # Snapshots recorded with edition 1; lock params creation to edition 1
 withr::local_options(mizer_defaults_edition = 1)
-species_params <- NS_species_params_gears
+species_params <- NS_species_params_gears_small
 species_params$pred_kernel_type <- "truncated_lognormal"
-params <- newMultispeciesParams(species_params, inter, min_w_pp = 1e-12,
+params <- newMultispeciesParams(species_params, inter_small, min_w_pp = 1e-12,
                                 n = 2/3, p = 0.7, lambda = 2.8 - 2/3,
                                 initial_effort = 1, info_level = 0)
 sim <- project(params, t_max = 2)
@@ -186,7 +186,7 @@ test_that("getDiet works with proportion = TRUE", {
     expect_equal(total, ones)
 })
 test_that("getDiet works with additional components", {
-    params <- NS_params
+    params <- NS_params_small
     e <- globalenv()
     e$test_dyn <- function(params, ...) {
         111
@@ -227,7 +227,7 @@ test_that("getTrophicLevel gives same result with explicit pred_kernel", {
 })
 
 test_that("getTrophicLevel increases along body size for apex predators", {
-    tl <- getTrophicLevel(NS_params)
+    tl <- getTrophicLevel(NS_params_small)
     # For Cod (apex predator), trophic level should increase with size
     cod_tl <- tl["Cod", ]
     cod_tl <- cod_tl[!is.na(cod_tl)]

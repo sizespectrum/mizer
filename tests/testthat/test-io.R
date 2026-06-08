@@ -1,5 +1,5 @@
 test_that("saveParams/readParams round-trip", {
-    params <- NS_params
+    params <- NS_params_small
     tmp <- tempfile(fileext = ".rds")
     on.exit(unlink(tmp), add = TRUE)
     expect_invisible(saveParams(params, tmp))
@@ -11,7 +11,7 @@ test_that("saveParams/readParams round-trip", {
 })
 
 test_that("saveParams reports missing extension packages by name", {
-    params <- NS_params
+    params <- NS_params_small
     params@extensions <- c(definitelyMissingPkg = "github::owner/repo")
     tmp <- tempfile(fileext = ".rds")
     on.exit(unlink(tmp), add = TRUE)
@@ -21,7 +21,7 @@ test_that("saveParams reports missing extension packages by name", {
 })
 
 test_that("saveSim/readSim round-trip", {
-    sim <- project(NS_params, t_max = 0.1, t_save = 0.1)
+    sim <- project(NS_params_small, t_max = 0.1, t_save = 0.1)
     tmp <- tempfile(fileext = ".rds")
     on.exit(unlink(tmp), add = TRUE)
 
@@ -44,7 +44,7 @@ test_that("saveSim stores base classes and readSim restores extension classes", 
     chain <- setNames(NA_character_, ext_a)
     registerExtensions(chain)
 
-    params <- NS_params
+    params <- NS_params_small
     params@extensions <- chain
     params <- coerceToExtensionClass(params)
     sim <- project(params, t_max = 0.1, t_save = 0.1)

@@ -1,4 +1,4 @@
-params <- NS_params
+params <- NS_params_small
 sim <- project(params, t_max = 0.1, t_save = 0.1)
 
 ## upgradeParams ----
@@ -14,7 +14,7 @@ test_that("upgradeParams preserves comments", {
 })
 
 test_that("upgradeParams from pre-2.4 preserves all slot values", {
-    params <- NS_params
+    params <- NS_params_small
     # Version "2.4.0" triggers the full newMultispeciesParams() rebuild path
     params@mizer_version <- "2.4.0"
 
@@ -37,7 +37,7 @@ test_that("upgradeParams from pre-2.4 preserves all slot values", {
 
     # Randomise all numeric array and vector slots while preserving
     # dims, dimnames, and comments. We keep species_params, given_species_params,
-    # and gear_params at their NS_params values so the internal
+    # and gear_params at their NS_params_small values so the internal
     # newMultispeciesParams() call succeeds.
     # w, dw, w_full, dw_full define the grid and must stay consistent.
     # w_min_idx is legitimately recalculated by validParams() from species_params.
@@ -104,7 +104,7 @@ test_that("Object from version 1.0 can be upgraded", {
     expect_true(validObject(sim))
 })
 test_that("r_max is renamed", {
-    params <- NS_params
+    params <- NS_params_small
     params@species_params$r_max <- params@species_params$R_max
     params@mizer_version <- "1.1"
     expect_message(upgradeParams(params),
@@ -129,7 +129,7 @@ test_that("Some functions work with params from earlier versions", {
 })
 
 test_that("upgradeParams updates `time_modified`", {
-    p <- NS_params
+    p <- NS_params_small
     p@mizer_version <- "2.0.0"
     p2 <- suppressMessages(upgradeParams(p))
     expect_false(identical(p2@time_modified, p@time_modified))
@@ -144,7 +144,7 @@ test_that("upgradeParams preserves subclass information", {
             prototype = list(extra = "default")
         )
     }
-    p <- as(NS_params, "TestMizerParams")
+    p <- as(NS_params_small, "TestMizerParams")
     p@extra <- "custom"
     p@mizer_version <- "2.0.0"
 

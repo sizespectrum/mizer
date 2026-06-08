@@ -63,7 +63,7 @@ test_that("balance_resource_semichemostat works", {
         all.equal(N_steady[sel], N[sel])
     }
     
-    params <- NS_params
+    params <- NS_params_small
     
     # setting rate
     rate <- getResourceMort(params)
@@ -80,7 +80,7 @@ test_that("balance_resource_semichemostat works", {
 })
 
 test_that("balance_resource_semichemostat validates balancing inputs", {
-    params <- NS_params
+    params <- NS_params_small
 
     rate <- getResourceMort(params)
     rate[1] <- 0
@@ -97,7 +97,7 @@ test_that("balance_resource_semichemostat validates balancing inputs", {
 })
 
 test_that("balance_resource_semichemostat nudges capacity to avoid division by zero", {
-    params <- NS_params
+    params <- NS_params_small
     capacity <- initialNResource(params)
     death <- getResourceMort(params) * capacity != 0
 

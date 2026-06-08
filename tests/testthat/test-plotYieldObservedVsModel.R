@@ -1,8 +1,8 @@
 test_that("plotYieldObservedVsModel works", {
 
   # Set up parameters
-    params <- NS_params
-    # Note: NS_params has Industrial gear effort=0, so Sprat is not fished.
+    params <- NS_params_small
+    # Note: NS_params_small has Industrial gear effort=0, so Sprat is not fished.
     # plotYieldObservedVsModel will exclude Sprat with a message.
 
     # check you get error without yield_observed column;
@@ -58,7 +58,7 @@ test_that("plotYieldObservedVsModel works", {
 })
 
 test_that("plotYieldObservedVsModel methods for MizerSim and plotly work", {
-    params <- NS_params
+    params <- NS_params_small
     species_params(params)$yield_observed <-
         c(NA, 61, 12)
     expect_warning(params <- calibrateYield(params))

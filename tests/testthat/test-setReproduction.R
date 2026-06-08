@@ -1,4 +1,4 @@
-params <- setReproduction(NS_params)
+params <- setReproduction(NS_params_small)
 no_sp <- nrow(params@species_params)
 
 # setReproduction ----
@@ -28,7 +28,7 @@ test_that("setReproduction works", {
     expect_equal(getRDI(p2), getRDD(p2))
 })
 test_that("setReproduction checks arguments", {
-    params <- NS_params
+    params <- NS_params_small
     params@species_params$w_max[[2]] <- NA
     params@species_params$w_max[[2]] <- NA
     sp_name <- params@species_params$species[2]
@@ -41,7 +41,7 @@ test_that("setReproduction checks arguments", {
     expect_error(setReproduction(params),
                  "The maximum sizes of the species must be specified in the w_max column of the species parameter data frame.")
 
-    params <- NS_params
+    params <- NS_params_small
     params@species_params$w_mat[[3]] <- NA
     sp_name <- params@species_params$species[3]
     expect_message(pa <- setReproduction(params),
@@ -50,7 +50,7 @@ test_that("setReproduction checks arguments", {
 
 # * Comments ----
 test_that("Comment works on maturity", {
-    params <- NS_params
+    params <- NS_params_small
     # if no comment, it is set automatically
     maturity <- params@maturity
     params <- setReproduction(params, maturity = maturity)
@@ -81,7 +81,7 @@ test_that("Comment works on maturity", {
 })
 
 test_that("Comment works on psi", {
-    params <- NS_params
+    params <- NS_params_small
     # if no comment, it is set automatically
     repro_prop <- getReproductionProportion(params)
     params <- setReproduction(params, repro_prop = repro_prop)
@@ -114,7 +114,7 @@ test_that("Comment works on psi", {
 
 # getMaturityProportion ----
 test_that("getMaturityProportion works", {
-    params <- setReproduction(NS_params)
+    params <- setReproduction(NS_params_small)
     maturity <- getMaturityProportion(params)
     expect_identical(maturity(params), maturity)
     params2 <- setReproduction(params, maturity =  maturity)
@@ -124,7 +124,7 @@ test_that("getMaturityProportion works", {
 
 # getReproductionProportion ----
 test_that("getReproductionProportion works", {
-    params <- setReproduction(NS_params)
+    params <- setReproduction(NS_params_small)
     repro_prop <- getReproductionProportion(params)
     expect_identical(repro_prop(params), repro_prop)
     params2 <- setReproduction(params, repro_prop = repro_prop)
@@ -133,7 +133,7 @@ test_that("getReproductionProportion works", {
 })
 
 test_that("getReproductionProportion returns a proportion",{
-    params <- NS_params
+    params <- NS_params_small
     # Make extremely wide maturity ogive
     species_params(params)$w_mat25 <- 1
     repro_prop <- getReproductionProportion(params)
@@ -142,7 +142,7 @@ test_that("getReproductionProportion returns a proportion",{
 })
 
 test_that("Can get and set repro_prop", {
-    params <- NS_params
+    params <- NS_params_small
     new <- repro_prop(params) ^ 2
     comment(new) <- "test"
     repro_prop(params) <- new
@@ -151,7 +151,7 @@ test_that("Can get and set repro_prop", {
 })
 
 test_that("Can get and set maturity", {
-    params <- NS_params
+    params <- NS_params_small
     new <- 1/2 * maturity(params)
     comment(new) <- "test"
     maturity(params) <- new

@@ -2,7 +2,7 @@ test_that("compareParams", {
   local_reproducible_output()
   sink(nullfile())
   on.exit(sink(), add = TRUE, after = FALSE)
-  params <- NS_params
+  params <- NS_params_small
   expect_equal(compareParams(params, params), "No differences")
   # Change a species param
   params2 <- params

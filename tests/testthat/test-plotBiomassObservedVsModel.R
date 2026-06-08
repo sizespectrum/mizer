@@ -1,6 +1,6 @@
 test_that("plotBiomassObservedVsModel works", {
 # Set up parameters
-params <- NS_params
+params <- NS_params_small
 
 # check you get error without biomass_observed column
 expect_error(plotBiomassObservedVsModel(params))
@@ -58,7 +58,7 @@ expect_identical(p$data, dummy)
 })
 
 test_that("plotBiomassObservedVsModel methods for MizerSim and plotly work", {
-params <- NS_params
+params <- NS_params_small
 species_params(params)$biomass_observed <-
   c(0.8, 61, 12)
 species_params(params)$biomass_cutoff <- 10

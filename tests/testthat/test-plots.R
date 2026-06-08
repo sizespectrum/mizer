@@ -1,11 +1,11 @@
 # Initialisation ----------------
 # Snapshots recorded with edition 1; lock params creation to edition 1
 withr::local_options(mizer_defaults_edition = 1)
-species_params <- NS_species_params_gears
+species_params <- NS_species_params_gears_small
 # Make species names numeric because that created problems in the past
 species_params$species <- seq_len(nrow(species_params))
 species_params$pred_kernel_type <- "truncated_lognormal"
-(params <- newMultispeciesParams(species_params, inter, no_w = 30,
+(params <- newMultispeciesParams(species_params, inter_small, no_w = 30,
                                 n = 2 / 3, p = 0.7, lambda = 2.8 - 2 / 3,
                                 info_level = 0)) |>
     expect_message("Note: Dimnames of interaction matrix do not match")
@@ -80,8 +80,8 @@ sim@params@species_params[["b"]] <- 3.13
 p <- plotGrowthCurves(sim, species = 3, max_age = 50)
 expect_ggplot(p)
 
-sp_name <- NS_params@species_params$species[2]
-p <- plotDiet(NS_params, species = sp_name)
+sp_name <- NS_params_small@species_params$species[2]
+p <- plotDiet(NS_params_small, species = sp_name)
 expect_doppelganger("Plot Diet", p)
 })
 
@@ -174,7 +174,7 @@ test_that("plotHover on array objects has correct tooltip fields", {
 })
 
 test_that("plotHover(plot(...)) uses concise mizer tooltips", {
-    p <- plot(getEncounter(NS_params), species = "Cod")
+    p <- plot(getEncounter(NS_params_small), species = "Cod")
     expect_s3_class(p, "mizer_plot")
     gp <- plotHover(p)
     expect_equal(tooltip_fields(gp), c("Species", "w", "Encounter rate"))
@@ -215,12 +215,12 @@ test_that("plotSpectra2 supports base plot log argument", {
 })
 
 test_that("comparison helpers preserve non-size x variables", {
-    p <- plot2(getBiomass(NS_sim), getBiomass(NS_sim), species = "Cod")
+    p <- plot2(getBiomass(NS_sim_small), getBiomass(NS_sim_small), species = "Cod")
     expect_s3_class(p, "ggplot")
     expect_true("Year" %in% names(p$data))
     expect_error(ggplot2::ggplot_build(p), NA)
 
-    p_rel <- plotRelative(getBiomass(NS_sim), getBiomass(NS_sim),
+    p_rel <- plotRelative(getBiomass(NS_sim_small), getBiomass(NS_sim_small),
                           species = "Cod")
     expect_s3_class(p_rel, "ggplot")
     expect_true("Year" %in% names(p_rel$data))
@@ -228,13 +228,13 @@ test_that("comparison helpers preserve non-size x variables", {
 })
 
 test_that("plotRelative, plot2, and plotGrowthCurves do not have LineSpec legend", {
-    p_rel <- plotRelative(getBiomass(NS_sim), getBiomass(NS_sim), species = "Cod")
+    p_rel <- plotRelative(getBiomass(NS_sim_small), getBiomass(NS_sim_small), species = "Cod")
     expect_equal(p_rel$scales$get_scales("linewidth")$guide, "none")
 
-    p2 <- plot2(getBiomass(NS_sim), getBiomass(NS_sim), species = "Cod")
+    p2 <- plot2(getBiomass(NS_sim_small), getBiomass(NS_sim_small), species = "Cod")
     expect_equal(p2$scales$get_scales("linewidth")$guide, "none")
 
-    p_growth <- plotGrowthCurves(NS_params, species = c("Cod", "Herring"))
+    p_growth <- plotGrowthCurves(NS_params_small, species = c("Cod", "Herring"))
     expect_equal(p_growth$scales$get_scales("linewidth")$guide, "none")
     expect_equal(rlang::as_label(p_growth$layers[[1]]$mapping$colour), "LineSpec")
     expect_equal(rlang::as_label(p_growth$layers[[1]]$mapping$linetype), "LineSpec")
@@ -547,17 +547,17 @@ test_that("Legends have correct entries", {
 
 test_that("plotSpectra averages over time range", {
     time_sel <- c(2:4)
-    time_range <- getTimes(NS_sim)[time_sel]
+    time_range <- getTimes(NS_sim_small)[time_sel]
     # arithmetic mean
-    df <- plotSpectra(NS_sim, species = 1, time_range = time_range,
+    df <- plotSpectra(NS_sim_small, species = 1, time_range = time_range,
                       power = 0, return_data = TRUE)
-    expected <- mean(NS_sim@n[time_sel, 1, 1])
+    expected <- mean(NS_sim_small@n[time_sel, 1, 1])
     expect_equal(df[[2]][1], expected)
     # geometric mean
-    df <- plotSpectra(NS_sim, species = 1, time_range = time_range,
+    df <- plotSpectra(NS_sim_small, species = 1, time_range = time_range,
                       geometric_mean = TRUE,
                       power = 0, return_data = TRUE)
-    expected <- exp(mean(log(NS_sim@n[time_sel, 1, 1])))
+    expected <- exp(mean(log(NS_sim_small@n[time_sel, 1, 1])))
     expect_equal(df[[2]][1], expected)
 })
 
