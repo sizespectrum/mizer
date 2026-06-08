@@ -1,3 +1,6 @@
+This is a resubmission with faster tests. The previous submission failed the
+automatic checks because the test runtime was too large.
+
 ## Test environments
 
 ### winbuilder results
