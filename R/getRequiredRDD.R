@@ -14,16 +14,23 @@ getRequiredRDD.MizerParams <- function(params) {
 
     # Calculate transport coefficients
     dt <- 1
-    # Compute e_growth once; reuse in getMort to avoid a redundant computation
-    # inside getFMort (which getMort calls internally).
-    e_growth <- getEGrowth(params)
+    # Compute EGrowth, Mort, and Diffusion together so each upstream rate
+    # (Encounter, FeedingLevel, PredMort, ...) is computed only once.
+    rates_fns <- projectRateFunctions(params)
+    r <- mizer_rates_subset(params,
+                             n = params@initial_n,
+                             n_pp = params@initial_n_pp,
+                             n_other = params@initial_n_other,
+                             t = 0, effort = params@initial_effort,
+                             rates_fns = rates_fns,
+                             targets = c("EGrowth", "Mort", "Diffusion"))
     # We pass a dummy recruitment flux of 0 to trigger the boundary condition
     # corrections for a and b in get_transport_coefs
     coefs <- get_transport_coefs(params, n = params@initial_n,
-                                 g = e_growth,
-                                 mu = getMort(params, e_growth = e_growth), dt,
+                                 g = r$e_growth,
+                                 mu = r$mort, dt,
                                  recruitment_flux = numeric(no_sp),
-                                 d = getDiffusion(params))
+                                 d = r$diffusion)
 
     reproduction <- params@species_params$erepro # vector of correct length
     names(reproduction) <- params@species_params$species

@@ -1002,12 +1002,6 @@ getFMortGear.MizerSim <- function(object, effort, time_range,
 #'     \item{`n_other`}{A named list of the abundances of other dynamical
 #'       components. Defaults to the initial values stored in `object`.}
 #'     \item{`t`}{The time for which to do the calculation. Defaults to 0.}
-#'     \item{`e_growth`}{Optional pre-computed energy growth rate matrix
-#'       (species x size) as returned by [getEGrowth()]. If supplied, avoids a
-#'       redundant call to [getEGrowth()].}
-#'     \item{`pred_mort`}{Optional pre-computed predation mortality rate matrix
-#'       (species x size) as returned by [getPredMort()]. If supplied, avoids a
-#'       redundant call to [getPredMort()].}
 #'   }
 #'
 #'   **For a \linkS4class{MizerSim} object:**
@@ -1073,8 +1067,7 @@ getFMort <- function(object, ...) {
 
 #' @export
 getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE,
-                                 n, n_pp, n_other, t, ...,
-                                 e_growth, pred_mort) {
+                                 n, n_pp, n_other, t, ...) {
     params <- validParams(object)
     if (missing(effort)) {
         effort <- params@initial_effort
@@ -1096,7 +1089,6 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE,
         get(params@rates_funcs$FMort)
     }
     if (length(dim(effort)) == 2) {
-        # t varies per iteration, so pre-computed e_growth/pred_mort cannot be reused
         times <- dimnames(effort)$time
         f_mort <- array(0,
                         dim = c(dim(effort)[[1]], dim(params@initial_n)),
@@ -1116,35 +1108,25 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE,
         }
         return(f_mort)
     } else if (length(effort) <= 1) {
-        if (missing(e_growth)) {
-            e_growth <- getEGrowth(params, n = n, n_pp = n_pp,
-                                   n_other = n_other, t = t)
-        }
-        if (missing(pred_mort)) {
-            pred_mort <- getPredMort(params, n = n, n_pp = n_pp,
-                                     n_other = n_other, time_range = t)
-        }
         args <- list(
             params = params, n = n, n_pp = n_pp, n_other = n_other,
             effort = rep(effort, no_gears), t = t,
-            e_growth = e_growth, pred_mort = pred_mort)
+            e_growth = getEGrowth(params, n = n, n_pp = n_pp,
+                                  n_other = n_other, t = t),
+            pred_mort = getPredMort(params, n = n, n_pp = n_pp,
+                                    n_other = n_other, time_range = t))
         fmort <- do.call(f, c(args, list(...)))
         fmort <- ArraySpeciesBySize(fmort, value_name = "Fishing mortality",
                            units = "1/year", params = params)
         return(fmort)
     } else if (length(effort) == no_gears) {
-        if (missing(e_growth)) {
-            e_growth <- getEGrowth(params, n = n, n_pp = n_pp,
-                                   n_other = n_other, t = t)
-        }
-        if (missing(pred_mort)) {
-            pred_mort <- getPredMort(params, n = n, n_pp = n_pp,
-                                     n_other = n_other, time_range = t)
-        }
         args <- list(
             params = params, n = n, n_pp = n_pp, n_other = n_other,
             effort = effort, t = t,
-            e_growth = e_growth, pred_mort = pred_mort)
+            e_growth = getEGrowth(params, n = n, n_pp = n_pp,
+                                  n_other = n_other, t = t),
+            pred_mort = getPredMort(params, n = n, n_pp = n_pp,
+                                    n_other = n_other, time_range = t))
         fmort <- do.call(f, c(args, list(...)))
         fmort <- ArraySpeciesBySize(fmort, value_name = "Fishing mortality",
                            units = "1/year", params = params)
@@ -1186,12 +1168,6 @@ getFMort.MizerSim <- function(object, effort, time_range, drop = TRUE,
 #'       numeric effort value which is used for all gears. Defaults to the
 #'       initial effort stored in `object`.}
 #'     \item{`t`}{The time for which to do the calculation. Defaults to 0.}
-#'     \item{`e_growth`}{Optional pre-computed energy growth rate matrix
-#'       (species x size) as returned by [getEGrowth()]. If supplied, avoids a
-#'       redundant call to [getEGrowth()].}
-#'     \item{`pred_mort`}{Optional pre-computed predation mortality rate matrix
-#'       (species x size) as returned by [getPredMort()]. If supplied, avoids a
-#'       redundant call to [getPredMort()].}
 #'   }
 #'
 #'   **For a \linkS4class{MizerSim} object:**
@@ -1233,30 +1209,13 @@ getMort.MizerParams <- function(object,
                     n_pp = initialNResource(object),
                     n_other = initialNOther(object),
                     effort = getInitialEffort(object),
-                    t = 0, ...,
-                    e_growth, pred_mort) {
+                    t = 0, ...) {
     params <- validParams(object)
-
-    if (missing(e_growth)) {
-        e_growth <- getEGrowth(params, n = n, n_pp = n_pp,
-                               n_other = n_other, t = t)
-    }
-    if (missing(pred_mort)) {
-        pred_mort <- getPredMort(params, n = n, n_pp = n_pp,
-                                 n_other = n_other, time_range = t)
-    }
-    f_mort <- getFMort(params, effort = effort, n = n, n_pp = n_pp,
-                       n_other = n_other, t = t,
-                       e_growth = e_growth, pred_mort = pred_mort)
-    if (usesExtensionDispatch(params)) {
-        z <- projectMort(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-                         f_mort = f_mort, pred_mort = pred_mort)
-    } else {
-        f <- get(params@rates_funcs$Mort)
-        z <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-               f_mort = f_mort, pred_mort = pred_mort)
-    }
-    return(ArraySpeciesBySize(z, value_name = "Total mortality",
+    rates_fns <- projectRateFunctions(params)
+    r <- mizer_rates_subset(params, n = n, n_pp = n_pp, n_other = n_other,
+                             t = t, effort = effort,
+                             rates_fns = rates_fns, targets = "Mort", ...)
+    return(ArraySpeciesBySize(r$mort, value_name = "Total mortality",
                      units = "1/year", params = params))
 }
 

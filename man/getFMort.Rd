@@ -23,12 +23,6 @@ initial resource abundance stored in \code{object}.}
 \item{\code{n_other}}{A named list of the abundances of other dynamical
 components. Defaults to the initial values stored in \code{object}.}
 \item{\code{t}}{The time for which to do the calculation. Defaults to 0.}
-\item{\code{e_growth}}{Optional pre-computed energy growth rate matrix
-(species x size) as returned by \code{\link[=getEGrowth]{getEGrowth()}}. If supplied, avoids a
-redundant call to \code{\link[=getEGrowth]{getEGrowth()}}.}
-\item{\code{pred_mort}}{Optional pre-computed predation mortality rate matrix
-(species x size) as returned by \code{\link[=getPredMort]{getPredMort()}}. If supplied, avoids a
-redundant call to \code{\link[=getPredMort]{getPredMort()}}.}
 }
 
 \strong{For a \linkS4class{MizerSim} object:}
