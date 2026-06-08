@@ -1,7 +1,10 @@
 # newMultispeciesParams ----
 # * Dimensions are correct ----
 test_that("constructor with species_params and interaction signature gives the right dimensions", {
-    params <- newMultispeciesParams(NS_species_params_small, inter_small, info_level = 0)
+    expect_message(
+        params <- newMultispeciesParams(NS_species_params_small, inter_small, info_level = 3),
+        "Because"
+    )
     # expect_that(params, is_a("MizerParams")) # deprecated, trying to find alternative
     expect_equal(class(params)[1], "MizerParams") # alternative?
     expect_equal(dim(params@psi)[1], nrow(NS_species_params_small))
@@ -71,8 +74,10 @@ test_that("newMultispeciesParams sets initial resource spectrum and cutoff", {
 
 # setParams ----
 test_that("setParams can leave params unchanged", {
-    params <- setParams(NS_params_small)
-    expect_unchanged(setParams(params), params)
+    params <- setParams(NS_params_small, info_level = 0)
+    expect_unchanged(setParams(params, info_level = 0), params)
+    params@species_params$h <- NA
+    expect_message(setParams(params, info_level = 3), "Because")
 })
 
 test_that("setParams handles change in w_max", {

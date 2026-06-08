@@ -82,12 +82,15 @@ test_that("matchYields works", {
                                 getFMort(params))
 
     species_params(params)$yield_observed <- NA_real_
-    params_na <- suppressMessages(suppressWarnings(matchYields(params)))
+    expect_message(
+        params_na <- suppressWarnings(matchYields(params, info_level = 3)),
+        "The following species have no yield observations"
+    )
     expect_equal(params_na@initial_n, params@initial_n)
 
     species_params(params)$yield_observed <- 0
     species_params(params)$yield_observed[3] <- 2 * yield_actual[3]
-    expect_warning(params2 <- matchYields(params, 3), "deprecated")
+    expect_warning(params2 <- matchYields(params, 3, info_level = 0), "deprecated")
     expect_equal(params2@initial_n[3, ], 2 * params@initial_n[3, ])
     expect_equal(params2@initial_n[-3, ], params@initial_n[-3, ])
 })

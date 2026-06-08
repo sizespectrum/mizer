@@ -1,14 +1,18 @@
 # Trait based ----
 test_that("Providing gamma overrules f0 in newTraitParams()", {
     gamma <- 2000
-    params <- newTraitParams(f0 = 0.4, gamma = gamma)
+    params <- newTraitParams(f0 = 0.4, gamma = gamma, info_level = 0)
     expect_identical(params@species_params$gamma,
                      rep(gamma, nrow(params@species_params)))
 })
 
 test_that("newTraitParams uses documented gear and resource-cutoff behaviour", {
-    params <- newTraitParams(no_sp = 3, gear_names = "gear_a",
-                             knife_edge_size = 50, w_pp_cutoff = 5)
+    expect_message(
+        params <- newTraitParams(no_sp = 3, gear_names = "gear_a",
+                                 knife_edge_size = 50, w_pp_cutoff = 5,
+                                 info_level = 3),
+        "Using f0, h, lambda, kappa"
+    )
     expect_true(all(gear_params(params)$gear == "gear_a"))
     expect_true(all(gear_params(params)$knife_edge_size == 50))
     expect_lt(max(params@w_full[params@initial_n_pp > 0]), 5)
@@ -16,10 +20,8 @@ test_that("newTraitParams uses documented gear and resource-cutoff behaviour", {
 })
 
 test_that("newTraitParams perfect_scaling enables documented scaling switches", {
-    p <- suppressMessages(
-        newTraitParams(perfect_scaling = TRUE, sigma = 1,
-                       n = 2/3, lambda = 2 + 3/4 - 2/3)
-    )
+    p <- newTraitParams(perfect_scaling = TRUE, sigma = 1,
+                        n = 2/3, lambda = 2 + 3/4 - 2/3, info_level = 0)
     expect_lt(diff(range(species_params(p)$w_min / species_params(p)$w_max)), 1e-12)
     expect_equal(unique(species_params(p)$p), unique(species_params(p)$n))
     expect_equal(max(p@w_full[p@initial_n_pp > 0]), max(p@w_full))
@@ -48,7 +50,8 @@ test_that("Multiple gears work correctly in trait-based model", {
     params <- newTraitParams(no_sp = no_sp,
                              min_w_max = min_w_max,
                              max_w_max = max_w_max,
-                             knife_edge_size = knife_edges)
+                             knife_edge_size = knife_edges,
+                             info_level = 0)
     expect_identical(params@gear_params$knife_edge_size,
                      knife_edges)
     # All gears fire
@@ -64,7 +67,8 @@ test_that("Multiple gears work correctly in trait-based model", {
                              min_w_max = min_w_max,
                              max_w_max = max_w_max,
                              knife_edge_size = knife_edges,
-                             gear_names = 1:no_sp)
+                             gear_names = 1:no_sp,
+                             info_level = 0)
     effort <- c(0,0,0,1,0,0,0,0,0,0)
     names(effort) <- 1:no_sp
     sim2 <- project(params, t_max = 2, effort = effort)
@@ -151,12 +155,12 @@ test_that("Sets given_species_params", {
 
 # Community ----
 test_that("newCommunityParams works", {
-    newCommunityParams(z0 = 0.05, f0 = 0.5) |>
-        expect_warning(NA)
+    expect_message(newCommunityParams(z0 = 0.05, f0 = 0.5, info_level = 3),
+                   "Using f0, h, lambda, kappa")
 })
 
 test_that("newCommunityParams sets constant-reproduction community state", {
-    params <- newCommunityParams(gamma = 5)
+    params <- newCommunityParams(gamma = 5, info_level = 0)
     expect_identical(params@rates_funcs$RDD, "constantRDD")
     expect_true(all(params@psi == 0))
     expect_null(params@species_params$R_max)
