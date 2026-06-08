@@ -41,7 +41,7 @@ test_that("animateSpectra sets axis ranges without dropping vertices", {
 
 test_that("animateSpectra derives missing x-axis limits from plotted data", {
     result <- animateSpectra(NS_sim, species = "Cod",
-                             tlim = c(2000, 2001),
+                             tlim = c(1, 2),
                              resource = FALSE, wlim = c(NA, 1000))
     built_plot <- plotly::plotly_build(result)
     first_frame <- built_plot$x$frames[[1]]$data[[1]]
@@ -238,7 +238,7 @@ test_that("animateSpectra adds resource and total traces when requested", {
 
     built_plot <- plotly::plotly_build(
         animateSpectra(sim,
-                       species = c("Cod", "Haddock"),
+                       species = c("Cod", "Herring"),
                        tlim = c(1, 2),
                        total = TRUE,
                        resource = TRUE)
@@ -247,12 +247,12 @@ test_that("animateSpectra adds resource and total traces when requested", {
     trace_names <- vapply(built_plot$x$data, `[[`, character(1), "name")
     expect_identical(trace_names,
                      intersect(names(sim@params@linecolour),
-                               c("Cod", "Haddock", "Total", "Resource")))
+                               c("Cod", "Herring", "Total", "Resource")))
 })
 
 test_that("animateSpectra handles background parameter correctly", {
     params_bkgrd <- markBackground(NS_params,
-                                    species = species_params(NS_params)$species[1:3])
+                                    species = species_params(NS_params)$species[1:2])
     sim_bkgrd <- project(params_bkgrd, t_max = 2, t_save = 1, effort = 1)
 
     # background = TRUE (default) includes a "Background" trace

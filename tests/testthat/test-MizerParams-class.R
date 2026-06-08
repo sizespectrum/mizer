@@ -1,7 +1,7 @@
 # emptyParams ----
 # * test dimensions ----
 test_that("basic constructor sets dimensions properly", {
-    species_params <- NS_species_params[c(6, 10, 11), ]
+    species_params <- NS_species_params[c(1, 2, 3), ]
     species_names <- species_params$species
     no_sp <- 3
     min_w <- 0.1
@@ -60,7 +60,7 @@ test_that("basic constructor sets dimensions properly", {
 })
 
 test_that("emptyParams validates min_w_pp against min_w", {
-    species_params <- NS_species_params[c(6, 10, 11), ]
+    species_params <- NS_species_params[c(1, 2, 3), ]
     expect_error(emptyParams(species_params,
                              min_w = 0.1,
                              max_w = 40000,

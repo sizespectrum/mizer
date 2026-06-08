@@ -13,9 +13,9 @@ ns_manipulate_params_36 <- newMultispeciesParams(
     min_w_pp = 9e-14,
     info_level = 0
 )
-remove_ns_species <- NS_species_params$species[2:11]
+remove_ns_species <- NS_species_params$species[2]
 reduced_ns_species_params <-
-    NS_species_params[!(NS_species_params$species %in% remove_ns_species), ]
+    NS_species_params[NS_species_params$species != remove_ns_species, ]
 reduced_ns_manipulate_params_36 <- newMultispeciesParams(
     reduced_ns_species_params,
     no_w = 36,
@@ -148,11 +148,15 @@ test_that("addSpecies works when adding a species with a smaller w_min", {
 
     (p <- addSpecies(params, sp)) |>
         expect_message()
-    expect_equal(p@w[28:127], params@w)
+    no_sp <- nrow(params@species_params)
+    no_w <- length(params@w)
+    w_start <- which(abs(p@w - params@w[1]) < 1e-10)[1]
+    w_end <- w_start + no_w - 1
+    expect_equal(p@w[w_start:w_end], params@w)
     expect_equal(p@w_full[seq_along(params@w_full)], params@w_full)
     expect_gte(1e-5, min(p@w))
     # changed rates are preserved
-    expect_equal(getMaxIntakeRate(p)[1:12, 28:127],
+    expect_equal(getMaxIntakeRate(p)[1:no_sp, w_start:w_end],
                  getMaxIntakeRate(params), ignore_attr = TRUE)
 })
 
@@ -273,9 +277,9 @@ test_that("removeSpecies works", {
     remove <- remove_ns_species
     params <- ns_manipulate_params_36
     p1 <- removeSpecies(params, species = remove)
-    expect_equal(nrow(p1@species_params), nrow(params@species_params) - 10)
+    expect_equal(nrow(p1@species_params), nrow(params@species_params) - length(remove))
     p2 <- reduced_ns_manipulate_params_36
-    p2@linecolour[2] = "#a08dfb" # update line colour
+    p2@linecolour[2] = "#8da600" # update line colour
     expect_equal(p1, p2, ignore_attr = TRUE)
     sim1 <- project(p1, t_max = 0.4, t_save = 0.4)
     sim2 <- project(p2, t_max = 0.4, t_save = 0.4)
@@ -301,11 +305,11 @@ test_that("removeSpecies works correctly on gear_params", {
 })
 
 test_that("removeSpecies accepts numeric and logical selectors", {
-    by_name <- removeSpecies(NS_params, c("Cod", "Haddock"))
-    by_index <- removeSpecies(NS_params, c(10, 11))
+    by_name <- removeSpecies(NS_params, c("Cod", "Herring"))
+    by_index <- removeSpecies(NS_params, c(2, 3))
     by_logical <- removeSpecies(NS_params,
                                 species_params(NS_params)$species %in%
-                                    c("Cod", "Haddock"))
+                                    c("Cod", "Herring"))
     expect_equal(by_index, by_name, ignore_attr = TRUE)
     expect_equal(by_logical, by_name, ignore_attr = TRUE)
 })
@@ -339,6 +343,8 @@ test_that("adding and then removing species leaves params unaltered", {
     params2@species_params$linetype <- NULL
     params2@given_species_params$linecolour <- NULL
     params2@given_species_params$linetype <- NULL
+    # erepro may be added to given_species_params by setBevertonHolt during addSpecies
+    params2@given_species_params$erepro <- NULL
     # comment on w_min_idx are not preserved
     comment(params@w_min_idx) <- NULL
     expect_unchanged(params, params2)
@@ -358,7 +364,7 @@ test_that("renameSpecies works", {
 })
 
 test_that("renameSpecies updates linked species names", {
-    replace <- c(Cod = "Kabeljau", Haddock = "Schellfisch")
+    replace <- c(Cod = "Kabeljau", Herring = "Hering")
     p <- renameSpecies(NS_params, replace)
     expect_true(all(replace %in% species_params(p)$species))
     expect_true(all(replace %in% names(getColours(p))))

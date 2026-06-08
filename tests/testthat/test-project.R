@@ -47,7 +47,7 @@ test_that("time dimension is dealt with properly", {
     
 
     # Effort is an effort vector
-    effort <- c(Industrial = 1, Pelagic = 0.5, Beam = 0.3, Otter = 0)
+    effort <- c(Industrial = 1, Pelagic = 0.5, Otter = 0)
     t_max <- 2
     t_save <- 2
     sim <- project(params, t_max = t_max, t_save = t_save, effort = effort)
@@ -99,7 +99,7 @@ test_that("warns and includes t_max when not a multiple of t_save", {
 })
 
 test_that("project method selects consumer time stepper", {
-    params_small <- newMultispeciesParams(NS_species_params_gears[12, , drop = FALSE],
+    params_small <- newMultispeciesParams(NS_species_params_gears[nrow(NS_species_params_gears), , drop = FALSE],
                                           info_level = 0)
 
     sim_default <- project(params_small, t_max = 0.2, t_save = 0.2,
@@ -131,7 +131,7 @@ test_that("project method selects consumer time stepper", {
 })
 
 test_that("project.MizerSim defaults dt and method from sim_params", {
-    params_small <- newMultispeciesParams(NS_species_params_gears[12, , drop = FALSE],
+    params_small <- newMultispeciesParams(NS_species_params_gears[nrow(NS_species_params_gears), , drop = FALSE],
                                           info_level = 0)
     sim_pc <- project(params_small, t_max = 0.2, t_save = 0.2, dt = 0.05,
                       effort = 1, progress_bar = FALSE,
@@ -395,7 +395,7 @@ test_that("Effort values interpolated correctly", {
   effort <- array(NA, dim = c(3, length(gear_names)),
                   dimnames = list(time = c(0, 5, 10), gear = gear_names))
   effort[, 1] <- c(0, 0.5, 1.0)  # Industrial
-  effort[, 2:4] <- 0.3  # Others constant
+  effort[, 2:3] <- 0.3  # Others constant
   
   # Use t_save to create intermediate time points
   sim <- project(NS_params, effort = effort, t_save = 2.5, dt = 0.1)

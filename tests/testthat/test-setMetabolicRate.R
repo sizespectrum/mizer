@@ -12,11 +12,11 @@ test_that("setMetabolicRate works", {
 test_that("setMetabolicRate can set exponent p", {
     # no change where p is already set in species_params
     params <- setMetabolicRate(params, p = 1)
-    expect_identical(params@species_params$p, rep(0.7, 12))
+    expect_identical(params@species_params$p, rep(0.7, 3))
     # but change where it is not
     params@species_params$p[[1]] <- NA
     params <- setMetabolicRate(params, p = 1)
-    expect_identical(params@species_params$p, c(1, rep(0.7, 11)))
+    expect_identical(params@species_params$p, c(1, rep(0.7, 2)))
 })
 test_that("Comment works on metab", {
     params <- NS_params

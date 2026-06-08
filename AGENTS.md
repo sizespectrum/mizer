@@ -47,6 +47,21 @@ devtools::clean_dll(); devtools::load_all()
 - Run `devtools::document()` after adding or changing exports
 - Run `devtools::load_all()` before running tests
 - After modifying the `MizerParams` or `MizerSim` class (new/removed slots, changes to `@rates_funcs`, etc.), follow the steps in `.claude/skills/upgrade-mizer-data.md`. Claude Code users can invoke this as `/upgrade-mizer-data`.
+- When snapshot tests fail because values legitimately changed, run `testthat::snapshot_accept()` to promote the `.new.md` files into the canonical `.md` snapshots.
+
+### Test helper objects
+
+`helper.R` defines small objects used across all test files:
+
+- **`NS_params`**: 3 species (Sprat=1, Herring=2, Cod=3), 20 size bins, 3 gears (Industrial effort=0, Pelagic effort=1, Otter effort=0.5). Sprat is always unfished (Industrial gear, zero effort).
+- **`NS_sim`**: `project(NS_params, t_max=3, t_save=1)` — 4 time steps at t=0,1,2,3.
+- **`NS_species_params`**, **`NS_species_params_gears`**, **`inter`**: 3-species subsets of the full package datasets.
+
+Tests that hardcode species indices (e.g. `[12, ]`) or time indices (e.g. `times[10]`) must use values valid for 3 species and 4 time steps.
+
+### Global environment and `data()` in test files
+
+In testthat 3.x all test files share the same global environment. A top-level `data()` call in one file writes to `.GlobalEnv` and therefore affects all alphabetically-later files. `test-backwards_compatibility.R` deliberately loads the full 12-species datasets at the top for its own tests, then **restores the 3-species versions at the bottom** with `assign(..., envir = .GlobalEnv)`. If you edit that file, preserve that restore block.
 
 ## Before Submitting
 

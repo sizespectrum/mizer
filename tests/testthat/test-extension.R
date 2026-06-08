@@ -61,7 +61,7 @@ test_that("Time is passed correctly to rate functions", {
                  ignore_attr = TRUE)
     
     gears <- unique(gear_params(params)$gear)
-    effort <- array(0, dim = c(3, 4), 
+    effort <- array(0, dim = c(3, length(gears)),
                     dimnames = list(time = 2020:2022,
                                     gear = gears))
     sim <- project(params, effort = effort, dt = 1)

@@ -38,7 +38,7 @@ test_that("Rate functions from MizerSim have correct dimnames", {
 
 test_that("getFMort with drop=TRUE and single time returns ArraySpeciesBySize", {
     times <- dimnames(NS_sim@n)$time
-    f1 <- getFMort(NS_sim, time_range = times[10], drop = TRUE)
+    f1 <- getFMort(NS_sim, time_range = times[3], drop = TRUE)
     expect_true(is.ArraySpeciesBySize(f1))
     expect_identical(attr(f1, "value_name"), "Fishing mortality")
 })
@@ -93,7 +93,7 @@ test_that("plot.ArrayTimeBySpeciesBySize supports base plot log argument", {
 test_that("plot.ArrayTimeBySpeciesBySize time argument selects correct slice", {
     fmort <- getFMort(NS_sim)
     times <- as.numeric(dimnames(fmort)[[1]])
-    p <- plot(fmort, time = times[5], return_data = TRUE)
+    p <- plot(fmort, time = times[3], return_data = TRUE)
     expect_true(is.data.frame(p))
 })
 
@@ -102,7 +102,7 @@ test_that("plot2.ArrayTimeBySpeciesBySize compares selected time slices", {
     times <- as.numeric(dimnames(fmort)[[1]])
 
     p <- plot2(fmort, fmort, name1 = "Original", name2 = "Changed",
-               species = "Cod", time = times[5], total = TRUE,
+               species = "Cod", time = times[3], total = TRUE,
                wlim = c(1, NA), log = "xy")
     expect_s3_class(p, "ggplot")
     expect_identical(levels(p$data$Model), c("Original", "Changed"))
@@ -120,7 +120,7 @@ test_that("plotRelative.ArrayTimeBySpeciesBySize compares selected time slices",
     fmort2[] <- unclass(fmort) * 2
     times <- as.numeric(dimnames(fmort)[[1]])
 
-    p <- plotRelative(fmort, fmort2, species = "Cod", time = times[5],
+    p <- plotRelative(fmort, fmort2, species = "Cod", time = times[3],
                       total = TRUE, wlim = c(1, NA))
     expect_s3_class(p, "ggplot")
     expect_true(all(p$data$Species %in% c("Cod", "Total")))
@@ -211,7 +211,7 @@ test_that("animate.ArrayTimeBySpeciesBySize respects species argument", {
 test_that("animate.ArrayTimeBySpeciesBySize respects time_range argument", {
     fmort <- getFMort(NS_sim)
     times <- as.numeric(dimnames(fmort)[[1]])
-    p <- animate(fmort, time_range = c(times[1], times[10]))
+    p <- animate(fmort, time_range = c(times[1], times[4]))
     expect_s3_class(p, "plotly")
 })
 

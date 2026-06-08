@@ -5,7 +5,7 @@ test_that("pred kernel functions", {
 
     phit <- truncated_lognormal_pred_kernel(ppmr, beta = 100, sigma = 2)
     expect_equal(phi[2], phit[2])
-    expect_equal(phit[61], 0)
+    expect_equal(phit[length(phit)], 0)
 
     phib <- box_pred_kernel(ppmr = 1:5, ppmr_min = 2, ppmr_max = 4)
     expect_identical(phib[1], 0)

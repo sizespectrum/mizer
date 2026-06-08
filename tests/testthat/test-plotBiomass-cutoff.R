@@ -3,7 +3,7 @@ test_that("plotBiomass works with use_cutoff", {
     species_params(params)$biomass_cutoff <- 10
     sim <- project(params, t_max = 1, effort = 1)
     
-    sp_name <- species_params(params)$species[11]
+    sp_name <- species_params(params)$species[3]
     # Test with return_data = TRUE to check values
     # Default behavior (use_cutoff = FALSE)
     p_default <- plotBiomass(sim, return_data = TRUE)

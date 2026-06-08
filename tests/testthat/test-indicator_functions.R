@@ -39,7 +39,7 @@ test_that("getProportionOfLargeFish works", {
 
 test_that("getProportionOfLargeFish honours species, numbers, and threshold_l", {
     sim <- project(params, effort = 1, t_max = 2, dt = 0.5, t_save = 0.5)
-    species <- c("Cod", "Haddock")
+    species <- c("Cod", "Herring")
     sim@params@species_params$a <- 0.01
     sim@params@species_params$b <- 3
     threshold_l <- 10
@@ -66,7 +66,7 @@ test_that("getProportionOfLargeFish honours species, numbers, and threshold_l", 
 })
 
 test_that("getProportionOfLargeFish works for MizerParams", {
-    species <- c("Cod", "Haddock")
+    species <- c("Cod", "Herring")
     expected_large <- get_size_range_array(params, min_w = 10, max_w = 500)[
         species, , drop = FALSE
     ]
@@ -95,7 +95,7 @@ test_that("getMeanWeight works", {
     mw <- getMeanWeight(sim)
     expect_equal(mw, mw1, ignore_attr = TRUE)
     # select species
-    species <- sim@params@species_params$species[11:10]
+    species <- sim@params@species_params$species[3:2]
     total_biomass <- apply(sweep(sim@n[, species, ], 3,
                                  sim@params@w * sim@params@dw, "*"), 1, sum)
     total_n <- apply(sweep(sim@n[, species, ], 3, sim@params@dw, "*"), 1, sum)
@@ -136,7 +136,7 @@ test_that("getMeanWeight works", {
 })
 
 test_that("getMeanWeight works for MizerParams", {
-    species <- c("Cod", "Haddock")
+    species <- c("Cod", "Herring")
     expected_n <- sum(getN(params, min_w = 10, max_w = 5000)[species])
     expected_biomass <- sum(getBiomass(params, min_w = 10, max_w = 5000)[species])
 
@@ -150,7 +150,7 @@ test_that("getMeanWeight works for MizerParams", {
 test_that("getMeanMaxWeight works", {
     expect_error(getMeanMaxWeight(sim, measure = NA),
                  "measure must be one of")
-    species <- c("Cod", "Haddock")
+    species <- c("Cod", "Herring")
     n_species <- getN(sim)
     biomass_species <- getBiomass(sim)
     w_max <- sim@params@species_params$w_max
@@ -176,7 +176,7 @@ test_that("getMeanMaxWeight works", {
 })
 
 test_that("getMeanMaxWeight works for MizerParams", {
-    species <- c("Cod", "Haddock")
+    species <- c("Cod", "Herring")
     n_species <- getN(params, min_w = 10, max_w = 5000)[species]
     biomass_species <- getBiomass(params, min_w = 10, max_w = 5000)[species]
     w_max <- params@species_params$w_max[
@@ -244,7 +244,7 @@ test_that("getCommunitySlope works", {
     expect_equal(slope_b2[dim(sim@n)[1], "intercept"],
                  summary(lm_res)$coefficients[1, 1], ignore_attr = TRUE)
     # Check the species
-    dem_species <- sim@params@species_params$species[5:12]
+    dem_species <- sim@params@species_params$species[2:3]
     slope_b3 <- getCommunitySlope(sim, species = dem_species)
     biomass <- apply(sweep(sim@n[, dem_species, ], 3, sim@params@w, "*"),
                      c(1, 3), sum)
@@ -261,9 +261,9 @@ test_that("getCommunitySlope works", {
 
 test_that("getCommunitySlope works for MizerParams", {
     expected_total_n <- colSums(
-        params@initial_n[c("Cod", "Haddock"), , drop = FALSE] *
+        params@initial_n[c("Cod", "Herring"), , drop = FALSE] *
             get_size_range_array(params, min_w = 10, max_w = 5000)[
-                c("Cod", "Haddock"), , drop = FALSE
+                c("Cod", "Herring"), , drop = FALSE
             ]
     )
     expected_total_n <- expected_total_n * params@w
@@ -271,7 +271,7 @@ test_that("getCommunitySlope works for MizerParams", {
     expected_fit <- summary(lm(log(expected_total_n) ~ log(params@w)))
 
     expect_equal(
-        getCommunitySlope(params, species = c("Cod", "Haddock"),
+        getCommunitySlope(params, species = c("Cod", "Herring"),
                           min_w = 10, max_w = 5000),
         data.frame(
             slope = expected_fit$coefficients[2, 1],

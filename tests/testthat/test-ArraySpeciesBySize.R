@@ -1,5 +1,5 @@
 test_that("ArraySpeciesBySize constructor works", {
-    mat <- matrix(1:120, nrow = 12, ncol = 10)
+    mat <- matrix(1:30, nrow = 3, ncol = 10)
     rownames(mat) <- NS_params@species_params$species
     colnames(mat) <- signif(NS_params@w[1:10], 3)
     

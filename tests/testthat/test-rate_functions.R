@@ -13,10 +13,10 @@ test_that("get_time_elements", {
     expect_equal(which(get_time_elements(sim, seq(3, 4, by = 0.1))), 
                       c(7, 8, 9), ignore_attr = TRUE)
     # What if real years are used
-    effort <- array(1, dim = c(19, 4),
+    effort <- array(1, dim = c(19, 3),
                     dimnames = list(year = seq(1960, 1969, by = 0.5), 
                                     gear = c("Industrial", "Pelagic",
-                                             "Otter", "Beam")
+                                             "Otter")
                                     )
                     )
     sim <- project(params, effort = effort, t_save = 0.5)

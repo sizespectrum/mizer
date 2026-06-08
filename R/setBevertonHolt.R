@@ -193,6 +193,14 @@ setBevertonHolt.MizerParams <- function(params, erepro,
     species <- valid_species_arg(params, names(values))
     sp_idx <- match(species, params@species_params$species)
 
+    # Ensure given_species_params has erepro column before partial assignment.
+    # Full-species updates work without this (R creates the column automatically),
+    # but partial updates fail when the column is absent.
+    if (!"erepro" %in% names(params@given_species_params) &&
+            length(sp_idx) < no_sp) {
+        params@given_species_params$erepro <- params@species_params$erepro
+    }
+
     rdi <- getRDI(params)[species]
     if (any(rdi == 0)) { # This should never happen, but did happen in the past.
         stop("Some species have no reproduction.")

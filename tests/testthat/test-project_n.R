@@ -1,5 +1,5 @@
 test_that("project_n follows the documented one-step update", {
-    params <- newMultispeciesParams(NS_species_params_gears[12, , drop = FALSE],
+    params <- newMultispeciesParams(NS_species_params_gears[3, , drop = FALSE],
                                     info_level = 0)
     no_sp <- nrow(params@species_params)
     no_w <- length(params@w)
@@ -46,7 +46,7 @@ test_that("project_n follows the documented one-step update", {
 })
 
 test_that("project_n_2 follows Crank-Nicolson update for fixed rates", {
-    params <- newMultispeciesParams(NS_species_params_gears[12, , drop = FALSE],
+    params <- newMultispeciesParams(NS_species_params_gears[3, , drop = FALSE],
                                     info_level = 0)
     no_sp <- nrow(params@species_params)
     no_w <- length(params@w)
@@ -91,7 +91,7 @@ test_that("project_n_2 follows Crank-Nicolson update for fixed rates", {
 })
 
 test_that("project_n_2 uses midpoint rates from provisional rates", {
-    params <- newMultispeciesParams(NS_species_params_gears[12, , drop = FALSE],
+    params <- newMultispeciesParams(NS_species_params_gears[3, , drop = FALSE],
                                     info_level = 0)
     no_sp <- nrow(params@species_params)
     no_w <- length(params@w)
@@ -142,7 +142,7 @@ test_that("project_n_2 uses midpoint rates from provisional rates", {
 })
 
 test_that("project_n with nonzero diffusion produces a different result", {
-    params <- newMultispeciesParams(NS_species_params_gears[12, , drop = FALSE],
+    params <- newMultispeciesParams(NS_species_params_gears[3, , drop = FALSE],
                                     info_level = 0)
     no_sp <- nrow(params@species_params)
     no_w <- length(params@w)

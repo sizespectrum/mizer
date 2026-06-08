@@ -1,5 +1,5 @@
 test_that("ArrayTimeBySpecies constructor works", {
-    mat <- matrix(1:120, nrow = 10, ncol = 12)
+    mat <- matrix(1:30, nrow = 10, ncol = 3)
     rownames(mat) <- as.character(1:10)
     colnames(mat) <- NS_params@species_params$species
 
@@ -95,12 +95,12 @@ test_that("plot2.ArrayTimeBySpecies compares compatible arrays", {
 
     p <- plot2(bio, bio, name1 = "Original", name2 = "Changed",
                species = "Cod", total = TRUE,
-               tlim = c(years[2], years[5]), log = "xy")
+               tlim = c(years[2], years[4]), log = "xy")
     expect_s3_class(p, "ggplot")
     expect_identical(levels(p$data$Model), c("Original", "Changed"))
     expect_true(all(p$data$Species %in% c("Cod", "Total")))
     expect_true(all(p$data$Year >= years[2]))
-    expect_true(all(p$data$Year <= years[5]))
+    expect_true(all(p$data$Year <= years[4]))
     expect_identical(p$scales$get_scales("x")$trans$name, "log-10")
     expect_identical(p$scales$get_scales("y")$trans$name, "log-10")
 
@@ -128,11 +128,11 @@ test_that("plotRelative.ArrayTimeBySpecies plots symmetric relative difference",
     years <- as.numeric(rownames(bio))
 
     p <- plotRelative(bio, bio2, species = "Cod", total = TRUE,
-                      tlim = c(years[2], years[5]))
+                      tlim = c(years[2], years[4]))
     expect_s3_class(p, "ggplot")
     expect_true(all(p$data$Species %in% c("Cod", "Total")))
     expect_true(all(p$data$Year >= years[2]))
-    expect_true(all(p$data$Year <= years[5]))
+    expect_true(all(p$data$Year <= years[4]))
     expect_true(all(abs(p$data$rel_diff - 2 / 3) < 1e-12))
     expect_identical(p$scales$get_scales("x")$trans$name, "identity")
 
@@ -219,9 +219,9 @@ test_that("ArrayTimeBySpecies subsetting preserves class for 2D", {
     bio <- getBiomass(NS_sim)
 
     # Row subsetting keeps class
-    sub <- bio[1:5, ]
+    sub <- bio[1:3, ]
     expect_true(is.ArrayTimeBySpecies(sub))
-    expect_identical(nrow(sub), 5L)
+    expect_identical(nrow(sub), 3L)
 
     # Column subsetting keeps class
     sub_col <- bio[, 1:3]

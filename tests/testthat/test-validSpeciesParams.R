@@ -6,31 +6,34 @@ test_that("validSpeciesParams() works", {
     sp$w_mat[1] <- NA
     expect_message(sp <- validSpeciesParams(sp), NA)
     expect_equal(sp$w_mat[1], sp$w_max[1] / 4)
-    sp$w_mat[2:4] <- 100
-    sp2 <- sp$species[2]; sp3 <- sp$species[3]; sp5 <- sp$species[5]
+    # Set w_mat > w_max for species 1 and 2 (Sprat w_max=33, Herring w_max=334)
+    sp$w_mat[1:2] <- sp$w_max[1:2] * 2
+    sp1 <- sp$species[1]; sp2 <- sp$species[2]
     expect_warning(sp <- validSpeciesParams(sp),
-                   paste0("For the species ", sp2, ", ", sp3, " the value"))
-    expect_equal(sp$w_mat[2], sp$w_max[2] / 4)
-    
+                   paste0("For the species ", sp1, ", ", sp2, " the value"))
+    expect_equal(sp$w_mat[1], sp$w_max[1] / 4)
+
     # test w_mat25
     sp <- species_params
-    sp$w_mat25 <- c(NA, 1:11)
+    sp$w_mat25 <- c(NA, 1, 2)
     expect_warning(validSpeciesParams(sp), NA)
-    sp$w_mat25[2:5] <- 21
+    # Set w_mat25 > w_mat for species 1 and 2
+    sp$w_mat25[1:2] <- sp$w_mat[1:2] * 2
     expect_warning(sp <- validSpeciesParams(sp),
-                   paste0("For the species ", sp2, ", ", sp5, " the value"))
-    expect_true(is.na(sp$w_mat25[[2]]))
-    expect_identical(sp$w_mat25[[3]], 21)
-    
+                   paste0("For the species ", sp1, ", ", sp2, " the value"))
+    expect_true(is.na(sp$w_mat25[[1]]))
+    expect_identical(sp$w_mat25[[3]], 2)
+
     # test w_min
     sp <- species_params
-    sp$w_min <- c(NA, 1:11)
+    sp$w_min <- c(NA, 1, 2)
     expect_warning(validSpeciesParams(sp), NA)
-    sp$w_min[2:5] <- 21
+    # Set w_min > w_max for species 1 and 2
+    sp$w_min[1:2] <- sp$w_max[1:2] * 2
     expect_warning(sp <- validSpeciesParams(sp),
-                   paste0("For the species ", sp2, ", ", sp5, " the value"))
-    expect_identical(sp$w_min[[2]], 0.001)
-    expect_identical(sp$w_min[[3]], 21)
+                   paste0("For the species ", sp1, ", ", sp2, " the value"))
+    expect_identical(sp$w_min[[1]], 0.001)
+    expect_identical(sp$w_min[[3]], 2)
     
     # test misspelling detection
     sp$wmat <- 1

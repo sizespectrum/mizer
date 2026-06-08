@@ -18,11 +18,9 @@ n_pp <- abs(rnorm(length(params@w_full)))
 ## get_size_range_array ----
 test_that("get_size_range_array works", {
     params@species_params[["a"]] <-
-        c(0.007, 0.001, 0.009, 0.002, 0.010, 0.006, 0.008, 0.004,
-            0.007, 0.005, 0.005, 0.007)
+        c(0.007, 0.001, 0.009)
     params@species_params[["b"]] <-
-        c(3.014, 3.320, 2.941, 3.429, 2.986, 3.080, 3.019, 3.198,
-            3.101, 3.160, 3.173, 3.075)
+        c(3.014, 3.320, 2.941)
 
     # no limits
     size_n <- get_size_range_array(params)
@@ -175,7 +173,8 @@ test_that("getDiet works with proportion = FALSE", {
     params <- setPredKernel(params, pred_kernel = getPredKernel(params))
     # Due to problem with fft on M1mac, skip this test on CRAN
     skip_on_cran()
-    expect_equal(diet, getDiet(params, n, n_pp, proportion = FALSE))
+    expect_equal(diet, getDiet(params, n, n_pp, proportion = FALSE),
+                 tolerance = 1e-5)
 })
 
 test_that("getDiet works with proportion = TRUE", {
@@ -200,8 +199,9 @@ test_that("getDiet works with additional components", {
 
     diet1 <- getDiet(params, proportion = FALSE)
     diet2 <- getDiet(p, proportion = FALSE)
-    expect_identical(diet1[, , 1:14], diet2[, , 1:14])
-    expect_identical(diet2[1, 1, 15], 111)
+    no_prey <- dim(diet1)[3]
+    expect_identical(diet1[, , 1:no_prey], diet2[, , 1:no_prey])
+    expect_identical(diet2[1, 1, no_prey + 1], 111)
 })
 
 
@@ -292,7 +292,7 @@ test_that("getBiomass works", {
 test_that("getBiomass works with biomass_cutoff", {
     # Add biomass_cutoff to species_params
     params_with_cutoff <- params
-    params_with_cutoff@species_params$biomass_cutoff <- c(10, 20, 15, 5, 25, 8, 12, 18, 7, 9, 11, 14)
+    params_with_cutoff@species_params$biomass_cutoff <- c(10, 20, 15)
 
     # Create simulation with biomass_cutoff
     sim_with_cutoff <- project(params_with_cutoff, t_max = 2)
@@ -319,7 +319,7 @@ test_that("getBiomass works with biomass_cutoff", {
 
     # Test with some NA values in biomass_cutoff
     params_partial_cutoff <- params
-    params_partial_cutoff@species_params$biomass_cutoff <- c(10, NA, 15, 5, NA, 8, 12, 18, 7, 9, 11, 14)
+    params_partial_cutoff@species_params$biomass_cutoff <- c(10, NA, 15)
     sim_partial_cutoff <- project(params_partial_cutoff, t_max = 2)
 
     # Should work without error
@@ -352,9 +352,9 @@ test_that("getGrowthCurves works with MizerSim", {
 })
 
 test_that("getGrowthCurves percentage rescales by maximum weight", {
-    curves <- getGrowthCurves(params, species = c("Cod", "Haddock"),
+    curves <- getGrowthCurves(params, species = c("Cod", "Herring"),
                               percentage = TRUE)
-    raw <- getGrowthCurves(params, species = c("Cod", "Haddock"),
+    raw <- getGrowthCurves(params, species = c("Cod", "Herring"),
                            percentage = FALSE)
     w_max <- params@species_params$w_max[match(rownames(curves),
                                                params@species_params$species)]

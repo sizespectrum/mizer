@@ -245,3 +245,14 @@ test_that("getPhiPrey deprecates softly and matches encounter over search volume
   )
   expect_equal(phi, getEncounter(params) / getSearchVolume(params))
 })
+
+# The data() calls at the top of this file loaded full 12-species versions into
+# the global environment. Restore the 3-species versions used by all other
+# test files so that later files see the correct small test objects.
+assign("NS_species_params_gears",
+       NS_species_params_gears[
+           NS_species_params_gears$species %in% NS_species_params$species, ],
+       envir = .GlobalEnv)
+assign("inter",
+       inter[NS_species_params$species, NS_species_params$species],
+       envir = .GlobalEnv)

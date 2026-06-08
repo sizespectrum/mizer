@@ -53,8 +53,8 @@ test_that("calibrateBiomass and calibrateNumber honour cutoffs", {
 
     species_params(params)$biomass_cutoff <- cutoff
     species_params(params)$biomass_observed <-
-        c(rep(NA, 3),
-          rowSums((params@initial_n * params@w * params@dw)[, params@w >= cutoff])[4:12] * 2)
+        c(NA,
+          rowSums((params@initial_n * params@w * params@dw)[, params@w >= cutoff])[2:3] * 2)
     observed_total <- sum(species_params(params)$biomass_observed, na.rm = TRUE)
     model_total <- sum(vapply(which(!is.na(species_params(params)$biomass_observed)),
                               function(i) {
@@ -67,8 +67,8 @@ test_that("calibrateBiomass and calibrateNumber honour cutoffs", {
     params <- NS_params
     species_params(params)$number_cutoff <- cutoff
     species_params(params)$number_observed <-
-        c(rep(NA, 2),
-          rowSums((params@initial_n * params@dw)[, params@w >= cutoff])[3:12] * 1.5)
+        c(NA, NA,
+          rowSums((params@initial_n * params@dw)[, params@w >= cutoff])[3] * 1.5)
     observed_total <- sum(species_params(params)$number_observed, na.rm = TRUE)
     model_total <- sum(vapply(which(!is.na(species_params(params)$number_observed)),
                               function(i) {

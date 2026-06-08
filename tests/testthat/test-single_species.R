@@ -1,5 +1,5 @@
 # We choose the largest species for our single-species
-params <- newMultispeciesParams(NS_species_params_gears[12, ], info_level = 0)
+params <- newMultispeciesParams(NS_species_params_gears[3, ], info_level = 0)
 n <- params@initial_n
 npp <- params@initial_n_pp
 effort <- array(abs(rnorm(10)), dim = c(10, 1))

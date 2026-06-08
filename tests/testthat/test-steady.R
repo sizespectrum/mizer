@@ -152,7 +152,7 @@ test_that("valid_species_arg works", {
                    "The following species do not exist: non, sense")
     expect_identical(s, vector(mode = "character"))
 
-    sp1 <- NS_params@species_params$species[11]
+    sp1 <- NS_params@species_params$species[3]
     sp2 <- NS_params@species_params$species[2]
     sp_sprat <- NS_params@species_params$species[1]
     sp3 <- NS_params@species_params$species[3]
@@ -161,14 +161,14 @@ test_that("valid_species_arg works", {
                      c(sp1, sp2))
     expect_identical(valid_species_arg(NS_params, c(sp_sprat, sp2),
                                        return.logical = TRUE),
-                     c(TRUE, TRUE, rep(FALSE, 10)))
+                     c(TRUE, TRUE, FALSE))
     expect_error(
         valid_species_arg(NS_params, c("non", "sense"), error_on_empty = TRUE) |>
             suppressWarnings(),
         "No species have been selected.")
     # numeric species argument
-    expect_warning(s <- valid_species_arg(NS_params, c(2.5, 13)),
-                 "A numeric 'species' argument should only contain the integers 1 to 12")
+    expect_warning(s <- valid_species_arg(NS_params, c(2.5, 4)),
+                 "A numeric 'species' argument should only contain the integers 1 to 3")
     expect_identical(s, vector(mode = "character"))
     expect_identical(valid_species_arg(NS_params, c(3, 1)),
                      c(sp3, sp_sprat))
@@ -176,23 +176,23 @@ test_that("valid_species_arg works", {
                      c(sp_sprat, sp3))
     expect_identical(valid_species_arg(NS_params, c(3, 1),
                                        return.logical = TRUE),
-                     c(TRUE, FALSE, TRUE, rep(FALSE, 9)))
+                     c(TRUE, FALSE, TRUE))
     expect_error(
-        valid_species_arg(NS_params, 13, error_on_empty = TRUE) |>
+        valid_species_arg(NS_params, 4, error_on_empty = TRUE) |>
             suppressWarnings(),
         "No species have been selected.")
     # logical species argument
     expect_error(valid_species_arg(NS_params, c(TRUE, FALSE)),
                  "The boolean `species` argument has the wrong length")
-    expect_identical(valid_species_arg(NS_params, 
-                                       c(TRUE, FALSE, TRUE, rep(FALSE, 9))),
+    expect_identical(valid_species_arg(NS_params,
+                                       c(TRUE, FALSE, TRUE)),
                      c(sp_sprat, sp3))
-    expect_identical(valid_species_arg(NS_params, 
-                                       c(TRUE, FALSE, TRUE, rep(FALSE, 9)),
+    expect_identical(valid_species_arg(NS_params,
+                                       c(TRUE, FALSE, TRUE),
                                        return.logical = TRUE),
-                     c(TRUE, FALSE, TRUE, rep(FALSE, 9)))
+                     c(TRUE, FALSE, TRUE))
     expect_error(
-        valid_species_arg(NS_params, rep(FALSE, 12), error_on_empty = TRUE) |>
+        valid_species_arg(NS_params, rep(FALSE, 3), error_on_empty = TRUE) |>
             suppressWarnings(),
         "No species have been selected.")
     # called with MizerSim object

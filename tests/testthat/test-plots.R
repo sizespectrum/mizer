@@ -11,9 +11,9 @@ species_params$pred_kernel_type <- "truncated_lognormal"
     expect_message("Note: Dimnames of interaction matrix do not match")
 sim <- project(params, effort = 1, t_max = 3, dt = 1, t_save = 1)
 sim0 <- project(params, effort = 0, t_max = 3, dt = 1, t_save = 1)
-species <- c(11, 10)
+species <- c(1, 2)
 # Mark some species as background
-params_bkgrd <- markBackground(params, species = params@species_params$species[1:3])
+params_bkgrd <- markBackground(params, species = params@species_params$species[1])
 # params object with single species
 sp_single <- data.frame(species = 1, w_max = 1000, h = 30)
 params_single <- newMultispeciesParams(sp_single, no_w = 30, info_level = 0)
@@ -77,10 +77,10 @@ expect_ggplot(p)
 
 sim@params@species_params[["a"]] <- 0.0058
 sim@params@species_params[["b"]] <- 3.13
-p <- plotGrowthCurves(sim, species = "10", max_age = 50)
+p <- plotGrowthCurves(sim, species = 3, max_age = 50)
 expect_ggplot(p)
 
-sp_name <- NS_params@species_params$species[10]
+sp_name <- NS_params@species_params$species[2]
 p <- plotDiet(NS_params, species = sp_name)
 expect_doppelganger("Plot Diet", p)
 })
@@ -234,7 +234,7 @@ test_that("plotRelative, plot2, and plotGrowthCurves do not have LineSpec legend
     p2 <- plot2(getBiomass(NS_sim), getBiomass(NS_sim), species = "Cod")
     expect_equal(p2$scales$get_scales("linewidth")$guide, "none")
 
-    p_growth <- plotGrowthCurves(NS_params, species = c("Cod", "Haddock"))
+    p_growth <- plotGrowthCurves(NS_params, species = c("Cod", "Herring"))
     expect_equal(p_growth$scales$get_scales("linewidth")$guide, "none")
     expect_equal(rlang::as_label(p_growth$layers[[1]]$mapping$colour), "LineSpec")
     expect_equal(rlang::as_label(p_growth$layers[[1]]$mapping$linetype), "LineSpec")
@@ -479,16 +479,16 @@ test_that("return_data is identical",{
     expect_equal(dim(plotYieldGear(sim, species = species, return_data = TRUE)), c(8,4))
 
     expect_equal(dim(plotSpectra(sim, species = species, wlim = c(1,NA),
-                                 return_data = TRUE)), c(37, 4))
+                                 return_data = TRUE)), c(22, 4))
 
     expect_equal(dim(plotFeedingLevel(sim, species = species,
-                                      return_data = TRUE)), c(56, 3))
+                                      return_data = TRUE)), c(40, 3))
 
     expect_equal(dim(plotPredMort(sim, species = species,
-                                  return_data = TRUE)), c(56, 4))
+                                  return_data = TRUE)), c(40, 4))
 
     expect_equal(dim(plotFMort(sim, species = species,
-                               return_data = TRUE)), c(56, 4))
+                               return_data = TRUE)), c(40, 4))
 
     expect_equal(dim(plotGrowthCurves(sim, species = species,
                                       return_data = TRUE)), c(100,4))
@@ -533,20 +533,20 @@ test_that("Legends have correct entries", {
     # plotSpectra
     p <- plotSpectra(params, species = 2:3)
     expect_length(unique(p$data$Legend), 3)
-    p <- plotSpectra(params, species = 2:4, resource = FALSE)
+    p <- plotSpectra(params, species = 1:3, resource = FALSE)
     expect_length(unique(p$data$Legend), 3)
     p <- plotSpectra(params, species = 2:3, total = TRUE)
     expect_length(unique(p$data$Legend), 4)
-    p <- plotSpectra(params, species = 8:9, background = TRUE)
+    p <- plotSpectra(params, species = 2:3, background = TRUE)
     expect_length(unique(p$data$Legend), 3)
-    p <- plotSpectra(params_bkgrd, species = 8:9, background = TRUE)
+    p <- plotSpectra(params_bkgrd, species = 2:3, background = TRUE)
     expect_length(unique(p$data$Legend), 4)
     p <- plotSpectra(params_single)
     expect_length(unique(p$data$Legend), 2)
 })
 
 test_that("plotSpectra averages over time range", {
-    time_sel <- c(24:33)
+    time_sel <- c(2:4)
     time_range <- getTimes(NS_sim)[time_sel]
     # arithmetic mean
     df <- plotSpectra(NS_sim, species = 1, time_range = time_range,

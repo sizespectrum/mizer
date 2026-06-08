@@ -66,7 +66,7 @@ test_that("validEffort works", {
     # an already valid vector is not changed
     expect_identical(validEffortVector(ie, params), ie)
     # A scrambled vector is put in the right order
-    ies <- ie[c(2,3,1,4)]
+    ies <- ie[c(2,3,1)]
     expect_identical(validEffortVector(ies, params), ie)
     # NA's are replaced by the edition-specific default
     ie[2] <- ifelse(defaults_edition() < 2, 0, 1)
@@ -77,7 +77,7 @@ test_that("validEffort works", {
     ie[] <- 2
     expect_identical(validEffortVector(2, params), ie)
     # A shortened vector is expanded with the edition-specific default
-    expect_identical(validEffortVector(ie[c(1,2,4)], params)[[3]],
+    expect_identical(validEffortVector(ie[c(1,2)], params)[[3]],
                      ifelse(defaults_edition() < 2, 0, 1))
                 
     # The names are checked
@@ -187,7 +187,7 @@ test_that("Comment works on catchability", {
 
 test_that("We can change gears via catchability and selectivity arrays", {
     catchability <- getCatchability(params)
-    sel <- c(1, 2, 4)
+    sel <- c(1, 2)
     expect_error(setFishing(params, catchability = catchability[sel, ]),
                  "you also need to supply a selectivity array")
     selectivity <- getSelectivity(params)
@@ -205,13 +205,13 @@ test_that("We can change gears via catchability and selectivity arrays", {
 
 test_that("Arguments of wrong dimension throw errors", {
     catchability <- getCatchability(params)
-    expect_error(setFishing(params, catchability = catchability[, 1:3]),
+    expect_error(setFishing(params, catchability = catchability[, 1:2]),
                  "not equal to no_sp")
-    
+
     selectivity <- getSelectivity(params)
-    expect_error(setFishing(params, selectivity = selectivity[1:3, ]),
+    expect_error(setFishing(params, selectivity = selectivity[1:2, ]),
                  "incorrect number of dimensions")
-    expect_error(setFishing(params, selectivity = selectivity[1:3, , ]),
+    expect_error(setFishing(params, selectivity = selectivity[1:2, , ]),
                  "not equal to no_gears")
 })
 

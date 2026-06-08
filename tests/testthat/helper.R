@@ -1,6 +1,6 @@
 # Create an example MizerParams object
 example_params <- function() {
-    sp <- NS_species_params[9:11, ]
+    sp <- NS_species_params[1:3, ]
     # Make egg sizes different
     sp$w_min <- c(1e-3, 1e-2, 1e-1)
 
@@ -29,6 +29,33 @@ example_params <- function() {
     ext_diffusion(params)[1, ] <- d
     params
 }
+
+# Use small 3-species (Sprat, Herring, Cod), 3-gear, 20-bin versions for faster tests.
+# These override the package data objects in the test environment.
+# Load fresh from package to avoid issues on re-sourcing in the same session.
+local({
+    e <- new.env()
+    data("NS_species_params", package = "mizer", envir = e)
+    data("NS_species_params_gears", package = "mizer", envir = e)
+    data("inter", package = "mizer", envir = e)
+    NS_species_params <<- e$NS_species_params[c(1, 4, 11), ]
+    NS_species_params_gears <<- e$NS_species_params_gears[
+        e$NS_species_params_gears$species %in% NS_species_params$species, ]
+    inter <<- e$inter[NS_species_params$species, NS_species_params$species]
+})
+NS_params <- suppressMessages(
+    newMultispeciesParams(NS_species_params_gears, inter, no_w = 20, info_level = 0)
+)
+# Mirror the given_species_params that calibration sets in the package NS_params.
+NS_params@given_species_params$gamma <- NS_params@species_params$gamma
+NS_params@given_species_params$f0 <- rep(0.6, nrow(NS_params@species_params))
+NS_params@species_params$f0 <- NS_params@given_species_params$f0
+NS_params@given_species_params$h <- NS_params@species_params$h
+NS_params@given_species_params$ks <- NS_params@species_params$ks
+# Set non-zero initial effort (matches pattern in original NS_params)
+initial_effort(NS_params) <- c(Industrial = 0, Pelagic = 1, Otter = 0.5)
+# Create a small NS_sim to match the 3-species NS_params
+NS_sim <- suppressMessages(project(NS_params, t_max = 3, t_save = 1, progress_bar = FALSE))
 
 # Test that a MizerParams or MizerSim object has not changed except for the
 # time_modified and perhaps a reordering of the species_params columns.

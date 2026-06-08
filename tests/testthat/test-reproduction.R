@@ -127,7 +127,7 @@ test_that("SheperdRDD works", {
 })
 
 test_that("constantRDD returns constant_reproduction values", {
-    sp$constant_reproduction <- c(100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200)
+    sp$constant_reproduction <- c(100, 200, 300)
     rdd <- constantRDD(rdi, sp)
     expect_identical(rdd, sp$constant_reproduction)
 })

@@ -36,10 +36,10 @@ test_that("w_min_idx is being set correctly", {
     expect_true(all(params@w_min_idx == 1))
     # Change w_min of one of the species
     NS_species_params_gears$w_min <- 0.001
-    NS_species_params_gears$w_min[7] <- 10
+    NS_species_params_gears$w_min[2] <- 10
     params <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
-    expect_true(all(params@w_min_idx[c(1:6, 8:12)] == 1))
-    expect_equal(as.integer(params@w_min_idx[7]), max(which(params@w <= 10)))
+    expect_true(all(params@w_min_idx[c(1, 3)] == 1))
+    expect_equal(as.integer(params@w_min_idx[2]), max(which(params@w <= 10)))
 })
 
 test_that("Errors are reported", {
@@ -80,7 +80,7 @@ test_that("setParams handles change in w_max", {
     # Check that ft_mask is recalculated correctly
     params@species_params$w_max[1] <- 1000
     params <- setParams(params)
-    expect_equal(sum(params@ft_mask[1, ]), 205)
+    expect_equal(sum(params@ft_mask[1, ]), 38)
 
     # Check that warning is given if w_max is too large
     params@species_params$w_max[1] <- max(params@w) + 10

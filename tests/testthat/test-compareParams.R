@@ -32,12 +32,12 @@ test_that("compareParams", {
                   compareParams(params, params2))
   # Change a resource param
   params2@resource_params$lambda <- 1
-  expect_true('The following resource parameters differ: Component "lambda": Mean absolute difference: 1.133333' %in%
+  expect_true('The following resource parameters differ: Component "lambda": Mean absolute difference: 1.05' %in%
                   compareParams(params, params2))
   # Change a slot
   params2@metab[] <- 1
   expect_true(any(startsWith(compareParams(params, params2),
-                             "The metab slots do not agree: Mean absolute difference: 896.7543")))
+                             "The metab slots do not agree: Mean absolute difference: 687.7477")))
 
   # Change only the comment attribute of a slot
   params2 <- params

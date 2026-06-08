@@ -15,18 +15,15 @@ test_that("knife-edge selectivity function is working properly", {
     params <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
     industrial_species <- NS_species_params_gears$species[NS_species_params_gears$gear == "Industrial"]
     pelagic_species <- NS_species_params_gears$species[NS_species_params_gears$gear == "Pelagic"]
-    beam_trawl_species <- NS_species_params_gears$species[NS_species_params_gears$gear == "Beam"]
     otter_trawl_species <- NS_species_params_gears$species[NS_species_params_gears$gear == "Otter"]
-    
+
     expect_true(all(params@selectivity["Industrial",industrial_species,params@w < 500] == 0))
     expect_true(all(params@selectivity["Industrial",industrial_species,params@w >= 500] == 1))
     expect_true(all(params@selectivity["Pelagic",pelagic_species,params@w >= 1000] == 1))
     expect_true(all(params@selectivity["Pelagic",pelagic_species,params@w < 1000] == 0))
-    expect_true(all(params@selectivity["Beam",beam_trawl_species,params@w >= 1000] == 1))
-    expect_true(all(params@selectivity["Beam",beam_trawl_species,params@w < 1000] == 0))
     expect_true(all(params@selectivity["Otter",otter_trawl_species,params@w >= 1000] == 1))
     expect_true(all(params@selectivity["Otter",otter_trawl_species,params@w < 1000] == 0))
-    
+
     sim <- project(params, t_max = 2, effort = 1)
     fm <- getFMortGear(sim)
     final <- dim(fm)[1]
@@ -37,10 +34,6 @@ test_that("knife-edge selectivity function is working properly", {
     expect_true(all(fm[final, "Pelagic", pelagic_species,
                        sim@params@w >= 1000] > 0))
     expect_true(all(fm[final, "Pelagic", pelagic_species,
-                       sim@params@w < 1000] == 0))
-    expect_true(all(fm[final, "Beam", beam_trawl_species,
-                       sim@params@w >= 1000] > 0))
-    expect_true(all(fm[final, "Beam", beam_trawl_species,
                        sim@params@w < 1000] == 0))
     expect_true(all(fm[final, "Otter", otter_trawl_species,
                        sim@params@w >= 1000] > 0))

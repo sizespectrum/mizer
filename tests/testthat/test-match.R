@@ -13,19 +13,19 @@ test_that("matchBiomasses works", {
     expect_unchanged(matchBiomasses(params), params)
 
     # Even if only partially observed
-    species_params(params)$biomass_observed[1:5] <- NA
+    species_params(params)$biomass_observed[1] <- NA
     expect_unchanged(matchBiomasses(params), params)
 
     # If we double the observations, we get twice the abundance
-    species <- 1:9
+    species <- 1:2
     species_params(params)$biomass_observed <-
         species_params(params)$biomass_observed * 2
     params2 <- matchBiomasses(params, species)
-    expect_equal(params2@initial_n[6:9, ], params@initial_n[6:9, ] * 2)
+    expect_equal(params2@initial_n[2, ], params@initial_n[2, ] * 2)
     # but unobserved species don't change
-    expect_equal(params2@initial_n[1:5, ], params@initial_n[1:5, ])
+    expect_equal(params2@initial_n[1, ], params@initial_n[1, ])
     # and unselected species don't change
-    expect_equal(params2@initial_n[10:12, ], params@initial_n[10:12, ])
+    expect_equal(params2@initial_n[3, ], params@initial_n[3, ])
 })
 
 test_that("matchNumbers works", {
@@ -42,19 +42,19 @@ test_that("matchNumbers works", {
     species_params(params)$number_observed <- number_actual
     expect_unchanged(matchNumbers(params), params)
     # Even if only partially observed
-    species_params(params)$number_observed[1:5] <- NA
+    species_params(params)$number_observed[1] <- NA
     expect_unchanged(matchNumbers(params), params)
 
     # If we double the observations, we get twice the abundance
-    species <- 1:9
+    species <- 1:2
     species_params(params)$number_observed <-
         species_params(params)$number_observed * 2
     params2 <- matchNumbers(params, species)
-    expect_equal(params2@initial_n[6:9, ], params@initial_n[6:9, ] * 2)
+    expect_equal(params2@initial_n[2, ], params@initial_n[2, ] * 2)
     # but unobserved species don't change
-    expect_equal(params2@initial_n[1:5, ], params@initial_n[1:5, ])
+    expect_equal(params2@initial_n[1, ], params@initial_n[1, ])
     # and unselected species don't change
-    expect_equal(params2@initial_n[10:12, ], params@initial_n[10:12, ])
+    expect_equal(params2@initial_n[3, ], params@initial_n[3, ])
 })
 
 test_that("matchBiomasses and matchNumbers fail for unreachable cutoff", {
@@ -86,10 +86,10 @@ test_that("matchYields works", {
     expect_equal(params_na@initial_n, params@initial_n)
 
     species_params(params)$yield_observed <- 0
-    species_params(params)$yield_observed[10] <- 2 * yield_actual[10]
-    expect_warning(params2 <- matchYields(params, 10), "deprecated")
-    expect_equal(params2@initial_n[10, ], 2 * params@initial_n[10, ])
-    expect_equal(params2@initial_n[-10, ], params@initial_n[-10, ])
+    species_params(params)$yield_observed[3] <- 2 * yield_actual[3]
+    expect_warning(params2 <- matchYields(params, 3), "deprecated")
+    expect_equal(params2@initial_n[3, ], 2 * params@initial_n[3, ])
+    expect_equal(params2@initial_n[-3, ], params@initial_n[-3, ])
 })
 
 test_that("matchYields updates `time_modified`", {

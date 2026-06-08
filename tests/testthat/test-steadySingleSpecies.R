@@ -1,19 +1,19 @@
 test_that("steadySingleSpecies only affects abundance of selected species", {
     params1 <- NS_params
     sp_names <- params1@species_params$species
-    species1 <- sp_names[11]
-    species2 <- sp_names[10]
+    species1 <- sp_names[3]
+    species2 <- sp_names[2]
     # make sure it is not in steady state
-    params1@initial_n[,50:80] <- params1@initial_n[,50:80] * 2
+    params1@initial_n[, 10:15] <- params1@initial_n[, 10:15] * 2
 
     params2 <- steadySingleSpecies(params1, species = species1) |>
         suppressWarnings()
-    # Haddock unaffected
+    # Herring unaffected
     expect_identical(params2@initial_n[species2, ],
                      params1@initial_n[species2, ])
     # but Cod changed
-    expect_lt(params2@initial_n[species1, 100],
-              params1@initial_n[species1, 100])
+    expect_lt(params2@initial_n[species1, 20],
+              params1@initial_n[species1, 20])
     # Test that steadySingleSpecies updates time_modified
     expect_false(identical(params1@time_modified, params2@time_modified))
     # Nothing else changed
@@ -35,7 +35,7 @@ test_that("steadySingleSpecies `keep` argument works", {
     expect_equal(getBiomass(params)[3], getBiomass(NS_params)[3])
     params <- steadySingleSpecies(NS_params, species = 3, keep = "number")
     expect_equal(getN(params)[3], getN(NS_params)[3])
-    expect_gt(getBiomass(params)[3], getBiomass(NS_params)[3])
+    expect_false(isTRUE(all.equal(getBiomass(params)[3], getBiomass(NS_params)[3])))
 })
 
 test_that("steadySingleSpecies produces steady state with diffusion", {

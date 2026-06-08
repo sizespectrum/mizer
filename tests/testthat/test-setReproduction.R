@@ -42,8 +42,8 @@ test_that("setReproduction checks arguments", {
                  "The maximum sizes of the species must be specified in the w_max column of the species parameter data frame.")
 
     params <- NS_params
-    params@species_params$w_mat[[2]] <- NA
-    sp_name <- params@species_params$species[2]
+    params@species_params$w_mat[[3]] <- NA
+    sp_name <- params@species_params$species[3]
     expect_message(pa <- setReproduction(params),
                  paste0("Note: The following species were missing data for their maturity size w_mat: ", sp_name, "."))
 })
@@ -146,8 +146,8 @@ test_that("Can get and set repro_prop", {
     new <- repro_prop(params) ^ 2
     comment(new) <- "test"
     repro_prop(params) <- new
-    expect_equal(repro_prop(params)[2, 50], new[2, 50])
-    expect_equal(getReproductionProportion(params)[2, 50], new[2, 50])
+    expect_equal(repro_prop(params)[2, 10], new[2, 10])
+    expect_equal(getReproductionProportion(params)[2, 10], new[2, 10])
 })
 
 test_that("Can get and set maturity", {

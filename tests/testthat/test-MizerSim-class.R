@@ -53,13 +53,13 @@ test_that("validSim works", {
     sim@n[3, 1, 1] <- Inf
     expect_warning(simt <- validSim(sim),
                    "The simulation failed to work beyond time = 0.1")
-    expect_equal(dim(simt@n), c(2, 12, 100))
-    expect_equal(dim(simt@n_pp), c(2, 226))
-    expect_equal(dim(simt@effort), c(2, 4))
+    expect_equal(dim(simt@n)[1:2], c(2, nrow(NS_params@species_params)))
+    expect_equal(dim(simt@n_pp)[1], 2)
+    expect_equal(dim(simt@effort), c(2, length(unique(gear_params(NS_params)$gear))))
     sim@n[2, 2, 2] <- NaN
     expect_warning(simt <- validSim(sim),
                    "The simulation failed to work beyond time = 0")
-    expect_equal(dim(simt@n), c(1, 12, 100))
+    expect_equal(dim(simt@n)[1:2], c(1, nrow(NS_params@species_params)))
 })
 
 test_that("validSim also validates embedded params", {
@@ -82,25 +82,25 @@ test_that("getParams() returns final time step by default", {
 })
 
 test_that("getParams() with a single time_range selects that time step", {
-    t <- getTimes(NS_sim)[30]
+    t <- getTimes(NS_sim)[3]
     p <- getParams(NS_sim, time_range = t)
     idx <- which(as.numeric(dimnames(NS_sim@n)$time) == t)
     expect_equal(p@initial_n, NS_sim@n[idx, , ], ignore_attr = TRUE)
 })
 
 test_that("getParams() averages arithmetic mean over time range", {
-    time_sel <- c(24:33)
+    time_sel <- c(2:4)
     time_range <- getTimes(NS_sim)[time_sel]
     p <- getParams(NS_sim, time_range = time_range)
-    expect_equal(p@initial_n[1, 50], mean(NS_sim@n[time_sel, 1, 50]))
+    expect_equal(p@initial_n[1, 10], mean(NS_sim@n[time_sel, 1, 10]))
 })
 
 test_that("getParams() averages geometric mean over time range", {
-    time_sel <- c(24:33)
+    time_sel <- c(2:4)
     time_range <- getTimes(NS_sim)[time_sel]
     p <- getParams(NS_sim, time_range = time_range, geometric_mean = TRUE)
-    expect_equal(p@initial_n[1, 50],
-                 exp(mean(log(NS_sim@n[time_sel, 1, 50]))))
+    expect_equal(p@initial_n[1, 10],
+                 exp(mean(log(NS_sim@n[time_sel, 1, 10]))))
 })
 
 test_that("getParams() updates time_modified", {

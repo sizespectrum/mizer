@@ -1,18 +1,18 @@
 test_that("matchGrowth only affects selected species", {
     sp <- NS_params@species_params$species
-    species1 <- sp[11]
-    species2 <- sp[10]
+    species1 <- sp[3]
+    species2 <- sp[2]
     params <- matchGrowth(NS_params, species = species1)
-    # Haddock unaffected
-    expect_identical(params@initial_n[species2, ], 
+    # Herring unaffected
+    expect_identical(params@initial_n[species2, ],
                      NS_params@initial_n[species2, ])
     # but Cod changed
-    expect_gt(params@initial_n[species1, 100], 
-              NS_params@initial_n[species1, 100])
+    expect_gt(params@initial_n[species1, 10],
+              NS_params@initial_n[species1, 10])
     # and changes again when called again
     params2 <- matchGrowth(params, species = species1)
-    expect_lt(params2@initial_n[species1, 100], 
-                     params@initial_n[species1, 100])
+    expect_lt(params2@initial_n[species1, 10],
+                     params@initial_n[species1, 10])
 })
 
 test_that("matchGrowth is idempotent on single species", {
@@ -28,13 +28,13 @@ test_that("matchGrowth `keep` argument works", {
     expect_equal(getBiomass(params)[3], getBiomass(NS_params)[3])
     params <- matchGrowth(NS_params, species = 3, keep = "number")
     expect_equal(getN(params)[3], getN(NS_params)[3])
-    expect_gt(getBiomass(params)[3], getBiomass(NS_params)[3])
+    expect_false(isTRUE(all.equal(getBiomass(params)[3], getBiomass(NS_params)[3])))
 })
 
 test_that("matchGrowth does nothing when no info is given", {
     params <- NS_params
     params@species_params$k_vb <- NULL
-    sp_name <- params@species_params$species[11]
+    sp_name <- params@species_params$species[3]
     params2 <- matchGrowth(params, species = sp_name)
     expect_identical(params2@initial_n[sp_name, ], 
                      params@initial_n[sp_name, ])

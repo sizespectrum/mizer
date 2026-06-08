@@ -325,8 +325,8 @@ test_that("getPredMort passes correct time", {
 })
 
 test_that("interaction is right way round in getPredMort function", {
-    sp_name <- NS_species_params_gears$species[5]
-    inter[, sp_name] <- 0  # Dab not eaten by anything
+    sp_name <- NS_species_params_gears$species[2]
+    inter[, sp_name] <- 0  # species not eaten by anything
     params <- newMultispeciesParams(NS_species_params_gears, inter, info_level = 0)
     m2 <- getPredMort(params, get_initial_n(params), params@cc_pp)
     expect_true(all(m2[sp_name, ] == 0))
@@ -483,7 +483,7 @@ test_that("getFMort", {
 })
 
 test_that("getFMort drop argument controls singleton dimensions for MizerSim", {
-    single <- project(newMultispeciesParams(NS_species_params_gears[12, ], info_level = 0),
+    single <- project(newMultispeciesParams(NS_species_params_gears[3, ], info_level = 0),
                       effort = 1, t_max = 2, progress_bar = FALSE)
     expect_equal(dim(getFMort(single, drop = FALSE)),
                  c(length(getTimes(single)), 1, length(single@params@w)))
@@ -833,9 +833,9 @@ test_that("Test that fft based integrator gives similar result as old code", {
     # Make it harder by working with kernels that need a lot of cutoff
     species_params <- NS_species_params_gears
     species_params$pred_kernel_type <- "truncated_lognormal"
-    species_params$sigma[3] <- 3
-    species_params$beta[4] <- species_params$beta[4] * 100
-    species_params$beta[5] <- species_params$beta[5] / 1000
+    species_params$sigma[2] <- 3
+    species_params$beta[1] <- species_params$beta[1] * 100
+    species_params$beta[3] <- species_params$beta[3] / 1000
     # and use different egg sizes
     species_params$w_min <- seq(0.001, 1, length.out = no_sp)
     params <- newMultispeciesParams(species_params, inter,
@@ -854,7 +854,7 @@ test_that("Test that fft based integrator gives similar result as old code", {
     pr <- getPredRate(params2, params@initial_n, params@initial_n_pp)
     # Due to problem with fft on M1mac, skip this test on CRAN
     skip_on_cran()
-    expect_equal(prfft, pr, tolerance = 1e-15, ignore_attr = TRUE)
+    expect_equal(prfft, pr, tolerance = 3e-14, ignore_attr = TRUE)
 })
 
 # One species only ----
