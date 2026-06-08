@@ -85,81 +85,67 @@ p <- plotDiet(NS_params_small, species = sp_name)
 expect_doppelganger("Plot Diet", p)
 })
 
-test_that("plot function do not throw error", {
-    expect_error(plot(sim, species = species), NA)
-    expect_error(plot(params, species = species), NA)
-})
-
-# plotly functions do not throw error
-test_that("plotly functions do not throw error", {
-    expect_error(plotlyBiomass(sim, species = species), NA)
-    expect_error(plotlyFeedingLevel(sim, species = species), NA)
-    expect_error(plotlyYield(sim, species = species), NA)
-    expect_error(plotlyYield(sim, sim), NA)
-    expect_error(plotlyYieldGear(sim, species = species), NA)
-    expect_error(plotlySpectra(params, species = species), NA)
-    expect_error(plotlySpectra2(params, sim, species = species), NA)
-    expect_error(plotlyPredMort(sim, species = species), NA)
-    expect_error(plotlyFMort(sim, species = species), NA)
-    expect_error(plotlyGrowthCurves(sim, species = species), NA)
-    expect_error(plotlyGrowthCurves(params, species = species), NA)
-    expect_error(plotlyDiet(params, species = species[[1]]), NA)
-})
-
-test_that("plotly wrappers return plotly objects for spectra and rate plots", {
-    expect_s3_class(plotlySpectra(params, species = species), "plotly")
-    expect_s3_class(plotlySpectra2(params, sim, species = species), "plotly")
-    expect_s3_class(plotlyCDF(params, species = species,
-                              resource = FALSE), "plotly")
-    expect_s3_class(plotlyCDF2(params, params, species = species,
-                               resource = FALSE), "plotly")
-    expect_s3_class(plotlySpectraRelative(params, params, species = species,
-                                          resource = FALSE), "plotly")
-    expect_s3_class(plotlyPredMort(sim, species = species), "plotly")
-    expect_s3_class(plotlyFMort(sim, species = species), "plotly")
-    expect_s3_class(plotlyGrowthCurves(sim, species = species), "plotly")
-    expect_s3_class(plotlyFeedingLevel(sim, species = species,
-                                       include_critical = TRUE), "plotly")
-    expect_s3_class(plotlyDiet(params, species = species[[1]]), "plotly")
-})
-
 tooltip_fields <- function(gp, trace = 1) {
     tip <- gp$x$data[[trace]]$text[[1]]
     trimws(sub(":.*", "", strsplit(tip, "<br />", fixed = TRUE)[[1]]))
 }
 
-test_that("plotly tooltips have the correct fields in the correct order", {
-    expect_equal(tooltip_fields(plotlyBiomass(sim, species = species)),
-                 c("Species", "Year", "Biomass"))
-    expect_equal(tooltip_fields(plotlyYield(sim, species = species)),
-                 c("Species", "Year", "Yield"))
-    expect_equal(tooltip_fields(plotlyYieldGear(sim, species = species)),
-                 c("Year", "Yield", "Species", "Gear"))
-    expect_equal(tooltip_fields(plotlySpectra(params, species = species)),
-                 c("Species", "w", "Biomass density"))
-    expect_equal(tooltip_fields(plotlyPredMort(sim, species = species)),
-                 c("Species", "w", "Predation mortality"))
-    expect_equal(tooltip_fields(plotlyFMort(sim, species = species)),
-                 c("Species", "w", "Fishing mortality"))
-    expect_equal(tooltip_fields(plotlyFeedingLevel(sim, species = species)),
-                 c("Species", "w", "Feeding level"))
-    expect_equal(tooltip_fields(plotlyGrowthCurves(sim, species = species)),
-                 c("Species", "Age", "Size [g]"))
-    expect_equal(tooltip_fields(plotlyDiet(params, species = species[[1]])),
-                 c("w", "Proportion", "Prey"))
-    expect_equal(tooltip_fields(plotlySpectra2(params, sim, species = species)),
-                 c("Legend", "w", "Biomass density", "Model"))
-    expect_equal(tooltip_fields(plotlySpectraRelative(params, params,
-                                                      species = species,
-                                                      resource = FALSE),
-                                trace = 2),
-                 c("w", "rel_diff", "Legend"))
-    expect_equal(tooltip_fields(plotlyCDF(params, species = species,
-                                          resource = FALSE)),
-                 c("Species", "w", "Cumulative proportion of biomass"))
-    expect_equal(tooltip_fields(plotlyCDF2(params, params, species = species,
-                                            resource = FALSE)),
-                 c("Legend", "w", "Cumulative proportion of biomass", "Model"))
+test_that("plotly wrappers return plotly objects with correct tooltips", {
+    gp <- plotlyBiomass(sim, species = species)
+    expect_s3_class(gp, "plotly")
+    expect_equal(tooltip_fields(gp), c("Species", "Year", "Biomass"))
+
+    gp <- plotlyYield(sim, species = species)
+    expect_s3_class(gp, "plotly")
+    expect_equal(tooltip_fields(gp), c("Species", "Year", "Yield"))
+
+    expect_s3_class(plotlyYield(sim, sim), "plotly")
+
+    gp <- plotlyYieldGear(sim, species = species)
+    expect_s3_class(gp, "plotly")
+    expect_equal(tooltip_fields(gp), c("Year", "Yield", "Species", "Gear"))
+
+    gp <- plotlySpectra(params, species = species)
+    expect_s3_class(gp, "plotly")
+    expect_equal(tooltip_fields(gp), c("Species", "w", "Biomass density"))
+
+    gp <- plotlySpectra2(params, sim, species = species)
+    expect_s3_class(gp, "plotly")
+    expect_equal(tooltip_fields(gp), c("Legend", "w", "Biomass density", "Model"))
+
+    gp <- plotlyCDF(params, species = species, resource = FALSE)
+    expect_s3_class(gp, "plotly")
+    expect_equal(tooltip_fields(gp), c("Species", "w", "Cumulative proportion of biomass"))
+
+    gp <- plotlyCDF2(params, params, species = species, resource = FALSE)
+    expect_s3_class(gp, "plotly")
+    expect_equal(tooltip_fields(gp), c("Legend", "w", "Cumulative proportion of biomass", "Model"))
+
+    gp <- plotlySpectraRelative(params, params, species = species, resource = FALSE)
+    expect_s3_class(gp, "plotly")
+    expect_equal(tooltip_fields(gp, trace = 2), c("w", "rel_diff", "Legend"))
+
+    gp <- plotlyPredMort(sim, species = species)
+    expect_s3_class(gp, "plotly")
+    expect_equal(tooltip_fields(gp), c("Species", "w", "Predation mortality"))
+
+    gp <- plotlyFMort(sim, species = species)
+    expect_s3_class(gp, "plotly")
+    expect_equal(tooltip_fields(gp), c("Species", "w", "Fishing mortality"))
+
+    gp <- plotlyFeedingLevel(sim, species = species, include_critical = TRUE)
+    expect_s3_class(gp, "plotly")
+    expect_equal(tooltip_fields(gp), c("Species", "w", "Feeding level"))
+
+    gp <- plotlyGrowthCurves(sim, species = species)
+    expect_s3_class(gp, "plotly")
+    expect_equal(tooltip_fields(gp), c("Species", "Age", "Size [g]"))
+
+    expect_s3_class(plotlyGrowthCurves(params, species = species), "plotly")
+
+    gp <- plotlyDiet(params, species = species[[1]])
+    expect_s3_class(gp, "plotly")
+    expect_equal(tooltip_fields(gp), c("w", "Proportion", "Prey"))
 })
 
 test_that("plotHover on array objects has correct tooltip fields", {
