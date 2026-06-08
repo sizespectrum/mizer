@@ -71,13 +71,9 @@ test_that("str.ArrayTimeBySpeciesBySize works", {
     expect_false(any(grepl("intake_max", out)))
 })
 
-test_that("plot.ArrayTimeBySpeciesBySize returns a ggplot", {
-    p <- plot(fmort_small)
-    expect_s3_class(p, "ggplot")
-})
-
 test_that("plot.ArrayTimeBySpeciesBySize supports base plot log argument", {
     p_y <- plot(fmort_small, log = "y")
+    expect_s3_class(p_y, "ggplot")
     expect_identical(p_y$scales$get_scales("x")$trans$name, "identity")
     expect_identical(p_y$scales$get_scales("y")$trans$name, "log-10")
 
