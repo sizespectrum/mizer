@@ -1,7 +1,5 @@
 
 example_manipulate_params <- example_params()
-trait_manipulate_params <- trait_params_small
-small_trait_manipulate_params <- trait_params_2sp
 small_trait_grid_manipulate_params <- newTraitParams(no_sp = 2, no_w = 36,
                                                      info_level = 0)
 ns_manipulate_params <- newMultispeciesParams(NS_species_params_small,
@@ -30,7 +28,7 @@ lower_ns_manipulate_params <- newMultispeciesParams(lower_ns_species_params,
 
 # addSpecies ----
 test_that("addSpecies works when adding a second identical species", {
-    p <- trait_manipulate_params
+    p <- trait_params_small
     no_sp <- nrow(p@species_params)
     species_params <- p@species_params[5, ]
     species_params$species <- "new"
@@ -51,7 +49,7 @@ test_that("addSpecies does not allow duplicate species", {
                  "You can not add species that are already there.")
 })
 test_that("addSpecies handles gear params correctly", {
-    p <- small_trait_manipulate_params
+    p <- trait_params_2sp
     sp <- data.frame(species = c("new1", "new2"),
                      w_max = c(10, 100),
                      k_vb = c(4, 1),
@@ -93,7 +91,7 @@ test_that("addSpecies handles gear params correctly", {
 })
 
 test_that("addSpecies handles interaction matrix correctly", {
-    p <- small_trait_manipulate_params
+    p <- trait_params_2sp
     p <- setInteraction(p, interaction = matrix(1:4/8, ncol = 2))
     sp <- data.frame(species = c("new1", "new2"),
                      w_max = c(10, 100),
@@ -177,11 +175,12 @@ test_that("addSpecies has other documented properties", {
     fraction <- p@initial_n[4, ] /
         (p@resource_params$kappa * p@w ^ -p@resource_params$lambda)
     expect_equal(max(fraction), 1 / 100)
+    expect_false(identical(p@time_modified, example_manipulate_params@time_modified))
 })
 
 test_that("Added species stay at low abundance", {
     # Use example from man page
-    params <- trait_manipulate_params
+    params <- trait_params_small
     species_params <- data.frame(
         species = "mullet",
         w_max = 173,
@@ -200,7 +199,7 @@ test_that("Added species stay at low abundance", {
 
 test_that("addSpecies preserves both given and other species params", {
 
-    params <- trait_manipulate_params
+    params <- trait_params_small
     params@given_species_params$b <- 3
     params@species_params$w_mat25 <- params@species_params$w_mat25 * 1.01
     sp <- data.frame(species = "new",
@@ -312,6 +311,7 @@ test_that("removeSpecies accepts numeric and logical selectors", {
                                     c("Cod", "Herring"))
     expect_equal(by_index, by_name, ignore_attr = TRUE)
     expect_equal(by_logical, by_name, ignore_attr = TRUE)
+    expect_false(identical(by_name@time_modified, NS_params_small@time_modified))
 })
 
 test_that("adding and then removing species leaves params unaltered", {
@@ -366,6 +366,7 @@ test_that("renameSpecies works", {
 test_that("renameSpecies updates linked species names", {
     replace <- c(Cod = "Kabeljau", Herring = "Hering")
     p <- renameSpecies(NS_params_small, replace)
+    expect_false(identical(p@time_modified, NS_params_small@time_modified))
     expect_true(all(replace %in% species_params(p)$species))
     expect_true(all(replace %in% names(getColours(p))))
     expect_true(all(replace %in% names(getLinetypes(p))))
@@ -394,6 +395,7 @@ test_that("renameGear works", {
 
     # Rename gears
     p2 <- renameGear(p, replace)
+    expect_false(identical(p2@time_modified, p@time_modified))
 
     # Check that gear_params is updated
     expect_true("new_gear1" %in% p2@gear_params$gear)
@@ -442,6 +444,7 @@ test_that("expandSizeGrid works", {
     expect_equal(params@search_vol[, min_idx:max_idx], NS_params_small@search_vol)
     expect_equal(params@metab[, min_idx:max_idx], NS_params_small@metab)
     expect_equal(params@initial_n[, min_idx:max_idx], NS_params_small@initial_n)
+    expect_false(identical(params@time_modified, NS_params_small@time_modified))
 })
 
 test_that("expandSizeGrid preserves existing data", {
@@ -478,32 +481,3 @@ test_that("expandSizeGrid preserves the class", {
     expect_true(validObject(p))
 })
 
-# time_modified ----
-test_that("addSpecies updates `time_modified`", {
-    p <- ns_manipulate_params
-    sp <- data.frame(species = "new", w_max = 100, k_vb = 1)
-    p2 <- suppressMessages(addSpecies(p, sp))
-    expect_false(identical(p2@time_modified, p@time_modified))
-})
-
-test_that("removeSpecies updates `time_modified`", {
-    p2 <- removeSpecies(NS_params_small, "Cod")
-    expect_false(identical(p2@time_modified, NS_params_small@time_modified))
-})
-
-test_that("renameSpecies updates `time_modified`", {
-    p2 <- renameSpecies(NS_params_small, c(Cod = "Kabeljau"))
-    expect_false(identical(p2@time_modified, NS_params_small@time_modified))
-})
-
-test_that("renameGear updates `time_modified`", {
-    p <- example_manipulate_params
-    gear1 <- dimnames(p@selectivity)$gear[[1]]
-    p2 <- renameGear(p, setNames("new_gear", gear1))
-    expect_false(identical(p2@time_modified, p@time_modified))
-})
-
-test_that("expandSizeGrid updates `time_modified`", {
-    p2 <- expandSizeGrid(NS_params_small, new_max_w = 2e6)
-    expect_false(identical(p2@time_modified, NS_params_small@time_modified))
-})
