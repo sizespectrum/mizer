@@ -14,11 +14,14 @@ getRequiredRDD.MizerParams <- function(params) {
 
     # Calculate transport coefficients
     dt <- 1
+    # Compute e_growth once; reuse in getMort to avoid a redundant computation
+    # inside getFMort (which getMort calls internally).
+    e_growth <- getEGrowth(params)
     # We pass a dummy recruitment flux of 0 to trigger the boundary condition
     # corrections for a and b in get_transport_coefs
     coefs <- get_transport_coefs(params, n = params@initial_n,
-                                 g = getEGrowth(params),
-                                 mu = getMort(params), dt,
+                                 g = e_growth,
+                                 mu = getMort(params, e_growth = e_growth), dt,
                                  recruitment_flux = numeric(no_sp),
                                  d = getDiffusion(params))
 

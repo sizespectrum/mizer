@@ -1067,7 +1067,8 @@ getFMort <- function(object, ...) {
 
 #' @export
 getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE,
-                                 n, n_pp, n_other, t, ...) {
+                                 n, n_pp, n_other, t, ...,
+                                 e_growth, pred_mort) {
     params <- validParams(object)
     if (missing(effort)) {
         effort <- params@initial_effort
@@ -1089,6 +1090,7 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE,
         get(params@rates_funcs$FMort)
     }
     if (length(dim(effort)) == 2) {
+        # t varies per iteration, so pre-computed e_growth/pred_mort cannot be reused
         times <- dimnames(effort)$time
         f_mort <- array(0,
                         dim = c(dim(effort)[[1]], dim(params@initial_n)),
@@ -1108,25 +1110,35 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE,
         }
         return(f_mort)
     } else if (length(effort) <= 1) {
+        if (missing(e_growth)) {
+            e_growth <- getEGrowth(params, n = n, n_pp = n_pp,
+                                   n_other = n_other, t = t)
+        }
+        if (missing(pred_mort)) {
+            pred_mort <- getPredMort(params, n = n, n_pp = n_pp,
+                                     n_other = n_other, time_range = t)
+        }
         args <- list(
             params = params, n = n, n_pp = n_pp, n_other = n_other,
             effort = rep(effort, no_gears), t = t,
-            e_growth = getEGrowth(params, n = n, n_pp = n_pp,
-                                  n_other = n_other, t = t),
-            pred_mort = getPredMort(params, n = n, n_pp = n_pp,
-                                    n_other = n_other, time_range = t))
+            e_growth = e_growth, pred_mort = pred_mort)
         fmort <- do.call(f, c(args, list(...)))
         fmort <- ArraySpeciesBySize(fmort, value_name = "Fishing mortality",
                            units = "1/year", params = params)
         return(fmort)
     } else if (length(effort) == no_gears) {
+        if (missing(e_growth)) {
+            e_growth <- getEGrowth(params, n = n, n_pp = n_pp,
+                                   n_other = n_other, t = t)
+        }
+        if (missing(pred_mort)) {
+            pred_mort <- getPredMort(params, n = n, n_pp = n_pp,
+                                     n_other = n_other, time_range = t)
+        }
         args <- list(
             params = params, n = n, n_pp = n_pp, n_other = n_other,
             effort = effort, t = t,
-            e_growth = getEGrowth(params, n = n, n_pp = n_pp,
-                                  n_other = n_other, t = t),
-            pred_mort = getPredMort(params, n = n, n_pp = n_pp,
-                                    n_other = n_other, time_range = t))
+            e_growth = e_growth, pred_mort = pred_mort)
         fmort <- do.call(f, c(args, list(...)))
         fmort <- ArraySpeciesBySize(fmort, value_name = "Fishing mortality",
                            units = "1/year", params = params)
@@ -1209,13 +1221,21 @@ getMort.MizerParams <- function(object,
                     n_pp = initialNResource(object),
                     n_other = initialNOther(object),
                     effort = getInitialEffort(object),
-                    t = 0, ...) {
+                    t = 0, ...,
+                    e_growth, pred_mort) {
     params <- validParams(object)
 
+    if (missing(e_growth)) {
+        e_growth <- getEGrowth(params, n = n, n_pp = n_pp,
+                               n_other = n_other, t = t)
+    }
+    if (missing(pred_mort)) {
+        pred_mort <- getPredMort(params, n = n, n_pp = n_pp,
+                                 n_other = n_other, time_range = t)
+    }
     f_mort <- getFMort(params, effort = effort, n = n, n_pp = n_pp,
-                       n_other = n_other, t = t)
-    pred_mort <- getPredMort(params, n = n, n_pp = n_pp,
-                             n_other = n_other, time_range = t)
+                       n_other = n_other, t = t,
+                       e_growth = e_growth, pred_mort = pred_mort)
     if (usesExtensionDispatch(params)) {
         z <- projectMort(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
                          f_mort = f_mort, pred_mort = pred_mort)
