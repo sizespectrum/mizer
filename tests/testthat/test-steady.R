@@ -112,8 +112,8 @@ test_that("steady() preserves parameters", {
 
     params_rdd <- params
     params_rdd@rates_funcs$RDD <- "noRDD"
-    steady(params_rdd, t_per = 1, t_max = 1, dt = 1) |> suppressMessages()
-    expect_equal(params_rdd@rates_funcs$RDD, "noRDD")
+    p_rdd <- steady(params_rdd, t_per = 1, t_max = 1, dt = 1) |> suppressMessages()
+    expect_equal(p_rdd@rates_funcs$RDD, "noRDD")
 
     params_rmax <- params
     species_params(params_rmax)$R_max <- 1.01 * species_params(params_rmax)$R_max
