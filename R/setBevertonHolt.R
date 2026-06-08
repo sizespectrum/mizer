@@ -232,6 +232,9 @@ setBevertonHolt.MizerParams <- function(params, erepro,
         # user chose to have them calculated this way and won't want them
         # changed by the next call to `setParams()` or `given_species_params()`.
         params@given_species_params$erepro[sp_idx] <- erepro_new
+        if (!"R_max" %in% names(params@given_species_params)) {
+            params@given_species_params$R_max <- rep(NA_real_, no_sp)
+        }
         params@given_species_params$R_max[sp_idx] <- r_max_new
 
         params@time_modified <- lubridate::now()
@@ -276,6 +279,9 @@ setBevertonHolt.MizerParams <- function(params, erepro,
     # changed by the next call to `setParams()` or `given_species_params()`.
     params@given_species_params$erepro[sp_idx] <-
         params@species_params$erepro[sp_idx]
+    if (!"R_max" %in% names(params@given_species_params)) {
+        params@given_species_params$R_max <- rep(NA_real_, no_sp)
+    }
     params@given_species_params$R_max[sp_idx] <-
         params@species_params$R_max[sp_idx]
 

@@ -1211,20 +1211,11 @@ getMort.MizerParams <- function(object,
                     effort = getInitialEffort(object),
                     t = 0, ...) {
     params <- validParams(object)
-
-    f_mort <- getFMort(params, effort = effort, n = n, n_pp = n_pp,
-                       n_other = n_other, t = t)
-    pred_mort <- getPredMort(params, n = n, n_pp = n_pp,
-                             n_other = n_other, time_range = t)
-    if (usesExtensionDispatch(params)) {
-        z <- projectMort(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-                         f_mort = f_mort, pred_mort = pred_mort)
-    } else {
-        f <- get(params@rates_funcs$Mort)
-        z <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-               f_mort = f_mort, pred_mort = pred_mort)
-    }
-    return(ArraySpeciesBySize(z, value_name = "Total mortality",
+    rates_fns <- projectRateFunctions(params)
+    r <- mizer_rates_subset(params, n = n, n_pp = n_pp, n_other = n_other,
+                             t = t, effort = effort,
+                             rates_fns = rates_fns, targets = "Mort", ...)
+    return(ArraySpeciesBySize(r$mort, value_name = "Total mortality",
                      units = "1/year", params = params))
 }
 
