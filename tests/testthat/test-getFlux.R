@@ -1,5 +1,5 @@
 test_that("getFlux works correctly", {
-    params <- newTraitParams(no_sp = 2)
+    params <- trait_params_2sp
     # Force different w_min to test zeroing logic
     params@species_params$w_min[2] <- 0.01 
     params@w_min_idx[2] <- which.min(abs(params@w - 0.01))
@@ -44,7 +44,7 @@ test_that("getFlux works correctly", {
 })
 
 test_that("getFlux uses total diffusion", {
-    params <- newSingleSpeciesParams()
+    params <- single_sp_params
     params@use_predation_diffusion <- TRUE
     species <- params@species_params$species[1]
 
@@ -64,7 +64,7 @@ test_that("getFlux uses total diffusion", {
 })
 
 test_that("getFlux power argument scales the flux by a power of weight", {
-    params <- newTraitParams(no_sp = 2)
+    params <- trait_params_2sp
     n <- params@initial_n
 
     flux0 <- getFlux(params, n = n)
@@ -88,7 +88,7 @@ test_that("getFlux power argument scales the flux by a power of weight", {
 })
 
 test_that("getFlux power argument works for MizerSim", {
-    params <- newTraitParams(no_sp = 2)
+    params <- trait_params_2sp
     sim <- project(params, t_max = 1, progress_bar = FALSE)
 
     flux0 <- getFlux(sim)

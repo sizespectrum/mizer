@@ -1,5 +1,5 @@
 test_that("setExtDiffusion sets and returns the ext_diffusion array", {
-    params <- newSingleSpeciesParams()
+    params <- single_sp_params
     new <- ext_diffusion(params) + 1
 
     updated <- setExtDiffusion(params, ext_diffusion = new)
@@ -10,7 +10,7 @@ test_that("setExtDiffusion sets and returns the ext_diffusion array", {
 })
 
 test_that("setExtDiffusion preserves comments from the supplied array", {
-    params <- newSingleSpeciesParams()
+    params <- single_sp_params
     new <- ext_diffusion(params)
     comment(new) <- "custom"
 

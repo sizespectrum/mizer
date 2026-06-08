@@ -1,4 +1,4 @@
-trait_resource_semichemostat_params <- newTraitParams()
+trait_resource_semichemostat_params <- trait_params_small
 
 test_that("resource_semichemostat preserves steady state", {
     # Set resource parameters so that we are at steady state

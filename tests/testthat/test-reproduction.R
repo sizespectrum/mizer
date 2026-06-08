@@ -17,7 +17,7 @@ test_that("constantEggRDI() keeps egg density constant", {
 })
 
 test_that("constantEggRDI() keeps egg density constant with diffusion", {
-    params <- newSingleSpeciesParams()
+    params <- single_sp_params
     species <- params@species_params$species[1]
     n <- params@species_params[species, "n"]
     ext_diffusion(params)[species, ] <- 0.1 * params@w^(n + 1)
@@ -32,7 +32,7 @@ test_that("constantEggRDI() keeps egg density constant with diffusion", {
 })
 
 test_that("constantEggRDI() works with predictor-corrector project method", {
-    params <- newSingleSpeciesParams()
+    params <- single_sp_params
     species <- params@species_params$species[1]
     n <- params@species_params[species, "n"]
     ext_diffusion(params)[species, ] <- 0.1 * params@w^(n + 1)
@@ -61,7 +61,7 @@ test_that("constantEggRDI returns loss from the egg size bin", {
 })
 
 test_that("constantEggRDI direct calls use total diffusion by default", {
-    params <- newSingleSpeciesParams()
+    params <- single_sp_params
     species <- params@species_params$species[1]
     params@use_predation_diffusion <- TRUE
 

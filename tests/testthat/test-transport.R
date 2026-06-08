@@ -1,5 +1,5 @@
 test_that("get_transport_coefs works correctly", {
-    params <- newTraitParams(no_sp = 2)
+    params <- trait_params_2sp
     # Force different w_min to test zeroing logic
     params@species_params$w_min[2] <- 0.01 
     params@w_min_idx[2] <- which.min(abs(params@w - 0.01))

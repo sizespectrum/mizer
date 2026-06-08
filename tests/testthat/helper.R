@@ -57,6 +57,22 @@ initial_effort(NS_params_small) <- c(Industrial = 0, Pelagic = 1, Otter = 0.5)
 # Create NS_sim_small to match the 3-species NS_params_small
 NS_sim_small <- suppressMessages(project(NS_params_small, t_max = 3, t_save = 1, progress_bar = FALSE))
 
+# Additional cached objects — shared across test files to avoid rebuilding.
+# R's copy-on-modify semantics ensure tests that mutate a local copy do not
+# affect the cached originals.
+single_sp_params <- suppressMessages(newSingleSpeciesParams())
+trait_params_small <- suppressMessages(newTraitParams())
+trait_params_2sp <- suppressMessages(newTraitParams(no_sp = 2))
+community_params_small <- suppressMessages(newCommunityParams())
+# 3-species model with default no_w (differs from NS_params_small which uses no_w=20)
+NS_params_default_small <- suppressMessages(
+    newMultispeciesParams(NS_species_params_gears_small, inter_small, info_level = 0)
+)
+# Single-species (Cod) model
+NS_params_cod_small <- suppressMessages(
+    newMultispeciesParams(NS_species_params_gears_small[3, ], info_level = 0)
+)
+
 # Test that a MizerParams or MizerSim object has not changed except for the
 # time_modified and perhaps a reordering of the species_params columns.
 expect_unchanged <- function(object, expected) {

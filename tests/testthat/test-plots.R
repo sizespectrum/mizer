@@ -628,10 +628,10 @@ test_that("plotGrowthCurves validates size_at_age input", {
 
 test_that("plotDiet restricts to meaningful abundance ranges", {
     # Get diet data for a species
-    diet_data <- plotDiet(params, species = "10", return_data = TRUE)
+    diet_data <- plotDiet(params, species = "3", return_data = TRUE)
 
-    # Get abundance data for species "10"
-    sp_idx <- which(dimnames(params@initial_n)[[1]] == "10")
+    # Get abundance data for species "3"
+    sp_idx <- which(dimnames(params@initial_n)[[1]] == "3")
     abundance <- params@initial_n[sp_idx, ] * params@w * params@dw
     max_abundance <- max(abundance)
 
@@ -686,8 +686,8 @@ test_that("axis limits are set correctly", {
 })
 
 test_that("plotDiet works with MizerSim", {
-    p <- plotDiet(sim, species = 11) # Species 11 is Cod in setup
+    p <- plotDiet(sim, species = 2) # Species 11 is Cod in setup
     expect_true(is(p, "ggplot"))
-    p <- plotDiet(sim, species = 11, time_range = 1:2)
+    p <- plotDiet(sim, species = 2, time_range = 1:2)
     expect_true(is(p, "ggplot"))
 })

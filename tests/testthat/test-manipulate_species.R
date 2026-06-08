@@ -1,7 +1,7 @@
 
 example_manipulate_params <- example_params()
-trait_manipulate_params <- newTraitParams()
-small_trait_manipulate_params <- newTraitParams(no_sp = 2)
+trait_manipulate_params <- trait_params_small
+small_trait_manipulate_params <- trait_params_2sp
 small_trait_grid_manipulate_params <- newTraitParams(no_sp = 2, no_w = 36,
                                                      info_level = 0)
 ns_manipulate_params <- newMultispeciesParams(NS_species_params_small,

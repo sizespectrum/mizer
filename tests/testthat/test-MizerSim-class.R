@@ -1,4 +1,4 @@
-params <- newMultispeciesParams(NS_species_params_gears_small, inter_small, info_level = 0)
+params <- NS_params_default_small
 short_ns_sim <- project(NS_params_small, t_max = 0.2, t_save = 0.1)
 
 # basic constructor sets dimensions properly ----

@@ -166,7 +166,7 @@ test_that("newCommunityParams sets constant-reproduction community state", {
 
 test_that("Sets given_species_params", {
     # Calling `given_species_params<-()` should not make a change
-    params <- newCommunityParams()
+    params <- community_params_small
     p2 <- params
     given_species_params(p2) <- given_species_params(p2)
     expect_unchanged(p2, params)

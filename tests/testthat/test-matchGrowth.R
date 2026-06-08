@@ -16,7 +16,7 @@ test_that("matchGrowth only affects selected species", {
 })
 
 test_that("matchGrowth is idempotent on single species", {
-    ss <- newSingleSpeciesParams()
+    ss <- single_sp_params
     ss2 <- matchGrowth(ss)
     expect_equal(ss@initial_n, ss2@initial_n)
 })

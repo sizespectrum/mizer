@@ -1,4 +1,4 @@
-trait_resource_logistic_params <- newTraitParams()
+trait_resource_logistic_params <- trait_params_small
 
 test_that("resource_logistic preserves steady state", {
     # Set resource parameters so that we are at steady state

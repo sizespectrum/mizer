@@ -1,4 +1,4 @@
-params <- newMultispeciesParams(NS_species_params_gears_small, inter_small, info_level = 0)
+params <- NS_params_default_small
 
 # time dimension ----
 test_that("time dimension is dealt with properly", {

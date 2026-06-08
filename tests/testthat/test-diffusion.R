@@ -1,13 +1,13 @@
 # getDiffusion ----
 test_that("getDiffusion returns ArraySpeciesBySize with correct dimensions", {
-    params <- newSingleSpeciesParams()
+    params <- single_sp_params
     d <- getDiffusion(params)
     expect_true(is.ArraySpeciesBySize(d))
     expect_identical(dim(d), dim(params@initial_n))
 })
 
 test_that("getDiffusion includes ext_diffusion", {
-    params <- newSingleSpeciesParams()
+    params <- single_sp_params
     d_base <- getDiffusion(params)
     # Adding a constant to ext_diffusion should shift getDiffusion by the same amount
     params@ext_diffusion[] <- 1
@@ -16,7 +16,7 @@ test_that("getDiffusion includes ext_diffusion", {
 })
 
 test_that("getDiffusion dispatches via rates_funcs", {
-    params <- newSingleSpeciesParams()
+    params <- single_sp_params
     e <- globalenv()
     e$constant_diffusion <- function(params, n, n_pp, n_other, t, feeding_level, ...) {
         array(42, dim = dim(params@initial_n), dimnames = dimnames(params@initial_n))
@@ -27,14 +27,14 @@ test_that("getDiffusion dispatches via rates_funcs", {
 })
 
 test_that("r$diffusion is included in getRates output", {
-    params <- newSingleSpeciesParams()
+    params <- single_sp_params
     r <- getRates(params)
     expect_true("diffusion" %in% names(r))
     expect_identical(dim(r$diffusion), dim(params@initial_n))
 })
 
 test_that("r$diffusion matches getDiffusion", {
-    params <- newSingleSpeciesParams()
+    params <- single_sp_params
     r <- getRates(params)
     expect_equal(r$diffusion, getDiffusion(params), ignore_attr = TRUE)
 })
@@ -42,7 +42,7 @@ test_that("r$diffusion matches getDiffusion", {
 # mizerDiffusion behaviour ----
 
 test_that("mizerDiffusion accepts pre-computed feeding_level and gives same result", {
-    params <- newSingleSpeciesParams()
+    params <- single_sp_params
     params@use_predation_diffusion <- TRUE
     n    <- initialN(params)
     n_pp <- initialNResource(params)
@@ -56,7 +56,7 @@ test_that("mizerDiffusion accepts pre-computed feeding_level and gives same resu
 
 test_that("mizerDiffusion is zero when feeding level is 1 everywhere", {
     # D(w) = (1 - f(w)) * ... so f = 1 gives D = ext_diffusion
-    params <- newSingleSpeciesParams()
+    params <- single_sp_params
     params@use_predation_diffusion <- TRUE
     n    <- initialN(params)
     n_pp <- initialNResource(params)
@@ -68,7 +68,7 @@ test_that("mizerDiffusion is zero when feeding level is 1 everywhere", {
 })
 
 test_that("mizerDiffusion scales as alpha^2", {
-    params <- newSingleSpeciesParams()
+    params <- single_sp_params
     params@use_predation_diffusion <- TRUE
     n    <- initialN(params)
     n_pp <- initialNResource(params)
@@ -83,7 +83,7 @@ test_that("mizerDiffusion scales as alpha^2", {
 })
 
 test_that("use_predation_diffusion<- updates `time_modified`", {
-    params <- newSingleSpeciesParams()
+    params <- single_sp_params
     p2 <- params
     use_predation_diffusion(p2) <- TRUE
     expect_false(identical(p2@time_modified, params@time_modified))

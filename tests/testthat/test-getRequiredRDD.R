@@ -1,6 +1,6 @@
 
 test_that("getRequiredRDD works for single species model", {
-    params <- newSingleSpeciesParams()
+    params <- single_sp_params
     # In a steady state model, getRequiredRDD should return the same as getRDD
     # because the reproduction matches the required amount to maintain the steady state.
     rdd <- getRequiredRDD(params)
@@ -10,7 +10,7 @@ test_that("getRequiredRDD works for single species model", {
 })
 
 test_that("getRequiredRDD works for community model", {
-    params <- newCommunityParams()
+    params <- community_params_small
     # In community model, reproduction is constant
     rdd <- getRequiredRDD(params)
     rdd_actual <- getRDD(params)
@@ -21,7 +21,7 @@ test_that("getRequiredRDD works for community model", {
 
 test_that("getRequiredRDD handles diffusion", {
     # Create a model with diffusion
-    params <- newSingleSpeciesParams()
+    params <- single_sp_params
 
     # Add diffusion
     ext_diff <- params@ext_diffusion
@@ -49,12 +49,12 @@ test_that("getRequiredRDD handles diffusion", {
     expect_true(rdd_req > 0)
 
     # verifying that it is different from the no-diffusion case
-    params_no_diff <- newSingleSpeciesParams()
+    params_no_diff <- single_sp_params
     expect_true(rdd_req != getRequiredRDD(params_no_diff))
 })
 
 test_that("getRequiredRDD uses total diffusion", {
-    params <- newSingleSpeciesParams()
+    params <- single_sp_params
     species <- params@species_params$species[1]
     params@use_predation_diffusion <- TRUE
 
@@ -75,7 +75,7 @@ test_that("getRequiredRDD uses total diffusion", {
 })
 
 test_that("getRequiredRDD keeps egg density constant with diffusion", {
-    params <- newSingleSpeciesParams()
+    params <- single_sp_params
     species <- params@species_params$species[1]
     n <- params@species_params[species, "n"]
     ext_diffusion(params)[species, ] <- 0.1 * params@w^(n + 1)
@@ -90,7 +90,7 @@ test_that("getRequiredRDD keeps egg density constant with diffusion", {
 })
 
 test_that("getRequiredRDD works with predictor-corrector project method", {
-    params <- newSingleSpeciesParams()
+    params <- single_sp_params
     species <- params@species_params$species[1]
     n <- params@species_params[species, "n"]
     ext_diffusion(params)[species, ] <- 0.1 * params@w^(n + 1)

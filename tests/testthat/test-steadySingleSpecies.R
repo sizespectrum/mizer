@@ -23,7 +23,7 @@ test_that("steadySingleSpecies only affects abundance of selected species", {
 })
 
 test_that("steadySingleSpecies is idempotent on single-species model", {
-    ss <- newSingleSpeciesParams()
+    ss <- single_sp_params
     ss2 <- steadySingleSpecies(ss)
     expect_unchanged(ss, ss2)
 })
@@ -41,7 +41,7 @@ test_that("steadySingleSpecies `keep` argument works", {
 test_that("steadySingleSpecies produces steady state with diffusion", {
     # Use a single-species model so that changing the species abundance does
     # not affect its own growth and mortality rates via self-predation.
-    params <- newSingleSpeciesParams()
+    params <- single_sp_params
     species <- params@species_params$species[1]
     n <- params@species_params[species, "n"]
     d <- 0.1 * params@w^(n + 1)
@@ -76,7 +76,7 @@ test_that("steadySingleSpecies produces steady state with diffusion", {
 
 test_that("steadySingleSpecies errors when growth stops before maturity", {
     # Create a simple params object
-    params <- newSingleSpeciesParams()
+    params <- single_sp_params
 
     # Artificially set growth rate to zero before maturity
     # by setting very high metabolic rate
