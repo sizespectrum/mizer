@@ -73,6 +73,14 @@ test_that("setBevertonHolt sets R_max correctly when setting all values", {
     expect_equal(getRequiredRDD(params), rdd)
 })
 
+test_that("setBevertonHolt sets R_max only for named species when R_max is absent from given_species_params", {
+    p <- NS_params
+    given_species_params(p)$R_max <- NULL
+    p2 <- setBevertonHolt(p, R_max = c(Sprat = 2e12))
+    expect_equal(given_species_params(p2)$R_max[1], 2e12)
+    expect_true(all(is.na(given_species_params(p2)$R_max[2:12])))
+})
+
 test_that("setBevertonHolt sets R_max correctly when setting values for some species by using named vector", {
     params <- NS_params
     R_max_old <- params@species_params$R_max
