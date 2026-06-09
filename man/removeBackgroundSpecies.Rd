@@ -16,6 +16,16 @@ A \linkS4class{MizerParams} object with background species removed
 Removes all species that have been marked as background species with
 \code{\link[=markBackground]{markBackground()}}.
 }
+\details{
+This is just a shorthand for
+\code{removeSpecies(params, species_params(params)$is_background)}
+}
+\examples{
+params <- markBackground(NS_params,
+                         species = c("Sprat", "Sandeel", "N.pout"))
+params <- removeBackgroundSpecies(params)
+species_params(params)$species
+}
 \seealso{
 \code{\link[=markBackground]{markBackground()}}
 }

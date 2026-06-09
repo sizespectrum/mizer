@@ -38,11 +38,19 @@ markBackground <- function(object, species = NULL) {
 #'
 #' Removes all species that have been marked as background species with
 #' [markBackground()].
+#' 
+#' This is just a shorthand for
+#' `removeSpecies(params, species_params(params)$is_background)`
 #'
 #' @param params A \linkS4class{MizerParams} object
 #' @return A \linkS4class{MizerParams} object with background species removed
 #' @export
 #' @seealso [markBackground()]
+#' @examples
+#' params <- markBackground(NS_params,
+#'                          species = c("Sprat", "Sandeel", "N.pout"))
+#' params <- removeBackgroundSpecies(params)
+#' species_params(params)$species
 removeBackgroundSpecies <- function(params) {
     removeSpecies(params, params@species_params$is_background)
 }
