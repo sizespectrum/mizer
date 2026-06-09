@@ -1,3 +1,5 @@
+# mizer (development version)
+
 # mizer 3.0.0
 
 This release brings new biological realism, improved numerics, a richer 
