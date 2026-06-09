@@ -9,8 +9,6 @@
 \usage{
 setExtDiffusion(params, ext_diffusion = NULL, reset = FALSE, ...)
 
-\method{setExtDiffusion}{MizerParams}(params, ext_diffusion = NULL, reset = FALSE, ...)
-
 ext_diffusion(params)
 
 ext_diffusion(params) <- value
