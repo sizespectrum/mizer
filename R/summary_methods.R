@@ -886,7 +886,25 @@ summary.MizerParams <- function(object, ...) {
 summary.MizerSim <- function(object, ...) {
     cat("An object of class \"", as.character(class(object)), "\" \n", sep = "")
     cat("Parameters:\n")
-    summary(object@params)
+    # Report the effort that was actually used during the simulation (stored in
+    # the `effort` slot) rather than the model's `initial_effort`. We delegate
+    # to the params summary on a copy whose `initial_effort` holds the effort
+    # used, averaged over the saved timesteps for each gear.
+    params <- object@params
+    used <- object@effort
+    gears <- dimnames(used)$gear
+    params@initial_effort[gears] <- colMeans(used)
+    summary(params)
+    # Flag any gears whose effort was not constant over the saved timesteps, so
+    # that the averaged value shown above is not mistaken for a fixed effort.
+    varied <- apply(used, 2, function(x) !isTRUE(all.equal(min(x), max(x))))
+    if (any(varied)) {
+        ranges <- vapply(gears[varied], function(g) {
+            sprintf("%s (%1.2f to %1.2f)", g, min(used[, g]), max(used[, g]))
+        }, character(1))
+        cat("\tNote: effort varied over time for ", toString(ranges),
+            "; mean shown above.\n", sep = "")
+    }
     cat("Simulation parameters:\n")
     # Need to store t_max and dt in a description slot? Or just in simulation
     # time parameters? Like a list?

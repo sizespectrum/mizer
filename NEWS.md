@@ -1,5 +1,10 @@
 # mizer (development version)
 
+- `summary()` of a `MizerSim` object now reports the fishing effort that was
+  actually used during the simulation rather than the model's `initial_effort`.
+  Gears whose effort varied over time show the mean effort, flagged with a note
+  giving the min-max range.
+
 # mizer 3.0.0
 
 This release brings new biological realism, improved numerics, a richer 
