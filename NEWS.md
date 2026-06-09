@@ -2,6 +2,9 @@
 
 This release brings new biological realism, improved numerics, a richer 
 interactive analysis experience, and a composable extension framework.
+For an overview see the
+[blog post](https://blog.mizer.sizespectrum.org/posts/2026-05-13-mizer-3-0-announcement/)
+pre-announcing the release.
 
 ## Diffusion in mizer
 
