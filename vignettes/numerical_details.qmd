@@ -82,6 +82,30 @@ $$ J_j = g_{j-1} N_{j-1} - \frac{1}{2} \frac{d_j N_j - d_{j-1} N_{j-1}}{\Delta w
 And similarly at boundary $w_{j+1}$:
 $$ J_{j+1} = g_j N_j - \frac{1}{2} \frac{d_{j+1} N_{j+1} - d_j N_j}{\Delta w_j} $$ {#eq-total-flux-jp1}
 
+## Point values and bin averages
+
+The scheme uses two structurally different kinds of size-dependent rate quantity, and they require two different discrete representations. Keeping them apart is important, because the right representation of a given rate depends on *how it enters the equations*, not just on the rate itself.
+
+**Flux coefficients live at cell faces and are point values.** The growth rate $g(w)$ and the diffusion coefficient $d(w)$ enter the scheme only through the fluxes $J_j$ at the cell faces $w_j$ (the flux equations above). A flux coefficient multiplies the density *at a face*, so what is needed is its **point value at $w_j$**, not its average over a bin. Accordingly we set $g_j = g(w_j)$ and $d_j = d(w_j)$. (The upwind advective flux even uses $g$ at the upwind node $w_{j-1}$; that is still a point value, just evaluated one node away from the face.)
+
+**Rates that are integrated against the density over a bin are bin averages.** The mortality term is, exactly,
+$$ \frac{1}{\Delta w_j}\int_{w_j}^{w_{j+1}} \mu(w)\,N(w)\,dw. $$ {#eq-mortality-integral}
+Because $N_j$ is the bin average, the consistent way to factor this is $\bar\mu_j\,N_j$ with the **bin-averaged** mortality
+$$ \bar\mu_j = \frac{1}{\Delta w_j}\int_{w_j}^{w_{j+1}} \mu(w)\,dw, $$ {#eq-bin-averaged-mortality}
+since $\int_{w_j}^{w_{j+1}}(N-N_j)\,dw = 0$ makes the leading error cancel and leaves an $O(\Delta w_j^2)$ remainder. Using the point value $\mu(w_j)$ instead, as written in the discretised conservation equation above, is the lower-order choice. The same distinction applies to every rate that appears inside an integral weighted by the abundance: the fishing-mortality contribution $\int Q\,S(w)\,\text{effort}\,N\,dw$, the reproductive investment $\int \psi(w)\,E_r(w)\,N\,dw$, and the predation and encounter convolutions integrated against $N$ (see the [FFT vignette](fft.html)). For these, the size-dependent factor should be replaced by its bin average.
+
+**The energy income $e(w)$ feeds both roles.** It is the one quantity that sits on both sides of this distinction, which is why care is needed. Through the somatic growth rate $g = e - e_r$ it is a **flux coefficient**, wanted as a point value at the face $w_j$. Through the reproduction integral $\int \psi\,e\,N\,dw$ it is an **integrand**, wanted as a bin average (of the product $\psi e$). The same pointwise $e(w)$ is therefore used as a point value for growth and bin-averaged only at its reproduction use-site; it must **not** be pre-averaged, or the growth flux velocity would be evaluated in the wrong place.
+
+In summary:
+
+| Quantity | How it enters | Discrete representation |
+|---|---|---|
+| $g$, $d$ | flux coefficients at the faces $w_j$ | point value at $w_j$ |
+| $\mu$; fishing/reproductive investments; predation and encounter integrands | rates integrated against $N$ over a bin | bin average over $[w_j, w_{j+1}]$ |
+| $e$ (energy income) | both: growth flux *and* reproduction integrand | point value for growth; bin-averaged product $\psi e$ for reproduction |
+
+The default scheme uses point values throughout, which is consistent. Replacing the bin-integrated quantities by their bin averages raises the order of those source and sink terms; the spatial order of the overall transport step is separately set by the upwind advective flux, as discussed in the Order of Accuracy section below.
+
 ## Semi-Implicit Time Discretisation
 
 With the diffusion term, an explicit time discretisation would require a very small time step for stability ($\Delta t \sim \Delta w^2$). Therefore, we use a semi-implicit scheme where the densities $N$ are evaluated at time $t+1$, but the rates ($g$, $\mu$, $d$) are evaluated at time $t$. Using a fully implicit scheme would require solving a nonlinear system at each time step, which is more computationally expensive.
