@@ -78,6 +78,7 @@ Collate:
     'setExtMort.R'
     'setExtEncounter.R'
     'diffusion.R'
+    'high_order.R'
     'setExtDiffusion.R'
     'setReproduction.R'
     'setResource.R'

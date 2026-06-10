@@ -393,6 +393,12 @@ upgradeParams <- function(params) {
         params@use_predation_diffusion <- FALSE
     }
 
+    # Add high_order slot if missing (added in 3.0.x)
+    # Default to FALSE to preserve behaviour of previous mizer versions.
+    if (!.hasSlot(params, "high_order")) {
+        params@high_order <- FALSE
+    }
+
     params@mizer_version <- packageVersion("mizer")
     params <- validParams(params, info_level = 0)
     params@time_modified <- lubridate::now()

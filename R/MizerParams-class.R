@@ -232,6 +232,12 @@ validMizerParams <- function(object) {
         errors <- c(errors, msg)
     }
 
+    # high_order must be a single logical value
+    if (!is.logical(params@high_order) || length(params@high_order) != 1) {
+        msg <- "high_order must be a single logical value (TRUE or FALSE)"
+        errors <- c(errors, msg)
+    }
+
     # Should not have legacy r_max column (has been renamed to R_max)
     if ("r_max" %in% names(params@species_params)) {
         msg <- "The 'r_max' column in species_params should be called 'R_max'. You can use 'validParams()' to upgrade your params object."
@@ -390,6 +396,10 @@ validMizerParams <- function(object) {
 #'   diffusion is included when calculating rates with [mizerDiffusion()].
 #'   Defaults to `FALSE` to preserve the behaviour of previous mizer versions.
 #'   Set to `TRUE` to enable the diffusion term from the jump-growth equation.
+#' @slot high_order A logical flag controlling whether second-order
+#'   bin-averaged rate quadratures are used. Defaults to `FALSE` to preserve
+#'   the behaviour of previous mizer versions. Set to `TRUE` to enable
+#'   bin-integrated quantities consistent with the finite-volume representation.
 #'
 #' @seealso [project()] [MizerSim()]
 #'   [emptyParams()] [newMultispeciesParams()]
@@ -444,7 +454,8 @@ setClass(
         linecolour = "character",
         linetype = "character",
         ft_mask = "array",
-        use_predation_diffusion = "logical"
+        use_predation_diffusion = "logical",
+        high_order = "logical"
     ),
 )
 
@@ -739,7 +750,8 @@ emptyParams <- function(species_params,
         linecolour = linecolour,
         linetype = linetype,
         ft_mask = ft_mask,
-        use_predation_diffusion = FALSE
+        use_predation_diffusion = FALSE,
+        high_order = FALSE
     )
 
     return(params)
