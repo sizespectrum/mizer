@@ -411,13 +411,31 @@ solve and rate recalculation, and then two stage solves against the shared
 operator, so it is marginally more expensive than the predictor-corrector
 method per step.
 
+### The resource update
+
+Under the second-order methods the resource is also advanced to second order.
+The resource mortality $\mu_R$ depends on the consumer densities, so evaluating
+it only at the start of the step would make the resource update first order and
+cap the overall accuracy. Instead, the predictor step is used to form the same
+midpoint rates $r^{t+1/2}$ that drive the consumer corrector, and the resource
+is then advanced with the midpoint resource mortality
+$$
+\mu_R^{t+1/2} = \tfrac{1}{2}\left(\mu_R^t + \hat\mu_R^{t+1}\right).
+$$ {#eq-midpoint-resource-mort}
+At a steady state $r^t = \hat r^{t+1} = r^{t+1/2}$, so the resource corrector
+reproduces the predictor and the steady state is unchanged. With the default
+semi-chemostat resource dynamics, which already use the analytic solution for
+fixed mortality, the remaining resource error is small, but the midpoint
+mortality removes the first-order time-stepping component. The `euler` method
+keeps the first-order resource update.
+
 ### Interpretation
 
 On short runs the second-order methods may not always show a clean
 second-order convergence slope because the comparison is affected by the fixed
-spatial grid, the first-order resource update, nonlinear rate feedbacks and
-ordinary timing noise. TR-BDF2 typically shows the cleanest slope of the three
-because, being L-stable, it does not ring at the larger time steps.
+spatial grid, nonlinear rate feedbacks and ordinary timing noise. TR-BDF2
+typically shows the cleanest slope of the three because, being L-stable, it does
+not ring at the larger time steps.
 
 Because the predictor-corrector method is more expensive per time step, the
 relevant comparison is between the Euler method at a given `dt` and the

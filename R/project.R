@@ -560,38 +560,65 @@ project_simple.MizerParams <-
                     )
             }
 
-            # * Update resource ----
-            n_pp <- resource_dynamics_fn(params,
-                n = n, n_pp = n_pp,
-                n_other = n_other, rates = r,
-                t = t, dt = dt,
-                resource_rate = params@rr_pp,
-                resource_capacity = params@cc_pp, ...
-            )
+            # * Update resource and species ----
+            if (method == "predictor_corrector" || method == "tr_bdf2") {
+                # Second-order methods: compute midpoint rates once and use them
+                # for both the resource and the consumer update.
+                # Predictor: advance resource and consumer with start-of-step
+                # rates r.
+                n_pp_hat <- resource_dynamics_fn(params,
+                    n = n, n_pp = n_pp,
+                    n_other = n_other, rates = r,
+                    t = t, dt = dt,
+                    resource_rate = params@rr_pp,
+                    resource_capacity = params@cc_pp, ...
+                )
+                n_hat <- project_n(params, r, n, dt, a, b, c, S, idx,
+                                   w_min_idx_array_ref, no_sp, no_w)
+                # End-of-step rates from the prediction, then midpoint rates
+                r_hat <- rates_fns$Rates(
+                    params,
+                    n = n_hat, n_pp = n_pp_hat, n_other = n_other_new,
+                    t = t + dt, effort = effort, rates_fns = rates_fns, ...
+                )
+                r_mid <- average_rates(r, r_hat)
 
-            # * Update species ----
-            if (method == "predictor_corrector") {
-                n <- project_n_2(params, r, n, dt, a, b, c, S, idx,
-                                 w_min_idx_array_ref, no_sp, no_w,
-                                 rates_fns = rates_fns,
-                                 n_pp = n_pp,
-                                 n_other = n_other_new,
-                                 t = t,
-                                 effort = effort, ...)
-            } else if (method == "tr_bdf2") {
-                n <- project_n_tr_bdf2(params, r, n, dt, a, b, c, S, idx,
-                                       w_min_idx_array_ref, no_sp, no_w,
-                                       rates_fns = rates_fns,
-                                       n_pp = n_pp,
-                                       n_other = n_other_new,
-                                       t = t,
-                                       effort = effort, ...)
-            } else if (any(r$diffusion > 0)) {
-                n <- project_n(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
-                               no_sp, no_w)
+                # Corrector: resource with midpoint resource mortality
+                n_pp <- resource_dynamics_fn(params,
+                    n = n, n_pp = n_pp,
+                    n_other = n_other, rates = r_mid,
+                    t = t, dt = dt,
+                    resource_rate = params@rr_pp,
+                    resource_capacity = params@cc_pp, ...
+                )
+                # Corrector: consumer with the same midpoint rates. Supplying
+                # r_mid makes the stepper skip its internal predictor.
+                if (method == "predictor_corrector") {
+                    n <- project_n_2(params, r, n, dt, a, b, c, S, idx,
+                                     w_min_idx_array_ref, no_sp, no_w,
+                                     r_mid = r_mid)
+                } else {
+                    n <- project_n_tr_bdf2(params, r, n, dt, a, b, c, S, idx,
+                                           w_min_idx_array_ref, no_sp, no_w,
+                                           r_mid = r_mid)
+                }
             } else {
-                n <- project_n_no_diffusion(params, r, n, dt, a, b, S, idx, w_min_idx_array_ref,
-                                            no_sp, no_w)
+                # First-order Euler method.
+                n_pp <- resource_dynamics_fn(params,
+                    n = n, n_pp = n_pp,
+                    n_other = n_other, rates = r,
+                    t = t, dt = dt,
+                    resource_rate = params@rr_pp,
+                    resource_capacity = params@cc_pp, ...
+                )
+                if (any(r$diffusion > 0)) {
+                    n <- project_n(params, r, n, dt, a, b, c, S, idx,
+                                   w_min_idx_array_ref, no_sp, no_w)
+                } else {
+                    n <- project_n_no_diffusion(params, r, n, dt, a, b, S, idx,
+                                                w_min_idx_array_ref, no_sp,
+                                                no_w)
+                }
             }
 
             # * Update time ----

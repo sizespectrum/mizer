@@ -5,6 +5,10 @@
   of `method = "predictor_corrector"` while damping the oscillations that the
   Crank-Nicolson corrector can show at large time steps. Like the other methods
   it only requires tridiagonal solves. See the "Numerical Details" vignette.
+- Under the second-order methods (`"predictor_corrector"` and `"tr_bdf2"`) the
+  resource is now advanced with midpoint resource mortality rather than the
+  start-of-step value, so the resource spectrum is also second order in time.
+  The `"euler"` method and the steady states are unchanged.
 
 # mizer 3.0.0
 

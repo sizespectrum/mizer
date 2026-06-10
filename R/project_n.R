@@ -41,8 +41,19 @@ project_n <- function(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
     
     # Note: project_n_loop takes j_start as argument
     n <- project_n_loop(n, a, b, c, S, params@w_min_idx)
-    
+
     n
+}
+
+# Average the start-of-step rates `r` with the provisional end-of-step rates
+# `r_hat` to obtain second-order-accurate midpoint rates. Only the fields that
+# are consumed by the density and resource updates are averaged: the consumer
+# transport fields and the resource mortality.
+average_rates <- function(r, r_hat) {
+    for (field in c("e_growth", "mort", "diffusion", "rdd", "resource_mort")) {
+        r[[field]] <- 0.5 * (r[[field]] + r_hat[[field]])
+    }
+    r
 }
 
 #' Project values with a predictor-corrector method
@@ -95,11 +106,7 @@ project_n_2 <- function(params, r, n, dt, a, b, c, S, idx,
         if (is.null(r_hat)) {
             r_mid <- r
         } else {
-            r_mid <- r
-            r_mid$e_growth <- 0.5 * (r$e_growth + r_hat$e_growth)
-            r_mid$mort <- 0.5 * (r$mort + r_hat$mort)
-            r_mid$diffusion <- 0.5 * (r$diffusion + r_hat$diffusion)
-            r_mid$rdd <- 0.5 * (r$rdd + r_hat$rdd)
+            r_mid <- average_rates(r, r_hat)
         }
     }
 
@@ -203,11 +210,7 @@ project_n_tr_bdf2 <- function(params, r, n, dt, a, b, c, S, idx,
         if (is.null(r_hat)) {
             r_mid <- r
         } else {
-            r_mid <- r
-            r_mid$e_growth <- 0.5 * (r$e_growth + r_hat$e_growth)
-            r_mid$mort <- 0.5 * (r$mort + r_hat$mort)
-            r_mid$diffusion <- 0.5 * (r$diffusion + r_hat$diffusion)
-            r_mid$rdd <- 0.5 * (r$rdd + r_hat$rdd)
+            r_mid <- average_rates(r, r_hat)
         }
     }
 
