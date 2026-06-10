@@ -57,6 +57,19 @@
 #' supply a named array then the function will check the order and warn if it is
 #' different.
 #'
+#' @section Higher-order quadrature:
+#' When the predation kernel depends only on the predator/prey mass ratio, the
+#' encounter and predation rates are evaluated as convolutions using the fast
+#' Fourier transform. By default mizer point-samples the kernel at the grid
+#' nodes, which is a first-order (rectangle-rule) quadrature. Setting
+#' `high_order = TRUE` instead integrates the kernel over each logarithmic size
+#' bin when building the Fourier-transformed kernels. This finite-volume
+#' consistent quadrature lifts the encounter and predation rates towards second
+#' order at no extra runtime cost, because the integration is performed once
+#' here and the rate functions themselves are unchanged. The default remains the
+#' first-order scheme so that existing models are unaffected. See the
+#' `vignette("fft")` for the mathematical details.
+#'
 #' @param params A MizerParams object
 #' @param pred_kernel Optional. An array (species x predator size x prey size)
 #'   that holds the predation coefficient of each predator at size on each prey
@@ -68,6 +81,14 @@
 #'   overwritten with a custom value. If set to FALSE (default) then a
 #'   recalculation from the species parameters will take place only if no custom
 #'   value has been set.
+#' @param high_order
+#'   Whether to use the higher-order (bin-integrated) quadrature when building
+#'   the Fourier-transformed predation kernels for a ratio-dependent kernel.
+#'   See the section "Higher-order quadrature" below. If `NULL` (default) the
+#'   choice recorded in the metadata of `params` is used, defaulting to `FALSE`
+#'   (the original first-order scheme) for objects where it has never been set.
+#'   Passing `TRUE` or `FALSE` explicitly selects the scheme and records the
+#'   choice in the metadata so that it persists through later recalculations.
 #' @param ... Unused
 #'
 #' @return `setPredKernel()`: A MizerParams object with updated predation kernel.
@@ -93,14 +114,25 @@
 #' pred_kernel["Herring", , ] <- sweep(pred_kernel["Herring", , ], 2,
 #'                                     params@w_full, "*")
 #' params<- setPredKernel(params, pred_kernel = pred_kernel)
-setPredKernel <- function(params, pred_kernel = NULL, reset = FALSE, ...) {
+setPredKernel <- function(params, pred_kernel = NULL, reset = FALSE,
+                          high_order = NULL, ...) {
     UseMethod("setPredKernel")
 }
 #' @export
 setPredKernel.MizerParams <- function(params,
                           pred_kernel = NULL,
-                          reset = FALSE, ...) {
+                          reset = FALSE, high_order = NULL, ...) {
     assert_that(is.flag(reset))
+
+    # Resolve which quadrature to use for the Fourier-transformed kernels and
+    # record an explicit choice in the metadata so that it persists through the
+    # recalculations triggered by the setParams() pipeline.
+    if (is.null(high_order)) {
+        high_order <- isTRUE(params@metadata[["high_order_kernel"]])
+    } else {
+        assert_that(is.flag(high_order))
+        params@metadata[["high_order_kernel"]] <- high_order
+    }
 
     if (reset) {
         if (!is.null(pred_kernel)) {
@@ -154,21 +186,64 @@ setPredKernel.MizerParams <- function(params,
         array(NA, dim = c(no_sp, no_w_full),
               dimnames = list(sp = species_params$species, k = 1:no_w_full))
     ft_pred_kernel_p <- ft_pred_kernel_e
-    # Vector of predator/prey mass ratios
-    # The smallest predator/prey mass ratio is 1
-    ppmr <- params@w_full / params@w_full[1]
-    phis <- get_phi(species_params, ppmr)
-    # Do not allow feeding at own size
-    phis[, 1] <- 0
+    # The kernel weights phi_e[i, ] and phi_p[i, ] give, for each offset
+    # m = 0, ..., no_w_full - 1 between the predator and prey bins, the value
+    # that enters the encounter and predation convolutions respectively. With
+    # the default first-order scheme both are the kernel point-sampled at the
+    # grid node, tilde_phi(beta^m). With the higher-order scheme they are the
+    # kernel integrated over the prey bin (encounter) and predator bin
+    # (predation); see below and the vignette("fft").
+    if (!high_order) {
+        # First-order (rectangle-rule) quadrature: point-sample the kernel.
+        # The smallest predator/prey mass ratio is 1.
+        ppmr <- params@w_full / params@w_full[1]
+        phi_e <- get_phi(species_params, ppmr)
+        # Do not allow feeding at own size
+        phi_e[, 1] <- 0
+        phi_p <- phi_e
+    } else {
+        # Higher-order (bin-integrated) quadrature. The grid is geometric, so
+        # the bin ratio beta = w_full[k+1] / w_full[k] is constant; Delta is the
+        # natural-log bin width. We integrate the kernel over each log-bin by a
+        # composite-midpoint rule with Q sub-cells, parametrised by
+        # t = s * Delta with s in [0, 1].
+        beta_grid <- params@w_full[2] / params@w_full[1]
+        Delta <- log(beta_grid)
+        m <- 0:(no_w_full - 1)
+        Q <- 100L
+        tt <- (seq_len(Q) - 0.5) / Q * Delta
+        # Ratios at which to evaluate the kernel. Encounter integrates over the
+        # prey bin, so the ratio w/w_p = beta^m e^{-t} decreases across the bin;
+        # predation integrates over the predator bin, so w/w_p = beta^m e^{t}
+        # increases across the bin.
+        ppmr_e <- exp(outer(m * Delta, tt, `-`))
+        ppmr_p <- exp(outer(m * Delta, tt, `+`))
+        kernel_e <- get_phi(species_params, as.vector(ppmr_e))
+        kernel_p <- get_phi(species_params, as.vector(ppmr_p))
+        # Quadrature weights including the bin-integral Jacobian. The prey
+        # integrand carries w_p dw_p (two powers of w_p -> e^{2t}); the predator
+        # integrand carries dw (one power of w -> e^{t}). Dividing by (beta - 1)
+        # cancels the factor w * dw = (beta - 1) w^2 that mizerEncounter() and
+        # mizerPredRate() already fold into the prey and predator vectors, so
+        # those rate functions need no change.
+        weight_e <- exp(2 * tt) * Delta / Q / (beta_grid - 1)
+        weight_p <- exp(tt)     * Delta / Q / (beta_grid - 1)
+        phi_e <- matrix(0, nrow = no_sp, ncol = no_w_full)
+        phi_p <- phi_e
+        for (i in 1:no_sp) {
+            phi_e[i, ] <- matrix(kernel_e[i, ], nrow = no_w_full) %*% weight_e
+            phi_p[i, ] <- matrix(kernel_p[i, ], nrow = no_w_full) %*% weight_p
+        }
+    }
+
     for (i in 1:no_sp) {
-        phi <- phis[i, ]
         # Fourier transform of feeding kernel for evaluating available energy
-        ft_pred_kernel_e[i, ] <- fft(phi)
+        ft_pred_kernel_e[i, ] <- fft(phi_e[i, ])
         # Fourier transform of feeding kernel for evaluating predation rate
-        ri <- min(max(which(phi > 0)), no_w_full - 1)  # index of largest ppmr
-        phi_p <- rep(0, no_w_full)
-        phi_p[(no_w_full - ri + 1):no_w_full] <- phi[(ri + 1):2]
-        ft_pred_kernel_p[i, ] <- fft(phi_p)
+        ri <- min(max(which(phi_p[i, ] > 0)), no_w_full - 1)  # index of largest ppmr
+        phi_p_rev <- rep(0, no_w_full)
+        phi_p_rev[(no_w_full - ri + 1):no_w_full] <- phi_p[i, (ri + 1):2]
+        ft_pred_kernel_p[i, ] <- fft(phi_p_rev)
     }
 
     # Prevent resetting if full slot has been commented

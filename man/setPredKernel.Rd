@@ -7,7 +7,13 @@
 \alias{pred_kernel<-}
 \title{Set predation kernel}
 \usage{
-setPredKernel(params, pred_kernel = NULL, reset = FALSE, ...)
+setPredKernel(
+  params,
+  pred_kernel = NULL,
+  reset = FALSE,
+  high_order = NULL,
+  ...
+)
 
 getPredKernel(params)
 
@@ -28,6 +34,14 @@ value calculated from the species parameters, even if it was previously
 overwritten with a custom value. If set to FALSE (default) then a
 recalculation from the species parameters will take place only if no custom
 value has been set.}
+
+\item{high_order}{Whether to use the higher-order (bin-integrated) quadrature when building
+the Fourier-transformed predation kernels for a ratio-dependent kernel.
+See the section "Higher-order quadrature" below. If \code{NULL} (default) the
+choice recorded in the metadata of \code{params} is used, defaulting to \code{FALSE}
+(the original first-order scheme) for objects where it has never been set.
+Passing \code{TRUE} or \code{FALSE} explicitly selects the scheme and records the
+choice in the metadata so that it persists through later recalculations.}
 
 \item{...}{Unused}
 
@@ -97,6 +111,21 @@ The order of the predator species in \code{pred_kernel} should be the same
 as the order in the species params dataframe in the \code{params} object. If you
 supply a named array then the function will check the order and warn if it is
 different.
+}
+
+\section{Higher-order quadrature}{
+
+When the predation kernel depends only on the predator/prey mass ratio, the
+encounter and predation rates are evaluated as convolutions using the fast
+Fourier transform. By default mizer point-samples the kernel at the grid
+nodes, which is a first-order (rectangle-rule) quadrature. Setting
+\code{high_order = TRUE} instead integrates the kernel over each logarithmic size
+bin when building the Fourier-transformed kernels. This finite-volume
+consistent quadrature lifts the encounter and predation rates towards second
+order at no extra runtime cost, because the integration is performed once
+here and the rate functions themselves are unchanged. The default remains the
+first-order scheme so that existing models are unaffected. See the
+\code{vignette("fft")} for the mathematical details.
 }
 
 \examples{

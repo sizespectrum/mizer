@@ -146,3 +146,72 @@ test_that("default_pred_kernel_params leaves manually set full kernels unchanged
     expect_true(all(is.na(unchanged@species_params$beta)))
     expect_identical(unchanged@pred_kernel, params@pred_kernel)
 })
+
+## Higher-order (bin-integrated) quadrature ----
+test_that("default scheme is first-order and writes no metadata", {
+    params <- NS_params_small
+    # The default leaves the Fourier kernels and metadata untouched
+    expect_unchanged(setPredKernel(params), params)
+    expect_null(setPredKernel(params)@metadata[["high_order_kernel"]])
+    # Explicitly asking for first order matches the default kernels but records
+    # the choice
+    p_lo <- setPredKernel(params, high_order = FALSE)
+    expect_equal(p_lo@ft_pred_kernel_e, params@ft_pred_kernel_e)
+    expect_equal(p_lo@ft_pred_kernel_p, params@ft_pred_kernel_p)
+    expect_false(p_lo@metadata[["high_order_kernel"]])
+})
+
+test_that("high_order = TRUE changes the kernels and records the choice", {
+    params <- NS_params_small
+    p_hi <- setPredKernel(params, high_order = TRUE)
+    expect_true(p_hi@metadata[["high_order_kernel"]])
+    expect_false(isTRUE(all.equal(p_hi@ft_pred_kernel_e,
+                                  params@ft_pred_kernel_e)))
+    expect_false(isTRUE(all.equal(p_hi@ft_pred_kernel_p,
+                                  params@ft_pred_kernel_p)))
+    # The rates remain finite and a projection runs
+    expect_true(all(is.finite(getEncounter(p_hi))))
+    expect_true(all(is.finite(getPredRate(p_hi))))
+    sim <- project(p_hi, t_max = 1, t_save = 1)
+    expect_true(all(is.finite(sim@n)))
+})
+
+test_that("the high-order choice persists through recalculation", {
+    params <- setPredKernel(NS_params_small, high_order = TRUE)
+    # A bare recalculation keeps the high-order kernels
+    expect_equal(setPredKernel(params)@ft_pred_kernel_e,
+                 params@ft_pred_kernel_e)
+    # Changing a kernel parameter re-runs setPredKernel() via the setParams
+    # pipeline; the high-order scheme must be retained
+    p2 <- params
+    species_params(p2)$beta <- species_params(p2)$beta * 1.1
+    expect_true(p2@metadata[["high_order_kernel"]])
+    p2_lo <- NS_params_small
+    species_params(p2_lo)$beta <- species_params(p2_lo)$beta * 1.1
+    expect_false(isTRUE(all.equal(p2@ft_pred_kernel_e, p2_lo@ft_pred_kernel_e)))
+    # Switching back to first order also persists
+    p3 <- setPredKernel(params, high_order = FALSE)
+    expect_equal(p3@ft_pred_kernel_e, NS_params_small@ft_pred_kernel_e)
+})
+
+test_that("bin-integrated box kernel matches the analytic weights", {
+    params <- NS_params_small
+    # Set the box parameters via the slot directly so that the kernel is not
+    # recalculated before ppmr_min/ppmr_max are in place.
+    params@species_params$pred_kernel_type <- "box"
+    params@species_params$ppmr_min <- 1
+    params@species_params$ppmr_max <- 1e8  # wide support: whole bins lie inside
+    p_hi <- setPredKernel(params, high_order = TRUE)
+    no_w_full <- length(params@w_full)
+    beta_grid <- params@w_full[2] / params@w_full[1]
+    # Invert the FFT of the first species to recover the kernel weights
+    phi_e <- Re(fft(p_hi@ft_pred_kernel_e[1, ], inverse = TRUE)) / no_w_full
+    phi_p <- Re(fft(p_hi@ft_pred_kernel_p[1, ], inverse = TRUE)) / no_w_full
+    # Offset m = 0 (own bin) carries no encounter; a mid-range offset lies fully
+    # inside the box support
+    expect_equal(unname(phi_e[1]), 0, tolerance = 1e-8)
+    expect_equal(unname(phi_e[5]), (beta_grid + 1) / 2, tolerance = 1e-4)
+    # The predation weight for a fully-covered bin is exactly 1. phi_p is the
+    # reversed kernel, so offset m = 1 sits in the last entry.
+    expect_equal(unname(phi_p[no_w_full]), 1, tolerance = 1e-4)
+})

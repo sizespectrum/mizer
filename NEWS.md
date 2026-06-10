@@ -1,5 +1,13 @@
 # mizer (development version)
 
+- `setPredKernel()` gains a `high_order` argument that selects a higher-order,
+  finite-volume-consistent quadrature for the FFT-based encounter and predation
+  rates. The kernel is integrated over each logarithmic size bin instead of
+  being point-sampled, lifting these rates towards second order at no extra
+  runtime cost. The first-order scheme remains the default; enable the new
+  scheme with `setPredKernel(params, high_order = TRUE)`. See the
+  "Fast Fourier Transform for Rates" vignette for the derivation.
+
 # mizer 3.0.0
 
 This release brings new biological realism, improved numerics, a richer 
