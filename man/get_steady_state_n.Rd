@@ -4,7 +4,17 @@
 \alias{get_steady_state_n}
 \title{Calculate steady state abundance}
 \usage{
-get_steady_state_n(params, g, mu, D, N0)
+get_steady_state_n(
+  params,
+  g,
+  mu,
+  D,
+  N0,
+  flux_limiter = "none",
+  max_iterations = 500,
+  tol = 1e-10,
+  relax = 0.3
+)
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -16,6 +26,25 @@ get_steady_state_n(params, g, mu, D, N0)
 \item{D}{A matrix of diffusion rates (species x size)}
 
 \item{N0}{A vector with the abundance at the smallest size for each species}
+
+\item{flux_limiter}{The spatial discretisation of the advective flux,
+\code{"none"} (first-order upwind) or \code{"van_leer"}. With a flux limiter the
+steady state must match the one that \code{\link[=project]{project()}} converges to with the same
+\code{flux_limiter}. Because the limiter depends on the solution, the steady
+state is then found by an under-relaxed Picard iteration: the limiter is
+frozen at the current iterate, the resulting tridiagonal system is solved,
+and the iterate is updated towards that solution, repeating until it
+converges. (At \code{dt = 1} the limited operator is not diagonally dominant, so
+the plain fixed-point map only stalls; under-relaxation makes it converge.)
+See \code{\link[=project]{project()}}.}
+
+\item{max_iterations}{Maximum number of Picard iterations used when a flux
+limiter is active.}
+
+\item{tol}{Relative convergence tolerance for the Picard iteration.}
+
+\item{relax}{Under-relaxation factor in (0, 1] for the Picard iteration when a
+flux limiter is active.}
 }
 \value{
 A matrix with the steady state abundance

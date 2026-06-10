@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -277,15 +277,48 @@ J_{j_{min}}^{t+1} = J_{j_{min}}^t = R_{dd}^{t+1/2}.
 O(\Delta t^2) + O(\Delta w_j),
 \tag{39}\]</span></span> or <span class="math inline">\(O(\Delta t^2 + \log\beta)\)</span> on the logarithmic grid.</p>
 <p>There are two practical cautions. First, this doubles the number of rate evaluations per time step. Second, Crank-Nicolson-type methods are less damping than backward Euler, so for large time steps they can show oscillations even when they are formally stable. Positivity and robustness would therefore need to be checked carefully before using this as the default time stepper.</p>
+</section><section class="level2"><h2 id="tr-bdf2-time-stepping">TR-BDF2 Time Stepping<a class="anchor" aria-label="anchor" href="#tr-bdf2-time-stepping"></a>
+</h2>
+<p>The oscillations of the Crank-Nicolson corrector are a consequence of its stability function. For the scalar test problem <span class="math inline">\(N' = \lambda N\)</span> the corrector multiplies the solution by <span id="eq-cn-amplification"><span class="math display">\[
+R_{CN}(z) = \frac{1 + z/2}{1 - z/2}, \qquad z = \lambda\,\Delta t,
+\tag{40}\]</span></span> and for a strongly damped mode (<span class="math inline">\(\lambda\)</span> real and very negative) <span class="math inline">\(R_{CN}(z) \to -1\)</span> as <span class="math inline">\(z \to -\infty\)</span>. Such modes are therefore barely damped and flip sign every step. This is the ringing seen at large <span class="math inline">\(\Delta t\)</span>, and it is driven most strongly by the non-smooth recruitment boundary at <span class="math inline">\(w_{min}\)</span>. Crank-Nicolson is <em>A-stable</em> but not <em>L-stable</em>: it does not satisfy <span class="math inline">\(R(z) \to 0\)</span> as <span class="math inline">\(z \to -\infty\)</span>.</p>
+<p>The <strong>TR-BDF2</strong> method, selected with <code>method = "tr_bdf2"</code>, keeps second-order accuracy but is <em>L-stable</em>, so the stiff modes are damped rather than ringing. It is a one-step, two-stage method. Writing the frozen-rate spatial operator and recruitment source as <span class="math inline">\(L\)</span> and <span class="math inline">\(q\)</span> (as above), and using a stage fraction <span class="math inline">\(\gamma\)</span>, one step from <span class="math inline">\(N^t\)</span> to <span class="math inline">\(N^{t+1}\)</span> is</p>
+<ol type="1">
+<li>
+<strong>Trapezoidal (TR) stage</strong> over <span class="math inline">\([t, t+\gamma\Delta t]\)</span>: <span id="eq-trbdf2-tr"><span class="math display">\[
+\frac{N^{t+\gamma} - N^t}{\gamma\Delta t}
+= \tfrac{1}{2}\left(L N^t + L N^{t+\gamma}\right) + q.
+\tag{41}\]</span></span>
+</li>
+<li>
+<strong>Backward-differentiation (BDF2) stage</strong> over the whole step, using <span class="math inline">\(N^t\)</span>, <span class="math inline">\(N^{t+\gamma}\)</span> and <span class="math inline">\(N^{t+1}\)</span>: <span id="eq-trbdf2-bdf2"><span class="math display">\[
+N^{t+1} = \frac{1}{\gamma(2-\gamma)}N^{t+\gamma}
+- \frac{(1-\gamma)^2}{\gamma(2-\gamma)}N^t
++ \frac{1-\gamma}{2-\gamma}\,\Delta t\left(L N^{t+1} + q\right).
+\tag{42}\]</span></span>
+</li>
+</ol>
+<p>The standard choice is <span id="eq-trbdf2-gamma"><span class="math display">\[
+\gamma = 2 - \sqrt{2},
+\tag{43}\]</span></span> which makes the method L-stable and, crucially for the implementation, makes the two stages share the <strong>same</strong> implicit coefficient. The TR stage implicitly multiplies <span class="math inline">\(L\)</span> by <span class="math inline">\(\gamma\Delta t/2\)</span> and the BDF2 stage by <span class="math inline">\((1-\gamma)/(2-\gamma)\,\Delta t\)</span>, and for <span class="math inline">\(\gamma = 2-\sqrt 2\)</span> both equal <span id="eq-trbdf2-alpha"><span class="math display">\[
+\alpha\,\Delta t, \qquad \alpha = \frac{\gamma}{2} = 1 - \frac{1}{\sqrt 2}.
+\tag{44}\]</span></span> Each stage is therefore a solve against the same matrix <span class="math inline">\(I - \alpha\Delta t\,L\)</span>, which is exactly the tridiagonal operator <span class="math inline">\(\tt{get\_transport\_coefs()}\)</span> builds at time step <span class="math inline">\(\alpha\Delta t\)</span>. The matrix is assembled once and the BDF2 stage reuses it; only the right-hand sides differ. Writing <span class="math inline">\(c_1 = (\sqrt 2 + 1)/2\)</span> and <span class="math inline">\(c_0 = (\sqrt 2 - 1)/2\)</span> (with <span class="math inline">\(c_1 - c_0 = 1\)</span>), the right-hand sides are <span id="eq-trbdf2-rhs"><span class="math display">\[
+\begin{aligned}
+S^{TR} &amp;= 2N^t - (I - \alpha\Delta t\,L)\,N^t + \gamma\Delta t\, q, \\
+S^{BDF2} &amp;= c_1 N^{t+\gamma} - c_0 N^t + \alpha\Delta t\, q.
+\end{aligned}
+\tag{45}\]</span></span> The first of these is the Crank-Nicolson right-hand side over the sub-step <span class="math inline">\(\gamma\Delta t\)</span>, so the TR stage reuses the existing corrector assembly.</p>
+<p>The nonlinear rates are treated exactly as in the predictor-corrector method: a provisional Euler predictor gives end-of-step rates, these are averaged with the start-of-step rates to obtain second-order midpoint rates, and the frozen operator <span class="math inline">\(L\)</span> uses those midpoint rates. The result is second order in <span class="math inline">\(\Delta t\)</span> for the full nonlinear dynamics while remaining L-stable, at the cost of one predictor solve, two stage solves and one rate recalculation per step.</p>
+<p>At a steady state the argument of the previous section applies unchanged: with <span class="math inline">\(N^t = N^{t+\gamma} = N^{t+1} = N^*\)</span> both stages reduce to <span class="math inline">\(L N^* + q = 0\)</span>. TR-BDF2 therefore has the same fixed point as the Euler and predictor-corrector methods and only changes the transient path.</p>
 </section><section class="level2"><h2 id="accuracy-comparison">Accuracy comparison<a class="anchor" aria-label="anchor" href="#accuracy-comparison"></a>
 </h2>
-<p>This vignette compares the first-order consumer density update, selected with <code>method = "euler"</code>, with the predictor-corrector update selected with <code>method = "predictor_corrector"</code>, on the North Sea example model <code>NS_params</code>.</p>
+<p>This vignette compares the first-order consumer density update, selected with <code>method = "euler"</code>, with the two second-order updates selected with <code>method = "predictor_corrector"</code> and <code>method = "tr_bdf2"</code>, on the North Sea example model <code>NS_params</code>.</p>
 <p>The comparison is intentionally modest. It is meant as a reproducible smoke test for speed and time-step sensitivity, not as a comprehensive benchmark.</p>
-<p>We compare final consumer spectra against a smaller-time-step reference solution from the predictor-corrector method. Because both methods use the same spatial discretisation, this test is only about the time discretisation error on the fixed <code>NS_params</code> weight grid.</p>
+<p>We compare final consumer spectra against a smaller-time-step reference solution from the TR-BDF2 method. Because all methods use the same spatial discretisation, this test is only about the time discretisation error on the fixed <code>NS_params</code> weight grid.</p>
 <div class="cell">
 <details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">t_max</span> <span class="op">&lt;-</span> <span class="fl">8</span></span>
-<span><span class="va">dt_values</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="fl">0.2</span>, <span class="fl">0.1</span>, <span class="fl">0.05</span>, <span class="fl">0.025</span><span class="op">)</span></span>
+<span><span class="va">dt_values</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.6</span>, <span class="fl">0.8</span>,<span class="fl">0.4</span>, <span class="fl">0.2</span>, <span class="fl">0.1</span>, <span class="fl">0.05</span>, <span class="fl">0.025</span><span class="op">)</span></span>
 <span><span class="va">reference_dt</span> <span class="op">&lt;-</span> <span class="fl">0.4</span> <span class="op">/</span> <span class="fl">2</span><span class="op">^</span><span class="fl">6</span></span>
 <span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="va">NS_params</span></span>
@@ -301,7 +334,7 @@ O(\Delta t^2) + O(\Delta w_j),
 <span>    <span class="va">params</span>,</span>
 <span>    dt <span class="op">=</span> <span class="va">reference_dt</span>,</span>
 <span>    t_max <span class="op">=</span> <span class="va">t_max</span>,</span>
-<span>    method <span class="op">=</span> <span class="st">"predictor_corrector"</span></span>
+<span>    method <span class="op">=</span> <span class="st">"tr_bdf2"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">accuracy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">dt_values</span>, <span class="kw">function</span><span class="op">(</span><span class="va">dt</span><span class="op">)</span> <span class="op">{</span></span>
@@ -309,22 +342,27 @@ O(\Delta t^2) + O(\Delta w_j),
 <span>                     method <span class="op">=</span> <span class="st">"euler"</span><span class="op">)</span></span>
 <span>    <span class="va">pc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, dt <span class="op">=</span> <span class="va">dt</span>, t_max <span class="op">=</span> <span class="va">t_max</span>, t_save <span class="op">=</span> <span class="va">t_max</span>,</span>
 <span>                  method <span class="op">=</span> <span class="st">"predictor_corrector"</span><span class="op">)</span></span>
+<span>    <span class="va">trbdf2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, dt <span class="op">=</span> <span class="va">dt</span>, t_max <span class="op">=</span> <span class="va">t_max</span>, t_save <span class="op">=</span> <span class="va">t_max</span>,</span>
+<span>                      method <span class="op">=</span> <span class="st">"tr_bdf2"</span><span class="op">)</span></span>
 <span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>        dt <span class="op">=</span> <span class="va">dt</span>,</span>
 <span>        euler_error <span class="op">=</span> <span class="fu">relative_l2_error</span><span class="op">(</span><span class="va">euler</span>, <span class="va">reference</span><span class="op">)</span>,</span>
-<span>        predictor_corrector_error <span class="op">=</span> <span class="fu">relative_l2_error</span><span class="op">(</span><span class="va">pc</span>, <span class="va">reference</span><span class="op">)</span></span>
+<span>        predictor_corrector_error <span class="op">=</span> <span class="fu">relative_l2_error</span><span class="op">(</span><span class="va">pc</span>, <span class="va">reference</span><span class="op">)</span>,</span>
+<span>        tr_bdf2_error <span class="op">=</span> <span class="fu">relative_l2_error</span><span class="op">(</span><span class="va">trbdf2</span>, <span class="va">reference</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">accuracy</span></span></code></pre></div>
 </details><div class="cell-output cell-output-stdout">
-<pre><code>     dt euler_error predictor_corrector_error
-1 0.400  0.06986846              0.2499180214
-2 0.200  0.07985741              0.0312481139
-3 0.100  0.06201718              0.0096656723
-4 0.050  0.03985931              0.0029264864
-5 0.025  0.02282481              0.0008933327</code></pre>
+<pre><code>     dt euler_error predictor_corrector_error tr_bdf2_error
+1 1.600  0.31609765              3.1447457513  0.1929676262
+2 0.800  0.15025862              1.5760514160  0.2165592058
+3 0.400  0.06986764              0.2499106400  0.0847116977
+4 0.200  0.07985591              0.0312476570  0.0310379094
+5 0.100  0.06201639              0.0096668324  0.0098381908
+6 0.050  0.03985901              0.0029286815  0.0029279979
+7 0.025  0.02282473              0.0008966127  0.0008793703</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -337,7 +375,8 @@ O(\Delta t^2) + O(\Delta w_j),
 <span>    pch <span class="op">=</span> <span class="fl">16</span>,</span>
 <span>    xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">Delta</span> <span class="op">*</span> <span class="va">t</span><span class="op">)</span>,</span>
 <span>    ylab <span class="op">=</span> <span class="st">"relative error in final consumer spectrum"</span>,</span>
-<span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">accuracy</span><span class="op">$</span><span class="va">euler_error</span>, <span class="va">accuracy</span><span class="op">$</span><span class="va">predictor_corrector_error</span><span class="op">)</span></span>
+<span>    ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">accuracy</span><span class="op">$</span><span class="va">euler_error</span>, <span class="va">accuracy</span><span class="op">$</span><span class="va">predictor_corrector_error</span>,</span>
+<span>                 <span class="va">accuracy</span><span class="op">$</span><span class="va">tr_bdf2_error</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span></span>
 <span>    <span class="va">predictor_corrector_error</span> <span class="op">~</span> <span class="va">dt</span>,</span>
@@ -346,11 +385,19 @@ O(\Delta t^2) + O(\Delta w_j),
 <span>    pch <span class="op">=</span> <span class="fl">17</span>,</span>
 <span>    col <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span></span>
+<span>    <span class="va">tr_bdf2_error</span> <span class="op">~</span> <span class="va">dt</span>,</span>
+<span>    data <span class="op">=</span> <span class="va">accuracy</span>,</span>
+<span>    type <span class="op">=</span> <span class="st">"b"</span>,</span>
+<span>    pch <span class="op">=</span> <span class="fl">15</span>,</span>
+<span>    col <span class="op">=</span> <span class="fl">4</span></span>
+<span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span></span>
 <span>    <span class="st">"bottomright"</span>,</span>
-<span>    legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'method = "euler"'</span>, <span class="st">'method = "predictor_corrector"'</span><span class="op">)</span>,</span>
-<span>    pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">16</span>, <span class="fl">17</span><span class="op">)</span>,</span>
-<span>    col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>,</span>
+<span>    legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'method = "euler"'</span>, <span class="st">'method = "predictor_corrector"'</span>,</span>
+<span>               <span class="st">'method = "tr_bdf2"'</span><span class="op">)</span>,</span>
+<span>    pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">16</span>, <span class="fl">17</span>, <span class="fl">15</span><span class="op">)</span>,</span>
+<span>    col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">4</span><span class="op">)</span>,</span>
 <span>    lty <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>    bty <span class="op">=</span> <span class="st">"n"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -363,29 +410,34 @@ O(\Delta t^2) + O(\Delta w_j),
 </div>
 <section class="level3"><h3 id="speed">Speed<a class="anchor" aria-label="anchor" href="#speed"></a>
 </h3>
-<p>The second-order method does roughly twice the work per time step. In the full predictor-corrector form it performs one predictor solve and then recalculates the rates before doing the corrector solve.</p>
+<p>The second-order methods do roughly twice the work per time step. The predictor-corrector method performs one predictor solve and then recalculates the rates before doing the corrector solve. TR-BDF2 performs the same predictor solve and rate recalculation, and then two stage solves against the shared operator, so it is marginally more expensive than the predictor-corrector method per step.</p>
+</section><section class="level3"><h3 id="the-resource-update">The resource update<a class="anchor" aria-label="anchor" href="#the-resource-update"></a>
+</h3>
+<p>Under the second-order methods the resource is also advanced to second order. The resource mortality <span class="math inline">\(\mu_R\)</span> depends on the consumer densities, so evaluating it only at the start of the step would make the resource update first order and cap the overall accuracy. Instead, the predictor step is used to form the same midpoint rates <span class="math inline">\(r^{t+1/2}\)</span> that drive the consumer corrector, and the resource is then advanced with the midpoint resource mortality <span id="eq-midpoint-resource-mort"><span class="math display">\[
+\mu_R^{t+1/2} = \tfrac{1}{2}\left(\mu_R^t + \hat\mu_R^{t+1}\right).
+\tag{46}\]</span></span> At a steady state <span class="math inline">\(r^t = \hat r^{t+1} = r^{t+1/2}\)</span>, so the resource corrector reproduces the predictor and the steady state is unchanged. With the default semi-chemostat resource dynamics, which already use the analytic solution for fixed mortality, the remaining resource error is small, but the midpoint mortality removes the first-order time-stepping component. The <code>euler</code> method keeps the first-order resource update.</p>
 </section><section class="level3"><h3 id="interpretation">Interpretation<a class="anchor" aria-label="anchor" href="#interpretation"></a>
 </h3>
-<p>On short runs the predictor-corrector method may not always show a clean second-order convergence slope because the comparison is affected by the fixed spatial grid, the first-order resource update, nonlinear rate feedbacks and ordinary timing noise.</p>
+<p>On short runs the second-order methods may not always show a clean second-order convergence slope because the comparison is affected by the fixed spatial grid, nonlinear rate feedbacks and ordinary timing noise. TR-BDF2 typically shows the cleanest slope of the three because, being L-stable, it does not ring at the larger time steps.</p>
 <p>Because the predictor-corrector method is more expensive per time step, the relevant comparison is between the Euler method at a given <code>dt</code> and the predictor-corrector method at twice the <code>dt</code> so that both have similar run times.</p>
 </section></section><section class="level2"><h2 id="numerical-diffusion-for-the-predictor-corrector-method">Numerical Diffusion for the Predictor-Corrector Method<a class="anchor" aria-label="anchor" href="#numerical-diffusion-for-the-predictor-corrector-method"></a>
 </h2>
 <p>The predictor-corrector method uses the same upwind approximation in size as the first-order method, so it still has numerical diffusion. However, the Crank-Nicolson corrector changes the time-stepping contribution to that diffusion.</p>
 <p>To see this, again consider the advection-only problem with constant growth rate <span class="math inline">\(g\)</span> on a locally uniform grid with spacing <span class="math inline">\(\Delta w\)</span>: <span id="eq-advection-only"><span class="math display">\[
 \frac{\partial N}{\partial t} + g\frac{\partial N}{\partial w} = 0.
-\tag{40}\]</span></span> With fixed rates, the corrector step reduces to the Crank-Nicolson upwind scheme <span id="eq-cn-upwind"><span class="math display">\[
+\tag{47}\]</span></span> With fixed rates, the corrector step reduces to the Crank-Nicolson upwind scheme <span id="eq-cn-upwind"><span class="math display">\[
 \frac{N_j^{t+1} - N_j^t}{\Delta t}
 + \frac{g}{2}
 \left[
 \frac{N_j^{t+1} - N_{j-1}^{t+1}}{\Delta w}
 + \frac{N_j^t - N_{j-1}^t}{\Delta w}
 \right] = 0.
-\tag{41}\]</span></span></p>
+\tag{48}\]</span></span></p>
 <p>Expand this equation about the midpoint <span class="math inline">\((w_j, t + \Delta t / 2)\)</span>. The centred time difference gives <span id="eq-cn-time-expansion"><span class="math display">\[
 \frac{N_j^{t+1} - N_j^t}{\Delta t}
 = \frac{\partial N}{\partial t}
 + O(\Delta t^2).
-\tag{42}\]</span></span> The average of the two upwind spatial differences gives <span id="eq-cn-space-expansion"><span class="math display">\[
+\tag{49}\]</span></span> The average of the two upwind spatial differences gives <span id="eq-cn-space-expansion"><span class="math display">\[
 \frac{1}{2}
 \left[
 \frac{N_j^{t+1} - N_{j-1}^{t+1}}{\Delta w}
@@ -394,43 +446,69 @@ O(\Delta t^2) + O(\Delta w_j),
 = \frac{\partial N}{\partial w}
 - \frac{\Delta w}{2}\frac{\partial^2 N}{\partial w^2}
 + O(\Delta w^2) + O(\Delta t^2).
-\tag{43}\]</span></span> Substituting these expansions into the scheme gives the modified equation <span id="eq-modified-eqn-pc"><span class="math display">\[
+\tag{50}\]</span></span> Substituting these expansions into the scheme gives the modified equation <span id="eq-modified-eqn-pc"><span class="math display">\[
 \frac{\partial N}{\partial t} + g\frac{\partial N}{\partial w}
 = \frac{g\Delta w}{2}\frac{\partial^2 N}{\partial w^2}
 + O(\Delta w^2) + O(\Delta t^2).
-\tag{44}\]</span></span> Thus the numerical diffusivity in the usual advection-diffusion form is <span id="eq-num-diffusivity-pc"><span class="math display">\[
+\tag{51}\]</span></span> Thus the numerical diffusivity in the usual advection-diffusion form is <span id="eq-num-diffusivity-pc"><span class="math display">\[
 D_{num}^{PC} = \frac{g\Delta w}{2}.
-\tag{45}\]</span></span> In the mizer notation, where the diffusion term is written with a factor <span class="math inline">\(1/2\)</span> inside the flux, this corresponds to the effective diffusion parameter <span id="eq-d-num-pc"><span class="math display">\[
+\tag{52}\]</span></span> In the mizer notation, where the diffusion term is written with a factor <span class="math inline">\(1/2\)</span> inside the flux, this corresponds to the effective diffusion parameter <span id="eq-d-num-pc"><span class="math display">\[
 d_{num}^{PC}(w) \approx g(w)\Delta w.
-\tag{46}\]</span></span> On the logarithmic grid this becomes <span id="eq-d-num-pc-log"><span class="math display">\[
+\tag{53}\]</span></span> On the logarithmic grid this becomes <span id="eq-d-num-pc-log"><span class="math display">\[
 d_{num}^{PC}(w) \approx g(w)w\log\beta.
-\tag{47}\]</span></span></p>
+\tag{54}\]</span></span></p>
 <p>Compared with the first-order semi-implicit scheme, <span id="eq-d-num-euler-compare"><span class="math display">\[
 d_{num}^{Euler}(w) \approx g(w)\Delta w + g(w)^2\Delta t,
-\tag{48}\]</span></span> the predictor-corrector method removes the leading artificial diffusion proportional to <span class="math inline">\(\Delta t\)</span>. The remaining numerical diffusion is the spatial upwind diffusion, proportional to <span class="math inline">\(\Delta w\)</span> or equivalently to <span class="math inline">\(\log\beta\)</span> on the logarithmic grid. This is why decreasing <span class="math inline">\(\Delta t\)</span> eventually stops improving the error much: once the time-stepping error is small, the spatial upwind error and other fixed discretisation errors dominate.</p>
-</section><section class="level2"><h2 id="steady-state-solution">Steady-State Solution<a class="anchor" aria-label="anchor" href="#steady-state-solution"></a>
+\tag{55}\]</span></span> the predictor-corrector method removes the leading artificial diffusion proportional to <span class="math inline">\(\Delta t\)</span>. The remaining numerical diffusion is the spatial upwind diffusion, proportional to <span class="math inline">\(\Delta w\)</span> or equivalently to <span class="math inline">\(\log\beta\)</span> on the logarithmic grid. This is why decreasing <span class="math inline">\(\Delta t\)</span> eventually stops improving the error much: once the time-stepping error is small, the spatial upwind error and other fixed discretisation errors dominate.</p>
+</section><section class="level2"><h2 id="reducing-the-spatial-error-flux-limiting">Reducing the Spatial Error: Flux Limiting<a class="anchor" aria-label="anchor" href="#reducing-the-spatial-error-flux-limiting"></a>
+</h2>
+<p>The spatial upwind diffusion <span class="math inline">\(d_{num}\approx g(w)\,w\log\beta\)</span> is the error that the second-order time methods <em>cannot</em> remove, and on a coarse logarithmic grid (a few hundred bins over many decades) it is not small. The <code>flux_limiter</code> argument of <code><a href="../reference/project.html">project()</a></code> reduces it. The default <code>flux_limiter = "none"</code> is the first-order upwind flux described above; <code>flux_limiter = "van_leer"</code> replaces it with a flux-limited high-order flux.</p>
+<section class="level3"><h3 id="the-limited-flux">The limited flux<a class="anchor" aria-label="anchor" href="#the-limited-flux"></a>
+</h3>
+<p>The first-order upwind advective flux at the interface <span class="math inline">\(w_j\)</span> is <span class="math inline">\(g_{j-1}N_{j-1}\)</span>. Its leading error is exactly the numerical diffusion above. The second-order <em>centred</em> flux <span class="math inline">\(\tfrac12(g_{j-1}N_{j-1}+g_jN_j)\)</span> has no such diffusion but is oscillatory at sharp features (and at the recruitment boundary). A <strong>flux limiter</strong> blends the two, <span id="eq-limited-flux"><span class="math display">\[
+J_j^{adv} = g_{j-1}N_{j-1}
++ \tfrac12\,\psi(r_j)\,\bigl(g_jN_j - g_{j-1}N_{j-1}\bigr),
+\qquad
+r_j = \frac{(gN)_{j-1}-(gN)_{j-2}}{(gN)_j-(gN)_{j-1}},
+\tag{56}\]</span></span> using the smoothness ratio <span class="math inline">\(r_j\)</span> of the advected quantity <span class="math inline">\(gN\)</span>. Mizer uses the van Leer limiter <span id="eq-van-leer"><span class="math display">\[
+\psi(r) = \frac{r+|r|}{1+|r|},
+\tag{57}\]</span></span> which is the centred flux (<span class="math inline">\(\psi\to1\)</span>) where the solution is smooth and switches to pure upwind (<span class="math inline">\(\psi=0\)</span>) at extrema and at the non-smooth recruitment boundary. This is a <em>total-variation-diminishing</em> (TVD) reconstruction, so it does not manufacture new oscillations.</p>
+</section><section class="level3"><h3 id="implicit-treatment-with-a-frozen-limiter">Implicit treatment with a frozen limiter<a class="anchor" aria-label="anchor" href="#implicit-treatment-with-a-frozen-limiter"></a>
+</h3>
+<p>The limiter <span class="math inline">\(\psi(r_j)\)</span> is evaluated from the densities at the start of the step (for the second-order methods, from the midpoint field), so it is a fixed number during the solve. With <span class="math inline">\(\psi\)</span> <em>frozen</em>, the limited flux <a href="#eq-limited-flux" class="quarto-xref">Equation 56</a> is still linear in the unknown densities <span class="math inline">\(N^{t+1}\)</span> and still couples only <span class="math inline">\(N_{j-1},N_j,N_{j+1}\)</span>. It can therefore be folded directly into the tridiagonal operator <span class="math inline">\(\tt{get\_transport\_coefs()}\)</span> builds, simply by modifying the advective parts of the coefficients, <span id="eq-limited-coefs"><span class="math display">\[
+\begin{aligned}
+A_j&amp;:\quad g_{j-1}\;\to\;g_{j-1}\bigl(1-\tfrac12\psi_j\bigr),\\
+B_j&amp;:\quad g_{j}\;\to\;g_{j}\bigl(1-\tfrac12\psi_j-\tfrac12\psi_{j+1}\bigr),\\
+C_j&amp;:\quad \text{gains } +\tfrac{\Delta t}{\Delta w_j}\,\tfrac12\psi_{j+1}g_{j+1},
+\end{aligned}
+\tag{58}\]</span></span> with the diffusion and mortality terms unchanged. Keeping the high-order flux <em>implicit</em> in this way is important: treating the extra (anti-diffusive) part explicitly on the right-hand side is only conditionally stable and breaks down for the lightly damped second-order time steppers, whereas the implicit form is stable for backward Euler and TR-BDF2 even with no physical diffusion.</p>
+<p>The price is that the new <span class="math inline">\(+\tfrac12\psi_{j+1}g_{j+1}\)</span> term in <span class="math inline">\(C_j\)</span> can be positive, so the operator is no longer an M-matrix and non-negativity is no longer guaranteed by construction. In practice the van Leer limiter keeps any undershoot at the level of rounding at sharp features, and the consumer update floors it to zero to preserve <span class="math inline">\(N\ge 0\)</span>.</p>
+</section><section class="level3"><h3 id="steady-state-and-reproduction">Steady state and reproduction<a class="anchor" aria-label="anchor" href="#steady-state-and-reproduction"></a>
+</h3>
+<p>Because the limiter lives in the coefficients <span class="math inline">\(A,B,C\)</span>, the steady-state machinery stays consistent automatically: <code><a href="../reference/getRequiredRDD.html">getRequiredRDD()</a></code> reads the (now limited) boundary coefficients, and <code><a href="../reference/get_steady_state_n.html">get_steady_state_n()</a></code> solves the same limited system. The one complication is that the limiter depends on the solution, so the steady state is found by iterating — freezing <span class="math inline">\(\psi\)</span> at the current iterate, solving the tridiagonal system, and repeating. At <span class="math inline">\(\Delta t=1\)</span> the limited steady operator is not diagonally dominant, so this fixed-point iteration is <em>under-relaxed</em> to make it converge. Both <code><a href="../reference/getRequiredRDD.html">getRequiredRDD()</a></code> and <code><a href="../reference/steadySingleSpecies.html">steadySingleSpecies()</a></code> take a <code>flux_limiter</code> argument so that a model can be set up at the steady state of exactly the scheme that <code><a href="../reference/project.html">project()</a></code> will use. For the second-order methods the provisional predictor step also uses the limiter, so that the frozen midpoint limiter is consistent at steady state and the steady state is preserved exactly.</p>
+</section></section><section class="level2"><h2 id="steady-state-solution">Steady-State Solution<a class="anchor" aria-label="anchor" href="#steady-state-solution"></a>
 </h2>
 <p>When solving the steady-state ODE instead of the time-dependent PDE, we are looking for a state where the population densities do not change over time, meaning <span class="math inline">\(N_j^{t+1} = N_j^t = N_j^*\)</span>.</p>
 <p>Substituting this into our discretised linear system: <span id="eq-ss-substitution"><span class="math display">\[
 A_j N_{j-1}^* + B_j N_j^* + C_j N_{j+1}^* = S_j
-\tag{49}\]</span></span> Recall that for <span class="math inline">\(j &gt; j_{min}\)</span>, <span class="math inline">\(S_j = N_j^t\)</span>. The equation simplifies to: <span id="eq-ss-simplified"><span class="math display">\[
+\tag{59}\]</span></span> Recall that for <span class="math inline">\(j &gt; j_{min}\)</span>, <span class="math inline">\(S_j = N_j^t\)</span>. The equation simplifies to: <span id="eq-ss-simplified"><span class="math display">\[
 A_j N_{j-1}^* + (B_j - 1) N_j^* + C_j N_{j+1}^* = 0
-\tag{50}\]</span></span></p>
+\tag{60}\]</span></span></p>
 <p>To find the steady-state population densities <span class="math inline">\(N^*\)</span>, we formulate a new time-independent tridiagonal system: <span id="eq-ss-tridiagonal"><span class="math display">\[
 \tilde{A}_j N_{j-1}^* + \tilde{B}_j N_j^* + \tilde{C}_j N_{j+1}^* = \tilde{S}_j
-\tag{51}\]</span></span> To eliminate the explicit dependence on the time step <span class="math inline">\(\Delta t\)</span>, we can divide the equation by <span class="math inline">\(\Delta t\)</span>. The modified coefficients <span class="math inline">\(\tilde{A}, \tilde{B}, \tilde{C}\)</span> defining the new tri-diagonal system are: <span id="eq-ss-coefficients"><span class="math display">\[
+\tag{61}\]</span></span> To eliminate the explicit dependence on the time step <span class="math inline">\(\Delta t\)</span>, we can divide the equation by <span class="math inline">\(\Delta t\)</span>. The modified coefficients <span class="math inline">\(\tilde{A}, \tilde{B}, \tilde{C}\)</span> defining the new tri-diagonal system are: <span id="eq-ss-coefficients"><span class="math display">\[
 \begin{aligned}
 \tilde{A}_j &amp;= \frac{A_j}{\Delta t} = -\frac{1}{\Delta w_j} \left( g_{j-1} + \frac{1}{2} \frac{d_{j-1}}{\Delta w_{j-1}} \right) \\
 \tilde{C}_j &amp;= \frac{C_j}{\Delta t} = -\frac{1}{\Delta w_j} \left( \frac{1}{2} \frac{d_{j+1}}{\Delta w_j} \right) \\
 \tilde{B}_j &amp;= \frac{B_j - 1}{\Delta t} = \mu_j + \frac{1}{\Delta w_j} \left( g_j + \frac{1}{2} \frac{d_j}{\Delta w_j} + \frac{1}{2} \frac{d_j}{\Delta w_{j-1}} \right)
 \end{aligned}
-\tag{52}\]</span></span> Notice that <span class="math inline">\(\tilde{A}_j\)</span> and <span class="math inline">\(\tilde{C}_j\)</span> are exactly the expressions for <span class="math inline">\(A_j\)</span> and <span class="math inline">\(C_j\)</span> evaluated at <span class="math inline">\(\Delta t = 1\)</span>. Similarly, <span class="math inline">\(\tilde{B}_j\)</span> is exactly the expression for <span class="math inline">\(B_j - 1\)</span> evaluated at <span class="math inline">\(\Delta t = 1\)</span>.</p>
+\tag{62}\]</span></span> Notice that <span class="math inline">\(\tilde{A}_j\)</span> and <span class="math inline">\(\tilde{C}_j\)</span> are exactly the expressions for <span class="math inline">\(A_j\)</span> and <span class="math inline">\(C_j\)</span> evaluated at <span class="math inline">\(\Delta t = 1\)</span>. Similarly, <span class="math inline">\(\tilde{B}_j\)</span> is exactly the expression for <span class="math inline">\(B_j - 1\)</span> evaluated at <span class="math inline">\(\Delta t = 1\)</span>.</p>
 <p><strong>Boundary conditions for the steady state:</strong></p>
 <p>For the smallest size (<span class="math inline">\(j=j_{min}\)</span>), the original equation had a source term due to recruitment: <span id="eq-ss-lower-bc-S"><span class="math display">\[
 S_{j_{min}} = N_{j_{min}}^t + \frac{\Delta t}{\Delta w_{j_{min}}} R_{dd}
-\tag{53}\]</span></span> Following the same logic of setting <span class="math inline">\(N^{t+1} = N^t = N^*\)</span> and dividing by <span class="math inline">\(\Delta t\)</span>, the right-hand side vector <span class="math inline">\(\tilde{S}_j\)</span> for the steady-state system becomes purely the recruitment flux term. If we again observe the original term <span class="math inline">\(\frac{\Delta t}{\Delta w_{j_{min}}} R_{dd}\)</span> when evaluated at <span class="math inline">\(\Delta t = 1\)</span>, we get our new source vector: <span id="eq-ss-lower-bc-Stilde"><span class="math display">\[
+\tag{63}\]</span></span> Following the same logic of setting <span class="math inline">\(N^{t+1} = N^t = N^*\)</span> and dividing by <span class="math inline">\(\Delta t\)</span>, the right-hand side vector <span class="math inline">\(\tilde{S}_j\)</span> for the steady-state system becomes purely the recruitment flux term. If we again observe the original term <span class="math inline">\(\frac{\Delta t}{\Delta w_{j_{min}}} R_{dd}\)</span> when evaluated at <span class="math inline">\(\Delta t = 1\)</span>, we get our new source vector: <span id="eq-ss-lower-bc-Stilde"><span class="math display">\[
 \tilde{S}_{j_{min}} = \frac{R_{dd}}{\Delta w_{j_{min}}}
-\tag{54}\]</span></span> For all other <span class="math inline">\(j &gt; j_{min}\)</span>, <span class="math inline">\(\tilde{S}_j = 0\)</span>.</p>
+\tag{64}\]</span></span> For all other <span class="math inline">\(j &gt; j_{min}\)</span>, <span class="math inline">\(\tilde{S}_j = 0\)</span>.</p>
 <p>The boundary condition modifications at the edges of the grid remain the same conceptually: <span class="math inline">\(\tilde{A}_{j_{min}} = 0\)</span>, the upward diffusion term is omitted from <span class="math inline">\(\tilde{B}_{j_{min}}\)</span>, and <span class="math inline">\(\tilde{C}_{j_{max}} = 0\)</span>. For any <span class="math inline">\(j &lt; j_{min}\)</span>, all matrix entries remain zero.</p>
 <p>In code, this means that the steady-state coefficients for the matrix multiplication (<span class="math inline">\(\tilde{A}, \tilde{B}, \tilde{C}\)</span>) and the constant vector (<span class="math inline">\(\tilde{S}\)</span>) can be calculated by calling the standard coefficient function but simply setting <span class="math inline">\(\Delta t = 1\)</span>, and dropping the <span class="math inline">\(+1\)</span> and <span class="math inline">\(+N_j^t\)</span> from the resulting <span class="math inline">\(B\)</span> and <span class="math inline">\(S\)</span> variables respectively.</p>
 <p>With these modified matrices, the steady-state densities can be calculated directly by solving the linear system avoiding the need to iterate step by step over time.</p>
@@ -439,13 +517,13 @@ S_{j_{min}} = N_{j_{min}}^t + \frac{\Delta t}{\Delta w_{j_{min}}} R_{dd}
 <p>The predictor-corrector method changes the time stepping, but it does not change the steady state that is obtained when the rates are evaluated at that steady state. To see this, write the Crank-Nicolson corrector with fixed midpoint rates as <span id="eq-cn-corrector-fixed"><span class="math display">\[
 \frac{N^{t+1} - N^t}{\Delta t}
 = \frac{1}{2}\left(L N^t + L N^{t+1}\right) + q,
-\tag{55}\]</span></span> where <span class="math inline">\(L\)</span> is the spatial transport-and-mortality operator built from the midpoint rates and <span class="math inline">\(q\)</span> is the recruitment source at the lower boundary. At a steady state, <span class="math inline">\(N^{t+1} = N^t = N^*\)</span>, so this becomes simply <span id="eq-ss-fixed-point"><span class="math display">\[
+\tag{65}\]</span></span> where <span class="math inline">\(L\)</span> is the spatial transport-and-mortality operator built from the midpoint rates and <span class="math inline">\(q\)</span> is the recruitment source at the lower boundary. At a steady state, <span class="math inline">\(N^{t+1} = N^t = N^*\)</span>, so this becomes simply <span id="eq-ss-fixed-point"><span class="math display">\[
 0 = L N^* + q.
-\tag{56}\]</span></span></p>
+\tag{66}\]</span></span></p>
 <p>Thus the predictor-corrector method has the same fixed-point equation as the first-order method. The predictor step also becomes irrelevant at the fixed point: if <span class="math inline">\(N^t = N^*\)</span>, then the predicted <span class="math inline">\(\hat{N}^{t+1}\)</span> is also <span class="math inline">\(N^*\)</span> up to the residual of the steady-state equation, so <span id="eq-ss-rates-equal"><span class="math display">\[
 r^t = \hat{r}^{t+1} = r^{t+1/2}, \qquad
 R_{dd}^t = \hat{R}_{dd}^{t+1} = R_{dd}^{t+1/2}.
-\tag{57}\]</span></span> The rates used in the steady-state calculation are therefore just the rates evaluated at <span class="math inline">\(N^*\)</span>. The predictor-corrector method affects the transient path to the steady state, not the steady state itself.</p>
+\tag{67}\]</span></span> The rates used in the steady-state calculation are therefore just the rates evaluated at <span class="math inline">\(N^*\)</span>. The predictor-corrector method affects the transient path to the steady state, not the steady state itself.</p>
 </section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);

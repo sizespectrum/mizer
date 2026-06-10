@@ -1,14 +1,24 @@
 #' Determine reproduction rate needed for initial egg abundance
 #'
 #' @param params A MizerParams object
+#' @param flux_limiter The spatial discretisation of the advective flux that the
+#'   simulation will use, either `"none"` (first-order upwind) or `"van_leer"`.
+#'   This must match the `flux_limiter` passed to [project()], because the
+#'   flux-limited correction changes the flux leaving the egg size class and
+#'   hence the reproduction required to hold the egg density steady. See
+#'   [project()].
+#' @param ... Unused.
 #' @return A vector of reproduction rates for all species
 #' @export
-getRequiredRDD <- function(params) {
+getRequiredRDD <- function(params, ...) {
     UseMethod("getRequiredRDD")
 }
 
 #' @export
-getRequiredRDD.MizerParams <- function(params) {
+getRequiredRDD.MizerParams <- function(params,
+                                       flux_limiter = c("none", "van_leer"),
+                                       ...) {
+    flux_limiter <- match.arg(flux_limiter)
     # Calculate required rdd
     no_sp <- nrow(params@species_params)
 
@@ -30,7 +40,8 @@ getRequiredRDD.MizerParams <- function(params) {
                                  g = r$e_growth,
                                  mu = r$mort, dt,
                                  recruitment_flux = numeric(no_sp),
-                                 d = r$diffusion)
+                                 d = r$diffusion,
+                                 flux_limiter = flux_limiter)
 
     reproduction <- params@species_params$erepro # vector of correct length
     names(reproduction) <- params@species_params$species
@@ -68,5 +79,9 @@ getRequiredRDD.MizerParams <- function(params) {
         total_rate <- a * n_prev + (b - 1) * n_current + c * n_next
         reproduction[i] <- total_rate * params@dw[w_min_idx] / dt
     }
+    # The flux limiter is folded into the coefficients a, b, c above (via
+    # `flux_limiter`), so the egg-cell balance already accounts for the
+    # high-order flux leaving the egg size class. This keeps getRequiredRDD()
+    # consistent with a project() call that uses the same `flux_limiter`.
     reproduction
 }

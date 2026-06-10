@@ -96,36 +96,78 @@ w2l <- function(w, species_params) {
 #' @param mu A matrix of mortality rates (species x size)
 #' @param D A matrix of diffusion rates (species x size)
 #' @param N0 A vector with the abundance at the smallest size for each species
+#' @param flux_limiter The spatial discretisation of the advective flux,
+#'   `"none"` (first-order upwind) or `"van_leer"`. With a flux limiter the
+#'   steady state must match the one that [project()] converges to with the same
+#'   `flux_limiter`. Because the limiter depends on the solution, the steady
+#'   state is then found by an under-relaxed Picard iteration: the limiter is
+#'   frozen at the current iterate, the resulting tridiagonal system is solved,
+#'   and the iterate is updated towards that solution, repeating until it
+#'   converges. (At `dt = 1` the limited operator is not diagonally dominant, so
+#'   the plain fixed-point map only stalls; under-relaxation makes it converge.)
+#'   See [project()].
+#' @param max_iterations Maximum number of Picard iterations used when a flux
+#'   limiter is active.
+#' @param tol Relative convergence tolerance for the Picard iteration.
+#' @param relax Under-relaxation factor in (0, 1] for the Picard iteration when a
+#'   flux limiter is active.
 #' @return A matrix with the steady state abundance
 #' @concept helper
-get_steady_state_n <- function(params, g, mu, D, N0) {
+get_steady_state_n <- function(params, g, mu, D, N0, flux_limiter = "none",
+                               max_iterations = 500, tol = 1e-10,
+                               relax = 0.3) {
     no_sp <- nrow(params@species_params)
     no_w <- length(params@w)
     n <- matrix(0, nrow = no_sp, ncol = no_w,
                 dimnames = list(params@species_params$species, dimnames(params@initial_n)[[2]]))
 
-    # Use get_transport_coefs to compute the coefficients with dt = 1
-    # and no recruitment flux (since we handle the boundary manually)
-    coefs <- get_transport_coefs(params, n, g, mu, dt = 1,
-                                 recruitment_flux = rep(0, no_sp),
-                                 d = D)
-
-    a <- coefs$a
-    # For steady state, the diagonal term \tilde{B} is B - 1
-    b <- coefs$b - 1
-    c <- coefs$c
-    S <- coefs$S
-
-    # Boundary conditions at the start of the size spectrum:
-    # A_j = 0, B_j = 1, C_j = 0, S_j = N0
     j_start <- params@w_min_idx
     idxs_start <- cbind(1:no_sp, j_start)
-    a[idxs_start] <- 0
-    b[idxs_start] <- 1
-    c[idxs_start] <- 0
-    S[idxs_start] <- N0
 
-    n <- project_n_loop(n, a, b, c, S, j_start)
+    for (iteration in seq_len(max_iterations)) {
+        # Coefficients with dt = 1 and no recruitment flux (the boundary is
+        # handled manually below). The flux limiter is frozen at the current
+        # iterate `n`; with flux_limiter = "none" this is the upwind operator and
+        # the loop exits after a single, exact solve.
+        coefs <- get_transport_coefs(params, n, g, mu, dt = 1,
+                                     recruitment_flux = rep(0, no_sp),
+                                     d = D, flux_limiter = flux_limiter)
+
+        a <- coefs$a
+        # For steady state, the diagonal term \tilde{B} is B - 1
+        b <- coefs$b - 1
+        c <- coefs$c
+        # Steady-state right-hand side: zero except the fixed egg density at the
+        # lower boundary. (We build this directly rather than reusing coefs$S,
+        # which equals the frozen iterate `n`.)
+        S <- matrix(0, nrow = no_sp, ncol = no_w, dimnames = dimnames(n))
+
+        # Boundary conditions at the start of the size spectrum:
+        # A_j = 0, B_j = 1, C_j = 0, S_j = N0
+        a[idxs_start] <- 0
+        b[idxs_start] <- 1
+        c[idxs_start] <- 0
+        S[idxs_start] <- N0
+
+        n_solve <- project_n_loop(matrix(0, nrow = no_sp, ncol = no_w,
+                                         dimnames = dimnames(n)),
+                                  a, b, c, S, j_start)
+
+        # Without a limiter the system is linear, so one solve is exact.
+        if (flux_limiter == "none") {
+            return(n_solve)
+        }
+
+        # Under-relax the update and keep the iterate non-negative (the limited
+        # operator is not an M-matrix, so a bare solve can dip slightly below 0).
+        n_new <- (1 - relax) * n + relax * n_solve
+        n_new[n_new < 0] <- 0
+        change <- max(abs(n_new - n)) / max(abs(n_new))
+        n <- n_new
+        if (is.finite(change) && change < tol) {
+            break
+        }
+    }
 
     return(n)
 }

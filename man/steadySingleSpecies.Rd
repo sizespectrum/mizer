@@ -7,7 +7,8 @@
 steadySingleSpecies(
   params,
   species = NULL,
-  keep = c("egg", "biomass", "number")
+  keep = c("egg", "biomass", "number"),
+  flux_limiter = c("none", "van_leer")
 )
 }
 \arguments{
@@ -22,6 +23,12 @@ whether it is to be selected (TRUE) or not.}
 choices are "egg" which keeps the egg density constant, "biomass" which
 keeps the total biomass of the species constant and "number" which keeps
 the total number of individuals constant.}
+
+\item{flux_limiter}{The spatial discretisation of the advective flux for
+which the steady state is computed, \code{"none"} (first-order upwind) or
+\code{"van_leer"}. This should match the \code{flux_limiter} that \code{\link[=project]{project()}} will
+use, so that the computed state is the steady state of the same scheme. See
+\code{\link[=project]{project()}}.}
 }
 \value{
 A MizerParams object in which the initial abundances of the selected

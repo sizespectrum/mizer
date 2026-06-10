@@ -21,15 +21,19 @@
 #' @param w_min_idx_array_ref Index vector for the start of the size spectrum for each species.
 #' @param no_sp Number of species.
 #' @param no_w Number of size bins.
-#' 
+#' @param flux_limiter Name of the flux limiter used for a deferred high-order
+#'   correction of the upwind advective flux, or `"none"` for plain first-order
+#'   upwind. See [project()].
+#'
 #' @return The updated abundance density matrix `n`.
 #' @seealso \code{\link{project}}, \code{\link{mizerRates}}
 #' @concept helper
 #' @export
 project_n <- function(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
-                      no_sp, no_w) {
+                      no_sp, no_w, flux_limiter = "none") {
     coefs <- get_transport_coefs(params, n, r$e_growth, r$mort, dt,
-                                 recruitment_flux = r$rdd, d = r$diffusion)
+                                 recruitment_flux = r$rdd, d = r$diffusion,
+                                 flux_limiter = flux_limiter)
     a <- coefs$a
     b <- coefs$b
     c <- coefs$c
@@ -41,6 +45,14 @@ project_n <- function(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
     
     # Note: project_n_loop takes j_start as argument
     n <- project_n_loop(n, a, b, c, S, params@w_min_idx)
+
+    # With the upwind flux the operator is an M-matrix and the update preserves
+    # non-negativity. The flux limiter adds high-order terms that break the
+    # M-matrix property, so the update can leave a tiny negative undershoot at
+    # sharp spectral features; floor it to keep mizer's N >= 0 invariant.
+    if (flux_limiter != "none") {
+        n[n < 0] <- 0
+    }
 
     n
 }
@@ -81,6 +93,9 @@ average_rates <- function(r, r_hat) {
 #'   used instead of recalculating them.
 #' @param r_mid Optional midpoint rates. If supplied, these are used directly in
 #'   the Crank-Nicolson corrector.
+#' @param n_hat Optional provisional end-of-step densities. When supplied with a
+#'   flux limiter, the limiter is frozen at the midpoint field `(n + n_hat) / 2`;
+#'   otherwise it falls back to the start-of-step `n`.
 #' @param ... Further arguments passed to the rate functions.
 #'
 #' @return The updated abundance density matrix `n`.
@@ -90,12 +105,14 @@ average_rates <- function(r, r_hat) {
 project_n_2 <- function(params, r, n, dt, a, b, c, S, idx,
                         w_min_idx_array_ref, no_sp, no_w, rates_fns = NULL,
                         n_pp = NULL, n_other = NULL, t = 0, effort = NULL,
-                        r_hat = NULL, r_mid = NULL, ...) {
+                        r_hat = NULL, r_mid = NULL, n_hat = NULL,
+                        flux_limiter = "none", ...) {
     if (is.null(r_mid)) {
         if (is.null(r_hat) && !is.null(rates_fns) && !is.null(n_pp) &&
             !is.null(n_other) && !is.null(effort)) {
             n_hat <- project_n(params, r, n, dt, a, b, c, S, idx,
-                               w_min_idx_array_ref, no_sp, no_w)
+                               w_min_idx_array_ref, no_sp, no_w,
+                               flux_limiter = flux_limiter)
             r_hat <- rates_fns$Rates(
                 params,
                 n = n_hat, n_pp = n_pp, n_other = n_other,
@@ -110,15 +127,24 @@ project_n_2 <- function(params, r, n, dt, a, b, c, S, idx,
         }
     }
 
-    coefs <- get_transport_coefs(params, n, r_mid$e_growth, r_mid$mort,
+    # Build the operator with the flux limiter frozen at the midpoint field, so
+    # the high-order flux is consistent with the second-order midpoint rates.
+    # project_n_2_rhs() then applies this same operator to the start-of-step
+    # densities, giving the high-order Crank-Nicolson right-hand side.
+    n_mid <- if (is.null(n_hat)) n else 0.5 * (n + n_hat)
+    coefs <- get_transport_coefs(params, n_mid, r_mid$e_growth, r_mid$mort,
                                  dt / 2, recruitment_flux = r_mid$rdd,
-                                 d = r_mid$diffusion)
+                                 d = r_mid$diffusion, flux_limiter = flux_limiter)
     a <- coefs$a
     b <- coefs$b
     c <- coefs$c
     S <- project_n_2_rhs(params, n, a, b, c, dt, r_mid$rdd)
 
-    project_n_loop(n, a, b, c, S, params@w_min_idx)
+    n_new <- project_n_loop(n, a, b, c, S, params@w_min_idx)
+    if (flux_limiter != "none") {
+        n_new[n_new < 0] <- 0
+    }
+    n_new
 }
 
 project_n_2_rhs <- function(params, n, a, b, c, dt, recruitment_flux) {
@@ -178,6 +204,9 @@ project_n_2_rhs <- function(params, n, a, b, c, dt, recruitment_flux) {
 #'   used instead of recalculating them.
 #' @param r_mid Optional midpoint rates. If supplied, these are used directly to
 #'   build the TR-BDF2 operator.
+#' @param n_hat Optional provisional end-of-step densities. When supplied with a
+#'   flux limiter, the limiter is frozen at the midpoint field `(n + n_hat) / 2`;
+#'   otherwise it falls back to the start-of-step `n`.
 #' @param ... Further arguments passed to the rate functions.
 #'
 #' @return The updated abundance density matrix `n`.
@@ -188,7 +217,7 @@ project_n_tr_bdf2 <- function(params, r, n, dt, a, b, c, S, idx,
                               w_min_idx_array_ref, no_sp, no_w,
                               rates_fns = NULL, n_pp = NULL, n_other = NULL,
                               t = 0, effort = NULL, r_hat = NULL, r_mid = NULL,
-                              ...) {
+                              n_hat = NULL, flux_limiter = "none", ...) {
     gamma <- 2 - sqrt(2)
     alpha <- 1 - 1 / sqrt(2)   # = gamma / 2; shared implicit coefficient
     c1 <- (sqrt(2) + 1) / 2
@@ -199,7 +228,8 @@ project_n_tr_bdf2 <- function(params, r, n, dt, a, b, c, S, idx,
         if (is.null(r_hat) && !is.null(rates_fns) && !is.null(n_pp) &&
             !is.null(n_other) && !is.null(effort)) {
             n_hat <- project_n(params, r, n, dt, a, b, c, S, idx,
-                               w_min_idx_array_ref, no_sp, no_w)
+                               w_min_idx_array_ref, no_sp, no_w,
+                               flux_limiter = flux_limiter)
             r_hat <- rates_fns$Rates(
                 params,
                 n = n_hat, n_pp = n_pp, n_other = n_other,
@@ -214,11 +244,14 @@ project_n_tr_bdf2 <- function(params, r, n, dt, a, b, c, S, idx,
         }
     }
 
-    # Build the shared implicit operator (I - alpha * dt * L) once, then take
-    # the two TR-BDF2 stages as tridiagonal solves against it.
-    coefs <- get_transport_coefs(params, n, r_mid$e_growth, r_mid$mort,
+    # Build the shared implicit operator (I - alpha * dt * L) once, with the flux
+    # limiter frozen at the midpoint field, then take the two TR-BDF2 stages as
+    # tridiagonal solves against it. The high-order flux is in the operator, so
+    # the stage right-hand sides need no separate correction.
+    n_mid <- if (is.null(n_hat)) n else 0.5 * (n + n_hat)
+    coefs <- get_transport_coefs(params, n_mid, r_mid$e_growth, r_mid$mort,
                                  dt * alpha, recruitment_flux = r_mid$rdd,
-                                 d = r_mid$diffusion)
+                                 d = r_mid$diffusion, flux_limiter = flux_limiter)
 
     # Stage 1: trapezoidal step over gamma * dt. Its right-hand side is the
     # Crank-Nicolson form, reusing project_n_2_rhs() with sub-step gamma * dt.
@@ -230,7 +263,12 @@ project_n_tr_bdf2 <- function(params, r, n, dt, a, b, c, S, idx,
     # Stage 2: BDF2 step using the same operator.
     S2 <- project_n_tr_bdf2_rhs(params, n, n_gamma, dt * alpha, r_mid$rdd,
                                 c1, c0)
-    project_n_loop(n_gamma, coefs$a, coefs$b, coefs$c, S2, params@w_min_idx)
+    n_new <- project_n_loop(n_gamma, coefs$a, coefs$b, coefs$c, S2,
+                            params@w_min_idx)
+    if (flux_limiter != "none") {
+        n_new[n_new < 0] <- 0
+    }
+    n_new
 }
 
 project_n_tr_bdf2_rhs <- function(params, n, n_gamma, dt_eff, recruitment_flux,

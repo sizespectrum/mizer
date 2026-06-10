@@ -502,6 +502,43 @@ d_{num}^{Euler}(w) \approx g(w)\Delta w + g(w)^2\Delta t,
 $$ {#eq-d-num-euler-compare}
 the predictor-corrector method removes the leading artificial diffusion proportional to $\Delta t$. The remaining numerical diffusion is the spatial upwind diffusion, proportional to $\Delta w$ or equivalently to $\log\beta$ on the logarithmic grid. This is why decreasing $\Delta t$ eventually stops improving the error much: once the time-stepping error is small, the spatial upwind error and other fixed discretisation errors dominate.
 
+## Reducing the Spatial Error: Flux Limiting
+
+The spatial upwind diffusion $d_{num}\approx g(w)\,w\log\beta$ is the error that the second-order time methods *cannot* remove, and on a coarse logarithmic grid (a few hundred bins over many decades) it is not small. The `flux_limiter` argument of `project()` reduces it. The default `flux_limiter = "none"` is the first-order upwind flux described above; `flux_limiter = "van_leer"` replaces it with a flux-limited high-order flux.
+
+### The limited flux
+
+The first-order upwind advective flux at the interface $w_j$ is $g_{j-1}N_{j-1}$. Its leading error is exactly the numerical diffusion above. The second-order *centred* flux $\tfrac12(g_{j-1}N_{j-1}+g_jN_j)$ has no such diffusion but is oscillatory at sharp features (and at the recruitment boundary). A **flux limiter** blends the two,
+$$
+J_j^{adv} = g_{j-1}N_{j-1}
++ \tfrac12\,\psi(r_j)\,\bigl(g_jN_j - g_{j-1}N_{j-1}\bigr),
+\qquad
+r_j = \frac{(gN)_{j-1}-(gN)_{j-2}}{(gN)_j-(gN)_{j-1}},
+$$ {#eq-limited-flux}
+using the smoothness ratio $r_j$ of the advected quantity $gN$. Mizer uses the van Leer limiter
+$$
+\psi(r) = \frac{r+|r|}{1+|r|},
+$$ {#eq-van-leer}
+which is the centred flux ($\psi\to1$) where the solution is smooth and switches to pure upwind ($\psi=0$) at extrema and at the non-smooth recruitment boundary. This is a *total-variation-diminishing* (TVD) reconstruction, so it does not manufacture new oscillations.
+
+### Implicit treatment with a frozen limiter
+
+The limiter $\psi(r_j)$ is evaluated from the densities at the start of the step (for the second-order methods, from the midpoint field), so it is a fixed number during the solve. With $\psi$ *frozen*, the limited flux @eq-limited-flux is still linear in the unknown densities $N^{t+1}$ and still couples only $N_{j-1},N_j,N_{j+1}$. It can therefore be folded directly into the tridiagonal operator $\tt{get\_transport\_coefs()}$ builds, simply by modifying the advective parts of the coefficients,
+$$
+\begin{aligned}
+A_j&:\quad g_{j-1}\;\to\;g_{j-1}\bigl(1-\tfrac12\psi_j\bigr),\\
+B_j&:\quad g_{j}\;\to\;g_{j}\bigl(1-\tfrac12\psi_j-\tfrac12\psi_{j+1}\bigr),\\
+C_j&:\quad \text{gains } +\tfrac{\Delta t}{\Delta w_j}\,\tfrac12\psi_{j+1}g_{j+1},
+\end{aligned}
+$$ {#eq-limited-coefs}
+with the diffusion and mortality terms unchanged. Keeping the high-order flux *implicit* in this way is important: treating the extra (anti-diffusive) part explicitly on the right-hand side is only conditionally stable and breaks down for the lightly damped second-order time steppers, whereas the implicit form is stable for backward Euler and TR-BDF2 even with no physical diffusion.
+
+The price is that the new $+\tfrac12\psi_{j+1}g_{j+1}$ term in $C_j$ can be positive, so the operator is no longer an M-matrix and non-negativity is no longer guaranteed by construction. In practice the van Leer limiter keeps any undershoot at the level of rounding at sharp features, and the consumer update floors it to zero to preserve $N\ge 0$.
+
+### Steady state and reproduction
+
+Because the limiter lives in the coefficients $A,B,C$, the steady-state machinery stays consistent automatically: `getRequiredRDD()` reads the (now limited) boundary coefficients, and `get_steady_state_n()` solves the same limited system. The one complication is that the limiter depends on the solution, so the steady state is found by iterating — freezing $\psi$ at the current iterate, solving the tridiagonal system, and repeating. At $\Delta t=1$ the limited steady operator is not diagonally dominant, so this fixed-point iteration is *under-relaxed* to make it converge. Both `getRequiredRDD()` and `steadySingleSpecies()` take a `flux_limiter` argument so that a model can be set up at the steady state of exactly the scheme that `project()` will use. For the second-order methods the provisional predictor step also uses the limiter, so that the frozen midpoint limiter is consistent at steady state and the steady state is preserved exactly.
+
 ## Steady-State Solution
 
 When solving the steady-state ODE instead of the time-dependent PDE, we are looking for a state where the population densities do not change over time, meaning $N_j^{t+1} = N_j^t = N_j^*$.

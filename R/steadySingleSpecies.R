@@ -25,6 +25,11 @@
 #'   choices are "egg" which keeps the egg density constant, "biomass" which
 #'   keeps the total biomass of the species constant and "number" which keeps
 #'   the total number of individuals constant.
+#' @param flux_limiter The spatial discretisation of the advective flux for
+#'   which the steady state is computed, `"none"` (first-order upwind) or
+#'   `"van_leer"`. This should match the `flux_limiter` that [project()] will
+#'   use, so that the computed state is the steady state of the same scheme. See
+#'   [project()].
 #' @return A MizerParams object in which the initial abundances of the selected
 #'   species are changed to their single-species steady state abundances.
 #' @export
@@ -32,14 +37,17 @@
 #' # Set initial abundance of Cod to its single-species steady state
 #' params <- steadySingleSpecies(NS_params, species = "Cod")
 steadySingleSpecies <- function(params, species = NULL,
-                                keep = c("egg", "biomass", "number")) {
+                                keep = c("egg", "biomass", "number"),
+                                flux_limiter = c("none", "van_leer")) {
     UseMethod("steadySingleSpecies")
 }
 #' @export
 steadySingleSpecies.MizerParams <- function(params, species = NULL,
-                                keep = c("egg", "biomass", "number")) {
+                                keep = c("egg", "biomass", "number"),
+                                flux_limiter = c("none", "van_leer")) {
     species <- valid_species_arg(params, species)
     keep <- match.arg(keep)
+    flux_limiter <- match.arg(flux_limiter)
 
     biomass <- getBiomass(params, use_cutoff = TRUE)
     number <- getN(params)
@@ -75,7 +83,8 @@ steadySingleSpecies.MizerParams <- function(params, species = NULL,
 
     # Calculate steady state for all species at once
     n_exact_matrix <- get_steady_state_n(params, growth_all, mort_all,
-                                         diffusion_all, N0_vec)
+                                         diffusion_all, N0_vec,
+                                         flux_limiter = flux_limiter)
 
     # Update initial_n for selected species
     for (sp in species) {

@@ -55,6 +55,15 @@ NULL
 #'   `"predictor_corrector"`. When `object` is a `MizerSim`, defaults to the
 #'   value used to produce that simulation. A warning is issued if
 #'   `append = TRUE` and the supplied value differs from the stored one.
+#' @param flux_limiter Controls the spatial discretisation of the advective
+#'   (growth) flux, independently of `method`. `"none"` (default) uses the
+#'   first-order upwind flux. `"van_leer"` adds a flux-limited (TVD) deferred
+#'   correction that removes the leading numerical diffusion
+#'   \eqn{\approx g\,w\,\log\beta} of the upwind flux while keeping the density
+#'   update a tridiagonal solve and preserving positivity. The correction is
+#'   most useful on coarse logarithmic grids and pairs naturally with the
+#'   second-order time methods. When `object` is a `MizerSim`, defaults to the
+#'   value used to produce that simulation.
 #' @param ... Other arguments will be passed to rate functions.
 #'
 #' @note The `effort` argument specifies the level of fishing effort during the
@@ -146,7 +155,8 @@ project <- function(object, effort,
                     initial_n, initial_n_pp,
                     append = TRUE,
                     progress_bar = TRUE,
-                    method = c("euler", "predictor_corrector", "tr_bdf2"), ...) {
+                    method = c("euler", "predictor_corrector", "tr_bdf2"),
+                    flux_limiter = c("none", "van_leer"), ...) {
     UseMethod("project")
 }
 
@@ -170,9 +180,11 @@ project.MizerParams <- function(object, effort,
                                 append = TRUE,
                                 progress_bar = TRUE,
                                 method = c("euler", "predictor_corrector", "tr_bdf2"),
+                                flux_limiter = c("none", "van_leer"),
                                 ...) {
     params <- validParams(object)
     method <- normalise_project_method(method)
+    flux_limiter <- match.arg(flux_limiter)
     # Set and check initial values ----
     assert_that(t_max > 0)
     if (!missing(initial_n)) params@initial_n[] <- initial_n
@@ -307,7 +319,8 @@ project.MizerParams <- function(object, effort,
     # Make the MizerSim object with the right size ----
     # We only save every t_save years
     sim <- MizerSim(params, t_dimnames = times)
-    sim@sim_params <- list(method = method, dt = dt)
+    sim@sim_params <- list(method = method, dt = dt,
+                           flux_limiter = flux_limiter)
     # Set initial population and effort
     sim@n[1, , ] <- initial_n
     sim@n_pp[1, ] <- initial_n_pp
@@ -352,7 +365,7 @@ project.MizerParams <- function(object, effort,
             resource_dynamics_fn = resource_dynamics_fn,
             other_dynamics_fns = other_dynamics_fns,
             rates_fns = rates_fns,
-            method = method, ...
+            method = method, flux_limiter = flux_limiter, ...
         )
         # Calculate start time for next iteration
         # The reason we don't simply use the next entry in `times` is that
@@ -382,19 +395,26 @@ project.MizerSim <- function(object, effort,
                              append = TRUE,
                              progress_bar = TRUE,
                              method = c("euler", "predictor_corrector", "tr_bdf2"),
+                             flux_limiter = c("none", "van_leer"),
                              ...) {
     validObject(object)
     stored <- object@sim_params
     dt_provided <- !missing(dt)
     method_provided <- !missing(method)
-    # Default dt and method to values used in the existing simulation
+    flux_limiter_provided <- !missing(flux_limiter)
+    # Default dt, method and flux_limiter to values used in the existing
+    # simulation
     if (!dt_provided && !is.null(stored$dt)) {
         dt <- stored$dt
     }
     if (!method_provided && !is.null(stored$method)) {
         method <- stored$method
     }
+    if (!flux_limiter_provided && !is.null(stored$flux_limiter)) {
+        flux_limiter <- stored$flux_limiter
+    }
     method <- normalise_project_method(method)
+    flux_limiter <- match.arg(flux_limiter)
     # Warn when appending with different numerical parameters
     if (append && length(stored) > 0) {
         if (!is.null(stored$dt) && !isTRUE(all.equal(dt, stored$dt))) {
@@ -406,6 +426,12 @@ project.MizerSim <- function(object, effort,
             warning("Appending a simulation run with method = '", method,
                     "' to one that used method = '", stored$method, "'.")
         }
+        if (!is.null(stored$flux_limiter) &&
+                flux_limiter != stored$flux_limiter) {
+            warning("Appending a simulation run with flux_limiter = '",
+                    flux_limiter, "' to one that used flux_limiter = '",
+                    stored$flux_limiter, "'.")
+        }
     }
     params <- finalParams(object)
     t_start <- getTimes(object)[idxFinalT(object)]
@@ -415,7 +441,7 @@ project.MizerSim <- function(object, effort,
         t_save = t_save, t_start = t_start,
         initial_n = initial_n, initial_n_pp = initial_n_pp,
         progress_bar = progress_bar,
-        method = method, ...
+        method = method, flux_limiter = flux_limiter, ...
     )
 
     if (append) {
@@ -493,6 +519,8 @@ project.MizerSim <- function(object, effort,
 #'   the rates. See Details.
 #' @param method The numerical method to use for the consumer density update.
 #'   See [project()].
+#' @param flux_limiter Spatial discretisation of the advective flux, `"none"`
+#'   or `"van_leer"`. See [project()].
 #' @param ... Other arguments that are passed on to the rate functions.
 #' @return List with the final values of `n`, `n_pp`, and `n_other`, together
 #'   with `rates`, the rates calculated at the start of the final update step.
@@ -502,7 +530,8 @@ project.MizerSim <- function(object, effort,
 project_simple <- function(params, n, n_pp, n_other, effort, t, dt, steps,
                            resource_dynamics_fn, other_dynamics_fns,
                            rates_fns,
-                           method = c("euler", "predictor_corrector", "tr_bdf2"), ...) {
+                           method = c("euler", "predictor_corrector", "tr_bdf2"),
+                           flux_limiter = c("none", "van_leer"), ...) {
     UseMethod("project_simple")
 }
 
@@ -517,8 +546,10 @@ project_simple.MizerParams <-
              resource_dynamics_fn = get(params@resource_dynamics),
              other_dynamics_fns = lapply(params@other_dynamics, get),
              rates_fns = projectRateFunctions(params),
-             method = c("euler", "predictor_corrector", "tr_bdf2"), ...) {
+             method = c("euler", "predictor_corrector", "tr_bdf2"),
+             flux_limiter = c("none", "van_leer"), ...) {
         method <- normalise_project_method(method)
+        flux_limiter <- match.arg(flux_limiter)
         # Handy things ----
         no_sp <- nrow(params@species_params) # number of species
         no_w <- length(params@w) # number of fish size bins
@@ -574,7 +605,8 @@ project_simple.MizerParams <-
                     resource_capacity = params@cc_pp, ...
                 )
                 n_hat <- project_n(params, r, n, dt, a, b, c, S, idx,
-                                   w_min_idx_array_ref, no_sp, no_w)
+                                   w_min_idx_array_ref, no_sp, no_w,
+                                   flux_limiter = flux_limiter)
                 # End-of-step rates from the prediction, then midpoint rates
                 r_hat <- rates_fns$Rates(
                     params,
@@ -596,11 +628,13 @@ project_simple.MizerParams <-
                 if (method == "predictor_corrector") {
                     n <- project_n_2(params, r, n, dt, a, b, c, S, idx,
                                      w_min_idx_array_ref, no_sp, no_w,
-                                     r_mid = r_mid)
+                                     r_mid = r_mid, n_hat = n_hat,
+                                     flux_limiter = flux_limiter)
                 } else {
                     n <- project_n_tr_bdf2(params, r, n, dt, a, b, c, S, idx,
                                            w_min_idx_array_ref, no_sp, no_w,
-                                           r_mid = r_mid)
+                                           r_mid = r_mid, n_hat = n_hat,
+                                           flux_limiter = flux_limiter)
                 }
             } else {
                 # First-order Euler method.
@@ -611,9 +645,10 @@ project_simple.MizerParams <-
                     resource_rate = params@rr_pp,
                     resource_capacity = params@cc_pp, ...
                 )
-                if (any(r$diffusion > 0)) {
+                if (any(r$diffusion > 0) || flux_limiter != "none") {
                     n <- project_n(params, r, n, dt, a, b, c, S, idx,
-                                   w_min_idx_array_ref, no_sp, no_w)
+                                   w_min_idx_array_ref, no_sp, no_w,
+                                   flux_limiter = flux_limiter)
                 } else {
                     n <- project_n_no_diffusion(params, r, n, dt, a, b, S, idx,
                                                 w_min_idx_array_ref, no_sp,

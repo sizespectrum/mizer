@@ -1,5 +1,16 @@
 # mizer (development version)
 
+- `project()` gains a `flux_limiter` argument that controls the spatial
+  discretisation of the growth (advection) term, independently of `method`.
+  The default `"none"` keeps the first-order upwind flux (unchanged results);
+  `"van_leer"` adds a flux-limited (TVD) high-order flux that removes most of
+  the upwind numerical diffusion (which scales like `g * w * log(beta)`) while
+  keeping the density update a tridiagonal solve and keeping abundances
+  non-negative. It is most useful on coarse logarithmic grids and pairs
+  naturally with the second-order time methods. `getRequiredRDD()` and
+  `steadySingleSpecies()` gain a matching `flux_limiter` argument so a model can
+  be set up at the steady state of the same scheme. See the "Numerical Details"
+  vignette.
 - `project()` gains a new time-stepping option `method = "tr_bdf2"`. This is an
   L-stable, second-order TR-BDF2 scheme that retains the second-order accuracy
   of `method = "predictor_corrector"` while damping the oscillations that the
