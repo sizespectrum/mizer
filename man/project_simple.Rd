@@ -16,7 +16,7 @@ project_simple(
   resource_dynamics_fn,
   other_dynamics_fns,
   rates_fns,
-  method = c("euler", "predictor_corrector"),
+  method = c("euler", "predictor_corrector", "tr_bdf2"),
   ...
 )
 }

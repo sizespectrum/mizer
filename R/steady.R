@@ -101,7 +101,7 @@ projectToSteady <- function(params,
                             return_sim = FALSE,
                             progress_bar = TRUE,
                             info_level = 3,
-                            method = c("euler", "predictor_corrector"), ...) {
+                            method = c("euler", "predictor_corrector", "tr_bdf2"), ...) {
     UseMethod("projectToSteady")
 }
 #' @export
@@ -115,7 +115,7 @@ projectToSteady.MizerParams <- function(params,
                             return_sim = FALSE,
                             progress_bar = TRUE,
                             info_level = 3,
-                            method = c("euler", "predictor_corrector"), ...) {
+                            method = c("euler", "predictor_corrector", "tr_bdf2"), ...) {
     params <- validParams(params)
     method <- normalise_project_method(method)
     effort <- validEffortVector(effort, params = params)
@@ -280,7 +280,7 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
                    preserve = c("reproduction_level", "erepro", "R_max"),
                    progress_bar = TRUE,
                    info_level = 3,
-                   method = c("euler", "predictor_corrector")) {
+                   method = c("euler", "predictor_corrector", "tr_bdf2")) {
     UseMethod("steady")
 }
 
@@ -290,7 +290,7 @@ steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
                    preserve = c("reproduction_level", "erepro", "R_max"),
                    progress_bar = TRUE,
                    info_level = 3,
-                   method = c("euler", "predictor_corrector")) {
+                   method = c("euler", "predictor_corrector", "tr_bdf2")) {
     method <- normalise_project_method(method)
     
     if (params@rates_funcs$RDD == "BevertonHoltRDD") {

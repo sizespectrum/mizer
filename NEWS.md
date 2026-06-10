@@ -1,5 +1,11 @@
 # mizer (development version)
 
+- `project()` gains a new time-stepping option `method = "tr_bdf2"`. This is an
+  L-stable, second-order TR-BDF2 scheme that retains the second-order accuracy
+  of `method = "predictor_corrector"` while damping the oscillations that the
+  Crank-Nicolson corrector can show at large time steps. Like the other methods
+  it only requires tridiagonal solves. See the "Numerical Details" vignette.
+
 # mizer 3.0.0
 
 This release brings new biological realism, improved numerics, a richer 
