@@ -193,6 +193,37 @@ $\ln\beta/(\beta-1)\to 1$ and the integrands tend to their node values, so the
 bin-integrated kernels reduce to the original point-sampled kernels and the
 schemes agree in the continuum limit.
 
+### Why this makes the rates second order
+
+It is worth being precise about *why* integrating the kernel over the bin lifts
+the rates from first to second order, because it relies on what the discrete
+densities represent. In mizer's finite-volume scheme each $N_j$ is the **average**
+of the density over the $j$-th bin (see `vignette("numerical_details")`), so the
+bin average is exact for the zeroth moment,
+$$
+\int_{w_j}^{w_{j+1}} \bigl(N(w_p) - N_j\bigr)\,dw_p = 0 .
+$$
+The encounter rate is an integral $\int N(w_p)\,K(w_p)\,dw_p$ against the *smooth*
+weight $K(w_p) = \tilde\phi_i(w_n/w_p)\,w_p$ (and likewise the predation rate is an
+integral over predator size against $K(w)=\tilde\phi_i(w/w_p)$). The bin-integrated
+scheme replaces $N$ by its bin average and integrates $K$ over the bin *exactly*,
+so the error contributed by bin $j$ is
+$$
+\int_{w_j}^{w_{j+1}} \bigl(N(w_p) - N_j\bigr)\,K(w_p)\,dw_p
+ = \int_{w_j}^{w_{j+1}} \bigl(N(w_p) - N_j\bigr)\,\bigl(K(w_p) - \bar K_j\bigr)\,dw_p ,
+$$
+where the second form uses the zero-mean property to subtract any constant
+$\bar K_j$. Both factors vary by $O(\Delta x)$ across the bin, so the per-bin error
+is $O(\Delta x^3)$ and, summed over the $O(1/\Delta x)$ bins, the total error is
+$O(\Delta x^2)$ — second order.
+
+The rectangle rule forfeits exactly this cancellation: by point-sampling the
+kernel at the node it does **not** integrate the smooth weight $K$ over the bin,
+which reintroduces an $O(\Delta x)$ error — the systematic $(\beta+1)/2$ bias seen
+above. So, given the finite-volume (bin-average) densities, it is the treatment of
+the kernel that determines whether the encounter and predation rate quadratures
+are first or second order, and the bin-integrated kernels make them second order.
+
 For a general kernel the integrals $\Phi^E_i[m]$ and $\Phi^P_i[m]$ have no closed
 form, so mizer evaluates them once, when the kernels are built in
 `setPredKernel()`, using a composite quadrature over each bin. For the default

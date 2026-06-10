@@ -42,7 +42,9 @@ This grid defines a set of bins. The $j$-th bin is the interval $[w_j, w_{j+1})$
 $$ \Delta w_j = w_{j+1} - w_j = w_j (10^{\Delta x} - 1). $$ {#eq-bin-width}
 Note that $\Delta w_j$ increases with $w_j$, which is appropriate for a logarithmic grid.
 
-The number density $N(w)$ is approximated by a constant value $N_j$ within each bin. Thus $N_j$ represents the density at the start of the bin $w_j$. The number of individuals in the $j$-th bin is $N_j \Delta w_j$.
+In the finite-volume scheme used by mizer, the discrete value $N_j$ represents the **average** of the number density $N(w)$ over the $j$-th bin,
+$$ N_j = \frac{1}{\Delta w_j} \int_{w_j}^{w_{j+1}} N(w)\, dw, $$ {#eq-bin-average}
+so that the number of individuals in the $j$-th bin is exactly $N_j \Delta w_j$. Note that $N_j$ is the bin average, not the point value of the density at the bin boundary $w_j$.
 
 ## The Transport Equation
 
