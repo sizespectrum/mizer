@@ -33,6 +33,19 @@
   per-capita investment is averaged together (not `psi` alone) to capture the
   variation of both factors across the bin. The default (left-edge) behaviour
   is unchanged.
+  
+- When the `bin_average` entry of the `second_order_w` slot is `TRUE`,
+  `setResource()` now builds the auto-calculated resource rate
+  \eqn{r_p w^{n-1}} and carrying capacity \eqn{\kappa w^{-\lambda}} from their
+  exact bin averages over each size bin instead of point-sampling at the left
+  bin edge, with the bin straddling `w_pp_cutoff` getting the partial average.
+  This makes the unpredated semichemostat equilibrium equal to the cell-average
+  of the background spectrum that the bin-integrated encounter convolution (#374)
+  consumes. Only auto-calculated (scalar) rates and capacities are affected;
+  user-supplied full vectors are left untouched, and the default
+  (point-sampled) behaviour is unchanged. Note that enabling this shifts the
+  resource spectrum by `O(Δw)` (more on coarse grids), so calibrated models may
+  need recalibrating.
 
 - `project()` gains a new time-stepping option `method = "tr_bdf2"`. This is an
   L-stable, second-order TR-BDF2 scheme that retains the second-order accuracy
